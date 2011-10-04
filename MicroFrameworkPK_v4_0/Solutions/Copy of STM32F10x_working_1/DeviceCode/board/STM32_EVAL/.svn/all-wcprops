@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL
+END
+Release_Notes_for_STM32_EVAL.html
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/Release_Notes_for_STM32_EVAL.html
+END
+stm32_eval.c
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/stm32_eval.c
+END
+stm32_eval.h
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/stm32_eval.h
+END

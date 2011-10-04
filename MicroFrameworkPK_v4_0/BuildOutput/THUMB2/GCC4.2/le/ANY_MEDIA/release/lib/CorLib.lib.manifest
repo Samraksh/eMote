@@ -1,0 +1,51 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+
+<PropertyGroup>
+    <Name>CorLib</Name>
+    <ProjectFile>dotnetmf.proj</ProjectFile>
+    <Version>4.0.1681.0</Version>
+    <Platform>STM32F10x</Platform>
+    <PlatformFamily>ARM</PlatformFamily>
+    <InstructionSet>THUMB2</InstructionSet>
+    <Compiler>GCC</Compiler>
+    <CompilerVersion>GCC4.2</CompilerVersion>
+    <TargetLocation>FLASH</TargetLocation>
+    <MemoryFlavor>FLASH</MemoryFlavor>
+    <Processor>CortexM3</Processor>
+    <TargetPlatform>STM32F10x</TargetPlatform>
+    <Codebase>CortexM3</Codebase>
+    <CodebaseType>Native</CodebaseType>
+    <Company>Microsoft Corporation</Company>
+    <Copyright>Copyright (C) Microsoft Corporation.  All rights reserved.</Copyright>
+    <FileVersion>4.0.1681.0</FileVersion>
+    <Configuration>release</Configuration>
+    <Product>Microsoft .NET Micro Framework</Product>
+    <Trademark>.NET is a trademark of Microsoft Corporation.</Trademark>
+    <AssemblyName>CorLib</AssemblyName>
+    <ProjectGuid>BFA1A6B0-BA5F-4FF8-85AB-0AFFFB9B4543</ProjectGuid>
+    <Description>Subset of mscorlib</Description>
+    <Level>CLR</Level>
+    <LibraryFile>CorLib.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\CLR\Libraries\CorLib\dotNetMF.proj</ProjectPath>
+    <ManifestFile>CorLib.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Core</Groups>
+    <PlatformIndependent>True</PlatformIndependent>
+    <Required>true</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>CLR\Libraries\CorLib</Directory>
+    <OutputType>Library</OutputType>
+    <HasAuxTargets>true</HasAuxTargets>
+    <VCProjName>Lib_CorLib</VCProjName>
+    <HasAuxTargets>true</HasAuxTargets>
+    <NoOptForParserTarget>Release</NoOptForParserTarget>
+    <PlatformIndependentBuild>true</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+</PropertyGroup>
+
+<ItemGroup>
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\release\obj\CLR\Libraries\CorLib\CorLib_fastcompile.obj" />
+</ItemGroup>
+
+<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_CLR.libcatproj"/>
+</Project>

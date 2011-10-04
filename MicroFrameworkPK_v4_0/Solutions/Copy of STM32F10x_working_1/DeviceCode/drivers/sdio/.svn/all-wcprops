@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/sdio
+END
+stm32f10x_sdio.c
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/sdio/stm32f10x_sdio.c
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/sdio/dotNetMF.proj
+END
+stm32f10x_sdio.h
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/sdio/stm32f10x_sdio.h
+END

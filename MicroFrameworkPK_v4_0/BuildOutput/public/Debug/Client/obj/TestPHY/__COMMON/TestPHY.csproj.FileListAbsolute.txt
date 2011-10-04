@@ -1,0 +1,12 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\TestPHY.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\TestPHY.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.Resources.resources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.csproj.GenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.Resources.tinyresources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.csproj.TinyGenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\TestPHY\__COMMON\TestPHY.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\TestPHY.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\TestPHY.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\TestPHY.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\TestPHY.dump

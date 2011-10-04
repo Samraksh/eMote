@@ -1,0 +1,22 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Author>
+    </Author>
+    <Description>Renesas SH7619 Sample platform </Description>
+    <Documentation>
+    </Documentation>
+    <PlatformGuid>{AF12ADD8-7C0F-4974-B743-00A4BD2BEBC0}</PlatformGuid>
+    <TARGETPLATFORM>SH7619_NATIVE_LE</TARGETPLATFORM>
+    <PLATFORM>SH7619_NATIVE_LE</PLATFORM>
+    <ENDIANNESS>le</ENDIANNESS>
+
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
+    <NO_BOOTLOADER_COMPRESSION>true</NO_BOOTLOADER_COMPRESSION>
+    <DEVICE_TYPE Condition="'$(DEVICE_TYPE)' == ''">SH2</DEVICE_TYPE>    
+   
+  </PropertyGroup>
+  <ItemGroup>
+    <IncludePaths Include="Solutions\SH7619_NATIVE_LE" />
+  </ItemGroup>
+  <Import Project="$(SPOCLIENT)\devicecode\Targets\native\SH2\SH2.settings" />
+</Project>

@@ -1,0 +1,20 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Author>
+    </Author>
+    <Description>
+    </Description>
+    <Documentation>
+    </Documentation>
+    <PlatformGuid>{5a3917c0-fe31-4591-9cb2-cf79245c62a6}</PlatformGuid>
+    <TARGETPLATFORM>FX</TARGETPLATFORM>
+    <PLATFORM>FX</PLATFORM>
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
+    <ENDIANNESS>le</ENDIANNESS>
+    <NO_BOOTLOADER_COMPRESSION>TRUE</NO_BOOTLOADER_COMPRESSION>
+  </PropertyGroup>
+  <ItemGroup>
+    <IncludePaths Include="Solutions\FX" />
+  </ItemGroup>
+  <Import Project="$(SPOCLIENT)\devicecode\Targets\OS\NucleusOS\NucleusOS.settings" />
+</Project>

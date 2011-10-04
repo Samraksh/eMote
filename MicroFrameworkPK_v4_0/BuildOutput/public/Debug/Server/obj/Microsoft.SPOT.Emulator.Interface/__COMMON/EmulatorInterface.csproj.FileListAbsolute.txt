@@ -1,0 +1,4 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Emulator.Interface.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Emulator.Interface.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Emulator.Interface\__COMMON\Microsoft.SPOT.Emulator.Interface.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Emulator.Interface\__COMMON\Microsoft.SPOT.Emulator.Interface.pdb

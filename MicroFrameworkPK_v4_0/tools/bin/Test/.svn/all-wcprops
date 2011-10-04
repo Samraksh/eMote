@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test
+END
+MFDeployEngine.dll
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/MFDeployEngine.dll
+END
+MFDpwsTCGen.exe
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/MFDpwsTCGen.exe
+END
+MFDeployBasicTests.exe
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/MFDeployBasicTests.exe
+END
+MFDpwsTCGen.exe.config
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/MFDpwsTCGen.exe.config
+END
+MFProfiler.exe
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/MFProfiler.exe
+END
+Microsoft.SPOT.Debugger.dll
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/Microsoft.SPOT.Debugger.dll
+END
+Microsoft.SPOT.Tasks.dll
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/Microsoft.SPOT.Tasks.dll
+END
+RunTests.exe
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/RunTests.exe
+END
+RunTests.exe.config
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/samraksh/mftrunk/!svn/ver/1/tools/bin/Test/RunTests.exe.config
+END

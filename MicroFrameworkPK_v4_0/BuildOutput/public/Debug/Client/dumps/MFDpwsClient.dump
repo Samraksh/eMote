@@ -1,0 +1,547 @@
+Assembly: MFDpwsClient (4.0.1681.0)
+
+Size: AssemblyRef         96 byte(s)      8 item(s) [Runtime:     32]
+Size: TypeRef            624 byte(s)     78 item(s) [Runtime:    312]
+Size: FieldRef           136 byte(s)     17 item(s) [Runtime:     68]
+Size: MethodRef         1304 byte(s)    163 item(s) [Runtime:    652]
+Size: TypeDef            696 byte(s)     29 item(s) [Runtime:    232]
+Size: FieldDef           584 byte(s)     73 item(s) [Runtime:    146]
+Size: MethodDef         2464 byte(s)    154 item(s) [Runtime:    308]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             4 byte(s)      1 item(s)
+Size: Resources Files      0 byte(s)      0 item(s)
+Size: Resources            0 byte(s)      0 item(s)
+Size: ResourcesData        0 byte(s)
+Size: Strings           7941 byte(s)
+Size: Signatures        1415 byte(s)
+Size: ByteCode          8765 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.0.1681.0)
+AssemblyRef: 0001[00000088] MFWsStack (4.0.1681.0)
+AssemblyRef: 0002[00000094] System.Xml (4.0.1681.0)
+AssemblyRef: 0003[000000a0] System (4.0.1681.0)
+AssemblyRef: 0004[000000ac] System.Http (4.0.1681.0)
+AssemblyRef: 0005[000000b8] MFDpwsExtensions (4.0.1681.0)
+AssemblyRef: 0006[000000c4] System.IO (4.0.1681.0)
+AssemblyRef: 0007[000000d0] Microsoft.SPOT.Native (4.0.1681.0)
+
+TypeRef 0000[000000dc] [Scope: 0000] System Object
+TypeRef 0001[000000e4] [Scope: 0001] Ws.Services IWsServiceEndpoint
+TypeRef 0002[000000ec] [Scope: 0000] System IDisposable
+TypeRef 0003[000000f4] [Scope: 0000] System Enum
+TypeRef 0004[000000fc] [Scope: 0000] System MulticastDelegate
+TypeRef 0005[00000104] [Scope: 0001] Ws.Services WsServiceOperations
+TypeRef 0006[0000010c] [Scope: 0001] Ws.Services.Mtom WsMtomBodyParts
+TypeRef 0007[00000114] [Scope: 0001] Ws.Services.Soap WsMessageType
+TypeRef 0008[0000011c] [Scope: 0001] Ws.Services WsServiceEndpoints
+TypeRef 0009[00000124] [Scope: 0001] Ws.Services.Transport.UDP WsUdpServiceHost
+TypeRef 000a[0000012c] [Scope: 0001] Ws.Services.Transport.HTTP WsHttpServiceHost
+TypeRef 000b[00000134] [Scope: 0001] Ws.Services.WsaAddressing WsWsaHeader
+TypeRef 000c[0000013c] [Scope: 0002] System.Xml XmlReader
+TypeRef 000d[00000144] [Scope: 0000] System.Collections ArrayList
+TypeRef 000e[0000014c] [Scope: 0003] System.Net IPEndPoint
+TypeRef 000f[00000154] [Scope: 0000] System Random
+TypeRef 0010[0000015c] [Scope: 0003] System.Net.Sockets Socket
+TypeRef 0011[00000164] [Scope: 0001] Ws.Services.WsaAddressing WsWsaEndpointRef
+TypeRef 0012[0000016c] [Scope: 0001] Ws.Services.Transport WsMessageCheck
+TypeRef 0013[00000174] [Scope: 0000] System IAsyncResult
+TypeRef 0014[0000017c] [Scope: 0000] System AsyncCallback
+TypeRef 0015[00000184] [Scope: 0001] Ws.Services.Xml WsXmlNode
+TypeRef 0016[0000018c] [Scope: 0004] System Uri
+TypeRef 0017[00000194] [Scope: 0001] Ws.Services.Utilities WsDuration
+TypeRef 0018[0000019c] [Scope: 0005] System.Ext.Xml XmlWriter
+TypeRef 0019[000001a4] [Scope: 0001] Ws.Services.WsaAddressing WsWsaEndpointRefs
+TypeRef 001a[000001ac] [Scope: 0001] Ws.Services.Transport.HTTP WsHttpClient
+TypeRef 001b[000001b4] [Scope: 0001] Ws.Services.Soap WsMessage
+TypeRef 001c[000001bc] [Scope: 0001] Ws.Services.Mtom WsMtomParams
+TypeRef 001d[000001c4] [Scope: 0000] System Delegate
+TypeRef 001e[000001cc] [Scope: 0000] System Guid
+TypeRef 001f[000001d4] [Scope: 0000] System String
+TypeRef 0020[000001dc] [Scope: 0005] System.Ext Console
+TypeRef 0021[000001e4] [Scope: 0001] Ws.Services WsServiceOperation
+TypeRef 0022[000001ec] [Scope: 0001] Ws.Services.Transport WsNetworkServices
+TypeRef 0023[000001f4] [Scope: 0000] System.Threading Monitor
+TypeRef 0024[000001fc] [Scope: 0000] System ArgumentNullException
+TypeRef 0025[00000204] [Scope: 0000] System ArgumentException
+TypeRef 0026[0000020c] [Scope: 0000] System Exception
+TypeRef 0027[00000214] [Scope: 0000] System Int32
+TypeRef 0028[0000021c] [Scope: 0000] System GC
+TypeRef 0029[00000224] [Scope: 0000] System Type
+TypeRef 002a[0000022c] [Scope: 0000] System.Reflection MethodInfo
+TypeRef 002b[00000234] [Scope: 0000] System.Reflection MethodBase
+TypeRef 002c[0000023c] [Scope: 0001] Ws.Services.Faults WsFaultException
+TypeRef 002d[00000244] [Scope: 0001] Ws.Services.Faults WsFaultType
+TypeRef 002e[0000024c] [Scope: 0004] System UriKind
+TypeRef 002f[00000254] [Scope: 0002] System.Xml XmlNodeType
+TypeRef 0030[0000025c] [Scope: 0000] System Char
+TypeRef 0031[00000264] [Scope: 0000] System.Text UTF8Encoding
+TypeRef 0032[0000026c] [Scope: 0000] System.Text Encoding
+TypeRef 0033[00000274] [Scope: 0003] System.Net.Sockets AddressFamily
+TypeRef 0034[0000027c] [Scope: 0003] System.Net.Sockets SocketType
+TypeRef 0035[00000284] [Scope: 0003] System.Net.Sockets ProtocolType
+TypeRef 0036[0000028c] [Scope: 0003] System.Net IPAddress
+TypeRef 0037[00000294] [Scope: 0003] System.Net EndPoint
+TypeRef 0038[0000029c] [Scope: 0003] System.Net.Sockets SocketOptionLevel
+TypeRef 0039[000002a4] [Scope: 0003] System.Net.Sockets SocketOptionName
+TypeRef 003a[000002ac] [Scope: 0000] System Byte
+TypeRef 003b[000002b4] [Scope: 0000] System DateTime
+TypeRef 003c[000002bc] [Scope: 0003] System.Net.Sockets SocketFlags
+TypeRef 003d[000002c4] [Scope: 0003] System.Net.Sockets SocketException
+TypeRef 003e[000002cc] [Scope: 0000] System.Threading Thread
+TypeRef 003f[000002d4] [Scope: 0001] Ws.Services.Utilities DebugTiming
+TypeRef 0040[000002dc] [Scope: 0006] System.IO MemoryStream
+TypeRef 0041[000002e4] [Scope: 0000] System.IO Stream
+TypeRef 0042[000002ec] [Scope: 0001] Ws.Services WsWellKnownUri
+TypeRef 0043[000002f4] [Scope: 0001] Ws.Services.Xml WsXmlNodeList
+TypeRef 0044[000002fc] [Scope: 0001] Ws.Services.Xml WsXmlNamespaces
+TypeRef 0045[00000304] [Scope: 0001] Ws.Services.Xml WsXmlNamespace
+TypeRef 0046[0000030c] [Scope: 0001] Ws.Services WsSoapMessageWriter
+TypeRef 0047[00000314] [Scope: 8046]  Prefixes
+TypeRef 0048[0000031c] [Scope: 8046]  AppSequence
+TypeRef 0049[00000324] [Scope: 0002] System.Xml XmlException
+TypeRef 004a[0000032c] [Scope: 0001] Ws.Services XmlReaderHelper
+TypeRef 004b[00000334] [Scope: 0007] Microsoft.SPOT Debug
+TypeRef 004c[0000033c] [Scope: 0001] Ws.Services WsSoapMessageParser
+TypeRef 004d[00000344] [Scope: 0001] Ws.Services.Mtom WsMtom
+
+FieldRef 0000[0000034c] [Type: 0009] IgnoreRequestFromThisIP [FIELD BOOLEAN]
+FieldRef 0001[00000354] [Type: 0021] MethodName [FIELD STRING]
+FieldRef 0002[0000035c] [Type: 001f] Empty [FIELD STRING]
+FieldRef 0003[00000364] [Type: 0036] Any [FIELD CLASS [01000036]]
+FieldRef 0004[0000036c] [Type: 0011] Address [FIELD CLASS [01000016]]
+FieldRef 0005[00000374] [Type: 0011] RefProperties [FIELD CLASS [01000043]]
+FieldRef 0006[0000037c] [Type: 0011] RefParameters [FIELD CLASS [01000043]]
+FieldRef 0007[00000384] [Type: 0017] DurationString [FIELD STRING]
+FieldRef 0008[0000038c] [Type: 0015] Prefix [FIELD STRING]
+FieldRef 0009[00000394] [Type: 0015] LocalName [FIELD STRING]
+FieldRef 000a[0000039c] [Type: 0015] NamespaceURI [FIELD STRING]
+FieldRef 000b[000003a4] [Type: 001a] SendTimeOut [FIELD I4]
+FieldRef 000c[000003ac] [Type: 001a] ReceiveTimeout [FIELD I4]
+FieldRef 000d[000003b4] [Type: 001c] start [FIELD STRING]
+FieldRef 000e[000003bc] [Type: 001c] boundary [FIELD STRING]
+FieldRef 000f[000003c4] [Type: 001b] Message [FIELD SZARRAY U1]
+FieldRef 0010[000003cc] [Type: 001b] BodyParts [FIELD CLASS [01000006]]
+
+MethodRef 0000[000003d4] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0001[000003dc] [Type: 0005] .ctor [METHOD VOID()]
+MethodRef 0002[000003e4] [Type: 001d] Combine [METHOD CLASS [0100001d]( CLASS [0100001d], CLASS [0100001d] )]
+MethodRef 0003[000003ec] [Type: 001d] Remove [METHOD CLASS [0100001d]( CLASS [0100001d], CLASS [0100001d] )]
+MethodRef 0004[000003f4] [Type: 0008] Remove [METHOD VOID( CLASS [01000001] )]
+MethodRef 0005[000003fc] [Type: 0008] Add [METHOD I4( CLASS [01000001] )]
+MethodRef 0006[00000404] [Type: 001e] NewGuid [METHOD VALUETYPE [0100001e]()]
+MethodRef 0007[0000040c] [Type: 001f] Concat [METHOD STRING( OBJECT, OBJECT )]
+MethodRef 0008[00000414] [Type: 0009] .ctor [METHOD VOID( CLASS [01000008] )]
+MethodRef 0009[0000041c] [Type: 0009] get_IsRunning [METHOD BOOLEAN()]
+MethodRef 000a[00000424] [Type: 0009] set_MaxThreadCount [METHOD VOID( I4 )]
+MethodRef 000b[0000042c] [Type: 0009] Start [METHOD VOID()]
+MethodRef 000c[00000434] [Type: 0020] Write [METHOD VOID( STRING )]
+MethodRef 000d[0000043c] [Type: 0021] .ctor [METHOD VOID( STRING, STRING )]
+MethodRef 000e[00000444] [Type: 0005] Add [METHOD I4( CLASS [01000021] )]
+MethodRef 000f[0000044c] [Type: 000a] .ctor [METHOD VOID( I4, CLASS [01000008] )]
+MethodRef 0010[00000454] [Type: 0008] get_Count [METHOD I4()]
+MethodRef 0011[0000045c] [Type: 000a] set_MaxThreadCount [METHOD VOID( I4 )]
+MethodRef 0012[00000464] [Type: 000a] Start [METHOD VOID()]
+MethodRef 0013[0000046c] [Type: 0022] GetLocalIPV4Address [METHOD STRING()]
+MethodRef 0014[00000474] [Type: 0023] Enter [METHOD VOID( OBJECT )]
+MethodRef 0015[0000047c] [Type: 0023] Exit [METHOD VOID( OBJECT )]
+MethodRef 0016[00000484] [Type: 0024] .ctor [METHOD VOID( STRING, STRING )]
+MethodRef 0017[0000048c] [Type: 0016] .ctor [METHOD VOID( STRING )]
+MethodRef 0018[00000494] [Type: 0025] .ctor [METHOD VOID( STRING, CLASS [01000026] )]
+MethodRef 0019[0000049c] [Type: 001f] Substring [METHOD STRING( I4 )]
+MethodRef 001a[000004a4] [Type: 001f] Concat [METHOD STRING( SZARRAY OBJECT )]
+MethodRef 001b[000004ac] [Type: 0028] SuppressFinalize [METHOD VOID( OBJECT )]
+MethodRef 001c[000004b4] [Type: 000a] Stop [METHOD VOID()]
+MethodRef 001d[000004bc] [Type: 0009] Stop [METHOD VOID()]
+MethodRef 001e[000004c4] [Type: 000b] get_Action [METHOD STRING()]
+MethodRef 001f[000004cc] [Type: 0005] get_Item [METHOD CLASS [01000021]( STRING )]
+MethodRef 0020[000004d4] [Type: 0000] GetType [METHOD CLASS [01000029]()]
+MethodRef 0021[000004dc] [Type: 0029] GetMethod [METHOD CLASS [0100002a]( STRING )]
+MethodRef 0022[000004e4] [Type: 001f] Concat [METHOD STRING( STRING, STRING, STRING )]
+MethodRef 0023[000004ec] [Type: 002b] Invoke [METHOD OBJECT( OBJECT, SZARRAY OBJECT )]
+MethodRef 0024[000004f4] [Type: 000b] get_To [METHOD STRING()]
+MethodRef 0025[000004fc] [Type: 001f] Concat [METHOD STRING( STRING, STRING, STRING, STRING )]
+MethodRef 0026[00000504] [Type: 002c] .ctor [METHOD VOID( CLASS [0100000b], VALUETYPE [0100002d], STRING )]
+MethodRef 0027[0000050c] [Type: 0008] .ctor [METHOD VOID()]
+MethodRef 0028[00000514] [Type: 0016] IsWellFormedUriString [METHOD BOOLEAN( STRING, VALUETYPE [0100002e] )]
+MethodRef 0029[0000051c] [Type: 001f] LastIndexOf [METHOD I4( STRING )]
+MethodRef 002a[00000524] [Type: 001f] IndexOf [METHOD I4( CHAR )]
+MethodRef 002b[0000052c] [Type: 001f] Substring [METHOD STRING( I4, I4 )]
+MethodRef 002c[00000534] [Type: 000c] LookupNamespace [METHOD STRING( STRING )]
+MethodRef 002d[0000053c] [Type: 000d] .ctor [METHOD VOID()]
+MethodRef 002e[00000544] [Type: 000c] ReadStartElement [METHOD VOID()]
+MethodRef 002f[0000054c] [Type: 000c] MoveToContent [METHOD VALUETYPE [0100002f]()]
+MethodRef 0030[00000554] [Type: 000c] get_Value [METHOD STRING()]
+MethodRef 0031[0000055c] [Type: 001f] Split [METHOD SZARRAY STRING( SZARRAY CHAR )]
+MethodRef 0032[00000564] [Type: 000d] Add [METHOD I4( OBJECT )]
+MethodRef 0033[0000056c] [Type: 000c] Read [METHOD BOOLEAN()]
+MethodRef 0034[00000574] [Type: 000c] ReadEndElement [METHOD VOID()]
+MethodRef 0035[0000057c] [Type: 000d] get_Count [METHOD I4()]
+MethodRef 0036[00000584] [Type: 000d] get_Item [METHOD OBJECT( I4 )]
+MethodRef 0037[0000058c] [Type: 001f] op_Equality [METHOD BOOLEAN( STRING, STRING )]
+MethodRef 0038[00000594] [Type: 000d] Clear [METHOD VOID()]
+MethodRef 0039[0000059c] [Type: 000d] Remove [METHOD VOID( OBJECT )]
+MethodRef 003a[000005a4] [Type: 000c] ReadStartElement [METHOD VOID( STRING, STRING )]
+MethodRef 003b[000005ac] [Type: 000c] ReadElementString [METHOD STRING( STRING, STRING )]
+MethodRef 003c[000005b4] [Type: 000c] IsStartElement [METHOD BOOLEAN( STRING, STRING )]
+MethodRef 003d[000005bc] [Type: 000c] ReadToNextSibling [METHOD BOOLEAN( STRING, STRING )]
+MethodRef 003e[000005c4] [Type: 001f] Concat [METHOD STRING( SZARRAY STRING )]
+MethodRef 003f[000005cc] [Type: 0026] .ctor [METHOD VOID( STRING )]
+MethodRef 0040[000005d4] [Type: 000e] .ctor [METHOD VOID( I8, I4 )]
+MethodRef 0041[000005dc] [Type: 000f] .ctor [METHOD VOID()]
+MethodRef 0042[000005e4] [Type: 0031] .ctor [METHOD VOID()]
+MethodRef 0043[000005ec] [Type: 0032] GetChars [METHOD SZARRAY CHAR( SZARRAY U1 )]
+MethodRef 0044[000005f4] [Type: 001f] .ctor [METHOD VOID( SZARRAY CHAR )]
+MethodRef 0045[000005fc] [Type: 001a] .ctor [METHOD VOID()]
+MethodRef 0046[00000604] [Type: 001a] SendRequest [METHOD SZARRAY U1( SZARRAY U1, STRING, BOOLEAN, BOOLEAN )]
+MethodRef 0047[0000060c] [Type: 001f] Concat [METHOD STRING( STRING, STRING )]
+MethodRef 0048[00000614] [Type: 0032] get_UTF8 [METHOD CLASS [01000032]()]
+MethodRef 0049[0000061c] [Type: 0026] get_Message [METHOD STRING()]
+MethodRef 004a[00000624] [Type: 0012] .ctor [METHOD VOID()]
+MethodRef 004b[0000062c] [Type: 0010] .ctor [METHOD VOID( VALUETYPE [01000033], VALUETYPE [01000034], VALUETYPE [01000035] )]
+MethodRef 004c[00000634] [Type: 000e] .ctor [METHOD VOID( CLASS [01000036], I4 )]
+MethodRef 004d[0000063c] [Type: 0010] Bind [METHOD VOID( CLASS [01000037] )]
+MethodRef 004e[00000644] [Type: 0036] Parse [METHOD CLASS [01000036]( STRING )]
+MethodRef 004f[0000064c] [Type: 0036] GetAddressBytes [METHOD SZARRAY U1()]
+MethodRef 0050[00000654] [Type: 0010] SetSocketOption [METHOD VOID( VALUETYPE [01000038], VALUETYPE [01000039], I4 )]
+MethodRef 0051[0000065c] [Type: 003b] get_Now [METHOD VALUETYPE [0100003b]()]
+MethodRef 0052[00000664] [Type: 003b] get_Ticks [METHOD I8()]
+MethodRef 0053[0000066c] [Type: 0010] get_Available [METHOD I4()]
+MethodRef 0054[00000674] [Type: 0010] ReceiveFrom [METHOD I4( SZARRAY U1, I4, VALUETYPE [0100003c], BYREF CLASS [01000037] )]
+MethodRef 0055[0000067c] [Type: 003d] get_ErrorCode [METHOD I4()]
+MethodRef 0056[00000684] [Type: 000e] get_Address [METHOD CLASS [01000036]()]
+MethodRef 0057[0000068c] [Type: 0000] ToString [METHOD STRING()]
+MethodRef 0058[00000694] [Type: 003e] Sleep [METHOD VOID( I4 )]
+MethodRef 0059[0000069c] [Type: 0010] Close [METHOD VOID()]
+MethodRef 005a[000006a4] [Type: 001f] Concat [METHOD STRING( OBJECT, OBJECT, OBJECT )]
+MethodRef 005b[000006ac] [Type: 003f] .ctor [METHOD VOID()]
+MethodRef 005c[000006b4] [Type: 003f] ResetStartTime [METHOD I8( STRING )]
+MethodRef 005d[000006bc] [Type: 0040] .ctor [METHOD VOID()]
+MethodRef 005e[000006c4] [Type: 0018] Create [METHOD CLASS [01000018]( CLASS [01000041] )]
+MethodRef 005f[000006cc] [Type: 0042] get_WsdNamespaceUri [METHOD STRING()]
+MethodRef 0060[000006d4] [Type: 000b] .ctor [METHOD VOID( STRING, STRING, STRING, STRING, STRING, CLASS [01000043] )]
+MethodRef 0061[000006dc] [Type: 0044] .ctor [METHOD VOID()]
+MethodRef 0062[000006e4] [Type: 0044] LookupPrefix [METHOD STRING( STRING )]
+MethodRef 0063[000006ec] [Type: 0045] .ctor [METHOD VOID( STRING, STRING )]
+MethodRef 0064[000006f4] [Type: 0044] Add [METHOD I4( CLASS [01000045] )]
+MethodRef 0065[000006fc] [Type: 0046] WriteSoapMessageStart [METHOD STRING( CLASS [01000018], VALUETYPE [01000047], CLASS [01000044], CLASS [0100000b], CLASS [01000048] )]
+MethodRef 0066[00000704] [Type: 003f] PrintElapsedTime [METHOD VOID( STRING )]
+MethodRef 0067[0000070c] [Type: 0018] WriteStartElement [METHOD VOID( STRING, STRING, STRING )]
+MethodRef 0068[00000714] [Type: 001f] get_Length [METHOD I4()]
+MethodRef 0069[0000071c] [Type: 0018] WriteString [METHOD VOID( STRING )]
+MethodRef 006a[00000724] [Type: 0018] WriteEndElement [METHOD VOID()]
+MethodRef 006b[0000072c] [Type: 0046] WriteSoapMessageEnd [METHOD VOID( CLASS [01000018] )]
+MethodRef 006c[00000734] [Type: 003f] PrintTotalTime [METHOD VOID( I8, STRING )]
+MethodRef 006d[0000073c] [Type: 0018] Flush [METHOD VOID()]
+MethodRef 006e[00000744] [Type: 0018] Close [METHOD VOID()]
+MethodRef 006f[0000074c] [Type: 0040] ToArray [METHOD SZARRAY U1()]
+MethodRef 0070[00000754] [Type: 000f] Next [METHOD I4( I4 )]
+MethodRef 0071[0000075c] [Type: 0010] SendTo [METHOD I4( SZARRAY U1, I4, VALUETYPE [0100003c], CLASS [01000037] )]
+MethodRef 0072[00000764] [Type: 0042] set_WsdNamespaceUri [METHOD VOID( STRING )]
+MethodRef 0073[0000076c] [Type: 0049] .ctor [METHOD VOID()]
+MethodRef 0074[00000774] [Type: 0011] .ctor [METHOD VOID( CLASS [0100000c] )]
+MethodRef 0075[0000077c] [Type: 000c] Skip [METHOD VOID()]
+MethodRef 0076[00000784] [Type: 000c] ReadElementString [METHOD STRING()]
+MethodRef 0077[0000078c] [Type: 004a] SkipAllSiblings [METHOD VOID( CLASS [0100000c] )]
+MethodRef 0078[00000794] [Type: 004b] Assert [METHOD VOID( BOOLEAN )]
+MethodRef 0079[0000079c] [Type: 000c] get_Depth [METHOD I4()]
+MethodRef 007a[000007a4] [Type: 004a] HasReadCompleteNode [METHOD BOOLEAN( I4, CLASS [0100000c] )]
+MethodRef 007b[000007ac] [Type: 0016] get_AbsoluteUri [METHOD STRING()]
+MethodRef 007c[000007b4] [Type: 000d] Contains [METHOD BOOLEAN( OBJECT )]
+MethodRef 007d[000007bc] [Type: 004c] ParseSoapMessage [METHOD CLASS [0100000c]( SZARRAY U1, BYREF CLASS [0100000b] )]
+MethodRef 007e[000007c4] [Type: 001f] op_Inequality [METHOD BOOLEAN( STRING, STRING )]
+MethodRef 007f[000007cc] [Type: 000b] get_MessageID [METHOD STRING()]
+MethodRef 0080[000007d4] [Type: 0012] IsDuplicate [METHOD BOOLEAN( STRING, STRING )]
+MethodRef 0081[000007dc] [Type: 000b] get_RelatesTo [METHOD STRING()]
+MethodRef 0082[000007e4] [Type: 000c] Close [METHOD VOID()]
+MethodRef 0083[000007ec] [Type: 001f] IndexOf [METHOD I4( STRING )]
+MethodRef 0084[000007f4] [Type: 0026] get_StackTrace [METHOD STRING()]
+MethodRef 0085[000007fc] [Type: 0024] .ctor [METHOD VOID( STRING )]
+MethodRef 0086[00000804] [Type: 0011] .ctor [METHOD VOID( CLASS [01000016] )]
+MethodRef 0087[0000080c] [Type: 0043] Add [METHOD I4( CLASS [01000015] )]
+MethodRef 0088[00000814] [Type: 0017] .ctor [METHOD VOID( STRING )]
+MethodRef 0089[0000081c] [Type: 0043] GetNode [METHOD CLASS [01000015]( STRING, STRING )]
+MethodRef 008a[00000824] [Type: 0015] get_Value [METHOD STRING()]
+MethodRef 008b[0000082c] [Type: 0016] get_Scheme [METHOD STRING()]
+MethodRef 008c[00000834] [Type: 0018] WriteAttributeString [METHOD VOID( STRING, STRING )]
+MethodRef 008d[0000083c] [Type: 0016] get_Host [METHOD STRING()]
+MethodRef 008e[00000844] [Type: 0049] .ctor [METHOD VOID( STRING )]
+MethodRef 008f[0000084c] [Type: 0043] get_Count [METHOD I4()]
+MethodRef 0090[00000854] [Type: 0043] get_Item [METHOD CLASS [01000015]( I4 )]
+MethodRef 0091[0000085c] [Type: 0043] .ctor [METHOD VOID()]
+MethodRef 0092[00000864] [Type: 0015] .ctor [METHOD VOID( STRING, STRING, STRING, STRING )]
+MethodRef 0093[0000086c] [Type: 000b] get_Any [METHOD CLASS [01000043]()]
+MethodRef 0094[00000874] [Type: 0043] GetNodeValue [METHOD STRING( STRING, STRING )]
+MethodRef 0095[0000087c] [Type: 0016] get_AbsolutePath [METHOD STRING()]
+MethodRef 0096[00000884] [Type: 000c] MoveToAttribute [METHOD BOOLEAN( STRING )]
+MethodRef 0097[0000088c] [Type: 000c] MoveToElement [METHOD BOOLEAN()]
+MethodRef 0098[00000894] [Type: 0019] .ctor [METHOD VOID()]
+MethodRef 0099[0000089c] [Type: 0019] Add [METHOD I4( CLASS [01000011] )]
+MethodRef 009a[000008a4] [Type: 0019] get_Count [METHOD I4()]
+MethodRef 009b[000008ac] [Type: 0019] get_Item [METHOD CLASS [01000011]( CLASS [01000016] )]
+MethodRef 009c[000008b4] [Type: 001c] .ctor [METHOD VOID()]
+MethodRef 009d[000008bc] [Type: 0006] get_Boundary [METHOD STRING()]
+MethodRef 009e[000008c4] [Type: 0006] set_Boundary [METHOD VOID( STRING )]
+MethodRef 009f[000008cc] [Type: 0006] get_Start [METHOD STRING()]
+MethodRef 00a0[000008d4] [Type: 004d] .ctor [METHOD VOID()]
+MethodRef 00a1[000008dc] [Type: 004d] CreateMessage [METHOD SZARRAY U1( CLASS [01000006] )]
+MethodRef 00a2[000008e4] [Type: 001a] SendRequest [METHOD CLASS [0100001b]( SZARRAY U1, STRING, BOOLEAN, BOOLEAN, CLASS [0100001c] )]
+
+TypeDef 0000[000008ec] [Extends: 8004] [Enclosed: ffff] [Flags: 00000481] Dpws.Client.Discovery ByeEventHandler
+TypeDef 0001[00000904] [Extends: 8000] [Enclosed: ffff] [Flags: 00001041] Dpws.Client.Discovery DiscoveryVersion
+TypeDef 0002[0000091c] [Extends: 0001] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DiscoveryVersion10
+TypeDef 0003[00000934] [Extends: 0001] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DiscoveryVersion11
+TypeDef 0004[0000094c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] Dpws.Client.Discovery DpwsDiscoClientProcessor
+TypeDef 0005[00000964] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] Dpws.Client.Discovery DpwsDiscoClientService
+TypeDef 0006[0000097c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsDiscoveryClient
+TypeDef 0007[00000994] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsMetadata
+TypeDef 0008[000009ac] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsMexClient
+TypeDef 0009[000009c4] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsMexService
+TypeDef 000a[000009dc] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsMexServices
+TypeDef 000b[000009f4] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsRelationship
+TypeDef 000c[00000a0c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsServiceDescription
+TypeDef 000d[00000a24] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsServiceDescriptions
+TypeDef 000e[00000a3c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsThisDevice
+TypeDef 000f[00000a54] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Discovery DpwsThisModel
+TypeDef 0010[00000a6c] [Extends: 8004] [Enclosed: ffff] [Flags: 00000481] Dpws.Client.Discovery HelloEventHandler
+TypeDef 0011[00000a84] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client DpwsClient
+TypeDef 0012[00000a9c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client DpwsServiceType
+TypeDef 0013[00000ab4] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client DpwsServiceTypes
+TypeDef 0014[00000acc] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Eventing DpwsEventSubscription
+TypeDef 0015[00000ae4] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Eventing DpwsEventingClient
+TypeDef 0016[00000afc] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Eventing DpwsSubscribeRequest
+TypeDef 0017[00000b14] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Eventing SubscriptionEndEventArgs
+TypeDef 0018[00000b2c] [Extends: 8004] [Enclosed: ffff] [Flags: 00000481] Dpws.Client.Eventing SubscriptionEndEventHandler
+TypeDef 0019[00000b44] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Transport DpwsHttpClient
+TypeDef 001a[00000b5c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Dpws.Client.Transport DpwsSoapResponse
+TypeDef 001b[00000b74] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c0] Dpws.Client WsFault
+TypeDef 001c[00000b8c] [Extends: 8003] [Enclosed: 000c] [Flags: 000000bd]  ServiceDescriptionType
+
+FieldDef 0000[00000ba4] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoClientService::m_threadLock [FIELD OBJECT]
+FieldDef 0001[00000bac] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoClientService::m_discoCallbacks [FIELD CLASS [01000005]]
+FieldDef 0002[00000bb4] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoClientService::m_client [FIELD CLASS [04000011]]
+FieldDef 0003[00000bbc] [Flags: 00000011] Dpws.Client.Discovery.DpwsDiscoveryClient::DiscoveryEP [FIELD CLASS [0100000e]]
+FieldDef 0004[00000bc4] [Flags: 00000011] Dpws.Client.Discovery.DpwsDiscoveryClient::m_discoVersion [FIELD CLASS [04000001]]
+FieldDef 0005[00000bcc] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoveryClient::m_discoResponsePort [FIELD I4]
+FieldDef 0006[00000bd4] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoveryClient::m_receiveTimeout [FIELD I4]
+FieldDef 0007[00000bdc] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoveryClient::m_random [FIELD CLASS [0100000f]]
+FieldDef 0008[00000be4] [Flags: 00000001] Dpws.Client.Discovery.DpwsDiscoveryClient::m_parent [FIELD CLASS [04000011]]
+FieldDef 0009[00000bec] [Flags: 00000026] Dpws.Client.Discovery.DpwsMetadata::ThisModel [FIELD CLASS [0400000f]]
+FieldDef 000a[00000bf4] [Flags: 00000026] Dpws.Client.Discovery.DpwsMetadata::ThisDevice [FIELD CLASS [0400000e]]
+FieldDef 000b[00000bfc] [Flags: 00000026] Dpws.Client.Discovery.DpwsMetadata::Relationship [FIELD CLASS [0400000b]]
+FieldDef 000c[00000c04] [Flags: 00000026] Dpws.Client.Discovery.DpwsMexService::ServiceTypes [FIELD CLASS [04000013]]
+FieldDef 000d[00000c0c] [Flags: 00000026] Dpws.Client.Discovery.DpwsMexService::EndpointRefs [FIELD CLASS [01000019]]
+FieldDef 000e[00000c14] [Flags: 00000026] Dpws.Client.Discovery.DpwsMexService::ServiceID [FIELD STRING]
+FieldDef 000f[00000c1c] [Flags: 00000001] Dpws.Client.Discovery.DpwsMexServices::m_threadLock [FIELD OBJECT]
+FieldDef 0010[00000c24] [Flags: 00000001] Dpws.Client.Discovery.DpwsMexServices::m_services [FIELD CLASS [0100000d]]
+FieldDef 0011[00000c2c] [Flags: 00000001] Dpws.Client.Discovery.DpwsRelationship::_host [FIELD CLASS [04000009]]
+FieldDef 0012[00000c34] [Flags: 00000026] Dpws.Client.Discovery.DpwsRelationship::HostedServices [FIELD CLASS [0400000a]]
+FieldDef 0013[00000c3c] [Flags: 00000026] Dpws.Client.Discovery.DpwsServiceDescription::Endpoint [FIELD CLASS [01000011]]
+FieldDef 0014[00000c44] [Flags: 00000026] Dpws.Client.Discovery.DpwsServiceDescription::MetadataVersion [FIELD STRING]
+FieldDef 0015[00000c4c] [Flags: 00000026] Dpws.Client.Discovery.DpwsServiceDescription::ServiceTypes [FIELD CLASS [04000013]]
+FieldDef 0016[00000c54] [Flags: 00000026] Dpws.Client.Discovery.DpwsServiceDescription::XAddrs [FIELD SZARRAY STRING]
+FieldDef 0017[00000c5c] [Flags: 00000001] Dpws.Client.Discovery.DpwsServiceDescriptions::m_threadLock [FIELD OBJECT]
+FieldDef 0018[00000c64] [Flags: 00000001] Dpws.Client.Discovery.DpwsServiceDescriptions::m_serviceDescriptions [FIELD CLASS [0100000d]]
+FieldDef 0019[00000c6c] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisDevice::FriendlyName [FIELD STRING]
+FieldDef 001a[00000c74] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisDevice::FirmwareVersion [FIELD STRING]
+FieldDef 001b[00000c7c] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisDevice::SerialNumber [FIELD STRING]
+FieldDef 001c[00000c84] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::Manufacturer [FIELD STRING]
+FieldDef 001d[00000c8c] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::ManufacturerUrl [FIELD STRING]
+FieldDef 001e[00000c94] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::ModelName [FIELD STRING]
+FieldDef 001f[00000c9c] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::ModelNumber [FIELD STRING]
+FieldDef 0020[00000ca4] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::ModelUrl [FIELD STRING]
+FieldDef 0021[00000cac] [Flags: 00000026] Dpws.Client.Discovery.DpwsThisModel::PresentationUrl [FIELD STRING]
+FieldDef 0022[00000cb4] [Flags: 00000011] Dpws.Client.DpwsClient::m_discoServiceEndpoints [FIELD CLASS [01000008]]
+FieldDef 0023[00000cbc] [Flags: 00000011] Dpws.Client.DpwsClient::m_callbackServiceEndpoints [FIELD CLASS [01000008]]
+FieldDef 0024[00000cc4] [Flags: 00000001] Dpws.Client.DpwsClient::m_threadLock [FIELD OBJECT]
+FieldDef 0025[00000ccc] [Flags: 00000001] Dpws.Client.DpwsClient::m_discoClient [FIELD CLASS [04000006]]
+FieldDef 0026[00000cd4] [Flags: 00000001] Dpws.Client.DpwsClient::m_endpointAddress [FIELD STRING]
+FieldDef 0027[00000cdc] [Flags: 00000001] Dpws.Client.DpwsClient::m_eventClient [FIELD CLASS [04000015]]
+FieldDef 0028[00000ce4] [Flags: 00000001] Dpws.Client.DpwsClient::m_mexClient [FIELD CLASS [04000008]]
+FieldDef 0029[00000cec] [Flags: 00000001] Dpws.Client.DpwsClient::m_eventCallbacks [FIELD CLASS [01000005]]
+FieldDef 002a[00000cf4] [Flags: 00000001] Dpws.Client.DpwsClient::m_transportAddress [FIELD STRING]
+FieldDef 002b[00000cfc] [Flags: 00000001] Dpws.Client.DpwsClient::m_blockingCall [FIELD BOOLEAN]
+FieldDef 002c[00000d04] [Flags: 00000001] Dpws.Client.DpwsClient::m_bodyParts [FIELD CLASS [01000006]]
+FieldDef 002d[00000d0c] [Flags: 00000001] Dpws.Client.DpwsClient::m_messageType [FIELD VALUETYPE [01000007]]
+FieldDef 002e[00000d14] [Flags: 00000001] Dpws.Client.DpwsClient::m_udpSeviceHost [FIELD CLASS [01000009]]
+FieldDef 002f[00000d1c] [Flags: 00000001] Dpws.Client.DpwsClient::m_httpServiceHost [FIELD CLASS [0100000a]]
+FieldDef 0030[00000d24] [Flags: 00000001] Dpws.Client.DpwsClient::m_port [FIELD I4]
+FieldDef 0031[00000d2c] [Flags: 00000001] Dpws.Client.DpwsClient::m_ignoreRequestFromThisIP [FIELD BOOLEAN]
+FieldDef 0032[00000d34] [Flags: 00000003] Dpws.Client.DpwsClient::ClientDiscoveryService [FIELD CLASS [04000005]]
+FieldDef 0033[00000d3c] [Flags: 00000001] Dpws.Client.DpwsClient::HelloEvent [FIELD CLASS [04000010]]
+FieldDef 0034[00000d44] [Flags: 00000001] Dpws.Client.DpwsClient::ByeEvent [FIELD CLASS [04000000]]
+FieldDef 0035[00000d4c] [Flags: 00000001] Dpws.Client.DpwsClient::SubscriptionEndEvent [FIELD CLASS [04000018]]
+FieldDef 0036[00000d54] [Flags: 00000026] Dpws.Client.DpwsServiceType::NamespaceUri [FIELD STRING]
+FieldDef 0037[00000d5c] [Flags: 00000026] Dpws.Client.DpwsServiceType::TypeName [FIELD STRING]
+FieldDef 0038[00000d64] [Flags: 00000001] Dpws.Client.DpwsServiceTypes::m_threadLock [FIELD OBJECT]
+FieldDef 0039[00000d6c] [Flags: 00000001] Dpws.Client.DpwsServiceTypes::m_serviceTypes [FIELD CLASS [0100000d]]
+FieldDef 003a[00000d74] [Flags: 00000026] Dpws.Client.Eventing.DpwsEventSubscription::Expires [FIELD CLASS [01000017]]
+FieldDef 003b[00000d7c] [Flags: 00000026] Dpws.Client.Eventing.DpwsEventSubscription::SubscriptionID [FIELD STRING]
+FieldDef 003c[00000d84] [Flags: 00000026] Dpws.Client.Eventing.DpwsEventSubscription::SubscriptionManager [FIELD CLASS [01000011]]
+FieldDef 003d[00000d8c] [Flags: 00000026] Dpws.Client.Eventing.DpwsSubscribeRequest::SubscriptionType [FIELD CLASS [04000012]]
+FieldDef 003e[00000d94] [Flags: 00000026] Dpws.Client.Eventing.DpwsSubscribeRequest::EndpointAddress [FIELD CLASS [01000016]]
+FieldDef 003f[00000d9c] [Flags: 00000026] Dpws.Client.Eventing.DpwsSubscribeRequest::NotifyTo [FIELD CLASS [01000011]]
+FieldDef 0040[00000da4] [Flags: 00000006] Dpws.Client.Eventing.DpwsSubscribeRequest::EndTo [FIELD CLASS [01000011]]
+FieldDef 0041[00000dac] [Flags: 00000026] Dpws.Client.Eventing.DpwsSubscribeRequest::Expires [FIELD CLASS [01000017]]
+FieldDef 0042[00000db4] [Flags: 00000026] Dpws.Client.Eventing.SubscriptionEndEventArgs::SubscriptionManager [FIELD CLASS [01000011]]
+FieldDef 0043[00000dbc] [Flags: 00000026] Dpws.Client.Eventing.SubscriptionEndEventArgs::Identifier [FIELD STRING]
+FieldDef 0044[00000dc4] [Flags: 00000026] Dpws.Client.Eventing.SubscriptionEndEventArgs::SubscriptionID [FIELD STRING]
+FieldDef 0045[00000dcc] [Flags: 00000001] Dpws.Client.Transport.DpwsHttpClient::m_httpClient [FIELD CLASS [0100001a]]
+FieldDef 0046[00000dd4] [Flags: 00000026] Dpws.Client.Transport.DpwsSoapResponse::Header [FIELD CLASS [0100000b]]
+FieldDef 0047[00000ddc] [Flags: 00000026] Dpws.Client.Transport.DpwsSoapResponse::Reader [FIELD CLASS [0100000c]]
+FieldDef 0048[00000de4] [Flags: 00000106] Dpws.Client.Discovery.DpwsServiceDescription.ServiceDescriptionType::value__ [FIELD I4]
+
+MethodDef 0000[00000dec] [Flags: 000201c6] [RVA: ffff] Dpws.Client.Discovery.ByeEventHandler::Invoke [METHOD VOID( OBJECT, CLASS [0400000c] )]
+MethodDef 0001[00000dfc] [Flags: 000401c6] [RVA: ffff] Dpws.Client.Discovery.ByeEventHandler::BeginInvoke [METHOD CLASS [01000013]( OBJECT, CLASS [0400000c], CLASS [01000014], OBJECT )]
+MethodDef 0002[00000e0c] [Flags: 000801c6] [RVA: ffff] Dpws.Client.Discovery.ByeEventHandler::EndInvoke [METHOD VOID( CLASS [01000013] )]
+MethodDef 0003[00000e1c] [Flags: 00011486] [RVA: ffff] Dpws.Client.Discovery.ByeEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 0004[00000e2c] [Flags: 000007c6] [RVA: ffff] Dpws.Client.Discovery.DiscoveryVersion::get_Version [METHOD R8()]
+MethodDef 0005[00000e3c] [Flags: 000007c6] [RVA: ffff] Dpws.Client.Discovery.DiscoveryVersion::get_WellKnownAddress [METHOD STRING()]
+MethodDef 0006[00000e4c] [Flags: 000007c6] [RVA: ffff] Dpws.Client.Discovery.DiscoveryVersion::get_Namespace [METHOD STRING()]
+MethodDef 0007[00000e5c] [Flags: 00001484] [RVA: 0000] Dpws.Client.Discovery.DiscoveryVersion::.ctor [METHOD VOID()]
+MethodDef 0008[00000e6c] [Flags: 000004c6] [RVA: 0005] Dpws.Client.Discovery.DiscoveryVersion10::get_Version [METHOD R8()]
+MethodDef 0009[00000e7c] [Flags: 000004c6] [RVA: 000f] Dpws.Client.Discovery.DiscoveryVersion10::get_WellKnownAddress [METHOD STRING()]
+MethodDef 000a[00000e8c] [Flags: 000004c6] [RVA: 0013] Dpws.Client.Discovery.DiscoveryVersion10::get_Namespace [METHOD STRING()]
+MethodDef 000b[00000e9c] [Flags: 00001486] [RVA: 0017] Dpws.Client.Discovery.DiscoveryVersion10::.ctor [METHOD VOID()]
+MethodDef 000c[00000eac] [Flags: 000004c6] [RVA: 0022] Dpws.Client.Discovery.DiscoveryVersion11::get_Version [METHOD R8()]
+MethodDef 000d[00000ebc] [Flags: 000004c6] [RVA: 002c] Dpws.Client.Discovery.DiscoveryVersion11::get_WellKnownAddress [METHOD STRING()]
+MethodDef 000e[00000ecc] [Flags: 000004c6] [RVA: 0030] Dpws.Client.Discovery.DiscoveryVersion11::get_Namespace [METHOD STRING()]
+MethodDef 000f[00000edc] [Flags: 00001486] [RVA: 0034] Dpws.Client.Discovery.DiscoveryVersion11::.ctor [METHOD VOID()]
+MethodDef 0010[00000eec] [Flags: 00001486] [RVA: 003f] Dpws.Client.Discovery.DpwsDiscoClientProcessor::.ctor [METHOD VOID()]
+MethodDef 0011[00000efc] [Flags: 00000086] [RVA: 0044] Dpws.Client.Discovery.DpwsDiscoClientProcessor::ProcessProbeMatch [METHOD CLASS [0400000d]( SZARRAY U1, STRING, CLASS [0100000e], CLASS [01000012] )]
+MethodDef 0012[00000f0c] [Flags: 00000086] [RVA: 004f] Dpws.Client.Discovery.DpwsDiscoClientProcessor::ProcessResolveMatch [METHOD CLASS [0400000c]( SZARRAY U1, STRING, CLASS [0100000e], CLASS [01000012] )]
+MethodDef 0013[00000f1c] [Flags: 40000081] [RVA: 0060] Dpws.Client.Discovery.DpwsDiscoClientProcessor::ProcessMatch [METHOD CLASS [0400000d]( VALUETYPE [0400001c], SZARRAY U1, STRING, CLASS [0100000e], CLASS [01000012] )]
+MethodDef 0014[00000f2c] [Flags: 40000083] [RVA: 0119] Dpws.Client.Discovery.DpwsDiscoClientProcessor::ProcessGetResponse [METHOD CLASS [04000007]( SZARRAY U1, STRING )]
+MethodDef 0015[00000f3c] [Flags: 000005e1] [RVA: 0180] Dpws.Client.Discovery.DpwsDiscoClientService::Ws.Services.IWsServiceEndpoint.get_BlockingCall [METHOD BOOLEAN()]
+MethodDef 0016[00000f4c] [Flags: 000005e1] [RVA: 0182] Dpws.Client.Discovery.DpwsDiscoClientService::Ws.Services.IWsServiceEndpoint.set_BlockingCall [METHOD VOID( BOOLEAN )]
+MethodDef 0017[00000f5c] [Flags: 000005e6] [RVA: 0183] Dpws.Client.Discovery.DpwsDiscoClientService::get_BodyParts [METHOD CLASS [01000006]()]
+MethodDef 0018[00000f6c] [Flags: 000005e6] [RVA: 0185] Dpws.Client.Discovery.DpwsDiscoClientService::set_BodyParts [METHOD VOID( CLASS [01000006] )]
+MethodDef 0019[00000f7c] [Flags: 000005e6] [RVA: 0186] Dpws.Client.Discovery.DpwsDiscoClientService::get_ServiceOperations [METHOD CLASS [01000005]()]
+MethodDef 001a[00000f8c] [Flags: 000005e6] [RVA: 018b] Dpws.Client.Discovery.DpwsDiscoClientService::get_EndpointAddress [METHOD STRING()]
+MethodDef 001b[00000f9c] [Flags: 000005e6] [RVA: 0199] Dpws.Client.Discovery.DpwsDiscoClientService::set_EndpointAddress [METHOD VOID( STRING )]
+MethodDef 001c[00000fac] [Flags: 000005e6] [RVA: 019a] Dpws.Client.Discovery.DpwsDiscoClientService::get_MessageType [METHOD VALUETYPE [01000007]()]
+MethodDef 001d[00000fbc] [Flags: 000005e6] [RVA: 019c] Dpws.Client.Discovery.DpwsDiscoClientService::set_MessageType [METHOD VOID( VALUETYPE [01000007] )]
+MethodDef 001e[00000fcc] [Flags: 400001e1] [RVA: 019d] Dpws.Client.Discovery.DpwsDiscoClientService::Ws.Services.IWsServiceEndpoint.ProcessRequest [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 001f[00000fdc] [Flags: 00001486] [RVA: 0219] Dpws.Client.Discovery.DpwsDiscoClientService::.ctor [METHOD VOID( CLASS [04000011] )]
+MethodDef 0020[00000fec] [Flags: 40000086] [RVA: 0253] Dpws.Client.Discovery.DpwsDiscoClientService::Hello [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 0021[00000ffc] [Flags: 40000086] [RVA: 0299] Dpws.Client.Discovery.DpwsDiscoClientService::Bye [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 0022[0000100c] [Flags: 00001483] [RVA: 02df] Dpws.Client.Discovery.DpwsDiscoveryClient::.ctor [METHOD VOID( CLASS [04000011] )]
+MethodDef 0023[0000101c] [Flags: 00000486] [RVA: 0313] Dpws.Client.Discovery.DpwsDiscoveryClient::get_DiscoveryResponsePort [METHOD I4()]
+MethodDef 0024[0000102c] [Flags: 00000486] [RVA: 0318] Dpws.Client.Discovery.DpwsDiscoveryClient::set_DiscoveryResponsePort [METHOD VOID( I4 )]
+MethodDef 0025[0000103c] [Flags: 00000486] [RVA: 031e] Dpws.Client.Discovery.DpwsDiscoveryClient::get_ReceiveTimeout [METHOD I4()]
+MethodDef 0026[0000104c] [Flags: 00000486] [RVA: 0323] Dpws.Client.Discovery.DpwsDiscoveryClient::set_ReceiveTimeout [METHOD VOID( I4 )]
+MethodDef 0027[0000105c] [Flags: 00000486] [RVA: 0329] Dpws.Client.Discovery.DpwsDiscoveryClient::get_DiscoVersion [METHOD CLASS [04000001]()]
+MethodDef 0028[0000106c] [Flags: 00000486] [RVA: 032d] Dpws.Client.Discovery.DpwsDiscoveryClient::set_DiscoVersion [METHOD VOID( CLASS [04000001] )]
+MethodDef 0029[0000107c] [Flags: 40000086] [RVA: 0339] Dpws.Client.Discovery.DpwsDiscoveryClient::DirectedProbe [METHOD CLASS [0400000d]( STRING, STRING, CLASS [04000013] )]
+MethodDef 002a[0000108c] [Flags: 00000086] [RVA: 0402] Dpws.Client.Discovery.DpwsDiscoveryClient::DirectedResolve [METHOD CLASS [0400000c]( STRING, STRING, STRING )]
+MethodDef 002b[0000109c] [Flags: 00000086] [RVA: 044d] Dpws.Client.Discovery.DpwsDiscoveryClient::Probe [METHOD CLASS [0400000d]( CLASS [04000013] )]
+MethodDef 002c[000010ac] [Flags: 40000086] [RVA: 0455] Dpws.Client.Discovery.DpwsDiscoveryClient::Probe [METHOD CLASS [0400000d]( CLASS [04000013], I4, I4 )]
+MethodDef 002d[000010bc] [Flags: 00000081] [RVA: 063d] Dpws.Client.Discovery.DpwsDiscoveryClient::BuildProbeRequest [METHOD SZARRAY U1( STRING, CLASS [04000013], BYREF STRING )]
+MethodDef 002e[000010cc] [Flags: 00000086] [RVA: 0770] Dpws.Client.Discovery.DpwsDiscoveryClient::Resolve [METHOD CLASS [0400000c]( STRING )]
+MethodDef 002f[000010dc] [Flags: 00000086] [RVA: 0777] Dpws.Client.Discovery.DpwsDiscoveryClient::Resolve [METHOD CLASS [0400000c]( STRING, I4 )]
+MethodDef 0030[000010ec] [Flags: 00000081] [RVA: 07a2] Dpws.Client.Discovery.DpwsDiscoveryClient::BuildResolveRequest [METHOD SZARRAY U1( STRING, STRING, BYREF STRING )]
+MethodDef 0031[000010fc] [Flags: 40000081] [RVA: 080b] Dpws.Client.Discovery.DpwsDiscoveryClient::SendResolveRequest [METHOD CLASS [0400000c]( SZARRAY U1, STRING, I8 )]
+MethodDef 0032[0000110c] [Flags: 00000081] [RVA: 0976] Dpws.Client.Discovery.DpwsDiscoveryClient::SendWithBackoff [METHOD VOID( SZARRAY U1, CLASS [01000010] )]
+MethodDef 0033[0000111c] [Flags: 00002491] [RVA: 09c2] Dpws.Client.Discovery.DpwsDiscoveryClient::.cctor [METHOD VOID()]
+MethodDef 0034[0000112c] [Flags: 00001486] [RVA: 09c9] Dpws.Client.Discovery.DpwsMetadata::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0035[0000113c] [Flags: 00001486] [RVA: 0a95] Dpws.Client.Discovery.DpwsMexClient::.ctor [METHOD VOID()]
+MethodDef 0036[0000114c] [Flags: 40000086] [RVA: 0a9a] Dpws.Client.Discovery.DpwsMexClient::Get [METHOD CLASS [04000007]( STRING )]
+MethodDef 0037[0000115c] [Flags: 00001486] [RVA: 0bff] Dpws.Client.Discovery.DpwsMexService::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0038[0000116c] [Flags: 00001483] [RVA: 0c6c] Dpws.Client.Discovery.DpwsMexServices::.ctor [METHOD VOID()]
+MethodDef 0039[0000117c] [Flags: 00000486] [RVA: 0c7f] Dpws.Client.Discovery.DpwsMexServices::get_Count [METHOD I4()]
+MethodDef 003a[0000118c] [Flags: 00000486] [RVA: 0c87] Dpws.Client.Discovery.DpwsMexServices::get_Item [METHOD CLASS [04000009]( I4 )]
+MethodDef 003b[0000119c] [Flags: 40000486] [RVA: 0c93] Dpws.Client.Discovery.DpwsMexServices::get_Item [METHOD CLASS [04000009]( CLASS [01000016] )]
+MethodDef 003c[000011ac] [Flags: 40000086] [RVA: 0ce4] Dpws.Client.Discovery.DpwsMexServices::Add [METHOD I4( CLASS [04000009] )]
+MethodDef 003d[000011bc] [Flags: 40000086] [RVA: 0d0c] Dpws.Client.Discovery.DpwsMexServices::Clear [METHOD VOID()]
+MethodDef 003e[000011cc] [Flags: 00000486] [RVA: 0d31] Dpws.Client.Discovery.DpwsRelationship::get_Host [METHOD CLASS [04000009]()]
+MethodDef 003f[000011dc] [Flags: 00001486] [RVA: 0d36] Dpws.Client.Discovery.DpwsRelationship::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0040[000011ec] [Flags: 00000083] [RVA: 0d47] Dpws.Client.Discovery.DpwsRelationship::Append [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0041[000011fc] [Flags: 00001483] [RVA: 0dcd] Dpws.Client.Discovery.DpwsServiceDescription::.ctor [METHOD VOID( CLASS [0100000c], VALUETYPE [0400001c] )]
+MethodDef 0042[0000120c] [Flags: 00001486] [RVA: 0e93] Dpws.Client.Discovery.DpwsServiceDescription::.ctor [METHOD VOID( CLASS [01000011], CLASS [04000013] )]
+MethodDef 0043[0000121c] [Flags: 00001483] [RVA: 0ea2] Dpws.Client.Discovery.DpwsServiceDescriptions::.ctor [METHOD VOID()]
+MethodDef 0044[0000122c] [Flags: 00001483] [RVA: 0eb5] Dpws.Client.Discovery.DpwsServiceDescriptions::.ctor [METHOD VOID( CLASS [0100000c], VALUETYPE [0400001c] )]
+MethodDef 0045[0000123c] [Flags: 00000486] [RVA: 0f34] Dpws.Client.Discovery.DpwsServiceDescriptions::get_Count [METHOD I4()]
+MethodDef 0046[0000124c] [Flags: 00000486] [RVA: 0f3c] Dpws.Client.Discovery.DpwsServiceDescriptions::get_Item [METHOD CLASS [0400000c]( I4 )]
+MethodDef 0047[0000125c] [Flags: 00000486] [RVA: 0f48] Dpws.Client.Discovery.DpwsServiceDescriptions::get_Item [METHOD CLASS [0400000c]( STRING )]
+MethodDef 0048[0000126c] [Flags: 40000086] [RVA: 0f7c] Dpws.Client.Discovery.DpwsServiceDescriptions::Add [METHOD I4( CLASS [0400000c] )]
+MethodDef 0049[0000127c] [Flags: 40000086] [RVA: 0fa4] Dpws.Client.Discovery.DpwsServiceDescriptions::Clear [METHOD VOID()]
+MethodDef 004a[0000128c] [Flags: 40000086] [RVA: 0fc9] Dpws.Client.Discovery.DpwsServiceDescriptions::Contains [METHOD BOOLEAN( CLASS [0400000c] )]
+MethodDef 004b[0000129c] [Flags: 40000086] [RVA: 0ff1] Dpws.Client.Discovery.DpwsServiceDescriptions::IndexOf [METHOD I4( STRING )]
+MethodDef 004c[000012ac] [Flags: 00001483] [RVA: 1042] Dpws.Client.Discovery.DpwsThisDevice::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 004d[000012bc] [Flags: 00001483] [RVA: 10a1] Dpws.Client.Discovery.DpwsThisModel::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 004e[000012cc] [Flags: 000201c6] [RVA: ffff] Dpws.Client.Discovery.HelloEventHandler::Invoke [METHOD VOID( OBJECT, CLASS [0400000c] )]
+MethodDef 004f[000012dc] [Flags: 000401c6] [RVA: ffff] Dpws.Client.Discovery.HelloEventHandler::BeginInvoke [METHOD CLASS [01000013]( OBJECT, CLASS [0400000c], CLASS [01000014], OBJECT )]
+MethodDef 0050[000012ec] [Flags: 000801c6] [RVA: ffff] Dpws.Client.Discovery.HelloEventHandler::EndInvoke [METHOD VOID( CLASS [01000013] )]
+MethodDef 0051[000012fc] [Flags: 00011486] [RVA: ffff] Dpws.Client.Discovery.HelloEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 0052[0000130c] [Flags: 000005e6] [RVA: 1148] Dpws.Client.DpwsClient::get_ServiceOperations [METHOD CLASS [01000005]()]
+MethodDef 0053[0000131c] [Flags: 000005e6] [RVA: 114d] Dpws.Client.DpwsClient::get_BodyParts [METHOD CLASS [01000006]()]
+MethodDef 0054[0000132c] [Flags: 000005e6] [RVA: 1152] Dpws.Client.DpwsClient::set_BodyParts [METHOD VOID( CLASS [01000006] )]
+MethodDef 0055[0000133c] [Flags: 400005e6] [RVA: 1158] Dpws.Client.DpwsClient::get_EndpointAddress [METHOD STRING()]
+MethodDef 0056[0000134c] [Flags: 400005e6] [RVA: 117c] Dpws.Client.DpwsClient::set_EndpointAddress [METHOD VOID( STRING )]
+MethodDef 0057[0000135c] [Flags: 000005e6] [RVA: 1203] Dpws.Client.DpwsClient::get_MessageType [METHOD VALUETYPE [01000007]()]
+MethodDef 0058[0000136c] [Flags: 000005e6] [RVA: 1208] Dpws.Client.DpwsClient::set_MessageType [METHOD VOID( VALUETYPE [01000007] )]
+MethodDef 0059[0000137c] [Flags: 000001c6] [RVA: 120e] Dpws.Client.DpwsClient::Dispose [METHOD VOID()]
+MethodDef 005a[0000138c] [Flags: 000005e1] [RVA: 1218] Dpws.Client.DpwsClient::Ws.Services.IWsServiceEndpoint.get_BlockingCall [METHOD BOOLEAN()]
+MethodDef 005b[0000139c] [Flags: 000005e1] [RVA: 121d] Dpws.Client.DpwsClient::Ws.Services.IWsServiceEndpoint.set_BlockingCall [METHOD VOID( BOOLEAN )]
+MethodDef 005c[000013ac] [Flags: 400001e1] [RVA: 1223] Dpws.Client.DpwsClient::Ws.Services.IWsServiceEndpoint.ProcessRequest [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 005d[000013bc] [Flags: 00001486] [RVA: 1256] Dpws.Client.DpwsClient::.ctor [METHOD VOID()]
+MethodDef 005e[000013cc] [Flags: 00001486] [RVA: 128e] Dpws.Client.DpwsClient::.ctor [METHOD VOID( I4 )]
+MethodDef 005f[000013dc] [Flags: 00000486] [RVA: 12cb] Dpws.Client.DpwsClient::get_EventingClient [METHOD CLASS [04000015]()]
+MethodDef 0060[000013ec] [Flags: 00000486] [RVA: 12d0] Dpws.Client.DpwsClient::get_DiscoveryClient [METHOD CLASS [04000006]()]
+MethodDef 0061[000013fc] [Flags: 01000486] [RVA: 12d5] Dpws.Client.DpwsClient::add_HelloEvent [METHOD VOID( CLASS [04000010] )]
+MethodDef 0062[0000140c] [Flags: 01000486] [RVA: 12e5] Dpws.Client.DpwsClient::remove_HelloEvent [METHOD VOID( CLASS [04000010] )]
+MethodDef 0063[0000141c] [Flags: 01000486] [RVA: 12f5] Dpws.Client.DpwsClient::add_ByeEvent [METHOD VOID( CLASS [04000000] )]
+MethodDef 0064[0000142c] [Flags: 01000486] [RVA: 1305] Dpws.Client.DpwsClient::remove_ByeEvent [METHOD VOID( CLASS [04000000] )]
+MethodDef 0065[0000143c] [Flags: 01000486] [RVA: 1315] Dpws.Client.DpwsClient::add_SubscriptionEndEvent [METHOD VOID( CLASS [04000018] )]
+MethodDef 0066[0000144c] [Flags: 01000486] [RVA: 1325] Dpws.Client.DpwsClient::remove_SubscriptionEndEvent [METHOD VOID( CLASS [04000018] )]
+MethodDef 0067[0000145c] [Flags: 00000486] [RVA: 1335] Dpws.Client.DpwsClient::get_MexClient [METHOD CLASS [04000008]()]
+MethodDef 0068[0000146c] [Flags: 00000083] [RVA: 133a] Dpws.Client.DpwsClient::UpdateDiscoVersion [METHOD VOID()]
+MethodDef 0069[0000147c] [Flags: 00000081] [RVA: 1358] Dpws.Client.DpwsClient::Init [METHOD VOID()]
+MethodDef 006a[0000148c] [Flags: 00000486] [RVA: 13ff] Dpws.Client.DpwsClient::get_IgnoreRequestFromThisIP [METHOD BOOLEAN()]
+MethodDef 006b[0000149c] [Flags: 00000486] [RVA: 1412] Dpws.Client.DpwsClient::set_IgnoreRequestFromThisIP [METHOD VOID( BOOLEAN )]
+MethodDef 006c[000014ac] [Flags: 00000484] [RVA: 1427] Dpws.Client.DpwsClient::get_IPV4Address [METHOD STRING()]
+MethodDef 006d[000014bc] [Flags: 00000486] [RVA: 142b] Dpws.Client.DpwsClient::get_EventingPort [METHOD I4()]
+MethodDef 006e[000014cc] [Flags: 00000083] [RVA: 1430] Dpws.Client.DpwsClient::RaiseHelloEvent [METHOD VOID( CLASS [0400000c] )]
+MethodDef 006f[000014dc] [Flags: 00000083] [RVA: 1440] Dpws.Client.DpwsClient::RaiseByeEvent [METHOD VOID( CLASS [0400000c] )]
+MethodDef 0070[000014ec] [Flags: 40000486] [RVA: 144a] Dpws.Client.DpwsClient::get_TransportAddress [METHOD STRING()]
+MethodDef 0071[000014fc] [Flags: 00000083] [RVA: 146e] Dpws.Client.DpwsClient::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 0072[0000150c] [Flags: 00000081] [RVA: 14ba] Dpws.Client.DpwsClient::ProcessRequest [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 0073[0000151c] [Flags: 40000083] [RVA: 1527] Dpws.Client.DpwsClient::SubscriptionEnd [METHOD SZARRAY U1( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 0074[0000152c] [Flags: 00002491] [RVA: 1548] Dpws.Client.DpwsClient::.cctor [METHOD VOID()]
+MethodDef 0075[0000153c] [Flags: 00001486] [RVA: 1555] Dpws.Client.DpwsServiceType::.ctor [METHOD VOID( STRING, STRING )]
+MethodDef 0076[0000154c] [Flags: 00001483] [RVA: 1564] Dpws.Client.DpwsServiceType::.ctor [METHOD VOID( STRING, CLASS [0100000c] )]
+MethodDef 0077[0000155c] [Flags: 00001486] [RVA: 15c1] Dpws.Client.DpwsServiceTypes::.ctor [METHOD VOID()]
+MethodDef 0078[0000156c] [Flags: 00001483] [RVA: 15d4] Dpws.Client.DpwsServiceTypes::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0079[0000157c] [Flags: 00000486] [RVA: 162b] Dpws.Client.DpwsServiceTypes::get_Count [METHOD I4()]
+MethodDef 007a[0000158c] [Flags: 00000486] [RVA: 1633] Dpws.Client.DpwsServiceTypes::get_Item [METHOD CLASS [04000012]( I4 )]
+MethodDef 007b[0000159c] [Flags: 40000486] [RVA: 163f] Dpws.Client.DpwsServiceTypes::get_Item [METHOD CLASS [04000012]( STRING )]
+MethodDef 007c[000015ac] [Flags: 40000086] [RVA: 1690] Dpws.Client.DpwsServiceTypes::Add [METHOD I4( CLASS [04000012] )]
+MethodDef 007d[000015bc] [Flags: 40000086] [RVA: 16b8] Dpws.Client.DpwsServiceTypes::Clear [METHOD VOID()]
+MethodDef 007e[000015cc] [Flags: 40000086] [RVA: 16dd] Dpws.Client.DpwsServiceTypes::Remove [METHOD VOID( CLASS [04000012] )]
+MethodDef 007f[000015dc] [Flags: 00001483] [RVA: 1703] Dpws.Client.Eventing.DpwsEventSubscription::.ctor [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0080[000015ec] [Flags: 00001486] [RVA: 175e] Dpws.Client.Eventing.DpwsEventingClient::.ctor [METHOD VOID()]
+MethodDef 0081[000015fc] [Flags: 40000086] [RVA: 1763] Dpws.Client.Eventing.DpwsEventingClient::Subscribe [METHOD CLASS [04000014]( CLASS [04000016] )]
+MethodDef 0082[0000160c] [Flags: 40000081] [RVA: 19e9] Dpws.Client.Eventing.DpwsEventingClient::ProcessSubscribeResponse [METHOD CLASS [04000014]( SZARRAY U1, STRING )]
+MethodDef 0083[0000161c] [Flags: 40000081] [RVA: 1a0e] Dpws.Client.Eventing.DpwsEventingClient::ProcessResponse [METHOD CLASS [0100000c]( SZARRAY U1, STRING, STRING )]
+MethodDef 0084[0000162c] [Flags: 00000081] [RVA: 1a72] Dpws.Client.Eventing.DpwsEventingClient::WriteEndpointRef [METHOD VOID( BYREF CLASS [01000018], CLASS [01000011], STRING )]
+MethodDef 0085[0000163c] [Flags: 40000086] [RVA: 1b64] Dpws.Client.Eventing.DpwsEventingClient::Unsubscribe [METHOD BOOLEAN( CLASS [01000016], CLASS [04000014] )]
+MethodDef 0086[0000164c] [Flags: 00000081] [RVA: 1c9e] Dpws.Client.Eventing.DpwsEventingClient::ProcessUnsubscribeResponse [METHOD BOOLEAN( SZARRAY U1, STRING )]
+MethodDef 0087[0000165c] [Flags: 40000086] [RVA: 1cae] Dpws.Client.Eventing.DpwsEventingClient::Renew [METHOD CLASS [01000017]( CLASS [01000016], STRING, CLASS [01000017] )]
+MethodDef 0088[0000166c] [Flags: 40000081] [RVA: 1de9] Dpws.Client.Eventing.DpwsEventingClient::ProcessRenewResponse [METHOD CLASS [01000017]( SZARRAY U1, STRING )]
+MethodDef 0089[0000167c] [Flags: 40000086] [RVA: 1e2b] Dpws.Client.Eventing.DpwsEventingClient::GetStatus [METHOD CLASS [01000017]( CLASS [01000016], STRING )]
+MethodDef 008a[0000168c] [Flags: 00001486] [RVA: 1f61] Dpws.Client.Eventing.DpwsSubscribeRequest::.ctor [METHOD VOID( CLASS [04000012], STRING, STRING, STRING, CLASS [01000015] )]
+MethodDef 008b[0000169c] [Flags: 00001483] [RVA: 1fc8] Dpws.Client.Eventing.SubscriptionEndEventArgs::.ctor [METHOD VOID( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 008c[000016ac] [Flags: 000201c6] [RVA: ffff] Dpws.Client.Eventing.SubscriptionEndEventHandler::Invoke [METHOD VOID( OBJECT, CLASS [04000017] )]
+MethodDef 008d[000016bc] [Flags: 000401c6] [RVA: ffff] Dpws.Client.Eventing.SubscriptionEndEventHandler::BeginInvoke [METHOD CLASS [01000013]( OBJECT, CLASS [04000017], CLASS [01000014], OBJECT )]
+MethodDef 008e[000016cc] [Flags: 000801c6] [RVA: ffff] Dpws.Client.Eventing.SubscriptionEndEventHandler::EndInvoke [METHOD VOID( CLASS [01000013] )]
+MethodDef 008f[000016dc] [Flags: 00011486] [RVA: ffff] Dpws.Client.Eventing.SubscriptionEndEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 0090[000016ec] [Flags: 00001486] [RVA: 2020] Dpws.Client.Transport.DpwsHttpClient::.ctor [METHOD VOID()]
+MethodDef 0091[000016fc] [Flags: 00000486] [RVA: 202c] Dpws.Client.Transport.DpwsHttpClient::get_SendTimeOut [METHOD I4()]
+MethodDef 0092[0000170c] [Flags: 00000486] [RVA: 2034] Dpws.Client.Transport.DpwsHttpClient::set_SendTimeOut [METHOD VOID( I4 )]
+MethodDef 0093[0000171c] [Flags: 00000486] [RVA: 203d] Dpws.Client.Transport.DpwsHttpClient::get_ReceiveTimeout [METHOD I4()]
+MethodDef 0094[0000172c] [Flags: 00000486] [RVA: 2045] Dpws.Client.Transport.DpwsHttpClient::set_ReceiveTimeout [METHOD VOID( I4 )]
+MethodDef 0095[0000173c] [Flags: 40000086] [RVA: 204e] Dpws.Client.Transport.DpwsHttpClient::SendRequest [METHOD CLASS [0400001a]( BYREF CLASS [01000006], STRING, BOOLEAN, BOOLEAN )]
+MethodDef 0096[0000174c] [Flags: 40000086] [RVA: 20ec] Dpws.Client.Transport.DpwsHttpClient::SendRequest [METHOD CLASS [0400001a]( SZARRAY U1, STRING, BOOLEAN, BOOLEAN )]
+MethodDef 0097[0000175c] [Flags: 00000081] [RVA: 2135] Dpws.Client.Transport.DpwsHttpClient::SendRequest [METHOD CLASS [0100001b]( SZARRAY U1, STRING, BOOLEAN, BOOLEAN, CLASS [0100001c] )]
+MethodDef 0098[0000176c] [Flags: 00001486] [RVA: 215a] Dpws.Client.Transport.DpwsSoapResponse::.ctor [METHOD VOID( CLASS [0100000b], CLASS [0100000c] )]
+MethodDef 0099[0000177c] [Flags: 40000093] [RVA: 2169] Dpws.Client.WsFault::ParseFaultResponseAndThrow [METHOD VOID( CLASS [0100000c] )]

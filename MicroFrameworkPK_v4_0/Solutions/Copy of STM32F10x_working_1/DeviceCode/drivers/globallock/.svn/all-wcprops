@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/globallock
+END
+STM32F10x_globallock.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/globallock/STM32F10x_globallock.cpp
+END
+STM32F10x_globallock.h
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/globallock/STM32F10x_globallock.h
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/globallock/dotNetMF.proj
+END

@@ -1,0 +1,16 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>MyEncryptionLib</FeatureName>
+    <Guid>{3528d6c6-ecca-4e95-ae56-1cb3dccb5729}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="MyEncryptionLib" />
+    <DriverLibs Include="MyEncryptionLib.$(LIB_EXT)" />
+  <!--  <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\MyEncryptionLib.pe" /> -->
+    <RequiredProjects Include="$(SPOCLIENT)\MyInterOp\MyEncryptionLib\NativeCode\dotNetMF.proj" />
+  </ItemGroup>
+</Project>

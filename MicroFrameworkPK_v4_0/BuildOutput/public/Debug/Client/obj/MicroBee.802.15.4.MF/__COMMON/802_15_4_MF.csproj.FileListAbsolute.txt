@@ -1,0 +1,8 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MicroBee.802.15.4.MF.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MicroBee.802.15.4.MF.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MicroBee.802.15.4.MF\__COMMON\MicroBee.802.15.4.MF.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MicroBee.802.15.4.MF\__COMMON\MicroBee.802.15.4.MF.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.802.15.4.MF.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.802.15.4.MF.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.802.15.4.MF.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\MicroBee.802.15.4.MF.dump

@@ -1,0 +1,138 @@
+Assembly: TestPHY (1.0.0.0)
+
+Size: AssemblyRef         48 byte(s)      4 item(s) [Runtime:     16]
+Size: TypeRef            264 byte(s)     33 item(s) [Runtime:    132]
+Size: FieldRef            16 byte(s)      2 item(s) [Runtime:      8]
+Size: MethodRef          424 byte(s)     53 item(s) [Runtime:    212]
+Size: TypeDef             24 byte(s)      1 item(s) [Runtime:      8]
+Size: FieldDef            32 byte(s)      4 item(s) [Runtime:      8]
+Size: MethodDef          224 byte(s)     14 item(s) [Runtime:     28]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files     24 byte(s)      1 item(s)
+Size: Resources           16 byte(s)      2 item(s)
+Size: ResourcesData       13 byte(s)
+Size: Strings            933 byte(s)
+Size: Signatures         395 byte(s)
+Size: ByteCode          2878 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.0.1681.0)
+AssemblyRef: 0001[00000088] MicroBee.802.15.4.MF (4.0.1681.0)
+AssemblyRef: 0002[00000094] Microsoft.SPOT.Hardware (4.0.1681.0)
+AssemblyRef: 0003[000000a0] Microsoft.SPOT.Native (4.0.1681.0)
+
+TypeRef 0000[000000ac] [Scope: 0000] System Object
+TypeRef 0001[000000b4] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy IPhy
+TypeRef 0002[000000bc] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4 Leds
+TypeRef 0003[000000c4] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4 Frame
+TypeRef 0004[000000cc] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy IPhyDataSap
+TypeRef 0005[000000d4] [Scope: 0002] Microsoft.SPOT.Hardware Cpu
+TypeRef 0006[000000dc] [Scope: 8005]  Pin
+TypeRef 0007[000000e4] [Scope: 0002] Microsoft.SPOT.Hardware OutputPort
+TypeRef 0008[000000ec] [Scope: 0000] System IDisposable
+TypeRef 0009[000000f4] [Scope: 0003] Microsoft.SPOT Debug
+TypeRef 000a[000000fc] [Scope: 0000] System Exception
+TypeRef 000b[00000104] [Scope: 0002] Microsoft.SPOT.Hardware SPI
+TypeRef 000c[0000010c] [Scope: 800b]  Configuration
+TypeRef 000d[00000114] [Scope: 800b]  SPI_module
+TypeRef 000e[0000011c] [Scope: 0000] System Byte
+TypeRef 000f[00000124] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy CC2420PinConfig
+TypeRef 0010[0000012c] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy CC2420
+TypeRef 0011[00000134] [Scope: 0000] System SystemException
+TypeRef 0012[0000013c] [Scope: 8002]  Color
+TypeRef 0013[00000144] [Scope: 0000] System.Threading Thread
+TypeRef 0014[0000014c] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy IPhyExtSap
+TypeRef 0015[00000154] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy Capabilities
+TypeRef 0016[0000015c] [Scope: 0000] System String
+TypeRef 0017[00000164] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4 HexConverter
+TypeRef 0018[0000016c] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy IPhyMgmtSap
+TypeRef 0019[00000174] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy PibAttribute
+TypeRef 001a[0000017c] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy Status
+TypeRef 001b[00000184] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy PibValue
+TypeRef 001c[0000018c] [Scope: 0000] System Int32
+TypeRef 001d[00000194] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy DataIndicationHandler
+TypeRef 001e[0000019c] [Scope: 0001] Microsoft.SPOT.Wireless.IEEE_802_15_4.Phy State
+TypeRef 001f[000001a4] [Scope: 0000] System DateTime
+TypeRef 0020[000001ac] [Scope: 0000] System TimeSpan
+
+FieldRef 0000[000001b4] [Type: 0016] Empty [FIELD STRING]
+FieldRef 0001[000001bc] [Type: 0003] buf [FIELD SZARRAY U1]
+
+MethodRef 0000[000001c4] [Type: 0007] .ctor [METHOD VOID( VALUETYPE [01000006], BOOLEAN )]
+MethodRef 0001[000001cc] [Type: 0007] Write [METHOD VOID( BOOLEAN )]
+MethodRef 0002[000001d4] [Type: 0008] Dispose [METHOD VOID()]
+MethodRef 0003[000001dc] [Type: 0000] ToString [METHOD STRING()]
+MethodRef 0004[000001e4] [Type: 0009] Print [METHOD VOID( STRING )]
+MethodRef 0005[000001ec] [Type: 000c] .ctor [METHOD VOID( VALUETYPE [01000006], BOOLEAN, U4, U4, BOOLEAN, BOOLEAN, U4, VALUETYPE [0100000d] )]
+MethodRef 0006[000001f4] [Type: 000b] .ctor [METHOD VOID( CLASS [0100000c] )]
+MethodRef 0007[000001fc] [Type: 000b] WriteRead [METHOD VOID( SZARRAY U1, SZARRAY U1, I4 )]
+MethodRef 0008[00000204] [Type: 0003] GetFrame [METHOD CLASS [01000003]( I4 )]
+MethodRef 0009[0000020c] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 000a[00000214] [Type: 000f] DefaultiMXS [METHOD VALUETYPE [0100000f]()]
+MethodRef 000b[0000021c] [Type: 0010] .ctor [METHOD VOID( VALUETYPE [0100000f], BOOLEAN )]
+MethodRef 000c[00000224] [Type: 0002] .ctor [METHOD VOID()]
+MethodRef 000d[0000022c] [Type: 0011] .ctor [METHOD VOID()]
+MethodRef 000e[00000234] [Type: 0002] set_color [METHOD VOID( VALUETYPE [01000012] )]
+MethodRef 000f[0000023c] [Type: 0013] Sleep [METHOD VOID( I4 )]
+MethodRef 0010[00000244] [Type: 0014] GetMtuSize [METHOD VOID( BYREF I4, BYREF I4, BYREF I4 )]
+MethodRef 0011[0000024c] [Type: 0014] IsCapabilitySupported [METHOD VOID( VALUETYPE [01000015], BYREF BOOLEAN )]
+MethodRef 0012[00000254] [Type: 0014] SetPower [METHOD VOID( BOOLEAN )]
+MethodRef 0013[0000025c] [Type: 0014] GetDeviceAddress [METHOD VOID( BYREF U8 )]
+MethodRef 0014[00000264] [Type: 0016] Concat [METHOD STRING( STRING, STRING )]
+MethodRef 0015[0000026c] [Type: 0017] ConvertUintToHex [METHOD STRING( U4, U4 )]
+MethodRef 0016[00000274] [Type: 0018] GetRequest [METHOD VOID( VALUETYPE [01000019], BYREF VALUETYPE [0100001a], BYREF VALUETYPE [0100001b] )]
+MethodRef 0017[0000027c] [Type: 001b] get_IntArray [METHOD SZARRAY I4()]
+MethodRef 0018[00000284] [Type: 001b] get_Int [METHOD I4()]
+MethodRef 0019[0000028c] [Type: 001b] get_Float [METHOD R4()]
+MethodRef 001a[00000294] [Type: 001b] set_IntArray [METHOD VOID( SZARRAY I4 )]
+MethodRef 001b[0000029c] [Type: 0018] SetRequest [METHOD VOID( VALUETYPE [01000019], VALUETYPE [0100001b], BYREF VALUETYPE [0100001a] )]
+MethodRef 001c[000002a4] [Type: 001b] set_Int [METHOD VOID( I4 )]
+MethodRef 001d[000002ac] [Type: 0014] SetAutoFCS [METHOD VOID( BOOLEAN )]
+MethodRef 001e[000002b4] [Type: 001d] .ctor [METHOD VOID( OBJECT, I4 )]
+MethodRef 001f[000002bc] [Type: 0004] set_DataIndication [METHOD VOID( CLASS [0100001d] )]
+MethodRef 0020[000002c4] [Type: 0018] SetTrxStateRequest [METHOD VOID( VALUETYPE [0100001e], BYREF VALUETYPE [0100001a] )]
+MethodRef 0021[000002cc] [Type: 001f] get_Now [METHOD VALUETYPE [0100001f]()]
+MethodRef 0022[000002d4] [Type: 0003] ReserveHeader [METHOD VOID( I4 )]
+MethodRef 0023[000002dc] [Type: 0003] AppendToBack [METHOD VOID( SZARRAY U1, I4, I4 )]
+MethodRef 0024[000002e4] [Type: 0004] DataRequest [METHOD VOID( CLASS [01000003], BYREF VALUETYPE [0100001a] )]
+MethodRef 0025[000002ec] [Type: 001f] get_Second [METHOD I4()]
+MethodRef 0026[000002f4] [Type: 001f] get_Millisecond [METHOD I4()]
+MethodRef 0027[000002fc] [Type: 0016] Concat [METHOD STRING( SZARRAY OBJECT )]
+MethodRef 0028[00000304] [Type: 0003] Release [METHOD VOID( BYREF CLASS [01000003] )]
+MethodRef 0029[0000030c] [Type: 001f] op_Subtraction [METHOD VALUETYPE [01000020]( VALUETYPE [0100001f], VALUETYPE [0100001f] )]
+MethodRef 002a[00000314] [Type: 0016] Concat [METHOD STRING( OBJECT, OBJECT )]
+MethodRef 002b[0000031c] [Type: 0003] get_LengthDataUsed [METHOD I4()]
+MethodRef 002c[00000324] [Type: 0003] ReadBytes [METHOD VOID( SZARRAY U1, I4, I4, I4 )]
+MethodRef 002d[0000032c] [Type: 0018] EDRequest [METHOD VOID( BYREF VALUETYPE [0100001a], BYREF U1 )]
+MethodRef 002e[00000334] [Type: 0020] .ctor [METHOD VOID( I4, I4, I4 )]
+MethodRef 002f[0000033c] [Type: 0018] CCARequest [METHOD VOID( BYREF VALUETYPE [0100001a] )]
+MethodRef 0030[00000344] [Type: 0020] op_LessThan [METHOD BOOLEAN( VALUETYPE [01000020], VALUETYPE [01000020] )]
+MethodRef 0031[0000034c] [Type: 0014] SetAddressFilter [METHOD VOID( BOOLEAN, U2, U2, BOOLEAN )]
+MethodRef 0032[00000354] [Type: 0014] SetAutoAck [METHOD VOID( BOOLEAN )]
+MethodRef 0033[0000035c] [Type: 0003] ReadByte [METHOD U1( I4 )]
+MethodRef 0034[00000364] [Type: 0016] Concat [METHOD STRING( STRING, STRING, STRING )]
+
+TypeDef 0000[0000036c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] TestPHY Program
+
+FieldDef 0000[00000384] [Flags: 00000001] TestPHY.Program::phy [FIELD CLASS [01000001]]
+FieldDef 0001[0000038c] [Flags: 00000001] TestPHY.Program::leds [FIELD CLASS [01000002]]
+FieldDef 0002[00000394] [Flags: 00000001] TestPHY.Program::m_frame [FIELD CLASS [01000003]]
+FieldDef 0003[0000039c] [Flags: 00000001] TestPHY.Program::m_RespFrame [FIELD CLASS [01000003]]
+
+MethodDef 0000[000003a4] [Flags: 00000081] [RVA: 0000] TestPHY.Program::TestSPI [METHOD VOID()]
+MethodDef 0001[000003b4] [Flags: 00001486] [RVA: 002f] TestPHY.Program::.ctor [METHOD VOID()]
+MethodDef 0002[000003c4] [Flags: 00000086] [RVA: 005e] TestPHY.Program::TestLights [METHOD VOID()]
+MethodDef 0003[000003d4] [Flags: 00000086] [RVA: 00b7] TestPHY.Program::TestCommon [METHOD VOID()]
+MethodDef 0004[000003e4] [Flags: 00000086] [RVA: 0493] TestPHY.Program::TestSend [METHOD VOID( BOOLEAN )]
+MethodDef 0005[000003f4] [Flags: 00000081] [RVA: 069a] TestPHY.Program::phy_DataIndicationDummy [METHOD VOID( CLASS [01000004], CLASS [01000003], U1 )]
+MethodDef 0006[00000404] [Flags: 00000081] [RVA: 06a0] TestPHY.Program::phy_DataIndicationAqc [METHOD VOID( CLASS [01000004], CLASS [01000003], U1 )]
+MethodDef 0007[00000414] [Flags: 00000081] [RVA: 0823] TestPHY.Program::phy_DataIndicationFlash [METHOD VOID( CLASS [01000004], CLASS [01000003], U1 )]
+MethodDef 0008[00000424] [Flags: 00000086] [RVA: 0853] TestPHY.Program::TestReceive [METHOD VOID()]
+MethodDef 0009[00000434] [Flags: 00000081] [RVA: 0a07] TestPHY.Program::phy_DataIndicationDump [METHOD VOID( CLASS [01000004], CLASS [01000003], U1 )]
+MethodDef 000a[00000444] [Flags: 00000086] [RVA: 0a47] TestPHY.Program::TestReceiveDump [METHOD VOID()]
+MethodDef 000b[00000454] [Flags: 40000091] [RVA: 0ab0] TestPHY.Program::TestPins [METHOD VOID()]
+MethodDef 000c[00000464] [Flags: 00000091] [RVA: 0b2c] TestPHY.Program::Assert [METHOD VOID( BOOLEAN )]
+MethodDef 000d[00000474] [Flags: 08000096] [RVA: 0b34] TestPHY.Program::Main [METHOD VOID( SZARRAY STRING )]
+Resource 0000[00000484] [000004cc:3] 000d 00000000[00000494]
+

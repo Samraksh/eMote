@@ -1,0 +1,13 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\SimpleLibraryTest.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\SimpleLibraryTest.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.Resources.resources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.csproj.GenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.Resources.tinyresources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.csproj.TinyGenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\SimpleLibraryTest\__COMMON\SimpleLibraryTest.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\SimpleLibraryTest.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\SimpleLibraryTest.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\SimpleLibraryTest.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dat\tinyos_test.dat
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\SimpleLibraryTest.dump

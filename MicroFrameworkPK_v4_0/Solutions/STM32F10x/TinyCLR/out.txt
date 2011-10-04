@@ -1,0 +1,1840 @@
+Microsoft (R) Build Engine Version 3.5.30729.1
+[Microsoft .NET Framework, Version 2.0.50727.3053]
+Copyright (C) Microsoft Corporation 2007. All rights reserved.
+
+C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\core.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+C:\MicroFrameworkPK_v4_0\Framework\Features\I2C.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+C:\MicroFrameworkPK_v4_0\Framework\Features\SerialPort.featureproj(6,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+C:\MicroFrameworkPK_v4_0\Framework\Features\SerialPort.featureproj(7,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\serial_port.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+C:\MicroFrameworkPK_v4_0\Framework\Features\SPI.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\Hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+Build started 1/14/2011 3:12:09 PM.
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" on node 0 (default targets).
+  Doing build of Executable tinyclr - rule is BuildAXF;BuildSigFiles
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) on node 0 (Build target(s)).
+  Doing build of Library Core - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\HeapPersistence\dotNetMF.proj" (3) on node 0 (default targets).
+  Doing build of Library HeapPersistence - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\HeapPersistence\dotNetMF.proj" (3) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\HeapPersistence\dotNetMF_Stub.proj" (5) on node 0 (Build target(s)).
+  Doing build of Library HeapPersistence_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\HeapPersistence\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\HeapPersistence\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\I2C\dotNetMF.proj" (6) on node 0 (default targets).
+  Doing build of Library I2C - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\I2C\dotNetMF.proj" (6) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\I2C\dotNetMF_Stub.proj" (7) on node 0 (Build target(s)).
+  Doing build of Library I2C_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\I2C\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\I2C\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\IOPort\dotNetMF.proj" (8) on node 0 (default targets).
+  Doing build of Library IOPort - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\IOPort\dotNetMF.proj" (8) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\IOPort\dotNetMF_Stub.proj" (9) on node 0 (Build target(s)).
+  Doing build of Library IOPort_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\IOPort\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\IOPort\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\RPC\dotNetMF.proj" (10) on node 0 (default targets).
+  Doing build of Library RPC - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\RPC\dotNetMF.proj" (10) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\RPC\dotNetMF_Stub.proj" (11) on node 0 (Build target(s)).
+  Doing build of Library RPC_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\RPC\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\RPC\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Serialization\dotNetMF.proj" (12) on node 0 (default targets).
+  Doing build of Library Serialization - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Serialization\dotNetMF.proj" (12) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Serialization\dotNetMF_Stub.proj" (13) on node 0 (Build target(s)).
+  Doing build of Library Serialization_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Serialization\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Serialization\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Stream\dotNetMF.proj" (14) on node 0 (default targets).
+  Doing build of Library Stream - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Stream\dotNetMF.proj" (14) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Stream\dotNetMF_Stub.proj" (15) on node 0 (Build target(s)).
+  Doing build of Library Stream_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Stream\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Stream\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF.proj" (16) on node 0 (default targets).
+  Doing build of Library Hardware - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF.proj" (16) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" (17) on node 0 (default targets).
+  Doing build of Library InterruptHandler - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" (17) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\InterruptHandler\dotNetMF_Stub.proj" (18) on node 0 (Build target(s)).
+  Doing build of Library InterruptHandler_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\InterruptHandler\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF.proj" (16) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF_Stub.proj" (19) on node 0 (Build target(s)).
+  Doing build of Library Hardware_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Hardware\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (2) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Xml\dotNetMF.proj" (20) on node 0 (default targets).
+  Doing build of Library Xml - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Xml\dotNetMF.proj" (20) is building "C:\MicroFrameworkPK_v4_0\CLR\Core\Xml\dotNetMF_Stub.proj" (21) on node 0 (Build target(s)).
+  Doing build of Library Xml_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Xml\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\Xml\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Core\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\StartupLib\dotnetmf.proj" (22) on node 0 (Build target(s)).
+  Doing build of Library CLRStartup - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\StartupLib\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\CorLib\dotnetmf.proj" (23) on node 0 (Build target(s)).
+  Doing build of Library CorLib - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\CorLib\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\dotnetmf.proj" (24) on node 0 (Build target(s)).
+  Doing build of Library SPOT - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\dotnetmf.proj" (24) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Crypto\dotNetMF.proj" (25) on node 0 (default targets).
+  Doing build of Library SPOT_Crypto - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Crypto\dotNetMF.proj" (25) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Crypto\dotNetMF_Stub.proj" (26) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Crypto_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Crypto\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Crypto\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\dotnetmf.proj" (24) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF.proj" (27) on node 0 (default targets).
+  Doing build of Library SPOT_Messaging - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF.proj" (27) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF_Stub.proj" (28) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Messaging_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Messaging\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\dotnetmf.proj" (24) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF.proj" (29) on node 0 (default targets).
+  Doing build of Library SPOT_Serialization - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF.proj" (29) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF_Stub.proj" (30) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Serialization_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\SPOT_Serialization\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\InteropLibrary\NativeCode\dotnetmf.proj" (31) on node 0 (Build target(s)).
+  Doing build of Library ADC_library - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\InteropLibrary\NativeCode\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\clr\core\InteropAssembliesTable.proj" (32) on node 0 (Build target(s)).
+  Doing build of Library InteropAssembliesTable - rule is ArmBuildLib
+GenerateInteropTable:
+  Generating C:\MicroFrameworkPK_v4_0\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\STM32F10x\obj\Solutions\STM32F10x\TinyCLR\CLR_RT_InteropAssembliesTable.cpp
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+Done Building Project "C:\MicroFrameworkPK_v4_0\clr\core\InteropAssembliesTable.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (33) on node 0 (Build target(s)).
+  Doing build of Library Debugger - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (33) is building "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_extended.proj" (34) on node 0 (Build target(s)).
+  Doing build of Library Debugger_extended - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_extended.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (33) is building "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_full.proj" (35) on node 0 (Build target(s)).
+  Doing build of Library Debugger_full - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_full.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (33) is building "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_minimal.proj" (36) on node 0 (Build target(s)).
+  Doing build of Library Debugger_minimal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_minimal.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (33) is building "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_Stub.proj" (37) on node 0 (Build target(s)).
+  Doing build of Library Debugger_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Debugger\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Graphics\dotNetMF_stub.proj" (38) on node 0 (Build target(s)).
+  Doing build of Library Graphics_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Graphics\dotNetMF_stub.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (39) on node 0 (Build target(s)).
+  Doing build of Library batterycharger_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (40) on node 0 (Build target(s)).
+  Doing build of Library batterymeasurement_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" (41) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Hardware - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" (41) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF.proj" (42) on node 0 (default targets).
+  Doing build of Library SPOT_Hardware_SerialPort - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF.proj" (42) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF_Stub.proj" (43) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Hardware_SerialPort_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Serial\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" (41) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF.proj" (44) on node 0 (default targets).
+  Doing build of Library SPOT_Hardware_Usb - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF.proj" (44) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF_Stub.proj" (45) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Hardware_Usb_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" (41) is building "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF_Stub.proj" (46) on node 0 (Build target(s)).
+  Doing build of Library SPOT_Hardware_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Messaging\dotNetMF.proj" (47) on node 0 (Build target(s)).
+  Doing build of Library Messaging - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Messaging\dotNetMF.proj" (47) is building "C:\MicroFrameworkPK_v4_0\CLR\Messaging\dotNetMF_Stub.proj" (48) on node 0 (Build target(s)).
+  Doing build of Library Messaging_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Messaging\dotNetMF_Stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Messaging\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (49) on node 0 (Build target(s)).
+  Doing build of Library i2c_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (49) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (50) on node 0 (default targets).
+  Doing build of Library i2c_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USART\dotNetMF.proj" (51) on node 0 (Build target(s)).
+  Doing build of Library usart_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USART\dotNetMF.proj" (51) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (52) on node 0 (default targets).
+  Doing build of Library usart_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USART\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USB\dotNetMF.proj" (53) on node 0 (Build target(s)).
+  Doing build of Library usb_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\USB\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Support\CRC\dotNetMF.proj" (54) on node 0 (Build target(s)).
+  Doing build of Library CRC - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Support\CRC\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\CLR\Diagnostics\dotNetMF.proj" (55) on node 0 (Build target(s)).
+  Doing build of Library Diagnostics - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\CLR\Diagnostics\dotNetMF.proj" (55) is building "C:\MicroFrameworkPK_v4_0\CLR\Diagnostics\dotNetMF_stub.proj" (56) on node 0 (Build target(s)).
+  Doing build of Library Diagnostics_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Diagnostics\dotNetMF_stub.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\CLR\Diagnostics\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Diagnostics\dotNetMF.proj" (57) on node 0 (Build target(s)).
+  Doing build of Library diagnostics_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Diagnostics\dotNetMF.proj" (57) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Diagnostics\Stubs\dotNetMF.proj" (58) on node 0 (default targets).
+  Doing build of Library diagnostics_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Diagnostics\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Diagnostics\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\dotNetMF.proj" (59) on node 0 (Build target(s)).
+  Doing build of Library TinyHal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\dotNetMF.proj" (59) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\dotNetMF_loader.proj" (60) on node 0 (Build target(s)).
+  Doing build of Library TinyHal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Support\WireProtocol\dotNetMF.proj" (61) on node 0 (Build target(s)).
+  Doing build of Library WireProtocol - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Support\WireProtocol\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\dotNetMF.proj" (62) on node 0 (Build target(s)).
+  Doing build of Library COM_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\dotNetMF.proj" (62) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\sockets\dotNetMF.proj" (63) on node 0 (default targets).
+  Doing build of Library sockets_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\sockets\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\dotNetMF.proj" (62) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (64) on node 0 (default targets).
+  Doing build of Library COM_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (65) on node 0 (Build target(s)).
+  Doing build of Library sockets_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (66) on node 0 (Build target(s)).
+  Doing build of Library asyncproccall_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (66) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\AsyncProcCall\Stubs\dotNetMF.proj" (67) on node 0 (default targets).
+  Doing build of Library asyncproccall_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\AsyncProcCall\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" (68) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_bootstrap - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rcc\dotNetMF.proj" (69) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_rcc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rcc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rs232\dotNetMF.proj" (70) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_rs232 - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rs232\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" (71) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_cmsis - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\board\dotNetMF.proj" (72) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_board - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\board\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" (73) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_adc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bkp\dotNetMF.proj" (74) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_bkp - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bkp\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\cache\dotNetMF.proj" (75) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_cache - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\cache\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\can\dotNetMF.proj" (76) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_can - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\can\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\cec\dotNetMF.proj" (77) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_cec - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\cec\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\crc\dotNetMF.proj" (78) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_crc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\crc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" (79) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_dac - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dbgmcu\dotNetMF.proj" (80) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_dbgmcu - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dbgmcu\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dma\dotNetMF.proj" (81) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_dma - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\dma\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" (82) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_exti - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" (83) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_flash - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" (84) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_fsmc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" (85) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_gpio - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" (86) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_i2c - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\iwdg\dotNetMF.proj" (87) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_iwdg - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\iwdg\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\lcd_basic\dotNetMF.proj" (88) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_lcd_basic - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\lcd_basic\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" (89) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_bl - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\led\dotNetMF.proj" (90) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_led - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\led\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\test_native_drivers\dotNetMF.proj" (91) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_test_spi - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\test_native_drivers\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" (92) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_misc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" (93) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_pwr - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rtc\dotNetMF.proj" (94) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_rtc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\rtc\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\globallock\dotNetMF.proj" (95) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_globallock - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\globallock\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" (96) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_sdio - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" (97) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_spi - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" (98) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_tim - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" (99) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_usart - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\wwdg\dotNetMF.proj" (100) on node 0 (Build target(s)).
+  Doing build of Library STM32F10x_wwdg - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\wwdg\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\configuration\stubs\dotNetMF.proj" (101) on node 0 (Build target(s)).
+  Doing build of Library config_pal_Stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\configuration\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Crypto\stubs\dotNetMF.proj" (102) on node 0 (Build target(s)).
+  Doing build of Library Crypto_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Crypto\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Events\dotNetMF.proj" (103) on node 0 (Build target(s)).
+  Doing build of Library events_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Events\dotNetMF.proj" (103) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Events\Stubs\dotNetMF.proj" (104) on node 0 (default targets).
+  Doing build of Library events_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Events\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Events\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (105) on node 0 (Build target(s)).
+  Doing build of Library cpu_i2c_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Initialization\dotNetMF.proj" (106) on node 0 (Build target(s)).
+  Doing build of Library system_initialization_hal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Initialization\dotNetMF.proj" (106) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Initialization\dotNetMF_loader.proj" (107) on node 0 (Build target(s)).
+  Doing build of Library system_initialization_hal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Initialization\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Initialization\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Heap\dotNetMF.proj" (108) on node 0 (Build target(s)).
+  Doing build of Library heap_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Heap\dotNetMF.proj" (108) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Heap\Stubs\dotNetMF.proj" (109) on node 0 (default targets).
+  Doing build of Library heap_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Heap\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Heap\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" (110) on node 0 (Build target(s)).
+  Doing build of Library cpu_intc_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\LargeBuffer\stubs\dotNetMF.proj" (111) on node 0 (Build target(s)).
+  Doing build of Library LargeBuffer_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\LargeBuffer\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (112) on node 0 (Build target(s)).
+  Doing build of Library cpu_mmu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" (113) on node 0 (Build target(s)).
+  Doing build of Library cpu_prestackinit_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (114) on node 0 (Build target(s)).
+  Doing build of Library SimpleHeap_config - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (114) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (115) on node 0 (default targets).
+  Doing build of Library SimpleHeap_config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (116) on node 0 (Build target(s)).
+  Doing build of Library SimpleHeap - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (116) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap\Stubs\dotNetMF.proj" (117) on node 0 (default targets).
+  Doing build of Library SimpleHeap_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\SimpleHeap\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\time\dotNetMF.proj" (118) on node 0 (Build target(s)).
+  Doing build of Library Time_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\time\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (119) on node 0 (Build target(s)).
+  Doing build of Library Ink_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (120) on node 0 (Build target(s)).
+  Doing build of Library blockstorage_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (120) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (121) on node 0 (default targets).
+  Doing build of Library blockstorage_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (122) on node 0 (Build target(s)).
+  Doing build of Library cpu_LCD_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (123) on node 0 (Build target(s)).
+  Doing build of Library Gesture_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (124) on node 0 (Build target(s)).
+  Doing build of Library backlight_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (125) on node 0 (Build target(s)).
+  Doing build of Library FS_Config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (126) on node 0 (Build target(s)).
+  Doing build of Library TimeService_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (127) on node 0 (Build target(s)).
+  Doing build of Library fs_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (128) on node 0 (Build target(s)).
+  Doing build of Library lcd_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (129) on node 0 (Build target(s)).
+  Doing build of Library Buttons_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (130) on node 0 (Build target(s)).
+  Doing build of Library cpu_ebiu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\palevent\stubs\dotNetMF.proj" (131) on node 0 (Build target(s)).
+  Doing build of Library palevent_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\palevent\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF.proj" (132) on node 0 (Build target(s)).
+  Doing build of Library tinycrt_pal - rule is ArmBuildLib
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF.proj" (132) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\Stubs\dotNetMF.proj" (133) on node 0 (default targets).
+  Doing build of Library tinycrt_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\Stubs\dotNetMF.proj" (default targets).
+Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF.proj" (132) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF_loader.proj" (134) on node 0 (Build target(s)).
+  Doing build of Library tinycrt_pal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\pal\tinycrt\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (135) on node 0 (Build target(s)).
+  Doing build of Library usb_pal_config_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" (136) on node 0 (Build target(s)).
+  Doing build of Library cpu_usb_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (137) on node 0 (Build target(s)).
+  Doing build of Library cpu_watchdog_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" (138) on node 0 (Build target(s)).
+  Doing build of Library Watchdog_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\VirtualKey\dotNetMF.proj" (139) on node 0 (Build target(s)).
+  Doing build of Library virtualkey_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\Drivers\stubs\VirtualKey\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (140) on node 0 (Build target(s)).
+  Doing build of Library piezo_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Framework\Subset_of_CorLib\SpotCorLib.csproj" (141) on node 0 (Build target(s)).
+  Building...C:\MicroFrameworkPK_v4_0\Framework\Subset_of_CorLib\SpotCorLib.csproj;
+CoreResGen:
+  No resources are out of date with respect to their source files. Skipping resource generation.
+TinyResGen:
+  GenerateResource.NothingOutOfDate
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  SpotCorLib -> C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\mscorlib.dll
+MetaDataProcessorCompile:
+Skipping target "MetaDataProcessorCompile" because all output files are up-to-date with respect to the input files.
+MetaDataProcessorDump:
+Skipping target "MetaDataProcessorDump" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Framework\Subset_of_CorLib\SpotCorLib.csproj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Framework\Core\Native\Core_Native.csproj" (142) on node 0 (Build target(s)).
+  Building...C:\MicroFrameworkPK_v4_0\Framework\Core\Native\Core_Native.csproj;
+CoreResGen:
+  No resources are out of date with respect to their source files. Skipping resource generation.
+TinyResGen:
+  GenerateResource.NothingOutOfDate
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  Core_Native -> C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Native.dll
+MetaDataProcessorCompile:
+Skipping target "MetaDataProcessorCompile" because all output files are up-to-date with respect to the input files.
+MetaDataProcessorDump:
+Skipping target "MetaDataProcessorDump" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Framework\Core\Native\Core_Native.csproj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Framework\Core\Native_hardware\Core_Native_Hardware.csproj" (143) on node 0 (Build target(s)).
+  Building...C:\MicroFrameworkPK_v4_0\Framework\Core\Native_hardware\Core_Native_Hardware.csproj;
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  Core_Native_Hardware -> C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.dll
+MetaDataProcessorCompile:
+Skipping target "MetaDataProcessorCompile" because all output files are up-to-date with respect to the input files.
+MetaDataProcessorDump:
+Skipping target "MetaDataProcessorDump" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Framework\Core\Native_hardware\Core_Native_Hardware.csproj" (Build target(s)).
+Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (1) is building "C:\MicroFrameworkPK_v4_0\Framework\Core\Native_Hardware\Native_UART\Core_Native_Hardware_UART.csproj" (144) on node 0 (Build target(s)).
+  Building...C:\MicroFrameworkPK_v4_0\Framework\Core\Native_Hardware\Native_UART\Core_Native_Hardware_UART.csproj;
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  Core_Native_Hardware_UART -> C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.SerialPort.dll
+MetaDataProcessorCompile:
+Skipping target "MetaDataProcessorCompile" because all output files are up-to-date with respect to the input files.
+MetaDataProcessorDump:
+Skipping target "MetaDataProcessorDump" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Framework\Core\Native_Hardware\Native_UART\Core_Native_Hardware_UART.csproj" (Build target(s)).
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+TinyClrDat:
+  ***************************************************************************************************
+  Target: TinyClrDat with outputs C:\MicroFrameworkPK_v4_0\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\STM32F10x\obj\Solutions\STM32F10x\TinyCLR\tinyclr_dat.obj
+  Building Tinyclr.dat from the features specified in the tinyclr.proj file
+  ========== Database file content:
+  Assembly 1: mscorlib (4.0.1681.0), size: 29700
+  Assembly 2: Microsoft.SPOT.Native (4.0.1681.0), size: 5716
+  Assembly 3: Microsoft.SPOT.Hardware (4.0.1681.0), size: 11424
+  Assembly 4: Microsoft.SPOT.Hardware.SerialPort (4.0.1681.0), size: 3440
+  ========== End of Database file content
+  ***************************************************************************************************
+          1 file(s) copied.
+BuildScatterfile:
+Skipping target "BuildScatterfile" because all output files are up-to-date with respect to the input files.
+Done Building Project "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\TinyCLR\TinyCLR.proj" (default targets).
+
+Build succeeded.
+
+  C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\core.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+  C:\MicroFrameworkPK_v4_0\Framework\Features\I2C.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+  C:\MicroFrameworkPK_v4_0\Framework\Features\SerialPort.featureproj(6,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+  C:\MicroFrameworkPK_v4_0\Framework\Features\SerialPort.featureproj(7,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\serial_port.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+  C:\MicroFrameworkPK_v4_0\Framework\Features\SPI.featureproj(5,11): warning MSB4011: There is a circular reference involving the import of file "C:\MicroFrameworkPK_v4_0\Framework\Features\Hardware.featureproj". This file may have been imported more than once, or you may have attempted to import the main project file. All except the first instance of this file will be ignored.
+
+    5 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:01:26.09

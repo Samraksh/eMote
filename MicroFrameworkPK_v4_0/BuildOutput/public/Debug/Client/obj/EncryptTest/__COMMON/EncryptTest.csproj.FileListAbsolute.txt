@@ -1,0 +1,14 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.Resources.resources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.csproj.GenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\EncryptTest.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\EncryptTest.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.Resources.tinyresources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.csproj.TinyGenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.exe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\EncryptTest\__COMMON\EncryptTest.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\EncryptTest.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\EncryptTest.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\EncryptTest.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dat\Encrypt_Test.dat
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\xml\DependencyGraph_Test_Threads.xml
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\EncryptTest.dump

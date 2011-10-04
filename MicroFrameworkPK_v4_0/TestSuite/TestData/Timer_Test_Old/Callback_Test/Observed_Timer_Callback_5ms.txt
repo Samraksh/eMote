@@ -1,0 +1,4 @@
+With main thread sleeping in a 1000ms period
+Range, 
+(5.2 ms common case)
+4ms - 6.2/7.4/11.4

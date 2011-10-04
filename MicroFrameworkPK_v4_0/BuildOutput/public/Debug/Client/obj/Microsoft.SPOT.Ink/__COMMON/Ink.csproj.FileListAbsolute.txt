@@ -1,0 +1,8 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Ink.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Ink.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Ink\__COMMON\Microsoft.SPOT.Ink.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Ink\__COMMON\Microsoft.SPOT.Ink.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Ink.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Ink.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Ink.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\Microsoft.SPOT.Ink.dump

@@ -1,0 +1,656 @@
+void SetDeviceAddress(UINT8 Val)
+{
+  UINT32 i;
+  UINT32 nEP = 2;
+
+  /* set address in every used endpoint */
+  for (i = 0; i < nEP; i++)
+  {
+    _SetEPAddress((uint8_t)i, (uint8_t)i);
+  } /* for */
+  _SetDADDR(Val | DADDR_EF); /* set device address and enable function */
+
+}
+
+void usb_irq_handler()
+{
+   wIstr = _GetISTR();
+
+#if (IMR_MSK & ISTR_CTR)
+  if (wIstr & ISTR_CTR & wInterrupt_Mask)
+  {
+    /* servicing of the endpoint correct transfer interrupt */
+    /* clear of the CTR flag into the sub */    
+	ctr_lp();
+#ifdef CTR_CALLBACK
+    CTR_Callback();
+#endif
+  }
+#endif  
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_RESET)
+  if (wIstr & ISTR_RESET & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_RESET);
+    USBCS_Driver::ResetEvent();
+#ifdef RESET_CALLBACK
+    RESET_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_DOVR)
+  if (wIstr & ISTR_DOVR & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_DOVR);
+#ifdef DOVR_CALLBACK
+    DOVR_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_ERR)
+  if (wIstr & ISTR_ERR & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_ERR);
+#ifdef ERR_CALLBACK
+    ERR_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_WKUP)
+  if (wIstr & ISTR_WKUP & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_WKUP);
+    //Resume(RESUME_EXTERNAL);
+#ifdef WKUP_CALLBACK
+    WKUP_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_SUSP)
+  if (wIstr & ISTR_SUSP & wInterrupt_Mask)
+  {
+
+    /* check if SUSPEND is possible */
+    //if (fSuspendEnabled)
+    //{
+    //  //Suspend();
+    //}
+    //else
+    //{
+    //  /* if not possible then resume after xx ms */
+    //  //Resume(RESUME_LATER);
+    //}
+    /* clear of the ISTR bit must be done after setting of CNTR_FSUSP */
+    _SetISTR((uint16_t)CLR_SUSP);
+#ifdef SUSP_CALLBACK
+    SUSP_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_SOF)
+  if (wIstr & ISTR_SOF & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_SOF);
+    //bIntPackSOF++;
+
+#ifdef SOF_CALLBACK
+    SOF_Callback();
+#endif
+  }
+#endif
+  /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+#if (IMR_MSK & ISTR_ESOF)
+  if (wIstr & ISTR_ESOF & wInterrupt_Mask)
+  {
+    _SetISTR((uint16_t)CLR_ESOF);
+    /* resume handling timing is made with ESOFs */
+    //Resume(RESUME_ESOF); /* request without change of the machine state */
+
+#ifdef ESOF_CALLBACK
+    ESOF_Callback();
+#endif
+  }
+#endif
+} /* USB_Istr */
+
+void ctr_lp()
+{
+   UINT16 wEPVal = 0;
+   UINT8 EPindex;
+  
+   /* stay in loop while pending interrupts */
+  while (((wIstr = _GetISTR()) & ISTR_CTR) != 0)
+  {
+    /* extract highest priority endpoint number */
+    EPindex = (UINT8)(wIstr & ISTR_EP_ID);
+    if (EPindex == 0)
+    {
+      /* Decode and service control endpoint interrupt */
+      /* calling related service routine */
+      /* (Setup0_Process, In0_Process, Out0_Process) */
+
+      /* save RX & TX status */
+      /* and set both to NAK */
+
+
+	    SaveRState = _GetENDPOINT(ENDP0);
+	    SaveTState = SaveRState & EPTX_STAT;
+	    SaveRState &=  EPRX_STAT;	
+
+	    _SetEPRxTxStatus(ENDP0,EP_RX_NAK,EP_TX_NAK);
+
+      /* DIR bit = origin of the interrupt */
+
+      if ((wIstr & ISTR_DIR) == 0)
+      {
+        /* DIR = 0 */
+
+        /* DIR = 0      => IN  int */
+        /* DIR = 0 implies that (EP_CTR_TX = 1) always  */
+
+
+        _ClearEP_CTR_TX(ENDP0);		
+        In0_Process();
+
+           /* before terminate set Tx & Rx status */
+
+            _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
+		  return;
+      }
+      else
+      {
+        /* DIR = 1 */
+
+        /* DIR = 1 & CTR_RX       => SETUP or OUT int */
+        /* DIR = 1 & (CTR_TX | CTR_RX) => 2 int pending */
+
+        wEPVal = _GetENDPOINT(ENDP0);
+        
+        if ((wEPVal &EP_SETUP) != 0)
+        {
+          _ClearEP_CTR_RX(ENDP0); /* SETUP bit kept frozen while CTR_RX = 1 */
+          Setup0_Process();
+          /* before terminate set Tx & Rx status */
+
+		      _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
+          return;
+        }
+
+        else if ((wEPVal & EP_CTR_RX) != 0)
+        {
+          _ClearEP_CTR_RX(ENDP0);
+          //Out0_Process();
+          /* before terminate set Tx & Rx status */
+     
+		     _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
+          return;
+        }
+      }
+	}
+  }
+}
+
+UINT8 Setup0_Process(void)
+{
+  union
+  {
+    UINT8* b;
+    UINT16* w;
+  } pBuf;
+
+  UINT16 offset = 1;
+
+  //Kartik : Debug purpose; remove when done
+  UINT8 retVal;
+  pInformation = &Device_Info;
+  //
+  
+  pBuf.b = PMAAddr + (uint8_t *)(_GetEPRxAddr(ENDP0) * 2); /* *2 for 32 bits addr */
+
+  
+  pInformation->USBbmRequestType = *pBuf.b++; /* bmRequestType */
+  pInformation->USBbRequest = *pBuf.b++; /* bRequest */
+  pBuf.w += offset;  /* word not accessed because of 32 bits addressing */
+  pInformation->USBwValue = ByteSwap(*pBuf.w++); /* wValue */ //ByteSwap(*pBuf.w++); 
+  pBuf.w += offset;  /* word not accessed because of 32 bits addressing */
+  pInformation->USBwIndex  = ByteSwap(*pBuf.w++); //ByteSwap(*pBuf.w++); /* wIndex */
+  pBuf.w += offset;  /* word not accessed because of 32 bits addressing */
+  pInformation->USBwLength = *pBuf.w; /* wLength */
+
+  pInformation->ControlState = SETTING_UP;
+  if (pInformation->USBwLength == 0)
+  {
+    /* Setup with no data stage */
+    NoData_Setup0();
+  }
+  else
+  {
+    /* Setup with data stage */
+    //Kartik : Make the MF control packet structure point to the pBuf structure 
+	//Kartik : TODO : Debug this; the values of length and index are inter-changed
+
+	g_USB_Driver.ControlPacketBuffer[0] = pInformation->USBbmRequestType;	
+	g_USB_Driver.ControlPacketBuffer[1] = pInformation->USBbRequest;		
+	g_USB_Driver.ControlPacketBuffer[2] = pInformation->USBwValues.bw.bb1;
+	g_USB_Driver.ControlPacketBuffer[3] = pInformation->USBwValues.bw.bb0;
+	g_USB_Driver.ControlPacketBuffer[4] = pInformation->USBwIndexs.bw.bb1;	
+	g_USB_Driver.ControlPacketBuffer[5] = pInformation->USBwIndexs.bw.bb0;	
+	g_USB_Driver.ControlPacketBuffer[6] = pInformation->USBwLengths.bw.bb1;
+	g_USB_Driver.ControlPacketBuffer[7] = pInformation->USBwLengths.bw.bb0;
+	
+	Data_Setup0();	
+	
+  }
+  return Post0_Process();
+  //return retVal;
+}
+
+void Data_Setup0(void)
+{
+  
+  USB_CONTROLLER_STATE *State = g_USB_Driver.pUsbControllerState;
+
+  UINT8* (*CopyRoutine)(uint16_t);
+  RESULT Result;
+  UINT32 Request_No = pInformation->USBbRequest;
+
+  UINT32 Related_Endpoint, Reserved;
+  UINT32 wOffset, Status;
+  UINT8 result;
+
+  CopyRoutine = NULL;
+  wOffset = 0;
+
+  /*GET DESCRIPTOR*/
+  if (Request_No == GET_DESCRIPTOR)
+  {	
+    if (Type_Recipient == (STANDARD_REQUEST | DEVICE_RECIPIENT))
+    {
+      UINT8 wValue1 = pInformation->USBwValue1;
+      if (wValue1 == DEVICE_DESCRIPTOR)
+      {
+		STM_EVAL_LEDToggle((Led_TypeDef)1);
+	    State->FirstGetDescriptor = TRUE;		
+		State->Data = (UINT8 *) g_USB_Driver.ControlPacketBuffer;		
+		State->DataSize = 16; //Kartik : Hardcoded
+        //CopyRoutine = pProperty->GetDeviceDescriptor;
+		//Kartik : Calling PAL now with the data for Device Descriptors
+		result = USB_ControlCallback( State );
+
+		switch(result)
+        {
+        case USB_STATE_DATA:
+            /* setup packet was handled and the upper layer has data to send */
+            break;
+
+        case USB_STATE_ADDRESS:
+            /* upper layer needs us to change the address */
+            // address stage handles in hardware
+            break;
+
+        case USB_STATE_DONE:
+            State->DataCallback = NULL;
+            break;
+
+        case USB_STATE_STALL:
+            // since the setup command all handled in the hardware, should not have this state 
+            //
+            // setup packet failed to process successfully
+            // set stall condition on the default control
+            // endpoint
+            //
+            break;
+
+        case USB_STATE_STATUS:
+            // handle by hardware            
+            break;
+        case USB_STATE_CONFIGURATION:
+            // handle partly by hardware and the GLOBAL_ISR will take care.
+            /* USB spec 9.4.5 SET_CONFIGURATION resets halt conditions, resets toggle bits */
+            break;
+
+        case USB_STATE_REMOTE_WAKEUP:
+            // It is not using currently as the device side won't go into SUSPEND mode unless
+            // the PC is purposely to select it to SUSPEND, as there is always SOF in the bus
+            // to keeping the device from SUSPEND.
+            break;
+
+        default:
+            ASSERT(0);
+            break;            
+            // the status change is only seen and taken care in hardware
+        }
+
+		//Check if the upper layer has data to be sent. 
+		if (State->DataCallback)
+		{
+			UINT32 Length = 0x40; //Kartik
+			State->DataCallback( State );
+
+			if( State->DataSize == 0 )
+			{
+				//Send zero length packet 
+			}
+
+			else			
+			{
+				State->DataSize = 18;
+				ENDPOINT_INFO *pEPinfo = &pInformation->Ctrl_Info;
+				UserToPMABufferCopy(State->Data, GetEPTxAddr(ENDP0), State->DataSize);
+				SetEPTxCount(ENDP0, State->DataSize);
+				pEPinfo->Usb_wLength -= State->DataSize;
+				pEPinfo->Usb_wOffset += State->DataSize;
+				vSetEPTxStatus(EP_TX_VALID);
+				USB_StatusOut();
+				return;
+			}
+
+		}
+
+
+
+      }
+      else if (wValue1 == CONFIG_DESCRIPTOR)
+      {
+        //CopyRoutine = pProperty->GetConfigDescriptor;
+		//LED_RED();
+      }
+      else if (wValue1 == STRING_DESCRIPTOR)
+      {
+        //CopyRoutine = pProperty->GetStringDescriptor;
+      }  /* End of GET_DESCRIPTOR */
+    }
+  }  
+
+  if (ValBit(pInformation->USBbmRequestType, 7)) //Kartik : Indicates the value of the 7th Bit (D->H Xfer)
+  {
+    /* Device ==> Host */
+    __IO uint32_t wLength = pInformation->USBwLength;
+
+	//Kartik : Adding the value of pInformation->Ctrl_Info.Usb_wLength from PAL (*Device's length)
+	pInformation->Ctrl_Info.Usb_wLength = State->ResidualCount;
+         
+    /* Restrict the data length to be the one host asks for */
+    if (pInformation->Ctrl_Info.Usb_wLength > wLength)
+    {
+      pInformation->Ctrl_Info.Usb_wLength = wLength;
+    }
+    
+    else if (pInformation->Ctrl_Info.Usb_wLength < pInformation->USBwLength)
+    {
+      if (pInformation->Ctrl_Info.Usb_wLength < 0x40)//pProperty->MaxPacketSize)
+      {
+        Data_Mul_MaxPacketSize = FALSE;
+      }
+      else if ((pInformation->Ctrl_Info.Usb_wLength % 0x40) == 0) //pProperty->MaxPacketSize
+      {
+        Data_Mul_MaxPacketSize = TRUE;
+      }
+    }   
+
+	//Kartik : Commented because we don't have a pProperty structure in MF
+    pInformation->Ctrl_Info.PacketSize = 0x40; //Kartik : commenting pProperty->MaxPacketSize;
+	
+    DataStageIn();
+  }
+  else //Kartik : The transfer is from H->D
+  {
+    pInformation->ControlState = OUT_DATA;
+    vSetEPRxStatus(EP_RX_VALID); /* enable for next data reception */
+  }
+
+  return;
+}
+
+UINT16 ByteSwap(UINT16 wSwW)
+{
+  UINT8 bTemp;
+  UINT16 wRet;
+  bTemp = (UINT8)(wSwW & 0xff);
+  wRet =  (wSwW >> 8) | ((UINT16)bTemp << 8);
+  return(wRet);
+}
+
+void DataStageIn()
+{
+  ENDPOINT_INFO *pEPinfo = &pInformation->Ctrl_Info;
+  uint32_t save_wLength = pEPinfo->Usb_wLength;
+  uint32_t ControlState = pInformation->ControlState;
+
+  uint8_t *DataBuffer;
+  uint32_t Length;
+
+  if ((save_wLength == 0) && (ControlState == LAST_IN_DATA))
+  {
+    if(Data_Mul_MaxPacketSize == TRUE)
+    {
+      /* No more data to send and empty packet */
+      Send0LengthData();
+      ControlState = LAST_IN_DATA;
+      Data_Mul_MaxPacketSize = FALSE;
+    }
+    else 
+    {
+      /* No more data to send so STALL the TX Status*/
+      ControlState = WAIT_STATUS_OUT;
+
+    #ifdef STM32F10X_CL      
+      PCD_EP_Read (ENDP0, 0, 0);
+    #endif  /* STM32F10X_CL */ 
+    
+    #ifndef STM32F10X_CL 
+      vSetEPTxStatus(EP_TX_STALL);
+    #endif  /* STM32F10X_CL */ 
+    }
+    
+    goto Expect_Status_Out;
+  }
+
+  Length = pEPinfo->PacketSize;
+  ControlState = (save_wLength <= Length) ? LAST_IN_DATA : IN_DATA;
+
+  if (Length > save_wLength)
+  {
+    Length = save_wLength;
+  }
+
+  //Kartik : Commenting because we will get the pointer to the data from the PAL using a call to ControlNext
+  //DataBuffer = (*pEPinfo->CopyData)(Length);  
+
+#ifdef STM32F10X_CL
+  PCD_EP_Write (ENDP0, DataBuffer, Length);
+#else   
+  UserToPMABufferCopy(DataBuffer, GetEPTxAddr(ENDP0), Length);
+#endif /* STM32F10X_CL */ 
+
+  SetEPTxCount(ENDP0, Length);
+
+  pEPinfo->Usb_wLength -= Length;
+  pEPinfo->Usb_wOffset += Length;
+  vSetEPTxStatus(EP_TX_VALID);
+
+  USB_StatusOut();/* Expect the host to abort the data IN stage */
+
+Expect_Status_Out:
+  pInformation->ControlState = ControlState;
+}
+
+UINT8 Post0_Process(void)
+{
+  //SetEPRxCount(ENDP0, Device_Property.MaxPacketSize);
+  //Kartik : Hardcoded the packet size
+  SetEPRxCount(ENDP0, 0x40);
+
+  if (pInformation->ControlState == STALLED)
+  {
+    vSetEPRxStatus(EP_RX_STALL);
+    vSetEPTxStatus(EP_TX_STALL);
+  }
+  return (pInformation->ControlState == PAUSE);
+}
+
+
+void NoData_Setup0()
+{  
+  RESULT Result = USB_UNSUPPORT;
+  uint32_t RequestNo = pInformation->USBbRequest;
+  uint32_t ControlState;
+
+  if (Type_Recipient == (STANDARD_REQUEST | DEVICE_RECIPIENT))
+  {
+    /* Device Request*/
+    /* SET_CONFIGURATION*/
+    if (RequestNo == SET_CONFIGURATION)
+    {
+      //Result = Standard_SetConfiguration();
+    }
+
+    /*SET ADDRESS*/
+    else if (RequestNo == SET_ADDRESS)
+    {
+      if ((pInformation->USBwValue0 > 127) || (pInformation->USBwValue1 != 0)
+          || (pInformation->USBwIndex != 0)
+          || (pInformation->Current_Configuration != 0))
+        /* Device Address should be 127 or less*/
+      {
+        ControlState = STALLED;
+        goto exit_NoData_Setup0;
+      }
+      else
+      {
+        Result = USB_SUCCESS;
+		STM_EVAL_LEDToggle((Led_TypeDef)3);
+		//Kartik : Calling SetDeviceAddress(pInformation->USBwValue0) anyways. 
+		SetDeviceAddress(pInformation->USBwValue0);
+
+      //#ifdef STM32F10X_CL
+         //SetDeviceAddress(pInformation->USBwValue0);
+      //#endif  /* STM32F10X_CL */
+      }
+    }
+    /*SET FEATURE for Device*/
+    else if (RequestNo == SET_FEATURE)
+    {
+      if ((pInformation->USBwValue0 == DEVICE_REMOTE_WAKEUP) \
+          && (pInformation->USBwIndex == 0))
+      {
+        //Result = Standard_SetDeviceFeature();
+      }
+      else
+      {
+        Result = USB_UNSUPPORT;
+      }
+    }
+    /*Clear FEATURE for Device */
+    else if (RequestNo == CLEAR_FEATURE)
+    {
+      if (pInformation->USBwValue0 == DEVICE_REMOTE_WAKEUP
+          && pInformation->USBwIndex == 0
+          && ValBit(pInformation->Current_Feature, 5))
+      {
+        //Result = Standard_ClearFeature();
+      }
+      else
+      {
+        Result = USB_UNSUPPORT;
+      }
+    }
+
+  }
+
+  /* Interface Request*/
+  else if (Type_Recipient == (STANDARD_REQUEST | INTERFACE_RECIPIENT))
+  {
+    /*SET INTERFACE*/
+    if (RequestNo == SET_INTERFACE)
+    {
+      //Result = Standard_SetInterface();
+    }
+  }
+
+  /* EndPoint Request*/
+  else if (Type_Recipient == (STANDARD_REQUEST | ENDPOINT_RECIPIENT))
+  {
+    /*CLEAR FEATURE for EndPoint*/
+    if (RequestNo == CLEAR_FEATURE)
+    {
+      //Result = Standard_ClearFeature();
+    }
+    /* SET FEATURE for EndPoint*/
+    else if (RequestNo == SET_FEATURE)
+    {
+      //Result = Standard_SetEndPointFeature();
+    }
+  }
+  else
+  {
+    Result = USB_UNSUPPORT;
+  }
+
+
+  if (Result != USB_SUCCESS)
+  {
+    //Result = (*pProperty->Class_NoData_Setup)(RequestNo);
+    if (Result == USB_NOT_READY)
+    {
+      ControlState = PAUSE;
+      goto exit_NoData_Setup0;
+    }
+  }
+
+  if (Result != USB_SUCCESS)
+  {
+    ControlState = STALLED;
+    goto exit_NoData_Setup0;
+  }
+
+  ControlState = WAIT_STATUS_IN;/* After no data stage SETUP */
+
+  USB_StatusIn();
+
+exit_NoData_Setup0:
+  pInformation->ControlState = ControlState;
+  return;
+
+}
+
+UINT8 In0_Process(void)
+{
+
+  STM_EVAL_LEDToggle((Led_TypeDef)2);
+  UINT32 ControlState = pInformation->ControlState;
+
+  if ((ControlState == IN_DATA) || (ControlState == LAST_IN_DATA))
+  {
+    DataStageIn();
+    /* ControlState may be changed outside the function */
+    ControlState = pInformation->ControlState;
+  }
+
+  else if (ControlState == WAIT_STATUS_IN)
+  {
+    if ((pInformation->USBbRequest == SET_ADDRESS) &&
+        (Type_Recipient == (STANDARD_REQUEST | DEVICE_RECIPIENT)))
+    {
+      SetDeviceAddress(pInformation->USBwValue0);
+	  //Kartik :
+      //pUser_Standard_Requests->User_SetDeviceAddress();
+    }
+    //(*pProperty->Process_Status_IN)();
+    ControlState = STALLED;
+  }
+
+  else
+  {
+    ControlState = STALLED;
+  }
+
+  pInformation->ControlState = ControlState;
+
+  return Post0_Process();
+}

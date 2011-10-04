@@ -1,0 +1,43 @@
+﻿<Project DefaultTargets="TinyCLR_Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <AssemblyName>RadioCount</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>RadioCount</RootNamespace>
+    <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3BB5E164-677D-4319-823F-F5CE07B68592}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" />
+  <PropertyGroup>
+    <MMP_PE_NoBitmapCompression>true</MMP_PE_NoBitmapCompression>
+    <MMP_DAT_SKIP>false</MMP_DAT_SKIP>
+    <MMP_DAT_CreateDatabaseFile>C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dat\tinyos_test.dat</MMP_DAT_CreateDatabaseFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Native">
+	    <HintPath>$(BUILD_TREE_DLL)\Microsoft.SPOT.Native.dll</HintPath>
+    </Reference>
+    <Reference Include="TinyOS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\TinyOS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_PE)\mscorlib.pe">
+      <InProject>false</InProject>
+    </MMP_DAT_CreateDatabase>
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_PE)\Microsoft.SPOT.Native.pe">
+      <InProject>false</InProject>
+    </MMP_DAT_CreateDatabase>
+     <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_PE)\Microsoft.SPOT.Hardware.pe">
+      <InProject>false</InProject>
+    </MMP_DAT_CreateDatabase>
+    <MMP_XML_Load Include="@(MMP_DAT_CreateDatabase)">
+      <InProject>false</InProject>
+    </MMP_XML_Load>
+  </ItemGroup>
+</Project>

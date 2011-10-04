@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample
+END
+scatterfile_tools_mdk.xml
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/scatterfile_tools_mdk.xml
+END
+scatterfile_tools_gcc.xml
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/scatterfile_tools_gcc.xml
+END
+signalr.c
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/signalr.c
+END
+NativeSample.proj
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/NativeSample.proj
+END
+scatterfile_tools_rvds.xml
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/scatterfile_tools_rvds.xml
+END
+scatter.ld
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/scatter.ld
+END
+NativeSample.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/NativeSample.cpp
+END
+nativesample.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/nativesample.h
+END
+syscalls.c
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/NativeSample/syscalls.c
+END

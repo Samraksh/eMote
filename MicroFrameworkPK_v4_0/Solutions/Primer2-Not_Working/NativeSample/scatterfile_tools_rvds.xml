@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<ScatterFile xmlns="http://schemas.microsoft.com/netmf/ScatterfileSchema.xsd">
+
+    <Set Name="Valid" Value="false"/>
+
+    <!-- ################################################################################ -->
+    <Set Name="Heap_Begin"          Value="0x20006000"/>
+    <Set Name="Heap_End"            Value="0x20008FFC"/>
+    <Set Name="Stack_Bottom"        Value="0x20009000"/>
+    <Set Name="Stack_Top"           Value="0x2000BFFC"/>
+
+    <If Name="TARGETLOCATION" Value="FLASH">
+    
+        <!-- <Set Name="Config_BaseAddress"  Value="0x00403000"/>    
+        <Set Name="Config_Size"         Value="0x00001000"/> -->
+        <Set Name="Code_BaseAddress"    Value="0x00800000"/>
+        <Set Name="Code_Size"           Value="0x00004000"/>
+        <Set Name="Valid"               Value="true"/>
+
+        <!-- -->
+        
+        <IfDefined Name="ALTERNATEFLASHLOCATION">
+            <Set Name="Code_BaseAddress" Value="%Code_BaseAddress%"/>
+        </IfDefined>
+
+    </If>
+
+    <If Name="TARGETLOCATION" Value="RAM">
+        <Set Name="Heap_Begin"          Value="0x08300000"/>
+        <Set Name="Heap_End"            Value="0x084FEFFC"/>
+        <Set Name="Code_BaseAddress" Value="0x08020000"/>
+        <Set Name="Code_Size"        Value="0x000D0000"/>
+        <Set Name="Valid"            Value="true"/>
+
+    </If>
+
+
+    <!-- ################################################################################ -->
+
+    <If Name="Valid" Value="false">
+        <Error Message="Configuration not recognized"/>
+    </If>
+
+    <!-- we start at 0x10080000 since PortBooter lives at 0x10000000 -->
+    <!-- the address and sizes for both load regions (LR_*) are chosen to start and completely fill a flash partition in the 28F320W18 flash chip -->
+
+
+    <LoadRegion Name="LR_FLASH" Base="0x00800000" Size="0x3E800">
+
+		<ExecRegion Name="ER_VECT" Base="0x00800000" Size="0x400">
+            <FileMapping Name="VectorsTrampolines.obj" Options="(+RO, +FIRST)" />
+		</ExecRegion>
+			
+        <ExecRegion Name="ER_FLASH" Base="+0" >
+            <FileMapping Name="FirstEntry.obj"   Options="(+RO, +FIRST)" />
+        </ExecRegion>
+
+        <ExecRegion Name="ER_RAM_RO" Base="+0" Options="ABSOLUTE" Size="">
+            <FileMapping Name="*"                Options="(+RO)" />
+        </ExecRegion>
+
+        <ExecRegion Name="ER_RAM_RW" Base="+0" Options="ABSOLUTE" Size="">
+            <FileMapping Name="*"                Options="(+RW-DATA, +ZI)" />
+        </ExecRegion>
+	
+	</LoadRegion>
+	
+	<LoadRegion Name="LR_RAM" Base="0x20000000" Size="0xC000" >
+	
+		<ExecRegion Name="ER_HEAP" Base="%Heap_Begin%" Options="EMPTY" Size="%Heap_End - Heap_Begin%">
+        </ExecRegion>
+        <ExecRegion Name="ER_STACK" Base="%Stack_Top%" Options="EMPTY" Size="-%Stack_Top - Stack_Bottom%">
+        </ExecRegion>
+		
+    </LoadRegion>
+
+</ScatterFile>

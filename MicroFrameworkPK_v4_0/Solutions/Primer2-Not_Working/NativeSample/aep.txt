@@ -1,0 +1,128 @@
+	GPIO_InitStructure.GPIO_Pin = LCDBLEN_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    //GPIO_Init(LCDBLEN_GPIO, &GPIO_InitStructure);
+    //GPIO_Write(LCDBLEN_GPIO, ( 0 ) );
+    
+    
+    // Enable LEDs GPIO clock 
+    //if(LEDS_RCC_GPIO!=LCDBLEN_RCC_GPIO)
+      //  RCC_APB2PeriphClockCmd(LEDS_RCC_GPIO, ENABLE);
+
+    // Configure PE.00 and PE.01 as output push-pull 
+    GPIO_InitStructure.GPIO_Pin =  LEDS_BOTH_PINS;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(LEDS_GPIO, &GPIO_InitStructure);
+
+    // Enable joystick GPIO clock 
+//    if( (JSTK_RCC_GPIO!=LCDBLEN_RCC_GPIO) && (JSTK_RCC_GPIO!=LEDS_RCC_GPIO) )
+  //      RCC_APB2PeriphClockCmd(JSTK_RCC_GPIO, ENABLE);
+
+    // Configure PE.03 to PE.06 as input 
+    GPIO_InitStructure.GPIO_Pin = JSTK_ALL_PINS;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(JSTK_GPIO, &GPIO_InitStructure);
+
+    // Enable push button GPIO clock 
+//    if( (BP_RCC_GPIO!=LCDBLEN_RCC_GPIO) && (BP_RCC_GPIO!=LEDS_RCC_GPIO) && (BP_RCC_GPIO!=JSTK_RCC_GPIO) )
+  //      RCC_APB2PeriphClockCmd(BP_RCC_GPIO, ENABLE);
+
+    // Configure PA.08 as input 
+    GPIO_InitStructure.GPIO_Pin = BP_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(BP_GPIO, &GPIO_InitStructure);
+
+    
+    while(1)
+        {
+        //stop all toggling while push-button is down
+        do
+            {
+            bpinput = ( (GPIO_ReadInputData(BP_GPIO)) & ( BP_PIN ) );
+            if(bpinput)
+                delayvar=DELAYVAR_STARTVAL;
+            }
+        while(bpinput);
+        
+        // change speed of toggling according to joystick direction 
+        //jstkinput = ( (GPIO_ReadInputData(JSTK_GPIO)) & ( JSTK_ALL_PINS ) ); 
+        jstkinput = ((u16)JSTK_GPIO->IDR) & ( JSTK_ALL_PINS );
+        
+        switch( jstkinput & ( JSTK_ALL_PINS ) )
+            {
+            case GPIO_Pin_3:
+                //Left button is pressed. slow down toggling a little.
+                if ( delayvar <= ( DELAYVAR_MAXVAL - DELAYVAR_SMALLCHANGE ) )
+                    delayvar += DELAYVAR_SMALLCHANGE;
+                else
+                    delayvar = DELAYVAR_MAXVAL;
+                    
+                break;
+                
+            case GPIO_Pin_4:
+                //Right button is pressed. speed up toggling a little.
+                if ( delayvar >= ( DELAYVAR_MINVAL + DELAYVAR_SMALLCHANGE ) )
+                    delayvar -= DELAYVAR_SMALLCHANGE;
+                else
+                    delayvar = DELAYVAR_MINVAL;
+                break;
+                
+            case GPIO_Pin_5:
+                //Up button is pressed. slow down toggling quite a lot.
+                if ( delayvar <= ( DELAYVAR_MAXVAL - DELAYVAR_BIGCHANGE ) )
+                    delayvar += DELAYVAR_BIGCHANGE;
+                else
+                    delayvar = DELAYVAR_MAXVAL;
+                break;
+                
+            case GPIO_Pin_6:
+                //Down button is pressed. speed up toggling quite a lot.
+                if ( delayvar >= ( DELAYVAR_MINVAL + DELAYVAR_BIGCHANGE ) )
+                    delayvar -= DELAYVAR_BIGCHANGE;
+                else
+                    delayvar = DELAYVAR_MINVAL;
+                break;
+                
+            default :
+                //no buttons are pressed (or several, which is a hardware error)
+                //just go on toggling at the same speed
+                break;
+            }
+
+        // Toggle LEDs 
+        GPIO_Write(LEDS_GPIO, ( toggle & LEDS_BOTH_PINS ) );
+
+        // increment Toggle variable 
+        toggle++;
+
+        // Insert delay 
+		Delay(delayvar);
+	}
+   // LCD init
+   LCD_Init();
+   BackLight_On();
+   
+   // Setup Font
+   Font_BGnd_Color_u16  = RGB_WHITE;
+   Font_Text_Color_u16  = RGB_BLUE;
+   Font_Scale_u08       = 1;
+   Font_Transparent_Bol = FALSE;
+   
+   Font_Set_Font_u8(Font_Primer);
+   
+   LCD_Draw_Surface(0, 0, 128, 160, RGB_WHITE);
+   Font_Scale_u08       = 2;
+   LCD_Write_Text    (  8, 120, "SAMRAKSH", 50 );
+   Font_Scale_u08       = 1;
+   LCD_Write_Text    (  35,100, "announces", 50 );
+   LCD_Write_Text    (  50, 90, "the", 50 );
+   LCD_Write_Text    (  15, 80, "next generation", 50 );
+   Font_Scale_u08       = 2;
+   LCD_Write_Text    (  25, 50, "eMote", 50 );
+   Font_Scale_u08       = 1;
+   LCD_Write_Text    (  30, 30, "supporting", 50 );
+   LCD_Write_Text    (  35, 15, ".NET MF", 50 );   
+  //while(TRUE);

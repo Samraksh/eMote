@@ -1,0 +1,17 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\mscorlib.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\mscorlib.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\System.Globalization.Resources.CultureInfo.resources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\System.Globalization.Resources.CultureInfo.en.resources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\SpotCorLib.csproj.GenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\System.Globalization.Resources.CultureInfo.tinyresources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\System.Globalization.Resources.CultureInfo.en.tinyresources
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\SpotCorLib.csproj.TinyGenerateResource.Cache
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\mscorlib.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\mscorlib\__COMMON\mscorlib.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\mscorlib.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\mscorlib.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\mscorlib.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\txt\mscorlib_all.txt
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\txt\mscorlib_exports.txt
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\txt\mscorlib_exports2.txt
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\mscorlib.dump

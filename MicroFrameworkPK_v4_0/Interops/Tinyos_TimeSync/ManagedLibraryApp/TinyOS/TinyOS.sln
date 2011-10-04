@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C# Express 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TinyOS", "TinyOS\TinyOS.csproj", "{043440B9-2334-40A6-BF74-05A1B07DC80B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{043440B9-2334-40A6-BF74-05A1B07DC80B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{043440B9-2334-40A6-BF74-05A1B07DC80B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{043440B9-2334-40A6-BF74-05A1B07DC80B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{043440B9-2334-40A6-BF74-05A1B07DC80B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

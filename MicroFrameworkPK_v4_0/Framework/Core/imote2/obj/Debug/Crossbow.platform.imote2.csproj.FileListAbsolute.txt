@@ -1,0 +1,12 @@
+C:\Documents and Settings\Administrator\Desktop\Imote2.builder (4.0)\Imote2.builder (4.0)\platform\imote2\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Administrator\Desktop\Imote2.builder (4.0)\Imote2.builder (4.0)\platform\imote2\obj\Debug\TinyCLR_DebugReferences.cache
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\bin\Debug\Crossbow.platform.imote2.dll
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\bin\Debug\Crossbow.platform.imote2.pdb
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\bin\Debug\Crossbow.platform.imote2.pe
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\bin\Debug\Crossbow.platform.imote2.pdbx
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\ResolveAssemblyReference.cache
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\TinyCLR_DebugReferences.cache
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\Crossbow.platform.imote2.dll
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\Crossbow.platform.imote2.pdb
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\Crossbow.platform.imote2.pe
+C:\MicroFrameworkPK_v4_0\Framework\Core\imote2\obj\Debug\Crossbow.platform.imote2.pdbx

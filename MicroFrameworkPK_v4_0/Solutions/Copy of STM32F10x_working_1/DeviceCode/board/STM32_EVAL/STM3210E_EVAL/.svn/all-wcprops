@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL
+END
+stm3210e_eval_fsmc_sram.c
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_sram.c
+END
+stm3210e_eval_fsmc_nor.h
+K 25
+svn:wc:ra_dav:version-url
+V 137
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_nor.h
+END
+stm3210e_eval_fsmc_nand.h
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_nand.h
+END
+stm3210e_eval_fsmc_sram.h
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_sram.h
+END
+stm3210e_eval.c
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval.c
+END
+stm3210e_eval_lcd.c
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_lcd.c
+END
+stm3210e_eval.h
+K 25
+svn:wc:ra_dav:version-url
+V 128
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval.h
+END
+stm3210e_eval_fsmc_nor.c
+K 25
+svn:wc:ra_dav:version-url
+V 137
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_nor.c
+END
+stm3210e_eval_lcd.h
+K 25
+svn:wc:ra_dav:version-url
+V 132
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_lcd.h
+END
+stm3210e_eval_fsmc_nand.c
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/board/STM32_EVAL/STM3210E_EVAL/stm3210e_eval_fsmc_nand.c
+END

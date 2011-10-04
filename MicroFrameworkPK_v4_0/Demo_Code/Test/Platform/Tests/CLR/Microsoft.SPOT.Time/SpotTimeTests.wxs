@@ -1,0 +1,8 @@
+<Wix>
+<Module Id='Module_TestModule' Guid='0444ac83-d36d-47a0-b3c0-c1c35f302a5f' Language='1033' Version='1.0.0.0'>
+ <?include ProductVersion.wxs?>
+ <?include Directories.wxs?>
+      <ComponentRef Id='Component_TimeServiceTests' />
+      <Package Id='9eab0e93-5daa-4cb4-8a92-024c88fe04e1' Keywords="Installer" Description=".NET Micro Framework Time Tests" Comments=" enu; Copyright (C) Microsoft Corporation, All rights reserved." Manufacturer="Microsoft Corporation" InstallerVersion="200" Languages="1033" SummaryCodepage="1252" Compressed="yes" />
+  </Module>
+</Wix>

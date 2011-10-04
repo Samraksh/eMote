@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/pwr
+END
+stm32f10x_pwr.c
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/pwr/stm32f10x_pwr.c
+END
+netmf_pwr.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/pwr/netmf_pwr.cpp
+END
+stm32f10x_pwr.h
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/pwr/stm32f10x_pwr.h
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/pwr/dotNetMF.proj
+END

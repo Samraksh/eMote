@@ -1,0 +1,9 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Xml.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Xml.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Xml\__COMMON\System.Xml.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Xml\__COMMON\System.Xml.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\txt\System.Xml_exports2.txt
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\System.Xml.dump

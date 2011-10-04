@@ -1,0 +1,77 @@
+#ifndef _PLATFORM_STM32F10X_SELECTOR_H_
+#define _PLATFORM_STM32F10X_SELECTOR_H_ 1
+#define HAL_SYSTEM_NAME                 "STM32F10X"
+#define PLATFORM_CORTEXM3    			1
+#define PLATFORM_ARM_CORTEXM3			1
+#ifndef PLATFORM_ARM_STM32F10X
+#define PLATFORM_ARM_STM32F10X				1
+#endif
+
+#define BUILD_RTM	1
+
+#define PLATFORM_SUPPORTS_SOFT_REBOOT   TRUE
+#define SYSTEM_CLOCK_HZ                 48000000
+#define SLOW_CLOCKS_PER_SECOND          32768
+#define CLOCK_COMMON_FACTOR             1464
+#define SLOW_CLOCKS_TEN_MHZ_GCD         305
+#define SLOW_CLOCKS_MILLISECOND_GCD     32.768
+#define SRAM1_MEMORY_Base               0x20000000
+#define SRAM1_MEMORY_Size               0x0000C000
+#define FLASH_MEMORY_Base               0x00400000
+#define FLASH_MEMORY_Size               0x00040000
+
+#define TXPROTECTRESISTOR               RESISTOR_DISABLED
+#define RXPROTECTRESISTOR               RESISTOR_DISABLED
+#define CTSPROTECTRESISTOR              RESISTOR_DISABLED
+#define RTSPROTECTRESISTOR              RESISTOR_DISABLED
+
+
+#define GLOBAL_LOCK(x)             SmartPtr_IRQ x
+#define DISABLE_INTERRUPTS()       SmartPtr_IRQ::ForceDisabled()
+#define ENABLE_INTERRUPTS()        SmartPtr_IRQ::ForceEnabled()
+#define INTERRUPTS_ENABLED_STATE() SmartPtr_IRQ::GetState()
+#define GLOBAL_LOCK_SOCKETS(x)     SmartPtr_IRQ x
+
+#if defined(_DEBUG)
+#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
+#else
+#define ASSERT_IRQ_MUST_BE_OFF()
+#define ASSERT_IRQ_MUST_BE_ON()
+#endif
+
+#define TOTAL_USART_PORT       1
+#define COM1                   ConvertCOM_ComHandle(0)
+#define COM2                   ConvertCOM_ComHandle(1)
+#define COM1N                   ConvertCOM_ComHandle(0)
+#define COM2N                   ConvertCOM_ComHandle(1)
+
+#define TOTAL_USB_CONTROLLER   1
+#define USB1                   ConvertCOM_UsbHandle(0)
+
+#define TOTAL_SOCK_PORT        0
+
+#define TOTAL_DEBUG_PORT       1
+#define COM_DEBUG              ConvertCOM_DebugHandle(0)
+
+#define COM_MESSAGING          ConvertCOM_MessagingHandle(0)
+
+#define USART_TX_IRQ_INDEX(x)       ( (x) ? 0 : 0 )     // TODO set right indexes
+#define USART_DEFAULT_PORT          COM1
+#define USART_DEFAULT_BAUDRATE      115200
+
+#define USB_IRQ_INDEX               0                   // TODO set right index
+
+
+#define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    512  // there is one TX for each usart port
+#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    512  // there is one RX for each usart port
+#define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  32  // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
+
+#define DEBUG_TEXT_PORT         USB1
+#define STDIO                   USB1
+#define DEBUGGER_PORT           USB1
+#define MESSAGING_PORT          USB1
+#define RUNTIME_MEMORY_PROFILE__medium 1
+#include <processor_selector.h>
+#include <board_selector.h>
+#endif // _PLATFORM_STM32F10X_SELECTOR_H_ 1

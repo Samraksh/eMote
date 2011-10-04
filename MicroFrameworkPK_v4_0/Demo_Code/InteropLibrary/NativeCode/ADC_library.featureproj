@@ -1,0 +1,16 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>ADC_library</FeatureName>
+    <Guid>{0810388c-a2bb-4da0-bafd-63556e39741e}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="ADC_library" />
+    <DriverLibs Include="ADC_library.$(LIB_EXT)" />
+    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\ADC_library.pe" />-->
+    <RequiredProjects Include="C:\MicroFrameworkPK_v4_0\InteropLibrary\NativeCode\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

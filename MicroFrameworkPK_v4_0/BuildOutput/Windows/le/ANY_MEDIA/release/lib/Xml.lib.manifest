@@ -1,0 +1,63 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+
+<PropertyGroup>
+    <Name>Xml</Name>
+    <ProjectFile>dotNetMF.proj</ProjectFile>
+    <Version>4.0.1681.0</Version>
+    <Platform>Windows2</Platform>
+    <PlatformFamily>x86</PlatformFamily>
+    <InstructionSet>x86</InstructionSet>
+    <Compiler>GCC</Compiler>
+    <CompilerVersion>GCC4.2</CompilerVersion>
+    <TargetLocation>RAM</TargetLocation>
+    <MemoryFlavor>RAM</MemoryFlavor>
+    <Processor>x86</Processor>
+    <TargetPlatform>Windows2</TargetPlatform>
+    <Codebase>WINDOWS</Codebase>
+    <CodebaseType>OS</CodebaseType>
+    <Company>Microsoft Corporation</Company>
+    <Copyright>Copyright (C) Microsoft Corporation.  All rights reserved.</Copyright>
+    <FileVersion>4.0.1681.0</FileVersion>
+    <Configuration>release</Configuration>
+    <Product>Microsoft .NET Micro Framework</Product>
+    <Trademark>.NET is a trademark of Microsoft Corporation.</Trademark>
+    <AssemblyName>Xml</AssemblyName>
+    <ProjectGuid>45AC9135-01D9-451b-B115-6786AE1A9CBA</ProjectGuid>
+    <Description>Native Xml functionality</Description>
+    <Level>CLR</Level>
+    <LibraryFile>Xml.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\CLR\Core\Xml\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Xml.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Xml</Groups>
+    <PlatformIndependent>True</PlatformIndependent>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>CLR\Core\Xml</Directory>
+    <OutputType>Library</OutputType>
+    <HasAuxTargets>true</HasAuxTargets>
+    <NoOptForParserTarget>Release</NoOptForParserTarget>
+    <PlatformIndependentBuild>true</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+</PropertyGroup>
+
+<ItemGroup>
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlCharRef.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlCharType.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlNameTable.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlReader.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_BetweenElements.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InAttribute.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InAttributeValue.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InEndElement.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InName.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InProcessingInstruction.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InStartElement.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InValue.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_InXmlDeclaration.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_NewTag.obj" />
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\release\obj\CLR\Core\Xml\XmlState_Start.obj" />
+</ItemGroup>
+
+</Project>

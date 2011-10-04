@@ -1,0 +1,137 @@
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s 			page 1
+
+
+   1              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   2              	@ Copyright (c) Microsoft Corporation.  All rights reserved.
+   3              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   4              	
+   5              	
+   6              	    .global  EntryPoint
+   7              		
+   8              	
+   9              	    .ifdef HAL_REDUCESIZE
+  10              			.extern BootEntryLoader
+  11              	    .else
+  12              			.extern BootEntry
+  13              	    .endif
+  14              	
+  15              	    .extern  BootstrapCode
+  16              	    .extern  ARM_Vectors         @ Even if we don't use this symbol, it's required by the linker to
+  17              	
+  18              		
+  19              	@   PRESERVE8
+  20              	
+  21              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  22              	
+  23              	PSR_MODE_USER       =     0xD0
+  24              	PSR_MODE_FIQ        =     0xD1
+  25              	PSR_MODE_IRQ        =     0xD2
+  26              	PSR_MODE_SUPERVISOR =     0xD3
+  27              	PSR_MODE_ABORT      =     0xD7
+  28              	PSR_MODE_UNDEF      =     0xDB
+  29              	PSR_MODE_SYSTEM     =     0xDF
+  30              	
+  31              	
+  32              	STACK_MODE_MAIN    	=     2048
+  33              	STACK_MODE_PROCESS  =     2048 
+  34              	
+  35              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  36              	
+  37              	    .section SectionForStackBottom,       "a", %progbits
+  38              	StackBottom:
+  39 0000 00000000 	    .word   0
+  40              	    .section SectionForStackTop,          "a", %progbits
+  41              	StackTop:
+  42 0000 00000000 	    .word   0
+  43              	    .section SectionForHeapBegin,         "a", %progbits
+  44              	HeapBegin:
+  45 0000 00000000 	    .word   0
+  46              	    .section SectionForHeapEnd,           "a", %progbits
+  47              	HeapEnd:
+  48 0000 00000000 	    .word   0
+  49              	    .section SectionForCustomHeapBegin,   "a", %progbits
+  50              	CustomHeapBegin:
+  51 0000 00000000 	    .word   0
+  52              	    .section SectionForCustomHeapEnd,     "a", %progbits
+  53              	CustomHeapEnd:
+  54 0000 00000000 	    .word   0
+  55              	
+  56              	
+  57              	    .global StackBottom
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s 			page 2
+
+
+  58              	    .global StackTop
+  59              	    .global HeapBegin
+  60              	    .global HeapEnd
+  61              	    .global CustomHeapBegin
+  62              	    .global CustomHeapEnd
+  63              	
+  64              	
+  65              	    .section i.EntryPoint, "xa", %progbits
+  66              		.type  i.EntryPoint, %function
+  67              	
+  68              	    @.arm
+  69              		
+  70              	EntryPoint:
+  71              	
+  72              	    .ifdef  HAL_REDUCESIZE
+  73              	    .ifndef TARGETLOCATION_RAM
+  74              	    @ -----------------------------------------------
+  75              	    @ ADD BOOT MARKER HERE IF YOU NEED ONE
+  76              	    @ -----------------------------------------------
+  77              	
+  78              	    .endif
+  79              	    .endif
+  80              		
+  81              		
+  82 0000 C046     		nop
+  83 0002 C046     		nop
+  84 0004 FFF7FEFF 	    bl      BootstrapCode
+  85              	
+  86              	
+  87              	    .ifdef HAL_REDUCESIZE      
+  88              	BootEntryLoaderPointer:
+  89 0008 FEE7     	        b   BootEntryLoader
+  90              	   .else      
+  91              	BootEntryPointer:
+  92              	        bl   BootEntry
+  93              	    .endif
+  94              	
+  95              	  .ifdef COMPILE_THUMB
+  96              	    .thumb
+  97              	  .endif
+  98              	
+  99              	    .end
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 BUILD_RTM
+                            *ABS*:00000001 TARGETLOCATION_FLASH
+                            *ABS*:00000001 HAL_REDUCESIZE
+                            *ABS*:00000001 PLATFORM_ARM_STM32F10x
+                            *ABS*:00000001 PLATFORM_ARM_CortexM3
+                            *ABS*:00000001 COMPILE_THUMB2
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:70     i.EntryPoint:00000000 EntryPoint
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:23     *ABS*:000000d0 PSR_MODE_USER
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:24     *ABS*:000000d1 PSR_MODE_FIQ
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:25     *ABS*:000000d2 PSR_MODE_IRQ
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:26     *ABS*:000000d3 PSR_MODE_SUPERVISOR
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:27     *ABS*:000000d7 PSR_MODE_ABORT
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:28     *ABS*:000000db PSR_MODE_UNDEF
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:29     *ABS*:000000df PSR_MODE_SYSTEM
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:32     *ABS*:00000800 STACK_MODE_MAIN
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:33     *ABS*:00000800 STACK_MODE_PROCESS
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:38     SectionForStackBottom:00000000 StackBottom
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:41     SectionForStackTop:00000000 StackTop
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:44     SectionForHeapBegin:00000000 HeapBegin
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:47     SectionForHeapEnd:00000000 HeapEnd
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:50     SectionForCustomHeapBegin:00000000 CustomHeapBegin
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:53     SectionForCustomHeapEnd:00000000 CustomHeapEnd
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:82     i.EntryPoint:00000000 $t
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\FirstEntry.s:88     i.EntryPoint:00000008 BootEntryLoaderPointer
+
+UNDEFINED SYMBOLS
+BootstrapCode
+BootEntryLoader

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/bootstrap
+END
+exceptions.c
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/bootstrap/exceptions.c
+END
+STM32F10x_bootstrap.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/bootstrap/STM32F10x_bootstrap.cpp
+END
+exceptions.h
+K 25
+svn:wc:ra_dav:version-url
+V 112
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/bootstrap/exceptions.h
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/bootstrap/dotNetMF.proj
+END

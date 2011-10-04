@@ -1,0 +1,50 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+
+<PropertyGroup>
+    <Name>SPOT_Touch_stub</Name>
+    <ProjectFile>dotNetMF_Stub.proj</ProjectFile>
+    <Version>4.0.1681.0</Version>
+    <Platform>Windows2</Platform>
+    <PlatformFamily>x86</PlatformFamily>
+    <InstructionSet>x86</InstructionSet>
+    <Compiler>GCC</Compiler>
+    <CompilerVersion>GCC4.2</CompilerVersion>
+    <TargetLocation>RAM</TargetLocation>
+    <MemoryFlavor>RAM</MemoryFlavor>
+    <Processor>x86</Processor>
+    <TargetPlatform>Windows2</TargetPlatform>
+    <Codebase>WINDOWS</Codebase>
+    <CodebaseType>OS</CodebaseType>
+    <Company>Microsoft Corporation</Company>
+    <Copyright>Copyright (C) Microsoft Corporation.  All rights reserved.</Copyright>
+    <FileVersion>4.0.1681.0</FileVersion>
+    <Configuration>Debug</Configuration>
+    <Product>Microsoft .NET Micro Framework</Product>
+    <Trademark>.NET is a trademark of Microsoft Corporation.</Trademark>
+    <AssemblyName>SPOT_Touch_stub</AssemblyName>
+    <ProjectGuid>{B2EEB04E-9788-4d51-B634-9E2E2B55F886}</ProjectGuid>
+    <Description>Touch interop stub library</Description>
+    <Level>CLR</Level>
+    <LibraryFile>SPOT_Touch_stub.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\CLR\libraries\spot_net\dotNetMF_Stub.proj</ProjectPath>
+    <ManifestFile>SPOT_Touch_stub.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Network</Groups>
+    <LibraryCategory><MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="SPOT_Touch_CLR" Guid="{CC7F14B8-899B-4952-9447-567FB1276F55}" ProjectPath="" xmlns=""><VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd"><Major>4</Major><Minor>0</Minor><Revision>0</Revision><Build>0</Build><Extra /><Date>2009-04-30</Date></VersionDependency></MFComponent></LibraryCategory>
+    <PlatformIndependent>True</PlatformIndependent>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>True</IsStub>
+    <Directory>CLR\Libraries\SPOT_Net</Directory>
+    <OutputType>Library</OutputType>
+    <VCProjName>Lib_SPOT_Touch_stub</VCProjName>
+    <HasAuxTargets>true</HasAuxTargets>
+    <NoOptForParserTarget>Release</NoOptForParserTarget>
+    <PlatformIndependentBuild>true</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+</PropertyGroup>
+
+<ItemGroup>
+    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Libraries\SPOT_Net\spot_touch_stub.obj" />
+</ItemGroup>
+
+</Project>

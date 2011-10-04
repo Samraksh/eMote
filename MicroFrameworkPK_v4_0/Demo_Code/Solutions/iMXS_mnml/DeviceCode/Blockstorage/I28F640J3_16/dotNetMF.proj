@@ -1,0 +1,47 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <HasLibraryCategory>True</HasLibraryCategory>
+    <AssemblyName>I28F640J3_blconfig_iMXS_mnml</AssemblyName>
+    <Size>
+    </Size>
+    <ProjectGuid>{5b46103c-b284-4f08-a9b9-ba28d6c35ffe}</ProjectGuid>
+    <Description>Block storage configuration for iMXS_mnml</Description>
+    <Level>HAL</Level>
+    <LibraryFile>I28F640J3_blconfig_iMXS_mnml.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\iMXS_mnml\DeviceCode\Blockstorage\I28F640J3_16\dotNetMF.proj</ProjectPath>
+    <ManifestFile>I28F640J3_blconfig_iMXS_mnml.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Solutions\iMXS_mnml</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="BlockStorageConfig_HAL" Guid="{497F59BB-55D3-404e-B958-A6284806D184}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+          <Author>Microsoft</Author>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomSpecific>iMXS_mnml</CustomSpecific>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>Solutions\iMXS_mnml\DeviceCode\BlockStorage\I28F640j3_16</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <Compile Include="I28F640J3_blconfig.cpp" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

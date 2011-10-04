@@ -1,0 +1,20 @@
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Directory>DeviceCode\Targets\Native\Interop\TinyOS</Directory>
+    <AssemblyName>TinyOS</AssemblyName>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+<ItemGroup>
+<HFile Include="Library.h" />
+<HFile Include="stm32_eval.h" />
+<Compile Include="tinyos.cpp" />
+<Compile Include="Library.cpp" />
+<Compile Include="Library_TinyOS_TinyosInterface_mshl.cpp" />
+<HFile Include="Library_TinyOS_TinyosInterface.h" />
+<Compile Include="Library_TinyOS_TinyosInterface.cpp" />
+</ItemGroup>
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

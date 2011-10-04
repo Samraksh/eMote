@@ -1,0 +1,8 @@
+<Wix>
+<Module Id='Module_TestModule' Guid='ab059068-6c01-4176-8c1a-b4a4755b2fce' Language='1033' Version='1.0.0.0'>
+ <?include ProductVersion.wxs?>
+ <?include Directories.wxs?>
+      <ComponentRef Id='Component_Interop' />
+      <Package Id='bd5d586d-f61e-49d6-b60b-16ec0cf818fe' Keywords="Installer" Description=".NET Micro Framework Interop Tests" Comments=" enu; Copyright (C) Microsoft Corporation, All rights reserved." Manufacturer="Microsoft Corporation" InstallerVersion="200" Languages="1033" SummaryCodepage="1252" Compressed="yes" />
+  </Module>
+</Wix>

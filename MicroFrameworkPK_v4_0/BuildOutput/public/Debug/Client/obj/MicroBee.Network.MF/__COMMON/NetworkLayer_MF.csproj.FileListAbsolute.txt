@@ -1,0 +1,8 @@
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MicroBee.Network.MF.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MicroBee.Network.MF.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MicroBee.Network.MF\__COMMON\MicroBee.Network.MF.dll
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MicroBee.Network.MF\__COMMON\MicroBee.Network.MF.pdb
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.Network.MF.strings
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.Network.MF.pe
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MicroBee.Network.MF.pdbx
+C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\MicroBee.Network.MF.dump

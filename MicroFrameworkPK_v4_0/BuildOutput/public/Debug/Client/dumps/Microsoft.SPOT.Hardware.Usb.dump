@@ -1,0 +1,156 @@
+Assembly: Microsoft.SPOT.Hardware.Usb (4.0.1681.0)
+
+Size: AssemblyRef         12 byte(s)      1 item(s) [Runtime:      4]
+Size: TypeRef             80 byte(s)     10 item(s) [Runtime:     40]
+Size: FieldRef             0 byte(s)      0 item(s) [Runtime:      0]
+Size: MethodRef          136 byte(s)     17 item(s) [Runtime:     68]
+Size: TypeDef            312 byte(s)     13 item(s) [Runtime:    104]
+Size: FieldDef           376 byte(s)     47 item(s) [Runtime:     94]
+Size: MethodDef          704 byte(s)     44 item(s) [Runtime:     88]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files      0 byte(s)      0 item(s)
+Size: Resources            0 byte(s)      0 item(s)
+Size: ResourcesData        0 byte(s)
+Size: Strings            980 byte(s)
+Size: Signatures         224 byte(s)
+Size: ByteCode           790 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.0.1681.0)
+
+TypeRef 0000[00000088] [Scope: 0000] System.IO Stream
+TypeRef 0001[00000090] [Scope: 0000] System Object
+TypeRef 0002[00000098] [Scope: 0000] System Enum
+TypeRef 0003[000000a0] [Scope: 0000] System.IO SeekOrigin
+TypeRef 0004[000000a8] [Scope: 0000] System.Collections ArrayList
+TypeRef 0005[000000b0] [Scope: 0000] System ObjectDisposedException
+TypeRef 0006[000000b8] [Scope: 0000] System InvalidOperationException
+TypeRef 0007[000000c0] [Scope: 0000] System NotSupportedException
+TypeRef 0008[000000c8] [Scope: 0000] System.Threading Monitor
+TypeRef 0009[000000d0] [Scope: 0000] System Exception
+
+MethodRef 0000[000000d8] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0001[000000e0] [Type: 0000] Dispose [METHOD VOID( BOOLEAN )]
+MethodRef 0002[000000e8] [Type: 0001] Finalize [METHOD VOID()]
+MethodRef 0003[000000f0] [Type: 0005] .ctor [METHOD VOID()]
+MethodRef 0004[000000f8] [Type: 0000] get_CanRead [METHOD BOOLEAN()]
+MethodRef 0005[00000100] [Type: 0006] .ctor [METHOD VOID()]
+MethodRef 0006[00000108] [Type: 0000] get_CanWrite [METHOD BOOLEAN()]
+MethodRef 0007[00000110] [Type: 0007] .ctor [METHOD VOID()]
+MethodRef 0008[00000118] [Type: 0004] Remove [METHOD VOID( OBJECT )]
+MethodRef 0009[00000120] [Type: 0004] get_Count [METHOD I4()]
+MethodRef 000a[00000128] [Type: 0001] .ctor [METHOD VOID()]
+MethodRef 000b[00000130] [Type: 0004] get_Item [METHOD OBJECT( I4 )]
+MethodRef 000c[00000138] [Type: 0000] Close [METHOD VOID()]
+MethodRef 000d[00000140] [Type: 0008] Enter [METHOD VOID( OBJECT )]
+MethodRef 000e[00000148] [Type: 0004] .ctor [METHOD VOID()]
+MethodRef 000f[00000150] [Type: 0004] Add [METHOD I4( OBJECT )]
+MethodRef 0010[00000158] [Type: 0008] Exit [METHOD VOID( OBJECT )]
+
+TypeDef 0000[00000160] [Extends: 8001] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware.UsbClient Configuration
+TypeDef 0001[00000178] [Extends: 8001] [Enclosed: 0000] [Flags: 00001002]  ClassDescriptor
+TypeDef 0002[00000190] [Extends: 8001] [Enclosed: ffff] [Flags: 00000081] Microsoft.SPOT.Hardware.UsbClient UsbController
+TypeDef 0003[000001a8] [Extends: 8002] [Enclosed: 0002] [Flags: 000000ba]  ConfigError
+TypeDef 0004[000001c0] [Extends: 8001] [Enclosed: 0000] [Flags: 00001042]  Descriptor
+TypeDef 0005[000001d8] [Extends: 0004] [Enclosed: 0000] [Flags: 00001002]  ConfigurationDescriptor
+TypeDef 0006[000001f0] [Extends: 0004] [Enclosed: 0000] [Flags: 00001002]  DeviceDescriptor
+TypeDef 0007[00000208] [Extends: 8001] [Enclosed: 0000] [Flags: 00001002]  Endpoint
+TypeDef 0008[00000220] [Extends: 0004] [Enclosed: 0000] [Flags: 00001002]  GenericDescriptor
+TypeDef 0009[00000238] [Extends: 8000] [Enclosed: ffff] [Flags: 00005081] Microsoft.SPOT.Hardware.UsbClient UsbStream
+TypeDef 000a[00000250] [Extends: 8002] [Enclosed: 0002] [Flags: 000000ba]  PortState
+TypeDef 000b[00000268] [Extends: 0004] [Enclosed: 0000] [Flags: 00001002]  StringDescriptor
+TypeDef 000c[00000280] [Extends: 8001] [Enclosed: 0000] [Flags: 00001002]  UsbInterface
+
+FieldDef 0000[00000298] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration::descriptors [FIELD SZARRAY CLASS [04000004]]
+FieldDef 0001[000002a0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.ClassDescriptor::bDescriptorType [FIELD U1]
+FieldDef 0002[000002a8] [Flags: 00000001] Microsoft.SPOT.Hardware.UsbClient.Configuration.ClassDescriptor::payload [FIELD SZARRAY U1]
+FieldDef 0003[000002b0] [Flags: 00000011] Microsoft.SPOT.Hardware.UsbClient.UsbController::s_controllers [FIELD SZARRAY CLASS [04000002]]
+FieldDef 0004[000002b8] [Flags: 00000011] Microsoft.SPOT.Hardware.UsbClient.UsbController::s_openStreams [FIELD SZARRAY CLASS [01000004]]
+FieldDef 0005[000002c0] [Flags: 00000021] Microsoft.SPOT.Hardware.UsbClient.UsbController::m_controllerIndex [FIELD I4]
+FieldDef 0006[000002c8] [Flags: 00000001] Microsoft.SPOT.Hardware.UsbClient.UsbController::m_configError [FIELD VALUETYPE [04000003]]
+FieldDef 0007[000002d0] [Flags: 00000106] Microsoft.SPOT.Hardware.UsbClient.UsbController.ConfigError::value__ [FIELD I4]
+FieldDef 0008[000002d8] [Flags: 00000004] Microsoft.SPOT.Hardware.UsbClient.Configuration.Descriptor::index [FIELD U1]
+FieldDef 0009[000002e0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.ConfigurationDescriptor::interfaces [FIELD SZARRAY CLASS [0400000c]]
+FieldDef 000a[000002e8] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.ConfigurationDescriptor::iConfiguration [FIELD U1]
+FieldDef 000b[000002f0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.ConfigurationDescriptor::bmAttributes [FIELD U1]
+FieldDef 000c[000002f8] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.ConfigurationDescriptor::bMaxPower [FIELD U1]
+FieldDef 000d[00000300] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::idVendor [FIELD U2]
+FieldDef 000e[00000308] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::idProduct [FIELD U2]
+FieldDef 000f[00000310] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bcdDevice [FIELD U2]
+FieldDef 0010[00000318] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::iManufacturer [FIELD U1]
+FieldDef 0011[00000320] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::iProduct [FIELD U1]
+FieldDef 0012[00000328] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::iSerialNumber [FIELD U1]
+FieldDef 0013[00000330] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bDeviceClass [FIELD U1]
+FieldDef 0014[00000338] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bDeviceSubClass [FIELD U1]
+FieldDef 0015[00000340] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bDeviceProtocol [FIELD U1]
+FieldDef 0016[00000348] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bMaxPacketSize0 [FIELD U1]
+FieldDef 0017[00000350] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::bcdUSB [FIELD U2]
+FieldDef 0018[00000358] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.Endpoint::bEndpointAddress [FIELD U1]
+FieldDef 0019[00000360] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.Endpoint::bmAttributes [FIELD U1]
+FieldDef 001a[00000368] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.Endpoint::wMaxPacketSize [FIELD U2]
+FieldDef 001b[00000370] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.Endpoint::bInterval [FIELD U1]
+FieldDef 001c[00000378] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::bmRequestType [FIELD U1]
+FieldDef 001d[00000380] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::bRequest [FIELD U1]
+FieldDef 001e[00000388] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::wValue [FIELD U2]
+FieldDef 001f[00000390] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::wIndex [FIELD U2]
+FieldDef 0020[00000398] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::payload [FIELD SZARRAY U1]
+FieldDef 0021[000003a0] [Flags: 00000001] Microsoft.SPOT.Hardware.UsbClient.UsbStream::m_disposed [FIELD BOOLEAN]
+FieldDef 0022[000003a8] [Flags: 00000021] Microsoft.SPOT.Hardware.UsbClient.UsbStream::m_streamIndex [FIELD I4]
+FieldDef 0023[000003b0] [Flags: 00000021] Microsoft.SPOT.Hardware.UsbClient.UsbStream::m_controllerIndex [FIELD I4]
+FieldDef 0024[000003b8] [Flags: 00000026] Microsoft.SPOT.Hardware.UsbClient.UsbStream::WriteEndpoint [FIELD I4]
+FieldDef 0025[000003c0] [Flags: 00000026] Microsoft.SPOT.Hardware.UsbClient.UsbStream::ReadEndpoint [FIELD I4]
+FieldDef 0026[000003c8] [Flags: 00000106] Microsoft.SPOT.Hardware.UsbClient.UsbController.PortState::value__ [FIELD I4]
+FieldDef 0027[000003d0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.StringDescriptor::sString [FIELD STRING]
+FieldDef 0028[000003d8] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::bInterfaceNumber [FIELD U1]
+FieldDef 0029[000003e0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::endpoints [FIELD SZARRAY CLASS [04000007]]
+FieldDef 002a[000003e8] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::classDescriptors [FIELD SZARRAY CLASS [04000001]]
+FieldDef 002b[000003f0] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::bInterfaceClass [FIELD U1]
+FieldDef 002c[000003f8] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::bInterfaceSubClass [FIELD U1]
+FieldDef 002d[00000400] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::bInterfaceProtocol [FIELD U1]
+FieldDef 002e[00000408] [Flags: 00000006] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::iInterface [FIELD U1]
+
+MethodDef 0000[00000410] [Flags: 00001486] [RVA: 0000] Microsoft.SPOT.Hardware.UsbClient.Configuration::.ctor [METHOD VOID()]
+MethodDef 0001[00000420] [Flags: 00001486] [RVA: 0005] Microsoft.SPOT.Hardware.UsbClient.Configuration.ClassDescriptor::.ctor [METHOD VOID( U1, SZARRAY U1 )]
+MethodDef 0002[00000430] [Flags: 00000486] [RVA: 0014] Microsoft.SPOT.Hardware.UsbClient.UsbController::get_ConfigurationError [METHOD VALUETYPE [04000003]()]
+MethodDef 0003[00000440] [Flags: 00000086] [RVA: 0019] Microsoft.SPOT.Hardware.UsbClient.UsbController::Start [METHOD BOOLEAN()]
+MethodDef 0004[00000450] [Flags: 40000086] [RVA: 001e] Microsoft.SPOT.Hardware.UsbClient.UsbController::Stop [METHOD BOOLEAN()]
+MethodDef 0005[00000460] [Flags: 40000086] [RVA: 007d] Microsoft.SPOT.Hardware.UsbClient.UsbController::CreateUsbStream [METHOD CLASS [04000009]( I4, I4 )]
+MethodDef 0006[00000470] [Flags: 00001481] [RVA: 00ec] Microsoft.SPOT.Hardware.UsbClient.UsbController::.ctor [METHOD VOID( I4 )]
+MethodDef 0007[00000480] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::get_Status [METHOD VALUETYPE [0400000a]()]
+MethodDef 0008[00000490] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::get_Configuration [METHOD CLASS [04000000]()]
+MethodDef 0009[000004a0] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::set_Configuration [METHOD VOID( CLASS [04000000] )]
+MethodDef 000a[000004b0] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::nativeStart [METHOD BOOLEAN()]
+MethodDef 000b[000004c0] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::nativeStop [METHOD BOOLEAN()]
+MethodDef 000c[000004d0] [Flags: 00002491] [RVA: 00fb] Microsoft.SPOT.Hardware.UsbClient.UsbController::.cctor [METHOD VOID()]
+MethodDef 000d[000004e0] [Flags: 00000093] [RVA: 0105] Microsoft.SPOT.Hardware.UsbClient.UsbController::OpenStreams [METHOD CLASS [01000004]( I4 )]
+MethodDef 000e[000004f0] [Flags: 00000096] [RVA: 010b] Microsoft.SPOT.Hardware.UsbClient.UsbController::GetControllers [METHOD SZARRAY CLASS [04000002]()]
+MethodDef 000f[00000500] [Flags: 00000096] [RVA: 0134] Microsoft.SPOT.Hardware.UsbClient.UsbController::GetController [METHOD CLASS [04000002]( I4 )]
+MethodDef 0010[00000510] [Flags: 00000491] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbController::get_Count [METHOD I4()]
+MethodDef 0011[00000520] [Flags: 00001484] [RVA: 013c] Microsoft.SPOT.Hardware.UsbClient.Configuration.Descriptor::.ctor [METHOD VOID( U1 )]
+MethodDef 0012[00000530] [Flags: 00001486] [RVA: 0146] Microsoft.SPOT.Hardware.UsbClient.Configuration.ConfigurationDescriptor::.ctor [METHOD VOID( U2, SZARRAY CLASS [0400000c] )]
+MethodDef 0013[00000540] [Flags: 00001486] [RVA: 0167] Microsoft.SPOT.Hardware.UsbClient.Configuration.DeviceDescriptor::.ctor [METHOD VOID( U2, U2, U2 )]
+MethodDef 0014[00000550] [Flags: 00001486] [RVA: 01a8] Microsoft.SPOT.Hardware.UsbClient.Configuration.Endpoint::.ctor [METHOD VOID( U1, U1 )]
+MethodDef 0015[00000560] [Flags: 00001486] [RVA: 01c2] Microsoft.SPOT.Hardware.UsbClient.Configuration.GenericDescriptor::.ctor [METHOD VOID( U1, U2, SZARRAY U1 )]
+MethodDef 0016[00000570] [Flags: 400040c4] [RVA: 01e8] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Finalize [METHOD VOID()]
+MethodDef 0017[00000580] [Flags: 000000c6] [RVA: 0202] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Read [METHOD I4( SZARRAY U1, I4, I4 )]
+MethodDef 0018[00000590] [Flags: 000000c6] [RVA: 021e] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Write [METHOD VOID( SZARRAY U1, I4, I4 )]
+MethodDef 0019[000005a0] [Flags: 000000c6] [RVA: 023b] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Flush [METHOD VOID()]
+MethodDef 001a[000005b0] [Flags: 000004c6] [RVA: 024a] Microsoft.SPOT.Hardware.UsbClient.UsbStream::get_CanRead [METHOD BOOLEAN()]
+MethodDef 001b[000005c0] [Flags: 000004c6] [RVA: 0259] Microsoft.SPOT.Hardware.UsbClient.UsbStream::get_CanWrite [METHOD BOOLEAN()]
+MethodDef 001c[000005d0] [Flags: 000004c6] [RVA: 0268] Microsoft.SPOT.Hardware.UsbClient.UsbStream::get_CanSeek [METHOD BOOLEAN()]
+MethodDef 001d[000005e0] [Flags: 000004c6] [RVA: 026a] Microsoft.SPOT.Hardware.UsbClient.UsbStream::get_Length [METHOD I8()]
+MethodDef 001e[000005f0] [Flags: 000004c6] [RVA: 026e] Microsoft.SPOT.Hardware.UsbClient.UsbStream::get_Position [METHOD I8()]
+MethodDef 001f[00000600] [Flags: 000004c6] [RVA: 0272] Microsoft.SPOT.Hardware.UsbClient.UsbStream::set_Position [METHOD VOID( I8 )]
+MethodDef 0020[00000610] [Flags: 000000c6] [RVA: 0276] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Seek [METHOD I8( I8, VALUETYPE [01000003] )]
+MethodDef 0021[00000620] [Flags: 000000c6] [RVA: 027a] Microsoft.SPOT.Hardware.UsbClient.UsbStream::SetLength [METHOD VOID( I8 )]
+MethodDef 0022[00000630] [Flags: 400000c4] [RVA: 027e] Microsoft.SPOT.Hardware.UsbClient.UsbStream::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 0023[00000640] [Flags: 00001483] [RVA: 02bc] Microsoft.SPOT.Hardware.UsbClient.UsbStream::.ctor [METHOD VOID( I4, I4, I4 )]
+MethodDef 0024[00000650] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbStream::nativeOpen [METHOD I4( I4, I4 )]
+MethodDef 0025[00000660] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbStream::nativeClose [METHOD VOID()]
+MethodDef 0026[00000670] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbStream::nativeRead [METHOD I4( SZARRAY U1, I4, I4 )]
+MethodDef 0027[00000680] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbStream::nativeWrite [METHOD I4( SZARRAY U1, I4, I4 )]
+MethodDef 0028[00000690] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.UsbClient.UsbStream::nativeFlush [METHOD VOID()]
+MethodDef 0029[000006a0] [Flags: 00001486] [RVA: 02df] Microsoft.SPOT.Hardware.UsbClient.Configuration.StringDescriptor::.ctor [METHOD VOID( U1, STRING )]
+MethodDef 002a[000006b0] [Flags: 00000486] [RVA: 02ea] Microsoft.SPOT.Hardware.UsbClient.Configuration.StringDescriptor::get_bIndex [METHOD U1()]
+MethodDef 002b[000006c0] [Flags: 00001486] [RVA: 02ef] Microsoft.SPOT.Hardware.UsbClient.Configuration.UsbInterface::.ctor [METHOD VOID( U1, SZARRAY CLASS [04000007] )]

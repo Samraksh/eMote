@@ -1,0 +1,25 @@
+
+
+AMD64_OBJECTS=\
+ $(OBJ_PATH)\$O\control.obj \
+ $(OBJ_PATH)\$O\devqueue.obj \
+ $(OBJ_PATH)\$O\driverentry.obj \
+ $(OBJ_PATH)\$O\generic.obj \
+ $(OBJ_PATH)\$O\plugplay.obj \
+ $(OBJ_PATH)\$O\power.obj \
+ $(OBJ_PATH)\$O\readwrite.obj \
+ $(OBJ_PATH)\$O\removelock.obj \
+ $(OBJ_PATH)\$O\stddcls.obj \
+
+
+_RES_FILE=$(OBJ_PATH)\$O\mfusb.res
+
+
+
+# lowercased
+BASEDIR=c:\winddk\7600.16385.1
+OBJECT_ROOT=c:\winddk\7600.16385.1
+MAKEDIR_LOWERCASE=c:\microframeworkpk_v4_0\usb_drivers\mfusb_portingkitsample\sys
+OBJ_PATH=c:\microframeworkpk_v4_0\usb_drivers\mfusb_portingkitsample\sys
+CONCURRENT_MIDL=0
+CONCURRENT_MANIFEST_BUILD=0

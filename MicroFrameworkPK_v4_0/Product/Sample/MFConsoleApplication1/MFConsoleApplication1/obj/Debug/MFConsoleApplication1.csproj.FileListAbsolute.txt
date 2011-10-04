@@ -1,0 +1,14 @@
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\bin\Debug\MFConsoleApplication1.exe
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\bin\Debug\MFConsoleApplication1.pdb
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\bin\Debug\MFConsoleApplication1.pe
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\bin\Debug\MFConsoleApplication1.pdbx
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\TinyCLR_DebugReferences.cache
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.Resources.resources
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.csproj.GenerateResource.Cache
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.Resources.tinyresources
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\TinyResGen.cache
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.pe
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.pdbx
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.exe
+C:\Users\Kartik\Documents\Visual Studio 2008\Projects\MFConsoleApplication1\MFConsoleApplication1\obj\Debug\MFConsoleApplication1.pdb

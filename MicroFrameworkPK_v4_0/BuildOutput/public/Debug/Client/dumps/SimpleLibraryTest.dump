@@ -1,0 +1,56 @@
+Assembly: SimpleLibraryTest (1.0.0.0)
+
+Size: AssemblyRef         36 byte(s)      3 item(s) [Runtime:     12]
+Size: TypeRef             72 byte(s)      9 item(s) [Runtime:     36]
+Size: FieldRef             0 byte(s)      0 item(s) [Runtime:      0]
+Size: MethodRef           64 byte(s)      8 item(s) [Runtime:     32]
+Size: TypeDef             72 byte(s)      3 item(s) [Runtime:     24]
+Size: FieldDef            16 byte(s)      2 item(s) [Runtime:      4]
+Size: MethodDef           80 byte(s)      5 item(s) [Runtime:     10]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files     24 byte(s)      1 item(s)
+Size: Resources           16 byte(s)      2 item(s)
+Size: ResourcesData       13 byte(s)
+Size: Strings            147 byte(s)
+Size: Signatures          42 byte(s)
+Size: ByteCode            67 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.0.1681.0)
+AssemblyRef: 0001[00000088] SimpleInterop (1.0.0.0)
+AssemblyRef: 0002[00000094] Microsoft.SPOT.Native (4.0.1681.0)
+
+TypeRef 0000[000000a0] [Scope: 0000] System Object
+TypeRef 0001[000000a8] [Scope: 0000] System Enum
+TypeRef 0002[000000b0] [Scope: 0000] System.Resources ResourceManager
+TypeRef 0003[000000b8] [Scope: 0001] SimpleInterop Library
+TypeRef 0004[000000c0] [Scope: 0000] System Type
+TypeRef 0005[000000c8] [Scope: 0000] System RuntimeTypeHandle
+TypeRef 0006[000000d0] [Scope: 0000] System.Reflection Assembly
+TypeRef 0007[000000d8] [Scope: 0002] Microsoft.SPOT ResourceUtility
+TypeRef 0008[000000e0] [Scope: 0000] System String
+
+MethodRef 0000[000000e8] [Type: 0003] .ctor [METHOD VOID()]
+MethodRef 0001[000000f0] [Type: 0003] init [METHOD VOID()]
+MethodRef 0002[000000f8] [Type: 0003] execute [METHOD VOID()]
+MethodRef 0003[00000100] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0004[00000108] [Type: 0004] GetTypeFromHandle [METHOD CLASS [01000004]( VALUETYPE [01000005] )]
+MethodRef 0005[00000110] [Type: 0004] get_Assembly [METHOD CLASS [01000006]()]
+MethodRef 0006[00000118] [Type: 0002] .ctor [METHOD VOID( STRING, CLASS [01000006] )]
+MethodRef 0007[00000120] [Type: 0007] GetObject [METHOD OBJECT( CLASS [01000002], CLASS [01000001] )]
+
+TypeDef 0000[00000128] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] SimpleLibraryTest Program
+TypeDef 0001[00000140] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] SimpleLibraryTest Resources
+TypeDef 0002[00000158] [Extends: 8001] [Enclosed: 0001] [Flags: 000000bd]  StringResources
+
+FieldDef 0000[00000170] [Flags: 00000011] SimpleLibraryTest.Resources::manager [FIELD CLASS [01000002]]
+FieldDef 0001[00000178] [Flags: 00000106] SimpleLibraryTest.Resources.StringResources::value__ [FIELD I2]
+
+MethodDef 0000[00000180] [Flags: 00001486] [RVA: 0000] SimpleLibraryTest.Program::.ctor [METHOD VOID()]
+MethodDef 0001[00000190] [Flags: 08000096] [RVA: 0005] SimpleLibraryTest.Program::Main [METHOD VOID()]
+MethodDef 0002[000001a0] [Flags: 00001486] [RVA: 0013] SimpleLibraryTest.Resources::.ctor [METHOD VOID()]
+MethodDef 0003[000001b0] [Flags: 00000493] [RVA: 0018] SimpleLibraryTest.Resources::get_ResourceManager [METHOD CLASS [01000002]()]
+MethodDef 0004[000001c0] [Flags: 00000093] [RVA: 0035] SimpleLibraryTest.Resources::GetString [METHOD STRING( VALUETYPE [04000002] )]
+Resource 0000[000001d0] [000004cc:3] 000d 00000000[000001e0]
+

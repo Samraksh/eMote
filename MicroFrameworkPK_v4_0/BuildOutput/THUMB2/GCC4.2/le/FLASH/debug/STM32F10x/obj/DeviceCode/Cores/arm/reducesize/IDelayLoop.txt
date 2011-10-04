@@ -1,0 +1,72 @@
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\IDelayLoop.s 			page 1
+
+
+   1              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   2              	@ Copyright (c) Microsoft Corporation.  All rights reserved.
+   3              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   4              	
+   5              	    .global IDelayLoop
+   6              	    .global IDelayLoop2
+   7              	
+   8              	
+   9              	   @ .arm
+  10              	
+  11              	    .section   SectionForFlashOperations,"xa", %progbits       @  void IDelayLoop(UINT32 count)
+  12              	
+  13              	IDelayLoop:
+  14              	
+  15              	IDelayLoop__Fi_b:
+  16              	
+  17              	        @@ Total cost of execution: 8 + 4 * count.
+  18              	        @@
+  19              	        @@ From RAM  : 1 +  3 + 9 + 4 * count (The extra   cycle   is to move the delay value into 
+  20              	        @@ From FLASH: 3 + 22 + 9 + 4 * count (The extra 3 cycles are to move the delay value into 
+  21              	
+  22              	        @@ wait states = 0, 4 clocks per iteration
+  23              	        @@  SUBS    FDE FDE FDE FDE
+  24              	        @@  BGT      FDEE*DEE*DEE*DEE
+  25              	        @@            FD  FD  FD  FD
+  26              	        @@             FD  FD  FD  FD
+  27              	        @@
+  28              	        @@ wait states = 1, 8 clocks per iteration
+  29              	        @@  SUBS    FFD E   FFD E   FFD E   FFD E
+  30              	        @@  BGT       FFD E E *FD E E *FD E E *FD E
+  31              	        @@              FFD     FFD     FFD     FFD
+  32              	        @@                FFD     FFD     FFD     FD
+  33              	        @@
+  34              	        @@ wait states = 2, 12 clocks per iteration
+  35              	        @@  SUBS    FFFD  E     FFFD  E     FFFD  E     FFFD  E
+  36              	        @@  BGT        FFFD  E  E  *FFD  E  E  *FFD  E  E  *FFD  E
+  37              	        @@                FFFD        FFFD        FFFD        FFFD
+  38              	        @@                   FFFD        FFFD        FFFD        F
+  39              	
+  40              	
+  41              	@@ The following loop was implemented to handle the XScale processors which feature branch
+  42              	@@ prediction.  Because of this, the branch when taken requires only 1 cycle.  Note that
+  43              	@@ this routine only works if both I cache and branch prediction are enabled.
+  44              	
+  45              	IDelayLoop2:
+  46              	
+  47              	
+  48              	    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  49              	
+  50              	
+  51              	  .ifdef COMPILE_THUMB
+  52              		.thumb
+  53              	  .endif
+  54              	
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\IDelayLoop.s 			page 2
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 BUILD_RTM
+                            *ABS*:00000001 TARGETLOCATION_FLASH
+                            *ABS*:00000001 HAL_REDUCESIZE
+                            *ABS*:00000001 PLATFORM_ARM_STM32F10x
+                            *ABS*:00000001 PLATFORM_ARM_CortexM3
+                            *ABS*:00000001 COMPILE_THUMB2
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\IDelayLoop.s:13     SectionForFlashOperations:00000000 IDelayLoop
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\IDelayLoop.s:45     SectionForFlashOperations:00000000 IDelayLoop2
+C:\MicroFrameworkPK_v4_0\DeviceCode\cores\arm\AssemblyCode\thumb2\GNU_S\IDelayLoop.s:15     SectionForFlashOperations:00000000 IDelayLoop__Fi_b
+
+NO UNDEFINED SYMBOLS

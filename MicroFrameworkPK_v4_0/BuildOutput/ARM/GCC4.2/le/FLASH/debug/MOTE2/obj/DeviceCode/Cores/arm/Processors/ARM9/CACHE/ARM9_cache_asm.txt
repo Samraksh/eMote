@@ -1,0 +1,153 @@
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s 			page 1
+
+
+   1              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   2              	@ Copyright (c) Microsoft Corporation.  All rights reserved.
+   3              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   4              	
+   5              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   6              	
+   7              	    .global CPU_ARM9_FlushCaches_asm
+   8              	    .global CPU_DrainWriteBuffers_asm
+   9              	    .global CPU_InvalidateCaches_asm
+  10              	    .global CPU_EnableCaches_asm
+  11              	    .global CPU_DisableCaches_asm
+  12              	    
+  13              	    .arm
+  14              	
+  15              	    .section    SectionForBootstrapOperations, "xa", %progbits
+  16              	
+  17              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  18              	
+  19              	
+  20              	CPU_ARM9_FlushCaches_asm:
+  21 0000 70002DE9 	    push    {r4,r5,r6}
+  22              	
+  23 0004 000050E3 	    CMP       r0,#0
+  24 0008 0050A0E3 	    mov       r5,#0
+  25              	    
+  26 000c 0D0000DA 	    BLE        SegLoopExit
+  27              	
+  28              	SegLoop:
+  29 0010 000051E3 	    CMP        r1, #0
+  30 0014 0060A0E3 	    mov        r6, #0
+  31              	
+  32 0018 070000DA 	    BLE        IndexLoopExit
+  33              	    
+  34              	IndexLoop:
+  35              	
+  36 001c 064DA0E1 	        LSL     r4, r6, #26
+  37 0020 854284E1 	        orr     r4, r4, r5, lsl #5
+  38              	
+  39 0024 5A4F07EE 	        mcr     p15, #0, r4, c7, c10, #2
+  40              	        
+  41 0028 104F12EE 	        mrc     p15, #0, r4, c2, c0, #0
+  42 002c 0000A0E1 	        nop 
+  43              	                        
+  44 0030 016086E2 	        ADD     r6, r6, #1           
+  45 0034 010056E1 	        cmp     r6, r1  
+  46 0038 F7FFFFBA 	        BLT     IndexLoop   
+  47              	IndexLoopExit:
+  48              	        
+  49 003c 015085E2 	    ADD     r5, r5, #1           
+  50 0040 000055E1 	    cmp     r5, r0
+  51 0044 F1FFFFBA 	    BLT     SegLoop   
+  52              	
+  53              	SegLoopExit:
+  54 0048 0040A0E3 	    mov     r4, #0
+  55 004c 9A4F07EE 	    mcr     p15, #0, r4, c7, c10, #4
+  56              	    
+  57 0050 101F12EE 	    mrc     p15, #0, r1, c2, c0, #0
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s 			page 2
+
+
+  58 0054 0000A0E1 	    nop         
+  59              	    
+  60 0058 174F07EE 	    mcr     p15, #0, r4, c7, c7,# 0
+  61              	
+  62 005c 104F12EE 	    mrc     p15, #0, r4, c2, c0, #0
+  63 0060 0000A0E1 	    nop  
+  64              	   
+  65 0064 7000BDE8 	    pop    {r4,r5,r6}
+  66 0068 0EF0A0E1 	    mov     pc, lr
+  67              	
+  68              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  69              	
+  70              	CPU_DrainWriteBuffers_asm:
+  71 006c 0000A0E3 	    mov     r0, #0
+  72 0070 9A0F07EE 	    mcr     p15, 0, r0, c7, c10, 4
+  73 0074 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  74 0078 0000A0E1 	    nop     
+  75              	
+  76 007c 0EF0A0E1 	    mov     pc, lr
+  77              	
+  78              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  79              	
+  80              	CPU_InvalidateCaches_asm:
+  81 0080 0000A0E3 	    mov     r0, #0
+  82 0084 170F07EE 	    mcr     p15, 0, r0, c7, c7, 0   
+  83 0088 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  84 008c 0000A0E1 	    nop 
+  85              	
+  86 0090 0EF0A0E1 	    mov     pc, lr
+  87              	    
+  88              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  89              	    
+  90              	CPU_EnableCaches_asm:
+  91 0094 170F07EE 	    mcr     p15, 0, r0, c7, c7, 0   @ Invalidate I & D Cache and Branch Target Buffer
+  92 0098 100F11EE 	    mrc     p15, 0, r0, c1, c0, 0
+  93 009c 010A80E3 	    orr     r0, r0, #0x1000         @ Enable ICache
+  94 00a0 040080E3 	    orr     r0, r0, #0x0004         @ Enable DCache  
+  95 00a4 020B80E3 	    orr     r0, r0, #0x0800         @ Enable Branch Target Buffer 
+  96 00a8 100F01EE 	    mcr     p15, 0, r0, c1, c0, 0   
+  97 00ac 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  98 00b0 0000A0E1 	    nop 
+  99              	
+ 100 00b4 0EF0A0E1 	    mov     pc, lr    
+ 101              	
+ 102              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 103              	    
+ 104              	CPU_DisableCaches_asm:
+ 105 00b8 100F11EE 	    mrc     p15, 0, r0, c1, c0, 0   
+ 106 00bc 010AC0E3 	    bic     r0, r0, #0x1000         @ Disable ICache
+ 107 00c0 0400C0E3 	    bic     r0, r0, #0x0004         @ Disable DCache  
+ 108 00c4 020BC0E3 	    bic     r0, r0, #0x0800         @ Disable Branch Target Buffer 
+ 109 00c8 100F01EE 	    mcr     p15, 0, r0, c1, c0, 0
+ 110 00cc 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+ 111 00d0 0000A0E1 	    nop 
+ 112              	
+ 113 00d4 0EF0A0E1 	    mov     pc, lr   
+ 114              	    
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s 			page 3
+
+
+ 115              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 116              	            
+ 117              	    .ifdef COMPILE_THUMB
+ 118              	    .thumb
+ 119              	    .endif
+ 120              	    
+ 121              	    
+ 122              	    
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 BUILD_RTM
+                            *ABS*:00000001 TARGETLOCATION_FLASH
+                            *ABS*:00000001 PLATFORM_ARM_MOTE2
+                            *ABS*:00000001 PLATFORM_ARM_PXA271
+                            *ABS*:00000001 COMPILE_ARM
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:20     SectionForBootstrapOperations:00000000 CPU_ARM9_FlushCaches_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:70     SectionForBootstrapOperations:0000006c CPU_DrainWriteBuffers_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:80     SectionForBootstrapOperations:00000080 CPU_InvalidateCaches_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:90     SectionForBootstrapOperations:00000094 CPU_EnableCaches_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:104    SectionForBootstrapOperations:000000b8 CPU_DisableCaches_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:21     SectionForBootstrapOperations:00000000 $a
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:53     SectionForBootstrapOperations:00000048 SegLoopExit
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:28     SectionForBootstrapOperations:00000010 SegLoop
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:47     SectionForBootstrapOperations:0000003c IndexLoopExit
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\CACHE\GNU_S\ARM9_cache_asm.s:34     SectionForBootstrapOperations:0000001c IndexLoop
+                   .debug_aranges:0000000c $d
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts
+END
+Preprocess.js
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/Preprocess.js
+END
+sign_file.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/sign_file.cmd
+END
+init.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/init.cmd
+END
+dump_serial.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/dump_serial.cmd
+END
+build_usb_drivers.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/build_usb_drivers.cmd
+END
+prop_feedback_files.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/prop_feedback_files.cmd
+END
+PrepareLibsForConcat.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/PrepareLibsForConcat.cmd
+END
+pkinstall.proj
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/samraksh/mftrunk/!svn/ver/1/tools/Scripts/pkinstall.proj
+END

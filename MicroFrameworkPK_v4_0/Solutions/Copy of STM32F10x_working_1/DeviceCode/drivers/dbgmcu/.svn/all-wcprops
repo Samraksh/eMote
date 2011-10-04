@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/dbgmcu
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/dbgmcu/dotNetMF.proj
+END
+stm32f10x_dbgmcu.c
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/dbgmcu/stm32f10x_dbgmcu.c
+END
+stm32f10x_dbgmcu.h
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/dbgmcu/stm32f10x_dbgmcu.h
+END

@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/gpio
+END
+stm32f10x_gpio.c
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/gpio/stm32f10x_gpio.c
+END
+netmf_gpio.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/gpio/netmf_gpio.cpp
+END
+dotNetMF.proj
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/gpio/dotNetMF.proj
+END
+stm32f10x_gpio.h
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/samraksh/mftrunk/!svn/ver/1/Solutions/Copy%20of%20STM32F10x_working_1/DeviceCode/drivers/gpio/stm32f10x_gpio.h
+END

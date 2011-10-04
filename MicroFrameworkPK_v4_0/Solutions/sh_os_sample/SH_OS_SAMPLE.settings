@@ -1,0 +1,23 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Author>
+    </Author>
+    <Description>Renesas SH Sample platform </Description>
+    <Documentation>
+    </Documentation>
+    <PlatformGuid>{1B6FE36F-9C4E-495c-A8DC-ACD9C04DC1C9}</PlatformGuid>
+    <TARGETPLATFORM>SH_OS_SAMPLE</TARGETPLATFORM>
+    <PLATFORM>SH_OS_SAMPLE</PLATFORM>
+    <ENDIANNESS>be</ENDIANNESS>
+
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
+    <OS_PLATFORM>true</OS_PLATFORM>
+    <NO_BOOTLOADER_COMPRESSION>true</NO_BOOTLOADER_COMPRESSION>
+    <DEVICE_TYPE Condition="'$(DEVICE_TYPE)' == ''">SH2</DEVICE_TYPE>    
+   
+  </PropertyGroup>
+  <ItemGroup>
+    <IncludePaths Include="Solutions\SH_OS_SAMPLE" />
+  </ItemGroup>
+  <Import Project="$(SPOCLIENT)\devicecode\Targets\os\SH_OS\SH_OS.settings" />
+</Project>

@@ -1,0 +1,95 @@
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s 			page 1
+
+
+   1              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   2              	@ Copyright (c) Microsoft Corporation.  All rights reserved.
+   3              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   4              	
+   5              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   6              	
+   7              		.global CPU_InvalidateTLBs_asm
+   8              		.global CPU_EnableMMU_asm
+   9              		.global CPU_DisableMMU_asm
+  10              		.global CPU_IsMMUEnabled_asm
+  11              		
+  12              		.arm
+  13              	
+  14              	    .section    SectionForBootstrapOperations, "xa", %progbits
+  15              	
+  16              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  17              	
+  18              	CPU_InvalidateTLBs_asm: 
+  19 0000 0000A0E3 	    mov		r0, #0
+  20 0004 170F08EE 	    mcr		p15, 0, r0, c8, c7, 0
+  21 0008 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  22 000c 0000A0E1 	    nop          
+  23              	
+  24 0010 0EF0A0E1 	    mov     pc, lr
+  25              	
+  26              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  27              	
+  28              	CPU_EnableMMU_asm:
+  29 0014 100F02EE 		mcr     p15, 0, r0, c2, c0, 0		@ Set the TTB address location to CP15
+  30 0018 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  31 001c 0000A0E1 	    nop  
+  32 0020 101F11EE 	    mrc     p15, 0, r1, c1, c0, 0
+  33 0024 011081E3 	    orr     r1, r1, #0x0001             @ Enable MMU
+  34 0028 101F01EE 	    mcr     p15, 0, r1, c1, c0, 0
+  35 002c 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  36 0030 0000A0E1 	    nop 
+  37              	        
+  38              	    @ Note that the 2 preceeding instruction would still be prefetched
+  39              	    @ under the physical address space instead of in virtual address space. 
+  40 0034 0EF0A0E1 	    mov     pc, lr
+  41              	
+  42              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  43              	
+  44              	CPU_DisableMMU_asm:
+  45 0038 100F11EE 	    mrc     p15, 0, r0, c1, c0, 0
+  46 003c 0100C0E3 	    bic     r0, r0, #0x0001           @ Disable MMU
+  47 0040 100F01EE 	    mcr     p15, 0, r0, c1, c0, 0
+  48 0044 100F12EE 	    mrc     p15, 0, r0, c2, c0, 0
+  49 0048 0000A0E1 	    nop 
+  50              	        
+  51              	    @ Note that the 2 preceeding instruction would still be prefetched
+  52              	    @ under the physical address space instead of in virtual address space.
+  53 004c 0EF0A0E1 	    mov     pc, lr
+  54              	    
+  55              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  56              	    
+  57              	CPU_IsMMUEnabled_asm:
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s 			page 2
+
+
+  58 0050 100F11EE 	    mrc     p15, 0, r0, c1, c0, 0
+  59 0054 101F12EE 	    mrc     p15, 0, r1, c2, c0, 0
+  60 0058 0000A0E1 	    nop 
+  61              	    
+  62 005c 010000E2 	    and		r0, r0, #1
+  63 0060 0EF0A0E1 	    mov     pc, lr    
+  64              		
+  65              	@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  66              		        
+  67              		.ifdef COMPILE_THUMB
+  68              		.thumb
+  69              		.endif
+  70              		
+  71              		
+  72              		
+ARM GAS  C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s 			page 3
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 BUILD_RTM
+                            *ABS*:00000001 TARGETLOCATION_FLASH
+                            *ABS*:00000001 PLATFORM_ARM_MOTE2
+                            *ABS*:00000001 PLATFORM_ARM_PXA271
+                            *ABS*:00000001 COMPILE_ARM
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s:18     SectionForBootstrapOperations:00000000 CPU_InvalidateTLBs_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s:28     SectionForBootstrapOperations:00000014 CPU_EnableMMU_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s:44     SectionForBootstrapOperations:00000038 CPU_DisableMMU_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s:57     SectionForBootstrapOperations:00000050 CPU_IsMMUEnabled_asm
+C:\MicroFrameworkPK_v4_0\DeviceCode\Cores\arm\Processors\ARM9\MMU\GNU_S\ARM9_mmu_asm.s:19     SectionForBootstrapOperations:00000000 $a
+                   .debug_aranges:0000000c $d
+
+NO UNDEFINED SYMBOLS

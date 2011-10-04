@@ -1,0 +1,58 @@
+Assembly: EncryptTest (1.0.0.0)
+
+Size: AssemblyRef         36 byte(s)      3 item(s) [Runtime:     12]
+Size: TypeRef             80 byte(s)     10 item(s) [Runtime:     40]
+Size: FieldRef             0 byte(s)      0 item(s) [Runtime:      0]
+Size: MethodRef           72 byte(s)      9 item(s) [Runtime:     36]
+Size: TypeDef             72 byte(s)      3 item(s) [Runtime:     24]
+Size: FieldDef            16 byte(s)      2 item(s) [Runtime:      4]
+Size: MethodDef           80 byte(s)      5 item(s) [Runtime:     10]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files     24 byte(s)      1 item(s)
+Size: Resources           16 byte(s)      2 item(s)
+Size: ResourcesData       13 byte(s)
+Size: Strings            143 byte(s)
+Size: Signatures          63 byte(s)
+Size: ByteCode           119 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.0.1681.0)
+AssemblyRef: 0001[00000088] Microsoft.SPOT.Native (4.0.1681.0)
+AssemblyRef: 0002[00000094] MyEncryptionLib (1.0.0.0)
+
+TypeRef 0000[000000a0] [Scope: 0000] System Object
+TypeRef 0001[000000a8] [Scope: 0000] System Enum
+TypeRef 0002[000000b0] [Scope: 0000] System.Resources ResourceManager
+TypeRef 0003[000000b8] [Scope: 0001] Microsoft.SPOT Debug
+TypeRef 0004[000000c0] [Scope: 0002] MyEncryptionLib SSL
+TypeRef 0005[000000c8] [Scope: 0000] System String
+TypeRef 0006[000000d0] [Scope: 0000] System Type
+TypeRef 0007[000000d8] [Scope: 0000] System RuntimeTypeHandle
+TypeRef 0008[000000e0] [Scope: 0000] System.Reflection Assembly
+TypeRef 0009[000000e8] [Scope: 0001] Microsoft.SPOT ResourceUtility
+
+MethodRef 0000[000000f0] [Type: 0003] Print [METHOD VOID( STRING )]
+MethodRef 0001[000000f8] [Type: 0004] .ctor [METHOD VOID()]
+MethodRef 0002[00000100] [Type: 0005] get_Length [METHOD I4()]
+MethodRef 0003[00000108] [Type: 0004] encrypt [METHOD I4( STRING )]
+MethodRef 0004[00000110] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0005[00000118] [Type: 0006] GetTypeFromHandle [METHOD CLASS [01000006]( VALUETYPE [01000007] )]
+MethodRef 0006[00000120] [Type: 0006] get_Assembly [METHOD CLASS [01000008]()]
+MethodRef 0007[00000128] [Type: 0002] .ctor [METHOD VOID( STRING, CLASS [01000008] )]
+MethodRef 0008[00000130] [Type: 0009] GetObject [METHOD OBJECT( CLASS [01000002], CLASS [01000001] )]
+
+TypeDef 0000[00000138] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] EncryptTest Program
+TypeDef 0001[00000150] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] EncryptTest Resources
+TypeDef 0002[00000168] [Extends: 8001] [Enclosed: 0001] [Flags: 000000bd]  StringResources
+
+FieldDef 0000[00000180] [Flags: 00000011] EncryptTest.Resources::manager [FIELD CLASS [01000002]]
+FieldDef 0001[00000188] [Flags: 00000106] EncryptTest.Resources.StringResources::value__ [FIELD I2]
+
+MethodDef 0000[00000190] [Flags: 00001486] [RVA: 0000] EncryptTest.Program::.ctor [METHOD VOID()]
+MethodDef 0001[000001a0] [Flags: 08000096] [RVA: 0005] EncryptTest.Program::Main [METHOD VOID()]
+MethodDef 0002[000001b0] [Flags: 00001486] [RVA: 0033] EncryptTest.Resources::.ctor [METHOD VOID()]
+MethodDef 0003[000001c0] [Flags: 00000493] [RVA: 0038] EncryptTest.Resources::get_ResourceManager [METHOD CLASS [01000002]()]
+MethodDef 0004[000001d0] [Flags: 00000093] [RVA: 0064] EncryptTest.Resources::GetString [METHOD STRING( VALUETYPE [04000002] )]
+Resource 0000[000001e0] [000004cc:3] 000d 00000000[000001f0]
+

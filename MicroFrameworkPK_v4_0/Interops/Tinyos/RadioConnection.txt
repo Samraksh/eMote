@@ -1,0 +1,10 @@
+SLP_TR  23     26
+RSTN    17     25
+SELN     4     30 
+
+MISO     6     27 
+MOSI     7     28
+SCLK     5     29
+
+VLTG           20
+GRND            0

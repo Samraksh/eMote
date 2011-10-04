@@ -1,0 +1,45 @@
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>SampleFlash_blconfig_SH7619_NATIVE_LE</AssemblyName>
+    <Size>
+    </Size>
+    <ProjectGuid>{198e06df-c0ec-4f2e-bc72-8cb764de2bc8}</ProjectGuid>
+    <Description>Block storage configuration for SH7619_NATIVE_LE</Description>
+    <Level>HAL</Level>
+    <LibraryFile>SampleFlash_blconfig_SH7619_NATIVE_LE.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\SH7619_NATIVE_LE\DeviceCode\Blockstorage\SampleFlash\dotNetMF.proj</ProjectPath>
+    <ManifestFile>SampleFlash_blconfig_SH7619_NATIVE_LE.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Solutions\SH7619_NATIVE_LE</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="BlockStorageConfig_HAL" Guid="{497F59BB-55D3-404e-B958-A6284806D184}" ProjectPath="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomSpecific>SH7619_NATIVE_LE</CustomSpecific>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>Solutions\SH7619_NATIVE_LE\DeviceCode\BlockStorage\SampleFlash</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <Compile Include="I28f640j3_BlConfig.cpp" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>
