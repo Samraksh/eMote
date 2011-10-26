@@ -3,7 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
+#define _EMBEDDED_
+
+#include "fixedPoint.h"
 #include "testMath.h"
+
 #include "..\..\Log\Log.h"
 
 #ifndef _Timers_TEST_
@@ -42,7 +46,7 @@ public:
 
 	BOOL     Level_1A();
 
-	BOOL     Level_1B();
+	BOOL     Level_1B(int Timer);
 
 	BOOL     Level_2();
 

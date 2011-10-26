@@ -10,13 +10,14 @@
 int testCount = 0;
 
 testMath g_testMathInstance;
-bool LEVEL_1_A_Test = false;
-bool LEVEL_1_B_Test = false;
-bool LEVEL_2_Test = false;
-bool LEVEL_0_A_Test = false;
-bool LEVEL_0_B_Test = false;
+bool Level_1_A_Test = false;
+bool Level_1_B_Test = false;
+bool Level_2_Test = false;
+bool Level_0_A_Test = false;
+bool Level_0_B_Test = false;
 
-
+UINT16 randomBuffer[600];
+UINT16 bufferIterator = 0;
 
 void ISR_TIMER( void* Param );
 
@@ -26,21 +27,25 @@ Timers::Timers( int seedValue, int numberOfEvents )
 	this->seedValue = seedValue;
 	this->numberOfEvents = numberOfEvents;
 	g_testMathInstance.prng_init(seedValue);
-	//this->testMathInstance.prng_init(seedValue);
+	//this->testMathInstance.pareto_prng()_init(seedValue);
 	// Initializes the gpio pins
 	CPU_GPIO_Initialize();
 	CPU_INTC_Initialize();
+	
+	for(int i = 0; i < 600; i++)
+		randomBuffer[i] = g_testMathInstance.pareto_prng();
+	
 };
 
 BOOL Timers::testMathLibrary()
 {
 	int loopIterator = 0;
 
-	long rndmValue = 0;
+	unsigned int rndmValue = 0;
 
 	for(loopIterator = 0; loopIterator < this->numberOfEvents; loopIterator++)
 	{
-		rndmValue = g_testMathInstance.prng();
+		rndmValue = g_testMathInstance.pareto_prng();
 
 		if(-1 == rndmValue)
 		{
@@ -65,12 +70,17 @@ BOOL Timers::Level_0A(int Timer)
 				return FALSE;
 	}
 
-	Timer_Driver::SetCompare( Timer, this->testMathInstance.prng());
+	//Timer_Driver::SetCompare( Timer, g_testMathInstance.pareto_prng());
+	//TIM_SetCounter(TIM2,0);
+	//Timer_Driver::SetCompare( Timer, randomBuffer[bufferIterator++]);
+	Timer_Driver::SetCompare( Timer, 55200);
 
 	while(testCount < this->numberOfEvents)
 	{
 
 	}
+	
+	Timer_Driver::Uninitialize(Timer);
 
 	return TRUE;
 
@@ -83,9 +93,9 @@ BOOL Timers::Level_0B()
 BOOL Timers::Level_1A()
 {
 	long randomValue;
-	LEVEL_1_A_Test = true;
+	Level_1_A_Test = true;
 
-	randomValue = this->testMathInstance.prng();
+	randomValue = g_testMathInstance.pareto_prng();
 	int Timer = (randomValue % 3) + 1;
 
 	if (!Timer_Driver :: Initialize (2, TRUE, 0, 0, ISR_TIMER, NULL))
@@ -113,7 +123,7 @@ BOOL Timers::Level_1A()
 	Timer_Driver::Uninitialize (3 );
 	Timer_Driver::Uninitialize (4 );
 
-	LEVEL_1_A_Test = false;
+	Level_1_A_Test = false;
 	return TRUE;
 
 }
@@ -125,7 +135,7 @@ BOOL Timers::Level_1B(int Timer)
 					return FALSE;
 		}
 
-	Timer_Driver::SetCompare( Timer, this->testMathInstance.prng());
+	Timer_Driver::SetCompare( Timer, this->testMathInstance.pareto_prng());
 
 	while(testCount < this->numberOfEvents)
 	{
@@ -165,9 +175,9 @@ BOOL Timers::Level_2()
 						return FALSE;
 			}
 
-	Timer_Driver::SetCompare( 2, this->testMathInstance.prng());
-	Timer_Driver::SetCompare( 3, this->testMathInstance.prng());
-	Timer_Driver::SetCompare( 4, this->testMathInstance.prng());
+	Timer_Driver::SetCompare( 2, this->testMathInstance.pareto_prng());
+	Timer_Driver::SetCompare( 3, this->testMathInstance.pareto_prng());
+	Timer_Driver::SetCompare( 4, this->testMathInstance.pareto_prng());
 
 	while(testCount < this->numberOfEvents)
 	{
@@ -200,38 +210,44 @@ BOOL Timers::Execute( int testLevel )
 {
 
 	// Indicates the start of the test
-	CPU_GPIO_EnableOutputPin(1,TRUE);
+	CPU_GPIO_EnableOutputPin(9,TRUE);
 
 	// Configure Pin 2 as the pin of interest
-	CPU_GPIO_EnableOutputPin(2,FALSE);
+	CPU_GPIO_EnableOutputPin(10,FALSE);
+	
+	CPU_GPIO_EnableOutputPin(0,FALSE);
+	
+	//CPU_GPIO_SetPinState(10,TRUE);
+	
+	//CPU_GPIO_SetPinState(10,FALSE);
 
 	if(testLevel == TESTRNDGEN)
 	{
 		if(Timers::testMathLibrary())
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return SUCCESS;
 		}
 		else
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return FAIL;
 		}
 
 	}
 	if(testLevel == LEVEL_0_A)
 	{
-		for(int Timer = 2; Timer < 5; Timer++)
+		for(int Timer = 2; Timer < 3; Timer++)
 		{
-			CPU_GPIO_SetPinState(1,TRUE);
+			CPU_GPIO_SetPinState(9,TRUE);
 			if(Timers::Level_0A(Timer))
 			{
-				CPU_GPIO_SetPinState(1,FALSE);
+				CPU_GPIO_SetPinState(9,FALSE);
 				return SUCCESS;
 			}
 			else
 			{
-				CPU_GPIO_SetPinState(1,FALSE);
+				CPU_GPIO_SetPinState(9,FALSE);
 				return FAIL;
 			}
 		}
@@ -243,25 +259,25 @@ BOOL Timers::Execute( int testLevel )
 	{
 		if(Timers::Level_1A())
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return SUCCESS;
 		}
 		else
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return FAIL;
 		}
 	}
 	if(testLevel == LEVEL_1_B)
 	{
-		if(Timers::Level_1B())
+		if(Timers::Level_1B(3))
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return SUCCESS;
 		}
 		else
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return FAIL;
 		}
 	}
@@ -269,12 +285,12 @@ BOOL Timers::Execute( int testLevel )
 	{
 		if(Timers::Level_2())
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return SUCCESS;
 		}
 		else
 		{
-			CPU_GPIO_SetPinState(1,FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
 			return FAIL;
 		}
 	}
@@ -284,55 +300,65 @@ BOOL Timers::Execute( int testLevel )
 
 void ISR_TIMER( void* Param )
 {
-	long randomValue = 0;
-
+	UINT16 randomValue = 0;
+	UINT16 diffValue = 0;
+	UINT16 counterValue = 0;
+    
+	/*
 	if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
 	  {
 			TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 );
-			if(Level_1_A_Test == True)
+			if(Level_1_A_Test == TRUE)
 			{
-				randomValue = g_testMathInstance.prng();
+				randomValue = g_testMathInstance.pareto_prng();
 				Timer_Driver::SetCompare( (randomValue % 3) + 1, randomValue);
 			}
 			else
 			{
-				Timer_Driver::SetCompare( 4, g_testMathInstance.prng());
+				Timer_Driver::SetCompare( 4, TIM_GetCounter(TIM4) + randomBuffer[bufferIterator++]);
 			}
 	  }
 	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
 	  {
 		    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 );
-		    if(Level_1_A_Test == True)
+		    if(Level_1_A_Test == TRUE)
 		    {
-		    	randomValue = g_testMathInstance.prng();
+		    	randomValue = g_testMathInstance.pareto_prng();
 		    	Timer_Driver::SetCompare( (randomValue % 3) + 1, randomValue);
 		    }
 		    else
 		    {
-		    	Timer_Driver::SetCompare( 3, g_testMathInstance.prng());
+		    	Timer_Driver::SetCompare( 3, TIM_GetCounter(TIM3) + randomBuffer[bufferIterator++]);
 		    }
 	  }
+	  */
 	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	  {
 			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 );
-		    if(Level_1_A_Test == True)
+		    if(Level_1_A_Test == TRUE)
 		    {
-			   	randomValue = g_testMathInstance.prng();
+			   	randomValue = g_testMathInstance.pareto_prng();
 			   	Timer_Driver::SetCompare( (randomValue % 3) + 1, randomValue);
 			}
 			else
 			{
-				Timer_Driver::SetCompare( 2, g_testMathInstance.prng());
+				//TIM_SetCounter(TIM2,0);
+				counterValue = TIM_GetCounter(TIM2);
+				//randomValue = randomBuffer[bufferIterator++];
+					
+				//Timer_Driver::SetCompare( 2, counterValue + randomValue);
+				Timer_Driver::SetCompare( 2, counterValue + 55200);
 			}
 	  }
 
 
+	 
 	if(testCount % 2 == 0)
-		CPU_GPIO_SetPinState(2, TRUE);
+		CPU_GPIO_SetPinState(10, TRUE);
 	else
-		CPU_GPIO_SetPinState(2,FALSE);
+		CPU_GPIO_SetPinState(10,FALSE);
 	testCount++;
-
+	
 }
 
 /*
@@ -341,7 +367,7 @@ void Timers::ISR_TIMER_3( void* Param )
 	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
 	  {
 	    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 );
-	    Timer_Driver::SetCompare( 3, this->testMathInstance.prng());
+	    Timer_Driver::SetCompare( 3, this->testMathInstance.pareto_prng()());
 	  }
 
 	if(testCount % 2 == 0)
@@ -357,7 +383,7 @@ void Timers::ISR_TIMER_2( void* Param )
 	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	  {
 	    TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 );
-	    Timer_Driver::SetCompare( 2, this->testMathInstance.prng());
+	    Timer_Driver::SetCompare( 2, this->testMathInstance.pareto_prng()());
 	  }
 
 	if(testCount % 2 == 0)
@@ -370,4 +396,5 @@ void Timers::ISR_TIMER_2( void* Param )
 */
 
 //--//
+
 
