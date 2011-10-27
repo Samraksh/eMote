@@ -12,7 +12,7 @@ void HeapLocation( UINT8*& BaseAddress, UINT32& SizeInBytes )
 #if defined (PLATFORM_ARM)    
      //BaseAddress = (UINT8*)                            &HeapBegin;
      //SizeInBytes = (UINT32)((size_t)&HeapEnd - (size_t)&HeapBegin + sizeof(HeapEnd));
-     BaseAddress = (UINT8*) 0x20006000;
+     BaseAddress = (UINT8*) 0x20010000;
 	 SizeInBytes = 0x8000;
 
 #elif defined(PLATFORM_BLACKFIN) 
