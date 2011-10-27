@@ -195,8 +195,8 @@ int CPU_SystemClocksToMicroseconds( int Ticks )
 
 BOOL HAL_Time_Initialize()
 {		
-	return TRUE;
-	//return Time_Driver::Initialize();
+	//return TRUE;
+	return Time_Driver::Initialize();
 }
 
 BOOL HAL_Time_Uninitialize()
