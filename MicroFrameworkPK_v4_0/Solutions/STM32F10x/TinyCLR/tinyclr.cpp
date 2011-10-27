@@ -129,11 +129,11 @@ void ApplicationEntryPoint()
 	//{
 		//debug_printf("In App Entry point!\n\r");	
 	//}
-	while(1)
-	{	
-	}
+	//while(1)
+	///{	
+	//}
 	
-	//ClrStartup( clrSettings );
+	ClrStartup( clrSettings );
 	
 	// while(1)
 	// {	
