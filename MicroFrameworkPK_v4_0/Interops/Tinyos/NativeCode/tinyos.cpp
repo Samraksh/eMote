@@ -1,8 +1,65 @@
+#include <TinyCLR_Interop.h>
+#include <tinyhal.h>
+
+extern "C"
+{
+#include <rcc/stm32f10x_rcc.h>
+#include <rtc/stm32f10x_rtc.h>
+#include <tim/stm32f10x_tim.h>
+#include <misc/misc.h>
+#include <exti/stm32f10x_exti.h>
+#include "stm32_eval.h"
+#include <pwr/stm32f10x_pwr.h>
+#include <spi/stm32f10x_spi.h>
+#include <gpio/stm32f10x_gpio.h>
+
+}
+
+//#include <tinyhal.h>
+
+#define SPIx             SPI1
+#define SPIx_CLK         RCC_APB2Periph_SPI1
+#define SPIx_GPIO        GPIOA
+#define SPIx_GPIO_CLK    RCC_APB2Periph_GPIOA
+#define SPIx_NSS	     GPIO_Pin_4 //nss
+#define SPIx_PIN_SCK     GPIO_Pin_5 //sck
+#define SPIx_PIN_MISO	 GPIO_Pin_6 //miso
+#define SPIx_PIN_MOSI    GPIO_Pin_7 //mosi
+
+
 #define nx_struct struct
 #define nx_union union
 #define dbg(mode, format, ...) ((void)0)
 #define dbg_clear(mode, format, ...) ((void)0)
 #define dbg_active(mode) 0
+
+extern CLR_RT_HeapBlock_NativeEventDispatcher *g_Context;
+extern void ISR_TestProc(CLR_RT_HeapBlock_NativeEventDispatcher *pContext);
+
+
+TIM_OCInitTypeDef  TIM_OCInitStructure;
+NVIC_InitTypeDef NVIC_InitStructure;
+GPIO_InitTypeDef GPIO_InitStructure;
+
+ErrorStatus HSEStartUpStatus;
+TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+TIM_ICInitTypeDef TIM_ICInitStructure;
+
+bool noTask = false;
+
+bool sendComplete = false;
+
+int globalCheck = 0;
+bool returnToTinyos = false;
+
+__IO uint16_t CCR1_Val = 40961;
+uint32_t SystemCoreClock = 8000000;
+uint16_t capture = 0;
+
+void RCC_Configuration(void);
+void GPIO_Configuration(void);
+
+
 //# 41 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/include/stdint.h" 3
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
@@ -225,6 +282,7 @@ typedef int _ssize_t;
 typedef unsigned int wint_t;
 //# 75 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/include/sys/_types.h"
 //#line 67
+#if 0
 typedef struct __nesc_unnamed4243 {
 
   int __count;
@@ -234,6 +292,7 @@ typedef struct __nesc_unnamed4243 {
     unsigned char __wchb[4];
   } __value;
 } _mbstate_t;
+#endif
 
 
 
@@ -252,7 +311,7 @@ struct _reent;
 
 
 
-
+#if 0
 struct _Bigint {
 
   struct _Bigint *_next;
@@ -466,12 +525,19 @@ struct __sFILE_fake;
 //#line 840
 struct _reent;
 struct _reent;
+#endif
 //# 211 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/include/stddef.h" 3
 typedef unsigned int size_t;
 //# 26 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/include/string.h"
+extern "C"
+{
+
 void *memset(void *, int , size_t );
+}
 //# 38 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/include/stdlib.h"
 //#line 34
+
+#if 0
 typedef struct __nesc_unnamed4245 {
 
   int quot;
@@ -519,6 +585,7 @@ union __ldmath {
   long double ld;
   __ULong i[4];
 };
+#endif
 //# 162 "/home/nived/CodeSourcery/Sourcery_G++_Lite/bin/../lib/gcc/arm-none-eabi/4.5.1/include-fixed/math.h" 3
 typedef float float_t;
 typedef double double_t;
@@ -534,6 +601,7 @@ struct exception {
   int err;
 };
 //#line 570
+#if 0
 enum __fdlibm_version {
 
   __fdlibm_ieee = -1, 
@@ -541,7 +609,7 @@ enum __fdlibm_version {
   __fdlibm_xopen, 
   __fdlibm_posix
 };
-
+#endif
 
 
 
@@ -556,12 +624,14 @@ struct __nesc_attr_unsafe {
 };
 //# 23 "/opt/tinyos-2.x/tos/system/tos.h"
 //typedef uint8_t bool;
+#if 0
 enum __nesc_unnamed4248 {
 //#line 24
   FALSE = 0, TRUE = 1
 };
+#endif
 typedef nx_int8_t nx_bool;
-uint16_t TOS_NODE_ID = 1;
+uint16_t TOS_NODE_ID = 4;
 
 
 
@@ -578,7 +648,7 @@ struct __nesc_attr_exactlyonce {
 };
 //# 40 "/opt/tinyos-2.x/tos/types/TinyError.h"
 enum __nesc_unnamed4249 {
-  SUCCESS = 0, 
+  //SUCCESS = 0, 
   FAIL = 1, 
   ESIZE = 2, 
   ECANCEL = 3, 
@@ -598,6 +668,7 @@ typedef uint8_t error_t  ;
 static inline error_t ecombine(error_t r1, error_t r2)  ;
 //# 408 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_map.h"
 //#line 143
+#if 0
 typedef enum IRQn {
 
 
@@ -790,6 +861,7 @@ static __inline void __WFI(void);
 static __inline void NVIC_EnableIRQ(IRQn_Type IRQn);
 //#line 1515
 static __inline void NVIC_DisableIRQ(IRQn_Type IRQn);
+#endif
 //# 424 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_map.h"
 typedef int32_t s32;
 typedef int16_t s16;
@@ -803,9 +875,11 @@ typedef volatile int32_t vs32;
 typedef volatile int16_t vs16;
 typedef volatile int8_t vs8;
 
+#if 0
 typedef volatile const int32_t vsc32;
 typedef volatile const int16_t vsc16;
 typedef volatile const int8_t vsc8;
+#endif
 
 typedef uint32_t u32;
 typedef uint16_t u16;
@@ -814,19 +888,20 @@ typedef uint8_t u8;
 typedef const uint32_t uc32;
 typedef const uint16_t uc16;
 typedef const uint8_t uc8;
-
+	
 typedef volatile uint32_t vu32;
 typedef volatile uint16_t vu16;
 typedef volatile uint8_t vu8;
 
+#if 0
 typedef volatile const uint32_t vuc32;
 typedef volatile const uint16_t vuc16;
 typedef volatile const uint8_t vuc8;
+#endif
 
 
 
-
-
+#if 0
 typedef enum __nesc_unnamed4257 {
 //#line 460
   RESET = 0, SET = !RESET
@@ -1533,6 +1608,7 @@ typedef struct __nesc_unnamed4292 {
   volatile uint32_t CFR;
   volatile uint32_t SR;
 } WWDG_TypeDef;
+#endif
 //# 42 "/opt/tinyos-2.x/tos/chips/stm32/stm32exceptions.h"
 void NMIException(void );
 
@@ -1576,8 +1652,11 @@ void PVD_IRQHandler(void );
 
 void TAMPER_IRQHandler(void );
 
+extern "C"
+{
 
 void RTC_IRQHandler(void );
+}
 
 
 void FLASH_IRQHandler(void );
@@ -1588,8 +1667,16 @@ void RCC_IRQHandler(void );
 
 void EXTI0_IRQHandler(void );
 
+extern "C"
+{
 
 void EXTI1_IRQHandler(void );
+}
+
+extern "C"
+{
+__attribute((interrupt)) void RTCAlarm_IRQHandler(void );
+}
 
 
 void EXTI2_IRQHandler(void );
@@ -1636,8 +1723,11 @@ void CAN_RX1_IRQHandler(void );
 
 void CAN_SCE_IRQHandler(void );
 
+extern "C"
+{
 
 void EXTI9_5_IRQHandler(void );
+}
 
 
 void TIM1_BRK_IRQHandler(void );
@@ -1651,14 +1741,16 @@ void TIM1_TRG_COM_IRQHandler(void );
 
 void TIM1_CC_IRQHandler(void );
 
-
-void TIM2_IRQHandler(void );
+extern "C"
+{
+//void TIM2_IRQHandler(void );
 
 
 void TIM3_IRQHandler(void );
 
 
 void TIM4_IRQHandler(void );
+}
 
 
 void I2C1_EV_IRQHandler(void );
@@ -1707,6 +1799,7 @@ static __inline void __nesc_disable_interrupt(void);
 typedef uint8_t mcu_power_t  ;
 //# 30 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_exti.h"
 //#line 26
+#if 0
 typedef enum __nesc_unnamed4293 {
 
   EXTI_Mode_Interrupt = 0x00, 
@@ -1737,16 +1830,25 @@ typedef struct __nesc_unnamed4295 {
   EXTITrigger_TypeDef EXTI_Trigger;
   FunctionalState EXTI_LineCmd;
 } EXTI_InitTypeDef;
+#endif
 //#line 97
+extern "C"
+{
+
 void EXTI_Init(EXTI_InitTypeDef *EXTI_InitStruct);
+}
 
 
 
 
+extern "C"
+{
 
 void EXTI_ClearITPendingBit(uint32_t EXTI_Line);
+}
 //# 67 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_nvic.h"
 //#line 49
+#if 0
 typedef struct __nesc_unnamed4296 {
 
   uint8_t NVIC_IRQChannel;
@@ -1766,11 +1868,16 @@ typedef struct __nesc_unnamed4296 {
 } 
 
 NVIC_InitTypeDef;
+#endif
 //#line 195
+extern "C"
+{
 void NVIC_PriorityGroupConfig(uint32_t NVIC_PriorityGroup);
 void NVIC_Init(NVIC_InitTypeDef *NVIC_InitStruct);
+}
 //# 52 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_rcc.h"
 //#line 45
+#if 0
 typedef struct __nesc_unnamed4297 {
 
   uint32_t SYSCLK_Frequency;
@@ -1779,7 +1886,10 @@ typedef struct __nesc_unnamed4297 {
   uint32_t PCLK2_Frequency;
   uint32_t ADCCLK_Frequency;
 } RCC_ClocksTypeDef;
+#endif
 //#line 647
+extern "C"
+{
 void RCC_HSEConfig(uint32_t RCC_HSE);
 
 
@@ -1826,11 +1936,13 @@ void RCC_APB1PeriphClockCmd(uint32_t RCC_APB1Periph, FunctionalState NewState);
 
 
 FlagStatus RCC_GetFlagStatus(uint8_t RCC_FLAG);
+}
 //# 31 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_gpio.h"
 //#line 26
+#if 0
 typedef enum __nesc_unnamed4298 {
 
-  GPIO_Speed_10MHz = 1, 
+  GPIO_Speed_50MHz = 1, 
   GPIO_Speed_2MHz, 
   GPIO_Speed_50MHz
 } GPIOSpeed_TypeDef;
@@ -1864,7 +1976,11 @@ typedef enum __nesc_unnamed4301 {
   Bit_RESET = 0, 
   Bit_SET
 } BitAction;
+#endif
 //#line 192
+extern "C"
+{
+
 void GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_InitStruct);
 //# 53 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_rtc.h"
 void RTC_ITConfig(uint16_t RTC_IT, FunctionalState NewState);
@@ -1890,6 +2006,29 @@ void PWR_BackupAccessCmd(FunctionalState NewState);
 
 FlagStatus PWR_GetFlagStatus(uint32_t PWR_FLAG);
 void PWR_ClearFlag(uint32_t PWR_FLAG);
+}
+// Nived : GPIO Interfacing
+static void mf_gpio_set(int Pin);
+static void mf_gpio_clr(int Pin);
+static void mf_gpio_makeOutput( int Pin);
+static void mf_gpio_makeInput( int Pin);
+
+inline static void mf_gpio_makeInput( int Pin){
+	CPU_GPIO_EnableInputPin((GPIO_PIN) Pin, false, NULL, (GPIO_INT_EDGE) 0, (GPIO_RESISTOR) 0);
+}
+
+inline static void mf_gpio_makeOutput( int Pin){
+	CPU_GPIO_EnableOutputPin( (GPIO_PIN) Pin, false );
+}
+
+inline static void mf_gpio_clr(int Pin){
+	CPU_GPIO_SetPinState( (GPIO_PIN) Pin, false );
+}
+
+inline static void mf_gpio_set(int Pin){
+	CPU_GPIO_SetPinState( (GPIO_PIN) Pin, true );
+}
+
 //# 32 "/opt/tinyos-2.x/tos/types/Leds.h"
 enum __nesc_unnamed4302 {
   LEDS_LED0 = 1 << 0, 
@@ -1922,6 +2061,7 @@ typedef struct __nesc_unnamed4305 {
 TMicro;
 //# 33 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_tim.h"
 //#line 27
+#if 0
 typedef struct __nesc_unnamed4306 {
 
   uint16_t TIM_Period;
@@ -1965,7 +2105,10 @@ typedef struct __nesc_unnamed4308 {
   uint16_t TIM_ICPrescaler;
   uint8_t TIM_ICFilter;
 } TIM_ICInitTypeDef;
+#endif
 //#line 446
+extern "C"
+{
 void TIM_ICInit(TIM_TypeDef *TIMx, TIM_ICInitTypeDef *TIM_ICInitStruct);
 
 
@@ -1989,6 +2132,7 @@ uint16_t TIM_GetCapture2(TIM_TypeDef *TIMx);
 uint16_t TIM_GetCounter(TIM_TypeDef *TIMx);
 //# 65 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_bkp.h"
 void BKP_DeInit(void );
+}
 //# 8 "STMAppMessaging.h"
 //#line 4
 typedef nx_struct stm_app_msg {
@@ -2453,6 +2597,7 @@ typedef nx_int32_t timesync_relative_t;
 typedef uint32_t timesync_absolute_t;
 //# 80 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/stm32f10x_spi.h"
 //#line 49
+#if 0
 typedef struct __nesc_unnamed4321 {
 
   uint16_t SPI_Direction;
@@ -2508,23 +2653,25 @@ typedef struct __nesc_unnamed4322 {
   uint16_t I2S_CPOL;
 } 
 I2S_InitTypeDef;
+#endif
 //#line 454
-void SPI_Cmd(SPI_TypeDef *SPIx, FunctionalState NewState);
+//void SPI_Cmd(SPI_TypeDef *SPIx, FunctionalState NewState);
 
 
 
-void SPI_I2S_SendData(SPI_TypeDef *SPIx, uint16_t Data);
-uint16_t SPI_I2S_ReceiveData(SPI_TypeDef *SPIx);
-
-
-
-
+//void SPI_I2S_SendData(SPI_TypeDef *SPIx, uint16_t Data);
+//uint16_t SPI_I2S_ReceiveData(SPI_TypeDef *SPIx);
 
 
 
 
-FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef *SPIx, uint16_t SPI_I2S_FLAG);
+
+
+
+
+//FlagStatus SPI_I2S_GetFlagStatus(SPI_TypeDef *SPIx, uint16_t SPI_I2S_FLAG);
 //# 11 "/opt/tinyos-2.x/tos/chips/stm32/spi/Stm32Spi.h"
+
 enum __nesc_unnamed4323 {
   STM32_SPI_CLK_DIVIDE_4 = 0, 
   STM32_SPI_CLK_DIVIDE_16 = 1, 
@@ -2535,7 +2682,7 @@ enum __nesc_unnamed4323 {
 SPI_InitTypeDef SPI_InitStructure;
 
 
-extern uint16_t SPI_I2S_ReceiveData(SPI_TypeDef *SPIx);
+//extern uint16_t SPI_I2S_ReceiveData(SPI_TypeDef *SPIx);
 //# 33 "/opt/tinyos-2.x/tos/types/Resource.h"
 typedef uint8_t resource_client_id_t;
 typedef TMilli /*HilTimerMilliC.VirtTimersMilli32*/VirtualizeTimerC$0$precision_tag;
@@ -2741,7 +2888,7 @@ static  void STMAppMessagingP$AMSend$sendDone(message_t *arg_0x407101c0, error_t
 //# 67 "/opt/tinyos-2.x/tos/interfaces/Receive.nc"
 static  message_t *STMAppMessagingP$Receive$receive(message_t *arg_0x4070c340, void *arg_0x4070c4e0, uint8_t arg_0x4070c668);
 //# 5 "STMAppMessaging.nc"
-static  error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t arg_0x406e4968, uint16_t arg_0x406e4af8, uint8_t *arg_0x406e4ca0, uint16_t arg_0x406e4e30);
+error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t arg_0x406e4968, uint16_t arg_0x406e4af8, uint8_t *arg_0x406e4ca0, uint16_t arg_0x406e4e30);
 //#line 3
 static  void STMAppMessagingP$STMAppMessaging$Init(void);
 //# 69 "/opt/tinyos-2.x/tos/interfaces/AMSend.nc"
@@ -3780,7 +3927,7 @@ void TIM1_CC_IRQHandler(void)   ;
 
 
 
-void TIM2_IRQHandler(void)   ;
+//void TIM2_IRQHandler(void)   ;
 
 
 
@@ -3864,11 +4011,11 @@ static  error_t RealMainP$PlatformInit$init(void);
 //# 46 "/opt/tinyos-2.x/tos/interfaces/Scheduler.nc"
 static  void RealMainP$Scheduler$init(void);
 //#line 61
-static  void RealMainP$Scheduler$taskLoop(void);
+void RealMainP$Scheduler$taskLoop(void);
 //#line 54
 static  bool RealMainP$Scheduler$runNextTask(void);
 //# 52 "/opt/tinyos-2.x/tos/system/RealMainP.nc"
-int main(void)   ;
+int main_tinyos(void)   ;
 //# 64 "/opt/tinyos-2.x/tos/interfaces/TaskBasic.nc"
 static  void SchedulerBasicP$TaskBasic$runTask(
 //# 45 "/opt/tinyos-2.x/tos/system/SchedulerBasicP.nc"
@@ -4227,7 +4374,7 @@ static inline  void STMAppMessagingP$AMControl$startDone(error_t err);
 static inline  void STMAppMessagingP$AMControl$stopDone(error_t err);
 
 
-static inline  error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t appId, uint16_t destId, uint8_t *dataBuf, uint16_t len);
+error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t appId, uint16_t destId, uint8_t *dataBuf, uint16_t len);
 //#line 68
 static inline  void STMAppMessagingP$AMSend$sendDone(message_t *bufPtr, error_t error);
 
@@ -6429,7 +6576,7 @@ static __inline void __nesc_enable_interrupt(void)
 
 
 
-   __asm volatile ("CPSIE I");
+   //__asm volatile ("CPSIE I");
   return;
 }
 
@@ -6440,6 +6587,7 @@ static __inline void __nesc_enable_interrupt(void)
   uint32_t temp = 0;
 
   __nesc_enable_interrupt();
+  asm volatile ("" : : : "memory");
 
 
 
@@ -6457,7 +6605,7 @@ static __inline void __nesc_enable_interrupt(void)
 {
   uint32_t statusReg = 0;
 
-
+asm volatile ("" : : : "memory");
   __nesc_disable_interrupt();
 //#line 77
   return;
@@ -6587,7 +6735,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led2$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41$IO$set();
+  ///*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41$IO$set();
+  mf_gpio_set(88);
 //#line 29
 }
 //#line 29
@@ -6604,7 +6753,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led1$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40$IO$set();
+  ///*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40$IO$set();
+  mf_gpio_set(87);
 //#line 29
 }
 //#line 29
@@ -6621,7 +6771,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$4
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led0$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$44$IO$set();
+  ///*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$44$IO$set();
+  mf_gpio_set(86);
 //#line 29
 }
 //#line 29
@@ -6633,7 +6784,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 9, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6642,7 +6793,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led2$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortC.Bit9*/HplSTM32GeneralIOPinP$41$IO$makeOutput();
+  mf_gpio_makeOutput(88);
 //#line 35
 }
 //#line 35
@@ -6654,7 +6806,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 8, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6663,7 +6815,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led1$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortC.Bit8*/HplSTM32GeneralIOPinP$40$IO$makeOutput();
+  mf_gpio_makeOutput(87);
 //#line 35
 }
 //#line 35
@@ -6675,7 +6828,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$4
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 12, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6684,7 +6837,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$4
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void LedsP$Led0$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$44$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortC.Bit12*/HplSTM32GeneralIOPinP$44$IO$makeOutput();
+  mf_gpio_makeOutput(86);
 //#line 35
 }
 //#line 35
@@ -6822,6 +6976,8 @@ static inline  error_t PlatformP$Init$init(void)
 //#line 46
 {
 
+/*
+
   GPIO_InitTypeDef gpioa = { 
   (uint16_t )0xFFFF, 
   GPIO_Speed_2MHz, 
@@ -6839,14 +6995,16 @@ static inline  error_t PlatformP$Init$init(void)
 
   * (volatile unsigned long *)0xE000ED14 = * (volatile unsigned long *)0xE000ED14 | 0x200;
 
+*/
 
-
-  PlatformP$MoteClockInit$init();
+  //PlatformP$MoteClockInit$init();
   PlatformP$McuSleepInit$init();
 
+  /*
   RCC_APB2PeriphClockCmd((uint32_t )0x00000001, ENABLE);
   RCC_APB2PeriphClockCmd((uint32_t )0x00000010 | (uint32_t )0x00000004, ENABLE);
-
+  */
+  
   PlatformP$MoteInit$init();
 
 
@@ -6868,7 +7026,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$RSTN$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$set();
+  ///*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$set();
+  mf_gpio_set(27);
 //#line 29
 }
 //#line 29
@@ -6880,7 +7039,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 6, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6889,7 +7048,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$RSTN$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$makeOutput();
+  mf_gpio_makeOutput(27);
 //#line 35
 }
 //#line 35
@@ -6906,7 +7066,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23
 //# 30 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SLP_TR$clr(void){
 //#line 30
-  /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$clr();
+  ///*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$clr();
+  mf_gpio_clr(18);
 //#line 30
 }
 //#line 30
@@ -6918,7 +7079,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 7, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6927,7 +7088,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SLP_TR$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$makeOutput();
+  mf_gpio_makeOutput(18);
 //#line 35
 }
 //#line 35
@@ -6944,7 +7106,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SELN$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$set();
+//  /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$set();
+ mf_gpio_set(26);
 //#line 29
 }
 //#line 29
@@ -6956,7 +7119,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 0, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -6965,7 +7128,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16
 //# 35 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SELN$makeOutput(void){
 //#line 35
-  /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$makeOutput();
+  ///*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$makeOutput();
+  mf_gpio_makeOutput(26);
 //#line 35
 }
 //#line 35
@@ -6992,6 +7156,10 @@ static inline  error_t RF230DriverLayerP$PlatformInit$init(void)
 static inline   void HplStm32Timer3P$Capture$stop(void)
 //#line 57
 {
+    /*
+	TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
+	TIM_Cmd(TIM2, DISABLE);
+	*/
 }
 
 //# 61 "/opt/tinyos-2.x/tos/chips/stm32/timer/HplStm32Capture.nc"
@@ -7014,7 +7182,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$
 //# 30 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void HplRF230P$PortIRQ$clr(void){
 //#line 30
-  /*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$IO$clr();
+  ///*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$IO$clr();
+  mf_gpio_clr(17);
 //#line 30
 }
 //#line 30
@@ -7026,7 +7195,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 0, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_IN_FLOATING };
 
   GPIO_Init(port, &gpioi);
@@ -7035,7 +7204,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$
 //# 33 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void HplRF230P$PortIRQ$makeInput(void){
 //#line 33
-  /*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$IO$makeInput();
+  ///*HplSTM32GeneralIOC.PortA.Bit0*/HplSTM32GeneralIOPinP$0$IO$makeInput();
+  mf_gpio_makeInput(17);
 //#line 33
 }
 //#line 33
@@ -7064,7 +7234,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 6, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_IN_FLOATING };
 
   GPIO_Init(port, &gpioi);
@@ -7080,8 +7250,10 @@ inline static   void HplRF230P$PortCLKM$makeInput(void){
 //# 42 "/opt/tinyos-2.x/tos/platforms/stm32-p103/chips/rf230/HplRF230P.nc"
 static inline  error_t HplRF230P$PlatformInit$init(void)
 {
+  /*
   HplRF230P$PortCLKM$makeInput();
   HplRF230P$PortCLKM$clr();
+  */
   HplRF230P$PortIRQ$makeInput();
   HplRF230P$PortIRQ$clr();
   HplRF230P$Capture$stop();
@@ -7158,7 +7330,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23
 //# 29 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SLP_TR$set(void){
 //#line 29
-  /*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$set();
+  ///*HplSTM32GeneralIOC.PortB.Bit7*/HplSTM32GeneralIOPinP$23$IO$set();
+  mf_gpio_set(18);
 //#line 29
 }
 //#line 29
@@ -7167,7 +7340,8 @@ static inline   uint8_t HplStm32SpiP$SPI$read(void)
 //#line 48
 {
 //#line 48
-  return SPI_I2S_ReceiveData((SPI_TypeDef *)((uint32_t )0x40000000 + 0x10000 + 0x3000));
+  //return SPI_I2S_ReceiveData((SPI_TypeDef *)((uint32_t )0x40000000 + 0x10000 + 0x3000));
+  return SPI_I2S_ReceiveData(SPIx);
 }
 
 //# 80 "/opt/tinyos-2.x/tos/chips/stm32/spi/Stm32Spi.nc"
@@ -7230,9 +7404,11 @@ static __inline   uint8_t Stm32SpiP$FastSpiByte$splitReadWrite(uint8_t data)
 {
   uint8_t b;
 
-  while (SPI_I2S_GetFlagStatus((SPI_TypeDef *)((uint32_t )0x40000000 + 0x10000 + 0x3000), (uint16_t )0x0001) == RESET) 
+  while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == RESET) 
     ;
   b = Stm32SpiP$Spi$read();
+  //for(int i = 0 ; i < 1000; i++);
+  while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
   Stm32SpiP$Spi$write(data);
 
   return b;
@@ -7257,6 +7433,7 @@ inline static   uint8_t RF230DriverLayerP$FastSpiByte$splitReadWrite(uint8_t arg
 static __inline   void Stm32SpiP$FastSpiByte$splitWrite(uint8_t data)
 //#line 140
 {
+  while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
   Stm32SpiP$Spi$write(data);
 }
 
@@ -7280,7 +7457,8 @@ static __inline   void /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16
 //# 30 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$SELN$clr(void){
 //#line 30
-  /*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$clr();
+  ///*HplSTM32GeneralIOC.PortB.Bit0*/HplSTM32GeneralIOPinP$16$IO$clr();
+  mf_gpio_clr(26);
 //#line 30
 }
 //#line 30
@@ -7307,14 +7485,15 @@ inline static   void RF230DriverLayerP$BusyWait$wait(RF230DriverLayerP$BusyWait$
 //# 30 "/opt/tinyos-2.x/tos/interfaces/GeneralIO.nc"
 inline static   void RF230DriverLayerP$RSTN$clr(void){
 //#line 30
-  /*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$clr();
+  ///*HplSTM32GeneralIOC.PortA.Bit6*/HplSTM32GeneralIOPinP$6$IO$clr();
+  mf_gpio_clr(27);
 //#line 30
 }
 //#line 30
 //# 230 "/opt/tinyos-2.x/tos/chips/rf2xx/rf230/RF230DriverLayerP.nc"
 static inline void RF230DriverLayerP$initRadio(void)
 {
-  RF230DriverLayerP$BusyWait$wait(510);
+  RF230DriverLayerP$BusyWait$wait(51);
 
   RF230DriverLayerP$RSTN$clr();
   RF230DriverLayerP$SLP_TR$clr();
@@ -7323,12 +7502,16 @@ static inline void RF230DriverLayerP$initRadio(void)
 
   RF230DriverLayerP$writeRegister(RF230_TRX_CTRL_0, RF230_TRX_CTRL_0_VALUE);
   RF230DriverLayerP$writeRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+  
 
-  RF230DriverLayerP$BusyWait$wait(510);
+  RF230DriverLayerP$BusyWait$wait(51);
 
   RF230DriverLayerP$writeRegister(RF230_IRQ_MASK, ((RF230_IRQ_TRX_UR | RF230_IRQ_PLL_LOCK) | RF230_IRQ_TRX_END) | RF230_IRQ_RX_START);
   RF230DriverLayerP$writeRegister(RF230_CCA_THRES, RF230_CCA_THRES_VALUE);
-  RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (0 & RF230_TX_PWR_MASK));
+  //RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (0 & RF230_TX_PWR_MASK));
+  
+  // Nived : Turning off auto crc check
+  RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
 
   RF230DriverLayerP$txPower = 0 & RF230_TX_PWR_MASK;
   RF230DriverLayerP$channel = 11 & RF230_CHANNEL_MASK;
@@ -8261,6 +8444,10 @@ inline static   void RF230DriverLayerP$IRQ$disable(void){
 static inline   void HplStm32Timer3P$Capture$start(void)
 //#line 52
 {
+    /*
+	TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
+	TIM_Cmd(TIM2, ENABLE);
+	*/
 }
 
 //# 58 "/opt/tinyos-2.x/tos/chips/stm32/timer/HplStm32Capture.nc"
@@ -8274,6 +8461,7 @@ inline static   void HplRF230P$Capture$start(void){
 static inline   void HplStm32Timer3P$Capture$reset(void)
 //#line 47
 {
+	//TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
 }
 
 //# 55 "/opt/tinyos-2.x/tos/chips/stm32/timer/HplStm32Capture.nc"
@@ -8341,7 +8529,9 @@ static inline   void RadioAlarmP$RadioAlarm$wait(uint8_t id, uint16_t timeout)
 
   RadioAlarmP$alarm = id;
   RadioAlarmP$state = RadioAlarmP$STATE_WAIT;
-  RadioAlarmP$Alarm$start(timeout);
+  //RadioAlarmP$Alarm$start(timeout);
+  for(uint16_t i = 0; i < timeout; i++);
+  RadioAlarmP$Alarm$fired();
 }
 
 //# 38 "/opt/tinyos-2.x/tos/chips/rf2xx/util/RadioAlarm.nc"
@@ -8473,7 +8663,8 @@ static inline   message_t *MessageBufferLayerP$RadioReceive$receive(message_t *m
 
           ++MessageBufferLayerP$receiveQueueSize;
           MessageBufferLayerP$deliverTask$postTask();
-        }
+		  ISR_TestProc(g_Context);
+		}
     }
 //#line 329
     __nesc_atomic_end(__nesc_atomic); }
@@ -9092,6 +9283,7 @@ inline static   void SoftwareAckLayerP$AckReceivedFlag$setValue(message_t *arg_0
 static inline   void HplStm32Timer3P$CompareA$stop(void)
 //#line 58
 {
+	TIM_Cmd(TIM3, DISABLE);
 }
 
 //# 59 "/opt/tinyos-2.x/tos/chips/stm32/timer/HplStm32Compare.nc"
@@ -9788,7 +9980,7 @@ static inline   void RF230DriverLayerP$PacketRSSI$set(message_t *msg, uint8_t va
 
 //#line 672
 static inline void RF230DriverLayerP$serviceRadio(void)
-{
+{	
   if (RF230DriverLayerP$isSpiAcquired()) 
     {
       uint16_t time;
@@ -9864,9 +10056,12 @@ static inline void RF230DriverLayerP$serviceRadio(void)
                   time32 = RF230DriverLayerP$LocalTime$get();
                   time32 += (int16_t )(time - RF230DriverLayerP$RX_SFD_DELAY) - (int16_t )time32;
                   RF230DriverLayerP$PacketTimeStamp$set(RF230DriverLayerP$rxMsg, time32);
+				  //Nived : Clearing Blockage on recieve
+				  //RadioAlarmP$state = RadioAlarmP$STATE_FIRED;
                 }
               else {
                 RF230DriverLayerP$PacketTimeStamp$clear(RF230DriverLayerP$rxMsg);
+				//RadioAlarmP$state = RadioAlarmP$STATE_FIRED;
                 }
               RF230DriverLayerP$cmd = RF230DriverLayerP$CMD_RECEIVE;
             }
@@ -10175,7 +10370,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit5*/HplSTM32GeneralIOPinP$5$
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 5, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -10203,7 +10398,7 @@ static __inline   void /*HplSTM32GeneralIOC.PortA.Bit7*/HplSTM32GeneralIOPinP$7$
 
   GPIO_InitTypeDef gpioi = { 
   (uint16_t )1 << 7, 
-  GPIO_Speed_10MHz, 
+  GPIO_Speed_50MHz, 
   GPIO_Mode_Out_PP };
 
   GPIO_Init(port, &gpioi);
@@ -10241,6 +10436,7 @@ inline static   void HplStm32SpiP$Mcu$update(void){
 }
 //#line 44
 //# 1515 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/cortexm3_macro.h"
+#if 0
 static __inline void NVIC_DisableIRQ(IRQn_Type IRQn)
 {
   ((NVIC_Type *)(0xE000E000 + 0x0100))->ICER[(uint32_t )IRQn >> 5] = 1 << ((uint32_t )IRQn & 0x1F);
@@ -10251,6 +10447,7 @@ static __inline void NVIC_EnableIRQ(IRQn_Type IRQn)
 {
   ((NVIC_Type *)(0xE000E000 + 0x0100))->ISER[(uint32_t )IRQn >> 5] = 1 << ((uint32_t )IRQn & 0x1F);
 }
+#endif
 
 //# 70 "/opt/tinyos-2.x/tos/chips/stm32/spi/HplStm32SpiP.nc"
 static inline   void HplStm32SpiP$SPI$enableInterrupt(bool enabled)
@@ -10580,6 +10777,8 @@ inline static   void /*HplRF230C.AlarmC.NAlarm*/Stm32AlarmC$0$HplStm32Compare$se
 static inline   void HplStm32Timer3P$CompareA$reset(void)
 //#line 48
 {
+	TIM_Cmd(TIM3, DISABLE);
+	TIM_SetCounter(TIM3, 0);
 }
 
 //# 53 "/opt/tinyos-2.x/tos/chips/stm32/timer/HplStm32Compare.nc"
@@ -11095,7 +11294,7 @@ inline static  message_t *ActiveMessageLayerP$Receive$receive(am_id_t arg_0x4083
 //#line 67
   switch (arg_0x40837c28) {
 //#line 67
-    case 100:
+    case 238:
 //#line 67
       result = STMAppMessagingP$Receive$receive(arg_0x4070c340, arg_0x4070c4e0, arg_0x4070c668);
 //#line 67
@@ -11357,6 +11556,7 @@ static inline  void MessageBufferLayerP$deliverTask$runTask(void)
 static inline  void STMAppMessagingP$AMSend$sendDone(message_t *bufPtr, error_t error)
 //#line 68
 {
+	sendComplete = true;
 }
 
 //# 99 "/opt/tinyos-2.x/tos/interfaces/AMSend.nc"
@@ -12424,7 +12624,7 @@ uint8_t len)
       if (err != SUCCESS) {
           ;
           /*AMQueueP.AMQueueImplP*/AMQueueImplP$0$current = 1;
-          /*AMQueueP.AMQueueImplP*/AMQueueImplP$0$queue[clientId].msg = (void *)0;
+          /*AMQueueP.AMQueueImplP*/AMQueueImplP$0$queue[clientId].msg = (message_t *)0;
         }
 
       return err;
@@ -12655,7 +12855,7 @@ inline static  void *STMAppMessagingP$Packet$getPayload(message_t *arg_0x40709ef
 }
 //#line 115
 //# 42 "STMAppMessagingP.nc"
-static inline  error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t appId, uint16_t destId, uint8_t *dataBuf, uint16_t len)
+error_t STMAppMessagingP$STMAppMessaging$Send(uint8_t appId, uint16_t destId, uint8_t *dataBuf, uint16_t len)
 //#line 42
 {
 
@@ -12843,9 +13043,28 @@ static inline  void /*HilTimerMilliC.VirtTimersMilli32*/VirtualizeTimerC$0$updat
     }
 }
 
+void EXTI_Configuration(void)
+{
+  EXTI_InitTypeDef EXTI_InitStructure;
+
+  /* Configure EXTI Line17(RTC Alarm) to generate an interrupt on rising edge */
+  
+  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource1);
+  
+  EXTI_ClearITPendingBit(EXTI_Line1);
+  EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+}
+
+
 //# 72 "/opt/tinyos-2.x/tos/chips/stm32/timer/STM32RtcC.nc"
 static inline  error_t STM32RtcC$Init$init(void)
 {
+
+  /*
   NVIC_InitTypeDef NVIC_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -12939,10 +13158,220 @@ static inline  error_t STM32RtcC$Init$init(void)
   TIM_Cmd((TIM_TypeDef *)((uint32_t )0x40000000 + 0x0400), ENABLE);
 
   TIM_ITConfig((TIM_TypeDef *)((uint32_t )0x40000000 + 0x0400), (uint16_t )0x0004, ENABLE);
+  /* atomic removed: atomic calls only 
+  STM32RtcC$alarm = 0;
+
+  return SUCCESS;
+  */
+  
+    EXTI_Configuration();
+	
+	NVIC_PriorityGroupConfig((uint32_t )0x600);
+  
+  NVIC_InitStructure.NVIC_IRQChannel = RTCAlarm_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+
+  /*
+  NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  */
+  
+   RCC_APB1PeriphClockCmd((uint32_t )0x10000000 | (uint32_t )0x08000000, ENABLE);
+
+   RCC_APB1PeriphClockCmd((uint32_t )0x00000002, ENABLE);
+
+   RCC_APB2PeriphClockCmd((uint32_t )0x00000004, ENABLE);
+ 
+/*
+  RCC_APB1PeriphClockCmd((uint32_t )0x10000000 | (uint32_t )0x08000000, ENABLE);
+
+  RCC_APB1PeriphClockCmd((uint32_t )0x00000002, ENABLE);
+
+  RCC_APB2PeriphClockCmd((uint32_t )0x00000004, ENABLE);
+
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+*/
+  /* GPIOA and GPIOB clock enable */
+ // RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+  
+  NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /*
+  NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  */
+  
+  /*
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  */
+  /*
+  GPIO_InitStructure.GPIO_Pin = (uint16_t )0x0080;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+  GPIO_Init((GPIO_TypeDef *)((uint32_t )0x40000000 + 0x10000 + 0x0800), &GPIO_InitStructure);
+  */
+  
+  PWR_BackupAccessCmd(ENABLE);
+
+
+  BKP_DeInit();
+
+
+  RCC_LSEConfig((uint8_t )0x01);
+
+  while (RCC_GetFlagStatus((uint8_t )0x41) == RESET) {
+    }
+
+  RCC_RTCCLKConfig((uint32_t )0x00000100);
+
+  RTC_EnterConfigMode();
+
+  RCC_RTCCLKCmd(ENABLE);
+
+
+  RTC_WaitForSynchro();
+
+
+  RTC_WaitForLastTask();
+
+
+  RTC_SetPrescaler(31);
+
+
+  RTC_WaitForLastTask();
+
+
+  RTC_SetCounter(0x0);
+
+
+  RTC_WaitForLastTask();
+
+
+  RTC_ITConfig((uint16_t )0x0002, ENABLE);
+
+
+  RTC_WaitForLastTask();
+  
+  //RTC_SetAlarm(RTC_GetCounter() + 1);
+  //RTC_WaitForLastTask();
+  
+   // Nived : Commenting out remap   
+  //GPIO_PinRemapConfig(GPIO_PartialRemap_TIM3, ENABLE);
+  
+  //RTC_ITConfig((uint16_t )0x0002 | (uint16_t )0x0004, ENABLE);
+  
+  TIM_TimeBaseStructure.TIM_Period = 65535;
+  TIM_TimeBaseStructure.TIM_Prescaler = 0;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+  
+  /*
+  TIM_TimeBaseStructure.TIM_Period = 65535;
+  TIM_TimeBaseStructure.TIM_Prescaler = 8;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+  */
+  
+//  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Toggle;
+  //TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  //TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
+  //TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+  //TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+
+  
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 0x0000;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+
+  TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+
+  TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
+
+  TIM_ICStructInit(&TIM_ICInitStructure);
+  
+  /*
+  TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
+  TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;
+  TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
+  TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+  TIM_ICInitStructure.TIM_ICFilter = 0x0;
+  
+  TIM_ICInit(TIM2, &TIM_ICInitStructure);
+  */
+  TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Repetitive);
+  
+  //TIM_SelectInputTrigger(TIM2, TIM_TS_ETRF);
+  
+  //TIM_SelectSlaveMode(TIM4, TIM_SlaveMode_Trigger);
+  // Nived : The timer default input capture channel co incides with the spi mosi, so remapping timer channel 
+  //GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
+  
+  //TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+  
+  //TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
+  
+ // TIM_Cmd((TIM_TypeDef *)((uint32_t )0x40000000 + 0x0400), ENABLE);
+
+  TIM_PrescalerConfig(TIM3, 0, TIM_PSCReloadMode_Immediate);
+
+  /* TIM IT enable */
+  TIM_ITConfig(TIM3, TIM_IT_CC1 , ENABLE);
+  //TIM_ITConfig(TIM2, TIM_IT_CC2 , ENABLE);
+
+  TIM_SetCounter(TIM3,0);
+  TIM_SetCompare1(TIM3,0);
+  TIM_SetCompare2(TIM3,0);
+  TIM_SetCompare3(TIM3,0);
+  TIM_SetCompare4(TIM3,0);
+  /* TIM2 enable counter */
+  //TIM_Cmd(TIM3, ENABLE);
+  //TIM_Cmd(TIM2, ENABLE);
+   
+  //__asm volatile ("CPSID I");
+ 
+  //while(1);
+  
+  //while(1);
+  
+  //TIM_ITConfig((TIM_TypeDef *)((uint32_t )0x40000000 + 0x0400), (uint16_t )0x0004, ENABLE);
+  //TIM_ITConfig(TIM3, TIM_IT_CC2, ENABLE);
   /* atomic removed: atomic calls only */
   STM32RtcC$alarm = 0;
 
   return SUCCESS;
+  
+  
 }
 
 //# 52 "/opt/tinyos-2.x/tos/chips/rf2xx/layers/UniqueLayerP.nc"
@@ -13077,17 +13506,22 @@ inline static  void RealMainP$Boot$booted(void){
 }
 //#line 49
 //# 1211 "/opt/tinyos-2.x/tos/chips/stm32/fwlib/inc/cortexm3_macro.h"
+#if 0
 static __inline void __WFI(void)
 //#line 1211
 {
 //#line 1211
    __asm volatile ("wfi");}
-
+#endif
 //# 73 "/opt/tinyos-2.x/tos/chips/stm32/McuSleepC.nc"
 static inline   void McuSleepC$McuSleep$sleep(void)
 //#line 73
 {
 
+	__nesc_enable_interrupt();
+	__nesc_disable_interrupt();
+
+  /*
   uint16_t i = 0;
 
 //#line 98
@@ -13133,7 +13567,7 @@ static inline   void McuSleepC$McuSleep$sleep(void)
 
   RCC_APB2PeriphClockCmd(((uint32_t )0x00000001 | (uint32_t )0x00000010) | (uint32_t )0x00000004, ENABLE);
   RCC_AHBPeriphClockCmd((uint32_t )0x00000010 | (uint32_t )0x00000004, ENABLE);
-
+	*/
 
   return;
 }
@@ -13170,25 +13604,49 @@ static __inline uint8_t SchedulerBasicP$popTask(void)
 //#line 138
 static inline  void SchedulerBasicP$Scheduler$taskLoop(void)
 {
+	int counter = 1000;
   for (; ; ) 
     {
       uint8_t nextTask;
 
       { __nesc_atomic_t __nesc_atomic = __nesc_atomic_start();
         {
+		  if(sendComplete == true)
+		  {
+				sendComplete = false;
+				break;
+		  }
           while ((nextTask = SchedulerBasicP$popTask()) == SchedulerBasicP$NO_TASK) 
             {
               SchedulerBasicP$McuSleep$sleep();
+			  counter--;
+			  if(counter == 0)
+			  {
+			    counter = 1000;
+				noTask =  true;
+				break;
+			  }
             }
         }
+		if(noTask == true)
+		{
+			noTask = false;
+			__nesc_enable_interrupt();
+			break;
+		}
 //#line 150
         __nesc_atomic_end(__nesc_atomic); }
       SchedulerBasicP$TaskBasic$runTask(nextTask);
+	  if((nextTask == MessageBufferLayerP$stateDoneTask) || (nextTask == MessageBufferLayerP$deliverTask))
+	  {
+			__nesc_enable_interrupt();
+			break;
+	  }
     }
 }
 
 //# 61 "/opt/tinyos-2.x/tos/interfaces/Scheduler.nc"
-inline static  void RealMainP$Scheduler$taskLoop(void){
+void RealMainP$Scheduler$taskLoop(void){
 //#line 61
   SchedulerBasicP$Scheduler$taskLoop();
 //#line 61
@@ -13380,11 +13838,13 @@ static __inline void __nesc_disable_interrupt(void)
 
 
 
-   __asm volatile ("CPSID I");
+   //__asm volatile ("CPSID I");
   return;
 }
 
 //# 170 "/opt/tinyos-2.x/tos/chips/stm32/McuSleepC.nc"
+extern "C"
+{
   void RTCAlarm_IRQHandler(void)
 {
   if (RTC_GetITStatus((uint16_t )0x0002) != RESET) 
@@ -13419,7 +13879,7 @@ static __inline void __nesc_disable_interrupt(void)
       STM32RtcC$Counter$overflow();
     }
 }
-
+}
 //#line 58
 static void STM32RtcC$disableInterrupt(void)
 {
@@ -13628,11 +14088,30 @@ static   error_t SchedulerBasicP$TaskBasic$postTask(uint8_t id)
 }
 
 
-  void EXTI1_IRQHandler(void)
+extern "C"
 {
-  while (1) ;
-//#line 178
-  ;
+bool toggle = true;
+void EXTI1_IRQHandler()
+{
+	if(toggle == true)
+	{
+		mf_gpio_set(10);
+	}
+	else
+	{
+		mf_gpio_clr(10);
+	}
+	
+	toggle ^= toggle;
+//  STM_EVAL_LEDToggle(2);
+  
+  if(EXTI_GetITStatus(EXTI_Line1) != RESET)
+  {
+	//radio_irq_handler();
+	HplStm32Timer3P$Capture$captured(0);
+	EXTI_ClearITPendingBit(EXTI_Line1);
+  }
+}
 }
 
 
@@ -13795,30 +14274,89 @@ static   error_t SchedulerBasicP$TaskBasic$postTask(uint8_t id)
   ;
 }
 
-
-  void TIM2_IRQHandler(void)
+extern "C"
 {
-  while (1) ;
-//#line 304
-  ;
+/*
+__attribute((interrupt)) void TIM2_IRQHandler(void)
+{
+  mf_gpio_clr(88);
+  if (TIM_GetITStatus(TIM2, TIM_IT_CC2) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
+	TIM_ClearFlag(TIM2,TIM_FLAG_CC2);
+	TIM_ClearFlag(TIM2, TIM_FLAG_CC2OF);
+    /* Pin PC.07 toggling with frequency = 109.8 Hz 
+    //GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+	capture = TIM_GetCounter(TIM2);
+    capture = TIM_GetCapture2(TIM2);
+    //TIM_SetCompare2(TIM3, capture + CCR2_Val);
+	//TIM_ITConfig(TIM3, TIM_IT_CC2, DISABLE);
+	HplStm32Timer3P$Capture$captured(TIM_GetCapture2(TIM2));
+	
+  }
+  
 }
+*/
 
-
-  void TIM3_IRQHandler(void)
+__attribute((interrupt))  void TIM3_IRQHandler(void)
 {
-  while (1) ;
+
+  mf_gpio_clr(87);
+  
+  // TIM3 Interrupt is fired
+  //for(int i = 0; i < 10; i++);	
+  //mf_gpio_clr(87);
+  if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
+    /* Pin PC.06 toggling with frequency = 73.24 Hz */
+    //GPIO_WriteBit(GPIOC, GPIO_Pin_6, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_6)));
+    //int capture = TIM_GetCapture1(TIM3);
+    //TIM_SetCompare1(TIM3, capture + CCR1_Val);
+	//TIM_ITConfig(TIM3, TIM_IT_CC1, DISABLE);
+	//TIM_SetCompare1(TIM3, 0x0000);
+	//TIM_SetCounter(TIM3,0);
+	HplStm32Timer3P$CompareA$fired();
+  }
+  else if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
+
+    /* Pin PC.07 toggling with frequency = 109.8 Hz */
+    //GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+    //capture = TIM_GetCapture2(TIM3);
+    //TIM_SetCompare2(TIM3, capture + CCR2_Val);
+	//TIM_ITConfig(TIM3, TIM_IT_CC2, DISABLE);
+	HplStm32Timer3P$Capture$captured(HplStm32Timer3P$Timer$get());
+	
+  }
+  else if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
+  {
+		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+  }
+  //while (1) ;
 //#line 310
-  ;
+  
 }
 
 
-  void TIM4_IRQHandler(void)
+ __attribute((interrupt)) void TIM4_IRQHandler(void)
 {
-  while (1) ;
-//#line 316
-  ;
-}
+  mf_gpio_clr(88);
+  if (TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
+  {
+    TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
 
+    /* Pin PC.07 toggling with frequency = 109.8 Hz */
+    //GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+    //capture = TIM_GetCapture2(TIM3);
+    //TIM_SetCompare2(TIM3, capture + CCR2_Val);
+	//TIM_ITConfig(TIM3, TIM_IT_CC2, DISABLE);
+	HplStm32Timer3P$Capture$captured(HplStm32Timer3P$Timer$get());
+	
+  }
+}
+}
 
   void I2C1_EV_IRQHandler(void)
 {
@@ -13917,7 +14455,7 @@ static   error_t SchedulerBasicP$TaskBasic$postTask(uint8_t id)
 }
 
 //# 52 "/opt/tinyos-2.x/tos/system/RealMainP.nc"
-  int main(void)
+  int main_tinyos(void)
 //#line 52
 {
   { __nesc_atomic_t __nesc_atomic = __nesc_atomic_start();
@@ -14200,14 +14738,46 @@ static bool RF230DriverLayerP$isSpiAcquired(void)
   return FALSE;
 }
 
+void RCC_Configuration(void)
+{
+  /* PCLK2 = HCLK/2 */
+   RCC_PCLK2Config(RCC_HCLK_Div2);
+
+
+  // RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+  /* Enable SPIx clock and GPIO clock for SPIx and SPIy */
+  RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
+
+  /* Enable SPIx Periph clock */
+  //RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
+  //RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+
+}
+
+void GPIO_Configuration(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+
+  /* Configure SPIx pins: SCK, MISO and MOSI */
+  GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI | SPIx_NSS;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
+
+
+}
+
+
 //# 108 "/opt/tinyos-2.x/tos/chips/stm32/spi/Stm32SpiP.nc"
 static void Stm32SpiP$startSpi(void)
 //#line 108
 {
-  Stm32SpiP$Spi$enableSpi(FALSE);
+  //Stm32SpiP$Spi$enableSpi(FALSE);
   { __nesc_atomic_t __nesc_atomic = __nesc_atomic_start();
 //#line 110
     {
+	/*
       Stm32SpiP$Spi$initMaster();
       Stm32SpiP$Spi$enableInterrupt(FALSE);
       Stm32SpiP$Spi$setMasterDoubleSpeed(TRUE);
@@ -14215,6 +14785,28 @@ static void Stm32SpiP$startSpi(void)
       Stm32SpiP$Spi$setClockPhase(FALSE);
       Stm32SpiP$Spi$setClock(0);
       Stm32SpiP$Spi$enableSpi(TRUE);
+	  */
+	  		RCC_Configuration();
+
+        GPIO_Configuration();
+
+
+
+        SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+		SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+		SPI_InitStructure.SPI_CPOL = 0;
+		SPI_InitStructure.SPI_CPHA = 0;
+		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+		SPI_InitStructure.SPI_CRCPolynomial = 7;
+
+		SPI_Init(SPIx, &SPI_InitStructure);
+		SPI_SSOutputCmd(SPIx, ENABLE);
+		SPI_Cmd(SPIx, ENABLE);
+
+
     }
 //#line 118
     __nesc_atomic_end(__nesc_atomic); }
@@ -14438,7 +15030,9 @@ static   error_t RF230DriverLayerP$RadioSend$send(message_t *msg)
   if (length != RF230DriverLayerP$txPower) 
     {
       RF230DriverLayerP$txPower = length;
-      RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | RF230DriverLayerP$txPower);
+      //RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | RF230DriverLayerP$txPower);
+	  //Nived : Turning off auto crc check
+	  RF230DriverLayerP$writeRegister(RF230_PHY_TX_PWR, 0 | RF230DriverLayerP$txPower);
     }
 
 
@@ -14479,7 +15073,7 @@ static   error_t RF230DriverLayerP$RadioSend$send(message_t *msg)
   RF230DriverLayerP$SELN$clr();
   RF230DriverLayerP$FastSpiByte$splitWrite(RF230_CMD_FRAME_WRITE);
 
-  data = RF230DriverLayerP$getPayload(msg);
+  data = (uint8_t *) RF230DriverLayerP$getPayload(msg);
   length = __nesc_ntoh_leuint8((unsigned char *)&RF230DriverLayerP$getHeader(msg)->length);
 
 

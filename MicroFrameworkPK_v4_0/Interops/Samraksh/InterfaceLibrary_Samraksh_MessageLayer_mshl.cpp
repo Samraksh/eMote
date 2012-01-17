@@ -25,26 +25,23 @@ HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Init___STATIC__I4( CLR_R
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Send___STATIC__I4__SamrakshClient__U4__SZARRAY_U1__I4__SamrakshTime( CLR_RT_StackFrame& stack )
+HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Send___STATIC__I4__U1__U2__SZARRAY_U1__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        UNSUPPORTED_TYPE param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UNSUPPORTED_TYPE( stack, 0, param0 ) );
+        UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 0, param0 ) );
 
-        UINT32 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param1 ) );
+        UINT16 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param1 ) );
 
-        UINT32 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 2, param2 ) );
+        CLR_RT_TypedArray_UINT8 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param2 ) );
 
-        CLR_RT_TypedArray_UINT8 param3;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 3, param3 ) );
+        UINT16 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param3 ) );
 
-        INT32 param4;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 4, param4 ) );
-
-        INT32 retVal = MessageLayer::Send( param0, param1, param2, param3, param4, hr );
+        INT32 retVal = MessageLayer::Send( param0, param1, param2, param3, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -52,11 +49,14 @@ HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Send___STATIC__I4__Samra
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Received___STATIC__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Received___STATIC__I4__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT32 retVal = MessageLayer::Received( hr );
+        CLR_RT_TypedArray_UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 0, param0 ) );
+
+        INT32 retVal = MessageLayer::Received( param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -64,11 +64,17 @@ HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::Received___STATIC__I4( C
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::ConfigureReceive___STATIC__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_InterfaceLibrary_Samraksh_MessageLayer::ConfigureReceiver___STATIC__I4__U1__SamrakshMessageLayerRadioCallBack( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT32 retVal = MessageLayer::ConfigureReceive( hr );
+        UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 0, param0 ) );
+
+        UNSUPPORTED_TYPE param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UNSUPPORTED_TYPE( stack, 1, param1 ) );
+
+        INT32 retVal = MessageLayer::ConfigureReceiver( param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

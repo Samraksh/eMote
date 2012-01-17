@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh
 {
-    class FileSystem
+    public class FileSystem
     {
         public enum Error {SUCCESS = 0, FAIL = 1} ;
 

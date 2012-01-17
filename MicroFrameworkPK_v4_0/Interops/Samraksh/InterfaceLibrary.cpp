@@ -18,13 +18,17 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_InterfaceLibrary_Samraksh_FileSystem::Read___STATIC__SamrakshFileSystemError__SZARRAY_U1__U4__U2,
     Library_InterfaceLibrary_Samraksh_FileSystem::Erase___STATIC__SamrakshFileSystemError__U4__U4,
     NULL,
-    NULL,
-    NULL,
-    NULL,
     Library_InterfaceLibrary_Samraksh_MessageLayer::Init___STATIC__I4,
-    Library_InterfaceLibrary_Samraksh_MessageLayer::Send___STATIC__I4__SamrakshClient__U4__SZARRAY_U1__I4__SamrakshTime,
-    Library_InterfaceLibrary_Samraksh_MessageLayer::Received___STATIC__I4,
-    Library_InterfaceLibrary_Samraksh_MessageLayer::ConfigureReceive___STATIC__I4,
+    Library_InterfaceLibrary_Samraksh_MessageLayer::Send___STATIC__I4__U1__U2__SZARRAY_U1__U2,
+    Library_InterfaceLibrary_Samraksh_MessageLayer::Received___STATIC__I4__SZARRAY_U1,
+    Library_InterfaceLibrary_Samraksh_MessageLayer::ConfigureReceiver___STATIC__I4__U1__SamrakshMessageLayerRadioCallBack,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    Library_InterfaceLibrary_Samraksh_ADC::Init___STATIC__I4__I4,
+    Library_InterfaceLibrary_Samraksh_ADC::getData___STATIC__I4__SZARRAY_U2__U4__U4,
     NULL,
     NULL,
     NULL,
@@ -42,12 +46,15 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_InterfaceLibrary_Samraksh_TimeSync::getSkew___STATIC__R4,
     Library_InterfaceLibrary_Samraksh_TimeSync::local2Global___STATIC__VOID,
     Library_InterfaceLibrary_Samraksh_TimeSync::getRootId___STATIC__I2,
+    NULL,
+    Library_InterfaceLibrary_Samraksh_rDAC::Init___STATIC__VOID,
+    Library_InterfaceLibrary_Samraksh_rDAC::setValue___STATIC__I4__U2,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh =
 {
     "Samraksh", 
-    0xB4B45E00,
+    0x5DC0262D,
     method_lookup
 };
 

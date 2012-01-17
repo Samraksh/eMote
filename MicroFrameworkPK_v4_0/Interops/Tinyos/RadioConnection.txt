@@ -1,3 +1,4 @@
+
 SLP_TR  23     26
 RSTN    17     25
 SELN     4     30 
@@ -8,3 +9,10 @@ SCLK     5     29
 
 VLTG           20
 GRND            0
+
+EMOTE
+
+SLP_TR	18     26
+RSTN	27     25
+SELN    26     30    
+IRQ     17     34 

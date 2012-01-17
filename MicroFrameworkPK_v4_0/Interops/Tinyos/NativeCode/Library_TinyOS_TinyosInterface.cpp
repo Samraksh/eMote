@@ -93,7 +93,7 @@ void TinyosInterface::execute( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	if(globalCheck > 0)
 	{
 		//RadioCountToLedsC$MilliTimer$fired();
-		TimeSyncP$0$Timer$fired();
+		//TimeSyncP$0$Timer$fired();
      //RealMainP$Boot$booted();
 		RealMainP$Scheduler$taskLoop();
 	}

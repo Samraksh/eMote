@@ -22,21 +22,21 @@ struct Library_InterfaceLibrary_Samraksh_FileSystem
 
 };
 
-struct Library_InterfaceLibrary_Samraksh_Client
+struct Library_InterfaceLibrary_Samraksh_MessageLayer
 {
-    static const int FIELD__m_id = 1;
-
+    TINYCLR_NATIVE_DECLARE(Init___STATIC__I4);
+    TINYCLR_NATIVE_DECLARE(Send___STATIC__I4__U1__U2__SZARRAY_U1__U2);
+    TINYCLR_NATIVE_DECLARE(Received___STATIC__I4__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(ConfigureReceiver___STATIC__I4__U1__SamrakshMessageLayerRadioCallBack);
 
     //--//
 
 };
 
-struct Library_InterfaceLibrary_Samraksh_MessageLayer
+struct Library_InterfaceLibrary_Samraksh_ADC
 {
-    TINYCLR_NATIVE_DECLARE(Init___STATIC__I4);
-    TINYCLR_NATIVE_DECLARE(Send___STATIC__I4__SamrakshClient__U4__SZARRAY_U1__I4__SamrakshTime);
-    TINYCLR_NATIVE_DECLARE(Received___STATIC__I4);
-    TINYCLR_NATIVE_DECLARE(ConfigureReceive___STATIC__I4);
+    TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
+    TINYCLR_NATIVE_DECLARE(getData___STATIC__I4__SZARRAY_U2__U4__U4);
 
     //--//
 
@@ -71,6 +71,15 @@ struct Library_InterfaceLibrary_Samraksh_TimeSync
     TINYCLR_NATIVE_DECLARE(getSkew___STATIC__R4);
     TINYCLR_NATIVE_DECLARE(local2Global___STATIC__VOID);
     TINYCLR_NATIVE_DECLARE(getRootId___STATIC__I2);
+
+    //--//
+
+};
+
+struct Library_InterfaceLibrary_Samraksh_rDAC
+{
+    TINYCLR_NATIVE_DECLARE(Init___STATIC__VOID);
+    TINYCLR_NATIVE_DECLARE(setValue___STATIC__I4__U2);
 
     //--//
 

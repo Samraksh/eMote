@@ -5,22 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh
 {
-    public class Client
-    {
-        private int m_id = -1;
-
-        public int ID
-        {
-            get
-            {
-                return m_id;
-            }
-            set
-            {
-                m_id = value;
-            }
-        }
-    }
+    
 
     public class Time
     {
@@ -71,25 +56,21 @@ namespace Samraksh
     public class MessageLayer
     {
         
-
-        public MessageLayer()
-        {
-            
-        }
-
         public delegate void RadioCallBack(Object state);
         
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public int Init();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int Send(Samraksh.Client Id, UInt32 address, byte[] payload, int len);
+        extern static public int Send(byte Id, UInt16 address, byte[] payload, UInt16 len);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int Received();
+        extern static public int Received(byte[] payload);
+
+        
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int ConfigureReceiver(Samraksh.Client Id,RadioCallBack callBack);
+        extern static public int ConfigureReceiver(byte Id,RadioCallBack callBack);
 
     }
 }
