@@ -1375,7 +1375,7 @@ MethodRef 001b[00000294] [Type: 001c] Install [METHOD VOID( I4, I4 )]
 MethodRef 001c[0000029c] [Type: 001d] .ctor [METHOD VOID( OBJECT, I4 )]
 MethodRef 001d[000002a4] [Type: 001e] .ctor [METHOD VOID( CLASS [0100001d], OBJECT, I4, I4 )]
 
-TypeDef 0000[000002ac] [Extends: 8000] [Enclosed: ffff] [Flags: 00000000]  <PrivateImplementationDetails>{8C6008F6-2069-4B2D-ADAA-0C62ABBEEF3B}
+TypeDef 0000[000002ac] [Extends: 8000] [Enclosed: ffff] [Flags: 00000000]  <PrivateImplementationDetails>{BE5B0B77-69AB-4DD8-AB6A-D7D4D0AA579D}
 TypeDef 0001[000002c4] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c1] Microsoft.SPOT.Hardware Battery
 TypeDef 0002[000002dc] [Extends: 8000] [Enclosed: 0001] [Flags: 00001082]  ChargerModel
 TypeDef 0003[000002f4] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware I2CDevice
@@ -1438,7 +1438,7 @@ TypeDef 003b[00000834] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c0] System
 TypeDef 003c[0000084c] [Extends: 8001] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports StopBits
 TypeDef 003d[00000864] [Extends: 8018] [Enclosed: 0000] [Flags: 00000093]  __StaticArrayInitTypeSize=52
 
-FieldDef 0000[0000087c] [Flags: 00000413] .<PrivateImplementationDetails>{8C6008F6-2069-4B2D-ADAA-0C62ABBEEF3B}::$$method0x600007a-1 [FIELD VALUETYPE [0400003d]]
+FieldDef 0000[0000087c] [Flags: 00000413] .<PrivateImplementationDetails>{BE5B0B77-69AB-4DD8-AB6A-D7D4D0AA579D}::$$method0x600007a-1 [FIELD VALUETYPE [0400003d]]
 FieldDef 0001[00000884] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Min [FIELD I4]
 FieldDef 0002[0000088c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Low [FIELD I4]
 FieldDef 0003[00000894] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Medium [FIELD I4]
