@@ -27,7 +27,7 @@ defined in linker script */
 .word	_ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
 
-.equ  _estack,		  0x20010000
+/*.equ  _estack,		  0x20010000 */
 .equ  Initial_spTop,  0x20000400
 .equ  BootRAM,        0xF1E0F85F
 

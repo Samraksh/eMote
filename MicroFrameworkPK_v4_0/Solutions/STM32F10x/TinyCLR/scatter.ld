@@ -3,8 +3,8 @@
 **
 **  File        : stm32_flash.ld
 **
-**  Abstract    : Linker script for STM32F103ZE Device with
-**                512KByte FLASH, 64KByte RAM
+**  Abstract    : Linker script for STM32F103ZG Device with
+**                1MByte FLASH, 96KByte RAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -33,17 +33,17 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20010000;    /* end of 64K RAM */
+_estack = 0x20008000;    /* end of 96K RAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0;      /* required amount of heap  */
-_Min_Stack_Size = 0x200; /* required amount of stack */
+_Min_Stack_Size = 0x800; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 512K
-  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 64K
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1M
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 96K
   MEMORY_B1 (rx)  : ORIGIN = 0x60000000, LENGTH = 0K
 }
 
@@ -67,8 +67,7 @@ SECTIONS
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.rodata)         /* .rodata sections (constants, strings, etc.) */
-    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */	
-	/**(tinyclr_metadata)*/
+    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     *(.glue_7)         /* glue arm to thumb code */
     *(.glue_7t)        /* glue thumb to arm code */
 	*(.eh_frame)
@@ -76,19 +75,10 @@ SECTIONS
     KEEP (*(.init))
     KEEP (*(.fini))
 
-	/*. = 0x08052800;
-	*(tinyclr_metadata)*/
-	
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
-   
-  /*Clr_Data 0x08052800 :
-  {	
-	*(tinyclr_metadata)
-	
-  } >FLASH
-*/	
+
 
    .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
     .ARM : {
@@ -96,6 +86,8 @@ SECTIONS
       *(.ARM.exidx*)
       __exidx_end = .;
     } >FLASH
+
+  .ARM.attributes 0 : { *(.ARM.attributes) }
 
   .preinit_array     :
   {
@@ -163,23 +155,24 @@ SECTIONS
 
   /* MEMORY_bank1 section, code must be located here explicitly            */
   /* Example: extern int foo(void) __attribute__ ((section (".mb1text"))); */
+  
+  /*
   .memory_b1_text :
   {
-    *(.mb1text)        /* .mb1text sections (code) */
-    *(.mb1text*)       /* .mb1text* sections (code)  */
-    *(.mb1rodata)      /* read-only data (constants) */
+    *(.mb1text)        /* .mb1text sections (code)  
+    *(.mb1text*)       /* .mb1text* sections (code)  
+    *(.mb1rodata)      /* read-only data (constants) 
     *(.mb1rodata*)
   } >MEMORY_B1
-
-  /* Remove information from the standard libraries
+  */
+  
+  /* Remove information from the standard libraries 
   /DISCARD/ :
   {
-	*(tinyclr_metadata)
     libc.a ( * )
     libm.a ( * )
     libgcc.a ( * )
-  } */
-
+  }*/
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
 
