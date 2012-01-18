@@ -17,6 +17,7 @@
 #ifndef __USB_LIB_H
 #define __USB_LIB_H
 
+#include <tinyhal.h>
 /* Includes ------------------------------------------------------------------*/
 #ifdef STM32L1XX_MD
 #include "stm32l1xx.h"

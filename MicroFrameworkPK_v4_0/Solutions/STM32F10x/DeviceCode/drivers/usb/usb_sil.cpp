@@ -88,7 +88,7 @@ uint32_t USB_SIL_Write(uint8_t bEpAddr, uint8_t* pBufferPointer, uint32_t wBuffe
 
 /*******************************************************************************
 * Function Name  : USB_SIL_Read
-* Description    : Write a buffer of data to a selected endpoint.
+* Description    : Read a buffer of data to a selected endpoint.
 * Input          : - bEpAddr: The address of the non control endpoint.
 *                  - pBufferPointer: The pointer to which will be saved the 
 *                     received data buffer.

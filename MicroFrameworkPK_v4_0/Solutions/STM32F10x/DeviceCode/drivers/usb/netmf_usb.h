@@ -18,7 +18,7 @@
 //Kartik : USB_conf macros
 //
 //Number of endpoints used by the device
-#define EP_NUM                          (2)
+#define EP_NUM                          (3)
 
 /* buffer table base address */
 #define BTABLE_ADDRESS      (0x00)
@@ -35,6 +35,7 @@
 /* EP2  */
 /* Rx buffer base address */
 #define ENDP2_RXADDR        (0xD8)
+//#define ENDP3_RXADDR        (0xD8)
 
 /* ISTR events */
 /* IMR_MSK */
@@ -74,6 +75,10 @@
 #define USB_DISCONNECT_PIN                GPIO_Pin_14
 #define RCC_APB2Periph_GPIO_DISCONNECT    RCC_APB2Periph_GPIOB
 
+#define USB_CONNECT_PIN                   8
+
+#define USB_EMOTE_BD_PORT			  GPIOC
+#define USB_EMOTE_BD_PIN			  GPIO_Pin_6
 //Kartik : USB_core.c variables defined here
 //
 
@@ -120,12 +125,13 @@ typedef enum _DEVICE_STATE
 __IO uint32_t bDeviceState = UNCONNECTED; /* USB device status */
 __IO bool fSuspendEnabled = TRUE;  /* true when suspend is possible */
 
-struct
+/*struct
 {
   __IO RESUME_STATE eState;
   __IO uint8_t bESOFcnt;
 }ResumeS;
-//
+*/
+
 
 
 //Kartik : USB_init variables
@@ -213,11 +219,13 @@ const uint8_t MASS_ConfigDescriptor[MASS_SIZ_CONFIG_DESC] =
     0x00,   /* bAlternateSetting: Alternate setting */
     0x02,   /* bNumEndpoints*/
 //    0x08,   /* bInterfaceClass: MASS STORAGE Class */
-	0xff,   /* bInterfaceClass: MASS STORAGE Class */
+	0xFF,   /* bInterfaceClass: MASS STORAGE Class */
     //0x06,   /* bInterfaceSubClass : SCSI transparent*/
-	0x01,   /* bInterfaceSubClass : SCSI transparent*/
+	//0x01,   /* bInterfaceSubClass : SCSI transparent*/
+	0xFF,   /* bInterfaceSubClass : SCSI transparent*/
     //0x50,   /* nInterfaceProtocol */
-	0x01,   /* nInterfaceProtocol */
+	//0x01,   /* nInterfaceProtocol */
+	0xFF,   /* nInterfaceProtocol */
     0,          /* iInterface: */
     /* 18 */
     0x07,   /*Endpoint descriptor length = 7*/
@@ -226,15 +234,16 @@ const uint8_t MASS_ConfigDescriptor[MASS_SIZ_CONFIG_DESC] =
     0x02,   /*Bulk endpoint type */
     0x40,   /*Maximum packet size (64 bytes) */
     0x00,
-    0x00,   /*Polling interval in milliseconds */
+    0x01,   /*Polling interval in milliseconds */
     /* 25 */
     0x07,   /*Endpoint descriptor length = 7 */
     0x05,   /*Endpoint descriptor type */
     0x02,   /*Endpoint address (OUT, address 2) */
+    //0x03,   /*Endpoint address (OUT, address 3) */
     0x02,   /*Bulk endpoint type */
     0x40,   /*Maximum packet size (64 bytes) */
     0x00,
-    0x00     /*Polling interval in milliseconds*/
+    0x01     /*Polling interval in milliseconds*/
     /*32*/
   };
 const uint8_t MASS_StringLangID[MASS_SIZ_STRING_LANGID] =
@@ -310,7 +319,8 @@ ONE_DESCRIPTOR String_Descriptor[5] =
 
 struct USBCS_Driver
 {
-    static const UINT32 c_Used_Endpoints           = 7;
+    //static const UINT32 c_Used_Endpoints           = 7;
+    static const UINT32 c_Used_Endpoints           = 3;
     static const UINT32 c_default_ctrl_packet_size = 18;
 
     USB_CONTROLLER_STATE*   pUsbControllerState;
@@ -379,7 +389,7 @@ struct USBCS_Driver
 
 	//STM Functions
 
-	static void USB_Interrupts_Config();
+	static BOOL USB_Interrupts_Config();
 	static void USB_Clock();
 	static void Set_System();
 	static void USB_Cable_Config(bool value);
@@ -403,7 +413,7 @@ struct USBCS_CONFIG
 
 extern "C" 
 {
-	void usb_irq_handler();
+	void usb_irq_handler(void*);
 }
 extern USB_CONFIG* const g_USB_Config;
 

@@ -39,6 +39,7 @@ typedef struct OneDescriptor
   uint16_t Descriptor_Size;
 }
 ONE_DESCRIPTOR, *PONE_DESCRIPTOR;
+
 /* All the request process routines return a value of this type
    If the return value is not SUCCESS or NOT_READY,
    the software will STALL the correspond endpoint */
