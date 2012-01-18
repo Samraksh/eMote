@@ -20,7 +20,7 @@
 #include <tinyhal.h>
 
 //#define USB_DEBUG1
-#undef USB_DEBUG1
+//#undef USB_DEBUG1
 //#define USB_DEBUG2
 
 
@@ -48,16 +48,19 @@ extern void EP2_OUT_Callback();
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
-void CTR_LP(void)
-{	
+void CTR_LP()
+//HAL_CALLBACK_FPN CTR_LP(void)
+{
+/*
 #ifdef USB_DEBUG1
 	debug_printf("~~~~In function - CTR_LP\n\r");
-#endif		
-  //debug_printf("Hello World from USB!!\n\r");
+#endif*/
+ //debug_printf("Hello World from USB!!\n\r");
   __IO uint16_t wEPVal = 0;
   /* stay in loop while pending interrupts */
   
-  STM_EVAL_LEDToggle((Led_TypeDef)2);
+  //2 is LED_red
+  //STM_EVAL_LEDToggle((Led_TypeDef)2);
   
   while (((wIstr = _GetISTR()) & ISTR_CTR) != 0)
   {
@@ -98,7 +101,9 @@ void CTR_LP(void)
            /* before terminate set Tx & Rx status */
 
             _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
-		  return;
+
+            //Mukundan, commenting return
+            //return;
       }
       else
       {
@@ -120,7 +125,9 @@ void CTR_LP(void)
           /* before terminate set Tx & Rx status */
 
 		      _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
-          return;
+
+		      //Mukundan, commenting return
+		      //return;
         }
 
         else if ((wEPVal & EP_CTR_RX) != 0)
@@ -134,46 +141,56 @@ void CTR_LP(void)
           /* before terminate set Tx & Rx status */
      
 		     _SetEPRxTxStatus(ENDP0,SaveRState,SaveTState);
-          return;
+
+		     //Mukundan, commenting return
+		     //return;
         }
       }
     }/* if(EPindex == 0) */
     else
     {
       /* Decode and service non control endpoints interrupt  */
-#ifdef USB_DEBUG1
-	debug_printf("In function - CTR_LP - non control endpoints interrupt \n\r");
-#endif	  
+
 	
 	  //debug_printf("In function - CTR_LP - non control endpoints interrupt \n\r");
 	  //debug_printf("Hello from non control endpoint\n");
       /* process related endpoint register */
       wEPVal = _GetENDPOINT(EPindex);
+#ifdef USB_DEBUG1
+	debug_printf("In function - CTR_LP - msg for endpoint: %d, state of endpoint: %d \n\r", EPindex,wEPVal);
+#endif
+
+
+		if ((wEPVal & EP_CTR_TX) != 0)
+		{
+			//STM_EVAL_LEDToggle((Led_TypeDef)2);
+		  /* clear int flag */
+
+		  _ClearEP_CTR_TX(EPindex);
+		  USBCS_Driver::EP_TxISR(EPindex );
+			//STM_EVAL_LEDToggle((Led_TypeDef)1);
+		  /* call IN service function */
+		  //(*pEpInt_IN[EPindex-1])();
+			//EP1_IN_Callback();
+		  //debug_printf("In function - CTR_LP - TX interrrupt \n\r");
+
+		} /* if((wEPVal & EP_CTR_TX) != 0) */
+
       if ((wEPVal & EP_CTR_RX) != 0)
       {
-		//STM_EVAL_LEDToggle((Led_TypeDef)1);
+		//STM_EVAL_LEDToggle((Led_TypeDef)0);
         /* clear int flag */
-        _ClearEP_CTR_RX(EPindex);
 
+          _ClearEP_CTR_RX(EPindex);
+          USBCS_Driver::EP_RxISR( EPindex );
+       // debug_printf("In function - CTR_LP - RX interrrupt \n\r");
         /* call OUT service function */		
 		//STM_EVAL_LEDToggle((Led_TypeDef)3);		
 		//(*pEpInt_OUT[EPindex-1])();
-		USBCS_Driver::EP_RxISR( 1 );
+
 
       } /* if((wEPVal & EP_CTR_RX) */
 
-      if ((wEPVal & EP_CTR_TX) != 0)
-      {
-		//STM_EVAL_LEDToggle((Led_TypeDef)2);
-        /* clear int flag */
-        _ClearEP_CTR_TX(EPindex);
-		
-		//STM_EVAL_LEDToggle((Led_TypeDef)1);
-        /* call IN service function */
-        //(*pEpInt_IN[EPindex-1])();
-		//EP1_IN_Callback();
-		USBCS_Driver::EP_TxISR( 1 );
-      } /* if((wEPVal & EP_CTR_TX) != 0) */
 
     }/* if(EPindex == 0) else */
 
@@ -188,7 +205,7 @@ void CTR_LP(void)
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
-void CTR_HP(void)
+void CTR_HP(void* Param)
 {
   uint32_t wEPVal = 0;
 

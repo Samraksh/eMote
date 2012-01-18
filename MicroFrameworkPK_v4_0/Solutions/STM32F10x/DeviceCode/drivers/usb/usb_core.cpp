@@ -14,15 +14,18 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+//#include <tinyhal.h>
 #include "usb_lib.h"
 //Kartik : MF Integration
 #include "netmf_usb.h"
 #include <pal/COM/usb/usb.h>
+#include <led/stm32f10x_led.h>
+
 //Kartik : MF Integration
 //Kartik : Debug Macro
 #undef USB_DEBUG
 //#define USB_DEBUG1
-#undef USB_DEBUG1
+//#undef USB_DEBUG1
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

@@ -26,7 +26,7 @@
 extern "C"
 {
 	void CTR_LP(void);
-	void CTR_HP(void);
+	void CTR_HP(void*);
 }
 /* External variables --------------------------------------------------------*/
 

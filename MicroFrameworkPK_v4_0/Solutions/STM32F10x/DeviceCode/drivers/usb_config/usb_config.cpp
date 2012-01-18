@@ -50,17 +50,17 @@ extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION
 {
     USB_DEVICE_DESCRIPTOR        device;
     USB_CONFIGURATION_DESCRIPTOR config;
-    USB_INTERFACE_DESCRIPTOR     itfc0;
-    USB_ENDPOINT_DESCRIPTOR      ep1;
-    USB_ENDPOINT_DESCRIPTOR      ep2;
+      USB_INTERFACE_DESCRIPTOR     itfc0;
+        USB_ENDPOINT_DESCRIPTOR      ep1;
+        USB_ENDPOINT_DESCRIPTOR      ep2;
     USB_STRING_DESCRIPTOR_HEADER manHeader;
-    USB_STRING_CHAR              manString[MANUFACTURER_NAME_SIZE];
+      USB_STRING_CHAR              manString[MANUFACTURER_NAME_SIZE];
     USB_STRING_DESCRIPTOR_HEADER prodHeader;
-    USB_STRING_CHAR              prodString[PRODUCT_NAME_SIZE];
+      USB_STRING_CHAR              prodString[PRODUCT_NAME_SIZE];
     USB_STRING_DESCRIPTOR_HEADER string4;
-    USB_STRING_CHAR              displayString[DISPLAY_NAME_SIZE];
+      USB_STRING_CHAR              displayString[DISPLAY_NAME_SIZE];
     USB_STRING_DESCRIPTOR_HEADER string5;
-    USB_STRING_CHAR              friendlyString[FRIENDLY_NAME_SIZE];
+      USB_STRING_CHAR              friendlyString[FRIENDLY_NAME_SIZE];
     USB_OS_STRING_DESCRIPTOR     OS_String;
     USB_XCOMPATIBLE_OS_ID        OS_XCompatible_ID;
     USB_DESCRIPTOR_HEADER        endList;
@@ -122,8 +122,11 @@ extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION
         0,                                          // Alternate number (main)
         2,                                          // Number of endpoints
         0xFF,                                       // Interface class (vendor)
-        1,                                          // Interface subclass
-        1,                                          // Interface protocol
+        //Mukundan
+        0xFF,                                          // Interface subclass
+        0xFF,                                          // Interface protocol
+        //1,                                          // Interface subclass
+        //1,                                          // Interface protocol
         0                                           // Interface descriptor string index (none)
     },
 
@@ -235,11 +238,11 @@ extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION
             OS_DESCRIPTOR_STRING_INDEX,
 			//Kartik: Hardcoded; Need to figure out why this length does not work
 			//sizeof(USB_DESCRIPTOR_HEADER) + OS_DESCRIPTOR_STRING_SIZE
-			36,            
+			36,
         },
 		//Kartik: Hardcoded; Need to figure out why this length does not work
 		//OS_DESCRIPTOR_STRING_SIZE,
-		32,        
+		32,
         USB_STRING_DESCRIPTOR_TYPE,
         { 'M', 'S', 'F', 'T', '1', '0', '0' },
         OS_DESCRIPTOR_STRING_VENDOR_CODE,

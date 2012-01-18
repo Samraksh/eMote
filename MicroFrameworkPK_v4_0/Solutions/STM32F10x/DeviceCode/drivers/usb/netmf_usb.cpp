@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <usb/netmf_usb.h>
+#include <intc/stm32.h>
 
 // the v3.1 arm compiler optimizations for RTM cause the USB not to work
 #if !defined(DEBUG)
@@ -10,7 +11,7 @@
 #endif
 
 //USB Debug Flag
-#undef USB_DEBUG
+//#undef USB_DEBUG
 //#define USB_NIVED_DEBUG
 #undef USB_NIVED_DEBUG
 //#define USB_DEBUG1
@@ -22,13 +23,14 @@ USBCS_Driver g_USB_Driver;
 
 USB_CONTROLLER_STATE UsbControllerState[1];     // Only 1 USB Controller for this device
 
-Hal_Queue_KnownSize<USB_PACKET64,USB_QUEUE_PACKET_COUNT> QueueBuffers[USBCS_Driver::c_Used_Endpoints-1];
+Hal_Queue_KnownSize<USB_PACKET64,USB_QUEUE_PACKET_COUNT> QueueBuffers[USBCS_Driver::c_Used_Endpoints];
 
 //Kartik : This points to the USB Configuration (UNION), need to remap!
 //static USB_Driver::EndpointConfiguration EndpointInit[USBCS_Driver::c_Used_Endpoints];     // Corresponds to endpoint configuration RAM at PXA271_USB::UDCCRx
 
 BOOL Send_Multiple_Packets = FALSE;
 UINT32 State = IDLE;
+int txCount=0;
 //--//
 
 //
@@ -398,7 +400,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
 	pProperty->Init();
 
 	//TODO: Initialize all end points to unused
-
+	//debug_printf("In USBCS_Driver::Initialize Entering initialization");
 	//Configure other end points (endpoint no 1)
 	while( USB_NextEndpoint( &State, ep, itfc) ) // && logicalEndpoint < 11 )
     {
@@ -457,7 +459,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
 		}
 
 		//endpointsUsed++;
-
+		debug_printf("In USBCS_Driver::Initialize endpoint number: %d\n\r", endpointNum);
 	}
 
     g_USB_Driver.pUsbControllerState  = &State;
@@ -469,12 +471,13 @@ HRESULT USBCS_Driver::Initialize( int Controller )
     State.PacketSize     = c_default_ctrl_packet_size;
     
     State.FirstGetDescriptor = TRUE;
-	
-	SetEPRxStatus(EP2_OUT, EP_RX_VALID);
+	//State.Initialized=TRUE;
+
+	//SetEPRxStatus(EP2_OUT, EP_RX_VALID);
 
 	//Kartik : Commented for now
     //ProtectPins( Controller, FALSE );
-
+    //LED_GREEN();
     return S_OK;    
 }
 
@@ -503,23 +506,38 @@ BOOL USBCS_Driver::StartOutput( USB_CONTROLLER_STATE* State, int endpoint )
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::StartOutput\n\r");
 #endif
+/*
+#if 0
+	// If endpoint is not an output
+	if( State->Queues[endpoint] == NULL || !State->IsTxQueue[endpoint] )
+		return FALSE;
+
+	GLOBAL_LOCK(irq);
+
+
+	// if the halt feature for this endpoint is set, then just
+	      //clear all the characters
+	if(State->EndpointStatus[endpoint] & USB_STATUS_ENDPOINT_HALT)
+	{
+		ClearTxQueue( State, endpoint );
+		return TRUE;
+	}
+
+//	USB_PACKET64* Packet64;
+//	Packet64 = USB_TxDequeue( State, endpoint, TRUE );
+//	USB_SIL_Write(EP1_IN, (uint8_t*) Packet64->Buffer, Packet64->Size);
+//	SetEPTxValid(ENDP1);
+//	SetEPRxStatus(ENDP2, EP_RX_VALID);
+
+
+#endif
+*/
+
 //#if 0
-	//debug_printf("In USBCS_Driver::StartOutput\n\r");
-	
-	USB_PACKET64* Packet64;
-	Packet64 = USB_TxDequeue( State, endpoint, TRUE );
-	//const char* Data = "Hello From USB";
-	//USB_SIL_Write(EP1_IN, (uint8_t*) Data, 14);	
-	USB_SIL_Write(EP1_IN, (uint8_t*) Packet64->Buffer, Packet64->Size);	
-	SetEPTxValid(ENDP1); 		
-	SetEPRxStatus(ENDP2, EP_RX_VALID);
-    SetEPRxStatus(EP2_OUT, EP_RX_VALID);
-//#endif
-#if 0	
     ASSERT( State );
     ASSERT(endpoint < c_Used_Endpoints);
 
-    GLOBAL_LOCK(irq);
+    //GLOBAL_LOCK(irq);
 
     // If endpoint is not an output
     if( State->Queues[endpoint] == NULL || !State->IsTxQueue[endpoint] )
@@ -533,44 +551,72 @@ BOOL USBCS_Driver::StartOutput( USB_CONTROLLER_STATE* State, int endpoint )
         return TRUE;
     }
 
+    //transmit all packets in the send buffer
+    //while(~(State->Queues[endpoint]->IsEmpty())){
+    	//TxPacket( State, endpoint );
+    	EP_TxISR(endpoint);
+    //}
+
+    //Check other endpoints for pending actions
+   /* if(irq.WasDisabled()){
+    	CTR_LP();
+    }*/
+
+   /* for( int ep = 1; ep < c_Used_Endpoints; ep++ )
+   	{
+		// If no interrupt for this endpoint
+		//if( (((USB.UDCISR0 & USB.UDCICR0) >> (ep * 2)) & USB.UDCICR__BOTH) == 0 )
+			//continue;
+
+		if(State->Queues[ep])
+		{
+			if( State->IsTxQueue[endpoint] )
+				EP_TxISR( endpoint );
+			else
+				EP_RxISR( endpoint );
+		}
+	}
+*/
+
+
+/*
     //If TxRunning, interrupts will drain the queue
     if(!g_USB_Driver.TxRunning[endpoint])
     {
         g_USB_Driver.TxRunning[endpoint] = TRUE;
 
         // Calling both TxPacket & EP_TxISR in this routine could cause a TX FIFO overflow
-        //TxPacket( State, endpoint );		
+        TxPacket( State, endpoint );
     }
     else if(irq.WasDisabled())
     {                        
-		//LED_BLUE();
-		//EP_TxISR( 1 );
-        //PXA271_USB& USB = PXA271::USB();
-        
+
         // This could be called during Flush with all interrupts off.  Just taking care of the endpoint
         // in question may cause a logjam if the host is expecting a response from another endpoint.
-        
-		
-		//TODO : Check All endpoints for activity.
 
-        //if( USB.UDCISR0 & USB.UDCICR0 & USB.UDCICR__BOTH )        // If endpoint 0 needs attention
-        //    EP0_ISR( 0 );
-        //for( int ep = 1; ep < c_Used_Endpoints; ep++ )
-        //{
-        //    // If no interrupt for this endpoint
-        //    if( (((USB.UDCISR0 & USB.UDCICR0) >> (ep * 2)) & USB.UDCICR__BOTH) == 0 )
-        //        continue;
-        //    
-        //    if(State->Queues[ep])
-        //    {
-        //        if( State->IsTxQueue[endpoint] )
-        //            EP_TxISR( endpoint );
-        //        else
-        //            EP_RxISR( endpoint );
-        //    }
-        //}
-    }
-#endif
+    	//Check All endpoints for activity.
+    	//Call the main interrupt handler, this will take care of pending interrupts
+    	CTR_LP();
+
+    	/*
+        if( USB.UDCISR0 & USB.UDCICR0 & USB.UDCICR__BOTH )        // If endpoint 0 needs attention
+            EP0_ISR( 0 );
+        for( int ep = 1; ep < c_Used_Endpoints; ep++ )
+        {
+            // If no interrupt for this endpoint
+            if( (((USB.UDCISR0 & USB.UDCICR0) >> (ep * 2)) & USB.UDCICR__BOTH) == 0 )
+                continue;
+
+            if(State->Queues[ep])
+            {
+                if( State->IsTxQueue[endpoint] )
+                    EP_TxISR( endpoint );
+                else
+                    EP_RxISR( endpoint );
+            }
+        }
+    }*/
+//#endif
     return TRUE;
 
 }
@@ -590,6 +636,36 @@ BOOL USBCS_Driver::GetInterruptState()
     
     return FALSE;
 }
+
+/*
+BOOL USBCS_Driver::SetInterruptState(int EndPoint, uint32 Interrupt)
+{
+#ifdef USB_DEBUG
+	debug_printf("In USBCS_Driver::SetInterruptState\n\r");
+#endif
+
+    GLOBAL_LOCK(irq);
+
+    UINT32 mask = 3;
+    int    shift;
+
+    ASSERT(EndPoint < c_MaxEndpoints);
+
+    if(EndPoint < 16)
+    {
+        shift = EndPoint * 2;
+        mask <<= shift;
+        UDCICR0 = (UDCICR0 & ~mask) | (interrupt << shift);
+    }
+    else
+    {
+        shift = (EndPoint - 16) * 2;
+        mask <<= shift;
+        UDCICR1 = (UDCICR1 & ~mask) | (interrupt << shift);
+    }
+    return FALSE;
+}
+*/
 
 //--//
 
@@ -652,48 +728,50 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
     GLOBAL_LOCK(irq); 
 
     // transmit a packet on UsbPortNum, if there are no more packets to transmit, then die    
-    USB_PACKET64* Packet64;
-
 
     // If this is not a legal transmit endpoint, there is nothing to do
     if( State->Queues[endpoint] == NULL || !State->IsTxQueue[endpoint] )
         return;
 
-    for(;;)
-    {
-        Packet64 = USB_TxDequeue( State, endpoint, TRUE );
+    //Why infinte for loop
+    /*for(;;)
+     {
+         Packet64 = USB_TxDequeue( State, endpoint, TRUE );
 
-        if( Packet64 == NULL || Packet64->Size > 0 )
-            break;
-    }
-    
+         if( Packet64 == NULL || Packet64->Size > 0 )
+             break;
+     }
+*/
+
+    USB_PACKET64* Packet64;
+    Packet64 = USB_TxDequeue( State, endpoint, TRUE );
+
     if( Packet64 )
     {
-		// If a packet has been sent
-        //if(USB.UDCCSRx[endpoint] & USB.UDCCSR__PC)              
-		//{
-			// Clear the Packet Complete bit
-			//USB.UDCCSRx[endpoint] = USB.UDCCSR__PC;             
-		//}
-            
-        // We should absolutely have an empty buffer to use
-        //ASSERT((USB.UDCCSRx[endpoint] & USB.UDCCSR__FS) != 0);  
+    	 USB_SIL_Write(EP1_IN, (uint8_t*) Packet64->Buffer, Packet64->Size);
+    	 SetEPTxValid(ENDP1);
+    	 txCount++;
+    	 if(txCount % 2 ==0){
+    		 LED_BLUE();
+    	 }else {
+    		 LED_BLUE_OFF();
+    	 }
 
-		// FIFO may only be loaded with full words
-        //UINT32* packet4 = (UINT32*)Packet64->Buffer;            
-		//USB_SIL_Write(EP1_IN, (uint8_t*) Packet64->Buffer, Packet64->Size);	
-		//SetEPTxValid(ENDP1); 		
+    	 SetEPRxStatus(ENDP2, EP_RX_VALID);
 		
 		if (Packet64->Size > BULK_MAX_PACKET_SIZE)
 		{
 			//Data needs to be packetized and sent			
 			Send_Multiple_Packets = TRUE;
+			LED_GREEN_OFF();
 		}
         else
 		{
 			//can be sent in one transfer
 			Send_Multiple_Packets = FALSE;						
 		}
+
+
         //while( nLeft >= 4 )
         //{
 			// Shove packet into FIFO 4 bytes at a time
@@ -721,9 +799,11 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
             //USB.UDCCSRx[endpoint] = USB.UDCCSR__SP;             
         //}
 
-        g_USB_Driver.TxNeedZLPS[endpoint] = (Packet64->Size == State->MaxPacketSize[endpoint]);
+        //g_USB_Driver.TxNeedZLPS[endpoint] = (Packet64->Size == State->MaxPacketSize[endpoint]);
     }
-    else
+
+
+   /* else
     {
         // send the zero length packet since we landed on the FIFO boundary before
         // (and we queued a zero length packet to transmit) 
@@ -749,13 +829,10 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
         // no more data
         g_USB_Driver.TxRunning[endpoint] = FALSE;
     }
-
-    
+	*/
 }
 
-void Send_Data()
-{	
-}
+
 
 void USBCS_Driver::ControlNext()
 {    
@@ -909,10 +986,19 @@ void USBCS_Driver::ResetEvent()
     SetEPType(ENDP2, EP_BULK);
     SetEPRxAddr(ENDP2, ENDP2_RXADDR);
     SetEPRxCount(ENDP2, 0x40);
-    SetEPRxStatus(ENDP2, EP_RX_VALID);
     SetEPTxStatus(ENDP2, EP_TX_DIS);
+    Clear_Status_Out(ENDP2);
+    SetEPRxStatus(ENDP2, EP_RX_VALID);
 
 
+
+    /* Initialize Endpoint 3
+    SetEPType(ENDP3, EP_BULK);
+    SetEPRxAddr(ENDP3, ENDP3_RXADDR);
+    SetEPRxCount(ENDP3, 0x40);
+    SetEPRxStatus(ENDP3, EP_RX_VALID);
+    SetEPTxStatus(ENDP3, EP_TX_DIS);
+	*/
     SetEPRxCount(ENDP0, 0x40);
     SetEPRxValid(ENDP0);
 
@@ -943,7 +1029,7 @@ void USBCS_Driver::ResetEvent()
     State->DeviceState        = USB_DEVICE_STATE_DEFAULT;
     State->Address            = 0;
     USB_StateCallback( State );    
-    
+
 }
 
 //--//
@@ -961,7 +1047,24 @@ BOOL USBCS_Driver::RxEnable( USB_CONTROLLER_STATE *State, int endpoint )
 
     /* unmask receive event */
     //USB.Set_Interrupt(endpoint, PXA271_USB::UDCICR__BOTH);      // Enable both interrupts for this endpoint
-    
+
+
+    //Mukundan added lines, line below
+    //USB_Debug("e");
+
+    // If this is not a legal Rx queue
+    if( State == NULL || State->Queues[endpoint] == NULL || State->IsTxQueue[endpoint] )
+        return FALSE;
+
+    // enable Rx
+    // if the current endpoint register is in RX_NAK and there are no interrupt pending for ENDP0
+    if ((_GetENDPOINT(endpoint) & ((_GetENDPOINT(0) & EP_CTR_RX) | _GetEPRxStatus(0))) == EP_RX_NAK) {
+        // Nak & no int pending // !!!
+    	_SetEPRxValid(endpoint);
+    }
+
+
+
     return TRUE;        
 }
 
@@ -1059,7 +1162,7 @@ void USBCS_Driver::EP_TxISR( UINT32 endpoint )
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::EP_TxISR\n\r");
 #endif    		
-	//TxPacket( g_USB_Driver.pUsbControllerState, 1 );
+	TxPacket( g_USB_Driver.pUsbControllerState, endpoint );
 	//LED_BLUE();
 }
 
@@ -1068,10 +1171,59 @@ void USBCS_Driver::EP_RxISR( UINT32 endpoint )
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::EP_RxISR\n\r");
 #endif    	
-	//LED_RED();
+	ASSERT(endpoint < c_Used_Endpoints);
+	ASSERT(g_USB_Driver.pUsbControllerState);
+	ASSERT((_GetENDPOINT(endpoint) & EPRX_STAT) == EP_RX_NAK);
+
+	USB_CONTROLLER_STATE *State = g_USB_Driver.pUsbControllerState;
+
+	BOOL full;
+	USB_PACKET64* Packet64 = USB_RxEnqueue( State, endpoint, full );
+	int count=0;
+	/* copy packet in, making sure that Packet64->Buffer is never overflowed */
+	if (Packet64) {
+		//USB_Debug("r");
+
+		// copy buffer
+		count=USB_SIL_Read(_GetEPAddress(endpoint), (uint8_t *)Packet64->Buffer);
+		Packet64->Size = count;
+		if (!full) { // reenable Rx
+			_SetEPRxValid(endpoint);
+		} else {
+			debug_printf("buffer full");
+			SetEPRxStatus(EP2_OUT,EP_RX_STALL);
+		}
+	} else {  // should not happen
+		//USB_Debug("?");
+		ASSERT(0);
+	}
+
+	//Check other endpoints for pending actions
+    for( int ep = 1; ep < c_Used_Endpoints; ep++ )
+   	{
+		// If no interrupt for this endpoint
+		//if( (((USB.UDCISR0 & USB.UDCICR0) >> (ep * 2)) & USB.UDCICR__BOTH) == 0 )
+			//continue;
+
+		if(State->Queues[ep])
+		{
+			if( State->IsTxQueue[endpoint] )
+				EP_TxISR( endpoint );
+		}
+	}
+
+	//char reply[count]=Packet64->Buffer
+	/*debug_printf("In USBCS_Driver::EP_RxISR::Reply:: ");
+	for (int i=count-1; i>=0; i--){
+		debug_printf("-%c-%c", Packet64->Buffer[i],Packet64->Buffer[i-1]);
+		//i--;
+	}
+	debug_printf("\n\r");
+	*/
+	//LED_GREEN();
 }
 
-void USBCS_Driver::USB_Interrupts_Config()
+BOOL USBCS_Driver::USB_Interrupts_Config()
 {
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::USB_Interrupts_Config\n\r");
@@ -1085,13 +1237,15 @@ void USBCS_Driver::USB_Interrupts_Config()
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+	//NVIC_Init(&NVIC_InitStructure);
+	if( !CPU_INTC_ActivateInterrupt( STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0, (HAL_CALLBACK_FPN)  usb_irq_handler, (void *)NULL) ) return FALSE;
 
 	NVIC_InitStructure.NVIC_IRQChannel = USB_HP_CAN1_TX_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+	//NVIC_Init(&NVIC_InitStructure);
+	if( !CPU_INTC_ActivateInterrupt( STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX  , (HAL_CALLBACK_FPN) CTR_HP, (void *)NULL) ) return FALSE;
 }
 
 void USBCS_Driver::USB_Clock()
@@ -1100,7 +1254,9 @@ void USBCS_Driver::USB_Clock()
 	debug_printf("In USB_Clock\n\r");
 #endif
 
-	RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
+	//Run at 48MhzsL 72Mhzs PLL prescaled by 1.5
+	//RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
+	RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_Div1 );
 	/* Enable the USB clock */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
 }
@@ -1116,11 +1272,32 @@ void USBCS_Driver::Set_System()
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
 
     /* Configure USB pull-up pin */
-    GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+
+	//Dev board disconnect
+    /*GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
     GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
+	*/
 
+	/*Emote USB 5v regulator
+    GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+    GPIO_WriteBit(GPIOB,USB_CONNECT_PIN, Bit_SET );
+
+    //port C
+    //EMote Bus disconnect
+    GPIO_InitStructure.GPIO_Pin = USB_EMOTE_BD_PIN ;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_Init(USB_EMOTE_BD_PORT, &GPIO_InitStructure);
+	*/
+
+    //GPIO_WriteBit(GPIOC,13, Bit_SET );
+    //GPIO_WriteBit(GPIOF,11, Bit_SET );
 }
 
 void USBCS_Driver::USB_Cable_Config(bool state)
@@ -1140,13 +1317,14 @@ void USBCS_Driver::USB_Cable_Config(bool state)
 }
 
 //GLobal ISR for the USB
-void usb_irq_handler()
+void usb_irq_handler(void* Param)
 {
 	
 #ifdef USB_DEBUG
 	//debug_printf("In the USB Handler\n\r");
 #endif	
 	wIstr = _GetISTR();
+//LED_ORANGE();
 
 #if (IMR_MSK & ISTR_CTR)
   if (wIstr & ISTR_CTR & wInterrupt_Mask)
@@ -1156,6 +1334,7 @@ void usb_irq_handler()
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call CTR_LP\n\r");
 #endif	
+	//LED_BLUE();
     CTR_LP();
 #ifdef CTR_CALLBACK
     CTR_Callback();
