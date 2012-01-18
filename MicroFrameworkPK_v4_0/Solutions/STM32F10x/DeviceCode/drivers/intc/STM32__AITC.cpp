@@ -3,7 +3,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-
+//#include <led/stm32f10x_led.h>
+#include <tim/netmf_timers.h>
+#include <gpio/stm32f10x_gpio.h>
 #include "STM32.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +86,7 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel2          ,STM32_AITC::c_IRQ_Priority_64  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel3          ,STM32_AITC::c_IRQ_Priority_65  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5          ,STM32_AITC::c_IRQ_Priority_66  ),
-
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PendSV          ,STM32_AITC::c_IRQ_Priority_255 ), //Mukundan
 };
 
 #undef DEFINE_IRQ
@@ -168,8 +170,104 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
     return TRUE;
 }
 
-extern "C"
-{
+	extern "C"
+	{
+
+		void __irq HardFault_Handler()
+		{
+			//Big thanks to joseph.yiu for this handler. This is simply an adaptation of:
+			//http://www.st.com/mcu/forums-cat-6778-23.html
+			//****************************************************
+			//To test this application, you can use this snippet anywhere:
+			// //Let's crash the MCU!
+			// asm (" MOVS r0, #1 \n"
+			// " LDM r0,{r1-r2} \n"
+			// " BX LR; \n");
+			// Note that this works as-is in IAR 5.20, but could have a different syntax
+			// in other compilers.
+			//****************************************************
+			// hardfault_args is a pointer to your stack. you should change the adress
+			// assigned if your compiler places your stack anywhere else!
+
+			CPU_GPIO_EnableOutputPin (9, FALSE);
+			CPU_GPIO_SetPinState(9,FALSE);
+			CPU_GPIO_SetPinState(9,TRUE);
+			CPU_GPIO_SetPinState(9,FALSE);
+			CPU_GPIO_SetPinState(9,TRUE);
+			CPU_GPIO_SetPinState(9,FALSE);
+
+			unsigned int stacked_r0;
+			unsigned int stacked_r1;
+			unsigned int stacked_r2;
+			unsigned int stacked_r3;
+			unsigned int stacked_r12;
+			unsigned int stacked_lr;
+			unsigned int stacked_pc;
+			unsigned int stacked_psr;
+			u32* hardfault_args = (u32*) 0x20000400;
+
+			asm( "TST LR, #4 \n"
+			"ITE EQ \n"
+			"MRSEQ R0, MSP \n"
+			"MRSNE R0, PSP \n");
+
+			stacked_r0 = ((unsigned long) hardfault_args[0]);
+			stacked_r1 = ((unsigned long) hardfault_args[1]);
+			stacked_r2 = ((unsigned long) hardfault_args[2]);
+			stacked_r3 = ((unsigned long) hardfault_args[3]);
+
+			stacked_r12 = ((unsigned long) hardfault_args[4]);
+			stacked_lr = ((unsigned long) hardfault_args[5]);
+			stacked_pc = ((unsigned long) hardfault_args[6]);
+			stacked_psr = ((unsigned long) hardfault_args[7]);
+			unsigned long BFAR = (*((volatile unsigned long *)(0xE000ED38)));
+			unsigned long CFSR = (*((volatile unsigned long *)(0xE000ED28)));
+			unsigned long HFSR = (*((volatile unsigned long *)(0xE000ED2C)));
+			unsigned long DFSR = (*((volatile unsigned long *)(0xE000ED30)));
+			unsigned long AFSR = (*((volatile unsigned long *)(0xE000ED3C)));
+
+			/*printf ("[Hard fault handler]\n");
+			printf ("R0 = %x\n", stacked_r0);
+			printf ("R1 = %x\n", stacked_r1);
+			printf ("R2 = %x\n", stacked_r2);
+			printf ("R3 = %x\n", stacked_r3);
+			printf ("R12 = %x\n", stacked_r12);
+			printf ("LR = %x\n", stacked_lr);
+			printf ("PC = %x\n", stacked_pc);
+			printf ("PSR = %x\n", stacked_psr);
+			printf ("BFAR = %x\n", (*((volatile unsigned long *)(0xE000ED38))));
+			printf ("CFSR = %x\n", (*((volatile unsigned long *)(0xE000ED28))));
+			printf ("HFSR = %x\n", (*((volatile unsigned long *)(0xE000ED2C))));
+			printf ("DFSR = %x\n", (*((volatile unsigned long *)(0xE000ED30))));
+			printf ("AFSR = %x\n", (*((volatile unsigned long *)(0xE000ED3C))));*/
+
+			while (1)
+			{}
+		}
+
+
+	void __irq PendSV_Handler()
+	{
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PendSV];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+		//ISR_PendSV_Handler(NULL);
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
 
 	void __irq PVD_IRQHandler()
 	{
@@ -191,7 +289,8 @@ extern "C"
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
-
+	
+	
 	void __irq TAMPER_IRQHandler()
 	{
 
@@ -230,6 +329,1204 @@ extern "C"
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
+	
+	void __irq FLASH_IRQHandler()
+	{
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[3];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq RCC_IRQHandler()
+	{
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[4];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	/*
+	void __irq EXTI0_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[5];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	*/
+	
+	void __irq EXTI1_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[6];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq EXTI2_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[7];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
+	void __irq EXTI3_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[8];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq EXTI4_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[9];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
+	void __irq DMA1_Channel1_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[10];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA1_Channel2_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[11];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA1_Channel3_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[12];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+		
+		void __irq DMA1_Channel4_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[13];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
+	void __irq DMA1_Channel5_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[14];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA1_Channel6_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[15];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+		void __irq DMA1_Channel7_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[16];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
+	void __irq ADC1_2_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[17];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq USB_HP_CAN1_TX_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[18];
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX];
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+		void __irq USB_LP_CAN1_RX0_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+		LED_GREEN();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[19];
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0];
+
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq CAN1_RX1_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[20];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+
+	void __irq CAN1_SCE_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[21];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq EXTI9_5_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[22];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM1_BRK_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[23];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM1_UP_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[24];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM1_TRG_COM_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[25];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM1_CC_IRQHandler()
+	{
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[26];
+
+		IsrVector->Handler.Execute();
+
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+
+    /*	
+	void __irq TIM2_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[27];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	*/
+
+	void __irq TIM3_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[28];
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM3];
+
+			// In case the interrupt was forced, remove the flag.
+			IsrVector->Handler.Execute();
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+
+
+	void __irq TIM4_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[29];
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM4];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+
+	/*
+	int TimerUnderTest=4;
+	int TimerTicks=220;
+	int NoOfTimerFiring=100;
+	int testCount = 0;
+	//int secCount=0;
+	UINT16 preCompare=0;
+//	int count=0;
+	void ISR_TIMER()
+	{
+
+		//count = Timer_Driver ::GetCounter(TimerUnderTest);
+		GPIOF->BSRR = (0x1 << 7);
+		TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 );
+		preCompare+=TimerTicks;
+		Timer_Driver::SetCompare( TimerUnderTest, preCompare);
+
+		//GPIOF->ODR ^= TRUE;
+		testCount++;
+
+		GPIOF->BRR = (0x1 << 7);
+	}
+
+	void __irq TIM4_IRQHandler()
+		{
+			ISR_TIMER();
+		}
+*/
+
+	
+	void __irq I2C1_EV_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[30];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+	void __irq I2C1_ER_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[31];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+	
+	void __irq I2C2_EV_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[32];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+	void __irq I2C2_ER_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[33];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+	
+		void __irq SPI1_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[34];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq SPI2_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[35];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq USART1_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[36];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq USART2_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[37];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq USART3_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[38];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq EXTI15_10_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[39];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq RTCAlarm_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[40];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq USBWakeUp_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[41];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq TIM8_BRK_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[42];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq TIM8_UP_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[43];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq TIM8_TRG_COM_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[44];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq TIM8_CC_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[45];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		void __irq ADC3_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[46];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		
+		/*
+		void __irq FSMC_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[47];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+		*/
+		
+		void __irq FSMC_IRQHandler()
+		{
+
+			UINT32 index;
+
+			STM32_AITC& AITC = STM32::AITC();
+
+			// set before jumping elsewhere or allowing other interrupts
+			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[47];
+
+			// In case the interrupt was forced, remove the flag.
+
+			IsrVector->Handler.Execute();
+
+			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		}
+
+
+		
+
+		void __irq SDIO_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[48];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM5_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[49];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq SPI3_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[50];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq UART4_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[51];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq UART5_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[52];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM6_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[53];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq TIM7_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[54];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA2_Channel1_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[55];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA2_Channel2_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[56];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA2_Channel3_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[57];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
+	
+	void __irq DMA2_Channel4_5_IRQHandler()
+	{
+
+		UINT32 index;
+
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[58];
+
+		// In case the interrupt was forced, remove the flag.
+
+		IsrVector->Handler.Execute();
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+	}
 
 
 
@@ -253,8 +1550,8 @@ extern "C"
 	}
 
 	void __irq TIM2_IRQHandler()
-	{		
-		
+	{
+
 		UINT32 index;
 
 		STM32_AITC& AITC = STM32::AITC();
@@ -264,14 +1561,15 @@ extern "C"
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[28];
-		
+
 		// In case the interrupt was forced, remove the flag.
-		
+
 		IsrVector->Handler.Execute();
-		
+
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
+
 }
 
 

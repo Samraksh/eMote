@@ -55,7 +55,7 @@ void BOOT_FlushCaches();
 
 struct STM32_AITC_Driver
 {
-    static const UINT32 c_VECTORING_GUARD = 59;
+    static const UINT32 c_VECTORING_GUARD = 61;
 
     //--//
 
@@ -197,6 +197,7 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_Priority_64 = 64;
 	static const UINT32 c_IRQ_Priority_65 = 65;
 	static const UINT32 c_IRQ_Priority_66 = 66;
+	static const UINT32 c_IRQ_Priority_255 = 255;
 
 
 	static const UINT32 c_IRQ_INDEX_NonMaskableInt          = -14;
@@ -205,7 +206,6 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_UsageFault          = -10;
     static const UINT32 c_IRQ_INDEX_SVCall          = -5;
 	static const UINT32 c_IRQ_INDEX_DebugMonitor          = -4;
-	static const UINT32 c_IRQ_INDEX_PendSV          = -2;
 	static const UINT32 c_IRQ_INDEX_SysTick          = -1;
 	static const UINT32 c_IRQ_INDEX_WWDG          = 0;
 	static const UINT32 c_IRQ_INDEX_PVD          = 1;
@@ -267,8 +267,9 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel2       = 57;
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel3       = 58;
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel4_5     = 59;
+	static const UINT32 c_IRQ_INDEX_PendSV          = 60;	//Used to be -2, Modified by Mukundan for Preemptive thread
 
-	static const UINT32 c_MaxInterruptIndex = 59;
+	static const UINT32 c_MaxInterruptIndex = 60;
 
 
 	//
@@ -297,7 +298,7 @@ struct STM32_AITC
 
         return (ISER[Irq_Index >> 0x05]) >> (Irq_Index & (uint8_t)0x1F);
     }
-
+
 	//! Returns the state of the interrupt, internally calls the IsInterruptEnabled function
     BOOL GetInterruptState( UINT32 Irq_Index )
     {
