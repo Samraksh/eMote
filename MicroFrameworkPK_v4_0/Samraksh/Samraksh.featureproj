@@ -1,0 +1,16 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh</FeatureName>
+    <Guid>{70b96986-aaf4-4618-8b3b-39228fe41f47}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="Samraksh" />
+    <DriverLibs Include="Samraksh.$(LIB_EXT)" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\Samraksh.pe" />
+    <RequiredProjects Include="C:\MicroFrameworkPK_v4_0\Samraksh\dotnetmf.proj" />
+  </ItemGroup>
+</Project>
