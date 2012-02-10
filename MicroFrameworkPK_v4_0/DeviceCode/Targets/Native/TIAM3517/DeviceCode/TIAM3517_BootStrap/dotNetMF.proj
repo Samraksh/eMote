@@ -1,0 +1,61 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>TIAM3517_bootstrap</AssemblyName>
+    <Size>
+    </Size>
+    <ProjectGuid>{1ded8071-ad54-4830-bbc9-9327499881f8}</ProjectGuid>
+    <Description>SOC8200 (TIAM3517) bootstrap driver</Description>
+    <Level>HAL</Level>
+    <LibraryFile>TIAM3517_bootstrap.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_Bootstrap\dotNetMF.proj</ProjectPath>
+    <ManifestFile>TIAM3517_bootstrap.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\TIAM3517</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Bootstrap_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <ProcessorSpecific>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TIAM3517" Guid="{0f4a5f89-0949-42e5-a398-cfd9dd50bbc2}" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">Processor</ComponentType>
+      </MFComponent>
+    </ProcessorSpecific>
+    <CustomFilter>TIAM3517</CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_Bootstrap</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <HFiles Include="..\TIAM3517.h" />
+    <Compile Include="TIAM3517_bootstrap.cpp" />
+
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Cores\arm\Processors\ARM9\Bootstrap\dotnetmf.proj" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

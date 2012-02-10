@@ -1,0 +1,46 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>TIAM3517_timer</AssemblyName>
+    <Size>
+    </Size>
+    <ProjectGuid>{f9875172-bec9-47ca-8ad5-6185cb0b6ac1}</ProjectGuid>
+    <Description>iMote (TIAM3517) timer driver</Description>
+    <Level>HAL</Level>
+    <LibraryFile>TIAM3517_timer.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_TIMER\dotNetMF.proj</ProjectPath>
+    <ManifestFile>TIAM3517_timer.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\TIAM3517</Groups>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <ProcessorSpecific>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TIAM3517" Guid="{0f4a5f89-0949-42e5-a398-cfd9dd50bbc2}" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">Processor</ComponentType>
+      </MFComponent>
+    </ProcessorSpecific>
+    <CustomFilter>TIAM3517</CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_timer</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <HFiles Include="..\TIAM3517.h" />
+    <Compile Include="TIAM3517__TIMER.cpp" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>
