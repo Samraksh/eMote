@@ -59,8 +59,9 @@
     <POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
 
     <!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -ffunction-sections -mlong-calls -fomit-frame-pointer -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS> -->
-	<CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"    >$(CC_CPP_TARGETTYPE_FLAGS) -O3</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"  >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release'">$(CC_CPP_TARGETTYPE_FLAGS) -Os</CC_CPP_TARGETTYPE_FLAGS>
@@ -251,8 +252,8 @@
     <EXEScatterFileDefinition Condition="'$(EXEScatterFileDefinition)'==''" Include="$(SPO_SDK)\tools\make\scatterfile_definition.xml"/>
     <EXEScatterFileDefinition Condition="'$(EXEScatterFileDefinition)'!=''" Include="$(EXEScatterFileDefinition)"/>
 
-    <!-- <EXEScatterFile Include="$(BIN_DIR)\$(AssemblyName)_scatterfile.ldf"/> -->
-	<EXEScatterFile Include="$(SPOCLIENT)\$(Directory)\scatter.ld"/>
+    <EXEScatterFile  Condition="'$(DEVICE_TYPE)'=='Cortex-A8'" Include="$(BIN_DIR)\$(AssemblyName)_scatterfile.ldf"/>
+	<EXEScatterFile Condition="'$(DEVICE_TYPE)'=='Cortex-M3'" Include="$(SPOCLIENT)\$(Directory)\scatter.ld"/>
 	<EXEScatterFile2 Include="$(BIN_DIR)\$(AssemblyName)_scatterfile.ldf"/>
     <EXEIncludePaths Include="$(ARMINC)"/>
   </ItemGroup>
