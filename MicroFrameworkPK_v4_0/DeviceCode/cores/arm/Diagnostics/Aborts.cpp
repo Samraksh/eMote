@@ -421,6 +421,8 @@ extern "C"
     
 void UNDEF_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {    
+	while(1);
+	/*
     ASSERT_IRQ_MUST_BE_OFF();
     
 #if !defined(BUILD_RTM)
@@ -432,11 +434,14 @@ void UNDEF_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 #else
     CPU_Reset();
 #endif  // !defined(BUILD_RTM)
+	*/
 }
 
-
+// Nived.Sivadas - commenting out everything from ABORTD Handler, not sure what the impact is
 void ABORTP_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {
+	while(1);
+	/*
     ASSERT_IRQ_MUST_BE_OFF();
 
 #if !defined(BUILD_RTM)
@@ -448,11 +453,14 @@ void ABORTP_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 #else
     CPU_Reset();
 #endif  // !defined(BUILD_RTM)
+   */
 }
 
-
+// Nived.Sivadas - commenting out everything from ABORTD Handler, not sure what the impact is
 void ABORTD_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {
+	while(1);
+	/*
     ASSERT_IRQ_MUST_BE_OFF();
 
 #if !defined(BUILD_RTM)
@@ -464,6 +472,7 @@ void ABORTD_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 #else
     CPU_Reset();
 #endif  // !defined(BUILD_RTM)
+	*/
 }
 
 

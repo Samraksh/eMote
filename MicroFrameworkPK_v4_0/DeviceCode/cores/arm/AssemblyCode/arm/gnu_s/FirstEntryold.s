@@ -50,11 +50,7 @@ SRAM_OFFSET1   = 0x00200000
 @SRAM_OFFSET2   = 0x0000F800
 SRAM_OFFSET2   = 0x0000FF00
 
-IRQ_STACK_TOP: .word 0x82000000
-
-S_FRAME_SIZE: .word	72
-
-S_PC: .word	60
+STACK_TOP = 0x86000000
 
 
 STACK_MODE_ABORT    =     16
@@ -79,28 +75,12 @@ HeapBegin:
     .section SectionForHeapEnd,           "a", %progbits
 HeapEnd:
     .word   0
- @   .section SectionForCustomHeapBegin,   "a", %progbits
-@CustomHeapBegin:
- @   .word   0
-   @ .section SectionForCustomHeapEnd,     "a", %progbits
-@CustomHeapEnd:
-@    .word   0
-
-@	.word _sidata
-
-@	.word _sdata
-
-@	.word _edata
-
-@	.word _sbss
-
-@	.word _ebss
-
-IRQ_STACK_START:
-	.word	0x82000000
-
-SUPERVISOR_STACK_START:
-	.word   0x80200000
+    .section SectionForCustomHeapBegin,   "a", %progbits
+CustomHeapBegin:
+    .word   0
+    .section SectionForCustomHeapEnd,     "a", %progbits
+CustomHeapEnd:
+    .word   0
 
 
     .global StackBottom
@@ -115,89 +95,13 @@ SUPERVISOR_STACK_START:
 
     .arm
 
-    @.globl _armboot_start
-@_armboot_start:
-	@.word EntryPoint
-
-	@.macro	bad_save_user_regs
-	@sub	sp, sp, #72		@ carve out a frame on current
-						@ user stack
-	@stmia	sp, {r0 - r12}			@ Save user registers (now in
-						@ svc mode) r0-r12
-
-	@ldr	r2, _armboot_start
-	@sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
-	@sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE + 8)	@ set base 2 words into abort
-						@ stack
-	@ldmia	r2, {r2 - r3}			@ get values for "aborted" pc
-						@ and cpsr (into parm regs)
-	@add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
-
-	@add	r5, sp, #S_SP
-	@mov	r1, lr
-	@stmia	r5, {r0 - r3}			@ save sp_SVC, lr_SVC, pc, cpsr
-	@mov	r0, sp				@ save current stack into r0
-						@ (param register)
-	@.endm
-
-	.macro	irq_save_user_regs
-	sub	sp, sp, #72
-	stmia	sp, {r0 - r12}			@ Calling r0-r12
-	add	r8, sp, #60			@ !! R8 NEEDS to be saved !!
-						@ a reserved stack spot would
-						@ be good.
-	stmdb	r8, {sp, lr}^			@ Calling SP, LR
-	str	lr, [r8, #0]			@ Save calling PC
-	mrs	r6, spsr
-	str	r6, [r8, #4]			@ Save CPSR
-	str	r0, [r8, #8]			@ Save OLD_R0
-	mov	r0, sp
-	.endm
-
-	.macro	irq_restore_user_regs
-	ldmia	sp, {r0 - lr}^			@ Calling r0 - lr
-	mov	r0, r0
-	ldr	lr, [sp, #60]			@ Get PC
-	add	sp, sp, #72
-	subs	pc, lr, #4			@ return & move spsr_svc into
-						@ cpsr
-	.endm
-
-	@.macro get_bad_stack
-	@ldr	r13, _armboot_start		@ setup our mode stack (enter
-						@ in banked mode)
-	@sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	@sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE + 8) @ move to reserved a couple
-						@ spots for abort stack
-
-	@str	lr, [r13]			@ save caller lr in position 0
-						@ of saved stack
-	@mrs	lr, spsr			@ get the spsr
-	@str	lr, [r13, #4]			@ save spsr in position 1 of
-						@ saved stack
-
-	@mov	r13, #MODE_SVC			@ prepare SVC-Mode
-	@ msr	spsr_c, r13
-	@msr	spsr, r13			@ switch modes, make sure
-						@ moves will execute
-	@mov	lr, pc				@ capture return pc
-	@movs	pc, lr				@ jump to next instruction &
-						@ switch modes.
-	@.endm
-
-IRQ_SubHandler:
-	ldr	sp, =IRQ_STACK_START
-	irq_save_user_regs
-	b IRQ_Handler
-	irq_restore_user_regs
-
-
-ABORTD_Local_SubHandler:
-	@get_bad_stack
-	b ABORTD_SubHandler
 
 EntryPoint:
+	B       PreStackEntry
 
+SetUpExceptionRouting:
+	@ Going into system mode
+	@msr     cpsr_c, #PSR_MODE_SYSTEM
 	@B myEntry
 	@.ifdef PLATFORM_ARM_AM3517
 	@ Nived.Sivadas - Attempting to replicate uboot start up sequence for the SOC8200
@@ -223,13 +127,13 @@ EntryPoint:
     .word   ABORTP_SubHandler
 
 	ABORTD_SubHandler_Trampoline:
-    .word   ABORTD_Local_SubHandler
+    .word   ABORTD_SubHandler
 
 	_not_used:
 	.word   NotUsed_Handler
 
 	IRQ_SubHandler_Trampoline:
-    .word  	IRQ_SubHandler
+    .word  	IRQ_Handler
 
 	FIQ_SubHandler_Trampoline:
     .word   FIQ_Handler
@@ -242,38 +146,38 @@ EntryPoint:
 @	.balignl 16,0xdeadbeef
 
 
-    .ifdef  HAL_REDUCESIZE
-    .ifndef TARGETLOCATION_RAM
+    @.ifdef  HAL_REDUCESIZE
+    @.ifndef TARGETLOCATION_RAM
     @ -----------------------------------------------
     @ ADD BOOT MARKER HERE IF YOU NEED ONE
     @ -----------------------------------------------
-    .ifdef  PLATFORM_ARM_LPC22XX
-     orr     r0, pc,#0x80000000
-     mov     pc, r0
-    .endif
+    @.ifdef  PLATFORM_ARM_LPC22XX
+    @ orr     r0, pc,#0x80000000
+    @ mov     pc, r0
+    @.endif
 
-    .endif
-    .endif
+    @.endif
+    @.endif
 
 
     @ designed to be a vector area for ARM7
     @ RESET
     @ keep PortBooter signature the same
 
-    msr     cpsr_c, #PSR_MODE_SYSTEM    @ go into System mode, interrupts off
-	B       PreStackEntry
+    @msr     cpsr_c, #PSR_MODE_SYSTEM    @ go into System mode, interrupts off
+	@B       PreStackEntry
     @--------------------------------------------------------------------------------
     @ ALLOW pre-stack initilization
     @ Use the relative address of PreStackInit (because memory may need to be remapped)
     @--------------------------------------------------------------------------------
 
 
-	.ifdef PLATFORM_ARM_LPC24XX
+	@.ifdef PLATFORM_ARM_LPC24XX
     @ LPC24XX on chip bootloader requires valid checksum in internal Flash
     @ location 0x14 ( ARM reserved vector ).
-    B       PreStackEntry
-    .space 20
-    .endif
+    @B       PreStackEntry
+    @.space 20
+    @.endif
 
 @ Nived.Sivadas - Adding reset code will eventually be moved to PreStackInit.s
 @.ifdef PLATFORM_ARM_AM3517
@@ -283,7 +187,7 @@ reset:
 	bic	r0, r0, #0x1f
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
-	adr	r0, EntryPoint		@ r0 <- current position of code
+	adr	r0, SetUpExceptionRouting		@ r0 <- current position of code
 	add	r0, r0, #4		@ skip reset vector
 	mov	r2, #64			@ r2 <- size to copy
 	add	r2, r0, r2		@ r2 <- source end address
@@ -299,7 +203,9 @@ next:
 	cmp	r0, r2			@ until source end address [r2]
 	bne	next			@ loop until equal */
 
-	B       PreStackEntry
+	@bl	cpu_init_crit
+	@B       PreStackEntry
+	ldr     pc, EntryPoint_Restart_Pointer
 @.endif
 
 
@@ -308,8 +214,6 @@ PreStackEntry:
 
 
 PreStackInit_Exit_Pointer:
-
-	@ Nived.Sivadas - Unsure why the system is put through these modes at this point. Hence commenting
 
     @ldr     r0, =StackTop               @ new SYS stack pointer for a full decrementing stack
 
@@ -327,8 +231,7 @@ PreStackInit_Exit_Pointer:
     @mov     sp, r0                      @ stack top - abort stack - undef stack
     @sub     r0, r0, #STACK_MODE_FIQ
     @.endif
-    @ Enabling only the irq sp
-	@ldr 	r0, =IRQ_STACK_TOP
+
     @msr     cpsr_c, #PSR_MODE_IRQ       @ go into IRQ mode, interrupts off
     @mov     sp, r0                      @ stack top - abort stack - undef stack (- FIQ stack)
     @sub     r0, r0, #STACK_MODE_IRQ
@@ -336,17 +239,16 @@ PreStackInit_Exit_Pointer:
     @msr     cpsr_c, #PSR_MODE_SYSTEM    @ go into System mode, interrupts off
     @mov     sp,r0                       @ stack top - abort stack - undef stack (- FIQ stack) - IRQ stack
 
+	@msr 	cpsr_c, #PSR_MODE_SUPERVISOR
+	@msr cpsr_c, #PSR_MODE_USER
 
+	@ trying to solve problem with stack
+	B 	SetUpExceptionRouting
         @******************************************************************************************
         @ This ensures that we execute from the real location, regardless of any remapping scheme *
         @******************************************************************************************
-    @ldr     r0, =__libc_init_array
-    @blx		r0
-    @ldr r0, =SUPERVISOR_STACK_START
-    msr cpsr_c, #PSR_MODE_SUPERVISOR
-    ldr sp, =0x80250000
 
-    ldr     pc, EntryPoint_Restart_Pointer
+    @ldr     pc, EntryPoint_Restart_Pointer
 EntryPoint_Restart_Pointer:
     .word   EntryPoint_Restart
 EntryPoint_Restart:
@@ -357,11 +259,11 @@ EntryPoint_Restart:
 
     @ldr     r0, =StackTop               @ new svc stack pointer for a full decrementing stack
 
-    @.ifdef FIQ_SAMPLING_PROFILER
+    .ifdef FIQ_SAMPLING_PROFILER
     @sub     sp, r0, #STACK_MODE_FIQ     @
-    @.else
+    .else
     @sub     sp, r0, #STACK_MODE_IRQ     @
-    @.endif
+    .endif
 
 
     .ifdef HAL_REDUCESIZE

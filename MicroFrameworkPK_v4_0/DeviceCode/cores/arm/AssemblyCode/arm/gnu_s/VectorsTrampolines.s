@@ -9,6 +9,11 @@
     .extern  ABORTD_SubHandler
 
     .global  ARM_Vectors
+	.global  UNDEF_SubHandler_Trampoline
+	.global  ABORTP_SubHandler_Trampoline
+	.global  ABORTD_SubHandler_Trampoline
+	.global  IRQ_SubHandler_Trampoline
+	.global  FIQ_SubHandler_Trampoline
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -16,8 +21,7 @@
    
 	 .arm
 
-ARM_Vectors:
-
+ARM_Vectors:	
     @ RESET
 RESET_VECTOR:
     b       UNDEF_VECTOR

@@ -47,7 +47,7 @@
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\IDelayLoop.s" />
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\Sampling_Profiler_RAM.s" />
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\VectorsHandlers.s" />
-    <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\VectorsTrampolines.s" />
+    <!--<Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\VectorsTrampolines.s" />-->
     <Compile Include="Diagnostics\FIQAssembly\$(AS_SUBDIR)\FiqSubhandler_MC9328.s"/>
   </ItemGroup>
 
