@@ -100,6 +100,10 @@
     <PlatformIndependentLibs Include="IOPort.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_BlockStorage\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_BlockStorage.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
     <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
   </ItemGroup>
@@ -200,9 +204,10 @@
     <DriverLibs Include="i2c_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\stubs\dotNetMF.proj" />
-    <DriverLibs Include="asyncproccall_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
+    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\BlockStorage\Driver\dotNetMF.proj" />
     <DriverLibs Include="BlockStorageDriver_stubs.$(LIB_EXT)" />
@@ -211,9 +216,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\Blockstorage\addDevices\dotNetMF.proj" />
     <DriverLibs Include="BlockStorage_AddDevices_stubs.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  -->
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_bootstrap\dotNetMF.proj" />
     <DriverLibs Include="cpu_bootstrap_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_BootStrap\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_bootstrap.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_cache\dotNetMF.proj" />
@@ -232,16 +243,16 @@
     <DriverLibs Include="cpu_ebiu_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\stubs\dotNetMF.proj" />
-    <DriverLibs Include="events_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Events\dotNetMF.proj" />
+    <DriverLibs Include="events_pal.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" />
     <DriverLibs Include="FS_Config_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\GlobalLock\dotNetMF.proj" />
-    <DriverLibs Include="GlobalLock_hal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Cores\arm\Common\GlobalLock\dotNetMF.proj" />
+    <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
   </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_GPIO\dotNetMF.proj" />
@@ -257,16 +268,29 @@
     <DriverLibs Include="TIAM3517_TIMER.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_SCM_PinMux\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_SCM_PinMux.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" />
     <DriverLibs Include="cpu_time_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\stubs\dotNetMF.proj" />
     <DriverLibs Include="Time_pal_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_time\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_time.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
+    <DriverLibs Include="Time_pal.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" />
@@ -333,8 +357,8 @@
     <DriverLibs Include="Buttons_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\stubs\dotNetMF.proj" />
-    <DriverLibs Include="heap_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
+    <DriverLibs Include="heap_pal.$(LIB_EXT)" />
   </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" />
@@ -361,9 +385,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" />
     <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" />
     <DriverLibs Include="cpu_prestackinit_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_PreStackInit\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_PreStackInit.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" />

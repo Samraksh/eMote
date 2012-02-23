@@ -5,6 +5,8 @@
 #include <tinyclr_application.h>
 #include <tinyhal.h>
 
+UINT32 gVar = 32;
+UINT32 sol = 0;
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -16,12 +18,15 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
+    for(UINT32 i = 0 ; i < gVar ; i++)
+    {
+    	sol = sol + i;
+    }
+    ClrStartup( clrSettings );
+	//GPIO_PIN g = 58;
 
-    //ClrStartup( clrSettings );
-	GPIO_PIN g = 58;
-
-    CPU_GPIO_EnableOutputPin(g,false);
-    CPU_GPIO_SetPinState(g,true);    
+    //CPU_GPIO_EnableOutputPin(g,false);
+    //CPU_GPIO_SetPinState(g,true);
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );
