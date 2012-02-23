@@ -1,17 +1,17 @@
 ﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>TIAM3517_bootstrap</AssemblyName>
+    <AssemblyName>TIAM3517_time</AssemblyName>
     <Size>
     </Size>
-    <ProjectGuid>{1ded8071-ad54-4830-bbc9-9327499881f8}</ProjectGuid>
-    <Description>SOC8200 (TIAM3517) bootstrap driver</Description>
+    <ProjectGuid>{4fdf24be-e881-4a17-bcde-bb87fd2a0dc6}</ProjectGuid>
+    <Description>SOC8200 (TIAM3517) time driver</Description>
     <Level>HAL</Level>
-    <LibraryFile>TIAM3517_bootstrap.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_Bootstrap\dotNetMF.proj</ProjectPath>
-    <ManifestFile>TIAM3517_bootstrap.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>TIAM3517_time.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_time\dotNetMF.proj</ProjectPath>
+    <ManifestFile>TIAM3517_time.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\TIAM3517</Groups>
     <LibraryCategory>
-      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Bootstrap_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" xmlns="">
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Time_HAL" Guid="{5E34988C-B17B-48F5-B849-A612F3DE93B9}" ProjectPath="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
           <Minor>0</Minor>
@@ -43,7 +43,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_Bootstrap</Directory>
+    <Directory>DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_time</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -52,10 +52,12 @@
   <PropertyGroup />
   <ItemGroup>
     <HFiles Include="..\TIAM3517.h" />
-    <Compile Include="TIAM3517_bootstrap.cpp" />
-
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Cores\arm\Processors\ARM9\Bootstrap\dotnetmf.proj" />
+    <Compile Include="TIAM3517_time_functions.cpp" />
+    <Compile Include="TIAM3517__TIME.cpp" />
   </ItemGroup>
-  <ItemGroup />
+
+  <ItemGroup>
+     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_TIMER\dotnetmf.proj" />
+  </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

@@ -6,12 +6,11 @@
  *
  *  History :
  *  	    v0.0  Seminal Version, only contains Initialize and Setpin functionality to run initial tests
- *  	    v0.1  Implementing other functions of the GPIO driver as well
+ *  	    v0.1  Implementing other functions of the GPIO driver as well 
  */
 
 #include <cores\arm\include\cpu.h>
 #include "..\TIAM3517.h"
-
 
 //--//
 
@@ -28,8 +27,8 @@ BOOL CPU_GPIO_Uninitialize()
 
 UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 {
-    return TIAM3517_GPIO_Driver::Attributes( Pin );
-    //return 1;
+    //return TIAM3517_GPIO_Driver::Attributes( Pin );
+    return 1;
 }
 
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
@@ -99,8 +98,8 @@ BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 
 BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
-    return TIAM3517_GPIO_Driver::ReservePin( Pin, fReserve );
-    //return FALSE;
+    //return TIAM3517_GPIO_Driver::ReservePin( Pin, fReserve );
+    return FALSE;
 }
 
 UINT32 CPU_GPIO_GetDebounce()

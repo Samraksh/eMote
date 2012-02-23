@@ -11,9 +11,21 @@
  #include "..\TIAM3517.h"
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
+
+void enableINTC()
+{
+	asm(
+"mrs r0, cpsr \n"
+"bic r1, r0,#0x80 \n"
+"msr  cpsr, r1 \n"
+"mov  pc, lr \n"
+); 
+	
+}
+
  
  
- TIAM3517_AITC_Driver::IRQ_VECTORING __section(rwdata) TIAM3517_AITC_Driver::s_IsrTable[] = {
+ TIAM3517_AITC_Driver::IRQ_VECTORING TIAM3517_AITC_Driver::s_IsrTable[] = {
  
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_EMUINT , TIAM3517_AITC::c_IRQ_Priority_4),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_COMMTX , TIAM3517_AITC::c_IRQ_Priority_5),
@@ -119,9 +131,34 @@
 
 void TIAM3517_AITC_Driver::Initialize()
 {
+
+	TIAM3517_CLOCK_MANAGER_MPU_CM &MPUCM = TIAM3517::CMGRMPUCM();
+	
+	UINT32 tmp = 0;
+	// Enabling clock to the intc dpll1_fclk
+	MPUCM.CM_CLKEN_PLL_MPU |= 7;
+
+//	enableINTC();
+
 	TIAM3517_AITC& AITC = TIAM3517::AITC();
 
+
+	tmp = AITC.padding0;
+	// Resetting the INTC module and setting AUTOIDLE or automatic gating strategy for interface clk
+	//AITC.INTCPS_SYSCONFIG |= 2;
+	//AITC.INTCPS_SYSCONFIG |= 1;
+	tmp = AITC.INTCPS_SYSCONFIG;
+	tmp |= 1 << 1;
+
+	AITC.INTCPS_SYSCONFIG = tmp;
+	// Waiting for module reset to complete
+	while(!(AITC.INTCPS_SYSSTATUS & 0x1));
+	
+
+	// Resetting FIQ output and IRQ generation
 	AITC.INTCPS_CONTROL |= 3;
+	
+	
 
 	for(int index = 0 ; index < 3; index++)
 	{

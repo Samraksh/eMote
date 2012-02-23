@@ -6,8 +6,8 @@
  *  Description : Contains structures of all drivers for the TIAM3517
  *
  *  Change History :
- *  			
- *  			v0.0 Seminal Version written for running initial MF testing on SOC8200 
+ *
+ *  			v0.0 Seminal Version written for running initial MF testing on SOC8200
  *
  */
 
@@ -16,14 +16,307 @@
 
 #include <tinyhal.h>
 
+typedef UINT32 u32;
+
 #define TIAM3517_INTC_IRQROUTE 0
 #define TIAM3517_INTC_FIQROUTE 1
+
+#define SYNC_32KTIMER_BASE		0x48320000
+
+#define MPU_M_12_ES1		0x0FE
+#define MPU_N_12_ES1		0x07
+#define MPU_FSEL_12_ES1		0x05
+#define MPU_M2_12_ES1		0x01
+
+#define MPU_M_12_ES2		0x0FA
+#define MPU_N_12_ES2		0x05
+#define MPU_FSEL_12_ES2		0x07
+#define MPU_M2_ES2		0x01
+
+#define MPU_M_12		0x085
+#define MPU_N_12		0x05
+#define MPU_FSEL_12		0x07
+#define MPU_M2_12		0x01
+
+#define MPU_M_13_ES1		0x17D
+#define MPU_N_13_ES1		0x0C
+#define MPU_FSEL_13_ES1		0x03
+#define MPU_M2_13_ES1		0x01
+
+#define MPU_M_13_ES2		0x1F4
+#define MPU_N_13_ES2		0x0C
+#define MPU_FSEL_13_ES2		0x03
+#define MPU_M2_13_ES2		0x01
+
+#define MPU_M_13		0x10A
+#define MPU_N_13		0x0C
+#define MPU_FSEL_13		0x03
+#define MPU_M2_13		0x01
+
+#define MPU_M_19P2_ES1		0x179
+#define MPU_N_19P2_ES1		0x12
+#define MPU_FSEL_19P2_ES1	0x04
+#define MPU_M2_19P2_ES1		0x01
+
+#define MPU_M_19P2_ES2		0x271
+#define MPU_N_19P2_ES2		0x17
+#define MPU_FSEL_19P2_ES2	0x03
+#define MPU_M2_19P2_ES2		0x01
+
+#define MPU_M_19P2		0x14C
+#define MPU_N_19P2		0x17
+#define MPU_FSEL_19P2		0x03
+#define MPU_M2_19P2		0x01
+
+#define MPU_M_26_ES1		0x17D
+#define MPU_N_26_ES1		0x19
+#define MPU_FSEL_26_ES1		0x03
+#define MPU_M2_26_ES1		0x01
+
+#define MPU_M_26_ES2		0x0FA
+#define MPU_N_26_ES2		0x0C
+#define MPU_FSEL_26_ES2		0x07
+#define MPU_M2_26_ES2		0x01
+
+#define MPU_M_26		0x085
+#define MPU_N_26		0x0C
+#define MPU_FSEL_26		0x07
+#define MPU_M2_26		0x01
+
+#define MPU_M_38P4_ES1		0x1FA
+#define MPU_N_38P4_ES1		0x32
+#define MPU_FSEL_38P4_ES1	0x03
+#define MPU_M2_38P4_ES1		0x01
+
+#define MPU_M_38P4_ES2		0x271
+#define MPU_N_38P4_ES2		0x2F
+#define MPU_FSEL_38P4_ES2	0x03
+#define MPU_M2_38P4_ES2		0x01
+
+#define MPU_M_38P4		0x14C
+#define MPU_N_38P4		0x2F
+#define MPU_FSEL_38P4		0x03
+#define MPU_M2_38P4		0x01
+
+/* IVA DPLL */
+
+#define IVA_M_12_ES1		0x07D
+#define IVA_N_12_ES1		0x05
+#define IVA_FSEL_12_ES1		0x07
+#define IVA_M2_12_ES1		0x01
+
+#define IVA_M_12_ES2		0x0B4
+#define IVA_N_12_ES2		0x05
+#define IVA_FSEL_12_ES2		0x07
+#define IVA_M2_12_ES2		0x01
+
+#define IVA_M_12		0x085
+#define IVA_N_12		0x05
+#define IVA_FSEL_12		0x07
+#define IVA_M2_12		0x01
+
+#define IVA_M_13_ES1		0x0FA
+#define IVA_N_13_ES1		0x0C
+#define IVA_FSEL_13_ES1		0x03
+#define IVA_M2_13_ES1		0x01
+
+#define IVA_M_13_ES2		0x168
+#define IVA_N_13_ES2		0x0C
+#define IVA_FSEL_13_ES2		0x03
+#define IVA_M2_13_ES2		0x01
+
+#define IVA_M_13		0x10A
+#define IVA_N_13		0x0C
+#define IVA_FSEL_13		0x03
+#define IVA_M2_13		0x01
+
+#define IVA_M_19P2_ES1		0x082
+#define IVA_N_19P2_ES1		0x09
+#define IVA_FSEL_19P2_ES1	0x07
+#define IVA_M2_19P2_ES1		0x01
+
+#define IVA_M_19P2_ES2		0x0E1
+#define IVA_N_19P2_ES2		0x0B
+#define IVA_FSEL_19P2_ES2	0x06
+#define IVA_M2_19P2_ES2		0x01
+
+#define IVA_M_19P2		0x14C
+#define IVA_N_19P2		0x17
+#define IVA_FSEL_19P2		0x03
+#define IVA_M2_19P2		0x01
+
+#define IVA_M_26_ES1		0x07D
+#define IVA_N_26_ES1		0x0C
+#define IVA_FSEL_26_ES1		0x07
+#define IVA_M2_26_ES1		0x01
+
+#define IVA_M_26_ES2		0x0B4
+#define IVA_N_26_ES2		0x0C
+#define IVA_FSEL_26_ES2		0x07
+#define IVA_M2_26_ES2		0x01
+
+#define IVA_M_26		0x085
+#define IVA_N_26		0x0C
+#define IVA_FSEL_26		0x07
+#define IVA_M2_26		0x01
+
+#define IVA_M_38P4_ES1		0x13F
+#define IVA_N_38P4_ES1		0x30
+#define IVA_FSEL_38P4_ES1	0x03
+#define IVA_M2_38P4_ES1		0x01
+
+#define IVA_M_38P4_ES2		0x0E1
+#define IVA_N_38P4_ES2		0x17
+#define IVA_FSEL_38P4_ES2	0x06
+#define IVA_M2_38P4_ES2		0x01
+
+#define IVA_M_38P4		0x14C
+#define IVA_N_38P4		0x2F
+#define IVA_FSEL_38P4		0x03
+#define IVA_M2_38P4		0x01
+
+/* CORE DPLL */
+
+#define CORE_M_12		0xA6
+#define CORE_N_12		0x05
+#define CORE_FSEL_12		0x07
+#define CORE_M2_12		0x01	/* M3 of 2 */
+
+#define CORE_M_12_ES1		0x19F
+#define CORE_N_12_ES1		0x0E
+#define CORE_FSL_12_ES1		0x03
+#define CORE_M2_12_ES1		0x1	/* M3 of 2 */
+
+#define CORE_M_13		0x14C
+#define CORE_N_13		0x0C
+#define CORE_FSEL_13		0x03
+#define CORE_M2_13		0x01	/* M3 of 2 */
+
+#define CORE_M_13_ES1		0x1B2
+#define CORE_N_13_ES1		0x10
+#define CORE_FSL_13_ES1		0x03
+#define CORE_M2_13_ES1		0x01	/* M3 of 2 */
+
+#define CORE_M_19P2		0x19F
+#define CORE_N_19P2		0x17
+#define CORE_FSEL_19P2		0x03
+#define CORE_M2_19P2		0x01	/* M3 of 2 */
+
+#define CORE_M_19P2_ES1		0x19F
+#define CORE_N_19P2_ES1		0x17
+#define CORE_FSL_19P2_ES1	0x03
+#define CORE_M2_19P2_ES1	0x01	/* M3 of 2 */
+
+#define CORE_M_26		0xA6
+#define CORE_N_26		0x0C
+#define CORE_FSEL_26		0x07
+#define CORE_M2_26		0x01	/* M3 of 2 */
+
+#define CORE_M_26_ES1		0x1B2
+#define CORE_N_26_ES1		0x21
+#define CORE_FSL_26_ES1		0x03
+#define CORE_M2_26_ES1		0x01	/* M3 of 2 */
+
+#define CORE_M_38P4		0x19F
+#define CORE_N_38P4		0x2F
+#define CORE_FSEL_38P4		0x03
+#define CORE_M2_38P4		0x01	/* M3 of 2 */
+
+#define CORE_M_38P4_ES1		0x19F
+#define CORE_N_38P4_ES1		0x2F
+#define CORE_FSL_38P4_ES1	0x03
+#define CORE_M2_38P4_ES1	0x01	/* M3 of 2 */
+
+/* PER DPLL */
+
+#define PER_M_12		0xD8
+#define PER_N_12		0x05
+#define PER_FSEL_12		0x07
+#define PER_M2_12		0x09
+
+#define PER_M_13		0x1B0
+#define PER_N_13		0x0C
+#define PER_FSEL_13		0x03
+#define PER_M2_13		0x09
+
+#define PER_M_19P2		0xE1
+#define PER_N_19P2		0x09
+#define PER_FSEL_19P2		0x07
+#define PER_M2_19P2		0x09
+
+#define PER_M_26		0xD8
+#define PER_N_26		0x0C
+#define PER_FSEL_26		0x07
+#define PER_M2_26		0x09
+
+#define PER_M_38P4		0xE1
+#define PER_N_38P4		0x13
+#define PER_FSEL_38P4		0x07
+#define PER_M2_38P4		0x09
+
+/* 36XX PER DPLL */
+
+#define PER_36XX_M_12		0x1B0
+#define PER_36XX_N_12		0x05
+#define PER_36XX_FSEL_12	0x07
+#define PER_36XX_M2_12		0x09
+
+#define PER_36XX_M_13		0x360
+#define PER_36XX_N_13		0x0C
+#define PER_36XX_FSEL_13	0x03
+#define PER_36XX_M2_13		0x09
+
+#define PER_36XX_M_19P2		0x1C2
+#define PER_36XX_N_19P2		0x09
+#define PER_36XX_FSEL_19P2	0x07
+#define PER_36XX_M2_19P2	0x09
+
+#define PER_36XX_M_26		0x1B0
+#define PER_36XX_N_26		0x0C
+#define PER_36XX_FSEL_26	0x07
+#define PER_36XX_M2_26		0x09
+
+#define PER_36XX_M_38P4		0x1C2
+#define PER_36XX_N_38P4		0x13
+#define PER_36XX_FSEL_38P4	0x07
+#define PER_36XX_M2_38P4	0x09
+
+
 //#include <stdio.h>
 //
+// copied from cpu.h
+#define ST_PERIPH_CLK		(0x1 << 1)
+
+#define ST_WDT2			(0x1 << 5)
+
+#define ST_MPU_CLK		(0x1 << 0)
+
+#define CLKSEL_GPT1		(0x1 << 0)
+
+#define EN_GPT1			(0x1 << 0)
+#define EN_32KSYNC		(0x1 << 2)
+
+#define GPT_EN			((0x0 << 2) | (0x1 << 1) | (0x1 << 0))
+
+#define ST_CORE_CLK		(0x1 << 0)
+
+#define SYSCLKDIV_1		(0x1 << 6)
+#define SYSCLKDIV_2		(0x1 << 7)
+
+#define ST_IVA2_CLK		(0x1 << 0)
+
+#define LDELAY		120000
+
+#define S12M		12000000
+#define S13M		13000000
+#define S19_2M		19200000
+#define S24M		24000000
+#define S26M		26000000
+#define S38_4M		38400000
 
 #define MF_GPIO_OFFSET_GPIO1 0
-#define MF_GPIO_OFFSET_GPIO2 4 * 1024 
-#define MF_GPIO_OFFSET_GPIO3 8 * 1024 
+#define MF_GPIO_OFFSET_GPIO2 4 * 1024
+#define MF_GPIO_OFFSET_GPIO3 8 * 1024
 #define MF_GPIO_OFFSET_GPIO4 12 * 1024
 #define MF_GPIO_OFFSET_GPIO5 16 * 1024
 #define MF_GPIO_OFFSET_GPIO6 20 * 1024
@@ -33,6 +326,20 @@
 #define PLL_LOW_POWER_BYPASS	5	/* MPU, IVA & CORE */
 #define PLL_FAST_RELOCK_BYPASS	6	/* CORE */
 #define PLL_LOCK		7	/* MPU, IVA, CORE & PER */
+
+
+#define FCK_IVA2_ON	0x00000001
+#define FCK_CORE1_ON    0x037ffe00
+#define ICK_CORE1_ON    0x037ffe42
+#define ICK_CORE2_ON    0x00000000
+#define FCK_WKUP_ON	0x000000e9
+#define ICK_WKUP_ON	0x0000003f
+#define FCK_DSS_ON	0x00000005
+#define ICK_DSS_ON	0x00000001
+#define FCK_CAM_ON	0x00000001
+#define ICK_CAM_ON	0x00000001
+#define FCK_PER_ON	0x0003ffff
+#define ICK_PER_ON	0x0003ffff
 
 
 /* CORE DPLL */
@@ -313,6 +620,37 @@
 #define PER_36XX_M2_38P4	0x09
 
 
+// The three lines here are copied verbatim from Linux\source\u-boot-03.00.00.04\u-boot-03.00.00.04\include\asm-arm\arch-omap3\omap3.h
+#define SRAM_OFFSET0			0x40000000
+#define SRAM_OFFSET1			0x00200000
+#define SRAM_OFFSET2			0x0000F800
+
+//the next 5 sets of 3 defines from  \u-boot-03.00.00.04\include\asm-arm\io.h
+#define __arch_putb(v,a)		(*(volatile unsigned char *)(a) = (v))
+#define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
+#define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
+
+#define __arch_getb(a)			(*(volatile unsigned char *)(a))
+#define __arch_getw(a)			(*(volatile unsigned short *)(a))
+#define __arch_getl(a)			(*(volatile unsigned int *)(a))
+
+#define __raw_readb(a)			__arch_getb(a)
+#define __raw_readw(a)			__arch_getw(a)
+#define __raw_readl(a)			__arch_getl(a)
+
+#define __raw_writeb(v,a)			__arch_putb(v,a)
+#define __raw_writew(v,a)			__arch_putw(v,a)
+#define __raw_writel(v,a)			__arch_putl(v,a)
+
+
+#define writeb(v,a)			__arch_putb(v,a)
+#define writew(v,a)			__arch_putw(v,a)
+#define writel(v,a)			__arch_putl(v,a)
+
+#define readb(a)			__arch_getb(a)
+#define readw(a)			__arch_getw(a)
+#define readl(a)			__arch_getl(a)
+
 
 
 // Smuggled from uboot\uboot\include\asm-arch\arch-omap3\clocks.h
@@ -337,10 +675,6 @@ struct dpll_per_36x_param {
 
 /* Following functions are exported from PreStackInit.S */
 extern UINT32 wait_on_value(UINT32, UINT32, void *, UINT32);
-extern dpll_param *get_mpu_dpll_param(void);
-extern dpll_param *get_iva_dpll_param(void);
-extern dpll_param *get_core_dpll_param(void);
-extern dpll_param *get_per_dpll_param(void);
 
 extern dpll_param *get_36x_mpu_dpll_param(void);
 extern dpll_param *get_36x_iva_dpll_param(void);
@@ -351,46 +685,11 @@ extern void *_end_vect, *_start;
 
 
 
-// Smuggled from uboot\cpu\arm-cortexa8\omap3\syslib.c
-/*****************************************************************
- * sr32 - clear & set a value in a bit range for a 32 bit address
- *****************************************************************/
-void sr32(void *addr, u32 start_bit, u32 num_bits, u32 value)
-{
-	u32 tmp, msk = 0;
-	msk = 1 << num_bits;
-	--msk;
-	tmp = readl((u32)addr) & ~(msk << start_bit);
-	tmp |= value << start_bit;
-	writel(tmp, (u32)addr);
-}
-
-UINT32 wait_on_value(UINT32 read_bit_mask, UINT32 match_value, void *read_addr,
-		  UINT32 bound)
-{
-	UINT32 i = 0, val;
-	do {
-		++i;
-		val = readl((UINT32)read_addr) & read_bit_mask;
-		if (val == match_value)
-			return 1;
-		if (i == bound)
-			return 0;
-	} while (1);
-}
 
 
 
-// The three lines here are copied verbatim from Linux\source\u-boot-03.00.00.04\u-boot-03.00.00.04\include\asm-arm\arch-omap3\omap3.h
-#define SRAM_OFFSET0			0x40000000
-#define SRAM_OFFSET1			0x00200000
-#define SRAM_OFFSET2			0x0000F800
 
 
-#define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
-#define __arch_getl(a)			(*(volatile unsigned int *)(a))
-#define __raw_readl(a)			__arch_getl(a)
-#define __raw_writel(v,a)		__arch_putl(v,a)
 
 // The next 215 lines have been copied from uboot\include\asm-arch\arch-omap3\omap3.h and need to be checked for ip // issues before going to market
 
@@ -633,6 +932,74 @@ struct gpio {
 struct TIAM3517_AITC;
 
 
+struct TIAM3517_CLOCK_MANAGER_PRCM
+{
+	static const UINT32 c_Base = 0x48004000;
+	volatile UINT32 fclken_iva2;	/* 0x00 */
+	volatile UINT32 clken_pll_iva2;	/* 0x04 */
+	volatile UINT8 res1[0x1c];
+	volatile UINT32 idlest_pll_iva2;	/* 0x24 */
+	volatile UINT8 res2[0x18];
+	volatile UINT32 clksel1_pll_iva2 ;	/* 0x40 */
+	volatile UINT32 clksel2_pll_iva2;	/* 0x44 */
+	volatile UINT8 res3[0x8bc];
+	volatile UINT32 clken_pll_mpu;	/* 0x904 */
+	volatile UINT8 res4[0x1c];
+	volatile UINT32 idlest_pll_mpu;	/* 0x924 */
+	volatile UINT8 res5[0x18];
+	volatile UINT32 clksel1_pll_mpu;	/* 0x940 */
+	volatile UINT32 clksel2_pll_mpu;	/* 0x944 */
+	volatile UINT8 res6[0xb8];
+	volatile UINT32 fclken1_core;	/* 0xa00 */
+	volatile UINT8 res7[0xc];
+	volatile UINT32 iclken1_core;	/* 0xa10 */
+	volatile UINT32 iclken2_core;	/* 0xa14 */
+	volatile UINT8 res8[0x28];
+	volatile UINT32 clksel_core;	/* 0xa40 */
+	volatile UINT8 res9[0xbc];
+	volatile UINT32 fclken_gfx;		/* 0xb00 */
+	volatile UINT8 res10[0xc];
+	volatile UINT32 iclken_gfx;		/* 0xb10 */
+	volatile UINT8 res11[0x2c];
+	volatile UINT32 clksel_gfx;		/* 0xb40 */
+	volatile UINT8 res12[0xbc];
+	volatile UINT32 fclken_wkup;	/* 0xc00 */
+	volatile UINT8 res13[0xc];
+	volatile UINT32 iclken_wkup;	/* 0xc10 */
+	volatile UINT8 res14[0xc];
+	volatile UINT32 idlest_wkup;	/* 0xc20 */
+	volatile UINT8 res15[0x1c];
+	volatile UINT32 clksel_wkup;	/* 0xc40 */
+	volatile UINT8 res16[0xbc];
+	volatile UINT32 clken_pll;		/* 0xd00 */
+	volatile UINT8 res17[0x1c];
+	volatile UINT32 idlest_ckgen;	/* 0xd20 */
+	volatile UINT8 res18[0x1c];
+	volatile UINT32 clksel1_pll;	/* 0xd40 */
+	volatile UINT32 clksel2_pll;	/* 0xd44 */
+	volatile UINT32 clksel3_pll;	/* 0xd48 */
+	volatile UINT8 res19[0xb4];
+	volatile UINT32 fclken_dss;		/* 0xe00 */
+	volatile UINT8 res20[0xc];
+	volatile UINT32 iclken_dss;		/* 0xe10 */
+	volatile UINT8 res21[0x2c];
+	volatile UINT32 clksel_dss;		/* 0xe40 */
+	volatile UINT8 res22[0xbc];
+	volatile UINT32 fclken_cam;		/* 0xf00 */
+	volatile UINT8 res23[0xc];
+	volatile UINT32 iclken_cam;		/* 0xf10 */
+	volatile UINT8 res24[0x2c];
+	volatile UINT32 clksel_cam;		/* 0xf40 */
+	volatile UINT8 res25[0xbc];
+	volatile UINT32 fclken_per;		/* 0x1000 */
+	volatile UINT8 res26[0xc];
+	volatile UINT32 iclken_per;		/* 0x1010 */
+	volatile UINT8 res27[0x2c];
+	volatile UINT32 clksel_per;		/* 0x1040 */
+	volatile UINT8 res28[0xfc];
+	volatile UINT32 clksel1_emu;	/* 0x1140 */
+};
+
 
 struct TIAM3517_CLOCK_MANAGER_PRM
 {
@@ -688,7 +1055,7 @@ struct TIAM3517_GPIO_Port
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -726,7 +1093,7 @@ struct TIAM3517_GPIO2
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -763,7 +1130,7 @@ struct TIAM3517_GPIO3
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -800,7 +1167,7 @@ struct TIAM3517_GPIO4
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -837,7 +1204,7 @@ struct TIAM3517_GPIO5
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -874,7 +1241,7 @@ struct TIAM3517_GPIO6
 	volatile UINT32 GPIO_SETWKUENA;
 	volatile UINT32 GPIO_CLEARDATAOUT;
 	volatile UINT32 GPIO_SETDATAOUT;
-	
+
 
 
 };
@@ -915,8 +1282,8 @@ struct TIAM3517_GPIO
 
 		switch(bank)
 		{
-			case 1: 
-				GPIO1().GPIO_SETDATAOUT |= 1 << (bankpin - 1);	
+			case 1:
+				GPIO1().GPIO_SETDATAOUT |= 1 << (bankpin - 1);
 				break;
 			case 2:
 				GPIO2().GPIO_SETDATAOUT |= 1 << (bankpin - 1);
@@ -957,12 +1324,12 @@ struct OCP_System_Reg_CM
 	volatile UINT32 padding1[2];
 	volatile BOOL padding2[2];
 	volatile UINT32 SYSCONFIG;
-	
+
 };
 
 struct MPU_PRM
 {
-	
+
 	volatile UINT32	RM_RSTST_MPU;
 	volatile UINT32	PM_EVGENCTRL_MPU;
 	volatile UINT32	PM_EVGENONTIM_MPU;
@@ -975,12 +1342,13 @@ struct MPU_PRM
 
 struct TIAM3517_CLOCK_MANAGER_MPU_CM
 {
-	
+
 	static const UINT32 c_Base = 0x48004900;
 
+	volatile UINT32 padding1;
 	volatile UINT32 CM_CLKEN_PLL_MPU;
-	volatile UINT32 CM_IDLEST_MPU;   
-	volatile UINT32 CM_IDLEST_PLL_MPU;	
+	volatile UINT32 CM_IDLEST_MPU;
+	volatile UINT32 CM_IDLEST_PLL_MPU;
 	volatile UINT32 CM_AUTOIDLE_PLL_MPU;
 	volatile UINT32 CM_CLKSEL1_PLL_MPU;
 	volatile UINT32 CM_CLKSEL2_PLL_MPU;
@@ -1050,7 +1418,7 @@ struct SGX_CM
 	volatile UINT32 CM_SLEEPDEP_SGX;
 	volatile UINT32 CM_CLKSTCTRL_SGX;
 	volatile UINT32 CM_CLKSTST_SGX;
-	
+
 };
 
 struct WKUP_PRM
@@ -1066,7 +1434,7 @@ struct TIAM3517_CLOCK_MANAGER_WKUP_CM
 {
 
 	static const UINT32 c_Base = 0x48004C00;
-	
+
 	volatile UINT32 CM_FCLKEN_WKUP;
 	volatile UINT32 CM_ICLKEN_WKUP;
 	volatile UINT32 CM_IDLEST_WKUP;
@@ -1097,7 +1465,7 @@ struct Clock_Control_Reg_CM
 	volatile UINT32 CM_CLKSEL4_PLL;
 	volatile UINT32 CM_CLKSEL5_PLL;
 	volatile UINT32 CM_CLKOUT_CTRL;
-	
+
 
 
 };
@@ -1124,7 +1492,7 @@ struct DSS_CM
 	volatile UINT32 CM_SLEEPDEP_DSS;
 	volatile UINT32 CM_CLKSTCTRL_DSS;
 	volatile UINT32 CM_CLKSTST_DSS;
-	
+
 
 
 };
@@ -1157,7 +1525,7 @@ struct TIAM3517_CLOCK_MANAGER_PER_CM
 {
 
 	static const UINT32 c_Base = 0x48005000;
-	
+
 	volatile UINT32 CM_FCLKEN_PER;
 	volatile UINT32 padding1;
 	volatile BOOL padding2[2];
@@ -1192,7 +1560,7 @@ struct EMU_CM
 	volatile UINT32 CM_CLKSTST_EMU;
 	volatile UINT32 CM_CLKSEL2_EMU;
 	volatile UINT32 CM_CLKSEL3_EMU;
-	
+
 
 };
 
@@ -1296,7 +1664,7 @@ struct TIAM3517_CLOCK_MANAGER_PRM
 struct TIAM3517_CLOCK_MANAGER_CM
 {
 	static const UINT32 c_Base = 0x48004000;
-	
+
 	volatile Reserved R1;
 	volatile OCP_System_Reg_CM OSR;
      volatile MPU_CM MPU;
@@ -1311,7 +1679,7 @@ struct TIAM3517_CLOCK_MANAGER_CM
      volatile Global_Reg_CM GR;
      volatile NEON_CM NEON;
      volatile USBHOST_CM USBHOST;
-	
+
 
 };
 */
@@ -1319,7 +1687,7 @@ struct TIAM3517_CLOCK_MANAGER_CM
 struct TIAM3517_AITC_Driver
 {
 
-	static const UINT32 c_VECTORING_GUARD = 97; 
+	static const UINT32 c_VECTORING_GUARD = 97;
 
 	struct IRQ_VECTORING
 	{
@@ -1360,7 +1728,7 @@ struct TIAM3517_TIMER
 	public:
 	//static const UINT32 c_Base[0] = 1;
 
-	
+
 	 volatile UINT32 TIDR;     // contains the IP Revision code
 	 volatile UINT32 padding1[3];
 	 volatile UINT32 TIOCP_CFG; // controls the parameters of the GP timer L4 interface
@@ -1382,19 +1750,13 @@ struct TIAM3517_TIMER
 	 volatile UINT32 TCVR;
 	 volatile UINT32 TOCR;
 	 volatile UINT32 TOWR;
-	
-	
-	
-};
 
-
-// Removed from TIAM3517_TIMER 
-static UINT32 getBase(int Timer)
-{
+	static UINT32 getBase(int Timer)
+	{
 
 	  //c_Base[] = {0x48318000,0x49032000,0x49034000,0x49036000,0x49038000,0x4903A000,0x4903C000,0x4903E000,0x49040000,0x48086000,0x48088000};
 		int c_Base;
-		
+
 		switch(Timer)
 		{
 			case 0:
@@ -1431,22 +1793,28 @@ static UINT32 getBase(int Timer)
 				c_Base = 0x48088000;
 				break;
 		}
-		
+
 		return c_Base;
-}	
+}
+
+
+};
+
+
+// Removed from TIAM3517_TIMER
 
 
 struct TIAM3517_TIMER_Driver
 {
-	
+
 	static const UINT32 c_Max_Timers = 11;
 
 	static BOOL Initialize	(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param);
-	
+
 	static BOOL Uninitialize(UINT32 Timer);
-	
-	static UINT32 ReadCounter(UINT32 Timer);
-	
+
+	static UINT32 GetCounter(UINT32 Timer);
+
 	static void EnableCompareInterrupt(UINT32 Timer)
 	{
 		ASSERT(Timer <= c_Max_Timers);
@@ -1464,7 +1832,7 @@ struct TIAM3517_TIMER_Driver
 		TIAM3517_TIMER &TIMER = getTimer(Timer);
 
 		TIMER.TIER &= ~1;
-	
+
 	}
 
 	static void ForceInterrupt(UINT32 Timer)
@@ -1475,12 +1843,15 @@ struct TIAM3517_TIMER_Driver
 
 	static void SetCompare(UINT32 Timer, UINT32 Compare)
 	{
+		UINT32 i = 0;
 
 		ASSERT(Timer <= c_Max_Timers);
 
 		TIAM3517_TIMER &TIMER = getTimer(Timer);
-		
-		TIMER.TMAR = Compare;
+
+		TIMER.TMAR = TIMER.TCRR + Compare;
+
+		i++;
 
 	}
 
@@ -1490,7 +1861,7 @@ struct TIAM3517_TIMER_Driver
 		ASSERT(Timer <= c_Max_Timers);
 
 		TIAM3517_TIMER &TIMER = getTimer(Timer);
-		
+
 		return TIMER.TMAR;
 
 	}
@@ -1532,6 +1903,12 @@ struct TIAM3517_TIMER_Driver
 
 	}
 
+	static TIAM3517_TIMER& getTimer(UINT32 Timer)
+	{
+		return *(TIAM3517_TIMER *) (size_t)(TIAM3517_TIMER::getBase(Timer));
+			//return;
+	}
+
 
 	private:
 
@@ -1546,12 +1923,7 @@ struct TIAM3517_TIMER_Driver
 		static void ISR_Default(void* param);
 
 
-		static TIAM3517_TIMER& getTimer(UINT32 Timer)
-		{
-			return *(TIAM3517_TIMER *) (size_t)(getBase(Timer));
-			//return;
-		}
-	
+
 };
 
 extern TIAM3517_TIMER_Driver g_TIAM3517_TIMER_Driver;
@@ -1572,9 +1944,40 @@ struct TIAM3517_AITC_RegisterGroup
 
 };
 
+struct TIAM3517_TIME_Driver
+{
+	// Need to confirm this number
+    static const UINT32 c_OverflowCheck = (1 << 32);
+
+    UINT64 m_lastRead;
+    UINT64 m_nextCompare;
+
+    static BOOL Initialize  ();
+    static BOOL Uninitialize();
+
+    static UINT64 CounterValue();
+
+    static void SetCompareValue( UINT64 CompareValue );
+
+    static INT64 TicksToTime( UINT64 Ticks );
+
+    static INT64 CurrentTime();
+
+    static void Sleep_uSec( UINT32 uSec );
+
+    static void Sleep_uSec_Loop( UINT32 uSec );
+
+private:
+    static void ISR( void* Param );
+};
+
+extern TIAM3517_TIME_Driver g_TIAM3517_TIME_Driver;
+
+
+
 struct TIAM3517_AITC
 {
-	
+
 	volatile UINT32 padding0;
 	volatile UINT16 padding1;
 	volatile BOOL padding10[2];
@@ -1606,7 +2009,7 @@ struct TIAM3517_AITC
 	static const UINT32 c_IRQ_INDEX_COMMTX = 1;
 	static const UINT32 c_IRQ_INDEX_COMMRX = 2;
 	static const UINT32 c_IRQ_INDEX_BENCH = 3;
-	static const UINT32 c_IRQ_INDEX_MCBSP2_ST_IRQ = 4; 
+	static const UINT32 c_IRQ_INDEX_MCBSP2_ST_IRQ = 4;
 	static const UINT32 c_IRQ_INDEX_MCBSP3_ST_IRQ = 5;
 	static const UINT32 c_IRQ_INDEX_Reserved0  = 6;
 	static const UINT32 c_IRQ_INDEX_sysnirq  =  7;
@@ -1626,7 +2029,7 @@ struct TIAM3517_AITC
 	static const UINT32 c_IRQ_INDEX_SGX = 21;
 	static const UINT32 c_IRQ_INDEX_MCBSP3  = 22;
 	static const UINT32 c_IRQ_INDEX_MCBSP4  = 23;
-	static const UINT32 c_IRQ_INDEX_HECCOINT  = 24; 
+	static const UINT32 c_IRQ_INDEX_HECCOINT  = 24;
 	static const UINT32 c_IRQ_INDEX_DSS_IRQ  = 25;
 	static const UINT32 c_IRQ_INDEX_Reserved3  = 26;
 	static const UINT32 c_IRQ_INDEX_MCBSP5  = 27;
@@ -1659,7 +2062,7 @@ struct TIAM3517_AITC
 	static const UINT32 c_IRQ_INDEX_MCBSP4_TX  = 54;
 	static const UINT32 c_IRQ_INDEX_MCBSP4_RX  = 55;
 	static const UINT32 c_IRQ_INDEX_I2C1  = 56;
-	static const UINT32 c_IRQ_INDEX_I2C2  = 57; 
+	static const UINT32 c_IRQ_INDEX_I2C2  = 57;
 	static const UINT32 c_IRQ_INDEX_HDQ  = 58;
 	static const UINT32 c_IRQ_INDEX_MCBSP1_TX  = 59;
 	static const UINT32 c_IRQ_INDEX_MCBSP1_RX  = 60;
@@ -1805,18 +2208,18 @@ struct TIAM3517_AITC
 	void DisableInterrupt(UINT32 Irq_Index)
 	{
 		ASSERT(Irq_Index <= c_Max_InterruptIndex);
-		Reg[(Irq_Index >> 5) - 1].INTCPS_MIR |= (1 << (Irq_Index & 31));	
+		Reg[(Irq_Index >> 5)].INTCPS_MIR |= (1 << (Irq_Index & 31));
 	}
 
 	void EnableInterrupt(UINT32 Irq_Index)
 	{
 		ASSERT(Irq_Index <= c_Max_InterruptIndex);
-		Reg[(Irq_Index >> 5) - 1].INTCPS_MIR_CLEAR |= (1 << (Irq_Index & 31));	
+		Reg[(Irq_Index >> 5)].INTCPS_MIR_CLEAR |= (1 << (Irq_Index & 31));
 	}
 
 	BOOL IsInterruptEnabled(UINT32 Irq_Index)
 	{
-		
+
 		ASSERT(Irq_Index <= c_Max_InterruptIndex);
 		if(Reg[(Irq_Index >> 5)].INTCPS_MIR & (1 << (Irq_Index & 31)))
 				return TRUE;
@@ -1844,17 +2247,17 @@ struct TIAM3517_AITC
 		return (INTCPS_SIR_FIQ & 127);
 
 	}
-	
+
 	BOOL IsInterruptPending()
-    	{
+    {
 		if((NormalInterruptPending() <= c_Max_InterruptIndex))
 			return TRUE;
 
 		return FALSE;
-    	}
+    }
 
-    	void SetType( UINT32 Irq_Index, BOOL Fast )
-    	{
+    void SetType( UINT32 Irq_Index, BOOL Fast )
+    {
 		if(TRUE == Fast)
 		{
 			INTCPS_ILR[Irq_Index] |= TIAM3517_INTC_FIQROUTE;
@@ -1864,18 +2267,26 @@ struct TIAM3517_AITC
 
 	}
 
-    	void SetPriority( UINT32 Irq_Index, UINT32 priority )
-    	{
-		INTCPS_ILR[Irq_Index] |= (Irq_Index << 2);
+    void SetPriority( UINT32 Irq_Index, UINT32 priority )
+    {
+		UINT32 tmp = 0;
+		UINT32 tmp1 = 0;
+//		INTCPS_ILR[Irq_Index] |= (priority << 2);
+		tmp |= (priority << 2);
+		INTCPS_ILR[Irq_Index] |= tmp;
+		tmp = 0;
+		tmp = INTCPS_ILR[Irq_Index];
+
+		tmp1++;
 
 	}
 
         UINT32 GetPriority( UINT32 Irq_Index )
     	{
 		return INTCPS_ILR[Irq_Index];
-      
+
         }
-    
+
 
 
    	void ForceInterrupt( UINT32 Irq_Index )
@@ -1891,11 +2302,11 @@ struct TIAM3517_AITC
 		ASSERT(Irq_Index <= c_Max_InterruptIndex);
 		Reg[(Irq_Index >> 5)].INTCPS_ISR_CLEAR |= (1 << (Irq_Index & 31));
     	}
-		
+
 
 };
 
-// 
+//
 // Name :  GPIO Driver
 //
 // Description : Contains the initialize and setpinstate functions
@@ -1903,8 +2314,15 @@ struct TIAM3517_AITC
 struct TIAM3517_GPIO_Driver
 {
 
+	static const UINT32 c_MaxPins = 192;
+
+	static const UINT32 c_MaxPorts = 6;
+
+	static const UINT8 c_Gpio_Attributes[c_MaxPins];
+
+	UINT32             m_PinReservationInfo[c_MaxPorts];
 	/*
-	
+
 	struct PIN_ISR_DESCRIPTOR
 	{
 
@@ -1915,13 +2333,15 @@ struct TIAM3517_GPIO_Driver
 		 GPIO_INT_EDGE                  m_intEdge;
 		 UINT8                          m_flags;
 		 UINT8                          m_status;
-		
+
 
 
 
 	};
-	
+
     */
+
+	static UINT32 Attributes(GPIO_PIN Pin);
 
 	static BOOL Initialize();
 
@@ -1929,6 +2349,13 @@ struct TIAM3517_GPIO_Driver
 
 	static void EnableOutputPin(GPIO_PIN Pin, BOOL initialState);
 
+	static BOOL ReservePin( GPIO_PIN Pin, BOOL Reserve );
+
+};
+
+struct TIAM3517_Driver
+{
+	static const UINT32 c_SystemTime_Timer = 1;
 };
 
 
@@ -1941,6 +2368,7 @@ struct TIAM3517
 	static TIAM3517_CLOCK_MANAGER_PER_CM &CMGRPCM () { return *(TIAM3517_CLOCK_MANAGER_PER_CM *) (size_t)(TIAM3517_CLOCK_MANAGER_PER_CM::c_Base); }
 	static TIAM3517_CLOCK_MANAGER_WKUP_CM &CMGRWCM () { return *(TIAM3517_CLOCK_MANAGER_WKUP_CM *) (size_t) (TIAM3517_CLOCK_MANAGER_WKUP_CM::c_Base); }
 	static TIAM3517_CLOCK_MANAGER_MPU_CM &CMGRMPUCM () { return *(TIAM3517_CLOCK_MANAGER_MPU_CM *) (size_t) (TIAM3517_CLOCK_MANAGER_MPU_CM::c_Base); }
+	static TIAM3517_CLOCK_MANAGER_PRCM &CMGRPRCM () { return *(TIAM3517_CLOCK_MANAGER_PRCM *) (size_t)(TIAM3517_CLOCK_MANAGER_PRCM::c_Base);}
 
 };
 #endif

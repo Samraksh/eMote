@@ -25,7 +25,7 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
 
     // call to initialize c_base;
     //TIAM3517_TIMER::Initme();
-	
+
     if(g_TIAM3517_TIMER_Driver.m_descriptors[Timer].configured == TRUE) return FALSE;
 
     // Start up clk to the timer
@@ -34,7 +34,7 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
     //TIAM3517_CLOCK_MANAGER_CM &CLOCKC = TIAM3517::CMGRC();
 	TIAM3517_CLOCK_MANAGER_PER_CM &PERCM = TIAM3517::CMGRPCM();
     TIAM3517_CLOCK_MANAGER_WKUP_CM &WKUPCM = TIAM3517::CMGRWCM();
-	
+
 
 
     //DisableCompareInterrupt(Timer);
@@ -56,42 +56,43 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
 	    case 1:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT2;
 			PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 2;
+			PERCM.CM_ICLKEN_PER |= 1 << 3;
+			PERCM.CM_FCLKEN_PER |= 1 << 3;
 		    break;
 	    case 2:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT3;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 3;
+			PERCM.CM_FCLKEN_PER |= 1 << 4;
 			break;
 	    case 3:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT4;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 4;
+			PERCM.CM_FCLKEN_PER |= 1 << 5;
 			break;
 	    case 4:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT5;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 5;
+			PERCM.CM_FCLKEN_PER |= 1 << 6;
 			break;
 	    case 5:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT6;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 6;
+			PERCM.CM_FCLKEN_PER |= 1 << 7;
 			break;
 	    case 6:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT7;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 7;
+			PERCM.CM_FCLKEN_PER |= 1 << 8;
 			break;
 	    case 7:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT8;
 		    PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 8;
+			PERCM.CM_FCLKEN_PER |= 1 << 9;
 			break;
 	    case 8:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT9;
 			PERCM.CM_CLKSEL_PER |= 1 << (Timer - 1);
-			PERCM.CM_FCLKEN_PER |= 1 << 9;
+			PERCM.CM_FCLKEN_PER |= 1 << 10;
 		    break;
 	    case 9:
 		    interrupt = TIAM3517_AITC::c_IRQ_INDEX_GPT10;
@@ -109,8 +110,8 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
     }
     else
     {
-	   if( !CPU_INTC_ActivateInterrupt(interrupt, ISR_Default, NULL) ) return FALSE;	    
-    } 
+	   if( !CPU_INTC_ActivateInterrupt(interrupt, ISR_Default, NULL) ) return FALSE;
+    }
 
 	TIAM3517_TIMER &TIMER = getTimer(Timer);
 
@@ -132,7 +133,7 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
 	TIMER.TCLR |= 1;
 
 	g_TIAM3517_TIMER_Driver.m_descriptors[Timer].configured = TRUE;
-	
+
 	return TRUE;
 }
 
@@ -208,5 +209,16 @@ void TIAM3517_TIMER_Driver::ISR_Default(void* PARAM)
 
 	while(1);
 
+
+}
+
+
+UINT32 TIAM3517_TIMER_Driver::GetCounter(UINT32 Timer)
+{
+	ASSERT(Timer < c_Max_Timers);
+
+	TIAM3517_TIMER &TIMER = TIAM3517_TIMER_Driver::getTimer(Timer);
+
+	return TIMER.TCRR;
 
 }

@@ -6,15 +6,27 @@
  *  Description : Contains the core interrupt controller implementation
  *
  */
- 
+
  #include <tinyhal.h>
  #include "..\TIAM3517.h"
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
- 
- 
- TIAM3517_AITC_Driver::IRQ_VECTORING __section(rwdata) TIAM3517_AITC_Driver::s_IsrTable[] = {
- 
+
+void enableINTC()
+{
+	asm(
+"mrs r0, cpsr \n"
+"bic r1, r0,#0x80 \n"
+"msr  cpsr, r1 \n"
+"mov  pc, lr \n"
+);
+
+}
+
+
+
+TIAM3517_AITC_Driver::IRQ_VECTORING TIAM3517_AITC_Driver::s_IsrTable[] = {
+
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_EMUINT , TIAM3517_AITC::c_IRQ_Priority_4),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_COMMTX , TIAM3517_AITC::c_IRQ_Priority_5),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_COMMRX , TIAM3517_AITC::c_IRQ_Priority_6),
@@ -112,46 +124,91 @@
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_MMC3 , TIAM3517_AITC::c_IRQ_Priority_95),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT12 , TIAM3517_AITC::c_IRQ_Priority_96),
 	DEFINE_IRQ(TIAM3517_AITC_Driver::c_VECTORING_GUARD, TIAM3517_AITC::c_IRQ_Priority_97),
- 
- 
+
+
  };
+
+int disable_interrupts (void)
+{
+        unsigned long old,temp;
+        __asm__ __volatile__("mrs %0, cpsr\n"
+                             "orr %1, %0, #0xc0\n"
+                             "msr cpsr_c, %1"
+                             : "=r" (old), "=r" (temp)
+                             :
+                             : "memory");
+        return (old & 0x80) == 0;
+}
+
+void enable_interrupts (void)
+{
+        unsigned long temp;
+        __asm__ __volatile__("mrs %0, cpsr\n"
+                             "bic %0, %0, #0x80\n"
+                             "msr cpsr_c, %0"
+                             : "=r" (temp)
+                             :
+                             : "memory");
+}
 
 
 void TIAM3517_AITC_Driver::Initialize()
 {
 
+	disable_interrupts();
+
+	enable_interrupts();
+
 	TIAM3517_CLOCK_MANAGER_MPU_CM &MPUCM = TIAM3517::CMGRMPUCM();
-	
+
+	UINT32 tmp = 0;
 	// Enabling clock to the intc dpll1_fclk
 	MPUCM.CM_CLKEN_PLL_MPU |= 7;
 
+//	enableINTC();
+
 	TIAM3517_AITC& AITC = TIAM3517::AITC();
 
+
+	tmp = AITC.padding0;
 	// Resetting the INTC module and setting AUTOIDLE or automatic gating strategy for interface clk
-	AITC.INTCPS_SYSCONFIG |= 3;
-	
+	//AITC.INTCPS_SYSCONFIG |= 2;
+	//AITC.INTCPS_SYSCONFIG |= 1;
+	tmp = AITC.INTCPS_SYSCONFIG;
+	tmp |= 1 << 1;
+
+	AITC.INTCPS_SYSCONFIG = tmp;
+
+	tmp = AITC.INTCPS_IDLE;
+
+	tmp |= 1;
+
+	AITC.INTCPS_IDLE = tmp;
 	// Waiting for module reset to complete
-	while(AITC.INTCPS_SYSSTATUS == 1);
-	
+	while(!(AITC.INTCPS_SYSSTATUS & 0x1));
+
+
+
+
+	AITC.Reg[0].INTCPS_MIR_SET |= 2;
+
 	// Resetting FIQ output and IRQ generation
 	AITC.INTCPS_CONTROL |= 3;
-	
-	
 
-	for(int index = 0 ; index < 3; index++)
-	{
-		AITC.Reg[index].INTCPS_MIR_CLEAR = 0xffffffff;
-		AITC.Reg[index].INTCPS_ISR_CLEAR = 0xffffffff;
-	}
-	
+
+
+
+
 	IRQ_VECTORING* IsrVector = s_IsrTable;
 
-	
+
 	for(UINT32 index = 0 ; index <= c_VECTORING_GUARD ; index++)
 	{
 		AITC.SetPriority(index,IsrVector[index].Priority);
 		IsrVector->Handler.Initialize(STUB_ISRVector, (void *)(size_t) IsrVector->Priority);
 	}
+
+
 
 
 }
@@ -173,7 +230,7 @@ BOOL TIAM3517_AITC_Driver::ActivateInterrupt(UINT32 Irq_Index, BOOL Fast, HAL_CA
 		Isr_Vector->Handler.Initialize( ISR, ISR_Param );
 
 		AITC.EnableInterrupt(Irq_Index);
-	
+
 	}
 
 	return TRUE;
@@ -208,7 +265,7 @@ void __irq IRQ_Handler()
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-	while((index = AITC.NormalInterruptPending()) != AITC.c_Max_InterruptIndex)
+	if((index = AITC.NormalInterruptPending()) <= AITC.c_Max_InterruptIndex)
 	{
 	    TIAM3517_AITC_Driver::IRQ_VECTORING* IsrVector = &TIAM3517_AITC_Driver::s_IsrTable[ index ];
 
@@ -216,11 +273,16 @@ void __irq IRQ_Handler()
 	    AITC.RemoveForcedInterrupt( index );
 
 	    IsrVector->Handler.Execute();
+
+	    // Resetting the NEWIRQAGR bit to enable processing of subsequent pending IRQs
+	    AITC.INTCPS_CONTROL = 1;
+
 	}
+
 
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	
+
 
 }
 
@@ -228,13 +290,38 @@ extern "C"
 {
 void __irq FIQ_Handler()
 {
-	while(1);
+		UINT32 index;
+
+		TIAM3517_AITC& AITC = TIAM3517::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		// protect from spurious interrupts
+		if((index = AITC.FastInterruptPending()) <= AITC.c_Max_InterruptIndex)
+		{
+		    TIAM3517_AITC_Driver::IRQ_VECTORING* IsrVector = &TIAM3517_AITC_Driver::s_IsrTable[ index ];
+
+		    // In case the interrupt was forced, remove the flag.
+		    AITC.RemoveForcedInterrupt( index );
+
+		    IsrVector->Handler.Execute();
+
+			// Resetting the NEWIRQAGR bit to enable processing of subsequent pending FIQs
+			AITC.INTCPS_CONTROL = (1 << 1);
+
+		}
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 }
 
 void __irq NotUsed_Handler()
 {
 	while(1);
 }
+
 }
 
 BOOL TIAM3517_AITC_Driver::InterruptEnable(UINT32 Irq_Index)
@@ -274,7 +361,7 @@ BOOL TIAM3517_AITC_Driver::InterruptDisable(UINT32 Irq_Index)
 BOOL TIAM3517_AITC_Driver::InterruptEnableState( UINT32 Irq_Index )
 {
    	 TIAM3517_AITC& AITC = TIAM3517::AITC();
-	
+
         return AITC.IsInterruptEnabled( Irq_Index );
 
 
