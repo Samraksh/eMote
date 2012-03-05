@@ -1,5 +1,6 @@
 #include <tinyhal.h>
 #include <..\pal\com\usb\USB.h>
+#include <USB_decl.h>
 #include <misc\misc.h>
 #include <rcc\stm32f10x_rcc.h>
 #include <gpio\stm32f10x_gpio.h>

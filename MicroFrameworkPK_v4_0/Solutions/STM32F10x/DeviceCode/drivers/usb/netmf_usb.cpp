@@ -459,7 +459,9 @@ HRESULT USBCS_Driver::Initialize( int Controller )
 		}
 
 		//endpointsUsed++;
+#ifdef USB_DEBUG
 		debug_printf("In USBCS_Driver::Initialize endpoint number: %d\n\r", endpointNum);
+#endif
 	}
 
     g_USB_Driver.pUsbControllerState  = &State;
@@ -1190,7 +1192,9 @@ void USBCS_Driver::EP_RxISR( UINT32 endpoint )
 		if (!full) { // reenable Rx
 			_SetEPRxValid(endpoint);
 		} else {
+#ifdef USB_DEBUG
 			debug_printf("buffer full");
+#endif
 			SetEPRxStatus(EP2_OUT,EP_RX_STALL);
 		}
 	} else {  // should not happen

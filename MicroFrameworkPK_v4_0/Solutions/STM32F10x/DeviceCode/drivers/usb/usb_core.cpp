@@ -20,6 +20,8 @@
 #include "netmf_usb.h"
 #include <pal/COM/usb/usb.h>
 #include <led/stm32f10x_led.h>
+#include <USB_decl.h>
+#include "netmf_usb_types.h"
 
 //Kartik : MF Integration
 //Kartik : Debug Macro
@@ -52,8 +54,10 @@
 
 //--//
 //Kartik :
-//SETUP_PACKET g_Setup_Packet;
-USB_SETUP_PACKET RequestPacket = {0,0,0,0,0};
+
+extern SETUP_PACKET g_Setup_Packet;
+//USB_SETUP_PACKET RequestPacket = {0,0,0,0,0};
+extern USB_SETUP_PACKET RequestPacket; //Mukundan
 //--//
 
 /* Private macro -------------------------------------------------------------*/
@@ -117,12 +121,14 @@ RESULT Standard_SetConfiguration(void)
 	
 	USB_CONTROLLER_STATE *State = g_USB_Driver.pUsbControllerState;
 	
+	//Next 5 statements uncommented by mukundan
 	RequestPacket.bmRequestType = g_Setup_Packet.USBbmRequestType;
 	RequestPacket.bRequest = g_Setup_Packet.USBbRequest;
 	RequestPacket.wValue = g_Setup_Packet.USBwValues;
 	RequestPacket.wIndex = g_Setup_Packet.USBwIndexs;
 	RequestPacket.wLength = g_Setup_Packet.USBwLengths;
 	
+
 	State->DeviceState = USB_DEVICE_STATE_ADDRESS;
 	
 	USB_HandleSetConfiguration(State, &RequestPacket, FALSE);
