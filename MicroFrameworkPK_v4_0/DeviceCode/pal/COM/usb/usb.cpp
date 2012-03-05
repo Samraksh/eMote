@@ -3,8 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "USB.h"
-#include <led/stm32f10x_led.h>
-#include <usb/netmf_usb.h>
 
 //--//
 
@@ -142,7 +140,6 @@ int USB_Driver::GetControllerCount()
 
 BOOL USB_Driver::Initialize( int Controller )
 {
-	
     NATIVE_PROFILE_PAL_COM();
 
     char szFriendlyName[USB_FRIENDLY_NAME_LENGTH];
@@ -165,7 +162,7 @@ BOOL USB_Driver::Initialize( int Controller )
     }
 #endif
 
-	if(State->Configuration == NULL)
+    if(State->Configuration == NULL)
     {
         USB_Driver::Configure( Controller, NULL );
     }
@@ -539,20 +536,15 @@ BOOL USB_Driver::CloseStream ( int UsbStream )
 }
 
 int USB_Driver::Write( int UsbStream, const char* Data, size_t size )
-{	
-#if 0
-	const char* data = "Hello from USB, I am Write()";
-	USB_SIL_Write(EP1_IN, (uint8_t*) data, 28);
-	SetEPTxValid(ENDP1); 
-#endif
-	NATIVE_PROFILE_PAL_COM();
+{
+    NATIVE_PROFILE_PAL_COM();
 
     int Controller  = ConvertCOM_UsbController ( UsbStream );
-    int StreamIndex = ConvertCOM_UsbStreamIndex( UsbStream );
+   // int StreamIndex = ConvertCOM_UsbStreamIndex( UsbStream );
+    int StreamIndex = UsbStream & 0x1f;
     int endpoint;
     int totWrite = 0;
     USB_CONTROLLER_STATE * State = CPU_USB_GetState( Controller );
-	//State->DeviceState = USB_DEVICE_STATE_CONFIGURED;
 
     if( NULL == State || StreamIndex >= USB_MAX_QUEUES )
     {
@@ -761,20 +753,12 @@ int USB_Driver::Read( int UsbStream, char* Data, size_t size )
 
 BOOL USB_Driver::Flush( int UsbStream )
 {
-#if 0
-	const char* Data = "Hello From USB";
-	USB_SIL_Write(EP1_IN, (uint8_t*) Data, 14);	
-	SetEPTxValid(ENDP1); 	
-#endif
     NATIVE_PROFILE_PAL_COM();
 
     int Controller  = ConvertCOM_UsbController ( UsbStream );
     int StreamIndex = ConvertCOM_UsbStreamIndex( UsbStream );
     int endpoint;
     USB_CONTROLLER_STATE * State = CPU_USB_GetState( Controller );
-	
-	//Kartik : PAL changes
-	//State->DeviceState = USB_DEVICE_STATE_CONFIGURED;
 
     if( NULL == State || StreamIndex >= USB_MAX_QUEUES )
     {
@@ -805,7 +789,8 @@ BOOL USB_Driver::Flush( int UsbStream )
             HAL_Time_Sleep_MicroSeconds_InterruptEnabled(500); // don't call Events_WaitForEventsXXX because it will turn off interrupts
         }
     }
-    return TRUE;	
+
+    return TRUE;
 }
 
 UINT32 USB_Driver::GetEvent( int Controller, UINT32 Mask )
@@ -1248,16 +1233,11 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
     const USB_DESCRIPTOR_HEADER * header;
     UINT8       type;
     UINT8       DescriptorIndex;
-	UINT16      temp;
 
     /* this request is valid regardless of device state */
     type            = ((Setup->wValue & 0xFF00) >> 8);
     DescriptorIndex =  (Setup->wValue & 0x00FF);
-	//temp = Setup->wValue << 8;	
-    //Kartik : Commented becasue the value is already extracted by lower layer
-    //DescriptorIndex =  (temp & 0x00FF);
-
-	State->Expected =   Setup->wLength;
+    State->Expected =   Setup->wLength;
 
     if(State->Expected == 0)
     {
@@ -1285,13 +1265,9 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
 
     if( Setup->bRequest == USB_GET_DESCRIPTOR )
     {
-    	//Kartik : Commented because type value is already extracted by the lower layer
-    	//passing just the wValue should do.
         switch(type)
-        //switch(Setup->wValue)        
         {
         case USB_DEVICE_DESCRIPTOR_TYPE:
-//			debug_printf("PAL - USB_DEVICE_DESCRIPTOR_TYPE\n\r");
             header = USB_FindRecord( State, USB_DEVICE_DESCRIPTOR_MARKER, Setup );
             if( header )
             {
@@ -1301,8 +1277,7 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
             }
             break;
 
-        case USB_CONFIGURATION_DESCRIPTOR_TYPE:\
-	//		debug_printf("PAL - USB_CONFIGURATION_DESCRIPTOR_TYPE\n\r");
+        case USB_CONFIGURATION_DESCRIPTOR_TYPE:
             header = USB_FindRecord( State, USB_CONFIGURATION_DESCRIPTOR_MARKER, Setup );
             if( header )
             {
@@ -1324,7 +1299,7 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
                 State->ResidualCount = __min(State->Expected, FriendlyNameString.bLength);
             }
             else if( NULL != (header = USB_FindRecord( State, USB_STRING_DESCRIPTOR_MARKER, Setup )) )
-            {   			
+            {
                 const USB_STRING_DESCRIPTOR_HEADER * string = (USB_STRING_DESCRIPTOR_HEADER *)header;
                 State->ResidualData = (UINT8 *)&string->bLength;
                 State->ResidualCount = __min(State->Expected, string->bLength);
@@ -1345,8 +1320,7 @@ UINT8 USB_HandleConfigurationRequests( USB_CONTROLLER_STATE* State, USB_SETUP_PA
             State->ResidualData += sizeof(USB_GENERIC_DESCRIPTOR_HEADER);       // Data is located right after the header
             State->ResidualCount = __min(State->Expected, header->size - sizeof(USB_GENERIC_DESCRIPTOR_HEADER));
         }
-        else			
-			debug_printf("Should not here here - USB_STATE_STALL\n\r");
+        else
             return USB_STATE_STALL;
     }
 
@@ -1483,9 +1457,8 @@ UINT8 USB_ControlCallback( USB_CONTROLLER_STATE* State )
         return USB_STATE_DONE;
     }
 
-	//Setup = (USB_SETUP_PACKET*)State->Data;
-	Setup = (USB_SETUP_PACKET*) &g_Setup_Packet;
-	
+    Setup = (USB_SETUP_PACKET*)State->Data;
+    
     switch(Setup->bRequest)
     {
     case USB_GET_STATUS:
