@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="CSharpTestSuite">
+</Property><Property Name="Solution File" Value="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\CSharpTestSuite.sln">
+</Property><Property Name="Date" Value="Wednesday, January 04, 2012">
+</Property><Property Name="Time" Value="15:03:22 PM">
+</Property></Properties><Event ErrorLevel="0" Project="CSharpTestSuite" Source="CSharpTestSuite.csproj" Description="Project file successfully backed up as D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\Backup\CSharpTestSuite.csproj">
+</Event><Event ErrorLevel="0" Project="CSharpTestSuite" Source="SchedulerTest\ThreadPriorityTest.cs" Description="File successfully backed up as D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\Backup\SchedulerTest\ThreadPriorityTest.cs">
+</Event><Event ErrorLevel="0" Project="CSharpTestSuite" Source="SchedulerTest\RTOSTimerTest.cs" Description="File successfully backed up as D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\Backup\SchedulerTest\RTOSTimerTest.cs">
+</Event><Event ErrorLevel="0" Project="CSharpTestSuite" Source="Master.cs" Description="File successfully backed up as D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\Backup\Master.cs">
+</Event><Event ErrorLevel="0" Project="CSharpTestSuite" Source="EmotePins.cs" Description="File successfully backed up as D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\Backup\EmotePins.cs">
+</Event><Event ErrorLevel="0" Project="CSharpTestSuite" Source="CSharpTestSuite.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="CSharpTestSuite" Source="CSharpTestSuite.csproj" Description="Converted">
+</Event><Event ErrorLevel="2" Project="" Source="CSharpTestSuite.csproj" Description="The project file 'D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CSharpTestSuite\CSharpTestSuite.csproj' cannot be opened.&#xA;&#xA;The project type is not supported by this installation.">
+</Event></UpgradeLog>
