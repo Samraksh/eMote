@@ -512,10 +512,7 @@ struct USB_CONTROLLER_STATE
 
 //--//
 
-//--//
-//Kartik:
-extern SETUP_PACKET g_Setup_Packet;
-//--//
+
 
 int    USB_GetControllerCount();
 BOOL   USB_Initialize  ( int Controller                                );
