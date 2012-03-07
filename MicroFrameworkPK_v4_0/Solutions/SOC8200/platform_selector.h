@@ -17,8 +17,11 @@
 // processor and features
 //
 /////////////////////////////////////////////////////////
-
-
+//Definition below selects the correct heap placement in DeviceCode/PAL/Heap/heap.cpp
+#define SOC8200_HEAP
+//#define _ENABLE_NESTED_INTERRUPTS 1
+#define NETMF_RTOS  1//samraksh
+//#define _DEBUG_NESTED_INTERRUPTS 1
 /////////////////////////////////////////////////////////
 //
 // constants
@@ -26,14 +29,14 @@
 
 #define PLATFORM_ARM_AM3517
 
-#define SYSTEM_CLOCK_HZ                 12000000
+#define SYSTEM_CLOCK_HZ                 13000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          12000000
+#define SLOW_CLOCKS_PER_SECOND          SYSTEM_CLOCK_HZ
 #define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 
-#define SRAM1_MEMORY_Base   0x83000000
+#define SRAM1_MEMORY_Base   0x08000000
 #define SRAM1_MEMORY_Size   0x02000000
 #define FLASH_MEMORY_Base   0x10000000
 #define FLASH_MEMORY_Size   0x01000000
