@@ -2495,6 +2495,7 @@ private:
 
 #define OMAP3_SPI_CHxCONF_CLKD_CLR		(0xF << 2)
 #define OMAP3_SPI_CHxCONF_CLKD_32768	(0xF << 2)
+#define OMAP3_SPI_CHxCONF_CLKD_8192		(0xD << 2)
 
 /* SYSSTATUS reg */
 #define OMAP3_SPI_RESETDONE 0x1

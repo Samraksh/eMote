@@ -7,6 +7,7 @@
 
 //--//
 
+#define SAM_DEFAULT_SPI_CHAN 1
 
 /***************************************************************************/
 
@@ -36,11 +37,11 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	l |= OMAP3_SPI1_ICLOCK_EN;
 	__raw_writel(l, OMAP3_SPI_ICLOCK);
 	
-	// Disable and clear SPI interrupts
+	// Disable and clear SPI interrupts, NOTE INTERRUPTS ARE NOW DISABLED
 	__raw_writel(0, 			OMAP3_SPI_IRQENABLE+OMAP3_SPI1_BASE); // Disable
 	__raw_writel(0x0001777F, 	OMAP3_SPI_IRQSTATUS+OMAP3_SPI1_BASE); // Clear
 
-//	Check for RESETDONE on SPI1, shouldn't need the loop at all
+//	Check for RESETDONE on SPI1, shouldn't actually need to
 	while (i<10) {
 		l = __raw_readl(OMAP3_SPI1_BASE+OMAP3_SPI_SYSSTATUS);
 		if (l & OMAP3_SPI_RESETDONE == 1) return TRUE;
@@ -113,38 +114,37 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	UINT32 conf_reg, modulctrl_reg, ctrl_reg, t;
 	
 	// TODO: Ignore Configuration struct until after demo...
-	// Force channel 1 (offset 0) and SPI1 module (base reg)
+	// Force channel 2 (offset 1) and SPI1 module (base reg)
 	
-	conf_reg 		= OMAP3_SPI_CHAN_ADDR( 0 /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCONF);
+	conf_reg 		= OMAP3_SPI_CHAN_ADDR( SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCONF);
 	modulctrl_reg 	= OMAP3_SPI_ADDR( OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_MODULCTRL);
-	ctrl_reg 		= OMAP3_SPI_CHAN_ADDR( 0 /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCTRL);
+	ctrl_reg 		= OMAP3_SPI_CHAN_ADDR( SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCTRL);
 	
 	// Setup CHxCONF
 	t = __raw_readl(conf_reg);
 	t &= ~(OMAP3_SPI_CHxCONF_IS_SLAVE); 	// Input Select, Master Mode
-	t &= ~(OMAP3_SPI_CHxCONF_DPE1_SLAVE);
-	t |= OMAP3_SPI_CHxCONF_DPE0_MASTER;
+	t &= ~(OMAP3_SPI_CHxCONF_DPE1_SLAVE);	// Master Mode
+	t |= OMAP3_SPI_CHxCONF_DPE0_MASTER;		// Master Mode
 	t &= ~(OMAP3_SPI_CHxCONF_TRM_CLR); 		// Clear TRM for TX/RX
-	t |= OMAP3_SPI_CHxCONF_TRM_TX; 			// Set for TX only
 	t &= ~(OMAP3_SPI_CHxCONF_WL_CLR); 		// Clear then set 8-bit or 16-bit
 	t |= OMAP3_SPI_CHxCONF_WL_8BIT; 		// Set for 8-bit
-	t |= OMAP3_SPI_CHxCONF_EPOL_H;
-	t &= ~(OMAP3_SPI_CHxCONF_POL_L); 		// Polarity
-	t &= ~(OMAP3_SPI_CHxCONF_PHA_D); 		// Phase
-	t &= ~(OMAP3_SPI_CHxCONF_CLKD_CLR); 	// Clear clock
-	t |= OMAP3_SPI_CHxCONF_CLKD_32768; 		// 32768 CLK divider
+	t |= OMAP3_SPI_CHxCONF_EPOL_H;			// CS line polarity, low in active state
+	t &= ~(OMAP3_SPI_CHxCONF_POL_L); 		// SPI Polarity
+	t &= ~(OMAP3_SPI_CHxCONF_PHA_D); 		// SPI Phase
+	t &= ~(OMAP3_SPI_CHxCONF_CLKD_CLR); 	// Clear clock divider
+	t |= OMAP3_SPI_CHxCONF_CLKD_8192; 		// 8192 CLK divider
 	__raw_writel(t, conf_reg);
 	
 	// Setup MODULCTRL
 	t = __raw_readl(modulctrl_reg);
-	t &= ~(OMAP3_SPI_MODULCTRL_SLAVE);
+	t &= ~(OMAP3_SPI_MODULCTRL_SLAVE);		// Master Mode
 	__raw_writel(t, modulctrl_reg);
 	
 	// Enable channel
 	// Setup CHxCTRL
 	t = __raw_readl(ctrl_reg);
-	t |= OMAP3_SPI_CHxCTRL_EN;
-	__raw_writel(t, ctrl_reg); // Enable the port
+	t |= OMAP3_SPI_CHxCTRL_EN;				// Enable the port
+	__raw_writel(t, ctrl_reg);
 	
 	return TRUE;
 }
@@ -154,7 +154,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 {   
 	UINT32 ctrl_reg, t;
 
-	ctrl_reg = OMAP3_SPI_CHAN_ADDR( 0 /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCTRL);
+	ctrl_reg = OMAP3_SPI_CHAN_ADDR( SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE/*base*/, OMAP3_SPI_CHxCTRL);
 	
 	t &= ~(OMAP3_SPI_CHxCTRL_EN);
 	__raw_writel(t, ctrl_reg); // Disable the port
@@ -173,10 +173,10 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
     INT32 d;
     UINT8 Data8;
     
-	UINT32 write_reg = OMAP3_SPI_CHAN_ADDR(0 /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_TXx);
-	UINT32 poll_reg  = OMAP3_SPI_CHAN_ADDR(0 /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_CHxSTAT);
-	UINT32 stat_reg  = OMAP3_SPI_CHAN_ADDR(0 /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_CHxSTAT);
-	UINT32 read_reg  = OMAP3_SPI_CHAN_ADDR(0 /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_RXx);
+	UINT32 write_reg = OMAP3_SPI_CHAN_ADDR(SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_TXx);
+	UINT32 poll_reg  = OMAP3_SPI_CHAN_ADDR(SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_CHxSTAT);
+	UINT32 stat_reg  = OMAP3_SPI_CHAN_ADDR(SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_CHxSTAT);
+	UINT32 read_reg  = OMAP3_SPI_CHAN_ADDR(SAM_DEFAULT_SPI_CHAN /*chan*/, OMAP3_SPI1_BASE, OMAP3_SPI_RXx);
 
     UINT8* Write8          = Transaction.Write8;
     INT32  WriteCount      = Transaction.WriteCount;
@@ -216,9 +216,8 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 		__raw_writel(tempWrite, write_reg);
 
         while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_TXS_EMPTY) == 0) { ; } 	// Poll for write done
-		//while ( (__raw_readl(stat_reg) & OMAP3_SPI_CHxSTAT_RXS_FULL) == 0) { ; } 	// Poll for read done
+		while ( (__raw_readl(stat_reg) & OMAP3_SPI_CHxSTAT_RXS_FULL) == 0) { ; } 	// Poll for read done
         
-        // reading clears the RBF bit and allows another transfer from the shift register
 		Data8 = __raw_readl(read_reg) & 0xFF;
         
         // repeat last write word for all subsequent reads
