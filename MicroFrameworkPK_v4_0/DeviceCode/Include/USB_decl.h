@@ -6,10 +6,6 @@
 #define _DRIVERS_USB_DECL_H_ 1
 
 //--//
-#include <usb\netmf_usb_types.h>
-//--//
-
-//--//
 
 // enable USB remote wakeup, the USB configuration descriptor should change also
 // the USB_ATTRIBUTES should set the REMOTE_WAKE_UP bit (0x20) to "1"
@@ -138,10 +134,11 @@
 #ifndef USB_MAX_QUEUES
 #define USB_MAX_QUEUES         16
 #endif
+
 #ifdef PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT
 #define USB_QUEUE_PACKET_COUNT  PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT
 #else
-#define USB_QUEUE_PACKET_COUNT  8
+#define USB_QUEUE_PACKET_COUNT  16
 #endif
 
 //--//
