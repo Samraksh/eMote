@@ -12,6 +12,15 @@
 
 #define DEFINE_IRQ(index, priority) { priority, { NULL, (void*)(size_t)index } }
 
+extern void TIMER_2_ISR(void *Param);
+extern void TIMER_1_ISR(void *Param);
+extern void TIMER_0_ISR(void *Param);
+
+extern "C"
+{
+	void myIRQ_Handler();
+}
+
 void enableINTC()
 {
 	asm(
@@ -65,9 +74,9 @@ TIAM3517_AITC_Driver::IRQ_VECTORING TIAM3517_AITC_Driver::s_IsrTable[] = {
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_Reserved4 , TIAM3517_AITC::c_IRQ_Priority_36),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_WDT3 , TIAM3517_AITC::c_IRQ_Priority_37),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT1 , TIAM3517_AITC::c_IRQ_Priority_38),
-	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT2 , TIAM3517_AITC::c_IRQ_Priority_39),
-	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT3 , TIAM3517_AITC::c_IRQ_Priority_40),
-	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT4 , TIAM3517_AITC::c_IRQ_Priority_41),
+	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT2 , TIAM3517_AITC::c_IRQ_Priority_42),
+	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT3 , TIAM3517_AITC::c_IRQ_Priority_41),
+	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT4 , TIAM3517_AITC::c_IRQ_Priority_40),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT5 , TIAM3517_AITC::c_IRQ_Priority_42),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT6 , TIAM3517_AITC::c_IRQ_Priority_43),
 	DEFINE_IRQ(TIAM3517_AITC::c_IRQ_INDEX_GPT7 , TIAM3517_AITC::c_IRQ_Priority_44),
@@ -151,9 +160,24 @@ void enable_interrupts (void)
                              : "memory");
 }
 
+void data_synchronization_barrier(void)
+{
+	__asm__ __volatile__("mov r0, #0\n"
+						 "mcr p15, #0, r0, c7, c10, #4\n");
+}
+
+void restore_critical_context(void)
+{
+	__asm__ __volatile__("msr spsr, r11\n"
+						 "ldmfd sp!, {r0 - r12, lr}\n"
+						 "subs pc, lr, #4\n");
+}
 
 void TIAM3517_AITC_Driver::Initialize()
 {
+#ifdef _DEBUG_NESTED_INTERRUPTS
+	CPU_GPIO_EnableOutputPin(152, FALSE);
+#endif
 
 	disable_interrupts();
 
@@ -255,34 +279,84 @@ BOOL TIAM3517_AITC_Driver::DeactivateInterrupt(UINT32 Irq_Index)
 	return TRUE;
 }
 
-void __irq IRQ_Handler()
+extern "C"
 {
+
+void IRQ_Handler() {
+
+}
+
+void myIRQ_Handler()
+{
+#ifdef _DEBUG_NESTED_INTERRUPTS
+	CPU_GPIO_SetPinState(152, FALSE);
+#endif
+
+	//UINT32 temp_assm;
+
 	UINT32 index;
 
 	TIAM3517_AITC& AITC = TIAM3517::AITC();
 
+#ifdef _ENABLE_NESTED_INTERRUPTS
+	volatile UINT32 OLD_PRIORITY_THRESHOLD = AITC.INTCPS_THRESHOLD;
+#endif
+
 	// set before jumping elsewhere or allowing other interrupts
-	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	//SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+	//SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
 	if((index = AITC.NormalInterruptPending()) <= AITC.c_Max_InterruptIndex)
 	{
-	    TIAM3517_AITC_Driver::IRQ_VECTORING* IsrVector = &TIAM3517_AITC_Driver::s_IsrTable[ index ];
+		TIAM3517_AITC_Driver::IRQ_VECTORING* IsrVector = &TIAM3517_AITC_Driver::s_IsrTable[ index ];
+
+#ifdef _ENABLE_NESTED_INTERRUPTS
+		volatile UINT32 temp = AITC.INTCPS_IRQ_PRIORITY;
+		AITC.INTCPS_THRESHOLD = AITC.INTCPS_IRQ_PRIORITY;
+		temp = AITC.INTCPS_THRESHOLD;
+		AITC.INTCPS_CONTROL = 1;
+		data_synchronization_barrier();
+		enable_interrupts();
+
+#endif
+
+
 
 	    // In case the interrupt was forced, remove the flag.
-	    AITC.RemoveForcedInterrupt( index );
+	    //AITC.RemoveForcedInterrupt( index );
 
 	    IsrVector->Handler.Execute();
 
-	    // Resetting the NEWIRQAGR bit to enable processing of subsequent pending IRQs
+
+#ifndef _ENABLE_NESTED_INTERRUPTS
 	    AITC.INTCPS_CONTROL = 1;
+#endif
+
+#ifdef _ENABLE_NESTED_INTERRUPTS
+	    disable_interrupts();
+	    AITC.INTCPS_THRESHOLD = OLD_PRIORITY_THRESHOLD;
+	    temp = AITC.INTCPS_THRESHOLD;
+	    temp++;
+#endif
+
+	    // Resetting the NEWIRQAGR bit to enable processing of subsequent pending IRQs
 
 	}
 
 
-	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-	SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-
+	//SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+	//SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+#ifdef _DEBUG_NESTED_INTERRUPTS
+	//DoNothing();
+	CPU_GPIO_SetPinState(152, TRUE);
+#endif
+	//restore_critical_context();
+	//enable_interrupts();
+	//__asm__ __volatile__("mov pc,lr\n");
+	//__asm__ __volatile__("add lr,lr, #4\n");
+	//__asm__ __volatile__("b IRQ_SubHandlerReturn\n");
+	//enable_interrupts();
+}
 
 }
 

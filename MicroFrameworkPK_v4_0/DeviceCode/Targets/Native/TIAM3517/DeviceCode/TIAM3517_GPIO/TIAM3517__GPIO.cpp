@@ -28,7 +28,7 @@ static int check_gpio(int gpio);
 const UINT8 TIAM3517_GPIO_Driver::c_Gpio_Attributes[TIAM3517_GPIO_Driver::c_MaxPins] =
 {
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   0   (register 0)
-    GPIO_ATTRIBUTE_NONE                         , //   1
+    GPIO_ATTRIBUTE_OUTPUT                         , //   1
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   2
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   3
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   4
@@ -172,6 +172,13 @@ BOOL TIAM3517_GPIO_Driver::Initialize()
 		g_TIAM3517_GPIO_Driver.m_PinReservationInfo[i] = 0;
 	}
 	TIAM3517_PinMux::Initialize();
+}
+
+// Need to implement enabling gpio as input pin with interrupt handling - Nived.Sivadas
+BOOL TIAM3517_GPIO_Driver::EnableInputPin(GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+
+	return TRUE;
 }
 
 void TIAM3517_GPIO_Driver::EnableOutputPin(GPIO_PIN pin, BOOL initialState)

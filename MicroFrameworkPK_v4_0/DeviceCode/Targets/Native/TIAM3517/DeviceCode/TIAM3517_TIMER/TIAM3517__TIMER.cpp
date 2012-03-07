@@ -15,6 +15,7 @@
 #include "..\TIAM3517.h"
 
 TIAM3517_TIMER_Driver g_TIAM3517_TIMER_Driver;
+BOOL forcetimer[11];
 
 BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param )
 {
@@ -38,6 +39,10 @@ BOOL TIAM3517_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32
 
 
     //DisableCompareInterrupt(Timer);
+    for(UINT32 Timer = 0; Timer < TIAM3517_TIMER_Driver::c_Max_Timers; Timer++)
+    {
+    	forcetimer[Timer] = false;
+    }
 
 
     g_TIAM3517_TIMER_Driver.m_descriptors[Timer].isr = ISR;

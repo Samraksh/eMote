@@ -16,7 +16,11 @@
 
 #include <tinyhal.h>
 
+#define _ENABLE_NESTED_INTERRUPTS
+
 typedef UINT32 u32;
+typedef UINT16 u16;
+typedef UINT8 u8;
 
 #define TIAM3517_INTC_IRQROUTE 0
 #define TIAM3517_INTC_FIQROUTE 1
@@ -929,6 +933,8 @@ struct gpio {
 
 #define MATCH_INTERRUPT_PENDING 0x1
 
+extern BOOL forcetimer[11];
+//struct TIAM3517;
 struct TIAM3517_AITC;
 
 
@@ -1016,6 +1022,9 @@ struct TIAM3517_CLOCK_MANAGER_PRM
 
 
 };
+
+//
+
 
 
 struct TIAM3517_GPIO_Port
@@ -1804,129 +1813,6 @@ struct TIAM3517_TIMER
 // Removed from TIAM3517_TIMER
 
 
-struct TIAM3517_TIMER_Driver
-{
-
-	static const UINT32 c_Max_Timers = 11;
-
-	static BOOL Initialize	(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param);
-
-	static BOOL Uninitialize(UINT32 Timer);
-
-	static UINT32 GetCounter(UINT32 Timer);
-
-	static void EnableCompareInterrupt(UINT32 Timer)
-	{
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		TIMER.TIER |= 1;
-
-	}
-
-	static void DisableCompareInterrupt(UINT32 Timer)
-	{
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		TIMER.TIER &= ~1;
-
-	}
-
-	static void ForceInterrupt(UINT32 Timer)
-	{
-
-
-	}
-
-	static void SetCompare(UINT32 Timer, UINT32 Compare)
-	{
-		UINT32 i = 0;
-
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		TIMER.TMAR = TIMER.TCRR + Compare;
-
-		i++;
-
-	}
-
-	static UINT32 GetCompare(UINT32 Timer)
-	{
-
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		return TIMER.TMAR;
-
-	}
-
-	static void SetCounter(UINT32 Timer, UINT32 Count)
-	{
-
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		TIMER.TCRR = Count;
-
-	}
-
-	static BOOL DidCompareHit(UINT32 Timer)
-	{
-
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		if((TIMER.TISR & 1) == MATCH_INTERRUPT_PENDING)
-			return TRUE;
-
-		return FALSE;
-
-
-	}
-
-	static void ResetCompareHit(UINT32 Timer)
-	{
-
-		ASSERT(Timer <= c_Max_Timers);
-
-		TIAM3517_TIMER &TIMER = getTimer(Timer);
-
-		TIMER.TISR |= 1;
-
-	}
-
-	static TIAM3517_TIMER& getTimer(UINT32 Timer)
-	{
-		return *(TIAM3517_TIMER *) (size_t)(TIAM3517_TIMER::getBase(Timer));
-			//return;
-	}
-
-
-	private:
-
-		struct Descriptors
-		{
-			HAL_CALLBACK_FPN isr;
-			void* arg;
-			BOOL configured;
-		};
-		Descriptors m_descriptors[c_Max_Timers];
-
-		static void ISR_Default(void* param);
-
-
-
-};
-
-extern TIAM3517_TIMER_Driver g_TIAM3517_TIMER_Driver;
 
 
 
@@ -1943,6 +1829,9 @@ struct TIAM3517_AITC_RegisterGroup
 
 
 };
+
+
+
 
 struct TIAM3517_TIME_Driver
 {
@@ -2273,7 +2162,7 @@ struct TIAM3517_AITC
 		UINT32 tmp1 = 0;
 //		INTCPS_ILR[Irq_Index] |= (priority << 2);
 		tmp |= (priority << 2);
-		INTCPS_ILR[Irq_Index] |= tmp;
+		INTCPS_ILR[Irq_Index] = tmp;
 		tmp = 0;
 		tmp = INTCPS_ILR[Irq_Index];
 
@@ -2349,6 +2238,8 @@ struct TIAM3517_GPIO_Driver
 
 	static void EnableOutputPin(GPIO_PIN Pin, BOOL initialState);
 
+	static BOOL EnableInputPin(GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
+
 	static BOOL ReservePin( GPIO_PIN Pin, BOOL Reserve );
 
 };
@@ -2357,6 +2248,8 @@ struct TIAM3517_Driver
 {
 	static const UINT32 c_SystemTime_Timer = 1;
 };
+
+
 
 
 struct TIAM3517
@@ -2371,4 +2264,284 @@ struct TIAM3517
 	static TIAM3517_CLOCK_MANAGER_PRCM &CMGRPRCM () { return *(TIAM3517_CLOCK_MANAGER_PRCM *) (size_t)(TIAM3517_CLOCK_MANAGER_PRCM::c_Base);}
 
 };
+
+
+
+struct TIAM3517_TIMER_Driver
+{
+	static const UINT32 c_Max_Timers = 11;
+
+	static const UINT32 GPT1 = 0;
+	static const UINT32 GPT2 = 1;
+	static const UINT32 GPT3 = 2;
+	static const UINT32 GPT4 = 3;
+	static const UINT32 GPT5 = 4;
+	static const UINT32 GPT6 = 5;
+	static const UINT32 GPT7 = 6;
+
+	/*
+	static const UINT32 TIMER_1 = 0;
+	static const UINT32 TIMER_2 = 1;
+	static const UINT32 TIMER_3 = 2;
+	static const UINT32 TIMER_4 = 3;
+	static const UINT32 TIMER_5 = 4;
+	static const UINT32 TIMER_6 = 5;
+	static const UINT32 TIMER_7 = 6;
+	static const UINT32 TIMER_8 = 7;
+	static const UINT32 TIMER_9 = 8;
+	static const UINT32 TIMER_10 = 9;
+	static const UINT32 TIMER_11 = 10;
+	*/
+
+	static BOOL Initialize	(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param);
+
+	static BOOL Uninitialize(UINT32 Timer);
+
+	static UINT32 GetCounter(UINT32 Timer);
+
+	static void EnableCompareInterrupt(UINT32 Timer)
+	{
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		TIMER.TIER |= 1;
+
+	}
+
+	static void DisableCompareInterrupt(UINT32 Timer)
+	{
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		TIMER.TIER &= ~1;
+
+	}
+
+	static void ForceInterrupt(UINT32 Timer)
+	{
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_AITC& AITC = TIAM3517::AITC();
+
+		AITC.Reg[1].INTCPS_ISR_SET |= (1 << (5 + Timer));
+		//ASSERT_IRQ_MUST_BE_OFF();
+
+		forcetimer[Timer] = true;
+		//TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		//TIMER.TMAR = TIMER.TCRR + 4;
+		//TIMER.TIER |= 1;
+
+	}
+
+	static void SetCompare(UINT32 Timer, UINT32 Compare)
+	{
+		UINT32 i = 0;
+
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		TIMER.TMAR = Compare;
+
+		i++;
+
+	}
+
+	static UINT32 GetCompare(UINT32 Timer)
+	{
+
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		return TIMER.TMAR;
+
+	}
+
+	static void SetCounter(UINT32 Timer, UINT32 Count)
+	{
+
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		TIMER.TCRR = Count;
+
+	}
+
+	static BOOL DidCompareHit(UINT32 Timer)
+	{
+
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+		if(((TIMER.TISR & 1) == MATCH_INTERRUPT_PENDING) || (forcetimer[Timer] == TRUE))
+			return TRUE;
+
+
+		return FALSE;
+
+
+	}
+
+	static void ResetCompareHit(UINT32 Timer)
+	{
+
+		ASSERT(Timer <= c_Max_Timers);
+
+		TIAM3517_AITC& AITC = TIAM3517::AITC();
+
+		TIAM3517_TIMER &TIMER = getTimer(Timer);
+
+
+		if((TIMER.TISR & 1) == MATCH_INTERRUPT_PENDING)
+			TIMER.TISR |= 1;
+		else
+		{
+			forcetimer[Timer] = FALSE;
+			AITC.Reg[1].INTCPS_ISR_CLEAR |= (1 << (5 + Timer));
+		}
+
+	}
+
+	static TIAM3517_TIMER& getTimer(UINT32 Timer)
+	{
+		return *(TIAM3517_TIMER *) (size_t)(TIAM3517_TIMER::getBase(Timer));
+			//return;
+	}
+
+
+	private:
+
+		struct Descriptors
+		{
+			HAL_CALLBACK_FPN isr;
+			void* arg;
+			BOOL configured;
+		};
+		Descriptors m_descriptors[c_Max_Timers];
+
+		static void ISR_Default(void* param);
+
+
+
+};
+
+extern TIAM3517_TIMER_Driver g_TIAM3517_TIMER_Driver;
+
+// SPI from Nathan 2012-02-28
+
+#define OMAP3_MAX_SPI 1
+
+struct TIAM3517_SPI_Driver
+{
+    static BOOL Initialize  ();
+    static void Uninitialize();
+
+    static void GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi );
+
+    static BOOL nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* Write16, INT32 WriteCount, UINT16* Read16, INT32 ReadCount, INT32 ReadStartOffset );
+    static BOOL nWrite8_nRead8  ( const SPI_CONFIGURATION& Configuration, UINT8*  Write8 , INT32 WriteCount, UINT8*  Read8 , INT32 ReadCount, INT32 ReadStartOffset );
+
+    static BOOL Xaction_Start( const SPI_CONFIGURATION& Configuration );
+    static BOOL Xaction_Stop ( const SPI_CONFIGURATION& Configuration );
+
+    static BOOL Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction );
+    static BOOL Xaction_nWrite8_nRead8  ( SPI_XACTION_8&  Transaction );
+
+private:
+    static void ISR( void* Param );
+};
+
+/* Clocks */
+#define OMAP3_SPI1_FCLOCK_EN		(1 << 18)
+#define OMAP3_SPI1_ICLOCK_EN		(1 << 18)
+#define OMAP3_SPI_FCLOCK			0x48004A00
+#define OMAP3_SPI_ICLOCK			0x48004A10
+
+/* CHxSTAT reg */
+#define OMAP3_SPI_CHxSTAT_RXS_FULL	(1 << 0)
+#define OMAP3_SPI_CHxSTAT_TXS_EMPTY	(1 << 1)
+
+/* IRQSTATUS reg */
+#define OMAP3_SPI_IRQSTATUS_RX0_FULL	(1 << 2)
+
+/* MODULCTRL reg */
+#define OMAP3_SPI_MODULCTRL_SLAVE (1 << 2)
+
+/* CHxCTRL reg */
+#define OMAP3_SPI_CHxCTRL_EN (1 << 0)
+
+/* CHxCONF reg */
+#define OMAP3_SPI_CHxCONF_IS_SLAVE		(1 << 18)
+#define OMAP3_SPI_CHxCONF_DPE1_SLAVE	(1 << 17)
+#define OMAP3_SPI_CHxCONF_DPE0_MASTER	(1 << 16)
+
+#define OMAP3_SPI_CHxCONF_TRM_CLR		(0x3 << 12)
+#define OMAP3_SPI_CHxCONF_TRM_TX		(2 << 12)
+#define OMAP3_SPI_CHxCONF_TRM_RX		(1 << 12)
+
+#define OMAP3_SPI_CHxCONF_WL_CLR		(0x1F << 7)
+#define OMAP3_SPI_CHxCONF_WL_8BIT		(0x7 << 7)
+#define OMAP3_SPI_CHxCONF_WL_16BIT		(0xF << 7)
+
+#define OMAP3_SPI_CHxCONF_EPOL_H		(1 << 6)
+#define OMAP3_SPI_CHxCONF_POL_L			(1 << 1)
+#define OMAP3_SPI_CHxCONF_PHA_D			(1 << 0)
+
+#define OMAP3_SPI_CHxCONF_CLKD_CLR		(0xF << 2)
+#define OMAP3_SPI_CHxCONF_CLKD_32768	(0xF << 2)
+
+/* SYSSTATUS reg */
+#define OMAP3_SPI_RESETDONE 0x1
+
+/* REVISION reg */
+#define OMAP3_SPI_REVISION_EXPECTED 0x21
+
+/* SYSCONFIG reg */
+#define OMAP3_SPI_SYSCONFIG_RESET 0x2
+
+/* SPI register bases */
+
+#define OMAP3_SPI1_BASE 0x48098000
+#define OMAP3_SPI2_BASE 0x4809A000
+#define OMAP3_SPI3_BASE 0x480B8000
+#define OMAP3_SPI4_BASE 0x480BA000
+
+/* Common SPI register offsets */
+
+#define OMAP3_SPI_ADDR(base,reg) (base+reg)
+
+#define OMAP3_SPI_REVISION 		0x00
+#define OMAP3_SPI_SYSCONFIG 	0x10
+#define OMAP3_SPI_SYSSTATUS 	0x14
+#define OMAP3_SPI_IRQSTATUS 	0x18
+#define OMAP3_SPI_IRQENABLE 	0x1C
+#define OMAP3_SPI_WAKEUPENABLE 	0x20
+#define OMAP3_SPI_SYST 			0x24
+#define OMAP3_SPI_MODULCTRL 	0x28
+#define OMAP3_SPI_XFERLEVEL		0x7C
+
+/* Per instance and per channel register offsets */
+
+// Here, "channel" means CS line
+// SPI_1 has 4 channels, SPI2 and SPI3 have 2 channels, SPI4 has 1 channel
+// In the TI model, the SPI instances manage these rather than GPIO.
+
+// example: SPI instance 1, channel 2 (out of 0 to 3), reg OMAP3_SPI_CHxCTRL
+// OMAP3_SPI_ADDR(1,2,OMAP3_SPI_CHxCTRL)
+
+#define OMAP3_SPI_CHAN_ADDR(chan,base,reg) (chan*0x14 + base + reg)
+
+#define OMAP3_SPI_CHxCONF		0x2C
+#define OMAP3_SPI_CHxSTAT		0x30
+#define OMAP3_SPI_CHxCTRL		0x34
+#define OMAP3_SPI_TXx			0x38
+#define OMAP3_SPI_RXx			0x3C
+
+
 #endif
