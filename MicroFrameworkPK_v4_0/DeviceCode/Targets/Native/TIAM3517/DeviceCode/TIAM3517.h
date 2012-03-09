@@ -2435,7 +2435,18 @@ extern TIAM3517_TIMER_Driver g_TIAM3517_TIMER_Driver;
 
 // SPI from Nathan 2012-02-28
 
-#define OMAP3_MAX_SPI 1
+// "modules" 	0-3 map to SPI1
+//				4-5 map to SPI2
+//				6-7 map to SPI3
+//				8	map to SPI4
+#define OMAP3_MAX_SPI 9
+
+#define OMAP3_SPI1 0
+#define OMAP3_SPI2 1
+#define OMAP3_SPI3 2
+#define OMAP3_SPI4 3
+
+#define OMAP3_BASE_SPI_CLK_KHZ 47800 // 47.8 MHz?
 
 struct TIAM3517_SPI_Driver
 {
@@ -2456,6 +2467,40 @@ struct TIAM3517_SPI_Driver
 private:
     static void ISR( void* Param );
 };
+
+#define SAM_SPI_PADCONF_CS  0x0108		// Padconf for a generic CS pin
+#define SAM_SPI_PADCONF_DAT 0x0100		// Padconf for everything else (somi, simo, clk)
+#define SAM_SPI_PADCONF_SET_UPPER16(x, addr, temp)	(temp = __raw_readl(addr); temp &= 0x0000FFFF; temp |= x << 16;  __raw_writel(temp, addr) )
+#define SAM_SPI_PADCONF_SET_LOWER16(x, addr, temp)	(temp = __raw_readl(addr); temp &= 0xFFFF0000; temp |= x;		 __raw_writel(temp, addr) )
+
+#define IS_SPI1(x) (x&8)
+#define IS_SPI2(x) (x&16)
+#define IS_SPI3(x) (x&32)
+#define IS_SPI4(x) (x&64)
+#define SPI_CHAN_MASK 0x7;
+
+
+/* PADCONF reg */
+/*
+ * 
+ * [15:9] 	- Reserved
+ * [8]		- Input Enable
+ * [7:5]	- Reserved
+ * [4]		- Pull UP/down
+ * [3]		- Pull ENABLE/disable
+ * [2:0]	- Mode
+ * 
+ * */
+#define CONTROL_PADCONF_MCSPI1_CLK 	0x480021C8 // CLK[15:0] SIMO[31:16]
+#define CONTROL_PADCONF_MCSPI1_SOMI 0x480021CC // SOMI[15:0] CS0[31:16]
+#define CONTROL_PADCONF_MCSPI1_CS1  0x480021D0 // CS1[15:0] CS2[31:16]
+#define CONTROL_PADCONF_MCSPI1_CS3  0x480021D4 // CS3[15:0] CLK2[31:16]
+
+
+#define MY_PADCONF_MCSPI1_CLK 	0x01000100 // CLK, SIMO, mode 0.
+#define MY_PADCONF_MCSPI1_SOMI	0x01080100 // CS0 mode 0, pull enable?
+#define MY_PADCONF_MCSPI1_CS1   0x01080108 // CS1 and CS2, mode 0, pull enable?
+#define MY_PADCONF_MCSPI1_CS3   0x01000108 // CS3 and CLK2 mode 0
 
 /* Clocks */
 #define OMAP3_SPI1_FCLOCK_EN		(1 << 18)
@@ -2489,6 +2534,8 @@ private:
 #define OMAP3_SPI_CHxCONF_WL_8BIT		(0x7 << 7)
 #define OMAP3_SPI_CHxCONF_WL_16BIT		(0xF << 7)
 
+#define OMAP3_SPI_CHxCONF_TCS_3_5		(0x3 << 25)
+
 #define OMAP3_SPI_CHxCONF_EPOL_H		(1 << 6)
 #define OMAP3_SPI_CHxCONF_POL_L			(1 << 1)
 #define OMAP3_SPI_CHxCONF_PHA_D			(1 << 0)
@@ -2496,6 +2543,7 @@ private:
 #define OMAP3_SPI_CHxCONF_CLKD_CLR		(0xF << 2)
 #define OMAP3_SPI_CHxCONF_CLKD_32768	(0xF << 2)
 #define OMAP3_SPI_CHxCONF_CLKD_8192		(0xD << 2)
+#define OMAP3_SPI_CHxCONF_CLKD_4096		(0xC << 2)
 
 /* SYSSTATUS reg */
 #define OMAP3_SPI_RESETDONE 0x1
