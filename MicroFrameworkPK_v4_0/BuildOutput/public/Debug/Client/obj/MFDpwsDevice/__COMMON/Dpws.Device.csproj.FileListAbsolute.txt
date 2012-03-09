@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFDpwsDevice.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFDpwsDevice.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFDpwsDevice\__COMMON\MFDpwsDevice.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFDpwsDevice\__COMMON\MFDpwsDevice.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsDevice.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsDevice.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsDevice.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\MFDpwsDevice.dump

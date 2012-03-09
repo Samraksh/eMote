@@ -1,5 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Debugger.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Debugger.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Debugger\__COMMON\ResolveAssemblyReference.cache
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Debugger\__COMMON\Microsoft.SPOT.Debugger.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Debugger\__COMMON\Microsoft.SPOT.Debugger.pdb

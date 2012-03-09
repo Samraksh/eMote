@@ -1,1 +1,20 @@
-test
+I took steps to slim down the repo and remove build outputs from tracking.
+
+As of this writing, the contents of .gitignore are:
+MicroFrameworkPK_v4_0/BuildOutput/ARM/
+MicroFrameworkPK_v4_0/BuildOutput/THUMB2/
+MicroFrameworkPK_v4_0/BuildOutput/public
+
+This means that git will ignore these directories.
+
+I'm doing this to clean-up the commit logs. Having to wade through 1000 lines of output changes to find one line of source change is no good.
+
+The 'public' directory is a special case... it has binaries that we don't want in tracking but we can't seem to rebuild them either...
+It seems like we don't edit these files often so in the short term the solution is to remove from git tracking and add it back manually if somebody ever wants to clone our tree.
+The long term solution is to use a sub-repo or something more advanced, to keep it tracking somehow yet out of the commit logs.
+
+The same applies to the BuildOutput/Windows directory however it doesn't seem to show up in the commit logs so I'm going to let it be.
+
+If this breaks anything let me know.
+
+Nathan

@@ -1,9 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.Usb.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.Usb.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Hardware.Usb\__COMMON\Microsoft.SPOT.Hardware.Usb.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Hardware.Usb\__COMMON\Microsoft.SPOT.Hardware.Usb.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Hardware.Usb.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Hardware.Usb.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\Microsoft.SPOT.Hardware.Usb.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\txt\Microsoft.SPOT.Hardware.Usb_exports2.txt
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\Microsoft.SPOT.Hardware.Usb.dump

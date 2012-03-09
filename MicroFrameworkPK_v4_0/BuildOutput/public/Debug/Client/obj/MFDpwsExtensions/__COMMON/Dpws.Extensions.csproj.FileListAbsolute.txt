@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFDpwsExtensions.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFDpwsExtensions.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFDpwsExtensions\__COMMON\MFDpwsExtensions.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFDpwsExtensions\__COMMON\MFDpwsExtensions.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsExtensions.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsExtensions.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFDpwsExtensions.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\MFDpwsExtensions.dump

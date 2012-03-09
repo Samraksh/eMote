@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Net.Security.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Net.Security.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Net.Security\__COMMON\System.Net.Security.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Net.Security\__COMMON\System.Net.Security.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Net.Security.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Net.Security.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Net.Security.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\System.Net.Security.dump

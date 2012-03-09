@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFWsStack.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\MFWsStack.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFWsStack\__COMMON\MFWsStack.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\MFWsStack\__COMMON\MFWsStack.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFWsStack.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFWsStack.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\MFWsStack.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\MFWsStack.dump

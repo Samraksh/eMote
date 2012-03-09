@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Xml.Legacy.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Xml.Legacy.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Xml.Legacy\__COMMON\System.Xml.Legacy.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Xml.Legacy\__COMMON\System.Xml.Legacy.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.Legacy.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.Legacy.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Xml.Legacy.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\System.Xml.Legacy.dump

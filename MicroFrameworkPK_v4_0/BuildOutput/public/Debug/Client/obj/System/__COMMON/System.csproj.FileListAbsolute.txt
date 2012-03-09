@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System\__COMMON\System.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System\__COMMON\System.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\System.dump

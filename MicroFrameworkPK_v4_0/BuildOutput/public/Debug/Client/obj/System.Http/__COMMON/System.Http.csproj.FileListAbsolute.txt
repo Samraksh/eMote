@@ -1,8 +1,0 @@
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Http.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dll\System.Http.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Http\__COMMON\System.Http.dll
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\obj\System.Http\__COMMON\System.Http.pdb
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Http.strings
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Http.pe
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\pe\System.Http.pdbx
-C:\MicroFrameworkPK_v4_0\BuildOutput\public\Debug\Client\dumps\System.Http.dump
