@@ -31,6 +31,9 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	UINT32 i; // Timeout
 	SPI_CONFIGURATION config;
 	
+	config.MSK_IDLE = FALSE;
+	config.MSK_SampleEdge = FALSE;
+	
 //  Sanity check
 	l = __raw_readl(OMAP3_SPI_REVISION+OMAP3_SPI1_BASE);
 	if (l != OMAP3_SPI_REVISION_EXPECTED) // Except 0x21 aka RTL version 2.1
@@ -48,18 +51,18 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	__raw_writel(MY_PADCONF_MCSPI1_CS3,  CONTROL_PADCONF_MCSPI1_CS3);
 	// All SPI1 pads are now configured
 	
-	// Init to ensure all disabled
+	// Need to init 0 and 1.
 	config.SPI_mod  = 0;
 	Xaction_Start(config);
 	
 	config.SPI_mod  = 1;
 	Xaction_Start(config);
 	
-	config.SPI_mod  = 2;
-	Xaction_Start(config);
+	//config.SPI_mod  = 2;
+	//Xaction_Start(config);
 	
-	config.SPI_mod  = 3;
-	Xaction_Start(config);
+	//config.SPI_mod  = 3;
+	//Xaction_Start(config);
 #endif
 	
 #ifdef SOC8200_USE_SPI2
@@ -93,12 +96,10 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	__raw_writel(l, OMAP3_SPI_ICLOCK);
 	
 	// Disable and clear SPI interrupts, INTERRUPTS ARE NOW DISABLED
-	// CHANGE THIS IF YOU WANT INTERRUPTS
 	__raw_writel(0, 			OMAP3_SPI_IRQENABLE+OMAP3_SPI1_BASE); // Disable
 	__raw_writel(0x0001777F, 	OMAP3_SPI_IRQSTATUS+OMAP3_SPI1_BASE); // Clear
 
 //	Check for RESETDONE on SPI1, shouldn't actually need to loop
-//  Check for other resets later
 	while (i<10) {
 		l = __raw_readl(OMAP3_SPI1_BASE+OMAP3_SPI_SYSSTATUS);
 		if (l & OMAP3_SPI_RESETDONE == 1) return TRUE;
@@ -163,8 +164,10 @@ BOOL TIAM3517_SPI_Driver::nWrite8_nRead8( const SPI_CONFIGURATION& Configuration
 }
 
 
-/* 	Enables SPI channel
-	Returns TRUE on success */
+/* 	Setup SPI channel
+	After init, channel in disabled state.
+	Returns TRUE.
+*/
 BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration )
 {
 
@@ -175,10 +178,12 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	UINT32 chan,mod;		// channel
 	UINT32 mask;			// mask to find clock divider
 	UINT32 clock;			// clock rate finder
+	UINT32 myclock;
 	
 	mod = SPI_CHAN_TO_MOD(Configuration.SPI_mod);
 	chan = Configuration.SPI_mod;
 	
+	// Find register set.
 	if ( mod == OMAP3_SPI1) { 
 	// no change to chan
 	conf_reg 		= OMAP3_SPI_CHAN_ADDR	(chan, OMAP3_SPI1_BASE, OMAP3_SPI_CHxCONF);
@@ -224,7 +229,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	t |=  OMAP3_SPI_CHxCONF_TCS_3_5;			// 3.5 clocks before/after CS
 	t &= ~OMAP3_SPI_CHxCONF_WL_CLR;				// Clear then set 8-bit or 16-bit
 	
-	if (Configuration.MD_16bits) // True for 16-bits
+	if (Configuration.MD_16bits) 				// True for 16-bits
 		t |= OMAP3_SPI_CHxCONF_WL_16BIT;
 	else
 		t |= OMAP3_SPI_CHxCONF_WL_8BIT;
@@ -246,8 +251,14 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 		
 	// Loop to find fastest clock divider, 2^N
 	// Log base 2 (aka find highest bit)
-	// Yes this is the obvious way, O(N) horror of horros, the algorithm indian shed a tear
-	n = OMAP3_BASE_SPI_CLK_KHZ / Configuration.Clock_RateKHz; // Number we want to log2
+	// Yes this is the obvious way, O(N), the algorithm indian shed a tear
+	
+	if (Configuration.Clock_RateKHz == 0) // check for 0.
+		myclock = 1;
+	else
+		myclock = Configuration.Clock_RateKHz;
+		
+	n = OMAP3_BASE_SPI_CLK_KHZ / myclock; // Number we want to log2
 	mask = 0x00008000;
 	clock = 0xF;
 	while( clock > 0 ) {
@@ -274,9 +285,14 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	return TRUE;
 }
 
-
+/*
+	Actual "stop" done in the read/write code now, so nothing to do here.
+	Returns: True
+*/
 BOOL TIAM3517_SPI_Driver::Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 {   
+	return TRUE;
+/*
 	UINT32 ctrl_reg, t;
 	UINT32 chan, mod;
 	
@@ -306,8 +322,13 @@ BOOL TIAM3517_SPI_Driver::Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 	t = __raw_readl(ctrl_reg);
 	t &= ~OMAP3_SPI_CHxCTRL_EN;
 	__raw_writel(t, ctrl_reg); // Disable the port
+*/
 }
 
+/*
+	Perform 16-bit write or read
+	Returns FALSE on error
+*/
 BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 {
     INT32 i;
@@ -330,6 +351,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction 
 	mod = SPI_CHAN_TO_MOD(Transaction.SPI_mod);
 	chan = Transaction.SPI_mod;
 	
+	// Find correct register set.
 	if ( mod == OMAP3_SPI1) { 
 	// no change to chan
 	write_reg = OMAP3_SPI_CHAN_ADDR(chan, OMAP3_SPI1_BASE, OMAP3_SPI_TXx);
@@ -367,7 +389,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction 
     if(Write16 == NULL)                     { ASSERT(FALSE); return FALSE; }
     if((ReadCount > 0) && (Read16 == NULL)) { ASSERT(FALSE); return FALSE; }
 	
-	// Setup CHxCTRL
+	
 	tempWrite = __raw_readl(ctrl_reg) | OMAP3_SPI_CHxCTRL_EN;
 	__raw_writel(tempWrite, ctrl_reg); // Enable the port
 
@@ -394,7 +416,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction 
         // Write
 		tempWrite = Write16[0];
 
-        while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_TXS_EMPTY) == 0) { ; } 	// Poll for write done
+        while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_TXS_EMPTY) == 0) { ; } 	// Poll for write ready
 		__raw_writel(tempWrite, write_reg);
 		
 		while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_RXS_FULL) == 0)  { ; } 	// Poll for read done
@@ -414,9 +436,17 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction 
             Read16++;
         }
     }
+	
+	tempWrite = __raw_readl(ctrl_reg) & (~OMAP3_SPI_CHxCTRL_EN);
+	__raw_writel(tempWrite, ctrl_reg); // Disable the port
+	
     return TRUE;
 }
 
+/*
+	Perform 8-bit write/read.
+	Returns FALSE on error
+*/
 BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 {
     INT32 i;
@@ -439,6 +469,8 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 	mod = SPI_CHAN_TO_MOD(Transaction.SPI_mod);
 	chan = Transaction.SPI_mod;
 	
+	
+	// Find correct register set.
 	if ( mod == OMAP3_SPI1) { 
 	// no change to chan
 	write_reg = OMAP3_SPI_CHAN_ADDR(chan, OMAP3_SPI1_BASE, OMAP3_SPI_TXx);
@@ -476,7 +508,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
     if(Write8 == NULL)                     { ASSERT(FALSE); return FALSE; }
     if((ReadCount > 0) && (Read8 == NULL)) { ASSERT(FALSE); return FALSE; }
 	
-	// Setup CHxCTRL
+	
 	tempWrite = __raw_readl(ctrl_reg) | OMAP3_SPI_CHxCTRL_EN;
 	__raw_writel(tempWrite, ctrl_reg); // Enable the port
 
@@ -498,12 +530,13 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
     // WriteCount to be bigger than zero
     WriteCount -= 1;
    
+    // Do actual writes and reads.
     while(i--)
     {
         // Write
 		tempWrite = Write8[0];
 
-        while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_TXS_EMPTY) == 0) { ; } 	// Poll for write done
+        while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_TXS_EMPTY) == 0) { ; } 	// Poll for write ready
 		__raw_writel(tempWrite, write_reg);
 		
 		while ( (__raw_readl(poll_reg) & OMAP3_SPI_CHxSTAT_RXS_FULL) == 0)  { ; } 	// Poll for read done
@@ -523,10 +556,16 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
             Read8++;
         }
     }
+	
+	tempWrite = __raw_readl(ctrl_reg) & (~OMAP3_SPI_CHxCTRL_EN);
+	__raw_writel(tempWrite, ctrl_reg); // Disable the port
 
     return TRUE;
 }
 
+/*
+	Not used.
+*/
 void TIAM3517_SPI_Driver::GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi )
 {
 
