@@ -24,7 +24,7 @@ Init the SPI channel for the ADC. Ignore sampTime.
 TODO: Less clunky init code?
 */
 void hal_adc_init(u8 sampTime) {
-//TIAM3517_SPI_Driver::Initialize();
+TIAM3517_SPI_Driver::Initialize();
 }
 
 /*
@@ -39,7 +39,6 @@ Returns: 1 always
 */
 
 u8 hal_adc_getData(u16 *dataBuf, u8 startChannel, u8 numChannels) {
-	/*
 	u8 toADC[3] = {0x87, 0, 0 }; // 0x87 is a special control byte for only channel one.
 	u8 fromADC[3] = { 0, 0, 0 };
 	u16 t;
@@ -74,6 +73,6 @@ u8 hal_adc_getData(u16 *dataBuf, u8 startChannel, u8 numChannels) {
 	t = (((fromADC[1] & 0x7f) << 8) | fromADC[0]) >> 3;
 	
 	dataBuf[0] = t;
-	*/
+	
 	return 1;
 }
