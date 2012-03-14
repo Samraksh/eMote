@@ -63,7 +63,7 @@ Return: 0 on fail
 
 u8 hal_adc_getData(u16 *dataBuf, u8 startChannel, u8 numChannels) {
 	u8 toADC[3] = {0x87, 0, 0 }; // 0x87 is a special control byte for channel 0.
-	u8 fromADC[3] = { 0, 0, 0 };
+	u8 fromADC[3];
 	u16 t;
 	u32 i;
 	SPI_XACTION_8 action;
@@ -89,7 +89,7 @@ u8 hal_adc_getData(u16 *dataBuf, u8 startChannel, u8 numChannels) {
 		t = (((fromADC[1] & 0x7f) << 8) | fromADC[2]) >> 3;
 		
 		dataBuf[i] = t;
-		toADC[i] += 0x8; // Set control byte to next channel
+		toADC[0] += 0x8; // Set control byte to next channel
 	}
 	
 	return 1;
