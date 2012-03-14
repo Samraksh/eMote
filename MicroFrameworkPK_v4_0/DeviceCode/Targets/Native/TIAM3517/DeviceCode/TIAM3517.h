@@ -1836,7 +1836,8 @@ struct TIAM3517_AITC_RegisterGroup
 struct TIAM3517_TIME_Driver
 {
 	// Need to confirm this number
-    static const UINT32 c_OverflowCheck = (1 << 32);
+	// Setting this to zero to resolve warning, otherwise not sure -NPS
+    static const UINT32 c_OverflowCheck = 0 /*(1 << 32)*/;
 
     UINT64 m_lastRead;
     UINT64 m_nextCompare;

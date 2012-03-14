@@ -191,15 +191,16 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\FS\FAT\dotNetMF.proj" />
     <DriverLibs Include="FS_FAT.$(LIB_EXT)" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" />
-    <DriverLibs Include="cpu_spi_stubs.$(LIB_EXT)" />
-  </ItemGroup>
-  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_SPI\dotNetMF.proj" />
     <DriverLibs Include="TIAM3517_SPI.$(LIB_EXT)" />
   </ItemGroup>
+  <!--
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_ADC\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_ADC.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" />
     <DriverLibs Include="cpu_i2c_stubs.$(LIB_EXT)" />
