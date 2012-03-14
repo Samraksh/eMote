@@ -33,6 +33,8 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	
 	config.MSK_IDLE = FALSE;
 	config.MSK_SampleEdge = FALSE;
+	config.MD_16bits = FALSE;
+	config.Clock_RateKHz = 0; // Should default to 32768 divider
 	
 //  Sanity check
 	l = __raw_readl(OMAP3_SPI_REVISION+OMAP3_SPI1_BASE);
@@ -45,13 +47,13 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	l &= ~OMAP3_SPI_SYSCONFIG_RESET;
 	__raw_writel(l, OMAP3_SPI1_BASE+OMAP3_SPI_SYSCONFIG);
 	// Set PADCONFs directly (see TIAM3517 for indirect macros)
-	__raw_writel(MY_PADCONF_MCSPI1_CLK,  CONTROL_PADCONF_MCSPI1_CLK);
-	__raw_writel(MY_PADCONF_MCSPI1_SOMI, CONTROL_PADCONF_MCSPI1_SOMI);
-	__raw_writel(MY_PADCONF_MCSPI1_CS1,  CONTROL_PADCONF_MCSPI1_CS1);
-	__raw_writel(MY_PADCONF_MCSPI1_CS3,  CONTROL_PADCONF_MCSPI1_CS3);
+	__raw_writel(MY_PADCONF_MCSPI1_CLK,  SPI_CONTROL_PADCONF_MCSPI1_CLK);
+	__raw_writel(MY_PADCONF_MCSPI1_SOMI, SPI_CONTROL_PADCONF_MCSPI1_SOMI);
+	__raw_writel(MY_PADCONF_MCSPI1_CS1,  SPI_CONTROL_PADCONF_MCSPI1_CS1);
+	__raw_writel(MY_PADCONF_MCSPI1_CS3,  SPI_CONTROL_PADCONF_MCSPI1_CS3);
 	// All SPI1 pads are now configured
 	
-	// Need to init 0 and 1.
+	// Need to init 0 and 1 for SOC8200 board.
 	config.SPI_mod  = 0;
 	Xaction_Start(config);
 	
@@ -78,6 +80,7 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	l = __raw_readl(OMAP3_SPI3_BASE+OMAP3_SPI_SYSCONFIG);
 	l &= ~OMAP3_SPI_SYSCONFIG_RESET;
 	__raw_writel(l, OMAP3_SPI3_BASE+OMAP3_SPI_SYSCONFIG);
+	// TODO set PADCONFs
 #endif
 	
 #ifdef SOC8200_USE_SPI4
@@ -85,6 +88,7 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	l = __raw_readl(OMAP3_SPI4_BASE+OMAP3_SPI_SYSCONFIG);
 	l &= ~OMAP3_SPI_SYSCONFIG_RESET;
 	__raw_writel(l, OMAP3_SPI4_BASE+OMAP3_SPI_SYSCONFIG);
+	// TODO set PADCONFs
 #endif
 
 //	Enable Clocks
@@ -95,9 +99,10 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 	l |= OMAP3_SPI1_ICLOCK_EN;
 	__raw_writel(l, OMAP3_SPI_ICLOCK);
 	
-	// Disable and clear SPI interrupts, INTERRUPTS ARE NOW DISABLED
+	// Disable and clear SPI interrupts
 	__raw_writel(0, 			OMAP3_SPI_IRQENABLE+OMAP3_SPI1_BASE); // Disable
 	__raw_writel(0x0001777F, 	OMAP3_SPI_IRQSTATUS+OMAP3_SPI1_BASE); // Clear
+	// SPI INTERRUPTS ARE NOW DISABLED
 
 //	Check for RESETDONE on SPI1, shouldn't actually need to loop
 	while (i<10) {
@@ -113,8 +118,6 @@ void TIAM3517_SPI_Driver::Uninitialize()
 {    
     
 }
-
-/***************************************************************************/
 
 void TIAM3517_SPI_Driver::ISR( void* Param )
 {
@@ -164,7 +167,8 @@ BOOL TIAM3517_SPI_Driver::nWrite8_nRead8( const SPI_CONFIGURATION& Configuration
 }
 
 
-/* 	Setup SPI channel
+/* 	
+	Setup SPI channel
 	After init, channel in disabled state.
 	Returns TRUE.
 */
@@ -214,7 +218,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	
 	// Setup MODULCTRL
 	t = __raw_readl(modulctrl_reg);
-	t &= ~(OMAP3_SPI_MODULCTRL_SLAVE);		// Master Mode
+	t &= ~(OMAP3_SPI_MODULCTRL_SLAVE);			// Master Mode
 	__raw_writel(t, modulctrl_reg);
 	
 	// Setup CHxCONF
@@ -250,7 +254,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 
 		
 	// Loop to find fastest clock divider, 2^N
-	// Log base 2 (aka find highest bit)
+	// Log base 2 (aka find highest bit and round down).
 	// Yes this is the obvious way, O(N), the algorithm indian shed a tear
 	
 	if (Configuration.Clock_RateKHz == 0) // check for 0.
@@ -259,11 +263,11 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 		myclock = Configuration.Clock_RateKHz;
 		
 	n = OMAP3_BASE_SPI_CLK_KHZ / myclock; // Number we want to log2
-	mask = 0x00008000;
+	mask = 0xFFFF8000; // >= 32768
 	clock = 0xF;
 	while( clock > 0 ) {
 		if (n & mask)
-			continue;
+			break;
 		else {
 			clock--;
 			mask = mask >> 1;
@@ -278,8 +282,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	__raw_writel(t, conf_reg);
 	
 	// Make sure disabled
-	t = __raw_readl(ctrl_reg);
-	t &= ~OMAP3_SPI_CHxCTRL_EN;
+	t = __raw_readl(ctrl_reg) & ~(OMAP3_SPI_CHxCTRL_EN);
 	__raw_writel(t, ctrl_reg); // Disable the port
 	
 	return TRUE;
