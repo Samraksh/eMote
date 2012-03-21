@@ -385,10 +385,19 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" />
     <DriverLibs Include="piezo_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  
+  <!--
+  <ItemGroup>
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_POWER\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_Power.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" />
     <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  
   <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_PreStackInit\dotNetMF.proj" />

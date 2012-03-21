@@ -2595,4 +2595,11 @@ private:
 #define OMAP3_SPI_RXx			0x3C
 
 
+/*********** POWER API DRIVER **********/
+
+struct TIAM3517_POWER_Driver {
+	static void Sleep();
+};
+
+
 #endif
