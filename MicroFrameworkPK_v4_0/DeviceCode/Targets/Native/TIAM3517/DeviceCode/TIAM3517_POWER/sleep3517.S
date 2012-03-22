@@ -15,13 +15,6 @@
  * GNU General Public License for more details.
  */
 
-#define CM_IDLEST1_CORE_V OMAP34XX_CM_REGADDR(CORE_MOD, 0x20)
-#define CM_CLKST_CORE_V   OMAP34XX_CM_REGADDR(CORE_MOD, OMAP3430_CM_CLKSTST)
-#define CM_ICLKEN1_CORE_V OMAP34XX_CM_REGADDR(CORE_MOD, CM_ICLKEN1)
-
-#define EMIF_PM_CTR_V           0x6D000038
-#define OMAP3517_CONF1_REG_V    0x48002584
-
 /*
  * Forces OMAP into idle state
  *
@@ -31,8 +24,8 @@
  * Note: This code get's copied to internal SRAM at boot. When the OMAP
  *	 wakes up it continues execution at the point it went to sleep.
  */
-/*ENTRY(omap3517_cpu_suspend)*/
 .global omap3517_cpu_suspend
+.section BootStrap,       "a", %progbits
 omap3517_cpu_suspend:
 	stmfd	sp!, {r0-r12, lr}		@ save registers on stack
 	
@@ -112,10 +105,11 @@ cm_clkst_core:
 	.word 0x48004a4c
 	/*.word   CM_CLKST_CORE_V*/
 emif_pm_ctrl:
-	.word   EMIF_PM_CTR_V
+	.word	0x6d000038
+	/*.word   EMIF_PM_CTR_V*/
 cm_iclken1_core:
 	.word 0x48004a10
 	/*.word   CM_ICLKEN1_CORE_V*/
 omap3517_conf1:
-	.word   OMAP3517_CONF1_REG_V
-
+	.word	0x48002584
+	/*.word   OMAP3517_CONF1_REG_V*/

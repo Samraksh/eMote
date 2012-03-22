@@ -29,6 +29,12 @@
         <Set Name="Valid"            Value="true"/>
 
     </If>
+	
+	 <If Name="TARGETLOCATION" Value="Internal RAM">
+    	<Set Name="Code_BaseAddress" Value="0x40200000"/>
+        <Set Name="Code_Size"        Value="0x000D000"/>
+        <Set Name="Valid"            Value="true"/>
+    </If>
 
 
     <!-- ################################################################################ -->
@@ -45,11 +51,15 @@
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
       <LoadRegion Name="RELOC_RAM" Base="0x8040000F" Size="64K"/>
+	  <LoadRegion Name="LR_Internal_RAM" Base="0x40200000" Size="52K"/>
     </NamedGroup>
 
     <EntryPoint Name="EntryPoint"/>
 
     <NamedGroup Name="SECTIONS">
+	  <ExecRegion Name="ER_Internal_RAM" Options="&gt;LR_Internal_RAM">
+      	<FileMapping Name="*" Options="(BootStrap)" />	
+      </ExecRegion>
       <ExecRegion Name="ER_%TARGETLOCATION%" Options="&gt;LR_%TARGETLOCATION%">
         <FileMapping Name="*" Options="(i.EntryPoint)" />
         <FileMapping Name="*" Options="(SectionForBootstrapOperations)" />

@@ -15,24 +15,24 @@
 
 
 /*
-	All clocks setup earlier in bootstrap.
-	Nothing here for now. May change later.
+All clocks setup earlier in bootstrap (X-loader)
+Nothing here for now. May change later.
 */
 BOOL CPU_Initialize() {
 	return TRUE;
 }
 
 /*
-	Nothing here at the moment.
-	Potentially change clocks.
-	Otherwise hardware is handled dynamically.
+Nothing here at the moment.
+Potentially change clocks.
+Otherwise hardware is handled dynamically.
 */
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
 	return;
 }
 
 /*
-	Only sleep for now
+Only sleep for now
 */
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
 {
@@ -52,21 +52,21 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
 }
 
 /*
-	Not supported.
+Not yet supported.
 */
 void CPU_Halt(){
     return;
 }
 
 /*
-	Not supported.
+Not yet supported.
 */
 void CPU_Reset() {
     return;
 }
 
 /*
-	Not supported.
+Not yet supported.
 */
 BOOL CPU_IsSoftRebootSupported () {
     return FALSE;
