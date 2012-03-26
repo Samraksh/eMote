@@ -187,7 +187,7 @@ void TIAM3517_AITC_Driver::Initialize()
 
 	UINT32 tmp = 0;
 	// Enabling clock to the intc dpll1_fclk
-	MPUCM.CM_CLKEN_PLL_MPU |= 7;
+//	MPUCM.CM_CLKEN_PLL_MPU |= 7; // Shouldn't be necessary -- NPS
 
 //	enableINTC();
 

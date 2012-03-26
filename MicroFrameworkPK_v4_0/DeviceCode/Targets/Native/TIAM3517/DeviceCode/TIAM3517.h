@@ -2599,7 +2599,15 @@ private:
 
 struct TIAM3517_POWER_Driver {
 	static void Sleep();
+	static void Highpower();
+	static void Lowpower();
 };
+
+#define OMAP3_CM_CLKEN_PLL_MPU 			0x48004904
+#define OMAP3_CM_CLKEN_PLL_MPU_BYPASS 	0x5
+#define OMAP3_CM_CLKEN_PLL_MPU_LOCK 	0x7
+#define OMAP3_CM_IDLEST_PLL_MPU			0x48004924
+#define OMAP3_CM_IDLEST_PLL_MPU_LOCKED	0x1
 
 
 #endif

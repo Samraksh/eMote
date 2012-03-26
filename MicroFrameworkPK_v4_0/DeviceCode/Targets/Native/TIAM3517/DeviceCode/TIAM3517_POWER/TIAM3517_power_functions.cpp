@@ -23,12 +23,27 @@ BOOL CPU_Initialize() {
 }
 
 /*
-Nothing here at the moment.
-Potentially change clocks.
-Otherwise hardware is handled dynamically.
+High:	500 MHz
+Mid:	500 MHz
+Low:	13 MHz
+
+Basically just toggles DPLL1 between bypass and locked mode.
 */
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
-	return;
+	switch(level) {
+		case POWER_LEVEL__HIGH_POWER:
+			TIAM3517_POWER_Driver::Highpower();
+			break;
+		case POWER_LEVEL__MID_POWER:
+			TIAM3517_POWER_Driver::Highpower();
+			break;
+		case POWER_LEVEL__LOW_POWER:
+			TIAM3517_POWER_Driver::Lowpower();
+			break;
+		default:
+			TIAM3517_POWER_Driver::Highpower();
+			break;
+	}
 }
 
 /*
