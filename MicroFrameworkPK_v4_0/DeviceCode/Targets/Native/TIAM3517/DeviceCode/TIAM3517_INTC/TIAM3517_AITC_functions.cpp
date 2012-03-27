@@ -3,7 +3,7 @@
  *
  *  Author : Nived.Sivadas@Samraksh.com
  *
- *  Description :
+ *  Description : contains the intc api required by the .net mf
  *
  */
 
