@@ -141,6 +141,12 @@ SUPERVISOR_STACK_START:
 	@.endm
 
 	.macro	irq_save_user_regs
+
+	@stmfd sp!, {r0 - r12, lr}
+    @str sp, spsr
+	@mrs r11, spsr
+	@str r11, [sp]
+	@sub sp, sp, #4
 	sub	sp, sp, #72
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
 	add	r8, sp, #60			@ !! R8 NEEDS to be saved !!
@@ -155,6 +161,13 @@ SUPERVISOR_STACK_START:
 	.endm
 
 	.macro	irq_restore_user_regs
+	@msr spsr, r11
+
+	@ldr r11,[sp]
+	@add sp, sp, #4
+	@msr spsr,r11
+	@ldmfd sp!, {r0 - r12, lr}
+	@ldr sp, spsr
 	ldmia	sp, {r0 - lr}^			@ Calling r0 - lr
 	mov	r0, r0
 	ldr	lr, [sp, #60]			@ Get PC
@@ -185,11 +198,21 @@ SUPERVISOR_STACK_START:
 						@ switch modes.
 	@.endm
 
+
 IRQ_SubHandler:
-	ldr	sp, =IRQ_STACK_START
+	@ldr	sp, =IRQ_STACK_START
 	irq_save_user_regs
-	b IRQ_Handler
+	@stmfd sp!, {r0 - r12, lr}
+	@mrs r11, spsr
+	@add lr, pc, #4
+	bl myIRQ_Handler
 	irq_restore_user_regs
+	@msr spsr, r11
+	@ldmfd sp!, {r0 - r12, lr}
+	@subs pc, lr, #4
+	@mrs r0, spsr
+	@msr cpsr_c, r0
+	@mov pc,lr
 
 
 ABORTD_Local_SubHandler:
@@ -343,6 +366,10 @@ PreStackInit_Exit_Pointer:
     @ldr     r0, =__libc_init_array
     @blx		r0
     @ldr r0, =SUPERVISOR_STACK_START
+    msr cpsr_c, #PSR_MODE_ABORT
+    ldr sp, =0x82200000
+    msr cpsr_c, #PSR_MODE_IRQ
+    ldr sp, =0x82000000
     msr cpsr_c, #PSR_MODE_SUPERVISOR
     ldr sp, =0x80250000
 
