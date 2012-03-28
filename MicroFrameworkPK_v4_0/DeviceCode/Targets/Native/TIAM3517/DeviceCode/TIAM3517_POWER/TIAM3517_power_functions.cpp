@@ -19,6 +19,7 @@ All clocks setup earlier in bootstrap (X-loader)
 Nothing here for now. May change later.
 */
 BOOL CPU_Initialize() {
+	TIAM3517_POWER_Driver::Init();
 	return TRUE;
 }
 

@@ -2601,6 +2601,7 @@ struct TIAM3517_POWER_Driver {
 	static void Sleep();
 	static void Highpower();
 	static void Lowpower();
+	static void Init();
 };
 
 #define OMAP3_CM_CLKEN_PLL_MPU 			0x48004904
@@ -2608,6 +2609,11 @@ struct TIAM3517_POWER_Driver {
 #define OMAP3_CM_CLKEN_PLL_MPU_LOCK 	0x7
 #define OMAP3_CM_IDLEST_PLL_MPU			0x48004924
 #define OMAP3_CM_IDLEST_PLL_MPU_LOCKED	0x1
+
+#define OMAP3_CM_CLKSTCTRL_NEON			0x48005348
+#define OMAP3_CM_CLKSTCTRL_NEON_AUTO	0x3
+#define OMAP3_CM_CLKSTCTRL_MPU			0x48004948
+#define OMAP3_CM_CLKSTCTRL_MPU_AUTO		0x3
 
 
 #endif
