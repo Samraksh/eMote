@@ -82,8 +82,8 @@ BOOL TIAM3517_USART_Driver::Uninitialize( int comPort ) {
 */
 BOOL TIAM3517_USART_Driver::TxBufferEmpty( int comPort ) {
 	int base;
-	if (base == 0) return false;
 	base = TIAM3517_getBase(comPort) + SAM_AM3517_UART_LSR;
+	if (base == SAM_AM3517_UART_LSR) return false;
 	
 	return __raw_readb(base) & SAM_AM3517_UART_LSR_TX_FIFO_E;
 }
@@ -94,8 +94,8 @@ BOOL TIAM3517_USART_Driver::TxBufferEmpty( int comPort ) {
 */
 BOOL TIAM3517_USART_Driver::TxShiftRegisterEmpty( int comPort ) {
 	int base;
-	if (base == 0) return false;
 	base = TIAM3517_getBase(comPort) + SAM_AM3517_UART_LSR;
+	if (base == SAM_AM3517_UART_LSR) return false;
 	
 	return __raw_readb(base) & SAM_AM3517_UART_LSR_TX_SR_E;
 }
