@@ -14,7 +14,7 @@
 
 /***************************************************************************/
 
-UINT32 SPI_CHAN_TO_MOD(UINT32 x) {
+static UINT32 SPI_CHAN_TO_MOD(UINT32 x) {
 	if (x <  4) return OMAP3_SPI1;
 	if (x <  6) return OMAP3_SPI2;
 	if (x <  8) return OMAP3_SPI3;
