@@ -2667,6 +2667,8 @@ struct TIAM3517_USART_Driver {
 #define SAM_AM3517_UART_CFPS	0x060
 
 // Write regs, offsets
+#define SAM_AM3517_UART_DLL		0x000
+#define SAM_AM3517_UART_DLH		0x004
 #define SAM_AM3517_UART_THR		0x000
 #define SAM_AM3517_UART_FCR		0x008
 #define SAM_AM3517_UART_TCR		0x018

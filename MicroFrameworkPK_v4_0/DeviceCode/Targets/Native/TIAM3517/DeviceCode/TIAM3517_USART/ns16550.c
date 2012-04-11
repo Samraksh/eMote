@@ -7,7 +7,7 @@
 #include <config.h>
 #include <ns16550.h>
 
-#define UART_LCRVAL UART_LCR_8N1		/* 8 data, 1 stop, no parity */
+#define UART_LCRVAL 0x3
 #define UART_MCRVAL (UART_MCR_DTR | \
 		     UART_MCR_RTS)		/* RTS/DTR */
 #define UART_FCRVAL (UART_FCR_FIFO_EN |	\
