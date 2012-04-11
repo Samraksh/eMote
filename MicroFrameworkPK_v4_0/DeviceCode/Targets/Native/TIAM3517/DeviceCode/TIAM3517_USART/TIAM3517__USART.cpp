@@ -3,39 +3,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
+#include "../TIAM3517.h"
 
 //#define AM3517_ENABLE_UART1
 //#define AM3517_ENABLE_UART2
-#define AM3517_ENABLE_UART3
+#define AM3517_ENABLE_UART3		// Recommend always enabled
 //#define AM3517_ENABLE_UART4
-
-/*
-	Software reset each UART module
-	Defaults: UART3, 8 data bits, no parity, 115200 baud, 1 stop bit, software flow
-	Returns TRUE
-*/
-BOOL TIAM3517_USART_Driver::Initialize( int comPort, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue ) {
-	int t;
-	int base;
-	
-	base = TIAM3517_getBase(comPort)
-	
-	t = __raw_readl(base+SAM_AM3517_UART_SYSC) | SAM_AM3517_UART_SYSC_SOFTRESET);
-	__raw_writel(t, base+SAM_AM3517_UART_SYSC);
-	while ( __raw_readl(base+SAM_AM3517_UART_SYSS) == 0) { ; } // poll until reset
-	
-	// 8 Data bits
-	t = __raw_readl(base+SAM_AM3517_UART_LCR) | SAM_AM3517_UART_LCR_CHAR_LEN_8);
-	t = __raw_writel(t, base+SAM_AM3517_UART_LCR);
-	return true;
-}
-
-/*
-	Returns TRUE
-*/
-BOOL TIAM3517_USART_Driver::Uninitialize( int comPort ) {
-	return true;
-}
 
 /*
 	Simple map of comPort to UART register base
@@ -62,6 +35,35 @@ static int TIAM3517_getBase( int comPort ) {
 		// UART3 by default, no ifdef
 		default: return SAM_AM3517_UART3;
 	}
+}
+
+/*
+	Software reset each UART module
+	Defaults: UART3, 8 data bits, no parity, 115200 baud, 1 stop bit, software flow
+	Returns TRUE
+*/
+BOOL TIAM3517_USART_Driver::Initialize( int comPort, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue ) {
+	int t;
+	int base;
+	
+	base = TIAM3517_getBase(comPort);
+	
+	t = __raw_readl(base+SAM_AM3517_UART_SYSC) | SAM_AM3517_UART_SYSC_SOFTRESET;
+	__raw_writel(t, base+SAM_AM3517_UART_SYSC);
+	while ( __raw_readl(base+SAM_AM3517_UART_SYSS) == 0) { ; } // poll until reset
+	
+	// 8 Data bits
+	t = __raw_readl(base+SAM_AM3517_UART_LCR) | SAM_AM3517_UART_LCR_CHAR_LEN_8;
+	t = __raw_writel(t, base+SAM_AM3517_UART_LCR);
+	return true;
+}
+
+/*
+	TODO
+	Returns TRUE
+*/
+BOOL TIAM3517_USART_Driver::Uninitialize( int comPort ) {
+	return true;
 }
 
 /*

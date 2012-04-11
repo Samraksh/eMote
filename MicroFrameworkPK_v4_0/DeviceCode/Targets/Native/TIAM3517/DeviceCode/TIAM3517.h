@@ -2617,6 +2617,24 @@ struct TIAM3517_POWER_Driver {
 
 /*********** UART DRIVER **********/
 
+struct TIAM3517_USART_Driver {
+	static BOOL Initialize( int comPort, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue );
+	static BOOL Uninitialize( int comPort );
+	static BOOL TxBufferEmpty( int comPort );
+	static BOOL TxShiftRegisterEmpty( int comPort );
+	static void WriteCharToTxBuffer( int comPort, UINT8 c );
+	static void TxBufferEmptyInterruptEnable( int comPort, BOOL enable );
+	static BOOL TxBufferEmptyInterruptState( int comPort );
+	static void RxBufferFullInterruptEnable( int comPort, BOOL Enable );
+	static BOOL RxBufferFullInterruptState( int comPort );
+	static BOOL TxHandshakeEnabledState(int comPort);
+	static void USART_ISR( void* param );
+	static void ProtectPins( int comPort, BOOL on );
+	static void GetPins( int comPort, GPIO_PIN& rxPin, GPIO_PIN& txPin, GPIO_PIN& ctsPin, GPIO_PIN& rtsPin );
+	static void BaudrateBoundary( int ComPortNum, UINT32& maxBaudrateHz, UINT32& minBaudrateHz );
+	static BOOL IsBaudrateSupported( int ComPortNum, UINT32 & BaudrateHz );
+};
+
 // Module register bases
 #define SAM_AM3517_UART1	0x4806A000
 #define SAM_AM3517_UART2	0x4806C000

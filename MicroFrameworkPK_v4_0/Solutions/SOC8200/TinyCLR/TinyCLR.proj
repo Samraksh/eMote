@@ -300,11 +300,20 @@
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" />
     <DriverLibs Include="tinycrt_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_USART\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_USART.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\processor\stubs_USART\dotNetMF.proj" />
     <DriverLibs Include="cpu_usart_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+  -->
+  
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" />
     <DriverLibs Include="usb_pal_config_stub.$(LIB_EXT)" />
   </ItemGroup>

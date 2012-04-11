@@ -52,7 +52,6 @@
   <PropertyGroup />
   <ItemGroup>
     <HFiles Include="..\TIAM3517.h" />
-    <Compile Include="TIAM3517_USART_config.cpp" />
     <Compile Include="TIAM3517_USART_functions.cpp" />
     <Compile Include="TIAM3517__USART.cpp" />
   </ItemGroup>
