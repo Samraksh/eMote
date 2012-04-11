@@ -72,12 +72,6 @@ void TIAM3517_PinMux::initGPIOCNTR(){
 	gpio_cntr_pad.pins[62]=CONTROL_PADCONF_GPMC_NWP;
 	gpio_cntr_pad.pins[63]=CONTROL_PADCONF_GPMC_WAIT1;
 
-
-	gpio_cntr_pad.pins[152]=CONTROL_PADCONF_MCBSP4_CLKX;
-	gpio_cntr_pad.pins[153]=CONTROL_PADCONF_MCBSP4_DR;
-	gpio_cntr_pad.pins[154]=CONTROL_PADCONF_MCBSP4_DX;
-	gpio_cntr_pad.pins[155]=CONTROL_PADCONF_MCBSP4_FSX;
-	gpio_cntr_pad.pins[156]=CONTROL_PADCONF_MCBSP1_CLKR;
 	gpio_cntr_pad.pins[157]=CONTROL_PADCONF_MCBSP1_FSR;
 	gpio_cntr_pad.pins[158]=CONTROL_PADCONF_MCBSP1_DX;
 	gpio_cntr_pad.pins[159]=CONTROL_PADCONF_MCBSP1_DR;
@@ -100,7 +94,7 @@ void TIAM3517_PinMux::setMuxGPIO(UINT32 pin){
 	}*/
 	UINT32 ADDR = gpio_cntr_pad.pins[pin];
 
-	if((pin >=34 && pin <=63) || (pin >=152 && pin <=162)){
+	if((pin >=34 && pin <=63) || (pin >=157 && pin <=162)){
 		setMode(ADDR,(IDIS | PTU | EN  | M4));
 	}
 }
