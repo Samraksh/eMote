@@ -32,29 +32,40 @@ static int TIAM3517_getBase( int comPort ) {
 		case 4: return SAM_AM3517_UART4;
 		#endif
 		
-		// UART3 by default, no ifdef
-		default: return SAM_AM3517_UART3;
+		default: return 0;
 	}
 }
 
 /*
-	Software reset each UART module
-	Defaults: UART3, 8 data bits, no parity, 115200 baud, 1 stop bit, software flow
+	Software reset a UART module (3 by default). Ignores parameters.
+	Defaults: UART3, 8 data bits, no parity, 115200 baud, 1 stop bit, software flow, 16x
 	Returns TRUE
 */
 BOOL TIAM3517_USART_Driver::Initialize( int comPort, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue ) {
-	int t;
 	int base;
 	
 	base = TIAM3517_getBase(comPort);
+	if (base == 0) return false;
 	
-	t = __raw_readl(base+SAM_AM3517_UART_SYSC) | SAM_AM3517_UART_SYSC_SOFTRESET;
-	__raw_writel(t, base+SAM_AM3517_UART_SYSC);
-	while ( __raw_readl(base+SAM_AM3517_UART_SYSS) == 0) { ; } // poll until reset
+	__raw_writeb(SAM_AM3517_UART_SYSC_SOFTRESET, base+SAM_AM3517_UART_SYSC);
+	while ( __raw_readb(base+SAM_AM3517_UART_SYSS) == 0) { ; } // poll until reset
 	
-	// 8 Data bits
-	t = __raw_readl(base+SAM_AM3517_UART_LCR) | SAM_AM3517_UART_LCR_CHAR_LEN_8;
-	t = __raw_writel(t, base+SAM_AM3517_UART_LCR);
+	// Disable UART, put into configuration mode
+	__raw_writeb( 0x7 , base+SAM_AM3517_UART_MDR1 );
+	
+	// Switch to configuration mode B
+	__raw_writeb( 0x00BF, base+SAM_AM3517_UART_LCR );
+	
+	// Write DLH, DLL. Default of 115200 baud
+	__raw_writeb( 0x00, base+SAM_AM3517_UART_DLH );
+	__raw_writeb( 0x1A, base+SAM_AM3517_UART_DLL );
+	
+	// Switch to operational mode and set protocol format to 8,N,1
+	__raw_writeb( 0x03, base+SAM_AM3517_UART_LCR);
+	
+	// Load
+	__raw_writeb( 0x0, base+SAM_AM3517_UART_MDR1 );
+	
 	return true;
 }
 
@@ -70,11 +81,11 @@ BOOL TIAM3517_USART_Driver::Uninitialize( int comPort ) {
 	Returns TRUE if the tx fifo is empty
 */
 BOOL TIAM3517_USART_Driver::TxBufferEmpty( int comPort ) {
-	int base, t;
+	int base;
+	if (base == 0) return false;
 	base = TIAM3517_getBase(comPort) + SAM_AM3517_UART_LSR;
 	
-	t = __raw_readl(base);
-	return t & SAM_AM3517_UART_LSR_TX_FIFO_E;
+	return __raw_readb(base) & SAM_AM3517_UART_LSR_TX_FIFO_E;
 }
 
 /*
@@ -82,11 +93,11 @@ BOOL TIAM3517_USART_Driver::TxBufferEmpty( int comPort ) {
 	meaning the transmission is complete (as opposed to above)
 */
 BOOL TIAM3517_USART_Driver::TxShiftRegisterEmpty( int comPort ) {
-	int base, t;
+	int base;
+	if (base == 0) return false;
 	base = TIAM3517_getBase(comPort) + SAM_AM3517_UART_LSR;
 	
-	t = __raw_readl(base);
-	return t & SAM_AM3517_UART_LSR_TX_SR_E;
+	return __raw_readb(base) & SAM_AM3517_UART_LSR_TX_SR_E;
 }
 
 /*
@@ -96,13 +107,15 @@ void TIAM3517_USART_Driver::WriteCharToTxBuffer( int comPort, UINT8 c ) {
 	int base, lsr, t, thr;
 	
 	base = TIAM3517_getBase(comPort);
+	if (base == 0) return;
+	
 	lsr  = base + SAM_AM3517_UART_LSR;
 	thr  = base + SAM_AM3517_UART_THR;
 	
 	// Spin until buffer ready
-	while ( (__raw_readl(base) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
+	while ( (__raw_readb(base) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
 	
-	__raw_writel(c, thr);
+	__raw_writeb(c, thr);
 }
 
 /*
