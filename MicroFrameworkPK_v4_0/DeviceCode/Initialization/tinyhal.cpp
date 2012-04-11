@@ -482,6 +482,10 @@ void BootEntry()
     //g_Boot_RAMConstants_CRC = Checksum_RAMConstants(); //KN
 #endif
 
+// Nived.Sivadas@samraksh.com : Do not comment this function out here even if it is being called else where afterwards.
+// What may seem redundant can cause problems with the nested interrupt working. 
+	CPU_INTC_Initialize();
+	
 	CPU_Initialize();
 	
     HAL_Time_Initialize();
