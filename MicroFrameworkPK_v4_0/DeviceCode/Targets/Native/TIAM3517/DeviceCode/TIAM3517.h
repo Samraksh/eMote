@@ -2484,14 +2484,14 @@ private:
 
 /* PADCONF reg */
 /*
- * 
+ *
  * [15:9] 	- Reserved
  * [8]		- Input Enable
  * [7:5]	- Reserved
  * [4]		- Pull UP/down
  * [3]		- Pull ENABLE/disable
  * [2:0]	- Mode
- * 
+ *
  * */
 #define SPI_CONTROL_PADCONF_MCSPI1_CLK 	0x480021C8 // CLK[15:0] SIMO[31:16]
 #define SPI_CONTROL_PADCONF_MCSPI1_SOMI 0x480021CC // SOMI[15:0] CS0[31:16]
