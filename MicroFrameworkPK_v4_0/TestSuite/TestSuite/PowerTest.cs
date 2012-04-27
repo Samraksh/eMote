@@ -15,7 +15,7 @@ using TestSuite;
 
 namespace TestSuite
 {
-    public class TimerTest
+    public class PowerTest
     {
 		
 		public static bool state = false;
@@ -27,11 +27,11 @@ namespace TestSuite
 			
             try
             {
-			
-				Timer tmr = new Timer(new TimerCallback(Callback), null, 0, 5);								
+				PowerState.ChangePowerLevel( PowerLevel.Low );
+				Timer tmr = new Timer(new TimerCallback(Callback), null, 0, 5);
 				while (true)
                 {
-					Thread.Sleep(100);
+					Thread.Sleep(1000);
                 }				
             }
             catch (Exception)
