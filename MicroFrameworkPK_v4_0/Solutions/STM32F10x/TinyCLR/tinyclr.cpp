@@ -4,7 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-#include <Tests.h>
+//#include <Tests.h>
 #include <lcd_basic/stm32f10x_lcd_basic.h>
 #include <rtc/int_time.h>
 #include <exti/stm32f10x_exti.h>
