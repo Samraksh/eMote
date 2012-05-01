@@ -1,4 +1,4 @@
-struct Power_Driver
+struct STM32F1x_Power_Driver
 {
     static const UINT32 c_SystemTime_Timer         = 2;
 	//We have not defined any watch dog timers yet
@@ -9,20 +9,13 @@ struct Power_Driver
     volatile UINT32* m_PerformanceCounter;
 #endif
 
-    //--//
-
     static BOOL Initialize();
-
-    static void Pause();
-
     static void Sleep();
-
+	static void High_Power();
+	static void Low_Power();
     static void Halt();
-
     static void Reset();
-
     static void Shutdown();
-
     static void Hibernate();
 
 #if !defined(BUILD_RTM)
@@ -32,4 +25,4 @@ struct Power_Driver
 #endif
 };
 
-extern Power_Driver g_Power_Driver;
+//extern Power_Driver g_Power_Driver;

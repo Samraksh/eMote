@@ -1,66 +1,61 @@
 #include <cores\arm\include\cpu.h>
-#include <netmf_pwr.h>
+#include "netmf_pwr.h"
 
-BOOL CPU_Initialize()
-{
-    return Power_Driver::Initialize();
+BOOL CPU_Initialize() {
+    return STM32F1x_Power_Driver::Initialize();
 }
 
-//--//
-
-//#pragma arm section code
-
-
-void CPU_ChangePowerLevel(POWER_LEVEL level)
-{
-	//The CPU continues to run in RUN mode but the clocks are slowed down
+void CPU_ChangePowerLevel(POWER_LEVEL level) {
     switch(level)
     {
         case POWER_LEVEL__MID_POWER:
+			STM32F1x_Power_Driver::High_Power();
             break;
-
+			
         case POWER_LEVEL__LOW_POWER:
+			STM32F1x_Power_Driver::Low_Power();
             break;
-
+			
         case POWER_LEVEL__HIGH_POWER:
+			STM32F1x_Power_Driver::High_Power();
+			break;
+			
         default:
+			STM32F1x_Power_Driver::High_Power();
             break;
     }
 }
 
-void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
-{
-	//The CPU is made to enter the sleep mode
+// I don't actually know how OFF and DEEP_SLEEP get called
+// SLEEP gets called when the MF has no threads ready
+void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
     switch(level)
     {
         case SLEEP_LEVEL__DEEP_SLEEP:
-            Power_Driver::Hibernate();
+            STM32F1x_Power_Driver::Hibernate();
             break;
         case SLEEP_LEVEL__OFF:
-            Power_Driver::Shutdown();
+            STM32F1x_Power_Driver::Shutdown();
             break;
         case SLEEP_LEVEL__SLEEP:
         default:
-            Power_Driver::Sleep();
+            STM32F1x_Power_Driver::Sleep();
             break;
     }
 }
 
-void CPU_Halt()
-{
-    Power_Driver::Halt();
+void CPU_Halt() {
+    STM32F1x_Power_Driver::Halt();
 }
 
-void CPU_Reset()
-{
-    Power_Driver::Reset();
+void CPU_Reset() {
+    STM32F1x_Power_Driver::Reset();
 }
 
 /*
 Indicates whether a soft reboot is supported by the underlying hardware. 
 */
-BOOL CPU_IsSoftRebootSupported ()
-{
-    return TRUE;
+BOOL CPU_IsSoftRebootSupported() {
+    return FALSE;
 }
 
