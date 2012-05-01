@@ -31,7 +31,7 @@ static void init_power() {
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
 	RCC_LSICmd(DISABLE);
-	STM32F1x_Power_Driver::Low_Power();
+	STM32F1x_Power_Driver::High_Power();
 }
 
 void STM32F1x_Power_Driver::Low_Power() {
@@ -130,7 +130,8 @@ void STM32F1x_Power_Driver::Shutdown() {
 // Regulator ON vs LowPower?
 // Requires EXTI interrupt to wake...
 void STM32F1x_Power_Driver::Hibernate() {    
-    PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+    //PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+	{ __ASM volatile ("wfi"); } 
 }
 
 void HAL_AssertEx() {
