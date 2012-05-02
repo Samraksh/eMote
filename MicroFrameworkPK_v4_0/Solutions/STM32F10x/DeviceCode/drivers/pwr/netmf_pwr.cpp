@@ -22,8 +22,17 @@ Should be able to fix that with some checking later.
 #include "../flash/stm32f10x_flash.h"
 #include "../gpio/stm32f10x_gpio.h"
 
+enum stm_power_modes {
+	POWER_STATE_DEFAULT,
+	POWER_STATE_LOW,
+	POWER_STATE_HIGH,
+};
 
+static enum stm_power_modes stm_power_state;
+
+// Start in high power (48 MHz) by default for USB
 static void init_power() {
+	stm_power_state = POWER_STATE_DEFAULT; // default
 	RCC_DeInit();
 	PWR_DeInit();
 	RCC_HSEConfig(RCC_HSE_OFF);
@@ -35,6 +44,9 @@ static void init_power() {
 }
 
 void STM32F1x_Power_Driver::Low_Power() {
+
+	__disable_irq();
+
 	RCC_HSICmd(ENABLE);
 	RCC_HCLKConfig(RCC_SYSCLK_Div1);
 	RCC_PCLK1Config(RCC_HCLK_Div1);
@@ -42,12 +54,22 @@ void STM32F1x_Power_Driver::Low_Power() {
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
 	RCC_PLLCmd(DISABLE);
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+	stm_power_state = POWER_STATE_LOW;
+	
+	__enable_irq();
 }
 
 void STM32F1x_Power_Driver::High_Power() {
 
-	// Enable low mode and disable PLL before configure
-	STM32F1x_Power_Driver::Low_Power();
+	if (stm_power_state == POWER_STATE_HIGH) {
+		return;
+	}
+	
+	__disable_irq();
+	
+	// Put in known state before high
+	// Should already be in Low
+	//STM32F1x_Power_Driver::Low_Power();
 
 	// Set source to HSI/2 * PLL_MUL_12 = 48 MHz
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2,RCC_PLLMul_12);
@@ -57,6 +79,9 @@ void STM32F1x_Power_Driver::High_Power() {
 
 	RCC_PLLCmd(ENABLE);				 // Enable PLL
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK); // Set PLL as clock source
+	stm_power_state = POWER_STATE_HIGH;
+	
+	__enable_irq();
 }
 
 BOOL STM32F1x_Power_Driver::Initialize() {
@@ -77,9 +102,6 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 	GPIO_Init(GPIOB, &gpio_b_itd);
 	GPIO_SetBits(GPIOB, GPIO_Pin_9);
 	
-	// Random init in between to take up time
-    CPU_INTC_Initialize();
-	
 	// Set NOR 'Live' pin to 0 for sleep mode
 	GPIO_StructInit(&gpio_g_itd);
 	gpio_g_itd.GPIO_Pin = GPIO_Pin_7;
@@ -87,12 +109,6 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 	gpio_g_itd.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOG, &gpio_g_itd);
 	GPIO_ResetBits(GPIOG, GPIO_Pin_7);
-	
-	// Wait a few cycles
-	{ __ASM volatile ("nop"); }
-	{ __ASM volatile ("nop"); }
-	{ __ASM volatile ("nop"); }
-	{ __ASM volatile ("nop"); }
 
 	// Disable 3.3v regulator
 	GPIO_ResetBits(GPIOB, GPIO_Pin_9);
@@ -103,16 +119,14 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 // Simple "wait for interrupt" sleep
 // Will wake from any source
 void STM32F1x_Power_Driver::Sleep() {
-	{ __ASM volatile ("wfi"); }  
+	__WFI();
+	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 
-// Locks the CPU until power cycle... probably not a good idea Kartik...
+// TODO
 void STM32F1x_Power_Driver::Halt() {
-    GLOBAL_LOCK(irq);
-    // disable all interrupt source in controller that might wake us from our slumber
-    CPU_INTC_Initialize();
-
-    { __ASM volatile ("wfi"); }  
+	__WFI();
+	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 
 // TODO
@@ -128,10 +142,10 @@ void STM32F1x_Power_Driver::Shutdown() {
 
 // STOP mode in STM speak
 // Regulator ON vs LowPower?
-// Requires EXTI interrupt to wake...
-void STM32F1x_Power_Driver::Hibernate() {    
+// Requires EXTI interrupt to wake?
+void STM32F1x_Power_Driver::Hibernate() {
+	__WFI();
     //PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
-	{ __ASM volatile ("wfi"); } 
 }
 
 void HAL_AssertEx() {
