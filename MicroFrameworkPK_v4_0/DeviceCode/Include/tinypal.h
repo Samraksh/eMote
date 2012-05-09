@@ -44,5 +44,6 @@
 #include <Blockstorage_decl.h>
 #include <SD_decl.h>
 
+#include <CPU_GPMC_decl.h>
 #endif // _TINYPAL_H_
 

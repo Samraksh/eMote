@@ -214,6 +214,9 @@ static void RCC_Configuration(void)
     //hal_printf("/* ADCCLK = PCLK2/4 *//n");
     RCC_ADCCLKConfig(RCC_PCLK2_Div4);
 
+    // Enabling FSMC peripheral clock here
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
     //hal_printf("/* PLLCLK = 8MHz * 7 = 56 MHz *//n");
     //RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_7);
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
@@ -256,7 +259,7 @@ static void RCC_Configuration(void)
   //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM2, ENABLE);
 
   //hal_printf("/* Enable USART1 clock if Thermal Noise or Oversampling test is undertaken *//n");
-  
+
   //Enable LEDs
   STM_EVAL_LEDInit((Led_TypeDef)0);
   STM_EVAL_LEDInit((Led_TypeDef)1);

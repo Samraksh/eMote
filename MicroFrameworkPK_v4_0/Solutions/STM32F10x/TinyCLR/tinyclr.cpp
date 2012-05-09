@@ -4,7 +4,6 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-#include <Tests.h>
 #include <lcd_basic/stm32f10x_lcd_basic.h>
 #include <rtc/int_time.h>
 #include <exti/stm32f10x_exti.h>
@@ -18,6 +17,8 @@
 #include <test_native_drivers/timers_test/main.h>
 #include <test_native_drivers/timers_test/stm32f10x_it.h>
 #include <pal/COM/usb/usb.h>
+
+extern void test_flash_interface();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +54,7 @@ BOOL Execute( UINT32 m_timerDuration, UINT32 m_displayInterval )
         //hal_printf( "\r        %c",thorp[seconds % 4] );
 
         if((seconds % m_displayInterval) == 0)
-        {					
+        {
             debug_printf( "        %2d",seconds );
 			STM_EVAL_LEDToggle((Led_TypeDef)0);
             debug_printf( "        %2d",seconds );
@@ -79,7 +80,7 @@ BOOL TimedEventsExecute()
 {
     UINT32 count    = 100;
     UINT32 signaled = FALSE;
-    
+
     HAL_COMPLETION compObj;
 
     //Log& log = Log::InitializeLog( Stream, "TimedEvent" );
@@ -98,7 +99,7 @@ BOOL TimedEventsExecute()
         {
             //log.CloseLog( FALSE, "Wrong order" );
 			LED_RED();
-            return FALSE; 
+            return FALSE;
         }
     }
 
@@ -106,7 +107,49 @@ BOOL TimedEventsExecute()
     //log.LogState  ( "%2d callbacks" );
     //log.CloseLog  ( TRUE, NULL );
 
-    return TRUE; 
+    return TRUE;
+}
+
+void test_NOR()
+{
+
+	UINT32 location = 0x60000000;
+	BlockStorageDevice *device;
+	ByteAddress address;
+	BYTE tempData[4];
+	BYTE readData[4];
+
+	for(int i = 0; i < 4; i++)
+		tempData[i] = 0x1;
+
+	if (BlockStorageList::FindDeviceForPhysicalAddress( &device, location, address ))
+	{
+		UINT32 iRegion, iRange;
+		        const BlockDeviceInfo* deviceInfo = device->GetDeviceInfo() ;
+
+		        if(!device->FindRegionFromAddress( location, iRegion, iRange ))
+		        {
+		            debug_printf(" Invalid condition - Fail to find the block number from the ByteAddress %x \r\n",location);
+
+		            return;
+		        }
+
+		        if(!(device->Write( location , 4, tempData, FALSE )))
+		        {
+		        	debug_printf("Unable to Write");
+		        	return;
+		        }
+
+		        if(device->Read( location, 4, readData ))
+		        {
+		        	debug_printf("Data Read Successful\n");
+		        	for(int i = 0;i < 4; i++)
+		        	{
+		        		debug_printf((const char *)readData[i]);
+		        	}
+		        }
+	}
+
 }
 
 void ApplicationEntryPoint()
@@ -124,29 +167,33 @@ void ApplicationEntryPoint()
     clrSettings.MaxContextSwitches         = 100;
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
-	
+
 	//for (int i = 0; i < 1000; i++)
 	//{
-		//debug_printf("In App Entry point!\n\r");	
+		//debug_printf("In App Entry point!\n\r");
 	//}
 	//while(1)
-	///{	
+	///{
 	//}
-	
+    // Nor Flash Integration Testing
+    //test_NOR();
+    test_flash_interface();
+
+
 	ClrStartup( clrSettings );
-	
+
 	// while(1)
-	// {	
+	// {
 		// debug_printf("In App Entry point!\n\r");
 		// debug_printf("Printing from USB 1\n\r");
 		// debug_printf("Printing from USB 2\n\r");
 		// debug_printf("Printing from USB 3\n\r");
 	// }
-	
+
 	//const char* Data = "Hello From USB";
-	
+
 	//USB_Configure( ConvertCOM_UsbController(HalSystemConfig.DebugTextPort), NULL );
-    //USB_Initialize( ConvertCOM_UsbController(HalSystemConfig.DebugTextPort) );	
+    //USB_Initialize( ConvertCOM_UsbController(HalSystemConfig.DebugTextPort) );
     //USB_OpenStream( ConvertCOM_UsbStream(HalSystemConfig.DebugTextPort), USB_DEBUG_EP_WRITE, USB_DEBUG_EP_READ );
 	//for(int i =0; i < 100000; i++);
 	//while(1)
@@ -160,7 +207,7 @@ void ApplicationEntryPoint()
 
     //test_timers();
 	//test_usart();
-	
+
 	//uint8_t sys_clk = RCC_GetSYSCLKSource();
 
 	//Timer_Driver::Timer_Test();
@@ -168,21 +215,21 @@ void ApplicationEntryPoint()
 	//radio_hal_init();
 	//RCC_ClocksTypeDef RCC_Clocks;
 	//RCC_GetClocksFreq(&RCC_Clocks);
-	
+
 	//CPU_INTC_Initialize();
-	
-	//test_timers();    
-	
+
+	//test_timers();
+
 	//rtc_test();
-	
-	//TimedEvents eventsTest;	
-	
+
+	//TimedEvents eventsTest;
+
 	//do
     //{
-        //result = Execute(1000, 5);	
+        //result = Execute(1000, 5);
 		//result = TimedEventsExecute();
 	//} while(FALSE);
-	
+
 	//while(1)
 	//{}
 

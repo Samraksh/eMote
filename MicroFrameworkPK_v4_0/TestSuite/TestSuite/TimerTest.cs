@@ -19,7 +19,7 @@ namespace TestSuite
     {
 		
 		public static bool state = false;
-		private static OutputPort testPort = new OutputPort(Pins.GPIO_PORT_PIN_57, true);		
+		private static OutputPort testPort = new OutputPort(Pins.GPIO_PORT_PIN_0, true);		
         Log log = new Log();
 
         public void Run()
@@ -28,7 +28,8 @@ namespace TestSuite
             try
             {
 			
-				Timer tmr = new Timer(new TimerCallback(Callback), null, 0, 5);								
+				Timer tmr = new Timer(new TimerCallback(Callback), null, 0, 1000);								
+				PowerState.ChangePowerLevel(PowerLevel.Low);
 				while (true)
                 {
 					Thread.Sleep(100);

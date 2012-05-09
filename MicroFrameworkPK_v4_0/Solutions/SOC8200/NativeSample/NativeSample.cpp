@@ -31,6 +31,14 @@ void timer_overflow_int(void) {
 
 void ApplicationEntryPoint()
 {
+	GPMCTest gTest;
+
+	gTest.Execute();
+
+}
+
+void ApplicationEntryPointOld()
+{
     BOOL result;
 
 	UINT32 temp = 5;
@@ -49,14 +57,14 @@ void ApplicationEntryPoint()
 
 
 
-	CPU_INTC_Initialize();
+	//CPU_INTC_Initialize();
 
 	//enable_interrupts();
 
 	//disable_interrupts();
 
 	//blank();
-	//CPU_INTC_Initialize();
+	CPU_INTC_Initialize();
 
 	//if(TIAM3517_TIMER_Driver::Initialize(1,TRUE,0,0, TIMER_ISR, NULL))
 	//{

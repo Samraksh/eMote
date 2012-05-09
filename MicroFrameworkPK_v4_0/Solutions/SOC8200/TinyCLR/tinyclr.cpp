@@ -18,11 +18,14 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    for(UINT32 i = 0 ; i < gVar ; i++)
-    {
-    	sol = sol + i;
-    }
-    ClrStartup( clrSettings );
+    CPU_GPMC_Initialize();
+
+    int *tempMemory = (int *) 0x08000000;
+
+    *tempMemory = 0x4;
+    *tempMemory += 0x4;
+
+    //ClrStartup( clrSettings );
 	//GPIO_PIN g = 58;
 
     //CPU_GPIO_EnableOutputPin(g,false);

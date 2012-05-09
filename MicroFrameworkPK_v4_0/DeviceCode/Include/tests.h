@@ -10,10 +10,11 @@
 
 #include "..\..\test\native\src\log\log.h"
 #include "..\..\test\native\src\timedevents\timedevents.h"
-#include "..\..\test\native\src\timers\timers.h"
+//#include "..\..\test\native\src\timers\timers.h"
 #include "..\..\test\native\src\uart\uart.h"
 #include "..\..\test\native\src\gpio\gpio.h"
 #include "..\..\test\native\src\spi\spi.h"
+#include "..\..\test\native\src\gpmc\gpmc.h"
 #include "..\..\test\native\src\ramtest\ramtest.h"
 
 //--//

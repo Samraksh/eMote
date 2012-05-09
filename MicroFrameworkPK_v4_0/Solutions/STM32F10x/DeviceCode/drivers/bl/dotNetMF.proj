@@ -41,7 +41,10 @@
   <ItemGroup>
 	<HFiles Include="netmf_bl.h" />
     <Compile Include="netmf_bl.cpp" />
+	<HFiles Include="netmf_bl_nor.h" />
+    <Compile Include="netmf_bl_nor.cpp" />
     <Compile Include="bl_config.cpp" />
+    <Compile Include="bl_nor_config.cpp" />
     <Compile Include="bl_addDevices.cpp" />
   </ItemGroup>
   <ItemGroup />

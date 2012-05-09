@@ -28,7 +28,8 @@
   <ItemGroup>
     <Compile Include="$(SPOCLIENT)\Test\native\src\log\log.cpp" />
     <Compile Include="$(SPOCLIENT)\Test\native\src\timedevents\timedevents.cpp" />
-    <Compile Include="$(SPOCLIENT)\Test\native\src\timers\timers.cpp" />
+    <!--<Compile Include="$(SPOCLIENT)\Test\native\src\timers\timers.cpp" />-->
+    <Compile Include="$(SPOCLIENT)\Test\native\src\GPMC\GPMC.cpp" />
     <Compile Include="$(SPOCLIENT)\Test\native\src\uart\uart.cpp" />
     <Compile Include="$(SPOCLIENT)\Test\native\src\gpio\gpio.cpp" />
     <Compile Include="$(SPOCLIENT)\Test\native\src\spi\spi.cpp" />

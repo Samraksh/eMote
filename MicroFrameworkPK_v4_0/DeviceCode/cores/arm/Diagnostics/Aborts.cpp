@@ -7,6 +7,10 @@
 #if defined(PLATFORM_ARM_MC9328)
 #include <Targets\Native\MC9328\DeviceCode\MC9328MXL.h>
 #endif
+
+#if defined(PLATFORM_ARM_SOC8200)
+#include <Targets\Native\TIAM3517\DeviceCode\TIAM3517_GPMC\TIAM3517_GPMC.h>
+#endif
 //--//
 
 #if !defined(BUILD_RTM)
@@ -100,7 +104,7 @@ void ABORT_HandlerDisplay(
 #else
     // TODO ???
 #endif
-            
+
     ++ABORT_recursion_counter;
 
 dump_again:
@@ -278,13 +282,13 @@ dump_again:
 
         // wait for 10 mSec
         HAL_Time_Sleep_MicroSeconds(10000/64);
-        
+
         // wait for it to release
         while(0 == (CurrentButtonsState ^ Buttons_CurrentHWState()));
-        
-        // wait for 10 mSec        
+
+        // wait for 10 mSec
         HAL_Time_Sleep_MicroSeconds(10000/64);
-        
+
         if(CurrentButtonsState & BUTTON_B5)
         {
             page = (page + 1);  // no limit of stack pages
@@ -307,7 +311,7 @@ dump_again:
 
 #if defined(PLATFORM_ARM_MC9328)
 StartMonitorMode:
-#endif 
+#endif
         {
             char   data[16];
             UINT32 pos = 0;
@@ -322,7 +326,7 @@ StartMonitorMode:
 #if defined(PLATFORM_ARM_MC9328)
 
                 URXDn_X = USART.URXDn_X[0];
-                
+
                 if(URXDn_X & MC9328MXL_USART::URXDn__CHARRDY)
                 {
                     data[pos++] = (char)(URXDn_X & MC9328MXL_USART::URXDn__DATA_mask);
@@ -333,17 +337,17 @@ StartMonitorMode:
 #endif
 
                     switch(data[0])
-                    {        
+                    {
                     case 'L': //KN
                         //monitor_debug_printf("rb=0x%08x\r\n", HalSystemConfig.RAM1.Base  );
                         //monitor_debug_printf("rs=0x%08x\r\n", HalSystemConfig.RAM1.Size  );
                         //monitor_debug_printf("fb=0x%08x\r\n", HalSystemConfig.FLASH.Base);
                         //monitor_debug_printf("fs=0x%08x\r\n", HalSystemConfig.FLASH.Size);
                         break;
-                        
+
                     case 'M':
                         if(pos < 12) continue;
-                        
+
                         {
                             UINT8* start = *(UINT8**)&data[4];
                             UINT8* end   = *(UINT8**)&data[8];
@@ -351,7 +355,7 @@ StartMonitorMode:
                             //lcd_printf( "\f\r\n\r\nREAD:\r\n  %08x\r\n  %08x", (UINT32)start, (UINT32)end );
 
                             if(AbortHandler_CheckMemoryRange( start, end ))
-                            {   
+                            {
                                 while(start < end)
                                 {
                                     monitor_debug_printf("[0x%08x]", (UINT32)start);
@@ -418,13 +422,13 @@ StartMonitorMode:
 
 extern "C"
 {
-    
+
 void UNDEF_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
-{    
+{
 	while(1);
 	/*
     ASSERT_IRQ_MUST_BE_OFF();
-    
+
 #if !defined(BUILD_RTM)
     Verify_RAMConstants((void *) FALSE);
 
@@ -459,7 +463,8 @@ void ABORTP_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 // Nived.Sivadas - commenting out everything from ABORTD Handler, not sure what the impact is
 void ABORTD_Handler( UINT32* registers, UINT32 sp, UINT32 lr )
 {
-	while(1);
+	//while(1);
+
 	/*
     ASSERT_IRQ_MUST_BE_OFF();
 
@@ -482,7 +487,7 @@ HARD_Breakpoint_Handler(
     UINT32 sp,
     UINT32 lr
     )
-{    
+{
 #if !defined(BUILD_RTM)
 
     if(1 == ++ABORT_recursion_counter)

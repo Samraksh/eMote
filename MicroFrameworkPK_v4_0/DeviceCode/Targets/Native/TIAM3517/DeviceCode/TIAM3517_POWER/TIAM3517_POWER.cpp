@@ -21,6 +21,7 @@ extern "C" { extern void omap3517_cpu_suspend(); }
 void TIAM3517_POWER_Driver::Init() {
 	int t;
 	
+	return;
 	// Enable clock auto-transition for MPU and NEON
 	// Both are required for NEON to idle/off
 	t = __raw_readl(OMAP3_CM_CLKSTCTRL_NEON) | OMAP3_CM_CLKSTCTRL_NEON_AUTO;

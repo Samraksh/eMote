@@ -1,17 +1,16 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//--//
+#ifndef _NETMF_BL_NOR_H_
+#define _NETMF_BL_NOR_H_
 
 #include <stm32f10x.h>
-#include <flash/stm32f10x_flash.h>
+#include <fsmc/stm32f10x_fsmc.h>
+#include <fsmc/NOR/stm3210e_eval_fsmc_nor.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)
 #define EraseTimeout          ((uint32_t)0x000B0000)
 
-struct STM32F10x_blDriver
+// provides the interface for the nor flash driver
+struct STM32F10x_blDriver_nor
 {
     static BOOL InitializeDevice( void* context );
     static BOOL UninitializeDevice( void* context );
@@ -27,3 +26,6 @@ struct STM32F10x_blDriver
     static UINT32 MaxSectorWrite_uSec( void* context );
     static UINT32 MaxBlockErase_uSec( void* context );
 };
+
+
+#endif

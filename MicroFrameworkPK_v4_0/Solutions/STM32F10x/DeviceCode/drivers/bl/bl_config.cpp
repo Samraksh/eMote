@@ -15,22 +15,22 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
     { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 11 },
     //{ BlockRange::BLOCKTYPE_CODE			, 12,180 },
     //{ BlockRange::BLOCKTYPE_DEPLOYMENT		,181,251 },
-	{ BlockRange::BLOCKTYPE_CODE			, 12,199 }, //KN
-	{ BlockRange::BLOCKTYPE_DEPLOYMENT		,200,251 }, //KN Changed to poitn deployment sector to 0x8064000
-    { BlockRange::BLOCKTYPE_STORAGE_A       ,252,252 },
-    { BlockRange::BLOCKTYPE_STORAGE_B       ,253,253 },
-    { BlockRange::BLOCKTYPE_CONFIG          ,254,255 }
+	{ BlockRange::BLOCKTYPE_CODE			, 12,255 }, //KN
+	{ BlockRange::BLOCKTYPE_DEPLOYMENT		,256,450 }, //KN Changed to poitn deployment sector to 0x8064000
+    { BlockRange::BLOCKTYPE_STORAGE_A       ,451,451 },
+    { BlockRange::BLOCKTYPE_STORAGE_B       ,452,452 },
+    { BlockRange::BLOCKTYPE_CONFIG          ,453,511 }
 };
 
 //--//
 
 //--//
 
-const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] = 
+const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] =
 {
-    
+
     0x08000000,		// ByteAddress     Address;            // Start address
-    256,			// UINT32          NumBlocks;          // total number of blocks in this region
+    512,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 
     ARRAYSIZE_CONST_EXPR(STM32F10x_BlockRange_InternalFlash),
@@ -47,7 +47,7 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
         TRUE,									// BOOL SupportsXIP;
         TRUE,									// BOOL WriteProtected
     },
-    
+
     9600,										// UINT32 Duration_Max_WordWrite_uSec; @todo
     4800,										// UINT32 Duration_Max_SectorErase_uSec; @todo
     0x4,										// BytesPerSector;
@@ -68,6 +68,7 @@ BLOCK_CONFIG STM32F10x_blConfig_InternalFlash =
 //--//
 
 struct BlockStorageDevice STM32F10x_BlockStorageDevice_InternalFlash;
+
 
 //--//
 

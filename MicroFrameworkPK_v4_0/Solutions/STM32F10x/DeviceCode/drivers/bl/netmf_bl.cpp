@@ -8,7 +8,7 @@
 //--//
 
 BOOL STM32F10x_blDriver::InitializeDevice( void* context )
-{   
+{
     return TRUE;
 }
 
@@ -31,6 +31,7 @@ BOOL STM32F10x_blDriver::Read( void* context, ByteAddress Address, UINT32 NumByt
 
 BOOL STM32F10x_blDriver::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
+	FLASH_Status status;
 	UINT8 pages 	= (numBytes / 0x800) + 1;
 	UINT8 startPage = address / 0x800;
 	if(ReadModifyWrite) {						// CLR is asking us to take care of the erasing
@@ -39,14 +40,28 @@ BOOL STM32F10x_blDriver::Write( void* context, ByteAddress address, UINT32 numBy
 			EraseBlock(context, (startPage + ii)*0x800);
 		}
 	}
+	UINT32 startAddress   = address;
 	UINT32 endAddress     = address + numBytes;
 	UINT16* addressPtr    = (UINT16* )address;	// 16-bit writing
 	UINT16* buffPtr       = (UINT16* )pSectorBuff;
 	UINT16* endAddressPtr = (UINT16*)endAddress;
+	FLASH_Unlock();
 	while(addressPtr < endAddressPtr) {
-		while(FLASH->SR & FLASH_SR_BSY);		// Wait until flash is ready
-		FLASH->CR = FLASH_CR_PG;				// Set Programming Bit
-		*addressPtr++ = *buffPtr++;
+		if(address < FLASH_BANK1_END_ADDRESS)
+		{
+			while(FLASH->SR & FLASH_SR_BSY);		// Wait until flash is ready
+			FLASH->CR = FLASH_CR_PG;				// Set Programming Bit
+			*addressPtr++ = *buffPtr++;
+		}
+		else
+		{
+			while(FLASH->SR2 & FLASH_SR_BSY);		// Wait until flash is ready
+			FLASH->CR2 = FLASH_CR_PG;				// Set Programming Bit
+			*addressPtr++ = *buffPtr++;
+			//FLASH_ProgramWord(startAddress++, 0);
+		}
+
+
 	}
 	// @todo check programming
 	return TRUE;
@@ -95,13 +110,30 @@ BOOL STM32F10x_blDriver::IsBlockErased( void* context, ByteAddress Address, UINT
 
 BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 {
-	while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
-	FLASH->KEYR = 0x45670123;			// Key1
-	FLASH->KEYR = 0xCDEF89AB;			// Key2
-	FLASH->CR   = FLASH_CR_PER;			// Set Page Erase Bit
-	FLASH->AR	= address;				// Set arbitrary address in page
-	FLASH->CR	= FLASH_CR_STRT;		// Set Start Bit
-	while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
+	FLASH_Unlock();
+	if(address < FLASH_BANK1_END_ADDRESS)
+	{
+		while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
+		FLASH->KEYR = 0x45670123;			// Key1
+		FLASH->KEYR = 0xCDEF89AB;			// Key2
+		FLASH->CR   = FLASH_CR_PER;			// Set Page Erase Bit
+		FLASH->AR	= address;				// Set arbitrary address in page
+		FLASH->CR	= FLASH_CR_STRT;		// Set Start Bit
+		while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
+	}
+	else
+	{
+		while(FLASH->SR2 & FLASH_SR_BSY);
+		FLASH->KEYR2 = 0x45670123;			// Key1
+		FLASH->KEYR2 = 0xCDEF89AB;
+		FLASH->CR2   = FLASH_CR_PER;
+		FLASH->AR2	= address;
+		FLASH->CR2	= FLASH_CR_STRT;
+		while(FLASH->SR2 & FLASH_SR_BSY);
+
+	}
+
+	//FLASH_ErasePage(address);
     return TRUE;
 }
 
@@ -125,7 +157,7 @@ UINT32 STM32F10x_blDriver::MaxBlockErase_uSec( void* context )
 //--//
 
 #pragma arm section code
-struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_InternalFlash = 
+struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_InternalFlash =
 {
     &STM32F10x_blDriver::InitializeDevice,
     &STM32F10x_blDriver::UninitializeDevice,
@@ -139,7 +171,7 @@ struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_InternalFlash =
     &STM32F10x_blDriver::EraseBlock,
     &STM32F10x_blDriver::SetPowerState,
     &STM32F10x_blDriver::MaxSectorWrite_uSec,
-    &STM32F10x_blDriver::MaxBlockErase_uSec,    
+    &STM32F10x_blDriver::MaxBlockErase_uSec,
 };
 
 

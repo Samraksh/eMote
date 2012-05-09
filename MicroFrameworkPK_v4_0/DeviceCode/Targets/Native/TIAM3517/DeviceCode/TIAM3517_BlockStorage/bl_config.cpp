@@ -14,7 +14,7 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
     //
 	{ BlockRange::BLOCKTYPE_BOOTSTRAP , 0 , 11 },
 	    { BlockRange::BLOCKTYPE_CODE                    , 12,3583 },
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT              ,3584,3784 },// 0x87000000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT              ,3584,3784 },// 0x80700000
 	    { BlockRange::BLOCKTYPE_STORAGE_A       ,3784,3785 },
 	    { BlockRange::BLOCKTYPE_STORAGE_B       ,3786,3786 },
 	    { BlockRange::BLOCKTYPE_CONFIG          ,3787,3787 }

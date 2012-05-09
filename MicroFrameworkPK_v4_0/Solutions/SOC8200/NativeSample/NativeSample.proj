@@ -118,6 +118,14 @@
     <DriverLibs Include="TIAM3517_time.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_GPMC\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_GPMC.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_SCM_PinMux\dotNetMF.proj" />
+    <DriverLibs Include="TIAM3517_SCM_PinMux.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
   </ItemGroup>

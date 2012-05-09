@@ -12,7 +12,7 @@
 #ifndef _TIAM3517_GPMC_H_
 #define _TIAM3517_GPMC_H_
 
-#include <TIAM3517.h>
+#include "..\TIAM3517.h"
 
 #define GPMC_SYSCONFIG_SOFTRESET (1 << 1)
 #define GPMC_SYSSTATUS_RESETCOMPLETE 0x1
@@ -21,9 +21,43 @@
 // defines the start and end of the gpmc address space
 #define GPMC_MEM_START		0x00000000
 #define GPMC_MEM_END		0x3FFFFFFF
+#define GPMC_CONFIG7_CSVALID		(1 << 6)
+#define GPMC_MAX_REG	7
 
 // leave about 1MB of the address space for Boot ROM
 #define BOOT_ROM_SPACE		0x100000
+#define NUM_MEM_REGIONS 2
+
+#define STNOR_GPMC_CONFIG1    0x00001210
+#define STNOR_GPMC_CONFIG2    0x00101001
+#define STNOR_GPMC_CONFIG3    0x00020201
+#define STNOR_GPMC_CONFIG4    0x0f031003
+#define STNOR_GPMC_CONFIG5    0x000f1111
+#define STNOR_GPMC_CONFIG6    0x0f030080
+
+#define GPMC_SIZE_16M	0xF
+
+// This structures is mimicked from linux, seems like the node of a memory tree at this point
+struct resource{
+
+	UINT32 start;
+	UINT32 end;
+	const char* name;
+	unsigned long flags;
+	struct resource *parent, *sibling, *child;
+
+};
+
+static const UINT32 gpmc_nor[GPMC_MAX_REG] = {
+		STNOR_GPMC_CONFIG1,
+		STNOR_GPMC_CONFIG2,
+		STNOR_GPMC_CONFIG3,
+		STNOR_GPMC_CONFIG4,
+		STNOR_GPMC_CONFIG5,
+		STNOR_GPMC_CONFIG6, 0
+
+};
+
 
 struct GPMC_CS_CONFIG
 {
@@ -62,10 +96,10 @@ struct TIAM3517_GPMC
 	volatile UINT32 GPMC_TIMEOUT_CONTROL;
 	volatile UINT32 GPMC_ERR_ADDRESS;
 	volatile UINT32 GPMC_ERR_TYPE;
-	volatile UINT32 TEMP3[2];
+	volatile UINT32 TEMP3[1];
 	volatile UINT32 GPMC_CONFIG;
 	volatile UINT32 GPMC_STATUS;
-	volatile UINT32 TEMP4[3];
+	volatile UINT32 TEMP4[2];
 	volatile GPMC_CS_CONFIG CS_CONTEXT[8];
 	volatile UINT32 GPMC_PREFETCH_CONFIG1;
 	volatile UINT32 GPMC_PREFETCH_CONFIG2;
@@ -84,7 +118,9 @@ struct TIAM3517_GPMC
 	volatile UINT32 GPMC_ECC7_RESULT;
 	volatile UINT32 GPMC_ECC8_RESULT;
 	volatile UINT32 GPMC_ECC9_RESULT;
+	volatile UINT32 TEMP6[7];
 	volatile GPMC_BCH GPMC_BCH_RESULT[8];
+	volatile UINT32 TEMP7[4];
 	volatile UINT32 GPMC_BCH_SWDATA;
 
 };

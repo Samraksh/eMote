@@ -134,9 +134,9 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
     // Copy RAM RO regions into proper location.
     //
     {
-        UINT32* src = (UINT32*)&LOAD_RAM_RO_BASE; 
+        UINT32* src = (UINT32*)&LOAD_RAM_RO_BASE;
         UINT32* dst = (UINT32*)&IMAGE_RAM_RO_BASE;
-        UINT32  len = (UINT32 )&IMAGE_RAM_RO_LENGTH; 
+        UINT32  len = (UINT32 )&IMAGE_RAM_RO_LENGTH;
 
         Prepare_Copy( src, dst, len );
     }
@@ -145,9 +145,9 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
     // Copy RAM RW regions into proper location.
     //
     {
-        UINT32* src = (UINT32*)&Load$$ER_RAM_RW$$Base; 
+        UINT32* src = (UINT32*)&Load$$ER_RAM_RW$$Base;
         UINT32* dst = (UINT32*)&Image$$ER_RAM_RW$$Base;
-        UINT32  len =  (UINT32)&Image$$ER_RAM_RW$$Length; 
+        UINT32  len =  (UINT32)&Image$$ER_RAM_RW$$Length;
 
         Prepare_Copy( src, dst, len );
     }
@@ -179,8 +179,9 @@ static void InitCRuntime()
     _fp_init();
 #endif
 
+#if defined(PLATFORM_ARM_STM32F10X)
    setlocale( LC_ALL, "" );
-
+#endif
 #endif
 }
 
@@ -307,7 +308,7 @@ void HAL_Initialize()
     {
         //debug_printf("Configuration version != version\n");
     }
-    
+
     HAL_CONTINUATION::InitializeList();
     HAL_COMPLETION  ::InitializeList();
 
@@ -337,7 +338,7 @@ void HAL_Initialize()
     FS_AddVolumes();
 
     FileSystemVolumeList::InitializeVolumes();
-    
+
 #if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
 #endif
@@ -483,16 +484,16 @@ void BootEntry()
 #endif
 
 // Nived.Sivadas@samraksh.com : Do not comment this function out here even if it is being called else where afterwards.
-// What may seem redundant can cause problems with the nested interrupt working. 
+// What may seem redundant can cause problems with the nested interrupt working.
 	CPU_INTC_Initialize();
-	
+
 	CPU_Initialize();
-	
+
     HAL_Time_Initialize();
-		
+
     HAL_Initialize();
-			
-#if !defined(BUILD_RTM) 
+
+#if !defined(BUILD_RTM)
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);
 #if defined(__GNUC__)
@@ -502,7 +503,7 @@ void BootEntry()
 #endif
 
     UINT8* BaseAddress;
-    UINT32 SizeInBytes;	
+    UINT32 SizeInBytes;
 	//UINT8* BaseAddress = (UINT8*)0x20005000;
 	//UINT32 SizeInBytes = 0x9000;
 
@@ -526,17 +527,17 @@ void BootEntry()
 #endif
     }
 
-    // 
-    // the runtime is by default using a watchdog 
-    // 
-   
+    //
+    // the runtime is by default using a watchdog
+    //
+
     Watchdog_GetSetTimeout ( WATCHDOG_TIMEOUT , TRUE );
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
- 
+
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
-	
+
     ApplicationEntryPoint();
 
     //lcd_printf("\fmain exited!!???.  Halting CPU\r\n");
@@ -715,8 +716,8 @@ BOOL SystemState_Query( SYSTEM_STATE State )
 /*
 UINT32 Checksum_RAMConstants()
 {
-    UINT32* RAMConstants = (UINT32*)&IMAGE_RAM_RO_BASE; 
-    UINT32  Length       = (UINT32 )&IMAGE_RAM_RO_LENGTH; 
+    UINT32* RAMConstants = (UINT32*)&IMAGE_RAM_RO_BASE;
+    UINT32  Length       = (UINT32 )&IMAGE_RAM_RO_LENGTH;
 
     UINT32 CRC;
 
