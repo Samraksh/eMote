@@ -42,6 +42,22 @@ struct Library_InterfaceLibrary_Samraksh_ADC
 
 };
 
+struct Library_InterfaceLibrary_Samraksh_Memory
+{
+    static const int FIELD_STATIC__currentRecordId = 0;
+
+    static const int FIELD__recordId = 1;
+    static const int FIELD__buffer = 2;
+
+    TINYCLR_NATIVE_DECLARE(write___BOOLEAN__I4__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(constructNativeMemoryPointer___BOOLEAN__I4__U4);
+    TINYCLR_NATIVE_DECLARE(disposeNativeMemoryPointer___BOOLEAN__I4);
+    TINYCLR_NATIVE_DECLARE(read___BOOLEAN__I4__SZARRAY_U1);
+
+    //--//
+
+};
+
 struct Library_InterfaceLibrary_Samraksh_TestCallback
 {
     static const int FIELD__m_CallbackReceived = 5;
@@ -71,6 +87,16 @@ struct Library_InterfaceLibrary_Samraksh_TimeSync
     TINYCLR_NATIVE_DECLARE(getSkew___STATIC__R4);
     TINYCLR_NATIVE_DECLARE(local2Global___STATIC__VOID);
     TINYCLR_NATIVE_DECLARE(getRootId___STATIC__I2);
+
+    //--//
+
+};
+
+struct Library_InterfaceLibrary_Samraksh_USBPipe
+{
+    TINYCLR_NATIVE_DECLARE(Write___STATIC__I4__SZARRAY_U1__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Read___STATIC__I4__SZARRAY_U1__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Flush___STATIC__BOOLEAN);
 
     //--//
 

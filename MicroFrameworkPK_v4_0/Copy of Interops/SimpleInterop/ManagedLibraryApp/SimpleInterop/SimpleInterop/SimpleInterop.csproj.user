@@ -1,0 +1,12 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <MF_GenerateStubs>True</MF_GenerateStubs>
+    <MF_GenerateStubsRootName>Lib</MF_GenerateStubsRootName>
+    <MF_GenerateStubsDirectory>C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\NativeCode\</MF_GenerateStubsDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <MF_GenerateStubs>True</MF_GenerateStubs>
+    <MF_GenerateStubsRootName>Lib</MF_GenerateStubsRootName>
+    <MF_GenerateStubsDirectory>C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\NativeCode\</MF_GenerateStubsDirectory>
+  </PropertyGroup>
+</Project>

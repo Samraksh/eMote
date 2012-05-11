@@ -19,9 +19,15 @@
 <Compile Include="InterfaceLibrary_Samraksh_ADC_mshl.cpp" />
 <HFile Include="InterfaceLibrary_Samraksh_ADC.h" />
 <Compile Include="InterfaceLibrary_Samraksh_ADC.cpp" />
+<Compile Include="InterfaceLibrary_Samraksh_Memory_mshl.cpp" />
+<HFile Include="InterfaceLibrary_Samraksh_Memory.h" />
+<Compile Include="InterfaceLibrary_Samraksh_Memory.cpp" />
 <Compile Include="InterfaceLibrary_Samraksh_TimeSync_mshl.cpp" />
 <HFile Include="InterfaceLibrary_Samraksh_TimeSync.h" />
 <Compile Include="InterfaceLibrary_Samraksh_TimeSync.cpp" />
+<Compile Include="InterfaceLibrary_Samraksh_USBPipe_mshl.cpp" />
+<HFile Include="InterfaceLibrary_Samraksh_USBPipe.h" />
+<Compile Include="InterfaceLibrary_Samraksh_USBPipe.cpp" />
 <Compile Include="InterfaceLibrary_Samraksh_rDAC_mshl.cpp" />
 <HFile Include="InterfaceLibrary_Samraksh_rDAC.h" />
 <Compile Include="InterfaceLibrary_Samraksh_rDAC.cpp" />

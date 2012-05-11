@@ -1,0 +1,10 @@
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\bin\Debug\Samraksh.dll
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\bin\Debug\Samraksh.pdb
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\bin\Debug\Samraksh.pe
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\bin\Debug\Samraksh.pdbx
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\ResolveAssemblyReference.cache
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\TinyCLR_DebugReferences.cache
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\Samraksh.pe
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\Samraksh.pdbx
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\Samraksh.dll
+C:\MicroFrameworkPK_v4_0\Interops\Samraksh\Samraksh\Samraksh\obj\Debug\Samraksh.pdb

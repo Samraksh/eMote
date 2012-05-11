@@ -1,0 +1,63 @@
+
+
+
+
+// 63 "/opt/tinyos-2.x/tos/system/RealMainP.nc"
+int main_tinyos(void)   ;
+
+
+int main_tinyos(void)
+//line 63
+{
+
+
+  hal_printf("Check Point 1: In Tiny OS\n");
+
+  //uint8_t sys_clk = RCC_GetSYSCLKSource();
+  //RealMainP__Scheduler__init();
+
+  //hal_printf("Check Point : Tinyos Scheduler Initialized\n");
+
+  { __nesc_atomic_t __nesc_atomic = __nesc_atomic_start();
+    {
+
+
+
+
+
+      {
+      }
+//line 71
+      ;
+
+      RealMainP__Scheduler__init();
+
+
+
+
+
+      RealMainP__PlatformInit__init();
+      while (RealMainP__Scheduler__runNextTask()) ;
+
+
+
+
+
+      RealMainP__SoftwareInit__init();
+      while (RealMainP__Scheduler__runNextTask()) ;
+    }
+//line 88
+    __nesc_atomic_end(__nesc_atomic); }
+
+
+  __nesc_enable_interrupt();
+
+  RealMainP__Boot__booted();
+
+
+  RealMainP__Scheduler__taskLoop();
+
+
+
+  return -1;
+}

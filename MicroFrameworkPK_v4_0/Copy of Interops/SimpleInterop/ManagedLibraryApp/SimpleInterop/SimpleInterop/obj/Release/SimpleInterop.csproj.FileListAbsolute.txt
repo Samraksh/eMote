@@ -1,0 +1,10 @@
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\bin\Release\SimpleInterop.dll
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\bin\Release\SimpleInterop.pdb
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\bin\Release\SimpleInterop.pe
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\bin\Release\SimpleInterop.pdbx
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\ResolveAssemblyReference.cache
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\TinyCLR_DebugReferences.cache
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\SimpleInterop.pe
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\SimpleInterop.pdbx
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\SimpleInterop.dll
+C:\MicroFrameworkPK_v4_0\Interops\SimpleInterop\ManagedLibraryApp\SimpleInterop\SimpleInterop\obj\Release\SimpleInterop.pdb
