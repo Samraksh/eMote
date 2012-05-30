@@ -11,9 +11,20 @@
 #include "datastore_reg.h"
 #include "address_table.h"
 
+#define DEBUG_DATASTORE
+
+#ifdef DEBUG_DATASTORE
+#define PRINT_DEBUG(x) hal_printf(x)
+#else
+#define PRINT_DEBUG(x)
+#endif
+
+
 /* Constants */
 /* Threshold that needs to be always maintained*/
-#define MIN_SPACE_REQUIRED_FOR_COMPACTION	    (1024)
+#define MIN_SPACE_REQUIRED_FOR_COMPACTION	    (1024 * 128)
+
+#define ENABLE_TEST
 
 /* Defines where the data-store begins in the flash */
 #define DATA_STORE_OFFSET                       (8763)
@@ -60,6 +71,10 @@ private:
     */
     DATASTORE_ERROR lastErrorVal;
 
+    /* This is to find the log, error and erase pointers */
+#if ENABLE_PERSISTENCE
+    PERSISTENCE_DIRECTION per_dir;
+#endif
     /* Internal pointers that maintain the circular buffer locations */
     uint32 logPointByteOffset;
     uint32 erasePointByteOffset;
@@ -73,7 +88,12 @@ private:
     class DATASTORE_AddrTable addressTable;
 
     /* Unique Pointer generator */
-    uniquePtr *myUniquePtrGen;
+    uniquePtr myUniquePtrGen;
+
+    /* Offset where clearPtrOffset needs to be written for persistance */
+       /* Not sure if its a good idea to abstract out this as a separate small class
+          or keep this info here like this! - Chethan */
+    UINT32 hiddenClearPtrOffsetStore;
 
     /* Private methods */
     /* Locks */
@@ -120,6 +140,19 @@ private:
                             LPVOID currentLoc,
                             uint32 numBytes );
 
+
+    /* Function that stores the recent info of the clearLogPointByOffset in hidden region */
+    DATASTORE_STATUS storeClearPtrOffset();
+
+    /* Helper function for scanFLashDevice - used for getting the erase, log and clear pointers */
+    LPVOID traversePointer(PERSISTENCE_DIRECTION per_dir, char* address);
+
+    	/* Helper function for scanFLashDevice - used for scanning through the sectors */
+    LPVOID readPointers();
+
+   	/* Helper function for scanFLashDevice - used for scanning through the sectors */
+   	int readRecordinBlock(int blockID);
+
     /* Helper function for scanFlashDevice */
     uint32 decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADER header);
 
@@ -128,32 +161,65 @@ private:
 
     /* Scan the flash device and load all the records in the Flash Device
        Could use this at bootup to load all the records in the flash */
-    DATASTORE_STATUS scanFlashDevice();
+    LPVOID scanFlashDevice();
 
-    static Data_Store<T> instance;
+    /* create a dummy filler allocation in the datastore to make sure that records
+           don't overlap between sectors */
+    bool createDummyAllocation(int nextAllocationSize);
 
-    static bool instanceFlag = false;
+    //static Data_Store<T> instance;
 
-    /* Load with default settings */
-    Data_Store( char *flashDeviceName );
-
-      /* Create a Datastore with specific property - Only used with emulator */
-    Data_Store( char *flashDeviceName,
-                  DATASTORE_PROPERTIES *property );
+    //static BOOL instanceFlag;
+    static BOOL initialized;
 
 public:
+    // privatising constructors to ensure there is only one instance of data store in the
+    // system
+    Data_Store()
+    {
+    	Data_Store("NOR");
+    }
 
-	static Data_Store<T> getInstance()
-	{
-		if(!instanceFlag)
-		{
-			instance("NOR");
-			return instance;
-		}
-		return instance;
+    /* Helper function for the addressTable. Gets a table, copies it to a new table and returns it */
+    	//LPVOID copyAddressTable(vector<DATASTORE_ADDR_TBL_ENTRY> *table);
+    	LPVOID copyAddressTable(myVector *table);
 
-	}
 
+        /* Load with default settings */
+     Data_Store( char *flashDeviceName );
+
+          /* Create a Datastore with specific property - Only used with emulator */
+     Data_Store( char *flashDeviceName,
+                      DATASTORE_PROPERTIES *property );
+
+
+     void init()
+     {
+    	 if(initialized == TRUE)
+    		 return;
+
+    	 myUniquePtrGen.init();
+    	 flashDevice.init();
+
+    	 state = DATASTORE_STATE_UNINIT;
+    	 DATASTORE_STATUS status;
+
+    	 lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+    	 status = initDataStore( "NOR",
+    	                             &defaultProperty );
+
+    	 state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
+    	 initialized = TRUE;
+     }
+	//static Data_Store<T> getInstance()
+	//{
+	//	return instance;
+	//}
+
+#ifdef ENABLE_PERSISTENCE
+	/* Helper function for the addressTable. Gets a table, copies it to a new table and returns it */
+	LPVOID copyAddressTable(vector<DATASTORE_ADDR_TBL_ENTRY> *table);
+#endif
     /* Create a record in the data store */
     LPVOID createRecord( RECORD_ID id, uint32 numBytes );
 
@@ -180,10 +246,35 @@ public:
     /* Returns the error code of any error in the previous call */
     DATASTORE_ERROR getLastError();
 
+
+	/* Function that returns the current value of the Log point */
+	uint32 returnLogPoint();
+
+	/* Function that returns the current value of the Clear point */
+	uint32 returnClearPoint();
+
+	/* Function that returns the current value of the Erase point */
+	uint32 returnErasePoint();
+
     /* Destructor */
     ~Data_Store();
 };
 
+/*
+template<class T>
+Data_Store<T> Data_Store<T>::instance("NOR");
+*/
+template<class T>
+BOOL Data_Store<T>::initialized = FALSE;
+
+
+/* Helper function for the addressTable. Gets a table, copies it to a new table and returns it */
+template<class T>
+LPVOID Data_Store<T>::copyAddressTable(myVector *table)
+{
+	addressTable.copyEntry(table);
+	return NULL;
+}
 
 
 /****************************************************************************
@@ -399,6 +490,11 @@ LPVOID Data_Store<T>::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uin
 
     lastErrorVal = DATASTORE_ERROR_NONE;
     do{
+    	/* Create a dummy/Skip allocation if required to make sure that this allocation
+    	           doesn't fall in sectors -  return value tells if an allocation was done or not
+    	           We don't care to know the status here */
+	    createDummyAllocation(numBytes);
+
         if(calculateLogHeadRoom() < (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
             /* Free memory is below the minimum threshold, try creating some free
                space by moving active records, clearing inactive hence compacting flash */
@@ -607,16 +703,19 @@ DATASTORE_STATUS Data_Store<T>::initDataStore( char *datastoreName,
         }
 
         flashDevice = new flash_emulator<T>(datastoreName, &flashProp);
-#else
-        flashDevice(datastoreName);
 
         DATASTORE_ASSERT( flashDevice != NULL,
-                          "Creating Flash Device, new failed!" );
-        if( NULL == flashDevice ){
-            lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
-            status = DATASTORE_STATUS_INT_ERROR;
-            break;
+                                  "Creating Flash Device, new failed!" );
+                if( NULL == flashDevice ){
+                    lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
+                    status = DATASTORE_STATUS_INT_ERROR;
+                    break;
         }
+#else
+        //flash_device<int> flashDevice(datastoreName);
+        //this.flashDevice = flashDevice;
+#endif
+
 
         DATASTORE_ASSERT( flashDevice.getDeviceState()== EMULATOR_STATE_READY,
                           "Created flash device not in ready state!" );
@@ -628,8 +727,9 @@ DATASTORE_STATUS Data_Store<T>::initDataStore( char *datastoreName,
         /* End of Flash Emulator creation */
 
         /* Initialize the Unique Pointer class */
-        myUniquePtrGen = new uniquePtr( property->addressRangeStart,
-                                        property->addressRangeEnd );
+        //myUniquePtrGen = new uniquePtr( property->addressRangeStart,
+        //                                property->addressRangeEnd );
+        /*
         DATASTORE_ASSERT( myUniquePtrGen != NULL,
                           "new failed to create uniquePtr Object" );
         if( NULL == myUniquePtrGen ){
@@ -637,6 +737,7 @@ DATASTORE_STATUS Data_Store<T>::initDataStore( char *datastoreName,
             lastErrorVal = DATASTORE_ERROR_OUT_OF_MEMORY;
             break;
         }
+        */
 
         /* Initialize the internal variables */
         int lDataStoreStartBlockID = 0;      /* Will calculate BlockID of first block of datastore */
@@ -680,6 +781,61 @@ DATASTORE_STATUS Data_Store<T>::initDataStore( char *datastoreName,
     }while(0);
     return status;
 }
+
+/****************************************************************************
+*
+*  Function Name : cyclicDataRead
+*
+******************************************************************************/
+/*!
+*  \brief    Reads data from the flash
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+template<class T>
+bool Data_Store<T>::createDummyAllocation(int nextAllocationSize)
+{
+    char *logPtr     = NULL;
+    int  currBlockID = 0;
+    char *currBlockStartAddr = NULL;
+    char *currBlockEndAddr   = NULL;
+    int byteLeftInBlock = 0;
+
+    bool retVal = false;
+
+    /* Add the record header as this is the actual size of the allocation */
+    nextAllocationSize = nextAllocationSize + sizeof(RECORD_HEADER);
+
+
+    logPtr = (char*)flashDevice.getDeviceBaseAddress() + logPointByteOffset;
+
+    currBlockID = flashDevice.getBlockIDFromAddress(logPtr);
+    currBlockStartAddr = (char*)flashDevice.getBlockAddressFromBlockID(currBlockID);
+    currBlockEndAddr   = currBlockStartAddr + flashDevice.getBlockSize(currBlockID) - 1;
+
+    byteLeftInBlock = currBlockEndAddr - logPtr + 1;
+    if(byteLeftInBlock == 0){
+        /* I am sure this is impossible - Chethan */
+        retVal = false;
+    }
+    else if(byteLeftInBlock < nextAllocationSize){
+        /* This particular sector has less than required number of bytes, hence we
+           need to fill this by a filler allocation using SKIP_TO_NEXT_SECTOR_FLAG */
+		unsigned char lflag = SKIP_TO_NEXT_SECTOR_FLAG;
+
+		flashDevice.writeRawData( &lflag, 1, logPtr);
+        incrementLogPointer(byteLeftInBlock);   /* Now move to the next sector */
+        retVal = true;
+    }else{
+        /* Nothing to be done I guess */
+        retVal = false;
+    }
+    return retVal;
+}
+
 
 
 /****************************************************************************
@@ -727,13 +883,17 @@ uint32 Data_Store<T>::cyclicDataRead( LPVOID buff,
         }
 
         if(offset + numBytes <= dataStoreEndByteOffset){
+
             /* Common case - Just read */
+
             memcpy( buff,
                     currentLoc,
                     numBytes );
+
         }else{
             /* Need to read in pieces */
             int byteTillEnd = dataStoreEndByteOffset - offset + 1;
+
 
             /* Copy first piece */
             memcpy( buff,
@@ -771,7 +931,9 @@ uint32 Data_Store<T>::cyclicDataWrite( LPVOID buff,
     uint32 retVal = numBytes;
     uint32 offset = 0;
 
-    LPVOID targetLoc = (char*)flashDevice.getDeviceBaseAddress()+4156;
+    if(numBytes == 0)
+    	return 0;
+    //LPVOID targetLoc = (char*)flashDevice.getDeviceBaseAddress()+4156;
 
     if( NULL == currentLoc ||
         NULL == buff ||
@@ -817,6 +979,29 @@ uint32 Data_Store<T>::cyclicDataWrite( LPVOID buff,
     return retVal;
 }
 
+/****************************************************************************
+*
+*  Function Name :
+*
+******************************************************************************/
+/*!
+*  \brief
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+template<class T>
+DATASTORE_STATUS Data_Store<T>::storeClearPtrOffset()
+{
+    DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
+    do{
+
+    }while(0);
+    return status;
+}
+
 
 /****************************************************************************
 *
@@ -848,17 +1033,29 @@ DATASTORE_STATUS Data_Store<T>::compactLog()
         cyclicDataRead( &recHeader,
                         clearPtr,
                         sizeof(RECORD_HEADER) );
-        DATASTORE_ASSERT( 0 == recHeader.zero ,
-                          "Invalid record header is read!" );
-        if( 0 != recHeader.zero ){
+        if(*((unsigned char*)&recHeader) == SKIP_TO_NEXT_SECTOR_FLAG){
+                   /* Checking for the flag indicating to skip to the next sector */
+                   int  currentBlockID = flashDevice.getBlockIDFromAddress(clearPtr);
+                   char *sectorEndByte = (char*)flashDevice.getBlockAddressFromBlockID(currentBlockID) +
+                                           flashDevice.getBlockSize(currentBlockID) - 1;
+                   int numBytesToIncrement = sectorEndByte - clearPtr + 1;
+
+                   incrementClearPoint(numBytesToIncrement);
+                   clearPtr = (char*)flashDevice.getDeviceBaseAddress() + clearLogPointByOffset;
+        }
+        else if( 0 != recHeader.zero ){
             assert(false);  /* This should never happen */
             break;  //When assert is removed
         }
-        if( 0 == recHeader.zero &&
+        else if( 0 == recHeader.zero &&
             FLAG_RECORD_ACTIVE == recHeader.activeFlag ){
             /* Record that we are seeing is active, so we need to move it to the
                end of log - Can't use write method directly because current call
                could be coming from there :) */
+
+        	  /* Create a dummy/skip allocation if required */
+        	createDummyAllocation(recHeader.size);
+
 
             /* First mark the current location as inactive */
             recHeader.activeFlag = FLAG_RECORD_INACTIVE;
@@ -910,16 +1107,8 @@ DATASTORE_STATUS Data_Store<T>::compactLog()
     if(datastore_abs((int)clearPtrBlockID - (int)logPtrBlockID ) >= 2){
         /* There is a gap of atleast 1 block and initialClearPtrBlockID could be safely
            erased */
-        {
-            /* Temporary block */
-            int logPtrBlockID;
-            int clearPtrBlockID;
-
-            logPtrBlockID = flashDevice.getBlockIDFromAddress((char*)flashDevice.getDeviceBaseAddress()+logPointByteOffset);
-            if(logPtrBlockID == initialClearPtrBlockID){
-                flashDevice.eraseBlock(initialClearPtrBlockID);
-            }
-        }
+    	   /* Before erase, update the hidden sector with the new clearPtrOffset, which can be used while
+    	           scanning the device on the reboot */
 
         flashDevice.eraseBlock(initialClearPtrBlockID);
         incrementErasePoint(flashDevice.getBlockSize(initialClearPtrBlockID));
@@ -982,7 +1171,7 @@ Data_Store<T>::Data_Store( char *flashDeviceName,
     state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
 }
 
-#if 1
+
 /****************************************************************************
 *
 *  Function Name :
@@ -996,6 +1185,7 @@ Data_Store<T>::Data_Store( char *flashDeviceName,
 *  \return
 *
 ******************************************************************************/
+#if 0
 template<class T>
 DATASTORE_STATUS Data_Store<T>::scanFlashDevice()
 {/* Need to scan the physical device first */
@@ -1025,9 +1215,9 @@ DATASTORE_STATUS Data_Store<T>::scanFlashDevice()
 
    	numBlocks = deviceInfo->Regions[0].NumBlocks;
 
-   	for(int index = 0; index < numBlocks; index++){
-   	    flashDevice.eraseBlock(index);
-   	}
+   	//for(int index = 0; index < numBlocks; index++){
+   	//    flashDevice.eraseBlock(index);
+   	//}
 
 #endif
 	logPointByteOffset    = dataStoreStartByteOffset;
@@ -1035,17 +1225,231 @@ DATASTORE_STATUS Data_Store<T>::scanFlashDevice()
 	erasePointByteOffset  = dataStoreEndByteOffset;
     return DATASTORE_STATUS_OK;
 }
-#else
+#endif
+/****************************************************************************
+*
+*  Function Name : traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
+*
+******************************************************************************/
+/*!
+*  \brief:	Helper for persistence. This function is for those situations where the
+*			entire allocated block size is not used for storing the record. The rest
+*			of the allocated region could be all FFs. The logPoint is the end of this
+*			block and this function helps in finding that.
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+template<class T>
+LPVOID Data_Store<T>::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
+{
+	int recordID;
+		int blockID;
+		LPVOID givenPtr;
+		RECORD_HEADER header = { 0 };
+		LPVOID dataStoreStartAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreStartByteOffset;
+		LPVOID dataStoreEndAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreEndByteOffset;
+
+		int lfirstBlockID = flashDevice.getBlockIDFromAddress(dataStoreStartAddr);
+		int llastBlockID = flashDevice.getBlockIDFromAddress(dataStoreEndAddr);
+
+		/* Traverse left of the address passed as parameter */
+		if(per_dir == GO_LEFT){
+			while(*address == (char)0xFF){
+				blockID = flashDevice.getBlockIDFromAddress(address);
+				blockID--;
+				if(blockID < lfirstBlockID){
+					blockID = llastBlockID;
+				}
+				address = (char*)flashDevice.getBlockAddressFromBlockID(blockID);
+			}
+
+			/* Jump record at a time */
+			cyclicDataRead(&header, address, sizeof(RECORD_HEADER));
+			while(*((char*)&header) != (char)0xFF){
+				if( SKIP_TO_NEXT_SECTOR_FLAG == *((unsigned char*)&header)){
+					blockID = flashDevice.getBlockIDFromAddress(address);
+					blockID++;
+					blockID = (blockID >llastBlockID)?(lfirstBlockID):(blockID);
+
+					address = (char*)flashDevice.getBlockAddressFromBlockID(blockID);
+				}else{
+					address = (char*)incrementPointer( address,
+												header.size+sizeof(RECORD_HEADER));
+				}
+				cyclicDataRead(&header, address, sizeof(RECORD_HEADER));
+			}
+		}
+
+		/* Traverse right of the address passed as parameter */
+		else if(per_dir == GO_RIGHT){
+			while(*address == (char)0xFF){
+				blockID = flashDevice.getBlockIDFromAddress(address);
+				blockID++;
+				if(blockID > llastBlockID){
+					blockID = lfirstBlockID;
+				}
+				address = (char*)flashDevice.getBlockAddressFromBlockID(blockID);
+			}
+			address = (char*)incrementPointer(address, -1);
+		}
+		return address;
+}
+
+
+/****************************************************************************
+*
+*  Function Name : readPointers()
+*
+******************************************************************************/
+/*!
+*  \brief:	Helper function for persistence. To get the accurate locations of the
+*			log, erase and clear points. While traversing the dataStore, the pointer
+*			could end up either in between a region of FFs or in between data.
+*			Depending on the location, we traverse left and right of the pointer.
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+template <class T>
+LPVOID Data_Store<T>::readPointers()
+{
+	char* returnAddress;
+	char* tempAddress1;
+	char* tempAddress2;
+	int numBytes = 0;
+	int tempBlockID = 0;
+	PERSISTENCE_DIRECTION per_dir;
+	RECORD_HEADER header;
+
+	LPVOID dataStoreStartAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreStartByteOffset;
+	LPVOID dataStoreEndAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreEndByteOffset;
+	int firstBlock = flashDevice.getBlockIDFromAddress(dataStoreStartAddr);
+	int lastBlock  = flashDevice.getBlockIDFromAddress(dataStoreEndAddr);
+
+	/* Traverse through the entire data store and search for the FF regions */
+	for(int index = firstBlock;index <= lastBlock; index++){
+		returnAddress = (char *)flashDevice.getBlockAddressFromBlockID(index);
+		cyclicDataRead(&header, returnAddress, sizeof(RECORD_HEADER));
+
+		if(*returnAddress == (char)0xFF){
+			per_dir = GO_LEFT;
+			tempAddress1 = (char *)traversePointer(per_dir, returnAddress);
+			per_dir = GO_RIGHT;
+			tempAddress2 = (char *)traversePointer(per_dir, returnAddress);
+			break;
+		}
+	}
+
+	logPointByteOffset = (int)(char*)(tempAddress1 - (char*)flashDevice.getDeviceBaseAddress());
+	erasePointByteOffset = (int)(char*)(tempAddress2 - (char*)flashDevice.getDeviceBaseAddress());
+	clearLogPointByOffset = (uint32)((char*)incrementPointer(tempAddress2,1) - (char*)flashDevice.getDeviceBaseAddress());
+
+	return NULL;
+}
+
+/****************************************************************************
+*
+*  Function Name : readRecordinBlock(int blockID)
+*
+******************************************************************************/
+/*!
+*  \brief:	Helper function for persistence. Checks the versions of 2 headers and
+*			either marks one for deletion or marks it as inactive.
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+template<class T>
+int Data_Store<T>::readRecordinBlock(int blockID)
+{
+	char* addr = (char *)flashDevice.getBlockAddressFromBlockID(blockID);
+	char *endAddr = addr + flashDevice.getBlockSize(blockID);
+	int tempCount = 0;
+
+	PRINT_DEBUG("Check Point 1.1 : In Function Read In Block");
+
+	DATASTORE_ADDR_TBL_ENTRY entry;
+	DATASTORE_STATUS status;
+	int count = 0;
+	RECORD_HEADER header;
+	while(*addr != (char)0xFF && addr < (endAddr))
+	{
+		tempCount++;
+
+		//hal_printf("Count Number %d\n", tempCount);
+
+		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
+		if(*((unsigned char*)&header) == SKIP_TO_NEXT_SECTOR_FLAG){
+					break;
+		}
+
+		if(FLAG_RECORD_ACTIVE == header.activeFlag )
+		{
+		entry.allocationSize = header.size;
+		entry.currentLoc     = addr+sizeof(RECORD_HEADER);
+		entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
+		entry.recordID       = header.recordID;
+
+		hal_printf("Record Number Block Id : %d  Record Id: %d Record Size : %d\n", blockID, header.recordID, header.size);
+
+		/* Change the condition to check for the STATUS duplicate recordID */
+		status = addressTable.addEntry(&entry);
+		if(DATASTORE_STATUS_RECORD_ALREADY_EXISTS == status){
+			int oldEntryVer;
+			int curEntryVer;
+			LPVOID temp;
+			RECORD_HEADER tempHeader;
+
+			temp = (Flash_Memory<char> *)addressTable.getCurrentLoc(header.recordID);
+			memcpy( &tempHeader,
+					(char*)temp-sizeof(RECORD_HEADER),
+					sizeof(RECORD_HEADER) );
+
+			oldEntryVer = tempHeader.version;
+			curEntryVer = header.version;
+			/* Check which header is recent */
+			if(decideWhichOneisRecent(tempHeader, header) == curEntryVer){       /*If loop 3*/
+				deleteRecord(header.recordID);
+				addressTable.addEntry(&entry);
+			}else{
+				temp = entry.currentLoc;
+				tempHeader.activeFlag = FLAG_RECORD_INACTIVE;
+				cyclicDataWrite( &tempHeader,(char*)temp-sizeof(RECORD_HEADER),
+											sizeof(RECORD_HEADER));
+			}       /*End of if loop 3*/
+		}else if(status == DATASTORE_STATUS_OK){
+			//count++;
+		}
+		else{
+			DATASTORE_ASSERT( false, "Address Table failed!");
+		}
+		}
+
+		count++;
+		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
+	}
+	PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
+	return count;
+}
+
+
 
 
 
 /****************************************************************************
 *
-*  Function Name :
+*  Function Name : decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADER header)
 *
 ******************************************************************************/
 /*!
-*  \brief
+*  \brief:	Helper function for persistence. Returns which of the two parameters passed
+*			as parameters has the most recent version of the header
 *
 *  \param
 *  \param
@@ -1058,128 +1462,49 @@ uint32 Data_Store<T>::decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HE
     return((tempHeader.version+1)>header.version?tempHeader.version:header.version);
 }
 
+
 /****************************************************************************
 *
-*  Function Name :
+*  Function Name : scanFlashDevice()
 *
 ******************************************************************************/
 /*!
-*  \brief
+*  \brief:	Function for persistence. This is called during the device initialization
+*			to get the log, erase and clear pointers.
 *
 *  \param
 *  \param
 *  \return
 *
 ******************************************************************************/
+
 template<class T>
-uint32 Data_Store<T>::returnScanAddress()
+LPVOID Data_Store<T>::scanFlashDevice()
 {
-    RECORD_HEADER header;
-    DATASTORE_ADDR_TBL_ENTRY entry;
-    int returnAddress;
-	char *basePtr;
-	basePtr = (char *)flashDevice.getDeviceBaseAddress()+dataStoreStartByteOffset;
-	basePtr -= sizeof(int);
-	cyclicDataRead(&returnAddress, basePtr, sizeof(int));
-    return returnAddress;
+	LPVOID dataStoreStartAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreStartByteOffset;
+	LPVOID dataStoreEndAddr = (char*)flashDevice.getDeviceBaseAddress()+dataStoreEndByteOffset;
+
+	int firstBlock = flashDevice.getBlockIDFromAddress(dataStoreStartAddr);
+	int lastBlock  = flashDevice.getBlockIDFromAddress(dataStoreEndAddr);
+	int numOfEntries = 0;
+	char* returnAddress;
+
+	for(int index = firstBlock;index <= lastBlock; index++){
+		numOfEntries += readRecordinBlock(index);
+	}
+
+	/* The device is new */
+	if(numOfEntries == 0){
+		logPointByteOffset = clearLogPointByOffset = dataStoreStartByteOffset;
+		erasePointByteOffset = dataStoreEndByteOffset;
+	}
+	/* If the device has already some data and crashed during use, call the below function */
+	else{
+		readPointers();
+	}
+	return NULL;
 }
 
-
-/****************************************************************************
-*
-*  Function Name :
-*
-******************************************************************************/
-/*!
-*  \brief
-*
-*  \param
-*  \param
-*  \return
-*
-******************************************************************************/
-template<class T>
-DATASTORE_STATUS Data_Store<T>::scanFlashDevice()
-{
-#if 1
-    /* Need to scan the physical device first */
-    DATASTORE_ADDR_TBL_ENTRY entry;
-    DATASTORE_STATUS status = DATASTORE_STATUS_RECORD_ALREADY_EXISTS;
-    int *scanFlashData;
-    int index = 0;
-    int numBlocks = 0;
-    LPVOID currentLink;
-    uint32 basePtr;
-    RECORD_HEADER header;
-    FLASH_PROPERTIES property;
-    property.numClusters = flashDevice.getNumberofClusters();
-    property.clusters  = (BLOCK_CLUSTER *)malloc(sizeof(BLOCK_CLUSTER)*property.numClusters);
-    flashDevice.getDeviceProperties(&property);
-
-    basePtr = returnScanAddress();
-	//basePtr += DATA_STORE_OFFSET;
-    while(basePtr < flashDevice.getDeviceSize()){     /*While loop 1*/
-		memcpy( &header, basePtr+(char *)flashDevice.getDeviceBaseAddress(), sizeof(RECORD_HEADER));
-		/*get the start and end address of the areas that has been erased (all 1s)*/
-		if( header.zero == 1 )
-		{
-			//logPointByteOffset = (DWORD)flashDevice.getBlockAddressFromBlockID(header.recordID);
-			logPointByteOffset = ;
-			unsigned char *localAddr;
-			localAddr = (unsigned char *)(basePtr+(char *)flashDevice.getDeviceBaseAddress());
-			while(*localAddr == 0xFFu)
-			{
-				localAddr++;
-				if(localAddr == (unsigned char *)flashDevice.getDeviceSize())
-					localAddr = (unsigned char *)flashDevice.getDeviceBaseAddress(); /*should this be getAddress(deviceID)*/
-				else if(localAddr == (unsigned char *)logPointByteOffset)
-					break;
-			}
-			erasePointByteOffset = (DWORD)localAddr;
-		}
-        if( header.activeFlag == FLAG_RECORD_ACTIVE &&
-			header.zero == 0 ){
-            entry.allocationSize = header.size;
-            entry.currentLoc     = basePtr+(char *)flashDevice.getDeviceBaseAddress()+sizeof(RECORD_HEADER);
-            entry.givenPtr       = getUniquePtr(header.size);
-            entry.recordID       = header.recordID;
-
-            /* Change the condition to check for the STATUS duplicate recordID */
-            status = addressTable.addEntry(&entry);
-            if(DATASTORE_STATUS_RECORD_ALREADY_EXISTS == status){  /*If loop 2*/
-                int oldEntryVer;
-                int curEntryVer;
-                Flash_Memory<char> *temp;
-                RECORD_HEADER tempHeader;
-
-                temp = (Flash_Memory<char> *)addressTable.getCurrentLoc(header.recordID);
-                memcpy( &tempHeader,
-                        (char*)temp-sizeof(RECORD_HEADER),
-                        sizeof(RECORD_HEADER) );
-
-                oldEntryVer = tempHeader.version;
-                curEntryVer = header.version;
-                if(decideWhichOneisRecent(tempHeader, header) == curEntryVer){       /*If loop 3*/
-                    deleteRecord(header.recordID);
-                    addressTable.addEntry(&entry);
-                }else{
-                    tempHeader.activeFlag = FLAG_RECORD_INACTIVE;
-                    flashDevice.writeRawData( &tempHeader,
-                                               sizeof(RECORD_HEADER),
-                                               (char*)temp-sizeof(RECORD_HEADER) );
-                }       /*End of if loop 3*/
-            }else{
-                DATASTORE_ASSERT( false, "Address Table failed!");
-            }       /*End of if loop 2*/
-        }
-        basePtr += header.size+ sizeof(RECORD_HEADER);
-    }       /*End of while loop 1*/
-#endif
-	logPointByteOffset = DATA_STORE_OFFSET;
-	erasePointByteOffset = flashDevice.getDeviceSize() -1;
-    return DATASTORE_STATUS_OK;
-}       /*End of function*/
-#endif
 
 
 /****************************************************************************
@@ -1246,6 +1571,9 @@ LPVOID Data_Store<T>::createRecord( RECORD_ID recordID, uint32 numBytes )
     LPVOID allocLoc  = NULL;
     lastErrorVal = DATASTORE_ERROR_NONE;
 
+    // The STM Driver accepts half words as inputs so all writes are in half word sizes
+    numBytes = numBytes + numBytes % 2;
+
     do{
         if(NULL != addressTable.getGivenAddress(recordID)){
             /* This record id is already present in the flash. So, can't proceed */
@@ -1254,7 +1582,7 @@ LPVOID Data_Store<T>::createRecord( RECORD_ID recordID, uint32 numBytes )
         }
 
         /* Generate an unique pointer and register it with the address_table */
-        lGivenPtr = myUniquePtrGen->getUniquePtr(numBytes);
+        lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
         allocLoc  = createAllocation( recordID, lGivenPtr, numBytes );
         if( NULL == allocLoc ){
             break;
@@ -1517,8 +1845,43 @@ template<class T>
 Data_Store<T>::~Data_Store()
 {
     DATASTORE_REG_RemoveEntry(this);
+#ifdef _EMULATOR_MODE
     delete flashDevice;
     delete myUniquePtrGen;
+#endif
 }
+
+/****************************************************************************
+*
+*  Function Name :
+*
+******************************************************************************/
+/*!
+*  \brief
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+#ifdef ENABLE_TEST
+template<class T>
+uint32 Data_Store<T>::returnLogPoint()
+{
+	return logPointByteOffset;
+}
+
+template<class T>
+uint32 Data_Store<T>::returnClearPoint()
+{
+    return clearLogPointByOffset;
+}
+
+template<class T>
+uint32 Data_Store<T>::returnErasePoint()
+{
+	return erasePointByteOffset;
+}
+#endif
 
 #endif

@@ -31,9 +31,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_InterfaceLibrary_Samraksh_ADC::getData___STATIC__I4__SZARRAY_U2__U4__U4,
     NULL,
     NULL,
+    NULL,
     Library_InterfaceLibrary_Samraksh_Memory::write___BOOLEAN__I4__SZARRAY_U1,
     Library_InterfaceLibrary_Samraksh_Memory::constructNativeMemoryPointer___BOOLEAN__I4__U4,
     Library_InterfaceLibrary_Samraksh_Memory::disposeNativeMemoryPointer___BOOLEAN__I4,
+    NULL,
     NULL,
     NULL,
     Library_InterfaceLibrary_Samraksh_Memory::read___BOOLEAN__I4__SZARRAY_U1,
@@ -70,7 +72,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh =
 {
     "Samraksh", 
-    0xDC0A4C07,
+    0x6B892AC3,
     method_lookup
 };
 

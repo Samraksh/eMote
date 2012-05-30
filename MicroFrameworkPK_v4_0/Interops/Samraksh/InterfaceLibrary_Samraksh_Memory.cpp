@@ -26,6 +26,7 @@ INT8 Memory::write( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_U
 
     memptr = param1;
 
+
     return retVal;
 }
 
@@ -43,26 +44,28 @@ INT8 Memory::disposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, INT32 param0
 {
     INT8 retVal = 0;
 
-    MemPtr<UINT8> memptr(param0);
+    //MemPtr<UINT8> memptr(param0);
 
-    memptr.dispose();
+    //memptr.dispose();
 
     return retVal;
 }
 
 INT8 Memory::read( CLR_RT_HeapBlock* pMngObj, INT32 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
 {
-    INT8 retVal = 0;
 
-    MemPtr<UINT8> memptr(param0);
+	INT8 retVal = 0;
 
-    UINT8* ptr = memptr.getPointer();
+	 MemPtr<UINT8> memptr(param0);
 
-    CLR_RT_TypedArray_UINT8 lbuffer = param1;
+	 CLR_RT_TypedArray_UINT8 lbuffer = param1;
 
-    for(UINT32 i = 0; i < lbuffer.GetSize(); i++)
-    	lbuffer.SetValue(i, ptr[i]);
+	 memptr.read(lbuffer.GetBuffer(),lbuffer.GetSize());
 
+
+
+//	 for(UINT32 i = 0; i < lbuffer.GetSize(); i++)
+//	   	lbuffer.SetValue(i, ptr[i]);
 
     return retVal;
 }

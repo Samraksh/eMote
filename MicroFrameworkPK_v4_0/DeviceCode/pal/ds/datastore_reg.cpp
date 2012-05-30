@@ -1,16 +1,7 @@
-
-#include <vector>
-
 #include "types.h"
-
-typedef void* LPVOID;
-
 #include "datastore_int.h"
 #include "datastore_reg.h"
-
-
-
-using namespace std;
+#include <tinyhal.h>
 
 #define MAX(a, b) (((a) > (b))?(a):(b))
 #define MIN(a, b) (((a) < (b))?(a):(b))
@@ -20,7 +11,7 @@ using namespace std;
 #define CHECK_OVERLAP(a, b, c, d)   ((MAX((a),(b)) >= MIN((c),(d))) && (MIN((a),(b)) <= MAX((c), (d))))
 
 
-static vector<DATASTORE_REG_ENTRY> fDataStoreReg;
+//static vector<DATASTORE_REG_ENTRY> fDataStoreReg;
 
 /****************************************************************************
 *
@@ -37,6 +28,7 @@ static vector<DATASTORE_REG_ENTRY> fDataStoreReg;
 ******************************************************************************/
 static bool DATASTORE_REG_checkOverLap(DATASTORE_REG_ENTRY *entry)
 {
+#if 0
     /* Check for any overlaps in the address ranges
        Algorithm : http://stackoverflow.com/questions/4879315/what-is-a-tidy-algorithm-to-find-overlapping-intervals
     */
@@ -49,7 +41,8 @@ static bool DATASTORE_REG_checkOverLap(DATASTORE_REG_ENTRY *entry)
             break;
         }
     }
-    return retVal;
+#endif
+    return FALSE;
 }
 
 
@@ -68,6 +61,7 @@ static bool DATASTORE_REG_checkOverLap(DATASTORE_REG_ENTRY *entry)
 ******************************************************************************/
 DATASTORE_STATUS DATASTORE_REG_CreateEntry(DATASTORE_REG_ENTRY *entry)
 {
+#if 0
     DATASTORE_STATUS status = DATASTORE_STATUS_INVALID_PARAM;
     do{
         if(NULL == entry){
@@ -83,7 +77,8 @@ DATASTORE_STATUS DATASTORE_REG_CreateEntry(DATASTORE_REG_ENTRY *entry)
         fDataStoreReg.push_back(*entry);
         status = DATASTORE_STATUS_OK;
     }while(0);
-    return status;
+#endif
+    return DATASTORE_STATUS_OK;
 }
 
 
@@ -104,6 +99,7 @@ DATASTORE_STATUS DATASTORE_REG_CreateEntry(DATASTORE_REG_ENTRY *entry)
 ******************************************************************************/
 LPVOID DATASTORE_REG_LookupDataStoreHandle(LPVOID addr)
 {
+#if 0
     LPVOID dataStoreHandle = NULL;
     do{
         for(int index = 0; index < fDataStoreReg.size(); index++){
@@ -114,7 +110,9 @@ LPVOID DATASTORE_REG_LookupDataStoreHandle(LPVOID addr)
             }
         }
     }while(0);
-    return dataStoreHandle;
+#endif
+    return NULL;
+
 }
 
 /****************************************************************************
@@ -132,6 +130,7 @@ LPVOID DATASTORE_REG_LookupDataStoreHandle(LPVOID addr)
 ******************************************************************************/
 DATASTORE_STATUS DATASTORE_REG_RemoveEntry(LPVOID dataStoreHandle)
 {
+#if 0
     DATASTORE_STATUS status = DATASTORE_STATUS_NOT_FOUND;
     do{
         for(int index = 0; index < fDataStoreReg.size(); index++){
@@ -143,5 +142,6 @@ DATASTORE_STATUS DATASTORE_REG_RemoveEntry(LPVOID dataStoreHandle)
             }
         }
     }while(0);
-    return status;
+#endif
+    return DATASTORE_STATUS_OK;
 }

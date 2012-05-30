@@ -3,7 +3,6 @@
 
 #include<tinyhal.h>
 #include "flash_memory.h"
-#include "AddressMap.h"
 
 #define FLASHDEVICE_FILE_FORMAT_VERSION    (1)
 
@@ -47,6 +46,7 @@ private:
     LPVOID           writePtr;            /* File mapping ptr with write permissions */
 
 
+
     /* PRIVATE FUNCTIONS */
     BOOL createNewFlashDeviceFile( char *flashName);
     BOOL loadExistingFlashDevice ( char *flashName);
@@ -66,9 +66,16 @@ private:
     BOOL createMemoryMapping();
 
 public:
+	void init()
+	{
+	  	this->flashDeviceName = "NOR";
+	  	initFlashDevice("NOR");
+	}
+
+	flash_device<T>();
     /* Constructor - Opens an existing flash by name flashName or creates one with
        given FLASH_PROPERTIES if it doesn't exist */
-    flash_device( char *flashName);
+    flash_device<T>( char *flashName);
 
     /* Constructor - Opens an existing flash by name flashName or creates one with
        given properties given in configFIleName */
@@ -127,6 +134,9 @@ public:
     /* Closes the device if it is open, and deletes the emulation file */
     BOOL doesFileExist()
     {
+
+    	return FALSE;
+
     	if(flashDeviceName == NULL)
     		return FALSE;
     	else
@@ -331,6 +341,12 @@ template<class T> int flash_device<T>::writeRawData( void *rawDataIn, int numByt
 	return 0;
 }
 
+template<class T> flash_device<T>::flash_device()
+{
+	this->flashDeviceName = "NOR";
+	initFlashDevice("NOR");
+}
+
 template<class T> flash_device<T>::flash_device(char *flashName)
 {
 	//this->flashDeviceName = flashName;
@@ -459,6 +475,8 @@ template<class T> BOOL flash_device<T>::createNewFlashDeviceFile( char *flashNam
     UINT32 location = 0x64000000;
     ByteAddress address;
 
+    int versionNum = FLASHDEVICE_FILE_FORMAT_VERSION;
+
     ASSERT( flashName != NULL );
 
     do{
@@ -485,7 +503,9 @@ template<class T> BOOL flash_device<T>::createNewFlashDeviceFile( char *flashNam
 
         /* Create header for the flash file */
 			//headerSize = writeFlashProperties( device, sizeof(T), properties );
-			headerSize = writeFlashProperties(sizeof(T));
+			//headerSize = writeFlashProperties(sizeof(T));
+			// Not Writing to flash region
+			 headerSize = sizeof(headerSize) + sizeof(versionNum) + sizeof(int) + sizeof(int) + deviceInfo->NumRegions*(sizeof(int)*2);
 
         /* Write Flash Area */
 			// Nived : Commenting out for now, it initializes the entire flash region to 0
@@ -518,6 +538,11 @@ void writeFlashRegion(USHORT headerSize, DWORD fileSize )
 
 }
 
+void tempBreakPoint()
+{
+	debug_printf("In a breakPoint");
+}
+
 
 template<class T> void flash_device<T>::initFlashDevice( char * flashName)
 {
@@ -531,6 +556,8 @@ template<class T> void flash_device<T>::initFlashDevice( char * flashName)
        2. Initialize the file with header, content and statistics area
           create two io memory mappings with read-only and read-write
           permissions each */
+
+    tempBreakPoint();
 
     state = FLASHDEVICE_STATE_UNINITIALIZED;
 
@@ -564,6 +591,7 @@ template<class T> void flash_device<T>::initFlashDevice( char * flashName)
     /* If we have the emulation file ready, we can set the state to active and
        CREATE FILE MEMORY-MAPPING */
 
+
        if( true == retVal ){
             retVal = createMemoryMapping();
             ASSERT( retVal == true);
@@ -571,20 +599,22 @@ template<class T> void flash_device<T>::initFlashDevice( char * flashName)
             if( true == retVal){
                 /* Now we can register the memory mapping, so that we can lookup the
                    required address from READ_ONLY view to READ_WRITE view mapping */
+#if 0
                 ADDRESS_MAP mapping;
 
                 mapping.inputBaseAddr  = (void*)((char*)readOnlyPtr + headerSize); /* Register only the flash area */
                 mapping.addrSpaceLen   = flashSize;
                 mapping.outputBaseAddr = (void*)((char*)writePtr + headerSize);
 
-                retVal = addAddressMapping( &mapping );
+                //retVal = addAddressMapping( &mapping );
                 ASSERT( retVal == true);
-
+#endif
                 buildConversionTbl();       /* Build lookup table */
 
                 /* Set Emulator object state based on the return value */
                 state = (true == retVal)?(FLASHDEVICE_STATE_READY):(FLASHDEVICE_STATE_UNINITIALIZED);
             }
+
        }
 
     return;

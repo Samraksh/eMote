@@ -29,6 +29,17 @@ namespace Samraksh
 
         }
 
+        public Memory(int id, UInt32 bytes)
+        {
+            recordId = id;
+
+            buffer = new byte[bytes];
+
+            constructNativeMemoryPointer(recordId, bytes);
+
+        }
+        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool write(int recordId, byte[] data);
 
@@ -45,6 +56,11 @@ namespace Samraksh
         {
             byte[] buffer = new byte[sizeof(int)];
             return write(recordId, buffer);
+        }
+
+        public bool write(byte[] data)
+        {
+            return write(recordId, data);
         }
 
         public byte[] read()

@@ -16,11 +16,6 @@
 
 using namespace Samraksh;
 
-extern UINT16 *buffer1;
-
-uint8_t globalFlashBuffer[20];
-
-
 INT32 FileSystem::Init( HRESULT &hr )
 {
     INT32 retVal = 0; 
@@ -36,18 +31,6 @@ INT32 FileSystem::Write( CLR_RT_TypedArray_UINT8 param0, UINT32 param1, UINT16 p
 INT32 FileSystem::Read( CLR_RT_TypedArray_UINT8 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
     INT32 retVal = 0; 
-	UINT32 elemCount = 0;
-	UINT16 *bufferIterator = buffer1;
-	
-	CLR_RT_TypedArray_UINT8 dataBuf = param0;
-	
-	for(; elemCount < dataBuf.GetSize(); elemCount++)
-	{
-		globalFlashBuffer[elemCount] = *(bufferIterator++);
-		dataBuf.SetValue(elemCount, globalFlashBuffer[elemCount]);
-	}
-
-	
     return retVal;
 }
 

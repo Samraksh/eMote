@@ -11,6 +11,9 @@
 #define DATASTORE_ASSERT(condition, messageStr)
 #endif
 
+#define SKIP_TO_NEXT_SECTOR_FLAG    (unsigned char)(0xAA)    /* Header.zero will be kept 1 here intentially */
+
+typedef void* LPVOID;
 
 typedef enum _datastore_state
 {
@@ -18,6 +21,14 @@ typedef enum _datastore_state
     DATASTORE_STATE_READY,
     DATASTORE_STATE_INT_ERROR
 }DATASTORE_STATE;
+
+/* For the persistence function */
+typedef enum _persistence_direction
+{
+	GO_LEFT,
+	GO_RIGHT
+}PERSISTENCE_DIRECTION;
+
 
 /*
     Definition of different API status for the datastore APIs
@@ -58,11 +69,10 @@ typedef struct _datastore_properties
 }DATASTORE_PROPERTIES;
 
 
-/* Pragma to disable any possible padding that would be critical problem */
-#pragma pack(push, 1)
+
 typedef struct _record_header
 {
-    uint32 zero:1;
+    char zero:1;
     uint32 version:2;
     uint32 activeFlag:1;
     uint32 size:28;   /* sizeof(version+isActive+size) = 32bits */
@@ -70,7 +80,6 @@ typedef struct _record_header
     uint32 recordID;
     void*  nextLink;
 }RECORD_HEADER;
-#pragma pack(pop)
 
 
 class uniquePtr
@@ -79,8 +88,33 @@ private:
 	LPVOID start, end;
 	LPVOID lastVal;
 public:
+	uniquePtr()
+	{
+		start = (LPVOID) 0x0;
+		end = (LPVOID) (1 << 32);
+		lastVal = (LPVOID) 1;
+	}
+
+	void init()
+	{
+		start = (LPVOID) 0x0;
+		end = (LPVOID) (1 << 32);
+		lastVal = (LPVOID) 1;
+	}
+
 	uniquePtr(LPVOID start, LPVOID end);
 	LPVOID getUniquePtr(uint32 numBytes);
+};
+
+class hiddenPersistanceMetaData
+{/* class that handles storing and managing  */
+private:
+    uint32 curLoc;
+
+public:
+    /*  */
+    hiddenPersistanceMetaData();
+    DATASTORE_STATUS storeClearPtrOffset();
 };
 
 /* Prototypes */

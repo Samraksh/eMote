@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-//                   ** WARNING! ** 
+//                   ** WARNING! **
 //    This file was generated automatically by a tool.
 //    Re-running the tool will overwrite this file.
 //    You should copy this file to a custom location
@@ -31,53 +31,52 @@ uint8_t globalRadioBuffer[100];
 
 INT32 MessageLayer::Init( HRESULT &hr )
 {
-    INT32 retVal = 0; 
-	main_tinyos();
-	CPU_GPIO_EnableOutputPin( (GPIO_PIN) 8, false );
+    INT32 retVal = 0;
+
+    main_tinyos();
+
     return retVal;
 }
 
 INT32 MessageLayer::Send( UINT8 param0, UINT16 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-	CLR_RT_TypedArray_UINT8 dataBuf = param2;
-	
-	CPU_GPIO_SetPinState( (GPIO_PIN) 8, true );
-	
-	STMAppMessagingP$STMAppMessaging$Send(param0,param1,dataBuf.GetBuffer(),param3);
-	
-	RealMainP$Scheduler$taskLoop();
-	
-	CPU_GPIO_SetPinState( (GPIO_PIN) 8, false );
-	
+    INT32 retVal = 0;
+
+    CLR_RT_TypedArray_UINT8 dataBuf = param2;
+
+    STMAppMessagingP$STMAppMessaging$Send(param0,param1,dataBuf.GetBuffer(),param3);
+
+    RealMainP$Scheduler$taskLoop();
+
     return retVal;
 }
 
 INT32 MessageLayer::Received( CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0;
-	UINT32 elemCount = 0;
-	UINT32 i = 0;
-	
-	CLR_RT_TypedArray_UINT8 dataBuf = param0;
-	
-	RealMainP$Scheduler$taskLoop();
-	
-	for(; elemCount < dataBuf.GetSize(); elemCount++)
-	{
-		globalRadioBuffer[elemCount] = STMAppMessagingP$rcvdMsg[elemCount];
-		dataBuf.SetValue(elemCount, globalRadioBuffer[elemCount]);
-	}
-	
-	for(; i < 100 ; i++)
-		STMAppMessagingP$rcvdMsg[i] = 0;
-	
+
+    UINT32 elemCount = 0;
+    UINT32 i = 0;
+
+    CLR_RT_TypedArray_UINT8 dataBuf = param0;
+
+    RealMainP$Scheduler$taskLoop();
+
+    for(; elemCount < dataBuf.GetSize(); elemCount++)
+    {
+    	globalRadioBuffer[elemCount] = STMAppMessagingP$rcvdMsg[elemCount];
+    	dataBuf.SetValue(elemCount, globalRadioBuffer[elemCount]);
+    }
+
+    for(; i < 100 ; i++)
+    	STMAppMessagingP$rcvdMsg[i] = 0;
+
     return retVal;
 }
 
 INT32 MessageLayer::ConfigureReceiver( UINT8 param0, UNSUPPORTED_TYPE param1, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+    INT32 retVal = 0;
     return retVal;
 }
 
@@ -109,8 +108,8 @@ void ISR_TestProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 }
 
 
-static const CLR_RT_DriverInterruptMethods g_InteropSampleDriverMethods = 
-{ 
+static const CLR_RT_DriverInterruptMethods g_InteropSampleDriverMethods =
+{
   InitializeTestDriver,
   EnableDisableTestDriver,
   CleanupTestDriver
@@ -119,7 +118,8 @@ static const CLR_RT_DriverInterruptMethods g_InteropSampleDriverMethods =
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Radio =
 {
-    "RadioCallback", 
+    "RadioCallback",
     DRIVER_INTERRUPT_METHODS_CHECKSUM,
     &g_InteropSampleDriverMethods
 };
+

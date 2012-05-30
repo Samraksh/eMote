@@ -20,13 +20,13 @@ INT32 USBPipe::Write( CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2
 {
     INT32 retVal = 0;
 
-	COM_HANDLE ComPortNum = HalSystemConfig.stdio;
+    COM_HANDLE ComPortNum = HalSystemConfig.stdio;
 
-	if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
-		return 0;
+   	if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
+   		return 0;
 
 
-	retVal = USB_Write(ConvertCOM_UsbStream( ComPortNum ), (const char *) param0.GetBuffer(), param2);
+    retVal = USB_Write(ConvertCOM_UsbStream( ComPortNum ), (const char *) param0.GetBuffer(), param2);
 
     return retVal;
 }
@@ -35,12 +35,12 @@ INT32 USBPipe::Read( CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2,
 {
     INT32 retVal = 0;
 
-	COM_HANDLE ComPortNum = HalSystemConfig.stdio;
+    COM_HANDLE ComPortNum = HalSystemConfig.stdio;
 
-	if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
-		return 0;
+    if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
+    	return 0;
 
-	retVal = USB_Read(ConvertCOM_UsbStream( ComPortNum ), (char *) param0.GetBuffer(), param2);
+    retVal = USB_Read(ConvertCOM_UsbStream( ComPortNum ), (char *) param0.GetBuffer(), param2);
 
     return retVal;
 }
@@ -49,13 +49,14 @@ INT8 USBPipe::Flush( HRESULT &hr )
 {
     INT8 retVal = 0;
 
-	COM_HANDLE ComPortNum = HalSystemConfig.stdio;
+    COM_HANDLE ComPortNum = HalSystemConfig.stdio;
 
-	if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
-		return 0;
+   	if(ExtractTransport(ComPortNum) != USB_TRANSPORT)
+   		return 0;
 
 
-	retVal = USB_Flush(ConvertCOM_UsbStream( ComPortNum ));
+   	retVal = USB_Flush(ConvertCOM_UsbStream( ComPortNum ));
+
 
     return retVal;
 }

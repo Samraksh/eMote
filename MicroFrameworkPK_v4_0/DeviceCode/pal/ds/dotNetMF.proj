@@ -42,10 +42,13 @@
   <PropertyGroup />
   <ItemGroup>
     <Compile Include="flash_device.cpp" />
-    <Compile Include="AddressMap.cpp"/>
+   <!-- <Compile Include="AddressMap.cpp"/>-->
+   	<Compile Include="address_table.cpp"/>
+   	<Compile Include="myvector.cpp"/>
+   	<!--<Compile Include="simpletests.cpp"/>-->
     <Compile Include="datastore_reg.cpp"/>
     <Compile Include="datastore_util.cpp"/>
-    <Compile Include="example.cpp"/>
+    <!--<Compile Include="example.cpp"/>-->
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />
