@@ -14,8 +14,9 @@
 #include "..\..\test\native\src\uart\uart.h"
 #include "..\..\test\native\src\gpio\gpio.h"
 #include "..\..\test\native\src\spi\spi.h"
-#include "..\..\test\native\src\gpmc\gpmc.h"
+//#include "..\..\test\native\src\gpmc\gpmc.h"
 #include "..\..\test\native\src\ramtest\ramtest.h"
+#include "..\..\test\native\src\datastoretest\DSTest.h"
 
 //--//
 

@@ -17,6 +17,7 @@
 #include <test_native_drivers/timers_test/main.h>
 #include <test_native_drivers/timers_test/stm32f10x_it.h>
 #include <pal/COM/usb/usb.h>
+#include <tests.h>
 
 extern void test_flash_interface();
 
@@ -177,8 +178,10 @@ void ApplicationEntryPoint()
 	//}
     // Nor Flash Integration Testing
     //test_NOR();
-    test_flash_interface();
+    //test_flash_interface();
+    //DataStoreTest dstest(100,1,2);
 
+    //dstest.execute(1);
 
 	ClrStartup( clrSettings );
 
