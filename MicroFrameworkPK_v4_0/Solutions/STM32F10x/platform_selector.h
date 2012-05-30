@@ -7,7 +7,7 @@
 #define PLATFORM_ARM_STM32F10X				1
 #endif
 
-#undef BUILD_RTM 						
+#undef BUILD_RTM
 
 #define PLATFORM_SUPPORTS_SOFT_REBOOT   TRUE
 /*
@@ -35,10 +35,10 @@
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 */
 
-#define SYSTEM_CLOCK_HZ                 8000000
+#define SYSTEM_CLOCK_HZ                 48000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          8000000
+#define SLOW_CLOCKS_PER_SECOND          48000000
 #define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 
