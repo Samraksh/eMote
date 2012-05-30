@@ -155,11 +155,6 @@ void test_NOR()
 
 void ApplicationEntryPoint()
 {
-	BOOL result;
-	STM3210E_LCD_Init();
-	LCD_Clear(White);
-	LCD_SetBackColor(Blue);
-	LCD_SetTextColor(White);
 
     CLR_SETTINGS clrSettings;
 
@@ -169,13 +164,6 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-	//for (int i = 0; i < 1000; i++)
-	//{
-		//debug_printf("In App Entry point!\n\r");
-	//}
-	//while(1)
-	///{
-	//}
     // Nor Flash Integration Testing
     //test_NOR();
     //test_flash_interface();
@@ -184,57 +172,6 @@ void ApplicationEntryPoint()
     //dstest.execute(1);
 
 	ClrStartup( clrSettings );
-
-	// while(1)
-	// {
-		// debug_printf("In App Entry point!\n\r");
-		// debug_printf("Printing from USB 1\n\r");
-		// debug_printf("Printing from USB 2\n\r");
-		// debug_printf("Printing from USB 3\n\r");
-	// }
-
-	//const char* Data = "Hello From USB";
-
-	//USB_Configure( ConvertCOM_UsbController(HalSystemConfig.DebugTextPort), NULL );
-    //USB_Initialize( ConvertCOM_UsbController(HalSystemConfig.DebugTextPort) );
-    //USB_OpenStream( ConvertCOM_UsbStream(HalSystemConfig.DebugTextPort), USB_DEBUG_EP_WRITE, USB_DEBUG_EP_READ );
-	//for(int i =0; i < 100000; i++);
-	//while(1)
-	//{
-	//	USB_Write( 0, Data, 15 );
-	//}
-	//while(1)
-	//{
-	//	USB_Write( 0, Data, 15 );
-	//}
-
-    //test_timers();
-	//test_usart();
-
-	//uint8_t sys_clk = RCC_GetSYSCLKSource();
-
-	//Timer_Driver::Timer_Test();
-
-	//radio_hal_init();
-	//RCC_ClocksTypeDef RCC_Clocks;
-	//RCC_GetClocksFreq(&RCC_Clocks);
-
-	//CPU_INTC_Initialize();
-
-	//test_timers();
-
-	//rtc_test();
-
-	//TimedEvents eventsTest;
-
-	//do
-    //{
-        //result = Execute(1000, 5);
-		//result = TimedEventsExecute();
-	//} while(FALSE);
-
-	//while(1)
-	//{}
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );
