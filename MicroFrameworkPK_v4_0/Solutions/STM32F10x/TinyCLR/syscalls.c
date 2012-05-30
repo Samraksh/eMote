@@ -16,7 +16,7 @@ void
 _fini(void){
 }
 
-void 
+void
 _exit(int n)
 {
         while(1)
@@ -108,7 +108,7 @@ int _write_r(void *reent, int fd, char *ptr, size_t len)
 
         for (i=0; i<len; i++)
         {
-        plat_putByte(ptr[i]);
+        //plat_putByte(ptr[i]);
         }
         return len;
 }
