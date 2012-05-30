@@ -59,7 +59,9 @@ UINT64 CPU_MillisecondsToTicks( UINT64 Ticks )
 	debug_printf("In CPU_MillisecondsToTicks(UINT64), Ticks %lld\n", Ticks);
 #endif
 	Ticks *= (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_MILLISECOND_GCD);
-	Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
+	// Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intemediate stages
+	//Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
+	Ticks = (Ticks * SLOW_CLOCKS_MILLISECOND_GCD)/ 1000;
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MillisecondsToTicks(UINT64), Ticks %lld\n", Ticks);
 #endif
@@ -73,7 +75,9 @@ UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32 )
 #endif
     UINT64 Ticks;
     Ticks  = (UINT64)Ticks32 * (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_MILLISECOND_GCD);
-    Ticks /=                   (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
+    // Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intemediate stages
+    //Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
+    Ticks = (Ticks * SLOW_CLOCKS_MILLISECOND_GCD)/ 1000;
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MillisecondsToTicks(UINT32), Ticks %lld\n", Ticks);
 #endif
@@ -82,16 +86,16 @@ UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32 )
 
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec )
 {
-	//return uSec;	
+	//return uSec;
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
-	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);	
+	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #ifdef DEBUG_PRINT
 	UINT64 value;
 	debug_printf("CPU_MicrosecondsToTicks, Ticks %lld\n", uSec);
-	value = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);	
+	value = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 	debug_printf("Return Value is, %lld\n", value);
 #endif
-    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);	
+    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #else
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT64/#else), Ticks %u\n", uSec);
@@ -103,16 +107,16 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec )
 UINT32 CPU_MicrosecondsToTicks( UINT32 uSec )
 {
 	//return uSec;
-	//return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);		
+	//return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
-	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);	
+	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #ifdef DEBUG_PRINT
 	UINT32 value32;
 	debug_printf("In CPU_MicrosecondsToTicks(UINT32), Ticks %u\n", uSec);
-	value32 = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);		
+	value32 = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 	debug_printf("Return Value is, %u\n", value32);
 #endif
-    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);	
+    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #else
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT32/#else), Ticks %u\n", uSec);
@@ -194,7 +198,7 @@ int CPU_SystemClocksToMicroseconds( int Ticks )
 
 
 BOOL HAL_Time_Initialize()
-{		
+{
 	//return TRUE;
 	return Time_Driver::Initialize();
 }
