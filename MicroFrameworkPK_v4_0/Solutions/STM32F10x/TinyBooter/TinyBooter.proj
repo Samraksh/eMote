@@ -32,6 +32,9 @@
     <Compile Include="$(SPOCLIENT)\Application\common\assemblycode\arm\$(AS_SUBDIR)\FirstEntryMinimal.s" Condition="'$(INSTRUCTION_SET)'=='arm' or '$(INSTRUCTION_SET)'=='thumb'" />
     <Compile Include="$(SPOCLIENT)\Application\common\assemblycode\thumb2\$(AS_SUBDIR)\FirstEntryMinimal.s" Condition="'$(INSTRUCTION_SET)'=='thumb2'" />
     <Compile Include="$(SRC_DIR)\Allocator.cpp" />
+	<Compile Include="test.c" />
+	<Compile Include="signalr.c" />
+	<Compile Include="syscalls.c" />
     <Compile Include="$(SRC_DIR)\TinyBooterEntry.cpp" />
     <ExtraCleanFiles Include="$(OBJ_DIR)\TinyBooter_Compressed.dat" />
     <CompressBinFile Include="$(BIN_DIR)\TinyBooter.bin" />
@@ -282,9 +285,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF.proj" />
     <DriverLibs Include="system_initialization_hal.$(LIB_EXT)" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_INTC\dotNetMF.proj" />
     <DriverLibs Include="cpu_intc_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" />
+    <DriverLibs Include="stm32f10x_intc.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\LargeBuffer\stubs\dotNetMF.proj" />
@@ -306,15 +315,23 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" />
     <DriverLibs Include="cpu_spi_stubs.$(LIB_EXT)" />
   </ItemGroup>
-  <!-- 
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" />
     <DriverLibs Include="cpu_time_stubs.$(LIB_EXT)" />
   </ItemGroup>
-  -->  
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\time\dotNetMF.proj" />
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_tim.$(LIB_EXT)" />
   </ItemGroup>
   <!-- <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\processor\stubs_USART\dotNetMF.proj" />
@@ -382,13 +399,22 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\tinycrt\dotNetMF.proj" />
     <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" />
     <DriverLibs Include="usb_pal_config_stub.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" />
     <DriverLibs Include="cpu_usb_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\usb_config\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_usb_config.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\usb\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_usb.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" />
