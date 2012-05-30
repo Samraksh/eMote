@@ -18,16 +18,18 @@ static inline void enable_interrupts(void);
 // Sleep function in assembly.
 extern "C" { extern void omap3517_cpu_suspend(); }
 
+// Disabled due to testing stability issues
+// Pending further investigation
 void TIAM3517_POWER_Driver::Init() {
-	int t;
+	//int t;
 	
 	return;
 	// Enable clock auto-transition for MPU and NEON
 	// Both are required for NEON to idle/off
-	t = __raw_readl(OMAP3_CM_CLKSTCTRL_NEON) | OMAP3_CM_CLKSTCTRL_NEON_AUTO;
-	__raw_writel(t, OMAP3_CM_CLKSTCTRL_NEON);
-	t = __raw_readl(OMAP3_CM_CLKSTCTRL_MPU) | OMAP3_CM_CLKSTCTRL_MPU_AUTO;
-	__raw_writel(t, OMAP3_CM_CLKSTCTRL_MPU);
+	//t = __raw_readl(OMAP3_CM_CLKSTCTRL_NEON) | OMAP3_CM_CLKSTCTRL_NEON_AUTO;
+	//__raw_writel(t, OMAP3_CM_CLKSTCTRL_NEON);
+	//t = __raw_readl(OMAP3_CM_CLKSTCTRL_MPU) | OMAP3_CM_CLKSTCTRL_MPU_AUTO;
+	//__raw_writel(t, OMAP3_CM_CLKSTCTRL_MPU);
 }
 
 /*
