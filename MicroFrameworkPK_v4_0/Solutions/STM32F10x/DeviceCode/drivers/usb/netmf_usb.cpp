@@ -47,7 +47,7 @@ DEVICE_PROP Device_Property =
     STM_USB_Init,
 	STM_USB_Reset,
     STM_USB_Status_In,
-    STM_USB_Status_Out,	
+    STM_USB_Status_Out,
     STM_USB_Data_Setup,
     STM_USB_NoData_Setup,
     STM_USB_Get_Interface_Setting,
@@ -89,7 +89,7 @@ void STM_USB_Init()
 
 	/* Perform basic device initialization operations */
 	//USB_SIL_Init();
-	
+
 	bDeviceState = UNCONNECTED;
 }
 
@@ -153,7 +153,7 @@ void STM_USB_SetDeviceAddress (void)
 void STM_USB_Status_In(void)
 {
 #ifdef USB_DEBUG
-	debug_printf("In function STM_USB_Status_In\n\r\r");	
+	debug_printf("In function STM_USB_Status_In\n\r\r");
 #endif
 	return;
 }
@@ -213,7 +213,7 @@ RESULT STM_USB_NoData_Setup(uint8_t RequestNo)
 		ClearDTOG_TX(ENDP1);
 
 		/* Initialize Endpoint 2 */
-		ClearDTOG_RX(ENDP2);  
+		ClearDTOG_RX(ENDP2);
 
 		/*initialize the CBW signature to enable the clear feature*/
 		//CBW.dSignature = BOT_CBW_SIGNATURE;
@@ -222,7 +222,7 @@ RESULT STM_USB_NoData_Setup(uint8_t RequestNo)
 		return USB_SUCCESS;
 	}
 	return USB_UNSUPPORT;
-#endif	
+#endif
 	return USB_SUCCESS;
 }
 
@@ -231,7 +231,7 @@ RESULT STM_USB_Get_Interface_Setting(uint8_t Interface, uint8_t AlternateSetting
 #ifdef USB_DEBUG
 	debug_printf("In STM_USB_Get_Interface_Setting\n\r");
 #endif
-	
+
 	if (AlternateSetting > 0)
 	{
 		return USB_UNSUPPORT;/* in this application we don't have AlternateSetting*/
@@ -240,7 +240,7 @@ RESULT STM_USB_Get_Interface_Setting(uint8_t Interface, uint8_t AlternateSetting
 	{
 		return USB_UNSUPPORT;/*in this application we have only 1 interfaces*/
 	}
-	
+
 	return USB_SUCCESS;
 }
 
@@ -248,7 +248,7 @@ uint8_t* STM_USB_GetDeviceDescriptor(uint16_t Length)
 {
 #ifdef USB_DEBUG
 	debug_printf("In STM_USB_GetDeviceDescriptor\n\r");
-#endif	
+#endif
 
 #ifdef USB_NIVED_DEBUG
 	debug_printf("In STM_USB_GetDeviceDescriptor\n\r");
@@ -261,7 +261,7 @@ uint8_t* STM_USB_GetConfigDescriptor(uint16_t Length)
 {
 #ifdef USB_DEBUG
 	debug_printf("In STM_USB_GetConfigDescriptor\n\r");
-#endif	
+#endif
 #ifdef USB_NIVED_DEBUG
 	debug_printf("In STM_USB_GetConfigDescriptor\n\r");
 #endif
@@ -277,9 +277,9 @@ uint8_t* STM_USB_GetStringDescriptor(uint16_t Length)
 #ifdef USB_NIVED_DEBUG
 	debug_printf("In STM_USB_GetStringDescriptor\n\r");
 #endif
-	
-	
-	uint8_t wValue0 = pInformation->USBwValue0;	
+
+
+	uint8_t wValue0 = pInformation->USBwValue0;
 
 	if (wValue0 > 5)
 	{
@@ -365,10 +365,10 @@ USB_CONTROLLER_STATE* USBCS_Driver::GetState( int Controller )
 }
 
 HRESULT USBCS_Driver::Initialize( int Controller )
-{   
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::Initialize\n\r");
-#endif	
+#endif
 
 	int endpointsUsed = 0;
 
@@ -376,7 +376,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
     const USB_INTERFACE_DESCRIPTOR *itfc  = NULL;
 
 	USB_CONTROLLER_STATE &State = UsbControllerState[0];
-	ASSERT(0 == Controller);	
+	ASSERT(0 == Controller);
 
 	//Set up GPIO
 	Set_System();
@@ -387,7 +387,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
 
 	/* Connect the device */
 	StartHardware();
-	
+
 	/* Perform basic device initialization operations */
 	USB_SIL_Init();
 
@@ -408,7 +408,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
         UINT8 endpointNum = ep->bEndpointAddress & 0x7F;
 
 		UINT16 endpointSize = ep->wMaxPacketSize;
-        
+
         // Check interface and endpoint numbers against hardware capability
         if( endpointNum >= USBCS_Driver::c_Used_Endpoints || itfc->bInterfaceNumber > 3 )
             return S_FALSE;
@@ -471,7 +471,7 @@ HRESULT USBCS_Driver::Initialize( int Controller )
     State.EndpointCount  = c_Used_Endpoints;
     //State->DeviceStatus   = USB_STATUS_DEVICE_SELF_POWERED;
     State.PacketSize     = c_default_ctrl_packet_size;
-    
+
     State.FirstGetDescriptor = TRUE;
 	//State.Initialized=TRUE;
 
@@ -480,31 +480,31 @@ HRESULT USBCS_Driver::Initialize( int Controller )
 	//Kartik : Commented for now
     //ProtectPins( Controller, FALSE );
     //LED_GREEN();
-    return S_OK;    
+    return S_OK;
 }
 
 HRESULT USBCS_Driver::Uninitialize( int Controller )
-{ 
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::Uninitialize\n\r");
 #endif
 
     ASSERT( 0 == Controller );
-    
+
     GLOBAL_LOCK(irq);
 
     ProtectPins( Controller, TRUE );
 
     g_USB_Driver.pUsbControllerState = NULL;
 
-	//TODO : Disable Interrupts 
+	//TODO : Disable Interrupts
 	//TODO : Disable Clocks
 
     return S_OK;
 }
 
 BOOL USBCS_Driver::StartOutput( USB_CONTROLLER_STATE* State, int endpoint )
-{ 
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::StartOutput\n\r");
 #endif
@@ -591,7 +591,7 @@ BOOL USBCS_Driver::StartOutput( USB_CONTROLLER_STATE* State, int endpoint )
         TxPacket( State, endpoint );
     }
     else if(irq.WasDisabled())
-    {                        
+    {
 
         // This could be called during Flush with all interrupts off.  Just taking care of the endpoint
         // in question may cause a logjam if the host is expecting a response from another endpoint.
@@ -631,11 +631,11 @@ BOOL USBCS_Driver::GetInterruptState()
 
     GLOBAL_LOCK(irq);
 
-    if(GetISTR()) 
+    if(GetISTR())
     {
         return TRUE;
     }
-    
+
     return FALSE;
 }
 
@@ -677,18 +677,18 @@ void USBCS_Driver::ClearTxQueue( USB_CONTROLLER_STATE* State, int endpoint )
 	debug_printf("In USBCS_Driver::ClearTxQueue\n\r");
 #endif
 
-    ASSERT(State);    
+    ASSERT(State);
     State->Queues[endpoint]->Initialize();
 }
 
 //--//
 void USBCS_Driver::StartHardware()
-{       
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::StartHardware\n\r");
 #endif
   uint16_t wRegVal;
-  
+
   /*** cable plugged-in ? ***/
   /*while(!CablePluggedIn());*/
   USB_Cable_Config(ENABLE);
@@ -711,7 +711,7 @@ void USBCS_Driver::StartHardware()
 This functions turns off the USB core
 */
 void USBCS_Driver::StopHardware()
-{    
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::StopHardware\n\r");
 #endif
@@ -724,12 +724,12 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
 	debug_printf("In USBCS_Driver::TxPacket\n\r");
 #endif
 
-    ASSERT( endpoint < c_Used_Endpoints );    
+    ASSERT( endpoint < c_Used_Endpoints );
     ASSERT( State );
 
-    GLOBAL_LOCK(irq); 
+    GLOBAL_LOCK(irq);
 
-    // transmit a packet on UsbPortNum, if there are no more packets to transmit, then die    
+    // transmit a packet on UsbPortNum, if there are no more packets to transmit, then die
 
     // If this is not a legal transmit endpoint, there is nothing to do
     if( State->Queues[endpoint] == NULL || !State->IsTxQueue[endpoint] )
@@ -753,41 +753,45 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
     	 USB_SIL_Write(EP1_IN, (uint8_t*) Packet64->Buffer, Packet64->Size);
     	 SetEPTxValid(ENDP1);
     	 txCount++;
+
+    	 for(int i = 0; i < 10000; i++);
+
     	 if(txCount % 2 ==0){
     		 LED_BLUE();
     	 }else {
     		 LED_BLUE_OFF();
     	 }
 
-    	 SetEPRxStatus(ENDP2, EP_RX_VALID);
-		
+
+    	 //SetEPRxStatus(ENDP2, EP_RX_VALID);
+
 		if (Packet64->Size > BULK_MAX_PACKET_SIZE)
 		{
-			//Data needs to be packetized and sent			
+			//Data needs to be packetized and sent
 			Send_Multiple_Packets = TRUE;
 			LED_GREEN_OFF();
 		}
         else
 		{
 			//can be sent in one transfer
-			Send_Multiple_Packets = FALSE;						
+			Send_Multiple_Packets = FALSE;
 		}
 
 
         //while( nLeft >= 4 )
         //{
 			// Shove packet into FIFO 4 bytes at a time
-            //USB.UDCDRx[endpoint] = *packet4++;                  
+            //USB.UDCDRx[endpoint] = *packet4++;
         //    nLeft -= 4;
         //}
-		
+
 		//Send_Data();
 
 		// If packet is not the full size
-        //if( Packet64->Size < State->MaxPacketSize[endpoint] )   
+        //if( Packet64->Size < State->MaxPacketSize[endpoint] )
         //{
         //    UINT16* packet2 = (UINT16*)packet4;
-            
+
         //    if( nLeft >= 2 )
         //    {
                 //*(volatile UINT16*)&USB.UDCDRx[endpoint] = *packet2++;
@@ -798,7 +802,7 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
                 //*(volatile UINT8*)&USB.UDCDRx[endpoint] = *(UINT8*)packet2;
         //    }
 			// Send a short packet (full length packets are automatically sent)
-            //USB.UDCCSRx[endpoint] = USB.UDCCSR__SP;             
+            //USB.UDCCSRx[endpoint] = USB.UDCCSR__SP;
         //}
 
         //g_USB_Driver.TxNeedZLPS[endpoint] = (Packet64->Size == State->MaxPacketSize[endpoint]);
@@ -808,23 +812,23 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
    /* else
     {
         // send the zero length packet since we landed on the FIFO boundary before
-        // (and we queued a zero length packet to transmit) 
+        // (and we queued a zero length packet to transmit)
         if(g_USB_Driver.TxNeedZLPS[endpoint])
         {
 			// If a packet has been sent
-            //if(USB.UDCCSRx[endpoint] & USB.UDCCSR__PC)              
+            //if(USB.UDCCSRx[endpoint] & USB.UDCCSR__PC)
 			//{
 				// Clear the Packet Complete bit
-				//USB.UDCCSRx[endpoint] = USB.UDCCSR__PC;             
+				//USB.UDCCSRx[endpoint] = USB.UDCCSR__PC;
 			//}
-            
-            
-			// We should absolutely have an empty buffer to use
-            //ASSERT((USB.UDCCSRx[endpoint] & USB.UDCCSR__FS) != 0);  
 
-			// Send a short (zero length) packet            
-			SetEPTxCount(ENDP1, 0); 
-			//vSetEPTxStatus(EP_TX_VALID);			
+
+			// We should absolutely have an empty buffer to use
+            //ASSERT((USB.UDCCSRx[endpoint] & USB.UDCCSR__FS) != 0);
+
+			// Send a short (zero length) packet
+			SetEPTxCount(ENDP1, 0);
+			//vSetEPTxStatus(EP_TX_VALID);
             g_USB_Driver.TxNeedZLPS[endpoint] = FALSE;
         }
 
@@ -837,7 +841,7 @@ void USBCS_Driver::TxPacket( USB_CONTROLLER_STATE* State, int endpoint )
 
 
 void USBCS_Driver::ControlNext()
-{    
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::ControlNext");
 #endif
@@ -855,27 +859,27 @@ void USBCS_Driver::ControlNext()
         if( State->DataSize == 0 )
         {
 			// Send zero length packet
-            //USB.UDCCSRx[0] = PXA271_USB::UDCCSR__IPR;         
+            //USB.UDCCSRx[0] = PXA271_USB::UDCCSR__IPR;
 			// Stop sending stuff if we're done
-            State->DataCallback = NULL;                         
+            State->DataCallback = NULL;
         }
         else
         {
 			// FIFO may only be loaded with full words
-            UINT32* packet4 = (UINT32*)State->Data;             
+            UINT32* packet4 = (UINT32*)State->Data;
             int     nLeft   = State->DataSize;
             while( nLeft >= 4 )
             {
 				// Shove packet into FIFO 4 bytes at a time
-                //USB.UDCDRx[0] = *packet4++;                     
+                //USB.UDCDRx[0] = *packet4++;
                 nLeft -= 4;
             }
 
 			// If packet is less than full length
-            if(State->DataSize < c_default_ctrl_packet_size)    
+            if(State->DataSize < c_default_ctrl_packet_size)
             {
                 UINT16* packet2 = (UINT16*)packet4;
-                
+
                 if( nLeft >= 2 )
                 {
                     //*(volatile UINT16*)&USB.UDCDRx[0] = *packet2++;
@@ -889,7 +893,7 @@ void USBCS_Driver::ControlNext()
                 //USB.UDCCSRx[0] = USB.UDCCSR__IPR;
 
 				// Stop sending stuff if we're done
-                State->DataCallback = NULL;                     
+                State->DataCallback = NULL;
             }
 
 
@@ -914,7 +918,7 @@ void USBCS_Driver::SuspendEvent()
     ASSERT(g_USB_Driver.pUsbControllerState);
 
     //PXA271_USB& USB = PXA271::USB();
-    
+
 	USB_CONTROLLER_STATE *State = g_USB_Driver.pUsbControllerState;
 
     // SUSPEND event only happened when Host(PC) set the device to SUSPEND
@@ -931,7 +935,7 @@ void USBCS_Driver::SuspendEvent()
 
 #if defined(DEBUG_USB)
     USB_debug_printf("In suspend event previous %d\n\r\r", g_USB_Driver.PreviousDeviceState);
-#endif    
+#endif
 }
 
 void USBCS_Driver::ResumeEvent()
@@ -969,7 +973,7 @@ void USBCS_Driver::ResetEvent()
 	// The hardware handles most of the reset procedure.
 
 	SetBTABLE(BTABLE_ADDRESS);
-	// Initialize Endpoint 0 
+	// Initialize Endpoint 0
 	SetEPType(ENDP0, EP_CONTROL);
 	SetEPTxStatus(ENDP0, EP_TX_NAK);
 	SetEPRxAddr(ENDP0, ENDP0_RXADDR);
@@ -981,7 +985,8 @@ void USBCS_Driver::ResetEvent()
     /* Initialize Endpoint 1 */
     SetEPType(ENDP1, EP_BULK);
     SetEPTxAddr(ENDP1, ENDP1_TXADDR);
-    SetEPTxStatus(ENDP1, EP_TX_NAK);
+   // SetEPTxStatus(ENDP1, EP_TX_NAK);
+    SetEPTxStatus(ENDP1, EP_TX_VALID);
     SetEPRxStatus(ENDP1, EP_RX_DIS);
 
     /* Initialize Endpoint 2 */
@@ -1030,7 +1035,7 @@ void USBCS_Driver::ResetEvent()
 
     State->DeviceState        = USB_DEVICE_STATE_DEFAULT;
     State->Address            = 0;
-    USB_StateCallback( State );    
+    USB_StateCallback( State );
 
 }
 
@@ -1044,7 +1049,7 @@ BOOL USBCS_Driver::RxEnable( USB_CONTROLLER_STATE *State, int endpoint )
 
 	if( NULL == State || endpoint >= c_Used_Endpoints )
         return FALSE;
-    
+
     GLOBAL_LOCK(irq);
 
     /* unmask receive event */
@@ -1067,7 +1072,7 @@ BOOL USBCS_Driver::RxEnable( USB_CONTROLLER_STATE *State, int endpoint )
 
 
 
-    return TRUE;        
+    return TRUE;
 }
 
 BOOL USBCS_Driver::ProtectPins( int Controller, BOOL On )
@@ -1078,7 +1083,7 @@ BOOL USBCS_Driver::ProtectPins( int Controller, BOOL On )
 
     ASSERT( 0 == Controller );
     USB_CONTROLLER_STATE *State = g_USB_Driver.pUsbControllerState;
-    
+
     GLOBAL_LOCK(irq);
 
     // Initialized yet?
@@ -1126,9 +1131,9 @@ BOOL USBCS_Driver::ProtectPins( int Controller, BOOL On )
 
                 //CPU_GPIO_EnableInputPin(PXA271_USB::c_USBC_GPION_DET, FALSE, NULL, GPIO_INT_NONE, RESISTOR_DISABLED);
                 //CPU_GPIO_EnableOutputPin(PXA271_USB::c_USBC_GPIOX_EN, FALSE);       // Don't signal the host yet
-                
+
 				State->DeviceState = USB_DEVICE_STATE_ATTACHED;
-                
+
                 USB_StateCallback( State );
 
                 StartHardware();
@@ -1144,7 +1149,7 @@ BOOL USBCS_Driver::ProtectPins( int Controller, BOOL On )
 }
 
 void USBCS_Driver::Global_ISR( void* Param )
-{ 
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::Global_ISR\n\r");
 #endif
@@ -1152,10 +1157,10 @@ void USBCS_Driver::Global_ISR( void* Param )
 
 
 void USBCS_Driver::EP0_ISR( UINT32 Param )
-{   
+{
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::EP0_ISR\n\r");
-#endif 
+#endif
 }
 
 //void EP1_IN_Callback()
@@ -1163,7 +1168,7 @@ void USBCS_Driver::EP_TxISR( UINT32 endpoint )
 {
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::EP_TxISR\n\r");
-#endif    		
+#endif
 	TxPacket( g_USB_Driver.pUsbControllerState, endpoint );
 	//LED_BLUE();
 }
@@ -1172,7 +1177,7 @@ void USBCS_Driver::EP_RxISR( UINT32 endpoint )
 {
 #ifdef USB_DEBUG
 	debug_printf("In USBCS_Driver::EP_RxISR\n\r");
-#endif    	
+#endif
 	ASSERT(endpoint < c_Used_Endpoints);
 	ASSERT(g_USB_Driver.pUsbControllerState);
 	ASSERT((_GetENDPOINT(endpoint) & EPRX_STAT) == EP_RX_NAK);
@@ -1211,8 +1216,8 @@ void USBCS_Driver::EP_RxISR( UINT32 endpoint )
 
 		if(State->Queues[ep])
 		{
-			if( State->IsTxQueue[endpoint] )
-				EP_TxISR( endpoint );
+			if( State->IsTxQueue[ep] )
+				EP_TxISR( ep );
 		}
 	}
 
@@ -1323,10 +1328,10 @@ void USBCS_Driver::USB_Cable_Config(bool state)
 //GLobal ISR for the USB
 void usb_irq_handler(void* Param)
 {
-	
+
 #ifdef USB_DEBUG
 	//debug_printf("In the USB Handler\n\r");
-#endif	
+#endif
 	wIstr = _GetISTR();
 //LED_ORANGE();
 
@@ -1337,21 +1342,21 @@ void usb_irq_handler(void* Param)
     /* clear of the CTR flag into the sub */
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call CTR_LP\n\r");
-#endif	
+#endif
 	//LED_BLUE();
     CTR_LP();
 #ifdef CTR_CALLBACK
     CTR_Callback();
 #endif
   }
-#endif  
+#endif
   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 #if (IMR_MSK & ISTR_RESET)
   if (wIstr & ISTR_RESET & wInterrupt_Mask)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call RESET\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_RESET);
 	//Kartik : Calling this function from the ResetEvent to update state
     //Device_Property.Reset();
@@ -1367,7 +1372,7 @@ void usb_irq_handler(void* Param)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call ISTR_DOVR\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_DOVR);
 #ifdef DOVR_CALLBACK
     DOVR_Callback();
@@ -1380,7 +1385,7 @@ void usb_irq_handler(void* Param)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call ISTR_ERR\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_ERR);
 #ifdef ERR_CALLBACK
     ERR_Callback();
@@ -1393,7 +1398,7 @@ void usb_irq_handler(void* Param)
   {
  #ifdef USB_DEBUG
 	debug_printf("\nGoing to call ISTR_WKUP\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_WKUP);
     //Resume(RESUME_EXTERNAL);
 #ifdef WKUP_CALLBACK
@@ -1407,7 +1412,7 @@ void usb_irq_handler(void* Param)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call SUSPEND\n\r");
-#endif	
+#endif
     /* check if SUSPEND is possible */
     //if (fSuspendEnabled)
     //{
@@ -1431,7 +1436,7 @@ void usb_irq_handler(void* Param)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call Start of Frame\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_SOF);
     bIntPackSOF++;
 
@@ -1446,7 +1451,7 @@ void usb_irq_handler(void* Param)
   {
 #ifdef USB_DEBUG
 	debug_printf("\nGoing to call End of Start Frame\n\r");
-#endif	
+#endif
     _SetISTR((uint16_t)CLR_ESOF);
     /* resume handling timing is made with ESOFs */
     //Resume(RESUME_ESOF); /* request without change of the machine state */

@@ -1,0 +1,15 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>SamrkashBT</FeatureName>
+    <Guid>{62d8213b-7ab2-4bdc-b7fb-71ae6fb147a5}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="SamrkashBT" />
+    <DriverLibs Include="SamrkashBT.$(LIB_EXT)" />
+	<RequiredProjects Include="$(SPOCLIENT)\BlueToothInterface\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

@@ -167,7 +167,9 @@ void CTR_LP()
 		  /* clear int flag */
 
 		  _ClearEP_CTR_TX(EPindex);
+
 		  USBCS_Driver::EP_TxISR(EPindex );
+
 			//STM_EVAL_LEDToggle((Led_TypeDef)1);
 		  /* call IN service function */
 		  //(*pEpInt_IN[EPindex-1])();
@@ -182,7 +184,9 @@ void CTR_LP()
         /* clear int flag */
 
           _ClearEP_CTR_RX(EPindex);
+          SetEPRxStatus(ENDP2, EP_RX_NAK);
           USBCS_Driver::EP_RxISR( EPindex );
+          SetEPRxStatus(ENDP2, EP_RX_VALID);
        // debug_printf("In function - CTR_LP - RX interrrupt \n\r");
         /* call OUT service function */		
 		//STM_EVAL_LEDToggle((Led_TypeDef)3);		

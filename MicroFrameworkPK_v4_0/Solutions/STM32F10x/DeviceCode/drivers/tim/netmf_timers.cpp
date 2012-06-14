@@ -277,7 +277,7 @@ void Timer_Driver::RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler )
 			break;
 	}
 
-	RCC_PCLK1Config(Prescaler);
+	RCC_PCLK1Config(RCC_HCLK_Div1);
 	RCC_APB1PeriphClockCmd(Timer_Clock, ENABLE);
 
 }

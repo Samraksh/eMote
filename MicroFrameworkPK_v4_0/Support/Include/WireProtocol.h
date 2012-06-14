@@ -99,7 +99,7 @@ struct WP_Message
         static const int CompletePayload  = 6;
     };
 
-    static const UINT32 c_PayloadTimeout = 60000000; // 6 secs (100 nsecs units)
+    static const UINT32 c_PayloadTimeout = 200000000; // 6 secs (100 nsecs units)
 
     //--//
 

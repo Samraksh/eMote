@@ -6,7 +6,15 @@
 #include <TinyBooterEntry.h>
 #include "ConfigurationManager.h"
 #include <lcd_basic\stm32f10x_lcd_basic.h>
+#include <led\stm32f10x_led.h>
 
+#ifdef _DEBUG_BOOTER_
+#include <lcd_basic/stm32f10x_lcd_basic.h>
+
+extern void hal_lcd_init();
+extern void hal_lcd_write(const char* string);
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1075,6 +1083,8 @@ bool Loader_Engine::TransmitMessage( const WP_Message* msg, bool fQueue )
 	
     if(DebuggerPort_Write( m_port, (char*)&msg->m_header, sizeof(msg->m_header) ) != sizeof(msg->m_header)) return false;
 
+    //DebuggerPort_Flush( m_port );
+
     if(msg->m_header.m_size && msg->m_payload)
     {
         if(DebuggerPort_Write( m_port, (char*)msg->m_payload, msg->m_header.m_size ) != msg->m_header.m_size) return false;
@@ -1139,12 +1149,16 @@ bool Loader_Engine::Monitor_Ping( WP_Message* msg )
     // There's someone on the other side!!
     //
 
+	hal_lcd_write("Monitor Ping");
+
     if((msg->m_header.m_flags & WP_Flags::c_Reply      ) == 0)
     {
         CLR_DBG_Commands::Monitor_Ping::Reply cmdReply;
         cmdReply.m_source = CLR_DBG_Commands::Monitor_Ping::c_Ping_Source_TinyBooter;
 
         ReplyToCommand( msg, true, false, &cmdReply, sizeof(cmdReply) );
+
+       // hal_lcd_write("Replied to Monitor Ping");
     }
 
     return true;
@@ -1197,6 +1211,7 @@ bool Loader_Engine::Monitor_Reboot( WP_Message* msg )
 
 bool Loader_Engine::Monitor_ReadMemory( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Read Memory");
     CLR_DBG_Commands::Monitor_ReadMemory* cmd = (CLR_DBG_Commands::Monitor_ReadMemory*)msg->m_payload;
     UINT8                                 buf[ 1024 ];
     UINT32                                len = cmd->m_length; if(len > sizeof(buf)) len = sizeof(buf);
@@ -1220,6 +1235,7 @@ bool Loader_Engine::Monitor_WriteMemory( WP_Message* msg )
 {
     bool fRet;
     
+    hal_lcd_write("Monitor Write Memory");
     CLR_DBG_Commands::Monitor_WriteMemory* cmd = (CLR_DBG_Commands::Monitor_WriteMemory*)msg->m_payload;
 
     if(!m_signedDataState.VerifyContiguousData( cmd->m_address, cmd->m_length ))
@@ -1241,6 +1257,7 @@ bool Loader_Engine::Monitor_WriteMemory( WP_Message* msg )
 
 bool Loader_Engine::Monitor_CheckMemory( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Check Memory");
     CLR_DBG_Commands::Monitor_CheckMemory*       cmd      = (CLR_DBG_Commands::Monitor_CheckMemory*)msg->m_payload;
     CLR_DBG_Commands::Monitor_CheckMemory::Reply cmdReply;
 
@@ -1262,6 +1279,7 @@ bool Loader_Engine::Monitor_EraseMemory( WP_Message* msg )
 {
     bool                fRet = false;
     
+    hal_lcd_write("Monitor Erase Memory");
     CLR_DBG_Commands::Monitor_EraseMemory* cmd = (CLR_DBG_Commands::Monitor_EraseMemory*)msg->m_payload;
 
     if(m_signedDataState.CheckDirty())
@@ -1343,6 +1361,7 @@ bool Loader_Engine::Monitor_Execute( WP_Message* msg )
 
 bool Loader_Engine::Monitor_MemoryMap( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Memory Map");
     CLR_DBG_Commands::Monitor_MemoryMap::Range map[ 2 ];
 
     if(m_signedDataState.CheckDirty())
@@ -1369,6 +1388,7 @@ bool Loader_Engine::Monitor_MemoryMap( WP_Message* msg )
 
 bool Loader_Engine::Monitor_CheckSignature( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Check Signature");
     bool fSuccess = false;
     
     CLR_DBG_Commands::Monitor_Signature* cmd = (CLR_DBG_Commands::Monitor_Signature*)msg->m_payload;
@@ -1386,6 +1406,7 @@ bool Loader_Engine::Monitor_CheckSignature( WP_Message* msg )
 
 bool Loader_Engine::Monitor_SignatureKeyUpdate( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Signature Key Update");
     bool fSuccess = false;
 
     if(g_PrimaryConfigManager.m_device!= NULL)
@@ -1429,6 +1450,7 @@ bool Loader_Engine::Monitor_SignatureKeyUpdate( WP_Message* msg )
 
 bool Loader_Engine::Monitor_FlashSectorMap( WP_Message* msg )
 {
+	hal_lcd_write("Monitor Flash Sector Map");
     struct Flash_Sector 
     {
         UINT32 Start;

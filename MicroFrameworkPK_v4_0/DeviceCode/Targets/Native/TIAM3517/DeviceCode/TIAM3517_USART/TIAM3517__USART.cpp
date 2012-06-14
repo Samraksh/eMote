@@ -5,11 +5,11 @@
 #include <tinyhal.h>
 #include "../TIAM3517.h"
 
-//#define AM3517_ENABLE_UART1
+#define AM3517_ENABLE_UART1
 //#define AM3517_ENABLE_UART2
 #define AM3517_ENABLE_UART3		// Recommend always enabled
 //#define AM3517_ENABLE_UART4
-
+#define TIAM3517_USART_TIMEOUT 65000
 /*
 	Simple map of comPort to UART register base
 */
@@ -104,18 +104,37 @@ BOOL TIAM3517_USART_Driver::TxShiftRegisterEmpty( int comPort ) {
 	Waits for tx fifo empty, write a character to the tx fifo
 */
 void TIAM3517_USART_Driver::WriteCharToTxBuffer( int comPort, UINT8 c ) {
-	int base, lsr, t, thr;
+	int base, ssr, t, thr;
 	
 	base = TIAM3517_getBase(comPort);
 	if (base == 0) return;
 	
-	lsr  = base + SAM_AM3517_UART_LSR;
+	ssr  = base + SAM_AM3517_UART_SSR;
 	thr  = base + SAM_AM3517_UART_THR;
 	
 	// Spin until buffer ready
-	while ( (__raw_readb(base) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
+	while ( (__raw_readb(ssr) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
 	
 	__raw_writeb(c, thr);
+}
+
+UINT8 TIAM3517_USART_Driver::Read( int comPort ) {
+	int base, lsr, rhr;
+	int timeout=0;
+	
+	base = TIAM3517_getBase(comPort);
+	if (base == 0) return 0;
+	
+	lsr  = base + SAM_AM3517_UART_LSR;
+	rhr  = base + SAM_AM3517_UART_RHR;
+	
+	// Spin until buffer ready
+	while ( (__raw_readb(lsr) & 0x1) == 0x1 ) {
+		timeout++;
+		if (timeout == TIAM3517_USART_TIMEOUT) return 0xFF;
+	} // Spin while no data
+	
+	return __raw_readb(rhr);
 }
 
 /*

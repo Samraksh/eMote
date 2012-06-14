@@ -7,6 +7,8 @@
 #define PLATFORM_ARM_STM32F10X				1
 #endif
 
+#define _DEBUG_BOOTER_
+
 #undef BUILD_RTM
 
 #define PLATFORM_SUPPORTS_SOFT_REBOOT   TRUE
@@ -63,8 +65,8 @@
 //#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
 //#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
 //#else
-#define ASSERT_IRQ_MUST_BE_OFF()
-#define ASSERT_IRQ_MUST_BE_ON()
+#define ASSERT_IRQ_MUST_BE_OFF() ASSERT(!SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_ON() ASSERT( SmartPtr_IRQ::GetState())
 //#endif
 
 #define TOTAL_USART_PORT       2
