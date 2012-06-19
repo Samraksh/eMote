@@ -38,6 +38,7 @@
 	<Compile Include="test.c" />
 	<Compile Include="signalr.c" />
 	<Compile Include="syscalls.c" />
+	<Compile Include="GNU_S\tinyclr_vector.cpp" />
 	<!--<Compile Include="$(SPOCLIENT)\test_native_drivers\spi_test.cpp" />-->
 	<!-- <Compile Include="longlong.h" />	
 	<Compile Include="gcclib.h" />	
@@ -499,17 +500,17 @@
     <DriverLibs Include="Watchdog_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_minimal.proj" />
-    <PlatformIndependentLibs Include="Debugger_minimal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
+    <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\VirtualKey\dotNetMF.proj" />
     <DriverLibs Include="virtualkey_hal_stubs.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Test\native\src\dotnetmf.proj" />
     <DriverLibs Include="Native.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" />
     <DriverLibs Include="piezo_pal_stubs.$(LIB_EXT)" />

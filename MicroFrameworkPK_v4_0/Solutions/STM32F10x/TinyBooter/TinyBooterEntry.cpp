@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 UINT32 Tinybooter_ProgramWordCheck()
 {
-    return 0xE321F0DF;
+    return 0x20000400;
 }
 
 
@@ -277,5 +277,11 @@ BOOL TinyBooter_GetReleaseInfo(MfReleaseInfo& releaseInfo)
                     OEMSYSTEMINFOSTRING, hal_strlen_s(OEMSYSTEMINFOSTRING)
                     );
     return TRUE;
+}
+
+UINT32 TinyBooter_AddEntryOffSet(void *data)
+{
+	return ((UINT32) data + 4);
+
 }
 

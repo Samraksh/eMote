@@ -49,7 +49,10 @@ void CPU_Halt() {
 }
 
 void CPU_Reset() {
-    STM32F1x_Power_Driver::Reset();
+    //STM32F1x_Power_Driver::Reset();
+	// This function is supported by the watchdog module but placing the implementation here temporarily
+	__disable_irq();
+	NVIC_SystemReset();
 }
 
 /*

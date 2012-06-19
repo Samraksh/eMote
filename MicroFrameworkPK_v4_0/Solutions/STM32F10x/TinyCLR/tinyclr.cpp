@@ -17,7 +17,7 @@
 #include <test_native_drivers/timers_test/main.h>
 #include <test_native_drivers/timers_test/stm32f10x_it.h>
 #include <pal/COM/usb/usb.h>
-#include <tests.h>
+//#include <tests.h>
 
 extern void test_flash_interface();
 

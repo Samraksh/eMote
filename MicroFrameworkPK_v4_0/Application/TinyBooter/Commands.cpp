@@ -26,6 +26,7 @@ UINT8* g_ConfigBuffer       = NULL;
 int    g_ConfigBufferLength = 0;
 
 //--//
+typedef  void (*pFunction)(void);
 
 static const int AccessMemory_Check    = 0x00;
 static const int AccessMemory_Read     = 0x01;
@@ -1071,8 +1072,18 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
         }
     }
 
-    (*startAddress)();
-}
+    // Nived.Sivadas@samraksh.com : Reset_handler is not at the start of the executable, can change this but going with this for now
+    //startAddress = (ApplicationStartAddress) TinyBooter_AddEntryOffSet((void *) startAddress);
+#ifdef PLATFORM_CORTEXM3
+    int JumpAddress = *(__IO uint32_t *) (startAddress + 4);
+    pFunction Jump_To_Application = (pFunction) JumpAddress;
+    __set_MSP(*(__IO uint32_t*) startAddress);
+    Jump_To_Application();
+#else
+        (*startAddress)();
+#endif
+
+    }
 
 //--//
 

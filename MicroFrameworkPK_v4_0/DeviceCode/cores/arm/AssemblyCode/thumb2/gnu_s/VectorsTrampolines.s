@@ -13,6 +13,7 @@
 .global  Default_Handler
 .extern	 EntryPoint
 .global  ARM_Vectors
+.extern  VectorRelocate
 
 /* start address for the initialization values of the .data section.
 defined in linker script */
@@ -39,18 +40,23 @@ defined in linker script */
  * @param  None
  * @retval : None
 */
+	.section    .text.padding
+	.type padding_for_handler, %function
+padding_for_handler:
+	nop
 
     .section	.text.Reset_Handler
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
+	.thumb_func
 Reset_Handler:
-
 /* FSMC Bank1 NOR/SRAM3 is used for the STM3210E-EVAL, if another Bank is
   required, then adjust the Register Addresses */
   bl SystemInit_ExtMemCtl 
 /* restore original stack pointer */
   LDR r0, =_estack
   MSR msp, r0
+  bl VectorRelocate
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
   b	LoopCopyDataInit

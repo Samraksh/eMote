@@ -31,11 +31,11 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/MicroFrameworkPK_v4_0/Solutions/STM32F10x/TinyCLR}</value>
+					<value>${workspace_loc:/MicroFrameworkPK_v4_0/Solutions/STM32F10x/TinyBooter}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
-					<value>TinyCLR.proj /t:clean</value>
+					<value>TinyBooter.proj /t:clean</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.contents</key>
@@ -55,7 +55,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.fullBuildTarget</key>
-					<value>TinyCLR.proj /t:build</value>
+					<value>TinyBooter.proj /t:build</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.stopOnError</key>

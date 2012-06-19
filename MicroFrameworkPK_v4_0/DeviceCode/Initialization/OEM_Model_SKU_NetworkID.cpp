@@ -27,8 +27,7 @@ HAL_SYSTEM_CONFIG HalSystemConfig =
     STDIO,                                          // FILE*   stdio;
 
     { SRAM1_MEMORY_Base, SRAM1_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG RAM1;
-    //Kartik : Commented next line, build crashes
-    //{ FLASH_MEMORY_Base, FLASH_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG FLASH;
+    { FLASH_MEMORY_Base, FLASH_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG FLASH;
 };
 
 /***************************************************************************/

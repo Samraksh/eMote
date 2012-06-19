@@ -42,6 +42,7 @@
     <Compile Include="$(SRC_DIR)\Allocator.cpp" />
   -->
     <Compile Include="$(SRC_DIR)\TinyBooterEntry.cpp" />
+    <Compile Include="GNU_S\tinybooter_vector.cpp" />
     <Compile Include="test.c" />
     <Compile Include="signalr.c" />
 	<Compile Include="syscalls.c" />

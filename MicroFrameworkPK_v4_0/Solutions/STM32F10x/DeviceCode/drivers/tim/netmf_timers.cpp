@@ -39,6 +39,13 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 	{
 		return FALSE;
 	}
+	TIM_DeInit(TIM2);
+
+	TIM_Cmd(TIM2, DISABLE);
+
+	DisableCompareInterrupt ( Timer );
+
+	RCC_DeInit(Timer);
 
 	//Initialize clocks for the timer, prescale if needed
 	RCC_Init( Timer, 0 );
@@ -46,7 +53,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 	//TODO Prescaler Calculation here
 
 	//Disable any compare interrupts for the timer
-	DisableCompareInterrupt ( Timer );
+
 
 	g_Timer_Driver.m_descriptors[Timer].isr = ISR;
 	g_Timer_Driver.m_descriptors[Timer].arg = ISR_Param;
@@ -146,6 +153,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			case 2:
 				TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Repetitive);
 				//TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+				for(UINT32 i = 0; i < 10000; i++);
 				Timer_Driver::EnableCompareInterrupt( 2 );
 				TIM_Cmd(TIM2, ENABLE);
 				break;
@@ -173,6 +181,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 				case 2:
 					TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Single);
 					//TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+					for(UINT32 i = 0; i < 10000; i++);
 					Timer_Driver::EnableCompareInterrupt( 2 );
 					TIM_Cmd(TIM2, ENABLE);
 					break;
@@ -225,6 +234,39 @@ BOOL Timer_Driver::Uninitialize ( UINT32 Timer )
     }
 
     return TRUE;
+}
+
+void Timer_Driver::RCC_DeInit(UINT32 Timer)
+{
+		UINT32 Timer_Clock;
+		UINT32 Prescaler;
+
+		switch ( Timer )
+		{
+		case 2:
+			//RCC_PCLK1Config(RCC_HCLK_Div4);
+			//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+			Timer_Clock = RCC_APB1Periph_TIM2;
+			break;
+		case 3:
+			//RCC_PCLK1Config(RCC_HCLK_Div4);
+			//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+			Timer_Clock = RCC_APB1Periph_TIM3;
+			break;
+		case 4:
+			//RCC_PCLK1Config(RCC_HCLK_Div4);
+			//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+			Timer_Clock = RCC_APB1Periph_TIM4;
+			break;
+		default:
+	#ifdef DEBUG_ON
+			debug_printf("Should not be here\n\r");
+	#endif
+			break;
+		}
+		RCC_APB1PeriphClockCmd(Timer_Clock, DISABLE);
+
+
 }
 
 void Timer_Driver::RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler )
