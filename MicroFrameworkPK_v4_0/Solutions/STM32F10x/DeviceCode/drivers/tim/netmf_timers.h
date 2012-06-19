@@ -286,6 +286,7 @@ struct Timer_Driver
     };
     Descriptors m_descriptors[MAX_TIMER];
     static void RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler );
+    static void RCC_DeInit(UINT32 Timer);
 };
 
 extern Timer_Driver g_Timer_Driver;

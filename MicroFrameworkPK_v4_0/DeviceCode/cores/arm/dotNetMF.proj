@@ -58,7 +58,11 @@
     <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsHandlers.s" />
     <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+  	<Compile Include="Common\GlobalLock\thumb2\SmartPtr_thumb2.cpp" />
+  </ItemGroup>
+  
   <ItemGroup>
     <HFiles Include="..\..\Initialization\MasterConfig.h" />
     <Compile Include="Diagnostics\Aborts.cpp" />

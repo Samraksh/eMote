@@ -308,9 +308,8 @@ struct HAL_SYSTEM_CONFIG
     UINT32                   USART_DefaultBaudRate;
     COM_HANDLE               stdio;
 
-    //Kartik: Commented the next two lines, the build errors, need to fig the reason
     HAL_SYSTEM_MEMORY_CONFIG RAM1;
-    //HAL_SYSTEM_MEMORY_CONFIG FLASH;
+    HAL_SYSTEM_MEMORY_CONFIG FLASH1;
 
     //--//
 

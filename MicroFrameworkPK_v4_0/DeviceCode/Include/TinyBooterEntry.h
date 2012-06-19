@@ -110,6 +110,9 @@ void Tinybooter_PrepareForDecompressedLaunch();
 // validation) to determine if the write operation is valid.
 ////////////////////////////////////////////////////////////////////////////////
 bool CheckFlashSectorPermission( BlockStorageDevice * pDevice, ByteAddress Sector );
+
+// Nived.Sivadas@samraksh.com : Adding offset
+UINT32 TinyBooter_AddEntryOffSet(void *data);
     
 /////////////////////////////////////////////////////////////////////////////
 

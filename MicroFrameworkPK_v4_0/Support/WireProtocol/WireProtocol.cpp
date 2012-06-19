@@ -3,7 +3,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#ifdef _DEBUG_BOOTER_
+#include <lcd_basic/stm32f10x_lcd_basic.h>
 
+extern void hal_lcd_init();
+extern void hal_lcd_write(const char* string);
+
+#endif
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void WP_Message::Initialize( WP_Controller* parent )
@@ -119,6 +125,8 @@ bool WP_Message::Process()
     UINT8* buf = (UINT8*)&m_header;
     int    len;
 
+    //hal_lcd_write("Process Packet");
+
     while(true)
     {
         switch(m_rxState)
@@ -231,10 +239,12 @@ bool WP_Message::Process()
         case ReceiveState::CompletePayload:
             if(VerifyPayload() == true)
             {
+            	//hal_printf("GotPayload\n");
                 m_parent->m_app->ProcessPayload( m_parent->m_state, this );
             }
             else
             {
+            	hal_printf("BadPayload\n");
                 ReplyBadPacket( WP_Flags::c_BadPayload );
             }
 
@@ -281,6 +291,8 @@ bool WP_Controller::SendProtocolMessage( UINT32 cmd, UINT32 flags, UINT32 payloa
     WP_Message msg;
 
     msg.Initialize( this );
+
+    //hal_lcd_write("Sending Protocol Message \n");
 
     msg.PrepareRequest( cmd, flags, payloadSize, payload );
 

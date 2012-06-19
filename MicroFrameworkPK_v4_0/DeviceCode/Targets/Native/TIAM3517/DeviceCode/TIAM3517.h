@@ -2633,6 +2633,7 @@ struct TIAM3517_USART_Driver {
 	static void GetPins( int comPort, GPIO_PIN& rxPin, GPIO_PIN& txPin, GPIO_PIN& ctsPin, GPIO_PIN& rtsPin );
 	static void BaudrateBoundary( int ComPortNum, UINT32& maxBaudrateHz, UINT32& minBaudrateHz );
 	static BOOL IsBaudrateSupported( int ComPortNum, UINT32 & BaudrateHz );
+	static UINT8 Read( int comPort );
 };
 
 // Module register bases

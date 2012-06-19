@@ -125,19 +125,19 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
 
         while(true)
         {
-			
-			
+        	//CPU_GPIO_SetPinState(0, TRUE);
             UINT32 Events = Events_MaskedRead( WakeupSystemEvents ); if(Events) return Events;
-
+            //CPU_GPIO_SetPinState(0, FALSE);
 		
             if(Expire <= HAL_Time_CurrentTicks()) return 0;
 		
 			//hal_fprintf(COM_NULL, "Does it work?");
 
-
+            //CPU_GPIO_SetPinState(0, TRUE);
             // first check and possibly run any continuations
             // but only if we have slept after stalling
             if(RunContinuations && !SystemState_QueryNoLock( SYSTEM_STATE_NO_CONTINUATIONS ))
+           // if(RunContinuations)
             {
                 // restore interrupts before running a continuation
                 irq.Release();
@@ -168,15 +168,16 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
                     return 0;
                 }
 #endif
-				
+             //   CPU_GPIO_SetPinState(0, FALSE);
 
                 ASSERT_IRQ_MUST_BE_OFF();
-
+           //     CPU_GPIO_SetPinState(0, TRUE);
                 HAL_COMPLETION::WaitForInterrupts( Expire, sleepLevel, WakeupSystemEvents );
 
-                irq.Probe(); // See if we have to serve any pending interrupts.                
+                irq.Probe(); // See if we have to serve any pending interrupts.
+         //       CPU_GPIO_SetPinState(0, FALSE);
             }
-			
+
         }
     }
 }

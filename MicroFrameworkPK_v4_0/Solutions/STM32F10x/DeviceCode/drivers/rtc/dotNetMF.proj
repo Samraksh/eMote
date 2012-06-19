@@ -43,7 +43,7 @@
 	<HFiles Include="netmf_time.h" /> -->
 	<!-- <Compile Include="netmf_time.cpp" /> -->	
     <Compile Include="STM32F10x_rtc.c" />    
-    <Compile Include="int_time.c" />
+    <!--<Compile Include="int_time.c" />-->
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

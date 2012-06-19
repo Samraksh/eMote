@@ -12,6 +12,14 @@
 
 #include <crypto.h>
 
+#ifdef _DEBUG_DEBUGGER_
+#include <lcd_basic/stm32f10x_lcd_basic.h>
+
+extern void hal_lcd_init();
+extern void hal_lcd_write(const char* string);
+
+#endif
+
 //--//
 
 BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
@@ -132,7 +140,7 @@ HRESULT CLR_DBG_Debugger::Debugger_Initialize( COM_HANDLE port )
     NATIVE_PROFILE_CLR_DEBUGGER();
     TINYCLR_HEADER();
 
-	port = COM1; //KN initializing USART as the DEBUG PORT!
+	//port = COM1; //KN initializing USART as the DEBUG PORT!
 	
     m_messaging->Initialize( port, c_Debugger_Lookup_Request, c_Debugger_Lookup_Request_count, c_Debugger_Lookup_Reply, c_Debugger_Lookup_Reply_count, (void*)this );
 
@@ -316,6 +324,10 @@ HRESULT CLR_DBG_Debugger::CreateListOfCalls( CLR_UINT32 pid, CLR_DBG_Commands::D
 
 bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor Ping");
+#endif
+
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool fStopOnBoot = true;
 
@@ -358,6 +370,9 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor FlashSectorMap");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
@@ -444,6 +459,9 @@ static const int AccessMemory_Erase = 3;
 
 bool CLR_DBG_Debugger::CheckPermission( ByteAddress address, int mode )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Check Permission");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool   hasPermission = false;
     UINT32 regionIndex, rangeIndex;
@@ -498,6 +516,10 @@ bool CLR_DBG_Debugger::CheckPermission( ByteAddress address, int mode )
 
 bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, UINT32 lengthInBytes, BYTE* buf, int mode )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Access Memory");
+#endif
+
     NATIVE_PROFILE_CLR_DEBUGGER();
 
     //--//
@@ -678,6 +700,9 @@ bool CLR_DBG_Debugger::AccessMemory( CLR_UINT32 location, UINT32 lengthInBytes, 
 
 bool CLR_DBG_Debugger::Monitor_ReadMemory( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor ReadMemory");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
@@ -696,6 +721,9 @@ bool CLR_DBG_Debugger::Monitor_ReadMemory( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_WriteMemory( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor WriteMemory");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool fRet;
 
@@ -714,6 +742,9 @@ bool CLR_DBG_Debugger::Monitor_WriteMemory( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_CheckMemory( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor CheckMemory");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
@@ -730,6 +761,9 @@ bool CLR_DBG_Debugger::Monitor_CheckMemory( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor EraseMemory");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool                fRet;
 
@@ -748,6 +782,9 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_Execute( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor Execute");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
@@ -762,6 +799,9 @@ bool CLR_DBG_Debugger::Monitor_Execute( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_Reboot( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor Reboot");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Monitor_Reboot* cmd = (CLR_DBG_Commands::Monitor_Reboot*)msg->m_payload;
@@ -806,6 +846,9 @@ bool CLR_DBG_Debugger::Monitor_Reboot( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_MemoryMap( WP_Message* msg, void* owner )
 {
+#ifdef _DEBUG_DEBUGGER_
+	hal_lcd_write("Monitor MemoryMap");
+#endif
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Monitor_MemoryMap::Range map[ 2 ];
@@ -814,8 +857,8 @@ bool CLR_DBG_Debugger::Monitor_MemoryMap( WP_Message* msg, void* owner )
     map[0].m_length  = HalSystemConfig.RAM1.Size;
     map[0].m_flags   = CLR_DBG_Commands::Monitor_MemoryMap::c_RAM;
 
-    //map[1].m_address = HalSystemConfig.FLASH.Base; //Modified by KN
-    //map[1].m_length  = HalSystemConfig.FLASH.Size; //Modified by KN
+    map[1].m_address = HalSystemConfig.FLASH1.Base; //Modified by KN
+    map[1].m_length  = HalSystemConfig.FLASH1.Size; //Modified by KN
     map[1].m_flags   = CLR_DBG_Commands::Monitor_MemoryMap::c_FLASH;
 
     dbg->m_messaging->ReplyToCommand( msg, true, false, map, sizeof(map) );

@@ -13,6 +13,7 @@
 //--//
 #define DISABLED_MASK 0x3
 
+#define __ASM __asm
 //--//
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +68,19 @@ void SmartPtr_IRQ::Release()
 
     if((Cp & DISABLED_MASK) == 0)
     {
-        m_state = IRQ_LOCK_Release_asm();
+    	 UINT32 Cs;
+
+    	        __asm
+    	        (
+    	           " MRS     %0, PSR\n"
+    	            "BIC     %1, %2, #0x80\n"
+    	            "cpsie i"
+    	        		: "=r" (Cs), "=r" (Cp)
+    	        		: "r" (Cs)
+    	        );
+
+    	 	 // Unable to read CPSR register using MSR or LDR instructrion.
+    	        m_state = Cp;
     }
 }
 
@@ -77,32 +90,49 @@ void SmartPtr_IRQ::Probe()
 
     if((Cp & DISABLED_MASK) == 0)
     {
-        IRQ_LOCK_Probe_asm(); 
+    	// Nived.Sivadas@samraksh.com Don't have quite the semantics of allowing one interrupt to be processed, so faking it here
+    	__ASM volatile("cpsie i");
+    	__ASM volatile("cpsid i");
     }
 }
 
 BOOL SmartPtr_IRQ::GetState(void* context)
 {
-    return IRQ_LOCK_GetState_asm();
+	UINT32 Cp;
+
+
+	    __asm volatile(
+	        "MRS     %[tmp], PSR\n\t"
+	        "MVN     %[tmp], %[tmp]\n\t"
+	        "AND     %[tmp], %[tmp], #0x80"
+	    		: [tmp] "=r" (Cp)
+	    );
+
+
+	    return Cp;
 }
 
 BOOL SmartPtr_IRQ::ForceDisabled(void* context)
 {
-    return IRQ_LOCK_ForceDisabled_asm();
+	__ASM volatile("cpsid i");
+	return TRUE;
 }
 
 BOOL SmartPtr_IRQ::ForceEnabled(void* context)
 {
-    return IRQ_LOCK_ForceEnabled_asm();
+	__ASM volatile("cpsie i");
+	return TRUE;
 }
 
 void SmartPtr_IRQ::Disable()
 {
-    m_state = IRQ_LOCK_Disable_asm();
+	__ASM volatile("cpsid i");
+    m_state = 0x3;
 }
 
 void SmartPtr_IRQ::Restore()
 {
-    IRQ_LOCK_Restore_asm();
+
+    __ASM volatile("cpsie i");
 }
 

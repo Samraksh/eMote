@@ -262,10 +262,18 @@
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_usart\dotNetMF.proj" />
     <DriverLibs Include="cpu_usart_stubs.$(LIB_EXT)" />
-  </ItemGroup>-->
+  </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\stubs\dotNetMF.proj" />
     <DriverLibs Include="blockstorage_pal_stubs.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\BlockStorage\dotNetMF.proj" />
+    <DriverLibs Include="blockstorage_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_bl.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" />
@@ -279,10 +287,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\Blockstorage\addDevices\dotNetMF.proj" />
     <DriverLibs Include="BlockStorage_AddDevices_stubs.$(LIB_EXT)" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" />
     <DriverLibs Include="Gesture_pal_stubs.$(LIB_EXT)" />
@@ -347,13 +357,21 @@
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" />
     <DriverLibs Include="tinycrt_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" />
     <DriverLibs Include="usb_pal_config_stub.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" />
     <DriverLibs Include="cpu_usb_stubs.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\usb_config\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_usb_config.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\usb\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_usb.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" />

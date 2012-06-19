@@ -9,6 +9,14 @@
 #include <rt_fp.h>
 #endif
 
+#ifdef _DEBUG_DEBUGGER_
+#include <lcd_basic/stm32f10x_lcd_basic.h>
+
+extern void hal_lcd_init();
+extern void hal_lcd_write(const char* string);
+
+#endif
+
 //--//
 
 // we need this to force inclusion from library at link time
@@ -489,10 +497,13 @@ void BootEntry()
 
 	CPU_Initialize();
 
-    HAL_Time_Initialize();
+    //HAL_Time_Initialize();
 
     HAL_Initialize();
 
+    HAL_Time_Initialize();
+
+    hal_lcd_init();
 #if !defined(BUILD_RTM)
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);
@@ -504,8 +515,8 @@ void BootEntry()
 
     UINT8* BaseAddress;
     UINT32 SizeInBytes;
-	//UINT8* BaseAddress = (UINT8*)0x20005000;
-	//UINT32 SizeInBytes = 0x9000;
+	//UINT8* BaseAddress = (UINT8*)0x2000A000;
+	//UINT32 SizeInBytes = 0xE000;
 
     HeapLocation( BaseAddress,    SizeInBytes );
     memset      ( BaseAddress, 0, SizeInBytes );

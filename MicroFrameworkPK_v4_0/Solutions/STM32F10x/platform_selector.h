@@ -7,33 +7,13 @@
 #define PLATFORM_ARM_STM32F10X				1
 #endif
 
+#define _DEBUG_BOOTER_
+
 #undef BUILD_RTM
 
 #define PLATFORM_SUPPORTS_SOFT_REBOOT   TRUE
-/*
-#define SYSTEM_CLOCK_HZ                 8000000
-#define SLOW_CLOCKS_PER_SECOND          32768
-#define CLOCK_COMMON_FACTOR             1464
-#define SLOW_CLOCKS_TEN_MHZ_GCD         305
-#define SLOW_CLOCKS_MILLISECOND_GCD     32.768
-*/
 
-/*
-#define SYSTEM_CLOCK_HZ 			  8000000
-#define SLOW_CLOCKS_PER_SECOND		  8000000
-#define CLOCK_COMMON_FACTOR           10000
-#define SLOW_CLOCKS_TEN_MHZ_GCD       10000
-#define SLOW_CLOCKS_MILLISECOND_GCD   1000
-*/
-
-/*
-#define SYSTEM_CLOCK_HZ                 8000000
-#define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
-#define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          8000000
-#define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
-#define SLOW_CLOCKS_MILLISECOND_GCD     1000
-*/
+#define _DEBUG_DEBUGGER_
 
 #define SYSTEM_CLOCK_HZ                 48000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
@@ -43,9 +23,9 @@
 #define SLOW_CLOCKS_MILLISECOND_GCD     1000
 
 #define SRAM1_MEMORY_Base               0x20000000
-#define SRAM1_MEMORY_Size               0x0000C000
-#define FLASH_MEMORY_Base               0x00400000
-#define FLASH_MEMORY_Size               0x00040000
+#define SRAM1_MEMORY_Size               0x00018000
+#define FLASH_MEMORY_Base               0x08000000
+#define FLASH_MEMORY_Size               0x00100000
 
 #define TXPROTECTRESISTOR               RESISTOR_DISABLED
 #define RXPROTECTRESISTOR               RESISTOR_DISABLED
@@ -63,8 +43,8 @@
 //#define ASSERT_IRQ_MUST_BE_OFF()   ASSERT(!SmartPtr_IRQ::GetState())
 //#define ASSERT_IRQ_MUST_BE_ON()    ASSERT( SmartPtr_IRQ::GetState())
 //#else
-#define ASSERT_IRQ_MUST_BE_OFF()
-#define ASSERT_IRQ_MUST_BE_ON()
+#define ASSERT_IRQ_MUST_BE_OFF() ASSERT(!SmartPtr_IRQ::GetState())
+#define ASSERT_IRQ_MUST_BE_ON() ASSERT( SmartPtr_IRQ::GetState())
 //#endif
 
 #define TOTAL_USART_PORT       2
@@ -96,10 +76,7 @@
 #define STDIO                   USB1
 #define DEBUGGER_PORT           USB1
 #define MESSAGING_PORT          USB1
-//#define DEBUG_TEXT_PORT         COM1N
-//#define STDIO                   COM1N
-//#define DEBUGGER_PORT           COM1N
-//#define MESSAGING_PORT          COM1N
+
 #define RUNTIME_MEMORY_PROFILE__medium 1
 #include <processor_selector.h>
 #include <board_selector.h>

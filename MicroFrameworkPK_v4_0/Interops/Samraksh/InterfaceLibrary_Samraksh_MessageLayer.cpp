@@ -14,6 +14,8 @@
 #include "InterfaceLibrary.h"
 #include "InterfaceLibrary_Samraksh_MessageLayer.h"
 
+//#include "../DeviceCode/Targets/Native/TIAM3517/DeviceCode/TIAM3517.h"
+
 using namespace Samraksh;
 
 typedef uint8_t error_t  ;
@@ -29,17 +31,22 @@ static UINT64 g_UserData = 0;
 
 uint8_t globalRadioBuffer[100];
 
+int IS_CONNECTED=0;
+
 INT32 MessageLayer::Init( HRESULT &hr )
 {
+
     INT32 retVal = 0;
 
     main_tinyos();
 
     return retVal;
+
 }
 
 INT32 MessageLayer::Send( UINT8 param0, UINT16 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, HRESULT &hr )
 {
+
     INT32 retVal = 0;
 
     CLR_RT_TypedArray_UINT8 dataBuf = param2;
@@ -76,6 +83,7 @@ INT32 MessageLayer::Received( CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 
 INT32 MessageLayer::ConfigureReceiver( UINT8 param0, UNSUPPORTED_TYPE param1, HRESULT &hr )
 {
+
     INT32 retVal = 0;
     return retVal;
 }

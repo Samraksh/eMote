@@ -89,7 +89,7 @@ UINT64 Time_Driver :: CounterValue()
 
 void Time_Driver :: SetCompareValue( UINT64 CompareValue )
 {
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	g_Time_Driver.m_nextCompare = CompareValue;
 
@@ -161,7 +161,7 @@ if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 			SetCompareValue( g_Time_Driver.m_nextCompare );
 			//HAL_COMPLETION::DequeueAndExec();
 	#ifdef DEBUG_TIMER
-			STM_EVAL_LEDToggle((Led_TypeDef)3); //Blue
+			//STM_EVAL_LEDToggle((Led_TypeDef)3); //Blue
 	#endif
 		}
   }
@@ -182,6 +182,8 @@ void Time_Driver :: Sleep_uSec( UINT32 uSec )
 	//GLOBAL_LOCK(irq);
 	UINT32 value   = Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer );
 	UINT32 maxDiff  = CPU_MicrosecondsToTicks( uSec );
+
+	while((Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer ) - value) <= maxDiff);
 
 	/*
 	 *

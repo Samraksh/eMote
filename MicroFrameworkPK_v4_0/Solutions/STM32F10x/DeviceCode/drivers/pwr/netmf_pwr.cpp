@@ -119,12 +119,14 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 // Simple "wait for interrupt" sleep
 // Will wake from any source
 void STM32F1x_Power_Driver::Sleep() {
-	__WFI();
+	//asm volatile ("CPSIE I");
+	//__WFI();
 	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 
 // TODO
 void STM32F1x_Power_Driver::Halt() {
+	asm volatile ("CPSIE I");
 	__WFI();
 	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
@@ -144,6 +146,7 @@ void STM32F1x_Power_Driver::Shutdown() {
 // Regulator ON vs LowPower?
 // Requires EXTI interrupt to wake?
 void STM32F1x_Power_Driver::Hibernate() {
+	asm volatile ("CPSIE I");
 	__WFI();
     //PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }

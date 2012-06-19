@@ -10,15 +10,13 @@
 #include "..\TIAM3517.h"
 #include <tinyhal.h>
 #include "..\TIAM3517_SCM_PinMux\TIAM3517_PinMux.h"
+#include "TIAM3517__GPIO.h"
 
 
 TIAM3517_GPIO_Driver g_TIAM3517_GPIO_Driver;
 
 static void _set_gpio_dataout(struct gpio_bank *bank, int gpio, int enable);
-void omap_set_gpio_dataout(int gpio, int enable);
 static void _set_gpio_direction(struct gpio_bank *bank, int gpio, int is_input);
-void omap_set_gpio_direction(int gpio, int is_input);
-int omap_request_gpio(int gpio);
 static inline int get_gpio_index(int gpio);
 static inline int gpio_valid(int gpio);
 static inline struct gpio_bank *get_gpio_bank(int gpio);
@@ -255,6 +253,15 @@ void omap_set_gpio_dataout(int gpio, int enable)
 	_set_gpio_dataout(bank, get_gpio_index(gpio), enable);
 }
 
+// ASSUME INCORRECT
+UINT8 omap_get_gpio_input(int gpio) {
+	struct gpio_bank *bank;
+	if (check_gpio(gpio) < 0)
+		return 0;
+	bank = get_gpio_bank(gpio);
+	
+	return __raw_readl(bank);
+}
 
 static void _set_gpio_direction(struct gpio_bank *bank, int gpio, int is_input)
 {

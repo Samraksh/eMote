@@ -818,10 +818,10 @@ UINT32 USB_Driver::SetEvent( int Controller, UINT32 Event )
 
     State->Event |= Event;
 
-    if(OldEvent != State->Event)
-    {
+    //if(OldEvent != State->Event)
+    //{
         Events_Set( SYSTEM_EVENT_FLAG_USB_IN );
-    }
+    //}
 
 //printf("SetEv %d\r\n",State->Event);
     return OldEvent;

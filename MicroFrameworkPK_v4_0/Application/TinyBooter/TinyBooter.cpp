@@ -7,6 +7,15 @@
 #include <tinybooterentry.h>
 #include "ConfigurationManager.h"
 
+
+#ifdef _DEBUG_BOOTER_
+#include <lcd_basic/stm32f10x_lcd_basic.h>
+
+extern void hal_lcd_init();
+extern void hal_lcd_write(const char* string);
+
+#endif
+
 extern bool WaitForTinyBooterUpload( INT32 &timeout_ms );
 
 
@@ -24,6 +33,18 @@ HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release );
 
 void ApplicationEntryPoint()
 {
+#ifdef _DEBUG_BOOTER_
+	CPU_GPIO_EnableOutputPin(9, FALSE);
+	CPU_GPIO_EnableOutputPin(0, FALSE);
+	CPU_GPIO_EnableOutputPin(1, FALSE);
+	CPU_GPIO_EnableOutputPin(10, FALSE);
+	CPU_GPIO_EnableOutputPin(64, FALSE);
+	CPU_GPIO_EnableOutputPin(65, FALSE);
+	hal_lcd_init();
+	hal_lcd_write("CP 1");
+	hal_lcd_write("CP 2");
+#endif
+
     INT32 timeout       = 20000; // 20 second timeout
     bool  enterBootMode = false;
 
@@ -102,7 +123,12 @@ void ApplicationEntryPoint()
                                         SYSTEM_EVENT_FLAG_USB_IN |
                                         SYSTEM_EVENT_FLAG_BUTTON;
 
+            CPU_GPIO_SetPinState(1, TRUE);
             UINT32 events = ::Events_WaitForEvents( c_EventsMask, timeout );
+
+            //UINT32 events = Events_MaskedRead( c_EventsMask ); if(!events) continue;
+
+            CPU_GPIO_SetPinState(1, FALSE);
 
             if(events != 0)
             {
@@ -132,6 +158,7 @@ void ApplicationEntryPoint()
                 TinyBooter_OnStateChange( State_Timeout, NULL );
                 g_eng.EnumerateAndLaunch();
             }
+
         } while(true);
     }
 
