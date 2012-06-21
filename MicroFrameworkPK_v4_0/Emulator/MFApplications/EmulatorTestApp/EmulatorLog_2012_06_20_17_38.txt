@@ -1,0 +1,32 @@
+17:38:48.210 :: CORE :: Starting Emulation...
+17:38:48.223 :: MFAPP :: 
+TinyCLR (Build 4.0.1681.0)
+
+
+17:38:48.224 :: MFAPP :: Starting...
+
+17:38:48.226 :: MFAPP :: Created EE.
+
+17:38:48.226 :: MFAPP :: Started Hardware.
+
+17:38:48.233 :: MFAPP :: Found debugger!
+
+17:38:48.252 :: CORE :: Found Emulator COM port 1: Usart1
+17:38:48.252 :: CORE :: Microsoft.SPOT.Emulator.Sample.EmulatorSerialPort
+17:38:48.253 :: CORE :: Watching for communication from Model..
+17:38:48.255 :: PHYCOMM :: Error.....    at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at System.Net.Sockets.TcpListener.Start(Int32 backlog)
+   at System.Net.Sockets.TcpListener.Start()
+   at ADAPTEmulator.PhysicalModelVirtCom.StartVirtComServer() in D:\Main\ADAPT\Emulator\ADAPT_Emulato_Release_0_1\SourceCode\ADAPTEmulator\ADAPTEmulator\PhysicalModelVirtCom.cs:line 56
+17:38:48.479 :: MFAPP :: Loading Deployment Assemblies.
+
+17:38:48.484 :: MFAPP :: ERROR: Could not find device for DEPLOYMENT usage
+
+17:38:48.489 :: MFAPP :: Resolving.
+
+17:38:48.495 :: MFAPP :: Ready.
+
+17:39:15.740 :: CORE :: Emulation Ended
+17:39:15.743 :: MFAPP :: Done.
+

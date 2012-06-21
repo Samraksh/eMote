@@ -1,0 +1,27 @@
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\bin\Release\Emulator.config
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\bin\Release\EmoteEmulator.exe
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\bin\Release\EmoteEmulator.pdb
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\bin\Release\EmoteEmulator.exe.emulatorconfig
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\EmoteEmulator.Form1.resources
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\EmoteEmulator.Properties.Resources.resources
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\EmoteEmulator.csproj.GenerateResource.Cache
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\EmoteEmulator.exe
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\obj\Release\EmoteEmulator.pdb
+C:\Users\Mukundan\AppData\Local\Temporary Projects\EmoteEmulator\bin\Release\Microsoft.SPOT.Emulator.dll
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\bin\Release\Emulator.config
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\bin\Release\EmoteEmulator.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\bin\Release\EmoteEmulator.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\bin\Release\EmoteEmulator.exe.emulatorconfig
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\ResolveAssemblyReference.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.Form1.resources
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.Properties.Resources.resources
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.csproj.GenerateResource.Cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\CarGUI.baml
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\CarGUI.g.cs
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator_MarkupCompile.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.g.resources
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\bin\Release\Microsoft.SPOT.Emulator.Sample.SampleEmulator.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\EmoteEmulator\obj\Release\EmoteEmulator.Form2.resources

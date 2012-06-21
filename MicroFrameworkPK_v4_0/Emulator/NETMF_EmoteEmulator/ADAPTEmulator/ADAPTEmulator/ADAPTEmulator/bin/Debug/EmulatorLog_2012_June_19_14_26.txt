@@ -1,0 +1,9 @@
+14:26:29.575 :: CORE :: Starting Emulation...
+14:26:29.607 :: CORE :: Found Emulator COM port 1: Usart1
+14:26:29.607 :: CORE :: Microsoft.SPOT.Emulator.Sample.EmulatorSerialPort
+14:26:29.609 :: CORE :: Watching for communication from Model..
+14:26:29.611 :: PHYCOMM :: Error.....    at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at System.Net.Sockets.TcpListener.Start(Int32 backlog)
+   at System.Net.Sockets.TcpListener.Start()
+   at ADAPTEmulator.PhysicalModelVirtCom.StartVirtComServer() in D:\Main\ADAPT\Emulator\ADAPT_Emulato_Release_0\SourceCode\ADAPTEmulator\ADAPTEmulator\PhysicalModelVirtCom.cs:line 58
