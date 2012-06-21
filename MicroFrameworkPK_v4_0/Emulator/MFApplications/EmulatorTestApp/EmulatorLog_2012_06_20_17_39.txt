@@ -1,0 +1,31 @@
+17:39:18.210 :: CORE :: Starting Emulation...
+17:39:18.225 :: MFAPP :: 
+TinyCLR (Build 4.0.1681.0)
+
+
+17:39:18.225 :: MFAPP :: Starting...
+
+17:39:18.228 :: MFAPP :: Created EE.
+
+17:39:18.228 :: MFAPP :: Started Hardware.
+
+17:39:18.235 :: MFAPP :: Found debugger!
+
+17:39:18.248 :: CORE :: Found Emulator COM port 1: Usart1
+17:39:18.248 :: CORE :: Microsoft.SPOT.Emulator.Sample.EmulatorSerialPort
+17:39:18.248 :: PHYCOMM :: The server is running at port: 47000...
+17:39:18.248 :: CORE :: Watching for communication from Model..
+17:39:18.248 :: PHYCOMM :: The local End point is  :127.0.0.1:47000
+17:39:18.248 :: PHYCOMM :: Starting thread to accept connections.....
+17:39:18.250 :: PHYCOMM :: Waiting for connection...
+17:39:18.480 :: MFAPP :: Loading Deployment Assemblies.
+
+17:39:18.483 :: MFAPP :: ERROR: Could not find device for DEPLOYMENT usage
+
+17:39:18.488 :: MFAPP :: Resolving.
+
+17:39:18.493 :: MFAPP :: Ready.
+
+17:39:26.043 :: CORE :: Emulation Ended
+17:39:26.046 :: MFAPP :: Done.
+

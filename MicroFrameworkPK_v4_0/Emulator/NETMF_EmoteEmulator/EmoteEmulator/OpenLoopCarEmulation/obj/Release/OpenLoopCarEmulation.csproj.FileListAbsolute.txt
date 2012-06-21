@@ -1,0 +1,14 @@
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\bin\Release\OpenLoopCarEmulation.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\bin\Release\OpenLoopCarEmulation.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\bin\Release\OpenLoopCarEmulation.pe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\bin\Release\OpenLoopCarEmulation.pdbx
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\ResolveAssemblyReference.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\TinyCLR_DebugReferences.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.Resources.resources
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.csproj.GenerateResource.Cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.Resources.tinyresources
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\TinyResGen.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.pe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.pdbx
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\EmoteEmulator\OpenLoopCarEmulation\obj\Release\OpenLoopCarEmulation.pdb
