@@ -261,10 +261,10 @@ static void RCC_Configuration(void)
   //hal_printf("/* Enable USART1 clock if Thermal Noise or Oversampling test is undertaken *//n");
 
   //Enable LEDs
-  STM_EVAL_LEDInit((Led_TypeDef)0);
-  STM_EVAL_LEDInit((Led_TypeDef)1);
-  STM_EVAL_LEDInit((Led_TypeDef)2);
-  STM_EVAL_LEDInit((Led_TypeDef)3);
+  //STM_EVAL_LEDInit((Led_TypeDef)0);
+  //STM_EVAL_LEDInit((Led_TypeDef)1);
+  //STM_EVAL_LEDInit((Led_TypeDef)2);
+  //STM_EVAL_LEDInit((Led_TypeDef)3);
 
 
 }

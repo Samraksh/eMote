@@ -10,7 +10,7 @@
 
 #include "netmf_time.h"
 
-#define DEBUG_TIMER
+//#define DEBUG_TIMER
 
 //static int counter = 0;
 

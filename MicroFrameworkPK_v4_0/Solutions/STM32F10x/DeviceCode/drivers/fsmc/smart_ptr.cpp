@@ -1,5 +1,5 @@
 #include <smart_ptr.h>
-#include "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\fsmc\NOR\stm3210e_eval_fsmc_nor.h"
+#include "NOR\stm3210e_eval_fsmc_nor.h"
 
 extern NOR_IDTypeDef NOR_ID;
 extern void memory_init();

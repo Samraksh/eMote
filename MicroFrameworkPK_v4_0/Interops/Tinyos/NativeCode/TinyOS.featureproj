@@ -11,6 +11,6 @@
     <InteropFeature Include="TinyOS" />
     <DriverLibs Include="TinyOS.$(LIB_EXT)" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\TinyOS.pe" />-->
-    <RequiredProjects Include="C:\MicroFrameworkPK_v4_0\Interops\Tinyos\NativeCode\dotnetmf.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Interops\Tinyos\NativeCode\dotnetmf.proj" />
   </ItemGroup>
 </Project>

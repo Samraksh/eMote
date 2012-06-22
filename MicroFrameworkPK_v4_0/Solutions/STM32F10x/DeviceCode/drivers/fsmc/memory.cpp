@@ -4,7 +4,7 @@
 // Author : Nived Sivadas
 
 #include <tinyhal.h>
-#include "C:\MicroFrameworkPK_v4_0\Solutions\STM32F10x\DeviceCode\drivers\fsmc\NOR\stm3210e_eval_fsmc_nor.h"
+#include "NOR\stm3210e_eval_fsmc_nor.h"
 
 #define BUFFER_SIZE        0x400
 #define FLASH_START_ADDRESS 0x8000
