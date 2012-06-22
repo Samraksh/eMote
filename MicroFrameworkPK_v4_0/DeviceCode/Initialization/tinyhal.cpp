@@ -503,7 +503,7 @@ void BootEntry()
 
     HAL_Time_Initialize();
 
-    hal_lcd_init();
+    //hal_lcd_init();
 #if !defined(BUILD_RTM)
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);

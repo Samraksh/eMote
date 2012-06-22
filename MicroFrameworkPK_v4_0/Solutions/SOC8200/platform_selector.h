@@ -13,6 +13,9 @@
 #if defined(PLATFORM_ARM_SOC8200)
 #define HAL_SYSTEM_NAME                     "SOC8200"
 
+//Comment below line to below the regular CLR
+#define NETMF_RTOS 1 //Samraksh RT extension
+
 //
 // processor and features
 //

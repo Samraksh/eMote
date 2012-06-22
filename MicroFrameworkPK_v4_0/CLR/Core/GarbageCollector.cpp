@@ -342,6 +342,11 @@ void CLR_RT_GarbageCollector::Mark()
         Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsReady   );
         Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsWaiting );
 
+#if defined(NETMF_RTOS)  //Samraksh
+        if(g_CLR_RT_ExecutionEngine.m_rtosInterruptThread)
+        	Thread_Mark(g_CLR_RT_ExecutionEngine.m_rtosInterruptThread);
+#endif
+
 #if !defined(TINYCLR_APPDOMAINS)
         CheckSingleBlock_Force( g_CLR_RT_ExecutionEngine.m_globalLock );
 #endif

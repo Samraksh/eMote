@@ -166,7 +166,9 @@ HRESULT CLR_RT_Thread::PushThreadProcDelegate( CLR_RT_HeapBlock_Delegate* pDeleg
         stackTop->m_arguments[ 0 ].Assign( pDelegate->m_object );
     }    
 
-   g_CLR_RT_ExecutionEngine.PutInProperList( this );
+#if !defined(NETMF_RTOS)  //Samraksh
+    g_CLR_RT_ExecutionEngine.PutInProperList( this );
+#endif
 
    TINYCLR_CLEANUP();
    
@@ -422,7 +424,9 @@ void CLR_RT_Thread::Passivate()
     NATIVE_PROFILE_CLR_CORE();
     m_flags  &= ~(CLR_RT_Thread::TH_F_Suspended | CLR_RT_Thread::TH_F_ContainsDoomedAppDomain | CLR_RT_Thread::TH_F_Aborted);
 
+#if !defined(NETMF_RTOS)  //Samraksh
     g_CLR_RT_ExecutionEngine.m_threadsZombie.LinkAtFront( this );
+#endif
 
     m_waitForEvents         = 0;
     m_waitForEvents_Timeout = TIMEOUT_INFINITE;

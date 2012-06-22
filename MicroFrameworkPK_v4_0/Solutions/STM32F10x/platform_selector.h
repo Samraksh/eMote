@@ -9,6 +9,9 @@
 
 #define _DEBUG_BOOTER_
 
+//Comment below line to below the regular CLR
+#define NETMF_RTOS 1 //Samraksh RT extension
+
 #undef BUILD_RTM
 
 #define PLATFORM_SUPPORTS_SOFT_REBOOT   TRUE

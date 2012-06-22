@@ -514,14 +514,126 @@ HRESULT CLR_RT_Thread::Execute()
     TINYCLR_CLEANUP_END();
 }
 
-HRESULT CLR_RT_Thread::Execute_Inner()
+#ifdef NETMF_RTOS  //Samraksh
+HRESULT CLR_RT_Thread::RTOS_Thread_Execute()
 {
     NATIVE_PROFILE_CLR_CORE();
     TINYCLR_HEADER();
 
+#if defined(TINYCLR_APPDOMAINS)
+    CLR_RT_AppDomain* appDomainSav = g_CLR_RT_ExecutionEngine.SetCurrentAppDomain( this->CurrentAppDomain() );
+#endif
+
+    CLR_RT_Thread* currentThreadSav = g_CLR_RT_ExecutionEngine.m_currentThread;
+
+    g_CLR_RT_ExecutionEngine.m_currentThread = this;
+
+    if(m_currentException.Dereference() != NULL)
+    {
+        hr = CLR_E_PROCESS_EXCEPTION;
+    }
+    else
+    {
+        hr = S_OK;
+    }
+
+    m_timeQuantumExpired = FALSE;
+
+#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+    _ASSERTE(!CLR_EE_DBG_IS( Stopped ));
+#endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+
+    //::Events_SetBoolTimer( (BOOL*)&m_timeQuantumExpired, CLR_RT_Thread::c_TimeQuantum_Milliseconds );
+
+    while(!CLR_EE_DBG_IS( Stopped ))
+    {
+        CLR_RT_StackFrame* stack;
+
+        if(SUCCEEDED(hr))
+        {
+            hr = Execute_Inner(); if(SUCCEEDED(hr)) TINYCLR_LEAVE();
+        }
+
+        switch(hr)
+        {
+        case CLR_E_THREAD_WAITING:
+        case CLR_E_RESCHEDULE:
+            TINYCLR_LEAVE();
+
+        case CLR_E_PROCESS_EXCEPTION:
+            CLR_RT_DUMP::POST_PROCESS_EXCEPTION( m_currentException );
+            break;
+
+        default: // Allocate a new exception.
+            stack = CurrentFrame();
+            if(stack->Prev() != NULL)
+            {
+#if defined(TINYCLR_TRACE_INSTRUCTIONS) && defined(PLATFORM_WINDOWS)
+                for(int i = 0; i < ARRAYSIZE(s_track); i++)
+                {
+                    BackTrackExecution& track = s_track[ (s_trackPos+i) % ARRAYSIZE(s_track) ];
+
+                    CLR_Debug::Printf( " %3d ", track.m_depth );
+
+                    CLR_RT_MethodDef_Instance inst; inst.InitializeFromIndex( track.m_call );
+
+                    track.m_assm->DumpOpcodeDirect( inst, track.m_IP, track.m_IPstart, track.m_pid );
+                }
+
+                CLR_Debug::Printf( "\r\n" );
+#endif
+
+                (void)Library_corlib_native_System_Exception::CreateInstance( m_currentException, hr, stack );
+            }
+
+            hr = CLR_E_PROCESS_EXCEPTION;
+            break;
+        }
+
+        //
+        // Process exception.
+        //
+
+#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+        if(CLR_EE_DBG_IS( Stopped )) break;
+#endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+
+        TINYCLR_CHECK_HRESULT(ProcessException());
+
+#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+        if(CLR_EE_DBG_IS( Stopped )) break;
+#endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
+
+        if(m_currentException.Dereference() != NULL) { break; }
+    }
+
+    TINYCLR_SET_AND_LEAVE(CLR_S_QUANTUM_EXPIRED);
+
+    TINYCLR_CLEANUP();
+
+#if defined(TINYCLR_APPDOMAINS)
+    g_CLR_RT_ExecutionEngine.SetCurrentAppDomain( appDomainSav );
+#endif
+
+    g_CLR_RT_ExecutionEngine.m_currentThread = currentThreadSav;
+
+    //::Events_SetBoolTimer( NULL, 0 );
+
+    TINYCLR_CLEANUP_END();
+}
+#endif
+
+
+HRESULT CLR_RT_Thread::Execute_Inner()
+{
+    NATIVE_PROFILE_CLR_CORE();
+    TINYCLR_HEADER();
+    int syncCount=0;
+
     while(m_timeQuantumExpired == FALSE && !CLR_EE_DBG_IS( Stopped ))
     {
-        CLR_RT_StackFrame *stack = CurrentFrame();
+    	CPU_GPIO_SetPinState( 24, TRUE);
+    	CLR_RT_StackFrame *stack = CurrentFrame();
 
         #if defined(ENABLE_NATIVE_PROFILER)
         if(stack->m_owningThread->m_fNativeProfiled == true)
@@ -529,6 +641,7 @@ HRESULT CLR_RT_Thread::Execute_Inner()
             Native_Profiler_Start();
         }
         #endif
+
 
         if(stack->Prev() == NULL)
         {
@@ -539,6 +652,13 @@ HRESULT CLR_RT_Thread::Execute_Inner()
 
         if(stack->m_flags & CLR_RT_StackFrame::c_ProcessSynchronize)
         {
+#if defined(NETMF_RTOS)  //Samraksh
+        	if(m_isRtosThread){
+        		//Damn, what am I supposed to do, RT thread is waiting for sync
+        		//stack->m_flags &= ~CLR_RT_StackFrame::c_ProcessSynchronize;
+        		syncCount++;
+        	}
+#endif
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
             if(stack->m_flags & CLR_RT_StackFrame::c_InvalidIP)
             {
@@ -589,6 +709,7 @@ HRESULT CLR_RT_Thread::Execute_Inner()
             }
         }
 
+        CPU_GPIO_SetPinState( 24, FALSE);
         {
 #if defined(TINYCLR_PROFILE_NEW_CALLS)
             CLR_PROF_HANDLER_CALLCHAIN( pm2, stack->m_callchain );
@@ -634,7 +755,9 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     }
                     #endif
                    
+                    CPU_GPIO_SetPinState( 25, TRUE);
                     hr = stack->m_nativeMethod( *stack );
+                    CPU_GPIO_SetPinState( 25, FALSE);
                 }
 
                 // check for exception injected by native code
@@ -664,7 +787,7 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     break;
                 }
             }
-
+            CPU_GPIO_SetPinState( 26, TRUE);
             switch(methodKind)
             {
             case CLR_RT_StackFrame::c_MethodKind_Native:
@@ -688,8 +811,11 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     CurrentFrame()->Pop();
                 }
             }
+            CPU_GPIO_SetPinState( 26, FALSE);
         }
+
     }
+
 
     TINYCLR_SET_AND_LEAVE(CLR_S_QUANTUM_EXPIRED);
 

@@ -1,0 +1,17 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>AsyncTimer</FeatureName>
+    <Guid>{255888ae-4a42-4dbd-8bcf-73f146157d96}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="AsyncTimer" />
+    <InteropFeature Include="AsyncInteropTimer" />
+    <DriverLibs Include="TIAM3517_AsyncTimer.$(LIB_EXT)" />
+    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\AsyncTimer.pe" />-->
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\TIAM3517\DeviceCode\TIAM3517_AsyncTimer\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

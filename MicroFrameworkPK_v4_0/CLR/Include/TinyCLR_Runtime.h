@@ -2357,6 +2357,9 @@ struct CLR_RT_Thread : public CLR_RT_ObjectToEvent_Destination // EVENT HEAP - N
     static const CLR_UINT32 c_TimeQuantum_Milliseconds = 20;
     static const int        c_MaxStackUnwindDepth      = 6;
 
+#if defined(NETMF_RTOS)  //Samraksh
+    BOOL					   m_isRtosThread;
+#endif
     int                        m_pid;
     CLR_UINT32                 m_status;
     CLR_UINT32                 m_flags;
@@ -2413,6 +2416,9 @@ struct CLR_RT_Thread : public CLR_RT_ObjectToEvent_Destination // EVENT HEAP - N
     void DestroyInstance();
 
     HRESULT Execute  ();
+#ifdef NETMF_RTOS  //Samraksh
+    HRESULT RTOS_Thread_Execute();
+#endif
 
     HRESULT Suspend  ();
     HRESULT Resume   ();
@@ -2496,8 +2502,11 @@ struct CLR_RT_Thread : public CLR_RT_ObjectToEvent_Destination // EVENT HEAP - N
 
     //--//
 
+#ifndef NETMF_RTOS  //Samraksh
 private:
-
+#else
+public:
+#endif
     HRESULT Execute_Inner();
 };
 
@@ -2936,7 +2945,9 @@ struct CLR_RT_ExecutionEngine
 
     CLR_RT_Thread*                      m_interruptThread;      // EVENT HEAP - NO RELOCATION
     CLR_RT_Thread*                      m_timerThread;          // EVENT HEAP - NO RELOCATION
-
+#if defined(NETMF_RTOS)  //Samraksh
+    CLR_RT_Thread*                      m_rtosInterruptThread;    // EVENT HEAP - NO RELOCATION
+#endif
     //--//
 
 #if defined(TINYCLR_JITTER)

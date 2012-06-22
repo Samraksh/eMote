@@ -110,7 +110,10 @@ HRESULT CLR_RT_ExecutionEngine::ExecutionEngine_Initialize()
 
     m_interruptThread     = NULL;                   // CLR_RT_Thread                       m_interruptThread;
                                                     //
-														
+#if defined(NETMF_RTOS)  //Samraksh
+    m_rtosInterruptThread     = NULL;                   // CLR_RT_Thread                       m_rtosIinterruptThread; Realtime OS thread
+#endif
+
 #if defined(TINYCLR_JITTER)
                                                     // const FLASH_SECTOR*                 m_jitter_firstSector;
                                                     // int                                 m_jitter_numSectors;
@@ -344,6 +347,10 @@ void CLR_RT_ExecutionEngine::ExecutionEngine_Cleanup()
 #endif
 
     m_interruptThread = NULL;    
+#if defined(NETMF_RTOS)  //Samraksh
+    m_rtosInterruptThread     = NULL;                   // CLR_RT_Thread                       m_rtosInterruptThread; Realtime OS thread
+#endif
+
 
     m_heap.DblLinkedList_Initialize();
 }
@@ -463,6 +470,7 @@ void CLR_RT_ExecutionEngine::ExecutionConstraint_Resume()
 
 CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 {
+	CPU_GPIO_SetPinState( 3, TRUE);
     NATIVE_PROFILE_CLR_CORE();
     m_heapState = c_HeapState_UnderGC;
 
@@ -475,7 +483,7 @@ CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 #if !defined(BUILD_RTM) || defined(PLATFORM_WINDOWS)
     if(m_fPerformHeapCompaction) CLR_EE_SET( Compaction_Pending );
 #endif
-
+    CPU_GPIO_SetPinState( 3, FALSE);
     return freeMem;
 }
 
@@ -726,10 +734,20 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     // m_cctorThread is NULL before call and inialized by the SpawnStaticConstructor
     SpawnStaticConstructor( m_cctorThread );
 
+    CPU_GPIO_EnableOutputPin (2, FALSE);
+    CPU_GPIO_EnableOutputPin (3, FALSE);
+    CPU_GPIO_EnableOutputPin (4, FALSE);
+    CPU_GPIO_EnableOutputPin (5, FALSE);
+    CPU_GPIO_EnableOutputPin (6, FALSE);
+    CPU_GPIO_EnableOutputPin (24, FALSE);
+    CPU_GPIO_EnableOutputPin (25, FALSE);
+    CPU_GPIO_EnableOutputPin (26, FALSE);
 
     while(true)
     {
+    	CPU_GPIO_SetPinState( 1, TRUE);
         HRESULT hr2 = ScheduleThreads( maxContextSwitch ); TINYCLR_CHECK_HRESULT(hr2);
+        CPU_GPIO_SetPinState( 1, FALSE);
         
         if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
         {
@@ -752,10 +770,13 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
             PerformHeapCompaction();
             _ASSERTE(FIMPLIES(CLR_EE_DBG_IS_NOT(NoCompaction), CLR_EE_IS_NOT(Compaction_Pending)));
         }
-                                
+
+
         if(hr2 == CLR_S_NO_READY_THREADS)
         {
-            WaitForActivity();
+        	CPU_GPIO_SetPinState( 2, TRUE);
+        	WaitForActivity();
+            CPU_GPIO_SetPinState( 2, FALSE);
         }
         else if(hr2 == CLR_S_QUANTUM_EXPIRED)
         {
@@ -785,6 +806,7 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
         {
             break;           
         }
+
     }
 
     TINYCLR_CLEANUP();
@@ -1294,11 +1316,12 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
         {
             // Runs the tread until expiration of its quantum or until thread is blocked.
 			// Nived : Comment immediately after test - 5/31/2011
-			//CPU_GPIO_SetPinState(8,true);
+			CPU_GPIO_SetPinState(5,true);
             hr = th->Execute();
-			//CPU_GPIO_SetPinState(8,false);
+			CPU_GPIO_SetPinState(5,false);
         }
 
+        int thread_id=0;
         if(FAILED(hr))
         {
             switch(hr)
@@ -1318,9 +1341,20 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 
         ::Watchdog_ResetCounter();
 
-        PutInProperList( th );
-        
+
+#if defined(NETMF_RTOS)  //Samraksh
+    	//Keep the rtos thread out of thread queues, the scheduler should never run this
+        if (th==g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){
+        	th->m_status=CLR_RT_Thread::TH_S_Terminated;
+        }
+        //else
+#endif
+       	PutInProperList( th );
+
+
+        CPU_GPIO_SetPinState(6,true);
         UpdateTime();
+        CPU_GPIO_SetPinState(6,false);
 
         (void)ProcessTimer();
     }
@@ -1397,6 +1431,15 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitForActivity( CLR_UINT32 powerLevel, CLR_U
 void CLR_RT_ExecutionEngine::PutInProperList( CLR_RT_Thread* th )
 {
     NATIVE_PROFILE_CLR_CORE();
+
+#if defined(NETMF_RTOS)  //Samraksh
+    	//Keep the rtos thread out of thread queues, the scheduler should never run this
+        if (th==g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){
+        	th->m_status=CLR_RT_Thread::TH_S_Terminated;
+        }
+#endif
+
+
     switch(th->m_status)
     {
     case CLR_RT_Thread::TH_S_Ready:
@@ -1409,10 +1452,14 @@ void CLR_RT_ExecutionEngine::PutInProperList( CLR_RT_Thread* th )
         // Fall-through...
         //
     case CLR_RT_Thread::TH_S_Waiting:
-        m_threadsWaiting.LinkAtBack( th );
+    	m_threadsWaiting.LinkAtBack( th );
         break;
 
     case CLR_RT_Thread::TH_S_Terminated:
+//#if defined(NETMF_RTOS)  //Samraksh
+//    	if (th==g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){}
+//    	else
+//#endif
         th->Passivate();
         break;
 
@@ -2414,6 +2461,7 @@ void CLR_RT_ExecutionEngine::ProcessHardware()
 
 CLR_INT64 CLR_RT_ExecutionEngine::ProcessTimer()
 {
+	 CPU_GPIO_SetPinState( 4, TRUE);
     NATIVE_PROFILE_CLR_CORE();
 
     CLR_INT64 timeoutMin;
@@ -2464,6 +2512,7 @@ CLR_INT64 CLR_RT_ExecutionEngine::ProcessTimer()
         timeoutMin = m_maximumTimeToActive;
     } 
 
+    CPU_GPIO_SetPinState( 4, FALSE);
     return timeoutMin;
 }
 

@@ -124,6 +124,9 @@ struct CLR_HW_Hardware
     HRESULT ManagedHardware_Initialize();
     HRESULT ProcessInterrupts();
     HRESULT SpawnDispatcher();
+#if defined(NETMF_RTOS)  //Samraksh
+    HRESULT SpawnRTOSDispatcher(CLR_RT_ApplicationInterrupt* interrupt);
+#endif
     HRESULT TransferAllInterruptsToApplicationQueue();
 
     void Screen_Flush( CLR_GFX_Bitmap& bitmap, CLR_UINT16 x, CLR_UINT16 y, CLR_UINT16 width, CLR_UINT16 height );    
