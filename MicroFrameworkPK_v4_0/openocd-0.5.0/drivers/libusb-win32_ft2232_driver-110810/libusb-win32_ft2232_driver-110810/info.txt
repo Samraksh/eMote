@@ -1,0 +1,83 @@
+WHY LIBUSB-WIN32 DRIVERS?
+_________________________
+
+Since June/July of 2009 due to alleged GPL license violation OpenOCD cannot be
+distributed with support for ftd2xx library. That's why FT2232 JTAGs have to be
+used via libusb-win32 drivers, and OpenOCD will be linked with libftdi library.
+Because of that OpenOCD users have to use different JTAG drivers. This small
+document provides a basic "how to" of libusb-win32 drivers for FT2232 based
+JTAGs. Users who need OpenOCD linked with ftd2xx library can build the software
+from sources.
+
+DEVICES SUPPORTED BY THIS DRIVER PACKAGE
+________________________________________
+
+The .inf file provided with the driver in that package has entries for most of
+existing FT2232 JTAGs. These devices are:
+	- Amontec JTAGkey
+	- CALAO Systems USB-A9260-C01/-C02
+	- egnite Turtelizer 2
+	- Hilscher netX
+	- Hitex Cortino, STM32-PerformanceStick, STR9-comStick
+	- Hubert Hoegl's USB to JTAG
+	- Joern Kaipf's OOCDLink
+	- Kristech KT-LINK, usbScarab2
+	- Lisa/L
+	- Luminary Micro BD-ICDI In-Circuit Debug Interface Board, Stellaris
+		LM3S811 Evaluation Kit
+	- Marvell OpenRD, SheevaPlug Development Kit
+	- NGX ARM USB JTAG
+	- Olimex ARM-USB-OCD(-H), ARM-USB-TINY(-H)
+	- Openmoko Debug Board
+	- Piotr Esden-Tempski's Floss-JTAG
+	- Section5 ICEBear
+	- Texas Instruments XDS100
+	- TinCanTools Flyswatter
+	- Voipac VpacLink
+	- Xverve Signalyzer (-/H2/H4/Lite)
+
+If your device isn't listed above, check the contents of the .inf file for info
+about adding new entries.
+
+USAGE INFO
+__________
+
+FT2232 is an USB Composite Device, so from the system's point of view it is seen
+as two completely separate devices which can have two completely
+separate drivers.
+
+Devices which have only JTAG (Amontec JTAGkey, Olimex ARM-USB-TINY, etc.) should
+use libusb-win32 drivers for BOTH FT2232 sub-devices - no additional drivers are
+required. In those devices the second channel is unused.
+
+Devices which have JTAG and UART/RS-232 on board (egnite Turtelizer 2, Olimex
+ARM-USB-OCD, etc.) should use libusb-win32 drivers only for the JTAG channel.
+The UART/RS-232 port needs drivers from FTDI, most likely with modified VID/PID
+combination - such drivers should be provided by the JTAG vendor.
+
+DRIVER INSTALLATION
+___________________
+
+Start with plugging your JTAG adapter to an USB port. If no drivers were
+installed the install wizard will pop-up automatically. If ftd2xx drivers were
+installed earlier, you should invoke the wizard manually - open the Device
+Manager (Control Panel > System > Hardware > Device Manager), right click on the
+JTAG device (in "Universal Serial Bus controllers" group) and select Update
+Driver. During the installation don't use automatic methods (this may install
+wrong drivers) - use "Don't search. I will choose the driver to install" (fully
+manual mode) instead. Succesfully installed driver(s) will be displayed in the
+"libusb-win32 devices" group in the Device Manager.
+
+ADDITIONAL SOURCES OF INFORMATION
+_________________________________
+
+http://www.google.com/
+http://libusb-win32.sourceforge.net/
+http://www.intra2net.com/en/developer/libftdi/
+http://forum.sparkfun.com/viewforum.php?f=18
+http://openocd.berlios.de/ (the mailing list)
+
+http://www.freddiechopin.info/
+_______________
+
+document version: 110607
