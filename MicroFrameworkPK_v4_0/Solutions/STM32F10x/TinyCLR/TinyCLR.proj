@@ -82,6 +82,10 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\CorLib\dotNetMF.proj" />
+    <PlatformIndependentLibs Include="CorLib.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\Hardware\dotNetMF.proj" />
     <PlatformIndependentLibs Include="Hardware.$(LIB_EXT)" />
   </ItemGroup>
@@ -90,8 +94,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <PlatformIndependentLibs Include="InterruptHandler.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\core\HeapPersistence\dotNetMF.proj" />
-    <PlatformIndependentLibs Include="HeapPersistence.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\core\HeapPersistence\dotNetMF_stub.proj" />
+    <PlatformIndependentLibs Include="HeapPersistence_stub.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\I2C\dotNetMF.proj" />
@@ -110,16 +114,16 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <PlatformIndependentLibs Include="Serialization_stub.$(LIB_EXT)" />
   </ItemGroup>     
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF_stub.proj" />
-    <PlatformIndependentLibs Include="Debugger_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF.proj" />
+    <PlatformIndependentLibs Include="Debugger.$(LIB_EXT)" />
   </ItemGroup>
    <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_minimal.proj" />
-    <PlatformIndependentLibs Include="Debugger_minimal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
+    <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
   </ItemGroup>
    <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF_stub.proj" />
-    <PlatformIndependentLibs Include="Diagnostics_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF.proj" />
+    <PlatformIndependentLibs Include="Diagnostics.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
@@ -173,8 +177,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <!--                                     PAL Modules                                            -->
     
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\stubs\dotNetMF.proj" />
-    <DriverLibs Include="asyncproccall_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\AsyncProcCall\dotNetMF.proj" />
+    <DriverLibs Include="asyncproccall_pal.$(LIB_EXT)" />
   </ItemGroup>
   
   <ItemGroup>
@@ -238,8 +242,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <DriverLibs Include="GlobalLock_hal_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\stubs\dotNetMF.proj" />
-    <DriverLibs Include="heap_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Heap\dotNetMF.proj" />
+    <DriverLibs Include="heap_pal.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" />
@@ -258,8 +262,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" />
-    <DriverLibs Include="SimpleHeap_config_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap_config\dotNetMF.proj" />
+    <DriverLibs Include="SimpleHeap_config.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\SimpleHeap\stubs\dotNetMF.proj" />

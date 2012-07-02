@@ -29,7 +29,7 @@ namespace TestSuite
             {
 			
 				Timer tmr = new Timer(new TimerCallback(Callback), null, 0, 1000);								
-				PowerState.ChangePowerLevel(PowerLevel.Low);
+				//PowerState.ChangePowerLevel(PowerLevel.Low);
 				while (true)
                 {
 					Thread.Sleep(100);

@@ -21,7 +21,7 @@ _exit(int n)
 {
         while(1)
         {
-                n = n;
+              //  n = n;
         }
 }
 

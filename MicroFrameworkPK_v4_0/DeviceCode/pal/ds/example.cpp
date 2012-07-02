@@ -29,12 +29,7 @@ int test_datastore()
 		buff[0] = (BYTE) index;
         gIndex++;
         debug_printf("%d\n", gIndex);
-        if(54 == gIndex){
-            gIndex = gIndex;
-        }
-        if(4293 == gIndex){
-            gIndex = gIndex;
-        }
+
 		status = myDataStore.writeRawData( givenPtr,
 										   buff,
 										   sizeof(buff) );

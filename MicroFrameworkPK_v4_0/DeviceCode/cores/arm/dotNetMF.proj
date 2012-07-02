@@ -59,7 +59,7 @@
     <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(INSTRUCTION_SET)'=='thumb2'">
+  <ItemGroup>
   	<Compile Include="Common\GlobalLock\thumb2\SmartPtr_thumb2.cpp" />
   </ItemGroup>
   
