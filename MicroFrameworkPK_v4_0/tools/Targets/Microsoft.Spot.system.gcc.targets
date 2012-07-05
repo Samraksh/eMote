@@ -304,7 +304,7 @@
 
     <Exec Condition="'$(COMPILER_TOOL_VERSION)'=='GCCOP4.2'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
     <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
-    <Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />
+    <!--<Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />-->
     <MakeDir Directories="$(EXEName).bin" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).bin')" />
     <MakeDir Directories="$(EXEName).hex" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).hex')" />
     <MakeDir Directories="$(EXEName).ihex" Condition="'$(MultipleOutputSections)'=='true' and '$(IntelHexFormat)'=='true' and !Exists('$(EXEName).ihex')" />
@@ -317,8 +317,13 @@
     <Exec Command="$(FROMELF) -S -j ER_DAT											-O binary @(EXEOutput) $(EXEName).bin\ER_DAT"    Condition="'$(MultipleOutputSections)'=='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />
     <Exec Command="$(FROMELF) -S -j ER_CONFIG										-O binary @(EXEOutput) $(EXEName).bin\ER_CONFIG" Condition="'$(MultipleOutputSections)'=='true'" />
 
-    <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex"                      Condition="'$(MultipleOutputSections)'!='true'" />
     <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O ihex --gap-fill 0                 @(EXEOutput) $(EXEName).ihex"                     Condition="'$(MultipleOutputSections)'!='true' and '$(IntelHexFormat)'=='true'" />
+
+	<MakeDir Directories="$(EXEName).hex" Condition="'$(DEVICE_TYPE)'=='Cortex-M3'" />
+	<Exec Command="$(FROMELF) -S -j .isr_vector -O srec --srec-forceS3 @(EXEOutput) $(EXEName).hex\ER_VECTOR.hex" Condition="'$(DEVICE_TYPE)'=='Cortex-M3'"/>
+	<Exec Command="$(FROMELF) -S -j .text -S -j .ARM.extab -S -j tinyclr_metadata -S -j SectionForConfig -S -j SectionForStackTop -S -j .ARM -S -j .init_array -S -j .data -S -j rwdata -O srec --srec-forceS3 @(EXEOutput) $(EXEName).hex\ER_TEXT.hex" Condition="'$(DEVICE_TYPE)'=='Cortex-M3'"/>
+	
+	
 
     <Exec Command="$(FROMELF) -S -j ER_$(TARGETLOCATION) -j ER_IRAM_TC -j ER_$(TARGETLOCATION)_CONT -j ER_RAM_RO -j ER_RAM_RW  -j ER_IRAM -O srec --gap-fill 0 --srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_$(TARGETLOCATION)" Condition="'$(MultipleOutputSections)'=='true'" />
     <Exec Command="$(FROMELF) -S -j ER_DAT											-O srec	--srec-forceS3  @(EXEOutput) $(EXEName).hex\ER_DAT"                                              Condition="'$(MultipleOutputSections)'=='true' and ('$(FLAVOR)'!='RTM' OR '$(Platform)'=='SAM9261_EK')" />

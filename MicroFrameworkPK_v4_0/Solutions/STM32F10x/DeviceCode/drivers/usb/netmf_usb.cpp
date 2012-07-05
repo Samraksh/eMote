@@ -497,8 +497,15 @@ HRESULT USBCS_Driver::Uninitialize( int Controller )
 
     g_USB_Driver.pUsbControllerState = NULL;
 
+    // Nived.Sivadas - Uninitializing interrupts and usb clock for tinybooter bug
 	//TODO : Disable Interrupts
+    CPU_INTC_DeactivateInterrupt(STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0);
+    CPU_INTC_DeactivateInterrupt(STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX);
+
 	//TODO : Disable Clocks
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, DISABLE);
+
+    //USB_Cable_Config(false);
 
     return S_OK;
 }

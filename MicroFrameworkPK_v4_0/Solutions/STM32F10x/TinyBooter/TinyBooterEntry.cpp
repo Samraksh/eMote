@@ -80,7 +80,15 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
     enterBooterMode = true;
     timeout_ms = -1;
 #endif
+    // Waiting for something from the host for 20s
+    /*
+    const UINT32 c_EventsMask = SYSTEM_EVENT_FLAG_COM_IN |
+                                            SYSTEM_EVENT_FLAG_USB_IN |
+                                            SYSTEM_EVENT_FLAG_BUTTON;
 
+    Events_WaitForEvents( c_EventsMask, timeout_ms );
+	*/
+#if 0
     // user override (UP+DOWN buttons held)
     if ((ButtonConfig->Mapping[BUTTON_DOWN_IDX].m_HW != GPIO_PIN_NONE) && (ButtonConfig->Mapping[BUTTON_UP_IDX].m_HW != GPIO_PIN_NONE))
     {
@@ -92,8 +100,8 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
             enterBooterMode = true;
         }
     }
-
-    return enterBooterMode;
+#endif
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
