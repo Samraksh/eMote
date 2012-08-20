@@ -39,9 +39,9 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 	{
 		return FALSE;
 	}
-	TIM_DeInit(TIM2);
+	//TIM_DeInit(TIM2);
 
-	TIM_Cmd(TIM2, DISABLE);
+	//TIM_Cmd(TIM2, DISABLE);
 
 	DisableCompareInterrupt ( Timer );
 

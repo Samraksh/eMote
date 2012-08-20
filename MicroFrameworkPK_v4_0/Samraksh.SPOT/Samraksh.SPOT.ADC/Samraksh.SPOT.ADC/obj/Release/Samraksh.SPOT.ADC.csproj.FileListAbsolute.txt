@@ -16,3 +16,5 @@ C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC
 C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC\Samraksh.SPOT.ADC\obj\Release\TinyCLR_DebugReferences.cache
 C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC\Samraksh.SPOT.ADC\obj\Release\Samraksh.SPOT.ADC.dll
 C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC\Samraksh.SPOT.ADC\obj\Release\Samraksh.SPOT.ADC.pdb
+C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC\Samraksh.SPOT.ADC\obj\Release\Samraksh.SPOT.ADC.pe
+C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.ADC\Samraksh.SPOT.ADC\obj\Release\Samraksh.SPOT.ADC.pdbx

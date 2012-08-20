@@ -71,7 +71,7 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <Import Project="$(SPOCLIENT)\InteropLibrary\SimpleInterop\NativeCode\SimpleInterop.featureproj" />	
   <!--<Import Project="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\AsyncTimer.featureproj" />-->
   <!--<Import Project="$(SPOCLIENT)\Interops\Samraksh\Samraksh.featureproj" />-->
-  <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.ADC.featureproj" />
+  <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.ADC\NativeCode\Samraksh.SPOT.ADC.featureproj" />
   <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.USB\NativeCode\Samraksh.SPOT.USB.featureproj" />
   <!--<Import Project="$(SPOCLIENT)\Interops\TinyOS\NativeCode\TinyOS.featureproj" />-->
   <!-- <Import Project="$(SPOCLIENT)\MyInterOp\MyEncryptionLib\NativeCode\MyEncryptionLib.featureproj" /> -->
@@ -466,7 +466,7 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <DriverLibs Include="STM32F10x_wwdg.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\Samraksh.SPOT\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.ADC\NativeCode\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_SPOT_ADC.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>

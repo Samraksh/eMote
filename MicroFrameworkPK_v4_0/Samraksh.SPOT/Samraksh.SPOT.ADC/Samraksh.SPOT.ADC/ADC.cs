@@ -5,13 +5,13 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT
 {
-    public delegate void AdcCallBack(Object state);
+    public delegate void AdcCallBack(bool state);
     public class ADC
     {
         static ADCInternal AdcInternal;
         static AdcCallBack MyCallback;
         public ADC(){
-            AdcInternal = new ADCInternal("Samraksh_ADC", 1234, 0);      
+            AdcInternal = new ADCInternal("ADCCallback", 1234, 0);      
         }
 
         static public int Init(AdcSampleTime sampleTime, int num_channels)
@@ -45,6 +45,7 @@ namespace Samraksh.SPOT
         }
         static public void InternalCallback(uint data1, uint data2, DateTime time)
         {
+            MyCallback(true);
         }
     }
 

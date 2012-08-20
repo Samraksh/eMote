@@ -1,0 +1,14 @@
+D:\Main\MeshWF\Nived\SerialDump\obj\Release\ResolveAssemblyReference.cache
+D:\Main\MeshWF\Nived\SerialDump\bin\Release\SerialDump.exe
+D:\Main\MeshWF\Nived\SerialDump\bin\Release\SerialDump.pdb
+D:\Main\MeshWF\Nived\SerialDump\bin\Release\Microsoft.SPOT.Debugger.dll
+D:\Main\MeshWF\Nived\SerialDump\obj\Release\SerialDump.exe
+D:\Main\MeshWF\Nived\SerialDump\obj\Release\SerialDump.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\bin\Release\SerialDump.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\bin\Release\SerialDump.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\bin\Release\Microsoft.SPOT.Debugger.dll
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\obj\Release\ResolveAssemblyReference.cache
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\obj\Release\SerialDump.exe
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\obj\Release\SerialDump.pdb
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\bin\Release\SerialDump.exe.config
+D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\bin\Release\Microsoft.SPOT.Debugger.pdb

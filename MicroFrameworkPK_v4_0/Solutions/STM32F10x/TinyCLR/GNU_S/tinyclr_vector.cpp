@@ -14,7 +14,7 @@ extern "C"
 
 void VectorRelocate()
 {
-	*(__IO uint32_t *) VectorTableOffsetRegister |= (uint32_t) OFFSET;
+	*(__IO uint32_t *) VectorTableOffsetRegister |= (uint32_t) 0;
 
 }
 }

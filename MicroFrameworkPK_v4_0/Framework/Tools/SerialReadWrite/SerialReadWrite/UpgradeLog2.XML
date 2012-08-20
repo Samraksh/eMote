@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="SerialDump">
+</Property><Property Name="Solution File" Value="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialDump.sln">
+</Property><Property Name="Date" Value="Tuesday, October 18, 2011">
+</Property><Property Name="Time" Value="11:17 AM">
+</Property><Property Name="Log Number" Value="2">
+</Property></Properties><Event ErrorLevel="0" Project="SerialDump" Source="SerialDump.csproj" Description="The project file does not require conversion.">
+</Event><Event ErrorLevel="3" Project="SerialDump" Source="SerialDump.csproj" Description="No Conversion Required">
+</Event><Event ErrorLevel="0" Project="" Source="SerialDump.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="SerialDump.sln" Description="Converted">
+</Event></UpgradeLog>
