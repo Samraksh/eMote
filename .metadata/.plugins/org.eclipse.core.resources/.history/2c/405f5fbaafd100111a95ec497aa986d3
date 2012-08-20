@@ -1,0 +1,32 @@
+
+
+using System;
+using System.Threading;
+using Microsoft.SPOT.Hardware;
+using Microsoft.SPOT;
+using TestSuite;
+
+namespace TestSuite
+{
+    public class ADCTest
+    {
+        public ushort[] samples = new ushort[1000];
+
+        public void Run()
+        {
+            ADC.Init(0x04);
+            
+            AdcDoneEvent aEvent = new AdcDoneEvent("AdcCallBack",0,100);
+            NativeEventHandler eventHandler = new NativeEventHandler(OnNativeEvent);
+            rEvent.OnInterrupt += eventHandler;
+            
+            ADC.ConfigureBatchMode(samples, 0, 2, 500, 1);
+
+        }
+        
+        static void OnNativeEvent(uint data1, uint data2, DateTime time)
+        {
+        	
+        }
+    }
+}

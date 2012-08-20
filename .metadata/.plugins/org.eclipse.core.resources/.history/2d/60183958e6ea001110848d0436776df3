@@ -1,0 +1,16 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh.SPOT.USB</FeatureName>
+    <Guid>{d9c90e2e-bb50-4dec-82ca-e2745a58ee07}</Guid>
+    <Description>
+    </Description>
+    <Groups>
+    </Groups>
+  </PropertyGroup>
+  <ItemGroup>
+    <InteropFeature Include="Samraksh_SPOT_USB" />
+    <DriverLibs Include="Samraksh_SPOT_USB.$(LIB_EXT)" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\Samraksh.SPOT.USB.pe" />
+    <RequiredProjects Include="C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Samraksh.SPOT\Samraksh.SPOT.USB\NativeCode\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

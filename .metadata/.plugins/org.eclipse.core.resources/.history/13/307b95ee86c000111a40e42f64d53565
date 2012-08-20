@@ -1,0 +1,30 @@
+/*
+ *
+ *  Name : VirtualTimer.h
+ *
+ *  Author : nived.sivadas@samraksh.com
+ *
+ *  Description :
+ *
+ */
+
+#ifndef _VIRTUAL_TIMER_H_
+#define _VIRTUAL_TIMER_H_
+
+#include<PriorityQueue.h>
+
+class VirtualTimer
+{
+	UINT32 id;
+	UINT32 to;
+	UINT32 dt;
+
+};
+
+class VirtualTimerManager
+{
+
+
+};
+
+#endif

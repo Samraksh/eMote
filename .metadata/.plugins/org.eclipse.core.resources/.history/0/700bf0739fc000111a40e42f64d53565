@@ -1,0 +1,75 @@
+/*
+ *
+ *  Name : VirtualTimer.h
+ *
+ *  Author : nived.sivadas@samraksh.com
+ *
+ *  Description :
+ *
+ */
+
+#ifndef _VIRTUAL_TIMER_H_
+#define _VIRTUAL_TIMER_H_
+
+typedef void (*TIMER_CALLBACK_FPN)( void* arg );
+
+#include<PriorityQueue.h>
+
+class VirtualTimer
+{
+	UINT32 id;
+	UINT32 t0;
+	UINT32 dt;
+	BOOL isOneShot;
+	BOOL _reserved;
+	BOOL isRunning;
+	TIMER_CALLBACK_FPN fn;
+
+public:
+	BOOL setId(UINT32 id)
+	{
+		ASSERT(id < 0);
+
+		this->id = id;
+		return TRUE;
+	}
+
+	BOOL setT0(UINT32 t0)
+	{
+		// start time can not be less than 0
+		ASSERT(t0 < 0);
+
+		this->t0 = t0;
+		return TRUE;
+	}
+
+	BOOL setdt(UINT32 dt)
+	{
+		ASSERT(dt < 0);
+
+		this->dt = dt;
+		return TRUE;
+	}
+
+};
+
+class VirtualTimerManager
+{
+	PriorityQueue<VirtualTimer> timerQueue;
+
+	UINT64 ticks;
+
+public:
+	BOOL Init();
+
+
+	BOOL createTimer(UINT32 timerID, UINT32 startTime, UINT32 dTime, BOOL isOneShot, BOOL _reserved,TIMER_CALLBACK_FPN callBack);
+
+	BOOL stopTimer(UINT32 id);
+
+};
+
+VirtualTimerManager gVirtualTimerManagerObject;
+
+
+#endif

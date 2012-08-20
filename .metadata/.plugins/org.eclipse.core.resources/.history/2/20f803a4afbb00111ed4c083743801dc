@@ -1,0 +1,50 @@
+#include <tinyhal.h>
+
+// Defines the packet format
+class RadioPacket
+{
+
+};
+
+extern "C"
+{
+
+BOOL mySFDEventHandler(void *data)
+{
+
+}
+
+
+BOOL myEFDEventHandler(void *data)
+{
+
+}
+
+
+struct IRadioEvents eventHandlers =
+{
+		&mySFDEventHandler,
+		&myEFDEventHandler,
+};
+
+
+void OMAC_Init()
+{
+	Radio_AddEventHandlers(&eventHandlers);
+
+	void *packet = NULL;
+
+	if(TRUE == Radio_LoadPacket(packet))
+	{
+		Radio_SendPacket();
+	}
+
+	TimeStampLayer<RadioPacket> timeStampLayer;
+
+
+
+
+}
+
+
+}

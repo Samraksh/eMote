@@ -1,0 +1,11 @@
+#include <VirtualTimer.h>
+
+BOOL VirtualTimerManager::createTimer(UINT32 timerID, UINT32 startTime, UINT32 dTime, UINT32 isOneShot, UINT32 isRunning, BOOL _reserved,TIMER_CALLBACK_FPN callBack)
+{
+
+}
+
+BOOL VirtualTimerManager::stopTimer(UINT32 timerID)
+{
+
+}

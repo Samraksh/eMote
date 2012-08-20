@@ -1,0 +1,46 @@
+#include <tinyhal.h>
+
+extern "C"
+{
+class RadioPacket
+{
+
+};
+
+BOOL mySFDEventHandler(void *data)
+{
+
+}
+
+
+BOOL myEFDEventHandler(void *data)
+{
+
+}
+
+
+struct IRadioEvents eventHandlers =
+{
+		&mySFDEventHandler,
+		&myEFDEventHandler,
+};
+
+
+void OMAC_Init()
+{
+	Radio_AddEventHandlers(&eventHandlers);
+
+	void *packet = NULL;
+
+	if(TRUE == Radio_LoadPacket(packet))
+	{
+		Radio_SendPacket();
+	}
+
+
+
+
+}
+
+
+}

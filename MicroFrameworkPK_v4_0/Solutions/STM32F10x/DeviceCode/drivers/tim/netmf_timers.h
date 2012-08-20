@@ -20,6 +20,7 @@
 struct Timer_Driver
 {
 	static const UINT32 c_SystemTimer   = 2;
+	static const UINT32 c_ADCTimer = 4;
     static const UINT16 c_MaxTimerValue = 0xFFFF;
 	static const UINT32 c_MaxTimers = 10;
 

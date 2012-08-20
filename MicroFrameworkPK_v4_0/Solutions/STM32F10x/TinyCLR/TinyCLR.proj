@@ -69,9 +69,11 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" />
   <!-- <Import Project="$(SPOCLIENT)\InteropLibrary\NativeCode\ADC_library.featureproj" /> -->
   <Import Project="$(SPOCLIENT)\InteropLibrary\SimpleInterop\NativeCode\SimpleInterop.featureproj" />	
-  <Import Project="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\AsyncTimer.featureproj" />
-  <Import Project="$(SPOCLIENT)\Interops\Samraksh\Samraksh.featureproj" />
-  <Import Project="$(SPOCLIENT)\Interops\TinyOS\NativeCode\TinyOS.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\AsyncTimer.featureproj" />-->
+  <!--<Import Project="$(SPOCLIENT)\Interops\Samraksh\Samraksh.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.ADC.featureproj" />
+  <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.USB\NativeCode\Samraksh.SPOT.USB.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\Interops\TinyOS\NativeCode\TinyOS.featureproj" />-->
   <!-- <Import Project="$(SPOCLIENT)\MyInterOp\MyEncryptionLib\NativeCode\MyEncryptionLib.featureproj" /> -->
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
@@ -310,11 +312,12 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />
   </ItemGroup>
-  
+ <!-- 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_AsyncTimer.$(LIB_EXT)" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" />
     <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
@@ -461,6 +464,14 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\wwdg\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_wwdg.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Samraksh.SPOT\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_SPOT_ADC.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.USB\NativeCode\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_SPOT_USB.$(LIB_EXT)" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

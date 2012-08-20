@@ -1,2 +1,0 @@
-You can download the source code tarball from
-https://sourceforge.net/projects/openocd/files/openocd/0.5.0/

@@ -1,0 +1,35 @@
+#include <VirtualTimer.h>
+
+BOOL VirtualTimerManager::Init()
+{
+	timerQueue.Init();
+
+	if (!Timer_Driver :: Initialize (Timer_Driver :: c_VirtualTimer, TRUE, 0, 0, VirtualTimerHandler, NULL))
+	{
+		return FALSE;
+	}
+}
+
+BOOL VirtualTimerManager::createTimer(UINT32 timerID, UINT32 startTime, UINT32 dTime, BOOL isOneShot, BOOL _reserved,TIMER_CALLBACK_FPN callBack)
+{
+	// Convert the delta into ticks
+	UINT64 dTicks = CPU_MillisecondsToTicks(dTime);
+
+
+
+}
+
+BOOL VirtualTimerManager::stopTimer(UINT32 timerID)
+{
+
+}
+
+extern "C"
+{
+
+void VirtualTimerHandler(void *args)
+{
+
+}
+
+}

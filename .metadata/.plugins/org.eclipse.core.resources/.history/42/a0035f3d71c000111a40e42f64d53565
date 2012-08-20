@@ -1,0 +1,42 @@
+/*
+ *
+ *  Name : PriorityQueue.h
+ *
+ *  Author : nived.sivadas@samraksh.com
+ *
+ *  Description :
+ *
+ *
+ */
+#ifndef _PRIORITY_QUEUE_H_
+#define _PRIORITY_QUEUE_H_
+
+
+#define PQSIZE 32
+
+template <class T>
+class PriorityQueue
+{
+	// Body of the queue
+	T queue[PQSIZE + 1];
+
+	// Number of elements in the queue
+	UINT32 numberOfElements;
+
+public:
+	PriorityQueue()
+	{
+		numberOfElements = 0;
+	}
+
+	// Adds a new element to the priority queue, takes the element as argument
+	BOOL enqueue(T item)
+	{
+
+	}
+
+};
+
+
+
+#endif

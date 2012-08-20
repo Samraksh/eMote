@@ -1,0 +1,78 @@
+#include <tinyhal.h>
+
+// Defines the packet format
+class RadioPacket
+{
+
+};
+
+extern "C"
+{
+
+BOOL mySFDEventHandler(void *data)
+{
+
+}
+
+
+BOOL myEFDEventHandler(void *data)
+{
+
+}
+
+RADIO_STATUS_TYPE myCCACompletionEventHandler()
+{
+
+}
+
+RADIO_STATUS_TYPE mySendDoneEventHandler()
+{
+
+}
+
+
+struct IRadioEvents eventHandlers =
+{
+		&mySFDEventHandler,
+		&myEFDEventHandler,
+		&myCCACompletionEventHandler,
+	    &mySendDoneEventHandler,
+};
+
+
+void OMAC_Init()
+{
+	// Adding Event Handlers for SFD,EFD, CCADone and SendDone events
+	Radio_AddEventHandlers(&eventHandlers);
+
+	void *packet = NULL;
+
+	if(TRUE == Radio_LoadPacket(packet))
+	{
+		Radio_SendPacket();
+	}
+
+	RadioPacket radioPacket;
+
+	// This function assumes that there is an interface provided by the RadioPacket class that tells where the timestamp field is
+	// in the packet, like a getMetaDataLength function
+	TimeStampLayer<RadioPacket>::set(&radioPacket);
+
+	// CCA interface
+    // Call to initiate CCA, has return type of SUCCESS, BUSY and FAIL depending on how the request was processed
+	// The completion is informed to the user through the CCA done Event Handler which is registered
+	CCA::request();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+}

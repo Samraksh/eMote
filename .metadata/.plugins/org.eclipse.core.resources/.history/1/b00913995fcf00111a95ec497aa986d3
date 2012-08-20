@@ -1,0 +1,171 @@
+/*
+ *
+ *  Name : VirtualTimer.h
+ *
+ *  Author : nived.sivadas@samraksh.com
+ *
+ *  Description :
+ *
+ */
+
+#ifndef _VIRTUAL_TIMER_H_
+#define _VIRTUAL_TIMER_H_
+
+typedef void (*TIMER_CALLBACK_FPN)( void* arg );
+
+#include<PriorityQueue.h>
+#include<..\..\Solutions\STM32F10x\DeviceCode\drivers\tim\netmf_timers.h>
+
+//class VirtualTimer;
+//template class PriorityQueue<VirtualTimer>;
+
+class VirtualTimer
+{
+	UINT32 id;
+	UINT32 t0;
+	UINT32 dt;
+
+	BOOL _reserved;
+	BOOL isRunning;
+	TIMER_CALLBACK_FPN fn;
+	UINT32 inceptionTime;
+	UINT32 counter;
+
+public:
+	BOOL isOneShot;
+
+	void setCounter(UINT32 time)
+	{
+		this->counter = time;
+	}
+
+	UINT32 getCounter()
+	{
+		return this->counter;
+	}
+
+	void setInceptionTime(UINT64 time)
+	{
+		this->inceptionTime = time;
+	}
+
+	UINT32 getInceptionTime()
+	{
+		return this->inceptionTime;
+	}
+
+	void setId(UINT32 id)
+	{
+		assert(id < 0);
+
+		this->id = id;
+
+	}
+
+	UINT32 getId()
+	{
+		return this->id;
+	}
+
+	void setCallBack(TIMER_CALLBACK_FPN fn)
+	{
+		assert(fn != NULL);
+		this->fn = fn;
+	}
+
+	void setisRunning(BOOL isRunning)
+	{
+		this->isRunning = isRunning;
+	}
+
+	void setT0(UINT32 t0)
+	{
+		// start time can not be less than 0
+		assert(t0 < 0);
+
+		this->t0 = t0;
+	}
+
+	void setdt(UINT32 dt)
+	{
+		assert(dt < 0);
+
+		this->dt = dt;
+	}
+
+	UINT32 getdt()
+	{
+		return this->dt;
+	}
+
+	void setIsOneShot(BOOL isOneShot)
+	{
+		this->isOneShot = isOneShot;
+	}
+
+	void setreserved(BOOL _reserved)
+	{
+		this->_reserved = _reserved;
+	}
+
+	VirtualTimer& operator=(const VirtualTimer& rhs)
+	{
+		this->id = rhs.id;
+		this->t0 = rhs.t0;
+		this->dt = rhs.dt;
+		this->isOneShot = rhs.isOneShot;
+		this->isRunning = rhs.isRunning;
+		this->fn = rhs.fn;
+		this->_reserved = rhs._reserved;
+
+		return *this;
+	}
+
+	BOOL operator>(VirtualTimer& x)
+	{
+		if(this->dt > x.dt)
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	TIMER_CALLBACK_FPN getCallBack()
+	{
+		return this->fn;
+	}
+
+
+};
+
+class VirtualTimerManager
+{
+	PriorityQueue<VirtualTimer> timerQueue;
+
+	UINT64 ticks;
+
+	BOOL UpdateCounter(UINT32 time)
+	{
+		for(int i = 0; i < timerQueue.getLength(); i++)
+			timerQueue[i].setCounter(time);
+	}
+
+public:
+	BOOL Init();
+
+
+	BOOL createTimer(UINT32 timerID, UINT32 startTime, UINT32 dTime, BOOL isOneShot, BOOL _reserved,TIMER_CALLBACK_FPN callBack);
+
+	BOOL stopTimer(UINT32 id);
+
+	BOOL enqueue(VirtualTimer vTimer);
+
+	BOOL extractAndLink();
+
+	//void VirtualTimerHandler(void *args);
+
+};
+
+VirtualTimerManager gVirtualTimerManagerObject;
+
+
+#endif

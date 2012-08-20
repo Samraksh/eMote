@@ -1,0 +1,14 @@
+/*
+ * Name : message.h
+ *
+ * Author : nived.sivadas@samraksh.com
+ *
+ * Description : defines the interface for the message
+ *
+ */
+
+template<class Header, Data, Footer, Metadata>
+class message
+{
+	UINT8 header
+};

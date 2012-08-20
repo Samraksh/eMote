@@ -1,0 +1,82 @@
+/*
+ *
+ *  Name : PriorityQueue.h
+ *
+ *  Author : nived.sivadas@samraksh.com
+ *
+ *  Description :
+ *
+ *
+ */
+#ifndef _PRIORITY_QUEUE_H_
+#define _PRIORITY_QUEUE_H_
+#include <tinyhal.h>
+
+#define PQSIZE 32
+
+
+// Min element in front of the queue
+template <class T>
+class PriorityQueue
+{
+	// Body of the queue
+	T queue[PQSIZE + 1];
+
+	// Number of elements in the queue
+	INT32 numberOfElements;
+
+	void ReorderUp(INT32 elementID);
+
+
+	void ReorderDown(INT32 elementID);
+
+
+	INT32 parent(INT32 elementId);
+
+
+	INT32 child(INT32 elementId);
+
+
+public:
+	void Init()
+	{
+		numberOfElements = 0;
+	}
+
+	// Adds a new element to the priority queue, takes the element as argument
+	BOOL enqueue(T item)
+	{
+		queue[numberOfElements++] = item;
+
+		ReorderUp(numberOfElements - 1);
+	}
+
+	INT32 getMaxSize()
+	{
+		return PQSIZE;
+	}
+
+	INT32 getLength()
+	{
+		return numberOfElements;
+	}
+
+	T getMin()
+	{
+		return queue[0];
+	}
+
+	T extractMin();
+
+	T& operator[](const int location)
+	{
+		return queue[0];
+	}
+
+
+
+};
+
+
+
+#endif

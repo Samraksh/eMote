@@ -1,0 +1,45 @@
+#include <tinyhal.h>
+
+// Questions for you:
+// 1. I know you asked for these events, please do let me know if you need more
+// 2. The type of information these handlers will tell you, right now i have a void pointer, i looked at the cc2420 interface briefly but couldn't quite
+//    figure out enough information about what is needed.
+// 3. You are obviously free to change the names of these handlers, this is just an example, as long as you are passing an object of IRadioInterface to the Radio_AddHandlers
+//   function with the same signature you are fine. The first eventhandler is signalling an SFD event and the second signals an EFD
+
+
+BOOL mySFDEventHandler(void *data)
+{
+
+}
+
+
+BOOL myEFDEventHandler(void *data)
+{
+
+}
+
+
+struct IRadioInterface eventHandlers =
+{
+		&mySFDEventHandler,
+		&myEFDEventHandler,
+};
+
+void OMAC_Init()
+{
+	Radio_AddEventHandlers(&eventHandlers);
+
+	void *packet = NULL;
+
+	if(TRUE == Radio_LoadPacket(packet))
+	{
+		Radio_SendPacket();
+	}
+
+
+
+}
+
+
+

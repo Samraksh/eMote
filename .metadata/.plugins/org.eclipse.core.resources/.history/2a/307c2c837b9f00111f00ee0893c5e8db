@@ -1,0 +1,148 @@
+#include "DSTest.h"
+
+DataStoreTest::DataStoreTest(int numberOfEvents, int tx_ep, int rx_ep)
+{
+	this->numberOfEvents = numberOfEvents;
+	this->m_tx_ep = tx_ep;
+	this->m_rx_ep = rx_ep;
+	InitializeXmitBuffer();
+	InitializeRecvBuffer();
+	currentRecordId = 0;
+	bufferCounter = 0;
+	lastRecord = 0;
+	lastRecordSize = 0;
+	InitializedsBuffer();
+	this->usbControler= ConvertCOM_UsbController(USB1);
+	this->usbPort = ConvertCOM_UsbStream(USB1);
+}
+
+void DataStoreTest::copyToXmitBuffer(BYTE* buffer, int len)
+{
+	for(UINT16 i = 0; i < len; i++)
+	{
+		m_xmitBuffer[i] = buffer[i];
+	}
+}
+
+void DataStoreTest::InitializedsBuffer()
+{
+	INT16 i=0;
+    for (i=0; i<DATASTORE_BUFFER_SIZE; i++)
+    	m_dsBuffer[i] = 0;
+
+}
+
+void DataStoreTest::InitializeRecvBuffer()
+{
+	INT16 i=0;
+    for (i=0; i<BUFFER_SIZE; i++)
+    	m_recvBuffer[i] = 0;
+
+}
+
+void DataStoreTest::InitializeXmitBuffer()
+{
+	INT16 i=0;
+    for (i=0; i<BUFFER_SIZE; i++)
+    	m_xmitBuffer[i] = 0;
+}
+
+BOOL DataStoreTest::Level_2()
+{
+	Data_Store<int> myDataStore("NOR");
+
+	currentRecordId = 0;
+
+	USB_CONTROLLER_STATE * UsbState = CPU_USB_GetState(0);
+	if(!UsbState->Initialized)
+	{
+		int conf=USB_Configure( usbControler, &UsbDefaultConfiguration );
+
+		if(!USB_Initialize( usbControler))
+		{
+		    		LED_RED();
+		    		return FALSE;
+		}
+	}
+
+	while(1){
+		UINT32 rd_count = USB_Read( usbPort, (char *) DataStoreTest::m_recvBuffer, BUFFER_SIZE );
+
+		if(rd_count != 0)
+		{
+			if(m_recvBuffer[0] == STARTLISTENING)
+			{
+				while(1)
+				{
+					rd_count = USB_Read( usbPort,(char *) DataStoreTest::m_recvBuffer, BUFFER_SIZE );
+
+					if(m_recvBuffer[0] == STOPLISTENING)
+					{
+						void * handle = myDataStore.createRecord(currentRecordId++, bufferCounter);
+						myDataStore.writeRawData(handle,m_dsBuffer,bufferCounter);
+						handleMapping[currentRecordId - 1] = handle;
+						lastRecord = currentRecordId -1;
+						lastRecordSize = bufferCounter;
+						InitializedsBuffer();
+						break;
+					}
+					else if(m_recvBuffer[0] == TRASMITTING)
+					{
+						m_dsBuffer[bufferCounter++] = m_recvBuffer[3];
+						if(bufferCounter == DATASTORE_BUFFER_SIZE)
+						{
+							void * handle = myDataStore.createRecord(currentRecordId++, DATASTORE_BUFFER_SIZE);
+							myDataStore.writeRawData(handle,m_dsBuffer,DATASTORE_BUFFER_SIZE);
+							handleMapping[currentRecordId - 1] = handle;
+							InitializedsBuffer();
+							bufferCounter = 0;
+						}
+					}
+					else
+					{
+						InitializeXmitBuffer();
+					}
+					// Flushing the receive buffer
+					InitializeRecvBuffer();
+					USB_Flush(usbPort);
+					USB_Flush(usbPort);
+				}
+			}
+			else if((m_recvBuffer[0] == STARTSENDING) || (m_recvBuffer[1] == STARTSENDING))
+			{
+				//rd_count = USB_Read( usbPort,(char *) DataStoreTest::m_recvBuffer, BUFFER_SIZE );
+				//rd_count = USB_Read( usbPort,(char *) DataStoreTest::m_recvBuffer, BUFFER_SIZE );
+
+				for(UINT32 i = 0; i < lastRecord; i++)
+				{
+					myDataStore.readRawData(handleMapping[i], m_dsBuffer, DATASTORE_BUFFER_SIZE);
+					copyToXmitBuffer(m_dsBuffer,DATASTORE_BUFFER_SIZE);
+					if(!USB_Write( usbPort, (char *) DataStoreTest::m_xmitBuffer, DATASTORE_BUFFER_SIZE ))
+					{
+						debug_printf("Write Failed \n");
+					}
+					for(UINT32 j = 0; j < 10000; j++);
+					InitializedsBuffer();
+				}
+				myDataStore.readRawData(handleMapping[lastRecord], m_dsBuffer, lastRecordSize);
+				copyToXmitBuffer(m_dsBuffer,lastRecordSize);
+				if(!USB_Write( usbPort,(char *) DataStoreTest::m_xmitBuffer, lastRecordSize ))
+				{
+					debug_printf("Write Failed \n");
+				}
+			}
+
+			InitializeRecvBuffer();
+			USB_Flush(usbPort);
+			USB_Flush(usbPort);
+		}
+	}
+
+}
+
+BOOL DataStoreTest::execute(int level)
+{
+	if(level == DSTEST_LEVEL2)
+		Level_2();
+
+}

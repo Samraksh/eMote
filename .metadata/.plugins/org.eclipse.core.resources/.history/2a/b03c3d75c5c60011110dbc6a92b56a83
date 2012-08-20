@@ -1,0 +1,102 @@
+// Name : Radio_decl.h
+//
+// Author : nived.sivadas@samraksh.com
+//
+// Description : Contains the interfaces used by the pal layer
+//
+#ifndef _RADIO_DECL_H_
+#define _RADIO_DECL_H_
+
+#include <tinyhal.h>
+
+typedef UINT8 ErrorType;
+
+class CCA
+{
+public:
+	// Request cca to the radio
+	static ErrorType request();
+};
+
+// This structure defines an interface for radio events
+struct IRadioEvents
+{
+	///////////////////////////////////////////////
+	// Description : Called on an sfd event from the radio driver layer
+	///////////////////////////////////////////////
+	BOOL (*SFDEvent)(void *data);
+
+	///////////////////////////////////////////////
+	// Description : Called on an efd event from the radio driver layer
+	///////////////////////////////////////////////
+	BOOL (*EFDEvent)(void *data);
+
+	///////////////////////////////////////////////
+	// Description : Called on completion of cca
+	//////////////////////////////////////////////
+	BOOL (*ccaDoneEvent) (void *data);
+
+	///////////////////////////////////////////////
+	// Description : Called on completion of radio send
+	//////////////////////////////////////////////
+	BOOL (*radioSendDoneEvent)(void *data);
+
+};
+
+struct RadioEventHandler
+{
+public:
+	IRadioEvents *m_RadioEvents;
+
+	// Temporarily passing null to the event handlers
+	BOOL SFDEvent(){ return this->m_RadioEvents->SFDEvent(NULL);}
+};
+
+extern "C"
+{
+void Radio_Initialize();
+// This function is reponsible for adding event handlers that will be called by the driver layer
+void Radio_AddEventHandlers(IRadioEvents *handlers);
+
+BOOL Radio_LoadPacket(void *data);
+
+BOOL Radio_SendPacket();
+}
+
+// Enables timestamping of radio packets, identical to the timestamping interface suggested by TEP132 in tinyos and closely follows
+// their rf230 implementation
+template<class T>
+class TimeStampLayer
+{
+
+
+public:
+	static BOOL isValid(T *msg)
+	{
+		return TRUE;
+	}
+
+	static UINT32 timestamp(T *msg)
+	{
+		return 0;
+	}
+
+	static void clear(T *msg)
+	{
+
+	}
+
+	static void set(T *msg, UINT32 value)
+	{
+
+	}
+
+	static void set(T *msg)
+	{
+
+	}
+
+};
+
+
+#endif

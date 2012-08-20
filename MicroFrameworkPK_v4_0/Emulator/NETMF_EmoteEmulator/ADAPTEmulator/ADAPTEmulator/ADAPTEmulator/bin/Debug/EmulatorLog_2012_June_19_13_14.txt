@@ -1,3 +1,0 @@
-13:14:51.754 :: Found Emulator COM port 1: Usart1
-13:14:51.754 :: Microsoft.SPOT.Emulator.Sample.EmulatorSerialPort
-13:14:51.754 :: Watching for communication from Model..
