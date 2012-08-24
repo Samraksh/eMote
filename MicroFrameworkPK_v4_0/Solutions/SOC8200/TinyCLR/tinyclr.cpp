@@ -5,8 +5,6 @@
 #include <tinyclr_application.h>
 #include <tinyhal.h>
 
-UINT32 gVar = 32;
-UINT32 sol = 0;
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -18,18 +16,10 @@ void ApplicationEntryPoint()
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
-    CPU_GPMC_Initialize();
-
-    int *tempMemory = (int *) 0x08000000;
-
-    *tempMemory = 0x4;
-    *tempMemory += 0x4;
-
-    //ClrStartup( clrSettings );
-	//GPIO_PIN g = 58;
-
-    //CPU_GPIO_EnableOutputPin(g,false);
-    //CPU_GPIO_SetPinState(g,true);
+	// For native only code, comment out ClrStartup()
+	// and insert your own code
+	
+    ClrStartup( clrSettings );
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );

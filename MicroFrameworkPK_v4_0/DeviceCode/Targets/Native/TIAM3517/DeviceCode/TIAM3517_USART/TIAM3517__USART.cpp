@@ -5,7 +5,7 @@
 #include <tinyhal.h>
 #include "../TIAM3517.h"
 
-#define AM3517_ENABLE_UART1
+//#define AM3517_ENABLE_UART1
 //#define AM3517_ENABLE_UART2
 #define AM3517_ENABLE_UART3		// Recommend always enabled
 //#define AM3517_ENABLE_UART4
@@ -104,16 +104,16 @@ BOOL TIAM3517_USART_Driver::TxShiftRegisterEmpty( int comPort ) {
 	Waits for tx fifo empty, write a character to the tx fifo
 */
 void TIAM3517_USART_Driver::WriteCharToTxBuffer( int comPort, UINT8 c ) {
-	int base, ssr, t, thr;
+	int base, thr, lsr;
 	
 	base = TIAM3517_getBase(comPort);
 	if (base == 0) return;
 	
-	ssr  = base + SAM_AM3517_UART_SSR;
 	thr  = base + SAM_AM3517_UART_THR;
+	lsr  = base + SAM_AM3517_UART_LSR;
 	
 	// Spin until buffer ready
-	while ( (__raw_readb(ssr) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
+	while ( (__raw_readb(lsr) & SAM_AM3517_UART_LSR_TX_FIFO_E) == 0 ) { ; }
 	
 	__raw_writeb(c, thr);
 }
