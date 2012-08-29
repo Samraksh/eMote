@@ -4,3 +4,7 @@ MicroFrameworkPK_v4_0/BuildOutput/ARM/
 MicroFrameworkPK_v4_0/BuildOutput/THUMB2/
 MicroFrameworkPK_v4_0/BuildOutput/public/
 MicroFrameworkPK_v4_0/BuildOutput/Windows/
+
+#ignore Eclipse files
+MicroFrameworkPK_v4_0/.cproject
+MicroFrameworkPK_v4_0/.project
