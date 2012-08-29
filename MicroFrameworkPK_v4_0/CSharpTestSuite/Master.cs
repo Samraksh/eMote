@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using CSharpTestSuite;
+using CSharpTestSuite.SchedulerTestSuite;
 
 namespace CSharpTestSuite
 {
@@ -8,14 +9,16 @@ namespace CSharpTestSuite
     {
         public static void Main()
         {
-           //ThreadPriorityTest threadTest = new ThreadPriorityTest();
-           //threadTest.Run();
-           RTOSTimerTest rtosTest = new RTOSTimerTest();
-           rtosTest.Run();
-           //GarbageCollectorTest gcTest = new GarbageCollectorTest();
-           //gcTest.Run();
-           //USBSpeedTest ut = new USBSpeedTest();
-           //ut.Run();
+        	//TimerTest timerTest = new TimerTest();
+            //timerTest.Run();
+           	//ThreadPriorityTest threadTest = new ThreadPriorityTest();
+           	//threadTest.Run();
+           	RTOSTimerTest rtosTest = new RTOSTimerTest();
+           	rtosTest.Run();
+           	//GarbageCollectorTest gcTest = new GarbageCollectorTest();
+           	//gcTest.Run();
+           	//USBSpeedTest ut = new USBSpeedTest();
+           	//ut.Run();
         }
     }
 }
