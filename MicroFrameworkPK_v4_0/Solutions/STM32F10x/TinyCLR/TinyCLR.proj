@@ -205,6 +205,10 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
     <DriverLibs Include="i2c_pal.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Radio\OMAC\dotNetMF.proj" />
+    <DriverLibs Include="omac_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\dotNetMF.proj" />
     <DriverLibs Include="usb_pal.$(LIB_EXT)" />
   </ItemGroup>
