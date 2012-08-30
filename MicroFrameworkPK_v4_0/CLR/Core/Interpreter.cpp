@@ -632,7 +632,6 @@ HRESULT CLR_RT_Thread::Execute_Inner()
 
     while(m_timeQuantumExpired == FALSE && !CLR_EE_DBG_IS( Stopped ))
     {
-    	CPU_GPIO_SetPinState( 24, TRUE);
     	CLR_RT_StackFrame *stack = CurrentFrame();
 
         #if defined(ENABLE_NATIVE_PROFILER)
@@ -709,7 +708,6 @@ HRESULT CLR_RT_Thread::Execute_Inner()
             }
         }
 
-        CPU_GPIO_SetPinState( 24, FALSE);
         {
 #if defined(TINYCLR_PROFILE_NEW_CALLS)
             CLR_PROF_HANDLER_CALLCHAIN( pm2, stack->m_callchain );
@@ -755,9 +753,7 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     }
                     #endif
                    
-                    CPU_GPIO_SetPinState( 25, TRUE);
                     hr = stack->m_nativeMethod( *stack );
-                    CPU_GPIO_SetPinState( 25, FALSE);
                 }
 
                 // check for exception injected by native code
@@ -787,7 +783,7 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     break;
                 }
             }
-            CPU_GPIO_SetPinState( 26, TRUE);
+
             switch(methodKind)
             {
             case CLR_RT_StackFrame::c_MethodKind_Native:
@@ -811,11 +807,9 @@ HRESULT CLR_RT_Thread::Execute_Inner()
                     CurrentFrame()->Pop();
                 }
             }
-            CPU_GPIO_SetPinState( 26, FALSE);
         }
 
     }
-
 
     TINYCLR_SET_AND_LEAVE(CLR_S_QUANTUM_EXPIRED);
 

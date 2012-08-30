@@ -43,9 +43,9 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\Compression.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\stdafx.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\WireProtocol.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\Compression.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\stdafx.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\Support\WireProtocol\WireProtocol.obj" />
 </ItemGroup>
 
 </Project>

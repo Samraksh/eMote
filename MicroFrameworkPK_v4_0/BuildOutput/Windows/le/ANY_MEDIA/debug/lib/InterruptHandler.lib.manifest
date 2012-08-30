@@ -43,7 +43,7 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Core\Hardware\InterruptHandler\InterruptHandler.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Core\Hardware\InterruptHandler\InterruptHandler.obj" />
 </ItemGroup>
 
 </Project>

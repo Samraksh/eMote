@@ -42,12 +42,13 @@
     <MMP_DAT_CreateDatabaseFile>$(BUILD_TREE_DAT)\CSharptestsuite.dat</MMP_DAT_CreateDatabaseFile>
   </PropertyGroup>
   <ItemGroup>
+    <!--<Compile Include="SchedulerTest\TimerTest.cs" />-->
     <!--<Compile Include="SchedulerTest\ThreadPriorityTest.cs" />-->
     <Compile Include="SchedulerTest\RTOSTimerTest.cs" />
-    <!-- <Compile Include="SchedulerTest\GarbageCollectorTest.cs" />-->
+    <!--<Compile Include="SchedulerTest\GarbageCollectorTest.cs" />-->
     <!--<Compile Include="USBTests\USBSpeedTest.cs" />-->
     <Compile Include="Master.cs" />
-     <!--<Compile Include="EmotePins.cs" />-->
+    <Compile Include="EmotePins.cs" />
     <!--<Compile Include="Properties\AssemblyInfo.cs" />-->
   </ItemGroup>
   <!--<ItemGroup>
@@ -57,9 +58,9 @@
     </EmbeddedResource>
   </ItemGroup>-->
   <ItemGroup>
-    <Reference Include="AsyncTimer, Version=4.0.1681.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="RealTimeTimer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BuildOutput\public\Debug\Client\dll\AsyncTimer.dll</HintPath>
+      <HintPath>..\Interops\Samraksh\RealTime\RealTimeTimer\RealTimeTimer\bin\Release\RealTimeTimer.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SPOT.Hardware, Version=4.0.1681.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

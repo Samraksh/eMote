@@ -33,15 +33,15 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyParser.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyParserDump.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyReparser.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser_Load.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser_Save.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\Linker.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\stdafx.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\Support.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyParser.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyParserDump.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\AssemblyReparser.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser_Load.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\ByteCodeParser_Save.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\Linker.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\stdafx.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\Parser\Support.obj" />
 </ItemGroup>
 
 </Project>

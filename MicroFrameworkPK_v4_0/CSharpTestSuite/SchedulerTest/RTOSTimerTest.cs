@@ -9,26 +9,27 @@ using System;
 using System.Threading;
 using Microsoft.SPOT.Hardware;
 using Microsoft.SPOT;
-//
-using AsyncTimer;
+
+using Samraksh.RealTime;
 using CSharpTestSuite;
 
-namespace CSharpTestSuite
+namespace CSharpTestSuite.SchedulerTestSuite
 {
     public class RTOSTimerTest
     {
-		private static OutputPort testPort0 = new OutputPort((Cpu.Pin)56, true);
+		private static OutputPort testPort0 = new OutputPort((Cpu.Pin)0, true);
 		private static int x=0; 				
 		
 			
         public void Run()
         {
-        	AsyncTimer.AsyncTimer atimer = new AsyncTimer.AsyncTimer("AsyncInteropTimer", 5000, 0);
-			NativeEventHandler   eventHandler = new NativeEventHandler( AsyncCallback );
+        	Samraksh.RealTime.Timer RT_Timer;
+        	NativeEventHandler RT_EventHandler = new NativeEventHandler(RT_TimerCallback); //RT_Timer handler
 					
             try
             {
-				atimer.OnInterrupt += eventHandler;					
+				RT_Timer = new Samraksh.RealTime.Timer("RealTimeInteropTimer", 5000 , 0);
+				RT_Timer.OnInterrupt += RT_EventHandler;				
             }
             catch (Exception e)
             {
@@ -43,7 +44,7 @@ namespace CSharpTestSuite
                 }		
         }
         
-        public void AsyncCallback( uint data1, uint data2, DateTime time)
+        public void RT_TimerCallback( uint data1, uint data2, DateTime time)
         {
 			Toggle0();
         }	

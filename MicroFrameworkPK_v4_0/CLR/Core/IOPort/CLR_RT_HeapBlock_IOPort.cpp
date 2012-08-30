@@ -216,8 +216,14 @@ HRESULT CLR_RT_HeapBlock_NativeEventDispatcher::StartDispatch( CLR_RT_Applicatio
     th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::ThreadTerminationCallback;
     th->m_terminationParameter = appInterrupt;
 #else
-    th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::RTOSThreadTerminationCallback;
-    th->m_terminationParameter = appInterrupt;
+    if(th->m_isRtosThread){
+    	th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::RTOSThreadTerminationCallback;
+    	th->m_terminationParameter = appInterrupt;
+    }else {
+    	 th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::ThreadTerminationCallback;
+    	 th->m_terminationParameter = appInterrupt;
+    }
+
 #endif
 
     TINYCLR_NOCLEANUP();

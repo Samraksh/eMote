@@ -44,14 +44,14 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Bitmap_Win32.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Font.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Font_Win32.obj" />
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Graphics.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Bitmap_Win32.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Font.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Font_Win32.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Graphics\Graphics.obj" />
 </ItemGroup>
 
-<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_PAL.libcatproj"/>
-<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_BMP_CLR.libcatproj"/>
-<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_Gif_CLR.libcatproj"/>
 <Import Project="$(SPOCLIENT)\Framework\Features\Graphics_JPG_CLR.libcatproj"/>
+<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_Gif_CLR.libcatproj"/>
+<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_BMP_CLR.libcatproj"/>
+<Import Project="$(SPOCLIENT)\Framework\Features\Graphics_PAL.libcatproj"/>
 </Project>

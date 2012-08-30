@@ -69,7 +69,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" />
   <!-- <Import Project="$(SPOCLIENT)\InteropLibrary\NativeCode\ADC_library.featureproj" /> -->
   <Import Project="$(SPOCLIENT)\InteropLibrary\SimpleInterop\NativeCode\SimpleInterop.featureproj" />	
-  <!--<Import Project="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\AsyncTimer.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\RealTimeTimer\RealTimeTimer.featureproj" />
+  <!-- <Import Project="$(SPOCLIENT)\Interops\TinyOS\NativeCode\TinyOS.featureproj" /> -->
   <!--<Import Project="$(SPOCLIENT)\Interops\Samraksh\Samraksh.featureproj" />-->
   <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.ADC\NativeCode\Samraksh.SPOT.ADC.featureproj" />
   <Import Project="$(SPOCLIENT)\Samraksh.SPOT\Samraksh.SPOT.USB\NativeCode\Samraksh.SPOT.USB.featureproj" />
@@ -82,7 +83,7 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\dotNetMF.proj" />
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup> 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\CorLib\dotNetMF.proj" />
     <PlatformIndependentLibs Include="CorLib.$(LIB_EXT)" />
@@ -314,8 +315,8 @@ The inport order is Interops, CLR core, PAL, HAL (inside each category it is alp
   </ItemGroup>
  <!-- 
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\AsyncTimer\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_AsyncTimer.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\RealTimeTimer\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_RealTimeTimer.$(LIB_EXT)" />
   </ItemGroup>
   -->
   <ItemGroup>

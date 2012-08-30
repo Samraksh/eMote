@@ -43,7 +43,7 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Core\I2C\CLR_RT_HeapBlock_I2CXAction.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\ANY_MEDIA\debug\obj\CLR\Core\I2C\CLR_RT_HeapBlock_I2CXAction.obj" />
 </ItemGroup>
 
 </Project>
