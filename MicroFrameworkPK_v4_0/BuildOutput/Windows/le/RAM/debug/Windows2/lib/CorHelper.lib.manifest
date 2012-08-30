@@ -31,7 +31,7 @@
 </PropertyGroup>
 
 <ItemGroup>
-    <ObjectFile Include="C:\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\CorHelper\corhlpr.obj" />
+    <ObjectFile Include="D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\BuildOutput\Windows\le\RAM\debug\Windows2\obj\CLR\Tools\CorHelper\corhlpr.obj" />
 </ItemGroup>
 
 </Project>
