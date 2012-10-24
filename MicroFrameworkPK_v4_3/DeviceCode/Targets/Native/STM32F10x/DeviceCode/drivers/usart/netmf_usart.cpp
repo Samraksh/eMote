@@ -364,10 +364,12 @@ void USART1_Handler(void *args)
 
 		  char c = (char) (USART_ReceiveData(USART1) & 0x7F); // read RX data
 
-		  debugInput[debugCounter++] = c;
+		  //debugInput[debugCounter++] = c;
 
-		  if(debugCounter == 150)
-			  debugCounter = 0;
+		  //for(int i = 0; i < 1000; i++);
+
+		  //if(debugCounter == 150)
+		  //	  debugCounter = 0;
 
 		  USART_AddCharToRxBuffer(COM1, c);
 		  Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
