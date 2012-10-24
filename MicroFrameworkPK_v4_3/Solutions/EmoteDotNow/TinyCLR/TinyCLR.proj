@@ -457,9 +457,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\SPI_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
+  <!--
   <ItemGroup>
     <DriverLibs Include="USART_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USART_HAL\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <DriverLibs Include="STM32F10x_usart.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="USB_Config_PAL_EmoteDotNow.$(LIB_EXT)" />
