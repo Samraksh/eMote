@@ -1,0 +1,120 @@
+/*
+ * Scheduler.h
+ *
+ *  Created on: Aug 30, 2012
+ *      Author: Mukundan
+ */
+
+#ifndef SCHEDULER_H_
+#define SCHEDULER_H_
+
+#include <Samraksh/Hal_util.h>
+#include "OMACConstants.h"
+#include "Handlers.h"
+#include "RadioControl.h"
+#include "DiscoveryTimesyncHandler.h"
+
+typedef class State{
+  private:
+	UINT8 CurrentState;
+  public:
+	//Changed state if in Idle
+	bool RequestState(UINT8 reqState){
+		if(CurrentState==S_IDLE){
+			CurrentState=reqState;
+			return TRUE;
+		}
+		else return FALSE;
+	}
+
+	//Force the state machine
+	void ForceState(UINT8 reqState){
+		CurrentState=reqState;
+	}
+
+	//Set the current state back to S_IDLE
+	void ToIdle(){CurrentState=S_IDLE;}
+
+	//@return TRUE if the state machine is in S_IDLE
+	bool IsIdle(){
+		if(CurrentState==S_IDLE) return TRUE;
+		else return FALSE;
+	}
+
+	//@return TRUE if the state machine is in the given state
+	bool IsState(UINT8 compState){
+		if(CurrentState==compState) return TRUE;
+		else return FALSE;
+	}
+
+	//Get the current state
+	UINT8 GetState(){return CurrentState;}
+}State_t;
+
+
+class OMACScheduler{
+	//static bool startMeasuringDutyCycle;
+	//static  UINT32 dutyCycleReset;
+	bool startMeasuringDutyCycle;
+	UINT32 dutyCycleReset;
+	UINT32	sendGT, dutyCycleOffset, syncOffset, totalRadioUp, totalDelay;
+#ifdef PROFILING
+	UINT32 startDelay, stopDelay;
+	UINT32 taskDelay1;
+	UINT32 minStartDelay, maxStartDelay;
+	UINT32 minStopDelay, maxStopDelay;
+#endif
+
+	float m_radioDelayAvg;
+	UINT32 radioTiming, m_lastPiggybackSlot;
+	UINT8 m_heartBeats, m_shldPrintDuty;
+	UINT8 m_nonSleepStateCnt;
+	HandlerType_t m_lastHandler;
+	bool m_busy;	//indicates if radio is busy.
+	UINT32 m_counter, m_counterOffset;
+
+	//Define private methods
+private:
+	void Sleep();
+	void Stop();
+	bool IsNeighborGoingToReceive();
+	void PostExecution();
+	void PrintDutyCycle();
+
+	//Define public methods
+public:
+	State_t ProtoState;
+	State_t InputState;
+	DiscoveryTimesyncHandler m_DiscoveryTimesyncHandler;
+	DataReceptionHandler m_DataReceptionHandler;
+	DataTransmissionHandler m_DataTransmissionHandler;
+
+	void Initialize();
+	void UnInitialize();
+	void StartSlotAlarm(UINT64 Delay);	//CounterAlarm.Start from TinyOS
+	void SlotAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS
+
+	void StartDataAlarm(UINT64 Delay);	//DataAlarm.Start from TinyOS
+	void DataAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS
+	bool IsRunningDataAlarm(); //DataAlarm.IsRunning from TinyOS
+
+	void StartHeartBeatTimer(UINT64 Delay);	//HeartBeatTimer.Start from TinyOS
+	void HeartBeatTimerHandler(void* Param);
+
+	//Main Tasks
+	bool RunSlotTask();
+	bool RadioTask();
+
+	UINT32 GetCounterOffset(){
+		return m_counterOffset;
+	}
+	UINT16 GetRadioDelay(){
+		return (UINT16)m_radioDelayAvg;
+	}
+
+}OMACScheduler_t;
+
+
+
+
+#endif /* SCHEDULER_H_ */
