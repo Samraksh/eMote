@@ -10,6 +10,17 @@
 #include "OMACConstants.h"
 #include "Scheduler.h"
 
+OMACScheduler *g_scheduler;
+
+void PublicBeaconNCallback(void * param){
+	g_scheduler->m_DiscoveryTimesyncHandler.BeaconNTimerHandler(param);
+}
+
+void DiscoveryTimesyncHandler::SetParentSchedulerPtr(void * scheduler){
+  		m_parentScheduler = scheduler;
+  		g_scheduler = (OMACScheduler*)scheduler;
+  	}
+
 void DiscoveryTimesyncHandler::Initialize(){
 	m_receivedPiggybackBeacon = FALSE;
 	m_idxForComputation = INVALID_INDEX;
@@ -30,15 +41,32 @@ void DiscoveryTimesyncHandler::Initialize(){
 }
 
 void DiscoveryTimesyncHandler::ExecuteSlot(UINT32 slotNum){
-
+	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
+	Beacon1();
+	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
 }
 
 UINT8 DiscoveryTimesyncHandler::ExecuteSlotDone(){
-
+	g_scheduler->Stop();
 }
 
-UINT16 DiscoveryTimesyncHandler::NewSlot(UINT32 slotNum){
+UINT32 DiscoveryTimesyncHandler::NewSlot(UINT32 slotNum){
+	UINT32 p1Remaining, p2Remaining;
+	p1Remaining = slotNum % m_p1;
+	p2Remaining = slotNum % m_p2;
 
+	if (p1Remaining == 0 || p2Remaining == 0) {
+		return 0;
+	}
+	else  {
+		p1Remaining = m_p1 - p1Remaining;
+		p2Remaining = m_p2 - p2Remaining;
+		if (p1Remaining >= 0xffff >> SLOT_PERIOD_BITS && p2Remaining >= 0xffff >> SLOT_PERIOD_BITS) {
+			return 0xffff;
+		} else {
+			return p1Remaining < p2Remaining ? p1Remaining << SLOT_PERIOD_BITS : p2Remaining << SLOT_PERIOD_BITS;
+		}
+	}
 }
 
 
@@ -47,19 +75,20 @@ void DiscoveryTimesyncHandler::PostExecuteSlot(){
 }
 
 
-void DiscoveryTimesyncHandler::SetWakeup(bool shldWakeup){
+void DiscoveryTimesyncHandler::SetWakeup(BOOL shldWakeup){
 
 }
 
 ////////////////////Private Functions////////////////////////////
 
 //Mukundan: Can add conditions to suppress beaconing, will keep this true for now
-bool DiscoveryTimesyncHandler::ShouldBeacon(){
+BOOL DiscoveryTimesyncHandler::ShouldBeacon(){
 	return TRUE;
 }
 
 
 DeviceStatus DiscoveryTimesyncHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
+	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
 	//m_timeSyncBeacon = (TimeSyncMsg*)m_FTSPTimeSync.GetPayload(msgPtr, sizeof(TimeSyncMsg));
@@ -93,7 +122,24 @@ DeviceStatus DiscoveryTimesyncHandler::Beacon(RadioAddress_t dst, Message_15_4_t
 		// Why busy? Timing issue?
 		e = DS_Busy;
 	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
 	return e;
+}
+
+void DiscoveryTimesyncHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
+	if (msg != &m_timeSyncBeaconBuffer) {
+		m_busy = FALSE;
+		//signal AMSend.sendDone(ptr, error);
+		return;
+	}
+
+	m_busy = FALSE;
+	#ifndef DISABLE_SIGNAL
+			//call SlotScheduler.printState();
+			//signalBeaconDone(error, call GlobalTime.getLocalTime());
+	#endif
+
+	this->ExecuteSlotDone();
 }
 
 void DiscoveryTimesyncHandler::Beacon1(){
@@ -120,15 +166,16 @@ void DiscoveryTimesyncHandler::BeaconN(){
 	}
 }
 
-void DiscoveryTimesyncHandler::StartBeaconNTimer(bool oneShot, UINT64 delay){
+void DiscoveryTimesyncHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
 	//Start the BeaconTimer
 		//HALTimer()
 		if(delay==0){
-			//start alarm in default periodic mode
-			//HALTimer :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+			//start default time
+			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+
 		}else {
 			//Change next slot time with delay
-			//HALTimer :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 		}
 }
 
@@ -143,6 +190,7 @@ void DiscoveryTimesyncHandler::BeaconNTimerHandler(void* Param){
 		m_busy = FALSE;
 		ExecuteSlotDone();
 	}
+	//gHalTimerManagerObject.StopTimer(7);
 }
 
 

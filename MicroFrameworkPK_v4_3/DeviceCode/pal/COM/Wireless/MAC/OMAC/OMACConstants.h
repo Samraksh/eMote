@@ -147,9 +147,10 @@ enum {
   SLOT_PERIOD_BITS    = 3 + 5,  /*5 = # of bits of TICKS_PER_MILLI, 4 = # of bits in SLOT_PERIOD_MILLI*/
 #else
   SLOT_PERIOD_MILLI     = 16,     /*modify this along with SLOT_PERIOD_BITS*/
-  SLOT_PERIOD_BITS    = 4 + 5,  /*5 = # of bits of TICKS_PER_MILLI, 4 = # of bits in SLOT_PERIOD_MILLI*/
+  SLOT_PERIOD_BITS    = 4 + 13,  /*13 = # of bits of TICKS_PER_MILLI, assuming its a 10Mhz clock, 4 = # of bits in SLOT_PERIOD_MILLI*/
 #endif
-  SLOT_PERIOD   = SLOT_PERIOD_MILLI * TICKS_PER_MILLI,
+  //SLOT_PERIOD   = SLOT_PERIOD_MILLI * TICKS_PER_MILLI,
+  SLOT_PERIOD   = SLOT_PERIOD_MILLI,
   DWELL_TIME        = 10,
   /* sender margin compensates for time sync jitter, packet preload delay
    * and radio startup jitter*/

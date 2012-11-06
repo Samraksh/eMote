@@ -68,7 +68,7 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 
 	UINT8* msgcheck = (UINT8 *) msg;
 
 	if(radioID == RF231RADIO)
-		return (void *) grf231Radio.Send(msg, size);
+		return (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
 	else
 		return NULL;
 }

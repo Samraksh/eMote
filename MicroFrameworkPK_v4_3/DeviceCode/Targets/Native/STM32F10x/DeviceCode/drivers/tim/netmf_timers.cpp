@@ -17,7 +17,7 @@ HAL_CALLBACK_FPN HALTimerHandlerFPN = NULL;
 
 void HALTimerHardwareHandler(void *args);
 
-#define HALTIMERDEBUG
+//#define HALTIMERDEBUG
 
 //	Returns true of false depending on whether timer creation was successful
 //

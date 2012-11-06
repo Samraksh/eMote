@@ -6,11 +6,18 @@
  */
 
 #include "Scheduler.h"
+#include "OMAC.h"
+
 extern RadioControl_t g_omac_RadioControl;
+extern OMAC g_OMAC;
+
+void PublicSlotAlarmHanlder(void * param){
+	g_OMAC.m_omac_scheduler.SlotAlarmHandler(param);
+}
 
 void OMACScheduler::Initialize(){
 	//Initialize variables
-	startMeasuringDutyCycle=FALSE;
+	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
 	dutyCycleReset = 0;
 	totalRadioUp = 0;
 
@@ -24,7 +31,7 @@ void OMACScheduler::Initialize(){
 	InputState.ToIdle();
 
 	m_heartBeats = 0, m_shldPrintDuty = 0;
-	m_counter = 0;
+	m_slotNo = 0;
 	m_nonSleepStateCnt = 0;
 	m_lastHandler = NULL_HANDLER;
 	m_lastPiggybackSlot = 0;
@@ -39,14 +46,16 @@ void OMACScheduler::Initialize(){
 
 	//Initialize Handlers
 	 m_DiscoveryTimesyncHandler.SetParentSchedulerPtr(this);
-
+	 m_DiscoveryTimesyncHandler.Initialize();
+	 m_DataReceptionHandler.Initialize();
+	 m_DataTransmissionHandler.Initialize();
 }
 void OMACScheduler::UnInitialize(){
 
 }
 
 bool OMACScheduler::RunSlotTask(){
-	UINT16 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0;
+	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0;
 
 #ifdef PROFILING
 	taskDelay1 = call SubLocalTime.get() - taskDelay1;
@@ -54,7 +63,7 @@ bool OMACScheduler::RunSlotTask(){
 
 	// the newSlot() for receiver must be called every slot as there are state update
 	// operations in it
-	rxSlotOffset = m_DataReceptionHandler.NewSlot(m_counter);
+	rxSlotOffset = m_DataReceptionHandler.NewSlot(m_slotNo);
 
 	if(InputState.IsState(I_DATA_PENDING) || !(ProtoState.IsIdle())) {
 		//printf("[S %u I %u\n] incorrect state\n", call State.getState(),
@@ -66,8 +75,8 @@ bool OMACScheduler::RunSlotTask(){
 	/* notice that the transmission handler returns the ticks (1/32 of a milli sec) for the
 	 * next scheduled transmission, whereas the reception handler returns the number of slots
 	 * before the next scheduled reception*/
-	txSlotOffset = m_DataTransmissionHandler.NewSlot(m_counter);
-	beaconSlotOffset = m_DiscoveryTimesyncHandler.NewSlot(m_counter);
+	txSlotOffset = m_DataTransmissionHandler.NewSlot(m_slotNo);
+	beaconSlotOffset = m_DiscoveryTimesyncHandler.NewSlot(m_slotNo);
 	//	if (rxSlotOffset < 2 * SLOT_PERIOD_32KHZ
 	//		|| beaconSlotOffset < 2 * SLOT_PERIOD_32KHZ || txSlotOffset < 2 * SLOT_PERIOD_32KHZ ) {
 	//		call OMacSignal.yield();
@@ -75,6 +84,7 @@ bool OMACScheduler::RunSlotTask(){
 	//		call OMacSignal.resume();
 	//	}
 
+	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
 		if( !IsRunningDataAlarm()) {
 			StartDataAlarm(txSlotOffset);
@@ -103,9 +113,9 @@ bool OMACScheduler::RunSlotTask(){
 		else if(beaconSlotOffset == 0) {
 		// && ((rxSlotOffset > 2
 		//	* SLOT_PERIOD_32KHZ && txSlotOffset > 2 * SLOT_PERIOD_32KHZ))) {
-			if (startMeasuringDutyCycle) {
-				return TRUE;
-			}
+		//	if (startMeasuringDutyCycle) {
+			//	return TRUE;
+		//	}
 			InputState.ToIdle();
 			//call OMacSignal.yield();
 			if(!RadioTask()) {
@@ -137,15 +147,15 @@ bool OMACScheduler::RadioTask(){
 	if(e == DS_Already) {
 		switch(InputState.GetState()) {
 			case I_DATA_PENDING :
-				m_DataTransmissionHandler.ExecuteSlot(m_counter);
+				m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
 			case I_WAITING_DATA :
-				m_DataReceptionHandler.ExecuteSlot(m_counter);
+				m_DataReceptionHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
 			default :
-				m_DiscoveryTimesyncHandler.ExecuteSlot(m_counter);
+				m_DiscoveryTimesyncHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
 				break;
 		}
@@ -164,37 +174,45 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 	//HALTimer()
 	if(Delay==0){
 		//start alarm in default periodic mode
-		//HALTimer :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+		gHalTimerManagerObject.CreateTimer(3, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
 	}else {
 		//Change next slot time with delay
-		//HALTimer :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+		gHalTimerManagerObject.CreateTimer(3, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
 	}
 
 }
 
 void OMACScheduler::SlotAlarmHandler(void* Param){
-	UINT64 localTime, nextWakeup, oldCounter;
+	CPU_GPIO_SetPinState((GPIO_PIN) 9, TRUE);
+	UINT64 localTime, nextWakeup, oldSlotNo;
 	localTime = Time_GetLocalTime();
 	//increment counter
 #ifdef PROFILING
 	taskDelay1 = localTime;
 #endif
 
-	if (m_counter == 0) {
-		m_counterOffset = localTime - (1 << SLOT_PERIOD_BITS);
-		m_counter = 1;
+	//Compensation for alarm drift becuase of cpu doing other things:
+	//m_slotNoOffset: is the offset it fires the first time
+	//Doublecheck logic: the logic is not working now
+	/*if (m_slotNo == 0) {
+		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
+		m_slotNo = 1;
 	}
 	else {
-		oldCounter = m_counter;
+		oldSlotNo = m_slotNo;
 		//have to compensate for numerical errors
-		m_counter = (localTime - m_counterOffset) >> SLOT_PERIOD_BITS;
-		//INVARIANT: localTime = m_counter << SLOT_PERIOD_BITS + m_counterOffset
-		if (m_counter <= oldCounter) {
-			m_counter = oldCounter + 1;
+		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
+		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
+		if (m_slotNo <= oldSlotNo) {
+			m_slotNo = oldSlotNo + 1;
 		}
-	}
-	nextWakeup = ((m_counter + 1) << SLOT_PERIOD_BITS) + m_counterOffset - localTime;
-	this->StartSlotAlarm(nextWakeup);
+	}*/
+	//Using a simple increament for the timebeing
+	m_slotNo++;
+
+	//nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
+	//this->StartSlotAlarm(nextWakeup);
+
 
 	//Mukundan: At this point, instead of posting a task as in TinyOS,
 	//just run the task directly
@@ -202,9 +220,10 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 	this->RunSlotTask();
 
 
-	if(m_counter % 1000 == 0) {
-		debug_printf("curSlot %lu time %lu\n", m_counter, localTime);
+	if(m_slotNo % 1000 == 0) {
+		debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
 	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 9, FALSE);
 }
 
 //////HeartBeat Timer APIs
@@ -239,28 +258,33 @@ void OMACScheduler::StartDataAlarm(UINT64 Delay){
 }
 
 void OMACScheduler::DataAlarmHandler(void* Param){
-	UINT64 localTime, nextWakeup, oldCounter;
+	UINT64 localTime, nextWakeup, oldSlotNo;
 	localTime = Time_GetLocalTime();
+	//localTicks = HAL_Time_CurrentTicks();
+
 	//increment counter
 #ifdef PROFILING
 	taskDelay1 = localTime;
 #endif
 
-	if (m_counter == 0) {
-		m_counterOffset = localTime - (1 << SLOT_PERIOD_BITS);
-		m_counter = 1;
+	/*
+	 * Compenstation for alarm drift: See Wenjies notes
+	 * if (m_slotNo == 0) {
+		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
+		m_slotNo = 1;
 	}
 	else {
-		oldCounter = m_counter;
+		oldSlotNo = m_slotNo;
 		//have to compensate for numerical errors
-		m_counter = (localTime - m_counterOffset) >> SLOT_PERIOD_BITS;
-		//INVARIANT: localTime = m_counter << SLOT_PERIOD_BITS + m_counterOffset
-		if (m_counter <= oldCounter) {
-			m_counter = oldCounter + 1;
+		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
+		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
+		if (m_slotNo <= oldSlotNo) {
+			m_slotNo = oldSlotNo + 1;
 		}
 	}
-	nextWakeup = ((m_counter + 1) << SLOT_PERIOD_BITS) + m_counterOffset - localTime;
+	nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
 	this->StartSlotAlarm(nextWakeup);
+	*/
 
 	//Mukundan: At this point, instead of posting a task as in TinyOS,
 	//just run the task directly
@@ -268,8 +292,8 @@ void OMACScheduler::DataAlarmHandler(void* Param){
 	this->RunSlotTask();
 
 
-	if(m_counter % 1000 == 0) {
-		debug_printf("curSlot %lu time %lu\n", m_counter, localTime);
+	if(m_slotNo % 1000 == 0) {
+		debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
 	}
 }
 
@@ -300,6 +324,8 @@ void OMACScheduler::Stop(){
 	switch(ProtoState.GetState()) {
 		case S_IDLE :
 			InputState.ToIdle();
+			return;
+		case S_BEACON_1://State will soon change to S_BEACON_N
 			return;
 		default :
 			ProtoState.ForceState(S_STOPPING);

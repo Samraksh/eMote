@@ -22,7 +22,7 @@ public:
 	UINT8 MyAppID;
 	Payload_t msg;
 	MacEventHandler myEventHandler;
-	CSMAConfig Config;
+	MacConfig Config;
 	UINT8 MacId;
 	UINT16 SendCount;
 	UINT16 RcvCount;

@@ -5,7 +5,118 @@
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
-	return (void *)NULL;
+	INIT_STATE_CHECK();
+
+	GLOBAL_LOCK(irq);
+	//__ASM volatile("cpsid i");
+	//pulse 1
+	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+	UINT32 channel = 0;
+	UINT32 reg = 0;
+	UINT32 read = 0;
+
+	tx_length = size;
+
+	if(cmd != CMD_NONE || state == STATE_BUSY_TX)
+		return msg;
+
+
+	// Send gives the CMD_TRANSMIT to the radio
+	//cmd = CMD_TRANSMIT;
+#if 0
+	if(state != STATE_PLL_ON)
+		return DS_Busy;
+#endif
+	//pulse 2
+	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+	// Push radio to pll on state
+	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
+	{
+		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+
+		// Wait for radio to go into pll on and return efail if the radio fails to transition
+		DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+
+		//WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
+
+		//DID_STATE_CHANGE(RF230_RX_ON);
+	}
+
+	UINT8* ldata =(UINT8*) msg;
+
+	//radio_frame_write(data, 119);
+	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+
+	UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
+
+	UINT32 timeOffset = timestamp - eventTime;
+
+	//pulse 3
+	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+
+
+	SlptrSet();
+	for(UINT8 i =0; i < 10; i++);
+	SlptrClear();
+
+	//pulse 4
+	//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+	// Load buffer before initiating the transmit command
+	SelnClear();
+
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+
+	// Including FCS which is automatically generated and is two bytes
+	CPU_SPI_ReadWriteByte(config, size);
+
+	UINT8 lLength = size + sizeof(eventTime);
+
+	do
+	{
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}while(--lLength != 0);
+
+	lLength = sizeof(eventTime);
+
+	do
+	{
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}while(--lLength != 0);
+
+	CPU_SPI_ReadByte(config);
+
+	//pulse 5
+	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+	SelnSet();
+
+	//WriteRegister(RF230_TRX_STATE, RF230_TX_START);
+
+	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+
+	state = STATE_BUSY_TX;
+
+	// exchange bags
+	Message_15_4_t* temp = tx_msg_ptr;
+	tx_msg_ptr = (Message_15_4_t*) msg;
+	cmd = CMD_TRANSMIT;
+
+	//pulse 6
+	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+
+	//__ASM volatile("cpsie i");
+	return temp;
+
 }
 
 void* RF231Radio::Send(void* msg, UINT16 size)
@@ -116,7 +227,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
-	*radioID = Radio<Message_15_4_t>::GetRadioID();
 	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
 			return DS_Fail;
 
@@ -260,7 +370,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 	}
 
-
+	UINT8 tempId = Radio<Message_15_4_t>::GetRadioID();
+	*radioID = tempId;
+	return DS_Success;
 }
 
 //template<class T>

@@ -9,9 +9,11 @@
 #define DISCOVERYTIMESYNCHANDLER_H_
 
 #include <Samraksh/Message.h>
+#include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
 #include "FTSPTimeSync.h"
+
 
 
 typedef struct MessageCacheEntry {
@@ -41,7 +43,7 @@ typedef struct TableItem
 	UINT16  counterOffset;
 	UINT8   numErrors;
 	UINT8     size;
-	bool    isInTransition;
+	BOOL    isInTransition;
 	UINT32  localAvg;
 	INT32   offsetAvg;
 	float   skew;
@@ -56,7 +58,7 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	UINT8		m_transitionFromDone = 0;
 #endif
 	void * m_parentScheduler;
-	bool 		m_busy, m_receivedPiggybackBeacon, m_lockSeed;
+	BOOL 		m_busy, m_receivedPiggybackBeacon, m_lockSeed;
 	// Wenjie: worst case interval between two consecutive received beacons
 	// Declare oneself as root if heartBeat >= discoInterval * ROOT_TIMEOUT
 	UINT32	discoInterval;
@@ -65,7 +67,7 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	// the number of entries after clock wrap
 	UINT32		m_tableEntriesUnderTransition[MAX_NBR_SIZE];
 	UINT32 	m_idxForComputation;
-	bool		m_inTransition;
+	BOOL		m_inTransition;
 
 	UINT8		m_nbrCnt;
 	/*
@@ -90,10 +92,11 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	UINT8		m_updateIdx;
 
     //private methods
-	bool ShouldBeacon();
+	BOOL ShouldBeacon();
 	void Beacon1();
 	void BeaconN();
 	DeviceStatus Beacon(RadioAddress_t, Message_15_4_t *);
+
 	// neighbor table util functions
 	UINT8 GetFreeIdx();
 	DeviceStatus NbrToIdx(UINT16 nodeid, UINT8* idx);
@@ -108,17 +111,15 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	FTSPTimeSync_t m_FTSPTimeSync;
 
 	void Initialize();
-	void StartBeaconNTimer(bool oneshot, UINT64 delay);	//Start BeaconN Timer
+	void StartBeaconNTimer(BOOL oneshot, UINT64 delay);	//Start BeaconN Timer
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing
-  	UINT16 NewSlot(UINT32 slotNum);
+	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
+  	UINT32 NewSlot(UINT32 slotNum);
   	void ExecuteSlot(UINT32 slotNum);
   	UINT8 ExecuteSlotDone();
   	void PostExecuteSlot();
-  	void SetWakeup(bool shldWakeup);
-  	void SetParentSchedulerPtr(void * scheduler){
-  		m_parentScheduler = scheduler;
-  	}
-
+  	void SetWakeup(BOOL shldWakeup);
+  	void SetParentSchedulerPtr(void * scheduler);
 };
 
 

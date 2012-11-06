@@ -31,7 +31,7 @@ void SendAckHandler (void* msg, UINT16 size, NetOpStatus status){
 
 BOOL MACTest::Initialize(){
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
-	MF_NODE_ID=10;	//Set you address
+	//MF_NODE_ID=10;	//Set you address
 	Config.Network = 138;
 	myEventHandler.SetRecieveHandler(&ReceiveHandler);
 	myEventHandler.SetSendAckHandler(&SendAckHandler);
@@ -50,7 +50,7 @@ BOOL MACTest::StartTest(){
 	msg.MSGID=0;
 	SendCount=0;
 	RcvCount=0;
-	gHalTimerManagerObject.CreateTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
+	//gHalTimerManagerObject.CreateTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
 	return TRUE;
 }
 

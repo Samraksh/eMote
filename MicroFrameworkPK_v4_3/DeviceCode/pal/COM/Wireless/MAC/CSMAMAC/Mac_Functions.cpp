@@ -13,7 +13,7 @@ extern csmaMAC gcsmaMacObject;
 //Basic functions
 DeviceStatus MAC_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
 
-	return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (CSMAConfig*)config) ;
+	return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
 }
 
 DeviceStatus MAC_UnInitialize(UINT8 macID){

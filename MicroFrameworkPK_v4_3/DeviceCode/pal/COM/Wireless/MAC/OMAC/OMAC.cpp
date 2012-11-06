@@ -22,7 +22,25 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 
 }
 void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
+	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
 
+		//Demutiplex packets received based on type
+		switch(rcv_msg->GetHeader()->GetType()){
+			case MFM_TIMESYNC:
+				g_OMAC.m_omac_scheduler.m_DiscoveryTimesyncHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+				break;
+			case MFM_DATA:
+
+				break;
+			case MFM_ROUTING:
+				break;
+			case MFM_NEIGHBORHOOD:
+				break;
+			default:
+				break;
+		};
+
+		//return msg;
 }
 
 
@@ -95,7 +113,7 @@ BOOL OMAC::UnInitialize()
 
 Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
-	Message_15_4_t *Next;
+	//Message_15_4_t *Next;
 
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
@@ -114,7 +132,7 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 	};
 
 
-	return Next;
+	return msg;
 }
 
 

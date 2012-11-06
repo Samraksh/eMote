@@ -74,6 +74,10 @@ DeviceStatus FTSPTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, U
 	g_omac_RadioControl.Send_TimeStamped(address,msg,sizeof(Message_15_4_t),event_time);
 }
 
+void SendAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
+
+}
+
 DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 
 	return DS_Success;

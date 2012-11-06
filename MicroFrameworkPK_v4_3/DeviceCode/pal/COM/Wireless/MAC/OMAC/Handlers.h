@@ -44,6 +44,7 @@ public:
 
 class DataTransmissionHandler: public SlotHandler {
 public:
+	void Initialize();
 	UINT16 NewSlot(UINT32 slotNum);
 	void ExecuteSlot(UINT32 slotNum);
 	UINT8 ExecuteSlotDone();

@@ -9,10 +9,13 @@
 #define SCHEDULER_H_
 
 #include <Samraksh/Hal_util.h>
+#include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
 #include "RadioControl.h"
 #include "DiscoveryTimesyncHandler.h"
+
+extern HALTimerManager gHalTimerManagerObject;
 
 typedef class State{
   private:
@@ -71,12 +74,12 @@ class OMACScheduler{
 	UINT8 m_nonSleepStateCnt;
 	HandlerType_t m_lastHandler;
 	bool m_busy;	//indicates if radio is busy.
-	UINT32 m_counter, m_counterOffset;
+	UINT32 m_slotNo, m_slotNoOffset;
+
 
 	//Define private methods
 private:
 	void Sleep();
-	void Stop();
 	bool IsNeighborGoingToReceive();
 	void PostExecution();
 	void PrintDutyCycle();
@@ -104,9 +107,10 @@ public:
 	//Main Tasks
 	bool RunSlotTask();
 	bool RadioTask();
+	void Stop();
 
 	UINT32 GetCounterOffset(){
-		return m_counterOffset;
+		return m_slotNoOffset;
 	}
 	UINT16 GetRadioDelay(){
 		return (UINT16)m_radioDelayAvg;

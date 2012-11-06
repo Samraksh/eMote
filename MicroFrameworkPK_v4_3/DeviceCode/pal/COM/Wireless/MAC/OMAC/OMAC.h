@@ -22,7 +22,7 @@
 #include "Scheduler.h"
 #include "Handlers.h"
 
-typedef Buffer_15_4<16> Buffer_15_4_t;
+typedef Buffer_15_4<8> Buffer_15_4_t;
 
 class OMAC: public MAC <Message_15_4_t, MacConfig>{
 
@@ -41,9 +41,10 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 
 	//Protocol variables
 	static const UINT8 SlotLength = 8; //slot Length in milliseconds
-	OMACScheduler m_omac_scheduler;
 
   public:
+
+	OMACScheduler m_omac_scheduler;
 
 	//Override base class methods here, implement them later in cpp file
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);

@@ -7,6 +7,12 @@
 
 #include "Handlers.h"
 
+
+void DataReceptionHandler::Initialize(){
+
+}
+
+
 void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
 
 }

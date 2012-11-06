@@ -179,7 +179,9 @@ public:
 
 
 	//virtual UINT8 GetRadioID()
-	UINT8 GetRadioID();
+	UINT8 GetRadioID(){
+		return RadioId;
+	}
 
 	void SetRadioID(UINT8 id)
 	{

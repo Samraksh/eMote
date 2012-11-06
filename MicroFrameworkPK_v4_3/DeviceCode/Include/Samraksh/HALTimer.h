@@ -23,7 +23,7 @@ typedef void (*TIMER_CALLBACK_FPN)( void* arg );
 class HALTimer
 {
 	// The Id referenced by the use of the timer
-	UINT32 m_timer_id_;
+	UINT8 m_timer_id_;
 
 	// The expected start time of the timer
 	UINT32 m_start_time_;
@@ -41,7 +41,7 @@ class HALTimer
 	BOOL   m_reserved_;
 
 	// maintians the number of ticks left to expire
-	BOOL   m_ticksTillExpire_;
+	UINT64   m_ticksTillExpire_;
 
 	// A pointer to the function that will be called on an interrupt
 	TIMER_CALLBACK_FPN m_callBack_;
@@ -49,23 +49,23 @@ class HALTimer
 public:
 	// Mutators for all the attributes of HALTimer Object
 
-	void set_m_ticksTillExpire(UINT32 d)
+	void set_m_ticksTillExpire(UINT64 d)
 	{
 		m_ticksTillExpire_ = d;
 
 	}
 
-	UINT32 get_m_ticksTillExpire()
+	UINT64 get_m_ticksTillExpire()
 	{
 		return m_ticksTillExpire_;
 	}
 
-	void set_m_timer_id(UINT32 timer_id)
+	void set_m_timer_id(UINT8 timer_id)
 	{
 		m_timer_id_ = timer_id;
 	}
 
-	UINT32 get_m_timer_id()
+	UINT8 get_m_timer_id()
 	{
 		return m_timer_id_;
 	}
@@ -135,38 +135,38 @@ class HALTimerManager
 {
 	HALTimer m_timer[NUM_HALTIMER_TIMERS];
 
-	UINT32 m_timer_id_map[NUM_HALTIMER_TIMERS];
+	UINT8 m_timer_id_map[NUM_HALTIMER_TIMERS];
 
-	UINT32 m_active_timer[NUM_HALTIMER_TIMERS];
+	UINT8 m_active_timer[NUM_HALTIMER_TIMERS];
 
-	UINT32 m_number_active_timers_;
+	UINT8 m_number_active_timers_;
 
-	static UINT32 m_current_timer_id_;
+	static UINT8 m_current_timer_id_;
 
-	UINT32 timer_resolution_in_ticks;
+	UINT64 timer_resolution_in_ticks;
 
 
-	BOOL DoesTimerExist(UINT32 id)
+	UINT8 DoesTimerExist(UINT8 id)
 	{
 		for(int i = 0; i < m_current_timer_id_; i++)
 		{
 			// Uncomment once reclaim strategy is clear
 			//if(m_timer[i].get_m_timer_id() == id && m_timer[id].get_m_is_running() == TRUE)
 			if(m_timer[i].get_m_timer_id() == id)
-				return TRUE;
+				return i;
 
 		}
-		return FALSE;
+		return NUM_HALTIMER_TIMERS+1;
 	}
 
 public:
 
-	UINT32* GetActiveTimerList()
+	UINT8* GetActiveTimerList()
 	{
 		return m_active_timer;
 	}
 
-	UINT32 get_m_number_of_active_timers()
+	UINT8 get_m_number_of_active_timers()
 	{
 		return m_number_active_timers_;
 	}
@@ -176,21 +176,21 @@ public:
 		return m_timer;
 	}
 
-	UINT32 get_m_current_timer_id()
+	UINT8 get_m_current_timer_id()
 	{
 		return m_current_timer_id_;
 	}
 
-	UINT32 get_timer_resolution()
+	UINT64 get_timer_resolution()
 	{
 		return timer_resolution_in_ticks;
 	}
 
 	BOOL Initialize();
 
-	BOOL CreateTimer(UINT32 timer_id, UINT32 start_time, UINT32 dtime, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
+	BOOL CreateTimer(UINT8 timer_id, UINT32 start_time, UINT32 dtime, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 
-	BOOL StopTimer(UINT32 timer_id);
+	BOOL StopTimer(UINT8 timer_id);
 
 	BOOL DeInitialize();
 
@@ -198,7 +198,7 @@ public:
 
 };
 
-UINT32 HALTimerManager::m_current_timer_id_ = 0;
+UINT8 HALTimerManager::m_current_timer_id_ = 0;
 
 HALTimerManager gHalTimerManagerObject;
 

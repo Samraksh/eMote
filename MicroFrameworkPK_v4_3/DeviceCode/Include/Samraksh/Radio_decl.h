@@ -14,9 +14,6 @@
 #include <tinyhal.h>
 #include "Hal_util.h"
 
-////////////////////////Radio ID definition///////////////////
-UINT16 MF_NODE_ID;
-
 //Common RadioAddress type for all types of radios and MACs
 typedef UINT16 RadioAddress_t;
 #define RADIO_BROADCAST_ADDRESS 65535

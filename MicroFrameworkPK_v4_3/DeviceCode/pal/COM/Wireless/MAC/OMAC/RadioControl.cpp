@@ -35,5 +35,5 @@ DeviceStatus RadioControl::Stop(){
 }
 
 DeviceStatus RadioControl::Start(){
-	return DS_Success;
+	return DS_Already;
 }
