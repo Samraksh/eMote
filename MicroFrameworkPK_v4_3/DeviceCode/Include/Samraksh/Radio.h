@@ -4,11 +4,18 @@
 /* === INCLUDES ============================================================ */
 #include <Tinyhal_types.h>
 #include <tinyhal.h>
-#include "radio_error.h"
-#include <..\pal\COM\Radio\MAC\Base\Radio_decl.h>
+#include "Radio_decl.h"
 
-#define MAX_RADIOS_SUPPORTED 16
-#define MAX_MACS_SUPPORTED 16
+//////////////////////////// Radio Errors/////////////////////////////////////////
+
+#define RADIOERROR01  "Frame Buffer Overrun"
+#define RADIOERROR02  "Battery Low"
+#define RADIOERROR03  "State Change Failed"
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+#define MAX_RADIOS_SUPPORTED 4
+#define MAX_MACS_SUPPORTED 4
 
 //////////////////////////// Default Event Handler Definitions //////////////////////////////////////////
 
@@ -20,7 +27,7 @@ extern "C"
 
 	}
 
-	BOOL DefaultSendAckHandler(void *msg, UINT16 Size)
+	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status)
 	{
 
 	}
@@ -33,17 +40,26 @@ extern "C"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
+//All Radio objects needs to share the ID class to get a unique number
+class RadioID {
+private:
+	static UINT8 UniqueRadioId;
+public:
+	static UINT8 GetUniqueRadioId(){
+		return ++UniqueRadioId;
+	}
+};
 
+UINT8 RadioID::UniqueRadioId=0;
 
 // Base class definition for the radio driver interface for all radio device implementations
 template<class T>
-class Radio{
-
+class Radio :public RadioID
+{
 	// Contains a unique id for each radio registered
-	UINT8 radio_id_;
 
-	// Responsible for generating unique ids, a single variable shared by multiple instances of radio
-	static UINT8 unique_radio_id_ ;
+	UINT8 RadioId;
+	RadioAddress_t MyAddress;
 
 	// Keeps track of all the mac ids that are currently supported
 	static UINT8 MacIDs[MAX_MACS_SUPPORTED];
@@ -55,10 +71,10 @@ class Radio{
 	static RadioEventHandler* MacHandlers[MAX_MACS_SUPPORTED];
 
 	// Type of radio (802.15.4 or 802.11 or ByteRadio or SoftwareDefined)
-	RadioType radio_type_;
+	RadioType Radio_Type;
 
 	// Is the radio active
-	BOOL is_active_;
+	BOOL Initialized;
 
 public:
 	// Set the mac handlers
@@ -84,7 +100,14 @@ public:
 		MacHandlers[MacIDIndex] = &defaultHandler;
 
 	}
+	UINT16 GetAddress(){
+		return (UINT16) MyAddress;
+	}
 
+	BOOL SetAddress(UINT16 address){
+		MyAddress = (RadioAddress_t)address;
+		return TRUE;
+	}
 
 	//virtual DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 mac_id)=0;
 
@@ -113,94 +136,77 @@ public:
 
 	// Responsible for uninitializing the radio
 	//virtual DeviceStatus UnInitialize()
-	DeviceStatus UnInitialize()
-	{
-		return DS_Fail;
-	}
+	DeviceStatus UnInitialize();
+
 
 	// Defines the send interface recieves an empty pointer from the radio layer
 	//virtual T* Send(T* msg, UINT16 size)
-	void* Send(void* msg, UINT16 size)
-	{
-		return NULL;
-	}
+	void* Send(void* msg, UINT16 size);
+
+
+
+	// Defines the send interface recieves an empty pointer from the radio layer
+	//virtual T* Send(T* msg, UINT16 size)
+	void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime);
+
 
 	// Preload the message on to the radio frame buffer/ RAM and dont send
 	//virtual T* Preload(T* msg, UINT16 size)
-	T* Preload(T* msg, UINT16 size)
-	{
-		return NULL;
-	}
-
-	// Initiate the process of send
-	//virtual DeviceStatus Send()
-	DeviceStatus Send()
-	{
-		return DS_Fail;
-	}
-
+	T* Preload(T* msg, UINT16 size);
 
 	//virtual DeviceStatus ClearChannelAssesment()
-	DeviceStatus ClearChannelAssesment()
-	{
-		return DS_Fail;
-	}
+	DeviceStatus ClearChannelAssesment();
+
 
 	//virtual DeviceStatus ClearChannelAssesment(UINT32 numberMicroSecond)
-	DeviceStatus ClearChannelAssesment(UINT32 numberMicroSecond)
-	{
-		return DS_Fail;
-	}
+	DeviceStatus ClearChannelAssesment(UINT32 numberMicroSecond);
+
 
 	//virtual DeviceStatus SetTimeStamp()
-	DeviceStatus SetTimeStamp()
-	{
-		return DS_Fail;
-	}
+	DeviceStatus SetTimeStamp();
+
 
 	//virtual DeviceStatus SetTimeStamp(UINT64 timeStamp)
-	DeviceStatus SetTimeStamp(UINT64 timeStamp)
-	{
-		return DS_Fail;
-	}
+	DeviceStatus SetTimeStamp(UINT64 timeStamp);
+
 
 	//virtual INT32 GetSNR()
-	INT32 GetSNR()
-	{
-		return 0;
-	}
+	INT32 GetSNR();
+
 
 	//virtual INT32 GetRSSI()
-	INT32 GetRSSI()
-	{
-		return 0;
-	}
+	INT32 GetRSSI();
+
 
 	//virtual UINT8 GetRadioID()
-	UINT8 GetRadioID()
+	UINT8 GetRadioID(){
+		return RadioId;
+	}
+
+	void SetRadioID(UINT8 id)
 	{
-		return 0;
+		RadioId=id;
 	}
 
 	// Mutators for radio_type and is_active variables
-	RadioType get_radio_type() const
+	RadioType GetRadioType() const
 	{
-		return radio_type_;
+		return Radio_Type;
 	}
 
-	void set_radio_type(RadioType radio_type)
+	void SetRadioType(RadioType radio_type)
 	{
-		radio_type_ = radio_type;
+		Radio_Type = radio_type;
 	}
 
-	BOOL get_is_active() const
+	BOOL IsInitialized() const
 	{
-		return is_active_;
+		return Initialized;
 	}
 
-	void set_is_active(BOOL is_active)
+	void SetInitialized(BOOL initialize)
 	{
-		is_active_ = is_active;
+		Initialized = initialize;
 	}
 
 	UINT8 GetMacIdIndex()
@@ -214,10 +220,10 @@ template<class T>
 UINT8 Radio<T>::MacIDIndex = 0;
 
 template<class T>
-UINT8 Radio<T>::MacIDs[MAX_MACS_SUPPORTED] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+UINT8 Radio<T>::MacIDs[MAX_MACS_SUPPORTED] = {0,0,0,0};
 
 template<class T>
-RadioEventHandler* Radio<T>::MacHandlers[MAX_MACS_SUPPORTED] = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+RadioEventHandler* Radio<T>::MacHandlers[MAX_MACS_SUPPORTED] = {NULL,NULL,NULL,NULL};
 #endif /* RADIO_H */
 
 

@@ -13,17 +13,17 @@
 // Called by MAC layer to register handler functions and start the radio
 // Takes inputs of a pointer to eventhandler, radioid and numberRadios
 // Returns the status of the initalization task whether successful or not
-#include <..\pal\COM\Radio\MAC\CSMAMAC\csmaMAC.h>
-#include <.\RF231\RF231.h>
+
+#include "RF231\RF231.h"
 
 
 // Currently supports only one radio
-DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioIDs, UINT8 numberRadios, UINT8 mac_id )
+DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioID, UINT8 numberRadios, UINT8 mac_id )
 {
 	if(eventHandlers == NULL)
 		return DS_Fail;
 
-	grf231Radio.Initialize(eventHandlers, mac_id);
+	grf231Radio.Initialize(eventHandlers, radioID, mac_id);
 
 }
 
@@ -35,7 +35,15 @@ BOOL CPU_Radio_UnInitialize()
 
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 {
+	*radioIDs=grf231Radio.GetRadioID();
+	return 1;
+}
 
+UINT16 CPU_Radio_GetAddress(UINT8 radioID){
+	return grf231Radio.GetAddress();
+}
+BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address){
+	return grf231Radio.SetAddress(address);
 }
 
 void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
@@ -43,7 +51,7 @@ void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 	return NULL;
 }
 
-void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size)
+void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 {
 
 	UINT8* msgcheck = (UINT8 *) msg;
@@ -53,6 +61,18 @@ void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size)
 	else
 		return NULL;
 }
+
+void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 eventTime)
+{
+
+	UINT8* msgcheck = (UINT8 *) msg;
+
+	if(radioID == RF231RADIO)
+		return (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
+	else
+		return NULL;
+}
+
 
 DeviceStatus CPU_Radio_Send(UINT8 radioID)
 {
@@ -90,37 +110,39 @@ DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroS
 
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID)
 {
-
+	return FALSE;
 }
 
 BOOL CPU_Radio_SetTimeStamp(UINT64 timeStamp)
 {
-
+	return FALSE;
 }
 
 UINT32 CPU_Radio_GetSNR(UINT8 radioID)
 {
+	return 0;
 }
 
 
 UINT32 CPU_Radio_GetRSSI(UINT8 radioID)
 {
+	return 0;
 }
 
 
 //Aggregate apis
-BOOL CPU_Radio_SwitchType(UINT8 radioID)
+BOOL CPU_RadioLayer_SwitchType(UINT8 radioID)
 {
-
+	return FALSE;
 }
 
 #if 0
-Radio* CPU_Radio_GetRadio(UINT8 radioID)
+Radio* CPU_RadioLayer_GetRadio(UINT8 radioID)
 {
 }
 #endif
 
-UINT8 CPU_Radio_NumberRadiosSupported()
+UINT8 CPU_RadioLayer_NumberRadiosSupported()
 {
 
 }
