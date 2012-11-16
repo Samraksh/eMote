@@ -64,7 +64,7 @@ static int uart_init_flag = 0;
                                               }
 
 /* Static Function Prototype Declarations */
-static unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id);
+unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id);
 static unsigned int msm_boot_uart_replace_lr_with_cr(char *data_in,
 						     int num_of_chars,
 						     char *data_out,
@@ -72,10 +72,10 @@ static unsigned int msm_boot_uart_replace_lr_with_cr(char *data_in,
 static unsigned int msm_boot_uart_dm_init(UINT8 id);
 static unsigned int msm_boot_uart_dm_read(UINT8 id, unsigned int *data,
 					  int wait);
-static unsigned int msm_boot_uart_dm_write(UINT8 id, char *data,
+unsigned int msm_boot_uart_dm_write(UINT8 id, char *data,
 					   unsigned int num_of_chars);
-static unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id);
-static unsigned int msm_boot_uart_dm_reset(UINT8 id);
+unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id);
+unsigned int msm_boot_uart_dm_reset(UINT8 id);
 
 /* Keep track of gsbi vs port mapping.
  */
@@ -116,7 +116,7 @@ msm_boot_uart_replace_lr_with_cr(char *data_in,
 /*
  * Initialize and configure GSBI for operation
  */
-static unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id)
+unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id)
 {
 	/* Configure the uart clock */
 	clock_config_uart_dm(id);
@@ -148,7 +148,7 @@ static unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id)
 /*
  * Reset the UART
  */
-static unsigned int msm_boot_uart_dm_reset(UINT8 id)
+unsigned int msm_boot_uart_dm_reset(UINT8 id)
 {
 	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, MSM_BOOT_UART_DM_CR(id));
 	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, MSM_BOOT_UART_DM_CR(id));
@@ -225,7 +225,7 @@ static unsigned int msm_boot_uart_dm_init(UINT8 id)
 /*
  * Initialize Receive Path
  */
-static unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id)
+unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id)
 {
 	writel(MSM_BOOT_UART_DM_GCMD_DIS_STALE_EVT, MSM_BOOT_UART_DM_CR(id));
 	writel(MSM_BOOT_UART_DM_CMD_RES_STALE_INT, MSM_BOOT_UART_DM_CR(id));
@@ -315,7 +315,7 @@ msm_boot_uart_dm_read(UINT8 id, unsigned int *data, int wait)
 /*
  * UART transmit operation
  */
-static unsigned int
+unsigned int
 msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars)
 {
 	unsigned int tx_word_count = 0;
@@ -395,7 +395,7 @@ void uart_init(UINT8 gsbi_id)
 	char *data = "Microframework 4.3 - UART_DM Initialized!!!\n";
 
 	msm_boot_uart_dm_init(gsbi_id);
-	//msm_boot_uart_dm_write(gsbi_id, data, 44);
+	msm_boot_uart_dm_write(gsbi_id, data, 44);
 
 	ASSERT(port < ARRAY_SIZE(gsbi_lookup));
 	gsbi_lookup[port++] = gsbi_id;
