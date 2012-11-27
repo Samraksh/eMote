@@ -6,7 +6,7 @@
     <ProjectGuid>{74a19efb-8b98-4269-bca2-eedce6bbdc38}</ProjectGuid>
     <Description>MACTest PAL Implementation</Description>
     <Level>PAL</Level>
-    <LibraryFile>mac_pal.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>mactest_pal.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\PAL\COM\Radio\Routing\MACTest\dotNetMF.proj</ProjectPath>
     <ManifestFile>mactest_pal.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Radio</Groups>
