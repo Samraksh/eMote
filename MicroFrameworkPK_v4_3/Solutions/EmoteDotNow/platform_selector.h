@@ -45,10 +45,6 @@
 
 #define INSTRUMENTATION_H_GPIO_PIN      0
 
-#define DEBUG_TEXT_PORT    COM1
-#define STDIO              COM1
-#define DEBUGGER_PORT      COM1
-#define MESSAGING_PORT     COM1
 
 //
 // constants
@@ -73,17 +69,12 @@
 #define ASSERT_IRQ_MUST_BE_ON()
 #endif
 
-
 //
 // macros
 //
 /////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////
-//
-// global functions
-//
-
 //
 // global functions
 //
@@ -117,13 +108,36 @@
 #define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    512  // there is one TX for each usart port
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    512  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
-//
+
+#define DEBUG_TEXT_PORT    COM1
+#define STDIO              COM1
+#define DEBUGGER_PORT      COM1
+#define MESSAGING_PORT     COM1
+
+
 // communicaiton facilities
 /////////////////////////////////////////////////////////
+
+///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
+//#define BUILD_RTM
+
+//Comment below line to below the regular CLR
+#define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
+#define RT_HARDWARE_TIMER 3
+
+//Enable GC extension
+//If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
+#define SAMRAKSH_GC_EXT 1
+
+//Network Stack definitions
+UINT16 MF_NODE_ID=12;
+
 // Macros configuring the HALTimer system
 #define HALTIMER 4
 #define HALTIMER_RESOLUTION_USEC 100
 #define NUM_HALTIMER_TIMERS 32
+
+////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 
 #include <processor_selector.h>
 
