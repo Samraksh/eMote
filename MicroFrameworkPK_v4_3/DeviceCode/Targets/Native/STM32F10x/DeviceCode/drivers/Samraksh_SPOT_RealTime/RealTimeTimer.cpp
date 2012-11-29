@@ -6,7 +6,7 @@
 //
 //-----------------------------------------------------------------------------
 
-
+#include <tinyhal.h>
 #include "RealTimeTimer.h"
 #include <gpio/stm32f10x_gpio.h>
 #include <tim/netmf_timers.h>
@@ -14,7 +14,7 @@
 #include <TinyCLR_Runtime.h>
 
 #define TICKS_PER_MICROSECOND SYSTEM_CLOCK_HZ/1000000
-#define RT_HARDWARE_TIMER 3
+//#define RT_HARDWARE_TIMER 3
 //#define DEBUG_RT_TIMER
 
 static bool g_RealTimeTimerEnalbed = false;
@@ -30,10 +30,8 @@ UINT64 RealTimeCount=0;
 UINT16 RollOverCount=0;
 UINT16 RollOver=0;
 
-
-
 void ISR_REALTIME_TIMER (void* Param);
-//void ISR_PendSV_Handler (void* Param);
+void ISR_PendSV_Handler (void* Param);
 
 BOOL InitializeTimer (){
 	if (!Timer_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
@@ -112,7 +110,7 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
 
    if(!CPU_INTC_ActivateInterrupt(60, ISR_PendSV_Handler, NULL)){
 	   int x;
-	   //debug_print('Error Registering ISR');
+	   debug_printf("Error Registering ISR Realtime hardware handler");
    }
 
 #ifdef DEBUG_RT_TIMER
@@ -159,7 +157,7 @@ static void ISR_RealTimeTimerProc( CLR_RT_HeapBlock_NativeEventDispatcher *pCont
 {
     GLOBAL_LOCK(irq);
 
-#if defined(NETMF_RTOS)  //Samraksh
+#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
 	//Garbage Collector is running, dont mess with it, return immediately.
 	if (g_CLR_RT_ExecutionEngine.m_heapState == g_CLR_RT_ExecutionEngine.c_HeapState_UnderGC) {
 		return;
@@ -295,16 +293,17 @@ static const CLR_RT_DriverInterruptMethods g_InteropRealTimeTimerDriverMethods =
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
-    Library_RealTimeTimer_Samraksh_RealTime_Timer::Dispose___STATIC__VOID,
-    Library_RealTimeTimer_Samraksh_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4,
-    Library_RealTimeTimer_Samraksh_RealTime_Timer::GenerateInterrupt___STATIC__VOID,
+    Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::Dispose___STATIC__VOID,
+    Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4,
+    Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::GenerateInterrupt___STATIC__VOID,
 };
 
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeTimer =
 {
     "RealTimeTimer",
-    0xCA9921F5,
+	0x5D91752C,
+    //0xCA9921F5,
     method_lookup
 };
 

@@ -12,6 +12,6 @@
     <InteropFeature Include="RealTimeInteropTimer" />
     <DriverLibs Include="RealTimeTimer.$(LIB_EXT)" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\RealTimeTimer.pe" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\STM32F10x\DeviceCode\drivers\RealTimeTimer\dotnetmf.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\dotnetmf.proj" />
   </ItemGroup>
 </Project>

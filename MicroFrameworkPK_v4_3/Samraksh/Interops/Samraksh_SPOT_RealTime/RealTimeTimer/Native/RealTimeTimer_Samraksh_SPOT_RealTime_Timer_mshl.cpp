@@ -8,12 +8,12 @@
 
 
 #include "RealTimeTimer.h"
-#include "RealTimeTimer_Samraksh_RealTime_Timer.h"
+#include "RealTimeTimer_Samraksh_SPOT_RealTime_Timer.h"
 
-using namespace Samraksh::RealTime;
+using namespace Samraksh::SPOT::RealTime;
 
 
-HRESULT Library_RealTimeTimer_Samraksh_RealTime_Timer::Dispose___STATIC__VOID( CLR_RT_StackFrame& stack )
+HRESULT Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::Dispose___STATIC__VOID( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -23,7 +23,7 @@ HRESULT Library_RealTimeTimer_Samraksh_RealTime_Timer::Dispose___STATIC__VOID( C
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_RealTimeTimer_Samraksh_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -41,7 +41,7 @@ HRESULT Library_RealTimeTimer_Samraksh_RealTime_Timer::Change___STATIC__BOOLEAN_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_RealTimeTimer_Samraksh_RealTime_Timer::GenerateInterrupt___STATIC__VOID( CLR_RT_StackFrame& stack )
+HRESULT Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer::GenerateInterrupt___STATIC__VOID( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {

@@ -20,7 +20,7 @@ static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDis
 static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData );
 */
 
-struct Library_RealTimeTimer_Samraksh_RealTime_Timer
+struct  Library_RealTimeTimer_Samraksh_SPOT_RealTime_Timer
 {
     TINYCLR_NATIVE_DECLARE(Dispose___STATIC__VOID);
     TINYCLR_NATIVE_DECLARE(Change___STATIC__BOOLEAN__U4__U4);

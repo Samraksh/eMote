@@ -12,22 +12,18 @@
 
 
 #include "RealTimeTimer.h"
-#include "RealTimeTimer_Samraksh_RealTime_Timer.h"
+#include "RealTimeTimer_Samraksh_SPOT_RealTime_Timer.h"
 
-using namespace Samraksh::RealTime;
-
-extern void RT_Dispose();
-extern BOOL RT_Change(UINT32 dueTime, UINT32 period);
+using namespace Samraksh::SPOT::RealTime;
 
 void Timer::Dispose( HRESULT &hr )
 {
-	RT_Dispose();
 }
 
 INT8 Timer::Change( UINT32 param0, UINT32 param1, HRESULT &hr )
 {
-    return RT_Change(param0, param1);
-
+    INT8 retVal = 0; 
+    return retVal;
 }
 
 void Timer::GenerateInterrupt( HRESULT &hr )
