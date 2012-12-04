@@ -369,10 +369,10 @@ void EXTI1_IRQ_HANDLER(void *args)
 	if(EXTI_GetITStatus(EXTI_Line1) != RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line1);
-		PIN_ISR_DESCRIPTOR& pinIsr = gpinIsr[17];
+		PIN_ISR_DESCRIPTOR& pinIsr = gpinIsr[65];
 
 		if(pinIsr.m_isr)
-			pinIsr.m_isr(17, TRUE,  args);
+			pinIsr.m_isr(65, TRUE,  args);
 		else
 			Default_EXTI_Handler(args);
 	}
