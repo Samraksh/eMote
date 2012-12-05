@@ -28,7 +28,9 @@
   <ItemGroup>
     <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\log\log.cpp" />
       <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp" />
-      <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTest\TimerTest.cpp" />
+       <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\LCDTest\LCDTest.cpp" />
+       <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\LCDTest\LCD.cpp" />
+      <!--<Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTest\TimerTest.cpp" />-->
 	  <!--<Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTestAdvanced\timers.cpp" />-->
     <!--Rest does not exist yet  
 	    <Compile Include="$(SPOCLIENT)\Solutions\EmoteDotNow\RegressionTest\TestSuite\timedevents\timedevents.cpp" />
