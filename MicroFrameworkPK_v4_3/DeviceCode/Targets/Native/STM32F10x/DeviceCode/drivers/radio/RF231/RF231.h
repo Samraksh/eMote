@@ -72,7 +72,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 	// Contains the length of the message that will be transmitted
 	UINT8 length;
 	// Pointer to the data
-	UINT8 data[30];
+	//UINT8 data[30];
 
 	// Receive length and data, could have used the same as above, but trying to avoid unnecessary confusion
 	UINT8 rx_length;

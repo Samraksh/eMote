@@ -5,7 +5,7 @@ BOOL isErased = TRUE;
 //--//
 BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
-	//NOR_Init();
+	NOR_Init();
 	//NOR_EraseChip();
 
 }

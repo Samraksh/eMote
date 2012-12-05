@@ -170,13 +170,13 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//pulse 3
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-	SlptrSet();
-	for(UINT8 i =0; i < 10; i++);
-	SlptrClear();
+	//SlptrSet();
+	//for(UINT8 i =0; i < 10; i++);
+	//SlptrClear();
 
 	//pulse 4
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 
 	// Load buffer before initiating the transmit command
 	SelnClear();
@@ -201,7 +201,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	SelnSet();
 
-	//WriteRegister(RF230_TRX_STATE, RF230_TX_START);
+	WriteRegister(RF230_TRX_STATE, RF230_TX_START);
 
 	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
@@ -244,8 +244,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 		GLOBAL_LOCK(irq);
 
-		for(UINT8 i = 0; i < 30; i++)
-			data[i] = 0;
+		//for(UINT8 i = 0; i < 30; i++)
+			//data[i] = 0;
 
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
@@ -735,7 +735,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 		//data = rx_msg;
 
 		read = length;
-
+		temp_rx_msg_ptr[counter++] =length;
 		do
 		{
 			temp_rx_msg_ptr[counter++] = CPU_SPI_WriteReadByte(config, 0);

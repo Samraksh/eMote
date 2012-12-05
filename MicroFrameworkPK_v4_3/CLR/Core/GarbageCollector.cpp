@@ -166,7 +166,7 @@ CLR_UINT32 CLR_RT_GarbageCollector::ExecuteGarbageCollection()
     Heap_ComputeAliveVsDeadRatio();
 
     CheckMemoryPressure();
-
+/*
 #if defined(TINYCLR_TRACE_MEMORY_STATS)
     if(s_CLR_RT_fTrace_MemoryStats >= c_CLR_RT_Trace_Info)
     {
@@ -239,7 +239,7 @@ CLR_UINT32 CLR_RT_GarbageCollector::ExecuteGarbageCollection()
         }
     }
 #endif
-
+*/
     CLR_RT_ExecutionEngine::ExecutionConstraint_Resume();
 
     m_numberOfGarbageCollections++;
@@ -373,6 +373,11 @@ void CLR_RT_GarbageCollector::Mark()
         //
         Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsReady   );
         Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsWaiting );
+
+#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
+        if(g_CLR_RT_ExecutionEngine.m_rtosInterruptThread)
+        	Thread_Mark(g_CLR_RT_ExecutionEngine.m_rtosInterruptThread);
+#endif
 
 #if !defined(TINYCLR_APPDOMAINS)
         CheckSingleBlock_Force( g_CLR_RT_ExecutionEngine.m_globalLock );

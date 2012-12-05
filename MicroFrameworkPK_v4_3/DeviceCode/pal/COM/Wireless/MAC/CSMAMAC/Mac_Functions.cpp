@@ -46,7 +46,7 @@ Neighbor_t* MAC_GetNeighbors(UINT8 macID, UINT16 macAddress){
 
 //Buffer functions
 UINT8 Mac_GetBufferSize(UINT8 macID){
-	return 0;
+	return  gcsmaMacObject.GetBufferSize();
 }
 UINT8 Mac_GetNumberPendingPackets(UINT8 macID){
 	return 0;

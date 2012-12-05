@@ -71,6 +71,15 @@ typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param
 
 
 //////////////////////////////// Class Definitions //////////////////////////////////////////////////////
+struct RadioConfig{
+	UINT8 TxPower;
+	UINT8 Sensitivity;
+    UINT8 Channel;
+    UINT8 TimeStampOffset;
+};
+
+
+
 typedef  class RadioEventHandler{
 
 public:
@@ -145,8 +154,8 @@ UINT32 CPU_Radio_GetRSSI(UINT8 radioID);
 //Aggregate apis
 BOOL CPU_Radio_SwitchType(UINT8 radioID);
 //Radio* CPU_Radio_GetRadio(UINT8 radioID);
-BOOL CPU_Radio_Intialize2(UINT8  radioID);
-BOOL CPU_Radio_UnInitialize2(UINT8 radioID);
+BOOL CPU_Radio_Intialize(UINT8  radioID);
+BOOL CPU_Radio_UnInitialize(UINT8 radioID);
 UINT8 CPU_Radio_NumberRadiosSupported();
 
 //}

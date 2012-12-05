@@ -14,7 +14,7 @@
 
 typedef struct  {
 	UINT16 MSGID;
-	UINT8 data[30];
+	UINT8 data[5];
 }Payload_t;
 
 class MACTest{

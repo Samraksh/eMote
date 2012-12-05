@@ -103,14 +103,16 @@ public:
 
 typedef struct IEEE802_15_4_Header {
   UINT8 length;
-  UINT16 fcf;
   UINT8 dsn;
+  UINT16 fcf;
   UINT16 destpan;
   UINT16 dest;
   UINT16 src;
   UINT8 network;  // optionally included with 6LowPAN layer
   UINT8 mac_id;
   UINT8 type;
+  UINT8 dummy;
+
 
   UINT8 GetType(){ return type;}
   UINT8 GetLength(){return length; }

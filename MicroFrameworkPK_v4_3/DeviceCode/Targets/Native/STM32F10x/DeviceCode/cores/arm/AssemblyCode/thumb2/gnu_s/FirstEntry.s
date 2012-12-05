@@ -30,16 +30,20 @@ StackTop:
     .word   0
     .section SectionForHeapBegin,         "a", %progbits
 HeapBegin:
-    .word   0x2000A000
+	.word   0x2000C000 @for stmxl of 96KB ram
+    @.word   0x20009000
     .section SectionForHeapEnd,           "a", %progbits
 HeapEnd:
-    .word   0x20018000
+	.word   0x20018000 @for stmxl of 96KB ram
+    @.word   0x20010000 @for stm of 64KB ram
     .section SectionForCustomHeapBegin,   "a", %progbits
 CustomHeapBegin:
-    .word   0
+	.word   0x2000C000 @for stmxl of 96KB ram
+    @.word   0x20009000
     .section SectionForCustomHeapEnd,     "a", %progbits
 CustomHeapEnd:
-    .word   0
+	.word   0x20018000 @for stmxl of 96KB ram
+    @.word   0x20010000 @for stm of 64KB ram
 
     .global StackBottom
     .global StackTop
@@ -48,7 +52,8 @@ CustomHeapEnd:
     .global CustomHeapBegin
     .global CustomHeapEnd
 
-	.equ  InitStackTop,  0x2000A000
+	.equ  InitStackTop,  0x2000C000     @for stmxl of 96KB ram
+	@.equ  InitStackTop,  0x20009000
 
     .section i.EntryPoint, "xa", %progbits
 

@@ -32,17 +32,6 @@ public:
 
 UINT8 MAC_ID::Unique_Mac_ID=0;
 
-struct MacConfig {
-	UINT16 FCF;
-	UINT16 DestPAN;
-	UINT8 Network;
-	BOOL CCA;
-    UINT8 NumberOfRetries;
-    UINT8 CCASenseTime;
-    UINT8 BufferSize;
-    UINT8 RadioID;
-};
-
 template <class MessageT, class ConfigT>
 class MAC : public MAC_ID
 {

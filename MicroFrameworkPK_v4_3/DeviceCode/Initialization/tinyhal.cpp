@@ -381,10 +381,10 @@ void HAL_Initialize()
     FileSystemVolumeList::InitializeVolumes();
 
     LCD_Initialize();
-    
-#if !defined(HAL_REDUCESIZE)
+
+//#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
-#endif
+//#endif
 
     I2C_Initialize();
 

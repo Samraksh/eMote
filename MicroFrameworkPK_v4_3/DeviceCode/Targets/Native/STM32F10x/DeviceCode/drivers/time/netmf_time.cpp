@@ -53,9 +53,6 @@ UINT64 Time_Driver :: CounterValue()
 
     g_Time_Driver.m_lastRead &= (0xFFFFFFFFFFFF0000ull);
 
-    /*TODO: See comparison to see if the counter has over-flowed, if so update the
-     * m_lastRead value by the size of the counter
-     */
     if(Timer_Driver :: DidTimeOverFlow( Timer_Driver::c_SystemTimer ))
     {
     	Timer_Driver :: ClearTimeOverFlow( Timer_Driver::c_SystemTimer );

@@ -27,10 +27,10 @@ uint16_t USART_IT;
  */
 #define EVAL_COM2                        USART2
 #define EVAL_COM2_CLK                    RCC_APB1Periph_USART2
-#define EVAL_COM2_TX_PIN                 GPIO_Pin_5
+#define EVAL_COM2_TX_PIN                 GPIO_Pin_2
 #define EVAL_COM2_TX_GPIO_PORT           GPIOD
 #define EVAL_COM2_TX_GPIO_CLK            RCC_APB2Periph_GPIOD
-#define EVAL_COM2_RX_PIN                 GPIO_Pin_6
+#define EVAL_COM2_RX_PIN                 GPIO_Pin_3
 #define EVAL_COM2_RX_GPIO_PORT           GPIOD
 #define EVAL_COM2_RX_GPIO_CLK            RCC_APB2Periph_GPIOD
 #define EVAL_COM2_IRQn                   USART2_IRQn

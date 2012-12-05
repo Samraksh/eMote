@@ -122,10 +122,11 @@ public:
 	BOOL UnInitialize(void);
 	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
-
+	BOOL HandlePromicousMessage(Message_15_4_t * msg);
+	UINT8 GetBufferSize();
 };
 
-csmaMAC gcsmaMacObject;
+
 
 
 #endif /* CSMAMAC_H_ */

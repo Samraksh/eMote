@@ -46,6 +46,8 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\Samraksh_SPOT_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
@@ -94,14 +96,6 @@
   <ItemGroup>
     <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="MACTest_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="csma_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
@@ -215,7 +209,6 @@
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  
   <ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
@@ -292,11 +285,7 @@
     <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotNetMF.proj" />
-    <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
+   <ItemGroup>
     <DriverLibs Include="cpu_LCD_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" />
   </ItemGroup>
@@ -308,7 +297,7 @@
     <DriverLibs Include="FS_Config_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" />
   </ItemGroup>
-   <ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="DebuggerPort_SSL_Config_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Config\dotnetmf.proj" />
   </ItemGroup>
@@ -350,8 +339,8 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_perfcounter\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="piezo_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\dotNetMF.proj" />
+    <DriverLibs Include="piezo_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="piezo_config_pal_stubs.$(LIB_EXT)" />
@@ -378,12 +367,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" />
   </ItemGroup>
   -->
-  <!--
-  <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\HALTimer\dotNetMF.proj" />
-    <DriverLibs Include="HALTimer.$(LIB_EXT)" />
-  </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_fsmc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
@@ -407,10 +390,6 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
-  </ItemGroup>
-   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\RF231\dotNetMF.proj" />
-    <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" />
@@ -524,5 +503,58 @@
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
   </ItemGroup>
+  
+  
+  <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
+  <!-- 									Hardware Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
+  </ItemGroup>
+  <!-- 									Realtime Extension        								-->
+  
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_RealTimeTimer.$(LIB_EXT)" />
+  </ItemGroup>
+  <!-- 									Wireless Stack Start								-->
+  
+  <ItemGroup>
+  <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\dotNetMF.proj" />
+  <DriverLibs Include="STM32F10x_SAMRAKSH_SPOT_NET.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\Stubs\dotNetMF.proj" />
+    <DriverLibs Include="mac_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\HALTimer\dotNetMF.proj" />
+    <DriverLibs Include="HALTimer.$(LIB_EXT)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
+    <DriverLibs Include="csma_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
+    <DriverLibs Include="omac_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
+    <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <!--                      	    Wireless Networking Stack ::End                      -->
+  
+  <!--     - - - - - - - -        Samraksh's Extensions   End    - - - - - - - -           -->
+  
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

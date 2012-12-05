@@ -15,9 +15,9 @@ extern MACTest gMacTest;
 extern UINT16 MF_NODE_ID;
 
 void Timer_1_Handler(void * arg){
-	CPU_GPIO_SetPinState((GPIO_PIN) 22, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 	gMacTest.Send();
-	CPU_GPIO_SetPinState((GPIO_PIN) 22, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 }
 
 // Typedef defining the signature of the receive function
@@ -37,11 +37,11 @@ BOOL MACTest::Initialize(){
 	myEventHandler.SetSendAckHandler(&SendAckHandler);
 
 	gHalTimerManagerObject.Initialize();
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 4, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 22, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 23, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 8, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 10, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
 	MAC_Initialize(&myEventHandler,&MacId, MyAppID, (void*) &Config);
 	return TRUE;
 }
@@ -50,25 +50,29 @@ BOOL MACTest::StartTest(){
 	msg.MSGID=0;
 	SendCount=0;
 	RcvCount=0;
-	//gHalTimerManagerObject.CreateTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
+	gHalTimerManagerObject.CreateTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
+	/*while(TRUE){
+		HAL_Time_Sleep_MicroSeconds(5000000);
+        MACTest::Send();
+	}*/
 	return TRUE;
 }
 
 void MACTest::Receive(void *msg, UINT16 size){
-	CPU_GPIO_SetPinState((GPIO_PIN) 8, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 8, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
 	Payload_t *rcvmsg = (Payload_t *) msg;
 	if(rcvmsg->MSGID!=RcvCount){
 		//CPU_GPIO_SetPinState((GPIO_PIN) 0, TRUE);
 	}
 	RcvCount=rcvmsg->MSGID;
-	CPU_GPIO_SetPinState((GPIO_PIN) 8, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 8, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 void MACTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
 	if(status==NO_Success){
 
 	}else {
@@ -80,9 +84,9 @@ void MACTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
 BOOL MACTest::Send(){
 	msg.MSGID=SendCount;
 	msg.data[10]=10;
-	CPU_GPIO_SetPinState((GPIO_PIN) 4, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 4, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
 	Mac_Send(MacId, MAC_BROADCAST_ADDRESS, MFM_DATA, (void*) &msg.data, sizeof(Payload_t));
 	SendCount++;
 }

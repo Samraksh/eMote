@@ -1,5 +1,6 @@
 #include "csmaMAC.h"
 
+csmaMAC gcsmaMacObject;
 
 void* csmaRecieveHandler(void *msg, UINT16 Size)
 {
@@ -95,7 +96,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
 
-	header->length = Size + sizeof(header);
+	header->length = Size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
 	header->dsn = 97;
@@ -124,8 +125,12 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 		payload[i] = lmsg[i];
 
 	// Check if the circular buffer is full
-	if(!m_send_buffer.CopyPayload((void *) payload, Size))
-		return FALSE;
+
+	//if(!m_send_buffer.CopyPayload((void *) payload, Size))
+		//return FALSE;
+
+	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+			return FALSE;
 
 	Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
 
@@ -134,7 +139,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 		test = 0;
 	}
 
-	memcpy(*temp, header, sizeof(header));
+	//memcpy(*temp, header, sizeof(header));
 
 	// Check to see if there are any messages in the buffer
 	if(*temp == NULL)
@@ -202,16 +207,17 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 		HandleBroadcastMessage(msg);
-	}else {
+	}else if(rcv_msg_hdr->dest == MF_NODE_ID){
 		HandleUnicastMessage(msg);
 	}
-
-
+	else {
+		HandlePromicousMessage(msg);
+	}
 
 
 	//Call routing/app receive callback
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
-	(*appHandler)(msg->GetPayload(), Size );
+	(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t));
 
 	return temp;
 }
@@ -223,6 +229,10 @@ BOOL csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg){
 BOOL csmaMAC::HandleUnicastMessage(Message_15_4_t * msg){
 
 }
+BOOL csmaMAC::HandlePromicousMessage(Message_15_4_t * msg){
+
+}
+
 
 BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 {
@@ -242,5 +252,9 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 		//retry sending message
 
 	}
+}
+
+UINT8 csmaMAC::GetBufferSize(){
+	return m_send_buffer.Size();
 }
 

@@ -95,6 +95,10 @@ public:
 		else
 			return FALSE;
 	}
+	UINT8 Size(){
+		return BufferSizeT;
+	}
+
 };
 
 template <UINT8 BufferSizeT>

@@ -9,7 +9,17 @@
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
-struct MacConfig;
+struct MacConfig {
+	UINT16 FCF;
+	UINT16 DestPAN;
+	UINT8 Network;
+	BOOL CCA;
+    UINT8 NumberOfRetries;
+    UINT8 CCASenseTime;
+    UINT8 BufferSize;
+    UINT8 RadioID;
+};
+//struct MacConfig;
 
 // Typedef defining the signature of the receive function
 typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size);

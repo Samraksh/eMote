@@ -32,6 +32,7 @@
     
 #ifndef __STM32F10x_H
 #define __STM32F10x_H
+#define STM32F10X_XL  1
 
 #include <processor_selector.h> //@NK
 
