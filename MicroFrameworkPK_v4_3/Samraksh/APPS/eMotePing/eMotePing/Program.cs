@@ -3,15 +3,17 @@ using Microsoft.SPOT;
 using System.Threading;
 
 using Samraksh.SPOT.Net;
-
+using Samraksh.SPOT.Hardware.EmoteDotNow;
 
 namespace Samraksh.SPOT.Net.Mac.Ping
 {      
     public class PingMsg 
+
     {
         public bool Response;
         public ushort MsgID;
         public UInt16 Src;
+        public UInt16 dummySrc;
 
         public PingMsg()
         {
@@ -23,16 +25,20 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             MsgID += (UInt16)rcv_msg[2];
             Src = (UInt16)(rcv_msg[3] << 8);
             Src += (UInt16)rcv_msg[4];
+            dummySrc = (UInt16)(0xefef);
+            
         }
 
         public byte[] ToBytes()
         {
-            byte[] b_msg = new byte[5];
+            byte[] b_msg = new byte[7];
             b_msg[0] = Response ? (byte)1: (byte)0;
             b_msg[1] = (byte) ((MsgID >> 8) & 0xFF);
             b_msg[2] = (byte)(MsgID & 0xFF);
             b_msg[3] = (byte)((Src >> 8) & 0xFF);
             b_msg[4] = (byte)(Src & 0xFF);
+            b_msg[5] = (byte)(0xef);
+            b_msg[6] = (byte)(0xef);
             return b_msg;
         }
     }
@@ -42,11 +48,12 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         UInt16 myAddress;
         UInt16 mySeqNo = 0;
         Timer sendTimer;
+        //Samraksh.SPOT.Hardware.EmoteDotNow.LCD lcd;
         PingMsg sendMsg = new PingMsg();
 
-        Radio.Radio_802_15_4 my_15_4 = new Radio.Radio_802_15_4();
-        Radio.RadioConfiguration radioConfig = new Radio.RadioConfiguration();
-        int myRadioID;
+        //Radio.Radio_802_15_4 my_15_4 = new Radio.Radio_802_15_4();
+        //Radio.RadioConfiguration radioConfig = new Radio.RadioConfiguration();
+        //int myRadioID;
 
         Mac.CSMA myCSMA = new CSMA();
         Mac.MacConfiguration macConfig = new MacConfiguration();
@@ -54,34 +61,83 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
         void Initialize()
         {
-            my_15_4.Initialize(radioConfig, null);
-            myRadioID = my_15_4.GetID();
+            
+            Debug.Print("Initializing:  EmotePingwLCD");
+            Thread.Sleep(1000);
+            //lcd = new Samraksh.SPOT.Hardware.EmoteDotNow.LCD();
+            //lcd.Initialize();
+            //lcd.Write(SymbolType.DISPLAY_CHAR_I, SymbolType.DISPLAY_CHAR_N, SymbolType.DISPLAY_CHAR_I, SymbolType.DISPLAY_CHAR_7);
+           
+            /*
+            Debug.Print("Initializing:  Radio");
+            try
+            {
+                my_15_4.Initialize(radioConfig, null);
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
 
+            Debug.Print("Radio init done.");
+
+            myRadioID = my_15_4.GetID();
+             *
+            Debug.Print("My radio ID is : " + myRadioID);
+            */
+         
             macConfig.CCA = true;
             macConfig.BufferSize = 8;
             macConfig.NumberOfRetries = 0;
-            macConfig.RadioID = (byte) myRadioID;
+            //macConfig.RadioID = (byte) myRadioID;
+            macConfig.RadioID = (byte)1;
             macConfig.CCASenseTime = 140; //Carries sensing time in micro seconds
 
             myReceive = HandleMessage; //Assign the delegate to a function
-
-            myCSMA.Initialize(macConfig, myReceive);
+            
+            Debug.Print("Initializing:  CSMA...");
+            try{
+                  myCSMA.Initialize(macConfig, myReceive);
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+            Debug.Print("CSMA Init done.");
             myAddress = myCSMA.GetAddress();
+            Debug.Print("My address is :  " + myAddress.ToString());
+            
         }
         void Start()
         {
-            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 1000, 1000);  
+            Debug.Print("Starting timer...");
+            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 0, 2000);
+            Debug.Print("Timer init done.");
         }
         
         void sendTimerCallback(Object o)
         {
+            mySeqNo++;
+            Debug.Print("Sending broadcast ping msg:  " + mySeqNo.ToString());
             Send_Ping(sendMsg);
         }
 
         void HandleMessage(byte[] msg, ushort size)
         {
             PingMsg rcvMsg = new PingMsg(msg,size);
-            Send_Pong(rcvMsg);
+
+            if (rcvMsg.Response)
+            {
+                //This is a response to my message
+                Debug.Print("Received response from: " + rcvMsg.Src);
+                //lcd.Write(SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A);
+            }
+            else
+            {
+                Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src);
+                //lcd.Write(SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B);
+                Send_Pong(rcvMsg);
+            }
         }
    
         void Send_Pong(PingMsg ping)
@@ -111,6 +167,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             Program p = new Program();
             p.Initialize();
             p.Start();
+            Thread.Sleep(Timeout.Infinite);
         }
     }
 }

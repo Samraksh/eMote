@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_Hardware</FeatureName>
-    <Guid>{eae0bf35-fc22-4d83-9e11-9951acb67f2a}</Guid>
+    <Guid>{b4f24d59-0c45-4d0b-bae9-51f7d4a0d6fd}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_HARDWARE_FEATUREPROJ>True</SAMRAKSH_SPOT_HARDWARE_FEATUREPROJ>
@@ -10,6 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT_Hardware" />
+    <InteropFeature Include="ADC" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware.pe" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotnetmf.proj" />
   </ItemGroup>

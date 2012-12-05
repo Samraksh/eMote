@@ -21,9 +21,9 @@ void CustomHeapLocation( UINT8*& BaseAddress, UINT32& SizeInBytes )
     NATIVE_PROFILE_PAL_HEAP();
 #if defined (PLATFORM_ARM)    
 
-#if defined (PLATFORM_CORTEXM3)
-     BaseAddress = (UINT8*) 0x2000A000;
-     SizeInBytes = 0xE000;
+#if defined(PLATFORM_ARM_EmoteDotNow)
+     BaseAddress = (UINT8*) 0x2000C000;
+     SizeInBytes = 0xBFFF;
 #else
      BaseAddress = (UINT8*)                                  &CustomHeapBegin;
      SizeInBytes = (UINT32)((size_t)&CustomHeapEnd - (size_t)&CustomHeapBegin + sizeof(CustomHeapEnd));

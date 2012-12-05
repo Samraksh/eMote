@@ -29,6 +29,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
+  <!--<Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" />-->
   <PropertyGroup>
     <MMP_PE_NoBitmapCompression>true</MMP_PE_NoBitmapCompression>
     <MMP_DAT_SKIP>false</MMP_DAT_SKIP>
@@ -44,12 +45,19 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.SPOT.Hardware" />
+    <Reference Include="Microsoft.SPOT.Hardware">
+      <!--<HintPath>$(BUILD_TREE_DLL)\Microsoft.SPOT.Hardware.dll</HintPath>-->
+    </Reference>
     <Reference Include="Microsoft.SPOT.Native">
+      <!--<HintPath>$(BUILD_TREE_DLL)\Microsoft.SPOT.Native.dll</HintPath>-->
+    </Reference>
+    <Reference Include="Samraksh_SPOT_Hardware, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.dll</HintPath>
     </Reference>
     <Reference Include="Samraksh_SPOT_Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Interops\Samraksh_SPOT_Net\Samraksh_SPOT_Net\bin\Debug\Samraksh_SPOT_Net.dll</HintPath>
+      <HintPath>$(BUILD_TREE_DLL)\Samraksh_SPOT_Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

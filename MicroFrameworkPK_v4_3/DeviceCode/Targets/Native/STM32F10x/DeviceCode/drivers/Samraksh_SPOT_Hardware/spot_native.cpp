@@ -13,22 +13,33 @@
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Init___STATIC__I4__I4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Read___STATIC__R8__I4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchMode___STATIC__I4__SZARRAY_U2__I4__U4__U4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousMode___STATIC__I4__SZARRAY_U2__I4__U4__U4,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD::Initialize___BOOLEAN,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD::Write___BOOLEAN__I4__I4__I4__I4,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD::Clear___BOOLEAN,
     NULL,
     NULL,
     NULL,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput::Read___R8,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput::ReadRaw___I4,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput::Dispose___VOID,
-    NULL,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware =
 {
     "Samraksh_SPOT_Hardware", 
-    0x5FD01A86,
+    0xA65BA5B0,
     method_lookup
 };
 

@@ -10,12 +10,12 @@
 <ItemGroup>
 <HFile Include="spot_native.h" />
 <Compile Include="spot_native.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.cpp" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD_mshl.cpp" />
 <HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD.h" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD.cpp" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput.h" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

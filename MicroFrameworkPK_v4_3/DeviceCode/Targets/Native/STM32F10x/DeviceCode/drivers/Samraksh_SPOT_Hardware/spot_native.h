@@ -11,11 +11,12 @@
 #define _SPOT_NATIVE_H_
 
 #include <TinyCLR_Interop.h>
-struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD
+struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal
 {
-    TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__I4__I4__I4__I4);
-    TINYCLR_NATIVE_DECLARE(Clear___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Read___STATIC__R8__I4);
+    TINYCLR_NATIVE_DECLARE(ConfigureBatchMode___STATIC__I4__SZARRAY_U2__I4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__I4__SZARRAY_U2__I4__U4__U4);
 
     //--//
 
@@ -23,9 +24,19 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD
 
 struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput
 {
-    TINYCLR_NATIVE_DECLARE(Read___R8);
-    TINYCLR_NATIVE_DECLARE(ReadRaw___I4);
-    TINYCLR_NATIVE_DECLARE(Dispose___VOID);
+    static const int FIELD_STATIC__AdcInternal = 0;
+    static const int FIELD_STATIC__MyCallback = 1;
+
+
+    //--//
+
+};
+
+struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD
+{
+    TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__I4__I4__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Clear___BOOLEAN);
 
     //--//
 
