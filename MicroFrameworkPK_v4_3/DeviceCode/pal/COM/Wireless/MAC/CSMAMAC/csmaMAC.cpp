@@ -1,6 +1,8 @@
 #include "csmaMAC.h"
+#include <Samraksh/HALTimer.h>
 
 csmaMAC gcsmaMacObject;
+extern HALTimerManager gHalTimerManagerObject;
 
 void* csmaRecieveHandler(void *msg, UINT16 Size)
 {
@@ -15,6 +17,12 @@ void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status)
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 {
 	return gcsmaMacObject.RadioInterruptHandler(Interrupt, param);
+}
+
+void csmaMacScheduler(void * arg){
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+	gcsmaMacObject.SendToRadio();
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 }
 
 DeviceStatus csmaMAC::SetConfig(MacConfig *config){
@@ -38,8 +46,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
 
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) 10, FALSE);
-
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
 		Radio_Event_Handler.SetRecieveHandler(csmaRecieveHandler);
 		Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
@@ -50,9 +56,14 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_NeighborTable.InitObject();
 		UINT8 numberOfRadios = 1;
 		UINT8 radioIds = 1;
+		RadioAckPending=FALSE;
 		Initialized=TRUE;
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
+		gHalTimerManagerObject.Initialize();
+		if(!gHalTimerManagerObject.CreateTimer(3, 0, 100000, FALSE, FALSE, csmaMacScheduler)){ //100 milli sec Timer in micro seconds
+			return DS_Fail;
+		}
 	}
 
 	//Initalize upperlayer callbacks
@@ -77,23 +88,7 @@ UINT8 test = 0;
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
-	//GLOBAL_LOCK(irq);
-
-	DeviceStatus ds;
-
-	while((ds = CPU_Radio_ClearChannelAssesment2(1, 200)) == DS_Fail);
-
-	if(ds != DS_Success)
-	{
-		CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
-		return FALSE;
-	}
-	//CPU_GPIO_TogglePinState((GPIO_PIN) 0);
-	//CPU_GPIO_SetPinState((GPIO_PIN) 0, TRUE);
-	//Message_15_4_t *msg_carrier = SendBuffer.GetNextFreeBuffer();
 	Message_15_4_t msg_carrier;
-
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
@@ -108,85 +103,53 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->mac_id = MacId;
 	header->type = dataType;
 
-	test++;
-
-	if(test == 14)
-	{
-		test = 0;
-	}
-
 	UINT8* lmsg = (UINT8 *) msg;
-
 	UINT8* payload =  msg_carrier.GetPayload();
-
-	//msg_carrier.SetActiveMessageSize(header->size() + Size);
 
 	for(UINT8 i = 0 ; i < Size; i++)
 		payload[i] = lmsg[i];
 
 	// Check if the circular buffer is full
-
-	//if(!m_send_buffer.CopyPayload((void *) payload, Size))
-		//return FALSE;
-
 	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 			return FALSE;
 
-	Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
-
-	if(temp == NULL || *temp == NULL)
-	{
-		test = 0;
-	}
-
-	//memcpy(*temp, header, sizeof(header));
-
-	// Check to see if there are any messages in the buffer
-	if(*temp == NULL)
-		return FALSE;
-
-#if 0
-	UINT8 send_buffer[] = {
-								111, 65, 136, 97, 34, 0, 255, 255, 102,
-								0, 63, 239, 0, 102, 0, 10, 0, 0, 0, 1, 0,
-								2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0,
-								9, 0, 10, 0, 11, 0, 12, 0, 13, 0, 14, 0, 15,
-								0, 16, 0, 17, 0, 18, 0, 19, 0, 20, 0, 21, 0,
-								22, 0, 23, 0, 24, 0, 25, 0, 26, 0, 27, 0, 28,
-								0, 29, 0, 30, 0, 31, 0, 32, 0, 33, 0, 34, 0,
-								35, 0, 36, 0, 37, 0, 38, 0, 39, 0, 40, 0, 41,
-								0, 42, 0, 43, 0, 44, 0, 45,112, 102
-							};
-
-#endif
-	*temp = (Message_15_4_t *) CPU_Radio_Send(1, (*temp), (msg_carrier.GetHeader())->GetLength());
-
 	return TRUE;
-
 }
 
-UINT8 i = 0;
+void csmaMAC::SendToRadio(){
+	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
+
+		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
+		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(1, 200);
+		if(ds != DS_Success) {
+			HAL_Time_Sleep_MicroSeconds((MyAddress % 500));
+			if(CPU_Radio_ClearChannelAssesment2(1, 200)!=DS_Success){ 	return;}
+		}
+
+		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
+		Message_15_4_t* msg = *temp;
+
+		//if(temp == NULL || *temp == NULL){test = 0;}
+
+		// Check to see if there are any messages in the buffer
+		if(*temp != NULL){
+			*temp = (Message_15_4_t *) CPU_Radio_Send(1, (msg), (msg->GetHeader())->GetLength());
+			RadioAckPending=TRUE;
+		}
+	}
+}
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-
 	Message_15_4_t** next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 
-	i++;
-	if(i > 13)
-	{
-		i = 0;
-	}
 	if(! (next_free_buffer))
 	{
 		m_receive_buffer.DropOldest(1);
 		next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 	}
 
-	if(next_free_buffer == NULL || *next_free_buffer == NULL)
-	{
-			i = 0;
-	}
+	//if(next_free_buffer == NULL || *next_free_buffer == NULL) {i = 0;}
 
 	//Implement bag exchange, by actually switching the contents.
 	Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
@@ -211,9 +174,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		HandleUnicastMessage(msg);
 	}
 	else {
-		HandlePromicousMessage(msg);
+		HandlePromiscousMessage(msg);
 	}
-
 
 	//Call routing/app receive callback
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
@@ -229,7 +191,7 @@ BOOL csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg){
 BOOL csmaMAC::HandleUnicastMessage(Message_15_4_t * msg){
 
 }
-BOOL csmaMAC::HandlePromicousMessage(Message_15_4_t * msg){
+BOOL csmaMAC::HandlePromiscousMessage(Message_15_4_t * msg){
 
 }
 
@@ -246,12 +208,11 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 	if(status==NO_Success){
 		SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 		(*appHandler)(msg, Size, status);
-
 	}
 	else{	//failed
 		//retry sending message
-
 	}
+	RadioAckPending=FALSE;
 }
 
 UINT8 csmaMAC::GetBufferSize(){

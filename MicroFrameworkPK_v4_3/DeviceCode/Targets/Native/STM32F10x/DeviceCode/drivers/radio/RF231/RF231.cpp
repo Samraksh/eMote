@@ -59,8 +59,6 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 
-
-
 	SlptrSet();
 	for(UINT8 i =0; i < 10; i++);
 	SlptrClear();
@@ -401,8 +399,6 @@ void RF231Radio::GpioPinInitialize()
 	CPU_GPIO_EnableOutputPin(kslpTr,FALSE);
 	CPU_GPIO_EnableOutputPin(krstn,TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN)0, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN)9, TRUE);
-
 }
 
 // Calls the mf spi initialize function and returns true if the intialization was successful
@@ -696,9 +692,6 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-			CPU_GPIO_SetPinState((GPIO_PIN)9, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)9, FALSE);
-
 			DownloadMessage();
 			//rx_msg_ptr->SetActiveMessageSize(rx_length);
 			(rx_msg_ptr->GetHeader())->SetLength(rx_length);

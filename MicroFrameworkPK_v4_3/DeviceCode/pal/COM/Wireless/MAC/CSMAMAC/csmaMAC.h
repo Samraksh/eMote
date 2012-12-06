@@ -111,6 +111,7 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	Buffer_15_4_t m_send_buffer;
 	Buffer_15_4_t m_receive_buffer;
 	UINT8 CurrentActiveApp;
+	BOOL RadioAckPending;
 public:
 
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);
@@ -122,7 +123,8 @@ public:
 	BOOL UnInitialize(void);
 	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
-	BOOL HandlePromicousMessage(Message_15_4_t * msg);
+	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
+	void SendToRadio();
 	UINT8 GetBufferSize();
 };
 

@@ -95,6 +95,9 @@ public:
 		else
 			return FALSE;
 	}
+	UINT8 GetNumberMessagesInBuffer(){
+		return numElements;
+	}
 	UINT8 Size(){
 		return BufferSizeT;
 	}
@@ -112,6 +115,8 @@ public:
 	BOOL CopyPayload(void *payload, UINT8 size)
 	{
 		Message_15_4_t* dummy;
+		if(CircularBuffer<Message_15_4_t, BufferSizeT>::IsFull())
+				return FALSE;
 		if(size > dummy->GetPayloadSize())
 				return FALSE;
 		Message_15_4_t * msg = this->GetNextFreeBuffer();
@@ -122,6 +127,8 @@ public:
 
 	BOOL Store(void * msg, UINT8 size){
 		Message_15_4_t* dummy;
+		if(CircularBuffer<Message_15_4_t, BufferSizeT>::IsFull())
+			return FALSE;
 		if(size > dummy->GetMessageSize())
 			return FALSE;
 		Message_15_4_t * buffer = this->GetNextFreeBuffer();
