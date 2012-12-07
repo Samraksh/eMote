@@ -32,10 +32,24 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput
 
 };
 
-struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD
+struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD
 {
+    static const int FIELD__currentColumn1 = 1;
+    static const int FIELD__currentColumn2 = 2;
+    static const int FIELD__currentColumn3 = 3;
+    static const int FIELD__currentColumn4 = 4;
+    static const int FIELD__DP1 = 5;
+    static const int FIELD__DP2 = 6;
+    static const int FIELD__DP3 = 7;
+    static const int FIELD__DP4 = 8;
+
     TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__I4__I4__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Uninitialize___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD);
+    TINYCLR_NATIVE_DECLARE(SetDP___BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(WriteN___BOOLEAN__I4__SamrakshSPOTHardwareEmoteDotNowLCD);
+    TINYCLR_NATIVE_DECLARE(WriteRawBytes___BOOLEAN__I4__I4__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Blink___BOOLEAN__SamrakshSPOTHardwareEmoteDotNowBlink);
     TINYCLR_NATIVE_DECLARE(Clear___BOOLEAN);
 
     //--//

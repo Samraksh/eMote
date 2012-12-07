@@ -13,9 +13,9 @@
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal_mshl.cpp" />
 <HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.h" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.cpp" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD.h" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_LCD.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

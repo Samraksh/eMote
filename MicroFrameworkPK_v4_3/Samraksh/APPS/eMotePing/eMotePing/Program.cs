@@ -48,7 +48,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         UInt16 myAddress;
         UInt16 mySeqNo = 0;
         Timer sendTimer;
-        //Samraksh.SPOT.Hardware.EmoteDotNow.LCD lcd;
+        //EmoteLCD lcd;
         PingMsg sendMsg = new PingMsg();
 
         //Radio.Radio_802_15_4 my_15_4 = new Radio.Radio_802_15_4();
@@ -64,9 +64,9 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             
             Debug.Print("Initializing:  EmotePingwLCD");
             Thread.Sleep(1000);
-            //lcd = new Samraksh.SPOT.Hardware.EmoteDotNow.LCD();
+            //lcd = new EmoteLCD();
             //lcd.Initialize();
-            //lcd.Write(SymbolType.DISPLAY_CHAR_I, SymbolType.DISPLAY_CHAR_N, SymbolType.DISPLAY_CHAR_I, SymbolType.DISPLAY_CHAR_7);
+            //lcd.Write(LCD.CHAR_I, LCD.CHAR_N, LCD.CHAR_I, LCD.CHAR_7);
            
             /*
             Debug.Print("Initializing:  Radio");
@@ -130,12 +130,12 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             {
                 //This is a response to my message
                 Debug.Print("Received response from: " + rcvMsg.Src);
-                //lcd.Write(SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A, SymbolType.DISPLAY_CHAR_A);
+                //lcd.Write(LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A);
             }
             else
             {
                 Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src);
-                //lcd.Write(SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B, SymbolType.DISPLAY_CHAR_B);
+                //lcd.Write(LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B);
                 Send_Pong(rcvMsg);
             }
         }

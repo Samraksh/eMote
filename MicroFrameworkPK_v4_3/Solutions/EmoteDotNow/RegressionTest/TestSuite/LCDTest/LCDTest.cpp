@@ -1,5 +1,5 @@
 #include "LCDTest.h"
-#include "LCD.h"
+#include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
 #include <i2c/stm32f10x_i2c.h>
 #include <rcc/stm32f10x_rcc.h>
 #include <gpio/stm32f10x_gpio.h>

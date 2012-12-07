@@ -3,58 +3,95 @@ using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.Hardware.EmoteDotNow
-{
-    public enum SymbolType
+{    
+    public enum Blink
     {
-        DISPLAY_CHAR_A,
-        DISPLAY_CHAR_B,
-        DISPLAY_CHAR_C,
-        DISPLAY_CHAR_E,
-        DISPLAY_CHAR_F,
-        DISPLAY_CHAR_G,
-        DISPLAY_CHAR_H,
-        DISPLAY_CHAR_I,
-        DISPLAY_CHAR_J,
-        DISPLAY_CHAR_L,
-        DISPLAY_CHAR_N,
-        DISPLAY_CHAR_O,
-        DISPLAY_CHAR_P,
-        DISPLAY_CHAR_S,
-        DISPLAY_CHAR_U,
-        DISPLAY_CHAR_Y,
-        DISPLAY_CHAR_a,
-        DISPLAY_CHAR_b,
-        DISPLAY_CHAR_c,
-        DISPLAY_CHAR_d,
-        DISPLAY_CHAR_e,
-        DISPLAY_CHAR_g,
-        DISPLAY_CHAR_h,
-        DISPLAY_CHAR_i,
-        DISPLAY_CHAR_n,
-        DISPLAY_CHAR_o,
-        DISPLAY_CHAR_q,
-        DISPLAY_CHAR_r,
-        DISPLAY_CHAR_t,
-        DISPLAY_CHAR_u,
-        DISPLAY_CHAR_0,
-        DISPLAY_CHAR_1,
-        DISPLAY_CHAR_2,
-        DISPLAY_CHAR_3,
-        DISPLAY_CHAR_4,
-        DISPLAY_CHAR_5,
-        DISPLAY_CHAR_6,
-        DISPLAY_CHAR_7,
-        DISPLAY_CHAR_8,
-        DISPLAY_CHAR_9,
-        DISPLAY_CHAR_NULL,
-        DISPLAY_DECIMAL_POINT,
+        OFF,
+        SLOW,
+        MEDIUM,
+        FAST
     };
 
-   
-
-    public class LCD
+    public enum LCD
     {
-        public LCD()
+        CHAR_NULL,
+        CHAR_A,
+        CHAR_B,
+        CHAR_C,
+        CHAR_D,
+        CHAR_E,
+        CHAR_F,
+        CHAR_G,
+        CHAR_H,
+        CHAR_I,
+        CHAR_J,
+        CHAR_K,
+        CHAR_L,
+        CHAR_M,
+        CHAR_N,
+        CHAR_O,
+        CHAR_P,
+        CHAR_Q,
+        CHAR_R,
+        CHAR_S,
+        CHAR_T,
+        CHAR_U,
+        CHAR_V,
+        CHAR_W,
+        CHAR_X,
+        CHAR_Y,
+        CHAR_Z,
+        CHAR_a,
+        CHAR_b,
+        CHAR_c,
+        CHAR_d,
+        CHAR_e,
+        CHAR_f,
+        CHAR_g,
+        CHAR_h,
+        CHAR_i,
+        CHAR_j,
+        CHAR_k,
+        CHAR_l,
+        CHAR_m,
+        CHAR_n,
+        CHAR_o,
+        CHAR_p,
+        CHAR_q,
+        CHAR_r,
+        CHAR_s,
+        CHAR_t,
+        CHAR_u,
+        CHAR_v,
+        CHAR_w,
+        CHAR_x,
+        CHAR_y,
+        CHAR_z,
+        CHAR_0,
+        CHAR_1,
+        CHAR_2,
+        CHAR_3,
+        CHAR_4,
+        CHAR_5,
+        CHAR_6,
+        CHAR_7,
+        CHAR_8,
+        CHAR_9
+    };
+
+    public class EmoteLCD
+    {
+        int currentColumn1;
+        int currentColumn2;
+        int currentColumn3;
+        int currentColumn4;
+
+        bool DP1;
+        bool DP2;
+        bool DP3;
+        bool DP4;
+
+        public EmoteLCD()
         {
         }
 
@@ -62,31 +99,24 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         public extern bool Initialize();
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern bool Write(int column4, int column3, int column2, int column1);
+        public extern bool Uninitialize();
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool Write(LCD data4, LCD data3, LCD data2, LCD data1);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool SetDP(bool dp1, bool dp2, bool dp3, bool dp4);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool WriteN(int column, LCD data);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool WriteRawBytes(int data4, int data3, int data2, int data1);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool Blink(Blink blinkType);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Clear();
-
-
-        public bool WriteColumnN(int column, SymbolType symbol)
-        {
-            SymbolType nullsymbol = SymbolType.DISPLAY_CHAR_NULL;
-
-            return Write((int)nullsymbol, (int)nullsymbol, (int)nullsymbol, (int)symbol);
-        }
-
-       
-
-        public bool Write(SymbolType column1, SymbolType column2, SymbolType column3, SymbolType column4)
-        {
-            return  Write((int) column1, (int) column2, (int) column3, (int) column4);
-        }
-
-        public bool WriteRawBytes(byte b1, byte b2, byte b3, byte b4)
-        {
-            return Write((int) b1, (int) b2, (int) b3, (int) b4);
-        }
-
-
     }
 }
