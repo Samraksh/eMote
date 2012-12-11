@@ -3,7 +3,7 @@
 #ifndef EMOTEDOTNOW_LCD_H
 #define EMOTEDOTNOW_LCD_H
 
-enum BlinkType {
+/*enum BlinkType {
 	BLINK_OFF,
 	BLINK_SLOW,
 	BLINK_MEDIUM,
@@ -56,7 +56,7 @@ enum SymbolType
         DISPLAY_CHAR_9,
         DISPLAY_CHAR_NULL
     };
-
+*/
 const int DISPLAY_DECIMAL_POINT = 0x80;
 
 class EmoteDotNow_LCD_Driver
@@ -73,7 +73,7 @@ public:
 	bool Write(int data4, int data3, int data2, int data1);
 	bool WriteN(int column, int data);
 	bool WriteRawBytes(int data4, int data3, int data2, int data1);
-	bool Blink(BlinkType blinkType);
+	bool Blink(int blinkType);
 };
 
 #endif

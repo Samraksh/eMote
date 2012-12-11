@@ -219,7 +219,7 @@ bool EmoteDotNow_LCD_Driver :: WriteRawBytes(int data4, int data3, int data2, in
 	return true;
 }
 
-bool EmoteDotNow_LCD_Driver :: Blink(BlinkType blinkType){
+bool EmoteDotNow_LCD_Driver :: Blink(int blinkType){
 	I2C_GenerateSTART(I2C1, ENABLE);
   	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)) { ; }
 
@@ -230,16 +230,16 @@ bool EmoteDotNow_LCD_Driver :: Blink(BlinkType blinkType){
   	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
 
 	switch (blinkType){
-		case (BLINK_OFF):
+		case (0):
 			I2C_SendData(I2C1, 0xF0); 
 			break;
-		case (BLINK_SLOW):
+		case (1):
 			I2C_SendData(I2C1, 0xF3); 
 			break;
-		case (BLINK_MEDIUM):
+		case (2):
 			I2C_SendData(I2C1, 0xF2); 
 			break;
-		case(BLINK_FAST):
+		case(3):
 			I2C_SendData(I2C1, 0xF1); 
 			break;
 		default:
