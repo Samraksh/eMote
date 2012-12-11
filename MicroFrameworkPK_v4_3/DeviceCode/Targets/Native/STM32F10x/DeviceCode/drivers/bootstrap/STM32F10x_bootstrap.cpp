@@ -191,7 +191,7 @@ static void RCC_Configuration(void)
   //HSEStartUpStatus = RCC_WaitForHSEStartUp();
 
 
-  //if(HSEStartUpStatus == SUCCESS)
+  //if(HSEStartUpStatus == SUCCESS_STATUS)
   //{
 
     //hal_printf("Enable Prefetch Buffer/n");
