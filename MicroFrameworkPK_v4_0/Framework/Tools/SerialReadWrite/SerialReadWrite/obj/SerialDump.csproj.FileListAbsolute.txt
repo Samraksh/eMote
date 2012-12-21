@@ -1,7 +1,0 @@
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\bin\Debug\SerialDump.exe.config
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\obj\Debug\SerialDump.exe
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\obj\Debug\SerialDump.pdb
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\bin\Debug\SerialDump.exe
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\bin\Debug\SerialDump.pdb
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\bin\Debug\Microsoft.SPOT.Debugger.dll
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\Framework\Tools\SerialReadWrite\SerialReadWrite\obj\Debug\ResolveAssemblyReference.cache

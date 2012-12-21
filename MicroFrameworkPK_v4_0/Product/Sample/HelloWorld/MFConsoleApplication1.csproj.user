@@ -1,7 +1,0 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DeployTransport>Serial</DeployTransport>
-    <DeployDevice>COM15</DeployDevice>
-  </PropertyGroup>
-  <MMP_DAT_CreateDatabaseFile>$(BUILD_TREE_DAT)\tinyclr_led.dat</MMP_DAT_CreateDatabaseFile>
-</Project>

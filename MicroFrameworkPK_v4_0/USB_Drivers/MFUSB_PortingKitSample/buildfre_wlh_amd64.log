@@ -1,6 +1,0 @@
-BUILD: Computing Include file dependencies:
-BUILD: Examining c:\microframeworkpk_v4_0\usb_drivers\mfusb_portingkitsample directory tree for files to compile.
-oacr invalidate root:amd64fre /autocleanqueue
-1>Compiling and Linking c:\microframeworkpk_v4_0\usb_drivers\mfusb_portingkitsample\sys *************
-1>'nmake.exe /nologo BUILDMSG=Stop. -i BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR='
-1>c:\microframeworkpk_v4_0\usb_drivers\mfusb_portingkitsample\sys: TARGETPATH is obj

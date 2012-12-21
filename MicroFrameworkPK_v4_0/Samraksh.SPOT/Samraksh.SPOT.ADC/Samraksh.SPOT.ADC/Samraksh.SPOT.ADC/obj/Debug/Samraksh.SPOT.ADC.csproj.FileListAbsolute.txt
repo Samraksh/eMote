@@ -1,2 +1,0 @@
-C:\Users\Mukundan\AppData\Local\Temporary Projects\Samraksh.SPOT.ADC\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Mukundan\AppData\Local\Temporary Projects\Samraksh.SPOT.ADC\obj\Debug\TinyCLR_DebugReferences.cache

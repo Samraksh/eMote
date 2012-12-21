@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<DependencyGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <dependencies>
-    <Filename>CLR_RT_SystemAssembliesTable.cpp</Filename>
-  </dependencies>
-  <dependencies>
-    <Filename>D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\CLR\include\TinyCLR_Interop.h</Filename>
-  </dependencies>
-</DependencyGroup>

@@ -1,6 +1,0 @@
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\ResolveAssemblyReference.cache
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\TinyCLR_DebugReferences.cache
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\ADCExtendedTest.Resources.resources
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\ADCExtendedTest.csproj.GenerateResource.Cache
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\ADCExtendedTest.Resources.tinyresources
-C:\Main\Work\SRC\DotNet-MF\MicroFrameworkPK_v4_0\TestSuite\ADCExtended\ADCExtendedTest\ADCExtendedTest\obj\Debug\TinyResGen.cache

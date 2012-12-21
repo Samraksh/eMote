@@ -1,8 +1,0 @@
-<docs>
-  <doc for="SelectionEventHandler">
-    <summary>
-    Represents the method that will handle selection events in the user interface.
-    </summary>
-  </doc>
-
-</docs>

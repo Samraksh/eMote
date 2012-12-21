@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<DependencyGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <dependencies>
-    <Filename>core.cpp</Filename>
-  </dependencies>
-  <dependencies>
-    <Filename>Core.h</Filename>
-  </dependencies>
-</DependencyGroup>
