@@ -85,6 +85,10 @@ void STM32F1x_Power_Driver::High_Power() {
 }
 
 BOOL STM32F1x_Power_Driver::Initialize() {
+
+	//PWR_PVDCmd(DISABLE);
+
+#if 0
 	GPIO_InitTypeDef gpio_b_itd;
 	GPIO_InitTypeDef gpio_g_itd;
 	
@@ -112,15 +116,15 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 
 	// Disable 3.3v regulator
 	GPIO_ResetBits(GPIOB, GPIO_Pin_9);
-	
+#endif
     return TRUE;
 }
 
 // Simple "wait for interrupt" sleep
 // Will wake from any source
 void STM32F1x_Power_Driver::Sleep() {
-	asm volatile ("CPSIE I");
-	__WFI();
+	//asm volatile ("CPSIE I");
+	//__WFI();
 	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 

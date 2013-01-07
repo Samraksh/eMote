@@ -1,3 +1,10 @@
+#ifndef _NETMF_POWER_H_
+#define _NETMF_POWER_H_
+
+#include <tinyhal.h>
+#include <stm32f10x.h>
+#include <core_cm3.h>
+
 struct STM32F1x_Power_Driver
 {
     static const UINT32 c_SystemTime_Timer         = 2;
@@ -24,5 +31,8 @@ struct STM32F1x_Power_Driver
     static UINT32 PerformanceCounter             ();
 #endif
 };
+
+
+#endif
 
 //extern Power_Driver g_Power_Driver;

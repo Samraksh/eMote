@@ -2,7 +2,7 @@
 #include "netmf_pwr.h"
 
 BOOL CPU_Initialize() {
-    return STM32F1x_Power_Driver::Initialize();
+    //return STM32F1x_Power_Driver::Initialize();
 }
 
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
@@ -29,6 +29,7 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 // I don't actually know how OFF and DEEP_SLEEP get called
 // SLEEP gets called when the MF has no threads ready
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
+#if 0
     switch(level)
     {
         case SLEEP_LEVEL__DEEP_SLEEP:
@@ -42,6 +43,7 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
             STM32F1x_Power_Driver::Sleep();
             break;
     }
+#endif
 }
 
 void CPU_Halt() {
@@ -51,8 +53,8 @@ void CPU_Halt() {
 void CPU_Reset() {
     //STM32F1x_Power_Driver::Reset();
 	// This function is supported by the watchdog module but placing the implementation here temporarily
-	//__disable_irq();
-	//NVIC_SystemReset();
+	__disable_irq();
+	NVIC_SystemReset();
 }
 
 /*
