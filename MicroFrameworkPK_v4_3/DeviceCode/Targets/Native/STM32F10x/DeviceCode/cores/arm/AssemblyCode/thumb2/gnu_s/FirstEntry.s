@@ -72,6 +72,7 @@ EntryPoint:
 	@bl SystemInit_ExtMemCtl
 	LDR r0, =InitStackTop
   	MSR msp, r0
+	bl VectorRelocate
     bl BootstrapCode
     bl BootEntry
     bx	lr

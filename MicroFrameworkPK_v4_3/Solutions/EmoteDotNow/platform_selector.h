@@ -9,9 +9,12 @@
 //
 // processor and features
 //
+//#define TINYCLR_SOLO
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
+
+
 
 //
 // processor and features
@@ -35,7 +38,11 @@
 
 #define SRAM1_MEMORY_Base   0x20000000
 #define SRAM1_MEMORY_Size   0x00018000
+#if defined(TINYCLR_SOLO)
 #define FLASH_MEMORY_Base   0x08000000
+#else
+#define FLASH_MEMORY_Base   0x08020000
+#endif
 #define FLASH_MEMORY_Size   0x00100000
 
 #define TXPROTECTRESISTOR               RESISTOR_DISABLED
