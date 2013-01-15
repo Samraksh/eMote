@@ -9,7 +9,7 @@
 //
 // processor and features
 //
-#define TINYCLR_SOLO
+//#define TINYCLR_SOLO
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
