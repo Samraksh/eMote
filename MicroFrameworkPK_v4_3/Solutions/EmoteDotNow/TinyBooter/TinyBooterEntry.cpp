@@ -72,7 +72,9 @@ void Tinybooter_PrepareForDecompressedLaunch()
 ////////////////////////////////////////////////////////////////////////////////
 bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 {
-    bool enterBooterMode = false;
+
+    bool enterBooterMode = true;
+#if 0
     GPIO_BUTTON_CONFIG *  ButtonConfig = &g_GPIO_BUTTON_Config;
 
 // wait forever when using RAM build 
@@ -92,7 +94,7 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
             enterBooterMode = true;
         }
     }
-
+#endif
     return enterBooterMode;
 }
 
