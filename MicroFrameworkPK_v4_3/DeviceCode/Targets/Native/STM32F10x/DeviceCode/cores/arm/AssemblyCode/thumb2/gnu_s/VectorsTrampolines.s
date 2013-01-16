@@ -253,9 +253,10 @@ ARM_Vectors:
   .weak  DebugMon_Handler
   .thumb_set DebugMon_Handler,Default_Handler
 
+/*
   .weak  PendSV_Handler
   .thumb_set PendSV_Handler,Default_Handler
-
+*/
   .weak  SysTick_Handler
   .thumb_set SysTick_Handler,Default_Handler
 

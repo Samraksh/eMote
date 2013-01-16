@@ -73,7 +73,15 @@ void Tinybooter_PrepareForDecompressedLaunch()
 bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 {
 
-    bool enterBooterMode = true;
+    bool enterBooterMode = false;
+	
+	CPU_GPIO_EnableInputPin3((GPIO_PIN) 1, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	
+	if(CPU_GPIO_GetPinState((GPIO_PIN) 1))
+	{
+		enterBooterMode = true;
+	}
+	
 #if 0
     GPIO_BUTTON_CONFIG *  ButtonConfig = &g_GPIO_BUTTON_Config;
 
@@ -95,6 +103,9 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
         }
     }
 #endif
+	
+	
+
     return enterBooterMode;
 }
 

@@ -237,6 +237,24 @@ BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERR
 	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
 }
 
+BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
+	if		(ResistorState == RESISTOR_DISABLED) {
+		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	}else if(ResistorState == RESISTOR_PULLDOWN) {
+		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPD;
+	}else if(ResistorState == RESISTOR_PULLUP) {
+		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPU;
+	}
+	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
+	
+	return TRUE;
+
+}
+
 BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
 	EXTI_InitTypeDef EXTI_InitStructure;
@@ -289,11 +307,14 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
+#if 0
 	if		(CPU_GPIO_Attributes(Pin) == GPIO_ATTRIBUTE_INPUT) {
 		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 	}else if(CPU_GPIO_Attributes(Pin) == GPIO_ATTRIBUTE_OUTPUT) {
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 	}
+#endif
+	return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )

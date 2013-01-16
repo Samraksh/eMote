@@ -427,14 +427,14 @@ void USART1_Handler(void *args)
 
 	if(ir & USART_FLAG_RXNE)
 	{
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+		//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+		//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 
 		USART1->SR &= ~USART_FLAG_RXNE;
 		if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
 		{
-			CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+			//CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
+			//CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
 		}
 		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
 
@@ -451,8 +451,8 @@ void USART1_Handler(void *args)
 		{
 			//USART1->SR &= ~USART_FLAG_RXNE;
 
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+			//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+			//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 
 		//c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
 			//c = (char) (USART1->DR & 0x1FF);
@@ -480,8 +480,8 @@ void USART1_Handler(void *args)
 
 		do
 		{
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 			USART1->SR &= ~USART_FLAG_RXNE;
 
 			c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
@@ -509,8 +509,8 @@ void USART1_Handler(void *args)
 			 USART_SendData(USART1, c);
 			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
 			 //while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 		}
 		else
@@ -538,8 +538,8 @@ void USART1_Handler(void *args)
 		 {
 			  char c = (char) (USART_ReceiveData(USART1) /* & 0x7F */); // read RX data
 
-			  CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			  CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+			  //CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+			  //CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 		  //debugInput[debugCounter++] = c;
 
 		  //for(int i = 0; i < 1000; i++);
@@ -566,8 +566,8 @@ void USART1_Handler(void *args)
 
 		 while(USART_RemoveCharFromTxBuffer(COM1, c))
 		 {
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 
 			 USART_SendData(USART1, c);
 			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
