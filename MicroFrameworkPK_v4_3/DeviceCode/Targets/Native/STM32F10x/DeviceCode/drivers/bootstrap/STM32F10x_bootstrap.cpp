@@ -195,12 +195,12 @@ static void RCC_Configuration(void)
   //{
 
     //hal_printf("Enable Prefetch Buffer/n");
-//#ifdef TINYCLR_SOLO
+#ifdef TINYCLR_SOLO
     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
     //hal_printf("Flash 2 wait state/n");
     FLASH_SetLatency(FLASH_Latency_1);
-//#endif
+#endif
     //hal_printf("/* HCLK = SYSCLK *//n");
     RCC_HCLKConfig(RCC_SYSCLK_Div1);
 
