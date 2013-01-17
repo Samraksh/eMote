@@ -185,12 +185,5 @@ UINT64  CPU_TicksToTime               ( UINT32 Ticks32 );
 
 //--//
 
-// Nived.Sivadas - adding this interface to enable the HALTimer
-BOOL CPU_TIMER_Initialize(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM);
-
-BOOL CPU_TIMER_SetCompare(UINT32 Timer, UINT32 Compare);
-
-UINT16 CPU_TIMER_GetCounter(UINT32 Timer);
-
 #endif // _DRIVERS_TIME_DECL_H_
 

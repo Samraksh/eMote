@@ -77,11 +77,7 @@ void CLR_RT_Memory::Release( void* ptr )
 
         if(pThis->DataType() != DATATYPE_BINARY_BLOB_HEAD)
         {
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-        	return;
-#else
-        	TINYCLR_STOP();
-#endif
+            TINYCLR_STOP();
         }
         else
         {

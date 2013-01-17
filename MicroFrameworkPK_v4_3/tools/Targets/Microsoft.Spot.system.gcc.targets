@@ -6,7 +6,7 @@
     <BuildToolGuid>{722B0D5D-1243-4557-913F-61FAB04E9209}</BuildToolGuid>
     <Documentation></Documentation>
     <ProcessorTypes>XScale;ARM7TDMI;ARM7TDMI-S;arm920t;arm926EJ-S</ProcessorTypes>
-    <ISAs>arm;thumb;thumb2</ISAs>
+    <ISAs>arm;thumb</ISAs>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(COMPILER_TOOL)'=='GCC'" >
@@ -17,8 +17,8 @@
     
     <CC>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-gcc.exe"</CC>
     <TCC>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-gcc.exe"</TCC>
-    <CPP>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-g++.exe"</CPP>
-    <TCPP>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-g++.exe"</TCPP>
+    <CPP>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-gcc.exe"</CPP>
+    <TCPP>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-gcc.exe"</TCPP>
     <AS>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-as.exe"</AS>
     <LINK>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-ld.exe"</LINK>
     <AR>"$(GNU_TOOLS_BIN)\$(GNU_TARGET)-ar.exe"</AR>
@@ -29,14 +29,14 @@
     <CREATESYMDEF>$(TOOLS_DIR)\CreateSymdef.exe</CREATESYMDEF>
     <CREATESYMDEF_ALT>$(SPOCLIENT)\TOOLS\BIN\CreateSymdef.exe</CREATESYMDEF_ALT>
 
-    <!-- alternate location for tool binaries 
+    <!-- alternate location for tool binaries -->
     <AS      Condition="!EXISTS('$(AS)')"     >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\as.exe"</AS>
     <LINK    Condition="!EXISTS('$(LINK)')"   >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\ld.exe"</LINK>
     <AR      Condition="!EXISTS('$(AR)')"     >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\ar.exe"</AR>
     <NM      Condition="!EXISTS('$(NM)')"     >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\nm.exe"</NM>
     <FROMELF Condition="!EXISTS('$(FROMELF)')">"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\objcopy.exe"</FROMELF>
     <OBJDUMP Condition="!EXISTS('$(OBJDUMP)')">"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\objdump.exe"</OBJDUMP>
-    <RANLIB  Condition="!EXISTS('$(RANLIB)')" >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\ranlib.exe"</RANLIB> -->
+    <RANLIB  Condition="!EXISTS('$(RANLIB)')" >"$(GNU_TOOLS_BIN)\..\$(GNU_TARGET)\bin\ranlib.exe"</RANLIB>
   </PropertyGroup>
 
 
@@ -68,15 +68,10 @@
     <ARM_TYPE_FLAGS Condition="'$(ARM_TYPE_FLAGS)'==''">$(DEVICE_TYPE)</ARM_TYPE_FLAGS>
 
     <POS_DEPENDENT></POS_DEPENDENT>
-    <POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-    
-	<!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS> -->
-	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    <POS_INDEPENDENT>-fpic</POS_INDEPENDENT>
+    <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"          >$(CC_CPP_TARGETTYPE_FLAGS) -O3</CC_CPP_TARGETTYPE_FLAGS>
-    <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
+    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release'"      >$(CC_CPP_TARGETTYPE_FLAGS) -g1 -Os</CC_CPP_TARGETTYPE_FLAGS>
 
@@ -107,7 +102,7 @@
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"     >$(AS_FLAGS) --defsym COMPILE_ARM=1</AS_FLAGS>
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'=='GCCOP'">$(AS_FLAGS) --defsym COMPILE_THUMB=1 -mthumb</AS_FLAGS>
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'!='GCCOP'">$(AS_FLAGS) --defsym COMPILE_THUMB=1 -mthumb-interwork</AS_FLAGS>
-    <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(AS_FLAGS) --defsym COMPILE_THUMB2=1 -mthumb</AS_FLAGS>
+    <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(AS_FLAGS) --defsym COMPILE_THUMB2=1</AS_FLAGS>
 
     <!-- Assembler flags -->
     <!-- TODO: There are no string macros in the GDD assembler, so this must be done another way
@@ -153,7 +148,7 @@
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"     >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_ARM </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'=='GCCOP'"   >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'!='GCCOP'"   >$(CC_CPP_COMMON_FLAGS) -mthumb-interwork -DCOMPILE_THUMB </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(CC_CPP_COMMON_FLAGS) -mthumb -DCOMPILE_THUMB2 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB2 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ARMBUILD_ONLY)'!='true' "   >$(CC_CPP_COMMON_FLAGS) -mthumb </CC_CPP_COMMON_FLAGS>    
 
     <CC_CPP_COMMON_FLAGS Condition="'$(FLAVOR)'=='Instrumented' and '$(NATIVE_PROFILE_CLR)'!=''">$(CC_CPP_COMMON_FLAGS) -DNATIVE_PROFILE_CLR=$(NATIVE_PROFILE_CLR)</CC_CPP_COMMON_FLAGS>
@@ -181,7 +176,6 @@
 
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(CLRROOT)\$(Directory)</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\include</CC_CPP_INCS>
-    <CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\STM32F10x\DeviceCode\processor</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Cores\arm</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\Support\Include  </CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\crypto\inc </CC_CPP_INCS>
@@ -210,11 +204,8 @@
 
   <!-- CPP flags -->
   <PropertyGroup>
-	<!--
     <CPP_FLAGS>$(CPP_FLAGS) $(CC_CPP_COMMON_FLAGS) $(ExtraCPPFlags) -Wabi </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(FLAVOR)'=='Debug'">$(CPP_FLAGS) -fno-default-inline</CPP_FLAGS>
-	-->
-	<CPP_FLAGS>$(CPP_FLAGS) $(CC_CPP_COMMON_FLAGS) $(ExtraCPPFlags)</CPP_FLAGS>
   </PropertyGroup>
 
   <!-- other flags -->
@@ -228,7 +219,6 @@
         which prevents from linking properly. 
     -->
     <LINK_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb'">$(LINK_FLAGS) --allow-multiple-definition</LINK_FLAGS>
-	<LINK_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(LINK_FLAGS) --allow-multiple-definition</LINK_FLAGS>
   </PropertyGroup>
    
 
@@ -251,11 +241,6 @@
     <!-- adding the extra lib if the CLR is compiled in RVDS, whenever we have libs from RVDS, we need this -->
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
-	
-	<GNU_LIB_DIR     Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\thumb</GNU_LIB_DIR>
-    <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\4.5.0\thumb</GNU_LIBGCC_DIR>
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
 
     <LIBGCC >libgcc.a</LIBGCC>
     <LIBCGCC>libc.a</LIBCGCC>
@@ -343,7 +328,7 @@
     <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
 
 
-    <Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />
+    <Exec Command="$(OBJDUMP) -d -EL @(EXEOutput) > $(EXEName).axfdump" />
 
     <MakeDir Directories="$(EXEName).bin" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).bin')" />
     <MakeDir Directories="$(EXEName).hex" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).hex')" />
@@ -375,7 +360,7 @@
     <Exec Command="$(CREATESYMDEF_ALT) $(EXEName).dump $(EXEName).symdefs" Condition="!EXISTS('$(CREATESYMDEF)')" />
 
     <!--     echo adding LOAD_IMAGE_CRC value to $*.symdefs -->
-   <!--<Exec Condition="'$(ADD_LOAD_IMAGE_CRC)'=='true'" Command="$(TOOLS_DIR)\BuildHelper -hashBuild $(EXEName).bin$(ImageLocation) $(EXEName).symdefs" /> -->
+    <Exec Condition="'$(ADD_LOAD_IMAGE_CRC)'=='true'" Command="$(TOOLS_DIR)\BuildHelper -hashBuild $(EXEName).bin$(ImageLocation) $(EXEName).symdefs" />
   </Target>
 
   <Target Name="FindBinFilesForSig" >

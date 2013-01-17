@@ -11,11 +11,11 @@ known issues in the Porting Kit.
 ===============================================================================
 System Requirements
 ===============================================================================
-Microsoft Windows XP, Vista or Windows 7
+Microsoft Windows XP, Vista, Windows 7 or Windows 8
 
 2 GB of free hard-disk space
 
-Either Visual Studio 2010 (Express edition or greater) or both .NET 
+Either Visual Studio 2012 (Express edition or greater) or both .NET 
 Framework 3.5 and Windows SDK for Windows (downloadable from microsoft.com).
 
 Compatible build tools for your processor. The following toolsets have been 

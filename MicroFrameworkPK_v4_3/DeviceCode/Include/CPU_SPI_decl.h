@@ -58,12 +58,6 @@ BOOL   CPU_SPI_Xaction_nWrite8_nRead8  ( SPI_XACTION_8& Transaction  );
 UINT32 CPU_SPI_PortsCount      ();
 void   CPU_SPI_GetPins         ( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi );
 
-// Samraksh : Adding an interface for cases where you dont want to read and write
-BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
-UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION& Configuration);
-UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
-UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data);
-void CPU_SPI_Enable();
 //--//
 
 #endif // _DRIVERS_SPI_DECL_H_

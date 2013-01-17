@@ -7,7 +7,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//#define DEBUG_CLR 1
 static const CLR_INT64 c_MaximumTimeToActive = (TIME_CONVERSION__ONEMINUTE * TIME_CONVERSION__TO_SECONDS);
 
 
@@ -85,10 +84,6 @@ HRESULT CLR_RT_ExecutionEngine::ExecutionEngine_Initialize()
 
     m_interruptThread     = NULL;                   // CLR_RT_Thread                       m_interruptThread;
                                                     //
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-    m_rtosInterruptThread     = NULL;                   // CLR_RT_Thread                       m_rtosIinterruptThread; Realtime OS thread
-#endif
-
 #if defined(TINYCLR_JITTER)
                                                     // const FLASH_SECTOR*                 m_jitter_firstSector;
                                                     // int                                 m_jitter_numSectors;
@@ -322,10 +317,6 @@ void CLR_RT_ExecutionEngine::ExecutionEngine_Cleanup()
 #endif
 
     m_interruptThread = NULL;    
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-    m_rtosInterruptThread     = NULL;                   // CLR_RT_Thread                       m_rtosInterruptThread; Realtime OS thread
-#endif
-
 
     m_heap.DblLinkedList_Initialize();
 }
@@ -445,9 +436,6 @@ void CLR_RT_ExecutionEngine::ExecutionConstraint_Resume()
 
 CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 {
-#ifdef DEBUG_CLR
-	CPU_GPIO_SetPinState( 0, TRUE);
-#endif
     NATIVE_PROFILE_CLR_CORE();
     m_heapState = c_HeapState_UnderGC;
 
@@ -463,17 +451,11 @@ CLR_UINT32 CLR_RT_ExecutionEngine::PerformGarbageCollection()
 
     g_CLR_RT_ExecutionEngine.SpawnFinalizer();
 
-#ifdef DEBUG_CLR
-    CPU_GPIO_SetPinState( 0, FALSE);
-#endif
     return freeMem;
 }
 
 void CLR_RT_ExecutionEngine::PerformHeapCompaction()
 {
-#ifdef DEBUG_CLR
-	CPU_GPIO_SetPinState( 4, TRUE);
-#endif
     NATIVE_PROFILE_CLR_CORE();
     if(CLR_EE_DBG_IS( NoCompaction )) return;
 
@@ -482,9 +464,6 @@ void CLR_RT_ExecutionEngine::PerformHeapCompaction()
     CLR_EE_CLR( Compaction_Pending );
 
     m_lastHcUsed = NULL;
-#ifdef DEBUG_CLR
-    CPU_GPIO_SetPinState( 4, FALSE);
-#endif
 }
 
 void CLR_RT_ExecutionEngine::Relocate()
@@ -722,30 +701,16 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     // m_cctorThread is NULL before call and inialized by the SpawnStaticConstructor
     SpawnStaticConstructor( m_cctorThread );
 
-#ifdef DEBUG_CLR
-    CPU_GPIO_EnableOutputPin (0, FALSE);
-    CPU_GPIO_EnableOutputPin (4, FALSE);
-    CPU_GPIO_EnableOutputPin (8, FALSE);
-#endif
 
     while(true)
     {
         HRESULT hr2 = ScheduleThreads( maxContextSwitch ); TINYCLR_CHECK_HRESULT(hr2);
         
-/*        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
+        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
         {
             TINYCLR_SET_AND_LEAVE(S_FALSE);
         }
-*/
-        if(CLR_EE_DBG_IS( RebootPending )){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if(CLR_EE_DBG_IS( ExitPending ) ){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if( CLR_EE_REBOOT_IS(ClrOnly)){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
+
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped ))
         {
@@ -1300,13 +1265,7 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 
         {
             // Runs the tread until expiration of its quantum or until thread is blocked.
-#ifdef DEBUG_CLR
-        	CPU_GPIO_SetPinState( 8, TRUE);
-#endif
-			hr = th->Execute();
-#ifdef DEBUG_CLR
-			CPU_GPIO_SetPinState( 8, FALSE);
-#endif
+            hr = th->Execute();
         }
 
         if(FAILED(hr))
@@ -1328,16 +1287,8 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 
         ::Watchdog_ResetCounter();
 
-
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-    	//Keep the rtos thread out of thread queues, the scheduler should never run this
-        if (th==g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){
-        	th->m_status=CLR_RT_Thread::TH_S_Terminated;
-        }
-        //else
-#endif
-       	PutInProperList( th );
-
+        PutInProperList( th );
+        
         UpdateTime();
 
         (void)ProcessTimer();
@@ -1415,16 +1366,6 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitForActivity( CLR_UINT32 powerLevel, CLR_U
 void CLR_RT_ExecutionEngine::PutInProperList( CLR_RT_Thread* th )
 {
     NATIVE_PROFILE_CLR_CORE();
-
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-    	//Keep the rtos thread out of thread queues, the scheduler should never run this
-        if (th==g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){
-        	th->m_status=CLR_RT_Thread::TH_S_Terminated;
-        	return ;
-        }
-#endif
-
-
     switch(th->m_status)
     {
     case CLR_RT_Thread::TH_S_Ready:
@@ -3701,8 +3642,8 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
 #endif
 
 //#define TINYCLR_STRESS_GC
-#if defined(SAMRAKSH_GC_EXT)
-    if(timeout > 500)
+#if defined(TINYCLR_STRESS_GC)
+    if(timeout > 100)
     {
         CLR_INT64 startGC = Time_GetMachineTime();
 
@@ -3714,23 +3655,6 @@ CLR_UINT32 CLR_RT_ExecutionEngine::WaitSystemEvents( CLR_UINT32 powerLevel, CLR_
         timeout -= (CLR_INT32)((endGC - startGC) / TIME_CONVERSION__TO_MILLISECONDS);
     }
 #endif
-
-//Samraksh GC extension, if your are going to sleep and if you have more than 5ms, then do GC
-#if defined(SAMRAKSH_GC_EXT)
-    if(timeout > 5) //If we have 5ms we can do
-    {
-        CLR_INT64 startGC = Time_GetMachineTime();
-
-        g_CLR_RT_ExecutionEngine.PerformGarbageCollection();
-
-        CLR_INT64 endGC = Time_GetMachineTime();
-
-        timeout -= (CLR_INT32)((endGC - startGC) / TIME_CONVERSION__TO_MILLISECONDS);
-
-        if(timeout< 0) return 0;
-    }
-#endif
-
 
     ::Watchdog_GetSetEnabled( FALSE, TRUE );
     res = ::Events_WaitForEvents( powerLevel, events, timeout );

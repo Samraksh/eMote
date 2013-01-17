@@ -218,19 +218,8 @@ HRESULT CLR_RT_HeapBlock_NativeEventDispatcher::StartDispatch( CLR_RT_Applicatio
     args[2].ChangeDataType( DATATYPE_DATETIME                        );
     
 
-#if !defined(SAMRAKSH_RTOS_EXT)  //Samraksh
     th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::ThreadTerminationCallback;
     th->m_terminationParameter = appInterrupt;
-#else
-    if(th->m_isRtosThread){
-    	th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::RTOSThreadTerminationCallback;
-    	th->m_terminationParameter = appInterrupt;
-    }else {
-    	 th->m_terminationCallback  = CLR_RT_HeapBlock_NativeEventDispatcher::ThreadTerminationCallback;
-    	 th->m_terminationParameter = appInterrupt;
-    }
-
-#endif
 
     TINYCLR_NOCLEANUP();
 }
@@ -253,27 +242,6 @@ void CLR_RT_HeapBlock_NativeEventDispatcher::ThreadTerminationCallback( void* ar
 
     g_CLR_HW_Hardware.SpawnDispatcher();
 }
-
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-void CLR_RT_HeapBlock_NativeEventDispatcher::RTOSThreadTerminationCallback( void* arg )
-{
-    NATIVE_PROFILE_CLR_IOPORT();
-    CLR_RT_ApplicationInterrupt* appInterrupt = (CLR_RT_ApplicationInterrupt*)arg;
-    CLR_RT_HeapBlock_NativeEventDispatcher::InterruptPortInterrupt& interrupt = appInterrupt->m_interruptPortInterrupt;
-
-    FreeManagedEvent((interrupt.m_data1 >>  8) & 0xff, //category
-                     (interrupt.m_data1      ) & 0xff, //subCategory
-                      interrupt.m_data1 >> 16        , //data1
-                      interrupt.m_data2              );
-
-    interrupt.m_data1 = 0;
-    interrupt.m_data2 = 0;
-
-    CLR_RT_Memory::Release( appInterrupt );
-
-    //g_CLR_HW_Hardware.SpawnDispatcher();
-}
-#endif
 
 HRESULT CLR_RT_HeapBlock_NativeEventDispatcher::RecoverManagedObject( CLR_RT_HeapBlock*& port )
 {

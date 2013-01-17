@@ -24,63 +24,6 @@ HRESULT CLR_HW_Hardware::ManagedHardware_Initialize()
 
 }
 
-#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
-HRESULT CLR_HW_Hardware::SpawnRTOSDispatcher(CLR_RT_ApplicationInterrupt* interrupt)
-{
-    NATIVE_PROFILE_CLR_HARDWARE();
-    TINYCLR_HEADER();
-
-    //CLR_RT_ApplicationInterrupt interrupt;
-    CLR_RT_HeapBlock_NativeEventDispatcher* ioPort;
-    CLR_RT_HeapBlock_NativeEventDispatcher ::InterruptPortInterrupt *interruptData;
-
-    /*interrupt->m_interruptPortInterrupt.m_context = pContext;
-    interrupt->m_interruptPortInterrupt.m_time= Time_GetUtcTime();
-    interrupt->m_interruptPortInterrupt.m_data1 = data1;
-    interrupt->m_interruptPortInterrupt.m_data2 = data2;
-	*/
-
-    //interrupt = (CLR_RT_ApplicationInterrupt*)m_interruptData.m_applicationQueue.FirstValidNode();
-
-    /*if((interrupt == NULL) || !g_CLR_RT_ExecutionEngine.EnsureSystemThread( g_CLR_RT_ExecutionEngine.m_rtosInterruptThread, 1<<30 ))
-    {
-        return S_OK;
-    }*/
-
-    if(interrupt == NULL)
-    {
-         	return S_OK;
-    }
-    if( !g_CLR_RT_ExecutionEngine.EnsureSystemThread( g_CLR_RT_ExecutionEngine.m_rtosInterruptThread, ThreadPriority::System_Highest ))
-    {
-    	return S_OK;
-    }
-
-
-    //interrupt->Unlink();
-
-    interruptData = &interrupt->m_interruptPortInterrupt;
-    ioPort = interruptData->m_context;
-
-    //CLR_RT_ProtectFromGC gc1 ( *ioPort );
-
-    TINYCLR_SET_AND_LEAVE(ioPort->StartDispatch( interrupt, g_CLR_RT_ExecutionEngine.m_rtosInterruptThread ));
-
-    TINYCLR_CLEANUP();
-
-    if(FAILED(hr))
-    {
-    	//Releases the interrupt memory and continues to the next interrupt. RTOS does not need this
-        ioPort->RTOSThreadTerminationCallback( interrupt );
-    }
-
-   // --m_interruptData.m_queuedInterrupts;
-
-    TINYCLR_CLEANUP_END();
-}
-#endif
-
-
 HRESULT CLR_HW_Hardware::SpawnDispatcher()
 {
     NATIVE_PROFILE_CLR_HARDWARE();
@@ -89,6 +32,12 @@ HRESULT CLR_HW_Hardware::SpawnDispatcher()
     CLR_RT_ApplicationInterrupt* interrupt;
     CLR_RT_HeapBlock_NativeEventDispatcher* ioPort;
     CLR_RT_HeapBlock_NativeEventDispatcher ::InterruptPortInterrupt *interruptData;
+
+    // if reboot is in progress, just bail out
+    if(CLR_EE_DBG_IS( RebootPending )) 
+    {
+        return S_OK;
+    }
 
     interrupt = (CLR_RT_ApplicationInterrupt*)m_interruptData.m_applicationQueue.FirstValidNode();
 

@@ -40,6 +40,8 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 
 void AD_Uninitialize( ANALOG_CHANNEL channel )
 {
+    // free pin
+    CPU_GPIO_DisablePin(STM32_AD_FIRST_PIN + channel, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY);
 }
 
 INT32 AD_Read( ANALOG_CHANNEL channel )
