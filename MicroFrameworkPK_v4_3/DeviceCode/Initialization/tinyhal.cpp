@@ -178,7 +178,6 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
 
         Prepare_Copy( src, dst, len );
     }
-
     //
     // Initialize RAM ZI regions.
     //
@@ -196,7 +195,7 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
 
 static void InitCRuntime()
 {
-#if (defined(HAL_REDUCESIZE) || defined(PLATFORM_EMULATED_FLOATINGPOINT))
+#if (defined(HAL_REDUCESIZE) || defined(COMPILE_THUMB2) || defined(PLATFORM_EMULATED_FLOATINGPOINT))
 
     // Don't initialize floating-point on small builds.
 
@@ -350,6 +349,7 @@ bool g_fDoNotUninitializeDebuggerPort = false;
 
 void HAL_Initialize()
 {    
+
     HAL_CONTINUATION::InitializeList();
     HAL_COMPLETION  ::InitializeList();
 
@@ -381,10 +381,10 @@ void HAL_Initialize()
     FileSystemVolumeList::InitializeVolumes();
 
     LCD_Initialize();
-    
-#if !defined(HAL_REDUCESIZE)
+
+//#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
-#endif
+//#endif
 
     I2C_Initialize();
 
@@ -500,7 +500,7 @@ void BootEntry()
     *ptr = *ptr +4;
 #endif
 
-
+/*
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
     {
         int  marker;
@@ -513,7 +513,7 @@ void BootEntry()
         }
     }
 #endif
-
+*/
     // these are needed for patch access
 
 #if defined(TARGETLOCATION_RAM)
@@ -535,15 +535,17 @@ void BootEntry()
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
 
 #if !defined(BUILD_RTM)
-    g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
+    //g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
 #endif
-
+    // Nived.Sivadas@samraksh.com : Do not comment this function out here even if it is being called else where afterwards.
+    // What may seem redundant can cause problems with the nested interrupt working.
+    CPU_INTC_Initialize();
 
     CPU_Initialize();
 
-    HAL_Time_Initialize();
-
     HAL_Initialize();
+
+    HAL_Time_Initialize();
 
 #if !defined(BUILD_RTM) 
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);

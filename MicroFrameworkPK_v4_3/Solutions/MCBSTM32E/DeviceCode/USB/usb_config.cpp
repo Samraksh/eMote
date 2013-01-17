@@ -16,7 +16,7 @@
 //--//
 
 //string descriptor
-#define     MANUFACTURER_NAME_SIZE 19   /* "Oberon microsystems" */
+#define     MANUFACTURER_NAME_SIZE  5   /* "Ominc" */
 // NOTE: Having more than (probably) 32 characters causes the MFUSB KERNEL driver
 // to *CRASH* which, of course, causes Windows to crash
 #define     PRODUCT_NAME_SIZE      15   /* "STM32 .Net Test" */
@@ -51,23 +51,23 @@
 
 ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION
 {
-    USB_DEVICE_DESCRIPTOR        device;
-    USB_CONFIGURATION_DESCRIPTOR config;
-      USB_INTERFACE_DESCRIPTOR   itfc0;
-        USB_ENDPOINT_DESCRIPTOR  ep1;
-        USB_ENDPOINT_DESCRIPTOR  ep2;
-    USB_STRING_DESCRIPTOR_HEADER manHeader;
-      USB_STRING_CHAR            manString[MANUFACTURER_NAME_SIZE];
-    USB_STRING_DESCRIPTOR_HEADER prodHeader;
-      USB_STRING_CHAR            prodString[PRODUCT_NAME_SIZE];
-    USB_STRING_DESCRIPTOR_HEADER string4;
-      USB_STRING_CHAR            displayString[DISPLAY_NAME_SIZE];
-    USB_STRING_DESCRIPTOR_HEADER string5;
-      USB_STRING_CHAR            friendlyString[FRIENDLY_NAME_SIZE];
-    USB_OS_STRING_DESCRIPTOR     OS_String;
-    USB_XCOMPATIBLE_OS_ID        OS_XCompatible_ID;
-    USB_XPROPERTIES_OS_WINUSB    OS_XProperty;
-    USB_DESCRIPTOR_HEADER        endList;
+    USB_DEVICE_DESCRIPTOR           device;
+    USB_CONFIGURATION_DESCRIPTOR    config;
+    USB_INTERFACE_DESCRIPTOR        itfc0;
+    USB_ENDPOINT_DESCRIPTOR         ep1;
+    USB_ENDPOINT_DESCRIPTOR         ep2;
+    USB_STRING_DESCRIPTOR_HEADER    manHeader;
+    USB_STRING_CHAR                 manString[MANUFACTURER_NAME_SIZE];
+    USB_STRING_DESCRIPTOR_HEADER    prodHeader;
+    USB_STRING_CHAR                 prodString[PRODUCT_NAME_SIZE];
+    USB_STRING_DESCRIPTOR_HEADER    string4;
+    USB_STRING_CHAR                 displayString[DISPLAY_NAME_SIZE];
+    USB_STRING_DESCRIPTOR_HEADER    string5;
+    USB_STRING_CHAR                 friendlyString[FRIENDLY_NAME_SIZE];
+    USB_OS_STRING_DESCRIPTOR        OS_String;
+    USB_XCOMPATIBLE_OS_ID           OS_XCompatible_ID;
+    USB_XPROPERTIES_OS_WINUSB       OS_XProperty;
+    USB_DESCRIPTOR_HEADER           endList;
 };
 
 extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration;
@@ -163,7 +163,7 @@ const struct USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration =
         USB_STRING_DESCRIPTOR_HEADER_LENGTH + (sizeof(USB_STRING_CHAR) * MANUFACTURER_NAME_SIZE),
         USB_STRING_DESCRIPTOR_TYPE
     },
-    { 'O', 'b', 'e', 'r', 'o', 'n', ' ', 'm', 'i', 'c', 'r', 'o', 's', 'y', 's', 't', 'e', 'm', 's' },
+    { 'O', 'm', 'i', 'n', 'c' },
 
     // Product name string descriptor
     {
@@ -318,3 +318,6 @@ const struct USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration =
         0
     },
 };
+
+
+

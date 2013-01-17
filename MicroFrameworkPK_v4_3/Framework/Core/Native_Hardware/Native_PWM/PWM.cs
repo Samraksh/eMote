@@ -168,14 +168,7 @@ namespace Microsoft.SPOT.Hardware
             }
             set
             {
-                // save the duty cycle so that we can preserve it after changing the period
-                double dutyCycle = DutyCycle;
-                
                 m_period = PeriodFromFrequency(value, out m_scale);
-
-                // restore the proper duty cycle
-                m_duration = DurationFromDutyCycleAndPeriod(dutyCycle, m_period);
-                
                 Commit();
                 //--//
             }
@@ -201,7 +194,7 @@ namespace Microsoft.SPOT.Hardware
 
 
         /// <summary>
-        /// Gets and sets the period of the pulse
+        /// Gets and sets the Frequency of the pulse
         /// </summary>
         public uint Period
         {
@@ -219,7 +212,7 @@ namespace Microsoft.SPOT.Hardware
 
 
         /// <summary>
-        /// Gets and sets the duration of the pulse.  The Value should be a fraction of the period.
+        /// Gets and sets the duration of the pulse.  Value should be a frction of the period
         /// </summary>
         public uint Duration
         {

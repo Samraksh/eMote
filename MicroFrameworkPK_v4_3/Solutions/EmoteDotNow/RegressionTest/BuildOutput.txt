@@ -1,0 +1,1054 @@
+Microsoft (R) Build Engine version 4.0.30319.17929
+[Microsoft .NET Framework, version 4.0.30319.17929]
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 11/23/2012 7:13:17 PM.
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" on node 1 (build target(s)).
+StartMessage:
+  Doing build of Executable RegressionTest - rule is BuildAXF;BuildSigFiles
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\dotnetmf.proj" (2) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library RegTestSuite - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\dotnetmf.proj" (2) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\PK.proj" (3) on node 1 (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\PK.proj" (3) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj" (4) on node 1 (Build target(s)).
+StartBuild:
+  Building...G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj;
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj" (4) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks\BuildTasks.csproj" (5) on node 1 (Build target(s)).
+StartBuild:
+  Building...G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks\BuildTasks.csproj;
+CoreResGen:
+  No resources are out of date with respect to their source files. Skipping resource generation.
+GenerateTargetFrameworkMonikerAttribute:
+Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+DoAddCommonAssemblyInfo:
+  cscript //Nologo G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\scripts\Preprocess.js /TemplateFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\AssemblyInfo.cs.template /Properties:"__ASSEMBLYTITLE__=#Microsoft.SPOT.Tasks#;__ASSEMBLYCOMPANY__=#Microsoft Corporation#;__ASSEMBLYCOPYRIGHT__=#Copyright (C) Microsoft Corporation.  All rights reserved.#;__ASSEMBLYDESCRIPTION__=##;__ASSEMBLYVERSION__=#4.3.0.0#;__PRODUCTVERSION__=#4.3.0.0#;__PRODUCTVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYFILEVERSION__=#4.3.0.0#;__FILEVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYCONFIGURATION__=#Debug#;__ASSEMBLYPRODUCT__=#Microsoft .NET Micro Framework#;__ASSEMBLYTRADEMARK__=#.NET is a trademark of Microsoft Corporation.#;__ASSEMBLYINTERNALNAME__=#Microsoft.SPOT.Tasks#" /OutputFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks_assemblyinfo.txt
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  BuildTasks -> G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks.dll
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks\BuildTasks.csproj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj" (4) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasksNativeBuild\NativeBuildTasks.csproj" (6) on node 1 (Build target(s)).
+StartBuild:
+  Building...G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasksNativeBuild\NativeBuildTasks.csproj;
+GenerateTargetFrameworkMonikerAttribute:
+Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+DoAddCommonAssemblyInfo:
+  cscript //Nologo G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\scripts\Preprocess.js /TemplateFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\AssemblyInfo.cs.template /Properties:"__ASSEMBLYTITLE__=#Microsoft.SPOT.Tasks.NativeBuild#;__ASSEMBLYCOMPANY__=#Microsoft Corporation#;__ASSEMBLYCOPYRIGHT__=#Copyright (C) Microsoft Corporation.  All rights reserved.#;__ASSEMBLYDESCRIPTION__=##;__ASSEMBLYVERSION__=#4.3.0.0#;__PRODUCTVERSION__=#4.3.0.0#;__PRODUCTVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYFILEVERSION__=#4.3.0.0#;__FILEVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYCONFIGURATION__=#Debug#;__ASSEMBLYPRODUCT__=#Microsoft .NET Micro Framework#;__ASSEMBLYTRADEMARK__=#.NET is a trademark of Microsoft Corporation.#;__ASSEMBLYINTERNALNAME__=#Microsoft.SPOT.Tasks.NativeBuild#" /OutputFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks.NativeBuild_assemblyinfo.txt
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  NativeBuildTasks -> G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks.NativeBuild.dll
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasksNativeBuild\NativeBuildTasks.csproj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj" (4) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\CreateSymdef\CreateSymdef.csproj" (7) on node 1 (Build target(s)).
+StartBuild:
+  Building...G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\CreateSymdef\CreateSymdef.csproj;
+GetFrameworkPaths:
+  Could not locate the .NET Framework SDK.  The task is looking for the path to the .NET Framework SDK at the location specified in the SDKInstallRootv2.0 value of the registry key HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework.  You may be able to solve the problem by doing one of the following:  1.) Install the .NET Framework SDK.  2.) Manually set the above registry key to the correct location.
+DoAddCommonAssemblyInfo:
+  cscript //Nologo G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\scripts\Preprocess.js /TemplateFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\AssemblyInfo.cs.template /Properties:"__ASSEMBLYTITLE__=#CreateSymdef#;__ASSEMBLYCOMPANY__=#Microsoft Corporation#;__ASSEMBLYCOPYRIGHT__=#Copyright (C) Microsoft Corporation.  All rights reserved.#;__ASSEMBLYDESCRIPTION__=##;__ASSEMBLYVERSION__=#4.3.0.0#;__PRODUCTVERSION__=#4.3.0.0#;__PRODUCTVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYFILEVERSION__=#4.3.0.0#;__FILEVERSION_CSV__=4, 3, 0, 0;__ASSEMBLYCONFIGURATION__=#Debug#;__ASSEMBLYPRODUCT__=#Microsoft .NET Micro Framework#;__ASSEMBLYTRADEMARK__=#.NET is a trademark of Microsoft Corporation.#;__ASSEMBLYINTERNALNAME__=#CreateSymdef#" /OutputFile:G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\CreateSymdef_assemblyinfo.txt
+CoreCompile:
+Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+CopyFilesToOutputDirectory:
+  CreateSymdef -> G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\CreateSymdef.exe
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\CreateSymdef\CreateSymdef.csproj" (Build target(s)).
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Framework\Tools\BuildTasks.dirproj" (Build target(s)).
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\PK.proj" (Build target(s)).
+DelBuildLib:
+  del /q  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\RegTestSuite.lib
+  Could Not Find G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\RegTestSuite.lib
+  del /q  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\RegTestSuite.lib.manifest
+  Could Not Find G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\RegTestSuite.lib.manifest
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+   "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -mthumb -DCOMPILE_THUMB2  -DVERSION_MAJOR=4 -DVERSION_MINOR=3 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_STM32F10x -DPLATFORM_ARM_EmoteDotNow -DTARGETLOCATION_FLASH -DLITTLE_ENDIAN -DGCC  -DGCC_OLD_ARG_LIST      -mfloat-abi=soft   -mcpu=cortex-m3 -mlittle-endian  -g -O0 -DDEBUG  -D_DEBUG   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\STM32F10x\RegressionTest\TestSuite -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\crypto\inc  -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\CorLib -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Hardware -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Graphics -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Net -IG:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.2.1\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\Targets\Native\STM32F10x -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\inc -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib    -o G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\STM32F10x\RegressionTest\TestSuite\log.obj -c G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp  
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp: In member function 'void Log::BeginTest(char*)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:53: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp: In static member function 'static void Log::Output_LCDStream(char*, char*)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:113: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp: In static member function 'static void Log::Output_DefaultDebugChannelStream(char*, char*)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:128: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp: In static member function 'static void Log::Output_BlockStream(char*, char*)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:150: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp: In member function 'char* Log::ConvertResult(BOOL)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:162: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\log\log.cpp:166: warning: deprecated conversion from string constant to 'char*'
+   "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -mthumb -DCOMPILE_THUMB2  -DVERSION_MAJOR=4 -DVERSION_MINOR=3 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_STM32F10x -DPLATFORM_ARM_EmoteDotNow -DTARGETLOCATION_FLASH -DLITTLE_ENDIAN -DGCC  -DGCC_OLD_ARG_LIST      -mfloat-abi=soft   -mcpu=cortex-m3 -mlittle-endian  -g -O0 -DDEBUG  -D_DEBUG   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\STM32F10x\RegressionTest\TestSuite -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\crypto\inc  -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\CorLib -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Hardware -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Graphics -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Net -IG:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.2.1\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\Targets\Native\STM32F10x -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\inc -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib    -o G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\STM32F10x\RegressionTest\TestSuite\UARTTest.obj -c G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp  
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp: In member function 'BOOL UARTTest::Execute(LOG_STREAM)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp:15: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp:19: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp:25: warning: deprecated conversion from string constant to 'char*'
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\UARTTest\UARTTest.cpp:39: warning: deprecated conversion from string constant to 'char*'
+   "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -mthumb -DCOMPILE_THUMB2  -DVERSION_MAJOR=4 -DVERSION_MINOR=3 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_STM32F10x -DPLATFORM_ARM_EmoteDotNow -DTARGETLOCATION_FLASH -DLITTLE_ENDIAN -DGCC  -DGCC_OLD_ARG_LIST      -mfloat-abi=soft   -mcpu=cortex-m3 -mlittle-endian  -g -O0 -DDEBUG  -D_DEBUG   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\STM32F10x\RegressionTest\TestSuite -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\crypto\inc  -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\CorLib -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Hardware -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Graphics -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Net -IG:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.2.1\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\Targets\Native\STM32F10x -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\inc -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib    -o G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\STM32F10x\RegressionTest\TestSuite\TimerTest.obj -c G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTest\TimerTest.cpp  
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTest\TimerTest.cpp: In member function 'BOOL TimerTest::Execute(LOG_STREAM)':
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\TimerTest\TimerTest.cpp:32: warning: deprecated conversion from string constant to 'char*'
+ArmBuildLib:
+  "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\RegTestSuite.lib log.obj UARTTest.obj TimerTest.obj 
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\TestSuite\dotnetmf.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USB\dotNetMF.proj" (9) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usb_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USB\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USART\dotNetMF.proj" (10) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usart_pal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USART\dotNetMF.proj" (10) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (11) on node 1 (default targets).
+StartMessage:
+  Doing build of Library usart_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USART\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\USART\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\CRC\dotNetMF.proj" (12) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library CRC - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\CRC\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Diagnostics\stubs\dotNetMF.proj" (13) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library diagnostics_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Diagnostics\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj" (14) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TinyHal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj" (14) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF_loader.proj" (15) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TinyHal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+ArmAssemble:
+Skipping target "ArmAssemble" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\WireProtocol\dotNetMF.proj" (16) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library WireProtocol - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\WireProtocol\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\AsyncProcCall\stubs\dotNetMF.proj" (17) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library asyncproccall_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\AsyncProcCall\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" (18) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_bootstrap - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bootstrap\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" (19) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_cmsis - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" (20) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_dac - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" (21) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_exti - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" (22) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_flash - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" (23) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_gpio - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" (24) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_misc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\rcc\dotNetMF.proj" (25) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_rcc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\rcc\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" (26) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_spi - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" (27) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_tim - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" (28) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_time - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" (29) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_usart - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because all output files are up-to-date with respect to the input files.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\pal\configuration\stubs\dotNetMF.proj" (30) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library config_pal_Stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\pal\configuration\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\stubs\dotNetMF.proj" (31) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Crypto_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Events\stubs\dotNetMF.proj" (32) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library events_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Events\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" (33) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_intc - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\intc\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Initialization\dotNetMF.proj" (34) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library system_initialization_hal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Initialization\dotNetMF.proj" (34) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Initialization\dotNetMF_loader.proj" (35) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library system_initialization_hal_loader - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Initialization\dotNetMF_loader.proj" (Build target(s)).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Initialization\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Heap\stubs\dotNetMF.proj" (36) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library heap_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Heap\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (37) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_mmu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_MMU\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" (38) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_power_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (39) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library SimpleHeap_config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\SimpleHeap_config\Stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\SimpleHeap\stubs\dotNetMF.proj" (40) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library SimpleHeap_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\SimpleHeap\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" (41) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_spi_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\drivers\stubs\processor\stubs_spi\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Time\dotNetMF.proj" (42) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Time_pal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Time\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (43) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library blockstorage_pal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (43) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (44) on node 1 (default targets).
+StartMessage:
+  Doing build of Library blockstorage_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\BlockStorage\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\BlockStorage\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" (45) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library STM32F10x_bl - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (46) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_LCD_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (47) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library i2c_pal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (47) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (48) on node 1 (default targets).
+StartMessage:
+  Doing build of Library i2c_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\I2C\Stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\I2C\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\dotNetMF.proj" (49) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library COM_pal - rule is ArmBuildLib
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\dotNetMF.proj" (49) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (50) on node 1 (default targets).
+StartMessage:
+  Doing build of Library COM_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\stubs\dotNetMF.proj" (default targets).
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (51) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Gesture_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Gesture\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (52) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library backlight_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Backlight\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (53) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library sockets_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (54) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library TimeService_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\TimeService\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (55) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Ink_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (56) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library batterymeasurement_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\BatteryMeasurement\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (57) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library batterycharger_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (58) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library lcd_hal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (59) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library fs_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\fs\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (60) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library FS_Config_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\FS\stubs\config\dotnetmf.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (61) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_i2c_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_I2C\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (62) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Buttons_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Buttons\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (63) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_ebiu_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\processor\stubs_EBIU\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" (64) on node 1 (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" (64) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\gcc-thumb2\dotNetMF.proj" (65) on node 1 (default targets).
+StartMessage:
+  Doing build of Library GlobalLock_hal - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\gcc-thumb2\dotNetMF.proj" (default targets).
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cores\arm\Common\GlobalLock\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\palevent\stubs\dotNetMF.proj" (66) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library palevent_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\palevent\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" (67) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library tinycrt_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\pal\TinyCRT\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (68) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library usb_pal_config_stub - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Stubs\USB_Config\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" (69) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_usb_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\Stubs\Processor\stubs_usb\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (70) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library cpu_watchdog_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Drivers\stubs\Processor\stubs_watchdog\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" (71) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library Watchdog_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Pal\Watchdog\stubs\dotNetMF.proj" (Build target(s)).
+Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (1) is building "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (72) on node 1 (Build target(s)).
+StartMessage:
+  Doing build of Library piezo_pal_stubs - rule is ArmBuildLib
+DelBuildLib:
+Skipping target "DelBuildLib" because all output files are up-to-date with respect to the input files.
+ArmCompileC:
+Skipping target "ArmCompileC" because it has no inputs.
+ArmCompileCPP:
+Skipping target "ArmCompileCPP" because all output files are up-to-date with respect to the input files.
+CreateLibManifest:
+Skipping target "CreateLibManifest" because all output files are up-to-date with respect to the input files.
+ArmBuildLib:
+Skipping target "ArmBuildLib" because all output files are up-to-date with respect to the input files.
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" (Build target(s)).
+ArmCompileCPP:
+   "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-g++.exe" -xc++ -Wno-invalid-offsetof -fcheck-new    -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8  -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING  -mthumb -DCOMPILE_THUMB2  -DVERSION_MAJOR=4 -DVERSION_MINOR=3 -DVERSION_BUILD=0 -DVERSION_REVISION=0 -DOEMSYSTEMINFOSTRING="\"Microsoft Copyright (C) Microsoft Corporation.  All rights reserved.\"" -DPLATFORM_ARM_STM32F10x -DPLATFORM_ARM_EmoteDotNow -DTARGETLOCATION_FLASH -DLITTLE_ENDIAN -DGCC  -DGCC_OLD_ARG_LIST      -mfloat-abi=soft   -mcpu=cortex-m3 -mlittle-endian  -g -O0 -DDEBUG  -D_DEBUG   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include   -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\crypto\inc  -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\CorLib -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Hardware -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Graphics -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_Net -IG:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.2.1\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\devicecode\Targets\Native\STM32F10x -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\STM32F10x\EmoteDotNow -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Support\Include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\CLR\include -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Crypto\inc -IG:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib    -o G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\RegressionTest.obj -c G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.cpp  
+  In file included from G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.cpp:14:
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm/..\..\Targets\Native\STM32F10x\DeviceCode\drivers\usart\netmf_usart.h:13: warning: "COM1" redefined
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow/platform_selector.h:89: note: this is the location of the previous definition
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\DeviceCode\Cores\arm/..\..\Targets\Native\STM32F10x\DeviceCode\drivers\usart\netmf_usart.h:14: warning: "COM2" redefined
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow/platform_selector.h:90: note: this is the location of the previous definition
+BuildScatterfile:
+  ...
+Processing file: G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\scatterfile_tools_GCC.xml
+Processing file: G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\scatterfile_gcc_missing_symbols.xml
+BuildAXF:
+  PrepareLibsForConcat.cmd G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib RegTestSuite.lib usb_pal.lib usart_pal.lib diagnostics_pal_stubs.lib TinyHal.lib asyncproccall_pal_stubs.lib STM32F10x_bootstrap.lib STM32F10x_cmsis.lib STM32F10x_dac.lib STM32F10x_exti.lib STM32F10x_flash.lib STM32F10x_gpio.lib STM32F10x_misc.lib STM32F10x_rcc.lib STM32F10x_spi.lib STM32F10x_tim.lib STM32F10x_time.lib STM32F10x_usart.lib config_pal_Stubs.lib Crypto_stub.lib events_pal_stubs.lib stm32f10x_intc.lib system_initialization_hal.lib heap_pal_stubs.lib cpu_mmu_stubs.lib cpu_power_stubs.lib SimpleHeap_config_stubs.lib SimpleHeap_stubs.lib cpu_spi_stubs.lib Time_pal.lib blockstorage_pal.lib STM32F10x_bl.lib cpu_LCD_stubs.lib i2c_pal.lib COM_pal.lib Gesture_pal_stubs.lib backlight_hal_stubs.lib sockets_pal_stubs.lib TimeService_pal_stubs.lib Ink_pal_stubs.lib batterymeasurement_hal_stubs.lib batterycharger_hal_stubs.lib lcd_hal_stubs.lib fs_pal_stubs.lib FS_Config_stubs.lib cpu_i2c_stubs.lib Buttons_pal_stubs.lib cpu_ebiu_stubs.lib GlobalLock_hal.lib palevent_pal_stubs.lib tinycrt_pal_stubs.lib usb_pal_config_stub.lib cpu_usb_stubs.lib cpu_watchdog_stubs.lib Watchdog_pal_stubs.lib piezo_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\RegTestSuite.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\usb_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\usart_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\diagnostics_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\TinyHal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\asyncproccall_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_bootstrap.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_cmsis.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_dac.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_exti.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_flash.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_gpio.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_misc.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_rcc.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_spi.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_tim.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_time.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_usart.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\config_pal_Stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Crypto_stub.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\events_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\stm32f10x_intc.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\system_initialization_hal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\heap_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_mmu_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_power_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\SimpleHeap_config_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\SimpleHeap_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_spi_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Time_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\blockstorage_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\STM32F10x_bl.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_LCD_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\i2c_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\COM_pal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Gesture_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\backlight_hal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\sockets_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\TimeService_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Ink_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\batterymeasurement_hal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\batterycharger_hal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\lcd_hal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\fs_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\FS_Config_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_i2c_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Buttons_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_ebiu_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\GlobalLock_hal.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\palevent_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\tinycrt_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\usb_pal_config_stub.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_usb_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\cpu_watchdog_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\Watchdog_pal_stubs.lib
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar -x ..\piezo_pal_stubs.lib
+  "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ar.exe"  -rcs G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp_RegressionTest.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp\*.obj
+  del G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp\*.obj
+  rmdir G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp
+  "G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib   --allow-multiple-definition -u ARM_Vectors -u _start --Map G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.map --output=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.axf --script=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest_scatterfile.ldf G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\RegressionTest.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\test.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\signalr.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\syscalls.obj -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\CRC.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\WireProtocol.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp_RegressionTest.lib  -) -( "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libm.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libc.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.5.0\thumb\libgcc.a" -) -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\h_t.l G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\c_t.l -)
+  G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ld.exe: G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\test.obj: No such file: No such file or directory
+G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\targets\Microsoft.SPOT.System.GCC.targets(340,5): error MSB3073: The command ""G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib   --allow-multiple-definition -u ARM_Vectors -u _start --Map G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.map --output=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.axf --script=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest_scatterfile.ldf G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\RegressionTest.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\test.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\signalr.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\syscalls.obj -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\CRC.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\WireProtocol.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp_RegressionTest.lib  -) -( "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libm.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libc.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.5.0\thumb\libgcc.a" -) -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\h_t.l G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\c_t.l -)" exited with code 1. [G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj]
+Done Building Project "G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+"G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj" (build target) (1) ->
+(BuildAXF target) -> 
+  G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\targets\Microsoft.SPOT.System.GCC.targets(340,5): error MSB3073: The command ""G:\Main\MF-Dev\ToolChains\codesourcery-nick\bin\arm-none-eabi-ld.exe"  -static --gc-sections --no-warn-mismatch --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib --library-path=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib   --allow-multiple-definition -u ARM_Vectors -u _start --Map G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.map --output=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest.axf --script=G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\bin\RegressionTest_scatterfile.ldf G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\RegressionTest.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\test.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\signalr.obj G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\obj\Solutions\EmoteDotNow\RegressionTest\syscalls.obj -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\CRC.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\ANY_MEDIA\debug\lib\WireProtocol.lib G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\BuildOutput\THUMB2\GCC4.2\le\FLASH\debug\EmoteDotNow\lib\tmp_RegressionTest.lib  -) -( "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libm.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\arm-none-eabi\lib\thumb\libc.a" "G:\Main\MF-Dev\ToolChains\codesourcery-nick\lib\gcc\arm-none-eabi\4.5.0\thumb\libgcc.a" -) -( G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\h_t.l G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\tools\ads_v3_1\Lib\armlib\c_t.l -)" exited with code 1. [G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Solutions\EmoteDotNow\RegressionTest\RegressionTest.proj]
+
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:03.41

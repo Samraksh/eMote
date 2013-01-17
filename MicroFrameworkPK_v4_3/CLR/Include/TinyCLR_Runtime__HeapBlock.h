@@ -2434,6 +2434,9 @@ struct CLR_RT_HeapBlock_NativeEventDispatcher : public CLR_RT_ObjectToEvent_Dest
     HRESULT RecoverManagedObject( CLR_RT_HeapBlock*& port                                   );
 
     static void ThreadTerminationCallback( void* arg                                  );
+#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
+    static void RTOSThreadTerminationCallback( void* arg                                  );
+#endif
     void SaveToHALQueue( UINT32 data1, UINT32 data2 );
     void RemoveFromHALQueue();
 

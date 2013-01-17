@@ -150,9 +150,6 @@ namespace Microsoft.SPOT.Debugger
 
         protected string m_macAddress = "";
 
-        private static List<PortDefinition> m_portCache = new List<PortDefinition>();
-        private static DateTime m_portCacheTime = DateTime.MinValue;
-
         internal unsafe struct SOCK_discoveryinfo 
         {
             internal uint       ipaddr;
@@ -204,12 +201,7 @@ namespace Microsoft.SPOT.Debugger
 
         public static PortDefinition[] EnumeratePorts()
         {
-            return EnumeratePorts(true);
-        }
-
-        public static PortDefinition[] EnumeratePorts(bool forceRefresh)
-        {
-            return EnumeratePorts(System.Net.IPAddress.Parse("234.102.98.44"), System.Net.IPAddress.Parse("234.102.98.45"), 26001, "DOTNETMF", 3000, 1, forceRefresh);
+            return EnumeratePorts(System.Net.IPAddress.Parse("234.102.98.44"), System.Net.IPAddress.Parse("234.102.98.45"), 26001, "DOTNETMF", 3000, 1);
         }
 
         public static PortDefinition[] EnumeratePorts(
@@ -221,37 +213,9 @@ namespace Microsoft.SPOT.Debugger
             int       DiscoveryTTL                 
         )
         {
-            return EnumeratePorts(
-                DiscoveryMulticastAddress, 
-                DiscoveryMulticastAddressRecv, 
-                DiscoveryMulticastPort, 
-                DiscoveryMulticastToken, 
-                DiscoveryMulticastTimeout, 
-                DiscoveryTTL, 
-                true);
-        }
-
-        public static PortDefinition[] EnumeratePorts(
-            System.Net.IPAddress DiscoveryMulticastAddress    ,
-            System.Net.IPAddress DiscoveryMulticastAddressRecv,
-            int       DiscoveryMulticastPort       ,
-            string    DiscoveryMulticastToken      ,
-            int       DiscoveryMulticastTimeout    ,
-            int       DiscoveryTTL                 ,
-            bool      ForceRefresh
-        )
-        {
             PortDefinition_Tcp []ports = null;
             Dictionary<string, string> addresses = new Dictionary<string, string>();
-
-            if (!ForceRefresh && m_portCache.Count > 0 && 
-                (DateTime.Now - m_portCacheTime) < TimeSpan.FromSeconds(30))
-            {
-                return m_portCache.ToArray();
-            }
-
-            m_portCache.Clear();
-
+            
             try
             {
                 IPHostEntry hostEntry = Dns.GetHostEntry(Dns.GetHostName());
@@ -376,9 +340,6 @@ namespace Microsoft.SPOT.Debugger
                 ports[i++] = new PortDefinition_Tcp(IPAddress.Parse(key), addresses[key]);
             }
 
-            m_portCache.AddRange(ports);
-            m_portCacheTime = DateTime.Now;
-
             return ports;            
         }
 
@@ -392,7 +353,7 @@ namespace Microsoft.SPOT.Debugger
 
             IAsyncResult asyncResult = socket.BeginConnect(m_ipEndPoint, null, null);
 
-            if (asyncResult.AsyncWaitHandle.WaitOne(1000, false))
+            if (asyncResult.AsyncWaitHandle.WaitOne(2000, false))
             {
                 socket.EndConnect(asyncResult);
             }

@@ -2,10 +2,12 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 #include "TinyBooter.h"
 #include <TinyBooterEntry.h>
 #include "ConfigurationManager.h"
 #include <TinyCLR_Endian.h>
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,6 +20,21 @@ UINT8* g_ConfigBuffer       = NULL;
 int    g_ConfigBufferLength = 0;
 static const int g_ConfigBufferTotalSize = sizeof(ConfigurationSector);
 
+#ifdef PLATFORM_ARM_EmoteDotNow
+typedef  void (*pFunction)(void);
+#define     __IO    volatile 
+
+void __set_MSP(UINT32 mainStackPointer)
+{
+	__asm
+    (
+    	" msr msp, r0\n"
+    	"bx lr\n"
+    );
+  
+}
+
+#endif
 
 //--//
 
@@ -1021,7 +1038,7 @@ bool Loader_Engine::EnumerateAndLaunch()
     //--//
 
     BlockStorageStream codeStream;
-    FLASH_WORD ProgramWordCheck = 0;
+    FLASH_WORD ProgramWordCheck;
     FLASH_WORD *pWord = &ProgramWordCheck;
 
     if(!codeStream.Initialize( BlockUsage::CODE )) return false;
@@ -1041,10 +1058,6 @@ bool Loader_Engine::EnumerateAndLaunch()
             }
 
             if(programCount == MAX_PROGRAMS) break;
-
-            // reset the pointer and default value
-            ProgramWordCheck = 0;
-            pWord = &ProgramWordCheck;
         }
         while( codeStream.Seek( BlockStorageStream::STREAM_SEEK_NEXT_BLOCK, BlockStorageStream::SeekCurrent ) );
 
@@ -1106,7 +1119,17 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
         }
     }
 
-    (*startAddress)();
+     // Nived.Sivadas@samraksh.com : Reset_handler is not at the start of the executable, can change this but going with this for now
+    //startAddress = (ApplicationStartAddress) TinyBooter_AddEntryOffSet((void *) startAddress);
+#ifdef PLATFORM_ARM_EmoteDotNow
+    int JumpAddress = *(__IO UINT32 *) (startAddress + 4);
+    pFunction Jump_To_Application = (pFunction) JumpAddress;
+    //__set_MSP(*(__IO UINT32*) startAddress);
+    Jump_To_Application();
+#else
+        (*startAddress)();
+#endif
+
 }
 
 //--//

@@ -24,7 +24,7 @@ HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReA
 
 void ApplicationEntryPoint()
 {
-    INT32 timeout       = 20000; // 20 second timeout
+    INT32 timeout       = 10000; // 5 second timeout
     bool  enterBootMode = false;
 
     // crypto API needs to allocate memory. Initialize simple heap for it. 

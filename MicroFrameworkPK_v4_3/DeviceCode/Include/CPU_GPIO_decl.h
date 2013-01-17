@@ -69,6 +69,7 @@ void   CPU_GPIO_DisablePin     ( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT
 void   CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState );
 BOOL   CPU_GPIO_EnableInputPin ( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
 BOOL   CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
+BOOL   CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
 BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin );
 void   CPU_GPIO_SetPinState    ( GPIO_PIN Pin, BOOL PinState );
 BOOL   CPU_GPIO_PinIsBusy      ( GPIO_PIN Pin );

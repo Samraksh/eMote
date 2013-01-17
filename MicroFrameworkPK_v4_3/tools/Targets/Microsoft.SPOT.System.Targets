@@ -7,8 +7,7 @@
 <!-- -->
 
   <ItemGroup>
-    <RequiredProjects Condition="'$(TinyCLR_Platform)'!='Server' AND '$(AUTOMATED_BUILD)'=='' AND '$(InPKProj)'    !='True'" Include="$(SPOCLIENT)\PK.proj" />
-    <RequiredProjects Condition="'$(TinyCLR_Platform)'!='Server' AND '$(AUTOMATED_BUILD)'=='' AND '$(InCLRDefines)'!='True'" Include="$(SPOCLIENT)\Framework\Tools\CreateCLRDefines.proj" />
+    <RequiredProjects Condition="'$(TinyCLR_Platform)'!='Server' AND '$(AUTOMATED_BUILD)'==''" Include="$(SPOCLIENT)\PK.proj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -310,7 +309,7 @@
     <MakeDir Directories="$(BIN_DIR)" Condition="!Exists('$(BIN_DIR)')" />
   </Target>
 
-  <Target Name="DoPreBuild">
+  <Target Name="DoPreBUild">
     <!-- Build any projects that this one depends on -->
     <MSBuild
         Projects="@(PreBuildProjects)"

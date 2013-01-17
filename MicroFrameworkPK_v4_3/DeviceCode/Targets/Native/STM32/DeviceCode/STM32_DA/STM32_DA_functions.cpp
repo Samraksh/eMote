@@ -39,17 +39,6 @@ BOOL DA_Initialize( DA_CHANNEL channel, INT32 precisionInBits )
 
 void DA_Uninitialize( DA_CHANNEL channel )
 {
-    if (channel) {
-        DAC->CR &= ~DAC_CR_EN2; // disable channel 2
-    } else {
-        DAC->CR &= ~DAC_CR_EN1; // disable channel 1
-    }
-    // free pin
-    CPU_GPIO_DisablePin(STM32_DA_FIRST_PIN + channel, RESISTOR_DISABLED, 0, GPIO_ALT_PRIMARY);
-    if ((DAC->CR & (DAC_CR_EN1 | DAC_CR_EN2)) == 0) { // all channels off
-        // disable DA clock
-        RCC->APB1ENR &= ~RCC_APB1ENR_DACEN;
-    }
 }
 
 // level is a 12 bit value

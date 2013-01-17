@@ -12,6 +12,7 @@
 
 #include <crypto.h>
 
+extern BOOL RT_Dispose ();
 //--//
 
 BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
@@ -390,6 +391,8 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg, void* owner )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
 
+	RT_Dispose();
+	
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
     if((msg->m_header.m_flags & WP_Flags::c_Reply) == 0)
@@ -786,6 +789,8 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool                fRet;
 
+	RT_Dispose();
+	
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
     CLR_DBG_Commands::Monitor_EraseMemory* cmd = (CLR_DBG_Commands::Monitor_EraseMemory*)msg->m_payload;
