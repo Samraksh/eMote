@@ -732,20 +732,11 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     {
         HRESULT hr2 = ScheduleThreads( maxContextSwitch ); TINYCLR_CHECK_HRESULT(hr2);
         
-/*        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
+        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
         {
             TINYCLR_SET_AND_LEAVE(S_FALSE);
         }
-*/
-        if(CLR_EE_DBG_IS( RebootPending )){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if(CLR_EE_DBG_IS( ExitPending ) ){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if( CLR_EE_REBOOT_IS(ClrOnly)){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
+
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped ))
         {

@@ -133,7 +133,7 @@ BOOL dm9161_lwip_AutoNegotiate()
         goto AutoNegotiateExit;
 
     // Check AutoNegotiate complete
-    retryCount = retryMax;
+    retryCount = 1000;
     while (retryCount--)
     {
         rc  = AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &value, retryMax)|
@@ -274,7 +274,8 @@ BOOL dm9161_lwip_GetLinkStatus(void)
 
     AT91_EMAC_LWIP_EnableMdio();
 
-    if (AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax) ||
+    if (AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax) ||
+
         AT91_EMAC_LWIP_ReadPhy(g_phyAddress, DM9161_BMSR, &bmsr, retryMax))
     {
         link_status = (bmsr & DM9161_LINK_STATUS);

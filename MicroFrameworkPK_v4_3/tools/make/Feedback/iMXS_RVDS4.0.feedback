@@ -1,4 +1,4 @@
-;#<FEEDBACK># ARM Linker, RVCT4.0 [Build 650]: Last Updated: Thu Oct 04 07:53:35 2012
+;#<FEEDBACK># ARM Linker, RVCT4.0 [Build 650]: Last Updated: Fri Nov 16 07:51:38 2012
 ;VERSION 0.2
 ;FILE ARM9_bootstrap.obj
 CPU_ARM9_BootstrapCode <= USED 0
