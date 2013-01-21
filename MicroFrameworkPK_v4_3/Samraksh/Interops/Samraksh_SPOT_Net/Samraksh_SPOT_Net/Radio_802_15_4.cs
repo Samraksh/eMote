@@ -58,6 +58,12 @@ namespace Samraksh.SPOT.Net.Radio
         public extern byte GetID();
 
         [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern UInt16 GetAddress();
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool SetAddress(UInt16 Address);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus TurnOn();
 
         [MethodImpl(MethodImplOptions.InternalCall)]

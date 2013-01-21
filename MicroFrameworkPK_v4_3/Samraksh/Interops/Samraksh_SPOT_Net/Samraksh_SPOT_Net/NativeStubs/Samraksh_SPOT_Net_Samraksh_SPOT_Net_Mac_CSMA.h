@@ -30,6 +30,7 @@ namespace Samraksh
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
                     static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                     static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UNSUPPORTED_TYPE GetNeighborTable( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UNSUPPORTED_TYPE GetNeighbors( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );

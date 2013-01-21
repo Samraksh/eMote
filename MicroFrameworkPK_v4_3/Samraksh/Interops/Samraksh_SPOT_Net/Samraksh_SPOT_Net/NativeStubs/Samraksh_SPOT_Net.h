@@ -20,6 +20,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);
+    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
     TINYCLR_NATIVE_DECLARE(GetNeighborTable___SamrakshSPOTNetMacNeighborTable);
     TINYCLR_NATIVE_DECLARE(GetNeighbors___SamrakshSPOTNetMacNeighbor__U2);
@@ -101,6 +102,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
     TINYCLR_NATIVE_DECLARE(Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetRadioRadioConfiguration);
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
+    TINYCLR_NATIVE_DECLARE(GetAddress___U2);
+    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
     TINYCLR_NATIVE_DECLARE(TurnOn___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(Sleep___SamrakshSPOTNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(PreLoad___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2);

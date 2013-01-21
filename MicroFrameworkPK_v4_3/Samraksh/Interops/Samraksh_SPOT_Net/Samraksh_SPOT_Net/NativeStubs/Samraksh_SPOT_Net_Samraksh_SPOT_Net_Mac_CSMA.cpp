@@ -40,6 +40,12 @@ UINT16 CSMA::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
+INT8 CSMA::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 UINT8 CSMA::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 

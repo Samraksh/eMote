@@ -37,6 +37,8 @@ namespace Samraksh
                     static INT32 Configure( CLR_RT_HeapBlock* pMngObj, UNSUPPORTED_TYPE param0, HRESULT &hr );
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                     static INT32 TurnOn( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr );

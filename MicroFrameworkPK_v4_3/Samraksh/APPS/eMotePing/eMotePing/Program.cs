@@ -48,7 +48,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         UInt16 myAddress;
         UInt16 mySeqNo = 0;
         Timer sendTimer;
-        //EmoteLCD lcd;
+        EmoteLCD lcd;
         PingMsg sendMsg = new PingMsg();
 
         //Radio.Radio_802_15_4 my_15_4 = new Radio.Radio_802_15_4();
@@ -64,9 +64,9 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             
             Debug.Print("Initializing:  EmotePingwLCD");
             Thread.Sleep(1000);
-            //lcd = new EmoteLCD();
-            //lcd.Initialize();
-            //lcd.Write(LCD.CHAR_I, LCD.CHAR_N, LCD.CHAR_I, LCD.CHAR_7);
+            lcd = new EmoteLCD();
+            lcd.Initialize();
+            lcd.Write(LCD.CHAR_I, LCD.CHAR_N, LCD.CHAR_I, LCD.CHAR_7);
            
             /*
             Debug.Print("Initializing:  Radio");
@@ -105,8 +105,13 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             }
             Debug.Print("CSMA Init done.");
             myAddress = myCSMA.GetAddress();
-            Debug.Print("My address is :  " + myAddress.ToString());
-            
+            Debug.Print("My default address is :  " + myAddress.ToString());
+
+            /*myCSMA.SetAddress(52);
+            myAddress = myCSMA.GetAddress();
+            Debug.Print("My New address is :  " + myAddress.ToString());
+             */ 
+           
         }
         void Start()
         {
@@ -130,12 +135,12 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             {
                 //This is a response to my message
                 Debug.Print("Received response from: " + rcvMsg.Src);
-                //lcd.Write(LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A);
+                lcd.Write(LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A);
             }
             else
             {
                 Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src);
-                //lcd.Write(LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B);
+                lcd.Write(LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B);
                 Send_Pong(rcvMsg);
             }
         }

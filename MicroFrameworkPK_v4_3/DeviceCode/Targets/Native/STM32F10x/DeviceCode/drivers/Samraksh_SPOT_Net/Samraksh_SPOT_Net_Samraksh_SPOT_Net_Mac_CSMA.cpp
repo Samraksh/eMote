@@ -67,6 +67,12 @@ UINT16 CSMA::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return MF_NODE_ID;
 }
 
+INT8 CSMA::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+    MF_NODE_ID = param0;
+    return 1;
+}
+
 UINT8 CSMA::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return MacID;
