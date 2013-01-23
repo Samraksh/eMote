@@ -20,6 +20,8 @@ namespace Samraksh.SPOT.Net.Radio
         DeviceStatus Configure(RadioConfiguration config);  //Change configuration after initialization
         DeviceStatus UnInitialize();
         byte GetID();
+        UInt16 GetAddress();
+        bool SetAddress(UInt16 Address);
         DeviceStatus TurnOn();
         DeviceStatus Sleep(byte level);
         NetOpStatus PreLoad(byte[] message, UInt16 size);

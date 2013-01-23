@@ -46,6 +46,17 @@ UINT8 Radio_802_15_4::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return RadioID;
 }
 
+UINT16 Radio_802_15_4::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return MF_NODE_ID;
+}
+
+INT8 Radio_802_15_4::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+{
+	MF_NODE_ID = param0;
+	return 1;
+}
+
 INT32 Radio_802_15_4::TurnOn( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     INT32 retVal = 0; 

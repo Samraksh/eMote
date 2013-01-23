@@ -71,6 +71,9 @@ namespace Samraksh.SPOT.Net.Mac
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern UInt16 GetAddress();
+        
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool SetAddress(UInt16 Address);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern byte GetID();

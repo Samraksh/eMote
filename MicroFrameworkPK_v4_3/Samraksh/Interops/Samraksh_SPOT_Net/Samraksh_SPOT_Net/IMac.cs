@@ -60,6 +60,7 @@ namespace Samraksh.SPOT.Net
             DeviceStatus UnInitialize();
             NetOpStatus Send(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
             UInt16 GetAddress();
+            bool SetAddress(UInt16 Address);
             byte GetID();
 
             //Neighbor functions

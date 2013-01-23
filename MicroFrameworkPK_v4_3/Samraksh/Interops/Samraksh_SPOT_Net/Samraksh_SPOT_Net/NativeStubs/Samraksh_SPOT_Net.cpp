@@ -24,10 +24,12 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::UnInitialize___SamrakshSPOTNetDeviceStatus,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetAddress___U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetAddress___BOOLEAN__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetID___U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborTable___SamrakshSPOTNetMacNeighborTable,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighbors___SamrakshSPOTNetMacNeighbor__U2,
@@ -51,9 +53,13 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetRadioRadioConfiguration,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::UnInitialize___SamrakshSPOTNetDeviceStatus,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetID___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetAddress___U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetAddress___BOOLEAN__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::TurnOn___SamrakshSPOTNetDeviceStatus,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Sleep___SamrakshSPOTNetDeviceStatus__U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::PreLoad___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2,
@@ -75,7 +81,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0xD27210E1,
+    0x11012AC5,
     method_lookup
 };
 

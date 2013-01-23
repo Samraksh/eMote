@@ -3,6 +3,32 @@
 #include <tinyhal.h>
 
 
+BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
+	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
+	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
+	Device_Serial1 = *(UINT32*)(0x1FFFF7EC);
+	Device_Serial2 = *(UINT32*)(0x1FFFF7F0);
+	if(num_of_bytes==12){
+	    ptr[0] = (UINT8)(Device_Serial0 & 0x000000FF);
+	    ptr[1] = (UINT8)((Device_Serial0 & 0x0000FF00) >> 8);
+	    ptr[2] = (UINT8)((Device_Serial0 & 0x00FF0000) >> 16);
+	    ptr[3] = (UINT8)((Device_Serial0 & 0xFF000000) >> 24);
+
+	    ptr[4] = (UINT8)(Device_Serial1 & 0x000000FF);
+	    ptr[5] = (UINT8)((Device_Serial1 & 0x0000FF00) >> 8);
+	    ptr[6] = (UINT8)((Device_Serial1 & 0x00FF0000) >> 16);
+	    ptr[7] = (UINT8)((Device_Serial1 & 0xFF000000) >> 24);
+
+	    ptr[8] = (UINT8)(Device_Serial2 & 0x000000FF);
+	    ptr[9] = (UINT8)((Device_Serial2 & 0x0000FF00) >> 8);
+	    ptr[10] = (UINT8)((Device_Serial2 & 0x00FF0000) >> 16);
+	    ptr[11] = (UINT8)((Device_Serial2 & 0xFF000000) >> 24);
+	    return TRUE;
+	}
+	else return FALSE;
+
+}
+
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
 	INIT_STATE_CHECK();
@@ -231,6 +257,15 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 	//If the radio hardware is not alrady initialised, initialize it
 	if(!IsInitialized()){
 		SetRadioID(RadioID::GetUniqueRadioId());//Get your unique ID
+
+		//Get cpu serial and hash it to use as node id
+		UINT8 cpuserial[12];
+		GetCPUSerial(cpuserial,12);
+		MF_NODE_ID=0;
+		UINT16 * temp = (UINT16 *) cpuserial;
+		for (int i=0; i< 6; i++){
+			MF_NODE_ID=MF_NODE_ID ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
+		}
 		SetAddress(MF_NODE_ID);
 		SetInitialized(TRUE);
 

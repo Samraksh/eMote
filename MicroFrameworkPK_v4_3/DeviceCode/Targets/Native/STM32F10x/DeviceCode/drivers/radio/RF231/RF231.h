@@ -30,8 +30,10 @@
 //Interrupts
 void radio_irq_init(void (*irq_handler)());
 
+
 //For C linkage
 extern "C" {
+BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
 void radio_irq_handler();
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void (*irq_handler)();
