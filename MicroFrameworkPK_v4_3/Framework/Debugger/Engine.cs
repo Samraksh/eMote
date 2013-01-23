@@ -951,7 +951,7 @@ namespace Microsoft.SPOT.Debugger
 
         }
 
-        private const int RETRIES_DEFAULT = 1;
+        private const int RETRIES_DEFAULT = 4;
         private const int TIMEOUT_DEFAULT = 500;
 
         PortDefinition m_portDefinition;
@@ -2037,7 +2037,7 @@ namespace Microsoft.SPOT.Debugger
         {
             get
             {
-                if (m_connected)
+                if (!m_connected)
                 {
                     TryToConnect(0, 500, true, ConnectionSource.Unknown);
                 }
@@ -2070,7 +2070,7 @@ namespace Microsoft.SPOT.Debugger
                 cmd.m_source = WireProtocol.Commands.Monitor_Ping.c_Ping_Source_Host;
                 cmd.m_dbg_flags = (m_stopDebuggerOnConnect ? WireProtocol.Commands.Monitor_Ping.c_Ping_DbgFlag_Stop : 0);
 
-                WireProtocol.IncomingMessage msg = SyncMessage(WireProtocol.Commands.c_Monitor_Ping, 0, cmd, retries, wait);
+                WireProtocol.IncomingMessage msg = SyncMessage(WireProtocol.Commands.c_Monitor_Ping, WireProtocol.Flags.c_NoCaching, cmd, retries, wait);
 
                 if (msg == null)
                 {
@@ -2117,7 +2117,7 @@ namespace Microsoft.SPOT.Debugger
 
         public WireProtocol.Commands.Monitor_Ping.Reply GetConnectionSource()
         {
-            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_Ping, 0, null, 1, 1000);
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_Ping, 0, null, 2, 1000);
             if (reply != null)
             {
                 return reply.Payload as WireProtocol.Commands.Monitor_Ping.Reply;
@@ -2127,7 +2127,7 @@ namespace Microsoft.SPOT.Debugger
 
         public WireProtocol.Commands.Monitor_OemInfo.Reply GetMonitorOemInfo()
         {
-            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_OemInfo, 0, null, 1, 1000);
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_OemInfo, 0, null, 2, 1000);
             if (reply != null)
             {
                 return reply.Payload as WireProtocol.Commands.Monitor_OemInfo.Reply;
@@ -2137,7 +2137,7 @@ namespace Microsoft.SPOT.Debugger
 
         public WireProtocol.Commands.Monitor_FlashSectorMap.Reply GetFlashSectorMap()
         {
-            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_FlashSectorMap, 0, null, 0, 1000);
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Monitor_FlashSectorMap, 0, null, 1, 4000);
             if (reply != null)
             {
                 return reply.Payload as WireProtocol.Commands.Monitor_FlashSectorMap.Reply;
@@ -2296,16 +2296,16 @@ namespace Microsoft.SPOT.Debugger
                 
                 SyncMessage(WireProtocol.Commands.c_Monitor_Reboot, 0, cmd);
 
-                if (this.Capabilities.SoftReboot && !(m_portDefinition is PortDefinition_Tcp))
+                if (option != RebootOption.NoReconnect)
                 {
-                    if (option != RebootOption.NoReconnect)
+                    int timeout = 1000;
+
+                    if(m_portDefinition is PortDefinition_Tcp)
                     {
-                        m_evtPing.WaitOne(5000, false);
+                        timeout = 2000;
                     }
-                }
-                else
-                {
-                    Thread.Sleep(200);
+                    
+                    Thread.Sleep(timeout);
                 }
             }
             finally
@@ -2393,7 +2393,7 @@ namespace Microsoft.SPOT.Debugger
             cmd.m_set = iSet;
             cmd.m_reset = iReset;
 
-            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Debugging_Execution_ChangeConditions, 0, cmd);
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Debugging_Execution_ChangeConditions, WireProtocol.Flags.c_NoCaching, cmd);
             if (reply != null)
             {
                 WireProtocol.Commands.Debugging_Execution_ChangeConditions.Reply cmdReply = reply.Payload as WireProtocol.Commands.Debugging_Execution_ChangeConditions.Reply;
@@ -3096,7 +3096,7 @@ namespace Microsoft.SPOT.Debugger
         {
             WireProtocol.OutgoingMessage cmd = CreateMessage_GetValue_Stack(pid, depth, kind, index);
 
-            WireProtocol.IncomingMessage reply = SyncRequest(cmd, 4, 500);
+            WireProtocol.IncomingMessage reply = SyncRequest(cmd, 10, 200);
             if (reply != null)
             {
                 WireProtocol.Commands.Debugging_Value_Reply cmdReply = reply.Payload as WireProtocol.Commands.Debugging_Value_Reply;
@@ -3678,10 +3678,11 @@ namespace Microsoft.SPOT.Debugger
                 deployLength += (uint)assembly.Length;
             }
 
-            if(mh != null) mh( string.Format("Deploying assemblies for a total size of {0} bytes", deployLength) );        
-            
             if (deployLength > status.m_storageLength)
+            {
+                if(mh != null) mh( string.Format("Deployment storage (size: {0} bytes) was not large enough to fit deployment assemblies (size: {1} bytes)", status.m_storageLength, deployLength) );        
                 return false;
+            }
 
             //Compute maximum sector size
             uint maxSectorSize = 0;
@@ -3706,6 +3707,8 @@ namespace Microsoft.SPOT.Debugger
                     sectorDataErased[i] = bErase;
                 }
             }
+
+            uint bytesDeployed = 0;
 
             //The assembly we are using
             iAssembly = 0;
@@ -3784,6 +3787,8 @@ namespace Microsoft.SPOT.Debugger
                     //Is there anything to deploy
                     if (iSectorIndex > 0)
                     {
+                        bytesDeployed += iSectorIndex;
+                        
                         if (!this.WriteMemory(sector.m_start, sectorData, 0, (int)iSectorIndex))
                         {
                             return false;
@@ -3796,6 +3801,18 @@ namespace Microsoft.SPOT.Debugger
                         Debug.Assert(crc != WireProtocol.Commands.Debugging_Deployment_Status.c_CRC_Erased_Sentinel);
 #endif
                     }
+                }
+            }
+
+            if(mh != null)
+            {
+                if(bytesDeployed == 0)
+                {
+                    mh( "All assemblies on the device are up to date.  No assembly deployment was necessary." );        
+                }
+                else
+                {
+                    mh( string.Format("Deploying assemblies for a total size of {0} bytes", bytesDeployed) );        
                 }
             }
 
@@ -3876,7 +3893,11 @@ namespace Microsoft.SPOT.Debugger
             else
             {
                 if (mh != null) mh("Assemblies successfully deployed to device.");
-                if (fRebootAfterDeploy) RebootDevice(RebootOption.RebootClrOnly);
+                if (fRebootAfterDeploy) 
+                {
+                    if (mh != null) mh("Rebooting device...");
+                    RebootDevice(RebootOption.RebootClrOnly);
+                }
             }
 
             return fDeployedOK;

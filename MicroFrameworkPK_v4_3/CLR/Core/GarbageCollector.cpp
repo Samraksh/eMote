@@ -166,7 +166,7 @@ CLR_UINT32 CLR_RT_GarbageCollector::ExecuteGarbageCollection()
     Heap_ComputeAliveVsDeadRatio();
 
     CheckMemoryPressure();
-/*
+
 #if defined(TINYCLR_TRACE_MEMORY_STATS)
     if(s_CLR_RT_fTrace_MemoryStats >= c_CLR_RT_Trace_Info)
     {
@@ -239,7 +239,7 @@ CLR_UINT32 CLR_RT_GarbageCollector::ExecuteGarbageCollection()
         }
     }
 #endif
-*/
+
     CLR_RT_ExecutionEngine::ExecutionConstraint_Resume();
 
     m_numberOfGarbageCollections++;

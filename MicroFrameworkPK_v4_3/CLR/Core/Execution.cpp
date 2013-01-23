@@ -732,20 +732,11 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     {
         HRESULT hr2 = ScheduleThreads( maxContextSwitch ); TINYCLR_CHECK_HRESULT(hr2);
         
-/*        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
+        if(CLR_EE_DBG_IS( RebootPending ) || CLR_EE_DBG_IS( ExitPending ) || CLR_EE_REBOOT_IS(ClrOnly))
         {
             TINYCLR_SET_AND_LEAVE(S_FALSE);
         }
-*/
-        if(CLR_EE_DBG_IS( RebootPending )){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if(CLR_EE_DBG_IS( ExitPending ) ){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
-        if( CLR_EE_REBOOT_IS(ClrOnly)){
-        	TINYCLR_SET_AND_LEAVE(S_FALSE);
-        }
+
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped ))
         {
@@ -3034,17 +3025,46 @@ HRESULT CLR_RT_ExecutionEngine::InitTimeout( CLR_INT64& timeExpire, CLR_INT32 ti
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+int i = 0;
+
 void CLR_RT_ExecutionEngine::DebuggerLoop()
 {
     NATIVE_PROFILE_CLR_CORE();
 
+
     for(volatile int i = 0; i < 1000; i++);
 
+#if 0
+    if(i%3 == 1)
+    {
+       //WaitSystemEvents( SLEEP_LEVEL__SLEEP, g_CLR_HW_Hardware.m_wakeupEvents, TIME_CONVERSION__TO_MILLISECONDS * 100 );
+       	WaitSystemEvents( SLEEP_LEVEL__SLEEP, g_CLR_HW_Hardware.m_wakeupEvents, TIME_CONVERSION__TO_MILLISECONDS * 80 );
+    }
+    else if(i%3 == 2)
+    {
+       	WaitSystemEvents( SLEEP_LEVEL__SLEEP, g_CLR_HW_Hardware.m_wakeupEvents, TIME_CONVERSION__TO_MILLISECONDS * 100 );
+    }
+    else
+    {
+       	WaitSystemEvents( SLEEP_LEVEL__SLEEP, g_CLR_HW_Hardware.m_wakeupEvents, TIME_CONVERSION__TO_MILLISECONDS * 120 );
+    }
+#endif
+
     ProcessHardware();
+
+#if 0
+    CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
+    CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
+#endif
+
 
     UpdateTime();
 
     WaitSystemEvents( SLEEP_LEVEL__SLEEP, g_CLR_HW_Hardware.m_wakeupEvents, TIME_CONVERSION__TO_MILLISECONDS * 100 );
+
+
+
+
 }
 
 

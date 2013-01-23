@@ -1038,7 +1038,7 @@ bool Loader_Engine::EnumerateAndLaunch()
     //--//
 
     BlockStorageStream codeStream;
-    FLASH_WORD ProgramWordCheck;
+    FLASH_WORD ProgramWordCheck = 0;
     FLASH_WORD *pWord = &ProgramWordCheck;
 
     if(!codeStream.Initialize( BlockUsage::CODE )) return false;
@@ -1058,6 +1058,10 @@ bool Loader_Engine::EnumerateAndLaunch()
             }
 
             if(programCount == MAX_PROGRAMS) break;
+
+            // reset the pointer and default value
+            ProgramWordCheck = 0;
+            pWord = &ProgramWordCheck;
         }
         while( codeStream.Seek( BlockStorageStream::STREAM_SEEK_NEXT_BLOCK, BlockStorageStream::SeekCurrent ) );
 

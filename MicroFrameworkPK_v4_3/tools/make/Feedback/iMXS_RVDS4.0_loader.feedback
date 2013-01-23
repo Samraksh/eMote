@@ -1,4 +1,4 @@
-;#<FEEDBACK># ARM Linker, RVCT4.0 [Build 650]: Last Updated: Thu Oct 04 07:42:08 2012
+;#<FEEDBACK># ARM Linker, RVCT4.0 [Build 650]: Last Updated: Fri Nov 16 07:40:22 2012
 ;VERSION 0.2
 ;FILE ARM9_cache_functions.obj
 _Z16CPU_EnableCachesv <= USED 0
