@@ -51,10 +51,15 @@ void CPU_Halt() {
 }
 
 void CPU_Reset() {
-    //STM32F1x_Power_Driver::Reset();
+#if 0
+	CPU_GPIO_SetPinState((GPIO_PIN) 2, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
+#endif
+	//STM32F1x_Power_Driver::Reset();
 	// This function is supported by the watchdog module but placing the implementation here temporarily
 	__disable_irq();
 	NVIC_SystemReset();
+	while(1);
 }
 
 /*
