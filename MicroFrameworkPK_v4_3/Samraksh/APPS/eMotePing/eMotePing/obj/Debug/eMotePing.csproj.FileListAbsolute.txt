@@ -65,3 +65,4 @@ G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing
 G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\le\eMotePing.pdbx
 G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.exe
 G:\Main\MF-Dev\MF4.3Beta\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.pdb
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\bin\Debug\Samraksh_SPOT_Net.dll

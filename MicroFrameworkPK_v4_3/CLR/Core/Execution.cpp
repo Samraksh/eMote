@@ -3037,6 +3037,9 @@ HRESULT CLR_RT_ExecutionEngine::InitTimeout( CLR_INT64& timeExpire, CLR_INT32 ti
 void CLR_RT_ExecutionEngine::DebuggerLoop()
 {
     NATIVE_PROFILE_CLR_CORE();
+
+    for(volatile int i = 0; i < 1000; i++);
+
     ProcessHardware();
 
     UpdateTime();
