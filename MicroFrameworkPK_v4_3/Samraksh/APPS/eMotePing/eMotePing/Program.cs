@@ -122,7 +122,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         
         void sendTimerCallback(Object o)
         {
-            mySeqNo++;
+            //mySeqNo++;
             Debug.Print("Sending broadcast ping msg:  " + mySeqNo.ToString());
             Send_Ping(sendMsg);
         }
@@ -169,6 +169,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
         public static void Main()
         {
+            Debug.Print("Changing app");
             Program p = new Program();
             p.Initialize();
             p.Start();

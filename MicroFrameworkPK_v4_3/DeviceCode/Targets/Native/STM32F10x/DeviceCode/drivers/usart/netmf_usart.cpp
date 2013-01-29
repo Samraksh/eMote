@@ -38,6 +38,8 @@ int debugOutCounter = 0;
 
 int debugCounter = 0;
 
+//#define USART_DEBUG_GPIO 1
+
 //extern BOOL startRecord;
 
 extern "C"
@@ -159,21 +161,12 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
   //USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) TRUE);
 
   COMInit( ComPortNum	, &USART_InitStructure);
-<<<<<<< HEAD
-  
-=======
-
-#if 0
->>>>>>> newmaster
+#ifdef USART_DEBUG_GPIO
   CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
   CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
   CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
   CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
-<<<<<<< HEAD
-
-=======
 #endif
->>>>>>> newmaster
   return fRet;
     
 }
@@ -341,23 +334,8 @@ void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 		break;
 	}
 	// the connector
-	if(Enable == FALSE)
-	{
-		USART_ITConfig(activeUsart, USART_IT_RXNE,(FunctionalState) FALSE);
-<<<<<<< HEAD
-		CPU_GPIO_SetPinState((GPIO_PIN) 12 , TRUE);
-		HAL_Time_Sleep_MicroSeconds(100);
-		CPU_GPIO_SetPinState((GPIO_PIN) 12 , FALSE);
-=======
-		//CPU_GPIO_SetPinState((GPIO_PIN) 12 , TRUE);
-		HAL_Time_Sleep_MicroSeconds(100);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 12 , FALSE);
->>>>>>> newmaster
-		USART_ITConfig(activeUsart, USART_IT_RXNE,(FunctionalState) TRUE);
 
-	}
-	else
-		USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
+	USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
 	//USART_ITConfig(activeUsart, USART_IT_TXE, (FunctionalState) Enable);
 }
 
@@ -436,124 +414,24 @@ extern "C"
 
 void USART1_Handler(void *args)
 {
-	volatile unsigned int ir;
+	volatile unsigned int ir = 0;
 	char c;
 	ir = USART1->SR;
-<<<<<<< HEAD
-=======
 
 	if(ir & USART_FLAG_RXNE)
 	{
-		//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-
-		USART1->SR &= ~USART_FLAG_RXNE;
-		if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
-		{
-			//CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
-			//CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
-		}
-		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-
-#if 0
-	//if(ir & USART_FLAG_RXNE)
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-	{
-		GLOBAL_LOCK(irq);
-		//USART1->SR &= ~USART_FLAG_RXNE;
-
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-
-		while(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET)
-		{
-			//USART1->SR &= ~USART_FLAG_RXNE;
-
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-
-		//c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
-			//c = (char) (USART1->DR & 0x1FF);
-
-			USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF));
-		}
-		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-
-		USART1->SR &= ~USART_FLAG_RXNE;
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-
-
-		if((!(ir & USART_FLAG_RXNE)) || debugOutCounter == 150)
-		{
-			int temp = 0;
-			while(debugOutCounter > 0)
-			{
-				USART_AddCharToRxBuffer(COM1, debugOutput[temp++]);
-				debugOutCounter--;
-			}
-		}
-#endif
-#if 0
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-
-		do
-		{
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-			USART1->SR &= ~USART_FLAG_RXNE;
-
-			c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
-
-			USART_AddCharToRxBuffer(COM1, c);
-
-		}while(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET);
-
-		USART1->SR &= ~USART_FLAG_RXNE;
-
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-		//Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-#endif
-	}
-
-	//if(ir & USART_FLAG_TXE)
-	if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
-	{
-		GLOBAL_LOCK(irq);
-		USART1->SR &= ~USART_FLAG_TXE;
-
-		if(USART_RemoveCharFromTxBuffer(COM1, c))
-	    {
-
-			 USART_SendData(USART1, c);
-			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-			 //while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			 //CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-		}
-		else
-		{
-			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-		}
-	}
-
-}
-
-#if 0
-void USART1_Handler(void *args)
-{
->>>>>>> newmaster
-
-	if(ir & USART_FLAG_RXNE)
-	{
+#ifdef USART_DEBUG_GPIO
 		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-
-<<<<<<< HEAD
+#endif
 		USART1->SR &= ~USART_FLAG_RXNE;
 		if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
 		{
+
+#ifdef USART_DEBUG_GPIO
 			CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
 			CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+#endif
 		}
 		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
 
@@ -616,25 +494,38 @@ void USART1_Handler(void *args)
 #endif
 	}
 
-	//if(ir & USART_FLAG_TXE)
-	if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
+	if(ir & USART_FLAG_TXE)
+	//if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
 	{
 		GLOBAL_LOCK(irq);
-		USART1->SR &= ~USART_FLAG_TXE;
 
 		if(USART_RemoveCharFromTxBuffer(COM1, c))
 	    {
+			//USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
+			//do
+			//{
+			if(USART_BytesInBuffer(COM1, false) == 1)
+			{
+				USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
+#if 0
+				CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+				CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+#endif
+			}
 
 			 USART_SendData(USART1, c);
 			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-			 //while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+			//}while(USART_RemoveCharFromTxBuffer(COM1, c));
+
 			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 		}
 		else
 		{
+
 			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
+			USART_SendData(USART1, 0);
+			while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
+
 		}
 	}
 
@@ -645,8 +536,6 @@ void USART1_Handler(void *args)
 {
 
 
-=======
->>>>>>> newmaster
 	if(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET)
 	{
 		GLOBAL_LOCK(irq);

@@ -3032,7 +3032,7 @@ void CLR_RT_ExecutionEngine::DebuggerLoop()
     NATIVE_PROFILE_CLR_CORE();
 
 
-    for(volatile int i = 0; i < 1000; i++);
+
 
 #if 0
     if(i%3 == 1)
@@ -3052,10 +3052,6 @@ void CLR_RT_ExecutionEngine::DebuggerLoop()
 
     ProcessHardware();
 
-#if 0
-    CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
-    CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
-#endif
 
 
     UpdateTime();

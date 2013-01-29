@@ -11,10 +11,10 @@ void ApplicationEntryPoint()
     CLR_SETTINGS clrSettings;
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
-#if 0
+
     CPU_GPIO_EnableOutputPin((GPIO_PIN) 3, FALSE);
     CPU_GPIO_EnableOutputPin((GPIO_PIN) 2, FALSE);
-#endif
+
     CPU_GPIO_EnableOutputPin((GPIO_PIN) 4, FALSE);
 
 

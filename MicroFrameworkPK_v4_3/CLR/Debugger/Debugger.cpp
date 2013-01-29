@@ -795,7 +795,8 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
     bool                fRet;
 
 	RT_Dispose();
-	
+
+
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
     CLR_DBG_Commands::Monitor_EraseMemory* cmd = (CLR_DBG_Commands::Monitor_EraseMemory*)msg->m_payload;
