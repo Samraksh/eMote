@@ -524,7 +524,7 @@ void USART1_Handler(void *args)
 
 			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
 			USART_SendData(USART1, 0);
-			while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
+			//while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
 
 		}
 	}

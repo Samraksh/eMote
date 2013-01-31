@@ -120,12 +120,12 @@ unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id)
 {
 	/* Configure the uart clock */
 	clock_config_uart_dm(id);
-	dsb();
+	//dsb();
 
 	/* Configure GPIO to provide connectivity between GSBI
 	   product ports and chip pads */
 	gpio_config_uart_dm(id);
-	dsb();
+	//dsb();
 
 	/* Configure Data Mover for GSBI operation.
 	 * Currently not supported. */
@@ -134,13 +134,13 @@ unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id)
 	 * I2C on 2 ports, UART (without HS flow control) on the other 2. */
 	writel(GSBI_PROTOCOL_CODE_I2C_UART << GSBI_CTRL_REG_PROTOCOL_CODE_S,
 	       GSBI_CTRL_REG(id));
-	dsb();
+	//dsb();
 
 	/* Configure clock selection register for tx and rx rates.
 	 * Selecting 115.2k for both RX and TX.
 	 */
 	writel(UART_DM_CLK_RX_TX_BIT_RATE, MSM_BOOT_UART_DM_CSR(id));
-	dsb();
+	//dsb();
 
 	return MSM_BOOT_UART_DM_E_SUCCESS;
 }

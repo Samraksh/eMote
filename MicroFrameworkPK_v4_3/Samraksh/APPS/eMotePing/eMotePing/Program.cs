@@ -107,10 +107,10 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             myAddress = myCSMA.GetAddress();
             Debug.Print("My default address is :  " + myAddress.ToString());
 
-            /*myCSMA.SetAddress(52);
+            myCSMA.SetAddress(52);
             myAddress = myCSMA.GetAddress();
             Debug.Print("My New address is :  " + myAddress.ToString());
-             */ 
+              
            
         }
         void Start()
@@ -169,7 +169,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
         public static void Main()
         {
-            Debug.Print("Changing app");
+            //Debug.Print("Changing app");
             Program p = new Program();
             p.Initialize();
             p.Start();

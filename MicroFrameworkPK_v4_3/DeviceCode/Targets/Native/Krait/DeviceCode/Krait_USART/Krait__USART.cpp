@@ -241,6 +241,7 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 		}
 
 		/* Configure Interrupt Mask register IMR */
+		//writel(MSM_BOOT_UART_DM_IMR_ENABLED, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 		writel(MSM_BOOT_UART_DM_IMR_ENABLED, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 
 		/* Configure Tx and Rx watermarks configuration registers */
@@ -445,8 +446,14 @@ void handle_tx(Krait_USART* port)
 	char c;
 	//char txdata[200];
 	//int counter = 0;
-	while(USART_RemoveCharFromTxBuffer(port->index, c))
+	if(USART_RemoveCharFromTxBuffer(port->index, c))
 	{
+		//if(USART_BytesInBuffer(port->index, false) == 1)
+		//{
+		UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
+		UINT32 mask = ~(MSM_BOOT_UART_DM_TXLEV);
+		writel((reg & mask), MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
+		//}
 		msm_boot_uart_dm_write(GSBI_ID_5, &c, 1);
 	}
 }
@@ -542,10 +549,15 @@ void Krait_USART_Driver::TxBufferEmptyInterruptEnable(int ComPortNum,BOOL Enable
 {
 	Krait_USART *usartport = &usart[ComPortNum];
 
+/*
 	char c;
 
 	if(USART_RemoveCharFromTxBuffer(usartport->index, c))
 		msm_boot_uart_dm_write(GSBI_ID_5, &c, 1);
+*/
+	UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
+	UINT32 mask = MSM_BOOT_UART_DM_TXLEV;
+	writel((reg | mask), MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 
 
 }

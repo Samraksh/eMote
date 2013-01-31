@@ -254,7 +254,8 @@ BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 		FLASH->KEYR = 0xCDEF89AB;			// Key2
 		FLASH->CR   = FLASH_CR_PER;			// Set Page Erase Bit
 		FLASH->AR	= address;				// Set arbitrary address in page
-		FLASH->CR	= FLASH_CR_STRT;		// Set Start Bit
+		FLASH->CR	= FLASH_CR_PER | FLASH_CR_STRT;
+		FLASH->CR	= FLASH_CR_PER | FLASH_CR_STRT;
 		while(FLASH->SR & FLASH_SR_BSY);	// Wait until flash is ready
 		 FLASH->CR = FLASH_CR_LOCK;
 	}

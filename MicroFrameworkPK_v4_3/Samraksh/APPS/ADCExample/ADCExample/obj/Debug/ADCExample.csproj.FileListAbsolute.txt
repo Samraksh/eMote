@@ -18,7 +18,6 @@ D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExa
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\bin\Debug\BE\Samraksh_SPOT_Hardware.pe
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\bin\Debug\LE\Samraksh_SPOT_Hardware.pdbx
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\bin\Debug\BE\Samraksh_SPOT_Hardware.pdbx
-D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\bin\Debug\Samraksh_SPOT_Hardware.dll
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\bin\Debug\Samraksh_SPOT_Hardware.pdb
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\obj\Debug\be\ADCExample.pe
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ADCExample\ADCExample\obj\Debug\be\ADCExample.pdbx
