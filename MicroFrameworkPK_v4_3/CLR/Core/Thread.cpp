@@ -156,7 +156,6 @@ HRESULT CLR_RT_Thread::PushThreadProcDelegate( CLR_RT_HeapBlock_Delegate* pDeleg
 
     this->m_dlg     = pDelegate;
     this->m_status  = TH_S_Ready;
-
     TINYCLR_CHECK_HRESULT(CLR_RT_StackFrame::Push( this, inst, inst.m_target->numArgs ));
 
     if((inst.m_target->flags & CLR_RECORD_METHODDEF::MD_Static) == 0)
@@ -192,6 +191,9 @@ HRESULT CLR_RT_Thread::CreateInstance( int pid, int priority, CLR_RT_Thread*& th
         CLR_RT_ProtectFromGC gc( (void**)&th, CLR_RT_Thread::ProtectFromGCCallback );
 
         th->Initialize();
+#if defined(SAMRAKSH_RTOS_EXT)  //Samraksh
+        th->m_isRtosThread=FALSE;
+#endif
 
         th->m_pid                            = pid;                             // int                        m_pid;
         th->m_status                         = TH_S_Unstarted;                 // CLR_UINT32                 m_status;

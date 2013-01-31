@@ -647,7 +647,8 @@ HRESULT CLR_RT_Thread::RTOS_Thread_Execute()
 
     //::Events_SetBoolTimer( (BOOL*)&m_timeQuantumExpired, CLR_RT_Thread::c_TimeQuantum_Milliseconds );
 
-    while(!CLR_EE_DBG_IS( Stopped ))
+    //while(!CLR_EE_DBG_IS( Stopped ))
+    while(true)
     {
         CLR_RT_StackFrame* stack;
 
