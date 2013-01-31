@@ -52,7 +52,7 @@ namespace TimerExample
                 
         public static void Main()
         {
-            Debug.Print("Starting Testing..");
+            //Debug.Print("Starting Testing..");
             Program p = new Program();
             Thread.Sleep(Timeout.Infinite);
         }

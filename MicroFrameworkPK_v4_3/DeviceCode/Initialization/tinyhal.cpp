@@ -195,7 +195,7 @@ void __section(SectionForBootstrapOperations) PrepareImageRegions()
 
 static void InitCRuntime()
 {
-#if (defined(HAL_REDUCESIZE) || defined(COMPILE_THUMB2) || defined(PLATFORM_EMULATED_FLOATINGPOINT))
+#if (defined(HAL_REDUCESIZE) || defined(PLATFORM_EMULATED_FLOATINGPOINT))
 
     // Don't initialize floating-point on small builds.
 

@@ -52,7 +52,8 @@ void CLR_DBG_Debugger::Debugger_Discovery()
     while(true)
     {
         CLR_EE_DBG_EVENT_BROADCAST(CLR_DBG_Commands::c_Monitor_Ping, sizeof(cmd), &cmd, WP_Flags::c_NoCaching | WP_Flags::c_NonCritical);
-
+		//for(int i = 0 ; i < 10000; i++);
+		//CLR_EE_DBG_EVENT_BROADCAST(CLR_DBG_Commands::c_Monitor_Ping, sizeof(cmd), &cmd, WP_Flags::c_NoCaching | WP_Flags::c_NonCritical);
         // if we support soft reboot and the debugger is not stopped then we don't need to connect the debugger
         if(!CLR_EE_DBG_IS(Stopped) && ::CPU_IsSoftRebootSupported())
         {
@@ -345,7 +346,11 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
     bool fStopOnBoot = true;
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
-
+#if 0
+    CPU_GPIO_SetPinState((GPIO_PIN) 4, TRUE);
+    CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
+#endif
+    //for(int i = 0; i < 100; i++);
     //
     // There's someone on the other side!!
     //
@@ -790,7 +795,8 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
     bool                fRet;
 
 	RT_Dispose();
-	
+
+
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
     CLR_DBG_Commands::Monitor_EraseMemory* cmd = (CLR_DBG_Commands::Monitor_EraseMemory*)msg->m_payload;

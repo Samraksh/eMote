@@ -109,6 +109,7 @@ bool WP_Message::VerifyHeader()
 
     m_header.m_crcHeader = crc;
 
+
     return fRes;
 }
 
@@ -187,9 +188,12 @@ bool WP_Message::Process()
 
         case ReceiveState::CompleteHeader:
             {
+
                 bool fBadPacket=true;
                 if( VerifyHeader() )
                 {
+
+
 #if defined(BIG_ENDIAN)
                     SwapEndian();
 #endif
@@ -219,6 +223,7 @@ bool WP_Message::Process()
                 
                 if ( fBadPacket )
                 {
+
                     if((m_header.m_flags & WP_Flags::c_NonCritical) == 0)
                     {
                         ReplyBadPacket( WP_Flags::c_BadHeader );
@@ -231,6 +236,7 @@ bool WP_Message::Process()
 
         case ReceiveState::ReadingPayload:
             {
+
                 UINT64 curTicks = HAL_Time_CurrentTicks();
 				 UINT64 Time;
                 // If the time between consecutive payload bytes exceeds the timeout threshold then assume that
@@ -254,6 +260,8 @@ bool WP_Message::Process()
                 }
                 else
                 {
+                	//CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
+                	//CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
                     m_rxState = ReceiveState::Initialize;
                 }
             }
@@ -262,10 +270,14 @@ bool WP_Message::Process()
         case ReceiveState::CompletePayload:
             if(VerifyPayload() == true)
             {
+            	//CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
+            	//CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
                 m_parent->m_app->ProcessPayload( m_parent->m_state, this );
             }
             else
             {
+            	//CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
+            	//CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
                 ReplyBadPacket( WP_Flags::c_BadPayload );
             }
 
