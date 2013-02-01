@@ -107,10 +107,10 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             myAddress = myCSMA.GetAddress();
             Debug.Print("My default address is :  " + myAddress.ToString());
 
-            myCSMA.SetAddress(52);
+            /*myCSMA.SetAddress(52);
             myAddress = myCSMA.GetAddress();
             Debug.Print("My New address is :  " + myAddress.ToString());
-              
+             */ 
            
         }
         void Start()
@@ -135,12 +135,12 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             {
                 //This is a response to my message
                 Debug.Print("Received response from: " + rcvMsg.Src);
-                lcd.Write(LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A, LCD.CHAR_A);
+                lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
             }
             else
             {
                 Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src);
-                lcd.Write(LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B, LCD.CHAR_B);
+                lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
                 Send_Pong(rcvMsg);
             }
         }
@@ -165,11 +165,12 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
             byte[] msg = ping.ToBytes();
             myCSMA.Send((UInt16)Mac.Addresses.BROADCAST, msg, 0, (ushort)msg.Length);
+            lcd.Write(LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S);
         }
 
         public static void Main()
         {
-            //Debug.Print("Changing app");
+            Debug.Print("Changing app");
             Program p = new Program();
             p.Initialize();
             p.Start();
