@@ -27,7 +27,5 @@ D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMoteP
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\TinyResGen.cache
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\be\eMotePing.pe
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\be\eMotePing.pdbx
-D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\le\eMotePing.pe
-D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\le\eMotePing.pdbx
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.exe
 D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\eMotePing\eMotePing\obj\Debug\eMotePing.pdb

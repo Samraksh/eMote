@@ -244,8 +244,8 @@ BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 	FLASH_Unlock();
 
 	UINT16* addressPtr    = (UINT16* )address;	// 16-bit writing
-	if(*addressPtr == 0xffff)
-		return TRUE;
+	//if(*addressPtr == 0xffff)
+	//	return TRUE;
 
 	if(address < FLASH_BANK1_END_ADDRESS)
 	{
