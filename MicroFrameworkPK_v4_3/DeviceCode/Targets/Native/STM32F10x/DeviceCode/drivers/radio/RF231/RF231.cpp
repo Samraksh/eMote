@@ -247,6 +247,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id)
 {
+	INIT_STATE_CHECK();
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 	// Set MAC datastructures
@@ -337,6 +338,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 
+		// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
+		// This fix will return false from initialize and enable the user of the function to exit gracefully
+		// Fix for the hanging in the initialize function
+#if 0
 		while(true)
 		{
 			//reg = ReadRegister(RF230_TRX_STATE);
@@ -344,7 +349,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 			if(reg == RF230_TRX_OFF)
 				break;
 		}
-
+#endif
+		DID_STATE_CHANGE(RF230_TRX_OFF);
 
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
