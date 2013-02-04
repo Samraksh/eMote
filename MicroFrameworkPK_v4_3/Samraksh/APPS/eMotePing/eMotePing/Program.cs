@@ -124,24 +124,39 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         {
             //mySeqNo++;
             Debug.Print("Sending broadcast ping msg:  " + mySeqNo.ToString());
-            Send_Ping(sendMsg);
+            try
+            {
+                Send_Ping(sendMsg);
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
+
         }
 
         void HandleMessage(byte[] msg, ushort size)
         {
-            PingMsg rcvMsg = new PingMsg(msg,size);
+            try
+            {
+                PingMsg rcvMsg = new PingMsg(msg, size);
 
-            if (rcvMsg.Response)
-            {
-                //This is a response to my message
-                Debug.Print("Received response from: " + rcvMsg.Src);
-                lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
+                if (rcvMsg.Response)
+                {
+                    //This is a response to my message
+                    Debug.Print("Received response from: " + rcvMsg.Src.ToString());
+                    lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
+                }
+                else
+                {
+                    Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src.ToString());
+                    lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
+                    Send_Pong(rcvMsg);
+                }
             }
-            else
+            catch (Exception e)
             {
-                Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src);
-                lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
-                Send_Pong(rcvMsg);
+                Debug.Print(e.ToString());
             }
         }
    
