@@ -21,8 +21,18 @@ void ApplicationEntryPoint()
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;
+#if 0
+    CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+    UINT8 k = 0;
 
-
+    while(true)
+    {
+    	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+    	for(UINT8 i = 0; i < 255; i++)
+    		k = i;
+    	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+    }
+#endif
     ClrStartup( clrSettings );
 
 #if !defined(BUILD_RTM)

@@ -27,6 +27,11 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radio
 
 }
 
+BOOL CPU_Radio_Reset(UINT8 id)
+{
+	return grf231Radio.Reset();
+}
+
 
 BOOL CPU_Radio_UnInitialize()
 {
@@ -81,7 +86,8 @@ DeviceStatus CPU_Radio_Send(UINT8 radioID)
 
 DeviceStatus CPU_Radio_TurnOn(UINT8 radioID)
 {
-
+	if(radioID == RF231RADIO)
+		return grf231Radio.TurnOn();
 }
 
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)

@@ -21,6 +21,11 @@
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
+#define LEVEL_0_RECOVER (1 << 0)
+#define LEVEL_1_RECOVER (1 << 1)
+#define LEVEL_2_RECOVER (1 << 2)
+
+
 /***********************************************************************************************/
 
 /*********************************  Macro Definitions ******************************************/
@@ -112,6 +117,7 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	Buffer_15_4_t m_receive_buffer;
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
+	UINT8 m_recovery;
 public:
 
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);

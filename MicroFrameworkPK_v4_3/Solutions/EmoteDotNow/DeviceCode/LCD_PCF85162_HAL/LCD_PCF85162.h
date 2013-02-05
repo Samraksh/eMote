@@ -104,4 +104,18 @@ public:
 
 extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
 
+// Nived.Sivadas - Replacing all infinite whiles with timeouts
+// We will take failure to write one byte over complete system crash
+#define INIT_I2C_STATE_CHECK()				UINT16 poll_counter;
+
+#define DID_I2C_STATE_CHANGE(x, y)       poll_counter = 0;				\
+										 do{ 							\
+											if(poll_counter == 0xff)    \
+											{  								\
+												hal_printf("I2C State change failed");  \
+												return false;				\
+											} 								\
+											poll_counter++; 				\
+										  }while(!I2C_CheckEvent(x, y));							\
+
 #endif
