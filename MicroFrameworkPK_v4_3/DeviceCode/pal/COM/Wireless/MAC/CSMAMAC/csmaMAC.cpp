@@ -147,10 +147,7 @@ void csmaMAC::SendToRadio(){
 		RadioAckPending = FALSE;
 		hal_printf("Unable to recieve send ack from radio\n");
 		CPU_Radio_Reset(1);
-		if(CPU_Radio_TurnOn(1) == DS_Fail)
-		{
-			hal_printf("Radio Reset failed");
-		}
+
 #if 0
 		if(m_recovery & LEVEL_0_RECOVER)
 		{

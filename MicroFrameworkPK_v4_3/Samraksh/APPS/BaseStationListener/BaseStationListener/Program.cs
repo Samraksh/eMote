@@ -46,9 +46,12 @@ namespace BaseStationListener
         {
             for (int x = 0; x < data.Length; ++x)
             {
-                Console.WriteLine(data[x]);
+                Console.Write(data[x]);
                 data[x] = 0;
             }
+
+            Console.Write("\n");
+
             bDone = true;
         }
 
@@ -69,6 +72,8 @@ namespace BaseStationListener
 
         static void Main(string[] args)
         {
+            Listener ls = new Listener("serial","COM1");
+            ls.Run();
         }
     }
 }

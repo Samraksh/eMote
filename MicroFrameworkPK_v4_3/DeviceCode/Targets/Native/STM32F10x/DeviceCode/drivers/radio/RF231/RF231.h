@@ -185,6 +185,12 @@ public:
 
 		RstnSet();
 
+		TurnOn();
+
+		cmd = CMD_NONE;
+
+		state = STATE_RX_ON;
+
 		return TRUE;
 	}
 
