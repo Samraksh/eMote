@@ -3,6 +3,9 @@ using Microsoft.SPOT;
 
 namespace Samraksh.SPOT.Net
 {
+    /// <summary>
+    /// Device status
+    /// </summary>
     public enum DeviceStatus
     {
         Success,
@@ -11,6 +14,9 @@ namespace Samraksh.SPOT.Net
         Busy,
     };
 
+    /// <summary>
+    /// Net operation status
+    /// </summary>
     public enum NetOpStatus
     {
         E_RadioInit,
@@ -23,6 +29,11 @@ namespace Samraksh.SPOT.Net
         S_Success
     };
 
+    /// <summary>
+    /// Receive callback delegate
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="size">The size of the message.</param>
     public delegate void ReceiveCallBack(byte[] message, UInt16 size);
 
 
