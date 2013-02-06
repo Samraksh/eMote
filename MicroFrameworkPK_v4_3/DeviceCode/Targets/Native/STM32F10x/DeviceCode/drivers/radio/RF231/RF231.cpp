@@ -222,7 +222,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
 	// Including FCS which is automatically generated and is two bytes
-	CPU_SPI_ReadWriteByte(config, size);
+	CPU_SPI_ReadWriteByte(config, size + 2);
 
 	UINT8 lLength = size;
 
@@ -361,6 +361,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+		// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
+		// This fix will return false from initialize and enable the user of the function to exit gracefully
+		// Fix for the hanging in the initialize function
+#if 0
 		while(true)
 		{
 			//reg = ReadRegister(RF230_TRX_STATE);
@@ -368,6 +372,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 			if(reg == RF230_TRX_OFF)
 				break;
 		}
+#endif
+		DID_STATE_CHANGE(RF230_TRX_OFF);
 
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
@@ -388,9 +394,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		WriteRegister(RF230_CCA_THRES, RF230_CCA_THRES_VALUE);
 
 		// Controls output power and ramping of the transistor
-		//writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (RF230_DEF_RFPOWER & RF230_TX_PWR_MASK));
+		WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (0 & RF230_TX_PWR_MASK));
 		// Nived.Sivadas - turning off auto crc check
-		WriteRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
+		//WriteRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
@@ -795,7 +801,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 		// Returns a pointer to the data buffer
 		//data = rx_msg;
 
-		read = length;
+		read = length - 2;
 		temp_rx_msg_ptr[counter++] =length;
 		do
 		{
@@ -810,7 +816,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	cmd = CMD_NONE;
 
-	rx_length = length;
+	rx_length = length - 2;
 }
 
 

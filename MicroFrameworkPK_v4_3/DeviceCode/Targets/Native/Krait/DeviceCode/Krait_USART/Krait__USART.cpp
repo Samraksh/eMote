@@ -456,6 +456,10 @@ void handle_tx(Krait_USART* port)
 		//}
 		msm_boot_uart_dm_write(GSBI_ID_5, &c, 1);
 	}
+	else
+	{
+		msm_boot_uart_dm_write(GSBI_ID_5, 0, 1);
+	}
 }
 
 void handle_delta_cts(Krait_USART *port)

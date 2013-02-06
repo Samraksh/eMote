@@ -30,7 +30,13 @@ void ApplicationEntryPoint()
     CPU_GPIO_EnableOutputPin(68, TRUE);
 #endif
 
+    for(UINT32 i = 0; i < 100; i++)
+    {
+    	hal_printf("Testing UART %d\n", i);
+    }
+
     ClrStartup( clrSettings );
+
 
 #if GPIO_TEST
     while(true)

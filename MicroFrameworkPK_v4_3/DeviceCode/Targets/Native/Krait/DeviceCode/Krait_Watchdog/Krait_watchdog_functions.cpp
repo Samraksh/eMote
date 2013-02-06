@@ -11,8 +11,18 @@
 
 //--//
 
+BOOL enable = FALSE;
+
 HRESULT Watchdog_Enable( UINT32 TimeoutMilliseconds, WATCHDOG_INTERRUPT_CALLBACK isr, void* context )
 {
+	if(enable)
+		return S_OK;
+
+	// Set the barktime
+	UINT32  barktime = TimeoutMilliseconds;
+
+
+
     return CLR_E_FAIL;
 }
 

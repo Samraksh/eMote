@@ -137,7 +137,7 @@
 //#define SAMRAKSH_GC_EXT 1
 
 //Network Stack definitions
-UINT16 MF_NODE_ID=212;
+UINT16 MF_NODE_ID=112;
 
 // Macros configuring the HALTimer system
 #define HALTIMER 4
