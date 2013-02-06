@@ -224,6 +224,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::InternalInitialize
 
         CLR_RT_TypedArray_UINT8 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param1 ) );
+        CSMA::pHeapBlockMsgArray = stack.ArgN( 1 ).DereferenceArray();   FAULT_ON_NULL(CSMA::pHeapBlockMsgArray);
 
         INT32 retVal = CSMA::InternalInitialize( param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );

@@ -28,7 +28,9 @@ UINT8 CSMA::MyAppID;
 //Message_15_4_t *SendMsgPtr, *RcvMsgPtr;
 CLR_RT_HeapBlock_NativeEventDispatcher* CSMA::ne_Context;
 UINT64 CSMA::ne_userData;
-CLR_RT_TypedArray_UINT8 CSMA::managedCSMAMsg;
+UINT8 *CSMA::managedCSMAMsg;
+CLR_RT_HeapBlock_Array* CSMA::pHeapBlockMsgArray;
+
 
 UINT8 CSMAInteropBuffer[128];
 
@@ -123,7 +125,8 @@ INT32 CSMA::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8
 	//RcvMsgPtr = &RcvMsg;
 
 	//Initialize the managed receive message buffer to copy messages into, when you get a message from radio
-	managedCSMAMsg= param1;
+	CSMA::pHeapBlockMsgArray->Pin();
+	managedCSMAMsg= param1.GetBuffer();
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
@@ -142,10 +145,14 @@ void  ManagedCSMASendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 void  ManagedCSMACallback(void *msg, UINT16 size){
 	CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
 
-	UINT8 * managedBuffer = CSMA::managedCSMAMsg.GetBuffer();
-	memcpy (managedBuffer, msg,  size);
+	if(g_CLR_RT_ExecutionEngine.m_heapState ==  CLR_RT_ExecutionEngine::c_HeapState_Normal){
+		UINT8 *managedMsg=(UINT8 *) CSMA::pHeapBlockMsgArray->GetFirstElement();
+		memcpy (managedMsg, msg,  size);
+		SaveNativeEventToHALQueue( CSMA::ne_Context, UINT32(CSMA::ne_userData >> 16), UINT32(CSMA::ne_userData & 0xFFFFFFFF) );
+		CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+	}else {
+		//This needs to filled up. Right now if we receive a message if the heap is not normal we loose a packet.
 
-	SaveNativeEventToHALQueue( CSMA::ne_Context, UINT32(CSMA::ne_userData >> 16), UINT32(CSMA::ne_userData & 0xFFFFFFFF) );
-	CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+	}
 	//return msg;
 }

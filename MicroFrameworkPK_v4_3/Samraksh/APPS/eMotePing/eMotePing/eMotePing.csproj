@@ -53,11 +53,11 @@
     </Reference>
     <Reference Include="Samraksh_SPOT_Hardware, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.dll</HintPath>
+      <HintPath>..\..\..\Executables\Test\Dlls\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.dll</HintPath>
     </Reference>
     <Reference Include="Samraksh_SPOT_Net, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Interops\Samraksh_SPOT_Net\Samraksh_SPOT_Net\bin\Debug\Samraksh_SPOT_Net.dll</HintPath>
+      <HintPath>..\..\..\Executables\Test\Dlls\Samraksh_SPOT_Net\Samraksh_SPOT_Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

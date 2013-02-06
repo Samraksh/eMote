@@ -56,7 +56,8 @@ namespace Samraksh
                     static Message_15_4_t *SendMsgPtr, *RcvMsgPtr;
                     static CLR_RT_HeapBlock_NativeEventDispatcher *ne_Context;
                     static UINT64 ne_userData;
-                    static CLR_RT_TypedArray_UINT8 managedCSMAMsg;
+					static CLR_RT_HeapBlock_Array *pHeapBlockMsgArray;
+                    static UINT8 *managedCSMAMsg;
                 };
             }
         }
