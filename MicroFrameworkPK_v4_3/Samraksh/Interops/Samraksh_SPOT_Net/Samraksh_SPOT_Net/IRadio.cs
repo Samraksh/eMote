@@ -5,6 +5,9 @@ using Samraksh.SPOT.Net;
 namespace Samraksh.SPOT.Net.Radio
 {
 
+    /// <summary>
+    /// Radio configuration
+    /// </summary>
     public struct RadioConfiguration
     {
         public byte TxPower;
@@ -14,6 +17,9 @@ namespace Samraksh.SPOT.Net.Radio
     };
 
 
+    /// <summary>
+    /// Radio interface
+    /// </summary>
     public interface IRadio
     {
         DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized

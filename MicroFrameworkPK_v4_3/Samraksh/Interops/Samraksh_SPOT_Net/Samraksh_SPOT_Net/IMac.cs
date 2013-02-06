@@ -6,12 +6,18 @@ namespace Samraksh.SPOT.Net
 {
     namespace Mac
     {
+        /// <summary>
+        /// MAC addresses
+        /// </summary>
         public enum Addresses
         {
             BROADCAST = 65535,
         };
 
 
+        /// <summary>
+        /// MAC configuration
+        /// </summary>
         public struct MacConfiguration
         {
             public bool CCA;
@@ -21,6 +27,9 @@ namespace Samraksh.SPOT.Net
             public byte RadioID;
         };
 
+        /// <summary>
+        /// Link quality
+        /// </summary>
         public struct Link
         {
             public byte Quality;
@@ -28,6 +37,9 @@ namespace Samraksh.SPOT.Net
             public byte AveDelay;
         };
 
+       /// <summary>
+       /// Neighbor status
+       /// </summary>
         public enum NeighborStatus
         {
             Alive,
@@ -35,6 +47,9 @@ namespace Samraksh.SPOT.Net
             Suspect
         };
 
+        /// <summary>
+        /// Neighbor details
+        /// </summary>
         public struct Neighbor
         {
             public UInt16 MacAddress;
@@ -46,12 +61,18 @@ namespace Samraksh.SPOT.Net
             public UInt16 FrameLength;
         };
 
+        /// <summary>
+        /// List of neighbors and their details
+        /// </summary>
         public struct NeighborTable
         {
             public byte NumberValidNeighbor;
             public Neighbor[] Neighbor;
         };
 
+       /// <summary>
+       /// MAC interface
+       /// </summary>
         public interface IMac
         {
             //Basic functions
