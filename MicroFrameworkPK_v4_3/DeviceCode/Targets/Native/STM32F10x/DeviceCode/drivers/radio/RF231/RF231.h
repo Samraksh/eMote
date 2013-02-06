@@ -177,22 +177,7 @@ public:
 
 	void WriteRegister(UINT8 reg, UINT8 value);
 
-	BOOL Reset()
-	{
-		RstnClear();
-
-		HAL_Time_Sleep_MicroSeconds(6);
-
-		RstnSet();
-
-		TurnOn();
-
-		cmd = CMD_NONE;
-
-		state = STATE_RX_ON;
-
-		return TRUE;
-	}
+	BOOL Reset();
 
 	UINT8 ReadRegister(UINT8 reg);
 	// returns the current channel, this is initially set to 11 by default

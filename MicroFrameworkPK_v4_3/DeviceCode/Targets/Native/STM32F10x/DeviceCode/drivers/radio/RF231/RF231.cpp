@@ -149,6 +149,112 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 }
 
+BOOL RF231Radio::Reset()
+{
+	INIT_STATE_CHECK()
+
+	GLOBAL_LOCK(irq);
+
+	GpioPinInitialize();
+			//configure_exti();
+	if(TRUE != SpiInitialize())
+	{
+		ASSERT_RADIO("SPI Initialization failed");
+	}
+
+	// The radio intialization steps in the following lines are semantically copied from the corresponding tinyos implementation
+	// Specified in the datasheet a sleep of 510us
+	// The performance of this function is good but at times its found to generate different times. Its possible that there were other
+	// events happening on the pin that was used to measure this or there is a possible bug !!!
+	HAL_Time_Sleep_MicroSeconds(510);
+
+	// Clear rstn pin
+	RstnClear();
+
+	// Clear the slptr pin
+	SlptrClear();
+
+	// Sleep for 6us
+	HAL_Time_Sleep_MicroSeconds(6);
+
+	RstnSet();
+
+	// The RF230_TRX_CTRL_0 register controls the drive current of the digital output pads and the CLKM clock rate
+	// Setting value to 0
+	WriteRegister(RF230_TRX_CTRL_0, RF230_TRX_CTRL_0_VALUE);
+
+	UINT32 reg = 0;
+	reg = ReadRegister(RF230_TRX_CTRL_0);
+
+			// The RF230_TRX_STATE register controls the state transition
+	WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+	// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
+	// This fix will return false from initialize and enable the user of the function to exit gracefully
+	// Fix for the hanging in the initialize function
+	#if 0
+			while(true)
+			{
+				//reg = ReadRegister(RF230_TRX_STATE);
+				reg = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+				if(reg == RF230_TRX_OFF)
+					break;
+			}
+	#endif
+	DID_STATE_CHANGE(RF230_TRX_OFF);
+
+	HAL_Time_Sleep_MicroSeconds(510);
+
+			// Register controls the interrupts that are currently enabled
+	#ifndef RADIO_DEBUG
+			//WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_PLL_LOCK | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+	#else
+		//WriteRegister(RF230_IRQ_MASK, RF230_IRQ_BAT_LOW | RF230_IRQ_TRX_UR | RF230_IRQ_PLL_LOCK | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_BAT_LOW | RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+	#endif
+
+			// The RF230_CCA_THRES sets the ed level for CCA, currently setting threshold to 0xc7
+	WriteRegister(RF230_CCA_THRES, RF230_CCA_THRES_VALUE);
+
+			// Controls output power and ramping of the transistor
+	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (0 & RF230_TX_PWR_MASK));
+			// Nived.Sivadas - turning off auto crc check
+			//WriteRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
+	tx_power = 0 & RF230_TX_PWR_MASK;
+	channel = RF230_DEF_CHANNEL & RF230_CHANNEL_MASK;
+
+			// Sets the channel number
+	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
+	#ifdef DEBUG_RF231
+			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	#endif
+			// Enable the gpio pin as the interrupt point
+	CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+
+
+	SlptrSet();
+	#ifdef DEBUG_RF231
+			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	#endif
+			// set software state machine state to sleep
+	state = STATE_SLEEP;
+
+			// Initialize default radio handlers
+
+			// Added here until the state issues are resolved
+	TurnOn();
+
+	cmd = CMD_NONE;
+	#ifdef DEBUG_RF231
+			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	#endif
+	return TRUE;
+}
+
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
 
