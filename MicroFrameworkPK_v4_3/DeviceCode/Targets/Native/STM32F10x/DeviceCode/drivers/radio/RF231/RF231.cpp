@@ -2,6 +2,7 @@
 #include "RF231RegDef.h"
 #include <tinyhal.h>
 
+#define DEBUG_RF231 1
 
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
@@ -36,8 +37,10 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	GLOBAL_LOCK(irq);
 	//__ASM volatile("cpsid i");
 	//pulse 1
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	UINT32 channel = 0;
 	UINT32 reg = 0;
@@ -56,8 +59,10 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		return DS_Busy;
 #endif
 	//pulse 2
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	// Push radio to pll on state
 	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
@@ -82,16 +87,14 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	UINT32 timeOffset = timestamp - eventTime;
 
 	//pulse 3
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	SlptrSet();
 	for(UINT8 i =0; i < 10; i++);
 	SlptrClear();
-
-	//pulse 4
-	//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 
 	// Load buffer before initiating the transmit command
 	SelnClear();
@@ -117,9 +120,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_SPI_ReadByte(config);
 
-	//pulse 5
+	//pulse 4
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	SelnSet();
 
@@ -134,10 +139,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
 
-	//pulse 6
+	//pulse 5
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 	//__ASM volatile("cpsie i");
 	return temp;
 
@@ -151,8 +157,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	GLOBAL_LOCK(irq);
 	//__ASM volatile("cpsid i");
 	//pulse 1
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	UINT32 channel = 0;
 	UINT32 reg = 0;
@@ -171,8 +179,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		return DS_Busy;
 #endif
 	//pulse 2
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	// Push radio to pll on state
 	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
@@ -192,16 +202,20 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//radio_frame_write(data, 119);
 	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 	//pulse 3
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
+
 	//SlptrSet();
 	//for(UINT8 i =0; i < 10; i++);
 	//SlptrClear();
 
 	//pulse 4
+#ifdef DEBUG_RF231
 	//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 	// Load buffer before initiating the transmit command
 	SelnClear();
 
@@ -220,8 +234,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	CPU_SPI_ReadByte(config);
 
 	//pulse 5
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	SelnSet();
 
@@ -237,9 +253,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	cmd = CMD_TRANSMIT;
 
 	//pulse 6
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 	//__ASM volatile("cpsie i");
 	return temp;
 }
@@ -247,8 +264,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id)
 {
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
@@ -279,15 +298,16 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 		//for(UINT8 i = 0; i < 30; i++)
 			//data[i] = 0;
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		GpioPinInitialize();
 		//configure_exti();
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		if(TRUE != SpiInitialize())
 		{
 			ASSERT_RADIO("SPI Initialization failed");
@@ -298,33 +318,35 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		// The performance of this function is good but at times its found to generate different times. Its possible that there were other
 		// events happening on the pin that was used to measure this or there is a possible bug !!!
 		HAL_Time_Sleep_MicroSeconds(510);
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// Clear rstn pin
 		RstnClear();
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// Clear the slptr pin
 		SlptrClear();
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// Sleep for 6us
 		HAL_Time_Sleep_MicroSeconds(6);
 
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		RstnSet();
 
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// The RF230_TRX_CTRL_0 register controls the drive current of the digital output pads and the CLKM clock rate
 		// Setting value to 0
 		WriteRegister(RF230_TRX_CTRL_0, RF230_TRX_CTRL_0_VALUE);
@@ -334,9 +356,11 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 		// The RF230_TRX_STATE register controls the state transition
 		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		while(true)
 		{
 			//reg = ReadRegister(RF230_TRX_STATE);
@@ -345,10 +369,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 				break;
 		}
 
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		HAL_Time_Sleep_MicroSeconds(510);
 
 		// Register controls the interrupts that are currently enabled
@@ -367,28 +391,28 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		//writeRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (RF230_DEF_RFPOWER & RF230_TX_PWR_MASK));
 		// Nived.Sivadas - turning off auto crc check
 		WriteRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		tx_power = 0 & RF230_TX_PWR_MASK;
 		channel = RF230_DEF_CHANNEL & RF230_CHANNEL_MASK;
 
 		// Sets the channel number
 		WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// Enable the gpio pin as the interrupt point
 		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
 		SlptrSet();
-
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 		// set software state machine state to sleep
 		state = STATE_SLEEP;
 
@@ -398,9 +422,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		TurnOn();
 
 		cmd = CMD_NONE;
+#ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 	}
 
 	UINT8 tempId = Radio<Message_15_4_t>::GetRadioID();
@@ -429,11 +454,13 @@ void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 //template<class T>
 void RF231Radio::GpioPinInitialize()
 {
-
 	CPU_GPIO_EnableOutputPin(kseln,TRUE);
 	CPU_GPIO_EnableOutputPin(kslpTr,FALSE);
 	CPU_GPIO_EnableOutputPin(krstn,TRUE);
+
+#ifdef DEBUG_RF231
 	CPU_GPIO_EnableOutputPin((GPIO_PIN)0, TRUE);
+#endif
 }
 
 // Calls the mf spi initialize function and returns true if the intialization was successful
@@ -586,9 +613,10 @@ void RF231Radio::HandleInterrupt()
 	INT16 temp;
 	INIT_STATE_CHECK();
 	UINT32 time;
-
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS);
 
@@ -658,9 +686,10 @@ void RF231Radio::HandleInterrupt()
 #if 0
 		if(cmd == CMD_TRANSMIT)
 		{
+#ifdef DEBUG_RF231
 			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
-
+#endif
 			// Call radio send done event handler when the send is complete
 			rf230EventHandlers.RadioSendDoneEvent();
 
@@ -695,9 +724,11 @@ void RF231Radio::HandleInterrupt()
 		{
 				if(state == STATE_BUSY_TX)
 				{
+#ifdef DEBUG_RF231
 					//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 					//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 					CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
+#endif
 
 					// Call radio send done event handler when the send is complete
 					SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
@@ -733,8 +764,10 @@ void RF231Radio::HandleInterrupt()
 			rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
 		}
 	}
+#ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+#endif
 }
 
 //template<class T>

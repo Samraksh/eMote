@@ -16,7 +16,7 @@
 #include <TinyCLR_Runtime.h>
 #include <TinyCLR_Hardware.h>
 //#include <Samraksh/HALTimer.h>
-
+//#define DEBUG_CSMA 1
 
 //extern HALTimerManager gHalTimerManagerObject;
 using namespace Samraksh::SPOT::Net::Mac;
@@ -52,7 +52,9 @@ INT32 CSMA::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 INT32 CSMA::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
     UINT16 address, offset, length;
+#ifdef DEBUG_CSMA
     CPU_GPIO_SetPinState((GPIO_PIN)31, TRUE);
+#endif
     UINT8* payload =param1.GetBuffer();
     address=param0;
     offset=param2;
@@ -60,7 +62,9 @@ INT32 CSMA::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UI
     memcpy (CSMAInteropBuffer, payload,  length);
 
     Mac_Send(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length);
+#ifdef DEBUG_CSMA
     CPU_GPIO_SetPinState((GPIO_PIN)31, FALSE);
+#endif
     return 1;
 }
 
@@ -127,32 +131,38 @@ INT32 CSMA::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8
 	//Initialize the managed receive message buffer to copy messages into, when you get a message from radio
 	CSMA::pHeapBlockMsgArray->Pin();
 	managedCSMAMsg= param1.GetBuffer();
+#ifdef DEBUG_CSMA
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
-
+#endif
     return 1;
 }
 
 void  ManagedCSMASendAckCallback(void *msg, UINT16 size, NetOpStatus status){
+#ifdef DEBUG_CSMA
 	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
+#endif
 	//return msg;
 }
 
 void  ManagedCSMACallback(void *msg, UINT16 size){
+#ifdef DEBUG_CSMA
 	CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-
+#endif
 	if(g_CLR_RT_ExecutionEngine.m_heapState ==  CLR_RT_ExecutionEngine::c_HeapState_Normal){
 		UINT8 *managedMsg=(UINT8 *) CSMA::pHeapBlockMsgArray->GetFirstElement();
 		memcpy (managedMsg, msg,  size);
 		SaveNativeEventToHALQueue( CSMA::ne_Context, UINT32(CSMA::ne_userData >> 16), UINT32(CSMA::ne_userData & 0xFFFFFFFF) );
-		CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
 	}else {
 		//This needs to filled up. Right now if we receive a message if the heap is not normal we loose a packet.
 
 	}
+#ifdef DEBUG_CSMA
+	CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+#endif
 	//return msg;
 }

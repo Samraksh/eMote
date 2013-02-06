@@ -139,17 +139,18 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         {
             try
             {
+                Debug.Print("MSG: " + msg[0].ToString() + " " + msg[1].ToString() + " " + msg[2].ToString() + " " + msg[3].ToString() + " " + msg[4].ToString() + " " + msg[5].ToString());
                 PingMsg rcvMsg = new PingMsg(msg, size);
 
                 if (rcvMsg.Response)
                 {
                     //This is a response to my message
-                    Debug.Print("Received response from: " + rcvMsg.Src.ToString());
+                    Debug.Print("Received response from: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
                     lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
                 }
                 else
                 {
-                    Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src.ToString());
+                    Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
                     lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
                     Send_Pong(rcvMsg);
                 }
@@ -180,7 +181,8 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
             byte[] msg = ping.ToBytes();
             myCSMA.Send((UInt16)Mac.Addresses.BROADCAST, msg, 0, (ushort)msg.Length);
-            lcd.Write(LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S);
+            int char0 = (mySeqNo % 10) + (int)LCD.CHAR_0;
+            lcd.Write(LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S, (LCD)char0);
         }
 
         public static void Main()

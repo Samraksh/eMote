@@ -10,14 +10,20 @@
 #include "MACTest.h"
 #include <Samraksh\Message.h>
 
+//#define DEBUG_MACTEST 1
+
 extern HALTimerManager gHalTimerManagerObject;
 extern MACTest gMacTest;
 extern UINT16 MF_NODE_ID;
 
 void Timer_1_Handler(void * arg){
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+#endif
 	gMacTest.Send();
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+#endif
 }
 
 // Typedef defining the signature of the receive function
@@ -37,11 +43,13 @@ BOOL MACTest::Initialize(){
 	myEventHandler.SetSendAckHandler(&SendAckHandler);
 
 	gHalTimerManagerObject.Initialize();
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
+#endif
 	MAC_Initialize(&myEventHandler,&MacId, MyAppID, (void*) &Config);
 	return TRUE;
 }
@@ -59,20 +67,26 @@ BOOL MACTest::StartTest(){
 }
 
 void MACTest::Receive(void *msg, UINT16 size){
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+#endif
 	Payload_t *rcvmsg = (Payload_t *) msg;
 	if(rcvmsg->MSGID!=RcvCount){
 		//CPU_GPIO_SetPinState((GPIO_PIN) 0, TRUE);
 	}
 	RcvCount=rcvmsg->MSGID;
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+#endif
 }
 
 void MACTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+#endif
 	if(status==NO_Success){
 
 	}else {
@@ -84,9 +98,11 @@ void MACTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
 BOOL MACTest::Send(){
 	msg.MSGID=SendCount;
 	msg.data[10]=10;
+#ifdef DEBUG_MACTEST
 	CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
+#endif
 	Mac_Send(MacId, MAC_BROADCAST_ADDRESS, MFM_DATA, (void*) &msg.data, sizeof(Payload_t));
 	SendCount++;
 }

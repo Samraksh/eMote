@@ -1,6 +1,8 @@
 #include "csmaMAC.h"
 #include <Samraksh/HALTimer.h>
 
+//#define DEBUG_MAC 1
+
 csmaMAC gcsmaMacObject;
 extern HALTimerManager gHalTimerManagerObject;
 
@@ -20,9 +22,13 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 }
 
 void csmaMacScheduler(void * arg){
+#ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+#endif
 	gcsmaMacObject.SendToRadio();
+#ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+#endif
 }
 
 DeviceStatus csmaMAC::SetConfig(MacConfig *config){
