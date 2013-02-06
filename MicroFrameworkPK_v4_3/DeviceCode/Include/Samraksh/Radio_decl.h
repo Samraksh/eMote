@@ -158,6 +158,8 @@ BOOL CPU_Radio_Intialize(UINT8  radioID);
 BOOL CPU_Radio_UnInitialize(UINT8 radioID);
 UINT8 CPU_Radio_NumberRadiosSupported();
 
+BOOL CPU_Radio_Reset(UINT8 radioID);
+
 //}
 
 

@@ -521,9 +521,10 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 #define WRITE_ACCESS_COMMAND            (0xC0)//Write access command to the tranceiver
 #define READ_ACCESS_COMMAND             (0x80)//Read access command to the tranceiver
 
-#define INIT_STATE_CHECK()				UINT8 poll_counter, trx_status;
+#define INIT_STATE_CHECK()				UINT16 poll_counter, trx_status;
 
-#define DID_STATE_CHANGE(x)				do{ 							\
+#define DID_STATE_CHANGE(x)				poll_counter = 0;               \
+										do{ 							\
 											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
@@ -534,7 +535,8 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 										  }while(trx_status != x);							\
 
 
-#define DID_STATE_CHANGE_NULL(x)				do{ 							\
+#define DID_STATE_CHANGE_NULL(x)		poll_counter = 0;               \
+										do{ 							\
 											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
@@ -545,7 +547,8 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 										  }while(trx_status != x);							\
 
 
-#define DID_STATE_CHANGE_ASSERT(x)				do{ 							\
+#define DID_STATE_CHANGE_ASSERT(x)		poll_counter = 0;               \
+										do{ 							\
 											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\

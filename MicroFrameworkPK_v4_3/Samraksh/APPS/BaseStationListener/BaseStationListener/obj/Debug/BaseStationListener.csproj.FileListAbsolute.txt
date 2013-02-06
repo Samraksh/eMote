@@ -1,0 +1,12 @@
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\BaseStationListener.exe.config
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\BaseStationListener.exe
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\BaseStationListener.pdb
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\Microsoft.SPOT.Debugger.dll
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\WinUsbInvoke.dll
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\Microsoft.SPOT.Tasks.dll
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\Microsoft.SPOT.Debugger.pdb
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\WinUsbInvoke.pdb
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\bin\Debug\Microsoft.SPOT.Tasks.pdb
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\obj\Debug\BaseStationListener.csprojResolveAssemblyReference.cache
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\obj\Debug\BaseStationListener.exe
+D:\Main\Work\SOURCE\WORKING\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\BaseStationListener\BaseStationListener\obj\Debug\BaseStationListener.pdb

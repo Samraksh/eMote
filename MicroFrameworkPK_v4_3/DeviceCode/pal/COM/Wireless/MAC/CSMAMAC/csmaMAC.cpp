@@ -58,6 +58,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		UINT8 radioIds = 1;
 		RadioAckPending=FALSE;
 		Initialized=TRUE;
+		m_recovery = 1;
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
 		gHalTimerManagerObject.Initialize();
@@ -119,6 +120,8 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 void csmaMAC::SendToRadio(){
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
+		m_recovery = 1;
+
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(1, 200);
 		if(ds != DS_Success) {
@@ -133,10 +136,46 @@ void csmaMAC::SendToRadio(){
 
 		// Check to see if there are any messages in the buffer
 		if(*temp != NULL){
-			*temp = (Message_15_4_t *) CPU_Radio_Send(1, (msg), (msg->GetHeader())->GetLength());
 			RadioAckPending=TRUE;
+			*temp = (Message_15_4_t *) CPU_Radio_Send(1, (msg), (msg->GetHeader())->GetLength());
+
 		}
 	}
+
+	else if(RadioAckPending)
+	{
+		RadioAckPending = FALSE;
+		hal_printf("Unable to recieve send ack from radio\n");
+		CPU_Radio_Reset(1);
+
+#if 0
+		if(m_recovery & LEVEL_0_RECOVER)
+		{
+			m_recovery = m_recovery << 1;
+		}
+		else if(m_recovery & LEVEL_1_RECOVER)
+		{
+			m_recovery = m_recovery << 1;
+			RadioAckPending = FALSE;
+		}
+		else if(m_recovery & LEVEL_2_RECOVER)
+		{
+			m_recovery = m_recovery << 1;
+			RadioAckPending = FALSE;
+			CPU_Radio_Reset(1);
+			if(CPU_Radio_TurnOn(1) == DS_Fail)
+			{
+				hal_printf("Radio Reset failed");
+			}
+		}
+		else
+		{
+			hal_printf("Unable to recieve send acks from radio\n");
+			//while(1);
+		}
+#endif
+	}
+
 }
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
