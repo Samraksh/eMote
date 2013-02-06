@@ -264,6 +264,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id)
 {
+	INIT_STATE_CHECK()
 #ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
