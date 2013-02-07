@@ -16,6 +16,7 @@
 
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
+#include "TinyCLR_Runtime.h"
 
 //static HRESULT Initialize_Radio_802_15_4_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData );
 //static HRESULT  EnableDisable_Radio_802_15_4_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable );
@@ -58,7 +59,8 @@ namespace Samraksh
                     static Message_15_4_t *SendMsgPtr, *RcvMsgPtr;
                     static CLR_RT_HeapBlock_NativeEventDispatcher *ne_Context;
                     static UINT64 ne_userData;
-                    static CLR_RT_TypedArray_UINT8 managedRadioMsg;
+                    static CLR_RT_HeapBlock_Array *pHeapBlockMsgArray;
+                    static UINT8 *managedRadioMsg;
                 };
             }
         }

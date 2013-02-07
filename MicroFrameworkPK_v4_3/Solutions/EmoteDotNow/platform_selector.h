@@ -121,6 +121,10 @@
 #define DEBUGGER_PORT      COM1
 #define MESSAGING_PORT     COM1
 
+//Setting the upper and lower thresholds for the GC to kick in
+//Our total heap is 48 K bytes
+#define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD  16 * 1024
+#define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD_UPPER 32 * 1024
 
 // communicaiton facilities
 /////////////////////////////////////////////////////////

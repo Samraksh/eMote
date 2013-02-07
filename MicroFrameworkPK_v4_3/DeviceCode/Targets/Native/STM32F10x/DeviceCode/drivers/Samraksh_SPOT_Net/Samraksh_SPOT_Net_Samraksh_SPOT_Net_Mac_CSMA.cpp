@@ -156,7 +156,7 @@ void  ManagedCSMACallback(void *msg, UINT16 size){
 	if(g_CLR_RT_ExecutionEngine.m_heapState ==  CLR_RT_ExecutionEngine::c_HeapState_Normal){
 		UINT8 *managedMsg=(UINT8 *) CSMA::pHeapBlockMsgArray->GetFirstElement();
 		memcpy (managedMsg, msg,  size);
-		SaveNativeEventToHALQueue( CSMA::ne_Context, UINT32(CSMA::ne_userData >> 16), UINT32(CSMA::ne_userData & 0xFFFFFFFF) );
+		SaveNativeEventToHALQueue( CSMA::ne_Context, UINT32(size), UINT32(CSMA::ne_userData & 0xFFFFFFFF) );
 	}else {
 		//This needs to filled up. Right now if we receive a message if the heap is not normal we loose a packet.
 

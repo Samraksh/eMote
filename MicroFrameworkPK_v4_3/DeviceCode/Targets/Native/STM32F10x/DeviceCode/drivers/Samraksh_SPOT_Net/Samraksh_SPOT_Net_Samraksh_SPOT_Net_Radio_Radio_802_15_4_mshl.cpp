@@ -263,6 +263,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Intern
 
         CLR_RT_TypedArray_UINT8 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param1 ) );
+        Radio_802_15_4::pHeapBlockMsgArray = stack.ArgN( 1 ).DereferenceArray();   FAULT_ON_NULL(Radio_802_15_4::pHeapBlockMsgArray);
 
         INT32 retVal = Radio_802_15_4::InternalInitialize( param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );

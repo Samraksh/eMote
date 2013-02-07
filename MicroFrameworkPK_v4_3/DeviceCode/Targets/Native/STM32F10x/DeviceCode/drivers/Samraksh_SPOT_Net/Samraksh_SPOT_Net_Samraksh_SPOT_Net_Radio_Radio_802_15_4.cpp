@@ -24,7 +24,8 @@ Message_15_4_t Radio_802_15_4::SendMsg, Radio_802_15_4::RcvMsg;
 Message_15_4_t *Radio_802_15_4::SendMsgPtr, *Radio_802_15_4::RcvMsgPtr;
 CLR_RT_HeapBlock_NativeEventDispatcher* Radio_802_15_4::ne_Context;
 UINT64 Radio_802_15_4::ne_userData;
-CLR_RT_TypedArray_UINT8 Radio_802_15_4::managedRadioMsg;
+UINT8* Radio_802_15_4::managedRadioMsg;
+CLR_RT_HeapBlock_Array* Radio_802_15_4::pHeapBlockMsgArray;
 
 void*  ManagedRadioCallback_802_15_4(void *msg, UINT16 size);
 
@@ -125,21 +126,26 @@ INT32 Radio_802_15_4::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedA
 
 	UINT8 numberOfRadios=1;
 	UINT8 MacId=254;
-	Radio_Event_Handler.SetRecieveHandler(ManagedRadioCallback_802_15_4);
+	Radio_Event_Handler.SetRecieveHandler(&ManagedRadioCallback_802_15_4);
 	CPU_Radio_Initialize(&Radio_Event_Handler, &RadioID, numberOfRadios, MacId);
 	SendMsgPtr = &SendMsg;
 	RcvMsgPtr = &RcvMsg;
 
 	//Initialize the pointer to the managed message to be copied when you receive a radio messgae
-	managedRadioMsg = param1;
+	managedRadioMsg = param1.GetBuffer();
+	Radio_802_15_4::pHeapBlockMsgArray->Pin();
 
     return 1;
 }
 
 void*  ManagedRadioCallback_802_15_4(void *msg, UINT16 size){
-	UINT8 * managedBuffer = Radio_802_15_4::managedRadioMsg.GetBuffer();
-	memcpy (managedBuffer, msg,  size);
-	SaveNativeEventToHALQueue( Radio_802_15_4::ne_Context, UINT32(Radio_802_15_4::ne_userData >> 16), UINT32(Radio_802_15_4::ne_userData & 0xFFFFFFFF) );
+	if(g_CLR_RT_ExecutionEngine.m_heapState ==  CLR_RT_ExecutionEngine::c_HeapState_Normal){
+		UINT8 *managedMsg=(UINT8 *)Radio_802_15_4::pHeapBlockMsgArray->GetFirstElement();
+		memcpy (managedMsg, msg,  size);
+		SaveNativeEventToHALQueue( Radio_802_15_4::ne_Context, UINT32(size), UINT32(Radio_802_15_4::ne_userData & 0xFFFFFFFF) );
+	}else {
+
+	}
 	return msg;
 }
 
