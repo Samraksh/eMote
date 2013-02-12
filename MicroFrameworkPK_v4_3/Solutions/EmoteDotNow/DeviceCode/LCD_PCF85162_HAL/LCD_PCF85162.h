@@ -95,6 +95,7 @@ public:
 	LCD_PCF85162_Driver();
 	bool Initialize();
 	bool Uninitialize();
+	bool ClearI2CError();
 	bool Write(int data4, int data3, int data2, int data1);
 	bool SetDP(bool dp4, bool dp3, bool dp2, bool dp1);
 	bool WriteN(int column, int data);
@@ -113,8 +114,7 @@ extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
 											if(poll_counter == 0xff)    \
 											{  								\
 												hal_printf("I2C State change failed");  \
-												Uninitialize();			\
-												Initialize();			\
+												ClearI2CError();			\
 												return false;				\
 											} 								\
 											poll_counter++; 				\

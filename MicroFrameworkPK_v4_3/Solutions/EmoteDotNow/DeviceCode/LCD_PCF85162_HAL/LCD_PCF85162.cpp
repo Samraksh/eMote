@@ -63,15 +63,25 @@ bool LCD_PCF85162_Driver::Initialize()
 
 bool LCD_PCF85162_Driver::Uninitialize()
 {
-	I2C_Cmd(I2C1, DISABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
-	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_RESET);
+	I2C_DeInit(I2C1);
+	I2C_SoftwareResetCmd(I2C1, ENABLE);
+	I2C_SoftwareResetCmd(I2C1, DISABLE);
+	return true;
+}
+
+bool LCD_PCF85162_Driver::ClearI2CError()
+{
+	int i;
+	Uninitialize();
+	for(i = 0; i < 10000; i++) {}
+	Initialize();
 	return true;
 }
 
 bool LCD_PCF85162_Driver::Write(int data4, int data3, int data2, int data1)
 {
 	int byte1, byte2, byte3, byte4;
+
 	INIT_I2C_STATE_CHECK();
 
 	currentColumn1 = data1;
