@@ -43,6 +43,7 @@ public:
     MacEventHandler_t* AppHandlers[MAX_APPS];
     UINT16 MyAddress;
     ConfigT MyConfig;
+    UINT16 MaxPayload;
 
 	RadioEventHandler_t Radio_Event_Handler;
 	UINT32 Radio_Interrupt_Mask;
@@ -55,7 +56,9 @@ public:
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
 	BOOL SendAckHandler(void *msg, UINT16 Size);
 	UINT16 GetAddress(){return MyAddress;	}
+	UINT16 GetMaxPayload(){return MaxPayload;	}
 	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
+	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, ConfigT* config);
 };
 

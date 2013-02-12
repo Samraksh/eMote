@@ -51,6 +51,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		csmaMAC::SetAddress(MF_NODE_ID);
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
+		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-2));
 
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
 		Radio_Event_Handler.SetRecieveHandler(csmaRecieveHandler);
@@ -59,7 +60,10 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
 
-		m_NeighborTable.InitObject();
+		//Mukundan: Feb 11, 2013
+		//Commenting out neighbor table to test GC bug:
+		//m_NeighborTable.InitObject();
+
 		UINT8 numberOfRadios = 1;
 		UINT8 radioIds = 1;
 		RadioAckPending=FALSE;
@@ -96,6 +100,10 @@ UINT8 test = 0;
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
 	Message_15_4_t msg_carrier;
+	if(Size >  csmaMAC::GetMaxPayload()){
+		hal_printf("CSMA Send Error: Packet is too big: %d ", Size);
+		return FALSE;
+	}
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
@@ -186,6 +194,10 @@ void csmaMAC::SendToRadio(){
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
+		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+		return FALSE;
+	}
 	Message_15_4_t** next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 
 	if(! (next_free_buffer))
@@ -205,13 +217,15 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Handle the message
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
 
+	//Mukundan: Feb 11, 2013
+	//Commenting out neighbor table to test GC bug:
 	//Add the sender to NeighborTable
-	UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
+	/*UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
 	if(index==255) {
 		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
 	}else {
 		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
-	}
+	}*/
 
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 		HandleBroadcastMessage(msg);

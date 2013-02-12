@@ -32,8 +32,13 @@ BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
-	INIT_STATE_CHECK();
+	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
+		hal_printf("Radio Send Error: Big packet: %d ", size+2);
+		return msg;
+	}
+	ASSERT(size+1 < IEEE802_15_4_FRAME_LENGTH);
 
+	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 	//__ASM volatile("cpsid i");
 	//pulse 1
@@ -257,6 +262,11 @@ BOOL RF231Radio::Reset()
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
+	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
+		hal_printf("Radio Send Error: Big packet: %d ", size+2);
+		return msg;
+	}
+	ASSERT(size+1 < IEEE802_15_4_FRAME_LENGTH);
 
 	INIT_STATE_CHECK();
 
@@ -873,6 +883,10 @@ void RF231Radio::HandleInterrupt()
 		{
 			DownloadMessage();
 			//rx_msg_ptr->SetActiveMessageSize(rx_length);
+			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+				hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
+			}
+
 			(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 			rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
 		}

@@ -25,25 +25,19 @@ typedef Buffer_15_4<8> Buffer_15_4_t;
 #define LEVEL_1_RECOVER (1 << 1)
 #define LEVEL_2_RECOVER (1 << 2)
 
-
-/***********************************************************************************************/
-
-/*********************************  Macro Definitions ******************************************/
-
-#define CSMA_HEADER_SIZE 10
-#define CSMA_FOOTER_SIZE 4
-#define CSMA_METADATA_SIZE 4
-#define CSMA_PAYLOAD_SIZE 20
-
-/***********************************************************************************************/
-
-/********************************* Message format implementations ******************************/
 /*struct CSMAConfig{
 	UINT16 FCF;
 	UINT16 DestPAN;
 	UINT8 Network;
 };
 */
+/*
+
+#define CSMA_HEADER_SIZE 10
+#define CSMA_FOOTER_SIZE 4
+#define CSMA_METADATA_SIZE 4
+#define CSMA_PAYLOAD_SIZE 20
+
 
 // Definition for the csma header
 class csmaHeader
@@ -95,11 +89,9 @@ public:
 
 };
 #endif
-/*******************************************************************************************************/
 
-/****************************** typedefs ***************************************************************/
-
-typedef Message<csmaHeader, CSMA_PAYLOAD_SIZE ,  csmaFooter, csmaMetadata> MessageCsmaType;
+//typedef Message<csmaHeader, CSMA_PAYLOAD_SIZE ,  csmaFooter, csmaMetadata> MessageCsmaType;
+*/
 
 /*******************************************************************************************************/
 
@@ -109,12 +101,13 @@ typedef Message<csmaHeader, CSMA_PAYLOAD_SIZE ,  csmaFooter, csmaMetadata> Messa
 class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 {
 	//Buffer variables
-	//BufferList<Buffer_15_4_t, Message_15_4_t, 16> SendBuffer;
-	//BufferList<Buffer_15_4_t, Message_15_4_t, 16> ReceiveBuffer;
-	NeighborTable m_NeighborTable;
-
 	Buffer_15_4_t m_send_buffer;
 	Buffer_15_4_t m_receive_buffer;
+
+	//Mukundan: Feb 11, 2013
+	//Commenting out neighbor table to test GC bug:
+	//NeighborTable m_NeighborTable;
+
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
