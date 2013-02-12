@@ -196,7 +196,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
-		return FALSE;
+		return msg;
 	}
 	Message_15_4_t** next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 

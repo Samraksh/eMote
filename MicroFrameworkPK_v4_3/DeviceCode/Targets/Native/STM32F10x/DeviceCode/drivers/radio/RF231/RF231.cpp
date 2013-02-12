@@ -885,6 +885,7 @@ void RF231Radio::HandleInterrupt()
 			//rx_msg_ptr->SetActiveMessageSize(rx_length);
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 				hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
+				return;
 			}
 
 			(rx_msg_ptr->GetHeader())->SetLength(rx_length);
