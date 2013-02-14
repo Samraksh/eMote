@@ -55,6 +55,9 @@ public:
 	void* ReceiveHandler(void* msg, UINT16 Size);
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
 	BOOL SendAckHandler(void *msg, UINT16 Size);
+	UINT16 GetSendPending();
+	UINT16 GetReceivePending();
+
 	UINT16 GetAddress(){return MyAddress;	}
 	UINT16 GetMaxPayload(){return MaxPayload;	}
 	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}

@@ -72,6 +72,7 @@ bool LCD_PCF85162_Driver::Uninitialize()
 bool LCD_PCF85162_Driver::ClearI2CError()
 {
 	int i;
+	I2C_GenerateSTOP(I2C1, ENABLE);
 	Uninitialize();
 	for(i = 0; i < 10000; i++) {}
 	Initialize();

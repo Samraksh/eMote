@@ -881,15 +881,16 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-			DownloadMessage();
-			//rx_msg_ptr->SetActiveMessageSize(rx_length);
-			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-				hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
-				return;
-			}
+			if(DS_Success==DownloadMessage()){
+				//rx_msg_ptr->SetActiveMessageSize(rx_length);
+				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+					hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
+					return;
+				}
 
-			(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-			rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
+				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
+			}
 		}
 	}
 #ifdef DEBUG_RF231
@@ -912,7 +913,11 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	length = CPU_SPI_WriteReadByte(config, 0);
 
-	if(length >= 3)
+	if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
+					hal_printf("Radio Receive Error: Packet too big: %d ",length);
+					return DS_Fail;
+	}
+	else if(length >= 3)
 	{
 		UINT8 read;
 
@@ -938,7 +943,11 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	cmd = CMD_NONE;
 
+	//////////////////////Do CRC check here on packet, before returning Success////////
+
+
 	rx_length = length - 2;
+	return DS_Success;
 }
 
 

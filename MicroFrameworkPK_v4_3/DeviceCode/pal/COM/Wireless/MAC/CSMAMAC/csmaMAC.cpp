@@ -6,6 +6,8 @@
 csmaMAC gcsmaMacObject;
 extern HALTimerManager gHalTimerManagerObject;
 
+UINT8 RadioLockUp;
+
 void* csmaRecieveHandler(void *msg, UINT16 Size)
 {
 	return (void*) gcsmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
@@ -51,7 +53,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		csmaMAC::SetAddress(MF_NODE_ID);
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
-		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-2));
+		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
 		Radio_Event_Handler.SetRecieveHandler(csmaRecieveHandler);
@@ -72,7 +74,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
 		gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(3, 0, 100000, FALSE, FALSE, csmaMacScheduler)){ //100 milli sec Timer in micro seconds
+		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, csmaMacScheduler)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
 		}
 	}
@@ -160,6 +162,10 @@ void csmaMAC::SendToRadio(){
 	{
 		RadioAckPending = FALSE;
 		hal_printf("Unable to recieve send ack from radio\n");
+		RadioLockUp++;
+		if(RadioLockUp > 10){
+			hal_printf("CSMA: Radio seems to have lock up: %d \n", RadioLockUp);
+		}
 		CPU_Radio_Reset(1);
 
 #if 0
@@ -272,6 +278,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 		//retry sending message
 	}
 	RadioAckPending=FALSE;
+	RadioLockUp=0;
 }
 
 UINT8 csmaMAC::GetBufferSize(){

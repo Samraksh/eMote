@@ -125,6 +125,9 @@ public:
 	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
 	void SendToRadio();
 	UINT8 GetBufferSize();
+	UINT16 GetSendPending(){ return m_send_buffer.GetNumberMessagesInBuffer();}
+	UINT16 GetReceivePending(){return m_receive_buffer.GetNumberMessagesInBuffer();}
+
 };
 
 

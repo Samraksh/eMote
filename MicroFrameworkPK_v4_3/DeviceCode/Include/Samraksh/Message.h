@@ -96,7 +96,7 @@ public:
 
 
 //IEEE802.15.4 Message structure
-#define IEEE802_15_4_FRAME_LENGTH 127
+#define IEEE802_15_4_FRAME_LENGTH 125
 
 //All fields up to 'network' are 802.15.4 specification fields, network is a option field for 6LowPAN compatibility
 //mac_id is Samraksh's Radio API to demultiplex radio packets

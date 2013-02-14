@@ -21,13 +21,15 @@ DeviceStatus MAC_UnInitialize(UINT8 macID){
 }
 
 UINT8 Mac_GetID(){
-	return 0;
+	return gcsmaMacObject.MacId ;
 }
 
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	//msg is just the payload,
-	 gcsmaMacObject.Send(destAddress, dataType, msg, size);
-	return DS_Fail;
+	if(gcsmaMacObject.Send(destAddress, dataType, msg, size))
+		return DS_Success;
+	else
+		return DS_Fail;
 }
 
 
@@ -49,7 +51,7 @@ UINT8 Mac_GetBufferSize(UINT8 macID){
 	return  gcsmaMacObject.GetBufferSize();
 }
 UINT8 Mac_GetNumberPendingPackets(UINT8 macID){
-	return 0;
+	return gcsmaMacObject.GetSendPending();
 }
 DeviceStatus Mac_RemovePacket(UINT8 macID, UINT8* msg){
 	return DS_Fail;
