@@ -63,9 +63,18 @@ bool LCD_PCF85162_Driver::Initialize()
 
 bool LCD_PCF85162_Driver::Uninitialize()
 {
+	int i;
+
 	I2C_DeInit(I2C1);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
+
 	I2C_SoftwareResetCmd(I2C1, ENABLE);
 	I2C_SoftwareResetCmd(I2C1, DISABLE);
+
+	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_RESET);
+	for (i=0; i<20000; i++) {}
+	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_SET);
 	return true;
 }
 
