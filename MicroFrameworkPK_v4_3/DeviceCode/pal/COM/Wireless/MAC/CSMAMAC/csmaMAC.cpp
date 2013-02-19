@@ -27,6 +27,7 @@ void csmaMacScheduler(void * arg){
 #ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 #endif
+	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendToRadio();
 #ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
