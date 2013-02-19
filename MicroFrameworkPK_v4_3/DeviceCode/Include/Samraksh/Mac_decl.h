@@ -47,15 +47,15 @@ public:
 
 
 //Basic functions
-DeviceStatus MAC_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* macConfig);
-DeviceStatus MAC_UnInitialize(UINT8 macID);
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* macConfig);
+DeviceStatus Mac_UnInitialize(UINT8 macID);
 UINT8 Mac_GetID();
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
 DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 
 //Neighbor functions
-NeighborTable* MAC_GetNeighborTable(UINT8 macID);
-Neighbor_t* MAC_GetNeighbors(UINT8 macID, UINT8 macAddress);
+NeighborTable* Mac_GetNeighborTable(UINT8 macID);
+Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress);
 
 //Channel/freq functions
 

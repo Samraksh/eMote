@@ -62,9 +62,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
 
-		//Mukundan: Feb 11, 2013
-		//Commenting out neighbor table to test GC bug:
-		//m_NeighborTable.InitObject();
+		m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
 		UINT8 radioIds = 1;
@@ -131,6 +129,9 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 			return FALSE;
 
 	return TRUE;
+}
+void csmaMAC::UpdateNeighborTable(){
+	m_NeighborTable.DegradeLinks();
 }
 
 void csmaMAC::SendToRadio(){
@@ -223,15 +224,14 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Handle the message
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
 
-	//Mukundan: Feb 11, 2013
-	//Commenting out neighbor table to test GC bug:
+
 	//Add the sender to NeighborTable
-	/*UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
+	UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
 	if(index==255) {
 		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
 	}else {
 		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
-	}*/
+	}
 
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 		HandleBroadcastMessage(msg);

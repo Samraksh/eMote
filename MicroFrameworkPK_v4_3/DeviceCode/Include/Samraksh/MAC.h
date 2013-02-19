@@ -63,6 +63,9 @@ public:
 	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, ConfigT* config);
+
+	NeighborTable* GetNeighborTable();
+	Neighbor_t* GetNeighbor(UINT16 macAddress);
 };
 
 // Define static member for the template class
