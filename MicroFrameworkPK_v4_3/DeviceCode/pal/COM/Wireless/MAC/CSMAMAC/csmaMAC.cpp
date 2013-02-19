@@ -134,6 +134,16 @@ void csmaMAC::UpdateNeighborTable(){
 	m_NeighborTable.DegradeLinks();
 }
 
+// Called by the mac for retrying in case of failed packets 
+BOOL csmaMAC::Resend(void* msg, int Size)
+{
+	// Try and push the packet back into the buffer
+	if(!m_send_buffer.Store(msg, Size)) 
+		return FALSE;
+		
+	return TRUE;
+}
+
 void csmaMAC::SendToRadio(){
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
@@ -269,14 +279,36 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 {
+	switch(status)
+	{
+		case NO_Success:
+			{
+				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
+				(*appHandler)(msg, Size, status);
+			}
+			break;
+		
+		case NO_Busy:
+			Resend(msg, Size);
+			break;
+			
+		case NO_BadPacket:
+			break;
+	}
+	
+#if 0
 	//Radio sent it out successfully,
 	if(status==NO_Success){
 		SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 		(*appHandler)(msg, Size, status);
 	}
-	else{	//failed
+	else{	
+		//failed
 		//retry sending message
+		
 	}
+#endif
+
 	RadioAckPending=FALSE;
 	RadioLockUp=0;
 }
