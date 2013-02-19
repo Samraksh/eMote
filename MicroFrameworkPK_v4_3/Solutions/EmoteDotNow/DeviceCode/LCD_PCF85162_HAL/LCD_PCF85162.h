@@ -113,7 +113,6 @@ extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
 										 do{ 							\
 											if(poll_counter == 0xff)    \
 											{  								\
-												//hal_printf("*** I2C State change failed: 0x%x\r\n", I2C_GetLastEvent(I2C1));  \
 												ClearI2CError();			\
 												return false;				\
 											} 								\

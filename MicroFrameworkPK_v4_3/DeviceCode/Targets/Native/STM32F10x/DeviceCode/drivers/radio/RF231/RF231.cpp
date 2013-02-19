@@ -917,9 +917,12 @@ void RF231Radio::HandleInterrupt()
 //template<class T>
 DeviceStatus RF231Radio::DownloadMessage()
 {
+	UINT16 crc;
+	INT16 lqi;
 	//////////////////////If Auto crc check is failing return false
-	//if(!(ReadRegister(RF230_PHY_RSSI) & (1 << 6)))
-	//	return DS_Fail;
+	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
+	if(!(phy_rssi & (1 << 7)))
+		return DS_Fail;
 
 	INIT_STATE_CHECK();
 	UINT8 length;
@@ -955,6 +958,17 @@ DeviceStatus RF231Radio::DownloadMessage()
 			temp_rx_msg_ptr[counter++] = CPU_SPI_WriteReadByte(config, 0);
 		}
 		while(--read != 0);
+		
+		// Read the crc byte because we are trying to get to the lqi
+		crc = CPU_SPI_WriteReadByte(config, 0);
+		crc = CPU_SPI_WriteReadByte(config, 0);
+		
+		lqi = CPU_SPI_WriteReadByte(config, 0);
+		
+		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+		metadata->SetLqi(lqi);
+		
+		
 
 	}
 	SelnSet();
