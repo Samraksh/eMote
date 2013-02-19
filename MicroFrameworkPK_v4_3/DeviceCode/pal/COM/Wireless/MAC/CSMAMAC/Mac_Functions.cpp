@@ -11,12 +11,12 @@
 extern csmaMAC gcsmaMacObject;
 
 //Basic functions
-DeviceStatus MAC_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
 
 	return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
 }
 
-DeviceStatus MAC_UnInitialize(UINT8 macID){
+DeviceStatus Mac_UnInitialize(UINT8 macID){
 	return DS_Fail;
 }
 
@@ -34,13 +34,14 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 
 
 //Neighbor functions
-NeighborTable* MAC_GetNeighborTable(UINT8 macID){
-
-	return (NeighborTable *)(NULL);
+NeighborTable* Mac_GetNeighborTable(UINT8 macID){
+	return gcsmaMacObject.GetNeighborTable();
+	//return (NeighborTable *)(NULL);
 }
-Neighbor_t* MAC_GetNeighbors(UINT8 macID, UINT16 macAddress){
 
-	return (Neighbor_t *)(NULL);
+Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress){
+	return gcsmaMacObject.GetNeighbor(macAddress);
+	//return (Neighbor_t *)(NULL);
 }
 
 //Channel/freq functions
@@ -57,7 +58,7 @@ DeviceStatus Mac_RemovePacket(UINT8 macID, UINT8* msg){
 	return DS_Fail;
 }
 
-//MAC Aggregate APIs
+//Mac Aggregate APIs
 BOOL MacLayer_Initialize(){
 	return FALSE;
 }

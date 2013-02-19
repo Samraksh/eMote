@@ -104,9 +104,7 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	Buffer_15_4_t m_send_buffer;
 	Buffer_15_4_t m_receive_buffer;
 
-	//Mukundan: Feb 11, 2013
-	//Commenting out neighbor table to test GC bug:
-	//NeighborTable m_NeighborTable;
+	NeighborTable m_NeighborTable;
 
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
@@ -125,9 +123,13 @@ public:
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
 	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
 	void SendToRadio();
+	void UpdateNeighborTable();
 	UINT8 GetBufferSize();
 	UINT16 GetSendPending(){ return m_send_buffer.GetNumberMessagesInBuffer();}
 	UINT16 GetReceivePending(){return m_receive_buffer.GetNumberMessagesInBuffer();}
+
+	NeighborTable* GetNeighborTable(){return &m_NeighborTable;}
+	Neighbor_t* GetNeighbor(UINT16 macAddress){return m_NeighborTable.GetNeighborPtr(macAddress); }
 
 };
 

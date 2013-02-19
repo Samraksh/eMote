@@ -30,6 +30,7 @@ typedef struct {
 	Link_t ForwardLink;
 	Link_t ReverseLink;
 	NeighborStatus Status;
+	UINT16 PacketsReceived;
 	UINT64 LastHeardTime;
 	UINT8 ReceiveDutyCycle; //percentage
 	UINT16 FrameLength;
@@ -51,6 +52,7 @@ public:
 	UINT8 UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength);
 	UINT8 UpdateDutyCycle(UINT16 address, UINT8 dutyCycle);
 	UINT8 UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime);
+	void DegradeLinks();
 };
 
 UINT8 NeighborTable::FindIndex(UINT16 address){
@@ -132,10 +134,22 @@ UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT6
 	if (index!=255 && (address != 0 || address != 65535)){
 			Neighbor[index].Status = status;
 			Neighbor[index].LastHeardTime = currTime;
+			if(Neighbor[index].ReverseLink.Quality < 254){
+				Neighbor[index].ReverseLink.Quality++;
+			}
 	}
 	return index;
 }
 
+void NeighborTable::DegradeLinks(){
+	UINT8 i=0;
+	for (i=0; i < NumberValidNeighbor; i++){
+		//Neighbor[index].Status = status;
+		if(Neighbor[i].ReverseLink.Quality >2){
+				Neighbor[i].ReverseLink.Quality--;
+		}
+	}
+}
 
 
 #endif /* NEIGHBORS_H_ */
