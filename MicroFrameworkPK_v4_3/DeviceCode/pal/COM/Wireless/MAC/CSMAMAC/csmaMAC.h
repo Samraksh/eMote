@@ -113,6 +113,7 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	UINT8 m_recovery;
 public:
 
+	BOOL Resend(void* msg, int Size);
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);
 	DeviceStatus SetConfig(MacConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);

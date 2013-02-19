@@ -264,10 +264,18 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
 		hal_printf("Radio Send Error: Big packet: %d ", size+2);
+		
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		// Should be bad size
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
+
+		
 		return msg;
 	}
 	ASSERT(size+1 < IEEE802_15_4_FRAME_LENGTH);
 
+	
+	
 	INIT_STATE_CHECK();
 
 	GLOBAL_LOCK(irq);
@@ -284,8 +292,15 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	tx_length = size;
 
+	
 	if(cmd != CMD_NONE || state == STATE_BUSY_TX)
+	{
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		// Should be bad size
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+
 		return msg;
+	}
 
 
 	// Send gives the CMD_TRANSMIT to the radio
@@ -902,17 +917,22 @@ void RF231Radio::HandleInterrupt()
 //template<class T>
 DeviceStatus RF231Radio::DownloadMessage()
 {
+	//////////////////////If Auto crc check is failing return false
+	//if(!(ReadRegister(RF230_PHY_RSSI) & (1 << 6)))
+	//	return DS_Fail;
+
 	INIT_STATE_CHECK();
 	UINT8 length;
 	UINT8 counter = 0;
 	SelnClear();
 
+	
 	UINT8* temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
 
 	CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
 
 	length = CPU_SPI_WriteReadByte(config, 0);
-
+	
 	if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
 					hal_printf("Radio Receive Error: Packet too big: %d ",length);
 					return DS_Fail;
@@ -942,8 +962,6 @@ DeviceStatus RF231Radio::DownloadMessage()
 	state = STATE_RX_ON;
 
 	cmd = CMD_NONE;
-
-	//////////////////////Do CRC check here on packet, before returning Success////////
 
 
 	rx_length = length - 2;

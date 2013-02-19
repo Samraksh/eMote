@@ -25,6 +25,8 @@ NO_Fail,
 NO_Busy,
 NO_Full,
 NO_Ready,
+NO_BadPacket,
+NO_Collision,
 };
 
 #endif /* HAL_UTIL_H_ */
