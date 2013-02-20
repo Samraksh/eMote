@@ -1,14 +1,24 @@
 using System;
 using Microsoft.SPOT;
+using Microsoft.SPOT.Hardware;
 using System.Threading;
 
 using Samraksh.SPOT.Net;
 using Samraksh.SPOT.Hardware.EmoteDotNow;
 
 namespace Samraksh.SPOT.Net.Mac.Ping
-{      
-    public class PingMsg 
+{
+    public class DummyMsg
+    {
+        public byte[] data = new byte[10];
+        public DummyMsg()
+        {
+            data[0] = 1; data[2] = 2; data[4] = 4; data[6] = 6; data[8] = 8;
+        }
+    }
 
+
+    public class PingMsg 
     {
         public bool Response;
         public ushort MsgID;
@@ -17,6 +27,9 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
         public PingMsg()
         {
+        }
+        public static  int Size(){
+            return 7;
         }
         public PingMsg(byte[] rcv_msg, ushort size)
         {
@@ -50,12 +63,16 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         Timer sendTimer;
         EmoteLCD lcd;
         PingMsg sendMsg = new PingMsg();
-
+        //DummyMsg myDummy = new DummyMsg();
+        Random rand = new Random();
         //Radio.Radio_802_15_4 my_15_4 = new Radio.Radio_802_15_4();
         //Radio.RadioConfiguration radioConfig = new Radio.RadioConfiguration();
         //int myRadioID;
+        static OutputPort SendPort = new OutputPort((Cpu.Pin)30, true);
+        static OutputPort ReceivePort = new OutputPort((Cpu.Pin)31, true);
 
-        Mac.CSMA myCSMA = new CSMA();
+        static Mac.CSMA myCSMA = new CSMA();
+
         Mac.MacConfiguration macConfig = new MacConfiguration();
         ReceiveCallBack myReceive;
 
@@ -67,25 +84,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
             lcd = new EmoteLCD();
             lcd.Initialize();
             lcd.Write(LCD.CHAR_I, LCD.CHAR_N, LCD.CHAR_I, LCD.CHAR_7);
-           
-            /*
-            Debug.Print("Initializing:  Radio");
-            try
-            {
-                my_15_4.Initialize(radioConfig, null);
-            }
-            catch (Exception e)
-            {
-                Debug.Print(e.ToString());
-            }
-
-            Debug.Print("Radio init done.");
-
-            myRadioID = my_15_4.GetID();
-             *
-            Debug.Print("My radio ID is : " + myRadioID);
-            */
-         
+                    
             macConfig.CCA = true;
             macConfig.BufferSize = 8;
             macConfig.NumberOfRetries = 0;
@@ -123,6 +122,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         void sendTimerCallback(Object o)
         {
             //mySeqNo++;
+            if((mySeqNo % 50) == 0)
             Debug.Print("Sending broadcast ping msg:  " + mySeqNo.ToString());
             try
             {
@@ -135,24 +135,39 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
         }
 
-        void HandleMessage(byte[] msg, ushort size)
+        void HandleMessage(byte[] msg, UInt16 size, UInt16 src, bool unicast, byte rssi, byte lqi)
         {
             try
             {
-                Debug.Print("MSG: " + msg[0].ToString() + " " + msg[1].ToString() + " " + msg[2].ToString() + " " + msg[3].ToString() + " " + msg[4].ToString() + " " + msg[5].ToString());
-                PingMsg rcvMsg = new PingMsg(msg, size);
-
-                if (rcvMsg.Response)
+                if (unicast)
                 {
-                    //This is a response to my message
-                    Debug.Print("Received response from: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
-                    lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
+                    Debug.Print("Got a Unicast message from src: " + src.ToString() + ", size: " + size.ToString() + ", rssi: " + rssi.ToString() + ", lqi: " + lqi.ToString());
                 }
                 else
                 {
-                    Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
-                    lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
-                    Send_Pong(rcvMsg);
+                    Debug.Print("Got a broadcast message from src: " + src.ToString() + ", size: " + size.ToString() + ", rssi: " + rssi.ToString() + ", lqi: " + lqi.ToString());
+                }
+                if (size == PingMsg.Size())
+                {
+                  
+                    //Debug.Print("MSG: " + msg[0].ToString() + " " + msg[1].ToString() + " " + msg[2].ToString() + " " + msg[3].ToString() + " " + msg[4].ToString() + " " + msg[5].ToString());
+                    PingMsg rcvMsg = new PingMsg(msg, size);
+
+                    if (rcvMsg.Response)
+                    {
+                        //This is a response to my message
+                        Debug.Print("Received response from: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
+                        lcd.Write(LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P, LCD.CHAR_P);
+                    }
+                    else
+                    {
+                        Debug.Print("Sending a Pong to SRC: " + rcvMsg.Src.ToString() + "for seq no: " + rcvMsg.MsgID.ToString());
+                        lcd.Write(LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R, LCD.CHAR_R);
+                        Send_Pong(rcvMsg);
+                    }
+                    //Debug.GC(true);
+                    ReceivePort.Write(true);
+                    ReceivePort.Write(false);
                 }
             }
             catch (Exception e)
@@ -170,19 +185,25 @@ namespace Samraksh.SPOT.Net.Mac.Ping
 
             byte[] msg = ping.ToBytes();
             myCSMA.Send(sender, msg, 0, (ushort)msg.Length);
+            
         }
 
         void Send_Ping(PingMsg ping)
         {
             //UInt16 sender = ping.Src;
+            //Debug.GC(true);
             ping.Response = false;
             ping.MsgID=mySeqNo++;
             ping.Src = myAddress;
+            
+            SendPort.Write(true);
+            SendPort.Write(false);
 
             byte[] msg = ping.ToBytes();
             myCSMA.Send((UInt16)Mac.Addresses.BROADCAST, msg, 0, (ushort)msg.Length);
             int char0 = (mySeqNo % 10) + (int)LCD.CHAR_0;
             lcd.Write(LCD.CHAR_S, LCD.CHAR_S, LCD.CHAR_S, (LCD)char0);
+         
         }
 
         public static void Main()
