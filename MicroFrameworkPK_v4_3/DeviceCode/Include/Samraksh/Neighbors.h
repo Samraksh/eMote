@@ -14,8 +14,8 @@
 #define MAX_NEIGHBORS 256
 
 typedef struct {
-	UINT8 Quality;
-	UINT8 LossRate;
+	UINT8 AvgRSSI;
+	UINT8 LinkQuality;
 	UINT8 AveDelay;
 }Link_t;
 
@@ -36,7 +36,8 @@ typedef struct {
 	UINT16 FrameLength;
 }Neighbor_t;
 
-class NeighborTable : public CLR_RT_HeapBlock_Node {
+//class NeighborTable : public CLR_RT_HeapBlock_Node {
+class NeighborTable {
 public:
 	UINT8 NumberValidNeighbor;
 	Neighbor_t Neighbor[MAX_NEIGHBORS];
@@ -101,13 +102,13 @@ UINT8 NeighborTable::UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *rev
 	if (index!=255 && (address != 0 || address != 65535)){
 			if(forwardLink != NULL){
 				Neighbor[index].ForwardLink.AveDelay = forwardLink->AveDelay;
-				Neighbor[index].ForwardLink.LossRate = forwardLink->LossRate;
-				Neighbor[index].ForwardLink.Quality = forwardLink->Quality;
+				Neighbor[index].ForwardLink.AvgRSSI = forwardLink->AvgRSSI;
+				Neighbor[index].ForwardLink.LinkQuality = forwardLink->LinkQuality;
 			}
 			if(reverseLink != NULL){
 				Neighbor[index].ReverseLink.AveDelay = reverseLink->AveDelay;
-				Neighbor[index].ReverseLink.LossRate = reverseLink->LossRate;
-				Neighbor[index].ReverseLink.Quality = reverseLink->Quality;
+				Neighbor[index].ReverseLink.AvgRSSI = reverseLink->AvgRSSI;
+				Neighbor[index].ReverseLink.LinkQuality = reverseLink->LinkQuality;
 			}
 	}
 	return index;
@@ -134,9 +135,9 @@ UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT6
 	if (index!=255 && (address != 0 || address != 65535)){
 			Neighbor[index].Status = status;
 			Neighbor[index].LastHeardTime = currTime;
-			if(Neighbor[index].ReverseLink.Quality < 254){
-				Neighbor[index].ReverseLink.Quality++;
-			}
+			/*if(Neighbor[index].ReverseLink.Quality < 254){
+
+			}*/
 	}
 	return index;
 }
@@ -145,9 +146,9 @@ void NeighborTable::DegradeLinks(){
 	UINT8 i=0;
 	for (i=0; i < NumberValidNeighbor; i++){
 		//Neighbor[index].Status = status;
-		if(Neighbor[i].ReverseLink.Quality >2){
+		/*if(Neighbor[i].ReverseLink.Quality >2){
 				Neighbor[i].ReverseLink.Quality--;
-		}
+		}*/
 	}
 }
 

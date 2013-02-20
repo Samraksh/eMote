@@ -38,8 +38,14 @@ namespace Samraksh.SPOT.Net.Mac
     public class CSMA: NativeEventDispatcher, IMac
     {
         const byte MacMessageSize = 128;
+        const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
         static ReceiveCallBack MyReceiveCallback;
+        static byte RSSI, LinkQuality;
+        static UInt16 Src;
+        static bool Unicast;
         static byte[] ReceiveMessage = new byte[MacMessageSize];
+        
+        static byte[] ByteNeighbor = new byte[NeighborSize];
 
         /// <summary>
         /// Constructor for CSMA class
@@ -67,8 +73,52 @@ namespace Samraksh.SPOT.Net.Mac
 
         private static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
-            MyReceiveCallback(ReceiveMessage, (UInt16)data1);
+            Src = (UInt16)((data1 >> 16) & 0x0000FFFF);
+            RSSI = (byte)(data2 & 0x000000FF);
+            LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
+            Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false ;
+            MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
         }
+
+
+        /// <summary>
+        /// Get the details for a neighbor.
+        /// </summary>
+        /// <param name="macAddress">Address of the neighbor.</param>
+        /// <param name="neighbor">Reference to Neighbor object, in whcich the result will be returned</param>
+        /// <returns>Boolen. Success/Failure of operation</returns>
+        public bool GetNeighborStatus(UInt16 macAddress,ref Neighbor neighbor)
+        {
+            if(GetNeighborInternal(macAddress,ByteNeighbor)){
+                //Deserilize the object
+                /*string str = new string(':',1);
+                for (int i = 0; i < ByteNeighbor.Length; i++)
+                {
+                    str += ByteNeighbor[i].ToString() +':';
+                }
+                Debug.Print("Byte Nbr: " + str);
+                */
+                neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
+                neighbor.ForwardLink.AveRSSI= ByteNeighbor[2]; //ForwardLink
+                neighbor.ForwardLink.LinkQuality=ByteNeighbor[3];
+                neighbor.ForwardLink.AveDelay=ByteNeighbor[4];
+                neighbor.ReverseLink.AveRSSI= ByteNeighbor[5];  //ReverseLink
+                neighbor.ReverseLink.LinkQuality=ByteNeighbor[6];
+                neighbor.ReverseLink.AveDelay=ByteNeighbor[7];
+                neighbor.Status=(NeighborStatus)ByteNeighbor[8];//Status
+                neighbor.PacketsReceived = (UInt16)(((ByteNeighbor[10] << 8) & 0xFF00) + ByteNeighbor[9] );//MacAddress
+                neighbor.LastHeardTime = (UInt64)((ByteNeighbor[18] << 56) + ByteNeighbor[17] << 48 + ByteNeighbor[16] << 40 + ByteNeighbor[15] << 32 + ByteNeighbor[14] << 24 + 
+                ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + + ByteNeighbor[11] );//LastTimeHeard
+                neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
+                neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20] );
+                return true;
+            }
+            return false;
+        }
+
+
+
+
 
         /// <summary>
         /// Initialize native MAC, radio and interop drivers.
@@ -135,21 +185,18 @@ namespace Samraksh.SPOT.Net.Mac
         public extern byte GetID();
 
         //Neighbor functions
-
+        /*
         /// <summary>
         /// Get the device neighbors.
         /// </summary>
-        /// <returns>Neighbors of the device.</returns>
+        /// <param name="table">Reference to NeighborTable object, in which the result will be returned</param>
+        /// <returns>Boolen. Success/Failure of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NeighborTable GetNeighborTable();
-
-        /// <summary>
-        /// Get the details for a neighbor.
-        /// </summary>
-        /// <param name="macAddress">Address of the neighbor.</param>
-        /// <returns>The details for the neighbor.</returns>
+        public extern bool GetNeighborTable(NeighborTable table);
+        */
+        
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern Neighbor GetNeighbors(UInt16 macAddress);
+        private extern bool GetNeighborInternal(UInt16 macAddress, byte[] byte_nbr);
 
         //Buffer functions
         

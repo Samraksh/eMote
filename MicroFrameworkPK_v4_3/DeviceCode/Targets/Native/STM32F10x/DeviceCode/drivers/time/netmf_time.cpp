@@ -148,7 +148,6 @@ if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 			// this also schedules the next one, if there is one
 			HAL_COMPLETION::DequeueAndExec();		
 	#ifdef DEBUG_TIMER
-			STM_EVAL_LEDToggle((Led_TypeDef)1); //Orange
 			//CPU_GPIO_EnableOutputPin( 8, FALSE );
 			//CPU_GPIO_SetPinState(8, TRUE);
 			//CPU_GPIO_SetPinState(8, FALSE);

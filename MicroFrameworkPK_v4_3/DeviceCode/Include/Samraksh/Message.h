@@ -122,32 +122,32 @@ typedef struct IEEE802_15_4_Header {
 typedef class IEEE802_15_4_Footer{}IEEE802_15_4_Footer_t;
 
 typedef class IEEE802_15_4_Metadata{
-	INT16 Rssi;
-	INT16 Lqi;
+	UINT8 Rssi;
+	UINT8 Lqi;
 	UINT32 ReceiveTimeStamp;
 
   public:
-	INT16 GetRssi(){
+	UINT8 GetRssi(){
 		return Rssi;
 	}
-	INT16 GetLqi(){
+	UINT8 GetLqi(){
 		return Lqi;
 	}
 	UINT32 GetReceiveTimeStamp(){
 		return ReceiveTimeStamp;
 	}
-	void SetRssi(INT16 Rssi)
+	void SetRssi(UINT8 Rssi)
 	{
 		this->Rssi = Rssi;
 	}
-	void SetLqi(INT16 Lqi)
+	void SetLqi(UINT8 Lqi)
 	{
 		this->Lqi = Lqi;
 	}
 }IEEE802_15_4_Metadata_t;
+#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t))
 
-
-typedef Message<IEEE802_15_4_Header_t,(UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)),IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
+typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
 #define Message_15_4_t IEEE802_15_4_Message_t
 
 #endif /* MESSAGE_H_ */

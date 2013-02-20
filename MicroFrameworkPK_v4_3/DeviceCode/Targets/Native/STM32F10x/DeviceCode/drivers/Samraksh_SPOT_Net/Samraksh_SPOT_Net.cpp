@@ -95,12 +95,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetAddress___U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetAddress___BOOLEAN__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetID___U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborTable___SamrakshSPOTNetMacNeighborTable,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighbors___SamrakshSPOTNetMacNeighbor__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetBufferSize___U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetPendingPacketCount___U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
     NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration__SZARRAY_U1,
     NULL,
@@ -145,7 +144,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0x11012AC5,
+    0xAB2B1E23,
     method_lookup
 };
 

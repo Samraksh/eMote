@@ -124,9 +124,9 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    CPU_GPIO_SetPinState( 7, TRUE);
    CPU_GPIO_SetPinState( 7, FALSE);
 
-   CPU_GPIO_EnableOutputPin (23, FALSE);
-   CPU_GPIO_SetPinState( 23, TRUE);
-   CPU_GPIO_SetPinState( 23, FALSE);
+   CPU_GPIO_EnableOutputPin (4, FALSE);
+   CPU_GPIO_SetPinState( 4, TRUE);
+   CPU_GPIO_SetPinState( 4, FALSE);
 #endif
 
    return S_OK;
@@ -172,14 +172,14 @@ static void ISR_RealTimeTimerProc( CLR_RT_HeapBlock_NativeEventDispatcher *pCont
     //Dispatch interrupt to RTOSThread
     HRESULT hr;
 #ifdef DEBUG_RT_TIMER
-    CPU_GPIO_SetPinState(23,TRUE);
+    CPU_GPIO_SetPinState(4,TRUE);
 #endif
     if(g_CLR_RT_ExecutionEngine.m_rtosInterruptThread){
     	g_CLR_RT_ExecutionEngine.m_rtosInterruptThread->m_status =  CLR_RT_Thread::TH_S_Terminated;
     }
     hr = g_CLR_HW_Hardware.SpawnRTOSDispatcher(&interrupt);
 #ifdef DEBUG_RT_TIMER
-    CPU_GPIO_SetPinState(23,FALSE);
+    CPU_GPIO_SetPinState(4,FALSE);
 #endif
     RealTimeCount++;
 

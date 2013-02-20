@@ -52,18 +52,6 @@ UINT8 CSMA::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-UNSUPPORTED_TYPE CSMA::GetNeighborTable( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UNSUPPORTED_TYPE retVal = 0; 
-    return retVal;
-}
-
-UNSUPPORTED_TYPE CSMA::GetNeighbors( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
-{
-    UNSUPPORTED_TYPE retVal = 0; 
-    return retVal;
-}
-
 UINT8 CSMA::GetBufferSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
@@ -79,6 +67,12 @@ UINT8 CSMA::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 INT32 CSMA::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
+    return retVal;
+}
+
+INT8 CSMA::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
+{
+    INT8 retVal = 0; 
     return retVal;
 }
 

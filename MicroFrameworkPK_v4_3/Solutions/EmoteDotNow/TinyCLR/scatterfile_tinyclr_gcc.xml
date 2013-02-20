@@ -13,7 +13,7 @@
 		
 		<!-- The STM32F10x has 1MB flash divided into the following regions -->
          
-      	<Set Name="Config_BaseAddress"  Value="0x0809E000"/>    
+      	<Set Name="Config_BaseAddress"  Value="0x0809E700"/>    
         <Set Name="Config_Size"         Value="0x00001000"/>
         <Set Name="Code_BaseAddress"    Value="0x08020000"/>    
         <Set Name="Deploy_BaseAddress"  Value="0x080A0000"/>

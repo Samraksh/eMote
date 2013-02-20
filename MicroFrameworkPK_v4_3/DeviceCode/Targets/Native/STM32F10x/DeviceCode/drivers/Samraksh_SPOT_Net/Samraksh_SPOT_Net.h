@@ -17,7 +17,12 @@
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
 {
     static const int FIELD_STATIC__MyReceiveCallback = 0;
-    static const int FIELD_STATIC__ReceiveMessage = 1;
+    static const int FIELD_STATIC__RSSI = 1;
+    static const int FIELD_STATIC__LinkQuality = 2;
+    static const int FIELD_STATIC__Src = 3;
+    static const int FIELD_STATIC__Unicast = 4;
+    static const int FIELD_STATIC__ReceiveMessage = 5;
+    static const int FIELD_STATIC__ByteNeighbor = 6;
 
     TINYCLR_NATIVE_DECLARE(Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration);
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
@@ -25,11 +30,10 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);
     TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
-    TINYCLR_NATIVE_DECLARE(GetNeighborTable___SamrakshSPOTNetMacNeighborTable);
-    TINYCLR_NATIVE_DECLARE(GetNeighbors___SamrakshSPOTNetMacNeighbor__U2);
     TINYCLR_NATIVE_DECLARE(GetBufferSize___U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration__SZARRAY_U1);
 
     //--//
@@ -38,8 +42,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_Link
 {
-    static const int FIELD__Quality = 1;
-    static const int FIELD__LossRate = 2;
+    static const int FIELD__AveRSSI = 1;
+    static const int FIELD__LinkQuality = 2;
     static const int FIELD__AveDelay = 3;
 
 
@@ -66,9 +70,10 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_Neighbor
     static const int FIELD__ForwardLink = 2;
     static const int FIELD__ReverseLink = 3;
     static const int FIELD__Status = 4;
-    static const int FIELD__LastHeardTime = 5;
-    static const int FIELD__ReceiveDutyCycle = 6;
-    static const int FIELD__FrameLength = 7;
+    static const int FIELD__PacketsReceived = 5;
+    static const int FIELD__LastHeardTime = 6;
+    static const int FIELD__ReceiveDutyCycle = 7;
+    static const int FIELD__FrameLength = 8;
 
 
     //--//
@@ -99,8 +104,12 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__MyReceiveCallback = 2;
-    static const int FIELD_STATIC__ReceiveMessage = 3;
+    static const int FIELD_STATIC__MyReceiveCallback = 7;
+    static const int FIELD_STATIC__RSSI = 8;
+    static const int FIELD_STATIC__LinkQuality = 9;
+    static const int FIELD_STATIC__Src = 10;
+    static const int FIELD_STATIC__Unicast = 11;
+    static const int FIELD_STATIC__ReceiveMessage = 12;
 
     TINYCLR_NATIVE_DECLARE(Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetRadioRadioConfiguration);
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);

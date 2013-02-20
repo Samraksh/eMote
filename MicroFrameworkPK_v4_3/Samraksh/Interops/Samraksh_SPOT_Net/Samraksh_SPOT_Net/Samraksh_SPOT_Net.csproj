@@ -32,9 +32,7 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Common.cs" />
-    <Compile Include="..\..\..\..\..\..\..\Temp\CSMA.cs">
-      <Link>CSMA.cs</Link>
-    </Compile>
+    <Compile Include="CSMA.cs" />
     <Compile Include="IMac.cs" />
     <Compile Include="IRadio.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

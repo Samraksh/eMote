@@ -32,8 +32,8 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         public struct Link
         {
-            public byte Quality;
-            public byte LossRate;
+            public byte AveRSSI;
+            public byte LinkQuality;
             public byte AveDelay;
         };
 
@@ -56,9 +56,11 @@ namespace Samraksh.SPOT.Net
             public Link ForwardLink;
             public Link ReverseLink;
             public NeighborStatus Status;
+            public UInt16 PacketsReceived;
             public UInt64 LastHeardTime;
             public byte ReceiveDutyCycle; //percentage
             public UInt16 FrameLength;
+            
         };
 
         /// <summary>
@@ -85,8 +87,8 @@ namespace Samraksh.SPOT.Net
             byte GetID();
 
             //Neighbor functions
-            NeighborTable GetNeighborTable();
-            Neighbor GetNeighbors(UInt16 macAddress);
+            //bool GetNeighborTable(NeighborTable table);
+            bool GetNeighborStatus(UInt16 macAddress,ref Neighbor neighbor);
 
             //Buffer functions
             byte GetBufferSize();
