@@ -178,6 +178,7 @@ void I2C_DeInit(I2C_TypeDef* I2Cx)
     /* Release I2C2 from reset state */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
   }
+  I2Cx->CR1 = 0;
 }
 
 /**

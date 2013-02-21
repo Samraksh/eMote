@@ -111,7 +111,7 @@ extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
 
 #define DID_I2C_STATE_CHANGE(x, y)       poll_counter = 0;				\
 										 do{ 							\
-											if(poll_counter == 0xff)    \
+											if(poll_counter == 0x3ff)    \
 											{  								\
 												ClearI2CError();			\
 												return false;				\

@@ -14,6 +14,8 @@ const uint8_t LCD_NUM[63] = { 0x00, 0xee, 0xef, 0x8d, 0xed, 0x8f, 0x8e, 0xcd, 0x
 
 
 LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
+static bool LCD_Initialized = false;
+static bool LCD_WriteInProgress = false;
 
 LCD_PCF85162_Driver::LCD_PCF85162_Driver(){
 }
@@ -27,6 +29,11 @@ bool LCD_PCF85162_Driver::Initialize()
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
+
+    // Enable I2C1 reset state 
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+    // Release I2C1 from reset state 
+    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
   	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
@@ -58,12 +65,17 @@ bool LCD_PCF85162_Driver::Initialize()
 	DP3 = false;
 	DP4 = false;
 
+	LCD_Initialized = true;
+	LCD_WriteInProgress = false;
+
 	return true;
 }
 
 bool LCD_PCF85162_Driver::Uninitialize()
 {
 	int i;
+
+	LCD_Initialized = false;
 
 	I2C_DeInit(I2C1);
 
@@ -73,24 +85,32 @@ bool LCD_PCF85162_Driver::Uninitialize()
 	I2C_SoftwareResetCmd(I2C1, DISABLE);
 
 	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_RESET);
-	for (i=0; i<20000; i++) {}
+	for (i=0; i<250; i++) {}
 	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_SET);
+	for (i=0; i<1500; i++) {}
 	return true;
 }
 
 bool LCD_PCF85162_Driver::ClearI2CError()
 {
 	int i;
+
+	LCD_Initialized = false;
+
+	__ASM volatile("cpsid i");
 	I2C_GenerateSTOP(I2C1, ENABLE);
 	Uninitialize();
-	for(i = 0; i < 10000; i++) {}
 	Initialize();
+	__ASM volatile("cpsie i");
 	return true;
 }
 
 bool LCD_PCF85162_Driver::Write(int data4, int data3, int data2, int data1)
 {
 	int byte1, byte2, byte3, byte4;
+
+	if ((LCD_WriteInProgress == true) || (LCD_Initialized == false)) return false;
+	LCD_WriteInProgress = true;
 
 	INIT_I2C_STATE_CHECK();
 
@@ -156,11 +176,16 @@ bool LCD_PCF85162_Driver::Write(int data4, int data3, int data2, int data1)
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
+	LCD_WriteInProgress = false;
+
 	return true;
 }
 
 bool LCD_PCF85162_Driver :: SetDP(bool dp4, bool dp3, bool dp2, bool dp1)
 {
+	if ((LCD_WriteInProgress == true) || (LCD_Initialized == false)) return false;
+	LCD_WriteInProgress = true;
+
 	DP1 = dp1;
 	DP2 = dp2;
 	DP3 = dp3;
@@ -168,12 +193,18 @@ bool LCD_PCF85162_Driver :: SetDP(bool dp4, bool dp3, bool dp2, bool dp1)
 
 	Write(currentColumn4, currentColumn3, currentColumn2, currentColumn1);
 
+	LCD_WriteInProgress = false;
+
 	return true;
 }
 
 bool LCD_PCF85162_Driver :: WriteN(int column, int data)
 {
 	int byte1, byte2, byte3, byte4;
+
+	if ((LCD_WriteInProgress == true) || (LCD_Initialized == false)) return false;
+	LCD_WriteInProgress = true;
+
 	INIT_I2C_STATE_CHECK();
 
 	switch (column){
@@ -250,11 +281,16 @@ bool LCD_PCF85162_Driver :: WriteN(int column, int data)
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
+	LCD_WriteInProgress = false;
+
 	return true;
 }
 
 bool LCD_PCF85162_Driver :: WriteRawBytes(int data4, int data3, int data2, int data1)
 {
+	if ((LCD_WriteInProgress == true) || (LCD_Initialized == false)) return false;
+	LCD_WriteInProgress = true;
+
 	INIT_I2C_STATE_CHECK();
 
 	currentColumn1 = data1 & 0xff;
@@ -297,10 +333,15 @@ bool LCD_PCF85162_Driver :: WriteRawBytes(int data4, int data3, int data2, int d
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
+	LCD_WriteInProgress = false;
+
 	return true;
 }
 
-bool LCD_PCF85162_Driver :: Blink(int blinkType){
+bool LCD_PCF85162_Driver :: Blink(int blinkType)
+{
+	if ((LCD_WriteInProgress == true) || (LCD_Initialized == false)) return false;
+	LCD_WriteInProgress = true;
 
 	INIT_I2C_STATE_CHECK();
 
@@ -337,5 +378,8 @@ bool LCD_PCF85162_Driver :: Blink(int blinkType){
 	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
+
+	LCD_WriteInProgress = false;
+
 	return true;
 }
