@@ -12,6 +12,13 @@ void ApplicationEntryPoint()
     CLR_SETTINGS clrSettings;
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
+    
+    while(TRUE)
+    {
+	hal_printf("Breaking the clr");
+	HAL_Time_Sleep_MicroSeconds(100);
+	//for(int i = 0; i < 100000; i++);
+    }
 
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;

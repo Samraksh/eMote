@@ -86,12 +86,13 @@ BOOL Krait_TIMER_Driver::Uninitialize(UINT32 Timer)
 
 void Krait_TIMER_Driver::EnableCompareInterrupt(UINT32 Timer)
 {
-
+	writel(DGT_ENABLE_CLR_ON_MATCH_EN , DGT_ENABLE);
 }
 
 void Krait_TIMER_Driver::DisableCompareInterrupt(UINT32 Timer)
 {
-
+	UINT32 dgt_enable = readl(DGT_ENABLE);
+	writel((dgt_enable & (~DGT_ENABLE_CLR_ON_MATCH_EN)) , DGT_ENABLE);
 }
 
 void Krait_TIMER_Driver::ForceInterrupt(UINT32 Timer)
@@ -128,6 +129,7 @@ UINT32 Krait_TIMER_Driver::GetCounter(UINT32 Timer)
 	return readl(DGT_COUNT_VAL);
 }
 
+//The Krait timer automatically resets the compare register when the match value is hit
 BOOL Krait_TIMER_Driver::DidCompareHit(UINT32 Timer)
 {
 	return FALSE;

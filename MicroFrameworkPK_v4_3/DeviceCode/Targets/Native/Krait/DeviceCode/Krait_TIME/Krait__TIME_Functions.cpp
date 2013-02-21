@@ -158,17 +158,18 @@ void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
     *c = 0;
 }
 
-#pragma arm section code = "SectionForFlashOperations"
+//#pragma arm section code = "SectionForFlashOperations"
 
-void __section(SectionForFlashOperations) HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
+//void __section(SectionForFlashOperations) HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
+void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 {
-    //Krait_TIME_Driver::Sleep_uSec( uSec );
+    Krait_TIME_Driver::Sleep_uSec( uSec );
 }
 
-#pragma arm section code
+//#pragma arm section code
 
 void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
-    //Krait_TIME_Driver::Sleep_uSec_Loop( uSec );
+    Krait_TIME_Driver::Sleep_uSec_Loop( uSec );
 }
 

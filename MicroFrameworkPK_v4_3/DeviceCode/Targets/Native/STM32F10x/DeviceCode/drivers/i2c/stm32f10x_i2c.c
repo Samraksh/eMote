@@ -19,7 +19,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-//#include <tinyhal.h>
+
 #include "stm32f10x_i2c.h"
 #include <rcc/stm32f10x_rcc.h>
 
@@ -396,6 +396,8 @@ void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
+  __asm volatile("cpsid i"); // DISABLE
+
   if (NewState != DISABLE)
   {
     /* Generate a START condition */
@@ -406,6 +408,7 @@ void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
     /* Disable the START condition generation */
     I2Cx->CR1 &= CR1_START_Reset;
   }
+  __asm volatile("cpsie i"); // ENABLE
 }
 
 /**
@@ -420,6 +423,9 @@ void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
+
+  __asm volatile("cpsid i"); // DISABLE
+
   if (NewState != DISABLE)
   {
     /* Generate a STOP condition */
@@ -430,6 +436,7 @@ void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
     /* Disable the STOP condition generation */
     I2Cx->CR1 &= CR1_STOP_Reset;
   }
+  __asm volatile("cpsie i"); // ENABLE
 }
 
 /**
@@ -571,8 +578,10 @@ void I2C_SendData(I2C_TypeDef* I2Cx, uint8_t Data)
 {
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+  __asm volatile("cpsid i"); // DISABLE
   /* Write in the DR register the data to be sent */
   I2Cx->DR = Data;
+  __asm volatile("cpsie i");
 }
 
 /**
@@ -603,6 +612,8 @@ void I2C_Send7bitAddress(I2C_TypeDef* I2Cx, uint8_t Address, uint8_t I2C_Directi
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_DIRECTION(I2C_Direction));
+  __asm volatile("cpsid i"); // DISABLE
+
   /* Test on the direction to set/reset the read/write bit */
   if (I2C_Direction != I2C_Direction_Transmitter)
   {
@@ -616,6 +627,8 @@ void I2C_Send7bitAddress(I2C_TypeDef* I2Cx, uint8_t Address, uint8_t I2C_Directi
   }
   /* Send the address */
   I2Cx->DR = Address;
+
+  __asm volatile("cpsie i");
 }
 
 /**
