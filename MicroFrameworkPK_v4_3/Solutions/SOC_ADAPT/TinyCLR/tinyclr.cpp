@@ -13,12 +13,6 @@ void ApplicationEntryPoint()
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
     
-    while(TRUE)
-    {
-	hal_printf("Breaking the clr");
-	HAL_Time_Sleep_MicroSeconds(100);
-	//for(int i = 0; i < 100000; i++);
-    }
 
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
@@ -36,11 +30,6 @@ void ApplicationEntryPoint()
     CPU_GPIO_EnableOutputPin(72, TRUE);
     CPU_GPIO_EnableOutputPin(68, TRUE);
 #endif
-
-    for(UINT32 i = 0; i < 100; i++)
-    {
-    	hal_printf("Testing UART %d\n", i);
-    }
 
     ClrStartup( clrSettings );
 

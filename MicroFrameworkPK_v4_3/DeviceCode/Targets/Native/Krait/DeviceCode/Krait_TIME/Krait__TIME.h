@@ -15,10 +15,11 @@ struct Krait_TIME_Driver
 {
 	// Need to confirm this number
 	// Setting this to zero to resolve warning, otherwise not sure -NPS
-    static const UINT32 c_OverflowCheck = 0 /*(1 << 32)*/;
+    static const UINT32 c_OverflowCheck = 6750000 /*(1 << 32)*/;
 
     UINT64 m_lastRead;
     UINT64 m_nextCompare;
+    UINT64 m_lastCompare;
 
     static BOOL Initialize  ();
     static BOOL Uninitialize();

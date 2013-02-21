@@ -65,6 +65,7 @@ BOOL Krait_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 Cl
 	writel(tick_count, DGT_MATCH_VAL);
 	writel(0, DGT_CLEAR);
 	writel(DGT_ENABLE_EN | DGT_ENABLE_CLR_ON_MATCH_EN, DGT_ENABLE);
+	//writel(DGT_ENABLE_EN, DGT_ENABLE);
 
 	//register_int_handler(INT_DEBUG_TIMER_EXP, timer_irq, 0);
 	CPU_INTC_ActivateInterrupt(INT_DEBUG_TIMER_EXP, timer_irq, 0);
@@ -115,9 +116,6 @@ UINT32 Krait_TIMER_Driver::GetCompare(UINT32 Timer)
 
 void Krait_TIMER_Driver::SetCounter(UINT32 Timer, UINT32 Count)
 {
-	if(Timer > 2)
-		return;
-
 	writel(Count, DGT_COUNT_VAL);
 }
 

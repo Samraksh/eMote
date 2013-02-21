@@ -45,6 +45,8 @@ BOOL Krait_TIME_Driver::Initialize  (){
 	g_Krait_TIME_Driver.m_lastRead    = 0;
 	// What is this magical 6750000 number ? pulled from lk : Ans : Looks like 6750000 means the timer fires every 1s 
 	g_Krait_TIME_Driver.m_nextCompare = 6750000;
+	
+	g_Krait_TIME_Driver.m_lastCompare = g_Krait_TIME_Driver.m_nextCompare;
 
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, FALSE);
 
@@ -64,6 +66,7 @@ BOOL Krait_TIME_Driver::Uninitialize(){
 
 UINT64 Krait_TIME_Driver::CounterValue()
 {
+	GLOBAL_LOCK(irq);
 
 	UINT32 lastLowValue = (UINT32)(g_Krait_TIME_Driver.m_lastRead & 0x00000000FFFFFFFFull);
 
@@ -76,7 +79,7 @@ UINT64 Krait_TIME_Driver::CounterValue()
 		//DEBUG_TRACE3(TRACE_COUNTER_OVERFLOWS,"CounterValue: Overflow %08x %08x=>%08x", (g_PXA271_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
 		hal_printf("System Timer Overflowed, CounterValue : Overflow %08x %08x=>%08x", (g_Krait_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
 
-		g_Krait_TIME_Driver.m_lastRead += (0x1ull << 32);
+		g_Krait_TIME_Driver.m_lastRead += g_Krait_TIME_Driver.m_lastCompare;
 	}
 	    //Or else the value gets added simply
 	g_Krait_TIME_Driver.m_lastRead |= value;
@@ -89,7 +92,9 @@ UINT64 Krait_TIME_Driver::CounterValue()
 void Krait_TIME_Driver::SetCompareValue( UINT64 CompareValue )
 {
     GLOBAL_LOCK(irq);
-
+    
+    g_Krait_TIME_Driver.m_lastCompare = g_Krait_TIME_Driver.m_nextCompare;
+    
     g_Krait_TIME_Driver.m_nextCompare = CompareValue;
 
     bool fForceInterrupt = false;
