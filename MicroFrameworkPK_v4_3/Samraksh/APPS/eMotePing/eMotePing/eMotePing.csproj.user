@@ -2,7 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DeployTransport>Serial</DeployTransport>
+<<<<<<< HEAD
     <DeployDevice>COM2</DeployDevice>
+=======
+    <DeployDevice>COM14</DeployDevice>
+>>>>>>> 1b521c9328e09a72d75b4c877c55d33448b37f38
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DeployTransport>Serial</DeployTransport>

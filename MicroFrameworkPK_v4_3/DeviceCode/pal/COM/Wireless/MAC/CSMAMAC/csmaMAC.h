@@ -110,6 +110,11 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
 public:
+	UINT16 GetAddress(){return MyAddress;}
+	UINT16 GetMaxPayload(){return MaxPayload;	}
+	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
+	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
+
 
 	BOOL Resend(void* msg, int Size);
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);

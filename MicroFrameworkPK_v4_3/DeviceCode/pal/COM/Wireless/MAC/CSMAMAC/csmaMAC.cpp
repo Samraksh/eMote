@@ -52,6 +52,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 	if(!this->Initialized){
 		MacId = csmaMAC::GetUniqueMacID();
 		csmaMAC::SetAddress(MF_NODE_ID);
+		MyAddress = MF_NODE_ID;
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
@@ -63,7 +64,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
 
-		m_NeighborTable.InitObject();
+		//m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
 		UINT8 radioIds = 1;
@@ -72,6 +73,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_recovery = 1;
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
+		//hal_printf("CSMA Initialize: My address is : %d\n", MyAddress);
 		gHalTimerManagerObject.Initialize();
 		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, csmaMacScheduler)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
@@ -114,7 +116,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =dest;
-	header->src = MyAddress;
+	header->src = MF_NODE_ID;
 	header->network = MyConfig.Network;
 	header->mac_id = MacId;
 	header->type = dataType;
@@ -125,6 +127,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	for(UINT8 i = 0 ; i < Size; i++)
 		payload[i] = lmsg[i];
 
+	//hal_printf("CSMA Sending: My address is : %d\n",MF_NODE_ID);
 	// Check if the circular buffer is full
 	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 			return FALSE;
@@ -132,7 +135,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	return TRUE;
 }
 void csmaMAC::UpdateNeighborTable(){
-	m_NeighborTable.DegradeLinks();
+	//m_NeighborTable.DegradeLinks();
 }
 
 // Called by the mac for retrying in case of failed packets 
@@ -153,7 +156,7 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(1, 200);
 		if(ds != DS_Success) {
-			HAL_Time_Sleep_MicroSeconds((MyAddress % 500));
+			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
 			if(CPU_Radio_ClearChannelAssesment2(1, 200)!=DS_Success){ 	return;}
 		}
 
@@ -234,28 +237,37 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	//Handle the message
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
-
+	IEEE802_15_4_Metadata_t *rcv_meta = msg->GetMetaData();
 
 	//Add the sender to NeighborTable
 	UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
 	if(index==255) {
 		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
 	}else {
-		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
-	}
-
-	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
-		HandleBroadcastMessage(msg);
-	}else if(rcv_msg_hdr->dest == MF_NODE_ID){
-		HandleUnicastMessage(msg);
-	}
-	else {
-		HandlePromiscousMessage(msg);
+		m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
+		m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
+		m_NeighborTable.Neighbor[index].PacketsReceived++;
+		m_NeighborTable.Neighbor[index].LastHeardTime = Time_GetLocalTime();
+		m_NeighborTable.Neighbor[index].Status = Alive;
+//		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
 	}
 
 	//Call routing/app receive callback
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
-	(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t));
+
+	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
+	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
+
+		(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+		//HandleBroadcastMessage(msg);
+	}else if(rcv_msg_hdr->dest == MF_NODE_ID){
+		//HandleUnicastMessage(msg);
+		(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+	}
+	else {
+		//HandlePromiscousMessage(msg);
+	}
+
 
 	return temp;
 }

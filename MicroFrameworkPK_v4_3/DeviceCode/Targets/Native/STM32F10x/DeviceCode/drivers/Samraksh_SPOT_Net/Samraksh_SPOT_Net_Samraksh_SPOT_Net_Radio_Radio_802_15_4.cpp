@@ -141,8 +141,29 @@ INT32 Radio_802_15_4::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedA
 void*  ManagedRadioCallback_802_15_4(void *msg, UINT16 size){
 	if(g_CLR_RT_ExecutionEngine.m_heapState ==  CLR_RT_ExecutionEngine::c_HeapState_Normal){
 		UINT8 *managedMsg=(UINT8 *)Radio_802_15_4::pHeapBlockMsgArray->GetFirstElement();
-		memcpy (managedMsg, msg,  size);
-		SaveNativeEventToHALQueue( Radio_802_15_4::ne_Context, UINT32(size), UINT32(Radio_802_15_4::ne_userData & 0xFFFFFFFF) );
+		Message_15_4_t* r_msg = (Message_15_4_t*) msg;
+		if(size > IEEE802_15_4_FRAME_LENGTH){
+				hal_printf("Radio Receive Error: Packet is too big: %d ", size);
+				return msg;
+		}
+		UINT16 payload_size, src;
+		BOOL unicast;
+		UINT32 data1, data2;
+		UINT8 rssi, lqi;
+		payload_size = r_msg->GetHeader()->GetLength();
+		src = r_msg->GetHeader()->src;
+		unicast = (src == RADIO_BROADCAST_ADDRESS) ?  FALSE: TRUE;
+		rssi = r_msg->GetMetaData()->GetRssi();
+		lqi = r_msg->GetMetaData()->GetLqi();
+		data1 = 0; data2=0;
+		data1 = (size & 0x0000FFFF);
+		data1 = data1 | ((src << 16) & 0xFFFF0000);
+		data2 = (rssi & 0x000000FF);
+		data2 = data2 | ((lqi << 8) & 0x0000FF00);
+		data2 = data2 | ((unicast << 16) & 0x00FF0000);
+
+		memcpy (managedMsg, r_msg->GetPayload(), payload_size );
+		SaveNativeEventToHALQueue( Radio_802_15_4::ne_Context, data1, data2 );
 	}else {
 
 	}

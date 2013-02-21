@@ -127,43 +127,6 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetID___U1( CLR_RT
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborTable___SamrakshSPOTNetMacNeighborTable( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UNSUPPORTED_TYPE retVal = CSMA::GetNeighborTable( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        //SetResult_UNSUPPORTED_TYPE( stack, retVal );
-        SetResult_UNST_NeighborTable( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighbors___SamrakshSPOTNetMacNeighbor__U2( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT16 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
-
-        UNSUPPORTED_TYPE retVal = CSMA::GetNeighbors( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        //SetResult_UNSUPPORTED_TYPE( stack, retVal );
-        SetResult_UNST_Neighbor( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
 HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetBufferSize___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -210,6 +173,28 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::RemovePacket___Sam
         INT32 retVal = CSMA::RemovePacket( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
+
+        CLR_RT_TypedArray_UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+
+        INT8 retVal = CSMA::GetNeighborInternal( pMngObj,  param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

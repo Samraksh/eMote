@@ -32,11 +32,10 @@ namespace Samraksh
                     static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                     static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                    static UNSUPPORTED_TYPE GetNeighborTable( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                    static UNSUPPORTED_TYPE GetNeighbors( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                     static UINT8 GetBufferSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UINT8 GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                    static INT8 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
                     static INT32 InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
                 };
             }

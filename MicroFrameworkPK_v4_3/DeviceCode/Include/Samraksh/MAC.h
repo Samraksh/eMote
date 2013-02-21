@@ -36,12 +36,14 @@ template <class MessageT, class ConfigT>
 class MAC : public MAC_ID
 {
 
+
 public:
     UINT8 MacId;
+    UINT16 MyAddress;
     BOOL Initialized;
     UINT8 AppCount;
     MacEventHandler_t* AppHandlers[MAX_APPS];
-    UINT16 MyAddress;
+
     ConfigT MyConfig;
     UINT16 MaxPayload;
 
@@ -58,10 +60,10 @@ public:
 	UINT16 GetSendPending();
 	UINT16 GetReceivePending();
 
-	UINT16 GetAddress(){return MyAddress;	}
-	UINT16 GetMaxPayload(){return MaxPayload;	}
-	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
-	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
+	//UINT16 GetAddress();
+	UINT16 GetMaxPayload();
+	BOOL SetAddress(UINT16 address);
+	void SetMaxPayload(UINT16 payload);
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, ConfigT* config);
 
 	NeighborTable* GetNeighborTable();
