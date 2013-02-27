@@ -144,9 +144,10 @@
 UINT16 MF_NODE_ID;
 
 // Macros configuring the HALTimer system
-#define HALTIMER 4
-#define HALTIMER_RESOLUTION_USEC 100
-#define NUM_HALTIMER_TIMERS 32
+#define HALTIMER 5
+#define HALTIMER_MAX_RESOLUTION 1365
+#define HALTIMER_RESOLUTION_USEC HALTIMER_MAX_RESOLUTION
+#define NUM_HALTIMER_TIMERS 4
 #define NUMBER_ADC_CHANNELS	3
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

@@ -40,7 +40,7 @@ BOOL CPU_TIMER_Initialize(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 	HALTimerHandlerFPN = ISR;
 
 #ifdef HALTIMERDEBUG
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) 9, FALSE);
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
 #endif
 
 	// Call timer driver initialize
@@ -88,6 +88,11 @@ UINT16 CPU_TIMER_GetCounter(UINT32 Timer)
 // Function is designed to handle only timer 4, changing this to another timer will require adding a case in the switch case
 void HALTimerHardwareHandler(void *args)
 {
+
+#ifdef HALTIMERDEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1 , TRUE);
+#endif
+
 	// Calculate the current counter value to remove the error due to instructions executed in this handler
 	UINT32 tick_correction = Timer_Driver::GetCounter(HALTIMER);
 	int HALTimer = HALTIMER;
@@ -95,10 +100,6 @@ void HALTimerHardwareHandler(void *args)
 
 	UINT32 ticks = CPU_MicrosecondsToTicks(resolution);
 
-#ifdef HALTIMERDEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 9 , TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 9 , FALSE);
-#endif
 
 	switch(HALTimer)
 	{
@@ -109,14 +110,31 @@ void HALTimerHardwareHandler(void *args)
 		    // Call PAL layer handler
 		    HALTimerHandlerFPN((void *) &tick_correction);
 
-		    Timer_Driver::SetCompare(HALTimer, tick_correction + ticks);
+		    Timer_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
+		    //Timer_Driver::SetCompare(HALTimer, (UINT16)(0xFFFF));
 
 		  }
+		break;
+	case 5:
+			if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET)
+			  {
+			    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 );
+			    // Call PAL layer handler
+			    HALTimerHandlerFPN((void *) &tick_correction);
+
+			    Timer_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
+			    //Timer_Driver::SetCompare(HALTimer, (UINT16)(0xFFFF));
+
+			 }
 		break;
 	default:
 		// Something went terribly wrong loop here to help debug
 		while(1);
 	}
+
+#ifdef HALTIMERDEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1 , FALSE);
+#endif
 }
 
 
@@ -160,6 +178,10 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 		case 4:
 			TIM_DeInit(TIM4);
 			TIM_Cmd(TIM4, DISABLE);
+			break;
+		case 5:
+			TIM_DeInit(TIM5);
+			TIM_Cmd(TIM5, DISABLE);
 			break;
 	}
 	//TIM_DeInit(TIM2);
@@ -262,6 +284,24 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
 			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, ISR, ISR_Param) ) return FALSE;
 			break;
+		case 5:
+			//Timer base initialize
+			g_Timer_Driver.m_descriptors[Timer].timer.TIM_Period = 65535;
+			g_Timer_Driver.m_descriptors[Timer].timer.TIM_Prescaler = PrescalerValue;
+			g_Timer_Driver.m_descriptors[Timer].timer.TIM_ClockDivision = 0;
+			g_Timer_Driver.m_descriptors[Timer].timer.TIM_CounterMode = TIM_CounterMode_Up;
+			TIM_TimeBaseInit(TIM5, &g_Timer_Driver.m_descriptors[Timer].timer);
+			//Timer OC initialize
+			g_Timer_Driver.m_descriptors[Timer].timer_oc.TIM_OCMode = TIM_OCMode_Toggle;
+			g_Timer_Driver.m_descriptors[Timer].timer_oc.TIM_OutputState = TIM_OutputState_Enable;
+			g_Timer_Driver.m_descriptors[Timer].timer_oc.TIM_Pulse = CCR1_Val;
+			g_Timer_Driver.m_descriptors[Timer].timer_oc.TIM_OCPolarity = TIM_OCPolarity_Low;
+			TIM_OC1Init(TIM5, &g_Timer_Driver.m_descriptors[Timer].timer_oc);
+			TIM_OC1PreloadConfig(TIM5, TIM_OCPreload_Disable);
+			//NVIC Init
+			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
+			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM5, ISR, ISR_Param) ) return FALSE;
+			break;
 		default:
 			ASSERT(TRUE);
 			return FALSE;
@@ -297,6 +337,12 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 				Timer_Driver::EnableCompareInterrupt( 4 );
 				TIM_Cmd(TIM4, ENABLE);
 				break;
+			case 5:
+				TIM_SelectOnePulseMode(TIM5, TIM_OPMode_Repetitive);
+				//TIM_ITConfig(TIM5, TIM_IT_Update, ENABLE);
+				Timer_Driver::EnableCompareInterrupt( 5 );
+				TIM_Cmd(TIM5, ENABLE);
+				break;
 			}
 
 		}
@@ -324,6 +370,12 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 					//TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 					Timer_Driver::EnableCompareInterrupt( 4 );
 					TIM_Cmd(TIM4, ENABLE);
+					break;
+				case 5:
+					TIM_SelectOnePulseMode(TIM5, TIM_OPMode_Single);
+					//TIM_ITConfig(TIM5, TIM_IT_Update, ENABLE);
+					Timer_Driver::EnableCompareInterrupt( 5 );
+					TIM_Cmd(TIM5, ENABLE);
 					break;
 			}
 		}
@@ -359,6 +411,9 @@ BOOL Timer_Driver::Uninitialize ( UINT32 Timer )
     case 4:
     	TIM_DeInit(TIM4);
     	break;
+    case 5:
+       	TIM_DeInit(TIM5);
+       	break;
     }
 
     return TRUE;
@@ -385,6 +440,11 @@ void Timer_Driver::RCC_DeInit(UINT32 Timer)
 			//RCC_PCLK1Config(RCC_HCLK_Div4);
 			//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 			Timer_Clock = RCC_APB1Periph_TIM4;
+			break;
+		case 5:
+			//RCC_PCLK1Config(RCC_HCLK_Div4);
+			//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+			Timer_Clock = RCC_APB1Periph_TIM5;
 			break;
 		default:
 	#ifdef DEBUG_ON
@@ -420,6 +480,11 @@ void Timer_Driver::RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler )
 		//RCC_PCLK1Config(RCC_HCLK_Div4);
 		//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 		Timer_Clock = RCC_APB1Periph_TIM4;
+		break;
+	case 5:
+		//RCC_PCLK1Config(RCC_HCLK_Div4);
+		//RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
+		Timer_Clock = RCC_APB1Periph_TIM5;
 		break;
 	default:
 #ifdef DEBUG_ON

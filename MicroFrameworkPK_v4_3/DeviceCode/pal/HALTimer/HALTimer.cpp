@@ -38,7 +38,7 @@ BOOL HALTimerManager::Initialize()
 	timer_resolution_in_ticks = CPU_MicrosecondsToTicks((UINT32) HALTIMER_RESOLUTION_USEC);
 
 	// Set compare value for the timer
-	if(!CPU_TIMER_SetCompare(HALTIMER, timer_resolution_in_ticks))
+	if(!CPU_TIMER_SetCompare(HALTIMER, (UINT16)timer_resolution_in_ticks))
 		return FALSE;
 
 	return TRUE;
@@ -94,6 +94,7 @@ BOOL HALTimerManager::CreateTimer(UINT8 timer_id, UINT32 start_time, UINT32 dtim
 void HALTimerCallback(void *arg)
 {
 	// Modifying a private member outside the object is ugly
+
 	HALTimer* timers = gHalTimerManagerObject.get_m_timer();
 	UINT8* active_timer = gHalTimerManagerObject.GetActiveTimerList();
 	//UINT16* correction = (UINT16 *) arg;
@@ -107,6 +108,7 @@ void HALTimerCallback(void *arg)
 	// the dtime expires. But this makes createTimer interface more complicated as timers that enter the
 	// system late with smaller values need to be accounted for. But, even in this implementation  the handler
 	// will have O(n) updates and then O(1) extract min timer
+
 	for(int i = 0; i < gHalTimerManagerObject.get_m_number_of_active_timers(); i++)
 	{
 		if(timers[active_timer[i]].get_m_is_running())

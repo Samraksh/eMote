@@ -54,6 +54,9 @@ struct Timer_Driver
 		case 4:
 			TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
 			break;
+		case 5:
+			TIM_ITConfig(TIM5, TIM_IT_CC1, ENABLE);
+			break;
 		default:
 			break;
 		}
@@ -76,6 +79,9 @@ struct Timer_Driver
 		case 4:
 			TIM_ITConfig(TIM4, TIM_IT_CC1, DISABLE);
 			break;
+		case 5:
+			TIM_ITConfig(TIM5, TIM_IT_CC1, DISABLE);
+			break;
 		default:
 			break;
 		}
@@ -96,6 +102,9 @@ struct Timer_Driver
 				break;
 			case 4:
 				TIM_GenerateEvent(TIM4, TIM_EventSource_CC1);
+				break;
+			case 5:
+				TIM_GenerateEvent(TIM5, TIM_EventSource_CC1);
 				break;
 			default:
 				break;
@@ -119,6 +128,9 @@ struct Timer_Driver
 		case 4:
 			TIM_SetCompare1(TIM4, Compare );
 			break;
+		case 5:
+			TIM_SetCompare1(TIM5, Compare );
+			break;
 		default:
 			break;
 		}
@@ -137,6 +149,9 @@ struct Timer_Driver
 			break;
 		case 4:
 			return TIM4->CCR1;
+			break;
+		case 5:
+			return TIM5->CCR1;
 			break;
 		default:
 			break;
@@ -161,6 +176,9 @@ struct Timer_Driver
 		case 4:
 			return TIM_GetCounter(TIM4);
 			break;
+		case 5:
+			return TIM_GetCounter(TIM5);
+			break;
 		default:
 			break;
 		}
@@ -182,6 +200,9 @@ struct Timer_Driver
 			break;
 		case 4:
 			return TIM_SetCounter(TIM4, Count);
+			break;
+		case 5:
+			return TIM_SetCounter(TIM5, Count);
 			break;
 		default:
 			break;
@@ -206,6 +227,9 @@ struct Timer_Driver
 		case 4:
 			return (BOOL) TIM_GetFlagStatus(TIM4, TIM_FLAG_Update);
 			break;
+		case 5:
+			return (BOOL) TIM_GetFlagStatus(TIM5, TIM_FLAG_Update);
+			break;
 		default:
 			break;
 		}
@@ -228,6 +252,9 @@ struct Timer_Driver
 		case 4:
 			return TIM_ClearFlag(TIM4, TIM_FLAG_Update);
 			break;
+		case 5:
+			return TIM_ClearFlag(TIM5, TIM_FLAG_Update);
+			break;
 		default:
 			break;
 		}
@@ -247,6 +274,9 @@ struct Timer_Driver
 			break;
 		case 4:
 			return (BOOL) TIM_GetFlagStatus(TIM4, TIM_FLAG_CC1);
+			break;
+		case 5:
+			return (BOOL) TIM_GetFlagStatus(TIM5, TIM_FLAG_CC1);
 			break;
 		default:
 			break;
@@ -268,6 +298,9 @@ struct Timer_Driver
 			break;
 		case 4:
 			TIM_ClearFlag(TIM4, TIM_FLAG_CC1);
+			break;
+		case 5:
+			TIM_ClearFlag(TIM5, TIM_FLAG_CC1);
 			break;
 		default:
 			break;
