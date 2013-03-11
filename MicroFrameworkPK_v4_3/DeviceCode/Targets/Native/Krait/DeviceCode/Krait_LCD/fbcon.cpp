@@ -1,7 +1,7 @@
 #include <tinyhal.h>
 #include "fbcon.h"
 #include "splash.h"
-#include "font5x12.h"
+//#include "font5x12.h"
 
 struct pos {
 	int x;
@@ -10,15 +10,6 @@ struct pos {
 
 
 static struct fbcon_config *config = NULL;
-
-#define RGB565_BLACK		0x0000
-#define RGB565_WHITE		0xffff
-
-#define RGB888_BLACK            0x000000
-#define RGB888_WHITE            0xffffff
-
-#define FONT_WIDTH		5
-#define FONT_HEIGHT		12
 
 static UINT16			BGCOLOR;
 static UINT16			FGCOLOR;
@@ -102,7 +93,7 @@ void fbcon_setup(struct fbcon_config *_config)
 #endif
 }
 
-
+/*
 
 static void fbcon_drawglyph(UINT16 *pixels, UINT16 paint, unsigned stride,
 			    unsigned *glyph)
@@ -138,7 +129,7 @@ void fbcon_putc(char c)
 {
 	UINT16 *pixels;
 
-	/* ignore anything that happens before fbcon is initialized */
+	// ignore anything that happens before fbcon is initialized
 	if (!config)
 		return;
 
@@ -171,7 +162,7 @@ newline:
 	} else
 		fbcon_flush();
 }
-
+*/
 
 void display_image_on_screen(void)
 {
@@ -186,11 +177,11 @@ void display_image_on_screen(void)
 #if DISPLAY_TYPE_MIPI
     if (bytes_per_bpp == 3)
     {
-        for (i = 0; i < SPLASH_IMAGE_WIDTH; i++)
+        for (i = 0; i < SPLASH_IMAGE_HEIGHT; i++)
         {
             memcpy (config->base + ((image_base + (i * (config->width))) * bytes_per_bpp),
-		    imageBuffer_rgb888 + (i * SPLASH_IMAGE_HEIGHT * bytes_per_bpp),
-		    SPLASH_IMAGE_HEIGHT * bytes_per_bpp);
+		    imageBuffer_rgb888 + (i * SPLASH_IMAGE_WIDTH * bytes_per_bpp),
+		    SPLASH_IMAGE_WIDTH * bytes_per_bpp);
 	}
     }
     fbcon_flush();
@@ -213,3 +204,6 @@ void display_image_on_screen(void)
 #endif
 }
 
+struct fbcon_config* get_fbcon_config(void){
+	return config;
+}

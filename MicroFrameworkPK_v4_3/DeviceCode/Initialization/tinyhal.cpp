@@ -9,6 +9,7 @@
 #endif
 
 //--//
+extern void mipi_dsi_shutdown(void);
 
 // we need this to force inclusion from library at link time
 #pragma import(EntryPoint)
@@ -380,7 +381,6 @@ void HAL_Initialize()
 
     FileSystemVolumeList::InitializeVolumes();
 
-    LCD_Initialize();
 
 //#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
@@ -488,7 +488,7 @@ extern "C"
 
 void BootEntry()
 {
-
+mipi_dsi_shutdown();
 #if (defined(GCCOP) && defined(COMPILE_THUMB))
 
 // the IRQ_Handler routine generated from the compiler is incorrect, the return address LR has been decrement twice
@@ -547,6 +547,7 @@ void BootEntry()
 
     HAL_Time_Initialize();
 
+    LCD_Initialize();
 #if !defined(BUILD_RTM) 
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 1 , "0.1");
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);

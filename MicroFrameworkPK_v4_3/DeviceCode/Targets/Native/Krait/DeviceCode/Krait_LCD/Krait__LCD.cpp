@@ -3,12 +3,20 @@
 #include "..\Krait.h"
 #include "fbcon.h"
 #include "Krait__LCD.h"
+#include "splash.h"
 
 extern struct fbcon_config *mipi_init(void);
+extern void mipi_dsi_shutdown(void);
 extern void display_image_on_screen(void);
 extern void fbcon_putc(char c);
 extern void clock_config(UINT32 ns, UINT32 md, UINT32 ns_addr, UINT32 md_addr);
 extern void mdelay(unsigned msecs);
+static struct fbcon_config *config = NULL;
+static INT32 LCDWidth;
+static INT32 LCDHeight;
+static INT32 bitsPerPixel;
+static UINT32 pixelClockDivider;
+static INT32 orientation;
 
 #define LDO_P_MASK (1 << 7)
 
@@ -47,6 +55,7 @@ typedef struct
 } pm8921_dev_t;
 
 static pm8921_dev_t *dev;
+static pm8921_dev_t pmic;
 
 struct pm8921_gpio {
 	int direction;
@@ -160,6 +169,26 @@ void panel_backlight_on(void)
 	if (rc) {
 		hal_printf("Failed to turn on panel backlight");
 	}
+}
+
+void panel_backlight_off(void)
+{
+	struct pm8921_gpio backlight_pwm = {
+		PM_GPIO_DIR_IN,
+		0,
+		0,
+		PM_GPIO_PULL_NO,
+		2,
+		PM_GPIO_STRENGTH_HIGH,
+		PM_GPIO_FUNC_1,
+		0,
+		0,
+	};
+
+	int rc = pm8921_gpio_config(PM_GPIO(24), &backlight_pwm);
+	if (rc) {
+		hal_printf("Failed to turn on panel backlight");
+	} else hal_printf("Turned off panel backlight\r\n");
 }
 
 int pa1_ssbi2_read_bytes(unsigned char  *buffer, unsigned short length,
@@ -454,14 +483,19 @@ void mmss_clock_init(void)
 			ESC_CC_REG);
 }
 
+UINT32 PixelsPerWord()
+{
+    return ((8*sizeof(UINT32)) / bitsPerPixel);
+}
 
-
+UINT32 WidthInWords()
+{
+	return ((LCDWidth + (PixelsPerWord() - 1)) / PixelsPerWord());
+}
 
 void display_init(void)
 {
 	struct fbcon_config *fb_cfg;
-
-	//panel_backlight_on();
 
 	mipi_dsi_panel_power_on();
 	mipi_panel_reset();
@@ -476,8 +510,6 @@ void display_init(void)
 
 BOOL LCD_Initialize()
 {
-	pm8921_dev_t pmic;
-
 	pmic.read = (pm8921_read_func) & pa1_ssbi2_read_bytes;
 	pmic.write = (pm8921_write_func) & pa1_ssbi2_write_bytes;
 
@@ -488,43 +520,232 @@ BOOL LCD_Initialize()
 
 	display_image_on_screen();
 
-	mdelay(60);
-
 	panel_backlight_on();
 
-	fbcon_putc('M');
-	fbcon_putc('i');
-	fbcon_putc('c');
-	fbcon_putc('r');
-	fbcon_putc('o');
-	fbcon_putc('f');
-	fbcon_putc('r');
-	fbcon_putc('a');
-	fbcon_putc('m');
-	fbcon_putc('e');
-	fbcon_putc('w');
-	fbcon_putc('o');
-	fbcon_putc('r');
-	fbcon_putc('k');
-	fbcon_putc(' ');
-	fbcon_putc('L');
-	fbcon_putc('o');
-	fbcon_putc('a');
-	fbcon_putc('d');
-	fbcon_putc('i');
-	fbcon_putc('n');
-	fbcon_putc('g');
-	fbcon_putc('.');
-	fbcon_putc('.');
-	fbcon_putc('.');
+	config = get_fbcon_config();
+	LCDWidth = config->width;
+	LCDHeight = config->height;
+	bitsPerPixel = config->bpp;
+	pixelClockDivider = 0;
+	orientation = 0;
 
+	hal_printf("Initialized.\r\n");
+}
+
+BOOL LCD_Uninitialize()
+{
+	//hal_printf("LCD_Unit\r\n");
+	panel_backlight_off();
+    return TRUE;
 }
 
 void LCD_Clear()
 {
+	hal_printf("LCD_Clear() called\r\n");
+	unsigned count = LCDWidth * LCDHeight;
+	memset(config->base, RGB888_BLACK, count * (bitsPerPixel / 8));
+}
+
+void LCD_WriteFormattedChar ( unsigned char c )
+{
+}
+
+#define FONT_GETBIT(_x,_y,_data,_widthInWords) (((_data[((_x)/32) + (_y)*(_widthInWords)])>>((_x)%32)) & 0x1)
+void LCD_WriteChar ( unsigned char c, int row, int col)
+{
+	// convert to LCD pixel coordinates
+    row *= Font_Height();
+    col *= Font_Width();
+
+    if(row > (LCDHeight - Font_Height())) return;
+    if(col > (LCDWidth  - Font_Width() )) return;
+
+    const UINT8* font = Font_GetGlyph( c );
+
+    UINT16* ScreenBuffer = (UINT16*)config->base;
+
+    for(int y = 0; y < Font_Height(); y++)
+    {
+        for(int x = 0; x < Font_Width(); x+=2)
+        {
+           /* UINT32 val = 0;
+            // the font data is mirrored
+            if(FONT_GETBIT( Font_Width() -  x   , y, font, 1 )) val |= 0x07e0;
+            if(FONT_GETBIT( Font_Width() - (x+1), y, font, 1 )) val |= 0x07e00000;
+            
+            ScreenBuffer[(row+y)*WidthInWords() + (col+x)/2] = val;
+            //config->base[(row+y)*WidthInWords() + (col+x)/2] = val;*/
+        }
+    }
 
 }
 
-void LCD_WriteFormattedChar    ( unsigned char c                                                        ){
+INT32 LCD_GetWidth()
+{
+    return LCDWidth;
 }
+
+INT32 LCD_GetHeight()
+{
+    return LCDHeight;
+}
+
+INT32 LCD_GetBitsPerPixel()
+{
+    return bitsPerPixel;
+}
+
+INT32 LCD_GetOrientation()
+{
+    return orientation;
+}
+
+void LCD_PowerSave ( BOOL On )
+{
+}
+
+UINT32 LCD_ConvertColor(UINT32 color)
+{
+}
+
+void LCD_BitBltEx ( int x, int y, int width, int height, char data[])
+{
+	hal_printf("BitBltEx char\r\n");
+
+	ASSERT((x >= 0) && ((x+width)  <= LCDWidth));
+    ASSERT((y >= 0) && ((y+height) <= LCDHeight));
+    ASSERT(LCDWidth % 4 == 0);
+
+	unsigned i = 0;
+    unsigned bytes_per_bpp = ((config->bpp) / 8);
+	unsigned image_base = y*LCDWidth + x;
+    
+    for (i = 0; i < height; i++)
+    {
+    	memcpy (config->base + ((image_base + (i * (config->width))) * bytes_per_bpp),
+		data + (i * width * bytes_per_bpp),
+		width * bytes_per_bpp);
+	}
+
+    if (config->update_start)
+		config->update_start();
+	if (config->update_done)
+		while (!config->update_done());
+}
+
+void LCD_BitBltEx ( int x, int y, int width, int height, UINT32 data[])
+{
+	hal_printf("BitBltEx uint32\r\n");
+
+	//ASSERT((x >= 0) && ((x+width)  <= LCDWidth));
+    //ASSERT((y >= 0) && ((y+height) <= LCDHeight));
+    //ASSERT(LCDWidth % 4 == 0);
+
+	//unsigned i = 0;
+    //unsigned bytes_per_bpp = ((config->bpp) / 8);
+	//unsigned image_base = y*LCDWidth + x;
+    
+	hal_printf("copying bitmap data\r\n");
+
+	int i, j;
+	unsigned bytes_per_bpp = ((config->bpp) / 8);
+	UINT32* StartOfLine_src = &data[0];
+	char* StartOfLine_dst;
+	UINT32 val;
+
+    const int screenWidth = config->width;
+	
+	if ( (width%2) == 0){
+		for (i = 0; i < height; i++){
+			StartOfLine_src = data + (i * width / 2);
+			StartOfLine_dst =(char*) ((int)config->base + ((((y * screenWidth) + x) + (i * screenWidth)) * bytes_per_bpp));
+			// todo height must be factor of 2
+			for (j = 0; j < (width / 2); j++){
+				val = *StartOfLine_src++;
+				*StartOfLine_dst++ = (val & 0x001F) << 3;
+				*StartOfLine_dst++ = (val & 0x07C0) >> 3;
+				*StartOfLine_dst++ = (val & 0xF800) >> 8;
+				*StartOfLine_dst++ = (val & 0x001F0000) >> 13;
+				*StartOfLine_dst++ = (val & 0x07C00000) >> 19;
+				*StartOfLine_dst++ = (val & 0xF8000000) >> 24;
+			}
+		}
+	} else {
+		for (i = 0; i < height; i++){
+			StartOfLine_src = data + (i * (((width-1) / 2) + 1));
+			StartOfLine_dst =(char*) ((int)config->base + ((((y * screenWidth) + x) + (i * screenWidth)) * bytes_per_bpp));
+			// todo height must be factor of 2
+			for (j = 0; j < ((width-1) / 2); j++){
+				val = *StartOfLine_src++;
+				*StartOfLine_dst++ = (val & 0x001F) << 3;
+				*StartOfLine_dst++ = (val & 0x07C0) >> 3;
+				*StartOfLine_dst++ = (val & 0xF800) >> 8;
+				*StartOfLine_dst++ = (val & 0x001F0000) >> 13;
+				*StartOfLine_dst++ = (val & 0x07C00000) >> 19;
+				*StartOfLine_dst++ = (val & 0xF8000000) >> 24;
+			}
+			// dealing with extra pixel on end
+			val = *StartOfLine_src++;
+			*StartOfLine_dst++ = (val & 0x001F) << 3;
+			*StartOfLine_dst++ = (val & 0x07C0) >> 3;
+			*StartOfLine_dst++ = (val & 0xF800) >> 8;
+		}
+	}
+	
+    /*StartOfLine_src += (y * screenWidth) + x;
+    StartOfLine_dst += (y * screenWidth) + x;
+
+    UINT32* src;
+    char* dst;
+    INT32   Xcnt;
+
+    while( height-- )
+    {   
+        src = StartOfLine_src;
+        dst = StartOfLine_dst;
+        Xcnt = width;
+
+        while( Xcnt-- )
+        {
+            UINT32 val = *src++;
+			*dst++ = (val & 0xf800) >> 11;
+			*dst++ = (val & 0x07C0) >> 6;
+			*dst++ = (val & 0x001F);
+        }
+        
+        StartOfLine_src += screenWidth;
+        StartOfLine_dst += screenWidth;
+    }*/
+    /*for (i = 0; i < width; i++)
+    {
+    	memcpy (config->base + ((image_base + (i * (config->width))) * bytes_per_bpp),
+		data + (i * height * bytes_per_bpp),
+		height * bytes_per_bpp);
+	}*/
+
+    if (config->update_start)
+		config->update_start();
+	if (config->update_done)
+		while (!config->update_done());
+}
+
+void LCD_BitBlt(int width, int height, int widthInWords, UINT32 data[], BOOL fUseDelta)
+{
+	hal_printf("BitBlt uint32\r\n");
+	LCD_BitBltEx( 0, 0, width, height, data );
+	//LCD_BitBltEx( 10, 40, width, height, penguin );
+}
+
+void LCD_BitBlt(int width, int height, int widthInWords, char data[], BOOL fUseDelta)
+{
+	hal_printf("BitBlt char\r\n");
+	LCD_BitBltEx( 0, 0, width, height, data );
+	//LCD_BitBltEx( 10, 40, width, height, penguin );
+}
+
+UINT32* LCD_GetFrameBuffer()
+{
+	return (UINT32*) config;
+}
+
 
