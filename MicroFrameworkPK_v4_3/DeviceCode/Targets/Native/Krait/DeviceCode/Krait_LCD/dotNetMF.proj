@@ -40,6 +40,7 @@
   <ItemGroup>
     <HFiles Include="..\Krait.h" />
     <Compile Include="Krait__LCD.cpp" />
+    <Compile Include="font8x15.cpp" />
     <Compile Include="mdp4.cpp" />
     <Compile Include="mipi_dsi.cpp" />
     <Compile Include="panel.cpp" />

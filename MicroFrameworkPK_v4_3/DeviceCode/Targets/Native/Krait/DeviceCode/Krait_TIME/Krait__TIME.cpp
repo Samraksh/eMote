@@ -77,9 +77,11 @@ UINT64 Krait_TIME_Driver::CounterValue()
 	if(lastLowValue > value )
 	{
 		//DEBUG_TRACE3(TRACE_COUNTER_OVERFLOWS,"CounterValue: Overflow %08x %08x=>%08x", (g_PXA271_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
-		hal_printf("System Timer Overflowed, CounterValue : Overflow %08x %08x=>%08x", (g_Krait_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
+		//hal_printf("System Timer Overflowed, CounterValue : Overflow %08x %08x=>%08x", (g_Krait_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
 
-		g_Krait_TIME_Driver.m_lastRead += g_Krait_TIME_Driver.m_lastCompare;
+		// The following line allows Sleep to work properly but breaks the running of C# code
+		// g_Krait_TIME_Driver.m_lastRead += g_Krait_TIME_Driver.m_lastCompare;
+		g_Krait_TIME_Driver.m_lastRead += (0x1ull << 32);
 	}
 	    //Or else the value gets added simply
 	g_Krait_TIME_Driver.m_lastRead |= value;

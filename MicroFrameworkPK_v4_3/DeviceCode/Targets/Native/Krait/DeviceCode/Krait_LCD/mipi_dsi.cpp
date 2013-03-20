@@ -3,8 +3,9 @@
 #include "display.h"
 #include "fbcon.h"
 #include "..\Krait.h"
+#include "Krait__LCD.h"
 
- void dsb(void)
+ void dsb_mipi(void)
  {
 
 	 __asm(
@@ -16,6 +17,7 @@
  static int cmd_mode_status = 0;
 
  extern void udelay(unsigned usecs);
+ extern void mdelay(unsigned msecs);
  void mdp_start_dma(void);
  extern int mipi_dsi_phy_init(struct mipi_dsi_panel_config *pinfo);
  extern void config_mdt61_dsi_video_mode(void);
@@ -130,10 +132,10 @@ void mipi_dsi_panel_read_id_set_flag(void)
 
        hal_printf("manufacture_id:0x%08x\n", manufacture_id);
 
-       if(0x01000a84 == manufacture_id)
+       if(0x01000a02 == manufacture_id)
        {
                //strcpy(gaboot_ScreenID_str," scr_id=8363\0");
-               hal_printf("0x01000a84 gaboot_ScreenID_str: scr_id = 8363 \n");
+               hal_printf("read correctly: 0x01000a02 gaboot_ScreenID_str: scr_id = 8363 \n");
        }
        else
        {
@@ -162,7 +164,7 @@ int mipi_dsi_video_config(unsigned short num_of_lanes)
 	// or lp mode
 	unsigned short image_wd = mipi_fb_cfg.width;
 	unsigned short image_ht = mipi_fb_cfg.height;
-#if (!DISPLAY_MIPI_PANEL_TOSHIBA_MDT61) || (!DISPLAY_MIPI_PANEL_HXMAX)
+#if (!DISPLAY_MIPI_PANEL_TOSHIBA_MDT61) && (!DISPLAY_MIPI_PANEL_HXMAX)
 	unsigned short display_wd = mipi_fb_cfg.width;
 	unsigned short display_ht = mipi_fb_cfg.height;
 	unsigned short hsync_porch_fp = MIPI_HSYNC_FRONT_PORCH_DCLK;
@@ -254,7 +256,7 @@ int dsi_cmd_dma_trigger_for_panel()
 
 	writel(0x03030303, DSI_INT_CTRL);
 	writel(0x1, DSI_CMD_MODE_DMA_SW_TRIGGER);
-	dsb();
+	dsb_mipi();
 	ReadValue = readl(DSI_INT_CTRL) & 0x00000001;
 	while (ReadValue != 0x00000001) {
 		ReadValue = readl(DSI_INT_CTRL) & 0x00000001;
@@ -267,7 +269,7 @@ int dsi_cmd_dma_trigger_for_panel()
 	}
 
 	writel((readl(DSI_INT_CTRL) | 0x01000001), DSI_INT_CTRL);
-	hal_printf("Panel CMD: command mode dma tested successfully\n");
+	//hal_printf("Panel CMD: command mode dma tested successfully\n");
 	return status;
 }
 
@@ -340,10 +342,10 @@ int mipi_dsi_cmds_tx(struct mipi_dsi_cmd *cmds, int count)
 		memcpy((void *)off, (cm->payload), cm->size);
 		writel(off, DSI_DMA_CMD_OFFSET);
 		writel(cm->size, DSI_DMA_CMD_LENGTH);	// reg 0x48 for this build
-		dsb();
+		dsb_mipi();
 		ret += dsi_cmd_dma_trigger_for_panel();
 		//writel(0x1, DSI_CMD_MODE_DMA_SW_TRIGGER);
-		//dsb();
+		//dsb_mipi();
 		udelay(80);
 		cm++;
 	}
@@ -391,6 +393,7 @@ int mipi_dsi_panel_initialize(struct mipi_dsi_panel_config *pinfo)
 
 	// Start the dma
 	//mdp_start_dma();
+	mdelay(30);
 
 	mipi_dsi_panel_read_id_set_flag();
 
@@ -400,9 +403,35 @@ int mipi_dsi_panel_initialize(struct mipi_dsi_panel_config *pinfo)
 }
 
 
+void mipi_dsi_shutdown(void)
+{
+	int i;
+	//hal_printf("mdp_shutdown()\r\n");
+	
+	//mdp_shutdown();
+	//writel(0x00000000, MDP_DSI_VIDEO_EN);
+	//mdelay(60);
+	//writel(0x00000000, MDP_INTR_ENABLE);
+	//writel(0x00000003, MDP_OVERLAYPROC0_CFG);
+
+	//writel(0x01010101, DSI_INT_CTRL);
+	//writel(0x13FF3BFF, DSI_ERR_INT_MASK0);
+	// Disable branch clocks 
+	writel(0x0, BYTE_CC_REG);
+	writel(0x0, PIXEL_CC_REG);
+	writel(0x0, ESC_CC_REG);
+	// Disable root clock 
+	writel(0x0, DSI_CC_REG);
+	writel(0, DSI_CLK_CTRL);
+	writel(0, DSI_CTRL);
+	writel(0, DSIPHY_PLL_CTRL(0));
+	
+}
+
 struct fbcon_config *mipi_init(void)
 {
 	int status = 0;
+	int i;
 
 	init_mipi_fb_cfg();
 
@@ -413,6 +442,8 @@ struct fbcon_config *mipi_init(void)
 
 	mipi_dsi_phy_init(panel_info);
 
+	mdelay(3);
+	
 	status += mipi_dsi_panel_initialize(panel_info);
 
 	mipi_fb_cfg.base = (void *) MIPI_FB_ADDR;

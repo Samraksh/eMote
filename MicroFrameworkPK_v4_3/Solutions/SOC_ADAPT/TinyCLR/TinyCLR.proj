@@ -50,6 +50,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\TinyCore.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
@@ -79,9 +80,29 @@
     <PlatformIndependentLibs Include="Debugger_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF_stub.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <PlatformIndependentLibs Include="Graphics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Graphics.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Graphics_Bmp.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="Graphics_Gif.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
+</ItemGroup>
+<ItemGroup>
+    <PlatformIndependentLibs Include="Graphics_Jpeg.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Graphics_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Graphics\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
@@ -106,6 +127,10 @@
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlatformIndependentLibs Include="SPOT_Graphics.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Graphics\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="IOPort.$(LIB_EXT)" />
@@ -156,10 +181,15 @@
     <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <PlatformIndependentLibs Include="Diagnostics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF_stub.proj" />
+</ItemGroup> -->
+	<ItemGroup>
+    <PlatformIndependentLibs Include="Diagnostics.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Diagnostics\dotNetMF.proj" />
   </ItemGroup>
+  
   <ItemGroup>
     <DriverLibs Include="diagnostics_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Diagnostics\stubs\dotNetMF.proj" />
@@ -366,20 +396,21 @@
     <DriverLibs Include="Ink_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Ink\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="lcd_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Display\stubs\dotNetMF.proj" />
   </ItemGroup>
+  -->
+  <!--
   <ItemGroup>
     <DriverLibs Include="cpu_LCD_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" />
   </ItemGroup>
-  <!--
+  -->
   <ItemGroup>
     <DriverLibs Include="Krait_LCD.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_LCD\dotNetMF.proj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="fs_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\fs\stubs\dotNetMF.proj" />

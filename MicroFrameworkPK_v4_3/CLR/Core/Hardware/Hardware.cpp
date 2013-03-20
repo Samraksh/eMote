@@ -227,11 +227,13 @@ void CLR_HW_Hardware::Screen_Flush( CLR_GFX_Bitmap& bitmap, CLR_UINT16 x, CLR_UI
     if((CLR_UINT32)(x + width)  > bitmap.m_bm.m_width ) width  = bitmap.m_bm.m_width  - x;
     if((CLR_UINT32)(y + height) > bitmap.m_bm.m_height) height = bitmap.m_bm.m_height - y;    
 
+	// TODO: the following must be fixed up. It should not just be left commented out.
+/*
     if(bitmap.m_bm.m_width                 != widthMax                              ) return;
     if(bitmap.m_bm.m_height                != heightMax                             ) return;
     if(bitmap.m_bm.m_bitsPerPixel          != CLR_GFX_BitmapDescription::c_NativeBpp) return;
     if(bitmap.m_palBitmap.transparentColor != PAL_GFX_Bitmap::c_InvalidColor        ) return;
-
+*/
     LCD_BitBltEx( x, y, width, height, bitmap.m_palBitmap.data );
 }
 
