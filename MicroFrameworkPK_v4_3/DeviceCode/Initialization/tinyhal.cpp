@@ -9,8 +9,9 @@
 #endif
 
 //--//
+#if defined(ARM_CPU_CORE_KRAIT)
 extern void mipi_dsi_shutdown(void);
-
+#endif
 // we need this to force inclusion from library at link time
 #pragma import(EntryPoint)
 
@@ -488,7 +489,9 @@ extern "C"
 
 void BootEntry()
 {
+#if defined(ARM_CPU_CORE_KRAIT)
 mipi_dsi_shutdown();
+#endif
 #if (defined(GCCOP) && defined(COMPILE_THUMB))
 
 // the IRQ_Handler routine generated from the compiler is incorrect, the return address LR has been decrement twice
