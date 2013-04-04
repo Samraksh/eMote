@@ -494,7 +494,7 @@ void USART1_Handler(void *args)
 #endif
 	}
 
-	if(ir & USART_FLAG_TXE)
+	else if(ir & USART_FLAG_TXE)
 	//if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
 	{
 		GLOBAL_LOCK(irq);
@@ -523,7 +523,7 @@ void USART1_Handler(void *args)
 		{
 
 			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-			USART_SendData(USART1, 0);
+			//USART_SendData(USART1, 0);
 			//while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
 
 		}

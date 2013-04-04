@@ -33,6 +33,11 @@ int USART_Read( int ComPortNum, char* Data, size_t size )
     return USART_Driver::Read( ComPortNum, Data, size );
 }
 
+int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
+{
+    return USART_Driver::ManagedRead( ComPortNum, Data, size );
+}
+
 BOOL USART_Flush( int ComPortNum )
 {
     return USART_Driver::Flush( ComPortNum );
@@ -76,6 +81,11 @@ void USART_CloseAllPorts()
 int  USART_BytesInBuffer( int ComPortNum, BOOL fRx )
 {
     return USART_Driver::BytesInBuffer( ComPortNum, fRx );
+}
+
+int  USART_BytesInManagedBuffer( int ComPortNum, BOOL fRx )
+{
+    return USART_Driver::BytesInManagedBuffer( ComPortNum, fRx );
 }
 
 void USART_DiscardBuffer( int ComPortNum, BOOL fRx )
@@ -123,9 +133,11 @@ void USART_SetEvent( int ComPortNum, unsigned int event )
 #if TOTAL_USART_PORT == 0
 UINT8 TxBuffer_Com[1];     // Allows compile to complete although in this case it won't be linked
 UINT8 RxBuffer_Com[1];
+UINT8 ManagedCodeRxBuffer_Com[1];
 #else
 UINT8 TxBuffer_Com[TX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
 UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
+UINT8 ManagedCodeRxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
 #endif
 
 //--//
@@ -172,6 +184,8 @@ struct HAL_USART_STATE
     
     PFNUsartEvent UsartDataEventCallback;
     PFNUsartEvent UsartErrorEventCallback;
+
+	Hal_Queue_UnknownSize< UINT8 > ManagedRxQueue;
 };
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -240,7 +254,7 @@ BOOL USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, int Dat
 
             State.TxQueue.Initialize( &TxBuffer_Com[ComPortNum * TX_USART_BUFFER_SIZE], TX_USART_BUFFER_SIZE);
             State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
-
+			State.ManagedRxQueue.Initialize( &ManagedCodeRxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );			
             return CPU_USART_Initialize( ComPortNum, BaudRate, Parity, DataBits, StopBits, FlowValue );
         }
 
@@ -406,6 +420,60 @@ int USART_Driver::Read( int ComPortNum, char* Data, size_t size )
     return CharsRead;
 }
 
+int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
+	NATIVE_PROFILE_PAL_COM();
+    if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {ASSERT(FALSE); return -1;}
+    if(Data == NULL                                        )                 return -1;
+
+    HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+    if ( IS_POWERSAVE_ENABLED(State) || (!IS_USART_INITIALIZED(State))) return -1;
+
+
+    int CharsRead = 0;
+
+    while(CharsRead < size)
+    {
+        // keep interrupts off only during pointer movement so we are atomic
+        GLOBAL_LOCK(irq);
+        size_t toRead;
+        UINT8 *Src;
+
+        toRead = size - CharsRead;
+        Src = State.ManagedRxQueue.Pop( toRead );
+        if( NULL == Src )
+            break;
+
+        // Check if FIFO level has just passed or gotten down to the low water mark
+        /*if(State.ManagedRxQueue.NumberOfElements() <= State.RxBufferLowWaterMark && (State.ManagedRxQueue.NumberOfElements() + toRead) > State.RxBufferLowWaterMark)
+        {
+            if( USART_FLAG_STATE(State, HAL_USART_STATE::c_RX_SWFLOW_CTRL) )
+            {
+                // Clear our XOFF state
+                SendXON( ComPortNum, XOFF_FLAG_FULL );
+            }
+            if( USART_FLAG_STATE(State, HAL_USART_STATE::c_RX_HWFLOW_CTRL) )
+            {
+                CPU_USART_RxBufferFullInterruptEnable(ComPortNum, TRUE);
+            }
+        }*/
+        memcpy(&Data[CharsRead], Src, toRead);   // Copy data from queue to Read buffer
+        CharsRead += toRead;
+    }
+
+    /*{
+        GLOBAL_LOCK(irq);
+     
+        State.fDataEventSet  = FALSE;        
+
+        if(!State.ManagedRxQueue.IsEmpty())
+        {
+            SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
+        }
+     }*/
+
+    return CharsRead;
+}
 
 BOOL USART_Driver::Flush( int ComPortNum )
 {
@@ -562,6 +630,22 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 #endif
             return FALSE;
         }
+	
+		if( State.ManagedRxQueue.NumberOfElements() < State.RxBufferHighWaterMark )
+		{
+			Dst = State.ManagedRxQueue.Push();
+
+        	if(Dst)
+        	{
+        	    *Dst = c;        	    
+        	}        
+        	else
+        	{
+            	//SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
+
+            	return FALSE;
+        	}
+		}
     }
 
     SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
@@ -731,6 +815,15 @@ int USART_Driver::BytesInBuffer( int ComPortNum, BOOL fRx )
     return fRx? State.RxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
 }
 
+int USART_Driver::BytesInManagedBuffer( int ComPortNum, BOOL fRx )
+{
+    if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return -1;
+
+    HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+    return fRx? State.ManagedRxQueue.NumberOfElements(): State.TxQueue.NumberOfElements();
+}
+
 void USART_Driver::DiscardBuffer( int ComPortNum, BOOL fRx )
 {
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return;
@@ -747,7 +840,8 @@ void USART_Driver::DiscardBuffer( int ComPortNum, BOOL fRx )
             {
                 size_t nElements = State.RxQueue.NumberOfElements();
                 State.RxQueue.Pop(nElements);
-
+				nElements = State.ManagedRxQueue.NumberOfElements();
+                State.ManagedRxQueue.Pop(nElements);
             }
             else
             {
