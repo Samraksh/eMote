@@ -14,6 +14,8 @@
 #include "Handlers.h"
 #include "RadioControl.h"
 #include "DiscoveryHandler.h"
+//#include "GlobalTime.h"
+#include "CMaxTimeSync.h"
 
 extern HALTimerManager gHalTimerManagerObject;
 
@@ -91,6 +93,7 @@ public:
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
+	CMaxTimeSync_t m_timeSync;
 
 	void Initialize();
 	void UnInitialize();

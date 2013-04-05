@@ -22,6 +22,7 @@
 #include "Scheduler.h"
 #include "Handlers.h"
 
+
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
 class OMAC: public MAC <Message_15_4_t, MacConfig>{

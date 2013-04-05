@@ -135,6 +135,7 @@ bool OMACScheduler::RadioTask(){
 	DeviceStatus e = DS_Fail;
 	//radioTiming = call GlobalTime.getLocalTime();
 	radioTiming = Time_GetLocalTime();
+	//radioTiming = m_timeSync.GlobalTime();
 
 	if(ProtoState.RequestState(S_STARTING)) {
 		e = g_omac_RadioControl.Start();

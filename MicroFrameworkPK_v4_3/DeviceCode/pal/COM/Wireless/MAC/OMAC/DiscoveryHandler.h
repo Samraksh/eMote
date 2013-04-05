@@ -12,8 +12,8 @@
 #include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
-#include "FTSPTimeSync.h"
-
+//#include "FTSPTimeSync.h"
+//#include "CMaxTimeSync.h"
 
 
 typedef struct MessageCacheEntry {
