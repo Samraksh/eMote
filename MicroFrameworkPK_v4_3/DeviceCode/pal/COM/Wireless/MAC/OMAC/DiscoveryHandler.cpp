@@ -164,11 +164,11 @@ void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
 		//HALTimer()
 		if(delay==0){
 			//start default time
-			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 
 		}else {
 			//Change next slot time with delay
-			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 		}
 }
 

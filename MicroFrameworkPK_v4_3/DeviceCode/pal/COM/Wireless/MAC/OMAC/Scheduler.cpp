@@ -174,10 +174,10 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 	//HALTimer()
 	if(Delay==0){
 		//start alarm in default periodic mode
-		gHalTimerManagerObject.CreateTimer(3, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
+		gHalTimerManagerObject.CreateTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
 	}else {
 		//Change next slot time with delay
-		gHalTimerManagerObject.CreateTimer(3, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
+		gHalTimerManagerObject.CreateTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
 	}
 
 }
