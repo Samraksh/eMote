@@ -53,12 +53,13 @@
     <Compile Include="Scheduler.cpp" />
     <HFiles Include="RadioControl.h" />    
     <Compile Include="RadioControl.cpp" />
-    <HFiles Include="DiscoveryTimesyncHandler.h" />
-    <Compile Include="DiscoveryTimesyncHandler.cpp" />
+    <HFiles Include="DiscoveryHandler.h" />
+    <Compile Include="DiscoveryHandler.cpp" />
     <Compile Include="DataTransmissionHandler.cpp" />
     <Compile Include="DataReceptionHandler.cpp" />
-    <HFiles Include="FTSPTimeSync.h" />    
+    <!--<HFiles Include="FTSPTimeSync.h" />    
     <Compile Include="FTSPTimeSync.cpp" />
+    -->
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

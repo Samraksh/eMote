@@ -1,4 +1,4 @@
-#include "DiscoveryTimesyncHandler.h"
+#include "DiscoveryHandler.h"
 #include <Samraksh/Message.h>
 #include "RadioControl.h"
 

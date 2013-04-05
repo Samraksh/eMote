@@ -93,6 +93,7 @@ public:
 #define MFM_TIMESYNC 2
 #define MFM_NEIGHBORHOOD 3
 #define MFM_ROUTING 4
+#define MFM_DISCOVERY 5
 
 
 //IEEE802.15.4 Message structure

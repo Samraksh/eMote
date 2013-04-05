@@ -45,8 +45,8 @@ void OMACScheduler::Initialize(){
 	this->StartHeartBeatTimer(1000*TICKS_PER_MILLI);
 
 	//Initialize Handlers
-	 m_DiscoveryTimesyncHandler.SetParentSchedulerPtr(this);
-	 m_DiscoveryTimesyncHandler.Initialize();
+	 m_DiscoveryHandler.SetParentSchedulerPtr(this);
+	 m_DiscoveryHandler.Initialize();
 	 m_DataReceptionHandler.Initialize();
 	 m_DataTransmissionHandler.Initialize();
 }
@@ -76,7 +76,7 @@ bool OMACScheduler::RunSlotTask(){
 	 * next scheduled transmission, whereas the reception handler returns the number of slots
 	 * before the next scheduled reception*/
 	txSlotOffset = m_DataTransmissionHandler.NewSlot(m_slotNo);
-	beaconSlotOffset = m_DiscoveryTimesyncHandler.NewSlot(m_slotNo);
+	beaconSlotOffset = m_DiscoveryHandler.NewSlot(m_slotNo);
 	//	if (rxSlotOffset < 2 * SLOT_PERIOD_32KHZ
 	//		|| beaconSlotOffset < 2 * SLOT_PERIOD_32KHZ || txSlotOffset < 2 * SLOT_PERIOD_32KHZ ) {
 	//		call OMacSignal.yield();
@@ -155,7 +155,7 @@ bool OMACScheduler::RadioTask(){
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
 			default :
-				m_DiscoveryTimesyncHandler.ExecuteSlot(m_slotNo);
+				m_DiscoveryHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
 				break;
 		}
@@ -373,17 +373,17 @@ bool OMACScheduler::IsNeighborGoingToReceive(){
 void OMACScheduler::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
-			m_DiscoveryTimesyncHandler.PostExecuteSlot();
+			m_DiscoveryHandler.PostExecuteSlot();
 			break;
 		case DATA_TX_HANDLER :
-			//also notify the DiscoveryTimesyncHandler in case
+			//also notify the DiscoveryHandler in case
 			//there is piggyback beacon received
 			m_DataTransmissionHandler.PostExecuteSlot();
-			m_DiscoveryTimesyncHandler.PostExecuteSlot();
+			m_DiscoveryHandler.PostExecuteSlot();
 			break;
 		case DATA_RX_HANDLER :
 			m_DataReceptionHandler.PostExecuteSlot();
-			m_DiscoveryTimesyncHandler.PostExecuteSlot();
+			m_DiscoveryHandler.PostExecuteSlot();
 			break;
 		default :
 			break;
