@@ -76,6 +76,66 @@ INT8 CSMA::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
     return retVal;
 }
 
+INT32 CSMA::SetCCA( INT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SetNumberOfRetries( UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SetCCASenseTime( UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SetBufferSize( UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SetRadioID( UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT8 CSMA::GetCCA( HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+UINT8 CSMA::GetNumberOfRetries( HRESULT &hr )
+{
+    UINT8 retVal = 0; 
+    return retVal;
+}
+
+UINT8 CSMA::GetCCASenseTime( HRESULT &hr )
+{
+    UINT8 retVal = 0; 
+    return retVal;
+}
+
+UINT8 CSMA::GetRadioID( HRESULT &hr )
+{
+    UINT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::ReConfigure( CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 CSMA::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 

@@ -143,6 +143,8 @@ public:
     	return rx_msg;
     }
 
+    BOOL sleep_pending;
+
     DeviceStatus ChangeState();
     // Indicates whether the message has been loaded into the frame buffer or not
     BOOL message_status;
@@ -172,6 +174,8 @@ public:
     DeviceStatus SetTimeStamp(UINT64 timeStamp);
     INT32 GetSNR();
     INT32 GetRSSI();
+
+    DeviceStatus Sleep(int level);
 
     UINT8 GetRadioID();
 
@@ -218,7 +222,9 @@ public:
 		this->state = state;
 	}
 
+	DeviceStatus ChangeTxPower(int power);
 
+	DeviceStatus ChangeChannel(int channel);
 
 	DeviceStatus PreLoadFrame();
 
@@ -234,8 +240,6 @@ public:
 };
 
 RF231Radio grf231Radio;
-
-
 
 
 #endif /* RADIO_H */

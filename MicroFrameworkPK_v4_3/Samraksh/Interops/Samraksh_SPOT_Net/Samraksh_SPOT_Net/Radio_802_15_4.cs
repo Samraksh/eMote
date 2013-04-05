@@ -7,6 +7,105 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.Net.Radio
 {
+
+    /// <summary>
+    /// Enum defines the different power levels supported by the RF231 radio
+    /// </summary>
+    public enum TxPowerValue
+    {
+        Power_3dBm,
+        Power_2Point8dBm,
+        Power_2Point3dBm,
+        Power_1Point8dBm,
+        Power_1Point3dBm,
+        Power_0Point7dBm,
+        Power_0Point0dBm,
+        Power_Minus1dBm,
+        Power_Minus2dBm,
+        Power_Minus3dBm,
+        Power_Minus4dBm,
+        Power_Minus5dBm,
+        Power_Minus7dBm,
+        Power_Minus9dBm,
+        Power_Minus12dBm,
+        Power_Minus17dBm,
+
+
+    }
+
+    /// <summary>
+    /// Enum defines the different channels the RF231 radio can use
+    /// </summary>
+    public enum Channels
+    {
+        /// <summary>
+        /// Channel 11 Frequency 2405 MHz
+        /// </summary>
+        Channel_11,
+        /// <summary>
+        /// Channel 12 Frequency 2410 MHz
+        /// </summary>
+        Channel_12,
+        /// <summary>
+        /// Channel 13 Frequency 2415 MHz
+        /// </summary>
+        Channel_13,
+        /// <summary>
+        /// Channel 14 Frequency 2420 MHz
+        /// </summary>
+        Channel_14,
+        /// <summary>
+        /// Channel 15 Frequency 2425 MHz
+        /// </summary>
+        Channel_15,
+        /// <summary>
+        /// Channel 16 Frequency 2430 MHz
+        /// </summary>
+        Channel_16,
+        /// <summary>
+        /// Channel 17 Frequency 2435 MHz
+        /// </summary>
+        Channel_17,
+        /// <summary>
+        /// Channel 18 Frequency 2440 MHz
+        /// </summary>
+        Channel_18,
+        /// <summary>
+        /// Channel 19 Frequency 2445 MHz
+        /// </summary>
+        Channel_19,
+        /// <summary>
+        /// Channel 20 Frequency 2450 MHz
+        /// </summary>
+        Channel_20,
+        /// <summary>
+        /// Channel 21 Frequency 2455 MHz
+        /// </summary>
+        Channel_21,
+        /// <summary>
+        /// Channel 22 Frequency 2460 MHz
+        /// </summary>
+        Channel_22,
+        /// <summary>
+        /// Channel 23 Frequency 2465 MHz
+        /// </summary>
+        Channel_23,
+        /// <summary>
+        /// Channel 24 Frequency 2470 MHz
+        /// </summary>
+        Channel_24,
+        /// <summary>
+        /// Channel 25 Frequency 2475 MHz
+        /// </summary>
+        Channel_25,
+        /// <summary>
+        /// Channel 26  Frequency 2480 MHz
+        /// </summary>
+        Channel_26,
+    }
+
+
+
     /*class Radio_15_4_CB : NativeEventDispatcher
     {
         public Radio_15_4_CB(string strDrvName, ulong drvData, int callbackCount)
@@ -24,19 +123,29 @@ namespace Samraksh.SPOT.Net.Radio
     /// </summary>
     public class Radio_802_15_4 : NativeEventDispatcher, IRadio
     {
+        // Size of the radio message
         const byte RadioMessageSize = 128;
+
+        // Size of the radio configuration byte array for marshalling purposes
+        // Note we are marshalling because NETMF does not support passing custom types to native code
+        const byte RadioConfigSize = 2;
+
         static ReceiveCallBack MyReceiveCallback;
         static byte RSSI, LinkQuality;
         static UInt16 Src;
         static bool Unicast;
         static byte[] ReceiveMessage = new byte[RadioMessageSize];
 
+        // Create a buffer that you can use when you want to marshal
+        static byte[] marshalBuffer = new byte[RadioConfigSize];
+
         /// <summary>
         /// Constructor for 802.15.4 radio
         /// </summary>
         public Radio_802_15_4()
             : base("RadioCallback_802_15_4", 1234)
-        {           
+        {
+            
         }
         
         /// <summary>
@@ -50,7 +159,9 @@ namespace Samraksh.SPOT.Net.Radio
             MyReceiveCallback = callback;
             NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
             OnInterrupt += eventHandler;
-            return InternalInitialize(config, ReceiveMessage);
+            marshalBuffer[0] = (byte) config.Channel;
+            marshalBuffer[1] = (byte) config.TxPower;
+            return InternalInitialize(marshalBuffer, ReceiveMessage);
         }
 
         private static void ReceiveFunction(uint data1, uint data2, DateTime time)
@@ -63,7 +174,7 @@ namespace Samraksh.SPOT.Net.Radio
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern DeviceStatus InternalInitialize(RadioConfiguration config, byte[] receiveMessage);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
+        private static extern DeviceStatus InternalInitialize(byte[] config, byte[] receiveMessage);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
         
         /// <summary>
         /// Set MAC configuration for 802.15.4 radio.
@@ -73,6 +184,65 @@ namespace Samraksh.SPOT.Net.Radio
         /// <remarks>Used to change the MAC configuration after initialization.</remarks>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus Configure(RadioConfiguration config);
+
+        /// <summary>
+        /// Set the transmit power of the 802.15.4 radio.
+        /// </summary>
+        /// <param name="TxPower"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SetTxPower(int TxPower);
+
+        /// <summary>
+        /// Set the channel of the 802.15.4 radio.
+        /// </summary>
+        /// <param name="Channel"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SetChannel(int Channel);
+
+        /// <summary>
+        /// Return the output power of the radio 802.15.4
+        /// </summary>
+        /// <returns>TxPowerValue</returns>
+        public TxPowerValue GetTxPowerValue()
+        {
+            return (TxPowerValue)GetTxPower();
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern int GetTxPower();
+
+
+        /// <summary>
+        /// Return the current active channel of the radio 
+        /// </summary>
+        /// <returns>Channels</returns>
+        public Channels GetActiveChannel()
+        {
+            return (Channels)GetChannel();
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern int GetChannel();
+
+        /// <summary>
+        /// Reconfigure the radio object with new channel and power
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns>DeviceStatus</returns>
+        public DeviceStatus ReConfigure(RadioConfiguration config)
+        {
+            marshalBuffer[0] = (byte) config.TxPower;
+            marshalBuffer[1] = (byte) config.Channel;
+
+            return ReConfigure(marshalBuffer);
+
+        }
+
+        //Make the interop call to set the new configuration 
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus ReConfigure(byte[] data); 
 
         /// <summary>
         /// Uninitialize native MAC, radio and interop drivers.

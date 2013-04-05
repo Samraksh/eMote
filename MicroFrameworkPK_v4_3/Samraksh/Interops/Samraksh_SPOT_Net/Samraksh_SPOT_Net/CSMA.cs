@@ -37,6 +37,7 @@ namespace Samraksh.SPOT.Net.Mac
     /// <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
     public class CSMA: NativeEventDispatcher, IMac
     {
+        const byte MarshalBufferSize = 5;
         const byte MacMessageSize = 128;
         const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
         static ReceiveCallBack MyReceiveCallback;
@@ -47,6 +48,8 @@ namespace Samraksh.SPOT.Net.Mac
         
         static byte[] ByteNeighbor = new byte[NeighborSize];
 
+        static byte[] MarshalBuffer = new byte[MarshalBufferSize];
+
         /// <summary>
         /// Constructor for CSMA class
         /// </summary>
@@ -55,6 +58,9 @@ namespace Samraksh.SPOT.Net.Mac
         {
 
         }       
+
+
+        
 
         /// <summary>
         /// Initialize CSMA.
@@ -80,6 +86,99 @@ namespace Samraksh.SPOT.Net.Mac
             MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
         }
 
+        /// <summary>
+        /// Set the CCA
+        /// </summary>
+        /// <param name="CCA"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern DeviceStatus SetCCA(bool CCA);
+
+        /// <summary>
+        /// Set Number of retries of the MAC
+        /// </summary>
+        /// <param name="NumberOfRetries"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern DeviceStatus SetNumberOfRetries(byte NumberOfRetries);
+
+        /// <summary>
+        /// Set CCA Sense Time
+        /// </summary>
+        /// <param name="CCASenseTime"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern DeviceStatus SetCCASenseTime(byte CCASenseTime);
+
+        /// <summary>
+        /// Set Buffer Size
+        /// </summary>
+        /// <param name="BufferSize"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern DeviceStatus SetBufferSize(byte BufferSize);
+
+        /// <summary>
+        /// Set Radio ID
+        /// </summary>
+        /// <param name="RadioID"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern DeviceStatus SetRadioID(byte RadioID);
+
+        /// <summary>
+        /// Get CCA
+        /// </summary>
+        /// <returns>bool</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern bool GetCCA();
+
+        /// <summary>
+        /// Get number of retries
+        /// </summary>
+        /// <returns>byte</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern byte GetNumberOfRetries();
+
+        /// <summary>
+        /// Get CCA Sense Time
+        /// </summary>
+        /// <returns>byte</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern byte GetCCASenseTime();
+
+        /// <summary>
+        /// Get Radio ID
+        /// </summary>
+        /// <returns>byte</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern byte GetRadioID();
+
+        /// <summary>
+        /// ReConfigure the mac by passing a new macconfiguration
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns>DeviceStatus</returns>
+        public static DeviceStatus ReConfigure(MacConfiguration config)
+        {
+            if (config.CCA == true)
+                MarshalBuffer[0] = 1;
+            else
+                MarshalBuffer[0] = 0;
+
+            MarshalBuffer[1] = config.NumberOfRetries;
+            MarshalBuffer[2] = config.CCASenseTime;
+            MarshalBuffer[3] = config.BufferSize;
+            MarshalBuffer[4] = config.RadioID;
+
+            return ReConfigure(MarshalBuffer);
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern DeviceStatus ReConfigure(byte[] buffer);
+        
+          
+        
 
         /// <summary>
         /// Get the details for a neighbor.

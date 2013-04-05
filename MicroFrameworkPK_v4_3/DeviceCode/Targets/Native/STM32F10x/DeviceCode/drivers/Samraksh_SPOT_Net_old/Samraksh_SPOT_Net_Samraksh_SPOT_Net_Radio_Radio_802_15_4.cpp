@@ -111,61 +111,31 @@ INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 pa
     return retVal;
 }
 
-INT32 Radio_802_15_4::SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+INT32 Radio_802_15_4::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
 {
-    return (INT32) CPU_Radio_ChangeTxPower(RadioID, param0);
-}
+	CLR_RT_HeapBlock* config = ((CLR_RT_HeapBlock*)param0)->Dereference();
+	//FAULT_ON_NULL(config);
+	RadioConfig nativeConfig;
+	Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration configFields;
+	nativeConfig.Channel = config[configFields.FIELD__Channel].NumericByRef().u1;
+	nativeConfig.Sensitivity = config[configFields.FIELD__Sensitivity].NumericByRef().u1;
+	nativeConfig.TimeStampOffset = config[configFields.FIELD__TimeStampOffset].NumericByRef().u1;
+	nativeConfig.TxPower = config[configFields.FIELD__TxPower].NumericByRef().u1;
 
-INT32 Radio_802_15_4::SetChannel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
-{
-    return (INT32) CPU_Radio_ChangeChannel(RadioID, param0);
-}
-
-INT32 Radio_802_15_4::GetTxPower( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 Radio_802_15_4::GetChannel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 Radio_802_15_4::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-
-	UINT8 TxPower = param0[0];
-	UINT8 Channel = param0[1];
-
-    return (CPU_Radio_ChangeTxPower(RadioID, TxPower) & CPU_Radio_ChangeChannel(RadioID, Channel));
-}
-
-INT32 Radio_802_15_4::InternalInitialize( CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-	
-    // The marshalling and unmarshalling is handled manually by the drivers
-	UINT8 TxPower = param0[0];
-	UINT8 Channel = param0[1];
+	//We dont do anything with the radio config right now, but this needs to change soon.
 
 	UINT8 numberOfRadios=1;
 	UINT8 MacId=254;
 	Radio_Event_Handler.SetRecieveHandler(&ManagedRadioCallback_802_15_4);
-	retVal = CPU_Radio_Initialize(&Radio_Event_Handler, &RadioID, numberOfRadios, MacId);
+	CPU_Radio_Initialize(&Radio_Event_Handler, &RadioID, numberOfRadios, MacId);
 	SendMsgPtr = &SendMsg;
 	RcvMsgPtr = &RcvMsg;
-
-	CPU_Radio_ChangeTxPower(RadioID, TxPower);
-	CPU_Radio_ChangeChannel(RadioID, Channel);
 
 	//Initialize the pointer to the managed message to be copied when you receive a radio messgae
 	managedRadioMsg = param1.GetBuffer();
 	Radio_802_15_4::pHeapBlockMsgArray->Pin();
 
-    return retVal;
+    return 1;
 }
 
 void*  ManagedRadioCallback_802_15_4(void *msg, UINT16 size){
@@ -199,5 +169,4 @@ void*  ManagedRadioCallback_802_15_4(void *msg, UINT16 size){
 	}
 	return msg;
 }
-
 

@@ -577,6 +577,7 @@ enum RadioStateEnum
 	STATE_PLL_ON_2_RX_ON = 7,
 	STATE_BUSY_TX = 8,
 	STATE_PLL_ON = 9,
+	STATE_SLEEP_PENDING = 10,
 };
 
 enum RadioCommandEnum
