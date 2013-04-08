@@ -726,7 +726,9 @@ DeviceStatus RF231Radio::TurnOn()
 
 	// The radio is not sleeping or is already on
 	if(state != STATE_SLEEP)
-		return DS_Busy;
+	{
+		return DS_Success;
+	}
 
 #if 0
 	if(cmd != CMD_NONE || (state != STATE_SLEEP))
@@ -740,12 +742,20 @@ DeviceStatus RF231Radio::TurnOn()
 #endif
 	SlptrClear();
 
+	// Even though an interrupt can never happen here, just for the sake of being in synch with the radio
+	state = STATE_SLEEP_2_TRX_OFF;
+
+	// Sleep for 200us and wait for the radio to come oout of sleep
+	HAL_Time_Sleep_MicroSeconds(200);
+
 	DID_STATE_CHANGE(RF230_TRX_OFF);
 
 	//Mukundan: Oct 11,2012: Commented the below two lines, to stop initialization being interrupted
-	WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	DID_STATE_CHANGE(RF230_PLL_ON);
+	//WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+	//DID_STATE_CHANGE(RF230_PLL_ON);
 
+	// Clear the interrupt register
+	ReadRegister(RF230_IRQ_STATUS);
 
 	WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 
@@ -1009,9 +1019,6 @@ void RF231Radio::HandleInterrupt()
 
 						WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 
-						UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-
-						UINT8 i = 0;
 						// OPTIMIZATION_POSSIBLE
 						// Wait till radio is in rx on state or die here, other wise radio and software go out of sync
 						DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
@@ -1032,6 +1039,30 @@ void RF231Radio::HandleInterrupt()
 
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
+			}
+
+			// Check if mac issued a sleep while i was receiving something
+			if(sleep_pending)
+			{
+
+				// We should be on STATE_RX_ON
+				UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+				//if(state = STATE_RX_ON)
+				if(reg == RF230_RX_ON)
+				{
+					// First move the radio to TRX_OFF
+					WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+					// Check if state change was successful
+					DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+
+					// Setting Slptr moves the radio to sleep state
+					SlptrSet();
+
+					state = STATE_SLEEP;
+				}
+
+				sleep_pending = FALSE;
 			}
 		}
 	}
