@@ -1,16 +1,15 @@
 /*
- * OMACTest.h
+ * MACTest.h
  *
  *  Created on: Aug 31, 2012
  *      Author: Mukundan
  */
 
-#ifndef OMACTEST_H_
-#define OMACTEST_H_
+#ifndef MACTEST_H_
+#define MACTEST_H_
 
 #include <tinyhal.h>
 #include <Samraksh\Mac_decl.h>
-#include "../../Mac/CSMAMAC/csmaMAC.h"
 
 typedef struct  {
 	UINT16 MSGID;
@@ -38,4 +37,4 @@ MACTest gMacTest;
 
 void MacLayerTest_Initialize();
 
-#endif /* OMACTEST_H_ */
+#endif /* MACTEST_H_ */

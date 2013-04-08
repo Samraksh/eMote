@@ -12,7 +12,7 @@
 #include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
-//extern OMAC g_OMAC;
+OMAC g_OMAC;
 RadioControl_t g_omac_RadioControl;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){

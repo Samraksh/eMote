@@ -27,7 +27,7 @@ void Timer_1_Handler(void * arg){
 }
 
 // Typedef defining the signature of the receive function
-void ReceiveHandler (void *msg, UINT16 Size){
+void ReceiveHandler (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality){
 	return gMacTest.Receive(msg,Size);
 }
 
@@ -50,7 +50,7 @@ BOOL MACTest::Initialize(){
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
 #endif
-	MAC_Initialize(&myEventHandler,&MacId, MyAppID, (void*) &Config);
+	Mac_Initialize(&myEventHandler,&MacId, MyAppID, (void*) &Config);
 	return TRUE;
 }
 

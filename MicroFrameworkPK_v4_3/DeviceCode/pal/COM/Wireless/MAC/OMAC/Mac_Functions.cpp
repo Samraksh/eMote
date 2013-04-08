@@ -9,11 +9,11 @@
 #include <Samraksh/Mac_decl.h>
 
 //Basic functions
-DeviceStatus MAC_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
 	return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
 }
 
-DeviceStatus MAC_UnInitialize(UINT8 macID){
+DeviceStatus Mac_UnInitialize(UINT8 macID){
 	return DS_Fail;
 }
 
@@ -29,11 +29,11 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 
 
 //Neighbor functions
-NeighborTable* MAC_GetNeighborTable(UINT8 macID){
+NeighborTable* Mac_GetNeighborTable(UINT8 macID){
 
 	return (NeighborTable *)(NULL);
 }
-Neighbor_t* MAC_GetNeighbors(UINT8 macID, UINT16 macAddress){
+Neighbor_t* Mac_GetNeighbors(UINT8 macID, UINT16 macAddress){
 
 	return (Neighbor_t *)(NULL);
 }
