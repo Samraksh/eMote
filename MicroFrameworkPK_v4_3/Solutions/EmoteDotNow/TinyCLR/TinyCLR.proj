@@ -534,6 +534,19 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_RealTimeTimer.$(LIB_EXT)" />
   </ItemGroup>
+  
+  <!-- 									NVM/Data Store Extension        								-->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
+    <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_NVM.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+    
   <!-- 									Wireless Stack Start								-->
   
   <ItemGroup>

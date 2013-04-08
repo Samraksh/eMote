@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh_SPOT</FeatureName>
+    <Guid>{5c76b232-bf4e-4993-91eb-7737bcd37d6d}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <SAMRAKSH_SPOT_FEATUREPROJ>True</SAMRAKSH_SPOT_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_SPOT.$(LIB_EXT)" />
+    <InteropFeature Include="Samraksh_SPOT" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT.pe" />
+    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
+  </ItemGroup>
+</Project>
