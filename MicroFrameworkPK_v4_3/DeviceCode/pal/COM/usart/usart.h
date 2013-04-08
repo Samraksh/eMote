@@ -15,6 +15,7 @@ struct USART_Driver
 
     static int  Write( int ComPortNum, const char* Data, size_t size );
     static int  Read ( int ComPortNum, char*       Data, size_t size );
+    static int  ManagedRead ( int ComPortNum, char*       Data, size_t size );
     static BOOL Flush( int ComPortNum                                );
 
     static BOOL AddCharToRxBuffer     ( int ComPortNum, char  c     );
@@ -30,6 +31,7 @@ struct USART_Driver
     static void CloseAllPorts();
 
     static int  BytesInBuffer( int ComPortNum, BOOL fRx );
+    static int  BytesInManagedBuffer( int ComPortNum, BOOL fRx );
     static void DiscardBuffer( int ComPortNum, BOOL fRx );
 
     static BOOL ConnectEventSink( int ComPortNum, int EventType, void *pContext, PFNUsartEvent pfnUsartEvtHandler, void **ppArg );

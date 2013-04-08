@@ -247,10 +247,8 @@ BOOL RF231Radio::Reset()
 			// set software state machine state to sleep
 	state = STATE_SLEEP;
 
-			// Initialize default radio handlers
-
-			// Added here until the state issues are resolved
-	TurnOn();
+	// Introducing radio sleep
+	//TurnOn();
 
 	cmd = CMD_NONE;
 	#ifdef DEBUG_RF231
@@ -258,6 +256,88 @@ BOOL RF231Radio::Reset()
 			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 	#endif
 	return TRUE;
+}
+
+
+// Change the power level of the radio
+DeviceStatus RF231Radio::ChangeTxPower(int power)
+{
+	// Cannot change power level if radio is in the middle of something
+	// There is no reason for this in the manual, but adding this check for sanity sake
+	if(state != STATE_SLEEP || state != STATE_RX_ON)
+		return DS_Fail;
+
+	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
+
+	return DS_Success;
+}
+
+// Change the channel of the radio
+DeviceStatus RF231Radio::ChangeChannel(int channel)
+{
+	// Cannot change channel if radio is in the middle of something
+	// There is no reason for this in the manual, but adding this check for sanity sake
+	if(state != STATE_SLEEP || state != STATE_RX_ON)
+		return DS_Fail;
+
+	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
+
+	return DS_Success;
+}
+
+// There is one level of sleeping
+DeviceStatus RF231Radio::Sleep(int level)
+{
+	// State variable change in this function, possible race condition
+	// Lock
+	GLOBAL_LOCK(irq);
+
+	// Initiailize state change check variables
+	// Primarily used if DID_STATE_CHANGE_ASSERT is used
+	INIT_STATE_CHECK();
+
+	// If we are already in sleep state do nothing
+	// Unsure if during sleep we can read registers
+	if(state == STATE_SLEEP)
+	{
+		return DS_Success;
+	}
+	else if(state == STATE_BUSY_TX)
+	{
+		sleep_pending = TRUE;
+		return DS_Success;
+	}
+	// Read current state of radio
+	UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+
+	// If radio is in trx off state then acc to the state diagram just pull slptr high
+	if(regState == RF230_TRX_OFF)
+	{
+		// Setting Slptr moves the radio to sleep state
+		SlptrSet();
+	}
+	// If radio is in RX_ON or PLL_ON move the radio to TRX_OFF before pulling slptr high
+	else if(regState == RF230_RX_ON || regState == RF230_PLL_ON)
+	{
+		// First move the radio to TRX_OFF
+		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+		// Check if state change was successful
+		DID_STATE_CHANGE(RF230_TRX_OFF);
+
+		// Setting Slptr moves the radio to sleep state
+		SlptrSet();
+
+		state = STATE_SLEEP;
+	}
+	// The radio is busy doing something, we are not in a position to handle this request
+	else
+	{
+		sleep_pending = TRUE;
+	}
+
+	return DS_Success;
+
 }
 
 void* RF231Radio::Send(void* msg, UINT16 size)
@@ -303,6 +383,13 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	}
 
 
+	// If the radio is sleeping when the send command is issued, it is still capable of sending
+	// data out and going back to sleep once this is done
+	if(state == STATE_SLEEP)
+	{
+		sleep_pending = TRUE;
+		TurnOn();
+	}
 	// Send gives the CMD_TRANSMIT to the radio
 	//cmd = CMD_TRANSMIT;
 #if 0
@@ -425,6 +512,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 		// Initially point to driver buffer
 		rx_msg_ptr = (Message_15_4_t *) rx_msg;
+
+		// Set the state of sleep pending to false
+		sleep_pending = FALSE;
 
 		GLOBAL_LOCK(irq);
 
@@ -557,7 +647,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		// Initialize default radio handlers
 
 		// Added here until the state issues are resolved
-		TurnOn();
+		//TurnOn();
 
 		cmd = CMD_NONE;
 #ifdef DEBUG_RF231
@@ -627,11 +717,19 @@ BOOL RF231Radio::SpiInitialize()
 }
 
 
+// This function moves the radio from sleep to RX_ON
 //template<class T>
 DeviceStatus RF231Radio::TurnOn()
 {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
+
+	// The radio is not sleeping or is already on
+	if(state != STATE_SLEEP)
+	{
+		return DS_Success;
+	}
+
 #if 0
 	if(cmd != CMD_NONE || (state != STATE_SLEEP))
 		return EBUSY;
@@ -644,11 +742,20 @@ DeviceStatus RF231Radio::TurnOn()
 #endif
 	SlptrClear();
 
+	// Even though an interrupt can never happen here, just for the sake of being in synch with the radio
+	state = STATE_SLEEP_2_TRX_OFF;
+
+	// Sleep for 200us and wait for the radio to come oout of sleep
+	HAL_Time_Sleep_MicroSeconds(200);
+
 	DID_STATE_CHANGE(RF230_TRX_OFF);
 
 	//Mukundan: Oct 11,2012: Commented the below two lines, to stop initialization being interrupted
 	//WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 	//DID_STATE_CHANGE(RF230_PLL_ON);
+
+	// Clear the interrupt register
+	ReadRegister(RF230_IRQ_STATUS);
 
 	WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 
@@ -658,6 +765,9 @@ DeviceStatus RF231Radio::TurnOn()
 
 	// Change the state to RX_ON
 	state = STATE_RX_ON;
+
+	return DS_Success;
+
 }
 
 //template<class T>
@@ -872,25 +982,49 @@ void RF231Radio::HandleInterrupt()
 					SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 					(*AckHandler)(tx_msg_ptr, tx_length,NO_Success);
 
-					state = STATE_PLL_ON;
+					if(sleep_pending)
+					{
+						state = STATE_PLL_ON;
 
-					cmd = CMD_NONE;
-					//SlptrClear();
-					// Check if radio is in pll state, we shouldn't be here if we are not in this state
-					// Hence die if you are not in RF230_PLL_ON
-					//DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-					// Change the state of the radio to RX_ON
+						cmd = CMD_NONE;
 
-					WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
+						//Sleep(0);
+						UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 
-					UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+						if(regState == RF230_PLL_ON)
+						{
+							WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
 
-					UINT8 i = 0;
-					// OPTIMIZATION_POSSIBLE
-					// Wait till radio is in rx on state or die here, other wise radio and software go out of sync
-					DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
+							DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
 
-					state = STATE_RX_ON;
+							SlptrSet();
+
+							state = STATE_SLEEP;
+
+						}
+
+						sleep_pending = FALSE;
+
+					}
+					else
+					{
+						state = STATE_PLL_ON;
+
+						cmd = CMD_NONE;
+						//SlptrClear();
+						// Check if radio is in pll state, we shouldn't be here if we are not in this state
+						// Hence die if you are not in RF230_PLL_ON
+						//DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+						// Change the state of the radio to RX_ON
+
+						WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
+
+						// OPTIMIZATION_POSSIBLE
+						// Wait till radio is in rx on state or die here, other wise radio and software go out of sync
+						DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
+
+						state = STATE_RX_ON;
+					}
 				}
 
 		}
@@ -905,6 +1039,30 @@ void RF231Radio::HandleInterrupt()
 
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
+			}
+
+			// Check if mac issued a sleep while i was receiving something
+			if(sleep_pending)
+			{
+
+				// We should be on STATE_RX_ON
+				UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+				//if(state = STATE_RX_ON)
+				if(reg == RF230_RX_ON)
+				{
+					// First move the radio to TRX_OFF
+					WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+					// Check if state change was successful
+					DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+
+					// Setting Slptr moves the radio to sleep state
+					SlptrSet();
+
+					state = STATE_SLEEP;
+				}
+
+				sleep_pending = FALSE;
 			}
 		}
 	}

@@ -10,10 +10,8 @@ namespace Samraksh.SPOT.Net.Radio
     /// </summary>
     public struct RadioConfiguration
     {
-        public byte TxPower;
-        public byte Sensitivity;
-        public byte Channel;
-        public byte TimeStampOffset;
+        public int TxPower;
+        public int Channel;
     };
 
 
@@ -25,6 +23,7 @@ namespace Samraksh.SPOT.Net.Radio
         DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
         DeviceStatus Configure(RadioConfiguration config);  //Change configuration after initialization
         DeviceStatus UnInitialize();
+        DeviceStatus ReConfigure(RadioConfiguration config);
         byte GetID();
         UInt16 GetAddress();
         bool SetAddress(UInt16 Address);

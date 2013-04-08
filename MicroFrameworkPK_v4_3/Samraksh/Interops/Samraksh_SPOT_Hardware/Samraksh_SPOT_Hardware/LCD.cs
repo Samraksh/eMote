@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.Hardware.EmoteDotNow
 {    
+    /// <summary>
+    /// LCD blink rate
+    /// </summary>
     public enum Blink
     {
         OFF,
@@ -12,6 +15,9 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         FAST
     };
 
+    /// <summary>
+    /// LCD char enum
+    /// </summary>
     public enum LCD
     {
         CHAR_NULL,
@@ -79,6 +85,9 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         CHAR_9
     };
 
+    /// <summary>
+    /// Emote LCD Interface class
+    /// </summary>
     public class EmoteLCD
     {
         int currentColumn1;
@@ -95,27 +104,74 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         {
         }
 
+        /// <summary>
+        /// Initializes the lcd hardware
+        /// </summary>
+        /// <returns>The result of lcd initialization: Success, Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Initialize();
 
+        /// <summary>
+        /// Uninitializes the lcd hardware
+        /// </summary>
+        /// <returns>The result of lcd uninitialize: Success, Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Uninitialize();
 
+        /// <summary>
+        /// Write to all columns of the lcd interface 
+        /// </summary>
+        /// <param name="data4">Columns 4</param>
+        /// <param name="data3">Columns 3</param>
+        /// <param name="data2">Columns 2</param>
+        /// <param name="data1">Columns 1</param>
+        /// <returns>The result of the write operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Write(LCD data4, LCD data3, LCD data2, LCD data1);
 
+        /// <summary>
+        /// Set the decimal point
+        /// </summary>
+        /// <param name="dp1">Columns 1</param>
+        /// <param name="dp2">Columns 2</param>
+        /// <param name="dp3">Columns 3</param>
+        /// <param name="dp4">Columns 4</param>
+        /// <returns>The result ofthe write operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool SetDP(bool dp1, bool dp2, bool dp3, bool dp4);
 
+        /// <summary>
+        /// Writes to the specified column on the lcd 
+        /// </summary>
+        /// <param name="column">Specifies the column on the lcd hardware</param>
+        /// <param name="data">Sepcifies the characted to be printed</param>
+        /// <returns>The result of the write operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool WriteN(int column, LCD data);
 
+        /// <summary>
+        /// Write raw data to the lcd instead of characters
+        /// </summary>
+        /// <param name="data4">Column 4</param>
+        /// <param name="data3">Column 3</param>
+        /// <param name="data2">Column 2</param>
+        /// <param name="data1">Column 1</param>
+        /// <returns>Return the result of the write operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool WriteRawBytes(int data4, int data3, int data2, int data1);
 
+        /// <summary>
+        /// Set the lcd to blink
+        /// </summary>
+        /// <param name="blinkType">Defines the rate of the blink</param>
+        /// <returns>Returns the result of the blink operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Blink(Blink blinkType);
 
+        /// <summary>
+        /// Clear the lcd 
+        /// </summary>
+        /// <returns>Returns the result of the clear operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Clear();
     }

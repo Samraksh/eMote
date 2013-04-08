@@ -6,6 +6,9 @@ namespace Samraksh.SPOT.Hardware
 {
     namespace EmoteDotNow
     {
+        /// <summary>
+        /// Screw termial pin mapping
+        /// </summary>
         public static class Pins
         {
             public const Cpu.Pin GPIO_J11_PIN3 = (Cpu.Pin)0;
@@ -22,10 +25,15 @@ namespace Samraksh.SPOT.Hardware
             public const Cpu.Pin GPIO_J12_PIN4 = (Cpu.Pin)30;
             public const Cpu.Pin GPIO_J12_PIN5 = (Cpu.Pin)31;
 
+        }
+
+        /// <summary>
+        /// Emote ADC channel mapping
+        /// </summary>
+        public static class ADCChannel
+        {
             public const Cpu.AnalogChannel ADC_Channel1 = (Cpu.AnalogChannel)0;
             public const Cpu.AnalogChannel ADC_Channel2 = (Cpu.AnalogChannel)1;
-
-
         }
     }
 

@@ -14,8 +14,9 @@
 // Takes inputs of a pointer to eventhandler, radioid and numberRadios
 // Returns the status of the initalization task whether successful or not
 
-#include "RF231\RF231.h"
+// History 		v0.1 - Added sleep functionality, channel change and power change functionality (nived.sivadas)
 
+#include "RF231\RF231.h"
 
 // Currently supports only one radio
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioID, UINT8 numberRadios, UINT8 mac_id )
@@ -23,7 +24,7 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radio
 	if(eventHandlers == NULL)
 		return DS_Fail;
 
-	grf231Radio.Initialize(eventHandlers, radioID, mac_id);
+	return grf231Radio.Initialize(eventHandlers, radioID, mac_id);
 
 }
 
@@ -92,9 +93,22 @@ DeviceStatus CPU_Radio_TurnOn(UINT8 radioID)
 
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 {
+	if(radioID == RF231RADIO)
+		return grf231Radio.Sleep(level);
+}
+
+DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power)
+{
+	if(radioID == RF231RADIO)
+		return grf231Radio.ChangeTxPower(power);
 
 }
 
+DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel)
+{
+	if(radioID == RF231RADIO)
+		return grf231Radio.ChangeChannel(channel);
+}
 
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 {
@@ -148,7 +162,9 @@ Radio* CPU_RadioLayer_GetRadio(UINT8 radioID)
 }
 #endif
 
+// At this point we are only supporting the RF231 radio, if this situation changes in future we can have
+// a more sophisticated way of determining the number of radios supported, for now this is good
 UINT8 CPU_RadioLayer_NumberRadiosSupported()
 {
-
+	return 1;
 }

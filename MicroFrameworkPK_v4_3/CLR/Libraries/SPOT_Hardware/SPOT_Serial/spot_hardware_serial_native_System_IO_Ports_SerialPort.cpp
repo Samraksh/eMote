@@ -160,7 +160,7 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Read___I
 
     while(fRes && count > 0)
     {
-        int read = ::USART_Read( port, (char*)ptr, count );
+        int read = ::USART_Managed_Read( port, (char*)ptr, count );
 
         if(read == 0)
         {
@@ -365,7 +365,7 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::BytesInB
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
 
-    numBytes = USART_BytesInBuffer( portId, fInput );
+    numBytes = USART_BytesInManagedBuffer( portId, fInput );
 
     if(numBytes < 0)
     {

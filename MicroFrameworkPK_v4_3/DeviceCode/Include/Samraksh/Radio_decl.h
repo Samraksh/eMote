@@ -160,6 +160,10 @@ UINT8 CPU_Radio_NumberRadiosSupported();
 
 BOOL CPU_Radio_Reset(UINT8 radioID);
 
+DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power);
+
+DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel);
+
 //}
 
 
