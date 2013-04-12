@@ -47,18 +47,24 @@
     <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/Buffer.h" />
     <HFiles Include="OMAC.h" />
     <HFiles Include="OMACConstants.h" />
+	<HFiles Include="GlobalTime.h" />    
     <Compile Include="Mac_Functions.cpp" />
     <Compile Include="OMAC.cpp" />
     <HFiles Include="Scheduler.h" />
     <Compile Include="Scheduler.cpp" />
     <HFiles Include="RadioControl.h" />    
     <Compile Include="RadioControl.cpp" />
-    <HFiles Include="DiscoveryTimesyncHandler.h" />
-    <Compile Include="DiscoveryTimesyncHandler.cpp" />
+    <HFiles Include="DiscoveryHandler.h" />
+    <Compile Include="DiscoveryHandler.cpp" />
     <Compile Include="DataTransmissionHandler.cpp" />
     <Compile Include="DataReceptionHandler.cpp" />
-    <HFiles Include="FTSPTimeSync.h" />    
+    <HFiles Include="CMaxTimeSync.h" />    
+    <Compile Include="CMaxTimeSync.cpp" />
+    
+    
+    <!--<HFiles Include="FTSPTimeSync.h" />    
     <Compile Include="FTSPTimeSync.cpp" />
+    -->
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

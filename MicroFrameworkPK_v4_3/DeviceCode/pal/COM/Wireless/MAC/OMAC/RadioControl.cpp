@@ -16,12 +16,14 @@ DeviceStatus RadioControl::Initialize(UINT8 radioID){
 }
 
 DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
-	CPU_Radio_Send(RadioID, msg, sizeof(Message_15_4_t));
+	//Radio implements the 'bag exchange' protocol, so store the pointer back to message
+	msg = (Message_15_4_t *) CPU_Radio_Send(RadioID, msg, sizeof(Message_15_4_t));
 	return DS_Success;
 }
 
 DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4_t * msg, UINT16 size, UINT32 eventTime){
-	CPU_Radio_Send_TimeStamped(RadioID, msg, sizeof(Message_15_4_t), eventTime);
+	//Radio implements the 'bag exchange' protocol, so store the pointer back to message
+	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID, msg, sizeof(Message_15_4_t), eventTime);
 	return DS_Success;
 }
 

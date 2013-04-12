@@ -5,33 +5,34 @@
  *      Author: Mukundan Sridharan
  */
 
-#include "DiscoveryTimesyncHandler.h"
+#include "DiscoveryHandler.h"
 #include <Samraksh/Radio_decl.h>
 #include "OMACConstants.h"
 #include "Scheduler.h"
 
 OMACScheduler *g_scheduler;
+extern RadioControl_t g_omac_RadioControl;
 
 void PublicBeaconNCallback(void * param){
-	g_scheduler->m_DiscoveryTimesyncHandler.BeaconNTimerHandler(param);
+	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
 }
 
-void DiscoveryTimesyncHandler::SetParentSchedulerPtr(void * scheduler){
+void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
   		m_parentScheduler = scheduler;
   		g_scheduler = (OMACScheduler*)scheduler;
   	}
 
-void DiscoveryTimesyncHandler::Initialize(){
+void DiscoveryHandler::Initialize(){
 	m_receivedPiggybackBeacon = FALSE;
 	m_idxForComputation = INVALID_INDEX;
 	counterOffsetAvg = 0;
 	//dataAlarmDuration = 0;
 
-	//m_timeSyncBeacon = (TimeSyncMsg*)m_FTSPTimeSync.GetPayload(&m_timeSyncBeaconBuffer, sizeof(TimeSyncMsg));
-	m_timeSyncBeacon = (TimeSyncMsg*)m_timeSyncBeaconBuffer.GetPayload() ;
-	m_timeSyncBeacon->globalTime = 0;
-	m_timeSyncBeacon->flag = 0x0;
-	m_timeSyncBeacon->localTime = 0;
+
+	m_discoveryMsg= (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
+	//m_discoveryMsg->globalTime = 0;
+	//m_discoveryMsg->flag = 0x0;
+	//m_discoveryMsg->localTime = 0;
 
 	m_p1 = CONTROL_P1[MF_NODE_ID % 7];
 	m_p2 = CONTROL_P2[MF_NODE_ID % 7];
@@ -40,17 +41,17 @@ void DiscoveryTimesyncHandler::Initialize(){
 	ClearTable();
 }
 
-void DiscoveryTimesyncHandler::ExecuteSlot(UINT32 slotNum){
+void DiscoveryHandler::ExecuteSlot(UINT32 slotNum){
 	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
 	Beacon1();
 	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
 }
 
-UINT8 DiscoveryTimesyncHandler::ExecuteSlotDone(){
+UINT8 DiscoveryHandler::ExecuteSlotDone(){
 	g_scheduler->Stop();
 }
 
-UINT32 DiscoveryTimesyncHandler::NewSlot(UINT32 slotNum){
+UINT32 DiscoveryHandler::NewSlot(UINT32 slotNum){
 	UINT32 p1Remaining, p2Remaining;
 	p1Remaining = slotNum % m_p1;
 	p2Remaining = slotNum % m_p2;
@@ -70,51 +71,43 @@ UINT32 DiscoveryTimesyncHandler::NewSlot(UINT32 slotNum){
 }
 
 
-void DiscoveryTimesyncHandler::PostExecuteSlot(){
+void DiscoveryHandler::PostExecuteSlot(){
 
 }
 
 
-void DiscoveryTimesyncHandler::SetWakeup(BOOL shldWakeup){
+void DiscoveryHandler::SetWakeup(BOOL shldWakeup){
 
 }
 
 ////////////////////Private Functions////////////////////////////
 
 //Mukundan: Can add conditions to suppress beaconing, will keep this true for now
-BOOL DiscoveryTimesyncHandler::ShouldBeacon(){
+BOOL DiscoveryHandler::ShouldBeacon(){
 	return TRUE;
 }
 
 
-DeviceStatus DiscoveryTimesyncHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
+DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
 	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
-	//m_timeSyncBeacon = (TimeSyncMsg*)m_FTSPTimeSync.GetPayload(msgPtr, sizeof(TimeSyncMsg));
-	m_timeSyncBeacon = (TimeSyncMsg*)msgPtr->GetPayload();
-	m_timeSyncBeacon->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
-	if (m_timeSyncBeacon->dataInterval < 1) {
-			m_timeSyncBeacon->dataInterval = 1;
+
+	m_discoveryMsg= (DiscoveryMsg_t*)msgPtr->GetPayload();
+	m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
+	if (m_discoveryMsg->dataInterval < 1) {
+			m_discoveryMsg->dataInterval = 1;
 		}
 
-	m_timeSyncBeacon->flag = 0;
-
 	if (m_busy == FALSE) {
-		m_timeSyncBeacon->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
-		m_timeSyncBeacon->flag |= FLAG_TIMESTAMP_VALID;
-		m_timeSyncBeacon->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
+		m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
+		//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
+		m_discoveryMsg->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
 
-		//localTime = call GlobalTime.getLocalTime();
-		localTime = Time_GetLocalTime();
-
-		//Wenjie: currently we set both the type of the AMMsg
-		//and the am_type field in TimeSyncMsg to be the same
-		m_timeSyncBeacon->globalTime = localTime;
 
 		//call PacketAcknowledgements.noAck(msgPtr);
 
-		if((e = m_FTSPTimeSync.Send(dst, msgPtr, TIMESYNCMSG_LEN, localTime )) == DS_Success ) {
+		if((e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime )) == DS_Success ) {
 			m_busy = TRUE;
 		}
 	}
@@ -126,8 +119,8 @@ DeviceStatus DiscoveryTimesyncHandler::Beacon(RadioAddress_t dst, Message_15_4_t
 	return e;
 }
 
-void DiscoveryTimesyncHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
-	if (msg != &m_timeSyncBeaconBuffer) {
+void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
+	if (msg != &m_discoveryMsgBuffer) {
 		m_busy = FALSE;
 		//signal AMSend.sendDone(ptr, error);
 		return;
@@ -142,19 +135,19 @@ void DiscoveryTimesyncHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, 
 	this->ExecuteSlotDone();
 }
 
-void DiscoveryTimesyncHandler::Beacon1(){
+void DiscoveryHandler::Beacon1(){
 	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
 	StartBeaconNTimer(TRUE,SLOT_PERIOD_MILLI * 2);
 	if (ShouldBeacon()) {
-		Beacon(RADIO_BROADCAST_ADDRESS, &m_timeSyncBeaconBuffer);
+		Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
 	//if beacon fails, the radio automatically changes to RX state
 }
 
-void DiscoveryTimesyncHandler::BeaconN(){
+void DiscoveryHandler::BeaconN(){
 	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
 
-	if (Beacon(RADIO_BROADCAST_ADDRESS, &m_timeSyncBeaconBuffer) != DS_Success) {
+	if (Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer) != DS_Success) {
 		if (m_busy == TRUE) {
 			// Ignore it, AMSend.sendDone will provide continuation.
 		}
@@ -166,20 +159,20 @@ void DiscoveryTimesyncHandler::BeaconN(){
 	}
 }
 
-void DiscoveryTimesyncHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
+void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
 	//Start the BeaconTimer
 		//HALTimer()
 		if(delay==0){
 			//start default time
-			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 
 		}else {
 			//Change next slot time with delay
-			gHalTimerManagerObject.CreateTimer(7, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 		}
 }
 
-void DiscoveryTimesyncHandler::BeaconNTimerHandler(void* Param){
+void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 #ifdef TESTBED
 #warning ** USING TESTBED CONFIG
 		debug_printf("[%u] %u %u\n", TOS_NODE_ID, m_p1, m_p2);
@@ -196,32 +189,32 @@ void DiscoveryTimesyncHandler::BeaconNTimerHandler(void* Param){
 
 
 // neighbor table util functions
-UINT8 DiscoveryTimesyncHandler::GetFreeIdx(){
+UINT8 DiscoveryHandler::GetFreeIdx(){
 
 }
 
-DeviceStatus DiscoveryTimesyncHandler::NbrToIdx(UINT16 nodeid, UINT8* idx){
+DeviceStatus DiscoveryHandler::NbrToIdx(UINT16 nodeid, UINT8* idx){
 
 }
 
-void DiscoveryTimesyncHandler::ClearNeighbor(RadioAddress_t nodeID){
+void DiscoveryHandler::ClearNeighbor(RadioAddress_t nodeID){
 
 }
 
-void DiscoveryTimesyncHandler::ClearTable(){
+void DiscoveryHandler::ClearTable(){
 
 }
 
 // util functions for time sync beaocn processing
-DeviceStatus DiscoveryTimesyncHandler::IsSynced(RadioAddress_t address){
+DeviceStatus DiscoveryHandler::IsSynced(RadioAddress_t address){
 
 }
 
-void DiscoveryTimesyncHandler::CleanUpAfterProcessing(){
+void DiscoveryHandler::CleanUpAfterProcessing(){
 
 }
 
-void DiscoveryTimesyncHandler::ProcessMsg(){
+void DiscoveryHandler::ProcessMsg(){
 	/*TimeSyncMsg* msg = (TimeSyncMsg*) m_FTSPTimeSync.GetPayload(m_processedMsg, sizeof(TimeSyncMsg)));
 	am_addr_t source = msg->nodeID;
 	uint8_t i, freeItem = INVALID_INDEX, oldestItem = 0;
@@ -342,6 +335,21 @@ void DiscoveryTimesyncHandler::ProcessMsg(){
 
 }
 
-void DiscoveryTimesyncHandler::CalculateConversion(){
+void DiscoveryHandler::CalculateConversion(){
 
+}
+
+DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
+	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
+	ProcessMsg();
+	return DS_Success;
+}
+
+DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
+	IEEE802_15_4_Header_t * header = msg->GetHeader();
+	//UINT8 * payload = msg->GetPayload();
+	header->dest= address;
+	header->type=MFM_DISCOVERY;
+
+	g_omac_RadioControl.Send_TimeStamped(address,msg,sizeof(Message_15_4_t),event_time);
 }

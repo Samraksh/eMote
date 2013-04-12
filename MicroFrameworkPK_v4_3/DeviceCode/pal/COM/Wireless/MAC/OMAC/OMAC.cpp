@@ -12,7 +12,7 @@
 #include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
-//extern OMAC g_OMAC;
+OMAC g_OMAC;
 RadioControl_t g_omac_RadioControl;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){
@@ -26,8 +26,8 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 
 		//Demutiplex packets received based on type
 		switch(rcv_msg->GetHeader()->GetType()){
-			case MFM_TIMESYNC:
-				g_OMAC.m_omac_scheduler.m_DiscoveryTimesyncHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+			case MFM_DISCOVERY:
+				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
 				break;
 			case MFM_DATA:
 
@@ -78,7 +78,7 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
 
-		m_NeighborTable.InitObject();
+		//m_NeighborTable.InitObject();
 
 		Initialized=TRUE;
 
@@ -117,8 +117,8 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
-		case MFM_TIMESYNC:
-			this->m_omac_scheduler.m_DiscoveryTimesyncHandler.m_FTSPTimeSync.Receive(msg, msg->GetPayload(),msg->GetPayloadSize());
+		case MFM_DISCOVERY:
+			this->m_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),msg->GetPayloadSize());
 			break;
 		case MFM_DATA:
 
@@ -126,6 +126,8 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 		case MFM_ROUTING:
 			break;
 		case MFM_NEIGHBORHOOD:
+			break;
+		case MFM_TIMESYNC:
 			break;
 		default:
 			break;

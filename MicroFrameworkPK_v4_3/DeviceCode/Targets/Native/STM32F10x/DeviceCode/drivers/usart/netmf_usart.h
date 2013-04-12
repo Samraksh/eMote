@@ -3,6 +3,7 @@
 #ifndef _NETMF_USART_H_
 #define _NETMF_USART_H_
 #include "STM32F10x_usart.h"
+#include "..\intc\STM32.h"
 
 //TODO Calculate this based on the System Clock value.
 #define MAX_BAUDRATE 115200

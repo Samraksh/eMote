@@ -149,6 +149,11 @@ public:
     // Indicates whether the message has been loaded into the frame buffer or not
     BOOL message_status;
 
+    UINT32 GetChannel();
+
+    UINT32 GetTxPower();
+
+
     // This function has been moved from the cpp file because the linker is unable to call the function
     // otherwise, something to do with instantiation of the template
     // Calls the gpio initialize and spi initialize modules and asserts if the spi initialization failed
@@ -184,11 +189,7 @@ public:
 	BOOL Reset();
 
 	UINT8 ReadRegister(UINT8 reg);
-	// returns the current channel, this is initially set to 11 by default
-	UINT8 GetChannel()
-	{
-		return channel;
-	}
+
 
 	// May have to toggle slp_tr, check this during testing of this interface
 	void setChannel(UINT8 channel)
@@ -196,10 +197,6 @@ public:
 		WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 	}
 
-	UINT8 GetTxPower()
-	{
-		return tx_power;
-	}
 
 
 	RadioCommandType GetCommand()

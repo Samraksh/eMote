@@ -12,8 +12,8 @@
 #include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
-#include "FTSPTimeSync.h"
-
+//#include "FTSPTimeSync.h"
+//#include "CMaxTimeSync.h"
 
 
 typedef struct MessageCacheEntry {
@@ -51,7 +51,7 @@ typedef struct TableItem
 } TableItem_t;
 
 
-class DiscoveryTimesyncHandler: public SlotHandler {
+class DiscoveryHandler: public SlotHandler {
   private:
 
 #ifdef OMAC_DEBUG
@@ -84,9 +84,10 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	UINT32  m_offsetAverage;
 	UINT32 	m_lastReceiveTime; // Wenjie: used to filter out consecutive timesync beacons at the
 								 // two ends of a timesyenc period
-	Message_15_4_t m_timeSyncBeaconBuffer;
+	Message_15_4_t m_discoveryMsgBuffer;
 	Message_15_4_t *m_processedMsg;
-	TimeSyncMsg *m_timeSyncBeacon;
+	DiscoveryMsg_t *m_discoveryMsg;
+	//TimeSyncMsg_t *m_timeSyncBeacon;
 
 	UINT16	m_p1, m_p2;
 	UINT8		m_updateIdx;
@@ -108,7 +109,7 @@ class DiscoveryTimesyncHandler: public SlotHandler {
 	void ProcessMsg();
 	void CalculateConversion();
   public:
-	FTSPTimeSync_t m_FTSPTimeSync;
+	//FTSPTimeSync_t m_FTSPTimeSync;
 
 	void Initialize();
 	void StartBeaconNTimer(BOOL oneshot, UINT64 delay);	//Start BeaconN Timer
@@ -120,6 +121,8 @@ class DiscoveryTimesyncHandler: public SlotHandler {
   	void PostExecuteSlot();
   	void SetWakeup(BOOL shldWakeup);
   	void SetParentSchedulerPtr(void * scheduler);
+  	DeviceStatus Receive(Message_15_4_t* msg, void* payload, UINT8 len);
+  	DeviceStatus Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time);
 };
 
 

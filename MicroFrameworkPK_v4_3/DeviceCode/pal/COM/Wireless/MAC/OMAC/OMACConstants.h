@@ -29,6 +29,10 @@
 
 #define TIMESTAMP_FOOTER_OFFSET -4
 
+#define HAL_SLOT_TIMER 3
+#define HAL_DISCOVERY_TIMER 4
+
+
 typedef enum {
   //after RadioControl.stopDone();
   E_TO_IDLE,
@@ -91,6 +95,26 @@ typedef enum {
   OMAC_DATA_BEACON_TYPE = 4,
 } OMacPacketType;
 
+typedef struct DiscoveryMsg
+{
+	// offset between the start of the counter to global time 0
+	//used by neighbors to calculate the sender's next receive slot
+	UINT16 counterOffset;
+	//the time to startup the radio could be different for different nodes.
+	//use this neighbor info along with local info to compute this difference
+	UINT16 radioStartDelay;
+
+	//seed to generate the pseduo-random wakeup schedule
+	UINT16 seed;
+	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
+	UINT32 nextFrame;
+	//the wakeup interval of the neighbor
+	UINT16 dataInterval;
+	//fields below are just for convenience. not transmitted over the air
+	UINT16 nodeID;
+} DiscoveryMsg_t;
+
+
 typedef struct TimeSyncMsg
 {
   /*
@@ -103,26 +127,12 @@ typedef struct TimeSyncMsg
    * timestamp. The receiving timestamp thus represents the time on the
    * receiving clock when the remote globalTime was taken.
    */
-  UINT32 globalTime;
+  UINT64 globalTime;
 
-  /* offset between the start of the counter to global time 0
-   * used by neighbors to calculate the sender's next receive slot
-   */
-  UINT16 counterOffset;
   //the time to startup the radio could be different for different nodes.
   //use this neighbor info along with local info to compute this difference
-  UINT16 radioStartDelay;
-  /* Beacons requested by Disco that are invalid for ftsp because of
-   * insufficient number of samples
-   */
-  UINT8  flag;
-  //seed to generate the pseduo-random wakeup schedule
-  UINT16 seed;
-  //use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
-  UINT32 nextFrame;
-  //the wakeup interval of the neighbor
-  UINT16 dataInterval;
-  /*fields below are just for convenience. not transmitted over the air*/
+  //UINT16 radioStartDelay;
+  float skew;
   UINT32 localTime;
   UINT16 nodeID;
 } TimeSyncMsg_t;

@@ -127,6 +127,21 @@ DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroS
 		return DS_Fail;
 }
 
+UINT32 CPU_Radio_GetChannel(UINT8 radioID)
+{
+	if(radioID == RF231RADIO)
+		return grf231Radio.GetChannel();
+	else
+		return 0;
+}
+
+UINT32 CPU_Radio_GetTxPower(UINT8 radioID)
+{
+	if(radioID == RF231RADIO)
+		return grf231Radio.GetTxPower();
+	else
+		return 0;
+}
 
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID)
 {

@@ -13,7 +13,9 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 #include "RadioControl.h"
-#include "DiscoveryTimesyncHandler.h"
+#include "DiscoveryHandler.h"
+//#include "GlobalTime.h"
+#include "CMaxTimeSync.h"
 
 extern HALTimerManager gHalTimerManagerObject;
 
@@ -88,9 +90,10 @@ private:
 public:
 	State_t ProtoState;
 	State_t InputState;
-	DiscoveryTimesyncHandler m_DiscoveryTimesyncHandler;
+	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
+	CMaxTimeSync_t m_timeSync;
 
 	void Initialize();
 	void UnInitialize();

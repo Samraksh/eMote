@@ -1,11 +1,8 @@
 /*
- * Copyright The Samraksh Company
- *
+ * Copyright: The Samraksh Company
  * Author: Mukundan.Sridharan, Nived.Sivadas
- *
- * Description :  Radio HAL APIs, v 1.0
- *
- *  Created on: Aug 30, 2012
+ * Description :  OMAC Implementation, v 1.0
+ * Created on: Aug 30, 2012
  */
 
 
@@ -21,6 +18,7 @@
 #include "OMACConstants.h"
 #include "Scheduler.h"
 #include "Handlers.h"
+
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
@@ -59,6 +57,6 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 
 };
 
-OMAC g_OMAC;
+extern OMAC g_OMAC;
 
 #endif /* OMAC_H_ */

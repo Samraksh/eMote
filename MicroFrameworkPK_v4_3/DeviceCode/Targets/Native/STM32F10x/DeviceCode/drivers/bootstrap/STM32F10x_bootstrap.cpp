@@ -234,7 +234,7 @@ static void RCC_Configuration(void)
     //hal_printf("/* Select PLL as system clock source *//n");
     //RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	// Kartik : Change made to system clock from 72 to 8 Mhz; It is now powered of the HSI Oscillator
-	//RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+    //	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
     //hal_printf("/* Wait till PLL is used as system clock source *//n");

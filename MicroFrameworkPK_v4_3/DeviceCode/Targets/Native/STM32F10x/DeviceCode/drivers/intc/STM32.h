@@ -379,10 +379,38 @@ struct STM32_AITC
 
 };
 
+struct STM32_USART
+{
+	static const UINT32 c_Base_usart1 = USART1_BASE;
+	static const UINT32 c_Base_usart2 = USART2_BASE;
+
+	static const UINT32 USART_PORT_1 = 0;
+	static const UINT32 USART_PORT_2 = 1;
+
+	// Need to calculate this for the emote (TODO)
+	static const UINT32 c_MAX_BAUDRATE = 115200;
+	static const UINT32 c_MIN_BAUDRATE = 300;
+
+	volatile UINT32 SR;
+	volatile UINT32 DR;
+	volatile UINT32 BRR;
+	volatile UINT32 CR1;
+	volatile UINT32 CR2;
+	volatile UINT32 CR3;
+	volatile UINT32 GTPR;
+
+};
+
 
 struct STM32
 {
 	    static STM32_AITC &AITC() { return *(STM32_AITC*)(size_t)(STM32_AITC::c_Base); }
+	    static STM32_USART &USART(int port) {
+	    										if (port == STM32_USART::USART_PORT_1)
+	    												return *(STM32_USART *)(size_t)(STM32_USART::c_Base_usart1);
+	    										else
+	    												return *(STM32_USART *)(size_t)(STM32_USART::c_Base_usart2);
+	    										}
 
 };
 

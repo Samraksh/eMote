@@ -1,20 +1,55 @@
 #include "DiscoveryHandler.h"
 #include <Samraksh/Message.h>
 #include "RadioControl.h"
+#include "CMaxTimeSync.h"
 
 extern RadioControl_t g_omac_RadioControl;
 
-void FTSPTimeSync::Initialize(){
+void CMaxTimeSync::Initialize(){
 	m_skew = 0;
 	m_localAverage = 0;
 	m_offsetAverage = 0;
+	//m_timeSyncMsg = (TimeSyncMsg_t *) m_timeSyncMsgBuffer.GetPayload();
+
+	m_globalTime.Init();
 }
 
-float  FTSPTimeSync::GetSkew() { return m_skew; }
-UINT32 FTSPTimeSync::GetOffset() { return m_offsetAverage; }
-UINT32 FTSPTimeSync::GetSyncPoint() { return m_localAverage; }
 
-bool FTSPTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
+//DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
+DeviceStatus CMaxTimeSync::Send(){
+	IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
+	m_timeSyncMsg = (TimeSyncMsg_t *) m_timeSyncMsgBuffer.GetPayload();
+	m_timeSyncMsg->globalTime = m_globalTime.Read();
+	m_timeSyncMsg->skew = m_globalTime.GetSkew();
+
+	header->dest= RADIO_BROADCAST_ADDRESS;
+	header->type=MFM_TIMESYNC;
+	//UINT32 event_time = (UINT32) Time_GetLocalTime();
+	g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,&m_timeSyncMsgBuffer,sizeof(Message_15_4_t),(UINT32) Time_GetLocalTime());
+}
+
+
+DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
+	TimeSyncMsg_t* rcv_msg  = (TimeSyncMsg_t *) m_timeSyncMsgBuffer.GetPayload();
+	UINT64 curr_gtime= m_globalTime.Read();
+	//Adjust your globaltime if you received a new message
+	if(rcv_msg->globalTime > curr_gtime + 20){
+		m_globalTime.Adjust(rcv_msg->globalTime - curr_gtime, TRUE);
+	}
+	return DS_Success;
+}
+
+
+
+
+
+bool CMaxTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
+	if(State == E_Transition){
+		return TRUE;
+	}else {
+		return FALSE;
+	}
+
 	/*	UINT8 idx;
 		if (nbrToIdx(nodeID, &idx) == SUCCESS) {
 			return ((m_beaconTable[idx].size < ENTRY_VALID_LIMIT) &&
@@ -25,17 +60,35 @@ bool FTSPTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
 		*/
 }
 
-void FTSPTimeSync::SetCounterOffset(UINT16 counterOffset){
+void CMaxTimeSync::SetCounterOffset(UINT16 counterOffset){
 	//m_timeSyncBeacon->counterOffset = counterOffset;
 }
 
-bool FTSPTimeSync::IsSynced(RadioAddress_t nodeID) {
+bool CMaxTimeSync::IsSynced(RadioAddress_t nodeID) {
+	if(State == E_Synced){
+		return TRUE;
+	}else {
+		return FALSE;
+	}
+}
 
-	//return (IsSynced(nodeID) == SUCCESS);
+
+
+
+void SendAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
+
+}
+
+
+bool CMaxTimeSync::IsProccessingBeacon(){
+	/*bool retVal;
+	retVal = (m_processedMsg != NULL);
+	return retVal;*/
 	return FALSE;
 }
 
-void FTSPTimeSync::InsertBeacon(Message_15_4_t *ptr){
+
+void CMaxTimeSync::InsertBeacon(Message_15_4_t *ptr){
 	/*Message_15_4_t *bufPtr;
 
 	bufPtr = call MessagePool.get();
@@ -53,46 +106,8 @@ void FTSPTimeSync::InsertBeacon(Message_15_4_t *ptr){
 	*/
 }
 
-bool FTSPTimeSync::IsProccessingBeacon(){
-	/*bool retVal;
-	retVal = (m_processedMsg != NULL);
-	return retVal;*/
-	return FALSE;
-}
 
-void FTSPTimeSync::SetSeedInfo(UINT16 seed, UINT32 nextFrame) {
-	//m_timeSyncBeacon->nextFrame = nextFrame;
-	//m_timeSyncBeacon->seed = seed;
-
-}
-DeviceStatus FTSPTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
-	IEEE802_15_4_Header_t * header = msg->GetHeader();
-	//UINT8 * payload = msg->GetPayload();
-	header->dest= address;
-	header->type=MFM_TIMESYNC;
-
-	g_omac_RadioControl.Send_TimeStamped(address,msg,sizeof(Message_15_4_t),event_time);
-}
-
-void SendAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
-
-}
-
-DeviceStatus FTSPTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-
-	return DS_Success;
-}
-
-#ifdef ORIGINAL_OMAC
-	async command error_t TimeSyncInfo.sendBeaconAck(am_addr_t dest, uint8_t dsn) {
-		cc2420_header_t* hdrPtr = call CC2420PacketBody.getHeader( &m_timeSyncBeaconBuffer );
-		hdrPtr->dsn = dsn;
-		hdrPtr->dest = dest;
-		return beacon(dest, &m_timeSyncBeaconBuffer);
-	}
-#endif
-
-	//GlobalTime interface implementation
+//GlobalTime interface implementation
 	/*async command uint32_t GlobalTime.getLocalTime()
 	{
 		return call LocalTime.get();
