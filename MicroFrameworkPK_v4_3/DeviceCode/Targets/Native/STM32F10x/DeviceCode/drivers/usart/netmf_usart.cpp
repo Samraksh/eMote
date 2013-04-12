@@ -494,7 +494,7 @@ void USART1_Handler(void *args)
 #endif
 	}
 
-	else if(ir & USART_FLAG_TXE)
+	if(ir & USART_FLAG_TXE)
 	//if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
 	{
 		GLOBAL_LOCK(irq);
@@ -504,14 +504,14 @@ void USART1_Handler(void *args)
 			//USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
 			//do
 			//{
-			if(USART_BytesInBuffer(COM1, false) == 1)
-			{
-				USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
+			//if(USART_BytesInBuffer(COM1, false) == 1)
+			//{
+			//	USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
 #if 0
 				CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 				CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 #endif
-			}
+			//}
 
 			 USART_SendData(USART1, c);
 			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
