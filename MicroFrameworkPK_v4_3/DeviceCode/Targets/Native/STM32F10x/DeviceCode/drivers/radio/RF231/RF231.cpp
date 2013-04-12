@@ -259,6 +259,16 @@ BOOL RF231Radio::Reset()
 }
 
 
+UINT32 RF231Radio::GetChannel()
+{
+	return this->channel;
+}
+
+UINT32 RF231Radio::GetTxPower()
+{
+	return this->tx_power;
+}
+
 // Change the power level of the radio
 DeviceStatus RF231Radio::ChangeTxPower(int power)
 {
@@ -266,6 +276,8 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 	// There is no reason for this in the manual, but adding this check for sanity sake
 	if(state != STATE_SLEEP || state != STATE_RX_ON)
 		return DS_Fail;
+
+	this->tx_power = power  & RF230_TX_PWR_MASK;
 
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
 
@@ -280,7 +292,9 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 	if(state != STATE_SLEEP || state != STATE_RX_ON)
 		return DS_Fail;
 
-	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
+	this->channel = channel & RF230_CHANNEL_MASK;
+
+	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | this->channel);
 
 	return DS_Success;
 }

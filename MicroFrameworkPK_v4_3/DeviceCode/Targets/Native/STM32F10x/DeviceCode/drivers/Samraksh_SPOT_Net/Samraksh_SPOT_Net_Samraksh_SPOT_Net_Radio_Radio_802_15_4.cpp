@@ -60,14 +60,12 @@ INT8 Radio_802_15_4::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESU
 
 INT32 Radio_802_15_4::TurnOn( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+    return CPU_Radio_TurnOn(RadioID);
 }
 
 INT32 Radio_802_15_4::Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+   return CPU_Radio_Sleep(RadioID, param0);
 }
 
 INT32 Radio_802_15_4::PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr )
@@ -95,20 +93,23 @@ INT32 Radio_802_15_4::Send( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 p
 
 INT32 Radio_802_15_4::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT32 param2, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	UINT8 *buffer = param0.GetBuffer();
+
+	memcpy(SendMsgPtr->GetPayload(),  buffer, param1);
+
+    SendMsgPtr = (Message_15_4_t *) CPU_Radio_SendTimeStamped(RadioID,(void *)SendMsgPtr, (SendMsgPtr->GetHeader())->GetLength(), param2);
+
+    return 1;
 }
 
 INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	return CPU_Radio_ClearChannelAssesment(RadioID);
 }
 
 INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	return CPU_Radio_ClearChannelAsssesment(RadioID, param0);
 }
 
 INT32 Radio_802_15_4::SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )

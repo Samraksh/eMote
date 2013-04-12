@@ -150,6 +150,9 @@ UINT16 MF_NODE_ID;
 #define NUM_HALTIMER_TIMERS 4
 #define NUMBER_ADC_CHANNELS	3
 
+#define INPUT_REBOOT_PIN
+#define OUTPUT_REBOOT_PIN
+
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 
 #include <processor_selector.h>

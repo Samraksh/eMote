@@ -164,6 +164,10 @@ DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power);
 
 DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel);
 
+UINT32 CPU_Radio_GetTxPower(UINT8 radioID);
+
+UINT32 CPU_Radio_GetChannel(UINT8 radioID);
+
 //}
 
 
