@@ -564,15 +564,16 @@
     <DriverLibs Include="HALTimer.$(LIB_EXT)" />
   </ItemGroup>
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />
   </ItemGroup>
-  -->
+  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
   </ItemGroup>
+  -->
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />

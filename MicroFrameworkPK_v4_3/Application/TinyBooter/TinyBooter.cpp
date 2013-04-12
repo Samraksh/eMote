@@ -30,7 +30,11 @@ void ApplicationEntryPoint()
     // crypto API needs to allocate memory. Initialize simple heap for it. 
     UINT8* BaseAddress;                                 
     UINT32 SizeInBytes;                                 
-                                                        
+
+#if defined(PLATFORM_ARM_EmoteDotNow)
+    CPU_GPIO_EnableOutputPin((GPIO_PIN) OUTPUT_REBOOT_PIN, TRUE);
+#endif
+
     HeapLocation         ( BaseAddress, SizeInBytes );  
     SimpleHeap_Initialize( BaseAddress, SizeInBytes );  
 

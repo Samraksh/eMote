@@ -75,9 +75,9 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 
     bool enterBooterMode = false;
 	
-	CPU_GPIO_EnableInputPin3((GPIO_PIN) 1, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	
-	if(CPU_GPIO_GetPinState((GPIO_PIN) 1))
+	if(CPU_GPIO_GetPinState((GPIO_PIN) INPUT_REBOOT_PIN))
 	{
 		enterBooterMode = true;
 	}

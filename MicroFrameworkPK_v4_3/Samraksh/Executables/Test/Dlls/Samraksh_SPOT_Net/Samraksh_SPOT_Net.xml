@@ -9,6 +9,26 @@
             Device status
             </summary>
         </member>
+        <member name="F:Samraksh.SPOT.Net.DeviceStatus.Success">
+            <summary>
+            Success
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.DeviceStatus.Fail">
+            <summary>
+            Fail
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.DeviceStatus.Ready">
+            <summary>
+            Ready
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.DeviceStatus.Busy">
+            <summary>
+            Busy 
+            </summary>
+        </member>
         <member name="T:Samraksh.SPOT.Net.NetOpStatus">
             <summary>
             Net operation status
@@ -49,6 +69,72 @@
             <param name="callback">Callback method for received messages.</param>
             <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
             <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetCCA(System.Boolean)">
+            <summary>
+            Set the CCA
+            </summary>
+            <param name="CCA"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetNumberOfRetries(System.Byte)">
+            <summary>
+            Set Number of retries of the MAC
+            </summary>
+            <param name="NumberOfRetries"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetCCASenseTime(System.Byte)">
+            <summary>
+            Set CCA Sense Time
+            </summary>
+            <param name="CCASenseTime"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetBufferSize(System.Byte)">
+            <summary>
+            Set Buffer Size
+            </summary>
+            <param name="BufferSize"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetRadioID(System.Byte)">
+            <summary>
+            Set Radio ID
+            </summary>
+            <param name="RadioID"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetCCA">
+            <summary>
+            Get CCA
+            </summary>
+            <returns>bool</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetNumberOfRetries">
+            <summary>
+            Get number of retries
+            </summary>
+            <returns>byte</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetCCASenseTime">
+            <summary>
+            Get CCA Sense Time
+            </summary>
+            <returns>byte</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetRadioID">
+            <summary>
+            Get Radio ID
+            </summary>
+            <returns>byte</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.ReConfigure(Samraksh.SPOT.Net.Mac.MacConfiguration)">
+            <summary>
+            ReConfigure the mac by passing a new macconfiguration
+            </summary>
+            <param name="config"></param>
+            <returns>DeviceStatus</returns>
         </member>
         <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetNeighborStatus(System.UInt16,Samraksh.SPOT.Net.Mac.Neighbor@)">
             <summary>
@@ -174,6 +260,96 @@
             Radio interface
             </summary>
         </member>
+        <member name="T:Samraksh.SPOT.Net.Radio.TxPowerValue">
+            <summary>
+            Enum defines the different power levels supported by the RF231 radio
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Net.Radio.Channels">
+            <summary>
+            Enum defines the different channels the RF231 radio can use
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_11">
+            <summary>
+            Channel 11 Frequency 2405 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_12">
+            <summary>
+            Channel 12 Frequency 2410 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_13">
+            <summary>
+            Channel 13 Frequency 2415 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_14">
+            <summary>
+            Channel 14 Frequency 2420 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_15">
+            <summary>
+            Channel 15 Frequency 2425 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_16">
+            <summary>
+            Channel 16 Frequency 2430 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_17">
+            <summary>
+            Channel 17 Frequency 2435 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_18">
+            <summary>
+            Channel 18 Frequency 2440 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_19">
+            <summary>
+            Channel 19 Frequency 2445 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_20">
+            <summary>
+            Channel 20 Frequency 2450 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_21">
+            <summary>
+            Channel 21 Frequency 2455 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_22">
+            <summary>
+            Channel 22 Frequency 2460 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_23">
+            <summary>
+            Channel 23 Frequency 2465 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_24">
+            <summary>
+            Channel 24 Frequency 2470 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_25">
+            <summary>
+            Channel 25 Frequency 2475 MHz
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.Radio.Channels.Channel_26">
+            <summary>
+            Channel 26  Frequency 2480 MHz
+            </summary>
+        </member>
         <member name="T:Samraksh.SPOT.Net.Radio.Radio_802_15_4">
             <summary>
             802.15.4 radio configuration
@@ -199,6 +375,39 @@
             <param name="config">MAC configuration.</param>
             <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
             <remarks>Used to change the MAC configuration after initialization.</remarks>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.SetTxPower(System.Int32)">
+            <summary>
+            Set the transmit power of the 802.15.4 radio.
+            </summary>
+            <param name="TxPower"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.SetChannel(System.Int32)">
+            <summary>
+            Set the channel of the 802.15.4 radio.
+            </summary>
+            <param name="Channel"></param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.GetTxPowerValue">
+            <summary>
+            Return the output power of the radio 802.15.4
+            </summary>
+            <returns>TxPowerValue</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.GetActiveChannel">
+            <summary>
+            Return the current active channel of the radio 
+            </summary>
+            <returns>Channels</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.ReConfigure(Samraksh.SPOT.Net.Radio.RadioConfiguration)">
+            <summary>
+            Reconfigure the radio object with new channel and power
+            </summary>
+            <param name="config"></param>
+            <returns>DeviceStatus</returns>
         </member>
         <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.UnInitialize">
             <summary>
