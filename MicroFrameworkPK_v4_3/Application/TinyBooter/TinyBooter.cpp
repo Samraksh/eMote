@@ -32,7 +32,7 @@ void ApplicationEntryPoint()
     UINT32 SizeInBytes;                                 
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
-    CPU_GPIO_EnableOutputPin((GPIO_PIN) OUTPUT_REBOOT_PIN, TRUE);
+    CPU_GPIO_EnableOutputPin((GPIO_PIN) OUTPUT_REBOOT_PIN, FALSE);
 #endif
 
     HeapLocation         ( BaseAddress, SizeInBytes );  

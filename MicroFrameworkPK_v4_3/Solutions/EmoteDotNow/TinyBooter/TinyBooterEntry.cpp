@@ -75,13 +75,18 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 
     bool enterBooterMode = false;
 	
-	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	CPU_GPIO_EnableInputPin3((GPIO_PIN) INPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	
-	if(CPU_GPIO_GetPinState((GPIO_PIN) INPUT_REBOOT_PIN))
+	if(CPU_GPIO_GetPinState((GPIO_PIN) INPUT_REBOOT_PIN) == FALSE)
 	{
 		enterBooterMode = true;
+
 	}
 	
+	// Nived.Sivadas - To prevent current drain once the job is over
+	//CPU_GPIO_EnableInputPin3((GPIO_PIN) OUTPUT_REBOOT_PIN, TRUE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+
+
 #if 0
     GPIO_BUTTON_CONFIG *  ButtonConfig = &g_GPIO_BUTTON_Config;
 
