@@ -97,7 +97,7 @@ INT32 Radio_802_15_4::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedAr
 
 	memcpy(SendMsgPtr->GetPayload(),  buffer, param1);
 
-    SendMsgPtr = (Message_15_4_t *) CPU_Radio_SendTimeStamped(RadioID,(void *)SendMsgPtr, (SendMsgPtr->GetHeader())->GetLength(), param2);
+    SendMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID,(void *)SendMsgPtr, (SendMsgPtr->GetHeader())->GetLength(), param2);
 
     return 1;
 }
@@ -109,7 +109,7 @@ INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, HRESULT &
 
 INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-	return CPU_Radio_ClearChannelAsssesment(RadioID, param0);
+	return CPU_Radio_ClearChannelAssesment2(RadioID, param0);
 }
 
 INT32 Radio_802_15_4::SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
@@ -124,14 +124,12 @@ INT32 Radio_802_15_4::SetChannel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESU
 
 INT32 Radio_802_15_4::GetTxPower( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+    return CPU_Radio_GetTxPower(RadioID);
 }
 
 INT32 Radio_802_15_4::GetChannel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+    return CPU_Radio_GetChannel(RadioID);
 }
 
 INT32 Radio_802_15_4::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )

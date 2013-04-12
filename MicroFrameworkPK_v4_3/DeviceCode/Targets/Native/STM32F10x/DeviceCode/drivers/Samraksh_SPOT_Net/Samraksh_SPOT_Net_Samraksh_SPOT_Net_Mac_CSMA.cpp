@@ -226,6 +226,9 @@ INT32 CSMA::InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8
 	CSMA_Event_Handler.SetRecieveHandler(&ManagedCSMACallback);
 	CSMA_Event_Handler.SetSendAckHandler(&ManagedCSMASendAckCallback);
 	Mac_Initialize(&CSMA_Event_Handler,&MacID, MyAppID, (void*) &nativeCSMAConfig);
+
+	// Nived.Sivadas - turning on the radio to get emotePing going
+	CPU_Radio_TurnOn(1);
 	//SendMsgPtr = &SendMsg;
 	//RcvMsgPtr = &RcvMsg;
 	//Initialize a temporary neighbor_heap variable so act as managed callback return object
