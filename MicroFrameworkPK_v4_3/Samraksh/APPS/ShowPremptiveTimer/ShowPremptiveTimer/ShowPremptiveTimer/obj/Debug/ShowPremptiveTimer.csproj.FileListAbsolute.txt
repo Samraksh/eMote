@@ -1,0 +1,80 @@
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.exe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.exe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\ShowPremptiveTimer.exe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\ShowPremptiveTimer.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Hardware.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Net.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_RealTime.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Hardware.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Net.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_RealTime.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Hardware.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Net.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_RealTime.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Hardware.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Net.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_RealTime.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Hardware.dll
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.dll
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_RealTime.dll
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Hardware.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.xml
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_RealTime.pdb
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.csprojResolveAssemblyReference.cache
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\TinyCLR_DebugReferences.cache
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.Resources.resources
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.csproj.GenerateResource.Cache
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.Resources.tinyresources
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\TinyResGen.cache
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\be\ShowPremptiveTimer.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\be\ShowPremptiveTimer.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\le\ShowPremptiveTimer.pe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\le\ShowPremptiveTimer.pdbx
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.exe
+c:\users\colinmil\documents\visual studio 2012\Projects\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\ShowPremptiveTimer.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\ShowPremptiveTimer.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\le\ShowPremptiveTimer.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\be\ShowPremptiveTimer.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Hardware.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Net.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_RealTime.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Hardware.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Net.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_RealTime.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Hardware.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_Net.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\LE\Samraksh_SPOT_RealTime.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Hardware.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_Net.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\BE\Samraksh_SPOT_RealTime.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Hardware.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.xml
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_RealTime.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.csprojResolveAssemblyReference.cache
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\TinyCLR_DebugReferences.cache
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.Resources.resources
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.csproj.GenerateResource.Cache
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.Resources.tinyresources
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\TinyResGen.cache
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\be\ShowPremptiveTimer.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\be\ShowPremptiveTimer.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\le\ShowPremptiveTimer.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\le\ShowPremptiveTimer.pdbx
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\obj\Debug\ShowPremptiveTimer.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ShowPremptiveTimer\ShowPremptiveTimer\ShowPremptiveTimer\bin\Debug\Samraksh_SPOT_Net.dll
