@@ -1272,7 +1272,8 @@ bool Loader_Engine::Monitor_Reboot( WP_Message* msg )
         // only reset if we are not trying to get into the bootloader
         if( CLR_DBG_Commands::Monitor_Reboot::c_EnterBootloader != (cmd->m_flags & CLR_DBG_Commands::Monitor_Reboot::c_EnterBootloader))
         {
-            Events_WaitForEvents( 0, 100 );
+			DebuggerPort_Flush( m_port );
+            Events_WaitForEvents( 0, 1000 );
 
             CPU_Reset();
         }
