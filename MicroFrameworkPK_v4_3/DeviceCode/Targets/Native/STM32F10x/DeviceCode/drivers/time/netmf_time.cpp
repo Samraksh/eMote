@@ -51,9 +51,13 @@ UINT64 Time_Driver :: CounterValue()
     //UINT32 lastLowValue = (UINT32)(g_Time_Driver.m_lastRead & 0xFFFFFFFFFFFF0000ull); //check 16/32 bit
     UINT16 value = Timer_Driver :: GetCounter (Timer_Driver :: c_SystemTimer);
 
+    // Nived.Sivadas
+    // Workaround for the unusual didtimeoverflow bug, added another check
+    UINT16 lastSixteenBits = g_Time_Driver.m_lastRead & 0x0000FFFFull;
+
     g_Time_Driver.m_lastRead &= (0xFFFFFFFFFFFF0000ull);
 
-    if(Timer_Driver :: DidTimeOverFlow( Timer_Driver::c_SystemTimer ))
+    if(Timer_Driver :: DidTimeOverFlow( Timer_Driver::c_SystemTimer ) || (value < lastSixteenBits))
     {
     	Timer_Driver :: ClearTimeOverFlow( Timer_Driver::c_SystemTimer );
     	//STM_EVAL_LEDToggle((Led_TypeDef)0); //Green
@@ -136,10 +140,14 @@ void Time_Driver :: SetCompareValue( UINT64 CompareValue )
 void Time_Driver :: ISR( void* Param )
 {
 
+#if 0
 //	STM_EVAL_LEDToggle((Led_TypeDef)1);
 if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
   {
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 );
+
+    CPU_GPIO_SetPinState((GPIO_PIN)3, TRUE);
+    CPU_GPIO_SetPinState((GPIO_PIN)3, FALSE);
 	
 	if(CounterValue() >= g_Time_Driver.m_nextCompare)
 		{
@@ -164,6 +172,13 @@ if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	#endif
 		}
   }
+#endif
+	if(TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+		CounterValue();
+		SetCompareValue( g_Time_Driver.m_nextCompare );
+	}
 }
 
 INT64 Time_Driver :: TicksToTime( UINT64 Ticks )

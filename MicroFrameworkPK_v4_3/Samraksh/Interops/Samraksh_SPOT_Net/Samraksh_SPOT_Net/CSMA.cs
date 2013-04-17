@@ -31,11 +31,14 @@ namespace Samraksh.SPOT.Net.Mac
 
     }*/
 
+    
+
+        
     /// <summary>
     /// CSMA protocol configuration
     /// </summary>
     /// <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-    public class CSMA: NativeEventDispatcher, IMac
+    public class CSMAOld: NativeEventDispatcher, IMac
     {
         const byte MarshalBufferSize = 5;
         const byte MacMessageSize = 128;
@@ -53,7 +56,7 @@ namespace Samraksh.SPOT.Net.Mac
         /// <summary>
         /// Constructor for CSMA class
         /// </summary>
-        public CSMA()
+        public CSMAOld()
             :base ("CSMACallback",4321)
         {
 
@@ -321,4 +324,5 @@ namespace Samraksh.SPOT.Net.Mac
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus RemovePacket(byte[] msg);
     }
+*
 }

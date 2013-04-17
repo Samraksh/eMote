@@ -130,11 +130,9 @@ namespace Samraksh.SPOT.Net.Radio
         // Note we are marshalling because NETMF does not support passing custom types to native code
         const byte RadioConfigSize = 2;
 
-        static ReceiveCallBack MyReceiveCallback;
-        static byte RSSI, LinkQuality;
-        static UInt16 Src;
-        static bool Unicast;
-        static byte[] ReceiveMessage = new byte[RadioMessageSize];
+        ReceiveCallBack MyReceiveCallback;
+
+        Message message;
 
         // Create a buffer that you can use when you want to marshal
         static byte[] marshalBuffer = new byte[RadioConfigSize];
@@ -142,11 +140,33 @@ namespace Samraksh.SPOT.Net.Radio
         /// <summary>
         /// Constructor for 802.15.4 radio
         /// </summary>
-        public Radio_802_15_4()
+        private Radio_802_15_4()
             : base("RadioCallback_802_15_4", 1234)
         {
             
         }
+
+        private static Radio_802_15_4 instance;
+        private static object syncObject = new Object();
+
+
+        public static Radio_802_15_4 Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncObject)
+                    {
+                        if (instance == null)
+                            instance = new Radio_802_15_4();
+                    }
+                }
+
+                return instance;
+            }
+        }
+
         
         /// <summary>
         /// Initialize native radio and interop drivers.
