@@ -245,6 +245,7 @@ bool WP_Message::Process()
                 	Time = HAL_Time_TicksToTime( curTicks - m_payloadTicks );
                 else if(curTicks < m_payloadTicks)
                 	Time = HAL_Time_TicksToTime( m_payloadTicks - curTicks);
+				
 
                 //if(HAL_Time_TicksToTime( curTicks - m_payloadTicks ) < (UINT64)c_PayloadTimeout)
 				if(Time < (UINT64)c_PayloadTimeout)
