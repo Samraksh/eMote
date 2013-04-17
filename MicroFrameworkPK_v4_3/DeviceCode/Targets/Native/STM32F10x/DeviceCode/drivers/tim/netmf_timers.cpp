@@ -321,7 +321,6 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			case 2:
 				TIM_SelectOnePulseMode(TIM2, TIM_OPMode_Repetitive);
 				//TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-				for(UINT32 i = 0; i < 10000; i++);
 				Timer_Driver::EnableCompareInterrupt( 2 );
 				TIM_Cmd(TIM2, ENABLE);
 				break;

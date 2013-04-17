@@ -27,6 +27,8 @@ struct Timer_Driver
     static const UINT16 c_MaxTimerValue = 0xFFFF;
 	static const UINT32 c_MaxTimers = 10;
 
+	static BOOL m_timeOverFlowFlag;
+
 #ifdef DEBUG_ON
 	static BOOL Timer_Test();
 #endif
@@ -214,7 +216,12 @@ struct Timer_Driver
 
 	static BOOL DidTimeOverFlow ( UINT32 Timer )
 	{
+
+		//GLOBAL_LOCK(irq);
+
 		ASSERT(Timer < c_MaxTimers);
+
+//		return m_timeOverFlowFlag;
 
 		switch ( Timer )
 		{
@@ -231,15 +238,21 @@ struct Timer_Driver
 			return (BOOL) TIM_GetFlagStatus(TIM5, TIM_FLAG_Update);
 			break;
 		default:
+			return FALSE;
 			break;
 		}
+
 	}
 
 	//TODO: Verify the working of this function!
 
 	static void ClearTimeOverFlow ( UINT32 Timer )
 	{
+		//GLOBAL_LOCK(irq);
+
 		ASSERT(Timer < c_MaxTimers);
+
+	//	m_timeOverFlowFlag = FALSE;
 
 		switch ( Timer )
 		{
@@ -256,8 +269,10 @@ struct Timer_Driver
 			return TIM_ClearFlag(TIM5, TIM_FLAG_Update);
 			break;
 		default:
+			return;
 			break;
 		}
+
 	}
 
 	static BOOL DidCompareHit( UINT32 Timer )
@@ -325,6 +340,8 @@ struct Timer_Driver
     static void RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler );
     static void RCC_DeInit(UINT32 Timer);
 };
+
+BOOL Timer_Driver::m_timeOverFlowFlag = FALSE;
 
 extern Timer_Driver g_Timer_Driver;
 extern "C"

@@ -44,28 +44,39 @@ BOOL Time_Driver :: Uninitialize()
 	return TRUE;
 }
 
+BOOL state = FALSE;
+
 UINT64 Time_Driver :: CounterValue()
 {
-    //GLOBAL_LOCK(irq);
+	UINT16 value;
 
-    //UINT32 lastLowValue = (UINT32)(g_Time_Driver.m_lastRead & 0xFFFFFFFFFFFF0000ull); //check 16/32 bit
-    UINT16 value = Timer_Driver :: GetCounter (Timer_Driver :: c_SystemTimer);
+    GLOBAL_LOCK(irq);
+	//__asm volatile("CPSID    i");
 
-    // Nived.Sivadas
-    // Workaround for the unusual didtimeoverflow bug, added another check
-    UINT16 lastSixteenBits = g_Time_Driver.m_lastRead & 0x0000FFFFull;
+   	//UINT32 lastLowValue = (UINT32)(g_Time_Driver.m_lastRead & 0xFFFFFFFFFFFF0000ull); //check 16/32 bit
+   	value = Timer_Driver :: GetCounter (Timer_Driver :: c_SystemTimer);
 
-    g_Time_Driver.m_lastRead &= (0xFFFFFFFFFFFF0000ull);
+   	// Nived.Sivadas
+   	// Workaround for the unusual didtimeoverflow bug, added another check
+   	UINT16 lastSixteenBits = g_Time_Driver.m_lastRead & 0x0000FFFFull;
+
+   	g_Time_Driver.m_lastRead &= (0xFFFFFFFFFFFF0000ull);
+
 
     if(Timer_Driver :: DidTimeOverFlow( Timer_Driver::c_SystemTimer ) || (value < lastSixteenBits))
+    //if(Timer_Driver :: DidTimeOverFlow( Timer_Driver::c_SystemTimer ))
     {
+
     	Timer_Driver :: ClearTimeOverFlow( Timer_Driver::c_SystemTimer );
     	//STM_EVAL_LEDToggle((Led_TypeDef)0); //Green
     	g_Time_Driver.m_lastRead += (0x1ull << 16);
+
     }
 
     //Or else the value gets added simply
-    g_Time_Driver.m_lastRead |= value;
+   	g_Time_Driver.m_lastRead += value;
+
+   	ENABLE_INTERRUPTS();
 
     return g_Time_Driver.m_lastRead;
 
@@ -140,26 +151,13 @@ void Time_Driver :: SetCompareValue( UINT64 CompareValue )
 void Time_Driver :: ISR( void* Param )
 {
 
-#if 0
-//	STM_EVAL_LEDToggle((Led_TypeDef)1);
-if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
-  {
-    TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 );
+	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1 );
 
-    CPU_GPIO_SetPinState((GPIO_PIN)3, TRUE);
-    CPU_GPIO_SetPinState((GPIO_PIN)3, FALSE);
-	
-	if(CounterValue() >= g_Time_Driver.m_nextCompare)
+		if(CounterValue() >= g_Time_Driver.m_nextCompare)
 		{
-			//counter ++;
-			//debug_printf("Counter is %d", counter);
-			// this also schedules the next one, if there is one
-			HAL_COMPLETION::DequeueAndExec();		
-	#ifdef DEBUG_TIMER
-			//CPU_GPIO_EnableOutputPin( 8, FALSE );
-			//CPU_GPIO_SetPinState(8, TRUE);
-			//CPU_GPIO_SetPinState(8, FALSE);
-	#endif
+			HAL_COMPLETION::DequeueAndExec();
 		}
 		else
 		{
@@ -167,18 +165,22 @@ if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 			// resetting the compare will properly configure the next interrupt.
 			SetCompareValue( g_Time_Driver.m_nextCompare );
 			//HAL_COMPLETION::DequeueAndExec();
-	#ifdef DEBUG_TIMER
-			//STM_EVAL_LEDToggle((Led_TypeDef)3); //Blue
-	#endif
 		}
-  }
-#endif
+	}
+
+#if 0
+
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
 	{
+
+		CPU_GPIO_SetPinState((GPIO_PIN) 3, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN) 3, FALSE);
+
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 		CounterValue();
 		SetCompareValue( g_Time_Driver.m_nextCompare );
 	}
+#endif
 }
 
 INT64 Time_Driver :: TicksToTime( UINT64 Ticks )
