@@ -238,16 +238,14 @@ bool WP_Message::Process()
             {
 
                 UINT64 curTicks = HAL_Time_CurrentTicks();
-				UINT64 Time;
-
-				// checking for timer wrap around				 
-				if (curTicks < m_payloadTicks)
-				{
-					// a timer wrap around occurred
-					m_payloadTicks = curTicks;
-				}
-
-                Time = HAL_Time_TicksToTime( curTicks - m_payloadTicks );
+				 UINT64 Time;
+                // If the time between consecutive payload bytes exceeds the timeout threshold then assume that
+                // the rest of the payload is not coming. Reinitialize to synch on the next header. 
+				 if(curTicks > m_payloadTicks)
+                	Time = HAL_Time_TicksToTime( curTicks - m_payloadTicks );
+                else if(curTicks < m_payloadTicks)
+                	Time = HAL_Time_TicksToTime( m_payloadTicks - curTicks);
+				
 
                 //if(HAL_Time_TicksToTime( curTicks - m_payloadTicks ) < (UINT64)c_PayloadTimeout)
 				if(Time < (UINT64)c_PayloadTimeout)

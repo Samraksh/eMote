@@ -1273,7 +1273,7 @@ bool Loader_Engine::Monitor_Reboot( WP_Message* msg )
         if( CLR_DBG_Commands::Monitor_Reboot::c_EnterBootloader != (cmd->m_flags & CLR_DBG_Commands::Monitor_Reboot::c_EnterBootloader))
         {
 			DebuggerPort_Flush( m_port );
-            Events_WaitForEvents( 0, 1000 );
+            Events_WaitForEvents( 0, 100 );
 
             CPU_Reset();
         }
