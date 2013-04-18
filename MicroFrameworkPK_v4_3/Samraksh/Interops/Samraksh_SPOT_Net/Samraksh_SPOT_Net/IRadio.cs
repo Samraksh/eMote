@@ -4,14 +4,28 @@ using Samraksh.SPOT.Net;
 
 namespace Samraksh.SPOT.Net.Radio
 {
+    public enum RadioUser
+    {
+        CSharp,
+        CSMAMAC,
+        OMAC,
+    };
+
 
     /// <summary>
     /// Radio configuration
     /// </summary>
-    public struct RadioConfiguration
+    public class RadioConfiguration
     {
-        public int TxPower;
-        public int Channel;
+        public int TxPower { get; set; }
+        public int Channel { get; set; }
+
+        public RadioConfiguration()
+        {
+            TxPower = (int) TxPowerValue.Power_3dBm;
+            Channel = (int)Channels.Channel_26;
+        }
+
     };
 
 

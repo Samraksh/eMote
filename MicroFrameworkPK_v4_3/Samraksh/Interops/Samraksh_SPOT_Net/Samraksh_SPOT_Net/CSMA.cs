@@ -82,11 +82,11 @@ namespace Samraksh.SPOT.Net.Mac
 
         private static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
-            Src = (UInt16)((data1 >> 16) & 0x0000FFFF);
-            RSSI = (byte)(data2 & 0x000000FF);
-            LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
-            Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false ;
-            MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
+            //Src = (UInt16)((data1 >> 16) & 0x0000FFFF);
+            //RSSI = (byte)(data2 & 0x000000FF);
+            //LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
+            //Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false ;
+            //MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
         }
 
         /// <summary>
@@ -324,5 +324,5 @@ namespace Samraksh.SPOT.Net.Mac
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus RemovePacket(byte[] msg);
     }
-*
+
 }

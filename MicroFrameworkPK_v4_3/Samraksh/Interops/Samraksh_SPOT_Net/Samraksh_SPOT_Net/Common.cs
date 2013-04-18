@@ -45,7 +45,7 @@ namespace Samraksh.SPOT.Net
     /// ReceiveCallback delegate 
     /// </summary>
     /// <param name="NumberOfPacketsReceived">Number of packets in the receive buffer</param>
-    public delegate void ReceiveCallBack(int NumberOfPacketsReceived);
+    public delegate void ReceiveCallBack(UInt16 NumberOfPacketsReceived);
 
 
 
