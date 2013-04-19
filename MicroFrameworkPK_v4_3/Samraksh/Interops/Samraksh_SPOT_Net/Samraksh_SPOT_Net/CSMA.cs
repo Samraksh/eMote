@@ -320,5 +320,62 @@ namespace Samraksh.SPOT.Net.Mac
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus RemovePacket(byte[] msg);
+
+        /// <summary>
+        /// Set the transmit power of the 802.15.4 radio.
+        /// </summary>
+        /// <param name="TxPower"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SetTxPower(int TxPower);
+
+        /// <summary>
+        /// Set the channel of the 802.15.4 radio.
+        /// </summary>
+        /// <param name="Channel"></param>
+        /// <returns>DeviceStatus</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SetChannel(int Channel);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern int GetChannel(int RadioID);
+
+        /// <summary>
+        /// Get the current active channel from the radio
+        /// </summary>
+        /// <returns>Channel</returns>
+        public Channels GetChannel()
+        {
+            return (Channels)GetChannel(1);
+        }
+
+        // Get the TxPower
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern int GetTxPower(int RadioID);
+
+        /// <summary>
+        /// Get the current tx power of the radio
+        /// </summary>
+        /// <returns>TxPowerValue</returns>
+        public TxPowerValue GetTxPower()
+        {
+            return (TxPowerValue) GetTxPower(1);
+        }
+
+
+        /// <summary>
+        /// Turn on the radio.
+        /// </summary>
+        /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus TurnOnRadio();
+
+        /// <summary>
+        /// Go to sleep.
+        /// </summary>
+        /// <param name="level">The sleep level.</param>
+        /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus SleepRadio(byte level);
     }
 }

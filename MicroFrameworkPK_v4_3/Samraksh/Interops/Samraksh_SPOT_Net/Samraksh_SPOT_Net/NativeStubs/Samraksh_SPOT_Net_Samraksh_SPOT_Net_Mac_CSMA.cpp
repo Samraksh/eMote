@@ -76,6 +76,42 @@ INT8 CSMA::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
     return retVal;
 }
 
+INT32 CSMA::SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SetChannel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::GetChannel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::GetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::TurnOnRadio( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 CSMA::SleepRadio( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 CSMA::SetCCA( INT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 

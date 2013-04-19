@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_Net</FeatureName>
-    <Guid>{b50eb9c8-c43c-481c-8e39-674645fefc6e}</Guid>
+    <Guid>{04a2ad79-1e8d-432e-abb3-b21f8d87c3d5}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_NET_FEATUREPROJ>True</SAMRAKSH_SPOT_NET_FEATUREPROJ>
@@ -10,9 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT_Net.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT_Net" />
-    <InteropFeature Include="CSMACallback" />
-    <InteropFeature Include="RadioCallback_802_15_4" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Net.pe" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\dotnetmf.proj" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Net.pe" />
+    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

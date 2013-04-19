@@ -32,6 +32,12 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(SetTxPower___SamrakshSPOTNetDeviceStatus__I4);
+    TINYCLR_NATIVE_DECLARE(SetChannel___SamrakshSPOTNetDeviceStatus__I4);
+    TINYCLR_NATIVE_DECLARE(GetChannel___I4__I4);
+    TINYCLR_NATIVE_DECLARE(GetTxPower___I4__I4);
+    TINYCLR_NATIVE_DECLARE(TurnOnRadio___SamrakshSPOTNetDeviceStatus);
+    TINYCLR_NATIVE_DECLARE(SleepRadio___SamrakshSPOTNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(SetCCA___STATIC__SamrakshSPOTNetDeviceStatus__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(SetNumberOfRetries___STATIC__SamrakshSPOTNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(SetCCASenseTime___STATIC__SamrakshSPOTNetDeviceStatus__U1);
