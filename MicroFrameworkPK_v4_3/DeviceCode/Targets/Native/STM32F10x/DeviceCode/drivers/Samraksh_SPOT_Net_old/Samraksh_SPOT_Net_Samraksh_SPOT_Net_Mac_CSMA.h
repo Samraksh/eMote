@@ -44,6 +44,16 @@ namespace Samraksh
                     static UINT8 GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                     static INT8 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
+                    static INT32 SetCCA( INT8 param0, HRESULT &hr );
+                    static INT32 SetNumberOfRetries( UINT8 param0, HRESULT &hr );
+                    static INT32 SetCCASenseTime( UINT8 param0, HRESULT &hr );
+                    static INT32 SetBufferSize( UINT8 param0, HRESULT &hr );
+                    static INT32 SetRadioID( UINT8 param0, HRESULT &hr );
+                    static INT8 GetCCA( HRESULT &hr );
+                    static UINT8 GetNumberOfRetries( HRESULT &hr );
+                    static UINT8 GetCCASenseTime( HRESULT &hr );
+                    static UINT8 GetRadioID( HRESULT &hr );
+                    static INT32 ReConfigure( CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                     static INT32 InternalInitialize( UNSUPPORTED_TYPE param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
 
                     //All aline above is auto generated

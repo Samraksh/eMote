@@ -8,70 +8,6 @@
 
 
 #include "Samraksh_SPOT_Net.h"
-#include "Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.h"
-#include "Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA.h"
-#include "TinyCLR_Runtime.h"
-#include "TinyCLR_Runtime__HeapBlock.h"
-#include "TinyCLR_Types.h"
-
-using namespace Samraksh::SPOT::Net::Radio;
-using namespace Samraksh::SPOT::Net::Mac;
-
-
-///Implement SetResults in stack for unsupported types
-//
-void SetResult_UNST_Raw (CLR_RT_StackFrame &stackFrame, UNSUPPORTED_TYPE rtvalue, UINT8 dataType, UINT8 size){
-	if(dataType == DATATYPE_OBJECT){
-		CLR_RT_HeapBlock& top = stackFrame.PushValueAndClear();
-		top.SetObjectReference(rtvalue);
-	}
-}
-
-void SetResult_UNST_NeighborTable ( CLR_RT_StackFrame &stackFrame, UNSUPPORTED_TYPE rtvalue ){
-	NATIVE_PROFILE_CLR_CORE();
-	SetResult_UNST_Raw(stackFrame, rtvalue, DATATYPE_OBJECT, 1);
-}
-
-void SetResult_UNST_Neighbor ( CLR_RT_StackFrame &stackFrame, UNSUPPORTED_TYPE rtvalue ){
-	NATIVE_PROFILE_CLR_CORE();
-	SetResult_UNST_Raw(stackFrame, rtvalue, DATATYPE_OBJECT, 1);
-}
-
-static HRESULT Initialize_Radio_802_15_4_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData ){
-	Radio_802_15_4::ne_Context = pContext;
-	Radio_802_15_4::ne_userData = userData;
-	return S_OK;
-}
-
-static HRESULT  EnableDisable_Radio_802_15_4_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable ){
-	return S_OK;
-}
-
-static HRESULT Cleanup_Radio_802_15_4_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext ){
-	Radio_802_15_4::ne_Context = NULL;
-	Radio_802_15_4::ne_userData = 0;
-	CleanupNativeEventsFromHALQueue( pContext );
-	return S_OK;
-}
-
-HRESULT Initialize_CSMA_MAC_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData ){
-	CSMA::ne_Context = pContext;
-	CSMA::ne_userData = userData;
-	return S_OK;
-}
-
-HRESULT EnableDisable_CSMA_MAC_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable ){
-
-	return S_OK;
-}
-
-HRESULT Cleanup_CSMA_MAC_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext ){
-
-	CSMA::ne_Context = NULL;
-	CSMA::ne_userData = 0;
-    CleanupNativeEventsFromHALQueue( pContext );
-	return S_OK;
-}
 
 
 static const CLR_RT_MethodHandler method_lookup[] =
@@ -88,36 +24,58 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetPendingPacketCount___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetBufferSize___U1,
     NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::UnInitialize___SamrakshSPOTNetDeviceStatus,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetAddress___U2,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetAddress___BOOLEAN__U2,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetID___U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetBufferSize___U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetPendingPacketCount___U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetID___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetAddress___BOOLEAN__U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetAddress___U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::UnInitialize___SamrakshSPOTNetDeviceStatus,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration,
     NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
     NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetCCA___STATIC__SamrakshSPOTNetDeviceStatus__BOOLEAN,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetNumberOfRetries___STATIC__SamrakshSPOTNetDeviceStatus__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetCCASenseTime___STATIC__SamrakshSPOTNetDeviceStatus__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetBufferSize___STATIC__SamrakshSPOTNetDeviceStatus__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetRadioID___STATIC__SamrakshSPOTNetDeviceStatus__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetCCA___STATIC__BOOLEAN,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNumberOfRetries___STATIC__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetCCASenseTime___STATIC__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetRadioID___STATIC__U1,
-    NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::ReConfigure___STATIC__SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration__SZARRAY_U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetCCA___SamrakshSPOTNetDeviceStatus__BOOLEAN,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetNumberOfRetries___SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetCCASenseTime___SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetBufferSize___SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetRadioID___SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetCCA___BOOLEAN,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNumberOfRetries___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetCCASenseTime___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetRadioID___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
     NULL,
     NULL,
     NULL,
     NULL,
     NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::UnInitialize___SamrakshSPOTNetDeviceStatus,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetAddress___U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetAddress___BOOLEAN__U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetID___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetBufferSize___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetPendingPacketCount___U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetCCA___STATIC__SamrakshSPOTNetDeviceStatus__BOOLEAN,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetNumberOfRetries___STATIC__SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetCCASenseTime___STATIC__SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetBufferSize___STATIC__SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::SetRadioID___STATIC__SamrakshSPOTNetDeviceStatus__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetCCA___STATIC__BOOLEAN,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetNumberOfRetries___STATIC__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetCCASenseTime___STATIC__U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::GetRadioID___STATIC__U1,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::ReConfigure___STATIC__SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld::InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration__SZARRAY_U1,
     NULL,
     NULL,
     NULL,
@@ -130,7 +88,17 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetRadioRadioConfiguration,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::UnInitialize___SamrakshSPOTNetDeviceStatus,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetID___U1,
@@ -145,6 +113,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearChannelAssesment___BOOLEAN,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearChannelAssesment___BOOLEAN__U2,
     NULL,
+    NULL,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetTxPower___SamrakshSPOTNetDeviceStatus__I4,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetChannel___SamrakshSPOTNetDeviceStatus__I4,
     NULL,
@@ -153,7 +126,9 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetChannel___I4,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SZARRAY_U1__SZARRAY_U1,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -164,32 +139,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0x25050176,
+    0xBE903BD5,
     method_lookup
 };
 
-static const CLR_RT_DriverInterruptMethods g_CLR_Radio_802_15_4_DriverMethods =
-{ Initialize_Radio_802_15_4_Driver,
-  EnableDisable_Radio_802_15_4_Driver,
-  Cleanup_Radio_802_15_4_Driver
-};
-
-static const CLR_RT_DriverInterruptMethods g_CLR_CSMA_MAC_DriverMethods =
-{ Initialize_CSMA_MAC_Driver,
-  EnableDisable_CSMA_MAC_Driver,
-  Cleanup_CSMA_MAC_Driver
-};
-
-const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4  =
-{
-    "RadioCallback_802_15_4",
-    DRIVER_INTERRUPT_METHODS_CHECKSUM,
-    &g_CLR_Radio_802_15_4_DriverMethods
-};
-
-const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback  =
-{
-    "CSMACallback",
-    DRIVER_INTERRUPT_METHODS_CHECKSUM,
-    &g_CLR_CSMA_MAC_DriverMethods
-};

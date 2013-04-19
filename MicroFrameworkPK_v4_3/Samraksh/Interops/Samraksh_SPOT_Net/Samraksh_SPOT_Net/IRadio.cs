@@ -17,8 +17,8 @@ namespace Samraksh.SPOT.Net.Radio
     /// </summary>
     public class RadioConfiguration
     {
-        public int TxPower { get; set; }
-        public int Channel { get; set; }
+        public int TxPower;
+        public int Channel;
 
         public RadioConfiguration()
         {
@@ -34,8 +34,8 @@ namespace Samraksh.SPOT.Net.Radio
     /// </summary>
     public interface IRadio
     {
-        DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
-        DeviceStatus Configure(RadioConfiguration config);  //Change configuration after initialization
+        //DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
+        //DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack callback);  //Change configuration after initialization
         DeviceStatus UnInitialize();
         DeviceStatus ReConfigure(RadioConfiguration config);
         byte GetID();

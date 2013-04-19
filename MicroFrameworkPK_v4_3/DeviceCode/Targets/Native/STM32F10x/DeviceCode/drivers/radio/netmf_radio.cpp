@@ -34,9 +34,10 @@ BOOL CPU_Radio_Reset(UINT8 id)
 }
 
 
-BOOL CPU_Radio_UnInitialize()
+BOOL CPU_Radio_UnInitialize(UINT8 id)
 {
-	grf231Radio.UnInitialize();
+	if(id == RF231RADIO)
+		return grf231Radio.UnInitialize();
 }
 
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)

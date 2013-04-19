@@ -117,13 +117,13 @@ namespace Samraksh.SPOT.Net.Radio
         // Note we are marshalling because NETMF does not support passing custom types to native code
         const byte RadioConfigSize = 2;
 
-        ReceiveCallBack MyReceiveCallback;
+        public static ReceiveCallBack MyReceiveCallback;
 
         byte[] dataBuffer = new byte[RadioMessageSize];
 
         Message message;
 
-        RadioConfiguration config;
+        public static RadioConfiguration config;
 
         // Create a buffer that you can use when you want to marshal
         byte[] marshalBuffer = new byte[RadioConfigSize];
@@ -134,10 +134,20 @@ namespace Samraksh.SPOT.Net.Radio
         private Radio_802_15_4()
             : base("RadioCallback_802_15_4", 1234)
         {
+
             if (config == null || MyReceiveCallback == null)
                 throw new RadioNotConfiguredException();
 
             Initialize(config, MyReceiveCallback);
+        }
+
+        /// <summary>
+        /// This function explicitly releases the message packet and is free to be collected by the gc. If this is not called, the packet is released during the next GetNextPacket call
+        /// </summary>
+        /// <returns></returns>
+        public void ReleaseMessage()
+        {
+            message = null;
         }
 
         private static Radio_802_15_4 instance;
@@ -157,8 +167,23 @@ namespace Samraksh.SPOT.Net.Radio
             return instance;
         }
 
+        /// <summary>
+        /// Get the next packet from the radio driver, the radio does not maintain a buffer, the onus is on the application to sample this data as quickly as possible on getting a recieve interrupt
+        /// Otherwise the packet is overwritten in the radio layer, for buffer support use the mac interface 
+        /// </summary>
+        /// <returns>A data packet of message type to the caller</returns>
+        public Message GetNextPacket()
+        {
+            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+            message = new Message(dataBuffer);
+
+            return message;
+        }
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus GetNextPacket();
+        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
         
         
         
@@ -180,7 +205,7 @@ namespace Samraksh.SPOT.Net.Radio
 
         private static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
-            instance.MyReceiveCallback((UInt16) data1);
+            MyReceiveCallback((UInt16) data1);
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -192,21 +217,18 @@ namespace Samraksh.SPOT.Net.Radio
         /// <param name="config">Radio configuration.</param>
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         /// <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
-        public DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack callback)
+        public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack callback)
         {
             DeviceStatus result = DeviceStatus.Success;
 
-            if (this.config == null)
+            if (config == null)
             {
-                this.config = new RadioConfiguration();
-                this.config.Channel = config.Channel;
-                this.config.TxPower = config.TxPower;
+                Radio_802_15_4.config = new RadioConfiguration();
+                Radio_802_15_4.config.Channel = config.Channel;
+                Radio_802_15_4.config.TxPower = config.TxPower;
             }
-            else
-            {
-                result = ReConfigure(config);
-            }
-            this.MyReceiveCallback = callback;
+
+            Radio_802_15_4.MyReceiveCallback = callback;
 
             return result;
         }

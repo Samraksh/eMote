@@ -25,8 +25,13 @@ namespace Samraksh
                 struct Radio_802_15_4
                 {
                     // Helper Functions to access fields of managed object
+                    static UNSUPPORTED_TYPE& Get_dataBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::FIELD__dataBuffer ); }
+
+                    static UNSUPPORTED_TYPE& Get_message( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::FIELD__message ); }
+
+                    static UNSUPPORTED_TYPE& Get_marshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::FIELD__marshalBuffer ); }
+
                     // Declaration of stubs. These functions are implemented by Interop code developers
-                    static INT32 Configure( CLR_RT_HeapBlock* pMngObj, UNSUPPORTED_TYPE param0, HRESULT &hr );
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
@@ -39,12 +44,13 @@ namespace Samraksh
                     static INT32 SendTimeStamped( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT32 param2, HRESULT &hr );
                     static INT8 ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT8 ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
+                    static INT32 GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                    static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                     static INT32 SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
                     static INT32 SetChannel( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
                     static INT32 GetTxPower( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 GetChannel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static INT32 ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
-                    static INT32 InternalInitialize( CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
                 };
             }
         }

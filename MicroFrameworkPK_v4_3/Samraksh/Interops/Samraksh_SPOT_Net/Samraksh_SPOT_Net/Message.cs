@@ -13,22 +13,22 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// RSSI Value of the packet
         /// </summary>
-        public byte RSSI { get; set; }
+        public byte RSSI;
 
         /// <summary>
         /// LQI measured during the packet reception
         /// </summary>
-        public byte LQI { get; set; }
+        public byte LQI;
 
         /// <summary>
         /// Source of the packet transmitted
         /// </summary>
-        public UInt16 Src { get; set; }
+        public UInt16 Src;
 
         /// <summary>
         /// Flag to determine if transmission was unicast 
         /// </summary>
-        public bool Unicast { get; set; }
+        public bool Unicast;
 
         /// <summary>
         /// Received Message
@@ -43,6 +43,35 @@ namespace Samraksh.SPOT.Net
             ReceiveMessage = new byte[MacMessageSize];
         }
 
+        /// <summary>
+        /// Constructor that takes a byte array as argument and marshals the Size,Payload, RSSI, LQI, Src, Unicast information out of it, in that order
+        /// </summary>
+        /// <param name="msg">The data array input</param>
+        public Message(byte[] msg)
+        {
+            UInt16 i = 0;
+            UInt16 length = (UInt16) msg[0];
+            length |= (UInt16) (msg[1] << 8);
+
+            ReceiveMessage = new byte[MacMessageSize];
+
+            for (i = 0; i < length; i++)
+            {
+                ReceiveMessage[i] = msg[i + 2];
+            }
+
+            RSSI = msg[i++ + 2];
+            LQI = msg[i++ + 2];
+
+            Src = msg[i++ + 2];
+            Src |= (UInt16) (msg[i++ + 2] << 8);
+
+            if (msg[i++ + 2] == 1)
+                Unicast = true;
+            else
+                Unicast = false;
+
+        }
 
         /// <summary>
         /// Build a MAC Message Object with the constructor 

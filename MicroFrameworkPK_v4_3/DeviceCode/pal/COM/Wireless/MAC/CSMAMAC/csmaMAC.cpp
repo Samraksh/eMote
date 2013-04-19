@@ -94,7 +94,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 
 BOOL csmaMAC::UnInitialize()
 {
-	CPU_Radio_UnInitialize();
+	CPU_Radio_UnInitialize(1);
 
 }
 

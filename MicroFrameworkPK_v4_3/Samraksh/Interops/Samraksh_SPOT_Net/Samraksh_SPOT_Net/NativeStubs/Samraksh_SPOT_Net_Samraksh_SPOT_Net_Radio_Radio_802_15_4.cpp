@@ -16,12 +16,6 @@
 
 using namespace Samraksh::SPOT::Net::Radio;
 
-INT32 Radio_802_15_4::Configure( CLR_RT_HeapBlock* pMngObj, UNSUPPORTED_TYPE param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
 INT32 Radio_802_15_4::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     INT32 retVal = 0; 
@@ -94,6 +88,18 @@ INT8 Radio_802_15_4::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 pa
     return retVal;
 }
 
+INT32 Radio_802_15_4::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 Radio_802_15_4::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 Radio_802_15_4::SetTxPower( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
@@ -119,12 +125,6 @@ INT32 Radio_802_15_4::GetChannel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 }
 
 INT32 Radio_802_15_4::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 Radio_802_15_4::InternalInitialize( CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
