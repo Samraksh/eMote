@@ -39,6 +39,28 @@ void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void (*irq_handler)();
 }
 
+#define RF230_CHANNEL_OFFSET 11
+
+enum Channels
+{
+	Channel_11,
+	channel_12,
+	channel_13,
+	channel_14,
+	channel_15,
+	channel_16,
+	channel_17,
+	channel_18,
+	channel_19,
+	channel_20,
+	channel_21,
+	channel_22,
+	channel_23,
+	channel_24,
+	channel_25,
+	channel_26,
+};
+
 class RF231Radio : public Radio<Message_15_4_t>
 {
 	// Constant node id defined by macro NODE_ID
