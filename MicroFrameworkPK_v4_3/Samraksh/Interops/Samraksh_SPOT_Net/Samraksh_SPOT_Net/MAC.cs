@@ -7,63 +7,114 @@ using Microsoft.SPOT.Hardware;
 namespace Samraksh.SPOT.Net
 {
     // Making this private as the user should really never be seeing this 
-    public class MACBase : NativeEventDispatcher, IMac
+    public class MACBase : IMac
     {
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
         /// </summary>
-        const byte MarshalBufferSize = 5;
+        const byte MarshalBufferSize = 7;
 
-
+        const byte MacMessageSize = 128;
         /// <summary>
         /// Specifies the neighbour size
         /// </summary>
         const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
 
-        Message message;
-
         byte[] ByteNeighbor = new byte[NeighborSize];
 
         byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
-        /// <summary>
-        /// Callback for the MAC object 
-        /// </summary>
-        ReceiveCallBack MyReceiveCallback;
+        public static MacConfiguration macconfig;
+
+        public static ReceiveCallBack receiveCallback;
+
+        private Message message;
+
+        byte[] dataBuffer = new byte[MacMessageSize];
+        
+        Radio.Radio_802_15_4 radioObj;
 
         /// <summary>
         /// Constructor to initialize callbacks 
         /// </summary>
         /// <param name="drvName">Name of the callback</param>
         /// <param name="drvData">Driver data</param>
-        public MACBase(string drvName ,ulong drvData) : base(drvName, drvData) 
+        public MACBase(string macname)
         {
-        }
 
+            if (macconfig == null || receiveCallback == null)
+                throw new MacNotConfiguredException();
 
-        private void ReceiveFunction(uint data1, uint data2, DateTime time)
-        {
-            /*
-            Src = (UInt16)((data1 >> 16) & 0x0000FFFF);
-            RSSI = (byte)(data2 & 0x000000FF);
-            LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
-            Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false;
-             */
-            //MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
+            // Configure the radio 
+            Radio.Radio_802_15_4.Configure(macconfig.radioConfig, receiveCallback);
+
+            if (macname == "CSMA")
+            {
+                radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
+            }
+            else if (macname == "OMAC")
+            {
+                radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
+            }
+
+            Initialize(macconfig);
+
         }
 
         /// <summary>
-        /// Initialize MAC
+        /// Releases the memory held by the packet to Garbage collector, make this call after assigning the acquired packet to a packet reference 
         /// </summary>
-        /// <param name="config">MAC configuration.</param>
-        /// <param name="callback">Callback method for received messages.</param>
-        /// <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-        /// <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-        public DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback)
+        public void ReleasePacketToGC()
         {
-            MyReceiveCallback = callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
-            OnInterrupt += eventHandler;
+            message = null;
+        }
+
+        /// <summary>
+        /// Get the next packet from the mac buffer
+        /// </summary>
+        /// <returns>Message Type</returns>
+        public Message GetNextPacket()
+        {
+            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+            message = new Message(dataBuffer);
+
+            return message;
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
+
+        /// <summary>
+        /// Returns the radio being used by the mac
+        /// </summary>
+        /// <returns>Radio_802_15_4 object</returns>
+        public Radio.Radio_802_15_4 GetRadio()
+        {
+            return radioObj;
+        }
+
+        /// <summary>
+        /// Initialize the mac after marshalling the config
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        private DeviceStatus Initialize(MacConfiguration config)
+        {
+            if (config.CCA)
+                MarshalBuffer[0] = 1;
+            else
+                MarshalBuffer[0] = 0;
+
+            MarshalBuffer[1] = config.NumberOfRetries;
+            MarshalBuffer[2] = config.CCASenseTime;
+            MarshalBuffer[3] = config.BufferSize;
+            MarshalBuffer[4] = config.RadioID;
+            // Breaking the object boundary, but shallow instances of the radio can not initialize
+            MarshalBuffer[5] = (byte) config.radioConfig.TxPower;
+            MarshalBuffer[6] = (byte) config.radioConfig.Channel;
+
             return InternalInitialize(MarshalBuffer);
         }
 
@@ -254,14 +305,27 @@ namespace Samraksh.SPOT.Net
         public extern DeviceStatus UnInitialize();
 
         /// <summary>
-        /// Set MAC configuration for CSMA.
+        /// Configure the mac object, should be called before a call to get instance 
         /// </summary>
-        /// <param name="config">MAC configuration.</param>
-        /// <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-        /// <remarks>Used to change the MAC configuration after initialization.</remarks>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus Configure(MacConfiguration config);
+        /// <param name="config"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack callback)
+        {
+            if (macconfig == null)
+            {
+                macconfig = new MacConfiguration();
+                macconfig = config;
+                receiveCallback = callback;
+            }
+            else
+            {
+                // Return busy if the mac configuration is busy
+                return DeviceStatus.Busy;
+            }
 
+            return DeviceStatus.Success;
+        }
 
     }
 }

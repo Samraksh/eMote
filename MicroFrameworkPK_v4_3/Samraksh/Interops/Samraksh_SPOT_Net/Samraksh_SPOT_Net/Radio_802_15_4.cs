@@ -128,6 +128,9 @@ namespace Samraksh.SPOT.Net.Radio
         // Create a buffer that you can use when you want to marshal
         byte[] marshalBuffer = new byte[RadioConfigSize];
 
+        // Maintains who the current user of the radio is CSharp/ MAC Objects
+        RadioUser currUser = RadioUser.IDLE;
+
         /// <summary>
         /// Constructor for 802.15.4 radio
         /// </summary>
@@ -139,6 +142,15 @@ namespace Samraksh.SPOT.Net.Radio
                 throw new RadioNotConfiguredException();
 
             Initialize(config, MyReceiveCallback);
+        }
+
+        private Radio_802_15_4(string drvname, ulong drvData)
+            : base(drvname, drvData)
+        {
+            if (config == null || MyReceiveCallback == null)
+                throw new RadioNotConfiguredException();
+
+            ShallowInitialize(config, MyReceiveCallback);
         }
 
         /// <summary>
@@ -168,6 +180,32 @@ namespace Samraksh.SPOT.Net.Radio
         }
 
         /// <summary>
+        /// Get a shallow instance of the radio object, should only be used by the mac 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>Returns a radio object</returns>
+        public static Radio_802_15_4 GetShallowInstance(RadioUser user)
+        {
+            if (instance == null)
+            {
+                lock (syncObject)
+                {
+                    if (instance == null)
+                    {
+                        if (user == RadioUser.CSMAMAC)
+                            instance = new Radio_802_15_4("CSMACallback", 4321);
+                        else if (user == RadioUser.OMAC)
+                            instance = new Radio_802_15_4("OMACCallback", 4322);
+                        else if (user == RadioUser.CSharp)
+                            instance = new Radio_802_15_4();
+                    }
+                }
+            }
+
+            return instance;
+        }
+
+        /// <summary>
         /// Get the next packet from the radio driver, the radio does not maintain a buffer, the onus is on the application to sample this data as quickly as possible on getting a recieve interrupt
         /// Otherwise the packet is overwritten in the radio layer, for buffer support use the mac interface 
         /// </summary>
@@ -184,8 +222,16 @@ namespace Samraksh.SPOT.Net.Radio
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
-        
-        
+
+
+        private DeviceStatus ShallowInitialize(RadioConfiguration config, ReceiveCallBack callback)
+        {
+            MyReceiveCallback = callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
+            OnInterrupt += eventHandler;
+
+            return DeviceStatus.Success;
+        }
         
         /// <summary>
         /// Initialize native radio and interop drivers.

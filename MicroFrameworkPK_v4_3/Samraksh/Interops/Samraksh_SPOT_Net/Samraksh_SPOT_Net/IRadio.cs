@@ -9,6 +9,7 @@ namespace Samraksh.SPOT.Net.Radio
         CSharp,
         CSMAMAC,
         OMAC,
+        IDLE,
     };
 
 

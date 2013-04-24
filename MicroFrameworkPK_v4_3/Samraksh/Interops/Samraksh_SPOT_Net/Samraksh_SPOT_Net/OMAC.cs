@@ -8,7 +8,7 @@ namespace Samraksh.SPOT.Net
         private static OMAC instance;
         private static object syncObject = new Object();
 
-        private OMAC() : base("OMACCallback", 4321)
+        private OMAC() : base("OMAC")
         {
         }
 

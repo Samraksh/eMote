@@ -159,7 +159,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::UnInitialize___Samr
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -167,10 +167,10 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Configure___Samraks
 
         FAULT_ON_NULL(pMngObj);
 
-        UNSUPPORTED_TYPE param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UNSUPPORTED_TYPE( stack, 1, param0 ) );
+        CLR_RT_TypedArray_UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        INT32 retVal = MACBase::Configure( pMngObj,  param0, hr );
+        INT32 retVal = MACBase::GetNextPacket( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

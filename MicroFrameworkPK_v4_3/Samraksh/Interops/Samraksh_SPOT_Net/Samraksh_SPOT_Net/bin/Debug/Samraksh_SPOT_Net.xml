@@ -40,180 +40,10 @@
             </summary>
             <param name="NumberOfPacketsReceived">Number of packets in the receive buffer</param>
         </member>
-        <member name="T:Samraksh.SPOT.Net.Mac.CSMAOld">
-            <summary>
-            CSMA protocol configuration
-            </summary>
-            <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-        </member>
         <member name="T:Samraksh.SPOT.Net.Mac.IMac">
             <summary>
             MAC interface
             </summary>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.#ctor">
-            <summary>
-            Constructor for CSMA class
-            </summary>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.Initialize(Samraksh.SPOT.Net.Mac.MacConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
-            <summary>
-            Initialize CSMA.
-            </summary>
-            <param name="config">MAC configuration.</param>
-            <param name="callback">Callback method for received messages.</param>
-            <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-            <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetCCA(System.Boolean)">
-            <summary>
-            Set the CCA
-            </summary>
-            <param name="CCA"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetNumberOfRetries(System.Byte)">
-            <summary>
-            Set Number of retries of the MAC
-            </summary>
-            <param name="NumberOfRetries"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetCCASenseTime(System.Byte)">
-            <summary>
-            Set CCA Sense Time
-            </summary>
-            <param name="CCASenseTime"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetBufferSize(System.Byte)">
-            <summary>
-            Set Buffer Size
-            </summary>
-            <param name="BufferSize"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetRadioID(System.Byte)">
-            <summary>
-            Set Radio ID
-            </summary>
-            <param name="RadioID"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetCCA">
-            <summary>
-            Get CCA
-            </summary>
-            <returns>bool</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetNumberOfRetries">
-            <summary>
-            Get number of retries
-            </summary>
-            <returns>byte</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetCCASenseTime">
-            <summary>
-            Get CCA Sense Time
-            </summary>
-            <returns>byte</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetRadioID">
-            <summary>
-            Get Radio ID
-            </summary>
-            <returns>byte</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.ReConfigure(Samraksh.SPOT.Net.Mac.MacConfiguration)">
-            <summary>
-            ReConfigure the mac by passing a new macconfiguration
-            </summary>
-            <param name="config"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetNeighborStatus(System.UInt16,Samraksh.SPOT.Net.Mac.Neighbor@)">
-            <summary>
-            Get the details for a neighbor.
-            </summary>
-            <param name="macAddress">Address of the neighbor.</param>
-            <param name="neighbor">Reference to Neighbor object, in whcich the result will be returned</param>
-            <returns>Boolen. Success/Failure of operation</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.InternalInitialize(Samraksh.SPOT.Net.Mac.MacConfiguration,System.Byte[])">
-            <summary>
-            Initialize native MAC, radio and interop drivers.
-            </summary>
-            <param name="config">MAC configuration.</param>
-            <param name="receiveMessage">Byte array for received messages.</param>
-            <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.Configure(Samraksh.SPOT.Net.Mac.MacConfiguration)">
-            <summary>
-            Set MAC configuration for CSMA.
-            </summary>
-            <param name="config">MAC configuration.</param>
-            <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-            <remarks>Used to change the MAC configuration after initialization.</remarks>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.UnInitialize">
-            <summary>
-            Uninitialize the radio.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>
-            Send a message.
-            </summary>
-            <param name="Address">
-            The address of the receiver. Use 
-                <code>(UInt16)Addresses.BROADCAST</code>
-                for broadcast (65535).
-                </param>
-            <param name="message">Byte array containing the message to be sent.</param>
-            <param name="offset">The first byte in the array to send. Normally 0 for first byte.</param>
-            <param name="size">The number of bytes to send.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetAddress">
-            <summary>
-            Get the address of the device.
-            </summary>
-            <returns>Address of the device.</returns>
-            <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.SetAddress(System.UInt16)">
-            <summary>
-            Set the address of the device.
-            </summary>
-            <param name="Address">The address of the device.</param>
-            <returns>True iff address successfully set.</returns>
-            <remarks>This is the address by which the device is known to the rest of the world. A return value of false can occur if another layer locks the address and prevents changes.</remarks>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetID">
-            <summary>
-            Get the ID of this CSMA instance.
-            </summary>
-            <returns>The ID of the instance.</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetBufferSize">
-            <summary>
-            Get the buffer size.
-            </summary>
-            <returns>The size of the buffer.</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.GetPendingPacketCount">
-            <summary>
-            Get a count of unprocessed packets in the buffer.
-            </summary>
-            <returns>The number of packets in the buffer not yet delivered to the program.</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMAOld.RemovePacket(System.Byte[])">
-            <summary>
-            Remove a message packet from the buffer.
-            </summary>
-            <param name="msg">The message packet to be removed.</param>
-            <returns></returns>
         </member>
         <member name="F:Samraksh.SPOT.Net.MACBase.MarshalBufferSize">
             <summary>
@@ -225,26 +55,36 @@
             Specifies the neighbour size
             </summary>
         </member>
-        <member name="F:Samraksh.SPOT.Net.MACBase.MyReceiveCallback">
-            <summary>
-            Callback for the MAC object 
-            </summary>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.#ctor(System.String,System.UInt64)">
+        <member name="M:Samraksh.SPOT.Net.MACBase.#ctor(System.String)">
             <summary>
             Constructor to initialize callbacks 
             </summary>
             <param name="drvName">Name of the callback</param>
             <param name="drvData">Driver data</param>
         </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.Initialize(Samraksh.SPOT.Net.Mac.MacConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
+        <member name="M:Samraksh.SPOT.Net.MACBase.ReleasePacketToGC">
             <summary>
-            Initialize MAC
+            Releases the memory held by the packet to Garbage collector, make this call after assigning the acquired packet to a packet reference 
             </summary>
-            <param name="config">MAC configuration.</param>
-            <param name="callback">Callback method for received messages.</param>
-            <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-            <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.MACBase.GetNextPacket">
+            <summary>
+            Get the next packet from the mac buffer
+            </summary>
+            <returns>Message Type</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.MACBase.GetRadio">
+            <summary>
+            Returns the radio being used by the mac
+            </summary>
+            <returns>Radio_802_15_4 object</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.MACBase.Initialize(Samraksh.SPOT.Net.Mac.MacConfiguration)">
+            <summary>
+            Initialize the mac after marshalling the config
+            </summary>
+            <param name="config"></param>
+            <returns></returns>
         </member>
         <member name="M:Samraksh.SPOT.Net.MACBase.SetCCA(System.Boolean)">
             <summary>
@@ -381,13 +221,13 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.Configure(Samraksh.SPOT.Net.Mac.MacConfiguration)">
+        <member name="M:Samraksh.SPOT.Net.MACBase.Configure(Samraksh.SPOT.Net.Mac.MacConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
             <summary>
-            Set MAC configuration for CSMA.
+            Configure the mac object, should be called before a call to get instance 
             </summary>
-            <param name="config">MAC configuration.</param>
-            <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-            <remarks>Used to change the MAC configuration after initialization.</remarks>
+            <param name="config"></param>
+            <param name="callback"></param>
+            <returns></returns>
         </member>
         <member name="P:Samraksh.SPOT.Net.Mac.CSMA.Instance">
             <summary>
@@ -508,6 +348,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="P:Samraksh.SPOT.Net.OMAC.Instance">
+            <summary>
+            Returns the instance of the CSMA object
+            </summary>
+        </member>
         <member name="T:Samraksh.SPOT.Net.Radio.TxPowerValue">
             <summary>
             Enum defines the different power levels supported by the RF231 radio
@@ -613,6 +458,13 @@
             This function explicitly releases the message packet and is free to be collected by the gc. If this is not called, the packet is released during the next GetNextPacket call
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.GetShallowInstance(Samraksh.SPOT.Net.Radio.RadioUser)">
+            <summary>
+            Get a shallow instance of the radio object, should only be used by the mac 
+            </summary>
+            <param name="user"></param>
+            <returns>Returns a radio object</returns>
         </member>
         <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.GetNextPacket">
             <summary>

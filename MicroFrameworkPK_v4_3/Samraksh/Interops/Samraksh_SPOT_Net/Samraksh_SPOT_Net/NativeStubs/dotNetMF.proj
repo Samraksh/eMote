@@ -13,9 +13,6 @@
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase.h" />
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase.cpp" />
-<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld_mshl.cpp" />
-<HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld.h" />
-<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMAOld.cpp" />
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.h" />
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.cpp" />

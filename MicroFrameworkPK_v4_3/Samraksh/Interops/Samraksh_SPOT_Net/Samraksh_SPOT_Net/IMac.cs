@@ -18,13 +18,14 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// MAC configuration
         /// </summary>
-        public struct MacConfiguration
+        public class MacConfiguration
         {
             public bool CCA;
             public byte NumberOfRetries;
             public byte CCASenseTime;
             public byte BufferSize;
             public byte RadioID;
+            public Radio.RadioConfiguration radioConfig;
         };
 
         /// <summary>
@@ -78,8 +79,8 @@ namespace Samraksh.SPOT.Net
         public interface IMac
         {
             //Basic functions
-            DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
-            DeviceStatus Configure(MacConfiguration config);
+            //DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
+            //DeviceStatus Configure(MacConfiguration config);
             DeviceStatus UnInitialize();
             NetOpStatus Send(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
             UInt16 GetAddress();
