@@ -14,6 +14,9 @@
 #ifndef _SAMRAKSH_SPOT_NET_SAMRAKSH_SPOT_NET_MACBASE_H_
 #define _SAMRAKSH_SPOT_NET_SAMRAKSH_SPOT_NET_MACBASE_H_
 
+#include <Samraksh/Mac_decl.h>
+#include <Samraksh/Message.h>
+
 namespace Samraksh
 {
     namespace SPOT
@@ -47,6 +50,10 @@ namespace Samraksh
                 static INT32 InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT8 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
+
+                static UINT8 MacID;
+                static UINT8 MyAppID;
+                static MacEventHandler_t Event_Handler;
             };
         }
     }

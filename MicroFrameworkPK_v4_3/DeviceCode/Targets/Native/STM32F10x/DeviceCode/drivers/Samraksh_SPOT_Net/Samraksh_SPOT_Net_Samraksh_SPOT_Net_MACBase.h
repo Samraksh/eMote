@@ -23,34 +23,29 @@ namespace Samraksh
             struct MACBase
             {
                 // Helper Functions to access fields of managed object
-                static UNSUPPORTED_TYPE& Get_message( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__message ); }
-
                 static UNSUPPORTED_TYPE& Get_ByteNeighbor( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__ByteNeighbor ); }
 
                 static UNSUPPORTED_TYPE& Get_MarshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__MarshalBuffer ); }
 
-                static UNSUPPORTED_TYPE& Get_MyReceiveCallback( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__MyReceiveCallback ); }
+                static UNSUPPORTED_TYPE& Get_message( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__message ); }
+
+                static INT32& Get_macname( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__macname ); }
+
+                static UNSUPPORTED_TYPE& Get_dataBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__dataBuffer ); }
+
+                static UNSUPPORTED_TYPE& Get_radioObj( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__radioObj ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                 static UINT8 GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static UINT8 GetBufferSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                 static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
                 static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT32 Configure( CLR_RT_HeapBlock* pMngObj, UNSUPPORTED_TYPE param0, HRESULT &hr );
-                static INT32 SetCCA( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr );
-                static INT32 SetNumberOfRetries( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                static INT32 SetCCASenseTime( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                static INT32 SetBufferSize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                static INT32 SetRadioID( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                static INT8 GetCCA( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static UINT8 GetNumberOfRetries( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static UINT8 GetCCASenseTime( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static UINT8 GetRadioID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                static INT32 GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                static INT32 InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
+                static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT8 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
             };
         }

@@ -12,12 +12,15 @@
 #define _MAC_H_
 #include <tinyhal.h>
 #include "Hal_util.h"
-#include "Radio_decl.h"
 #include "Mac_decl.h"
+#include <Samraksh\Message.h>
+#include <Samraksh\Neighbors.h>
+#include <Samraksh\Buffer.h>
+#include <Samraksh\Radio_decl.h>
 
 extern UINT16 MF_NODE_ID;
 
-extern "C" void __cxa_pure_virtual() { while(1); }
+typedef Buffer_15_4<8> Buffer_15_4_t;
 
 #define MAX_APPS 4
 
@@ -35,7 +38,6 @@ UINT8 MAC_ID::Unique_Mac_ID=0;
 template <class MessageT, class ConfigT>
 class MAC : public MAC_ID
 {
-
 
 public:
     UINT8 MacId;
@@ -70,8 +72,6 @@ public:
 	Neighbor_t* GetNeighbor(UINT16 macAddress);
 };
 
-// Define static member for the template class
-//template<class MessageT>
-//UINT8 MAC<void>::Unique_Mac_Id = 0;
+
 
 #endif

@@ -258,11 +258,14 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 
-		(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+		// Nived.Sivadas - changing interfaces with new dll design
+		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
 		//HandleBroadcastMessage(msg);
 	}else if(rcv_msg_hdr->dest == MF_NODE_ID){
 		//HandleUnicastMessage(msg);
-		(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
+		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
 	}
 	else {
 		//HandlePromiscousMessage(msg);

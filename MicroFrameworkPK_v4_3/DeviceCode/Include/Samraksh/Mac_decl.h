@@ -7,6 +7,9 @@
 
 //typedef UINT16 MacAddress_t;
 
+#define CSMAMAC 0
+#define OMAC 1
+
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
 struct MacConfig {
@@ -18,11 +21,13 @@ struct MacConfig {
     UINT8 CCASenseTime;
     UINT8 BufferSize;
     UINT8 RadioID;
+    UINT32 NeighbourLivelinessDelay;
 };
 //struct MacConfig;
 
 // Typedef defining the signature of the receive function
-typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
+//typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
+typedef void (*MacReceiveFuncPtrType) (UINT16 numberOfPackets);
 
 // Typedef defining the signature of the send function
 typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);

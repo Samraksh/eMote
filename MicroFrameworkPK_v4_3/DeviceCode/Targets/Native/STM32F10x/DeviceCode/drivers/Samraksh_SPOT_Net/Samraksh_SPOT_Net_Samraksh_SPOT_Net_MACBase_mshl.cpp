@@ -48,22 +48,6 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetPendingPacketCou
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetBufferSize___U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 retVal = MACBase::GetBufferSize( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
 HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetID___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -159,185 +143,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::UnInitialize___Samr
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UNSUPPORTED_TYPE param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UNSUPPORTED_TYPE( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::Configure( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetCCA___SamrakshSPOTNetDeviceStatus__BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT8( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::SetCCA( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetNumberOfRetries___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::SetNumberOfRetries( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetCCASenseTime___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::SetCCASenseTime( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetBufferSize___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::SetBufferSize( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SetRadioID___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::SetRadioID( pMngObj,  param0, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetCCA___BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT8 retVal = MACBase::GetCCA( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNumberOfRetries___U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 retVal = MACBase::GetNumberOfRetries( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetCCASenseTime___U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 retVal = MACBase::GetCCASenseTime( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetRadioID___U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        UINT8 retVal = MACBase::GetRadioID( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -348,7 +154,51 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize_
         CLR_RT_TypedArray_UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        INT32 retVal = MACBase::InternalInitialize( pMngObj,  param0, hr );
+        INT32 retVal = MACBase::GetNextPacket( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
+
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
+
+        INT32 retVal = MACBase::InternalReConfigure( pMngObj,  param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
+
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
+
+        INT32 retVal = MACBase::InternalInitialize( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

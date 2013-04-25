@@ -19,79 +19,15 @@
 
 //typedef  struct Buffer<Message_15_4_t> Buffer_15_4_t;
 
-typedef Buffer_15_4<8> Buffer_15_4_t;
-
 #define LEVEL_0_RECOVER (1 << 0)
 #define LEVEL_1_RECOVER (1 << 1)
 #define LEVEL_2_RECOVER (1 << 2)
 
-/*struct CSMAConfig{
-	UINT16 FCF;
-	UINT16 DestPAN;
-	UINT8 Network;
-};
-*/
-/*
-
-#define CSMA_HEADER_SIZE 10
-#define CSMA_FOOTER_SIZE 4
-#define CSMA_METADATA_SIZE 4
-#define CSMA_PAYLOAD_SIZE 20
+extern Buffer_15_4_t m_send_buffer;
+extern Buffer_15_4_t m_receive_buffer;
+extern NeighborTable m_NeighborTable;
 
 
-// Definition for the csma header
-class csmaHeader
-{
-	UINT8 header[CSMA_HEADER_SIZE];
-
-public:
-	UINT16 size()
-	{
-		return CSMA_HEADER_SIZE;
-	}
-};
-
-// class definition for the csma footer
-class csmaFooter
-{
-	UINT8 footer[CSMA_FOOTER_SIZE];
-
-public:
-	UINT16 size()
-	{
-		return CSMA_FOOTER_SIZE;
-	}
-};
-
-// class definition for metadata
-class csmaMetadata
-{
-	UINT8 metadata[CSMA_METADATA_SIZE];
-
-public:
-	UINT16 size()
-	{
-		return CSMA_METADATA_SIZE;
-	}
-};
-
-#if 0
-// class definition for payload
-class csmaPayload
-{
-	UINT8 payload[CSMA_PAYLOAD_SIZE];
-
-public:
-	UINT16 size()
-	{
-		return CSMA_PAYLOAD_SIZE;
-	}
-
-};
-#endif
-
-//typedef Message<csmaHeader, CSMA_PAYLOAD_SIZE ,  csmaFooter, csmaMetadata> MessageCsmaType;
-*/
 
 /*******************************************************************************************************/
 
@@ -100,12 +36,7 @@ public:
 
 class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 {
-	//Buffer variables
-	Buffer_15_4_t m_send_buffer;
-	Buffer_15_4_t m_receive_buffer;
-
-	NeighborTable m_NeighborTable;
-
+	//Buffer variable
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
 	UINT8 m_recovery;

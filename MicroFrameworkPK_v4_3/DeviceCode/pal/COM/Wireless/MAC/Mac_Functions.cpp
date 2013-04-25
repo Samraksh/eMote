@@ -5,15 +5,29 @@
  *      Author: Mukundan
  */
 
-#include "csmaMAC.h"
+#include ".\CSMAMAC\csmaMAC.h"
 #include <Samraksh\Mac_decl.h>
 
 extern csmaMAC gcsmaMacObject;
 
+
+Buffer_15_4_t m_send_buffer;
+Buffer_15_4_t m_receive_buffer;
+NeighborTable m_NeighborTable;
+
+
 //Basic functions
+
+
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
 
-	return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
+	if(*macID == CSMAMAC)
+		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
+	else if(*macID == OMAC)
+		//return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig *) config);
+		return DS_Fail;
+	else
+		return DS_Fail;
 }
 
 DeviceStatus Mac_UnInitialize(UINT8 macID){
@@ -25,11 +39,17 @@ UINT8 Mac_GetID(){
 }
 
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
+
 	//msg is just the payload,
-	if(gcsmaMacObject.Send(destAddress, dataType, msg, size))
-		return DS_Success;
+
+	if(macID == CSMAMAC)
+		return (DeviceStatus) gcsmaMacObject.Send(destAddress, dataType, msg, size);
+	else if(macID == OMAC)
+		//return g_OMAC.Send(destAddress, dataType, msg, size);
+		return DS_Fail;
 	else
 		return DS_Fail;
+
 }
 
 

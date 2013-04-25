@@ -28,12 +28,6 @@ UINT8 MACBase::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-UINT8 MACBase::GetBufferSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
 UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
@@ -64,67 +58,19 @@ INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT32 MACBase::Configure( CLR_RT_HeapBlock* pMngObj, UNSUPPORTED_TYPE param0, HRESULT &hr )
+INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 MACBase::SetCCA( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr )
+INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 MACBase::SetNumberOfRetries( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 MACBase::SetCCASenseTime( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 MACBase::SetBufferSize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 MACBase::SetRadioID( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT8 MACBase::GetCCA( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    INT8 retVal = 0; 
-    return retVal;
-}
-
-UINT8 MACBase::GetNumberOfRetries( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
-UINT8 MACBase::GetCCASenseTime( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
-UINT8 MACBase::GetRadioID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
-INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

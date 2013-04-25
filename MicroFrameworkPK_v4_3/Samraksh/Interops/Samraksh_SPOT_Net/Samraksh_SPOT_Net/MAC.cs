@@ -6,13 +6,20 @@ using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.SPOT.Net
 {
+
+    public enum MacID
+    {
+        CSMA,
+        OMAC,
+    }
+
     // Making this private as the user should really never be seeing this 
     public class MACBase : IMac
     {
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
         /// </summary>
-        const byte MarshalBufferSize = 7;
+        const byte MarshalBufferSize = 11;
 
         const byte MacMessageSize = 128;
         /// <summary>
@@ -24,11 +31,13 @@ namespace Samraksh.SPOT.Net
 
         byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
-        public static MacConfiguration macconfig;
+        public static MacConfiguration macconfig = null;
 
-        public static ReceiveCallBack receiveCallback;
+        public static ReceiveCallBack receiveCallback = null;
 
         private Message message;
+
+        private MacID macname;
 
         byte[] dataBuffer = new byte[MacMessageSize];
         
@@ -39,7 +48,7 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         /// <param name="drvName">Name of the callback</param>
         /// <param name="drvData">Driver data</param>
-        public MACBase(string macname)
+        public MACBase(MacID macname)
         {
 
             if (macconfig == null || receiveCallback == null)
@@ -48,16 +57,18 @@ namespace Samraksh.SPOT.Net
             // Configure the radio 
             Radio.Radio_802_15_4.Configure(macconfig.radioConfig, receiveCallback);
 
-            if (macname == "CSMA")
+            if (macname == MacID.CSMA)
             {
                 radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
             }
-            else if (macname == "OMAC")
+            else if (macname == MacID.OMAC)
             {
                 radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
             }
 
-            Initialize(macconfig);
+            this.macname = macname;
+
+            Initialize(macconfig, macname);
 
         }
 
@@ -100,7 +111,7 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        private DeviceStatus Initialize(MacConfiguration config)
+        private DeviceStatus Initialize(MacConfiguration config, MacID macname)
         {
             if (config.CCA)
                 MarshalBuffer[0] = 1;
@@ -111,11 +122,61 @@ namespace Samraksh.SPOT.Net
             MarshalBuffer[2] = config.CCASenseTime;
             MarshalBuffer[3] = config.BufferSize;
             MarshalBuffer[4] = config.RadioID;
+            MarshalBuffer[5] = (byte) (config.NeighbourLivelinesDelay & 0xff);
+            MarshalBuffer[6] = (byte) ((config.NeighbourLivelinesDelay & 0xff00) >> 8);
+            MarshalBuffer[7] = (byte)((config.NeighbourLivelinesDelay & 0xff0000) >> 16);
+            MarshalBuffer[8] = (byte) ((config.NeighbourLivelinesDelay & 0xff000000) >> 24);
             // Breaking the object boundary, but shallow instances of the radio can not initialize
-            MarshalBuffer[5] = (byte) config.radioConfig.TxPower;
-            MarshalBuffer[6] = (byte) config.radioConfig.Channel;
+            MarshalBuffer[9] = (byte)config.radioConfig.GetTxPower();
+            MarshalBuffer[10] = (byte) config.radioConfig.GetChannel();
 
-            return InternalInitialize(MarshalBuffer);
+            return InternalInitialize(MarshalBuffer, (byte) macname);
+        }
+
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus InternalReConfigure(byte[] marshalBuffer, byte macname);
+    
+
+        public DeviceStatus ReConfigure(MacConfiguration config, MacID macname)
+        {
+            macconfig = config;
+
+            if (config.CCA)
+                MarshalBuffer[0] = 1;
+            else
+                MarshalBuffer[0] = 0;
+
+            MarshalBuffer[1] = config.NumberOfRetries;
+            MarshalBuffer[2] = config.CCASenseTime;
+            MarshalBuffer[3] = config.BufferSize;
+            MarshalBuffer[4] = config.RadioID;
+            // Breaking the object boundary, but shallow instances of the radio can not initialize
+            MarshalBuffer[5] = (byte)config.radioConfig.GetTxPower();
+            MarshalBuffer[6] = (byte) config.radioConfig.GetChannel();
+
+            return InternalReConfigure(MarshalBuffer, (byte)macname);
+        }
+
+        /// <summary>
+        /// Set the liveliness delay
+        /// </summary>
+        /// <param name="livelinessDelay"></param>
+        /// <returns>Result of setting this parameter</returns>
+        public DeviceStatus SetNeighbourLivelinessDelay(UInt32 livelinessDelay)
+        {
+            macconfig.NeighbourLivelinesDelay = livelinessDelay;
+
+            return ReConfigure(macconfig, this.macname);
+        }
+
+        /// <summary>
+        /// Get the current liveliness delay parameter
+        /// </summary>
+        /// <returns></returns>
+        public UInt32 GetNeighbourLivelinessDelay()
+        {
+            return macconfig.NeighbourLivelinesDelay;
         }
 
         /// <summary>
@@ -123,68 +184,97 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         /// <param name="CCA"></param>
         /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetCCA(bool CCA);
+        public DeviceStatus SetCCA(bool CCA)
+        {
+            macconfig.CCA = CCA;
+
+            return ReConfigure(macconfig, this.macname);
+
+        }
 
         /// <summary>
         /// Set Number of retries of the MAC
         /// </summary>
         /// <param name="NumberOfRetries"></param>
         /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetNumberOfRetries(byte NumberOfRetries);
+        public DeviceStatus SetNumberOfRetries(byte NumberOfRetries)
+        {
+            macconfig.NumberOfRetries = NumberOfRetries;
+
+            return ReConfigure(macconfig, this.macname);
+        }
 
         /// <summary>
         /// Set CCA Sense Time
         /// </summary>
         /// <param name="CCASenseTime"></param>
         /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetCCASenseTime(byte CCASenseTime);
+        public DeviceStatus SetCCASenseTime(byte CCASenseTime)
+        {
+            macconfig.CCASenseTime = CCASenseTime;
+
+            return ReConfigure(macconfig, this.macname);
+        }
 
         /// <summary>
         /// Set Buffer Size
         /// </summary>
         /// <param name="BufferSize"></param>
         /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetBufferSize(byte BufferSize);
+        public DeviceStatus SetBufferSize(byte BufferSize)
+        {
+            macconfig.BufferSize = BufferSize;
+
+            return ReConfigure(macconfig, this.macname);
+        }
 
         /// <summary>
         /// Set Radio ID
         /// </summary>
         /// <param name="RadioID"></param>
         /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetRadioID(byte RadioID);
+        public DeviceStatus SetRadioID(byte RadioID)
+        {
+            macconfig.RadioID = RadioID;
+
+            return ReConfigure(macconfig, this.macname);
+        }
 
         /// <summary>
         /// Get CCA
         /// </summary>
         /// <returns>bool</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool GetCCA();
+        public bool GetCCA()
+        {
+            return macconfig.CCA;
+        }
 
         /// <summary>
         /// Get number of retries
         /// </summary>
         /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetNumberOfRetries();
+        public byte GetNumberOfRetries()
+        {
+            return macconfig.NumberOfRetries;
+        }
 
         /// <summary>
         /// Get CCA Sense Time
         /// </summary>
         /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetCCASenseTime();
+        public byte GetCCASenseTime()
+        {
+            return macconfig.CCASenseTime;
+        }
 
         /// <summary>
         /// Get Radio ID
         /// </summary>
         /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetRadioID();
+        public byte GetRadioID()
+        {
+            return macconfig.RadioID;
+        }
 
 
         /// <summary>
@@ -194,7 +284,7 @@ namespace Samraksh.SPOT.Net
         /// <param name="receiveMessage">Byte array for received messages.</param>
         /// <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus InternalInitialize(byte[] marshalBuffer);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
+        private extern DeviceStatus InternalInitialize(byte[] marshalBuffer, byte macname);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
 
 
         /// <summary>
@@ -216,8 +306,10 @@ namespace Samraksh.SPOT.Net
         /// Get the buffer size.
         /// </summary>
         /// <returns>The size of the buffer.</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetBufferSize();
+        public byte GetBufferSize()
+        {
+            return macconfig.BufferSize;
+        }
 
         /// <summary>
         /// Get the details for a neighbor.
@@ -314,8 +406,7 @@ namespace Samraksh.SPOT.Net
         {
             if (macconfig == null)
             {
-                macconfig = new MacConfiguration();
-                macconfig = config;
+                macconfig = new MacConfiguration(config);
                 receiveCallback = callback;
             }
             else
@@ -326,6 +417,5 @@ namespace Samraksh.SPOT.Net
 
             return DeviceStatus.Success;
         }
-
     }
 }

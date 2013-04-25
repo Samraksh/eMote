@@ -244,8 +244,8 @@ namespace Samraksh.SPOT.Net.Radio
             MyReceiveCallback = callback;
             NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
             OnInterrupt += eventHandler;
-            marshalBuffer[0] = (byte) config.Channel;
-            marshalBuffer[1] = (byte) config.TxPower;
+            marshalBuffer[0] = (byte)config.GetChannel();
+            marshalBuffer[1] = (byte) config.GetTxPower();
             return InternalInitialize(marshalBuffer);
         }
 
@@ -269,9 +269,8 @@ namespace Samraksh.SPOT.Net.Radio
 
             if (config == null)
             {
-                Radio_802_15_4.config = new RadioConfiguration();
-                Radio_802_15_4.config.Channel = config.Channel;
-                Radio_802_15_4.config.TxPower = config.TxPower;
+                Radio_802_15_4.config = new RadioConfiguration(config);
+             
             }
 
             Radio_802_15_4.MyReceiveCallback = callback;
@@ -327,8 +326,8 @@ namespace Samraksh.SPOT.Net.Radio
         /// <returns>DeviceStatus</returns>
         public DeviceStatus ReConfigure(RadioConfiguration config)
         {
-            marshalBuffer[0] = (byte) config.TxPower;
-            marshalBuffer[1] = (byte) config.Channel;
+            marshalBuffer[0] = (byte) config.GetTxPower();
+            marshalBuffer[1] = (byte) config.GetChannel();
 
             return ReConfigure(marshalBuffer);
 
