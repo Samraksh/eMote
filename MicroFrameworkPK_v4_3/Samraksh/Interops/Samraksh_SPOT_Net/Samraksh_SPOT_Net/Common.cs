@@ -47,6 +47,11 @@ namespace Samraksh.SPOT.Net
     /// <param name="NumberOfPacketsReceived">Number of packets in the receive buffer</param>
     public delegate void ReceiveCallBack(UInt16 NumberOfPacketsReceived);
 
+    /// <summary>
+    /// Neighbourhood callback delegate
+    /// </summary>
+    /// <param name="NumberOfChangedNeighbours">Number of neighbours that have changed</param>
+    public delegate void NeighbourhoodChangeCallBack(UInt16 NumberOfChangedNeighbours);
 
 
 }

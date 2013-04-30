@@ -11,17 +11,28 @@
 #define _SAMRAKSH_SPOT_NET_H_
 
 #include <TinyCLR_Interop.h>
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Callbacks
+{
+    static const int FIELD_STATIC___receiveCallBack = 0;
+    static const int FIELD_STATIC___neighbourChangeCallBack = 1;
+
+
+    //--//
+
+};
+
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
 {
-    static const int FIELD_STATIC__macconfig = 0;
-    static const int FIELD_STATIC__receiveCallback = 1;
+    static const int FIELD_STATIC__macconfig = 2;
 
-    static const int FIELD__ByteNeighbor = 1;
-    static const int FIELD__MarshalBuffer = 2;
-    static const int FIELD__message = 3;
-    static const int FIELD__macname = 4;
-    static const int FIELD__dataBuffer = 5;
-    static const int FIELD__radioObj = 6;
+    static const int FIELD__NeighbourList = 1;
+    static const int FIELD__ByteNeighbor = 2;
+    static const int FIELD__MarshalBuffer = 3;
+    static const int FIELD__message = 4;
+    static const int FIELD__macname = 5;
+    static const int FIELD__neighbor = 6;
+    static const int FIELD__dataBuffer = 7;
+    static const int FIELD__radioObj = 8;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
@@ -30,10 +41,12 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);
     TINYCLR_NATIVE_DECLARE(Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
+    TINYCLR_NATIVE_DECLARE(ReleasePacket___VOID);
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1);
-    TINYCLR_NATIVE_DECLARE(GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2);
+    TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1);
 
     //--//
 
@@ -41,8 +54,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
 {
-    static const int FIELD_STATIC__instance = 2;
-    static const int FIELD_STATIC__syncObject = 3;
+    static const int FIELD_STATIC__instance = 3;
+    static const int FIELD_STATIC__syncObject = 4;
 
 
     //--//
@@ -116,8 +129,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_OMAC
 {
-    static const int FIELD_STATIC__instance = 4;
-    static const int FIELD_STATIC__syncObject = 5;
+    static const int FIELD_STATIC__instance = 5;
+    static const int FIELD_STATIC__syncObject = 6;
 
 
     //--//
@@ -136,15 +149,14 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__MyReceiveCallback = 6;
     static const int FIELD_STATIC__config = 7;
-    static const int FIELD_STATIC__instance = 8;
-    static const int FIELD_STATIC__syncObject = 9;
+    static const int FIELD_STATIC__currUser = 8;
+    static const int FIELD_STATIC__instance = 9;
+    static const int FIELD_STATIC__syncObject = 10;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__message = 6;
     static const int FIELD__marshalBuffer = 7;
-    static const int FIELD__currUser = 8;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
@@ -173,5 +185,9 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
 
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net;
+
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4;
+
 
 #endif  //_SAMRAKSH_SPOT_NET_H_

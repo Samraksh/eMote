@@ -14,6 +14,9 @@
 #ifndef _SAMRAKSH_SPOT_NET_SAMRAKSH_SPOT_NET_MACBASE_H_
 #define _SAMRAKSH_SPOT_NET_SAMRAKSH_SPOT_NET_MACBASE_H_
 
+#include <Samraksh/Mac_decl.h>
+#include <Samraksh/Message.h>
+
 namespace Samraksh
 {
     namespace SPOT
@@ -23,6 +26,8 @@ namespace Samraksh
             struct MACBase
             {
                 // Helper Functions to access fields of managed object
+                static UNSUPPORTED_TYPE& Get_NeighbourList( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__NeighbourList ); }
+
                 static UNSUPPORTED_TYPE& Get_ByteNeighbor( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__ByteNeighbor ); }
 
                 static UNSUPPORTED_TYPE& Get_MarshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__MarshalBuffer ); }
@@ -30,6 +35,8 @@ namespace Samraksh
                 static UNSUPPORTED_TYPE& Get_message( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__message ); }
 
                 static INT32& Get_macname( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__macname ); }
+
+                static UNSUPPORTED_TYPE& Get_neighbor( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__neighbor ); }
 
                 static UNSUPPORTED_TYPE& Get_dataBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__dataBuffer ); }
 
@@ -43,10 +50,14 @@ namespace Samraksh
                 static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
                 static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static void ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                 static INT32 InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
-                static INT8 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
+                static INT32 GetNeighbourListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );
+                static INT32 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
+				static UINT8 MyAppID;
+                static MacEventHandler_t Event_Handler;
             };
         }
     }

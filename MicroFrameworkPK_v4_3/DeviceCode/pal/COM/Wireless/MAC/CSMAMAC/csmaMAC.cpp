@@ -42,6 +42,7 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
+	MyConfig.NeighbourLivelinessDelay = config->NeighbourLivelinessDelay;
 
 	return DS_Success;
 }
@@ -63,7 +64,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
-
+		m_NeighborTable.Initialize();
 		//m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
@@ -73,7 +74,9 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_recovery = 1;
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
-		//hal_printf("CSMA Initialize: My address is : %d\n", MyAddress);
+
+		CPU_Radio_TurnOn(radioIds);
+
 		gHalTimerManagerObject.Initialize();
 		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, csmaMacScheduler)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
@@ -135,6 +138,8 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	return TRUE;
 }
 void csmaMAC::UpdateNeighborTable(){
+
+	m_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
 	//m_NeighborTable.DegradeLinks();
 }
 
@@ -255,6 +260,10 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Call routing/app receive callback
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
 
+	// Nived.Sivadas The mac callback design has changed
+	(*appHandler)(Received, m_receive_buffer.GetNumberMessagesInBuffer());
+
+#if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 
@@ -270,20 +279,9 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	else {
 		//HandlePromiscousMessage(msg);
 	}
-
+#endif
 
 	return temp;
-}
-
-BOOL csmaMAC::HandleBroadcastMessage(Message_15_4_t * msg){
-
-}
-
-BOOL csmaMAC::HandleUnicastMessage(Message_15_4_t * msg){
-
-}
-BOOL csmaMAC::HandlePromiscousMessage(Message_15_4_t * msg){
-
 }
 
 

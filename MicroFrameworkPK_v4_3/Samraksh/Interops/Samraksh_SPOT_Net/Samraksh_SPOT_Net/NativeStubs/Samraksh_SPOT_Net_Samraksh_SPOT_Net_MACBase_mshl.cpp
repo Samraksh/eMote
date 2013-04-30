@@ -143,6 +143,20 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::UnInitialize___Samr
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::ReleasePacket___VOID( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        MACBase::ReleasePacket( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -206,7 +220,26 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 1, param0 ) );
+
+        INT32 retVal = MACBase::GetNeighbourListInternal( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -220,9 +253,9 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal
         CLR_RT_TypedArray_UINT8 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
 
-        INT8 retVal = MACBase::GetNeighborInternal( pMngObj,  param0, param1, hr );
+        INT32 retVal = MACBase::GetNeighborInternal( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

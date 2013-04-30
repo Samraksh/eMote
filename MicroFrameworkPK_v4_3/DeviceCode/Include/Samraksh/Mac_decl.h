@@ -17,6 +17,7 @@ struct MacConfig {
 	UINT16 DestPAN;
 	UINT8 Network;
 	BOOL CCA;
+
     UINT8 NumberOfRetries;
     UINT8 CCASenseTime;
     UINT8 BufferSize;
@@ -27,7 +28,7 @@ struct MacConfig {
 
 // Typedef defining the signature of the receive function
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
-typedef void (*MacReceiveFuncPtrType) (UINT16 numberOfPackets);
+typedef void (*MacReceiveFuncPtrType) (UINT16 arg1, UINT16 arg2);
 
 // Typedef defining the signature of the send function
 typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
@@ -59,11 +60,15 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 
 //Neighbor functions
-NeighborTable* Mac_GetNeighborTable(UINT8 macID);
-Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress);
+//NeighborTable* Mac_GetNeighborTable(UINT8 macID);
+//Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress);
+
+// Get the neighbour list
+DeviceStatus Mac_GetNeighbourList(UINT16 *buffer);
+DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, UINT8 *buffer);
 
 //Channel/freq functions
-
+DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer);
 //Buffer functions
 UINT8 Mac_GetBufferSize(UINT8 macID);
 UINT8 Mac_GetNumberPendingPackets(UINT8 macID);

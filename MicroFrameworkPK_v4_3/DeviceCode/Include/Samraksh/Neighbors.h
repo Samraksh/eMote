@@ -9,9 +9,28 @@
 #ifndef NEIGHBORS_H_
 #define NEIGHBORS_H_
 
+#include <Samraksh/Mac_decl.h>
+
+#define NeighbourChanged 1
+#define Received 0
+
 #include "TinyCLR_Runtime.h"
 
+extern UINT8 MacName;
 #define MAX_NEIGHBORS 256
+
+extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);;
+//#define DEBUG_NEIGHBORTABLE
+
+#if defined(DEBUG_NEIGHBORTABLE)
+#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
+#define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
+#define DEBUG_PRINTF(x) hal_printf(x)
+#else
+#define ENABLE_PIN(x,y)
+#define SET_PIN(x,y)
+#define DEBUG_PRINTF(x)
+#endif
 
 typedef struct {
 	UINT8 AvgRSSI;
@@ -43,18 +62,48 @@ public:
 	Neighbor_t Neighbor[MAX_NEIGHBORS];
 
 public:
+	BOOL Initialize();
 	UINT8 FindIndex(UINT16 address);
 	UINT8 RemoveSuspects(UINT32 delay);
 	UINT8 MarkSuspects(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
-	UINT8 NumberOfNeighbors();
+	INT16 NumberOfNeighbors();
 	UINT8 InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currtime);
+	INT16 GetNewIndex();
 	UINT8 UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink);
 	UINT8 UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength);
 	UINT8 UpdateDutyCycle(UINT16 address, UINT8 dutyCycle);
 	UINT8 UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime);
+	BOOL  UpdateNeighborTable(UINT32 NeighbourLivelinessDelay);
 	void DegradeLinks();
 };
+
+BOOL NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
+{
+	return RemoveSuspects(NeighbourLivelinessDelay);
+}
+
+BOOL NeighborTable::Initialize()
+{
+
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		DEBUG_PRINTF("Initializing Neighbour table\n");
+		Neighbor[i].Status = Dead;
+	}
+}
+
+INT16 NeighborTable::GetNewIndex()
+{
+	DEBUG_PRINTF("Get a new index for the neighbour\n");
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+			if(Neighbor[i].Status == Dead)
+				return i;
+	}
+
+	return -1;
+}
 
 UINT8 NeighborTable::FindIndex(UINT16 address){
 	UINT8 i=0;
@@ -67,8 +116,29 @@ UINT8 NeighborTable::FindIndex(UINT16 address){
 }
 
 UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
-	return 0;
+
+	UINT16 deadNeighbours = 0;
+
+	UINT64 livelinesDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
+
+		UINT64 currentTime = HAL_Time_CurrentTicks();
+
+		for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+		{
+			if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinesDelayInTicks))
+			{
+				DEBUG_PRINTF("Removing Neighbor due to inactivity\n");
+				Neighbor[i].Status = Dead;
+				deadNeighbours++;
+			}
+		}
+
+	ManagedCallback(NeighbourChanged, deadNeighbours);
+
+	return 1;
+
 }
+
 UINT8 NeighborTable::MarkSuspects(UINT32 delay){
 	return 0;
 }
@@ -81,16 +151,25 @@ Neighbor_t* NeighborTable::GetNeighborPtr(UINT16 address){
 		return &Neighbor[index];
 	}
 }
-UINT8 NeighborTable::NumberOfNeighbors(){
+
+INT16 NeighborTable::NumberOfNeighbors(){
 	return NumberValidNeighbor;
 }
 UINT8 NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currtime){
 	UINT8 index = FindIndex(address);
 	if (index==255 && (address != 0 || address != 65535) && NumberValidNeighbor < MAX_NEIGHBORS){
-		index=NumberValidNeighbor;
+		index= GetNewIndex();
+		// The neighbour table is full, can not insert this guy now
+		if(index == -1)
+		{
+			return 255;
+		}
 		NumberValidNeighbor++;
 		Neighbor[index].MacAddress = address;
 		Neighbor[index].Status = status;
+
+		ManagedCallback(NeighbourChanged, 1);
+
 		return index;
 	}
 	else {
@@ -135,10 +214,11 @@ UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT6
 	if (index!=255 && (address != 0 || address != 65535)){
 			Neighbor[index].Status = status;
 			Neighbor[index].LastHeardTime = currTime;
-			/*if(Neighbor[index].ReverseLink.Quality < 254){
 
-			}*/
 	}
+
+	ManagedCallback(NeighbourChanged, 1);
+
 	return index;
 }
 

@@ -4,6 +4,11 @@
         <name>Samraksh_SPOT_Net</name>
     </assembly>
     <members>
+        <member name="T:Samraksh.SPOT.Net.Callbacks">
+            <summary>
+            Callback class, should only be used internally by the mac and not by any user programs
+            </summary>
+        </member>
         <member name="T:Samraksh.SPOT.Net.DeviceStatus">
             <summary>
             Device status
@@ -40,6 +45,12 @@
             </summary>
             <param name="NumberOfPacketsReceived">Number of packets in the receive buffer</param>
         </member>
+        <member name="T:Samraksh.SPOT.Net.NeighbourhoodChangeCallBack">
+            <summary>
+            Neighbourhood callback delegate
+            </summary>
+            <param name="NumberOfChangedNeighbours">Number of neighbours that have changed</param>
+        </member>
         <member name="T:Samraksh.SPOT.Net.Mac.IMac">
             <summary>
             MAC interface
@@ -62,7 +73,7 @@
             <param name="drvName">Name of the callback</param>
             <param name="drvData">Driver data</param>
         </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.ReleasePacketToGC">
+        <member name="M:Samraksh.SPOT.Net.MACBase.ReleasePacket">
             <summary>
             Releases the memory held by the packet to Garbage collector, make this call after assigning the acquired packet to a packet reference 
             </summary>
@@ -185,7 +196,13 @@
             </summary>
             <returns>The size of the buffer.</returns>
         </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.GetNeighborStatus(System.UInt16,Samraksh.SPOT.Net.Mac.Neighbor@)">
+        <member name="M:Samraksh.SPOT.Net.MACBase.GetNeighbourList">
+            <summary>
+            Get the list of neighbours from the mac
+            </summary>
+            <returns>An array with the list of active neighbours</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.MACBase.GetNeighborStatus(System.UInt16)">
             <summary>
             Get the details for a neighbor.
             </summary>
@@ -234,7 +251,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.SPOT.Net.MACBase.Configure(Samraksh.SPOT.Net.Mac.MacConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
+        <member name="M:Samraksh.SPOT.Net.MACBase.Configure(Samraksh.SPOT.Net.Mac.MacConfiguration,Samraksh.SPOT.Net.ReceiveCallBack,Samraksh.SPOT.Net.NeighbourhoodChangeCallBack)">
             <summary>
             Configure the mac object, should be called before a call to get instance 
             </summary>
@@ -620,7 +637,7 @@
             </summary>
             <returns>A data packet of message type to the caller</returns>
         </member>
-        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.Initialize(Samraksh.SPOT.Net.Radio.RadioConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.Initialize(Samraksh.SPOT.Net.Radio.RadioConfiguration)">
             <summary>
             Initialize native radio and interop drivers.
             </summary>
@@ -628,7 +645,7 @@
             <param name="callback">Callback method for received messages.</param>
             <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         </member>
-        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.Configure(Samraksh.SPOT.Net.Radio.RadioConfiguration,Samraksh.SPOT.Net.ReceiveCallBack)">
+        <member name="M:Samraksh.SPOT.Net.Radio.Radio_802_15_4.Configure(Samraksh.SPOT.Net.Radio.RadioConfiguration)">
             <summary>
             Set Radio configuration for 802.15.4 radio.
             </summary>

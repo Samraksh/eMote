@@ -21,6 +21,12 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetPendingPacketCount___U1,
     NULL,
@@ -31,7 +37,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::UnInitialize___SamrakshSPOTNetDeviceStatus,
     NULL,
-    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::ReleasePacket___VOID,
     NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     NULL,
@@ -50,7 +56,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
+    NULL,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -135,7 +148,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0xDF676731,
+    0x567BD785,
     method_lookup
 };
 

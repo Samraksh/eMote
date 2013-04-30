@@ -145,7 +145,7 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// Neighbor details
         /// </summary>
-        public struct Neighbor
+        public class Neighbor
         {
             public UInt16 MacAddress;
             public Link ForwardLink;
@@ -183,7 +183,7 @@ namespace Samraksh.SPOT.Net
 
             //Neighbor functions
             //bool GetNeighborTable(NeighborTable table);
-            bool GetNeighborStatus(UInt16 macAddress,ref Neighbor neighbor);
+            Neighbor GetNeighborStatus(UInt16 macAddress);
 
             //Buffer functions
             byte GetBufferSize();

@@ -816,6 +816,15 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 {
 	UINT8 trx_status;
 
+	// If cca is initiated during sleep, come out of sleep do cca and go back to sleep
+	if(state == STATE_SLEEP)
+	{
+		if(TurnOn() != DS_Success)
+			return DS_Fail;
+
+		sleep_pending = TRUE;
+		state = STATE_RX_ON;
+	}
 
 	GLOBAL_LOCK(irq);
 
@@ -839,6 +848,22 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 
 	// Read the register to check the result of the assessment
 	trx_status = ReadRegister(RF230_TRX_STATUS);
+
+
+	// If the CCA was initiated during sleep, go back to sleep once the work is done
+	if(sleep_pending)
+	{
+		// If sleep is success then go back to sleep and turn sleep_pending to FALSE
+		if(Sleep(0) == DS_Success)
+		{
+			state = STATE_SLEEP;
+			sleep_pending = FALSE;
+		}
+		else
+		{
+			return DS_Fail;
+		}
+	}
 
 	// return the result of the assessment
 	return ((trx_status & RF230_CCA_DONE) ? ((trx_status & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );

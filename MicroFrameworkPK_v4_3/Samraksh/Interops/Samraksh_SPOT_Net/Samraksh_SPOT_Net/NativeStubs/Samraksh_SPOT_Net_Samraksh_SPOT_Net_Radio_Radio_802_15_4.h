@@ -31,8 +31,6 @@ namespace Samraksh
 
                     static UNSUPPORTED_TYPE& Get_marshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::FIELD__marshalBuffer ); }
 
-                    static INT32& Get_currUser( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::FIELD__currUser ); }
-
                     // Declaration of stubs. These functions are implemented by Interop code developers
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                     static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );

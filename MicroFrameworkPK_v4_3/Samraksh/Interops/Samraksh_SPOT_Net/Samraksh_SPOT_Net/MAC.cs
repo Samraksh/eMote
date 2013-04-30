@@ -27,17 +27,21 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
 
+        const byte MaxNeighbours = 255;
+
+        UInt16[] NeighbourList = new UInt16[MaxNeighbours];
+
         byte[] ByteNeighbor = new byte[NeighborSize];
 
         byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
         public static MacConfiguration macconfig = null;
 
-        public static ReceiveCallBack receiveCallback = null;
-
         private Message message;
 
         private MacID macname;
+
+        private Neighbor neighbor;
 
         byte[] dataBuffer = new byte[MacMessageSize];
         
@@ -51,22 +55,22 @@ namespace Samraksh.SPOT.Net
         public MACBase(MacID macname)
         {
 
-            if (macconfig == null || receiveCallback == null)
+            if (macconfig == null || Callbacks.GetReceiveCallback() == null)
                 throw new MacNotConfiguredException();
-
-            // Configure the radio 
-            Radio.Radio_802_15_4.Configure(macconfig.radioConfig, receiveCallback);
 
             if (macname == MacID.CSMA)
             {
+                Radio.Radio_802_15_4.currUser = Radio.RadioUser.CSMAMAC;
                 radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
             }
             else if (macname == MacID.OMAC)
             {
+                Radio.Radio_802_15_4.currUser = Radio.RadioUser.OMAC;
                 radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
             }
 
             this.macname = macname;
+            this.neighbor = new Neighbor();
 
             Initialize(macconfig, macname);
 
@@ -75,10 +79,9 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// Releases the memory held by the packet to Garbage collector, make this call after assigning the acquired packet to a packet reference 
         /// </summary>
-        public void ReleasePacketToGC()
-        {
-            message = null;
-        }
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern void ReleasePacket();
+        
 
         /// <summary>
         /// Get the next packet from the mac buffer
@@ -312,23 +315,32 @@ namespace Samraksh.SPOT.Net
         }
 
         /// <summary>
+        /// Get the list of neighbours from the mac
+        /// </summary>
+        /// <returns>An array with the list of active neighbours</returns>
+        public UInt16[] GetNeighbourList()
+        {
+            if (GetNeighbourListInternal(NeighbourList) != DeviceStatus.Success)
+                return null;
+
+            return NeighbourList;
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetNeighbourListInternal(UInt16[] neighbourlist);
+     
+
+
+        /// <summary>
         /// Get the details for a neighbor.
         /// </summary>
         /// <param name="macAddress">Address of the neighbor.</param>
         /// <param name="neighbor">Reference to Neighbor object, in whcich the result will be returned</param>
         /// <returns>Boolen. Success/Failure of operation</returns>
-        public bool GetNeighborStatus(UInt16 macAddress, ref Neighbor neighbor)
+        public Neighbor GetNeighborStatus(UInt16 macAddress)
         {
-            if (GetNeighborInternal(macAddress, ByteNeighbor))
+            if (GetNeighborInternal(macAddress, ByteNeighbor) == DeviceStatus.Success)
             {
-                //Deserilize the object
-                /*string str = new string(':',1);
-                for (int i = 0; i < ByteNeighbor.Length; i++)
-                {
-                    str += ByteNeighbor[i].ToString() +':';
-                }
-                Debug.Print("Byte Nbr: " + str);
-                */
                 neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
                 neighbor.ForwardLink.AveRSSI = ByteNeighbor[2]; //ForwardLink
                 neighbor.ForwardLink.LinkQuality = ByteNeighbor[3];
@@ -342,13 +354,14 @@ namespace Samraksh.SPOT.Net
                 ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + +ByteNeighbor[11]);//LastTimeHeard
                 neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
                 neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20]);
-                return true;
+                return neighbor;
             }
-            return false;
+
+            return null;
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern bool GetNeighborInternal(UInt16 macAddress, byte[] byte_nbr);
+        private extern DeviceStatus GetNeighborInternal(UInt16 macAddress, byte[] byte_nbr);
 
         /// <summary>
         /// Get the ID of this CSMA instance.
@@ -402,12 +415,18 @@ namespace Samraksh.SPOT.Net
         /// <param name="config"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack callback)
+        public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighbourhoodChangeCallBack neighbourChangeCallback)
         {
             if (macconfig == null)
             {
                 macconfig = new MacConfiguration(config);
-                receiveCallback = callback;
+                Callbacks.SetReceiveCallback(receiveCallback);
+                Callbacks.SetNeighbourChangeCallback(neighbourChangeCallback);
+                
+                // Configure the radio 
+                if (Radio.Radio_802_15_4.Configure(macconfig.radioConfig) == DeviceStatus.Busy)
+                    return DeviceStatus.Busy;
+
             }
             else
             {
