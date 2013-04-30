@@ -562,7 +562,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\HALTimer\dotNetMF.proj" />
     <DriverLibs Include="HALTimer.$(LIB_EXT)" />
   </ItemGroup>
-
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
+    <DriverLibs Include="mac_pal.$(LIB_EXT)" />
+  </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />

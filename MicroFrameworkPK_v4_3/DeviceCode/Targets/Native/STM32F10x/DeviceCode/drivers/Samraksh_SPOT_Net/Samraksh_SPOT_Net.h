@@ -11,47 +11,52 @@
 #define _SAMRAKSH_SPOT_NET_H_
 
 #include <TinyCLR_Interop.h>
-#include <Samraksh/Radio_decl.h>
-#include <Samraksh/Message.h>
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Callbacks
+{
+    static const int FIELD_STATIC___receiveCallBack = 0;
+    static const int FIELD_STATIC___neighbourChangeCallBack = 1;
+
+
+    //--//
+
+};
+
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
+{
+    static const int FIELD_STATIC__macconfig = 2;
+
+    static const int FIELD__NeighbourList = 1;
+    static const int FIELD__ByteNeighbor = 2;
+    static const int FIELD__MarshalBuffer = 3;
+    static const int FIELD__message = 4;
+    static const int FIELD__macname = 5;
+    static const int FIELD__neighbor = 6;
+    static const int FIELD__dataBuffer = 7;
+    static const int FIELD__radioObj = 8;
+
+    TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
+    TINYCLR_NATIVE_DECLARE(GetID___U1);
+    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
+    TINYCLR_NATIVE_DECLARE(GetAddress___U2);
+    TINYCLR_NATIVE_DECLARE(Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
+    TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
+    TINYCLR_NATIVE_DECLARE(ReleasePacket___VOID);
+    TINYCLR_NATIVE_DECLARE(GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1);
+    TINYCLR_NATIVE_DECLARE(InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1);
+    TINYCLR_NATIVE_DECLARE(GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2);
+    TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1);
+
+    //--//
+
+};
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
 {
-    static const int FIELD_STATIC__MyReceiveCallback = 0;
-    static const int FIELD_STATIC__RSSI = 1;
-    static const int FIELD_STATIC__LinkQuality = 2;
-    static const int FIELD_STATIC__Src = 3;
-    static const int FIELD_STATIC__Unicast = 4;
-    static const int FIELD_STATIC__ReceiveMessage = 5;
-    static const int FIELD_STATIC__ByteNeighbor = 6;
-    static const int FIELD_STATIC__MarshalBuffer = 7;
+    static const int FIELD_STATIC__instance = 3;
+    static const int FIELD_STATIC__syncObject = 4;
 
-    TINYCLR_NATIVE_DECLARE(Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration);
-    TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
-    TINYCLR_NATIVE_DECLARE(Send___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
-    TINYCLR_NATIVE_DECLARE(GetAddress___U2);
-    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
-    TINYCLR_NATIVE_DECLARE(GetID___U1);
-    TINYCLR_NATIVE_DECLARE(GetBufferSize___U1);
-    TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
-    TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(SetTxPower___SamrakshSPOTNetDeviceStatus__I4);
-    TINYCLR_NATIVE_DECLARE(SetChannel___SamrakshSPOTNetDeviceStatus__I4);
-    TINYCLR_NATIVE_DECLARE(GetChannel___I4__I4);
-    TINYCLR_NATIVE_DECLARE(GetTxPower___I4__I4);
-    TINYCLR_NATIVE_DECLARE(TurnOnRadio___SamrakshSPOTNetDeviceStatus);
-    TINYCLR_NATIVE_DECLARE(SleepRadio___SamrakshSPOTNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetCCA___STATIC__SamrakshSPOTNetDeviceStatus__BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(SetNumberOfRetries___STATIC__SamrakshSPOTNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetCCASenseTime___STATIC__SamrakshSPOTNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetBufferSize___STATIC__SamrakshSPOTNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetRadioID___STATIC__SamrakshSPOTNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(GetCCA___STATIC__BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(GetNumberOfRetries___STATIC__U1);
-    TINYCLR_NATIVE_DECLARE(GetCCASenseTime___STATIC__U1);
-    TINYCLR_NATIVE_DECLARE(GetRadioID___STATIC__U1);
-    TINYCLR_NATIVE_DECLARE(ReConfigure___STATIC__SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetMacMacConfiguration__SZARRAY_U1);
 
     //--//
 
@@ -75,6 +80,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_MacConfiguration
     static const int FIELD__CCASenseTime = 3;
     static const int FIELD__BufferSize = 4;
     static const int FIELD__RadioID = 5;
+    static const int FIELD__NeighbourLivelinesDelay = 6;
+    static const int FIELD__radioConfig = 7;
 
 
     //--//
@@ -107,6 +114,29 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_NeighborTable
 
 };
 
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
+{
+    static const int FIELD__RSSI = 1;
+    static const int FIELD__LQI = 2;
+    static const int FIELD__Src = 3;
+    static const int FIELD__Unicast = 4;
+    static const int FIELD__ReceiveMessage = 5;
+
+
+    //--//
+
+};
+
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_OMAC
+{
+    static const int FIELD_STATIC__instance = 5;
+    static const int FIELD_STATIC__syncObject = 6;
+
+
+    //--//
+
+};
+
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 {
     static const int FIELD__TxPower = 1;
@@ -119,15 +149,15 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__MyReceiveCallback = 8;
-    static const int FIELD_STATIC__RSSI = 9;
-    static const int FIELD_STATIC__LinkQuality = 10;
-    static const int FIELD_STATIC__Src = 11;
-    static const int FIELD_STATIC__Unicast = 12;
-    static const int FIELD_STATIC__ReceiveMessage = 13;
-    static const int FIELD_STATIC__marshalBuffer = 14;
+    static const int FIELD_STATIC__config = 7;
+    static const int FIELD_STATIC__currUser = 8;
+    static const int FIELD_STATIC__instance = 9;
+    static const int FIELD_STATIC__syncObject = 10;
 
-    TINYCLR_NATIVE_DECLARE(Configure___SamrakshSPOTNetDeviceStatus__SamrakshSPOTNetRadioRadioConfiguration);
+    static const int FIELD__dataBuffer = 5;
+    static const int FIELD__message = 6;
+    static const int FIELD__marshalBuffer = 7;
+
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);
@@ -140,24 +170,24 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2__U4);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U2);
+    TINYCLR_NATIVE_DECLARE(GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(SetTxPower___SamrakshSPOTNetDeviceStatus__I4);
     TINYCLR_NATIVE_DECLARE(SetChannel___SamrakshSPOTNetDeviceStatus__I4);
     TINYCLR_NATIVE_DECLARE(GetTxPower___I4);
     TINYCLR_NATIVE_DECLARE(GetChannel___I4);
     TINYCLR_NATIVE_DECLARE(ReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__SamrakshSPOTNetDeviceStatus__SZARRAY_U1__SZARRAY_U1);
 
     //--//
 
 };
 
 
-void SetResult_UNST_NeighborTable ( CLR_RT_StackFrame &stackFrame, UNSUPPORTED_TYPE rtvalue );
-void SetResult_UNST_Neighbor ( CLR_RT_StackFrame &stackFrame, UNSUPPORTED_TYPE rtvalue );
-
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net;
+
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback;
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4;
+
 
 #endif  //_SAMRAKSH_SPOT_NET_H_

@@ -105,19 +105,6 @@ namespace Samraksh.SPOT.Net.Radio
     }
 
 
-
-    /*class Radio_15_4_CB : NativeEventDispatcher
-    {
-        public Radio_15_4_CB(string strDrvName, ulong drvData, int callbackCount)
-            : base(strDrvName, drvData)
-        {
-
-        }
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int GetStatus();
-    }*/
-
     /// <summary>
     /// 802.15.4 radio configuration
     /// </summary>
@@ -130,22 +117,124 @@ namespace Samraksh.SPOT.Net.Radio
         // Note we are marshalling because NETMF does not support passing custom types to native code
         const byte RadioConfigSize = 2;
 
-        static ReceiveCallBack MyReceiveCallback;
-        static byte RSSI, LinkQuality;
-        static UInt16 Src;
-        static bool Unicast;
-        static byte[] ReceiveMessage = new byte[RadioMessageSize];
+        byte[] dataBuffer = new byte[RadioMessageSize];
+
+        Message message;
+
+        public static RadioConfiguration config = null;
 
         // Create a buffer that you can use when you want to marshal
-        static byte[] marshalBuffer = new byte[RadioConfigSize];
+        byte[] marshalBuffer = new byte[RadioConfigSize];
+
+        // Maintains who the current user of the radio is CSharp/ MAC Objects
+        public static RadioUser currUser = RadioUser.IDLE;
 
         /// <summary>
         /// Constructor for 802.15.4 radio
         /// </summary>
-        public Radio_802_15_4()
+        private Radio_802_15_4()
             : base("RadioCallback_802_15_4", 1234)
         {
+
+            if (config == null || Callbacks.GetReceiveCallback() == null)
+                throw new RadioNotConfiguredException();
+
+            Initialize(config);
+        }
+
+        private Radio_802_15_4(string drvname, ulong drvData)
+            : base(drvname, drvData)
+        {
+
+            Debug.Print(drvname + "\n");
+
+            if (config == null)
+                Debug.Print("The Configuration is null\n");
+
             
+            if (config == null ||  Callbacks.GetReceiveCallback() == null)
+                throw new RadioNotConfiguredException();
+
+            ShallowInitialize(config);
+        }
+
+        /// <summary>
+        /// This function explicitly releases the message packet and is free to be collected by the gc. If this is not called, the packet is released during the next GetNextPacket call
+        /// </summary>
+        /// <returns></returns>
+        public void ReleaseMessage()
+        {
+            message = null;
+        }
+
+        private static Radio_802_15_4 instance;
+        private static object syncObject = new Object();
+
+        public static Radio_802_15_4 GetInstance()
+        {
+            if (instance == null)
+            {
+                lock (syncObject)
+                {
+                    if (instance == null)
+                        instance = new Radio_802_15_4();
+                }
+            }
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Get a shallow instance of the radio object, should only be used by the mac 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns>Returns a radio object</returns>
+        public static Radio_802_15_4 GetShallowInstance(RadioUser user)
+        {
+            if (instance == null)
+            {
+                lock (syncObject)
+                {
+                    if (instance == null)
+                    {
+                        if (user == RadioUser.CSMAMAC)
+                            instance = new Radio_802_15_4("CSMACallback", 4321);
+                        else if (user == RadioUser.OMAC)
+                            instance = new Radio_802_15_4("OMACCallback", 4322);
+                        else if (user == RadioUser.CSharp)
+                            instance = new Radio_802_15_4();
+                    }
+                }
+            }
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Get the next packet from the radio driver, the radio does not maintain a buffer, the onus is on the application to sample this data as quickly as possible on getting a recieve interrupt
+        /// Otherwise the packet is overwritten in the radio layer, for buffer support use the mac interface 
+        /// </summary>
+        /// <returns>A data packet of message type to the caller</returns>
+        public Message GetNextPacket()
+        {
+            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+            message = new Message(dataBuffer);
+
+            return message;
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
+
+
+        private DeviceStatus ShallowInitialize(RadioConfiguration config)
+        {
+            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
+            OnInterrupt += eventHandler;
+
+            return DeviceStatus.Success;
         }
         
         /// <summary>
@@ -154,36 +243,44 @@ namespace Samraksh.SPOT.Net.Radio
         /// <param name="config">MAC configuration.</param>
         /// <param name="callback">Callback method for received messages.</param>
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        public DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback)
+        private DeviceStatus Initialize(RadioConfiguration config)
         {
-            MyReceiveCallback = callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
+            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
             OnInterrupt += eventHandler;
-            marshalBuffer[0] = (byte) config.Channel;
-            marshalBuffer[1] = (byte) config.TxPower;
-            return InternalInitialize(marshalBuffer, ReceiveMessage);
+            marshalBuffer[0] = (byte)config.GetChannel();
+            marshalBuffer[1] = (byte) config.GetTxPower();
+            return InternalInitialize(marshalBuffer);
         }
 
-        private static void ReceiveFunction(uint data1, uint data2, DateTime time)
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus InternalInitialize(byte[] config);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
+
+
+        public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback)
         {
-            Src = (UInt16) ((data1 >> 16) & 0x0000FFFF);
-            RSSI = (byte)(data2 & 0x000000FF);
-            LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
-            Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false ;
-            MyReceiveCallback(ReceiveMessage, (UInt16) data1, Src, Unicast, RSSI, LinkQuality);
+            Radio_802_15_4.config = new RadioConfiguration(config);
+            Callbacks.SetReceiveCallback(rcallback);
+            Callbacks.SetNeighbourChangeCallback(ncallback);
+
+            return DeviceStatus.Success;
+
         }
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern DeviceStatus InternalInitialize(byte[] config, byte[] receiveMessage);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
-        
         /// <summary>
-        /// Set MAC configuration for 802.15.4 radio.
+        /// Set Radio configuration for 802.15.4 radio.
         /// </summary>
-        /// <param name="config">MAC configuration.</param>
+        /// <param name="config">Radio configuration.</param>
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        /// <remarks>Used to change the MAC configuration after initialization.</remarks>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus Configure(RadioConfiguration config);
+        /// <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
+        public static DeviceStatus Configure(RadioConfiguration config)
+        {
+            DeviceStatus result = DeviceStatus.Success;
+
+            Radio_802_15_4.config = new RadioConfiguration(config);
+
+            return result;
+        }
 
         /// <summary>
         /// Set the transmit power of the 802.15.4 radio.
@@ -233,8 +330,8 @@ namespace Samraksh.SPOT.Net.Radio
         /// <returns>DeviceStatus</returns>
         public DeviceStatus ReConfigure(RadioConfiguration config)
         {
-            marshalBuffer[0] = (byte) config.TxPower;
-            marshalBuffer[1] = (byte) config.Channel;
+            marshalBuffer[0] = (byte) config.GetTxPower();
+            marshalBuffer[1] = (byte) config.GetChannel();
 
             return ReConfigure(marshalBuffer);
 

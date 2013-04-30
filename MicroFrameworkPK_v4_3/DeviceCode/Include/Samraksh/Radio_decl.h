@@ -136,7 +136,7 @@ public:
 
 // Called by MAC layers responsible for registering of eventhandlers
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioIDs, UINT8 numberRadios , UINT8 mac_id); //Initializes Return the ID of the Radio layer that was initialized
-BOOL CPU_Radio_UnInitialize();
+BOOL CPU_Radio_UnInitialize(UINT8 radioIDs);
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs);
 void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size);

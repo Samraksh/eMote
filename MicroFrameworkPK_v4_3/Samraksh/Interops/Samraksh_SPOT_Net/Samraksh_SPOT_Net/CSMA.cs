@@ -1,220 +1,41 @@
 using System;
 using Microsoft.SPOT;
-using Microsoft.SPOT.Hardware;
-
-using Samraksh.SPOT.Net.Radio;
 using System.Runtime.CompilerServices;
-
+using Samraksh.SPOT.Net.Mac;
 
 namespace Samraksh.SPOT.Net.Mac
 {
-
-    /*class CSMA 
+    public class CSMA : MACBase
     {
-        const byte MacMessageSize = 128;
-        static CSMA_CB ReceiveCB;
-        static ReceiveCallBack MyReceiveCallback;
-        static byte[] ReceiveMessage = new byte[MacMessageSize];   
+        private static CSMA instance;
+        private static object syncObject = new Object();
 
-        public CSMA()
+        private CSMA() : base(MacID.CSMA)
         {
-            ReceiveCB = new CSMAInternal("CSMACallback", 4231, 0);   
         }
 
-       
-        
-        
-        
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int GetStatus();
-
-    }*/
-
-    /// <summary>
-    /// CSMA protocol configuration
-    /// </summary>
-    /// <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-    public class CSMA: NativeEventDispatcher, IMac
-    {
-        const byte MarshalBufferSize = 5;
-        const byte MacMessageSize = 128;
-        const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
-        static ReceiveCallBack MyReceiveCallback;
-        static byte RSSI, LinkQuality;
-        static UInt16 Src;
-        static bool Unicast;
-        static byte[] ReceiveMessage = new byte[MacMessageSize];
-        
-        static byte[] ByteNeighbor = new byte[NeighborSize];
-
-        static byte[] MarshalBuffer = new byte[MarshalBufferSize];
-
+        // There can only be one csma mac object in the system
         /// <summary>
-        /// Constructor for CSMA class
+        /// Returns the instance of the CSMA object
         /// </summary>
-        public CSMA()
-            :base ("CSMACallback",4321)
+        public static CSMA Instance
         {
-
-        }       
-
-
-        
-
-        /// <summary>
-        /// Initialize CSMA.
-        /// </summary>
-        /// <param name="config">MAC configuration.</param>
-        /// <param name="callback">Callback method for received messages.</param>
-        /// <returns>The radio status after initialization: Success, Fail, Ready, Busy</returns>
-        /// <remarks>By default, uses Radio #1 on the device. For the eMote.NOW 1.0, that is the 802.15.4 radio.</remarks>
-        public DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback)
-        {
-            MyReceiveCallback = callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(ReceiveFunction);
-            OnInterrupt += eventHandler;
-            return InternalInitialize(config, ReceiveMessage);
-        }
-
-        private static void ReceiveFunction(uint data1, uint data2, DateTime time)
-        {
-            Src = (UInt16)((data1 >> 16) & 0x0000FFFF);
-            RSSI = (byte)(data2 & 0x000000FF);
-            LinkQuality = (byte)((data2 >> 8) & 0x000000FF);
-            Unicast = ((data2 >> 16) & 0x000000FF) > 0 ? true : false ;
-            MyReceiveCallback(ReceiveMessage, (UInt16)data1, Src, Unicast, RSSI, LinkQuality);
-        }
-
-        /// <summary>
-        /// Set the CCA
-        /// </summary>
-        /// <param name="CCA"></param>
-        /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern DeviceStatus SetCCA(bool CCA);
-
-        /// <summary>
-        /// Set Number of retries of the MAC
-        /// </summary>
-        /// <param name="NumberOfRetries"></param>
-        /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern DeviceStatus SetNumberOfRetries(byte NumberOfRetries);
-
-        /// <summary>
-        /// Set CCA Sense Time
-        /// </summary>
-        /// <param name="CCASenseTime"></param>
-        /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern DeviceStatus SetCCASenseTime(byte CCASenseTime);
-
-        /// <summary>
-        /// Set Buffer Size
-        /// </summary>
-        /// <param name="BufferSize"></param>
-        /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern DeviceStatus SetBufferSize(byte BufferSize);
-
-        /// <summary>
-        /// Set Radio ID
-        /// </summary>
-        /// <param name="RadioID"></param>
-        /// <returns>DeviceStatus</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern DeviceStatus SetRadioID(byte RadioID);
-
-        /// <summary>
-        /// Get CCA
-        /// </summary>
-        /// <returns>bool</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern bool GetCCA();
-
-        /// <summary>
-        /// Get number of retries
-        /// </summary>
-        /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern byte GetNumberOfRetries();
-
-        /// <summary>
-        /// Get CCA Sense Time
-        /// </summary>
-        /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern byte GetCCASenseTime();
-
-        /// <summary>
-        /// Get Radio ID
-        /// </summary>
-        /// <returns>byte</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern byte GetRadioID();
-
-        /// <summary>
-        /// ReConfigure the mac by passing a new macconfiguration
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns>DeviceStatus</returns>
-        public static DeviceStatus ReConfigure(MacConfiguration config)
-        {
-            if (config.CCA == true)
-                MarshalBuffer[0] = 1;
-            else
-                MarshalBuffer[0] = 0;
-
-            MarshalBuffer[1] = config.NumberOfRetries;
-            MarshalBuffer[2] = config.CCASenseTime;
-            MarshalBuffer[3] = config.BufferSize;
-            MarshalBuffer[4] = config.RadioID;
-
-            return ReConfigure(MarshalBuffer);
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern DeviceStatus ReConfigure(byte[] buffer);
-        
-          
-        
-
-        /// <summary>
-        /// Get the details for a neighbor.
-        /// </summary>
-        /// <param name="macAddress">Address of the neighbor.</param>
-        /// <param name="neighbor">Reference to Neighbor object, in whcich the result will be returned</param>
-        /// <returns>Boolen. Success/Failure of operation</returns>
-        public bool GetNeighborStatus(UInt16 macAddress,ref Neighbor neighbor)
-        {
-            if(GetNeighborInternal(macAddress,ByteNeighbor)){
-                //Deserilize the object
-                /*string str = new string(':',1);
-                for (int i = 0; i < ByteNeighbor.Length; i++)
+            get
+            {
+                if (instance == null)
                 {
-                    str += ByteNeighbor[i].ToString() +':';
+                    lock (syncObject)
+                    {
+                        if (instance == null)
+                            instance = new CSMA();
+                    }
                 }
-                Debug.Print("Byte Nbr: " + str);
-                */
-                neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
-                neighbor.ForwardLink.AveRSSI= ByteNeighbor[2]; //ForwardLink
-                neighbor.ForwardLink.LinkQuality=ByteNeighbor[3];
-                neighbor.ForwardLink.AveDelay=ByteNeighbor[4];
-                neighbor.ReverseLink.AveRSSI= ByteNeighbor[5];  //ReverseLink
-                neighbor.ReverseLink.LinkQuality=ByteNeighbor[6];
-                neighbor.ReverseLink.AveDelay=ByteNeighbor[7];
-                neighbor.Status=(NeighborStatus)ByteNeighbor[8];//Status
-                neighbor.PacketsReceived = (UInt16)(((ByteNeighbor[10] << 8) & 0xFF00) + ByteNeighbor[9] );//MacAddress
-                neighbor.LastHeardTime = (UInt64)((ByteNeighbor[18] << 56) + ByteNeighbor[17] << 48 + ByteNeighbor[16] << 40 + ByteNeighbor[15] << 32 + ByteNeighbor[14] << 24 + 
-                ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + + ByteNeighbor[11] );//LastTimeHeard
-                neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
-                neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20] );
-                return true;
+
+                return instance;
             }
-            return false;
         }
 
+<<<<<<< HEAD
 
 
 
@@ -377,5 +198,7 @@ namespace Samraksh.SPOT.Net.Mac
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus SleepRadio(byte level);
+=======
+>>>>>>> netdll
     }
 }

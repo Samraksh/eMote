@@ -44,7 +44,7 @@ SmartPtr_IRQ::SmartPtr_IRQ(void* context)
 
 SmartPtr_IRQ::~SmartPtr_IRQ() 
 { 
-    Restore(); 
+	__ASM volatile("cpsie i");
 }
 
 BOOL SmartPtr_IRQ::WasDisabled()

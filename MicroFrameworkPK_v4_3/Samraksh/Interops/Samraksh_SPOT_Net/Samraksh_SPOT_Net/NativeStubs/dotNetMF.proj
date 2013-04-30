@@ -10,9 +10,9 @@
 <ItemGroup>
 <HFile Include="Samraksh_SPOT_Net.h" />
 <Compile Include="Samraksh_SPOT_Net.cpp" />
-<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA_mshl.cpp" />
-<HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA.h" />
-<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA.cpp" />
+<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase_mshl.cpp" />
+<HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase.h" />
+<Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase.cpp" />
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.h" />
 <Compile Include="Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.cpp" />
