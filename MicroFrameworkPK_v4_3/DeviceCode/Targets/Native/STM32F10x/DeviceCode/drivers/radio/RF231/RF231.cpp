@@ -274,12 +274,34 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 {
 	// Cannot change power level if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
-	if(state != STATE_SLEEP || state != STATE_RX_ON)
+	if(state != STATE_SLEEP && state != STATE_RX_ON)
 		return DS_Fail;
+
+	if(state == STATE_SLEEP)
+	{
+		if(TurnOn() != DS_Success)
+		{
+			return DS_Fail;
+		}
+		sleep_pending = TRUE;
+	}
 
 	this->tx_power = power  & RF230_TX_PWR_MASK;
 
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
+
+
+	if(sleep_pending == TRUE)
+	{
+		// If we are unable to go back to sleep for some reason, return a failure and then set
+		// sleep pending to true in a hope it can be put to sleep later on
+		if(Sleep(0) != DS_Success)
+		{
+			sleep_pending = TRUE;
+			return DS_Fail;
+		}
+		sleep_pending == FALSE;
+	}
 
 	return DS_Success;
 }
@@ -289,12 +311,37 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 {
 	// Cannot change channel if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
-	if(state != STATE_SLEEP || state != STATE_RX_ON)
+	if(state != STATE_SLEEP && state != STATE_RX_ON)
 		return DS_Fail;
 
-	this->channel = channel & RF230_CHANNEL_MASK;
+	// If the radio is sleeping and you attempt to change channel
+	// Turn it on, change the channel and push it back to sleep
+	if(state == STATE_SLEEP)
+	{
+		if(TurnOn() != DS_Success)
+		{
+			return DS_Fail;
+		}
+		sleep_pending = TRUE;
+	}
+
+	// The value passed as channel until this point is an enum and needs to be offset by 11 to set the
+	// actual radio channel value
+	this->channel = (channel + RF230_CHANNEL_OFFSET) & RF230_CHANNEL_MASK;
 
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | this->channel);
+
+	if(sleep_pending == TRUE)
+	{
+		// If we are unable to go back to sleep for some reason, return a failure and then set
+		// sleep pending to true in a hope it can be put to sleep later on
+		if(Sleep(0) != DS_Success)
+		{
+			sleep_pending = TRUE;
+			return DS_Fail;
+		}
+		sleep_pending == FALSE;
+	}
 
 	return DS_Success;
 }

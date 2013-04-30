@@ -25,6 +25,7 @@ HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReA
 void ApplicationEntryPoint()
 {
     INT32 timeout       = 10000; // 5 second timeout
+	UINT64 timeoutTicks, curTicks, prevTicks;
     bool  enterBootMode = false;
 
     // crypto API needs to allocate memory. Initialize simple heap for it. 
@@ -95,7 +96,8 @@ void ApplicationEntryPoint()
             g_eng.m_controller.SendProtocolMessage( CLR_DBG_Commands::c_Monitor_Ping, WP_Flags::c_NonCritical, sizeof(cmd), (UINT8*)&cmd );
         }
     
-        UINT64 ticksStart = HAL_Time_CurrentTicks();
+        prevTicks = HAL_Time_CurrentTicks();
+		curTicks = prevTicks;
 
         //
         // Wait for somebody to press a button; if no button press comes in, lauch the image
@@ -123,16 +125,25 @@ void ApplicationEntryPoint()
                 g_eng.ProcessCommands();
             }
 
+			if (curTicks < prevTicks)
+			{
+				// timer rolled over, if in the rare case a timeout occurred it should be caught the next time around this loop
+				prevTicks = curTicks;
+			}
+			timeoutTicks = curTicks - prevTicks;	
+			
+
             if(LOADER_ENGINE_ISFLAGSET(&g_eng, Loader_Engine::c_LoaderEngineFlag_ValidConnection))
             {
                 LOADER_ENGINE_CLEARFLAG(&g_eng, Loader_Engine::c_LoaderEngineFlag_ValidConnection);
                 
                 TinyBooter_OnStateChange( State_ValidCommunication, (void*)&timeout );
 
-                ticksStart = HAL_Time_CurrentTicks();
+                prevTicks = curTicks;
+				curTicks = HAL_Time_CurrentTicks();
             }
-            else if((timeout != -1) && (HAL_Time_CurrentTicks()-ticksStart) > CPU_MillisecondsToTicks((UINT32)timeout))
-            {
+            else if((timeout != -1) && (timeoutTicks > CPU_MillisecondsToTicks((UINT32)timeout)) )
+			{
                 TinyBooter_OnStateChange( State_Timeout, NULL );
                 g_eng.EnumerateAndLaunch();
             }
