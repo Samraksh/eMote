@@ -254,7 +254,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		m_NeighborTable.Neighbor[index].PacketsReceived++;
 		m_NeighborTable.Neighbor[index].LastHeardTime = Time_GetLocalTime();
 		m_NeighborTable.Neighbor[index].Status = Alive;
-//		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
+		DEBUG_PRINTF_CSMAMAC("[NATIVE] %s %d : Updated Neighbour Table\n", __FILE__, __LINE__);
+		//m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
 	}
 
 	//Call routing/app receive callback

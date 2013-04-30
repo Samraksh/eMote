@@ -15,6 +15,18 @@ Buffer_15_4_t m_send_buffer;
 Buffer_15_4_t m_receive_buffer;
 NeighborTable m_NeighborTable;
 
+#define DEBUG_MACFUNCTIONS 1
+
+#if defined(DEBUG_MACFUNCTIONS)
+#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
+#define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
+#define DEBUG_PRINTF_MAC(x) hal_printf(x)
+#else
+#define ENABLE_PIN(x,y)
+#define SET_PIN(x,y)
+#define DEBUG_PRINTF_MAC(x)
+#endif
+
 
 //Basic functions
 extern UINT8 MacName;
@@ -86,6 +98,8 @@ DeviceStatus Mac_GetNeighbourList(UINT16 *buffer)
 {
 	UINT8 neighbourCount = 0;
 
+	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbour List\n");
+
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
 		if(m_NeighborTable.Neighbor[i].Status == Alive)
@@ -95,7 +109,10 @@ DeviceStatus Mac_GetNeighbourList(UINT16 *buffer)
 	}
 
 	if(neighbourCount == 0)
+	{
+		DEBUG_PRINTF_MAC("[NATIVE] : Neighbour Count is 0\n");
 		return DS_Fail;
+	}
 
 	return DS_Success;
 }

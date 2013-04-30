@@ -40,6 +40,13 @@ namespace Samraksh.SPOT.Net
 
         public static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
+
+            if (_receiveCallBack == null)
+                throw new CallbackNotConfiguredException();
+
+            if (_neighbourChangeCallBack == null)
+                Debug.Print("The Neighbour Callback has not been configured \n");
+
             if ((data1 == (uint)CallbackTypes.Received) && (_receiveCallBack != null))
                 _receiveCallBack((UInt16)data2);
             else if ((data1 == (uint)CallbackTypes.NeighbourChanged) && (_neighbourChangeCallBack != null))

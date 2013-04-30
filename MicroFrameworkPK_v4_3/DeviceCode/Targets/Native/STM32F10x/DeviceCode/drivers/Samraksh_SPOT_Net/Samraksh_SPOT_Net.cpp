@@ -48,6 +48,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetPendingPacketCount___U1,
     NULL,
@@ -169,7 +170,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0x567BD785,
+    0x523D7159,
     method_lookup
 };
 

@@ -18,4 +18,9 @@ namespace Samraksh.SPOT.Net
     {
         public MacNotConfiguredException() { Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); }
     }
+
+    public class CallbackNotConfiguredException : System.Exception
+    {
+        public CallbackNotConfiguredException() { Debug.Print("The Receive Callback has not been configured \n"); }
+    }
 }
