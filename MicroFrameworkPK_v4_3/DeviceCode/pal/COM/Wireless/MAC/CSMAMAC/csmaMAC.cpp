@@ -244,15 +244,16 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
 	IEEE802_15_4_Metadata_t *rcv_meta = msg->GetMetaData();
 
+	UINT64 localTime = HAL_Time_CurrentTime();
 	//Add the sender to NeighborTable
 	UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
 	if(index==255) {
-		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
+		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, localTime);
 	}else {
 		m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
 		m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
 		m_NeighborTable.Neighbor[index].PacketsReceived++;
-		m_NeighborTable.Neighbor[index].LastHeardTime = Time_GetLocalTime();
+		m_NeighborTable.Neighbor[index].LastHeardTime = localTime;
 		m_NeighborTable.Neighbor[index].Status = Alive;
 		DEBUG_PRINTF_CSMAMAC("[NATIVE] %s %d : Updated Neighbour Table\n", __FILE__, __LINE__);
 		//m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());

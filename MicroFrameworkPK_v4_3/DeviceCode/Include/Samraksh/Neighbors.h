@@ -117,11 +117,13 @@ UINT8 NeighborTable::FindIndex(UINT16 address){
 
 UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 
+	GLOBAL_LOCK(irq);
+
 	UINT16 deadNeighbours = 0;
 
 	UINT64 livelinesDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
-	UINT64 currentTime = HAL_Time_CurrentTicks();
+	UINT64 currentTime = HAL_Time_CurrentTime();
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
@@ -169,6 +171,7 @@ UINT8 NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT6
 		NumberValidNeighbor++;
 		Neighbor[index].MacAddress = address;
 		Neighbor[index].Status = status;
+		Neighbor[index].LastHeardTime = currtime;
 
 		ManagedCallback(NeighbourChanged, 1);
 
