@@ -279,50 +279,7 @@
             Flag that enables/disables CCA 
             </summary>
         </member>
-<<<<<<< HEAD
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetTxPower(System.Int32)">
-            <summary>
-            Set the transmit power of the 802.15.4 radio.
-            </summary>
-            <param name="TxPower"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SetChannel(System.Int32)">
-            <summary>
-            Set the channel of the 802.15.4 radio.
-            </summary>
-            <param name="Channel"></param>
-            <returns>DeviceStatus</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetChannel">
-            <summary>
-            Get the current active channel from the radio
-            </summary>
-            <returns>Channel</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.GetTxPower">
-            <summary>
-            Get the current tx power of the radio
-            </summary>
-            <returns>TxPowerValue</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.TurnOnRadio">
-            <summary>
-            Turn on the radio.
-            </summary>
-            <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        </member>
-        <member name="M:Samraksh.SPOT.Net.Mac.CSMA.SleepRadio(System.Byte)">
-            <summary>
-            Go to sleep.
-            </summary>
-            <param name="level">The sleep level.</param>
-            <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        </member>
-        <member name="T:Samraksh.SPOT.Net.Mac.Addresses">
-=======
         <member name="F:Samraksh.SPOT.Net.Mac.MacConfiguration.NumberOfRetries">
->>>>>>> netdll
             <summary>
             Controls number of retries for sending before MAC should give up
             </summary>

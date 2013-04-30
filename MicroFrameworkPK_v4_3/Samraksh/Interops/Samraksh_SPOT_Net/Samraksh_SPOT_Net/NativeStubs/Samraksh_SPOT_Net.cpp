@@ -26,18 +26,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-<<<<<<< HEAD
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetNeighborInternal___BOOLEAN__U2__SZARRAY_U1,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetTxPower___SamrakshSPOTNetDeviceStatus__I4,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SetChannel___SamrakshSPOTNetDeviceStatus__I4,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetChannel___I4__I4,
-    NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::GetTxPower___I4__I4,
-    NULL,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::TurnOnRadio___SamrakshSPOTNetDeviceStatus,
-    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA::SleepRadio___SamrakshSPOTNetDeviceStatus__U1,
-=======
->>>>>>> netdll
     NULL,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetPendingPacketCount___U1,
@@ -160,11 +148,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-<<<<<<< HEAD
-    0x2B112C79,
-=======
     0x567BD785,
->>>>>>> netdll
     method_lookup
 };
 
