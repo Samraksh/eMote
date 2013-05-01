@@ -124,37 +124,37 @@ DeviceStatus P30BF65NOR_Driver::EraseChip()
 }
 
 
-DeviceStatus P30BF65NOR_DriverWriteHalfWord(UINT32 WriteAddr, UINT16 data)
+DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverWriteBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
+DeviceStatus P30BF65NOR_Driver::WriteBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverProgramBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
+DeviceStatus P30BF65NOR_Driver::ProgramBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverReadHalfWord(UINT32 ReadAddr)
+DeviceStatus P30BF65NOR_Driver::ReadHalfWord(UINT32 ReadAddr)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverReadBuffer(UINT16* pBuffer, UINT32 ReadAddr, UINT32 NumHalfWordToRead)
+DeviceStatus P30BF65NOR_Driver::ReadBuffer(UINT16* pBuffer, UINT32 ReadAddr, UINT32 NumHalfWordToRead)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverReturnToReadMode(void)
+DeviceStatus P30BF65NOR_Driver::ReturnToReadMode(void)
 {
 
 }
 
-DeviceStatus P30BF65NOR_DriverReset(void)
+DeviceStatus P30BF65NOR_Driver::Reset(void)
 {
 
 }
