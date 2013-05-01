@@ -1,11 +1,13 @@
 #include <tinyhal.h>
 #include "netmf_bl_nor.h"
 
+extern P30BF65NOR_Driver gNORDriver;
+
 BOOL isErased = TRUE;
 //--//
 BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
-	NOR_Init();
+	gNORDriver.Initialize();
 	//NOR_EraseChip();
 
 }
@@ -37,14 +39,14 @@ BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 Nu
 
 BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
-	NOR_Status status;
+	DeviceStatus status;
 	UINT32 translAddress = address - 0x64000000;
 
 	UINT16* buffPtr       = (UINT16 *) pSectorBuff;
 
 	//status = NOR_WriteBuffer(buffPtr, translAddress, numBytes / 2);
 
-	if(status == NOR_SUCCESS )
+	if(status == DS_Success )
 	{
 		isErased = false;
 		return TRUE;

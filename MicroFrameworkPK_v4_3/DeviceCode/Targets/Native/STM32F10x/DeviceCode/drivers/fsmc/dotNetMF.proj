@@ -40,13 +40,13 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="STM32F10x_fsmc.h" />
-	<HFiles Include="NOR\stm3210e_eval_fsmc_nor.h" />
+	<HFiles Include="P30BF65NOR\P30BF65NOR.h" />
 	<!--<HFiles Include="smart_ptr.h" />-->
 	<HFiles Include="memory.h" />
     <Compile Include="STM32F10x_fsmc.c" />
 	<Compile Include="memory.cpp" />
 	<!--<Compile Include="smart_ptr.cpp" />-->
-	<Compile Include="NOR\stm3210e_eval_fsmc_nor.c" />
+	<Compile Include="P30BF65NOR\P30BF65NOR.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
