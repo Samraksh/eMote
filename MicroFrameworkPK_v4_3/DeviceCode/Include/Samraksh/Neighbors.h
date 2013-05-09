@@ -133,7 +133,11 @@ UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 			}
 		}
 
-	ManagedCallback(NeighbourChanged, deadNeighbours);
+	// Don't make callback if there are no dead neighbours
+	if(deadNeighbours > 0)
+	{
+		ManagedCallback(NeighbourChanged, deadNeighbours);
+	}
 
 	return 1;
 

@@ -121,6 +121,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
     static const int FIELD__Src = 3;
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
+    static const int FIELD__Size = 6;
 
 
     //--//

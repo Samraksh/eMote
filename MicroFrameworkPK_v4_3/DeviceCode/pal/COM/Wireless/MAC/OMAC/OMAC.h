@@ -9,11 +9,13 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
+#if 0
 #include <Samraksh/MAC.h>
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
 #include <Samraksh/Buffer.h>
 #include <Samraksh/Neighbors.h>
+#endif
 
 #include "OMACConstants.h"
 #include "Scheduler.h"

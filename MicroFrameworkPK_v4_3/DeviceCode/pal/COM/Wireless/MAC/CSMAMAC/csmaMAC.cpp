@@ -7,6 +7,7 @@ csmaMAC gcsmaMacObject;
 extern HALTimerManager gHalTimerManagerObject;
 
 UINT8 RadioLockUp;
+UINT16 discoveryCounter = 0;
 
 void* csmaRecieveHandler(void *msg, UINT16 Size)
 {
@@ -24,14 +25,38 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 }
 
 void csmaMacScheduler(void * arg){
+
+	discoveryCounter++;
+
 #ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 #endif
 	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendToRadio();
+	if(discoveryCounter == DISCOVERY_FREQUENCY)
+	{
+		gcsmaMacObject.SendHello();
+		discoveryCounter = 0;
+	}
 #ifdef DEBUG_MAC
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 #endif
+}
+
+DeviceStatus csmaMAC::SendHello()
+{
+	UINT8 helloPayload[5];
+
+	helloPayload[0] = (UINT8) 'H';
+	helloPayload[1] = (UINT8) 'E';
+	helloPayload[2] = (UINT8) 'L';
+	helloPayload[3] = (UINT8) 'L';
+	helloPayload[4] = (UINT8) 'O';
+
+	if(gcsmaMacObject.Send(0xffff, MFM_DISCOVERY, (void *) helloPayload, 5) == TRUE)
+		return DS_Success;
+
+	return DS_Fail;
 }
 
 DeviceStatus csmaMAC::SetConfig(MacConfig *config){
@@ -65,6 +90,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
 		m_NeighborTable.Initialize();
+
 		//m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
@@ -224,6 +250,43 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
+
+
+	// Get the header packet
+	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
+	IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
+
+	// If the message type is a discovery then return the same bag you got from the radio layer
+	// Don't make a callback here because the neighbour table takes care of informing the application of a changed situation of
+	// it neighbours
+	if(rcv_msg_hdr->type == MFM_DISCOVERY)
+	{
+			//Add the sender to NeighborTable
+			UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
+			if(index == 255)
+			{
+				// Insert into the table if a new node was discovered
+				m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks());
+			}
+			else
+			{
+				m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
+				m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
+				m_NeighborTable.Neighbor[index].PacketsReceived++;
+				m_NeighborTable.Neighbor[index].LastHeardTime = HAL_Time_CurrentTicks();
+				m_NeighborTable.Neighbor[index].Status = Alive;
+			}
+
+			return msg;
+	}
+
+	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
+	if(rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != MF_NODE_ID)
+	{
+		//HandlePromiscousMessage(msg);
+		return msg;
+	}
+	// Implement bag exchange if the packet type is data
 	Message_15_4_t** next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 
 	if(! (next_free_buffer))
@@ -232,30 +295,11 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
 	}
 
-	//if(next_free_buffer == NULL || *next_free_buffer == NULL) {i = 0;}
-
 	//Implement bag exchange, by actually switching the contents.
 	Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
 	(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
 								//finally the temp, which is a ptr to free message will be returned.
 
-
-	//Handle the message
-	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
-	IEEE802_15_4_Metadata_t *rcv_meta = msg->GetMetaData();
-
-	//Add the sender to NeighborTable
-	UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
-	if(index==255) {
-		m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
-	}else {
-		m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
-		m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
-		m_NeighborTable.Neighbor[index].PacketsReceived++;
-		m_NeighborTable.Neighbor[index].LastHeardTime = Time_GetLocalTime();
-		m_NeighborTable.Neighbor[index].Status = Alive;
-//		m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, Time_GetLocalTime());
-	}
 
 	//Call routing/app receive callback
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;

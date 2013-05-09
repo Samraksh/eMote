@@ -23,6 +23,8 @@
 #define LEVEL_1_RECOVER (1 << 1)
 #define LEVEL_2_RECOVER (1 << 2)
 
+#define DISCOVERY_FREQUENCY 20
+
 extern Buffer_15_4_t m_send_buffer;
 extern Buffer_15_4_t m_receive_buffer;
 extern NeighborTable m_NeighborTable;
@@ -40,6 +42,8 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
+
+
 public:
 	UINT16 GetAddress(){return MyAddress;}
 	UINT16 GetMaxPayload(){return MaxPayload;	}
@@ -63,6 +67,8 @@ public:
 	UINT8 GetBufferSize();
 	UINT16 GetSendPending(){ return m_send_buffer.GetNumberMessagesInBuffer();}
 	UINT16 GetReceivePending(){return m_receive_buffer.GetNumberMessagesInBuffer();}
+
+	DeviceStatus SendHello();
 
 	NeighborTable* GetNeighborTable(){return &m_NeighborTable;}
 	Neighbor_t* GetNeighbor(UINT16 macAddress){return m_NeighborTable.GetNeighborPtr(macAddress); }
