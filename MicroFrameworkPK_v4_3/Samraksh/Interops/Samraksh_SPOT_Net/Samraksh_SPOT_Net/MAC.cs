@@ -27,9 +27,7 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
 
-        const byte MaxNeighbours = 255;
-
-        UInt16[] NeighbourList = new UInt16[MaxNeighbours];
+        const byte MaxNeighbours = 32;
 
         byte[] ByteNeighbor = new byte[NeighborSize];
 
@@ -320,6 +318,8 @@ namespace Samraksh.SPOT.Net
         /// <returns>An array with the list of active neighbours</returns>
         public UInt16[] GetNeighbourList()
         {
+            UInt16[] NeighbourList = new UInt16[MaxNeighbours];
+
             if (GetNeighbourListInternal(NeighbourList) != DeviceStatus.Success)
                 return null;
 

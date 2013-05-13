@@ -25,14 +25,13 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
 {
     static const int FIELD_STATIC__macconfig = 2;
 
-    static const int FIELD__NeighbourList = 1;
-    static const int FIELD__ByteNeighbor = 2;
-    static const int FIELD__MarshalBuffer = 3;
-    static const int FIELD__message = 4;
-    static const int FIELD__macname = 5;
-    static const int FIELD__neighbor = 6;
-    static const int FIELD__dataBuffer = 7;
-    static const int FIELD__radioObj = 8;
+    static const int FIELD__ByteNeighbor = 1;
+    static const int FIELD__MarshalBuffer = 2;
+    static const int FIELD__message = 3;
+    static const int FIELD__macname = 4;
+    static const int FIELD__neighbor = 5;
+    static const int FIELD__dataBuffer = 6;
+    static const int FIELD__radioObj = 7;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);

@@ -17,7 +17,7 @@
 #include "TinyCLR_Runtime.h"
 
 extern UINT8 MacName;
-#define MAX_NEIGHBORS 256
+#define MAX_NEIGHBORS 32
 
 extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);;
 //#define DEBUG_NEIGHBORTABLE
@@ -73,10 +73,22 @@ public:
 	UINT8 UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink);
 	UINT8 UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength);
 	UINT8 UpdateDutyCycle(UINT16 address, UINT8 dutyCycle);
-	UINT8 UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime);
+	UINT8 UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
 	BOOL  UpdateNeighborTable(UINT32 NeighbourLivelinessDelay);
 	void DegradeLinks();
+	BOOL  DoesNodeExist(UINT16 address);
 };
+
+BOOL NeighborTable::DoesNodeExist(UINT16 address)
+{
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if(Neighbor[i].MacAddress == address)
+			return TRUE;
+	}
+
+	return FALSE;
+}
 
 BOOL NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
 {
@@ -90,6 +102,7 @@ BOOL NeighborTable::Initialize()
 	{
 		DEBUG_PRINTF("Initializing Neighbour table\n");
 		Neighbor[i].Status = Dead;
+		Neighbor[i].LastHeardTime = 0;
 	}
 }
 
@@ -107,7 +120,7 @@ INT16 NeighborTable::GetNewIndex()
 
 UINT8 NeighborTable::FindIndex(UINT16 address){
 	UINT8 i=0;
-	for (i=0; i < NumberValidNeighbor; i++){
+	for (i=0; i < MAX_NEIGHBORS; i++){
 		if(Neighbor[i].MacAddress == address){
 			return i;
 		}
@@ -130,6 +143,7 @@ UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 				DEBUG_PRINTF("Removing Neighbor due to inactivity\n");
 				Neighbor[i].Status = Dead;
 				deadNeighbours++;
+				NumberValidNeighbor--;
 			}
 		}
 
@@ -171,6 +185,7 @@ UINT8 NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT6
 		NumberValidNeighbor++;
 		Neighbor[index].MacAddress = address;
 		Neighbor[index].Status = status;
+		Neighbor[index].LastHeardTime = currtime;
 
 		ManagedCallback(NeighbourChanged, 1);
 
@@ -213,15 +228,28 @@ UINT8 NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle){
 	return index;
 }
 
-UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime){
+UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi){
+
+	BOOL callManaged = FALSE;
+
 	UINT8 index = FindIndex(address);
 	if (index!=255 && (address != 0 || address != 65535)){
-			Neighbor[index].Status = status;
+
+			// If the node for some reason went dead and came back to life
+		    // Let the managed code know of this
+			if(Neighbor[index].Status == Dead)
+				callManaged = TRUE;
+
+			Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
+			Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
+			Neighbor[index].PacketsReceived++;
 			Neighbor[index].LastHeardTime = currTime;
+			Neighbor[index].Status = status;
 
 	}
 
-	ManagedCallback(NeighbourChanged, 1);
+	if(callManaged)
+		ManagedCallback(NeighbourChanged, 1);
 
 	return index;
 }

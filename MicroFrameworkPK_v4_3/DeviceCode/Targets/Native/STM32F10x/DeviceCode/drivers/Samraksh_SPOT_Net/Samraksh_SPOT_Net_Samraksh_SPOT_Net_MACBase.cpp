@@ -30,6 +30,8 @@ UINT8 MacName = 0;
 void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
 
+extern Buffer_15_4_t m_receive_buffer;
+
 UINT8 CSMAInteropBuffer[128];
 
 INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
@@ -40,8 +42,7 @@ INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 
 
 UINT8 MACBase::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    UINT8 retVal = 0; 
-    return retVal;
+    return m_receive_buffer.GetNumberMessagesInBuffer();
 }
 
 UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )

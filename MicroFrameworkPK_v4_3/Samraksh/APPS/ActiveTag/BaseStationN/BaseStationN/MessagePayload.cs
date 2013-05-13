@@ -138,6 +138,74 @@ namespace Samraksh.APPS.ActiveTag
         {
         }
 
+        public bool CopyMessage(MessagePayload mp)
+        {
+            // Currently only this information is needed to ascertain if the current packet is same as the last packet 
+            this.msgPType = mp.msgPType;
+            this.msgNoFromSenderMac = mp.msgNoFromSenderMac;
+            this.senderMac = mp.senderMac;
+
+            return true;
+        }
+
+        public void Flush()
+        {
+            byte[] emptyBuffer = new byte[128];
+
+            for (int i = 0; i < 128; i++)
+                emptyBuffer[i] = 0;
+
+            BuildMessage(emptyBuffer);
+        }
+
+        public bool BuildMessage(byte[] data)
+        {
+            if (data == null)
+                return false;
+
+            UInt16 length = 0;
+
+            UInt16 payloadType;
+
+            payloadType = data[length++];
+            payloadType |= (UInt16)(data[length++] << 8);
+            msgPType = (MessagePayloadType)payloadType;
+
+            msgAuthType = (MessageAuthorType)data[length++];
+
+            msgAuthFuncType = (MessageAuthorFunctionType)data[length++];
+
+            intendedRecMacIsSpecified = (IntendedRecipientMacIsSpecified)data[length++];
+
+            intendedRecipientMacAddress = (UInt16)data[length++];
+            intendedRecipientMacAddress |= (UInt16)(data[length++] << 8);
+
+            msgDestinationType = (MessageDestinationType)data[length++];
+
+            senderMac = (UInt16)data[length++];
+            senderMac |= (UInt16)(data[length++] << 8);
+
+            msgNoFromSenderMac = (UInt16)data[length++];
+            msgNoFromSenderMac |= (UInt16)(data[length++] << 8);
+
+            msgDestinationType = (MessageDestinationType)data[length++];
+
+            origSenderMac = (UInt16)data[length++];
+            origSenderMac |= (UInt16)(data[length++] << 8);
+
+            messageContentLength = (UInt16)data[length++];
+            messageContentLength |= (UInt16)(data[length++] << 8);
+
+            for (int i = 0; i < messageContentLength; i++)
+            {
+                messageContent[i] = data[length++];
+            }
+
+            messageLength = length;
+
+            return true;
+        }
+
         public MessagePayload(byte[] data)
         {
             if (data == null)
@@ -183,6 +251,35 @@ namespace Samraksh.APPS.ActiveTag
 
             messageLength = length;
 
+        }
+
+        public static bool operator==(MessagePayload p1, MessagePayload p2)
+        {
+            if ((p1 == null && p2 != null) || (p1 != null && p2 == null))
+                return false;
+
+            if (p1 == null && p2 == null)
+                return true;
+
+            if (p1.senderMac == p2.senderMac && p1.msgNoFromSenderMac == p2.msgNoFromSenderMac)
+                return true;
+            else
+                return false;
+        }
+
+        public static bool operator !=(MessagePayload p1, MessagePayload p2)
+        {
+
+            if ((p1 == null && p2 != null) || (p1 != null && p2 == null))
+                return true;
+
+            if (p1 == null && p2 == null)
+                return false;
+
+            if (p1.senderMac == p2.senderMac && p1.msgNoFromSenderMac == p2.msgNoFromSenderMac)
+                return false;
+            else
+                return true;
         }
     }
 }

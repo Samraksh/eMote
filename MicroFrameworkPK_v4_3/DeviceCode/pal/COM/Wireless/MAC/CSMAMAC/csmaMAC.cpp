@@ -262,19 +262,22 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
-			UINT8 index = m_NeighborTable.FindIndex(rcv_msg_hdr->src);
-			if(index == 255)
+
+			if(!m_NeighborTable.DoesNodeExist(rcv_msg_hdr->src))
 			{
 				// Insert into the table if a new node was discovered
 				m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks());
 			}
 			else
 			{
+				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+#if 0
 				m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
 				m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
 				m_NeighborTable.Neighbor[index].PacketsReceived++;
 				m_NeighborTable.Neighbor[index].LastHeardTime = HAL_Time_CurrentTicks();
 				m_NeighborTable.Neighbor[index].Status = Alive;
+#endif
 			}
 
 			return msg;

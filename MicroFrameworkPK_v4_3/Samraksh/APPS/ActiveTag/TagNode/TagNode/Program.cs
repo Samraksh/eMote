@@ -25,7 +25,7 @@ namespace Samraksh.APPS.ActiveTag
         AreYouAliveRequest,
         AreYouAliveResponse,
         RteInfoReqFromBase,
-        RteInfoRespToBase
+        RteInfoRespToBase,
     } ;
 
     public enum MessageStrings : byte
@@ -100,10 +100,21 @@ namespace Samraksh.APPS.ActiveTag
 
         SynchronizedVariable processNeighbourChange;
 
+        // Holds the current packet from the native buffer
+        Samraksh.SPOT.Net.Message incomingMessage;
+
+        // Holds the current message being processed
+        MessagePayload mp;
+
         UInt16 theMsgNoFromThisNodeSendingMac = 1;
+
+        UInt16 numberOfMessagesToProcess = 0;
 
         public void HandleMessage(UInt16 numberOfPackets)
         {
+            // Possibility of race condition here 
+            numberOfMessagesToProcess = numberOfPackets;
+            
             processMessage.SetState(true);
         }
 
@@ -116,12 +127,18 @@ namespace Samraksh.APPS.ActiveTag
         {
             rng = new Random(tagAddress);
 
-            tagType = (TagFunctionType)(rng.Next() % 3);
+            tagType = (TagFunctionType)(rng.Next() % 4);
         }
 
         public TagNode()
         {
             macconfig = new MacConfiguration();
+
+            // Default value is 300s, changing to 10s for testing 
+            //macconfig.NeighbourLivelinesDelay = 10;
+
+            // Set to extreme low power 
+            macconfig.radioConfig.SetTxPower(SPOT.Net.Radio.TxPowerValue.Power_Minus17dBm);
 
             rcallback = HandleMessage;
 
@@ -152,7 +169,7 @@ namespace Samraksh.APPS.ActiveTag
             AssignTagFunction();
 
             // Disabling sensor sampler timer for testing 
-            //sensorSamplerTimer = new Timer(SensorSamplerCallback, null, 200, 500);
+            sensorSamplerTimer = new Timer(SensorSamplerCallback, null, 200, tagAddress * 10);
 
             sendCritialAlarm = new SynchronizedVariable();
 
@@ -283,6 +300,63 @@ namespace Samraksh.APPS.ActiveTag
             }
         }
 
+        public void ForwardMessage()
+        {
+            mp.senderMac = tagAddress;
+            mp.msgNoFromSenderMac = theMsgNoFromThisNodeSendingMac;
+            theMsgNoFromThisNodeSendingMac++;
+            nw.sendingMsg(mp.MarshallIntoBytes(), 0, mp.messageLength);
+        }
+
+        public void ProcessRteInfoReqFromBase()
+        {
+            UInt16[] activeNeighbours = neighbourList.GetActiveNeighbours();
+            UInt16 contentLength = 0;
+
+            if (neighbourList.numberOfActiveNeighbours == 0)
+            {
+                Debug.Print("Node " + tagAddress.ToString() + " does not see any neighbours \n");
+                return;
+            }
+
+            Debug.Print("Sending Information about ");
+
+            for (int i = 0; i < neighbourList.numberOfActiveNeighbours; i++)
+            {
+                Debug.Print(activeNeighbours[i].ToString());
+            }
+
+            MessagePayload mp = new MessagePayload();
+
+            mp.senderMac = tagAddress;
+            mp.origSenderMac = tagAddress;
+            mp.msgPType = MessagePayloadType.RteInfoRespToBase;
+            mp.msgDestinationType = MessageDestinationType.BaseStation;
+            mp.msgAuthType = MessageAuthorType.SpecificNodeAuthor;
+            mp.msgAuthFuncType = (MessageAuthorFunctionType)tagType;
+            mp.msgNoFromSenderMac = theMsgNoFromThisNodeSendingMac;
+            theMsgNoFromThisNodeSendingMac++;
+            mp.intendedRecMacIsSpecified = IntendedRecipientMacIsSpecified.No;
+            mp.intendedRecipientMacAddress = 0;
+
+            // load information about neighbours as message content
+            for (int i = 0; i < neighbourList.numberOfActiveNeighbours; i++)
+            {
+                mp.messageContent[contentLength++] = (byte) (activeNeighbours[i] & 0xff);
+                mp.messageContent[contentLength++] = (byte) ((activeNeighbours[i] >> 8) & 0xff);
+            }
+            mp.messageContentLength = contentLength;
+
+            // Send data about my neighbours to base 
+            nw.sendingMsg(mp.MarshallIntoBytes(), 0, mp.messageLength);
+            
+            
+        }
+
+        public void ProcessRteInfoRespToBase()
+        {
+        }
+
         public void Run()
         {
             while (true)
@@ -294,25 +368,47 @@ namespace Samraksh.APPS.ActiveTag
                 }
                 if (processMessage.IsReady())
                 {
-                    Samraksh.SPOT.Net.Message incomingMessage;
 
-                    incomingMessage = macObject.GetNextPacket();
-
-                    if (incomingMessage != null)
+                    while (macObject.GetPendingPacketCount() > 0)
                     {
-                        MessagePayload mp = new MessagePayload(incomingMessage.GetMessage());
+                        incomingMessage = macObject.GetNextPacket();
 
-                        switch (mp.msgPType)
+                        if (incomingMessage != null)
                         {
-                            case MessagePayloadType.AreYouAliveResponse:
-                                // No need to add this to the list because the neighbour table is the mac would have done this already
-                                Debug.Print("Neighbour " + mp.senderMac.ToString() + " is alive\n");
-                                break;
+                            mp = new MessagePayload(incomingMessage.GetMessage());
 
-                            case MessagePayloadType.AreYouAliveRequest:
-                                Debug.Print("Generating response to node " + mp.senderMac.ToString() + " \n");
-                                GenerateAliveResponse(mp.senderMac);
-                                break;
+                            // If message is not meant for me then just forward it 
+                            if (mp.msgDestinationType == MessageDestinationType.BaseStation)
+                            {
+                                ForwardMessage();
+                                continue;
+                            }
+
+                            switch (mp.msgPType)
+                            {
+                                case MessagePayloadType.AreYouAliveResponse:
+                                    // No need to add this to the list because the neighbour table is the mac would have done this already
+                                    Debug.Print("Neighbour " + mp.senderMac.ToString() + " is alive\n");
+                                    break;
+
+                                case MessagePayloadType.AreYouAliveRequest:
+                                    Debug.Print("Generating response to node " + mp.senderMac.ToString() + " \n");
+                                    GenerateAliveResponse(mp.senderMac);
+                                    break;
+
+                                case MessagePayloadType.RteInfoReqFromBase:
+                                    Debug.Print("Neighbourhood Info Request from Base");
+                                    ForwardMessage();
+                                    ProcessRteInfoReqFromBase();
+                                    break;
+
+                                case MessagePayloadType.RteInfoRespToBase:
+                                    ForwardMessage();
+                                    ProcessRteInfoRespToBase();
+                                    break;
+
+                                   
+                            }
                         }
                     }
 
@@ -320,6 +416,9 @@ namespace Samraksh.APPS.ActiveTag
                 }
                 if (processNeighbourChange.IsReady())
                 {
+
+                    Debug.Print("Neighbourhood Change Detected");
+
                     ProcessNeighbourChange();
 
                     processNeighbourChange.SetState(false);

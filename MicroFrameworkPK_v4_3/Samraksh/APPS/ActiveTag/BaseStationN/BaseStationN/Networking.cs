@@ -44,7 +44,6 @@ namespace Samraksh.APPS.ActiveTag
 
                 if (sendStatus == (DeviceStatus)1)
                 {
-                    
                     sendTryOK = 1;
                 }
 

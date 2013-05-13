@@ -23,7 +23,7 @@
 #define LEVEL_1_RECOVER (1 << 1)
 #define LEVEL_2_RECOVER (1 << 2)
 
-#define DISCOVERY_FREQUENCY 20
+#define DISCOVERY_FREQUENCY 200
 
 extern Buffer_15_4_t m_send_buffer;
 extern Buffer_15_4_t m_receive_buffer;

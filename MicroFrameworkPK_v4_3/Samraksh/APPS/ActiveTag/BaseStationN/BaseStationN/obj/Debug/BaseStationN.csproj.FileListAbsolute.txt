@@ -26,3 +26,4 @@ D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ActiveT
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ActiveTag\BaseStationN\BaseStationN\obj\Debug\le\BaseStationN.pdbx
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ActiveTag\BaseStationN\BaseStationN\obj\Debug\BaseStationN.exe
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ActiveTag\BaseStationN\BaseStationN\obj\Debug\BaseStationN.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\ActiveTag\BaseStationN\BaseStationN\obj\Debug\BaseStationN.csprojResolveAssemblyReference.cache
