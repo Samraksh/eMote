@@ -27,8 +27,8 @@
 
 #define BOOT_BLOCK_OFFSET	0x10000
 
-#define ADDR_SHIFT(A) (Bank1_NOR2_ADDR + (2 * (A)))
-//#define ADDR_SHIFT(A) (Bank1_NOR2_ADDR + ((A)))
+//#define ADDR_SHIFT(A) (Bank1_NOR2_ADDR + (2 * (A)))
+#define ADDR_SHIFT(A,B) (Bank1_NOR2_ADDR + BOOT_BLOCK_OFFSET + A + ( 2 * (B)))
 #define NOR_WRITE(Address, Data)  (*(__IO UINT16 *)(Address) = (Data))
 
 #define MANUFACTURE_ID 0x89

@@ -115,11 +115,11 @@ DeviceStatus P30BF65NOR_Driver::Initialize(void)
 
 BOOL P30BF65NOR_Driver::IsBlockLocked(UINT32 address)
 {
-	UINT32 baseAddress = ((address + BOOT_BLOCK_OFFSET) & BASE_BLOCK_ADDRESS_MASK);
+	UINT32 baseAddress = ((address) & BASE_BLOCK_ADDRESS_MASK);
 
-	NOR_WRITE(ADDR_SHIFT(baseAddress), 0x90);
+	NOR_WRITE(ADDR_SHIFT(baseAddress, 0), 0x90);
 
-	UINT16 blockLockStatus = *(__IO UINT16 *) ADDR_SHIFT(baseAddress + 0x02);
+	UINT16 blockLockStatus = *(__IO UINT16 *) ADDR_SHIFT(baseAddress , 0x02);
 
 	//NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + address), 0x60);
 	//NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + address), 0xD0);
@@ -136,10 +136,10 @@ BOOL P30BF65NOR_Driver::IsBlockLocked(UINT32 address)
 
 DeviceStatus P30BF65NOR_Driver::ReadID()
 {
-	NOR_WRITE(ADDR_SHIFT(0), 0x90);
+	NOR_WRITE(ADDR_SHIFT(0, 0), 0x90);
 
-	norId.Manufacturer_Code = *(__IO UINT16 *) ADDR_SHIFT(0x0000);
-	norId.Device_Code1 = *(__IO UINT16 *) ADDR_SHIFT(0x0001);
+	norId.Manufacturer_Code = *(__IO UINT16 *) ADDR_SHIFT(0x0000, 0);
+	norId.Device_Code1 = *(__IO UINT16 *) ADDR_SHIFT(0x0, 0x1);
 
 	return DS_Success;
 
@@ -173,8 +173,8 @@ DeviceStatus P30BF65NOR_Driver::EraseBlock(UINT32 BlockAddr)
 	// Clear the status register before doing anything
 	ClearStatusRegister();
 
-	NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + BlockAddr), 0x20);
-	NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + BlockAddr), 0xD0);
+	NOR_WRITE(ADDR_SHIFT(BlockAddr, 0), 0x20);
+	NOR_WRITE(ADDR_SHIFT(BlockAddr, 0), 0xD0);
 
 	// Wait for 3s for erase to complete
 	return GetStatus(3 * 1000 * 1000);
@@ -194,7 +194,7 @@ DeviceStatus P30BF65NOR_Driver::EraseChip()
 DeviceStatus P30BF65NOR_Driver::BlockUnlock(UINT32 address)
 {
 
-	UINT32 baseAddress = ((address + BOOT_BLOCK_OFFSET) & BASE_BLOCK_ADDRESS_MASK);
+	UINT32 baseAddress = ((address) & BASE_BLOCK_ADDRESS_MASK);
 
 	if((address + BOOT_BLOCK_OFFSET) > 0x7FFFFF)
 	{
@@ -202,15 +202,15 @@ DeviceStatus P30BF65NOR_Driver::BlockUnlock(UINT32 address)
 		return DS_Fail;
 	}
 
-	NOR_WRITE(ADDR_SHIFT(baseAddress), 0x60);
-	NOR_WRITE(ADDR_SHIFT(baseAddress), 0xD0);
+	NOR_WRITE(ADDR_SHIFT(baseAddress, 0), 0x60);
+	NOR_WRITE(ADDR_SHIFT(baseAddress, 0), 0xD0);
 
 	// Check if the block is locked
-	NOR_WRITE(ADDR_SHIFT(0), 0x90);
-	UINT16 blockLockStatus = *(__IO UINT16 *) ADDR_SHIFT(baseAddress + 0x02);
+	NOR_WRITE(ADDR_SHIFT(0,0), 0x90);
+	UINT16 blockLockStatus = *(__IO UINT16 *) ADDR_SHIFT(baseAddress , 0x02);
 
 	// Move back to read array mode
-	NOR_WRITE(ADDR_SHIFT(0), 0xFF);
+	NOR_WRITE(ADDR_SHIFT(0,0), 0xFF);
 
 	if((blockLockStatus & 1) != 0)
 	{
@@ -223,13 +223,16 @@ DeviceStatus P30BF65NOR_Driver::BlockUnlock(UINT32 address)
 
 BOOL P30BF65NOR_Driver::ClearStatusRegister()
 {
-	NOR_WRITE(ADDR_SHIFT(0x0), 0x50);
+	NOR_WRITE(ADDR_SHIFT(0, 0), 0x50);
 
 	return TRUE;
 }
 
 DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 {
+
+	DeviceStatus status;
+
 	// Check if memory is busy
 	if(GetStatus() != DS_Success)
 	{
@@ -248,19 +251,20 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Write data
-	NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + WriteAddr), 0x40);
+	NOR_WRITE(ADDR_SHIFT(WriteAddr, 0x0), 0x40);
+	//NOR_WRITE((Bank1_NOR2_ADDR + BOOT_BLOCK_OFFSET + WriteAddr), 0x40);
 	NOR_WRITE((Bank1_NOR2_ADDR + BOOT_BLOCK_OFFSET + WriteAddr), data);
 
+	status = GetStatus(1500);
+
+	ReturnToReadMode();
+
 	// Give a 500us timeout, the manual claims the write operation is complete in 175us
-	if(GetStatus(500) != DS_Success)
+	if(status != DS_Success)
 	{
 		return DS_Fail;
 	}
-	else
-	{
-		// Return to read mode if the write was successful
-		NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + WriteAddr), 0xFF);
-	}
+
 
 	return DS_Success;
 
@@ -281,8 +285,8 @@ DeviceStatus P30BF65NOR_Driver::ProgramBuffer(UINT16* pBuffer, UINT32 WriteAddr,
 
 UINT16 P30BF65NOR_Driver::ReadHalfWord(UINT32 ReadAddr)
 {
-	NOR_WRITE(ADDR_SHIFT(BOOT_BLOCK_OFFSET + ReadAddr), 0xFF);
-	return *(__IO UINT16 *) ADDR_SHIFT(BOOT_BLOCK_OFFSET + ReadAddr);
+	NOR_WRITE(ADDR_SHIFT(0,0), 0xFF);
+	return *(__IO UINT16 *) ADDR_SHIFT(ReadAddr, 0);
 }
 
 DeviceStatus P30BF65NOR_Driver::ReadBuffer(UINT16* pBuffer, UINT32 ReadAddr, UINT32 NumHalfWordToRead)
@@ -292,7 +296,10 @@ DeviceStatus P30BF65NOR_Driver::ReadBuffer(UINT16* pBuffer, UINT32 ReadAddr, UIN
 
 DeviceStatus P30BF65NOR_Driver::ReturnToReadMode(void)
 {
+	// Go back to read mode
+	NOR_WRITE(ADDR_SHIFT(0,0), 0xFF);
 
+	return DS_Success;
 }
 
 DeviceStatus P30BF65NOR_Driver::Reset(void)
@@ -303,9 +310,9 @@ DeviceStatus P30BF65NOR_Driver::Reset(void)
 
 UINT16 P30BF65NOR_Driver::GetStatusRegister()
 {
-	NOR_WRITE(ADDR_SHIFT(0x0000), 0x70);
+	NOR_WRITE(ADDR_SHIFT(0x0000, 0), 0x70);
 
-	NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000);
+	NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000, 0);
 
 	return NOR_SR;
 }
@@ -318,9 +325,9 @@ DeviceStatus  P30BF65NOR_Driver::GetStatus(UINT32 Timeout)
 
 	while((INT64) (timeoutAt - HAL_Time_CurrentTicks()) > 0)
 	{
-		NOR_WRITE(ADDR_SHIFT(0x0000), 0x70);
+		NOR_WRITE(ADDR_SHIFT(0x0000, 0), 0x70);
 
-		NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000);
+		NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000,  0);
 
 #if defined(NOR_DEBUGGING_ENABLED)
 		if(NOR_SR & BLOCK_LOCKED_STATUS_BIT)
@@ -344,9 +351,9 @@ DeviceStatus  P30BF65NOR_Driver::GetStatus(UINT32 Timeout)
 // Read the status bit in the device status register
 DeviceStatus P30BF65NOR_Driver::GetStatus()
 {
-	NOR_WRITE(ADDR_SHIFT(0x0000), 0x70);
+	NOR_WRITE(ADDR_SHIFT(0x0000, 0x0), 0x70);
 
-	NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000);
+	NOR_SR =  *(__IO UINT16 *) ADDR_SHIFT(0x0000,0x0);
 
 	if(NOR_SR & DEVICE_READY_STATUS_BIT)
 	{
