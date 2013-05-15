@@ -25,14 +25,15 @@ const BlockDeviceInfo* STM32F10x_blDriver_nor::GetDeviceInfo( void* context )
 
 BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
-	UINT32 translAddress = Address - 0x64000000;
-    //pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
-	uint16_t *data;
+	UINT32 translAddress = Address - 0x64010000;
+
 	UINT32 NumHalfWords = NumBytes / 2;
+
+	gNORDriver.ReadBuffer((UINT16 *) pSectorBuff, Address, NumHalfWords);
 
 	//NOR_ReadBuffer(data,translAddress,NumHalfWords);
 
-	pSectorBuff = (BYTE *) data;
+
 
 	return TRUE;
 }
@@ -40,11 +41,11 @@ BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 Nu
 BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
 	DeviceStatus status;
-	UINT32 translAddress = address - 0x64000000;
+	UINT32 translAddress = address - 0x64010000;
 
 	UINT16* buffPtr       = (UINT16 *) pSectorBuff;
 
-	//status = NOR_WriteBuffer(buffPtr, translAddress, numBytes / 2);
+	status = gNORDriver.WriteBuffer(buffPtr, address, (numBytes / 2));
 
 	if(status == DS_Success )
 	{

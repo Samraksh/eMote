@@ -3,7 +3,7 @@
  *
  *  Author : Nived.Sivadas@samraksh.com
  *
- *  Description : Holds the configuration for the external nor flash for both the emote and the stm dev board
+ *  Description : Holds the configuration for the external nor flash for both the PLATFORM_ARM_EmoteDotNow and the stm dev board
  */
 
 #include <tinyhal.h>
@@ -11,8 +11,8 @@
 
 const BlockRange STM32F10x_BlockRange_ExternalFlash_NOR[] =
 {
-#ifdef EMOTE
-    { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,255 }
+#ifdef PLATFORM_ARM_EmoteDotNow
+    { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,125 }
 #else
     { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,127 }
 #endif
@@ -22,10 +22,10 @@ const BlockRange STM32F10x_BlockRange_ExternalFlash_NOR[] =
 const BlockRegionInfo  STM32F10x_BlockRegionInfo_ExternalFlash_NOR[1] =
 {
 
-    0x64000000,		// ByteAddress     Address;            // Start address
-#ifdef EMOTE
-    256,
-    0x20000,
+    0x64010000,		// ByteAddress     Address;            // Start address
+#ifdef PLATFORM_ARM_EmoteDotNow
+    126,
+    0x10000,
 #else
     128,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x20000,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
@@ -44,14 +44,14 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_ExternalFlash_NOR =
         TRUE,									// BOOL WriteProtected
     },
 
-    16,										    // UINT32 Duration_Max_WordWrite_uSec;
-												// The below information does not correspond to the Nor Flash
-    4800,										// UINT32 Duration_Max_SectorErase_uSec; @todo
-    0x4,										// BytesPerSector;
+    34,										    // UINT32 Duration_Max_WordWrite_uSec;
 
-    // The emote has a 256Mb Flash and the dev board has a 128 Mb Flash
-#ifdef EMOTE
-    0x2000000,
+    14800,										// UINT32 Duration_Max_SectorErase_uSec;
+    0x2,										// BytesPerSector;
+
+    // The PLATFORM_ARM_EmoteDotNow has a 16MB Flash and the dev board has a 128 Mb Flash
+#ifdef PLATFORM_ARM_EmoteDotNow
+    0x7E0000,
 #else
     0x1000000,									// UINT32 Size;
 #endif

@@ -16,8 +16,14 @@
 
 #if defined(NOR_DEBUGGING_ENABLED)
 #define NOR_DEBUG_PRINT(x) hal_printf(x);
+#define ERASE_PROFILE_PIN 24
+#define WRITE_PROFILE_PIN 25
+#define READ_PROFILE_PIN  ERASE_PROFILE_PIN
 #else
 #define NOR_DEBUG_PRINT(x)
+#define ERASE_PROFILE_PIN
+#define WRITE_PROFILE_PIN
+#define READ_PROFILE_PIN
 #endif
 
 
@@ -26,6 +32,10 @@
 #define Bank1_NOR2_ADDR       ((uint32_t)0x64000000)
 
 #define BOOT_BLOCK_OFFSET	0x10000
+
+#define BLOCK_SIZE 64 * 1024
+
+#define FLASH_LIMIT 0x7FFFFF
 
 //#define ADDR_SHIFT(A) (Bank1_NOR2_ADDR + (2 * (A)))
 #define ADDR_SHIFT(A,B) (Bank1_NOR2_ADDR + BOOT_BLOCK_OFFSET + A + ( 2 * (B)))
