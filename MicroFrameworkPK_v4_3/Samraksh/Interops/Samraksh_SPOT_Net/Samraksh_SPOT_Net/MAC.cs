@@ -39,7 +39,7 @@ namespace Samraksh.SPOT.Net
 
         private MacID macname;
 
-        private Neighbor neighbor;
+        private static Neighbor neighbor = new Neighbor();
 
         byte[] dataBuffer = new byte[MacMessageSize];
         
@@ -68,7 +68,7 @@ namespace Samraksh.SPOT.Net
             }
 
             this.macname = macname;
-            this.neighbor = new Neighbor();
+            //this.neighbor = new Neighbor();
 
             Initialize(macconfig, macname);
 
@@ -321,7 +321,10 @@ namespace Samraksh.SPOT.Net
             UInt16[] NeighbourList = new UInt16[MaxNeighbours];
 
             if (GetNeighbourListInternal(NeighbourList) != DeviceStatus.Success)
+            {
+                Debug.Print("Get NeighbourListInternal fails\n");
                 return null;
+            }
 
             return NeighbourList;
         }

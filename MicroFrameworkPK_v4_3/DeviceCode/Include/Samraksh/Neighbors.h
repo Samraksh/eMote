@@ -130,28 +130,31 @@ UINT8 NeighborTable::FindIndex(UINT16 address){
 
 UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 
+	GLOBAL_LOCK(irq);
+
 	UINT16 deadNeighbours = 0;
 
 	UINT64 livelinesDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
-		UINT64 currentTime = HAL_Time_CurrentTicks();
+	UINT64 currentTime = HAL_Time_CurrentTime();
 
-		for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinesDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-			if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinesDelayInTicks))
-			{
-				DEBUG_PRINTF("Removing Neighbor due to inactivity\n");
-				Neighbor[i].Status = Dead;
-				deadNeighbours++;
-				NumberValidNeighbor--;
-			}
+		
+			DEBUG_PRINTF("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			Neighbor[i].Status = Dead;
+			deadNeighbours++;
+			NumberValidNeighbor--;
+			
 		}
+	}
 
 	// Don't make callback if there are no dead neighbours
 	if(deadNeighbours > 0)
-	{
 		ManagedCallback(NeighbourChanged, deadNeighbours);
-	}
+
 
 	return 1;
 
