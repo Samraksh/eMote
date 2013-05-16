@@ -26,19 +26,11 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
     static const int FIELD_STATIC__macconfig = 2;
     static const int FIELD_STATIC__neighbor = 3;
 
-<<<<<<< HEAD
-    static const int FIELD__ByteNeighbor = 1;
-    static const int FIELD__MarshalBuffer = 2;
-    static const int FIELD__message = 3;
-    static const int FIELD__macname = 4;
-    static const int FIELD__neighbor = 5;
-=======
     static const int FIELD__NeighbourList = 1;
     static const int FIELD__ByteNeighbor = 2;
     static const int FIELD__MarshalBuffer = 3;
     static const int FIELD__message = 4;
     static const int FIELD__macname = 5;
->>>>>>> netdll
     static const int FIELD__dataBuffer = 6;
     static const int FIELD__radioObj = 7;
 
@@ -129,7 +121,6 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
     static const int FIELD__Src = 3;
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
-    static const int FIELD__Size = 6;
 
 
     //--//

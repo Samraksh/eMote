@@ -35,8 +35,6 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         private byte[] ReceiveMessage;
 
-        public UInt16 Size;
-
         /// <summary>
         /// Default constructor to create a received message with the default size
         /// </summary>
@@ -54,8 +52,6 @@ namespace Samraksh.SPOT.Net
             UInt16 i = 0;
             UInt16 length = (UInt16) msg[0];
             length |= (UInt16) (msg[1] << 8);
-
-            Size = length;
 
             ReceiveMessage = new byte[MacMessageSize];
 

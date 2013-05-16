@@ -136,7 +136,7 @@ UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 
 	UINT64 livelinesDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
-	UINT64 currentTime = HAL_Time_CurrentTime();
+	UINT64 currentTime = HAL_Time_CurrentTicks();
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
