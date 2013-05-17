@@ -83,7 +83,7 @@ BOOL NeighborTable::DoesNodeExist(UINT16 address)
 {
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if(Neighbor[i].MacAddress == address)
+		if ( (Neighbor[i].MacAddress == address) && (Neighbor[i].Status == Alive) )
 			return TRUE;
 	}
 
@@ -92,18 +92,20 @@ BOOL NeighborTable::DoesNodeExist(UINT16 address)
 
 BOOL NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
 {
+	//hal_printf("UpdateNeighborTable\r\n");
 	return RemoveSuspects(NeighbourLivelinessDelay);
 }
 
 BOOL NeighborTable::Initialize()
 {
-
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
 		DEBUG_PRINTF("Initializing Neighbour table\n");
+		Neighbor[i].MacAddress = 0;
 		Neighbor[i].Status = Dead;
 		Neighbor[i].LastHeardTime = 0;
 	}
+	NumberValidNeighbor = 0;
 }
 
 INT16 NeighborTable::GetNewIndex()
@@ -121,7 +123,7 @@ INT16 NeighborTable::GetNewIndex()
 UINT8 NeighborTable::FindIndex(UINT16 address){
 	UINT8 i=0;
 	for (i=0; i < MAX_NEIGHBORS; i++){
-		if(Neighbor[i].MacAddress == address){
+		if ((Neighbor[i].MacAddress == address) && (Neighbor[i].Status == Alive)){
 			return i;
 		}
 	}
@@ -130,28 +132,30 @@ UINT8 NeighborTable::FindIndex(UINT16 address){
 
 UINT8 NeighborTable::RemoveSuspects(UINT32 delay){
 
+	GLOBAL_LOCK(irq);
+
 	UINT16 deadNeighbours = 0;
 
 	UINT64 livelinesDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
-		UINT64 currentTime = HAL_Time_CurrentTicks();
+	UINT64 currentTime = HAL_Time_CurrentTicks();
 
-		for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinesDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-			if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinesDelayInTicks))
-			{
-				DEBUG_PRINTF("Removing Neighbor due to inactivity\n");
-				Neighbor[i].Status = Dead;
-				deadNeighbours++;
-				NumberValidNeighbor--;
-			}
+		
+			DEBUG_PRINTF("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			Neighbor[i].Status = Dead;
+			deadNeighbours++;
+			NumberValidNeighbor--;
+			
 		}
+	}
 
 	// Don't make callback if there are no dead neighbours
 	if(deadNeighbours > 0)
-	{
-		ManagedCallback(NeighbourChanged, deadNeighbours);
-	}
+		ManagedCallback(NeighbourChanged, NumberValidNeighbor);
 
 	return 1;
 
@@ -174,9 +178,12 @@ INT16 NeighborTable::NumberOfNeighbors(){
 	return NumberValidNeighbor;
 }
 UINT8 NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currtime){
+	hal_printf("InsertNeighbor %d\r\n",address);
 	UINT8 index = FindIndex(address);
+	hal_printf("return from findindex: %d\r\n", index);
 	if (index==255 && (address != 0 || address != 65535) && NumberValidNeighbor < MAX_NEIGHBORS){
 		index= GetNewIndex();
+		hal_printf("adding at %d\r\n", index);
 		// The neighbour table is full, can not insert this guy now
 		if(index == -1)
 		{
@@ -187,7 +194,8 @@ UINT8 NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT6
 		Neighbor[index].Status = status;
 		Neighbor[index].LastHeardTime = currtime;
 
-		ManagedCallback(NeighbourChanged, 1);
+		ManagedCallback(NeighbourChanged, NumberValidNeighbor);
+		//ManagedCallback(NeighbourChanged, 1);
 
 		return index;
 	}
@@ -248,8 +256,8 @@ UINT8 NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT6
 
 	}
 
-	if(callManaged)
-		ManagedCallback(NeighbourChanged, 1);
+	//if(callManaged)
+	//	ManagedCallback(NeighbourChanged, 1);
 
 	return index;
 }

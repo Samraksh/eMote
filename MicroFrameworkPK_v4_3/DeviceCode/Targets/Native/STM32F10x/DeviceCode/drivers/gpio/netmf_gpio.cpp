@@ -457,6 +457,7 @@ void EXTI4_IRQ_HANDLER(void *args)
 		PIN_ISR_DESCRIPTOR& pinIsr = gpinIsr[4];
 		if(pinIsr.m_isr)
 			pinIsr.m_isr(4, TRUE,  args);
+			//pinIsr.m_isr(4, TRUE,  pinIsr.m_param);
 		else
 			Default_EXTI_Handler(args);
 	}

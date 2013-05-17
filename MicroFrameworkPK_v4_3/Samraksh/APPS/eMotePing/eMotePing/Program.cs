@@ -117,7 +117,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         void Start()
         {
             Debug.Print("Starting timer...");
-            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 0, 100);
+            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 0, 200);
             Debug.Print("Timer init done.");
         }
 
@@ -145,7 +145,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         {
             Message rcvMsg = myCSMA.GetNextPacket();
             byte[] rcvPayload = rcvMsg.GetMessage();
-            HandleMessage(rcvPayload, (UInt16)rcvPayload.Length, rcvMsg.Src, rcvMsg.Unicast, rcvMsg.RSSI, rcvMsg.LQI);
+            HandleMessage(rcvPayload, (UInt16)rcvMsg.Size, rcvMsg.Src, rcvMsg.Unicast, rcvMsg.RSSI, rcvMsg.LQI);
 
         }
 
@@ -163,8 +163,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
                 {
                     Debug.Print("Got a broadcast message from src: " + src.ToString() + ", size: " + size.ToString() + ", rssi: " + rssi.ToString() + ", lqi: " + lqi.ToString());
                 }
-                //if (size == PingMsg.Size())
-                if (size == 128)
+                if (size == PingMsg.Size())                
                 {
 
                     //Debug.Print("MSG: " + msg[0].ToString() + " " + msg[1].ToString() + " " + msg[2].ToString() + " " + msg[3].ToString() + " " + msg[4].ToString() + " " + msg[5].ToString());
