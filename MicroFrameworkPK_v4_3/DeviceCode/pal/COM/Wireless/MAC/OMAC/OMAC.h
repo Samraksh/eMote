@@ -9,13 +9,11 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
-#if 0
 #include <Samraksh/MAC.h>
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
 #include <Samraksh/Buffer.h>
 #include <Samraksh/Neighbors.h>
-#endif
 
 #include "OMACConstants.h"
 #include "Scheduler.h"
@@ -30,21 +28,24 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 	//Underlying radio variables
 	static const UINT8 NumberRadios =1;
 	UINT8 RadioIDs[NumberRadios];
-	UINT8 CurrentActiveApp;
 
-	//Neighbors
-	NeighborTable m_NeighborTable;
-
-	//Buffer variables
-	Buffer_15_4_t m_send_buffer;
-	Buffer_15_4_t m_receive_buffer;
 
 	//Protocol variables
-	static const UINT8 SlotLength = 8; //slot Length in milliseconds
+//	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 
   public:
-
+	UINT8 CurrentActiveApp;
+	//Neighbors
+	//NeighborTable m_NeighborTable;
 	OMACScheduler m_omac_scheduler;
+	//Buffer variables
+	//Buffer_15_4_t m_send_buffer;
+	//Buffer_15_4_t m_receive_buffer;
+
+	UINT16 GetAddress(){return MyAddress;}
+	UINT16 GetMaxPayload(){return MaxPayload;	}
+	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
+	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 
 	//Override base class methods here, implement them later in cpp file
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);
@@ -56,7 +57,9 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 	BOOL UnInitialize(void);
 	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
-
+	Message_15_4_t* FindFirstSyncedNbrMessage();
+	Message_15_4_t* FindFirstMessageForNbr(UINT16 nbr);
+	void UpdateNeighborTable();
 };
 
 extern OMAC g_OMAC;

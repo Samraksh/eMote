@@ -14,8 +14,11 @@
 #include "Handlers.h"
 #include "RadioControl.h"
 #include "DiscoveryHandler.h"
+#include "DataReceptionHandler.h"
+#include "DataTransmissionHandler.h"
 //#include "GlobalTime.h"
 #include "CMaxTimeSync.h"
+#include "SeedGenerator.h"
 
 extern HALTimerManager gHalTimerManagerObject;
 
@@ -38,7 +41,9 @@ typedef class State{
 	}
 
 	//Set the current state back to S_IDLE
-	void ToIdle(){CurrentState=S_IDLE;}
+	void ToIdle(){
+		CurrentState=S_IDLE;
+	}
 
 	//@return TRUE if the state machine is in S_IDLE
 	bool IsIdle(){
@@ -72,7 +77,7 @@ class OMACScheduler{
 
 	float m_radioDelayAvg;
 	UINT32 radioTiming, m_lastPiggybackSlot;
-	UINT8 m_heartBeats, m_shldPrintDuty;
+	UINT8 m_discoveryTicks, m_shldPrintDuty;
 	UINT8 m_nonSleepStateCnt;
 	HandlerType_t m_lastHandler;
 	bool m_busy;	//indicates if radio is busy.
@@ -93,7 +98,8 @@ public:
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
-	CMaxTimeSync_t m_timeSync;
+	CMaxTimeSync_t m_TimeSyncHandler;
+	SeedGenerator m_seedGenerator;
 
 	void Initialize();
 	void UnInitialize();
@@ -104,8 +110,8 @@ public:
 	void DataAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS
 	bool IsRunningDataAlarm(); //DataAlarm.IsRunning from TinyOS
 
-	void StartHeartBeatTimer(UINT64 Delay);	//HeartBeatTimer.Start from TinyOS
-	void HeartBeatTimerHandler(void* Param);
+	void StartDiscoveryTimer(UINT64 Delay);	//HeartBeatTimer.Start from TinyOS
+	void DiscoveryTimerHandler(void* Param);
 
 	//Main Tasks
 	bool RunSlotTask();

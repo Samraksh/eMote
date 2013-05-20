@@ -20,7 +20,7 @@ class SlotHandler {
 	// @param slotNum the current slot number
 	//  @return the handler's offset (in jitters) in the slot that the radio should be started.
 	// a return value of 0 is to start the radio immediately
-	UINT16 NewSlot(UINT32 slotNum);
+	UINT16 NextSlot(UINT32 slotNum);
 	// the scheduler calls this command at the slot winner
 	// @param slotNum the current slot number
 	void ExecuteSlot(UINT32 slotNum);
@@ -31,27 +31,6 @@ class SlotHandler {
 
 	void SetWakeup(bool shldWakeup);
 };
-
-class DataReceptionHandler: public SlotHandler {
-public:
-	void Initialize();
-	UINT16 NewSlot(UINT32 slotNum);
-	void ExecuteSlot(UINT32 slotNum);
-	UINT8 ExecuteSlotDone();
-	void PostExecuteSlot();
-	void SetWakeup(bool shldWakeup);
-};
-
-class DataTransmissionHandler: public SlotHandler {
-public:
-	void Initialize();
-	UINT16 NewSlot(UINT32 slotNum);
-	void ExecuteSlot(UINT32 slotNum);
-	UINT8 ExecuteSlotDone();
-	void PostExecuteSlot();
-	void SetWakeup(bool shldWakeup);
-};
-
 
 
 #endif /* HANDLERS_H_ */
