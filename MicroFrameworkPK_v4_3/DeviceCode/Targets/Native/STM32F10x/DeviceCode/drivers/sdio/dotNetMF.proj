@@ -41,6 +41,7 @@
   <ItemGroup>
 	<HFiles Include="STM32F10x_sdio.h" />
     <Compile Include="STM32F10x_sdio.c" />
+    <Compile Include="netmf_sdio.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

@@ -18,14 +18,25 @@
 #include <Samraksh/Hal_util.h>
 #include "stm32f10x_sdio.h"
 
+#define SDIO_DEBUGGING_ENABLED 1
 
-#define SD_DETECT_PIN                    GPIO_Pin_11                 /* PF.11 */
-#define SD_DETECT_GPIO_PORT              GPIOF                       /* GPIOF */
+#if defined(SDIO_DEBUGGING_ENABLED)
+#define SDIO_DEBUG_PRINTF(x) hal_printf(x)
+//#define SDIO_DEBUG_PRINTF(x,y) hal_printf(x,y)
+#else
+#define SDIO_DEBUG_PRINTF(x)
+//#define SDIO_DEBUG_PRINTF(x,y)
+#endif
+
+
+#define SD_DETECT_PIN                    GPIO_Pin_7                 /* PC.7 */
+#define SD_DETECT_GPIO_PORT              GPIOC                       /* GPIOC */
 #define SD_DETECT_GPIO_CLK               RCC_APB2Periph_GPIOF
 
 #define SDIO_STATIC_FLAGS               ((UINT32)0x000005FF)
 #define SDIO_CMD0TIMEOUT                ((UINT32)0x00010000)
 
+#define SDIO_INIT_CLK_DIV                ((UINT8)0xB2)
 /**
   * @brief  Mask for errors Card Status R1 (OCR Register)
   */
@@ -95,6 +106,128 @@
 #define SDIO_STD_CAPACITY_SD_CARD_V1_1             ((UINT32)0x00000000)
 #define SDIO_STD_CAPACITY_SD_CARD_V2_0             ((UINT32)0x00000001)
 #define SDIO_HIGH_CAPACITY_SD_CARD                 ((UINT32)0x00000002)
+
+#define SD_CMD_ERASE                               ((UINT8)38)
+#define SD_CMD_FAST_IO                             ((UINT8)39) /*!< SD Card doesn't support it */
+#define SD_CMD_GO_IRQ_STATE                        ((UINT8)40) /*!< SD Card doesn't support it */
+#define SD_CMD_LOCK_UNLOCK                         ((UINT8)42)
+#define SD_CMD_APP_CMD                             ((UINT8)55)
+#define SD_CMD_GEN_CMD                             ((UINT8)56)
+#define SD_CMD_NO_CMD                              ((UINT8)64)
+
+#define SD_CMD_APP_SD_SET_BUSWIDTH                 ((UINT8)6)  /*!< For SD Card only */
+#define SD_CMD_SD_APP_STAUS                        ((UINT8)13) /*!< For SD Card only */
+#define SD_CMD_SD_APP_SEND_NUM_WRITE_BLOCKS        ((UINT8)22) /*!< For SD Card only */
+#define SD_CMD_SD_APP_OP_COND                      ((UINT8)41) /*!< For SD Card only */
+#define SD_CMD_SD_APP_SET_CLR_CARD_DETECT          ((UINT8)42) /*!< For SD Card only */
+#define SD_CMD_SD_APP_SEND_SCR                     ((UINT8)51) /*!< For SD Card only */
+#define SD_CMD_SDIO_RW_DIRECT                      ((UINT8)52) /*!< For SD I/O Card only */
+#define SD_CMD_SDIO_RW_EXTENDED                    ((UINT8)53) /*!< For SD I/O Card only */
+
+#define SD_CMD_WRITE_SINGLE_BLOCK                  ((UINT8)24)
+#define SD_CMD_WRITE_MULT_BLOCK                    ((UINT8)25)
+
+#define SD_CMD_READ_SINGLE_BLOCK                   ((UINT8)17)
+
+#define SD_CMD_SD_ERASE_GRP_START                  ((UINT8)32)
+#define SD_CMD_SD_ERASE_GRP_END                    ((UINT8)33)
+
+#define SD_CMD_SEND_STATUS                         ((UINT8)13)
+
+/**
+  * @brief Supported SD Memory Cards
+  */
+#define SDIO_STD_CAPACITY_SD_CARD_V1_1             ((UINT32)0x00000000)
+#define SDIO_STD_CAPACITY_SD_CARD_V2_0             ((UINT32)0x00000001)
+#define SDIO_HIGH_CAPACITY_SD_CARD                 ((UINT32)0x00000002)
+#define SDIO_MULTIMEDIA_CARD                       ((UINT32)0x00000003)
+#define SDIO_SECURE_DIGITAL_IO_CARD                ((UINT32)0x00000004)
+#define SDIO_HIGH_SPEED_MULTIMEDIA_CARD            ((UINT32)0x00000005)
+#define SDIO_SECURE_DIGITAL_IO_COMBO_CARD          ((UINT32)0x00000006)
+#define SDIO_HIGH_CAPACITY_MMC_CARD                ((UINT32)0x00000007)
+
+#define SD_CMD_ALL_SEND_CID                        ((UINT8)2)
+#define SD_CMD_SET_REL_ADDR                        ((UINT8)3) /*!< SDIO_SEND_REL_ADDR for SD Card */
+#define SD_CMD_SEND_CSD                            ((UINT8)9)
+
+
+#define SD_CMD_GO_IDLE_STATE                       ((UINT8)0)
+#define SDIO_TRANSFER_CLK_DIV            		   ((UINT8)0x00)
+
+#define SD_CMD_SEL_DESEL_CARD                      ((UINT8)7)
+
+#define SD_CMD_SET_BLOCKLEN                        ((UINT8)16)
+
+typedef enum
+{
+  SD_CARD_READY                  = ((uint32_t)0x00000001),
+  SD_CARD_IDENTIFICATION         = ((uint32_t)0x00000002),
+  SD_CARD_STANDBY                = ((uint32_t)0x00000003),
+  SD_CARD_TRANSFER               = ((uint32_t)0x00000004),
+  SD_CARD_SENDING                = ((uint32_t)0x00000005),
+  SD_CARD_RECEIVING              = ((uint32_t)0x00000006),
+  SD_CARD_PROGRAMMING            = ((uint32_t)0x00000007),
+  SD_CARD_DISCONNECTED           = ((uint32_t)0x00000008),
+  SD_CARD_ERROR                  = ((uint32_t)0x000000FF)
+}SDCardState;
+
+
+
+typedef enum
+{
+/**
+  * @brief  SDIO specific error defines
+  */
+  SD_CMD_CRC_FAIL                    = (1), /*!< Command response received (but CRC check failed) */
+  SD_DATA_CRC_FAIL                   = (2), /*!< Data bock sent/received (CRC check Failed) */
+  SD_CMD_RSP_TIMEOUT                 = (3), /*!< Command response timeout */
+  SD_DATA_TIMEOUT                    = (4), /*!< Data time out */
+  SD_TX_UNDERRUN                     = (5), /*!< Transmit FIFO under-run */
+  SD_RX_OVERRUN                      = (6), /*!< Receive FIFO over-run */
+  SD_START_BIT_ERR                   = (7), /*!< Start bit not detected on all data signals in widE bus mode */
+  SD_CMD_OUT_OF_RANGE                = (8), /*!< CMD's argument was out of range.*/
+  SD_ADDR_MISALIGNED                 = (9), /*!< Misaligned address */
+  SD_BLOCK_LEN_ERR                   = (10), /*!< Transferred block length is not allowed for the card or the number of transferred bytes does not match the block length */
+  SD_ERASE_SEQ_ERR                   = (11), /*!< An error in the sequence of erase command occurs.*/
+  SD_BAD_ERASE_PARAM                 = (12), /*!< An Invalid selection for erase groups */
+  SD_WRITE_PROT_VIOLATION            = (13), /*!< Attempt to program a write protect block */
+  SD_LOCK_UNLOCK_FAILED              = (14), /*!< Sequence or password error has been detected in unlock command or if there was an attempt to access a locked card */
+  SD_COM_CRC_FAILED                  = (15), /*!< CRC check of the previous command failed */
+  SD_ILLEGAL_CMD                     = (16), /*!< Command is not legal for the card state */
+  SD_CARD_ECC_FAILED                 = (17), /*!< Card internal ECC was applied but failed to correct the data */
+  SD_CC_ERROR                        = (18), /*!< Internal card controller error */
+  SD_GENERAL_UNKNOWN_ERROR           = (19), /*!< General or Unknown error */
+  SD_STREAM_READ_UNDERRUN            = (20), /*!< The card could not sustain data transfer in stream read operation. */
+  SD_STREAM_WRITE_OVERRUN            = (21), /*!< The card could not sustain data programming in stream mode */
+  SD_CID_CSD_OVERWRITE               = (22), /*!< CID/CSD overwrite error */
+  SD_WP_ERASE_SKIP                   = (23), /*!< only partial address space was erased */
+  SD_CARD_ECC_DISABLED               = (24), /*!< Command has been executed without using internal ECC */
+  SD_ERASE_RESET                     = (25), /*!< Erase sequence was cleared before executing because an out of erase sequence command was received */
+  SD_AKE_SEQ_ERROR                   = (26), /*!< Error in sequence of authentication. */
+  SD_INVALID_VOLTRANGE               = (27),
+  SD_ADDR_OUT_OF_RANGE               = (28),
+  SD_SWITCH_ERROR                    = (29),
+  SD_SDIO_DISABLED                   = (30),
+  SD_SDIO_FUNCTION_BUSY              = (31),
+  SD_SDIO_FUNCTION_FAILED            = (32),
+  SD_SDIO_UNKNOWN_FUNCTION           = (33),
+
+/**
+  * @brief  Standard error defines
+  */
+  SD_INTERNAL_ERROR,
+  SD_NOT_CONFIGURED,
+  SD_REQUEST_PENDING,
+  SD_REQUEST_NOT_APPLICABLE,
+  SD_INVALID_PARAMETER,
+  SD_UNSUPPORTED_FEATURE,
+  SD_UNSUPPORTED_HW,
+  SD_ERROR,
+  SD_OK = 0
+} SD_Error;
+
+
+
 
 typedef struct
 {
@@ -168,6 +301,18 @@ class SDIO_Driver
 
 	UINT32 CardType;
 
+	UINT32 CSD_Tab[4];
+
+	UINT32 CID_Tab[4];
+
+	UINT32 RCA;
+
+	SD_CardInfo SDCardInfo;
+
+
+	__IO SD_Error TransferError;
+	__IO UINT32 TransferEnd;
+	__IO UINT32 StopCondition;
 
 
 	SDIO_InitTypeDef SDIO_InitStructure;
@@ -185,15 +330,45 @@ class SDIO_Driver
 
 	DeviceStatus PowerOn();
 
-	DeviceStatus GetStatus();
+	SD_Error GetStatus();
 
-	DeviceStatus CmdResp7Error();
+	SD_Error CmdResp7Error();
+
+	SD_Error CmdResp6Error(UINT8 cmd, UINT16 *prca);
+
+	SD_Error CmdResp1Error(UINT8 cmd);
+
+	SD_Error CmdResp3Error(void);
+
+	SD_Error CmdResp2Error(void);
+
+
 
 public:
 
 	DeviceStatus Initialize();
 
+	DeviceStatus InitializeCards();
 
+	DeviceStatus SD_GetSDCardInfo();
+
+	DeviceStatus SD_SelectDeselect(UINT32 addr);
+
+	DeviceStatus SD_EnableWideBusOperation(UINT32 mode);
+
+	SD_Error SDEnWideBus(FunctionalState NewState);
+
+	SD_Error FindSCR(UINT16 rca, UINT32 *pscr);
+
+	DeviceStatus WriteBlock(UINT8 *writeBuff, UINT32 WriteAddr, UINT16 BlockSize);
+
+	DeviceStatus WriteMultiBlocks(UINT8 *writebuff, UINT32 WriteAddr, UINT16 BlockSize, UINT32 NumberOfBlocks);
+
+	DeviceStatus ReadBlock(UINT8 *readBuff, UINT32 WriteAddr, UINT16 BlockSize);
+
+	DeviceStatus EraseBlock(UINT32 startaddr, UINT32 endaddr);
+
+	SD_Error IsCardProgramming(uint8_t *pstatus);
 
 };
 
