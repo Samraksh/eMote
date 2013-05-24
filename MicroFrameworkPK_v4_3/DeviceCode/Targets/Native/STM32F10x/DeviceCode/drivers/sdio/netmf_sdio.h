@@ -16,18 +16,21 @@
 #include <rcc/stm32f10x_rcc.h>
 #include <gpio/stm32f10x_gpio.h>
 #include <Samraksh/Hal_util.h>
+#include <intc/STM32.h>
+#include <dma/stm32f10x_dma.h>
 #include "stm32f10x_sdio.h"
 
 #define SDIO_DEBUGGING_ENABLED 1
 
 #if defined(SDIO_DEBUGGING_ENABLED)
 #define SDIO_DEBUG_PRINTF(x) hal_printf(x)
-//#define SDIO_DEBUG_PRINTF(x,y) hal_printf(x,y)
+#define SDIO_DEBUG_PRINTF1(x,y) hal_printf(x,y)
 #else
 #define SDIO_DEBUG_PRINTF(x)
-//#define SDIO_DEBUG_PRINTF(x,y)
+#define SDIO_DEBUG_PRINTF1(x,y)
 #endif
 
+#define SDIO_FIFO_ADDRESS                ((UINT32)0x40018080)
 
 #define SD_DETECT_PIN                    GPIO_Pin_7                 /* PC.7 */
 #define SD_DETECT_GPIO_PORT              GPIOC                       /* GPIOC */
@@ -134,6 +137,7 @@
 
 #define SD_CMD_SEND_STATUS                         ((UINT8)13)
 
+#define SD_CMD_STOP_TRANSMISSION                   ((UINT8)12)
 /**
   * @brief Supported SD Memory Cards
   */
@@ -157,6 +161,19 @@
 #define SD_CMD_SEL_DESEL_CARD                      ((UINT8)7)
 
 #define SD_CMD_SET_BLOCKLEN                        ((UINT8)16)
+
+#define SD_PRESENT                                 ((uint8_t)0x01)
+#define SD_NOT_PRESENT                             ((uint8_t)0x00)
+
+#define SD_DMA_TRANSMIT_BUFFER_SIZE					512
+
+typedef enum
+{
+  SD_TRANSFER_OK  = 0,
+  SD_TRANSFER_BUSY = 1,
+  SD_TRANSFER_ERROR
+} SDTransferState;
+
 
 typedef enum
 {
@@ -310,9 +327,11 @@ class SDIO_Driver
 	SD_CardInfo SDCardInfo;
 
 
-	__IO SD_Error TransferError;
-	__IO UINT32 TransferEnd;
-	__IO UINT32 StopCondition;
+
+
+	static __IO SD_Error TransferError;
+	static __IO UINT32 TransferEnd;
+	static __IO UINT32 StopCondition;
 
 
 	SDIO_InitTypeDef SDIO_InitStructure;
@@ -346,6 +365,14 @@ class SDIO_Driver
 
 public:
 
+	UINT32 dmaTransmitBuffer[SD_DMA_TRANSMIT_BUFFER_SIZE];
+
+	UINT32 dmaRecieveBuffer[SD_DMA_TRANSMIT_BUFFER_SIZE];
+
+	UINT32 dmaTransmitBlockSize;
+
+	UINT32 dmaRecieveBlockSize;
+
 	DeviceStatus Initialize();
 
 	DeviceStatus InitializeCards();
@@ -368,9 +395,33 @@ public:
 
 	DeviceStatus EraseBlock(UINT32 startaddr, UINT32 endaddr);
 
-	SD_Error IsCardProgramming(uint8_t *pstatus);
+	SD_Error IsCardProgramming(UINT8 *pstatus);
+
+	static void SDIO_HANDLER( void* Param );
+
+	void SD_DMA_TxConfig(UINT32 *BufferSRC, UINT32 BufferSize);
+
+	void SD_DMA_RxConfig(UINT32 *BufferSRC, UINT32 BufferSize);
+
+	SD_Error WaitWriteOperation();
+
+	UINT32 DMAEndOfTransferStatus(void);
+
+	SDTransferState GetTransferStatus();
+
+	SDCardState SD_GetState();
+
+	UINT8 SD_Detect(void);
+
+	SD_Error SD_SendStatus(UINT32 *pcardstatus);
+
+	SD_Error SD_WaitReadOperation(void);
+
 
 };
 
+volatile SD_Error SDIO_Driver::TransferError;
+volatile UINT32 SDIO_Driver::TransferEnd = 0;
+volatile UINT32 SDIO_Driver::StopCondition = 0;
 
 #endif

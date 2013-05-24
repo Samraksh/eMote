@@ -1217,6 +1217,10 @@ DeviceStatus SDIO_Driver::WriteMultiBlocks(UINT8* writebuff, UINT32 WriteAddr,UI
 
 DeviceStatus SDIO_Driver::ReadBlock(UINT8 *readBuff, UINT32 ReadAddr, UINT16 BlockSize )
 {
+
+	if(TransferEnd != 1)
+		return DS_Fail;
+
 	SD_Error errorstatus = SD_OK;
 
 	UINT32 count = 0, *tempbuff = (UINT32 *)readBuff;
@@ -1255,6 +1259,14 @@ DeviceStatus SDIO_Driver::ReadBlock(UINT8 *readBuff, UINT32 ReadAddr, UINT16 Blo
 	  if(errorstatus != SD_OK)
 		  return DS_Fail;
 
+	  SD_DMA_RxConfig((UINT32 *)readBuff, BlockSize);
+	  SDIO_DMACmd(ENABLE);
+
+	  SD_WaitReadOperation();
+
+	  while(GetTransferStatus() != SD_TRANSFER_OK);
+
+#if 0
 	  while (!(SDIO->STA &(SDIO_FLAG_RXOVERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_DTIMEOUT | SDIO_FLAG_DBCKEND | SDIO_FLAG_STBITERR)))
 	  {
 	      if (SDIO_GetFlagStatus(SDIO_FLAG_RXFIFOHF) != RESET)
@@ -1303,12 +1315,193 @@ DeviceStatus SDIO_Driver::ReadBlock(UINT8 *readBuff, UINT32 ReadAddr, UINT16 Blo
 
 	  /*!< Clear all the static flags */
 	  SDIO_ClearFlag(SDIO_STATIC_FLAGS);
+#endif
+#if 0
+	  SDIO_ITConfig(SDIO_IT_DATAEND, ENABLE);
+	  SDIO_DMACmd(ENABLE);
+	  SD_DMA_RxConfig((UINT32 *)readBuff, BlockSize);
 
+	  SD_WaitReadOperation();
+
+	  while(GetTransferStatus() != SD_TRANSFER_OK);
+#endif
 	  return DS_Success;
+}
+
+SD_Error SDIO_Driver::SD_WaitReadOperation(void)
+{
+  SD_Error errorstatus = SD_OK;
+
+  while ((DMAEndOfTransferStatus() == RESET) && (TransferEnd == 0) && (TransferError == SD_OK))
+  {}
+
+  if (TransferError != SD_OK)
+  {
+    return(TransferError);
+  }
+
+  return(errorstatus);
+}
+
+void SDIO_Driver::SD_DMA_RxConfig(UINT32 *BufferDST, UINT32 BufferSize)
+{
+	  DMA_InitTypeDef DMA_InitStructure;
+
+	  DMA_ClearFlag(DMA2_FLAG_TC4 | DMA2_FLAG_TE4 | DMA2_FLAG_HT4 | DMA2_FLAG_GL4);
+
+	  /*!< DMA2 Channel4 disable */
+	  DMA_Cmd(DMA2_Channel4, DISABLE);
+
+	  /*!< DMA2 Channel4 Config */
+	  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SDIO_FIFO_ADDRESS;
+	  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)BufferDST;
+	  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	  DMA_InitStructure.DMA_BufferSize = BufferSize / 4;
+	  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+	  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+	  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	  DMA_Init(DMA2_Channel4, &DMA_InitStructure);
+
+	  /*!< DMA2 Channel4 enable */
+	  DMA_Cmd(DMA2_Channel4, ENABLE);
+}
+
+void SDIO_Driver::SD_DMA_TxConfig(UINT32 *BufferSRC, UINT32 BufferSize)
+{
+
+  DMA_InitTypeDef DMA_InitStructure;
+
+  DMA_ClearFlag(DMA2_FLAG_TC4 | DMA2_FLAG_TE4 | DMA2_FLAG_HT4 | DMA2_FLAG_GL4);
+
+  /*!< DMA2 Channel4 disable */
+  DMA_Cmd(DMA2_Channel4, DISABLE);
+
+  /*!< DMA2 Channel4 Config */
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)SDIO_FIFO_ADDRESS;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)BufferSRC;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+  DMA_InitStructure.DMA_BufferSize = BufferSize / 4;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA2_Channel4, &DMA_InitStructure);
+
+  /*!< DMA2 Channel4 enable */
+  DMA_Cmd(DMA2_Channel4, ENABLE);
+}
+
+UINT32 SDIO_Driver::DMAEndOfTransferStatus(void)
+{
+  return (UINT32)DMA_GetFlagStatus(DMA2_FLAG_TC4);
+}
+
+UINT8 SDIO_Driver::SD_Detect(void)
+{
+  __IO uint8_t status = SD_PRESENT;
+
+  /*!< Check GPIO to detect SD */
+  if (CPU_GPIO_GetPinState((GPIO_PIN) 37) == FALSE)
+  {
+    status = SD_NOT_PRESENT;
+  }
+  return status;
+}
+
+
+SD_Error SDIO_Driver::SD_SendStatus(UINT32 *pcardstatus)
+{
+  SD_Error errorstatus = SD_OK;
+
+  SDIO->ARG = (uint32_t) RCA << 16;
+  SDIO->CMD = 0x44D;
+
+  errorstatus = CmdResp1Error(SD_CMD_SEND_STATUS);
+
+  if (errorstatus != SD_OK)
+  {
+    return(errorstatus);
+  }
+
+  *pcardstatus = SDIO->RESP1;
+  return(errorstatus);
+}
+
+
+
+SDCardState SDIO_Driver::SD_GetState(void)
+{
+  UINT32 resp1 = 0;
+
+  if(SD_Detect()== SD_PRESENT)
+  {
+    if (SD_SendStatus(&resp1) != SD_OK)
+    {
+      return SD_CARD_ERROR;
+    }
+    else
+    {
+      return (SDCardState)((resp1 >> 9) & 0x0F);
+    }
+  }
+  else
+  {
+    return SD_CARD_ERROR;
+  }
+}
+
+
+SDTransferState SDIO_Driver::GetTransferStatus(void)
+{
+  SDCardState cardstate =  SD_CARD_TRANSFER;
+
+  cardstate = SD_GetState();
+
+  if (cardstate == SD_CARD_TRANSFER)
+  {
+    return(SD_TRANSFER_OK);
+  }
+  else if(cardstate == SD_CARD_ERROR)
+  {
+    return (SD_TRANSFER_ERROR);
+  }
+  else
+  {
+    return(SD_TRANSFER_BUSY);
+  }
+}
+
+
+
+SD_Error SDIO_Driver::WaitWriteOperation(void)
+{
+	SD_Error errorstatus = SD_OK;
+
+	  while ((DMAEndOfTransferStatus() == RESET) && (TransferEnd == 0) && (TransferError == SD_OK))
+	  {}
+
+	  if (TransferError != SD_OK)
+	  {
+	    return(TransferError);
+	  }
+
+	  /*!< Clear all the static flags */
+	  SDIO_ClearFlag(SDIO_STATIC_FLAGS);
+
+	  return(errorstatus);
 }
 
 DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 BlockSize)
 {
+	GLOBAL_LOCK(irq);
+
 	SD_Error errorstatus = SD_OK;
 
 	TransferError = SD_OK;
@@ -1326,6 +1519,8 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 		WriteAddr /= 512;
 	}
 
+	SD_DMA_TxConfig((UINT32*)writebuff, BlockSize);
+
 	/*!< Send CMD24 WRITE_SINGLE_BLOCK */
 	SDIO_CmdInitStructure.SDIO_Argument = WriteAddr;
 	SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_WRITE_SINGLE_BLOCK;
@@ -1341,6 +1536,19 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 		return DS_Fail;
 	}
 
+	memcpy(dmaTransmitBuffer, writebuff, BlockSize);
+
+	dmaTransmitBlockSize = BlockSize;
+
+#if 0
+	for(UINT32 i = 0; i < BlockSize; i++)
+	{
+		dmaTransmitBuffer[i] = writebuff[i];
+	}
+#endif
+
+	SDIO_ITConfig(SDIO_IT_DATAEND | SDIO_IT_TXUNDERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_STBITERR, ENABLE);
+
 	// Set block size
 	SDIO_DataInitStructure.SDIO_DataTimeOut = SD_DATATIMEOUT;
 	SDIO_DataInitStructure.SDIO_DataLength = BlockSize;
@@ -1350,6 +1558,14 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	SDIO_DataInitStructure.SDIO_DPSM = SDIO_DPSM_Enable;
 	SDIO_DataConfig(&SDIO_DataInitStructure);
 
+	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register WriteBlock %d\n", SDIO->FIFOCNT);
+	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register WriteBlock 2 %d\n", SDIO->DCOUNT);
+
+
+	SDIO_DMACmd(ENABLE);
+
+	// Polling mode is failing, unable to write due to fifo under run error, using dma instead
+#if  0
 	// Check status of write, polling mode
 	while (!(SDIO->STA & (SDIO_FLAG_DBCKEND | SDIO_FLAG_TXUNDERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_DTIMEOUT | SDIO_FLAG_STBITERR)))
 	{
@@ -1369,7 +1585,9 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	        for (count = 0; count < 8; count++)
 	        {
 	          SDIO_WriteData(*(tempbuff + count));
+
 	        }
+
 	        tempbuff += 8;
 	        bytestransferred += 32;
 	      }
@@ -1404,6 +1622,15 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	    return DS_Fail;
 	  }
 
+
+	  SDIO_ITConfig(SDIO_FLAG_TXFIFOHE | SDIO_IT_DATAEND | SDIO_IT_TXUNDERR, ENABLE);
+	  SD_DMA_TxConfig((UINT32*)writebuff, BlockSize);
+	  SDIO_DMACmd(ENABLE);
+
+	  WaitWriteOperation();
+
+	  while(GetTransferStatus() != SD_TRANSFER_OK);
+#endif
 	  return DS_Success;
 
 }
@@ -1457,8 +1684,111 @@ DeviceStatus SDIO_Driver::Initialize()
      StopCondition = 0;
      TransferEnd = 0;
 
+     if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_SDIO, SDIO_Driver::SDIO_HANDLER, NULL) )
+     {
+    	 SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Could not initialize interrupt handler\n");
+    	 return DS_Fail;
+     }
+
+     if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_SDIO))
+     {
+    	 SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Could not enable interrupt handler\n");
+    	 return DS_Fail;
+     }
+
+#if 0
+     // Initialize the transmit and recieve buffer
+     for(UINT32 i = 0; i < SD_DMA_TRANSMIT_BUFFER_SIZE; i++)
+     {
+    	 dmaTransmitBuffer[i] = 0;
+    	 dmaRecieveBuffer[i] = 0;
+     }
+#endif
+
+     memset(dmaTransmitBuffer, 0, SD_DMA_TRANSMIT_BUFFER_SIZE);
+     memset(dmaRecieveBuffer, 0, SD_DMA_TRANSMIT_BUFFER_SIZE);
+
+     dmaTransmitBlockSize = 0;
+     dmaRecieveBlockSize = 0;
 
      return DS_Success;
+
+}
+
+void SDIO_Driver::SDIO_HANDLER( void* Param )
+{
+	if(StopCondition == 1)
+	{
+		SDIO->ARG = 0x0;
+		SDIO->CMD = 0x44C;
+
+		TransferError = g_SDIODriver.CmdResp1Error(SD_CMD_STOP_TRANSMISSION);
+    }
+	else
+	 {
+	    TransferError = SD_OK;
+	  }
+
+	if (SDIO_GetFlagStatus(SDIO_FLAG_DTIMEOUT) != RESET)
+	{
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Timeout\n");
+		SDIO_ClearITPendingBit(SDIO_FLAG_DTIMEOUT);
+	}
+	if(SDIO_GetFlagStatus(SDIO_IT_TXFIFOHE) != RESET)
+	{
+		g_SDIODriver.SD_DMA_TxConfig((UINT32*)g_SDIODriver.dmaTransmitBuffer, g_SDIODriver.dmaTransmitBlockSize);
+		SDIO_DMACmd(ENABLE);
+		/*
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 1 %d\n", SDIO->FIFOCNT);
+		SDIO->FIFO = 1;
+		SDIO->FIFO = 2;
+		SDIO->FIFO = 3;
+		SDIO->FIFO = 4;
+		SDIO->FIFO = 5;
+		SDIO->FIFO = 6;
+		SDIO->FIFO = 7;
+		SDIO->FIFO = 8;
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 2 %d\n", SDIO->FIFOCNT);
+		*/
+		SDIO_ClearITPendingBit(SDIO_IT_TXFIFOHE);
+		SDIO_ITConfig(SDIO_IT_TXFIFOHE, DISABLE);
+	}
+	if(SDIO_GetFlagStatus(SDIO_IT_TXUNDERR) != RESET)
+	{
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] FIFO Underrun error\n");
+		SDIO_ClearITPendingBit(SDIO_IT_TXUNDERR);
+		SDIO_ITConfig(SDIO_IT_TXUNDERR, DISABLE);
+	}
+
+	if(SDIO_GetFlagStatus(SDIO_IT_DATAEND))
+	{
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Transfer Complete\n");
+		SDIO_ClearITPendingBit(SDIO_IT_DATAEND);
+		SDIO_ITConfig(SDIO_IT_DATAEND, DISABLE);
+		TransferEnd = 1;
+	}
+
+	if(SDIO_GetFlagStatus(SDIO_FLAG_DCRCFAIL))
+	{
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 2 %d\n", SDIO->FIFOCNT);
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register Interrupt Handler 2 %d\n", SDIO->DCOUNT);
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data CRC failed\n");
+		SDIO_ClearITPendingBit(SDIO_FLAG_DCRCFAIL);
+		SDIO_ITConfig(SDIO_FLAG_DCRCFAIL, DISABLE);
+		TransferEnd = 1;
+
+	}
+
+	if(SDIO_GetFlagStatus(SDIO_FLAG_STBITERR))
+	{
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 2 %d\n", SDIO->FIFOCNT);
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register Interrupt Handler 2 %d\n", SDIO->DCOUNT);
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] STBIT Error\n");
+		SDIO_ClearITPendingBit(SDIO_FLAG_STBITERR);
+		SDIO_ITConfig(SDIO_FLAG_DCRCFAIL, DISABLE);
+
+	}
+
 
 }
 

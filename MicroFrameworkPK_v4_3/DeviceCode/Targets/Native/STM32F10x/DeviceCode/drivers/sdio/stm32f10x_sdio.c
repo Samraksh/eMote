@@ -457,7 +457,7 @@ void SDIO_DataConfig(SDIO_DataInitTypeDef* SDIO_DataInitStruct)
   /* Set DTDIR bit according to SDIO_TransferDir value */
   /* Set DBCKSIZE bits according to SDIO_DataBlockSize value */
   tmpreg |= (uint32_t)SDIO_DataInitStruct->SDIO_DataBlockSize | SDIO_DataInitStruct->SDIO_TransferDir
-           | SDIO_DataInitStruct->SDIO_TransferMode | SDIO_DataInitStruct->SDIO_DPSM;
+           | SDIO_DataInitStruct->SDIO_TransferMode | SDIO_DataInitStruct->SDIO_DPSM /*| (1 << 3) */;
 
   /* Write to SDIO DCTRL */
   SDIO->DCTRL = tmpreg;
