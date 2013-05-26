@@ -9,9 +9,13 @@
 #include <Samraksh/Radio_decl.h>
 #include "OMACConstants.h"
 #include "Scheduler.h"
+#include "OMAC.h"
+#include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
 
 OMACScheduler *g_scheduler;
+extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
+extern OMAC g_OMAC;
 
 void PublicBeaconNCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
@@ -26,6 +30,7 @@ void DiscoveryHandler::Initialize(){
 	m_receivedPiggybackBeacon = FALSE;
 	m_idxForComputation = INVALID_INDEX;
 	counterOffsetAvg = 0;
+	m_busy = FALSE;
 	//dataAlarmDuration = 0;
 
 
@@ -36,22 +41,21 @@ void DiscoveryHandler::Initialize(){
 
 	m_p1 = CONTROL_P1[MF_NODE_ID % 7];
 	m_p2 = CONTROL_P2[MF_NODE_ID % 7];
+	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_p1, m_p2);
 
 	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root
-	ClearTable();
+	hal_printf("discoInterval: %d\r\n", discoInterval);
 }
 
 void DiscoveryHandler::ExecuteSlot(UINT32 slotNum){
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
 	Beacon1();
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
 }
 
 UINT8 DiscoveryHandler::ExecuteSlotDone(){
 	g_scheduler->Stop();
 }
 
-UINT32 DiscoveryHandler::NewSlot(UINT32 slotNum){
+UINT32 DiscoveryHandler::NextSlot(UINT32 slotNum){
 	UINT32 p1Remaining, p2Remaining;
 	p1Remaining = slotNum % m_p1;
 	p2Remaining = slotNum % m_p2;
@@ -72,7 +76,7 @@ UINT32 DiscoveryHandler::NewSlot(UINT32 slotNum){
 
 
 void DiscoveryHandler::PostExecuteSlot(){
-
+	m_busy = FALSE;
 }
 
 
@@ -89,12 +93,14 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 
 
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, TRUE);
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
 
 	m_discoveryMsg= (DiscoveryMsg_t*)msgPtr->GetPayload();
-	m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
+	m_discoveryMsg->seed = m_seed;
+	m_discoveryMsg->nextFrame = m_nextFrame;
+	//m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
+	m_discoveryMsg->dataInterval = WAKEUP_INTERVAL / SLOT_PERIOD_MILLI;
 	if (m_discoveryMsg->dataInterval < 1) {
 			m_discoveryMsg->dataInterval = 1;
 		}
@@ -103,19 +109,15 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr
 		m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
 		//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
 		m_discoveryMsg->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
-
-
-		//call PacketAcknowledgements.noAck(msgPtr);
-
-		if((e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime )) == DS_Success ) {
-			m_busy = TRUE;
-		}
+		//m_discoveryMsg->seed = ((OMACScheduler *)m_parentScheduler)->GetSeed();
+		m_discoveryMsg->nodeID = g_OMAC.GetAddress();
+		m_busy = TRUE;
+		Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
 	}
 	else {
 		// Why busy? Timing issue?
 		e = DS_Busy;
 	}
-	CPU_GPIO_SetPinState((GPIO_PIN) 10, FALSE);
 	return e;
 }
 
@@ -153,7 +155,6 @@ void DiscoveryHandler::BeaconN(){
 		}
 		else {
 			// HACK: for now, just turn off radio.
-			debug_printf("BeaconN fails\n");
 			this->ExecuteSlotDone();
 		}
 	}
@@ -186,170 +187,34 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	//gHalTimerManagerObject.StopTimer(7);
 }
 
-
-
-// neighbor table util functions
-UINT8 DiscoveryHandler::GetFreeIdx(){
-
-}
-
-DeviceStatus DiscoveryHandler::NbrToIdx(UINT16 nodeid, UINT8* idx){
-
-}
-
-void DiscoveryHandler::ClearNeighbor(RadioAddress_t nodeID){
-
-}
-
-void DiscoveryHandler::ClearTable(){
-
-}
-
-// util functions for time sync beaocn processing
-DeviceStatus DiscoveryHandler::IsSynced(RadioAddress_t address){
-
-}
-
-void DiscoveryHandler::CleanUpAfterProcessing(){
-
-}
-
-void DiscoveryHandler::ProcessMsg(){
-	/*TimeSyncMsg* msg = (TimeSyncMsg*) m_FTSPTimeSync.GetPayload(m_processedMsg, sizeof(TimeSyncMsg)));
-	am_addr_t source = msg->nodeID;
-	uint8_t i, freeItem = INVALID_INDEX, oldestItem = 0;
-	uint32_t age, oldestTime = 0;
-	int32_t timeError;
-	uint8_t numEntries = 0;
-	uint8_t nbrIdx;
-
-	if (nbrToIdx(source, &nbrIdx) == SUCCESS) {
-		atomic {
-			m_beaconTable[nbrIdx].dataInterval = msg->dataInterval;
-			m_beaconTable[nbrIdx].radioStartDelay = msg->radioStartDelay;
-			m_beaconTable[nbrIdx].counterOffset = msg->counterOffset;
-			if (call TimeSyncInfo.lockSeed()) {
-				if (m_beaconTable[nbrIdx].nextFrameAfterSeedUpdate < msg->nextFrame) {
-					printf("received seed %u\n", msg->seed);
-					m_beaconTable[nbrIdx].lastSeed = msg->seed;
-					m_beaconTable[nbrIdx].nextFrameAfterSeedUpdate = msg->nextFrame;
-				}
-				call TimeSyncInfo.unlockSeed();
-			}
-
-		}
-	}
-	else {
-		nbrIdx = getFreeIdx();
-		if (nbrIdx != INVALID_INDEX) {
-			atomic {
-				m_nbrCnt++;
-				m_beaconTable[nbrIdx].nodeID = source;
-				m_beaconTable[nbrIdx].dataInterval = msg->dataInterval;
-				m_beaconTable[nbrIdx].radioStartDelay = msg->radioStartDelay;
-				m_beaconTable[nbrIdx].counterOffset = msg->counterOffset;
-				if (m_beaconTable[nbrIdx].nextFrameAfterSeedUpdate < msg->nextFrame) {
-					m_beaconTable[nbrIdx].lastSeed = msg->seed;
-					m_beaconTable[nbrIdx].nextFrameAfterSeedUpdate = msg->nextFrame;
-				}
-			}
-		}
-	}
-
-	if (nbrIdx != INVALID_INDEX) {
-		TableItem *nbrPtr = &(m_beaconTable[nbrIdx]);
-		TimeSyncSample *samples = nbrPtr->samples;
-
-		// clear table if the received entry's been inconsistent for some time
-		if (is_synced(source) == SUCCESS) {
-			timeError = msg->localTime;
-			call GlobalTime.local2Global((uint32_t*)(&timeError), source);
-			timeError -= msg->globalTime;
-			if (timeError > (int32_t)ENTRY_THROWOUT_LIMIT
-				|| timeError < (int32_t)-ENTRY_THROWOUT_LIMIT) {
-				debug_printf("tsync error = %ld\n", timeError);
-				if (++(nbrPtr->numErrors) > 4) {
-					clearNeighbor(source);
-				}
-				cleanUpAfterProcessing();
-				return; // don't incorporate a bad reading
-			}
-		}
-		atomic {
-			nbrPtr->size = 0; // don't reset table size unless you're recounting
-			nbrPtr->numErrors = 0;
-		}
-
-		for(i = 0; i < MAX_ENTRIES; ++i) {
-			age = msg->localTime - samples[i].localTime;
-
-			//logical time error compensation
-			if( age >= 0x7FFFFFFFL )
-				samples[i].localTime = INVALID_TIMESTAMP;
-
-			if( samples[i].localTime == INVALID_TIMESTAMP )
-				freeItem = i;
-			else
-				++numEntries;
-			if( age >= oldestTime ) {
-				oldestTime = age;
-				oldestItem = i;
-			}
-		}
-
-		if( freeItem == INVALID_INDEX )
-			freeItem = oldestItem;
-		else
-			++numEntries;
-
-		nbrPtr->nodeID = source;
-		nbrPtr->size = numEntries;
-		samples[freeItem].localTime = msg->localTime;
-		samples[freeItem].timeOffset = msg->globalTime - msg->localTime;
-
-		m_idxForComputation = nbrIdx;
-
-		if(call TimeSyncInfo.isInTransitionPeriod(source)) {
-			// my clock has just wrapped. Do not do skew calculation until we have
-			// collected ENTRY_VALID_LIMIT samples after the clock wrap. We add a extra
-			// margin into the advance wakeup time to compensate for the possible change
-			// in clock drifts during this transition period. local2Global calculation will
-			// still be valid due to the arithmetics nature of the two's complements representations
-
-			cleanUpAfterProcessing();
-#ifdef OMAC_DEBUG
-			debug_printf("[transition period]: remaining=%u\n", m_transitionFromDone);
-#endif
-			return;
-		}
-		else if (post calculateConversion() != SUCCESS) {
-			nbrPtr->isInTransition = FALSE;
-			cleanUpAfterProcessing();
-		}
-		debug_printf("%u.cnt=%u\n", nbrPtr->nodeID, nbrPtr->size);
-	} else {
-		debug_printf("cannot add new beacon entry");
-		cleanUpAfterProcessing();
-	}
-*/
-
-}
-
-void DiscoveryHandler::CalculateConversion(){
-
-}
-
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
-	ProcessMsg();
+	RadioAddress_t source = disMsg->nodeID;
+	Neighbor_t tempNeighbor;
+	UINT8 nbrIdx;
+
+	UINT64 localTime = HAL_Time_CurrentTicks();
+
+	MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.CurrentActiveApp]->RecieveHandler;
+
+	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
+		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
+		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
+	} else {
+		g_NeighborTable.InsertNeighbor(disMsg->nodeID, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
+	}
+
 	return DS_Success;
 }
 
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
+	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	//UINT8 * payload = msg->GetPayload();
 	header->dest= address;
 	header->type=MFM_DISCOVERY;
 
-	g_omac_RadioControl.Send_TimeStamped(address,msg,sizeof(Message_15_4_t),event_time);
+	retValue = g_omac_RadioControl.Send(address,msg,size);
+
+	return retValue;
 }

@@ -30,7 +30,7 @@ void OMACScheduler::Initialize(){
 	ProtoState.ToIdle();
 	InputState.ToIdle();
 
-	m_heartBeats = 0, m_shldPrintDuty = 0;
+	m_discoveryTicks = 0, m_shldPrintDuty = 0;
 	m_slotNo = 0;
 	m_nonSleepStateCnt = 0;
 	m_lastHandler = NULL_HANDLER;
@@ -39,33 +39,37 @@ void OMACScheduler::Initialize(){
 	radioTiming = 0;
 	m_busy = FALSE;
 
+	//Initialize the HAL vitual timer layer
+	gHalTimerManagerObject.Initialize();
 
 	//Initialize various processes
 	this->StartSlotAlarm(SLOT_PERIOD);
-	this->StartHeartBeatTimer(1000*TICKS_PER_MILLI);
+	this->StartDiscoveryTimer(1000*TICKS_PER_MILLI);
 
 	//Initialize Handlers
 	 m_DiscoveryHandler.SetParentSchedulerPtr(this);
 	 m_DiscoveryHandler.Initialize();
 	 m_DataReceptionHandler.Initialize();
 	 m_DataTransmissionHandler.Initialize();
+	 m_TimeSyncHandler.Initialize();
 }
 void OMACScheduler::UnInitialize(){
 
 }
 
 bool OMACScheduler::RunSlotTask(){
-	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0;
+	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0, timeSyncSlotOffset=0;
 
 #ifdef PROFILING
 	taskDelay1 = call SubLocalTime.get() - taskDelay1;
 #endif
 
-	// the newSlot() for receiver must be called every slot as there are state update
+	g_OMAC.UpdateNeighborTable();
+	// the NextSlot() for receiver must be called every slot as there are state update
 	// operations in it
-	rxSlotOffset = m_DataReceptionHandler.NewSlot(m_slotNo);
+	rxSlotOffset = m_DataReceptionHandler.NextSlot(m_slotNo);
 
-	if(InputState.IsState(I_DATA_PENDING) || !(ProtoState.IsIdle())) {
+	if(InputState.IsState(I_DATA_SEND_PENDING) || !(ProtoState.IsIdle())) {
 		//printf("[S %u I %u\n] incorrect state\n", call State.getState(),
 		//Input.GetState());
 		return FALSE;
@@ -75,8 +79,9 @@ bool OMACScheduler::RunSlotTask(){
 	/* notice that the transmission handler returns the ticks (1/32 of a milli sec) for the
 	 * next scheduled transmission, whereas the reception handler returns the number of slots
 	 * before the next scheduled reception*/
-	txSlotOffset = m_DataTransmissionHandler.NewSlot(m_slotNo);
-	beaconSlotOffset = m_DiscoveryHandler.NewSlot(m_slotNo);
+	txSlotOffset = m_DataTransmissionHandler.NextSlot(m_slotNo);
+	beaconSlotOffset = m_DiscoveryHandler.NextSlot(m_slotNo);
+	timeSyncSlotOffset = m_TimeSyncHandler.NextSlot(m_slotNo);
 	//	if (rxSlotOffset < 2 * SLOT_PERIOD_32KHZ
 	//		|| beaconSlotOffset < 2 * SLOT_PERIOD_32KHZ || txSlotOffset < 2 * SLOT_PERIOD_32KHZ ) {
 	//		call OMacSignal.yield();
@@ -95,34 +100,41 @@ bool OMACScheduler::RunSlotTask(){
 	/* we are not going to send any beacons if neighbor is going to receive*/
 	else if(TRUE){//!isNeighborGoingToReceive()) {
 		if(startMeasuringDutyCycle && rxSlotOffset == 0) {
-			if(InputState.RequestState(I_WAITING_DATA) == DS_Success) {
+			if(InputState.RequestState(I_DATA_RCV_PENDING) == DS_Success) {
 				//call OMacSignal.yield();
 				//Mukundan:Instead of posting RadioTask just run it directly
 				if(!RadioTask()){
-					debug_printf("RadioTask failed\n");
+					debug_printf("RadioTask failed for sending data\n");
 					return FALSE;
 				}
 			}
 			else {
-				debug_printf("request to I_WAITING_DATA failed\n");
+				//debug_printf("request to I_DATA_RCV_PENDING failed\n");
 			}
 		}
-		/* do not send control beacon if
-		 * i) i'm already synced and
-		 * ii) i'm going to receive or send packets in 2 slots */
-		else if(beaconSlotOffset == 0) {
-		// && ((rxSlotOffset > 2
-		//	* SLOT_PERIOD_32KHZ && txSlotOffset > 2 * SLOT_PERIOD_32KHZ))) {
-		//	if (startMeasuringDutyCycle) {
-			//	return TRUE;
-		//	}
-			InputState.ToIdle();
-			//call OMacSignal.yield();
+		// do not send Time Sync message, if  i'm going to receive or send packets in 2 slots
+		else if((timeSyncSlotOffset == 0) && (rxSlotOffset > 2) && (txSlotOffset > 2))  {
+
+			InputState.ForceState(I_TIMESYNC_PENDING);
+
 			if(!RadioTask()) {
-				debug_printf("RadioTask failed\n");
+				debug_printf("RadioTask failed for timesync\n");
 				return FALSE;
 			}
 		}
+		// do not send Discovery message, if  i'm going to receive or send packets in 2 slots
+		else if((beaconSlotOffset == 0) && (rxSlotOffset > 2) && (txSlotOffset > 2))  {
+					//if (startMeasuringDutyCycle) {
+					//	return TRUE;
+					//}
+					InputState.ToIdle();
+
+					if(!RadioTask()) {
+						debug_printf("RadioTask failed\n");
+						return FALSE;
+					}
+		}
+
 	}
 	else {
 		debug_printf("neighbor is receiving\n");
@@ -134,26 +146,30 @@ bool OMACScheduler::RunSlotTask(){
 bool OMACScheduler::RadioTask(){
 	DeviceStatus e = DS_Fail;
 	//radioTiming = call GlobalTime.getLocalTime();
-	radioTiming = Time_GetLocalTime();
+	radioTiming = HAL_Time_CurrentTime();
 	//radioTiming = m_timeSync.GlobalTime();
 
 	if(ProtoState.RequestState(S_STARTING)) {
 		e = g_omac_RadioControl.Start();
 	}
 	else {
-		debug_printf("radio start failed. state=%u\n", ProtoState.GetState());
+		hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		return FALSE;
 	}
 
 	if(e == DS_Already) {
 		switch(InputState.GetState()) {
-			case I_DATA_PENDING :
+			case I_DATA_SEND_PENDING :
 				m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
-			case I_WAITING_DATA :
+			case I_DATA_RCV_PENDING :
 				m_DataReceptionHandler.ExecuteSlot(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
+				break;
+			case I_TIMESYNC_PENDING :
+				m_TimeSyncHandler.ExecuteSlot(m_slotNo);
+				m_lastHandler = TIMESYNC_HANDLER;
 				break;
 			default :
 				m_DiscoveryHandler.ExecuteSlot(m_slotNo);
@@ -162,7 +178,7 @@ bool OMACScheduler::RadioTask(){
 		}
 	}
 
-
+	PostExecution();
 	return TRUE;
 }
 
@@ -184,9 +200,11 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 }
 
 void OMACScheduler::SlotAlarmHandler(void* Param){
-	CPU_GPIO_SetPinState((GPIO_PIN) 9, TRUE);
+#ifdef OMAC_DEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
+#endif
 	UINT64 localTime, nextWakeup, oldSlotNo;
-	localTime = Time_GetLocalTime();
+	localTime = HAL_Time_CurrentTime();
 	//increment counter
 #ifdef PROFILING
 	taskDelay1 = localTime;
@@ -220,15 +238,16 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 	//We will revisit the whole task architecture later.
 	this->RunSlotTask();
 
-
+#ifdef OMAC_DEBUG
 	if(m_slotNo % 1000 == 0) {
-		debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
+		hal_printf("curSlot %lu time %llu\n", m_slotNo, localTime);
 	}
-	CPU_GPIO_SetPinState((GPIO_PIN) 9, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+#endif
 }
 
-//////HeartBeat Timer APIs
-void OMACScheduler::StartHeartBeatTimer(UINT64 Delay){
+//////Discovery Timer APIs
+void OMACScheduler::StartDiscoveryTimer(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
@@ -241,7 +260,7 @@ void OMACScheduler::StartHeartBeatTimer(UINT64 Delay){
 
 }
 
-void OMACScheduler::HeartBeatTimerHandler(void* Param){
+void OMACScheduler::DiscoveryTimerHandler(void* Param){
 
 }
 //////Data Alarm APIs
@@ -260,7 +279,7 @@ void OMACScheduler::StartDataAlarm(UINT64 Delay){
 
 void OMACScheduler::DataAlarmHandler(void* Param){
 	UINT64 localTime, nextWakeup, oldSlotNo;
-	localTime = Time_GetLocalTime();
+	localTime = HAL_Time_CurrentTime();
 	//localTicks = HAL_Time_CurrentTicks();
 
 	//increment counter
@@ -292,10 +311,11 @@ void OMACScheduler::DataAlarmHandler(void* Param){
 	//We will revisit the whole task architecture later.
 	this->RunSlotTask();
 
-
-	if(m_slotNo % 1000 == 0) {
-		debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
-	}
+#ifdef OMAC_DEBUG
+	//if(m_slotNo % 1000 == 0) {
+	//	debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
+	//}
+#endif
 }
 
 bool OMACScheduler::IsRunningDataAlarm(){
@@ -330,7 +350,6 @@ void OMACScheduler::Stop(){
 			return;
 		default :
 			ProtoState.ForceState(S_STOPPING);
-			//e = call RadioControl.stop();
 			e= g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG
@@ -376,6 +395,9 @@ void OMACScheduler::PostExecution(){
 		case CONTROL_BEACON_HANDLER :
 			m_DiscoveryHandler.PostExecuteSlot();
 			break;
+		case TIMESYNC_HANDLER :
+			m_TimeSyncHandler.PostExecuteSlot();
+			break;
 		case DATA_TX_HANDLER :
 			//also notify the DiscoveryHandler in case
 			//there is piggyback beacon received
@@ -389,6 +411,8 @@ void OMACScheduler::PostExecution(){
 		default :
 			break;
 	}
+	InputState.ToIdle();
+	ProtoState.ToIdle();
 #ifdef PROFILING
 	debug_printf("delay1=%lu,startDelay=%lu,stopDelay=%lu\n", taskDelay1, startDelay, stopDelay);
 	//printf("minStart=%lu,maxStart=%lu,minStop=%lu,maxStop=%lu\n", minStartDelay,

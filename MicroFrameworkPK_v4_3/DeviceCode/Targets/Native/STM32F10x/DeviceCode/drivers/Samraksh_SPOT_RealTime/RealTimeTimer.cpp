@@ -301,9 +301,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeTimer =
 {
-    "RealTimeTimer",
-	0x5D91752C,
-    //0xCA9921F5,
+ "Samraksh_SPOT_RealTime",
+ 0x25274F8E,
     method_lookup
 };
 

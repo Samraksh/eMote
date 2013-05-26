@@ -89,7 +89,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 
 		m_send_buffer.Initialize();
 		m_receive_buffer.Initialize();
-		m_NeighborTable.Initialize();
+		m_NeighborTable.ClearTable();
 
 		//m_NeighborTable.InitObject();
 
@@ -246,6 +246,7 @@ void csmaMAC::SendToRadio(){
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+	UINT8 index;
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 		return msg;
@@ -262,11 +263,10 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
-
-			if(!m_NeighborTable.DoesNodeExist(rcv_msg_hdr->src))
+			if(m_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks());
+				m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index);
 			}
 			else
 			{

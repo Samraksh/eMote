@@ -1,0 +1,35 @@
+<TestSuite>
+	<Test Name='Samraksh SPOT Net' Type='C#'>
+		<Description>
+			C# Samraksh SPOT Net Project
+		</Description>
+		<TestPath>
+			Samraksh_SPOT_Net_Tests\Src\C#\NeighbourTable\NeighbourTable\NeighbourTable
+		</TestPath>
+		<TestProjName>
+			NeighbourTable.csproj
+		</TestProjName>
+		<TesterName>
+		</TesterName>
+		<TestLocation>
+		</TestLocation>
+		<TestMFVersionNum>
+		</TestMFVersionNum>
+		<TestGitOption>			
+		</TestGitOption>
+		<TestGitBranch>
+		</TestGitBranch>
+		<TestUsePrecompiledBinary>
+		</TestUsePrecompiledBinary>
+		<TestHardware>
+		</TestHardware>
+		<TestSolution>
+		</TestSolution>
+		<TestMemoryType>
+		</TestMemoryType>
+		<TestSolutionType>
+		</TestSolutionType>
+		<TestGCCVersion>
+		</TestGCCVersion>
+	</Test>
+</TestSuite>

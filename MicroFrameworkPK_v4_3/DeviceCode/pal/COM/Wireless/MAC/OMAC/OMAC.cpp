@@ -12,10 +12,22 @@
 #include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
+#define DEBUG_OMAC 1
+
+extern Buffer_15_4_t g_send_buffer;
+extern Buffer_15_4_t g_receive_buffer;
+extern NeighborTable g_NeighborTable;
+
+
 OMAC g_OMAC;
 RadioControl_t g_omac_RadioControl;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){
+#ifdef DEBUG_OMAC
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+#endif
+
 	return (void*) g_OMAC.ReceiveHandler((Message_15_4_t*) msg, size);
 }
 BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
@@ -36,6 +48,8 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 				break;
 			case MFM_NEIGHBORHOOD:
 				break;
+			case MFM_TIMESYNC:
+				break;
 			default:
 				break;
 		};
@@ -55,6 +69,7 @@ DeviceStatus OMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
+	MyConfig.NeighbourLivelinessDelay = config->NeighbourLivelinessDelay;
 	return DS_Success;
 }
 
@@ -64,29 +79,38 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
 		MacId = OMAC::GetUniqueMacID();
-		OMAC::SetAddress(MF_NODE_ID);
+
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
+		OMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) 10, FALSE);
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
 		Radio_Event_Handler.SetRecieveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
 
-		m_send_buffer.Initialize();
-		m_receive_buffer.Initialize();
+		g_send_buffer.Initialize();
+		g_receive_buffer.Initialize();
 
-		//m_NeighborTable.InitObject();
+		g_NeighborTable.ClearTable();
 
 		Initialized=TRUE;
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, RadioIDs, NumberRadios, MacId);
-		g_omac_RadioControl.Initialize(RadioIDs[0]);
+		g_omac_RadioControl.Initialize(RadioIDs[0], MacId);
+		SetAddress(MF_NODE_ID);
+		MyAddress = MF_NODE_ID;
+
+#ifdef DEBUG_OMAC
+		hal_printf("Initializing OMAC: My address: %d\n", MF_NODE_ID);
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+#endif
 
 		//MAC <Message_15_4_t>::Initialize();
 		m_omac_scheduler.Initialize();
+	}else {
+		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", MF_NODE_ID);
 	}
 
 	//Initialize upper layer call backs
@@ -114,13 +138,32 @@ BOOL OMAC::UnInitialize()
 Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
 	//Message_15_4_t *Next;
+#ifdef DEBUG_OMAC
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+#endif
+
+	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMAC::GetMaxPayload()){
+			hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+			return msg;
+	}
+
+	Size -= sizeof(IEEE802_15_4_Header_t);
+
+	//Any message might have timestamping attached to it. Check for it and process
+	if(msg->GetHeader()->timestamped && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
+		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
+		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
+		Size -= tmsgSize;
+	}
 
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			this->m_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),msg->GetPayloadSize());
+			this->m_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
 			break;
 		case MFM_DATA:
+			hal_printf("Successfully got a data packet");
 
 			break;
 		case MFM_ROUTING:
@@ -128,7 +171,11 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 		case MFM_NEIGHBORHOOD:
 			break;
 		case MFM_TIMESYNC:
+			g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload(), Size);
 			break;
+		case OMAC_DATA_BEACON_TYPE:
+			hal_printf("Got a data beacon packet");
+
 		default:
 			break;
 	};
@@ -143,15 +190,50 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 }
 
-
+//Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
 BOOL OMAC::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
-	//(SendBuffer.GetNext())->
-	//SendBuffer.Store(msg);
+	if(g_send_buffer.IsFull())
+		return FALSE;
 
+	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	if(size >  OMAC::GetMaxPayload()){
+		hal_printf("OMAC Send Error: Packet is too big: %d ", size);
+		return FALSE;
+	}
+	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
+	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest =address;
+	header->src = MF_NODE_ID;
+	header->network = MyConfig.Network;
+	header->mac_id = MacId;
+	header->type = dataType;
+
+	UINT8* lmsg = (UINT8 *) msg;
+	UINT8* payload =  msg_carrier->GetPayload();
+
+	for(UINT8 i = 0 ; i < size; i++)
+		payload[i] = lmsg[i];
 
 	return true;
 }
 
+Message_15_4_t* OMAC::FindFirstSyncedNbrMessage(){
+	return NULL;
+}
 
+void OMAC::UpdateNeighborTable(){
+	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
+	//g_NeighborTable.DegradeLinks();
+}
 
+/*BOOL OMAC::SetAddress(UINT16 address){
+	MyAddress = address;
+	return TRUE;
+}
+*/

@@ -10,6 +10,9 @@
 
 #include <tinyhal.h>
 
+//types 1-5 are taken up by global types
+#define OMAC_DATA_BEACON_TYPE 7
+
 // Define default primes
 #ifndef P1
 #define P1 97
@@ -19,6 +22,10 @@
 #define P2 103
 #endif
 
+//How often should a node wakeup (in ms). This is roughly the receive duty cycle.
+#ifndef WAKEUP_INTERVAL
+#define WAKEUP_INTERVAL 2000
+#endif
 #ifndef DATA_INTERVAL
 #define DATA_INTERVAL 43
 #endif
@@ -64,15 +71,18 @@ typedef enum {
   S_PRELOADING_DATA,
   S_DATA_PRELOADED,
   S_SENDING_DATA,
-  //for time synchronization
+  //for Discovery
   S_BEACON_1,
   S_BEACON_N,
+  //Time Sync
+  S_TIMESYNC
 } OMacState_t;
 
 typedef enum {
   I_IDLE,
-  I_WAITING_DATA, //waiting to receive
-  I_DATA_PENDING, //pending to send
+  I_DATA_RCV_PENDING, //waiting to receive
+  I_DATA_SEND_PENDING, //pending to send
+  I_TIMESYNC_PENDING,
   I_DWELL_SEND
 } OMacInput_t;
 
@@ -80,7 +90,8 @@ typedef enum {
   NULL_HANDLER,
   CONTROL_BEACON_HANDLER,
   DATA_RX_HANDLER,
-  DATA_TX_HANDLER
+  DATA_TX_HANDLER,
+  TIMESYNC_HANDLER
 } HandlerType_t;
 
 typedef enum {
@@ -88,12 +99,6 @@ typedef enum {
   OMAC_SEND_PRELOAD,
   OMAC_FIRST_SEND
 } OMacAction_t;
-
-/* IEEE154 types are from 0 to 3. OMAC extends it to 4 for data beacons.
- * Both data packets and t-sync control beacons are treated as IEEE154_TYPE_DATA */
-typedef enum {
-  OMAC_DATA_BEACON_TYPE = 4,
-} OMacPacketType;
 
 typedef struct DiscoveryMsg
 {
@@ -115,7 +120,7 @@ typedef struct DiscoveryMsg
 } DiscoveryMsg_t;
 
 
-typedef struct TimeSyncMsg
+struct TimeSyncMsg
 {
   /*
    * After TEP 133, the message timestamp contains the difference between
@@ -127,22 +132,22 @@ typedef struct TimeSyncMsg
    * timestamp. The receiving timestamp thus represents the time on the
    * receiving clock when the remote globalTime was taken.
    */
-  UINT64 globalTime;
+  UINT32 globalTime0;
+  UINT32 globalTime1;
 
   //the time to startup the radio could be different for different nodes.
   //use this neighbor info along with local info to compute this difference
   //UINT16 radioStartDelay;
   float skew;
-  UINT32 localTime;
+  UINT32 localTime0;
+  UINT32 localTime1;
   UINT16 nodeID;
-} TimeSyncMsg_t;
+  UINT32 seqNo;
+};
 
 typedef struct DataBeacon {
   UINT16 nodeID;
-#ifdef J_MULCH
-  UINT8 ch;
-#endif
-} DataBeacon;
+} DataBeacon_t;
 
 typedef struct OMacHeader {
   UINT8 flag;
@@ -154,7 +159,7 @@ enum {
 #ifdef SHORT_SLOT
 #warning *** USING 8ms SLOT ***
   SLOT_PERIOD_MILLI     = 8,    /*modify this along with SLOT_PERIOD_BITS*/
-  SLOT_PERIOD_BITS    = 3 + 5,  /*5 = # of bits of TICKS_PER_MILLI, 4 = # of bits in SLOT_PERIOD_MILLI*/
+  SLOT_PERIOD_BITS    = 3 + 13,  /*13 = # of bits of TICKS_PER_MILLI, 4 = # of bits in SLOT_PERIOD_MILLI*/
 #else
   SLOT_PERIOD_MILLI     = 16,     /*modify this along with SLOT_PERIOD_BITS*/
   SLOT_PERIOD_BITS    = 4 + 13,  /*13 = # of bits of TICKS_PER_MILLI, assuming its a 10Mhz clock, 4 = # of bits in SLOT_PERIOD_MILLI*/
