@@ -1,12 +1,13 @@
 #include <tinyhal.h>
 #include "netmf_bl_nor.h"
 
+extern P30BF65NOR_Driver gNORDriver;
+
 BOOL isErased = TRUE;
 //--//
 BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
-	NOR_Init();
-	//NOR_EraseChip();
+	gNORDriver.Initialize();
 
 }
 
@@ -23,28 +24,25 @@ const BlockDeviceInfo* STM32F10x_blDriver_nor::GetDeviceInfo( void* context )
 
 BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
-	UINT32 translAddress = Address - 0x64000000;
-    //pSectorBuff = (BYTE *)Address;			// Just move the buffer pointer
-	uint16_t *data;
+	UINT32 translAddress = Address - 0x64010000;
+
 	UINT32 NumHalfWords = NumBytes / 2;
 
-	//NOR_ReadBuffer(data,translAddress,NumHalfWords);
-
-	pSectorBuff = (BYTE *) data;
+	gNORDriver.ReadBuffer((UINT16 *) pSectorBuff, Address, NumHalfWords);
 
 	return TRUE;
 }
 
 BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
-	NOR_Status status;
-	UINT32 translAddress = address - 0x64000000;
+	DeviceStatus status;
+	UINT32 translAddress = address - 0x64010000;
 
 	UINT16* buffPtr       = (UINT16 *) pSectorBuff;
 
-	//status = NOR_WriteBuffer(buffPtr, translAddress, numBytes / 2);
+	status = gNORDriver.WriteBuffer(buffPtr, address, (numBytes / 2));
 
-	if(status == NOR_SUCCESS )
+	if(status == DS_Success )
 	{
 		isErased = false;
 		return TRUE;
@@ -55,7 +53,9 @@ BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 n
 
 BOOL STM32F10x_blDriver_nor::Memset(void* context, ByteAddress address, UINT8 Data, UINT32 numBytes)
 {
-	UINT32 translAddress = address - 0x64000000;
+	DeviceStatus status;
+
+	UINT32 translAddress = address - 0x64010000;
 	uint16_t *buffer;
 	uint16_t tempData = (Data << 8);
 	tempData |= Data;
@@ -63,12 +63,8 @@ BOOL STM32F10x_blDriver_nor::Memset(void* context, ByteAddress address, UINT8 Da
 	for(int i = 0; i < numBytes / 2; i++)
 		buffer[i] = tempData;
 
-#if 0
-	if(NOR_SUCCESS == NOR_WriteBuffer(buffer, translAddress, numBytes / 2))
-			return TRUE;
-		else
-			return FALSE;
-#endif
+	status = gNORDriver.WriteBuffer(buffer, address, (numBytes)/ 2);
+
 }
 
 BOOL STM32F10x_blDriver_nor::GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)
@@ -83,24 +79,19 @@ BOOL STM32F10x_blDriver_nor::SetSectorMetadata(void* context, ByteAddress Sector
 
 BOOL STM32F10x_blDriver_nor::IsBlockErased( void* context, ByteAddress Address, UINT32 BlockLength )
 {
-	if(isErased == TRUE)
-		return TRUE;
-	else
+	if(gNORDriver.ReadHalfWord(Address) != 0xffff)
 		return FALSE;
+
+	return TRUE;
 
 }
 
 BOOL STM32F10x_blDriver_nor::EraseBlock( void* context, ByteAddress address )
 {
-#if 0
-	if(NOR_EraseBlock(address))
-	{
-		isErased = TRUE;
-		return TRUE;
-	}
-	else
+	if(gNORDriver.EraseBlock(address) != DS_Success)
 		return FALSE;
-#endif
+
+	return TRUE;
 }
 
 void  STM32F10x_blDriver_nor::SetPowerState( void* context, UINT32 State )

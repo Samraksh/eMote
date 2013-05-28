@@ -3,7 +3,7 @@
 
 #include <stm32f10x.h>
 #include <fsmc/stm32f10x_fsmc.h>
-#include <fsmc/NOR/stm3210e_eval_fsmc_nor.h>
+#include <fsmc/P30BF65NOR/P30BF65NOR.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)

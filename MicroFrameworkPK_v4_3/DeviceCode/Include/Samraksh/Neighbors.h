@@ -120,8 +120,6 @@ DeviceStatus NeighborTable::BringOutYourDead(UINT32 delay){
 
 	GLOBAL_LOCK(irq);
 
-	GLOBAL_LOCK(irq);
-
 	UINT16 deadNeighbours = 0;
 
 	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);

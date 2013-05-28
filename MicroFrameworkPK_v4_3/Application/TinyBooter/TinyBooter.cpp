@@ -9,7 +9,10 @@
 
 extern bool WaitForTinyBooterUpload( INT32 &timeout_ms );
 
-
+#if defined(PLATFORM_ARM_EmoteDotNow)
+#include "..\..\Solutions\EmoteDotNow\DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h"
+extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 
 //--//
@@ -57,6 +60,12 @@ void ApplicationEntryPoint()
             enterBootMode = true;
         }
     }
+
+#if defined(PLATFORM_ARM_EmoteDotNow)
+    g_LCD_PCF85162_Driver.Initialize();
+    g_LCD_PCF85162_Driver.Write(DISPLAY_CHAR_B, DISPLAY_CHAR_O, DISPLAY_CHAR_O, DISPLAY_CHAR_T);
+#endif
+
 
     if(enterBootMode)
     {
