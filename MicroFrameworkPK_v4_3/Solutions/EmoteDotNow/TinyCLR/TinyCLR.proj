@@ -448,6 +448,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usart\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="STM32F10x_NOR.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="Time_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\dotNetMF.proj" />
   </ItemGroup>
