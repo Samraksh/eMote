@@ -35,6 +35,8 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         private byte[] ReceiveMessage;
 
+        public UInt16 Size;
+
         /// <summary>
         /// Default constructor to create a received message with the default size
         /// </summary>
