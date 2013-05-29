@@ -24,15 +24,15 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Callbacks
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
 {
     static const int FIELD_STATIC__macconfig = 2;
+    static const int FIELD_STATIC__neighbor = 3;
+    static const int FIELD_STATIC__dataBuffer = 4;
 
     static const int FIELD__NeighbourList = 1;
     static const int FIELD__ByteNeighbor = 2;
     static const int FIELD__MarshalBuffer = 3;
     static const int FIELD__message = 4;
     static const int FIELD__macname = 5;
-    static const int FIELD__neighbor = 6;
-    static const int FIELD__dataBuffer = 7;
-    static const int FIELD__radioObj = 8;
+    static const int FIELD__radioObj = 6;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
@@ -54,8 +54,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Mac_CSMA
 {
-    static const int FIELD_STATIC__instance = 3;
-    static const int FIELD_STATIC__syncObject = 4;
+    static const int FIELD_STATIC__instance = 5;
+    static const int FIELD_STATIC__syncObject = 6;
 
 
     //--//
@@ -121,6 +121,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
     static const int FIELD__Src = 3;
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
+    static const int FIELD__Size = 6;
 
 
     //--//
@@ -129,8 +130,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_OMAC
 {
-    static const int FIELD_STATIC__instance = 5;
-    static const int FIELD_STATIC__syncObject = 6;
+    static const int FIELD_STATIC__instance = 7;
+    static const int FIELD_STATIC__syncObject = 8;
 
 
     //--//
@@ -149,10 +150,10 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__config = 7;
-    static const int FIELD_STATIC__currUser = 8;
-    static const int FIELD_STATIC__instance = 9;
-    static const int FIELD_STATIC__syncObject = 10;
+    static const int FIELD_STATIC__config = 9;
+    static const int FIELD_STATIC__currUser = 10;
+    static const int FIELD_STATIC__instance = 11;
+    static const int FIELD_STATIC__syncObject = 12;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__message = 6;

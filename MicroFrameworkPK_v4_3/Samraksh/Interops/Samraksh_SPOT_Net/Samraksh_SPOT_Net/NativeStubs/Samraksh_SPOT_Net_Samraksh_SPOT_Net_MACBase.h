@@ -33,8 +33,6 @@ namespace Samraksh
 
                 static INT32& Get_macname( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__macname ); }
 
-                static UNSUPPORTED_TYPE& Get_dataBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__dataBuffer ); }
-
                 static UNSUPPORTED_TYPE& Get_radioObj( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::FIELD__radioObj ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers

@@ -55,6 +55,10 @@ namespace Samraksh.SPOT.Net
             UInt16 length = (UInt16) msg[0];
             length |= (UInt16) (msg[1] << 8);
 
+            Size = length;
+
+            Debug.Print("The Size is " + Size.ToString());
+
             ReceiveMessage = new byte[MacMessageSize];
 
             for (i = 0; i < length; i++)

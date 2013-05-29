@@ -43,7 +43,7 @@ namespace Samraksh.SPOT.Net
 
         private static Neighbor neighbor = new Neighbor();
 
-        byte[] dataBuffer = new byte[MacMessageSize];
+        static byte[] dataBuffer = new byte[MacMessageSize];
         
         Radio.Radio_802_15_4 radioObj;
 
@@ -89,7 +89,14 @@ namespace Samraksh.SPOT.Net
         /// <returns>Message Type</returns>
         public Message GetNextPacket()
         {
+            for (UInt16 i = 0; i < MacMessageSize; i++)
+                dataBuffer[i] = 0;
+
             if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+
+            if (dataBuffer[0] == 0)
                 return null;
 
             message = new Message(dataBuffer);

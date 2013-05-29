@@ -35,7 +35,8 @@ void csmaMacScheduler(void * arg){
 	gcsmaMacObject.SendToRadio();
 	if(discoveryCounter == DISCOVERY_FREQUENCY)
 	{
-		gcsmaMacObject.SendHello();
+		// Disabling neighbour discovery
+		//gcsmaMacObject.SendHello();
 		discoveryCounter = 0;
 	}
 #ifdef DEBUG_MAC

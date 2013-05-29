@@ -117,7 +117,7 @@ namespace Samraksh.SPOT.Net.Mac.Ping
         void Start()
         {
             Debug.Print("Starting timer...");
-            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 0, 200);
+            sendTimer = new Timer(new TimerCallback(sendTimerCallback), null, 0, 400);
             Debug.Print("Timer init done.");
         }
 
