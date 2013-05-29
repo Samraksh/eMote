@@ -87,7 +87,14 @@ namespace Samraksh.SPOT.Net
         /// <returns>Message Type</returns>
         public Message GetNextPacket()
         {
+            for (UInt16 i = 0; i < MacMessageSize; i++)
+                dataBuffer[i] = 0;
+
             if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+
+            if (dataBuffer[0] == 0)
                 return null;
 
             message = new Message(dataBuffer);
