@@ -1558,11 +1558,14 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	SDIO_DataInitStructure.SDIO_DPSM = SDIO_DPSM_Enable;
 	SDIO_DataConfig(&SDIO_DataInitStructure);
 
+	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] DMA CNT Register %d\n", DMA2_Channel4->CNDTR);
 	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register WriteBlock %d\n", SDIO->FIFOCNT);
 	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register WriteBlock 2 %d\n", SDIO->DCOUNT);
 
 
 	SDIO_DMACmd(ENABLE);
+
+	HAL_Time_Sleep_MicroSeconds(250000);
 
 	// Polling mode is failing, unable to write due to fifo under run error, using dma instead
 #if  0
@@ -1770,6 +1773,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 
 	if(SDIO_GetFlagStatus(SDIO_FLAG_DCRCFAIL))
 	{
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] DMA CNT Register %d\n", DMA2_Channel4->CNDTR);
 		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 2 %d\n", SDIO->FIFOCNT);
 		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register Interrupt Handler 2 %d\n", SDIO->DCOUNT);
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data CRC failed\n");
@@ -1781,6 +1785,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 
 	if(SDIO_GetFlagStatus(SDIO_FLAG_STBITERR))
 	{
+		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] DMA CNT Register %d\n", DMA2_Channel4->CNDTR);
 		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register Interrupt Handler 2 %d\n", SDIO->FIFOCNT);
 		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register Interrupt Handler 2 %d\n", SDIO->DCOUNT);
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] STBIT Error\n");

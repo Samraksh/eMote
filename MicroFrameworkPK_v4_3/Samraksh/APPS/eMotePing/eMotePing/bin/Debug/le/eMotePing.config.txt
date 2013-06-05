@@ -1,0 +1,5 @@
+eMotePing.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\le\Microsoft.SPOT.Native.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\le\mscorlib.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Net\Samraksh_SPOT_Net\bin\Debug\le\Samraksh_SPOT_Net.pe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\le\Samraksh_SPOT_Hardware.pe
