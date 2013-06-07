@@ -130,7 +130,9 @@ SD_Error SDIO_Driver::GetStatus()
 {
 	SD_Error status = SD_OK;
 
-	UINT32 timeout = SDIO_CMD0TIMEOUT;
+	//UINT32 timeout = SDIO_CMD0TIMEOUT;
+
+	UINT32 timeout = 0x100;
 
 	while ((timeout > 0) && (SDIO_GetFlagStatus(SDIO_FLAG_CMDSENT) == RESET))
 	{
@@ -1547,7 +1549,7 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	}
 #endif
 
-	SDIO_ITConfig(SDIO_IT_DATAEND | SDIO_IT_TXUNDERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_STBITERR, ENABLE);
+	SDIO_ITConfig(SDIO_IT_DBCKEND | SDIO_IT_DATAEND | SDIO_IT_TXUNDERR | SDIO_FLAG_DCRCFAIL | SDIO_FLAG_STBITERR, ENABLE);
 
 	// Set block size
 	SDIO_DataInitStructure.SDIO_DataTimeOut = SD_DATATIMEOUT;
@@ -1562,8 +1564,25 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] CNT Register WriteBlock %d\n", SDIO->FIFOCNT);
 	SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register WriteBlock 2 %d\n", SDIO->DCOUNT);
 
+	// Check if the FIFO is transmit fifo is half empty before commencing transfer
+	if(SDIO_GetFlagStatus(SDIO_FLAG_TXFIFOHE) != RESET)
+	{
 
-	SDIO_DMACmd(ENABLE);
+		SDIO_DMACmd(ENABLE);
+
+	}
+	else
+	{
+		// Return the sd card is busy
+		return DS_Busy;
+	}
+
+	errorstatus = WaitWriteOperation();
+
+	if(GetStatus() != SD_TRANSFER_OK)
+	{
+		return DS_Timeout;
+	}
 
 	HAL_Time_Sleep_MicroSeconds(250000);
 
@@ -1790,8 +1809,16 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF1("[NATIVE] [SDIO Driver] Data CNT Register Interrupt Handler 2 %d\n", SDIO->DCOUNT);
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] STBIT Error\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_STBITERR);
-		SDIO_ITConfig(SDIO_FLAG_DCRCFAIL, DISABLE);
+		SDIO_ITConfig(SDIO_FLAG_STBITERR, DISABLE);
 
+	}
+
+	if(SDIO_GetFlagStatus(SDIO_FLAG_DBCKEND))
+	{
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Transfer Complete crc passed\n");
+		SDIO_ClearITPendingBit(SDIO_FLAG_DBCKEND);
+		SDIO_ITConfig(SDIO_FLAG_DBCKEND, DISABLE);
+		TransferEnd = 1;
 	}
 
 
