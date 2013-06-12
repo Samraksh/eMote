@@ -29,6 +29,8 @@ namespace Samraksh.SPOT.Apps
 
         public static bool waiting = true;
 
+        public static bool secondTime = false;
+
         public static class Phase
         {
             public static int wPhase;
@@ -47,8 +49,8 @@ namespace Samraksh.SPOT.Apps
                 uwPhase = 0;
                 wPhase_prev = 0;
                 uwPhase_prev = 0;
-                if (!secondTime)
-                    arcTan = new short[4097] {
+                if (!secondTime)    
+                arcTan = new short[4097] {
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
                      39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
                      79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
@@ -217,8 +219,8 @@ namespace Samraksh.SPOT.Apps
         public static class SensorData
         {
             public static int rate = 250;
-            public static int noiseBufWidth = 25;
-            public static int dataBufWidth = 25;
+            public static int noiseBufWidth = 15;
+            public static int dataBufWidth = 15;
 
             public static ushort[] Idata = new ushort[rate * dataBufWidth];
             public static ushort[] Qdata = new ushort[rate * dataBufWidth];
@@ -253,6 +255,17 @@ namespace Samraksh.SPOT.Apps
                 meanI = 0;
                 meanQ = 0;
                 //rDAC.setValue(701);
+            }
+        }
+
+        public struct Comp
+        {
+            public int I, Q;
+
+            public Comp(int p1, int p2)
+            {
+                I = p1;
+                Q = p2;
             }
         }
 
@@ -475,6 +488,9 @@ namespace Samraksh.SPOT.Apps
                 Sensor.readPair(dState.sample);
                 //myIO.toggle();
 
+                Debug.Print("I : " + dState.sample[0].ToString() + "\n");
+                Debug.Print("Q : " + dState.sample[0].ToString() + "\n");
+
                 // fix next sampling instant
                 while (dState.nextTime < DateTime.Now.Ticks)
                     dState.nextTime += dState.tickDiff;
@@ -539,7 +555,7 @@ namespace Samraksh.SPOT.Apps
                     {
                         dState.detectFinished = 1;
                         SensorData.stopIndex = calcMofNStopIndex();
-         
+                        secondTime = true;
                     }
                 }
 
@@ -575,6 +591,48 @@ namespace Samraksh.SPOT.Apps
             
         }
 
+        public static void collectNoise()
+        {
+            SensorData.initNoise();
+
+            NoiseState.init();
+
+            NoiseState.nextTime = DateTime.Now.Ticks;
+
+            for (int k = 0; k < (SensorData.noiseBufWidth * SensorData.rate); k++)
+            {
+                Sensor.readPair(NoiseState.sample);
+
+                //Debug.Print("I : " + NoiseState.sample[0].ToString() + "\n");
+                //Debug.Print("Q : " + NoiseState.sample[1].ToString() + "\n");
+
+                // collect only at the right times
+                // missing samples are better than jittery ones
+                while (NoiseState.nextTime < DateTime.Now.Ticks)
+                    NoiseState.nextTime += NoiseState.tickDiff;
+
+                //SensorData.Inoise[k] = NoiseState.sample[0];
+                //SensorData.Qnoise[k] = NoiseState.sample[1];
+
+				SensorData.Idata[k] = NoiseState.sample[0];
+				SensorData.Qdata[k] = NoiseState.sample[1];
+
+                NoiseState.sumI = NoiseState.sumI + (int)(NoiseState.sample[0]);
+                NoiseState.sumQ = NoiseState.sumQ + (int)(NoiseState.sample[1]);
+
+                while (DateTime.Now.Ticks <= NoiseState.nextTime) ;
+            }
+
+            // calculate mean I and Q
+            SensorData.meanI = NoiseState.sumI / (SensorData.noiseBufWidth * SensorData.rate);
+            SensorData.meanQ = NoiseState.sumQ / (SensorData.noiseBufWidth * SensorData.rate);
+
+
+            //Debug.Print("Mean: " + SensorData.meanI + ", " + SensorData.meanQ);
+        
+
+        }
+
         public static void Main()
         {
             // Initialize the detector state machine
@@ -591,25 +649,30 @@ namespace Samraksh.SPOT.Apps
                 if (StateMachine.currState == StateMachine.RESET || StateMachine.currState == StateMachine.GOTNOISE ||
                    StateMachine.currState == StateMachine.NOISEDONE || StateMachine.currState == StateMachine.DETECTED)
                 {
-                    while (waiting)
-                    {
-                        Thread.Sleep(10);
-                    }
+                    StateMachine.currState = StateMachine.GETNOISE;
                 }
                 else if (StateMachine.currState == StateMachine.GETNOISE)
                 {
+                    Debug.Print("Collecting Noise\n");
                     collectNoise();
                     StateMachine.currState = StateMachine.GOTNOISE;
-                 
-                    waiting = true;
+
+                    Debug.Print("Noise Collection Complete\n");
+
+                    StateMachine.currState = StateMachine.DLNOISE;
+
+                  
                 }
                 else if (StateMachine.currState == StateMachine.DLNOISE)
                 {
-                    //rDAC.setValue(6);
-                    //rDAC.Init();
+                    Debug.Print("Storing Noise \n");
                     storeNoise();
                     StateMachine.currState = StateMachine.NOISEDONE;
-                    waiting = true;
+
+                    Debug.Print("Starting Detector \n");
+
+                    StateMachine.currState = StateMachine.RUNDETECT;
+
                 }
                 else if (StateMachine.currState == StateMachine.RUNDETECT)
                 {

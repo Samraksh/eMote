@@ -39,4 +39,5 @@ namespace Samraksh
         }
     }
 }
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_ADC;
 #endif  //_SPOT_NATIVE_SAMRAKSH_SPOT_HARDWARE_EMOTEDOTNOW_ADCINTERNAL_H_
