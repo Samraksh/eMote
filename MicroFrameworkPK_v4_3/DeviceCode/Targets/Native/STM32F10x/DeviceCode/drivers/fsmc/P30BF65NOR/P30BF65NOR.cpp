@@ -117,6 +117,8 @@ DeviceStatus P30BF65NOR_Driver::Initialize(void)
 	  if(norId.Manufacturer_Code != MANUFACTURE_ID)
 		  return DS_Fail;
 
+	  ReturnToReadMode();
+
 	  return DS_Success;
 
 }

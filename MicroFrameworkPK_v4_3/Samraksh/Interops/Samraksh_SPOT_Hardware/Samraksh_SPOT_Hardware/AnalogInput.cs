@@ -49,7 +49,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// </summary>
         /// <param name="data">array of size 2 bytes passed to the adc driver to be filled</param>
         /// <returns>Returns the result of this operation</returns>
-        static public bool DualChannelRead(byte[] data)
+        static public bool DualChannelRead(ushort[] data)
         {
             return ADCInternal.DualChannelRead(data);
         }
@@ -141,7 +141,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
     /// <summary>
     /// ADCInternal interface to the native driver
     /// </summary>
-    private class ADCInternal : NativeEventDispatcher
+    public class ADCInternal : NativeEventDispatcher
     {
         /// <summary>
         /// Specifies the driver name for matching with the native eventdispatcher
@@ -194,12 +194,28 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         extern static public int ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
 
         /// <summary>
+        /// Configure continuous mode adc sampling with a threshold timestamp 
+        /// </summary>
+        /// <param name="SampleBuff"></param>
+        /// <param name="channel"></param>
+        /// <param name="NumSamples"></param>
+        /// <param name="SamplingTime"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int ConfigureContinuousModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int ConfigureBatchModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
+
+
+        /// <summary>
         /// Read both the channel simulateously Channel 1 followed by Channel 2
         /// </summary>
         /// <param name="sample">specify the buffer to be filled</param>
         /// <returns>Return the result of this operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public bool DualChannelRead(byte[] sample);
+        extern static public bool DualChannelRead(ushort[] sample);
 
         /// <summary>
         /// Stop batch mode and continous mode sampling of the adc 
