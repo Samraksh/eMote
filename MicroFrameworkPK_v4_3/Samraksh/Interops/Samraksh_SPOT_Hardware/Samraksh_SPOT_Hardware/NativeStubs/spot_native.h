@@ -64,8 +64,10 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR
 {
     static const int FIELD_STATIC__writeAddressPtr = 2;
     static const int FIELD_STATIC__readAddressPtr = 3;
-    static const int FIELD_STATIC__maxSize = 4;
-    static const int FIELD_STATIC__fullFlag = 5;
+    static const int FIELD_STATIC__startOfRecordDelimiter = 4;
+    static const int FIELD_STATIC__endOfRecordDelimiter = 5;
+    static const int FIELD_STATIC__maxSize = 6;
+    static const int FIELD_STATIC__fullFlag = 7;
 
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__BOOLEAN__SZARRAY_U2__U4__U2);

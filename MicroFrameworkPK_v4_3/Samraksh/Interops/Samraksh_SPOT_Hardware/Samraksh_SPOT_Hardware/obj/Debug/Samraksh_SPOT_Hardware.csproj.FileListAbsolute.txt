@@ -67,3 +67,4 @@ D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Sam
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\obj\Debug\le\Samraksh_SPOT_Hardware.pdbx
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\obj\Debug\Samraksh_SPOT_Hardware.dll
 D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\obj\Debug\Samraksh_SPOT_Hardware.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\obj\Debug\Samraksh_SPOT_Hardware.csprojResolveAssemblyReference.cache

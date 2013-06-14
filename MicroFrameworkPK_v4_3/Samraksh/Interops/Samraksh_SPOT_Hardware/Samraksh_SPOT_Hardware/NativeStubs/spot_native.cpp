@@ -47,6 +47,9 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR::InternalInitialize___STATIC__BOOLEAN,
     NULL,
     NULL,
@@ -60,7 +63,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware =
 {
     "Samraksh_SPOT_Hardware", 
-    0xACCA5A48,
+    0xF1091782,
     method_lookup
 };
 

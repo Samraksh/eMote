@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.SPOT;
+using Microsoft.SPOT.Hardware;
 using Samraksh.SPOT.Hardware;
 using System.Threading;
 
@@ -30,6 +31,8 @@ namespace Samraksh.SPOT.Apps
         public static bool waiting = true;
 
         public static bool secondTime = false;
+
+        public static OutputPort led = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN1, false);
 
         public static class Phase
         {
@@ -337,6 +340,11 @@ namespace Samraksh.SPOT.Apps
 
             public static bool Write(ushort[] data, UInt16 length)
             {
+                if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
+                {
+                    Debug.Print("Nor is full \n");
+                    return false;
+                }
                 return Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length);
             }
 
@@ -466,7 +474,7 @@ namespace Samraksh.SPOT.Apps
 
         public static void sendDetectedMessage()
         {
-         
+            Debug.Print("Saw something \n");
         }
 
         public static void runDetectorMofN()
@@ -488,8 +496,6 @@ namespace Samraksh.SPOT.Apps
                 Sensor.readPair(dState.sample);
                 //myIO.toggle();
 
-                Debug.Print("I : " + dState.sample[0].ToString() + "\n");
-                Debug.Print("Q : " + dState.sample[0].ToString() + "\n");
 
                 // fix next sampling instant
                 while (dState.nextTime < DateTime.Now.Ticks)
@@ -638,11 +644,13 @@ namespace Samraksh.SPOT.Apps
             // Initialize the detector state machine
             StateMachine.init();
 
-            // Initialize the adc channels 
+            // Initialize the adc channels
       
             Sensor.init();
 
             NorStore.init();
+
+            Debug.EnableGCMessages(false);
 
             while (true)
             {
@@ -669,29 +677,34 @@ namespace Samraksh.SPOT.Apps
                     storeNoise();
                     StateMachine.currState = StateMachine.NOISEDONE;
 
-                    Debug.Print("Starting Detector \n");
+                   
 
                     StateMachine.currState = StateMachine.RUNDETECT;
 
                 }
                 else if (StateMachine.currState == StateMachine.RUNDETECT)
                 {
+                    Debug.Print("Starting Detector \n");
                     //rDAC.setValue(11);
                     runDetectorMofN();
+
                     sendDetectedMessage();
                     
                     StateMachine.currState = StateMachine.DETECTED;
-                    waiting = true;
+
+                    StateMachine.currState = StateMachine.DLDATA;
+
                 }
 
                 else if (StateMachine.currState == StateMachine.DLDATA)
                 {
                     //rDAC.setValue(12);
-
+                    Debug.Print("Storing data \n");
+                    led.Write(true);
                     //sendData();
                     storeData();
-                    StateMachine.currState = StateMachine.NOISEDONE; // go back to waiting for resume detect
-                    waiting = true;
+                    StateMachine.currState = StateMachine.RUNDETECT; // go back to waiting for resume detect
+                    led.Write(false);
 
                 }
             }
