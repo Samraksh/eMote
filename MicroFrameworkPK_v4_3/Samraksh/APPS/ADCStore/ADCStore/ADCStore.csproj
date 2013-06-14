@@ -41,6 +41,9 @@
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
+    <Reference Include="Samraksh_SPOT_Hardware">
+      <HintPath>..\..\..\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
