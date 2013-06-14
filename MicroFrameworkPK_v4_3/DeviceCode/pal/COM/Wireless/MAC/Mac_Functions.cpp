@@ -54,6 +54,9 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 
 	UINT8 Size = ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t);
 
+	if(Size > 127)
+		return DS_Fail;
+	
 	(*managedBuffer)[0] = Size & 0xff;
 	(*managedBuffer)[1] =  (Size & 0xff00) >> 8;
 
