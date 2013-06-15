@@ -31,10 +31,12 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="AnalogInput.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="LCD.cs" />
     <Compile Include="NOR.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EmoteDotNow.cs" />
+    <Compile Include="SD.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />

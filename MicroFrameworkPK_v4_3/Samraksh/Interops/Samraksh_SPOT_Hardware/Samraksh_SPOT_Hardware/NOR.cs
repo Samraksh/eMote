@@ -53,7 +53,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
 
         public static bool StartNewRecord()
         {
-            bool result = false;
+            DeviceStatus result = DeviceStatus.Fail;
             long CurrentTimeStamp = DateTime.Now.Ticks;
             UInt16[] time = new UInt16[4];
 
@@ -65,10 +65,10 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             // Start of record
             result = InternalWrite(startOfRecordDelimiter, writeAddressPtr, 2);
 
-            time[0] = (UInt16) (CurrentTimeStamp & 0xff);
-            time[1] = (UInt16) ((CurrentTimeStamp & 0xff00) >> 16);
-            time[2] = (UInt16)((CurrentTimeStamp & 0xff0000) >> 32);
-            time[3] = (UInt16)((CurrentTimeStamp & 0xff000000) >> 48);
+            time[0] = (UInt16) (CurrentTimeStamp & 0xffff);
+            time[1] = (UInt16) ((CurrentTimeStamp & 0xffff0000) >> 16);
+            time[2] = (UInt16)((CurrentTimeStamp & 0xffff00000000) >> 32);
+            time[3] = (UInt16)((CurrentTimeStamp) >> 48);
 
             writeAddressPtr += 4;
 
@@ -77,12 +77,15 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
 
             writeAddressPtr += 8;
 
-            return result;
+            if (result == DeviceStatus.Success)
+                return true;
+            else
+                return false;
         }
 
         public static bool EndRecord()
         {
-            bool result = false;
+            DeviceStatus result = DeviceStatus.Fail;
 
             result = InternalWrite(startOfRecordDelimiter, writeAddressPtr, 2);
 
@@ -93,7 +96,10 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
                 fullFlag = true;
             }
 
-            return result;
+            if (result == DeviceStatus.Success)
+                return true;
+            else
+                return false;
         }
 
         public static bool IsFull()
@@ -128,11 +134,14 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
                 fullFlag = true;
             }
 
-            bool result = InternalWrite(data, writeAddressPtr, length);
+            DeviceStatus result = InternalWrite(data, writeAddressPtr, length);
             
             writeAddressPtr += (UInt32)(length * 2);
 
-            return result;
+            if (result == DeviceStatus.Success)
+                return true;
+            else
+                return false;
             
         }
 
@@ -144,22 +153,25 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
                 fullFlag = true;
             }
 
-            bool result = InternalWrite(data, writeAddressPtr, offset, length);
+            DeviceStatus result = InternalWrite(data, writeAddressPtr, offset, length);
 
             writeAddressPtr += (UInt32)(length * 2);
 
-            return result;
+            if (result == DeviceStatus.Success)
+                return true;
+            else
+                return false;
         }
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        private extern static bool InternalWrite(UInt16[] data, UInt32 addressPtr, UInt16 length);
+        private extern static DeviceStatus InternalWrite(UInt16[] data, UInt32 addressPtr, UInt16 length);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        private extern static bool InternalWrite(UInt16[] data, UInt32 addressPtr, UInt16 offset, UInt16 length);
+        private extern static DeviceStatus InternalWrite(UInt16[] data, UInt32 addressPtr, UInt16 offset, UInt16 length);
 
-        public static bool Read(UInt16[] data, UInt16 length)
+        public static DeviceStatus Read(UInt16[] data, UInt16 length)
         {
-            bool result = InternalRead(data, readAddressPtr, length);
+            DeviceStatus result = InternalRead(data, readAddressPtr, length);
 
             readAddressPtr += (UInt16)(length * 2);
 
@@ -167,7 +179,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         }
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public extern static bool InternalRead(UInt16[] data, UInt32 readAddressPtr, UInt16 length);
+        public extern static DeviceStatus InternalRead(UInt16[] data, UInt32 readAddressPtr, UInt16 length);
         
     }
 }
