@@ -2,7 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DeployTransport>Serial</DeployTransport>
+<<<<<<< HEAD
     <DeployDevice>COM91</DeployDevice>
+=======
+    <DeployDevice>COM49</DeployDevice>
+>>>>>>> sdio
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DeployTransport>Serial</DeployTransport>
