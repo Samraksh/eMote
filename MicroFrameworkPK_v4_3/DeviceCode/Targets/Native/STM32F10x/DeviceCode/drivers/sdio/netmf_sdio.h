@@ -326,7 +326,11 @@ class SDIO_Driver
 
 	SD_CardInfo SDCardInfo;
 
+	UINT32 TotalNumberOfBytes;
 
+	UINT32 *DestBuffer;
+
+	UINT32* SrcBuffer;
 
 
 	static __IO SD_Error TransferError;
