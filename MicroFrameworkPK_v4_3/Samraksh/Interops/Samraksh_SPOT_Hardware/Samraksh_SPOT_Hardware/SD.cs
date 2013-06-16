@@ -84,12 +84,12 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         }
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public static DeviceStatus InternalInitialize();
+        public static extern DeviceStatus InternalInitialize();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public static DeviceStatus InternalWrite(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 writeAddressPtr);
+        public static extern DeviceStatus InternalWrite(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 writeAddressPtr);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public static DeviceStatus InternalRead(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 readAddressPtr);
+        public static extern DeviceStatus InternalRead(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 readAddressPtr);
     }
 }

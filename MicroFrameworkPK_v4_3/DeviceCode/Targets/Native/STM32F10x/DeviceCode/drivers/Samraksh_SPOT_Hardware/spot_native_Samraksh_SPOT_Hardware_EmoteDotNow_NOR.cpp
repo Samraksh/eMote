@@ -35,7 +35,7 @@ INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16
 
 INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
-    INT8 retVal = 0; 
+    INT32 retVal = 0; 
     return retVal;
 }
 

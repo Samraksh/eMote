@@ -127,6 +127,14 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         private extern static bool InternalInitialize();
 
+        public static bool eof()
+        {
+            if (readAddressPtr >= writeAddressPtr)
+                return true;
+            else
+                return false;
+        }
+
         public static bool Write(UInt16[] data, UInt16 length)
         {
             if (writeAddressPtr > 0.6 * maxSize)
@@ -171,6 +179,11 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
 
         public static DeviceStatus Read(UInt16[] data, UInt16 length)
         {
+            if (readAddressPtr + (length * 2) > writeAddressPtr)
+            {
+                length = (UInt16) ((writeAddressPtr - readAddressPtr) / 2);
+            }
+
             DeviceStatus result = InternalRead(data, readAddressPtr, length);
 
             readAddressPtr += (UInt16)(length * 2);

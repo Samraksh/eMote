@@ -11,6 +11,18 @@
 #define _SPOT_NATIVE_H_
 
 #include <TinyCLR_Interop.h>
+struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_SD
+{
+    static const int FIELD_STATIC__sdInternalObject = 0;
+    static const int FIELD_STATIC__sdCallbackFunction = 1;
+    static const int FIELD_STATIC__writeAddressPtr = 2;
+    static const int FIELD_STATIC__readAddressPtr = 3;
+
+
+    //--//
+
+};
+
 struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal
 {
     TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
@@ -28,8 +40,8 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal
 
 struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_AnalogInput
 {
-    static const int FIELD_STATIC__AdcInternal = 0;
-    static const int FIELD_STATIC__MyCallback = 1;
+    static const int FIELD_STATIC__AdcInternal = 4;
+    static const int FIELD_STATIC__MyCallback = 5;
 
 
     //--//
@@ -62,17 +74,27 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD
 
 struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR
 {
-    static const int FIELD_STATIC__writeAddressPtr = 2;
-    static const int FIELD_STATIC__readAddressPtr = 3;
-    static const int FIELD_STATIC__startOfRecordDelimiter = 4;
-    static const int FIELD_STATIC__endOfRecordDelimiter = 5;
-    static const int FIELD_STATIC__maxSize = 6;
-    static const int FIELD_STATIC__fullFlag = 7;
+    static const int FIELD_STATIC__writeAddressPtr = 6;
+    static const int FIELD_STATIC__readAddressPtr = 7;
+    static const int FIELD_STATIC__startOfRecordDelimiter = 8;
+    static const int FIELD_STATIC__endOfRecordDelimiter = 9;
+    static const int FIELD_STATIC__maxSize = 10;
+    static const int FIELD_STATIC__fullFlag = 11;
 
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2__U2);
     TINYCLR_NATIVE_DECLARE(InternalRead___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2);
+
+    //--//
+
+};
+
+struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_SDInternal
+{
+    TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__SamrakshSPOTHardwareDeviceStatus);
+    TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U1__U2__U2__U4);
+    TINYCLR_NATIVE_DECLARE(InternalRead___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U1__U2__U2__U4);
 
     //--//
 

@@ -25,7 +25,7 @@ INT8 NOR::InternalInitialize( HRESULT &hr )
    return gNORDriver.Initialize();
 }
 
-INT8 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
+INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
 	if(gNORDriver.ReadHalfWord(param1) != 0xffff)
 		gNORDriver.EraseBlock(param1);
@@ -33,13 +33,13 @@ INT8 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 
     return gNORDriver.WriteBuffer(param0.GetBuffer(), param1, param2);
 }
 
-INT8 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
+INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 NOR::InternalRead( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
+INT32 NOR::InternalRead( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
 	return gNORDriver.ReadBuffer(param0.GetBuffer(), param1, param2);
 }
