@@ -56,7 +56,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 
 	if(Size > 127)
 		return DS_Fail;
-
+		
 	(*managedBuffer)[0] = Size & 0xff;
 	(*managedBuffer)[1] =  (Size & 0xff00) >> 8;
 
