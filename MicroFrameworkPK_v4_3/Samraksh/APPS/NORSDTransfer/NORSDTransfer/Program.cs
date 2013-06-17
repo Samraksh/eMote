@@ -2,6 +2,7 @@
 using Microsoft.SPOT;
 using System.IO.Ports;
 using Microsoft.SPOT.Hardware;
+using System.Threading;
 
 
 namespace NORSDTransfer
@@ -26,10 +27,9 @@ namespace NORSDTransfer
 
         public static void mySdCallback(Samraksh.SPOT.Hardware.DeviceStatus status)
         {
-            if (status == Samraksh.SPOT.Hardware.DeviceStatus.Success)
-                sdSuccessFlag = true;
-            else
-                sdSuccessFlag = false;
+            Debug.Print("Recieved SD Callback\n");
+
+            sdSuccessFlag = true;
         }
 
         public static void SerialPortHandler(Object sender, SerialDataReceivedEventArgs e)
@@ -82,6 +82,8 @@ namespace NORSDTransfer
             {
                 serialBuffer[i] = 0;
             }
+
+            serialBufferDataCounter = 0;
         }
 
         public bool StreamToHost(UInt16[] data, UInt16 length)
@@ -108,15 +110,29 @@ namespace NORSDTransfer
 
         public bool StreamToSDCard(UInt16[] data, UInt16 length)
         {
+
+            serialBufferDataCounter = 0;
+
             for (UInt16 i = 0; i < length; i++)
             {
                 serialBuffer[serialBufferDataCounter++] = (byte)(data[i] & 0xff);
                 serialBuffer[serialBufferDataCounter++] = (byte)((data[i] >> 8) & 0xff);
             }
 
-            Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(serialBuffer, 0, serialBufferDataCounter);
+            if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(serialBuffer, 0, serialBufferDataCounter))
+            {
+                Debug.Print("Writing to SD Card Failed \n");
+                return false;
+            }
 
-            while (!sdSuccessFlag) ;
+            while (!sdSuccessFlag)
+            {
+                Thread.Sleep(20);
+            }
+
+            sdSuccessFlag = false;
+
+            Debug.Print("Writing to SD Card Complete");
 
             return true;
         }
@@ -132,12 +148,16 @@ namespace NORSDTransfer
 
             if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
             {
+                Debug.Print("NOR Flash is full \n");
                 return false;
             }
 
+            Debug.Print("Storing");
+
             if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.StartNewRecord())
             {
-                StreamToHost(buffer1, BufferSize);
+                Debug.Print("Writing Buffer1 \n");
+                //StreamToHost(buffer1, BufferSize);
                 Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(buffer1, BufferSize);
                 Samraksh.SPOT.Hardware.EmoteDotNow.NOR.EndRecord();
                 
@@ -145,7 +165,8 @@ namespace NORSDTransfer
 
             if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.StartNewRecord())
             {
-                StreamToHost(buffer2, BufferSize);
+                Debug.Print("Writing Buffer2 \n");
+                //StreamToHost(buffer2, BufferSize);
                 Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(buffer2, BufferSize);
                 Samraksh.SPOT.Hardware.EmoteDotNow.NOR.EndRecord();
             }
@@ -158,6 +179,8 @@ namespace NORSDTransfer
         public bool XferToSD()
         {
             ResetBuffers();
+
+            Debug.Print("Writing to SD Card...");
 
             while (!Samraksh.SPOT.Hardware.EmoteDotNow.NOR.eof())
             {
@@ -184,12 +207,17 @@ namespace NORSDTransfer
 
         public static void Main()
         {
+            UInt16 counter = 10;
+
             Program p = new Program();
 
             while (true)
             {
-                if (!p.store())
+                if (!p.store() && counter > 0)
                 {
+
+                    counter--;
+
                     if (!p.XferToSD())
                     {
                         error.Write(true);

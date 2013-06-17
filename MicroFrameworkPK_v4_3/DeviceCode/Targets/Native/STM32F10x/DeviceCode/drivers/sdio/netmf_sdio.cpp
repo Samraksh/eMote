@@ -8,6 +8,10 @@
 
 #include "netmf_sdio.h"
 
+extern "C"
+{
+extern void ManagedSDCallback(DeviceStatus status);
+}
 
 SDIO_Driver g_SDIODriver;
 
@@ -1563,6 +1567,7 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 	  }
 	  else
 	  {
+		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver]  Invalid Block Size");
 	    errorstatus = SD_INVALID_PARAMETER;
 	    return DS_Fail;
 	  }
@@ -1764,6 +1769,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 	{
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Timeout\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_DTIMEOUT);
+		ManagedSDCallback(DS_Fail);
 	}
 	if(SDIO_GetFlagStatus(SDIO_IT_TXFIFOHE) != RESET)
 	{
@@ -1789,6 +1795,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] FIFO Underrun error\n");
 		SDIO_ClearITPendingBit(SDIO_IT_TXUNDERR);
 		SDIO_ITConfig(SDIO_IT_TXUNDERR, DISABLE);
+		ManagedSDCallback(DS_Fail);
 	}
 
 	if(SDIO_GetFlagStatus(SDIO_IT_DATAEND))
@@ -1796,6 +1803,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Transfer Complete\n");
 		SDIO_ClearITPendingBit(SDIO_IT_DATAEND);
 		SDIO_ITConfig(SDIO_IT_DATAEND, DISABLE);
+		ManagedSDCallback(DS_Success);
 		TransferEnd = 1;
 	}
 
@@ -1807,6 +1815,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data CRC failed\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_DCRCFAIL);
 		SDIO_ITConfig(SDIO_FLAG_DCRCFAIL, DISABLE);
+		ManagedSDCallback(DS_Fail);
 		TransferEnd = 1;
 
 	}
@@ -1819,6 +1828,7 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] STBIT Error\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_STBITERR);
 		SDIO_ITConfig(SDIO_FLAG_STBITERR, DISABLE);
+		ManagedSDCallback(DS_Fail);
 
 	}
 

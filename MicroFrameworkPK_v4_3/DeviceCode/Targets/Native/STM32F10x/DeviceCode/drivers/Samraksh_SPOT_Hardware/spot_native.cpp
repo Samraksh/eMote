@@ -63,6 +63,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR::InternalInitialize___STATIC__BOOLEAN,
     NULL,
     NULL,
+    NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR::InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR::InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2__U2,
     NULL,
@@ -77,7 +78,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware =
 {
     "Samraksh_SPOT_Hardware", 
-    0x6C3D6D7E,
+    0x2A77D72D,
     method_lookup
 };
 

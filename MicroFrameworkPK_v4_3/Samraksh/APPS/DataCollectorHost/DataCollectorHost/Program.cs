@@ -49,8 +49,11 @@ namespace DataCollectorHost
         {
             for (int i = 0; i < buffer.Length; i++)
             {
+                Console.Write(buffer[i].ToString());
                 inpFile.Write(buffer[i]);
             }
+
+            Console.Write("\n");
 
             dDone = true;
         }
