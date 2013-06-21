@@ -9,6 +9,15 @@ namespace Exfiltrator
 {
     public class Program
     {
+        public static bool sdSuccessFlag = false;
+
+        public static void mySdCallback(Samraksh.SPOT.Hardware.DeviceStatus status)
+        {
+            Debug.Print("Recieved SD Callback\n");
+
+            sdSuccessFlag = true;
+        }
+
         public static void Main()
         {
 
@@ -17,6 +26,10 @@ namespace Exfiltrator
 
             UInt16 counter = 0;
 
+            UInt32 readBytes = 0;
+
+            bool readDone = false;
+            
             SerialPort serialPort = new SerialPort("COM1");
             serialPort.BaudRate = 115200;
             serialPort.Parity = System.IO.Ports.Parity.None;
@@ -28,24 +41,38 @@ namespace Exfiltrator
 
             serialPort.Open();
 
-            Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize();
+            //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize();
 
+            Samraksh.SPOT.Hardware.EmoteDotNow.SD.SDCallBackType sdResultCallBack = mySdCallback;
+
+            Samraksh.SPOT.Hardware.EmoteDotNow.SD mysd = new Samraksh.SPOT.Hardware.EmoteDotNow.SD(sdResultCallBack);
+
+            Samraksh.SPOT.Hardware.EmoteDotNow.SD.Initialize();
 
             while (true)
             {
-                Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Read(m_sendBuffer, (ushort) 256);
+                Debug.Print("Read : " + readBytes.ToString() + "\n");
 
-                for (UInt16 i = 0; i < 256; i++)
+                Samraksh.SPOT.Hardware.EmoteDotNow.SD.Read(m_serialBuffer, 0, 512);
+
+                for (UInt16 i = 0; i < 64; i++)
                 {
-                    m_serialBuffer[counter++] = (byte) (m_sendBuffer[i] & 0xff);
-                    m_serialBuffer[counter++] = (byte)((m_sendBuffer[i] >> 8) & 0xff);
+                    if ((m_serialBuffer[i] == 0x0c) && (m_serialBuffer[i + 1] == 0x0c) && (m_serialBuffer[i + 2] == 0x0c) && (m_serialBuffer[i + 3] == 0x0c))
+                        readDone = true;
                 }
 
+                if (readDone == true)
+                    break;
+
                 serialPort.Write(m_serialBuffer, 0, 512);
+
+                readBytes += 512;
 
                 Thread.Sleep(200);
                 
             }
+
+            Debug.Print("Read is complete \n");
         }
 
         static void SerialPortHandler(object sender, SerialDataReceivedEventArgs e)

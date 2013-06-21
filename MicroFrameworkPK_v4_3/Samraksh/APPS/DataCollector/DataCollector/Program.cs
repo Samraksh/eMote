@@ -27,12 +27,141 @@ namespace Samraksh.SPOT.Apps
 
     public class DataCollector
     {
+        
+        public static byte[] serialBuffer = new byte[512];
+        public static UInt16 serialBufferDataCounter = 0;
 
         public static bool waiting = true;
 
         public static bool secondTime = false;
 
         public static OutputPort led = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN1, false);
+        public static OutputPort sdWrite = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN2, false);
+
+        /*
+        public static class LCDView
+        {
+            public static Samraksh.SPOT.Hardware.EmoteDotNow.EmoteLCD lcd;
+
+            public static void init()
+            {
+                lcd = new Hardware.EmoteDotNow.EmoteLCD();
+
+                lcd.Initialize();
+
+
+
+            }
+
+        }
+        */
+
+        public static class SD
+        {
+            public const UInt16 BufferSize = 768;
+
+            public static byte[] buffer = new byte[BufferSize];
+
+            public static UInt16 bufferCounter = 0;
+
+            public static Samraksh.SPOT.Hardware.EmoteDotNow.SD.SDCallBackType sdResultCallBack;
+
+            public static bool sdSuccessFlag = false;
+
+            public static void mySdCallback(Samraksh.SPOT.Hardware.DeviceStatus status)
+            {
+                Debug.Print("Recieved SD Callback\n");
+
+                sdSuccessFlag = true;
+            }
+
+            public static void init()
+            {
+                sdResultCallBack = mySdCallback;
+
+                Samraksh.SPOT.Hardware.EmoteDotNow.SD mysdCard = new Samraksh.SPOT.Hardware.EmoteDotNow.SD(sdResultCallBack);
+
+                Samraksh.SPOT.Hardware.EmoteDotNow.SD.Initialize();
+            }
+
+            public static bool StreamToSDCard(UInt16[] data, UInt16 length)
+            {
+                bufferCounter = 0;
+
+                for (UInt16 i = 0; i < length; i++)
+                {
+                    buffer[bufferCounter++] = (byte)(data[i] & 0xff);
+                    buffer[bufferCounter++] = (byte)((data[i] >> 8) & 0xff);
+
+                    if (bufferCounter == 512)
+                    {
+                        if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(buffer, 0, bufferCounter))
+                        {
+                            Debug.Print("Writing to SD Card Failed \n");
+                            return false;
+                        }
+
+                        while (!sdSuccessFlag)
+                        {
+                            Thread.Sleep(20);
+                        }
+
+                        sdSuccessFlag = false;
+
+                        bufferCounter = 0;
+                    }
+
+                }
+
+                if (bufferCounter != 0)
+                {
+                    if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(buffer, 0, bufferCounter))
+                    {
+                        Debug.Print("Writing to SD Card Failed \n");
+                        return false;
+                    }
+
+                    while (!sdSuccessFlag)
+                    {
+                        Thread.Sleep(20);
+                    }
+
+                    sdSuccessFlag = false;
+
+                    bufferCounter = 0;
+                }
+
+                return true;
+            }
+
+            public static void ResetBuffer()
+            {
+                for (UInt16 i = 0; i < 512; i++)
+                    buffer[i] = 0;
+
+                bufferCounter = 0;
+
+            }
+
+            public static bool IndicateEOF()
+            {
+                ResetBuffer();
+
+                for (UInt16 i = 0; i < 512; i++)
+                {
+                    SensorData.Idata[i] = 0x0c0c;
+                }
+
+                if (!StreamToSDCard(SensorData.Idata, 512))
+                {
+                    Debug.Print("Writing Delimter failed \n");
+                    return false;
+                }
+
+                return true;
+
+            }
+        }
 
         public static class Phase
         {
@@ -242,6 +371,15 @@ namespace Samraksh.SPOT.Apps
                 }
             }
 
+            public static void ResetBuffers()
+            {
+                for (int i = 0; i < (rate * dataBufWidth); i++)
+                {
+                    Idata[i] = 0;
+                    Qdata[i] = 0;
+                }
+            }
+
             public static void initNoise()
             {
                 for (int i = 0; i < rate * noiseBufWidth; i++)
@@ -335,22 +473,61 @@ namespace Samraksh.SPOT.Apps
         {
             public static void init()
             {
-                Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize();
+                Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize(64 * 1024);
             }
 
             public static bool Write(ushort[] data, UInt16 length)
             {
+                
                 if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
                 {
-                    Debug.Print("Nor is full \n");
-                    return false;
+                    Debug.Print("Transfering to SD Card \n");
+                    sdWrite.Write(true);
+                    if (!XferToSD())
+                        return false;
+
+                    // Move to beginning to so we begin collecting data again
+                    Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Seek(Hardware.EmoteDotNow.FilePosition.Begin);
+
                 }
-                return Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length);
+                // Writing to NOR flash
+                if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.StartNewRecord())
+                {
+                    Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length);
+                    Samraksh.SPOT.Hardware.EmoteDotNow.NOR.EndRecord();
+                }
+
+                return true;
+                    
             }
 
             public static bool Write(ushort[] data, UInt16 length, UInt16 offset)
             {
                 return Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length, offset);
+            }
+
+            public static bool XferToSD()
+            {
+                SD.ResetBuffer();
+
+                Debug.Print("Writing to SD Card...");
+
+                while (!Samraksh.SPOT.Hardware.EmoteDotNow.NOR.eof())
+                {
+                    if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Read(SensorData.Idata, 512) != Samraksh.SPOT.Hardware.DeviceStatus.Success)
+                    {
+                        Debug.Print("XferToSD : Read from NOR failed \n");
+                        return false;
+                    }
+                    if (!SD.StreamToSDCard(SensorData.Idata, 512))
+                    {
+                        Debug.Print("XferToSD : Stream to SD Card failed");
+                        return false;
+                    }
+                }
+
+                return true;
+
             }
         }
 
@@ -479,7 +656,8 @@ namespace Samraksh.SPOT.Apps
 
         public static void runDetectorMofN()
         {
-         
+
+            UInt16 radarTurnedOff = 0;
 
             dState.init();
             //DetectorState dState = new DetectorState();
@@ -495,6 +673,19 @@ namespace Samraksh.SPOT.Apps
             {
                 Sensor.readPair(dState.sample);
                 //myIO.toggle();
+
+                if (dState.sample[0] < 300 && dState.sample[1] < 300)
+                    radarTurnedOff++;
+                else
+                    radarTurnedOff = 0;
+
+                if (radarTurnedOff > 50 && radarTurnedOff < 55)
+                {
+                    Debug.Print("Data Collection Complete \n");
+                    SD.IndicateEOF();
+                    radarTurnedOff = 0;
+                   
+                }
 
 
                 // fix next sampling instant
@@ -592,10 +783,14 @@ namespace Samraksh.SPOT.Apps
             numDataPkts = numDataSamples / 5;
             currIndex = SensorData.startIndex;
             //currIndex = 1;
-            NorStore.Write(SensorData.Idata, (ushort) numDataPkts, (ushort)currIndex);
-            NorStore.Write(SensorData.Qdata, (ushort)numDataPkts, (ushort)currIndex);
-            
+           
+            //NorStore.Write(SensorData.Idata, (ushort)numDataPkts, (ushort)currIndex);
+            NorStore.Write(SensorData.Idata,(UInt16) (SensorData.rate * SensorData.noiseBufWidth));
+            NorStore.Write(SensorData.Qdata, (UInt16)(SensorData.rate * SensorData.noiseBufWidth));
+            //NorStore.Write(SensorData.Qdata, (ushort)numDataPkts, (ushort)currIndex);
+           
         }
+
 
         public static void collectNoise()
         {
@@ -643,6 +838,12 @@ namespace Samraksh.SPOT.Apps
         {
             // Initialize the detector state machine
             StateMachine.init();
+
+
+            //LCDView.init();
+
+
+            SD.init();
 
             // Initialize the adc channels
       

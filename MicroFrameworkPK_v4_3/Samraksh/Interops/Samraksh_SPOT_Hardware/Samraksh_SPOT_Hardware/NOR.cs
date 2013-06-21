@@ -29,22 +29,22 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <returns></returns>
         public static bool Initialize()
         {
-            startOfRecordDelimiter[0] = 0xff;
-            startOfRecordDelimiter[1] |= (0xf0 << 8);
+            startOfRecordDelimiter[0] = 0xfff0;
+            startOfRecordDelimiter[1] = 0xf0ff;
 
-            endOfRecordDelimiter[0] = 0xfe;
-            endOfRecordDelimiter[1] |= (0xef << 8);
+            endOfRecordDelimiter[0] = 0xfeef;
+            endOfRecordDelimiter[1] = 0xeffe;
 
             return InternalInitialize();
         }
 
         public static bool Initialize(UInt32 maxSizeConfig)
         {
-            startOfRecordDelimiter[0] = 0xff;
-            startOfRecordDelimiter[1] |= (0xf0 << 8);
+            startOfRecordDelimiter[0] = 0xfff0;
+            startOfRecordDelimiter[1] = 0xf0ff;
 
-            endOfRecordDelimiter[0] = 0xfe;
-            endOfRecordDelimiter[1] |= (0xef << 8);
+            endOfRecordDelimiter[0] = 0xfeef;
+            endOfRecordDelimiter[1] = 0xeffe;
 
             maxSize = maxSizeConfig;
 
@@ -121,6 +121,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             {
                 writeAddressPtr = 0x0;
                 readAddressPtr = 0x0;
+                fullFlag = false;
             }
         }
 
@@ -145,6 +146,8 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             DeviceStatus result = InternalWrite(data, writeAddressPtr, length);
             
             writeAddressPtr += (UInt32)(length * 2);
+
+            Debug.Print("Current Fill Level : " + writeAddressPtr.ToString() + " \n");
 
             if (result == DeviceStatus.Success)
                 return true;
@@ -187,6 +190,8 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             DeviceStatus result = InternalRead(data, readAddressPtr, length);
 
             readAddressPtr += (UInt16)(length * 2);
+
+            Debug.Print("Current Read level : " + readAddressPtr.ToString() + " \n");
 
             return result;
         }

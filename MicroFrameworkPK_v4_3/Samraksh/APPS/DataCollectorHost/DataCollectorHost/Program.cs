@@ -53,6 +53,7 @@ namespace DataCollectorHost
                 inpFile.Write(buffer[i]);
             }
 
+            inpFile.WriteLine();
             Console.Write("\n");
 
             dDone = true;
@@ -88,7 +89,6 @@ namespace DataCollectorHost
             string port = "";
             string inputFile = "";
 
-           
 
             Console.WriteLine("Enter the COM Port : ");
             port = Console.ReadLine();

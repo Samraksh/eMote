@@ -1,0 +1,6 @@
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\bin\Debug\DataFormatter.exe.config
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\obj\Debug\DataFormatter.csprojResolveAssemblyReference.cache
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\bin\Debug\DataFormatter.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\bin\Debug\DataFormatter.pdb
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\obj\Debug\DataFormatter.exe
+D:\Main\Work\SOURCE\STABLE\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataFormatter\DataFormatter\obj\Debug\DataFormatter.pdb

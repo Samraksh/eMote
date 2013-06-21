@@ -113,26 +113,58 @@ namespace NORSDTransfer
 
             serialBufferDataCounter = 0;
 
+            Debug.Print("In stream to sd card " + length.ToString() + "\n");
+            Debug.Print("In stream to sd card " + length.ToString() + "\n");
+            Debug.Print("In stream to sd card " + length.ToString() + "\n");
+
+  
+
             for (UInt16 i = 0; i < length; i++)
             {
                 serialBuffer[serialBufferDataCounter++] = (byte)(data[i] & 0xff);
                 serialBuffer[serialBufferDataCounter++] = (byte)((data[i] >> 8) & 0xff);
+
+                if (serialBufferDataCounter == 512)
+                {
+
+                    Debug.Print("Making the Interop Call " + serialBufferDataCounter.ToString()  + " \n" );
+
+                    if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(serialBuffer, 0, serialBufferDataCounter))
+                    {
+                        Debug.Print("Writing to SD Card Failed \n");
+                        return false;
+                    }
+
+                    while (!sdSuccessFlag)
+                    {
+                        Thread.Sleep(20);
+                    }
+
+                    sdSuccessFlag = false;
+
+                    serialBufferDataCounter = 0;
+                }
+   
             }
 
-            if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(serialBuffer, 0, serialBufferDataCounter))
+            if (serialBufferDataCounter != 0)
             {
-                Debug.Print("Writing to SD Card Failed \n");
-                return false;
+                if (!Samraksh.SPOT.Hardware.EmoteDotNow.SD.Write(serialBuffer, 0, serialBufferDataCounter))
+                {
+                    Debug.Print("Writing to SD Card Failed \n");
+                    return false;
+                }
+
+                while (!sdSuccessFlag)
+                {
+                    Thread.Sleep(20);
+                }
+
+                sdSuccessFlag = false;
+
+                serialBufferDataCounter = 0;
             }
-
-            while (!sdSuccessFlag)
-            {
-                Thread.Sleep(20);
-            }
-
-            sdSuccessFlag = false;
-
-            Debug.Print("Writing to SD Card Complete");
+       
 
             return true;
         }
@@ -172,8 +204,36 @@ namespace NORSDTransfer
             }
 
 
+            return true;
+        }
+
+        public bool ResetNor()
+        {
+
+            Debug.Print("Resetting NOR after SD Card Transfer\n");
+
+            Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Seek(Samraksh.SPOT.Hardware.EmoteDotNow.FilePosition.Begin);
 
             return true;
+        }
+
+        public bool IndicateEOF()
+        {
+            ResetBuffers();
+
+            for (UInt16 i = 0; i < 512; i++)
+            {
+                buffer1[i] = 0x0c0c;
+            }
+
+            if (!StreamToSDCard(buffer1, 512))
+            {
+                Debug.Print("Writing Delimter failed \n");
+                return false;
+            }
+
+            return true;
+
         }
 
         public bool XferToSD()
@@ -188,8 +248,8 @@ namespace NORSDTransfer
                 {
                     error.Write(true);
                     return false;
-                }
-                if (StreamToSDCard(buffer1, BufferSize))
+                }   
+                if (!StreamToSDCard(buffer1, BufferSize))
                 {
                     error.Write(true);
                     return false;
@@ -213,7 +273,10 @@ namespace NORSDTransfer
 
             while (true)
             {
-                if (!p.store() && counter > 0)
+                if (counter <= 0)
+                    break;
+
+                if (!p.store())
                 {
 
                     counter--;
@@ -222,8 +285,19 @@ namespace NORSDTransfer
                     {
                         error.Write(true);
                     }
+
+                    p.ResetNor();
+
+                    
                 }
             }
+
+            Debug.Print("Writing End of file \n");
+
+            p.IndicateEOF();
+
+            Debug.Print("Test Complete \n");
+
         }
 
     }

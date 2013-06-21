@@ -119,6 +119,8 @@ void SDIO_Driver::GPIOInit()
 	CPU_GPIO_SetPinState((GPIO_PIN) 37, TRUE);
 
 
+	for(UINT16 i = 0; i < 10000; i++);
+
 	/*!< Configure PD.02 CMD line */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
@@ -316,8 +318,19 @@ DeviceStatus SDIO_Driver::PowerOn()
 		      return DS_Fail;
 		   }
 
+		   SDIO_ClearFlag(SDIO_FLAG_CCRCFAIL);
+		   SDIO_ClearFlag(SDIO_FLAG_DCRCFAIL);
+
 		   response = SDIO_GetResponse(SDIO_RESP1);
 		   validvoltage = (((response >> 31) == 1) ? 1 : 0);
+
+
+		   //SDIO_DEBUG_SETPINSTATE(29, TRUE);
+		   //SDIO_DEBUG_SETPINSTATE(29, FALSE);
+		   CPU_GPIO_SetPinState(29, TRUE);
+		   CPU_GPIO_SetPinState(29, FALSE);
+
+
 		   count++;
 		}
 		if (count >= SD_MAX_VOLT_TRIAL)
@@ -330,6 +343,8 @@ DeviceStatus SDIO_Driver::PowerOn()
 		{
 		     CardType = SDIO_HIGH_CAPACITY_SD_CARD;
 		}
+
+
 
     }/*!< else MMC Card */
 
@@ -1673,6 +1688,8 @@ DeviceStatus SDIO_Driver::WriteBlock(UINT8 *writebuff, UINT32 WriteAddr,UINT16 B
 
 DeviceStatus SDIO_Driver::Initialize()
 {
+	GLOBAL_LOCK(irq);
+
 	GPIOClockEnable();
 
 	GPIOInit();
@@ -1687,11 +1704,15 @@ DeviceStatus SDIO_Driver::Initialize()
 		return DS_Fail;
 	}
 
+	HAL_Time_Sleep_MicroSeconds(200);
+
 	if(InitializeCards() != DS_Success)
 	{
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Initialize Cards Failed\n");
 		return DS_Fail;
 	}
+
+	HAL_Time_Sleep_MicroSeconds(200);
 
 	 SDIO_InitStructure.SDIO_ClockDiv = SDIO_TRANSFER_CLK_DIV;
 	 SDIO_InitStructure.SDIO_ClockEdge = SDIO_ClockEdge_Rising;
@@ -1701,6 +1722,7 @@ DeviceStatus SDIO_Driver::Initialize()
 	 SDIO_InitStructure.SDIO_HardwareFlowControl = SDIO_HardwareFlowControl_Disable;
 	 SDIO_Init(&SDIO_InitStructure);
 
+	 HAL_Time_Sleep_MicroSeconds(200);
 
 	 if(SD_GetSDCardInfo() != DS_Success)
 	 {
@@ -1708,17 +1730,23 @@ DeviceStatus SDIO_Driver::Initialize()
 		 return DS_Fail;
 	 }
 
+	 HAL_Time_Sleep_MicroSeconds(200);
+
 	 if(SD_SelectDeselect((UINT32) (SDCardInfo.RCA << 16)) != DS_Success)
 	 {
 		 SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Select Deselect Failed\n");
 		 return DS_Fail;
 	 }
 
+	 HAL_Time_Sleep_MicroSeconds(200);
+
      SD_EnableWideBusOperation(SDIO_BusWide_4b);
 
      TransferError = SD_OK;
      StopCondition = 0;
      TransferEnd = 0;
+
+     HAL_Time_Sleep_MicroSeconds(200);
 
      if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_SDIO, SDIO_Driver::SDIO_HANDLER, NULL) )
      {
@@ -1746,6 +1774,8 @@ DeviceStatus SDIO_Driver::Initialize()
 
      dmaTransmitBlockSize = 0;
      dmaRecieveBlockSize = 0;
+
+     CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
 
      return DS_Success;
 

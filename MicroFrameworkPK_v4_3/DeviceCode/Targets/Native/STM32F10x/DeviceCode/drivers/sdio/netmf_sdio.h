@@ -25,9 +25,13 @@
 #if defined(SDIO_DEBUGGING_ENABLED)
 #define SDIO_DEBUG_PRINTF(x) hal_printf(x)
 #define SDIO_DEBUG_PRINTF1(x,y) hal_printf(x,y)
+#define SDIO_DEBUG_ENABLEOUTPUTPIN(x, y) 	CPU_GPIO_EnableOutputPin((GPIO_PIN)	x, y)
+#define SDIO_DEBUG_SETPINSTATE(x,y) CPU_GPIO_SetPinState((GPIO_PIN) x, y)
 #else
 #define SDIO_DEBUG_PRINTF(x)
 #define SDIO_DEBUG_PRINTF1(x,y)
+#define SDIO_DEBUG_ENABLEOUTPUTPIN(x, y)
+#define SDIO_DEBUG_SETPINSTATE(x,y)
 #endif
 
 #define SDIO_FIFO_ADDRESS                ((UINT32)0x40018080)

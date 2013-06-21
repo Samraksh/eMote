@@ -24,9 +24,9 @@ const BlockRange STM32F10x_BlockRange_InternalFlash[] =
 #endif
 
 	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 }, 	//64 blocks, 128K for bootloader
-	    { BlockRange::BLOCKTYPE_CODE  		    , 64,324 },		//256 blocks, 512K for CLR
-	    { BlockRange::BLOCKTYPE_CONFIG          ,325,327 },   //4 blocks, 8K for Config
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,328,387 },  //32 blocaks, 64K for appliation A,  address 0x80A2000
+	    { BlockRange::BLOCKTYPE_CODE  		    , 64,329 },		//256 blocks, 512K for CLR
+	    { BlockRange::BLOCKTYPE_CONFIG          ,329,331 },   //4 blocks, 8K for Config
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,332,387 },  //32 blocaks, 64K for appliation A,  address 0x80A2000
 	    { BlockRange::BLOCKTYPE_STORAGE_A       ,388,451 },  //64 blocks, 128K for Storage A
 	    { BlockRange::BLOCKTYPE_STORAGE_B       ,452,511 }  //60 blocks, 120K for Storage B
 
