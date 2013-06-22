@@ -28,7 +28,7 @@ BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 Nu
 
 	UINT32 NumHalfWords = NumBytes / 2;
 
-	gNORDriver.ReadBuffer((UINT16 *) pSectorBuff, Address, NumHalfWords);
+	gNORDriver.ReadBuffer((UINT16 *) pSectorBuff, translAddress, NumHalfWords);
 
 	return TRUE;
 }
@@ -36,11 +36,11 @@ BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 Nu
 BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
 	DeviceStatus status;
+
 	UINT32 translAddress = address - 0x64010000;
+	UINT32 numberOfHalfWordsToWrite = numBytes / 2;
 
-	UINT16* buffPtr       = (UINT16 *) pSectorBuff;
-
-	status = gNORDriver.WriteBuffer(buffPtr, address, (numBytes / 2));
+	status = gNORDriver.WriteBuffer((UINT16 *) pSectorBuff, translAddress, numberOfHalfWordsToWrite);
 
 	if(status == DS_Success )
 	{
@@ -88,7 +88,9 @@ BOOL STM32F10x_blDriver_nor::IsBlockErased( void* context, ByteAddress Address, 
 
 BOOL STM32F10x_blDriver_nor::EraseBlock( void* context, ByteAddress address )
 {
-	if(gNORDriver.EraseBlock(address) != DS_Success)
+	UINT32 translAddress = address - 0x64010000;
+
+	if(gNORDriver.EraseBlock(translAddress) != DS_Success)
 		return FALSE;
 
 	return TRUE;
