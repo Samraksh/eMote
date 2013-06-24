@@ -287,8 +287,13 @@ DeviceStatus SDIO_Driver::PowerOn()
 	  {
 	     /*!< SD CARD */
 	     /*!< Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
-	     while ((!validvoltage) && (count < SD_MAX_VOLT_TRIAL))
+	     //while ((!validvoltage) && (count < SD_MAX_VOLT_TRIAL))
+	     while ((!validvoltage) && (count < 0x001ffff))
 	     {
+
+	       SDIO_ClearFlag(SDIO_FLAG_CCRCFAIL);
+	       SDIO_ClearFlag(SDIO_FLAG_DCRCFAIL);
+
 	       /*!< SEND CMD55 APP_CMD with RCA as 0 */
 	       SDIO_CmdInitStructure.SDIO_Argument = 0x00;
 	       SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
@@ -318,8 +323,7 @@ DeviceStatus SDIO_Driver::PowerOn()
 		      return DS_Fail;
 		   }
 
-		   SDIO_ClearFlag(SDIO_FLAG_CCRCFAIL);
-		   SDIO_ClearFlag(SDIO_FLAG_DCRCFAIL);
+
 
 		   response = SDIO_GetResponse(SDIO_RESP1);
 		   validvoltage = (((response >> 31) == 1) ? 1 : 0);

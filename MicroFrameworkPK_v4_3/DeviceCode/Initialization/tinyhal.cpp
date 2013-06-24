@@ -552,7 +552,7 @@ mipi_dsi_shutdown();
 
     LCD_Initialize();
 #if !defined(BUILD_RTM) 
-    DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 1 , "0.1");
+    DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 1 , "0.4");
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);
 #if defined(__GNUC__)
     DEBUG_TRACE1(TRACE_ALWAYS, "GNU Compiler version %d\r\n", __GNUC__);
