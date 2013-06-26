@@ -9,7 +9,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
     /// Defines a delegate for the continuous mode of the callback function
     /// </summary>
     /// <param name="state"></param>
-    public delegate void AdcCallBack(bool state);
+    public delegate void AdcCallBack(uint thresholdIndex);
 
     /// <summary>
     /// AnalogInput class similar to Microsoft AnalogInput but with additional features
@@ -27,11 +27,19 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         static AdcCallBack MyCallback;
 
         /// <summary>
-        /// Constructor that initializes the callback
+        /// Initializes the adc dll 
         /// </summary>
-        public AnalogInput()
+        /// 
+        static public bool InitializeADC()
         {
             AdcInternal = new ADCInternal("ADCCallback", 1234, 0);
+
+            return true;
+        }
+
+        private AnalogInput()
+        {
+            //AdcInternal = new ADCInternal("ADCCallback", 1234, 0);
         }
 
         /// <summary>
@@ -39,7 +47,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// </summary>
         /// <param name="channel">channel 1 or 2</param>
         /// <returns>Returns the result of the initialization operation</returns>
-        static public int Init(Cpu.AnalogChannel channel)
+        static public int InitChannel(Cpu.AnalogChannel channel)
         {
             return ADCInternal.Init((int) channel);
         }
@@ -62,6 +70,31 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         static public double Read(Cpu.AnalogChannel channel)
         {
             return ADCInternal.Read((int) channel);
+        }
+
+
+        static public bool ConfigureBatchModeWithThresholding(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, uint threshold, AdcCallBack Callback)
+        {
+            MyCallback = Callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            AdcInternal.OnInterrupt += eventHandler;
+
+            if (ADCInternal.ConfigureBatchModeWithThresholding(sampleBuff, (int) channel, NumSamples, SamplingTime, threshold) == DeviceStatus.Success)
+                return true;
+            else
+                return false;
+        }
+
+        static public bool ConfigureContinuousModeWithThresholding(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, uint threshold, AdcCallBack Callback)
+        {
+            MyCallback = Callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            AdcInternal.OnInterrupt += eventHandler;
+
+            if (ADCInternal.ConfigureBatchModeWithThresholding(sampleBuff, (int)channel, NumSamples, SamplingTime, threshold) == DeviceStatus.Success)
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -119,7 +152,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="time"></param>
         static public void InternalCallback(uint data1, uint data2, DateTime time)
         {
-            MyCallback(true);
+            MyCallback(data1);
         }
     }
 
@@ -180,7 +213,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="SamplingTime">Defines the rate at which the adc should read channels</param>
         /// <returns>Return the result of the operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int ConfigureBatchMode(ushort[] sampleBuff, int channel, uint NumSamples, uint SamplingTime);
+        extern static public DeviceStatus ConfigureBatchMode(ushort[] sampleBuff, int channel, uint NumSamples, uint SamplingTime);
 
         /// <summary>
         /// Configure the adc in continuous mode 
@@ -191,7 +224,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="SamplingTime">specify the rate of sampling</param>
         /// <returns>Returns the result of this operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
+        extern static public DeviceStatus ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
 
         /// <summary>
         /// Configure continuous mode adc sampling with a threshold timestamp 
@@ -203,10 +236,10 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="threshold"></param>
         /// <returns></returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int ConfigureContinuousModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
+        extern static public DeviceStatus ConfigureContinuousModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public int ConfigureBatchModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
+        extern static public DeviceStatus ConfigureBatchModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
 
 
         /// <summary>

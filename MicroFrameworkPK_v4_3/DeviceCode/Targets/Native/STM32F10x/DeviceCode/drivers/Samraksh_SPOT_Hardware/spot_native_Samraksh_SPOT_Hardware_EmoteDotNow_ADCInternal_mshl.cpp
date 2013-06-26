@@ -43,7 +43,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Read
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchMode___STATIC__I4__SZARRAY_U2__I4__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -67,7 +67,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Conf
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousMode___STATIC__I4__SZARRAY_U2__I4__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -91,7 +91,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Conf
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -118,7 +118,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Conf
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {

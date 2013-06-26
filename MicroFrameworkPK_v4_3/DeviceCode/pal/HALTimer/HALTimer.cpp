@@ -33,6 +33,9 @@ BOOL HALTimerManager::Initialize()
 	// Number of active timers
 	m_number_active_timers_ = 0;
 
+	// Dont  set high resolution mode initially
+	m_highResolutionModeEnabled = false;
+
 	// Get ticks for the time specified in Us
 	// HALTIMER_RESOLUTION_USEC defined in platform_selector.h
 	timer_resolution_in_ticks = CPU_MicrosecondsToTicks((UINT32) HALTIMER_RESOLUTION_USEC);
@@ -44,10 +47,33 @@ BOOL HALTimerManager::Initialize()
 	return TRUE;
 }
 
+BOOL HALTimerManager::StopTimer(UINT8 timer_id)
+{
+	GLOBAL_LOCK(irq);
+
+	UINT8* active_timer = gHalTimerManagerObject.GetActiveTimerList();
+
+	for(int i = 0; i < gHalTimerManagerObject.get_m_number_of_active_timers(); i++)
+	{
+		if(m_timer[active_timer[i]].get_m_timer_id() == timer_id)
+			m_timer[active_timer[i]].set_m_is_running(false);
+	}
+
+	return TRUE;
+}
+
 BOOL HALTimerManager::CreateTimer(UINT8 timer_id, UINT32 start_time, UINT32 dtime, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
 	GLOBAL_LOCK(irq);
 	UINT32 ticks=0;
+
+	// Enable high resolution mode
+	if(dtime < HALTIMER_RESOLUTION_USEC)
+	{
+		timer_resolution_in_ticks = CPU_MicrosecondsToTicks((UINT32) dtime);
+		m_highResolutionModeEnabled = TRUE;
+	}
+
 	//__ASM volatile("cpsid i");
 	// Unable to create requested timer because a timer already exists with this id
 	UINT8 timer_index = this->DoesTimerExist(timer_id);
@@ -136,6 +162,12 @@ void HALTimerCallback(void *arg)
 				timers[active_timer[i]].set_m_ticksTillExpire(timers[active_timer[i]].get_m_dtime());
 			}
 		}
+	}
+
+	// Adding the ability to be able to run at high resolution if needed
+	if(gHalTimerManagerObject.get_highResolutionMode())
+	{
+		CPU_TIMER_SetCompare(HALTIMER, (UINT16)gHalTimerManagerObject.get_timer_resolution());
 	}
 }
 

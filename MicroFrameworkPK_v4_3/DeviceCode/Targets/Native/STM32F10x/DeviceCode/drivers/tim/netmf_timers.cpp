@@ -97,6 +97,7 @@ void HALTimerHardwareHandler(void *args)
 	UINT32 tick_correction = Timer_Driver::GetCounter(HALTIMER);
 	int HALTimer = HALTIMER;
 	UINT32 resolution = HALTIMER_RESOLUTION_USEC;
+	//UINT32 resolution = gHalTimerManagerObject.get_timer_resolution();
 
 	UINT32 ticks = CPU_MicrosecondsToTicks(resolution);
 
@@ -122,7 +123,7 @@ void HALTimerHardwareHandler(void *args)
 			    // Call PAL layer handler
 			    HALTimerHandlerFPN((void *) &tick_correction);
 
-			    Timer_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
+			    //Timer_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
 			    //Timer_Driver::SetCompare(HALTimer, (UINT16)(0xFFFF));
 
 			 }

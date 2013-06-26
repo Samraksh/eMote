@@ -406,10 +406,12 @@
     <DriverLibs Include="STM32F10x_dma.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dma\dotNetMF.proj" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <DriverLibs Include="STM32F10x_sdio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" />
@@ -421,6 +423,10 @@
   <ItemGroup>
     <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="STM32F10x_dac.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dac\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="STM32F10x_adc.$(LIB_EXT)" />

@@ -145,6 +145,8 @@ class HALTimerManager
 
 	UINT64 timer_resolution_in_ticks;
 
+	BOOL m_highResolutionModeEnabled;
+
 
 	UINT8 DoesTimerExist(UINT8 id)
 	{
@@ -184,6 +186,16 @@ public:
 	UINT64 get_timer_resolution()
 	{
 		return timer_resolution_in_ticks;
+	}
+
+	BOOL get_highResolutionMode()
+	{
+		return m_highResolutionModeEnabled;
+	}
+
+	void set_highResolutionMode(bool enable)
+	{
+		m_highResolutionModeEnabled = enable;
 	}
 
 	BOOL Initialize();

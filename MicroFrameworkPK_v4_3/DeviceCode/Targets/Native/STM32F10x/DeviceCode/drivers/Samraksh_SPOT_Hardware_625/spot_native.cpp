@@ -46,7 +46,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD::Initialize___BOOLEAN,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD::Uninitialize___BOOLEAN,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_EmoteLCD::Write___BOOLEAN__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD__SamrakshSPOTHardwareEmoteDotNowLCD,
@@ -81,7 +80,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware =
 {
     "Samraksh_SPOT_Hardware", 
-    0xE0E9DDB0,
+    0x3209B8D6,
     method_lookup
 };
 

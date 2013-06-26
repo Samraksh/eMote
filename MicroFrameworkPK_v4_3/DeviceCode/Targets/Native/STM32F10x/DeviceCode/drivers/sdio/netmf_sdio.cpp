@@ -10,7 +10,7 @@
 
 extern "C"
 {
-extern void ManagedSDCallback(DeviceStatus status);
+//extern void ManagedSDCallback(DeviceStatus status);
 }
 
 SDIO_Driver g_SDIODriver;
@@ -143,30 +143,33 @@ void SDIO_Driver::DMAClockEnable()
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
 }
 
+DeviceStatus SDIO_Driver::PowerOff()
+{
+	SD_Error errorstatus = SD_OK;
+
+	SDIO_SetPowerState(SDIO_PowerState_OFF);
+
+	return DS_Success;
+}
 
 SD_Error SDIO_Driver::GetStatus()
 {
-	SD_Error status = SD_OK;
+	 SDCardState cardstate =  SD_CARD_TRANSFER;
 
-	//UINT32 timeout = SDIO_CMD0TIMEOUT;
+	  cardstate = GetState();
 
-	UINT32 timeout = 0x100;
-
-	while ((timeout > 0) && (SDIO_GetFlagStatus(SDIO_FLAG_CMDSENT) == RESET))
-	{
-	    timeout--;
-	}
-
-	if (timeout == 0)
-	{
-	    status = SD_CMD_RSP_TIMEOUT;
-	    return status;
-	}
-
-	  /*!< Clear all the static flags */
-	  SDIO_ClearFlag(SDIO_STATIC_FLAGS);
-
-	  return (status);
+	  if (cardstate == SD_CARD_TRANSFER)
+	  {
+	    return(SD_TRANSFER_OK);
+	  }
+	  else if(cardstate == SD_CARD_ERROR)
+	  {
+	    return (SD_TRANSFER_ERROR);
+	  }
+	  else
+	  {
+	    return(SD_TRANSFER_BUSY);
+	  }
 }
 
 SD_Error SDIO_Driver::CmdResp7Error()
@@ -204,153 +207,138 @@ SD_Error SDIO_Driver::CmdResp7Error()
 
 DeviceStatus SDIO_Driver::PowerOn()
 {
-	SD_Error status = SD_OK;
+	SD_Error errorstatus = SD_OK;
+	  uint32_t response = 0, count = 0, validvoltage = 0;
+	  uint32_t SDType = SD_STD_CAPACITY;
 
-	UINT32 response = 0, count = 0, validvoltage = 0;
-	UINT32 SDType = SD_STD_CAPACITY;
+	  /*!< Power ON Sequence -----------------------------------------------------*/
+	  /*!< Configure the SDIO peripheral */
+	  /*!< SDIOCLK = HCLK, SDIO_CK = HCLK/(2 + SDIO_INIT_CLK_DIV) */
+	  /*!< on STM32F2xx devices, SDIOCLK is fixed to 48MHz */
+	  /*!< SDIO_CK for initialization should not exceed 400 KHz */
+	  SDIO_InitStructure.SDIO_ClockDiv = SDIO_INIT_CLK_DIV;
+	  SDIO_InitStructure.SDIO_ClockEdge = SDIO_ClockEdge_Rising;
+	  SDIO_InitStructure.SDIO_ClockBypass = SDIO_ClockBypass_Disable;
+	  SDIO_InitStructure.SDIO_ClockPowerSave = SDIO_ClockPowerSave_Disable;
+	  SDIO_InitStructure.SDIO_BusWide = SDIO_BusWide_1b;
+	  SDIO_InitStructure.SDIO_HardwareFlowControl = SDIO_HardwareFlowControl_Disable;
+	  SDIO_Init(&SDIO_InitStructure);
 
-	SDIO_InitStructure.SDIO_ClockDiv = SDIO_INIT_CLK_DIV;
-	SDIO_InitStructure.SDIO_ClockEdge = SDIO_ClockEdge_Rising;
-	SDIO_InitStructure.SDIO_ClockBypass = SDIO_ClockBypass_Disable;
-	SDIO_InitStructure.SDIO_ClockPowerSave = SDIO_ClockPowerSave_Disable;
-	SDIO_InitStructure.SDIO_BusWide = SDIO_BusWide_1b;
-	SDIO_InitStructure.SDIO_HardwareFlowControl = SDIO_HardwareFlowControl_Disable;
-	SDIO_Init(&SDIO_InitStructure);
+	  /*!< Set Power State to ON */
+	  SDIO_SetPowerState(SDIO_PowerState_ON);
 
-	/*!< Set Power State to ON */
-    SDIO_SetPowerState(SDIO_PowerState_ON);
+	  /*!< Enable SDIO Clock */
+	  SDIO_ClockCmd(ENABLE);
 
-	 /*!< Enable SDIO Clock */
-	SDIO_ClockCmd(ENABLE);
+	  /*!< CMD0: GO_IDLE_STATE ---------------------------------------------------*/
+	  /*!< No CMD response required */
+	  SDIO_CmdInitStructure.SDIO_Argument = 0x0;
+	  SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_GO_IDLE_STATE;
+	  SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_No;
+	  SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
+	  SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
+	  SDIO_SendCommand(&SDIO_CmdInitStructure);
 
-	/*!< CMD0: GO_IDLE_STATE ---------------------------------------------------*/
-	/*!< No CMD response required */
-	SDIO_CmdInitStructure.SDIO_Argument = 0x0;
-	SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_GO_IDLE_STATE;
-	SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_No;
-	SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
-	SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
-	SDIO_SendCommand(&SDIO_CmdInitStructure);
+	  errorstatus = CmdError();
 
-	status = GetStatus();
+	  if (errorstatus != SD_OK)
+	  {
+	    /*!< CMD Response TimeOut (wait for CMDSENT flag) */
+	    return DS_Fail;
+	  }
 
-	if(status != SD_OK)
-	{
-		return DS_Fail;
-	}
-
-	 /*!< CMD8: SEND_IF_COND ----------------------------------------------------*/
-	 /*!< Send CMD8 to verify SD card interface operating condition */
-	 /*!< Argument: - [31:12]: Reserved (shall be set to '0')
+	  /*!< CMD8: SEND_IF_COND ----------------------------------------------------*/
+	  /*!< Send CMD8 to verify SD card interface operating condition */
+	  /*!< Argument: - [31:12]: Reserved (shall be set to '0')
 	               - [11:8]: Supply Voltage (VHS) 0x1 (Range: 2.7-3.6 V)
 	               - [7:0]: Check Pattern (recommended 0xAA) */
-	 /*!< CMD Response: R7 */
-	 SDIO_CmdInitStructure.SDIO_Argument = SD_CHECK_PATTERN;
-	 SDIO_CmdInitStructure.SDIO_CmdIndex = SDIO_SEND_IF_COND;
-	 SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
-	 SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
-	 SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
-	 SDIO_SendCommand(&SDIO_CmdInitStructure);
+	  /*!< CMD Response: R7 */
+	  SDIO_CmdInitStructure.SDIO_Argument = SD_CHECK_PATTERN;
+	  SDIO_CmdInitStructure.SDIO_CmdIndex = SDIO_SEND_IF_COND;
+	  SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
+	  SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
+	  SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
+	  SDIO_SendCommand(&SDIO_CmdInitStructure);
 
+	  errorstatus = CmdResp7Error();
 
-	 status =  CmdResp7Error();
-
-	 if(status == SD_OK)
-	 {
-		 CardType = SDIO_STD_CAPACITY_SD_CARD_V2_0; /*!< SD Card 2.0 */
-		 SDType = SD_HIGH_CAPACITY;
-	 }
-	 else
-	 {
-		     /*!< CMD55 */
-	     SDIO_CmdInitStructure.SDIO_Argument = 0x00;
-	     SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
-	     SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
-	     SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
-	     SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
-	     SDIO_SendCommand(&SDIO_CmdInitStructure);
-		 status = CmdResp1Error(SD_CMD_APP_CMD);
+	  if (errorstatus == SD_OK)
+	  {
+	    CardType = SDIO_STD_CAPACITY_SD_CARD_V2_0; /*!< SD Card 2.0 */
+	    SDType = SD_HIGH_CAPACITY;
 	  }
-		   /*!< CMD55 */
+	  else
+	  {
+	    /*!< CMD55 */
+	    SDIO_CmdInitStructure.SDIO_Argument = 0x00;
+	    SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
+	    SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
+	    SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
+	    SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
+	    SDIO_SendCommand(&SDIO_CmdInitStructure);
+	    errorstatus = CmdResp1Error(SD_CMD_APP_CMD);
+	  }
+	  /*!< CMD55 */
 	  SDIO_CmdInitStructure.SDIO_Argument = 0x00;
 	  SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
 	  SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
 	  SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
 	  SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
 	  SDIO_SendCommand(&SDIO_CmdInitStructure);
-	  status = CmdResp1Error(SD_CMD_APP_CMD);
+	  errorstatus = CmdResp1Error(SD_CMD_APP_CMD);
 
-		   /*!< If errorstatus is Command TimeOut, it is a MMC card */
-		   /*!< If errorstatus is SD_OK it is a SD card: SD card 2.0 (voltage range mismatch)
-		      or SD card 1.x */
-	  if (status == SD_OK)
+	  /*!< If errorstatus is Command TimeOut, it is a MMC card */
+	  /*!< If errorstatus is SD_OK it is a SD card: SD card 2.0 (voltage range mismatch)
+	     or SD card 1.x */
+	  if (errorstatus == SD_OK)
 	  {
-	     /*!< SD CARD */
-	     /*!< Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
-	     //while ((!validvoltage) && (count < SD_MAX_VOLT_TRIAL))
-	     while ((!validvoltage) && (count < 0x001ffff))
-	     {
+	    /*!< SD CARD */
+	    /*!< Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
+	    while ((!validvoltage) && (count < SD_MAX_VOLT_TRIAL))
+	    {
 
-	       SDIO_ClearFlag(SDIO_FLAG_CCRCFAIL);
-	       SDIO_ClearFlag(SDIO_FLAG_DCRCFAIL);
+	      /*!< SEND CMD55 APP_CMD with RCA as 0 */
+	      SDIO_CmdInitStructure.SDIO_Argument = 0x00;
+	      SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
+	      SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
+	      SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
+	      SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
+	      SDIO_SendCommand(&SDIO_CmdInitStructure);
 
-	       /*!< SEND CMD55 APP_CMD with RCA as 0 */
-	       SDIO_CmdInitStructure.SDIO_Argument = 0x00;
-	       SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_APP_CMD;
-	       SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
-	       SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
-	       SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
-	       SDIO_SendCommand(&SDIO_CmdInitStructure);
+	      errorstatus = CmdResp1Error(SD_CMD_APP_CMD);
 
-	       status = CmdResp1Error(SD_CMD_APP_CMD);
+	      if (errorstatus != SD_OK)
+	      {
+	        return DS_Fail;
+	      }
+	      SDIO_CmdInitStructure.SDIO_Argument = SD_VOLTAGE_WINDOW_SD | SDType;
+	      SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_SD_APP_OP_COND;
+	      SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
+	      SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
+	      SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
+	      SDIO_SendCommand(&SDIO_CmdInitStructure);
 
-		   if (status != SD_OK)
-		   {
-		       return DS_Fail;
-		   }
+	      errorstatus = CmdResp3Error();
+	      if (errorstatus != SD_OK)
+	      {
+	    	  return DS_Fail;
+	      }
 
-		   SDIO_CmdInitStructure.SDIO_Argument = SD_VOLTAGE_WINDOW_SD | SDType;
-		   SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_SD_APP_OP_COND;
-		   SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;
-		   SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
-		   SDIO_CmdInitStructure.SDIO_CPSM = SDIO_CPSM_Enable;
-		   SDIO_SendCommand(&SDIO_CmdInitStructure);
+	      response = SDIO_GetResponse(SDIO_RESP1);
+	      validvoltage = (((response >> 31) == 1) ? 1 : 0);
+	      count++;
+	    }
+	    if (count >= SD_MAX_VOLT_TRIAL)
+	    {
+	      return DS_Fail;
+	    }
 
-		   status = CmdResp3Error();
+	    if (response &= SD_HIGH_CAPACITY)
+	    {
+	      CardType = SDIO_HIGH_CAPACITY_SD_CARD;
+	    }
 
-		   if (status != SD_OK)
-		   {
-		      return DS_Fail;
-		   }
-
-
-
-		   response = SDIO_GetResponse(SDIO_RESP1);
-		   validvoltage = (((response >> 31) == 1) ? 1 : 0);
-
-
-		   //SDIO_DEBUG_SETPINSTATE(29, TRUE);
-		   //SDIO_DEBUG_SETPINSTATE(29, FALSE);
-		   CPU_GPIO_SetPinState(29, TRUE);
-		   CPU_GPIO_SetPinState(29, FALSE);
-
-
-		   count++;
-		}
-		if (count >= SD_MAX_VOLT_TRIAL)
-		{
-		    status = SD_INVALID_VOLTRANGE;
-		    return DS_Fail;
-		}
-
-		if (response &= SD_HIGH_CAPACITY)
-		{
-		     CardType = SDIO_HIGH_CAPACITY_SD_CARD;
-		}
-
-
-
-    }/*!< else MMC Card */
+	  }/*!< else MMC Card */
 
 	return DS_Success;
 
@@ -424,15 +412,15 @@ SD_Error SDIO_Driver::CmdResp6Error(UINT8 cmd, UINT16 *prca)
 DeviceStatus SDIO_Driver::InitializeCards()
 {
 	SD_Error errorstatus = SD_OK;
-	UINT16 rca = 0x01;
+	  uint16_t rca = 0x01;
 
-	if (SDIO_GetPowerState() == SDIO_PowerState_OFF)
-	{
+	  if (SDIO_GetPowerState() == SDIO_PowerState_OFF)
+	  {
 	    errorstatus = SD_REQUEST_NOT_APPLICABLE;
-	    return	DS_Fail;
-	}
+	    	return DS_Fail;
+	  }
 
-	if (SDIO_SECURE_DIGITAL_IO_CARD != CardType)
+	  if (SDIO_SECURE_DIGITAL_IO_CARD != CardType)
 	  {
 	    /*!< Send CMD2 ALL_SEND_CID */
 	    SDIO_CmdInitStructure.SDIO_Argument = 0x0;
@@ -446,7 +434,7 @@ DeviceStatus SDIO_Driver::InitializeCards()
 
 	    if (SD_OK != errorstatus)
 	    {
-	      return DS_Fail;
+	      	return DS_Fail;
 	    }
 
 	    CID_Tab[0] = SDIO_GetResponse(SDIO_RESP1);
@@ -470,7 +458,7 @@ DeviceStatus SDIO_Driver::InitializeCards()
 
 	    if (SD_OK != errorstatus)
 	    {
-	      return DS_Fail;
+	      	return DS_Fail;
 	    }
 	  }
 
@@ -479,7 +467,7 @@ DeviceStatus SDIO_Driver::InitializeCards()
 	    RCA = rca;
 
 	    /*!< Send CMD9 SEND_CSD with argument as card's RCA */
-	    SDIO_CmdInitStructure.SDIO_Argument = (UINT32)(rca << 16);
+	    SDIO_CmdInitStructure.SDIO_Argument = (uint32_t)(rca << 16);
 	    SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_SEND_CSD;
 	    SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Long;
 	    SDIO_CmdInitStructure.SDIO_Wait = SDIO_Wait_No;
@@ -490,7 +478,7 @@ DeviceStatus SDIO_Driver::InitializeCards()
 
 	    if (SD_OK != errorstatus)
 	    {
-	      return DS_Fail;
+	      	return DS_Fail;
 	    }
 
 	    CSD_Tab[0] = SDIO_GetResponse(SDIO_RESP1);
@@ -1444,6 +1432,7 @@ UINT8 SDIO_Driver::SD_Detect(void)
 }
 
 
+
 SD_Error SDIO_Driver::SD_SendStatus(UINT32 *pcardstatus)
 {
   SD_Error errorstatus = SD_OK;
@@ -1744,7 +1733,11 @@ DeviceStatus SDIO_Driver::Initialize()
 
 	 HAL_Time_Sleep_MicroSeconds(200);
 
-     SD_EnableWideBusOperation(SDIO_BusWide_4b);
+     if(SD_EnableWideBusOperation(SDIO_BusWide_4b) != DS_Success)
+     {
+    	 SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] SD_EnableWideBusOperation failed \n");
+    	 return DS_Fail;
+     }
 
      TransferError = SD_OK;
      StopCondition = 0;
@@ -1781,6 +1774,8 @@ DeviceStatus SDIO_Driver::Initialize()
 
      CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
 
+
+
      return DS_Success;
 
 }
@@ -1803,7 +1798,9 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 	{
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Timeout\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_DTIMEOUT);
-		ManagedSDCallback(DS_Fail);
+#if !defined(NATIVE_TEST)
+		//ManagedSDCallback(DS_Fail);
+#endif
 	}
 	if(SDIO_GetFlagStatus(SDIO_IT_TXFIFOHE) != RESET)
 	{
@@ -1829,7 +1826,9 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] FIFO Underrun error\n");
 		SDIO_ClearITPendingBit(SDIO_IT_TXUNDERR);
 		SDIO_ITConfig(SDIO_IT_TXUNDERR, DISABLE);
-		ManagedSDCallback(DS_Fail);
+#if !defined(NATIVE_TEST)
+		//ManagedSDCallback(DS_Fail);
+#endif
 	}
 
 	if(SDIO_GetFlagStatus(SDIO_IT_DATAEND))
@@ -1837,7 +1836,9 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data Transfer Complete\n");
 		SDIO_ClearITPendingBit(SDIO_IT_DATAEND);
 		SDIO_ITConfig(SDIO_IT_DATAEND, DISABLE);
-		ManagedSDCallback(DS_Success);
+#if !defined(NATIVE_TEST)
+		//ManagedSDCallback(DS_Success);
+#endif
 		TransferEnd = 1;
 	}
 
@@ -1849,7 +1850,9 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] Data CRC failed\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_DCRCFAIL);
 		SDIO_ITConfig(SDIO_FLAG_DCRCFAIL, DISABLE);
-		ManagedSDCallback(DS_Fail);
+#if !defined(NATIVE_TEST)
+		//ManagedSDCallback(DS_Fail);
+#endif
 		TransferEnd = 1;
 
 	}
@@ -1862,7 +1865,9 @@ void SDIO_Driver::SDIO_HANDLER( void* Param )
 		SDIO_DEBUG_PRINTF("[NATIVE] [SDIO Driver] STBIT Error\n");
 		SDIO_ClearITPendingBit(SDIO_FLAG_STBITERR);
 		SDIO_ITConfig(SDIO_FLAG_STBITERR, DISABLE);
-		ManagedSDCallback(DS_Fail);
+#if !defined(NATIVE_TEST)
+		//ManagedSDCallback(DS_Fail);
+#endif
 
 	}
 

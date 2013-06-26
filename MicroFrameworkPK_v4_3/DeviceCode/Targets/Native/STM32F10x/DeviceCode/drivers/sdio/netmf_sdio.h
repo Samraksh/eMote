@@ -357,6 +357,8 @@ class SDIO_Driver
 
 	DeviceStatus PowerOn();
 
+	DeviceStatus PowerOff();
+
 	SD_Error GetStatus();
 
 	SD_Error CmdResp7Error();

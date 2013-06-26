@@ -27,10 +27,10 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal
 {
     TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
     TINYCLR_NATIVE_DECLARE(Read___STATIC__R8__I4);
-    TINYCLR_NATIVE_DECLARE(ConfigureBatchMode___STATIC__I4__SZARRAY_U2__I4__U4__U4);
-    TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__I4__SZARRAY_U2__I4__U4__U4);
-    TINYCLR_NATIVE_DECLARE(ConfigureContinuousModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4);
-    TINYCLR_NATIVE_DECLARE(ConfigureBatchModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConfigureBatchMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConfigureContinuousModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConfigureBatchModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4);
     TINYCLR_NATIVE_DECLARE(DualChannelRead___STATIC__BOOLEAN__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(StopSampling___STATIC__I4);
 

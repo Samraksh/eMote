@@ -25,12 +25,15 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Init___STATIC__I4__I4,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Read___STATIC__R8__I4,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchMode___STATIC__I4__SZARRAY_U2__I4__U4__U4,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousMode___STATIC__I4__SZARRAY_U2__I4__U4__U4,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4,
-    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchModeWithThresholding___STATIC__I4__SZARRAY_U2__I4__U4__U4__U4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4,
+    Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::DualChannelRead___STATIC__BOOLEAN__SZARRAY_U2,
     Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::StopSampling___STATIC__I4,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -78,7 +81,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware =
 {
     "Samraksh_SPOT_Hardware", 
-    0x2A77D72D,
+    0xE0E9DDB0,
     method_lookup
 };
 

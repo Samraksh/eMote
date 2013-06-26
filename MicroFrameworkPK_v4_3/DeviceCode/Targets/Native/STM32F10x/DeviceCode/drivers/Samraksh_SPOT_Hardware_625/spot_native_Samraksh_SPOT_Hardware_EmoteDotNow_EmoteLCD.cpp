@@ -90,4 +90,3 @@ INT8 EmoteLCD::Clear( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
     return retVal;
 }
-
