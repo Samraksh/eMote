@@ -24,6 +24,11 @@
     </If>
 
     <If Name="TARGETLOCATION" In="RAM">
+		<Set Name="Heap_Begin"          Value="0x80310000"/>
+        <Set Name="Heap_End"            Value="0x803FFFFF"/>
+        <Set Name="Code_BaseAddress" Value="0x80200000"/>
+        <Set Name="Code_Size"        Value="0x00100000"/>
+        <Set Name="Valid"            Value="true"/>
 		<!--
         <Set Name="Heap_Begin"          Value="0x89400000"/>
         <Set Name="Heap_End"            Value="0x894FFFFF"/>
@@ -31,11 +36,6 @@
         <Set Name="Code_Size"        Value="0x000D0000"/>
         <Set Name="Valid"            Value="true"/>
 		-->
-		<Set Name="Heap_Begin"          Value="0x80310000"/>
-        <Set Name="Heap_End"            Value="0x803FFFFF"/>
-        <Set Name="Code_BaseAddress" Value="0x80200000"/>
-        <Set Name="Code_Size"        Value="0x00100000"/>
-        <Set Name="Valid"            Value="true"/>
     </If>
 
     <!-- ################################################################################ -->
