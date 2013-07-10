@@ -184,6 +184,7 @@
     <CC_CPP_INCS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_INCS) -I$(CLRROOT)\DeviceCode\Targets\STM32F10x\DeviceCode\cmsis -I$(CLRROOT)\DeviceCode\Targets\STM32F10x\DeviceCode\processor</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Cores\arm</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\Support\Include  </CC_CPP_INCS>
+	<CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\fsmc\P30BF65NOR  </CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\crypto\inc </CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\CLR\Include</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\CLR\Libraries\CorLib</CC_CPP_INCS>
