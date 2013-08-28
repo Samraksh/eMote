@@ -40,7 +40,9 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="STM32F10x_i2c.h" />
+	<HFiles Include="netmf_i2c.h" />
     <Compile Include="STM32F10x_i2c.c" />
+    <Compile Include="netmf_i2c.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

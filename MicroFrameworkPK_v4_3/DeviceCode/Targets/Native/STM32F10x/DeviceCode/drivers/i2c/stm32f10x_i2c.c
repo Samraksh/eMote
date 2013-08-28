@@ -2,11 +2,11 @@
   ******************************************************************************
   * @file    stm32f10x_i2c.c
   * @author  MCD Application Team
-  * @version V3.3.0
-  * @date    04/16/2010
+  * @version V3.5.0
+  * @date    11-March-2011
   * @brief   This file provides all the I2C firmware functions.
   ******************************************************************************
-  * @copy
+  * @attention
   *
   * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
   * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
@@ -15,13 +15,13 @@
   * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
-  * <h2><center>&copy; COPYRIGHT 2010 STMicroelectronics</center></h2>
-  */ 
+  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  ******************************************************************************
+  */
 
 /* Includes ------------------------------------------------------------------*/
-
 #include "stm32f10x_i2c.h"
-#include <rcc/stm32f10x_rcc.h>
+#include "..\rcc\stm32f10x_rcc.h"
 
 
 /** @addtogroup STM32F10x_StdPeriph_Driver
@@ -178,7 +178,6 @@ void I2C_DeInit(I2C_TypeDef* I2Cx)
     /* Release I2C2 from reset state */
     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
   }
-  I2Cx->CR1 = 0;
 }
 
 /**
@@ -397,8 +396,6 @@ void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
-  __asm volatile("cpsid i"); // DISABLE
-
   if (NewState != DISABLE)
   {
     /* Generate a START condition */
@@ -409,7 +406,6 @@ void I2C_GenerateSTART(I2C_TypeDef* I2Cx, FunctionalState NewState)
     /* Disable the START condition generation */
     I2Cx->CR1 &= CR1_START_Reset;
   }
-  __asm volatile("cpsie i"); // ENABLE
 }
 
 /**
@@ -424,9 +420,6 @@ void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_FUNCTIONAL_STATE(NewState));
-
-  __asm volatile("cpsid i"); // DISABLE
-
   if (NewState != DISABLE)
   {
     /* Generate a STOP condition */
@@ -437,7 +430,6 @@ void I2C_GenerateSTOP(I2C_TypeDef* I2Cx, FunctionalState NewState)
     /* Disable the STOP condition generation */
     I2Cx->CR1 &= CR1_STOP_Reset;
   }
-  __asm volatile("cpsie i"); // ENABLE
 }
 
 /**
@@ -579,10 +571,8 @@ void I2C_SendData(I2C_TypeDef* I2Cx, uint8_t Data)
 {
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
-  __asm volatile("cpsid i"); // DISABLE
   /* Write in the DR register the data to be sent */
   I2Cx->DR = Data;
-  __asm volatile("cpsie i");
 }
 
 /**
@@ -613,8 +603,6 @@ void I2C_Send7bitAddress(I2C_TypeDef* I2Cx, uint8_t Address, uint8_t I2C_Directi
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_DIRECTION(I2C_Direction));
-  __asm volatile("cpsid i"); // DISABLE
-
   /* Test on the direction to set/reset the read/write bit */
   if (I2C_Direction != I2C_Direction_Transmitter)
   {
@@ -628,8 +616,6 @@ void I2C_Send7bitAddress(I2C_TypeDef* I2Cx, uint8_t Address, uint8_t I2C_Directi
   }
   /* Send the address */
   I2Cx->DR = Address;
-
-  __asm volatile("cpsie i");
 }
 
 /**
@@ -683,6 +669,46 @@ void I2C_SoftwareResetCmd(I2C_TypeDef* I2Cx, FunctionalState NewState)
   {
     /* Peripheral not under reset */
     I2Cx->CR1 &= CR1_SWRST_Reset;
+  }
+}
+
+/**
+  * @brief  Selects the specified I2C NACK position in master receiver mode.
+  *         This function is useful in I2C Master Receiver mode when the number
+  *         of data to be received is equal to 2. In this case, this function 
+  *         should be called (with parameter I2C_NACKPosition_Next) before data 
+  *         reception starts,as described in the 2-byte reception procedure 
+  *         recommended in Reference Manual in Section: Master receiver.                
+  * @param  I2Cx: where x can be 1 or 2 to select the I2C peripheral.
+  * @param  I2C_NACKPosition: specifies the NACK position. 
+  *   This parameter can be one of the following values:
+  *     @arg I2C_NACKPosition_Next: indicates that the next byte will be the last
+  *          received byte.  
+  *     @arg I2C_NACKPosition_Current: indicates that current byte is the last 
+  *          received byte.
+  *            
+  * @note    This function configures the same bit (POS) as I2C_PECPositionConfig() 
+  *          but is intended to be used in I2C mode while I2C_PECPositionConfig() 
+  *          is intended to used in SMBUS mode. 
+  *            
+  * @retval None
+  */
+void I2C_NACKPositionConfig(I2C_TypeDef* I2Cx, uint16_t I2C_NACKPosition)
+{
+  /* Check the parameters */
+  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+  assert_param(IS_I2C_NACK_POSITION(I2C_NACKPosition));
+  
+  /* Check the input parameter */
+  if (I2C_NACKPosition == I2C_NACKPosition_Next)
+  {
+    /* Next byte in shift register is the last received byte */
+    I2Cx->CR1 |= I2C_NACKPosition_Next;
+  }
+  else
+  {
+    /* Current byte in shift register is the last received byte */
+    I2Cx->CR1 &= I2C_NACKPosition_Current;
   }
 }
 
@@ -743,6 +769,11 @@ void I2C_TransmitPEC(I2C_TypeDef* I2Cx, FunctionalState NewState)
   *   This parameter can be one of the following values:
   *     @arg I2C_PECPosition_Next: indicates that the next byte is PEC
   *     @arg I2C_PECPosition_Current: indicates that current byte is PEC
+  *       
+  * @note    This function configures the same bit (POS) as I2C_NACKPositionConfig()
+  *          but is intended to be used in SMBUS mode while I2C_NACKPositionConfig() 
+  *          is intended to used in I2C mode.
+  *               
   * @retval None
   */
 void I2C_PECPositionConfig(I2C_TypeDef* I2Cx, uint16_t I2C_PECPosition)
@@ -763,7 +794,7 @@ void I2C_PECPositionConfig(I2C_TypeDef* I2Cx, uint16_t I2C_PECPosition)
 }
 
 /**
-  * @brief  Enables or disables the PEC value calculation of the transfered bytes.
+  * @brief  Enables or disables the PEC value calculation of the transferred bytes.
   * @param  I2Cx: where x can be 1 or 2 to select the I2C peripheral.
   * @param  NewState: new state of the I2Cx PEC value calculation.
   *   This parameter can be: ENABLE or DISABLE.
@@ -893,7 +924,7 @@ void I2C_FastModeDutyCycleConfig(I2C_TypeDef* I2Cx, uint16_t I2C_DutyCycle)
  *    It returns SUCCESS if the current status includes the given flags 
  *    and returns ERROR if one or more flags are missing in the current status.
  *    - When to use:
- *      - This function is suitable for most applciations as well as for startup 
+ *      - This function is suitable for most applications as well as for startup 
  *      activity since the events are fully described in the product reference manual 
  *      (RM0008).
  *      - It is also suitable for users who need to define their own events.
@@ -907,7 +938,7 @@ void I2C_FastModeDutyCycleConfig(I2C_TypeDef* I2Cx, uint16_t I2C_DutyCycle)
  *        @note 
  *        For error management, it is advised to use the following functions:
  *          - I2C_ITConfig() to configure and enable the error interrupts (I2C_IT_ERR).
- *          - I2Cx_ER_IRQHandler() which is called when the error interurpt occurs.
+ *          - I2Cx_ER_IRQHandler() which is called when the error interrupt occurs.
  *            Where x is the peripheral instance (I2C1, I2C2 ...)
  *          - I2C_GetFlagStatus() or I2C_GetITStatus() to be called into I2Cx_ER_IRQHandler() 
  *            in order to determine which error occured.
@@ -922,9 +953,9 @@ void I2C_FastModeDutyCycleConfig(I2C_TypeDef* I2Cx, uint16_t I2C_DutyCycle)
  *     by 16 bits and concatenated to Status Register 1).
  *     - When to use:
  *       - This function is suitable for the same applications above but it allows to
- *         overcome the mentionned limitation of I2C_GetFlagStatus() function.
+ *         overcome the mentioned limitation of I2C_GetFlagStatus() function.
  *         The returned value could be compared to events already defined in the 
- *         library (stm32f10x_i2c.h) or to custom values defiend by user.
+ *         library (stm32f10x_i2c.h) or to custom values defined by user.
  *       - This function is suitable when multiple flags are monitored at the same time.
  *       - At the opposite of I2C_CheckEvent() function, this function allows user to
  *         choose when an event is accepted (when all events flags are set and no 
@@ -992,7 +1023,7 @@ void I2C_FastModeDutyCycleConfig(I2C_TypeDef* I2Cx, uint16_t I2C_DutyCycle)
   * @note: For detailed description of Events, please refer to section 
   *    I2C_Events in stm32f10x_i2c.h file.
   *    
-  * @retval An ErrorStatus enumuration value:
+  * @retval An ErrorStatus enumeration value:
   * - SUCCESS: Last event is equal to the I2C_EVENT
   * - ERROR: Last event is different from the I2C_EVENT
   */
@@ -1094,8 +1125,8 @@ uint32_t I2C_GetLastEvent(I2C_TypeDef* I2Cx)
   *     @arg I2C_FLAG_STOPF: Stop detection flag (Slave mode)
   *     @arg I2C_FLAG_ADD10: 10-bit header sent flag (Master mode)
   *     @arg I2C_FLAG_BTF: Byte transfer finished flag
-  *     @arg I2C_FLAG_ADDR: Address sent flag (Master mode) “ADSL”
-  *   Address matched flag (Slave mode)”ENDAD”
+  *     @arg I2C_FLAG_ADDR: Address sent flag (Master mode) "ADSL"
+  *   Address matched flag (Slave mode)"ENDA"
   *     @arg I2C_FLAG_SB: Start bit flag (Master mode)
   * @retval The new state of I2C_FLAG (SET or RESET).
   */
@@ -1207,8 +1238,8 @@ void I2C_ClearFlag(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
   *     @arg I2C_IT_STOPF: Stop detection flag (Slave mode)
   *     @arg I2C_IT_ADD10: 10-bit header sent flag (Master mode)
   *     @arg I2C_IT_BTF: Byte transfer finished flag
-  *     @arg I2C_IT_ADDR: Address sent flag (Master mode) “ADSL”
-  *                       Address matched flag (Slave mode)”ENDAD”
+  *     @arg I2C_IT_ADDR: Address sent flag (Master mode) "ADSL"
+  *                       Address matched flag (Slave mode)"ENDAD"
   *     @arg I2C_IT_SB: Start bit flag (Master mode)
   * @retval The new state of I2C_IT (SET or RESET).
   */
@@ -1297,4 +1328,4 @@ void I2C_ClearITPendingBit(I2C_TypeDef* I2Cx, uint32_t I2C_IT)
   * @}
   */ 
 
-/******************* (C) COPYRIGHT 2010 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

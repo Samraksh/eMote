@@ -195,12 +195,18 @@ INT64 Time_Driver :: CurrentTime()
 
 void Time_Driver :: Sleep_uSec( UINT32 uSec )
 {	
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
 	UINT32 value   = Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer );
 	UINT32 maxDiff  = CPU_MicrosecondsToTicks( uSec );
 
-	while((Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer ) - value) <= maxDiff);
+	if(maxDiff < 400)
+		return;
 
+	//UINT32 value   = Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer );
+
+	while((Timer_Driver::GetCounter( Timer_Driver::c_SystemTimer ) - value) <= maxDiff);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 	/*
 	 *
 	if(maxDiff <= AT91_SLEEP_USEC_FIXED_OVERHEAD_CLOCKS)

@@ -100,7 +100,8 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec )
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT64/#else), Ticks %u\n", uSec);
 #endif
-    return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
+   // return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
+	return uSec * 48;
 #endif
 }
 
@@ -121,7 +122,8 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec )
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT32/#else), Ticks %u\n", uSec);
 #endif
-    return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
+    //return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
+	return uSec * 48;
 #endif
 }
 
