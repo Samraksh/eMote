@@ -307,6 +307,8 @@ BOOL CPU_GPIO_Initialize()
 		pinIsr->m_param   = NULL;
 
 		pinIsr++;
+
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) pin, FALSE);
 	}
 
 
@@ -386,15 +388,20 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 	return GPIO_ATTRIBUTE_NONE;
 }
 
+// Debugging the i2c driver, this function is not doing what it is supposed to be doing
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
+	GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
+
+	//GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
 
-	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_InitStructure);
+	//GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_InitStructure);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 }
 

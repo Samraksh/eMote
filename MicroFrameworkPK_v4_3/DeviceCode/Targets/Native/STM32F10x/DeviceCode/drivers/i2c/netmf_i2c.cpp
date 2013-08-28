@@ -68,6 +68,9 @@ void I2C_Internal_GetPins(GPIO_PIN& scl, GPIO_PIN& sda)
 #endif
 }
 
+extern "C"
+{
+
 void I2C_Event_Handler(void *param)
 {
 	I2C_HAL_XACTION* xAction = g_STM32F10x_i2c_driver.getCurrentXAction();
@@ -154,6 +157,17 @@ void I2C_Event_Handler(void *param)
 		}
 	}
 
+	 if (todo == 0) { // all received or all sent
+	        if (!xAction->ProcessingLastUnit()) { // start next unit
+	        	I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR2 &= ~I2C_CR2_ITBUFEN; // disable I2C_SR1_RXNE interrupt
+	        	g_STM32F10x_i2c_driver.setCurrentXActionUnit(xAction->m_xActionUnits[ xAction->m_current++ ]);
+	            I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 = I2C_CR1_PE | I2C_CR1_START | I2C_CR1_ACK; // send restart
+	       }
+	        else {
+	            xAction->Signal(I2C_HAL_XACTION::c_Status_Completed); // calls XActionStop()
+	       }
+	  }
+
 
 }
 
@@ -164,6 +178,8 @@ void I2C_Error_Handler(void  *param)
 	I2C_ClearFlag(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_SMBALERT | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
 
 	xAction->Signal(I2C_HAL_XACTION::c_Status_Aborted);
+
+}
 
 }
 
@@ -207,13 +223,130 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
 
+	GPIO_InitTypeDef GPIO_InitStructure;
+		I2C_InitTypeDef I2C_InitStruct;
+
+		GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
+
+		if(bus == I2CBus1)
+		{
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+			RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
+
+
+		    // Enable I2C1 reset state
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+		    // Release I2C1 from reset state
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+
+		}
+		else
+		{
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+			RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
+
+
+			// Enable I2C2 reset state
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
+			// Release I2C2 from reset state
+			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
+
+		}
+
+
+		// Enable the pins in alternate mode configuration
+		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+
+		I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
+		I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+		I2C_InitStruct.I2C_ClockSpeed = 100000;
+		I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2;
+		I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
+		I2C_InitStruct.I2C_OwnAddress1 = 0x33;
+
+		if(bus == I2CBus1)
+		{
+			I2C_Cmd(I2C1, ENABLE);
+			I2C_Init(I2C1, &I2C_InitStruct);
+
+			if(!CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_I2C1_EV, I2C_Event_Handler, NULL ))
+				return DS_Fail;
+
+			if(!CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_I2C1_ER, I2C_Error_Handler, NULL ))
+				return DS_Fail;
+
+
+			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C1_EV))
+				return DS_Fail;
+
+			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C1_ER))
+				return DS_Fail;
+
+		}
+		else
+		{
+			I2C_Cmd(I2C2, ENABLE);
+			I2C_Init(I2C2, &I2C_InitStruct);
+
+			if(!CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_I2C2_EV, I2C_Event_Handler, NULL ))
+				return DS_Fail;
+
+			if(!CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_I2C2_ER, I2C_Error_Handler, NULL ))
+				return DS_Fail;
+
+
+			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C2_EV))
+				return DS_Fail;
+
+			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C2_ER))
+				return DS_Fail;
+
+		}
+#if 0
+		I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);
+		I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
+		I2C_ITConfig(I2C1, I2C_IT_BUF, ENABLE);
+
+		I2C_GenerateSTART(I2C1, ENABLE);
+#endif
+
+		currentActiveBus = bus;
+
+		IsInitialized = TRUE;
+
+		return DS_Success;
+
+#if 0
+
+
+	ENABLE_INTERRUPTS();
+
+	I2C_DeInit(I2C1);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
+
+	I2C_SoftwareResetCmd(I2C1, ENABLE);
+	for(UINT32 i = 0; i < 100; i++) {}
+	I2C_SoftwareResetCmd(I2C1, DISABLE);
+
 	if(IsInitialized)
 			return DS_Success;
 
 	I2C_InitTypeDef I2C_InitStruct;
-	// Initialize the i2c clock
-	//RCC_APB1PeriphClockCmd(I2CClock[bus], ENABLE);
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+
+	// Initialize the bus associated with the i2c peripheral
+	if(bus == I2CBus1)
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+	else if(bus == I2CBus2)
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+
+	// Enable I2C1 reset state
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+	// Release I2C1 from reset state
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
 
 	if(bus == I2CBus1)
 	{
@@ -225,9 +358,11 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 		}
 		else
 		{
+
 			// Enable the pins in alternate mode configuration
 			CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
 			CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+
 		}
 	}
 	else
@@ -256,6 +391,20 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 	I2C_InitStruct.I2C_OwnAddress1 = 0x33;
 
 
+	if(bus == I2CBus1)
+	{
+
+			I2C_Cmd(I2C1, ENABLE);
+			I2C_Init(I2C1, &I2C_InitStruct);
+
+	}
+	else
+	{
+
+			I2C_Cmd(I2C2, ENABLE);
+			I2C_Init(I2C2, &I2C_InitStruct);
+
+	}
 
 	if(bus == I2CBus1)
 	{
@@ -287,23 +436,11 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 			return DS_Fail;
 	}
 
-	if(bus == I2CBus1)
-	{
-		I2C_Init(I2C1, &I2C_InitStruct);
-		I2C_Cmd(I2C1, ENABLE);
-
-	}
-	else
-	{
-		I2C_Init(I2C2, &I2C_InitStruct);
-		I2C_Cmd(I2C2, ENABLE);
-
-	}
-
 	IsInitialized = TRUE;
 
-	return DS_Success;
 
+	return DS_Success;
+#endif
 }
 
 DeviceStatus STM32F10x_I2C_Driver::UnInitialize()

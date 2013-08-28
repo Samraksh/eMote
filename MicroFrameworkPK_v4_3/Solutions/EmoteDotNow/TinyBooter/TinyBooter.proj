@@ -147,10 +147,12 @@
     <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
@@ -159,10 +161,12 @@
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <DriverLibs Include="STM32F10x_lcd.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\LCD_PCF85162_HAL\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <DriverLibs Include="Time_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\Time\stubs\dotNetMF.proj" />

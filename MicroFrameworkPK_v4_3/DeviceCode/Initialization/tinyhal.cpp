@@ -387,7 +387,7 @@ void HAL_Initialize()
     CPU_InitializeCommunication();
 //#endif
 
-    I2C_Initialize();
+    //I2C_Initialize();
 
     Buttons_Initialize();
 
