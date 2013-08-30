@@ -111,8 +111,8 @@ bool WaitForTinyBooterUpload( INT32 &timeout_ms )
 	
 	
 
-    //return enterBooterMode;
-    return false;
+    return enterBooterMode;
+    //return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
