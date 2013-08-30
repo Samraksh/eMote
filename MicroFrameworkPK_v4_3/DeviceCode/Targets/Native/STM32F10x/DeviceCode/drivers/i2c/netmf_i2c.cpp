@@ -73,6 +73,8 @@ extern "C"
 
 void I2C_Event_Handler(void *param)
 {
+	GLOBAL_LOCK(irq);
+
 	I2C_HAL_XACTION* xAction = g_STM32F10x_i2c_driver.getCurrentXAction();
 	I2C_HAL_XACTION_UNIT* unit = g_STM32F10x_i2c_driver.getCurrentXActionUnit();
 
@@ -126,6 +128,7 @@ void I2C_Event_Handler(void *param)
 					}
 
 					UINT8 data = I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->DR;
+					for(volatile UINT16 i = 0; i < 250; i++);
 					*(unit->m_dataQueue.Push()) =data;
 					unit->m_bytesTransferred++;
 					unit->m_bytesToTransfer == --todo;

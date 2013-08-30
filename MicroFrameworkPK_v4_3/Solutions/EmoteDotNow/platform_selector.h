@@ -150,8 +150,8 @@ UINT16 MF_NODE_ID;
 #define NUM_HALTIMER_TIMERS 4
 #define NUMBER_ADC_CHANNELS	3
 
-#define INPUT_REBOOT_PIN  23
-#define OUTPUT_REBOOT_PIN 22
+#define INPUT_REBOOT_PIN  4
+#define OUTPUT_REBOOT_PIN 8
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 
