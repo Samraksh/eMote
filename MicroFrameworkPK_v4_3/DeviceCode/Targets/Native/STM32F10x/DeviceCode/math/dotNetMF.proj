@@ -39,9 +39,18 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-	<HFiles Include="STM32.h" />
-    <Compile Include="STM32__AITC.cpp" />
-	<Compile Include="STM32_nvic_functions.cpp" />
+    <IncludePaths Include="DeviceCode\Targets\STM32F10x\math\Include" />
+    <HFiles Include="Include\arm_math.h" />
+	<Compile Include="BasicMathFunctions\arm_mult_q15.c" />
+	<Compile Include="BasicMathFunctions\arm_add_q15.c" />
+	<Compile Include="BasicMathFunctions\arm_sub_q15.c" />
+	<Compile Include="TransformFunctions\arm_cfft_radix4_q31.c" />
+	<Compile Include="TransformFunctions\arm_cfft_radix4_init_q31.c" />
+	<Compile Include="TransformFunctions\arm_bitreversal.c" />
+	<Compile Include="ComplexMathFunctions\arm_cmplx_mag_q31.c" />
+	<Compile Include="StatisticsFunctions\arm_max_q31.c" />
+	<Compile Include="FastMathFunctions\arm_sqrt_q31.c" />
+	<Compile Include="CommonTables\arm_common_tables.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
