@@ -18,26 +18,48 @@ namespace Samraksh.SPOT.Net
         private static ReceiveCallBack _receiveCallBack = null;
         private static NeighbourhoodChangeCallBack _neighbourChangeCallBack = null;
 
+        /// <summary>
+        /// Set the receive callback to be called on arrival of a packet
+        /// </summary>
+        /// <param name="callback">Receivecallback function pointer</param>
         public static void SetReceiveCallback(ReceiveCallBack callback)
         {
             _receiveCallBack = callback;
         }
 
+        /// <summary>
+        /// Set the neighbour change callback to be called when there is a change in neighbour table
+        /// </summary>
+        /// <param name="callback">Neighbourcallback function pointer</param>
         public static void SetNeighbourChangeCallback(NeighbourhoodChangeCallBack callback)
         {
             _neighbourChangeCallBack = callback;
         }
 
+        /// <summary>
+        /// Returns the recieve callback function
+        /// </summary>
+        /// <returns></returns>
         public static ReceiveCallBack GetReceiveCallback()
         {
             return _receiveCallBack;
         }
 
+        /// <summary>
+        /// Returns the neighbour change callback function registered
+        /// </summary>
+        /// <returns></returns>
         public static NeighbourhoodChangeCallBack GetNeighbourChangeCallback()
         {
             return _neighbourChangeCallBack;
         }
 
+        /// <summary>
+        /// First level callback from native code
+        /// </summary>
+        /// <param name="data1"></param>
+        /// <param name="data2"></param>
+        /// <param name="time"></param>
         public static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
 
