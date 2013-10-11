@@ -126,6 +126,28 @@ void fftTest()
 	}
 }
 
+void powerTest()
+{
+	float32_t x = 0.035;
+	q15_t y = 0;
+	q63_t result = 0;
+
+	q31_t resultq31 = 0;
+
+	float32_t resultInFloat = 0;
+
+	arm_float_to_q15(&x, &y, 1);
+
+	arm_power_q15(&y, 1, &result);
+
+	resultq31 = clip_q63_to_q31(result);
+
+	arm_q31_to_float(&resultq31, &resultInFloat, 1);
+
+	hal_printf("%f", resultInFloat);
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -161,7 +183,8 @@ void ApplicationEntryPoint()
 
     CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 
-    fftTest();
+    //fftTest();
+    powerTest();
 
 #if 0
 

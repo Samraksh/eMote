@@ -52,7 +52,10 @@
 	<Compile Include="FastMathFunctions\arm_sqrt_q31.c" />
 	<Compile Include="CommonTables\arm_common_tables.c" />
 	<Compile Include="SupportFunctions\arm_float_to_q31.c" />
+	<Compile Include="SupportFunctions\arm_float_to_q15.c" />
 	<Compile Include="SupportFunctions\arm_q31_to_float.c" />
+	<Compile Include="StatisticsFunctions\arm_power_q31.c" />
+	<Compile Include="StatisticsFunctions\arm_power_q15.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

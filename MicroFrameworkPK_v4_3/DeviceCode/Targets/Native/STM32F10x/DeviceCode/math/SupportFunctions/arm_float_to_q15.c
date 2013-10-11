@@ -30,7 +30,7 @@
 *    Production release and review comments incorporated.    
 * ---------------------------------------------------------------------------- */
 
-#include "arm_math.h"
+#include <..\math\Include\arm_math.h>
 
 /**    
  * @ingroup groupSupport    
