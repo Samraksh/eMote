@@ -83,8 +83,8 @@ void fftTest()
 	for(UINT16 i = 0 ; i < TEST_LENGTH_SAMPLES; i++)
 	{
 
-		testInput_q31_10khz[i] = i;
-		testInput_f32_10khz[i] = i;
+		testInput_q31_10khz[i] = 0;
+		//testInput_f32_10khz[i] = i;
 
 	}
 
@@ -110,13 +110,13 @@ void fftTest()
 
 		/* Process the data through the Complex Magnitude Module for
 		calculating the magnitude at each bin */
-	//arm_cmplx_mag_q31(testInput_q31_10khz, testOutput_q31,
-	//	  				fftSize);
+	arm_cmplx_mag_q31(testInput_q31_10khz, testOutput_q31,
+		  				fftSize);
 
 		/* Calculates maxValue and returns corresponding BIN value */
 	//arm_max_q31(testOutput_q31, fftSize, &maxValue, &testIndex);
 
-	arm_q31_to_float(testInput_q31_10khz, testInput_f32_10khz, TEST_LENGTH_SAMPLES);
+	arm_q31_to_float(testOutput_q31, testOutput_f32, TEST_LENGTH_SAMPLES);
 
 
 
