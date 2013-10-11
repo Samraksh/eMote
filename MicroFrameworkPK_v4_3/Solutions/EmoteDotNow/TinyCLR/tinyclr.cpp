@@ -7,7 +7,7 @@
 
 #include <..\math\Include\arm_math.h>
 
-#define TEST_LENGTH_SAMPLES 32
+#define TEST_LENGTH_SAMPLES 128
 
 extern "C"
 {
@@ -57,9 +57,9 @@ void arm_float_to_q31(
 
 
 }
-uint32_t fftSize = 16;
+uint32_t fftSize = 128;
 uint32_t ifftFlag = 0;
-uint32_t doBitReverse = 1;
+uint32_t doBitReverse = 0;
 uint32_t refIndex = 213, testIndex = 0;
 
 void fftTest()
@@ -68,11 +68,12 @@ void fftTest()
 	arm_cfft_radix4_instance_q31 S;
 	q31_t maxValue;
 
-	q31_t testOutput_q31[TEST_LENGTH_SAMPLES/2];
+	q31_t testOutput_q31[TEST_LENGTH_SAMPLES];
 
-	float32_t testOutput_f32[TEST_LENGTH_SAMPLES/2];
+	float32_t testOutput_f32[TEST_LENGTH_SAMPLES];
 
 	q31_t testInput_q31_10khz[TEST_LENGTH_SAMPLES];
+
 
 	float32_t testInput_f32_10khz[TEST_LENGTH_SAMPLES] =
 	{
@@ -88,7 +89,7 @@ void fftTest()
 
 	}
 
-	for(UINT16 i = 0 ; i < (TEST_LENGTH_SAMPLES / 2); i++)
+	for(UINT16 i = 0 ; i < TEST_LENGTH_SAMPLES; i++)
 	{
 			testOutput_f32[i] = 0;
 
@@ -107,16 +108,23 @@ void fftTest()
 		/* Process the data through the CFFT/CIFFT module */
 	arm_cfft_radix4_q31(&S, testInput_q31_10khz);
 
+#if 0
+	for(UINT16 i = 0 ; i < TEST_LENGTH_SAMPLES; i++)
+	{
+		testInput_q31_10khz[i] = (testInput_q31_10khz[i] << 4);
+	}
+#endif
+
 
 		/* Process the data through the Complex Magnitude Module for
 		calculating the magnitude at each bin */
-	arm_cmplx_mag_q31(testInput_q31_10khz, testOutput_q31,
-		  				fftSize);
+	//arm_cmplx_mag_q31(testInput_q31_10khz, testOutput_q31,
+	//	  				fftSize);
 
 		/* Calculates maxValue and returns corresponding BIN value */
 	//arm_max_q31(testOutput_q31, fftSize, &maxValue, &testIndex);
 
-	arm_q31_to_float(testOutput_q31, testOutput_f32, TEST_LENGTH_SAMPLES);
+	arm_q31_to_float(testInput_q31_10khz, testOutput_f32, TEST_LENGTH_SAMPLES);
 
 
 
@@ -124,6 +132,56 @@ void fftTest()
 	{
 		status = ARM_MATH_TEST_FAILURE;
 	}
+}
+
+void rfftTest()
+{
+	arm_rfft_instance_q31 S;
+	arm_cfft_radix4_instance_q31 S_CFFT;
+
+	q31_t testOutput_q31_10khz[TEST_LENGTH_SAMPLES];
+
+	q31_t testInput_q31_10khz[TEST_LENGTH_SAMPLES];
+
+	float32_t testOutput_f32[TEST_LENGTH_SAMPLES];
+
+	arm_cfft_radix4_init_q31(&S_CFFT, fftSize,
+			  								ifftFlag, doBitReverse);
+
+	arm_rfft_init_q31(&S, &S_CFFT,fftSize,
+				ifftFlag, doBitReverse);
+
+#if 0
+	float32_t testInput_f32_10khz[TEST_LENGTH_SAMPLES] =
+	{
+			0.04166667,     0.1111111,      -0.004975124,   0.02325581,     0.004878049,    -0.00625,       0.004048583,    0.03030303,     0.01030928,     0.006622517,    0.009009009,    0.004237288,    -0.004424779,   0.02222222,     0.1111111,      0.2,    0.1,    0.008130081,    0.00952381,     0.01785714,     0.007092198,    0.01136364,     0.004854369,    0.005464481,    0.006329114,    0.004545454,    0.008849557,    0.015625,       -0.00591716,    0.007692308,    0.05,   0.006369427
+
+	};
+#endif
+
+	float32_t testInput_f32_10khz[TEST_LENGTH_SAMPLES] =
+	{
+			-0.005208333,   0.005319149,    0.01818182,     0.05263158,     0.005208333,    0.004166667,    0.04166667,     0.008695652,    0.03846154,     0.006329114,    0.01052632,     0.005181347,    0.025,  0.004716981,    0.01851852,     0.03846154,     0.006666667,    0.005747126,    0.01785714,     0.003952569,    0.007936508,    0.004149378,    0.008849557,    -0.005464481,   0.00462963,     0.1666667,      0.003968254,    0.008695652,    0.005649718,    0.0106383,      0.006802721,    0.006451613,    0.005813953,    0.02564103,     0.004310345,    0.01219512,     0.01298701,     0.008,  0.1428571,      -0.004739337,   0.01234568,     0.004201681,    0.1428571,      0.005050505,    0.005780347,    0.005263158,    0.02083333,     0.004716981,    0.03125,        0.02439024,     0.00952381,     0.009090909,    0.004255319,    0.005347594,    0.01754386,     0.005208333,    0.006097561,    0.004524887,    0.01075269,     0.005882353,    0.009803922,    0.01369863,     0.01470588,     0.01098901,     -0.01010101,    0.007692308,    0.005154639,    0.02173913,     0.07142857,     0.07692308,     0.01190476,     0.006060606,    0.02564103,     -0.03448276,    0.004149378,    0.004716981,    0.006711409,    0.004545454,    0.008474576,    0.006896552,    0.03225806,     0.01020408,     0.01298701,     0.3333333,      0.006622517,    0.1428571,      0.006666667,    0.01428571,     0.00617284,     0.004587156,    0.008695652,    0.007042253,    0.008403362,    0.02,   0.005586592,    0.03703704,     0.007407407,    0.009174312,    0.006329114,    0.006993007,    0.004081632,    -0.004739337,   0.005494506,    0.004329004,    0.01428571,     0.007936508,    0.006896552,    0.004347826,    0.005747126,    0.008474576,    0.005076142,    0.01030928,     0.0212766,      0.005291005,    0.005681818,    0.005050505,    0.004545454,    0.01149425,     0.03333334,     0.004201681,    0.03448276,     0.004201681,    0.006993007,    0.0625, 0.004901961,    0.009433962,    0.01538462, 0.009615385
+	};
+
+	for(UINT16 i = 0 ; i < TEST_LENGTH_SAMPLES; i++)
+	{
+		testOutput_q31_10khz[i] = 0;
+		testOutput_f32[i] = 0;
+	}
+
+	arm_float_to_q31(testInput_f32_10khz,testInput_q31_10khz,TEST_LENGTH_SAMPLES);
+
+	arm_rfft_q31(&S,  testInput_q31_10khz, testOutput_q31_10khz);
+
+	arm_q31_to_float(testOutput_q31_10khz, testOutput_f32, TEST_LENGTH_SAMPLES);
+
+	for(UINT32 i = 0 ;i < TEST_LENGTH_SAMPLES; i++)
+	{
+		hal_printf("%f", testOutput_f32[i]);
+	}
+
+
 }
 
 void powerTest()
@@ -184,7 +242,8 @@ void ApplicationEntryPoint()
     CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 
     //fftTest();
-    powerTest();
+    //powerTest();
+    rfftTest();
 
 #if 0
 

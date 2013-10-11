@@ -34,7 +34,8 @@
 *    Misra-C changes done    
 * -------------------------------------------------------------------- */
 
-#include "arm_math.h"
+#include <..\math\Include\arm_math.h>
+
 
 /*--------------------------------------------------------------------    
 *		Internal functions prototypes    
