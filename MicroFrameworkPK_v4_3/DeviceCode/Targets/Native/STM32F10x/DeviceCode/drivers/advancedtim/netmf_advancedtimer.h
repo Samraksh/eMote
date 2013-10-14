@@ -7,6 +7,7 @@
 #include <rcc\stm32f10x_rcc.h>
 #include <intc/STM32.h>
 #include <Samraksh\Hal_util.h>
+#include <Samraksh\Tasklet.h>
 
 enum TimerClockRate
 {
