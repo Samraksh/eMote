@@ -1,5 +1,7 @@
 
 #include <Samraksh/HALTimer.h>
+#include <Samraksh/Hal_util.h>
+#include <advancedtim/netmf_advancedtimer.h>
 
 // Assumptions:
 // ============
@@ -7,14 +9,217 @@
 // interface
 void HALTimerCallback(void *arg);
 
+extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
+HALTimerManager gHalTimerManagerObject;
+
 /*void GenerateSoftPendSV_HALTimerInterrupt(){
 	//E000ED04
 	// *((uint32_t volatile *)0x00000038) = 0x10000000;
 	SCB->ICSR |= SCB_ICSR_PENDSVSET;
 	// *((uint32_t volatile *)SCB->ICSR = SCB_ICSR_PENDSVSET;
-}
-*/
+}*/
 
+BOOL HALTimerManager::Initialize()
+{
+	// Start Up Timer
+	// Created a new PAL- HAL to connection to ensure that all code is platform independent
+	// HALTIMER is a macro defined under platform_selector.h, defining this anywhere else breaks platform abstraction
+	if(g_STM32F10x_AdvancedTimer.Initialize(0, HALTimerCallback, NULL) != DS_Success)
+		return DS_Fail;
+
+	// There are not active timers in the system
+	m_active_timer = NULL;
+
+	m_lastInterruptFireTime = 0;
+
+}
+
+// This function takes a timer id as input and changes its state to not running
+// This means that the timer does not go back on the queue once its extracted
+BOOL HALTimerManager::StopTimer(UINT8 timer_id)
+{
+	for(UINT16 i = 0; i < m_current_timer_id_; i++)
+	{
+		if(m_timer[i].get_m_timer_id() == timer_id)
+		{
+			m_timer[i].set_m_is_running(FALSE);
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// This function takes a timer id and dtime as input and changes the corresponding values of the timer
+// Note if the timer is currently in the system when this happens, the values are modified only when the timer
+// finishes its current instance in the queue and when its added back in it assumes the new values
+BOOL HALTimerManager::ChangeTimer(UINT8 timer_id, UINT32 dtime)
+{
+
+	UINT32 ticks = CPU_MicrosecondsToTicks(dtime);
+
+	for(UINT16 i = 0; i < m_current_timer_id_; i++)
+	{
+		if(m_timer[i].get_m_timer_id() == timer_id)
+		{
+			m_timer[i].set_m_dtime(ticks);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+// This function takes a timer id as input and changes the state to running or returns false
+// if the timer you specified does not exist
+BOOL HALTimerManager::StartTimer(UINT8 timer_id)
+{
+	UINT32 currentTime = (UINT32) HAL_Time_CurrentTicks();
+
+	for(UINT16 i = 0; i < m_current_timer_id_; i++)
+	{
+		if(m_timer[i].get_m_timer_id() == timer_id)
+		{
+			m_timer[i].set_m_is_running(TRUE);
+
+			// Insert this back into the queue
+			// If this happens to be the smallest, do the necessary bookkeeping and
+			// set the new value on the comparator
+			if(!timerQueue.Insert(&m_timer[i]))
+				return FALSE;
+
+			HALTimer *nextTimer = timerQueue.PeekTop();
+
+			if(nextTimer->get_m_timer_id() == timer_id)
+			{
+				UINT64 timeElapsed = HAL_Time_CurrentTicks() - gHalTimerManagerObject.get_m_lastInterruptFireTime();
+				gHalTimerManagerObject.set_m_lastInterruptFireTime(HAL_Time_CurrentTicks());
+
+				for(UINT16 i = 0; i < gHalTimerManagerObject.m_current_timer_id_; i++)
+				{
+					//gHalTimerManagerObject.m_timer[i].set_m_ticksTillExpire(gHalTimerManagerObject.m_timer[i].get_m_ticksTillExpire() - g_STM32F10x_AdvancedTimer.GetCounter());
+					gHalTimerManagerObject.m_timer[i].set_m_ticksTillExpire(gHalTimerManagerObject.m_timer[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
+				}
+
+				g_STM32F10x_AdvancedTimer.SetCompare(currentTime, nextTimer->get_m_ticksTillExpire());
+			}
+
+			return TRUE;
+		}
+	}
+
+
+
+	return FALSE;
+}
+
+BOOL HALTimerManager::CreateTimer(UINT8 timer_id, UINT32 start_time, UINT32 dtime, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
+{
+	// Can not accept anymore timers
+	if(m_current_timer_id_ > NUM_HALTIMER_TIMERS)
+		return FALSE;
+
+	UINT32 ticks = CPU_MicrosecondsToTicks(dtime);
+
+	// Add this timer to the timer array
+	m_timer[m_current_timer_id_].set_m_callBack(callback);
+	m_timer[m_current_timer_id_].set_m_dtime(ticks);
+	m_timer[m_current_timer_id_].set_m_is_one_shot(is_one_shot);
+	m_timer[m_current_timer_id_].set_m_is_running(TRUE);
+	m_timer[m_current_timer_id_].set_m_reserved(_isreserved);
+	m_timer[m_current_timer_id_].set_m_start_timer(start_time);
+	m_timer[m_current_timer_id_].set_m_timer_id(timer_id);
+	m_timer[m_current_timer_id_].set_m_ticksTillExpire(ticks);
+
+
+
+	// Unable to insert to queue
+	if(!timerQueue.Insert(&m_timer[m_current_timer_id_]))
+		return FALSE;
+
+	m_current_timer_id_++;
+
+	HALTimer *nextTimer = timerQueue.PeekTop();
+
+	if(m_active_timer == NULL)
+	{
+		m_lastInterruptFireTime = HAL_Time_CurrentTicks();
+		g_STM32F10x_AdvancedTimer.SetCompare(0, nextTimer->get_m_ticksTillExpire());
+		m_active_timer = nextTimer;
+	}
+#if 0
+	// A new timer enters the system that is now the smallest timer in the system
+	else if(nextTimer->get_m_timer_id() != m_active_timer->get_m_timer_id())
+	{
+		g_STM32F10x_AdvancedTimer.SetCompare(0, nextTimer->get_m_ticksTillExpire());
+		m_active_timer = nextTimer;
+		// The new timer does not need to be fixed
+		for(UINT16 i = 1; i < m_current_timer_id_; i++)
+		{
+			m_timer[i].set_m_ticksTillExpire(m_timer[i].get_m_ticksTillExpire() - g_STM32F10x_AdvancedTimer.GetCounter());
+		}
+	}
+#endif
+
+	return TRUE;
+}
+
+void HALTimerCallback(void *arg)
+{
+	UINT32 ticks;
+
+	HALTimer* topTimer = gHalTimerManagerObject.timerQueue.PeekTop();
+
+	if(!topTimer)
+		return;
+
+	// Measure time elapsed since last interrupt fired
+	// This is necessary because the hardware timer can have other users and not just the virtual timer layer
+	// So if some spurious user set a compare value, it can not be assumed that the minimum timer in the queue
+	// just fired. This creates a possibility that the ticks till expire would be negative
+	// as timeElapsed can be greater than time set in the compare value
+	// is timeElapsed can never be negative which has been proved through testing of the HAL_Time_CurrentTicks
+	UINT64 timeElapsed = HAL_Time_CurrentTicks() - gHalTimerManagerObject.get_m_lastInterruptFireTime();
+	gHalTimerManagerObject.set_m_lastInterruptFireTime(HAL_Time_CurrentTicks());
+
+	for(UINT16 i = 0; i < gHalTimerManagerObject.m_current_timer_id_; i++)
+	{
+		//gHalTimerManagerObject.m_timer[i].set_m_ticksTillExpire(gHalTimerManagerObject.m_timer[i].get_m_ticksTillExpire() - g_STM32F10x_AdvancedTimer.GetCounter());
+		gHalTimerManagerObject.m_timer[i].set_m_ticksTillExpire(gHalTimerManagerObject.m_timer[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
+	}
+
+
+	// Callback all timers that need to be served at this point
+	while(topTimer->get_m_ticksTillExpire() <= 0)
+	{
+		topTimer = gHalTimerManagerObject.timerQueue.ExtractTop();
+
+		// Check if the timer has been disabled
+		if(topTimer->get_m_is_running())
+			(topTimer->get_m_callback())(NULL);
+
+		ticks = topTimer->get_m_dtime();
+
+		topTimer->set_m_ticksTillExpire(ticks);
+
+		// Check if timer deserves to go back or if someone has made it inactive
+		if(topTimer->get_m_is_running())
+			gHalTimerManagerObject.timerQueue.Insert(topTimer);
+
+		topTimer = gHalTimerManagerObject.timerQueue.PeekTop();
+	}
+
+	// Factoring time spent in the handler
+	if(topTimer)
+	{
+		g_STM32F10x_AdvancedTimer.SetCompare(*((UINT32 *)arg), topTimer->get_m_ticksTillExpire());
+	}
+
+}
+
+
+#if 0 // HALTimer older implementation deprecated
 BOOL HALTimerManager::Initialize()
 {
 
@@ -195,5 +400,5 @@ void HALTimerManager::HALTimerCallback(void *arg)
 
 }
 #endif
-
+#endif
 
