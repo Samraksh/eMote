@@ -83,6 +83,8 @@ class STM32F10x_AdvancedTimer
 
 public:
 
+	static BOOL initialized;
+
 	BOOL timerOverflowFlag;
 
 	UINT32 currentCounterValue;
@@ -126,5 +128,7 @@ public:
 	}
 
 };
+
+BOOL STM32F10x_AdvancedTimer::initialized = FALSE;
 
 #endif

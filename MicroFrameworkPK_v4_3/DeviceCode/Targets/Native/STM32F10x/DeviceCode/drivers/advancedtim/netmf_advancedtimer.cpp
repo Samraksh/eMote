@@ -180,6 +180,15 @@ void STM32F10x_AdvancedTimer::ClearTimerOverflow()
 DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void *ISR_Param)
 {
 
+	// Return if already initialized
+	if(STM32F10x_AdvancedTimer::initialized)
+		return DS_Success;
+
+	STM32F10x_AdvancedTimer::initialized = TRUE;
+
+	// Fix for usart failure on adding the advanced timer in the system
+	GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
+
 	// Initializes the special deferred function
 	TaskletType* tasklet = GetTasklet();
 
