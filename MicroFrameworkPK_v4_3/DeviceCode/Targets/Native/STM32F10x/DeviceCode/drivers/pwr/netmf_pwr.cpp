@@ -123,8 +123,10 @@ BOOL STM32F1x_Power_Driver::Initialize() {
 // Simple "wait for interrupt" sleep
 // Will wake from any source
 void STM32F1x_Power_Driver::Sleep() {
+#if 0
 	asm volatile ("CPSIE I");
 	__WFI();
+#endif
 	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 
