@@ -28,8 +28,8 @@ extern HALTimerManager gHalTimerManagerObject;
 // layer without the knowledge of the virtual timer
 BOOL HAL_Time_Initialize()
 {
-	//return gHalTimerManagerObject.Initialize();
-	return TRUE;
+	return gHalTimerManagerObject.Initialize();
+	//return TRUE;
 }
 
 // This function is called the uninitialize the timer system and the virtual timer layer

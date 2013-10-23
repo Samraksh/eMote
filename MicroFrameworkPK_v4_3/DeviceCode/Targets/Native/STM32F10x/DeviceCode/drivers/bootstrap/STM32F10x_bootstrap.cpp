@@ -220,7 +220,7 @@ static void RCC_Configuration(void)
 
     //hal_printf("/* PLLCLK = 8MHz * 7 = 56 MHz *//n");
     //RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_7);
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
+	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_4);
 
     //hal_printf("/* Enable PLL *//n");
     RCC_PLLCmd(ENABLE);
