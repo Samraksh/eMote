@@ -33,6 +33,7 @@ UINT32 adcNumSamples = 0;
 
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
+BOOL dualADCMode = FALSE;
 
 #ifdef NATIVE_TEST
 UINT16 g_adcDriverBufferChannel1[1000];
@@ -187,7 +188,7 @@ void ADC_RCC_Configuration(void)
 
 		  /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
 	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB |
-		                         RCC_APB2Periph_ADC1, ENABLE);
+		                         RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
 
 #if 0
    RCC_ADCCLKConfig(RCC_PCLK2_Div2);
@@ -243,6 +244,8 @@ void ADC_RCC_DUALMODE_Configuration(void)
 	  /* Enable DMA1 clock */
 	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
+	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+
 	  /* Enable ADC1, ADC2 and GPIOC clock */
 	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 |
 	                         RCC_APB2Periph_GPIOC, ENABLE);
@@ -280,9 +283,10 @@ void ADC_GPIO_Configuration(void)
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 	/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
 
 #if 0
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -462,24 +466,36 @@ DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT3
 }
 
 
-DeviceStatus ADC_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32 samplingTime)
+DeviceStatus ADC_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
 {
+	batchModeADC = TRUE;
 
+	return AD_ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, numSamples, samplingTime,userCallback, Param );
 }
 
-DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime)
+DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
 {
 	ADC_InitTypeDef           ADC_InitStructure;
 	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
-	ADC_RCC_DUALMODE_Configuration();
+	ADC_RCC_Configuration();
 
-	ADC_GPIO_DUALMODE_Configuration();
+	ADC_GPIO_Configuration();
 
 	if(!ADC_NVIC_Configuration())
 		return DS_Fail;
+
+	g_callback = userCallback;
+
+	if(Param != NULL)
+	{
+		Param = &g_timeStamp;
+	}
+
+	g_adcUserBufferChannel1Ptr = sampleBuff1;
+	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
 	UINT16 frequency =  CPU_MicrosecondsToTicks((UINT32) samplingTime) * 2 ;
 
@@ -501,6 +517,7 @@ DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16*
 
 	TIM_ARRPreloadConfig(TIM4, ENABLE);
 
+
 #ifdef NATIVE_TEST
     g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
 #else
@@ -517,10 +534,12 @@ DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16*
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
 	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+
+	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
 	/* Enable DMA1 Channel1 */
 	DMA_Cmd(DMA1_Channel1, ENABLE);
 
@@ -533,7 +552,7 @@ DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16*
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 	ADC_Init(ADC1, &ADC_InitStructure);
 	 /* ADC1 regular channels configuration */
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_239Cycles5);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
 
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	   /* Enable ADC1 DMA */
@@ -548,7 +567,7 @@ DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16*
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 	ADC_Init(ADC2, &ADC_InitStructure);
 	/* ADC2 regular channels configuration */
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_239Cycles5);
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_55Cycles5);
 
 	/* Enable ADC2 external trigger conversion */
 	ADC_ExternalTrigConvCmd(ADC2, ENABLE);
@@ -582,7 +601,14 @@ DeviceStatus ADC_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16*
 	/* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
+
+
+	dualADCMode = TRUE;
+
+
 	TIM_Cmd(TIM4, ENABLE);
+
+	return DS_Success;
 
 }
 
@@ -683,7 +709,24 @@ extern "C"
 		{
 			DMA_ClearITPendingBit(DMA1_IT_TC1);
 
-			memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
+			if(!dualADCMode)
+			{
+				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
+			}
+			else
+			{
+				// Possible memory corruption if adcNumSamples != length of g_adcDriverBufferDualModePtr
+				// Possible only while conducting native tests as C# programs use dynamic memory
+				// allocated from the heap
+				// BTW this is because the hardware in dual mode stores in the most significant bits of
+				// ADC1_DR the result of ADC2 and the least significant bits of ADC1_DR the result
+				// of ADC1. Pretty cool  !!!
+				for(UINT16 i = 0; i < adcNumSamples; i++)
+				{
+					*g_adcUserBufferChannel1Ptr++ = (*g_adcDriverBufferDualModePtr & 0xffff);
+					*g_adcUserBufferChannel2Ptr++ = (*g_adcDriverBufferDualModePtr++ >> 16);
+				}
+			}
 
 			// Call the user with the current value of ticks
 			g_callback(&g_timeStamp);

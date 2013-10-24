@@ -41,6 +41,7 @@ BOOL     AD_GetAvailablePrecisionsForChannel( ANALOG_CHANNEL channel, INT32* pre
 // Added by nived.sivadas to enable burst mode adc
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
 DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
+DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
 //--//
 
 #endif // _DRIVERS_ANALOG_DECL_H_
