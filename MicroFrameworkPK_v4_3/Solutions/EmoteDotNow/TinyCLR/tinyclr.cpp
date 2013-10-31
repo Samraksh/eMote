@@ -12,12 +12,6 @@ void ApplicationEntryPoint()
 
     memset(&clrSettings, 0, sizeof(CLR_SETTINGS));
 
-    CPU_GPIO_EnableOutputPin((GPIO_PIN) 3, FALSE);
-    CPU_GPIO_EnableOutputPin((GPIO_PIN) 2, FALSE);
-
-    CPU_GPIO_EnableOutputPin((GPIO_PIN) 4, FALSE);
-
-
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
     clrSettings.EnterDebuggerLoopAfterExit = true;

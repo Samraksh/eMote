@@ -205,7 +205,6 @@ static void RCC_Configuration(void)
     RCC_HCLKConfig(RCC_SYSCLK_Div1);
 
     //hal_printf("/* PCLK2 = HCLK *//n");
-    //TODO: Its running at 4Mhz when SysClk is at 8Mhz - Check why!
     RCC_PCLK2Config(RCC_HCLK_Div1);
 
     //hal_printf("/* PCLK1 = HCLK/2 *//n");
@@ -220,7 +219,8 @@ static void RCC_Configuration(void)
 
     //hal_printf("/* PLLCLK = 8MHz * 7 = 56 MHz *//n");
     //RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_7);
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_4);
+	//RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
+    RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
 
     //hal_printf("/* Enable PLL *//n");
     RCC_PLLCmd(ENABLE);

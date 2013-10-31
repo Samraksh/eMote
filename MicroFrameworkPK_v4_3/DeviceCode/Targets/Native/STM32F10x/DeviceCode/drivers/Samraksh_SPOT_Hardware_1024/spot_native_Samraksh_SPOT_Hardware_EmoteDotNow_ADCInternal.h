@@ -30,8 +30,6 @@ namespace Samraksh
                     static double Read( INT32 param0, HRESULT &hr );
                     static INT32 ConfigureBatchMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
                     static INT32 ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
-                    static INT32 ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
-                    static INT32 ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
                     static INT32 ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr );
                     static INT32 ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr );
                     static INT8 DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );

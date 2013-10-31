@@ -12,23 +12,29 @@
 
 
 #include "spot_native.h"
-#include "spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_SDInternal.h"
+#include "spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR.h"
 
 using namespace Samraksh::SPOT::Hardware::EmoteDotNow;
 
-INT32 SDInternal::InternalInitialize( HRESULT &hr )
+INT8 NOR::InternalInitialize( HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr )
+INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 SDInternal::InternalRead( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr )
+INT32 NOR::InternalRead( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

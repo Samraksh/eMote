@@ -29,8 +29,6 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal
     TINYCLR_NATIVE_DECLARE(Read___STATIC__R8__I4);
     TINYCLR_NATIVE_DECLARE(ConfigureBatchMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4);
     TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4);
-    TINYCLR_NATIVE_DECLARE(ConfigureContinuousModeDualChannel___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__SZARRAY_U2__U4__U4);
-    TINYCLR_NATIVE_DECLARE(ConfigureBatchModeDualChannel___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__SZARRAY_U2__U4__U4);
     TINYCLR_NATIVE_DECLARE(ConfigureContinuousModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4);
     TINYCLR_NATIVE_DECLARE(ConfigureBatchModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4);
     TINYCLR_NATIVE_DECLARE(DualChannelRead___STATIC__BOOLEAN__SZARRAY_U2);
@@ -80,10 +78,8 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_NOR
     static const int FIELD_STATIC__readAddressPtr = 7;
     static const int FIELD_STATIC__startOfRecordDelimiter = 8;
     static const int FIELD_STATIC__endOfRecordDelimiter = 9;
-    static const int FIELD_STATIC__startOfRecordInBytes = 10;
-    static const int FIELD_STATIC__endOfRecordInBytes = 11;
-    static const int FIELD_STATIC__maxSize = 12;
-    static const int FIELD_STATIC__fullFlag = 13;
+    static const int FIELD_STATIC__maxSize = 10;
+    static const int FIELD_STATIC__fullFlag = 11;
 
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__U4__U2);

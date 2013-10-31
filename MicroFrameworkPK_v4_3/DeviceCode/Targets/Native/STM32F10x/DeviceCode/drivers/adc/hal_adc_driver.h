@@ -22,7 +22,7 @@ uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChan
 uint8_t hal_adc_getNow();
 
 
-#define NATIVE_TEST 1
+//#define NATIVE_TEST 1
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
 

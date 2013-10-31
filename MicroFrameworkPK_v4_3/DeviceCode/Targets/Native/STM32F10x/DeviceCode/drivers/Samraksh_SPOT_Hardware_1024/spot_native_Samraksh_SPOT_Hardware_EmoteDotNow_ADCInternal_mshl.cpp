@@ -91,54 +91,6 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::Conf
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeDualChannel___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__SZARRAY_U2__U4__U4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_TypedArray_UINT16 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 0, param0 ) );
-
-        CLR_RT_TypedArray_UINT16 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 1, param1 ) );
-
-        UINT32 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 2, param2 ) );
-
-        UINT32 param3;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 3, param3 ) );
-
-        INT32 retVal = ADCInternal::ConfigureContinuousModeDualChannel( param0, param1, param2, param3, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureBatchModeDualChannel___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__SZARRAY_U2__U4__U4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_TypedArray_UINT16 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 0, param0 ) );
-
-        CLR_RT_TypedArray_UINT16 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 1, param1 ) );
-
-        UINT32 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 2, param2 ) );
-
-        UINT32 param3;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 3, param3 ) );
-
-        INT32 retVal = ADCInternal::ConfigureBatchModeDualChannel( param0, param1, param2, param3, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
 HRESULT Library_spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__SamrakshSPOTHardwareDeviceStatus__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

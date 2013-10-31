@@ -43,13 +43,13 @@ public:
 
 	void Initialize()
 	{
-		systemClockHz = 8000000;
+		systemClockHz = 48000000;
 
 		systemCycleClockHz = systemClockHz;
 
 		clockCommonFactor = 1000000;
 
-		slowClocksPerSecond = 8000000;
+		slowClocksPerSecond = 48000000;
 
 		slowClocksTenMhzGcd = 2000000;
 
