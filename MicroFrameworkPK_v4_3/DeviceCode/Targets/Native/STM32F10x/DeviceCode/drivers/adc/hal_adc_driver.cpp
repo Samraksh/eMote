@@ -9,6 +9,7 @@
 #include "stm32f10x.h"
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
+#include <advancedtim/netmf_advancedtimer.h>
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_4};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
@@ -16,6 +17,8 @@ uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
 void ADC_GPIO_Configuration(void);
 BOOL ADC_NVIC_Configuration(void);
 void ADC_RCC_Configuration(void);
+
+extern STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
 HAL_CALLBACK_FPN g_callback = NULL;
 static UINT64 g_timeStamp = 0;
@@ -358,11 +361,19 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	// Hold the user buffer
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 
-	UINT16 frequency =  CPU_MicrosecondsToTicks((UINT32) samplingTime) * 2 ;
+	UINT32 prescaler = 0x1;
+	UINT32 frequency = CPU_MicrosecondsToTicks((UINT32) samplingTime);
+
+	if(g_STM32F10x_Timer_Configuration.ratio4 > 8)
+	{
+		prescaler = g_STM32F10x_Timer_Configuration.ratio4 / 6;
+		frequency /= prescaler;
+	}
+
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = frequency;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0;
+    TIM_TimeBaseStructure.TIM_Period = (UINT16) frequency;
+	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
