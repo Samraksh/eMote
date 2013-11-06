@@ -40,6 +40,8 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 r
 		return DS_Fail;
 	else
 		return DS_Fail;
+
+	return DS_Success;
 }
 
 
@@ -94,6 +96,8 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 		return DS_Fail;
 	else
 		return DS_Fail;
+
+	return DS_Success;
 
 }
 

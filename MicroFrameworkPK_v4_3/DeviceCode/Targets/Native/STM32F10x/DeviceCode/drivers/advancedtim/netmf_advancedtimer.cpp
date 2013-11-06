@@ -187,7 +187,9 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	STM32F10x_AdvancedTimer::initialized = TRUE;
 
 	// Fix for usart failure on adding the advanced timer in the system
-	GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
+	// Fix breaks the NOR because it shares the remapped pins with the advanced timer
+	// Attempting to change the comparator
+	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
 	// Initializes the special deferred function
 	TaskletType* tasklet = GetTasklet();
@@ -242,6 +244,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
 
+#if 0
 	 /* Channel 1 Configuration in PWM mode */
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
@@ -260,6 +263,22 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 
     TIM_OC2Init(TIM1, &TIM_OCInitStructure);
+#endif
+
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+    TIM_OCInitStructure.TIM_Pulse = 127;
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_Pulse = 1;
+
+    TIM_OC3Init(TIM1, &TIM_OCInitStructure);
 
     /* Master Mode selection */
   	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
@@ -331,9 +350,9 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT3
 		}
 		else
 		{
-			TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
+			TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
 
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
 	}
 	else
@@ -359,9 +378,9 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT3
 		}
 		else
 		{
-			TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
+			TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
 
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
 
 	}
@@ -388,7 +407,7 @@ void ISR_TIM2(void* Param)
 		//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
 		// Small values on the lsb are sometimes missed
 
@@ -399,7 +418,7 @@ void ISR_TIM2(void* Param)
 		{
 			// Fire now we already missed the counter value
 			// Create a software trigger
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 			g_STM32F10x_AdvancedTimer.TriggerSoftwareInterrupt();
 
 			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
@@ -409,8 +428,8 @@ void ISR_TIM2(void* Param)
 		}
 		else
 		{
-			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+			TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
 
 
@@ -441,10 +460,10 @@ void ISR_TIM1( void* Param )
 	g_STM32F10x_AdvancedTimer.Get64Counter();
 
 
-	if(TIM_GetFlagStatus(TIM1, TIM_IT_CC2))
+	if(TIM_GetFlagStatus(TIM1, TIM_IT_CC3))
 	{
-		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
+		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 		//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
 
 		 //TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
