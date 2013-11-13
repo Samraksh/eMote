@@ -19,7 +19,7 @@
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12
 
-extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
+//extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
 
 #if defined(DEBUG_NEIGHBORTABLE)
@@ -75,13 +75,12 @@ public:
 	UINT8 NumberValidNeighbor;
 	Neighbor_t Neighbor[MAX_NEIGHBORS];
 
-public:
 	// neighbor table util functions
 	DeviceStatus GetFreeIdx(UINT8* index);
 	DeviceStatus ClearNeighbor(UINT16 MacAddress);
 	DeviceStatus FindIndex(UINT16 MacAddress, UINT8* index);
 	void ClearTable();
-	DeviceStatus BringOutYourDead(UINT32 delay);
+	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
 	UINT8 NumberOfNeighbors();
 	DeviceStatus InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
@@ -90,7 +89,7 @@ public:
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
-	DeviceStatus  UpdateNeighborTable(UINT32 NeighbourLivelinessDelay);
+	UINT8  UpdateNeighborTable(UINT32 NeighbourLivelinessDelay);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 };
@@ -99,7 +98,7 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
-DeviceStatus NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
+UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
 {
 	return BringOutYourDead(NeighbourLivelinessDelay);
 }
@@ -116,11 +115,11 @@ DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){
 	return DS_Fail;
 }
 
-DeviceStatus NeighborTable::BringOutYourDead(UINT32 delay){
+UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
 	GLOBAL_LOCK(irq);
 
-	UINT16 deadNeighbours = 0;
+	UINT8 deadNeighbours = 0;
 
 	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
@@ -143,11 +142,8 @@ DeviceStatus NeighborTable::BringOutYourDead(UINT32 delay){
 	}
 
 
+	return deadNeighbours;
 
-	if(deadNeighbours > 0)
-		ManagedCallback(NeighbourChanged, deadNeighbours);
-
-	return DS_Success;
 }
 
 DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
@@ -259,7 +255,7 @@ DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status
 		Neighbor[*index].radioStartDelay = radioStartDelay;
 		Neighbor[*index].counterOffset = counterOffset;
 		Neighbor[*index].lastSeed = seed;
-		ManagedCallback(NeighbourChanged, NumberValidNeighbor);
+		//ManagedCallback(NeighbourChanged, NumberValidNeighbor);
 		return DS_Success;
 	}
 	else {

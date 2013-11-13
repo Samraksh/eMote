@@ -29,7 +29,7 @@ NeighborTable m_NeighborTable;
 
 
 //Basic functions
-extern UINT8 MacName;
+UINT8 MacName = 0;
 
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
 
@@ -90,14 +90,17 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 	//msg is just the payload,
 
 	if(MacName == CSMAMAC)
-		return (DeviceStatus) gcsmaMacObject.Send(destAddress, dataType, msg, size);
+	{
+		  if(gcsmaMacObject.Send(destAddress, dataType, msg, size) != TRUE)
+			  return DS_Fail;
+		  else
+			  return DS_Success;
+	}
 	else if(MacName == OMAC)
 		//return g_OMAC.Send(destAddress, dataType, msg, size);
 		return DS_Fail;
 	else
 		return DS_Fail;
-
-	return DS_Success;
 
 }
 
