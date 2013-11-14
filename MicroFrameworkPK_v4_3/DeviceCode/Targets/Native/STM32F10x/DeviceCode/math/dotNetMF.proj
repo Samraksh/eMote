@@ -45,7 +45,9 @@
 	<Compile Include="BasicMathFunctions\arm_add_q15.c" />
 	<Compile Include="BasicMathFunctions\arm_sub_q15.c" />
 	<Compile Include="TransformFunctions\arm_cfft_radix4_q31.c" />
+	<Compile Include="TransformFunctions\arm_cfft_radix4_q15.c" />
 	<Compile Include="TransformFunctions\arm_cfft_radix4_init_q31.c" />
+	<Compile Include="TransformFunctions\arm_cfft_radix4_init_q15.c" />
 	<Compile Include="TransformFunctions\arm_rfft_init_q31.c" />
 	<Compile Include="TransformFunctions\arm_rfft_q31.c" />
 	<Compile Include="TransformFunctions\arm_bitreversal.c" />

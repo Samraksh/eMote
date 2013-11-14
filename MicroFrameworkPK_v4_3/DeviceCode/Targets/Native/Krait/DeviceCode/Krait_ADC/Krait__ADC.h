@@ -204,6 +204,7 @@ struct chan_properties {
 /* this maybe the same as adc_properties.ConversionTime
    if channel does not change the adc properties */
 	UINT32 chan_conv_time;
+
 };
 
 struct msm_adc_channels {

@@ -37,7 +37,7 @@
 *    Initial version    
 * -------------------------------------------------------------------- */
 
-#include "arm_math.h"
+#include <..\math\Include\arm_math.h>
 
 /**    
  * @ingroup groupTransforms    
