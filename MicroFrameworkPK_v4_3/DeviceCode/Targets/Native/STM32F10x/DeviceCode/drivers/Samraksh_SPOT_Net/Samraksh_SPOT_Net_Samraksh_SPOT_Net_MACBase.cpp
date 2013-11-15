@@ -26,9 +26,7 @@ UINT8 MACBase::MyAppID;
 
 extern UINT8 MacName;
 
-
-// CSMA callbacks to be registered with the radio
-void  ManagedCallback(UINT16 arg1, UINT16 arg2);
+void  ManagedCallback(UINT16 arg1);
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
 
 extern Buffer_15_4_t m_receive_buffer;
@@ -146,12 +144,12 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 }
 
-void ManagedCallback(UINT16 arg1, UINT16 arg2)
+void ManagedCallback(UINT16 arg1)
 {
 	UINT32 data1, data2;
-	data1 = arg1;
-	data2 = arg2;
+	data2 = arg1;
+	//data2 = arg2;
 
-	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
+	SaveNativeEventToHALQueue( Net_ne_Context, 0, data2 );
 
 }

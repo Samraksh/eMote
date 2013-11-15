@@ -19,7 +19,7 @@
 
 extern "C"
 {
-	//void ManagedSDCallback(DeviceStatus status);
+	void ManagedSDCallback(DeviceStatus status);
 
 }
 
@@ -35,7 +35,7 @@ extern SDIO_Driver g_SDIODriver;
 
 INT32 SDInternal::InternalInitialize( HRESULT &hr )
 {
-    return g_SDIODriver.Initialize();
+    return g_SDIODriver.Initialize(ManagedSDCallback);
 }
 
 INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 writeAddressPtr, HRESULT &hr )
