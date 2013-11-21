@@ -1,5 +1,5 @@
-#ifndef _FLASH_MEMORY_H_
-#define _FLASH_MEMORY_H_
+#ifndef _FlashMemory_H_
+#define _FlashMemory_H_
 
 //#include "emulator_types.h"
 //#include "util.h"
@@ -10,13 +10,14 @@
 #define NUMBER_OF_FLASHBLOCKS 128
 #endif
 
+#define BITWISE_AND &
 #define NUMBER_OF_CLUSTERS 1
 
 
 /* Pragma to disable any possible padding that would be critical problem */
 //#pragma pack(push, 1)
 
-class Flash_Memory
+class FlashMemory
 {
 private:
 	int data;
@@ -25,41 +26,45 @@ private:
 	void writeOperator(const int data);
 public:
     /* Constructor (that is never ever expected to be called :) ) */
-	Flash_Memory();
+	FlashMemory();
 
     /* Operator overloading to overload all possible assignment operations with
-       Flash_Memory<T> on RHS */
-	Flash_Memory<T>* operator=   (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator-=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator+=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator*=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator/=  (const Flash_Memory &inputData);
-    Flash_Memory<T>* operator<<= (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator>>= (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator&=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator^=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator|=  (const Flash_Memory &inputData);
-	Flash_Memory<T>* operator%=  (const Flash_Memory &inputData);
+       FlashMemory on RHS */
+	FlashMemory* operator=   (const FlashMemory &inputData);
+	FlashMemory* operator-=  (const FlashMemory &inputData);
+	FlashMemory* operator+=  (const FlashMemory &inputData);
+	FlashMemory* operator*=  (const FlashMemory &inputData);
+	FlashMemory* operator/=  (const FlashMemory &inputData);
+    FlashMemory* operator<<= (const FlashMemory &inputData);
+	FlashMemory* operator>>= (const FlashMemory &inputData);
+	FlashMemory* operator&=  (const FlashMemory &inputData);
+	FlashMemory* operator^=  (const FlashMemory &inputData);
+	FlashMemory* operator|=  (const FlashMemory &inputData);
+	FlashMemory* operator%=  (const FlashMemory &inputData);
 
     /* Operator overloading to overload all possible assignment operations with
        Type T on RHS */
-    Flash_Memory<T>* operator=   (const T &inputData);
-	Flash_Memory<T>* operator-=  (const T &inputData);
-	Flash_Memory<T>* operator+=  (const T &inputData);
-	Flash_Memory<T>* operator*=  (const T &inputData);
-	Flash_Memory<T>* operator/=  (const T &inputData);
-    Flash_Memory<T>* operator<<= (const T &inputData);
-	Flash_Memory<T>* operator>>= (const T &inputData);
-	Flash_Memory<T>* operator&=  (const T &inputData);
-	Flash_Memory<T>* operator^=  (const T &inputData);
-	Flash_Memory<T>* operator|=  (const T &inputData);
-	Flash_Memory<T>* operator%=  (const T &inputData);
+    FlashMemory* operator=   (const int &inputData);
+	FlashMemory* operator-=  (const int &inputData);
+	FlashMemory* operator+=  (const int &inputData);
+	FlashMemory* operator*=  (const int &inputData);
+	FlashMemory* operator/=  (const int &inputData);
+    FlashMemory* operator<<= (const int &inputData);
+	FlashMemory* operator>>= (const int &inputData);
+	FlashMemory* operator&=  (const int &inputData);
+	FlashMemory* operator^=  (const int &inputData);
+	FlashMemory* operator|=  (const int &inputData);
+	FlashMemory* operator%=  (const int &inputData);
 
     /* Defining the explicit typecasting - This will ease the coding
        greatly-Believe me :) */
+	// Native data type now removing templates from the equation
+	// The template aspect will never be used
+#if 0
     operator T (){
         return data;
     }
+#endif
 };
 #pragma pack(pop)
 
@@ -73,8 +78,7 @@ public:
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>::Flash_Memory()
+FlashMemory::FlashMemory()
 {
 	data = 0;
 }
@@ -90,15 +94,14 @@ Flash_Memory<T>::Flash_Memory()
 *                  applying required mask.
 *
 ******************************************************************************/
-template <class T>
-void Flash_Memory<T>::writeOperator(const T data)
+void FlashMemory::writeOperator(const int data)
 {
 	register char *writePtr = (char*)lookUpAddress(this);      /* Char* because I want to handle data one-byte at a time */
 	char *inputDataCharPtr = (char*)&data;
 
-    EMULATOR_ASSERT( writePtr != NULL , "Failed to map ReadOnlyPTR to writeable ptr!");
+    //EMULATOR_ASSERT( writePtr != NULL , "Failed to map ReadOnlyPTR to writeable ptr!");
 
-    for(int index = 0; index < sizeof(T); index++){
+    for(int index = 0; index < sizeof(int); index++){
         writePtr[index] = (writePtr[index]) BITWISE_AND (inputDataCharPtr[index]);
 
 #ifdef EMULATOR_DO_VERIFIED_WRITE
@@ -123,8 +126,7 @@ void Flash_Memory<T>::writeOperator(const T data)
 *  \brief
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator=(const Flash_Memory &inputData)
+FlashMemory* FlashMemory::operator=(const FlashMemory &inputData)
 {
 	writeOperator(inputData.data);
 	return this;
@@ -140,8 +142,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator=(const Flash_Memory &inputData)
 *  \brief
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator-=(const Flash_Memory &inputData)
+FlashMemory* FlashMemory::operator-=(const FlashMemory &inputData)
 {
 	writeOperator(data - inputData.data);
 	return this;
@@ -157,8 +158,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator-=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator+=(const Flash_Memory &inputData)
+FlashMemory* FlashMemory::operator+=(const FlashMemory &inputData)
 {
 	writeOperator(data+inputData.data);
 	return this;
@@ -174,8 +174,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator+=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator*=(const Flash_Memory &inputData)
+FlashMemory* FlashMemory::operator*=(const FlashMemory &inputData)
 {
 	writeOperator(data * (inputData.data));
 	return this;
@@ -191,8 +190,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator*=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator/=(const Flash_Memory &inputData)
+FlashMemory* FlashMemory::operator/=(const FlashMemory &inputData)
 {
 	writeOperator(data / inputData.data);
 	return this;
@@ -208,8 +206,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator/=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator<<=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator<<=(const FlashMemory &inputData)
 {
 	writeOperator(data << inputData.data);
 	return this;
@@ -225,8 +223,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator<<=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator>>=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator>>=(const FlashMemory &inputData)
 {
 	writeOperator(data >> inputData.data);
 	return this;
@@ -242,8 +240,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator>>=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator&=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator&=(const FlashMemory &inputData)
 {
 	writeOperator((data) BITWISE_AND (inputData.data));
     return this;
@@ -260,8 +258,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator&=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator^=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator^=(const FlashMemory &inputData)
 {
 	writeOperator(data ^ inputData.data);
 	return this;
@@ -278,8 +276,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator^=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator|=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator|=(const FlashMemory &inputData)
 {
 	writeOperator(data | inputData.data);
 	return this;
@@ -296,8 +294,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator|=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator%=(const Flash_Memory &inputData)
+
+FlashMemory* FlashMemory::operator%=(const FlashMemory &inputData)
 {
 	writeOperator( data % inputData.data);
 	return this;
@@ -315,8 +313,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator%=(const Flash_Memory &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator=(const T &inputData)
+
+FlashMemory* FlashMemory::operator=(const int &inputData)
 {
     writeOperator(inputData);
     return this;
@@ -333,8 +331,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator=(const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator-=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator-=  (const int &inputData)
 {
     writeOperator(data - inputData);
     return this;
@@ -350,8 +348,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator-=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator+=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator+=  (const int &inputData)
 {
     writeOperator(data + inputData);
     return this;
@@ -367,8 +365,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator+=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator*=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator*=  (const int &inputData)
 {
     writeOperator(data * inputData);
     return this;
@@ -384,8 +382,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator*=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator/=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator/=  (const int &inputData)
 {
     writeOperator(data / inputData);
     return this;
@@ -400,8 +398,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator/=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator<<= (const T &inputData)
+
+FlashMemory* FlashMemory::operator<<= (const int &inputData)
 {
     writeOperator(data << inputData);
     return this;
@@ -416,8 +414,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator<<= (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator>>= (const T &inputData)
+
+FlashMemory* FlashMemory::operator>>= (const int &inputData)
 {
     writeOperator(data >> inputData);
     return this;
@@ -432,8 +430,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator>>= (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator&=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator&=  (const int &inputData)
 {
     writeOperator(data & inputData);
     return this;
@@ -448,8 +446,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator&=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator^=  (const T &inputData)
+FlashMemory* FlashMemory::operator^=  (const int &inputData)
 {
     writeOperator(data ^ inputData);
     return this;
@@ -465,8 +462,7 @@ Flash_Memory<T>* Flash_Memory<T>::operator^=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator|=  (const T &inputData)
+FlashMemory* FlashMemory::operator|=  (const int &inputData)
 {
     writeOperator(data | inputData);
     return this;
@@ -481,8 +477,8 @@ Flash_Memory<T>* Flash_Memory<T>::operator|=  (const T &inputData)
 *  \brief          Creates/Opens a flash emulation object by name flashName.
 *
 ******************************************************************************/
-template <class T>
-Flash_Memory<T>* Flash_Memory<T>::operator%=  (const T &inputData)
+
+FlashMemory* FlashMemory::operator%=  (const int &inputData)
 {
     writeOperator(data % inputData);
     return this;
