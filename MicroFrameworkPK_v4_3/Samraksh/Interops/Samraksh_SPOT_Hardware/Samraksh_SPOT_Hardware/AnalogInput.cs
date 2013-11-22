@@ -9,7 +9,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
     /// Defines a delegate for the continuous mode of the callback function
     /// </summary>
     /// <param name="state"></param>
-    public delegate void AdcCallBack(uint thresholdIndex);
+    public delegate void AdcCallBack(long thresholdTime);
 
     /// <summary>
     /// AnalogInput class similar to Microsoft AnalogInput but with additional features
@@ -91,11 +91,49 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
             AdcInternal.OnInterrupt += eventHandler;
 
-            if (ADCInternal.ConfigureBatchModeWithThresholding(sampleBuff, (int)channel, NumSamples, SamplingTime, threshold) == DeviceStatus.Success)
+            if (ADCInternal.ConfigureContinuousModeWithThresholding(sampleBuff, (int)channel, NumSamples, SamplingTime, threshold) == DeviceStatus.Success)
                 return true;
             else
                 return false;
         }
+
+        /// <summary>
+        /// Read the adc channels 1 and 2 in batch mode
+        /// </summary>
+        /// <param name="sampleBuff">Sample buffer to be filled</param>
+        /// <param name="NumSamples">Number of samples before callback</param>
+        /// <param name="SamplingTime">Sampling frequency</param>
+        /// <param name="Callback">Callback funtion to be called</param>
+        /// <returns></returns>
+        static public bool ConfigureBatchModeDualChannel(ushort[] sampleBuff1, ushort[]  sampleBuff2, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
+        {
+            MyCallback = Callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            AdcInternal.OnInterrupt += eventHandler;
+
+            if (ADCInternal.ConfigureBatchModeDualChannel(sampleBuff1, sampleBuff2, NumSamples, SamplingTime) != DeviceStatus.Success)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
+
+        static public bool ConfigureContinuousModeDualChannel(ushort[] sampleBuff1, ushort[] sampleBuff2, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
+        {
+            MyCallback = Callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            AdcInternal.OnInterrupt += eventHandler;
+
+            if (ADCInternal.ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, NumSamples, SamplingTime) != DeviceStatus.Success)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
+
+
 
         /// <summary>
         /// Read the ADC in batch mode and collect the specified number of samples before stopping
@@ -112,8 +150,11 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
             AdcInternal.OnInterrupt += eventHandler;
 
-            ADCInternal.ConfigureBatchMode(sampleBuff,(int) channel, NumSamples, SamplingTime);
-            return 1;
+            if (ADCInternal.ConfigureBatchMode(sampleBuff, (int)channel, NumSamples, SamplingTime) != DeviceStatus.Success)
+                return 0;
+            else
+                return 1;
+            
         }
 
         /// <summary>
@@ -152,7 +193,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="time"></param>
         static public void InternalCallback(uint data1, uint data2, DateTime time)
         {
-            MyCallback(data1);
+            MyCallback((data1 << 32) | data2);
         }
     }
 
@@ -225,6 +266,13 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <returns>Returns the result of this operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public DeviceStatus ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public DeviceStatus ConfigureContinuousModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public DeviceStatus ConfigureBatchModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
+
 
         /// <summary>
         /// Configure continuous mode adc sampling with a threshold timestamp 

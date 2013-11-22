@@ -287,6 +287,9 @@ BOOL CPU_GPIO_Initialize()
 	UINT16 port;
 	UINT16 pin;
 	STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR* pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr;
+
+	// Configure clock source for all gpio ports
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
 	// Initialize all the pins in all the ports to the following configuration
 	// - Input Floating
 	// - 2 MHZ (consumes the least power)
@@ -308,12 +311,11 @@ BOOL CPU_GPIO_Initialize()
 
 		pinIsr++;
 
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) pin, FALSE);
+		//CPU_GPIO_EnableOutputPin((GPIO_PIN) pin, FALSE);
 	}
 
 
-	// Configure clock source for all gpio ports
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
+
 
 	return TRUE;
 

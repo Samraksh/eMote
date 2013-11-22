@@ -106,6 +106,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="Tasklet.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\bh\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\BatteryCharger\stubs\dotNetMF.proj" />
   </ItemGroup>
@@ -402,6 +406,10 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\advancedtim\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_adtim.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" />

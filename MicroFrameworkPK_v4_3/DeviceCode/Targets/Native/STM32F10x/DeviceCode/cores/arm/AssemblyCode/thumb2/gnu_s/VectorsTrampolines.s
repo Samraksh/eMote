@@ -60,16 +60,16 @@
     .extern  RTCAlarm_IRQHandler
     .extern  USBWakeUp_IRQHandler
     .extern  TIM8_BRK_IRQHandler
-    .extern  TIM8_UP_IRQHandler
-    .extern  TIM8_TRG_COM_IRQHandler
+    .extern  Tasklet_High_IRQHandler
+    .extern  Tasklet_Low_IRQHandler
     .extern  TIM8_CC_IRQHandler
     .extern  ADC3_IRQHandler
     .extern  FSMC_IRQHandler
     .extern  SDIO_IRQHandler
     .extern  TIM5_IRQHandler
     .extern  SPI3_IRQHandler
-    .extern  UART4_IRQHandler
-    .extern  UART5_IRQHandler
+    .extern  USART4_IRQHandler
+    .extern  USART5_IRQHandler
     .extern  TIM6_IRQHandler
     .extern  TIM7_IRQHandler
     .extern  DMA2_Channel1_IRQHandler
@@ -149,16 +149,16 @@ ARM_Vectors:
   .word  RTCAlarm_IRQHandler
   .word  USBWakeUp_IRQHandler
   .word  TIM8_BRK_IRQHandler
-  .word  TIM8_UP_IRQHandler
-  .word  TIM8_TRG_COM_IRQHandler
+  .word  Tasklet_High_IRQHandler
+  .word  Tasklet_Low_IRQHandler
   .word  TIM8_CC_IRQHandler
   .word  ADC3_IRQHandler
   .word  FSMC_IRQHandler
   .word  SDIO_IRQHandler
   .word  TIM5_IRQHandler
   .word  SPI3_IRQHandler
-  .word  UART4_IRQHandler
-  .word  UART5_IRQHandler
+  .word  USART4_IRQHandler		/* Formerly uart4 handler now high prioirty software interrupt */
+  .word  USART5_IRQHandler			/* Formerly uart5 handler now low priority software interrupt */
   .word  TIM6_IRQHandler
   .word  TIM7_IRQHandler
   .word  DMA2_Channel1_IRQHandler
@@ -247,8 +247,10 @@ ARM_Vectors:
   .weak  UsageFault_Handler
   .thumb_set UsageFault_Handler,Default_Handler
 
+/*
   .weak  SVC_Handler
   .thumb_set SVC_Handler,Default_Handler
+*/
 
   .weak  DebugMon_Handler
   .thumb_set DebugMon_Handler,Default_Handler

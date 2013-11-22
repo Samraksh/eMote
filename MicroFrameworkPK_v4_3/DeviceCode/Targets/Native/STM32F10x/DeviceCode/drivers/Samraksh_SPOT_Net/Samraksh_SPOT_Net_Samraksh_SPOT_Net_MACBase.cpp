@@ -23,7 +23,8 @@ extern CLR_RT_HeapBlock_NativeEventDispatcher *Net_ne_Context;
 MacEventHandler_t MACBase::Event_Handler;
 UINT8 MacID = 0;
 UINT8 MACBase::MyAppID;
-UINT8 MacName = 0;
+
+extern UINT8 MacName;
 
 
 // CSMA callbacks to be registered with the radio

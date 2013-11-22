@@ -546,6 +546,8 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
+    Tasklet_Initialize();
+
     HAL_Initialize();
 
     HAL_Time_Initialize();
@@ -591,7 +593,6 @@ mipi_dsi_shutdown();
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
- 
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

@@ -14,67 +14,33 @@
 #include "spot_native.h"
 #include "spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.h"
 
-#include "..\adc\hal_adc_driver.h"
+#include <tinyhal.h>
 
-#include <Samraksh/HALTimer.h>
-#include <Samraksh/Hal_util.h>
+#include "..\adc\hal_adc_driver.h"
 
 using namespace Samraksh::SPOT::Hardware::EmoteDotNow;
 
-#include "../tim/netmf_timers.h"
-
-
-#define INTERNAL_BUFFER_SIZE 1000
-
-#define ADC_VIRTUAL_TIMER 4
-
-#define ADC_DEBUG_ENABLED 1
-
-#if defined(ADC_DEBUG_ENABLED)
-#define ADC_DEBUG_ENABLEOUTPUTPIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
-#define ADC_DEBUG_SETPINSTATE(x, y) CPU_GPIO_SetPinState(x,y)
-#else
-#define ADC_DEBUG_ENABLEOUTPUTPIN(x,y)
-#define ADC_DEBUG_SETPINSTATE(x,y)
-#endif
-
 CLR_RT_HeapBlock_NativeEventDispatcher *g_adcContext = NULL;
 static UINT64 g_adcUserData = 0;
-static bool g_adcInterruptEnabled = false;
-UINT32 adcChannel = 0;
-//UINT32 adcNumChannel = 0;
-UINT32 adcNumSamples = 0;
-UINT32 adcTicks = 0;
-UINT32 prescaler = 0;
-
-BOOL thresholdingEnabled = FALSE;
-
-UINT32 gThresholdTime = 0;
-
-UINT32 gThresholdValue = 0;
-
-BOOL gThresholdingDone =FALSE;
-
-bool batchModeADC = false;
-
-extern HALTimerManager gHalTimerManagerObject;
+static BOOL g_adcInterruptEnabled = TRUE;
 
 extern "C"
 {
-	void ADCCallback(void *param);
+	void ADCInteropCallback(void *param)
+	{
+		 GLOBAL_LOCK(irq);
+
+		 g_adcUserData = *((UINT64 *) param);
+
+		 SaveNativeEventToHALQueue( g_adcContext, UINT32(g_adcUserData >> 16), UINT32(g_adcUserData & 0xFFFFFFFF) );
+	}
 }
-
-
-
-UINT16 *adcNativeBuffer = NULL;
-UINT16 *adcManagedBuffer = NULL;
-UINT32 adcBufferCounter = 0;
-
 
 INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
 {
-	ADC_DEBUG_ENABLEOUTPUTPIN(25, FALSE);
-    return AD_Initialize((ANALOG_CHANNEL) param0, 0);
+
+	return AD_Initialize((ANALOG_CHANNEL) param0, 0);
+
 }
 
 double ADCInternal::Read( INT32 param0, HRESULT &hr )
@@ -84,141 +50,52 @@ double ADCInternal::Read( INT32 param0, HRESULT &hr )
 
 INT32 ADCInternal::ConfigureBatchMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-
-    // Make sure the number of samples can be held in the buffer
-    if(sampleBuff.GetSize() < numSamples)
-    	return DS_Fail;
-
-    // Get Buffer
-    adcManagedBuffer = sampleBuff.GetBuffer();
-
-    // Attempt at creating dynamic memory for the driver
-    adcNativeBuffer = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
-
-    // Initialize the virtual timer
-    gHalTimerManagerObject.Initialize();
-
-    // Create a hal timer
-    if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCCallback)){ //50 milli sec Timer in micro seconds
-    			return DS_Fail;
-    }
-
-    adcChannel = channel;
-
-    adcNumSamples = numSamples;
-
-    batchModeADC = TRUE;
-
-    return DS_Success;
+    return AD_ConfigureBatchMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
 }
 
 INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-	 INT32 retVal = 0;
-
-	    // Make sure the number of samples can be held in the buffer
-	 if(sampleBuff.GetSize() < numSamples)
-	   	return DS_Fail;
-
-	 // Get Buffer
-	 adcManagedBuffer = sampleBuff.GetBuffer();
-
-	 // Attempt at creating dynamic memory for the driver
-	 adcNativeBuffer = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
-
-	 // Initialize the virtual timer
-	 gHalTimerManagerObject.Initialize();
-
-	    // Create a hal timer
-	 if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCCallback)){ //50 milli sec Timer in micro seconds
-	   			return DS_Fail;
-	 }
-
-	 adcChannel = channel;
-
-	 adcNumSamples = numSamples;
-
-	 return DS_Success;
+    return AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
 }
 
-INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, UINT32 threshold, HRESULT &hr )
+INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-	 INT32 retVal = 0;
-
-		    // Make sure the number of samples can be held in the buffer
-		 if(sampleBuff.GetSize() < numSamples)
-		   	return DS_Fail;
-
-		 // Get Buffer
-		 adcManagedBuffer = sampleBuff.GetBuffer();
-
-		 // Attempt at creating dynamic memory for the driver
-		 adcNativeBuffer = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
-
-		 // Initialize the virtual timer
-		 gHalTimerManagerObject.Initialize();
-
-		    // Create a hal timer
-		 if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCCallback)){ //50 milli sec Timer in micro seconds
-		   			return DS_Fail;
-		 }
-
-		 adcChannel = channel;
-
-		 adcNumSamples = numSamples;
-
-		 thresholdingEnabled = TRUE;
-
-		 return DS_Success;
+    return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
 }
 
-INT32 ADCInternal::ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, UINT32 threshold, HRESULT &hr )
+INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-	 INT32 retVal = 0;
+    return AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+}
 
-	    // Make sure the number of samples can be held in the buffer
-	    if(sampleBuff.GetSize() < numSamples)
-	    	return DS_Fail;
+// The functions are deprecated, this was added to help with the india effort
+// but this breaks abstraction and is a really poor design
+INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
 
-	    // Get Buffer
-	    adcManagedBuffer = sampleBuff.GetBuffer();
-
-	    // Attempt at creating dynamic memory for the driver
-	    adcNativeBuffer = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
-
-	    // Initialize the virtual timer
-	    gHalTimerManagerObject.Initialize();
-
-	    // Create a hal timer
-	    if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCCallback)){ //50 milli sec Timer in micro seconds
-	    			return DS_Fail;
-	    }
-
-	    adcChannel = channel;
-
-	    adcNumSamples = numSamples;
-
-	    batchModeADC = TRUE;
-
-	    thresholdingEnabled = TRUE;
-
-	    return DS_Success;
+// The functions are deprecated, this was added to help with the india effort
+// but this breaks abstraction and is a really poor design
+INT32 ADCInternal::ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
 }
 
 INT8 ADCInternal::DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
 {
-    return hal_adc_getData(param0.GetBuffer(), 0 , 2);
+	return hal_adc_getData(param0.GetBuffer(), 0 , 2);
+
 }
 
 INT32 ADCInternal::StopSampling( HRESULT &hr )
 {
-    INT32 retVal = 0; 
 
-    // Stop the timer
-    gHalTimerManagerObject.StopTimer(ADC_VIRTUAL_TIMER);
+	AD_StopSampling();
 
-    return retVal;
+    return DS_Success;
 }
 
 static HRESULT InitializeADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )
@@ -248,56 +125,6 @@ void ISR_adcProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
     SaveNativeEventToHALQueue( pContext, UINT32(g_adcUserData >> 16), UINT32(g_adcUserData & 0xFFFFFFFF) );
 }
 
-
-extern "C"
-{
-	void ADCCallback(void *param)
-	{
-		ADC_DEBUG_SETPINSTATE(25, TRUE);
-		ADC_DEBUG_SETPINSTATE(25, FALSE);
-
-		INT32 adcSampleValue = AD_Read((ANALOG_CHANNEL) adcChannel);
-
-		if(thresholdingEnabled && !gThresholdingDone)
-		{
-			if(adcSampleValue >= gThresholdValue)
-			{
-				gThresholdTime = (UINT32) (HAL_Time_CurrentTicks() & 0xffffffff);
-				gThresholdingDone = TRUE;
-			}
-
-		}
-		adcNativeBuffer[adcBufferCounter++] = adcSampleValue;
-
-		if(adcBufferCounter >=  adcNumSamples)
-		{
-		  	adcBufferCounter = 0;
-
-		  	memcpy(adcManagedBuffer, adcNativeBuffer, adcNumSamples * sizeof(UINT16));
-
-		  	if(thresholdingEnabled)
-		  	{
-		  		g_adcUserData = gThresholdTime;
-
-		  		if(gThresholdingDone)
-		  		{
-		  			gThresholdingDone = FALSE;
-		  		}
-
-		  	}
-
-		    ISR_adcProc(g_adcContext);
-
-		    if(batchModeADC == true)
-		    {
-		    	gHalTimerManagerObject.StopTimer(ADC_VIRTUAL_TIMER);
-		    	private_free(adcNativeBuffer);
-		    }
-
-		 }
-
-	}
-}
 
 static const CLR_RT_DriverInterruptMethods g_AdcInteropDriverMethods =
 {

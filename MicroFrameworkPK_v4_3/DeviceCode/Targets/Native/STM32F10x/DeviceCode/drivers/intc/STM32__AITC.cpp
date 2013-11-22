@@ -27,20 +27,25 @@
 
 STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable[] =
 {
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PVD          ,STM32_AITC::c_IRQ_Priority_8  ),
+	DEFINE_IRQ(STM32_AITC::c_IRQ_INDEX_WWDG			, STM32_AITC::c_IRQ_Priority_29),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PVD          ,STM32_AITC::c_IRQ_Priority_29  ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TAMPER            ,STM32_AITC::c_IRQ_Priority_9  ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RTC     ,STM32_AITC::c_IRQ_Priority_10  ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_FLASH     ,STM32_AITC::c_IRQ_Priority_11  ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RCC    ,STM32_AITC::c_IRQ_Priority_12  ),
-
-    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1       ,STM32_AITC::c_IRQ_Priority_13  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI0   ,STM32_AITC::c_IRQ_Priority_62  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI1        ,STM32_AITC::c_IRQ_Priority_63  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI2        ,STM32_AITC::c_IRQ_Priority_64  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI3        ,STM32_AITC::c_IRQ_Priority_65  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI4        ,STM32_AITC::c_IRQ_Priority_66  ),
+    DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1       ,STM32_AITC::c_IRQ_Priority_20  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2       ,STM32_AITC::c_IRQ_Priority_14  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3       ,STM32_AITC::c_IRQ_Priority_15  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4       ,STM32_AITC::c_IRQ_Priority_16  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5       ,STM32_AITC::c_IRQ_Priority_17  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6       ,STM32_AITC::c_IRQ_Priority_18  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7       ,STM32_AITC::c_IRQ_Priority_19  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC1_2       ,STM32_AITC::c_IRQ_Priority_20  ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC1_2       ,STM32_AITC::c_IRQ_Priority_13  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX       ,STM32_AITC::c_IRQ_Priority_21  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0       ,STM32_AITC::c_IRQ_Priority_22  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_CAN_RX1       ,STM32_AITC::c_IRQ_Priority_23 ),
@@ -49,8 +54,10 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9       ,STM32_AITC::c_IRQ_Priority_26 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10       ,STM32_AITC::c_IRQ_Priority_27 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11       ,STM32_AITC::c_IRQ_Priority_28 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_CC       ,STM32_AITC::c_IRQ_Priority_29 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM2       ,STM32_AITC::c_IRQ_Priority_30 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM1_CC       ,STM32_AITC::c_IRQ_Priority_9 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM2       ,STM32_AITC::c_IRQ_Priority_10 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM3       ,STM32_AITC::c_IRQ_Priority_255 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM4       ,STM32_AITC::c_IRQ_Priority_44 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C1_EV       ,STM32_AITC::c_IRQ_Priority_31 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C1_ER       ,STM32_AITC::c_IRQ_Priority_32 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_I2C2_EV       ,STM32_AITC::c_IRQ_Priority_33 ),
@@ -63,39 +70,25 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI15_10       ,STM32_AITC::c_IRQ_Priority_40 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RTCAlarm       ,STM32_AITC::c_IRQ_Priority_41 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USBWakeUp       ,STM32_AITC::c_IRQ_Priority_42 ),
-
-	//DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM3       ,STM32_AITC::c_IRQ_Priority_43 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM3       ,STM32_AITC::c_IRQ_Priority_255 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM4       ,STM32_AITC::c_IRQ_Priority_44 ),
-
-
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12       ,STM32_AITC::c_IRQ_Priority_45 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_UP_TIM13       ,STM32_AITC::c_IRQ_Priority_46 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_TRG_COM_TIM14       ,STM32_AITC::c_IRQ_Priority_47 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_Tasklet_High       ,STM32_AITC::c_IRQ_Priority_253 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_Tasklet_Low       ,STM32_AITC::c_IRQ_Priority_254 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_CC       ,STM32_AITC::c_IRQ_Priority_48 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC3       ,STM32_AITC::c_IRQ_Priority_49 ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_FSMC          ,STM32_AITC::c_IRQ_Priority_50  ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SDIO          ,STM32_AITC::c_IRQ_Priority_51  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM5          ,STM32_AITC::c_IRQ_Priority_52  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SPI3          ,STM32_AITC::c_IRQ_Priority_53  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_UART4          ,STM32_AITC::c_IRQ_Priority_54  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_UART5          ,STM32_AITC::c_IRQ_Priority_55  ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART4          ,STM32_AITC::c_IRQ_Priority_253  ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USART5          ,STM32_AITC::c_IRQ_Priority_254  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM6          ,STM32_AITC::c_IRQ_Priority_56  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM7          ,STM32_AITC::c_IRQ_Priority_57  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel1          ,STM32_AITC::c_IRQ_Priority_58  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel2          ,STM32_AITC::c_IRQ_Priority_59  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel3          ,STM32_AITC::c_IRQ_Priority_60  ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5          ,STM32_AITC::c_IRQ_Priority_61  ),
-
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI0   ,STM32_AITC::c_IRQ_Priority_62  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI1        ,STM32_AITC::c_IRQ_Priority_63  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI2        ,STM32_AITC::c_IRQ_Priority_64  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI3        ,STM32_AITC::c_IRQ_Priority_65  ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_EXTI4        ,STM32_AITC::c_IRQ_Priority_66  ),
-
-
-
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_PendSV          ,STM32_AITC::c_IRQ_Priority_255 ), //Mukundan
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_SVCall        ,STM32_AITC::c_IRQ_Priority_5  ),
 };
 
 #undef DEFINE_IRQ
@@ -148,13 +141,16 @@ BOOL STM32_AITC_Driver::ActivateInterrupt( UINT32 Irq_Index, BOOL Fast, HAL_CALL
         STM32_AITC& AITC = STM32::AITC();
 
         // disable this interrupt while we change it
+
         AITC.DisableInterrupt(Irq_Index);
+
 
         // set the vector
         IsrVector->Handler.Initialize( ISR, ISR_Param );
 
-        // enable the interrupt if we have a vector
+        	// enable the interrupt if we have a vector
         AITC.EnableInterrupt(Irq_Index);
+
     }
 
     return TRUE;
@@ -264,6 +260,29 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			while (1)
 			{}
 		}
+
+
+	void __irq SVC_Handler()
+	{
+		STM32_AITC& AITC = STM32::AITC();
+
+		// set before jumping elsewhere or allowing other interrupts
+		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SVCall];
+
+		// In case the interrupt was forced, remove the flag.
+		AITC.RemoveForcedInterrupt( 0 );
+
+		IsrVector->Handler.Execute();
+
+		//ISR_PendSV_Handler(NULL);
+
+		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+
+	}
 
 
 	void __irq PendSV_Handler()
@@ -816,6 +835,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 
 		IsrVector->Handler.Execute();
 
+		//Tasklet_Run();
+		// Tasklet run by directly writing to the register
+		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
+		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
@@ -1191,7 +1214,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
 		
-		void __irq TIM8_UP_IRQHandler()
+		void __irq USART4_IRQHandler()
 		{
 
 			UINT32 index;
@@ -1202,7 +1225,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_UP_TIM13];
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART4];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1212,7 +1235,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
 		
-		void __irq TIM8_TRG_COM_IRQHandler()
+		void __irq USART5_IRQHandler()
 		{
 
 			UINT32 index;
@@ -1223,7 +1246,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
-			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_TRG_COM_TIM14];
+			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART5];
 
 			// In case the interrupt was forced, remove the flag.
 
@@ -1385,46 +1408,52 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 	
-	void __irq UART4_IRQHandler()
+	void __irq Tasklet_High_IRQHandler()
 	{
 
-		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		//STM32_AITC& AITC = STM32::AITC();
 
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		// Using direct clear register call here to shave off valuable time off
+		// the software interrupt
+		// Using the AITC api add overhead
+		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
+		//AITC.ClearInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_High);
 
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_UART4];
 
-		// In case the interrupt was forced, remove the flag.
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_High];
 
 		IsrVector->Handler.Execute();
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		//AITC.SetInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_High);
+		//NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
+
+		// set before jumping elsewhere or allowing other interrupts
+		//SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+		//SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
+		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_High];
+
+		// In case the interrupt was forced, remove the flag.
+
+		//IsrVector->Handler.Execute();
+
+		//SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
+		//SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 	
-	void __irq UART5_IRQHandler()
+	void __irq Tasklet_Low_IRQHandler()
 	{
 
-		UINT32 index;
 
-		STM32_AITC& AITC = STM32::AITC();
+		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_UART5];
+		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_Low];
 
 		// In case the interrupt was forced, remove the flag.
 
 		IsrVector->Handler.Execute();
 
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 	
 	void __irq TIM6_IRQHandler()
@@ -1590,6 +1619,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// In case the interrupt was forced, remove the flag.
 
 		IsrVector->Handler.Execute();
+
+		//Tasklet_Run();
+		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
+		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable

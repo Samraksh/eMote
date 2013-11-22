@@ -12,8 +12,6 @@
 
 #include <Samraksh\HAL_util.h>
 
-#define NOR_DEBUGGING_ENABLED 1
-
 #if defined(NOR_DEBUGGING_ENABLED)
 #define NOR_DEBUG_PRINT(x) hal_printf(x);
 #define ERASE_PROFILE_PIN 24

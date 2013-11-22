@@ -164,9 +164,25 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 
 	return TRUE;
 }
+
+// This function calls the updateneighbrtable of the neighbour object and calls the neighbour change
+// callback if the neighbours died
 void csmaMAC::UpdateNeighborTable(){
 
-	m_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
+	UINT8 numberOfDeadNeighbours = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
+
+
+	if(numberOfDeadNeighbours > 0)
+	{
+		NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
+
+		// Check if neighbour change has been registered and the user is interested in this information
+		if(appHandler != NULL)
+		{
+			// Make the neighbour changed callback signalling dead neighbours
+			(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+		}
+	}
 	//m_NeighborTable.DegradeLinks();
 }
 
@@ -267,7 +283,17 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(m_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index);
+				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
+				{
+					NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
+
+					// Check if  a neighbour change has been registered
+					if(appHandler != NULL)
+					{
+						// Insert neighbour always inserts one neighbour so the call back argument will alsways be 1
+						(*appHandler)(1);
+					}
+				}
 			}
 			else
 			{
@@ -309,7 +335,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
 
 	// Nived.Sivadas The mac callback design has changed
-	(*appHandler)(Received, m_receive_buffer.GetNumberMessagesInBuffer());
+	(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);

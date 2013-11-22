@@ -5,6 +5,8 @@
 #ifndef _DRIVERS_ANALOG_DECL_H_
 #define _DRIVERS_ANALOG_DECL_H_ 1
 
+#include <Samraksh/Hal_util.h>
+
 //--//
 
 //
@@ -21,6 +23,9 @@ enum ANALOG_CHANNEL
     ANALOG_CHANNEL_5    =  5,
     ANALOG_CHANNEL_6    =  6,
     ANALOG_CHANNEL_7    =  7,
+    // Added by nived.sivadas to enable dual mode adc
+    // This mode is needed by radar
+    ANALOG_CHANNEL_DUAL =  8,
 };
 
 //--//
@@ -33,7 +38,12 @@ UINT32   AD_ADChannels                      ( );
 GPIO_PIN AD_GetPinForChannel                ( ANALOG_CHANNEL channel );
 BOOL     AD_GetAvailablePrecisionsForChannel( ANALOG_CHANNEL channel, INT32* precisions, UINT32& size );
 
-
+// Added by nived.sivadas to enable burst mode adc
+DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
+DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
+DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
+DeviceStatus AD_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
+void AD_StopSampling();
 //--//
 
 #endif // _DRIVERS_ANALOG_DECL_H_

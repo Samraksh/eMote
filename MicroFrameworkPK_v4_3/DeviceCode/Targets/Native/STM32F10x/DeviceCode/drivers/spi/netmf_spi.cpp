@@ -734,7 +734,7 @@ void GPIO_Config(const SPI_CONFIGURATION& Configuration)
 void RCC_Config()
 {
   /* PCLK2 = HCLK/2 */
-  RCC_PCLK2Config(RCC_HCLK_Div2); 
+  RCC_PCLK2Config(RCC_HCLK_Div2);
   
   /* Enable SPIx clock and GPIO clock for SPIx and SPIy */
   RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIy_GPIO_CLK | SPIx_CLK, ENABLE);
