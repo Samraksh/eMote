@@ -1,11 +1,12 @@
 #ifndef _DATASTORE_H_INCLUDED_
 #define _DATASTORE_H_INCLUDED_
 
-#include <Samraksh/DataStore/FlashDevice.h>
+//#include <BlockStorage_decl.h>
 #include <Samraksh/DataStore/types.h>
-//#include <Samraksh/DataStore/DatastoreInt.h>
-//#include <Samraksh/DataStore/DatastoreReg.h>
 #include <Samraksh/DataStore/AddressTable.h>
+//#include <Samraksh/DataStore/FlashDevice.h>
+//#include <Samraksh/DataStore/DatastoreInt.h>
+#include <Samraksh/DataStore/DatastoreReg.h>
 
 #define DEBUG_DATASTORE
 
@@ -58,21 +59,6 @@ typedef enum _persistence_direction
 	GO_RIGHT
 }PERSISTENCE_DIRECTION;
 
-
-/*
-    Definition of different API status for the datastore APIs
-*/
-typedef enum _datastore_status
-{
-    DATASTORE_STATUS_OK,
-    DATASTORE_STATUS_NOT_OK,
-    DATASTORE_STATUS_INVALID_PARAM,
-    DATASTORE_STATUS_RECORD_ALREADY_EXISTS,
-    DATASTORE_STATUS_INT_ERROR,
-    DATASTORE_STATUS_OUT_OF_MEM,
-    DATASTORE_STATUS_OVERLAPPING_ADDRESS_SPACE,      /* Detected overlapping Address space between datastores */
-    DATASTORE_STATUS_NOT_FOUND
-}DATASTORE_STATUS;
 
 
 /* Describes a cluster of blocks, used in DATASTORE_PROPERTIES, a cluster is a group
@@ -183,7 +169,10 @@ class Data_Store
 {
 private:
     /* Flash device */
-    FlashDevice flashDevice;
+    //FlashDevice flashDevice;
+	BlockStorageDevice* blockStorageDevice;
+	const BlockDeviceInfo*  BlockDeviceInformation;
+	BlockRegionInfo blockRegionInfo;
 
 
     /* Current state of the device */
@@ -205,6 +194,7 @@ private:
     /* Offsets telling start and end of flash data region - For ease of use */
     uint32 dataStoreStartByteOffset;
     uint32 dataStoreEndByteOffset;
+    uint32 dataStoreDeviceSize;
 
     /* Address translation table */
     class DATASTORE_AddrTable addressTable;
@@ -315,7 +305,7 @@ public:
                       DATASTORE_PROPERTIES *property );
 
 
-     void init()
+     void init();
 
 
 #ifdef ENABLE_PERSISTENCE
@@ -335,12 +325,12 @@ public:
     RECORD_ID getRecordID(LPVOID givenPtr);
 
     /* Write data to the store */
-    uint32 writeData( LPVOID dest, T *data, uint32 count );
+    uint32 writeData( LPVOID dest, uint32 *data, uint32 count );
 
     /* Write raw data - Can be of any word-size */
     uint32 writeRawData(LPVOID dest, void* data, uint32 numBytes);
 
-    uint32 readData(LPVOID src, T* data, uint32 count);
+    uint32 readData(LPVOID src, uint32* data, uint32 count);
 
     /* Read raw data */
     uint32 readRawData(LPVOID src, void *data, uint32 numBytes);

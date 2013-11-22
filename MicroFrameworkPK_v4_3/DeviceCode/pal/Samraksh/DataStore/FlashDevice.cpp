@@ -157,11 +157,11 @@ int FlashDevice::writeFlashProperties(int deviceWordSize)
     return headerSize;
 }
 
-int FlashDevice::writeData( T *dataIn, int dataCount, void* addr )
+int FlashDevice::writeData( int *dataIn, int dataCount, void* addr )
 {
 	UINT32 address = (UINT32) addr;
 
-	if(!device->Write(address,sizeof(T) * dataCount, (BYTE *) dataIn, FALSE))
+	if(!device->Write(address,sizeof(int) * dataCount, (BYTE *) dataIn, FALSE))
 	{
 		debug_printf("Failed To Write to Memory");
 	}
@@ -192,7 +192,7 @@ FlashDevice::FlashDevice(char *flashName)
 	initFlashDevice( flashName);
 }
 
-Flash_Memory* FlashDevice::getDeviceBaseAddress()
+FlashMemory* FlashDevice::getDeviceBaseAddress()
 {
 	return (Flash_Memory*) deviceInfo->Regions->Start;
 }
@@ -223,7 +223,7 @@ int FlashDevice::getBlockIDFromAddress( LPVOID address )
 	return blockID;
 }
 
-Flash_Memory* FlashDevice::getBlockAddressFromBlockID(int blockID)
+FlashMemory* FlashDevice::getBlockAddressFromBlockID(int blockID)
 {
 	ASSERT( state == FLASHDEVICE_STATE_READY);
 	ASSERT( blockID >= 0);
@@ -245,7 +245,7 @@ FLASHDEVICE_STATUS FlashDevice::eraseBlock( int eraseBlockID )
 	ASSERT(state == FLASHDEVICE_STATE_READY);
 	ASSERT(eraseBlockID >= 0);
 
-	Flash_Memory<T>* eraseBlockAddr = getBlockAddressFromBlockID(eraseBlockID);
+	FlashMemory* eraseBlockAddr = getBlockAddressFromBlockID(eraseBlockID);
 
 	UINT32 eraseAddr = (UINT32) eraseBlockAddr;
 

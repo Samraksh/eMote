@@ -4,11 +4,29 @@
 //#include <vector>
 #include <tinyhal.h>
 #include "Types.h"
+//#include "Datastore.h"
 //#include "DatastoreInt.h"
 
 #define MAX_NUM_TABLE_ENTRIES       (256)
 
+typedef void* LPVOID;
+
 using namespace std;
+
+/*
+    Definition of different API status for the datastore APIs
+*/
+typedef enum _datastore_status
+{
+    DATASTORE_STATUS_OK,
+    DATASTORE_STATUS_NOT_OK,
+    DATASTORE_STATUS_INVALID_PARAM,
+    DATASTORE_STATUS_RECORD_ALREADY_EXISTS,
+    DATASTORE_STATUS_INT_ERROR,
+    DATASTORE_STATUS_OUT_OF_MEM,
+    DATASTORE_STATUS_OVERLAPPING_ADDRESS_SPACE,      /* Detected overlapping Address space between datastores */
+    DATASTORE_STATUS_NOT_FOUND
+}DATASTORE_STATUS;
 
 typedef struct
 {

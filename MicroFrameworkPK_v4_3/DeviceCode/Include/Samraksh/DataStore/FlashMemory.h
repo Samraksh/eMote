@@ -96,7 +96,7 @@ FlashMemory::FlashMemory()
 ******************************************************************************/
 void FlashMemory::writeOperator(const int data)
 {
-	register char *writePtr = (char*)lookUpAddress(this);      /* Char* because I want to handle data one-byte at a time */
+	register char *writePtr; //= (char*)lookUpAddress(this);      /* Char* because I want to handle data one-byte at a time */
 	char *inputDataCharPtr = (char*)&data;
 
     //EMULATOR_ASSERT( writePtr != NULL , "Failed to map ReadOnlyPTR to writeable ptr!");
