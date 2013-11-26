@@ -4,6 +4,7 @@
 //#include <BlockStorage_decl.h>
 #include <Samraksh/DataStore/types.h>
 #include <Samraksh/DataStore/AddressTable.h>
+#include <Samraksh/DataStore/myVector.h>
 //#include <Samraksh/DataStore/FlashDevice.h>
 //#include <Samraksh/DataStore/DatastoreInt.h>
 #include <Samraksh/DataStore/DatastoreReg.h>
@@ -51,6 +52,17 @@ typedef enum _datastore_state
     DATASTORE_STATE_READY,
     DATASTORE_STATE_INT_ERROR
 }DATASTORE_STATE;
+
+
+typedef enum _flashdevice_state
+{
+    FLASHDEVICE_STATE_UNINITIALIZED,
+    FLASHDEVICE_STATE_READY,
+    FLASHDEVICE_STATE_FAILED_TO_LOAD,
+    FLASHDEVICE_STATE_CLOSED
+    /* Do we need more states here? */
+}FLASHDEVICE_STATE;
+
 
 /* For the persistence function */
 typedef enum _persistence_direction
@@ -171,12 +183,16 @@ private:
     /* Flash device */
     //FlashDevice flashDevice;
 	BlockStorageDevice* blockStorageDevice;
-	const BlockDeviceInfo*  BlockDeviceInformation;
-	BlockRegionInfo blockRegionInfo;
+	const BlockDeviceInfo*  blockDeviceInformation;
+
+	///// AnanthAtSamraksh - Remove below
+	//BlockRegionInfo blockRegionInfo;
 
 
     /* Current state of the device */
     DATASTORE_STATE state;
+    FLASHDEVICE_STATE flashdevice_state;
+
     /* Last error status - Stores any error that occured in previous API
        This value can be read by the Application using getLastErrorValue()
     */
@@ -305,7 +321,7 @@ public:
                       DATASTORE_PROPERTIES *property );
 
 
-     void init();
+     DeviceStatus init();
 
 
 #ifdef ENABLE_PERSISTENCE

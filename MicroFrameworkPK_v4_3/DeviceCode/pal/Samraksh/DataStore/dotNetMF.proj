@@ -44,8 +44,8 @@
   	<Compile Include="Datastore.cpp"/>
     <!--<Compile Include="FlashDevice.cpp" />-->  
    	<Compile Include="AddressTable.cpp"/>
-   	<!--<Compile Include="MyVector.cpp"/>-->       
-    <!--<Compile Include="DatastoreUtil.cpp"/>-->
+   	<Compile Include="MyVector.cpp"/>       
+    <Compile Include="DatastoreUtil.cpp"/>
     <!--<Compile Include="DatastoreReg.cpp"/>-->
     
     <!-- <Compile Include="AddressMap.cpp"/>-->

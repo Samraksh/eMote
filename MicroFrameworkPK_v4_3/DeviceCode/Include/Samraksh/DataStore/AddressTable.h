@@ -4,6 +4,7 @@
 //#include <vector>
 #include <tinyhal.h>
 #include "Types.h"
+//#include "myVector.h"
 //#include "Datastore.h"
 //#include "DatastoreInt.h"
 
@@ -12,6 +13,16 @@
 typedef void* LPVOID;
 
 using namespace std;
+
+
+typedef struct
+{
+    RECORD_ID  recordID;           /* Unique allocation identifier */
+    LPVOID     givenPtr;           /* Smart pointer that was given to the application */
+    DWORD      allocationSize;     /* Size of the allocation */
+    LPVOID     currentLoc;         /* Current location of the corresponding data on the flash */
+}DATASTORE_ADDR_TBL_ENTRY;
+
 
 /*
     Definition of different API status for the datastore APIs
@@ -27,14 +38,6 @@ typedef enum _datastore_status
     DATASTORE_STATUS_OVERLAPPING_ADDRESS_SPACE,      /* Detected overlapping Address space between datastores */
     DATASTORE_STATUS_NOT_FOUND
 }DATASTORE_STATUS;
-
-typedef struct
-{
-    RECORD_ID  recordID;           /* Unique allocation identifier */
-    LPVOID     givenPtr;           /* Smart pointer that was given to the application */
-    DWORD      allocationSize;     /* Size of the allocation */
-    LPVOID     currentLoc;         /* Current location of the corresponding data on the flash */
-}DATASTORE_ADDR_TBL_ENTRY;
 
 
 class myVector

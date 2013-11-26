@@ -9,6 +9,12 @@ BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
 	gNORDriver.Initialize();
 
+	for(UINT32 i = 0 ; i < 0x800000; i = i + 0x10000)
+	{
+	   gNORDriver.EraseBlock(i);
+	   for(volatile UINT16 j = 0; j < 65000; j++ );
+	}
+
 }
 
 BOOL STM32F10x_blDriver_nor::UninitializeDevice( void* context )
