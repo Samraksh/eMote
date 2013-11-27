@@ -162,6 +162,9 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 			return FALSE;
 
+	// Try to  send the packet out immediately if possible
+	csmaMacScheduler(NULL);
+
 	return TRUE;
 }
 
@@ -221,6 +224,7 @@ void csmaMAC::SendToRadio(){
 		}
 	}
 
+#if 0
 	else if(RadioAckPending)
 	{
 		RadioAckPending = FALSE;
@@ -231,7 +235,7 @@ void csmaMAC::SendToRadio(){
 		}
 		CPU_Radio_Reset(1);
 
-#if 0
+
 		if(m_recovery & LEVEL_0_RECOVER)
 		{
 			m_recovery = m_recovery << 1;
@@ -256,8 +260,9 @@ void csmaMAC::SendToRadio(){
 			hal_printf("Unable to recieve send acks from radio\n");
 			//while(1);
 		}
-#endif
+
 	}
+#endif
 
 }
 
