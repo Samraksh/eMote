@@ -55,6 +55,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
   <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\Samraksh_SPOT.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\Samraksh_SPOT_Net.featureproj" />
@@ -553,6 +554,10 @@
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_SPOT.$(LIB_EXT)" />
+  </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />

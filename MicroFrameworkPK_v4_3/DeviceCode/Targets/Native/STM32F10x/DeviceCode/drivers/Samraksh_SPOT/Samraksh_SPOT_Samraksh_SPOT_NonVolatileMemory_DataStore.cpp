@@ -13,6 +13,9 @@
 
 #include "Samraksh_SPOT.h"
 #include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.h"
+#include <Samraksh/DataStore/Datastore.h>
+
+extern Data_Store g_dataStoreObject;
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
@@ -85,6 +88,7 @@ INT8 DataStore::GetReadWriteStatus( HRESULT &hr )
 INT32 DataStore::GetLastErrorStatus( HRESULT &hr )
 {
     INT32 retVal = 0; 
+    retVal = g_dataStoreObject.getLastError();
     return retVal;
 }
 

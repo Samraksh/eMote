@@ -11,6 +11,6 @@
     <DriverLibs Include="Samraksh_SPOT.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT" />
     <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT.pe" />
-    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Samraksh\Interops\Samraksh_SPOT\Samraksh_SPOT\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

@@ -228,8 +228,7 @@ private:
     DATASTORE_STATUS unlockDataStore();
 
     /* PRIVATE FUNCTIONS */
-    DATASTORE_STATUS initDataStore( char *datastoreName,
-                                    DATASTORE_PROPERTIES *property );
+    DATASTORE_STATUS initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property );
     /* Compact function */
     DATASTORE_STATUS compactLog();
 
@@ -363,8 +362,15 @@ public:
 	/* Function that returns the current value of the Erase point */
 	uint32 returnErasePoint();
 
+	void getRecordIDAfterPersistence(uint32*);
+
+    bool DeleteAll();
+
+    bool DataStoreGC();
+
     /* Destructor */
     ~Data_Store();
+
 };
 
 /*

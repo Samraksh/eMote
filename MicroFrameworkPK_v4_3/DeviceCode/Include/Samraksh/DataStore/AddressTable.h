@@ -46,7 +46,7 @@ private:
     /* Static, because I don't want it to come into the stack and I am sure that
        there will be only one instance of this class */
     //static DATASTORE_ADDR_TBL_ENTRY intTable[MAX_NUM_TABLE_ENTRIES];
-	DATASTORE_ADDR_TBL_ENTRY intTable[MAX_NUM_TABLE_ENTRIES];;
+	DATASTORE_ADDR_TBL_ENTRY intTable[MAX_NUM_TABLE_ENTRIES];
     int vectSize;
 public:
 	myVector(){vectSize = 0;};
@@ -71,6 +71,7 @@ private:
     /* Add anything required later */
     DATASTORE_STATUS search(LPVOID givenAddr, DATASTORE_ADDR_TBL_ENTRY *entry);
 public:
+    ////myVector table;
     DATASTORE_AddrTable();
     DATASTORE_STATUS addEntry(DATASTORE_ADDR_TBL_ENTRY *entry);
     LPVOID           getCurrentLoc(RECORD_ID recordID);
@@ -85,6 +86,7 @@ public:
     DATASTORE_STATUS removeEntry(LPVOID givenPtr);
     DATASTORE_STATUS copyEntry(myVector *table);
      ~DATASTORE_AddrTable();
+     friend class Data_Store;
 };
 
 #endif
