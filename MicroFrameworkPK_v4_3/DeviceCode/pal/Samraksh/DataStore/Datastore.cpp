@@ -525,7 +525,9 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			void *rawDataIn = buff;
 			if(!blockStorageDevice->Write(address, numBytes, (BYTE *) rawDataIn, FALSE))
 			{
-				debug_printf("Failed to write raw data to Memory");
+				PRINT_DEBUG("Failed to write raw data to Memory");
+				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
+				break;
 			}
             //flashDevice.writeRawData( buff, numBytes, currentLoc );
         }else{
@@ -537,7 +539,9 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			void *rawDataIn = buff;
 			if(!blockStorageDevice->Write(address, byteTillEnd, (BYTE *) rawDataIn, FALSE))
 			{
-				debug_printf("Failed to write raw data to Memory");
+				PRINT_DEBUG("Failed to write raw data to Memory");
+				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
+				break;
 			}
             //flashDevice.writeRawData( buff, byteTillEnd, currentLoc );
             /* Copy second piece */
@@ -545,7 +549,9 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			rawDataIn = buff + byteTillEnd;
 			if(!blockStorageDevice->Write(address, (numBytes - byteTillEnd), (BYTE *) rawDataIn, FALSE))
 			{
-				debug_printf("Failed to write raw data to Memory");
+				PRINT_DEBUG("Failed to write raw data to Memory");
+				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
+				break;
 			}
             //flashDevice.writeRawData( (char*)buff+byteTillEnd, numBytes - byteTillEnd, (char*)blockRegionInfo.Start+dataStoreStartByteOffset );
         }
@@ -813,7 +819,6 @@ int Data_Store::readRecordinBlock(int blockID)
 			entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
 			entry.recordID       = header.recordID;
 
-			hal_printf("Record Number Block Id : %d  Record Id: %d Record Size : %d\n", blockID, header.recordID, header.size);
 
 			/* Change the condition to check for the STATUS duplicate recordID */
 			status = addressTable.addEntry(&entry);

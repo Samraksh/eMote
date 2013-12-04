@@ -29,6 +29,8 @@ namespace Samraksh
 
                 static UNSUPPORTED_TYPE& Get_buffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::FIELD__buffer ); }
 
+                static INT32& Get_recordPointer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::FIELD__recordPointer ); }
+
                 static UNSUPPORTED_TYPE& Get_dStore( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::FIELD__dStore ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers

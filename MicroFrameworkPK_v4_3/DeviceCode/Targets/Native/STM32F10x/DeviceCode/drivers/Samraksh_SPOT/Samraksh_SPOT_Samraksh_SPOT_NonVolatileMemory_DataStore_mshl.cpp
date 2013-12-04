@@ -13,6 +13,44 @@
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
 
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::CreateRecord___I4__U4__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
+
+        UINT32 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 2, param1 ) );
+
+        INT32 retVal = DataStore::CreateRecord( pMngObj,  param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::CreateDataStore___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = DataStore::CreateDataStore( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsedKBytes___R4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -45,6 +83,25 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFree
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllRecordIDs___BOOLEAN__SZARRAY_I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32_ARRAY( stack, 1, param0 ) );
+
+        INT8 retVal = DataStore::GetReadAllRecordIDs( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetNumberOfDataRecords___U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -61,23 +118,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetNumb
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllRecordIDs___BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        INT8 retVal = DataStore::GetReadAllRecordIDs( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -91,7 +132,10 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___
         CLR_RT_TypedArray_UINT8 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
 
-        INT32 retVal = DataStore::Read( pMngObj,  param0, param1, hr );
+        INT32 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 3, param2 ) );
+
+        INT32 retVal = DataStore::Read( pMngObj,  param0, param1, param2, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -201,7 +245,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetRead
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetLastErrorStatus___STATIC__SamrakshSPOTNonVolatileMemoryDATASTOREERROR( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetLastErrorStatus___STATIC__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
