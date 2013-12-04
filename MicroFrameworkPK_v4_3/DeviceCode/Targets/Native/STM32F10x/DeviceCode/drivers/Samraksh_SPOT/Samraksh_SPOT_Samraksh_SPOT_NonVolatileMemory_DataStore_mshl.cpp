@@ -209,25 +209,25 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT8 retVal = DataStore::DeleteAll( hr );
+        INT32 retVal = DataStore::DeleteAll( hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DataStoreGC___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DataStoreGC___STATIC__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT8 retVal = DataStore::DataStoreGC( hr );
+        INT32 retVal = DataStore::DataStoreGC( hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

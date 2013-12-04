@@ -13,8 +13,11 @@
 
 #include "Samraksh_SPOT.h"
 #include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data.h"
+#include <Samraksh\DataStore\Datastore.h>
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
+
+extern Data_Store g_dataStoreObject;
 
 UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
 {
@@ -22,9 +25,9 @@ UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 par
     return retVal;
 }
 
-INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 recordId, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.deleteRecord(recordId);
+
 }
 

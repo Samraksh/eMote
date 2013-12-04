@@ -1127,8 +1127,21 @@ DATASTORE_ERROR Data_Store::getLastError()
     return lastErrorVal;
 }
 
-bool Data_Store::DeleteAll()
+DATASTORE_STATUS Data_Store::DeleteAll()
 {
+	// When an entry is removed from the addressTable, the entries prior to that are copied over to the existing entry.
+	// So, only the 0th index is deleted at all times.
+	uint32 deleteIndex = 0;
+	DATASTORE_STATUS status;
+	while(addressTable.table[deleteIndex].recordID != 0)
+	{
+		status = deleteRecord(addressTable.table[deleteIndex].recordID);
+		if(status != DATASTORE_STATUS_OK)
+		{
+			return status;
+		}
+	}
+#if 0
 	uint32 initialClearPtrBlockID;
 	uint32 currClearPtrBlockID;
 	DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
@@ -1187,9 +1200,11 @@ bool Data_Store::DeleteAll()
 
 		status = DATASTORE_STATUS_OK;   //In a loop :)
 	}
+	return status;
+#endif
 }
 
-bool Data_Store::DataStoreGC()
+DATASTORE_STATUS Data_Store::DataStoreGC()
 {
 	return compactLog();
 }

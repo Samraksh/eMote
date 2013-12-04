@@ -80,16 +80,14 @@ INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_Ty
    return g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), numBytes);
 }
 
-INT8 DataStore::DeleteAll( HRESULT &hr )
+INT32 DataStore::DeleteAll( HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.DeleteAll();
 }
 
-INT8 DataStore::DataStoreGC( HRESULT &hr )
+INT32 DataStore::DataStoreGC( HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.DataStoreGC();
 }
 
 INT8 DataStore::GetReadWriteStatus( HRESULT &hr )

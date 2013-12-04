@@ -275,21 +275,21 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return GetNumberOfDataRecords();
         }
 
-        public static bool DeleteAllRecords()
+        public static int DeleteAllRecords()
         {
             return DeleteAll();
         }
 
-        public static bool GC()
+        public static int GC()
         {
             return DataStoreGC();
         }
 
-        public static bool EraseAll()
+        public static int EraseAll()
         {
             DataStore.DeleteAllRecords();
             DataStore.GC();
-            return true;
+            return 1;
         }
 
         public bool ReadWriteStatus()
@@ -401,14 +401,14 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static bool DeleteAll();
+        extern public static int DeleteAll();
 
         /// <summary>
         /// Garbage collects inactive records in Data Store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static bool DataStoreGC();
+        extern public static int DataStoreGC();
 
         /// <summary>
         /// Gets read/write status of the Data Store
