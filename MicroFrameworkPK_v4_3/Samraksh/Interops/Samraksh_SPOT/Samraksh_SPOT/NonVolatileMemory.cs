@@ -167,12 +167,31 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return DataStatus.Success;
         }
 
+        /// <summary>
+        /// Delete a data/record from the data store
+        /// </summary>
+        /// <param name="data">Byte array to be written to data store</param>
+        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
+        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
+        public bool Delete()
+        {
+            return DeleteRecord(recordId);
+        }
+
         ~Data()
         {
             DisposeNativeMemoryPointer(recordId);
         }
 
         ///////////////////////////////////Internal methods/////////////////////////
+
+        /// <summary>
+        /// Delete the data represented by the recordId from data store.
+        /// </summary>
+        /// <param name="dataID">ID of the data/record to be deleted</param>
+        /// <returns>Returns success or failure of operation</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool DeleteRecord(UInt32 recordId);
 
         //Returns the size of the NVM, if 0 operation failed
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

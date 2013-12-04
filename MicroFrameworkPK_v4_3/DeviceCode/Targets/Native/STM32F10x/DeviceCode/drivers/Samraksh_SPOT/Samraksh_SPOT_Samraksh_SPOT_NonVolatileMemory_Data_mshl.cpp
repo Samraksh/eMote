@@ -13,6 +13,25 @@
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
 
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DeleteRecord___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
+
+        INT8 retVal = Data::DeleteRecord( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::ConstructNativeMemoryPointer___U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

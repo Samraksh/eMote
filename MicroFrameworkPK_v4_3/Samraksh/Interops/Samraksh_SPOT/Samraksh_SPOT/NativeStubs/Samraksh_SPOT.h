@@ -62,6 +62,7 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data
     static const int FIELD__recordPointer = 4;
     static const int FIELD__dStore = 5;
 
+    TINYCLR_NATIVE_DECLARE(DeleteRecord___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(ConstructNativeMemoryPointer___U4__U4__U4);
     TINYCLR_NATIVE_DECLARE(DisposeNativeMemoryPointer___BOOLEAN__U4);
 

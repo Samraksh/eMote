@@ -14,7 +14,6 @@
 #include "Samraksh_SPOT.h"
 #include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.h"
 #include <Samraksh\DataStore\Datastore.h>
-//#include <strstream>
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
