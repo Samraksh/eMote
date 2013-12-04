@@ -10,8 +10,37 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.NonVolatileMemory
 {
+
+    enum StorageType
+    {
+        NOR,
+        SD,
+    };
+
+    public class Data
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        DataStore dsRef;
+
+        public Data(DataStore dsRef)
+        {
+            this.dsRef = dsRef;
+        }
+
+        public int Write(int data)
+        {
+            return dsRef.Write(data, 0);
+        }
+
+    }
+
     public class DataStore
     {
+
+        public StorageType stype;
+
         private UInt32 m_Size = 0;
         //private UInt16 Blocks=0;
         //private float UsedKiloBytes=0;
@@ -60,6 +89,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             }
         }
 
+
+        public DataStore(StorageType stype, UInt32 MaxDataSize)
+        {
+            this.stype = stype;
+        }
+
         /// <summary>
         /// Create a data store element, specify the maximum size of data element
         /// </summary>
@@ -90,10 +125,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="data">Integer to be stored</param>
         /// <param name="dataID">The dataID of stored data is copied to dataID</param>
         /// <returns>Returns 4 (number of bytes written) if successful, returns -1 if operation fails.</returns>
-        public int Write(int data, ref UInt32 dataID)
+        public int Write(int data,  UInt32 dataID)
         {
             byte[] buffer = new byte[sizeof(int)];
-            return Write(recordId, buffer, ref dataID);
+            return Write(recordId, buffer, (Int32) stype);
         }
 
         /// <summary>
@@ -102,7 +137,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="data">Byte array to be written to data store</param>
         /// <param name="dataID">The dataID of stored data is copied to dataID</param>
         /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
-        public int Write(byte[] data, ref UInt32 dataID)
+        public int Write(byte[] data,  UInt32 dataID)
         {
             return Write(recordId, data, ref dataID);
         }
@@ -170,7 +205,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Write(UInt32 recordId, byte[] data, ref UInt32 dataID);       
+        extern private int Write(UInt32 recordId, byte[] data, UInt32 dataID);       
                
         // native call that destroys record created on the flash
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
