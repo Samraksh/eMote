@@ -54,7 +54,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
-  <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\Samraksh_SPOT.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" />
@@ -97,11 +97,10 @@
     <PlatformIndependentLibs Include="Graphics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="onewire_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\OneWire\dotNetMF.proj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />

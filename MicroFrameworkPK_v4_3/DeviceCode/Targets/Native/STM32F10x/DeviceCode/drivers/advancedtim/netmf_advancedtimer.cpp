@@ -437,13 +437,15 @@ void ISR_TIM2(void* Param)
 	}
 	if(TIM_GetFlagStatus(TIM2, TIM_IT_Update))
 	{
-		//CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
+		//CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
+		//CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		// An overflow just happened, update the 64 bit value
 		// maintained in software
 		// This is needed because microsoft's timers are polling based and
 		// poll this 64 bit number
+
+		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
 
 		g_STM32F10x_AdvancedTimer.Get64Counter();
 	}

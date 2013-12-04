@@ -429,7 +429,8 @@ DeviceStatus RF231Radio::Sleep(int level)
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
-		hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
+		hal_printf("Radio Send Error: Big packet: %d ", size+2);
+		
 		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 		// Should be bad size
 		(*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
@@ -1142,20 +1143,17 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-			receive_timestamp = HAL_Time_CurrentTime();
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+					hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
 					return;
 				}
 
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
 			}
-			else {
-				hal_printf("Radio Receive Error: Problem downloading message");
-			}
+
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
 			{
@@ -1201,13 +1199,12 @@ DeviceStatus RF231Radio::DownloadMessage()
 	UINT8 length;
 	UINT8 counter = 0;
 	SelnClear();
-	
 
+	
 	UINT8* temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
-	//erase the packet clean before writing anything
-	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH-2);
 
 	CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
+
 	length = CPU_SPI_WriteReadByte(config, 0);
 	
 	if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
@@ -1217,6 +1214,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	else if(length >= 3)
 	{
 		UINT8 read;
+
 		CPU_SPI_WriteReadByte(config, 0);
 
 		//rx_msg.SetLength(length);
@@ -1235,12 +1233,14 @@ DeviceStatus RF231Radio::DownloadMessage()
 		// Read the crc byte because we are trying to get to the lqi
 		crc = CPU_SPI_WriteReadByte(config, 0);
 		crc = CPU_SPI_WriteReadByte(config, 0);
-
+		
 		lqi = CPU_SPI_WriteReadByte(config, 0);
 		
 		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 		metadata->SetLqi(lqi);
-		metadata->SetReceiveTimeStamp(receive_timestamp);
+		
+		
+
 	}
 	SelnSet();
 

@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.NonVolatileMemory
 {
+
     public enum StorageType
     {
         NOR,
@@ -301,6 +302,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         {
             return GetLastErrorStatus();
         }
+    
 
         /// <summary>
         /// Create a data store element, specify the maximum size of data element
@@ -455,7 +457,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);       
-               
+        
         // native call that destroys record created on the flash
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //extern private bool DisposeNativeMemoryPointer(UInt32 recordId);
