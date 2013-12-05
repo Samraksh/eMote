@@ -44,10 +44,11 @@ float DataStore::GetFreeKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 INT8 DataStore::GetReadAllRecordIDs( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 recordIdArray, HRESULT &hr )
 {
     INT32 *managedBuffer = recordIdArray.GetBuffer();
-
 	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer);
-
-	return 1;
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 UINT32 DataStore::GetNumberOfDataRecords( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )

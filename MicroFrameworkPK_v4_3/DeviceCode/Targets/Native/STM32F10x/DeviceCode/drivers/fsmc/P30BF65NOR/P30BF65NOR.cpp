@@ -307,7 +307,7 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Check to see if you are writing to an unerased location, return failure if that is true
-	if(ReadHalfWord(WriteAddr) != 0xffff)
+	if(ReadHalfWord(WriteAddr) != 0xffff && ((data & 8192) != 8192))
 	{
 		NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
 		return DS_Fail;

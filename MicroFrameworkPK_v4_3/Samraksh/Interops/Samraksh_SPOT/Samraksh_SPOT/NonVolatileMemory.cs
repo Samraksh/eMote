@@ -455,7 +455,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="buffer">Byte buffer into which the data will be read</param>
         /// <returns>Returns number of bytes read, returns -1 if operation fails</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public int Read(UInt32 address, byte[] buffer, int storageType);
+        extern private int Read(UInt32 address, byte[] buffer, int storageType);
 
         /// <summary>
         /// Read the data record IDs currently stored in the NVM into the unsigned integer array provided
@@ -471,14 +471,14 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataID">ID of the data to be deleted</param>
         /// <returns>Returns success or failure of operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public bool Delete(UInt32 dataID);
+        extern private bool Delete(UInt32 dataID);
 
         //Returns the size of the NVM, if 0 operation failed
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //extern private UInt32 ConstructNativeMemoryPointer(UInt32 recordId, UInt32 bytes);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public int Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);       
+        extern private int Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);       
         
         // native call that destroys record created on the flash
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]

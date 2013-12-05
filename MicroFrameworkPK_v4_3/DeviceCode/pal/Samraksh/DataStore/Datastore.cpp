@@ -932,6 +932,9 @@ DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
         cyclicDataWrite( (LPVOID)&header,
                          (char*)currLoc - sizeof(RECORD_HEADER),
                          sizeof(RECORD_HEADER) );
+        if(getLastError() != DATASTORE_ERROR_NONE)
+        	break;
+
         addressTable.removeEntry(id);
         status = DATASTORE_STATUS_OK;
     }while(0);
