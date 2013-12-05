@@ -982,6 +982,8 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 numBytes)
             lNumBytes = numBytes = 0;
             break;
         }
+        //curLoc updation is important when src address and givenAddr are different. If src address is
+        //greater than given address, the numBytes is modified accordingly. But if curLoc is not updated, numBytes are read from starting address and not from src
         if( NULL == (curLoc = addressTable.getCurrentLoc(src, lDataStoreStartByteAddr, lDataStoreEndByteAddr))){
             lastErrorVal = DATASTORE_ERROR_INVALID_GIVEN_ADDR;
             lNumBytes = numBytes = 0;

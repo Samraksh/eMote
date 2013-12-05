@@ -58,14 +58,7 @@ UINT32 DataStore::GetNumberOfDataRecords( CLR_RT_HeapBlock* pMngObj, HRESULT &hr
 
 INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, INT32 storageType, HRESULT &hr )
 {
-
     return g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), readBuffer.GetSize());
-}
-
-UINT16 DataStore::ReadAllDataIDs( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, HRESULT &hr )
-{
-    UINT16 retVal = 0; 
-    return retVal;
 }
 
 INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )

@@ -50,6 +50,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         
         DataStore dStore;
 
+        public Data()
+        {
+        }
+
         public Data(DataStore dStore, UInt32 recordId, UInt32 m_Size)
         {
             this.dStore = dStore;
@@ -284,9 +288,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }*/
 
         //public bool ReadAllRecordIDs(UInt32 recordId, UInt32 Size)
-        public bool ReadAllRecordIDs()
+        public bool ReadAllRecordIDs(int[] recIdArray)
         {
-            int[] recIdArray = new int[256];
             return GetReadAllRecordIDs(recIdArray);
         }
 
@@ -393,57 +396,57 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         // get amount of used space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public bool CreateDataStore();
+        extern private bool CreateDataStore();
 
         // get amount of used space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public float GetUsedKBytes();
+        extern private float GetUsedKBytes();
 
         // get amount of free space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public float GetFreeKBytes();
+        extern private float GetFreeKBytes();
 
         /// <summary>
         /// Returns valid data records currently stored in the NVM
         /// </summary>
         /// <returns>Returns array with valid data records as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public bool GetReadAllRecordIDs(int[] recordIdArray);
+        extern private bool GetReadAllRecordIDs(int[] recordIdArray);
 
         /// <summary>
         /// Get the number of valid data records currently stored in the NVM
         /// </summary>
         /// <returns>Returns a the number of valid data records as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt32 GetNumberOfDataRecords();
+        extern private UInt32 GetNumberOfDataRecords();
 
         /// <summary>
         /// Delete all records in the Data Store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static int DeleteAll();
+        extern private static int DeleteAll();
 
         /// <summary>
         /// Garbage collects inactive records in Data Store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static int DataStoreGC();
+        extern private static int DataStoreGC();
 
         /// <summary>
         /// Gets read/write status of the Data Store
         /// </summary>
         /// <returns>Returns status of read/write on data store</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static bool GetReadWriteStatus();
+        extern private static bool GetReadWriteStatus();
 
         /// <summary>
         /// Gets error status of data Store
         /// </summary>
         /// <returns>Returns error status of data store</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public static int GetLastErrorStatus();
+        extern private static int GetLastErrorStatus();
 
         /// <summary>
         /// Read data the data record represented by the recordId, into the buffer
@@ -459,8 +462,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <param name="buffer">Buffer into which the data record IDs will be read into</param>
         /// <returns>Returns the number of data iDs read</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt16 ReadAllDataIDs(UInt32[] buffer);
+        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public UInt16 ReadAllDataIDs(UInt32[] buffer);*/
         
         /// <summary>
         /// Delete the data represented by the dataID from data store.

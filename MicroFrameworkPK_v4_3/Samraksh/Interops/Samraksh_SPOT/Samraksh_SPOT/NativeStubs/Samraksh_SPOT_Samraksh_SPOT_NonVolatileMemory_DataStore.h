@@ -35,7 +35,6 @@ namespace Samraksh
                 static INT8 GetReadAllRecordIDs( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, HRESULT &hr );
                 static UINT32 GetNumberOfDataRecords( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, HRESULT &hr );
-                static UINT16 ReadAllDataIDs( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, HRESULT &hr );
                 static INT8 Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, INT32 param3, HRESULT &hr );
                 static INT32 DeleteAll( HRESULT &hr );

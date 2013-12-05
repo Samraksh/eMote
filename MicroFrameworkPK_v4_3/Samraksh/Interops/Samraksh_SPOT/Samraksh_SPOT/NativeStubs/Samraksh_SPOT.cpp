@@ -31,7 +31,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllRecordIDs___BOOLEAN__SZARRAY_I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetNumberOfDataRecords___U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__I4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::ReadAllDataIDs___U2__SZARRAY_U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Delete___BOOLEAN__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__I4,
     NULL,
@@ -63,6 +62,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DeleteRecord___BOOLEAN__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::ConstructNativeMemoryPointer___U4__U4__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DisposeNativeMemoryPointer___BOOLEAN__U4,
@@ -71,7 +71,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT =
 {
     "Samraksh_SPOT", 
-    0xA517B6F1,
+    0x44D38E28,
     method_lookup
 };
 
