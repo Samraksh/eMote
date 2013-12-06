@@ -509,6 +509,12 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 #define  SLP_TR_PIN    104 // Rev 1 :  18
 #define  INTERRUPT_PIN 65  // Rev 1 :  17
 
+#define SELN_PIN_LR		89
+#define RSTN_PIN_LR		90
+#define SLP_TR_PIN_LR   27
+#define AMP_LR			26
+#define INTERRUPT_PIN_LR 55
+
 #define	 RF230_TRX_CTRL_0_VALUE		 0x0
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (3 << 5)
@@ -701,5 +707,7 @@ enum Rf230SpiCommandEnums {
 };
 
 
+#define RF231_REG_TX_CTRL_1		0x04
+#define RF231_REG_ANT_DIV		0x0D
 
 #endif

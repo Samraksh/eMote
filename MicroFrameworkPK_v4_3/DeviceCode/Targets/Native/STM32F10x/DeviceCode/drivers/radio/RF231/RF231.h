@@ -25,7 +25,11 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define RF231RADIO 1
+enum RadioID
+{
+	RF231RADIO,
+	RF231RADIOLR,
+};
 
 //Interrupts
 void radio_irq_init(void (*irq_handler)());
@@ -67,12 +71,13 @@ class RF231Radio : public Radio<Message_15_4_t>
 	static const UINT32 kNodeId 	=	 NODE_ID;
 
 	// Pin Definitions for the state control pins declared by macros
-	static const GPIO_PIN kslpTr 	= 	 SLP_TR_PIN;
-	static const GPIO_PIN krstn 	= 	 RSTN_PIN;
-	static const GPIO_PIN kseln		= 	 SELN_PIN;
+	GPIO_PIN kslpTr;
+	GPIO_PIN krstn;
+	GPIO_PIN kseln;
 
-	static const GPIO_PIN kinterrupt	= INTERRUPT_PIN;
+	GPIO_PIN kinterrupt;
 
+	RadioID radioName;
 
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
@@ -176,13 +181,29 @@ public:
 
     UINT32 GetTxPower();
 
+    void SetRadioName(RadioID radio)
+    {
+    	this->radioName = radio;
+    }
+
+    RadioID GetRadioName()
+    {
+    	return this->radioName;
+    }
+
+    // Functions added to support the long range radio
+    DeviceStatus EnableAntDiversity();
+
+    DeviceStatus EnablePARXTX();
+
+    void Amp(BOOL TurnOn);
 
     // This function has been moved from the cpp file because the linker is unable to call the function
     // otherwise, something to do with instantiation of the template
     // Calls the gpio initialize and spi initialize modules and asserts if the spi initialization failed
     // Once SPI initialization is complete, radio initialization including setting radio state, channel, tx power etc carried out here
     // The radio is sleeping at the end of initialization
-    DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id);
+    DeviceStatus Initialize(RadioEventHandler *event_handler, RadioID radio, UINT8 mac_id);
 
     DeviceStatus UnInitialize()
     {
@@ -260,6 +281,8 @@ public:
 };
 
 RF231Radio grf231Radio;
+
+RF231Radio grf231RadioLR;
 
 
 #endif /* RADIO_H */

@@ -540,14 +540,58 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	return temp;
 }
 
+DeviceStatus RF231Radio::EnableAntDiversity()
+{
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return DS_Fail;
+	}
 
-DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id)
+	UINT8 data = ReadRegister(RF231_REG_ANT_DIV);
+
+	data |= 0x0C;
+
+	WriteRegister(RF231_REG_ANT_DIV, data);
+
+	return DS_Success;
+
+}
+
+DeviceStatus RF231Radio::EnablePARXTX()
+{
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return DS_Fail;
+	}
+
+	UINT8 data = ReadRegister(RF231_REG_TX_CTRL_1);
+
+	data |= 0x80;
+
+	WriteRegister(RF231_REG_TX_CTRL_1, data);
+
+	return DS_Success;
+
+}
+
+void RF231Radio::Amp(BOOL TurnOn)
+{
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return;
+	}
+
+	CPU_GPIO_SetPinState((GPIO_PIN) AMP_LR, TurnOn);
+}
+
+DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, RadioID radio, UINT8 mac_id)
 {
 	INIT_STATE_CHECK()
 #ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
 
 
 	// Set MAC datastructures
@@ -557,7 +601,28 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 	//If the radio hardware is not alrady initialised, initialize it
 	if(!IsInitialized()){
-		SetRadioID(RadioID::GetUniqueRadioId());//Get your unique ID
+
+		// Give the radio its name , rf231 or rf231 long range
+		this->SetRadioName(radio);
+
+		// Set the corresponding gpio pins
+		if(this->GetRadioName() == RF231RADIO)
+		{
+			kslpTr 		= 	 SLP_TR_PIN;
+			krstn 		= 	 RSTN_PIN;
+			kseln		= 	 SELN_PIN;
+			kinterrupt	= 	 INTERRUPT_PIN;
+		}
+		else if(this->GetRadioName() == RF231RADIOLR)
+		{
+			kslpTr		=    SLP_TR_PIN_LR;
+			krstn 		= 	 RSTN_PIN_LR;
+			kseln		= 	 SELN_PIN_LR;
+			kinterrupt	= 	 INTERRUPT_PIN_LR;
+
+			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_LR, FALSE);
+
+		}
 
 		//Get cpu serial and hash it to use as node id
 		UINT8 cpuserial[12];
@@ -719,8 +784,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 #endif
 	}
 
-	UINT8 tempId = Radio<Message_15_4_t>::GetRadioID();
-	*radioID = tempId;
 	return DS_Success;
 }
 
@@ -745,6 +808,7 @@ void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 //template<class T>
 void RF231Radio::GpioPinInitialize()
 {
+
 	CPU_GPIO_EnableOutputPin(kseln,TRUE);
 	CPU_GPIO_EnableOutputPin(kslpTr,FALSE);
 	CPU_GPIO_EnableOutputPin(krstn,TRUE);
@@ -769,12 +833,20 @@ BOOL RF231Radio::SpiInitialize()
 	config.MSK_IDLE               = false;
 	config.MSK_SampleEdge         = false;
 	config.Clock_RateKHz          = 2;
-	config.SPI_mod                = 0;
+	if(this->GetRadioName() == RF231RADIO)
+	{
+		config.SPI_mod                = SPIBUS1;
+	}
+	else if(this->GetRadioName() == RF231RADIOLR)
+	{
+		config.SPI_mod 				  = SPIBUS2;
+	}
+
 	config.MD_16bits = FALSE;
 
 
-
-	CPU_SPI_Enable();
+	// Enable the SPI depending on the radio who is the user
+	CPU_SPI_Enable(config);
 
 	return TRUE;
 }

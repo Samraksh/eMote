@@ -103,34 +103,69 @@ void CPU_SPI_Uninitialize()
 }
 
 
-void CPU_SPI_Enable()
+void CPU_SPI_Enable(SPI_CONFIGURATION config)
 {
-	 RCC_PCLK2Config(RCC_HCLK_Div2);
-	 RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
 
-	  GPIO_InitTypeDef GPIO_InitStructure;
+	if(config.SPI_mod == SPIBUS1)
+	{
+		RCC_PCLK2Config(RCC_HCLK_Div2);
+		RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
 
-
-	  /* Configure SPIx pins: SCK, MISO and MOSI */
-	  GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI | SPIx_NSS;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	  GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
+		GPIO_InitTypeDef GPIO_InitStructure;
 
 
-	 SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	 SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-	 SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-	 SPI_InitStructure.SPI_CPOL = 0;
-	 SPI_InitStructure.SPI_CPHA = 0;
-	 SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-	 SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
-	 SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-	 SPI_InitStructure.SPI_CRCPolynomial = 7;
+		/* Configure SPIx pins: SCK, MISO and MOSI */
+		GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI | SPIx_NSS;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
 
-	 SPI_Init(SPIx, &SPI_InitStructure);
-	 SPI_SSOutputCmd(SPIx, ENABLE);
-	 SPI_Cmd(SPIx, ENABLE);
+
+		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+		SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+		SPI_InitStructure.SPI_CPOL = 0;
+		SPI_InitStructure.SPI_CPHA = 0;
+		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+		SPI_InitStructure.SPI_CRCPolynomial = 7;
+
+		SPI_Init(SPIx, &SPI_InitStructure);
+		SPI_SSOutputCmd(SPIx, ENABLE);
+		SPI_Cmd(SPIx, ENABLE);
+	}
+	else if(config.SPI_mod == SPIBUS2)
+	{
+		RCC_PCLK1Config(RCC_HCLK_Div2);
+		RCC_PCLK2Config(RCC_HCLK_Div2);
+		RCC_APB2PeriphClockCmd(SPIy_GPIO_CLK, ENABLE);
+		RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
+
+		GPIO_InitTypeDef GPIO_InitStructure;
+
+
+		/* Configure SPIx pins: SCK, MISO and MOSI */
+		GPIO_InitStructure.GPIO_Pin = SPIy_PIN_SCK | SPIy_PIN_MISO | SPIy_PIN_MOSI | SPIy_NSS;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
+
+		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+		SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+		SPI_InitStructure.SPI_CPOL = 0;
+		SPI_InitStructure.SPI_CPHA = 0;
+		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+		SPI_InitStructure.SPI_CRCPolynomial = 7;
+
+		SPI_Init(SPIy, &SPI_InitStructure);
+		SPI_SSOutputCmd(SPIy, ENABLE);
+		SPI_Cmd(SPIy, ENABLE);
+
+	}
 }
 
 void CPU_SPI_GetPins (UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi)
@@ -177,10 +212,10 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	switch(Configuration.SPI_mod)
 	{
-		case 0:
-			SPI_mod = SPIx;
+		case SPIBUS1:
+			SPI_mod	= SPIx;
 			break;
-		case 1:
+		case SPIBUS2:
 			SPI_mod = SPIy;
 			break;
 		default:
@@ -188,8 +223,10 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 			while(1);
 			break;
 	}
-	// while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
-	SPI_I2S_SendData(SPIx, data);
+
+	SPI_I2S_SendData(SPI_mod, data);
+
+	return TRUE;
 
 }
 
@@ -198,10 +235,10 @@ UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 
 	switch(Configuration.SPI_mod)
 	{
-		case 0:
+		case SPIBUS1:
 			SPI_mod = SPIx;
 			break;
-		case 1:
+		case SPIBUS2:
 			SPI_mod = SPIy;
 			break;
 		default:
@@ -209,7 +246,7 @@ UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 			while(1);
 			break;
 	}
-	while (SPI_I2S_GetFlagStatus(SPIx, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
+	while (SPI_I2S_GetFlagStatus(SPI_mod, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
 	return SPI_I2S_ReceiveData(SPI_mod);
 }
 
@@ -217,10 +254,10 @@ UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 {
 	switch(Configuration.SPI_mod)
 		{
-				case 0:
+				case SPIBUS1:
 					SPI_mod = SPIx;
 					break;
-				case 1:
+				case SPIBUS2:
 					SPI_mod = SPIy;
 					break;
 				default:
@@ -241,10 +278,10 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 
 	switch(Configuration.SPI_mod)
 	{
-			case 0:
+			case SPIBUS1:
 				SPI_mod = SPIx;
 				break;
-			case 1:
+			case SPIBUS2:
 				SPI_mod = SPIy;
 				break;
 			default:
@@ -253,10 +290,10 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 				break;
 	}
 
-	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_RXNE) == RESET);
-	read_data = SPI_I2S_ReceiveData(SPIx);
+	while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
+	read_data = SPI_I2S_ReceiveData(SPI_mod);
 	//while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
-	SPI_I2S_SendData(SPIx, data);
+	SPI_I2S_SendData(SPI_mod, data);
 
 	return read_data;
 }

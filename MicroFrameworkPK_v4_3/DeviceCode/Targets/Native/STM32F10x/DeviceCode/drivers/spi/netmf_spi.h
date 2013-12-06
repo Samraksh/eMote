@@ -16,6 +16,12 @@ REVISION LOG
 #include <gpio/stm32f10x_gpio.h>
 #include <spi/stm32f10x_spi.h>
 
+enum SPIBUS
+{
+	SPIBUS1,
+	SPIBUS2,
+};
+
 void GPIO_Config(const SPI_CONFIGURATION& Configuration);
 void RCC_Config();
 void NVIC_Config();
