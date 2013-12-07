@@ -163,7 +163,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 			return FALSE;
 
 	// Try to  send the packet out immediately if possible
-	csmaMacScheduler(NULL);
+	//csmaMacScheduler(NULL);
 
 	return TRUE;
 }

@@ -16,7 +16,7 @@ namespace DataCollectorHost
         Stream UsartStream;
         string port;
         AsyncCallback serialCallback;
-        StreamWriter inpFile;
+        BinaryWriter inpFile;
         StreamWriter OutFile;
         static bool dDone = true;
         static byte[] buffer = new byte[256];
@@ -41,19 +41,23 @@ namespace DataCollectorHost
                 Console.WriteLine("The Port can not be openend");
             }
 
-            inpFile = new StreamWriter(fileName, true);
+            inpFile = new BinaryWriter(File.Open(fileName, FileMode.Create));
 
         }
 
         public void ProcessData(IAsyncResult result)
         {
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                Console.Write(buffer[i].ToString());
-                inpFile.Write(buffer[i]);
-            }
+            string output = "";
 
-            inpFile.WriteLine();
+            for (UInt16 i = 0; i < buffer.Length; i++)
+            {
+                output += buffer[i].ToString() + ",";
+                //inpFile.Write(buffer[i]);
+            }
+            
+            Console.WriteLine(output);
+            inpFile.Write(buffer);
+            
             Console.Write("\n");
 
             dDone = true;

@@ -26,8 +26,17 @@ UINT8 MACBase::MyAppID;
 
 extern UINT8 MacName;
 
-void  ManagedCallback(UINT16 arg1);
+enum CallBackTypes
+{
+	RecievedCallback,
+	NeighbourChangedCallback,
+};
+
+void ManagedCallback(UINT16 arg1, UINT16 arg2);
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
+
+void NeighbourChangedCallbackFn(INT16 numberOfNeighbours);
+void ReceiveDoneCallbackFn(UINT16 numberOfPackets);
 
 extern Buffer_15_4_t m_receive_buffer;
 
@@ -116,7 +125,8 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.NeighbourLivelinessDelay |= configParams[7] << 16;
 	config.NeighbourLivelinessDelay |= configParams[8] << 24;
 
-	Event_Handler.SetRecieveHandler(&ManagedCallback);
+	Event_Handler.SetRecieveHandler(&ReceiveDoneCallbackFn);
+	Event_Handler.SetNeighbourChangeHandler(&NeighbourChangedCallbackFn);
 	Event_Handler.SetSendAckHandler(&ManagedSendAckCallback);
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
@@ -144,12 +154,23 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 }
 
-void ManagedCallback(UINT16 arg1)
+void ReceiveDoneCallbackFn(UINT16 numberOfPackets)
+{
+	ManagedCallback(RecievedCallback, numberOfPackets);
+}
+
+void NeighbourChangedCallbackFn(INT16 numberOfNeighbours)
+{
+	ManagedCallback(NeighbourChangedCallback,(UINT16) numberOfNeighbours);
+}
+
+void ManagedCallback(UINT16 arg1, UINT16 arg2)
 {
 	UINT32 data1, data2;
-	data2 = arg1;
+	data1 = arg1;
+	data2 = arg2;
 	//data2 = arg2;
 
-	SaveNativeEventToHALQueue( Net_ne_Context, 0, data2 );
+	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
 
 }
