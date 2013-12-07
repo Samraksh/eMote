@@ -19,9 +19,18 @@ using namespace Samraksh::SPOT::NonVolatileMemory;
 
 extern Data_Store g_dataStoreObject;
 
-INT8 Data::DeleteRecord( CLR_RT_HeapBlock* pMngObj, UINT32 recordId, HRESULT &hr )
+INT32 Data::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    return g_dataStoreObject.deleteRecord(recordId);
+	return (INT32)g_dataStoreObject.getAddress(dataId);
+}
+
+INT8 Data::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+    g_dataStoreObject.deleteRecord(dataId);
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
@@ -30,8 +39,8 @@ UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 par
     return retVal;
 }
 
-INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 recordId, HRESULT &hr )
+INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    return g_dataStoreObject.deleteRecord(recordId);
+    return g_dataStoreObject.deleteRecord(dataId);
 }
 

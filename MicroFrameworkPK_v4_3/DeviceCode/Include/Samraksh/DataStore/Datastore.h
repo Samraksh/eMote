@@ -365,9 +365,11 @@ public:
 
 	void getRecordIDAfterPersistence(uint32*);
 
-	DATASTORE_STATUS DeleteAll();
+	uint32 getCountOfRecordIds();
 
-	DATASTORE_STATUS DataStoreGC();
+	void DeleteAll();
+
+	void DataStoreGC();
 
     /* Destructor */
     ~Data_Store();

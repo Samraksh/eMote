@@ -19,9 +19,9 @@ using namespace Samraksh::SPOT::NonVolatileMemory;
 
 extern Data_Store g_dataStoreObject;
 
-INT32 DataStore::CreateRecord( CLR_RT_HeapBlock* pMngObj, UINT32 rId, UINT32 numBytes, HRESULT &hr )
+INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 dId, UINT32 numBytes, HRESULT &hr )
 {
-	return  (int)g_dataStoreObject.createRecord(rId, numBytes);
+	return  (int)g_dataStoreObject.createRecord(dId, numBytes);
 }
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -41,25 +41,28 @@ float DataStore::GetFreeKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT8 DataStore::GetReadAllRecordIDs( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 recordIdArray, HRESULT &hr )
+INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, HRESULT &hr )
 {
-    INT32 *managedBuffer = recordIdArray.GetBuffer();
+    INT32 *managedBuffer = dataIdArray.GetBuffer();
 	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer);
-	if(*managedBuffer)
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return true;
 	else
 		return false;
 }
 
-UINT32 DataStore::GetNumberOfDataRecords( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT32 DataStore::GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.getCountOfRecordIds();
 }
 
-INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, INT32 storageType, HRESULT &hr )
+INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, INT32 storageType, HRESULT &hr )
 {
-    return g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), readBuffer.GetSize());
+    g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), readBuffer.GetSize());
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+    	return true;
+	else
+		return false;
 }
 
 INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
@@ -68,19 +71,31 @@ INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
     return retVal;
 }
 
-INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 numBytes, INT32 storageType, HRESULT &hr )
+INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 numBytes, INT32 storageType, HRESULT &hr )
 {
-   return g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), numBytes);
+	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), numBytes);
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
-INT32 DataStore::DeleteAll( HRESULT &hr )
+INT8 DataStore::DeleteAll( HRESULT &hr )
 {
-    return g_dataStoreObject.DeleteAll();
+    g_dataStoreObject.DeleteAll();
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
-INT32 DataStore::DataStoreGC( HRESULT &hr )
+INT8 DataStore::DataStoreGC( HRESULT &hr )
 {
-    return g_dataStoreObject.DataStoreGC();
+    g_dataStoreObject.DataStoreGC();
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 INT8 DataStore::GetReadWriteStatus( HRESULT &hr )

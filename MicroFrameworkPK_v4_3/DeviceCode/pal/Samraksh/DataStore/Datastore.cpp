@@ -909,6 +909,17 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array)
 	////return recordID_array;
 }
 
+uint32 Data_Store::getCountOfRecordIds()
+{
+	uint32 recIdIndex = 0;
+	////UINT16 recordID_array[256];
+	while(addressTable.table[recIdIndex].recordID != 0)
+	{
+		++recIdIndex;
+	}
+	return recIdIndex+1;
+}
+
 
 DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
 {
@@ -1132,7 +1143,7 @@ DATASTORE_ERROR Data_Store::getLastError()
     return lastErrorVal;
 }
 
-DATASTORE_STATUS Data_Store::DeleteAll()
+void Data_Store::DeleteAll()
 {
 	// When an entry is removed from the addressTable, the entries prior to that are copied over to the existing entry.
 	// So, only the 0th index is deleted at all times.
@@ -1143,7 +1154,7 @@ DATASTORE_STATUS Data_Store::DeleteAll()
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK)
 		{
-			return status;
+			break;
 		}
 	}
 #if 0
@@ -1209,9 +1220,9 @@ DATASTORE_STATUS Data_Store::DeleteAll()
 #endif
 }
 
-DATASTORE_STATUS Data_Store::DataStoreGC()
+void Data_Store::DataStoreGC()
 {
-	return compactLog();
+	compactLog();
 }
 
 Data_Store::~Data_Store()
