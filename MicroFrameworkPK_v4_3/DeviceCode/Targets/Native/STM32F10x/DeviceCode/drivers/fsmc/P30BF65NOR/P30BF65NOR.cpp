@@ -307,7 +307,9 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Check to see if you are writing to an unerased location, return failure if that is true
-	if(ReadHalfWord(WriteAddr) != 0xffff && ((data & 8192) != 8192))
+	// If the size of the record is 512 bytes (2^9 or 8192), then data portion
+	//if(ReadHalfWord(WriteAddr) != 0xffff && ((data & 8192) != 8192))
+	if(ReadHalfWord(WriteAddr) != 0xffff && ( ((data & 8) != 0) ))
 	{
 		NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
 		return DS_Fail;
@@ -357,6 +359,8 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 // Internally calls write half word
 DeviceStatus P30BF65NOR_Driver::WriteBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
 {
+	//pBuffer looks something like this - 00 10 00 00 06 00 00 00 ff ff ff ff. pBuffer[0] has 4096 (10 00). 1000 in hex is converted to 4096 in decimal.
+	//pBuffer[1] has 00 00. pBuffer[2] has 00 06.
 	for(UINT32 i = 0; i < NumHalfWordToWrite; i++)
 	{
 		if(WriteHalfWord(WriteAddr + i * 0x2, pBuffer[i]) != DS_Success)
