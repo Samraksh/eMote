@@ -3,6 +3,7 @@
 
 #include<tinyhal.h>
 //#include "flash_memory.h"
+#include "FlashMemory.h"
 
 #define FLASHDEVICE_FILE_FORMAT_VERSION    (1)
 
@@ -133,13 +134,13 @@ public:
 
     /* Returns the base address of the device from which user can read the data */
     //LPVOID getDeviceBaseAddress();
-    Flash_Memory* getDeviceBaseAddress();
+    FlashMemory* getDeviceBaseAddress();
 
     /* Converts the given absolute address into the blockID */
     int getBlockIDFromAddress(LPVOID address);
 
     /* Converts the given blockID into the block start address */
-    Flash_Memory* getBlockAddressFromBlockID(int blockID);
+    FlashMemory* getBlockAddressFromBlockID(int blockID);
 
     /* Erase a block given by eraseBlockID
        Return Value : Appropriate error status defined FLASHDEVICE_STATUS */

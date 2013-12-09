@@ -28,7 +28,7 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_ExternalFlash_NOR[1] =
     0x10000,
 #else
     128,			// UINT32          NumBlocks;          // total number of blocks in this region
-    0x20000,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
+    0x10000,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 #endif
     ARRAYSIZE_CONST_EXPR(STM32F10x_BlockRange_ExternalFlash_NOR),
     STM32F10x_BlockRange_ExternalFlash_NOR,

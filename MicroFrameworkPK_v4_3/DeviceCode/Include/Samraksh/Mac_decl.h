@@ -28,7 +28,9 @@ struct MacConfig {
 
 // Typedef defining the signature of the receive function
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
-typedef void (*MacReceiveFuncPtrType) (UINT16 arg1, UINT16 arg2);
+typedef void (*MacReceiveFuncPtrType) (UINT16 arg1);
+
+typedef void (*NeighbourChangeFuncPtrType) (INT16 arg2);
 
 // Typedef defining the signature of the send function
 typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
@@ -38,6 +40,7 @@ typedef  class MacEventHandler{
 public:
 	MacReceiveFuncPtrType RecieveHandler;
 	SendAckFuncPtrType SendAckHandler;
+	NeighbourChangeFuncPtrType neighbourHandler;
 
 	void SetRecieveHandler(MacReceiveFuncPtrType recieve_handler)
 	{
@@ -47,6 +50,11 @@ public:
 	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
 	{
 		this->SendAckHandler = send_ack_handler;
+	}
+
+	void SetNeighbourChangeHandler(NeighbourChangeFuncPtrType neighbour_change_handler)
+	{
+		this->neighbourHandler = neighbour_change_handler;
 	}
 
 }MacEventHandler_t;

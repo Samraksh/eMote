@@ -1,13 +1,14 @@
 #ifndef _DATASTORE_H_INCLUDED_
 #define _DATASTORE_H_INCLUDED_
 
-#include <Samraksh/DataStore/FlashDevice.h>
+//#include <BlockStorage_decl.h>
 #include <Samraksh/DataStore/types.h>
-//#include <Samraksh/DataStore/DatastoreInt.h>
-//#include <Samraksh/DataStore/DatastoreReg.h>
 #include <Samraksh/DataStore/AddressTable.h>
+//#include <Samraksh/DataStore/FlashDevice.h>
+//#include <Samraksh/DataStore/DatastoreInt.h>
+#include <Samraksh/DataStore/DatastoreReg.h>
 
-#define DEBUG_DATASTORE
+//#define DEBUG_DATASTORE
 
 #ifdef DEBUG_DATASTORE
 #define PRINT_DEBUG(x) hal_printf(x)
@@ -51,6 +52,17 @@ typedef enum _datastore_state
     DATASTORE_STATE_INT_ERROR
 }DATASTORE_STATE;
 
+
+typedef enum _flashdevice_state
+{
+    FLASHDEVICE_STATE_UNINITIALIZED,
+    FLASHDEVICE_STATE_READY,
+    FLASHDEVICE_STATE_FAILED_TO_LOAD,
+    FLASHDEVICE_STATE_CLOSED
+    /* Do we need more states here? */
+}FLASHDEVICE_STATE;
+
+
 /* For the persistence function */
 typedef enum _persistence_direction
 {
@@ -58,21 +70,6 @@ typedef enum _persistence_direction
 	GO_RIGHT
 }PERSISTENCE_DIRECTION;
 
-
-/*
-    Definition of different API status for the datastore APIs
-*/
-typedef enum _datastore_status
-{
-    DATASTORE_STATUS_OK,
-    DATASTORE_STATUS_NOT_OK,
-    DATASTORE_STATUS_INVALID_PARAM,
-    DATASTORE_STATUS_RECORD_ALREADY_EXISTS,
-    DATASTORE_STATUS_INT_ERROR,
-    DATASTORE_STATUS_OUT_OF_MEM,
-    DATASTORE_STATUS_OVERLAPPING_ADDRESS_SPACE,      /* Detected overlapping Address space between datastores */
-    DATASTORE_STATUS_NOT_FOUND
-}DATASTORE_STATUS;
 
 
 /* Describes a cluster of blocks, used in DATASTORE_PROPERTIES, a cluster is a group
@@ -170,6 +167,7 @@ typedef enum _datastore_errors
     DATASTORE_ERROR_INVALID_GIVEN_ADDR,
     DATASTORE_ERROR_OUT_OF_BOUND_ACCESS,
     DATASTORE_ERROR_OUT_OF_FLASH_MEMORY,
+    DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED,
     DATASTORE_ERROR_RECORD_ID_ALREADY_EXISTS,
     DATASTORE_ERROR_UNEXPECTED_ERROR
 }DATASTORE_ERROR;
@@ -183,11 +181,18 @@ class Data_Store
 {
 private:
     /* Flash device */
-    FlashDevice flashDevice;
+    //FlashDevice flashDevice;
+	BlockStorageDevice* blockStorageDevice;
+	const BlockDeviceInfo*  blockDeviceInformation;
+
+	///// AnanthAtSamraksh - Remove below
+	//BlockRegionInfo blockRegionInfo;
 
 
     /* Current state of the device */
     DATASTORE_STATE state;
+    FLASHDEVICE_STATE flashdevice_state;
+
     /* Last error status - Stores any error that occured in previous API
        This value can be read by the Application using getLastErrorValue()
     */
@@ -205,6 +210,7 @@ private:
     /* Offsets telling start and end of flash data region - For ease of use */
     uint32 dataStoreStartByteOffset;
     uint32 dataStoreEndByteOffset;
+    uint32 dataStoreDeviceSize;
 
     /* Address translation table */
     class DATASTORE_AddrTable addressTable;
@@ -223,8 +229,7 @@ private:
     DATASTORE_STATUS unlockDataStore();
 
     /* PRIVATE FUNCTIONS */
-    DATASTORE_STATUS initDataStore( char *datastoreName,
-                                    DATASTORE_PROPERTIES *property );
+    DATASTORE_STATUS initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property );
     /* Compact function */
     DATASTORE_STATUS compactLog();
 
@@ -315,7 +320,7 @@ public:
                       DATASTORE_PROPERTIES *property );
 
 
-     void init()
+     DeviceStatus init();
 
 
 #ifdef ENABLE_PERSISTENCE
@@ -335,12 +340,12 @@ public:
     RECORD_ID getRecordID(LPVOID givenPtr);
 
     /* Write data to the store */
-    uint32 writeData( LPVOID dest, T *data, uint32 count );
+    uint32 writeData( LPVOID dest, uint32 *data, uint32 count );
 
     /* Write raw data - Can be of any word-size */
     uint32 writeRawData(LPVOID dest, void* data, uint32 numBytes);
 
-    uint32 readData(LPVOID src, T* data, uint32 count);
+    uint32 readData(LPVOID src, uint32* data, uint32 count);
 
     /* Read raw data */
     uint32 readRawData(LPVOID src, void *data, uint32 numBytes);
@@ -358,8 +363,17 @@ public:
 	/* Function that returns the current value of the Erase point */
 	uint32 returnErasePoint();
 
+	void getRecordIDAfterPersistence(uint32*);
+
+	uint32 getCountOfRecordIds();
+
+	void DeleteAll();
+
+	void DataStoreGC();
+
     /* Destructor */
     ~Data_Store();
+
 };
 
 /*

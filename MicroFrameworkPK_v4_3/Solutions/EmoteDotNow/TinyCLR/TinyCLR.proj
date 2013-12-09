@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <AssemblyName>tinyclr</AssemblyName>
@@ -54,7 +54,8 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
-  <!--<Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\Samraksh_SPOT.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\Samraksh_SPOT_Net.featureproj" />
@@ -96,14 +97,17 @@
     <PlatformIndependentLibs Include="Graphics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
   </ItemGroup>
-  <!--<ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="onewire_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\OneWire\dotNetMF.proj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="openssl_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\openssl\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Tasklet.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\bh\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="batterycharger_hal_stubs.$(LIB_EXT)" />
@@ -404,6 +408,10 @@
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\advancedtim\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_adtim.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\tim\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_tim.$(LIB_EXT)" />
   </ItemGroup>
@@ -416,12 +424,10 @@
     <DriverLibs Include="STM32F10x_dma.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\dma\dotNetMF.proj" />
   </ItemGroup>
-  <!--
   <ItemGroup>
     <DriverLibs Include="STM32F10x_sdio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\sdio\dotNetMF.proj" />
   </ItemGroup>
-  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_gpio.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" />
@@ -550,6 +556,10 @@
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
   <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_SPOT.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
   </ItemGroup>
@@ -567,11 +577,11 @@
   </ItemGroup>
   
   <!-- 									NVM/Data Store Extension        								-->
-  <!--<ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
     <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
   </ItemGroup>
-  -->
+  
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_NVM.$(LIB_EXT)" />

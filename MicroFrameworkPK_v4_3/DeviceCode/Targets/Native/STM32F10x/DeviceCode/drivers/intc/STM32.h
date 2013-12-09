@@ -55,7 +55,7 @@ void BOOT_FlushCaches();
 
 struct STM32_AITC_Driver
 {
-    static const UINT32 c_VECTORING_GUARD = 61;
+    static const UINT32 c_VECTORING_GUARD = 62;
 
     //--//
 
@@ -197,6 +197,9 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_Priority_64 = 64;
 	static const UINT32 c_IRQ_Priority_65 = 65;
 	static const UINT32 c_IRQ_Priority_66 = 66;
+	static const UINT32 c_IRQ_Priority_67 = 67;
+	static const UINT32 c_IRQ_Priority_253= 253;
+	static const UINT32 c_IRQ_Priority_254 = 254;
 	static const UINT32 c_IRQ_Priority_255 = 255;
 
 
@@ -204,7 +207,6 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_MemoryManagementInt          = -12;
 	static const UINT32 c_IRQ_INDEX_BusFault          = -11;
 	static const UINT32 c_IRQ_INDEX_UsageFault          = -10;
-    static const UINT32 c_IRQ_INDEX_SVCall          = -5;
 	static const UINT32 c_IRQ_INDEX_DebugMonitor          = -4;
 	static const UINT32 c_IRQ_INDEX_SysTick          = -1;
 	static const UINT32 c_IRQ_INDEX_WWDG          = 0;
@@ -251,16 +253,16 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_RTCAlarm      = 41;
 	static const UINT32 c_IRQ_INDEX_USBWakeUp     = 42;
 	static const UINT32 c_IRQ_INDEX_TIM8_BRK_TIM12   = 43;
-	static const UINT32 c_IRQ_INDEX_TIM8_UP_TIM13    = 44;
-	static const UINT32 c_IRQ_INDEX_TIM8_TRG_COM_TIM14    = 45;
+	static const UINT32 c_IRQ_INDEX_Tasklet_High    = 44;
+	static const UINT32 c_IRQ_INDEX_Tasklet_Low    = 45;
 	static const UINT32 c_IRQ_INDEX_TIM8_CC      = 46;
 	static const UINT32 c_IRQ_INDEX_ADC3       = 47;
     static const UINT32 c_IRQ_INDEX_FSMC       = 48;
     static const UINT32 c_IRQ_INDEX_SDIO       = 49;
 	static const UINT32 c_IRQ_INDEX_TIM5        = 50;
 	static const UINT32 c_IRQ_INDEX_SPI3        = 51;
-	static const UINT32 c_IRQ_INDEX_UART4       = 52;
-	static const UINT32 c_IRQ_INDEX_UART5       = 53;
+	static const UINT32 c_IRQ_INDEX_USART4       = 52;
+	static const UINT32 c_IRQ_INDEX_USART5       = 53;
 	static const UINT32 c_IRQ_INDEX_TIM6        = 54;
 	static const UINT32 c_IRQ_INDEX_TIM7       = 55;
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel1       = 56;
@@ -268,8 +270,9 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel3       = 58;
 	static const UINT32 c_IRQ_INDEX_DMA2_Channel4_5     = 59;
 	static const UINT32 c_IRQ_INDEX_PendSV          = 60;	//Used to be -2, Modified by Mukundan for Preemptive thread
+	static const UINT32 c_IRQ_INDEX_SVCall          = 61;    // Used to -5, Modified by Nived for bottom half thread
 
-	static const UINT32 c_MaxInterruptIndex = 60;
+	static const UINT32 c_MaxInterruptIndex = 61;
 
 
 	//
@@ -277,8 +280,8 @@ struct STM32_AITC
     {
         ASSERT(Irq_Index < c_MaxInterruptIndex);
 
+        ICER[Irq_Index >> 0x05] = (UINT32) (0x01 << (Irq_Index & (UINT8)0x1F));
 
-	    ICER[Irq_Index >> 0x05] = (UINT32) (0x01 << (Irq_Index & (UINT8)0x1F));
 
     }
 
@@ -287,7 +290,23 @@ struct STM32_AITC
         ASSERT(Irq_Index < c_MaxInterruptIndex);
 
 
-        ISER[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (uint8_t)0x1F);
+        ISER[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);
+    }
+
+    BOOL SetInterrupt(UINT32 Irq_Index)
+    {
+    	 ASSERT(Irq_Index < c_MaxInterruptIndex);
+
+    	 ISPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
+    }
+
+
+    BOOL ClearInterrupt(UINT32 Irq_Index)
+    {
+    	ASSERT(Irq_Index < c_MaxInterruptIndex);
+
+    	 ICPR[Irq_Index >> 0x05] = (UINT32)0x01 << (Irq_Index & (UINT8)0x1F);;
+
     }
 
 
@@ -334,12 +353,16 @@ struct STM32_AITC
     void SetPriority( UINT32 Irq_Index, UINT32 priority )
     {
         ASSERT(Irq_Index < c_MaxInterruptIndex);
-        ASSERT(priority < c_MaxInterruptIndex);
+        ASSERT(priority < 255);
 
-		if(Irq_Index > 0)
+		if(Irq_Index > 0 && Irq_Index != c_IRQ_INDEX_SVCall)
 			IP[(UINT32)Irq_Index] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff);
-		else
+		else if(Irq_Index == c_IRQ_INDEX_SVCall)
 		{
+			// Setting SVCall priority to 1 above the interrupt currently being running
+			//SCB->SHP[7] = 1;
+
+			*(__IO UINT32 *) 0xE000ED1C |= (1 << 24);
 			// Nived : Need to implement SCB Driver for interrupts < 0
 			//SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff); } /* set Priority for Cortex-M3 System Interrupts */
 		}

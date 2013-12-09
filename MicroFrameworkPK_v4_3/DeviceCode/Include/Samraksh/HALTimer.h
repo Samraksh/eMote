@@ -13,6 +13,8 @@
 #include "WindowsUtil.h"
 #else
 #include <tinyhal.h>
+#include "heap.h"
+#include "Tasklet.h"
 #endif
 
 // Defines the number of virtual timers in the system. Increasing this number is fine if you have a large amount of RAM
@@ -22,6 +24,9 @@ typedef void (*TIMER_CALLBACK_FPN)( void* arg );
 
 class HALTimer
 {
+
+	TaskletType m_timerTasklet;
+
 	// The Id referenced by the use of the timer
 	UINT8 m_timer_id_;
 
@@ -41,7 +46,7 @@ class HALTimer
 	BOOL   m_reserved_;
 
 	// maintians the number of ticks left to expire
-	UINT64   m_ticksTillExpire_;
+	INT64   m_ticksTillExpire_;
 
 	// A pointer to the function that will be called on an interrupt
 	TIMER_CALLBACK_FPN m_callBack_;
@@ -49,13 +54,47 @@ class HALTimer
 public:
 	// Mutators for all the attributes of HALTimer Object
 
+	void Initialize()
+	{
+		m_timerTasklet.action = NULL;
+		m_timerTasklet.data = NULL;
+	}
+
+	BOOL operator>(const HALTimer &other) const
+	{
+		if(m_ticksTillExpire_ > other.m_ticksTillExpire_)
+			return TRUE;
+		else
+			return FALSE;
+
+	}
+
+	BOOL operator<(const HALTimer &other) const
+	{
+		if(m_ticksTillExpire_ < other.m_ticksTillExpire_)
+			return TRUE;
+		else
+			return FALSE;
+	}
+
 	void set_m_ticksTillExpire(UINT64 d)
 	{
 		m_ticksTillExpire_ = d;
 
 	}
 
-	UINT64 get_m_ticksTillExpire()
+	void set_m_timerTasklet(TIMER_CALLBACK_FPN callback)
+	{
+		m_timerTasklet.action = (HAL_CALLBACK_FPN) callback;
+		m_timerTasklet.data = NULL;
+	}
+
+	TaskletType* GetTasklet()
+	{
+		return &m_timerTasklet;
+	}
+
+	INT64 get_m_ticksTillExpire()
 	{
 		return m_ticksTillExpire_;
 	}
@@ -113,6 +152,7 @@ public:
 	void set_m_callBack(TIMER_CALLBACK_FPN callback)
 	{
 		m_callBack_ = callback;
+		set_m_timerTasklet(callback);
 	}
 
 	TIMER_CALLBACK_FPN get_m_callback()
@@ -131,72 +171,32 @@ public:
 	}
 };
 
+template<class T>
+struct TimerCompare
+{
+public:
+	BOOL operator()(T timer1, T timer2)
+	{
+		return (*timer1 > *timer2);
+	}
+};
+
+
 class HALTimerManager
 {
-	HALTimer m_timer[NUM_HALTIMER_TIMERS];
 
-	UINT8 m_timer_id_map[NUM_HALTIMER_TIMERS];
-
-	UINT8 m_active_timer[NUM_HALTIMER_TIMERS];
-
-	UINT8 m_number_active_timers_;
-
-	static UINT8 m_current_timer_id_;
-
-	UINT64 timer_resolution_in_ticks;
-
-	BOOL m_highResolutionModeEnabled;
-
-
-	UINT8 DoesTimerExist(UINT8 id)
-	{
-		for(int i = 0; i < m_current_timer_id_; i++)
-		{
-			// Uncomment once reclaim strategy is clear
-			//if(m_timer[i].get_m_timer_id() == id && m_timer[id].get_m_is_running() == TRUE)
-			if(m_timer[i].get_m_timer_id() == id)
-				return i;
-
-		}
-		return NUM_HALTIMER_TIMERS+1;
-	}
+	UINT64 m_lastInterruptFireTime;
 
 public:
 
-	UINT8* GetActiveTimerList()
-	{
-		return m_active_timer;
-	}
 
-	UINT8 get_m_number_of_active_timers()
-	{
-		return m_number_active_timers_;
-	}
+	HALTimer m_timer[NUM_HALTIMER_TIMERS];
 
-	HALTimer* get_m_timer()
-	{
-		return m_timer;
-	}
+	Hal_Heap_KnownSize<HALTimer*,NUM_HALTIMER_TIMERS , TimerCompare<HALTimer*> > timerQueue;
 
-	UINT8 get_m_current_timer_id()
-	{
-		return m_current_timer_id_;
-	}
+	UINT16 m_current_timer_id_;
 
-	UINT64 get_timer_resolution()
-	{
-		return timer_resolution_in_ticks;
-	}
-
-	BOOL get_highResolutionMode()
-	{
-		return m_highResolutionModeEnabled;
-	}
-
-	void set_highResolutionMode(bool enable)
-	{
-		m_highResolutionModeEnabled = enable;
-	}
+	HALTimer *m_active_timer;
 
 	BOOL Initialize();
 
@@ -204,15 +204,29 @@ public:
 
 	BOOL StopTimer(UINT8 timer_id);
 
+	BOOL StartTimer(UINT8 timer_id);
+
+	BOOL ChangeTimer(UINT8 timer_id, UINT32 dtime);
+
+
 	BOOL DeInitialize();
 
-	//void HALTimerCallback(void *arg);
+	Hal_Heap_KnownSize<HALTimer*, NUM_HALTIMER_TIMERS, TimerCompare<HALTimer*> >* GetTimerQueue()
+	{
+		return &timerQueue;
+	}
+
+	UINT64 get_m_lastInterruptFireTime()
+	{
+		return m_lastInterruptFireTime;
+	}
+
+	void set_m_lastInterruptFireTime(UINT64 lastInterruptFireTime)
+	{
+		m_lastInterruptFireTime = lastInterruptFireTime;
+	}
 
 };
-
-UINT8 HALTimerManager::m_current_timer_id_ = 0;
-
-HALTimerManager gHalTimerManagerObject;
 
 
 #endif

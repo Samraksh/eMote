@@ -548,6 +548,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
+
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
@@ -578,7 +580,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		sleep_pending = FALSE;
 
 		GLOBAL_LOCK(irq);
-
 		//for(UINT8 i = 0; i < 30; i++)
 			//data[i] = 0;
 #ifdef DEBUG_RF231
@@ -591,6 +592,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
 		if(TRUE != SpiInitialize())
 		{
 			ASSERT_RADIO("SPI Initialization failed");

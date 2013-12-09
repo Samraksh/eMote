@@ -88,6 +88,9 @@ public:
 	}
 
 };
+
+#define TIMESTAMPED_FLAG (1 << 0)
+
 ///Well known message types: MFM stands for MicroFramework Message
 #define MFM_DATA 1
 #define MFM_TIMESYNC 2
@@ -112,11 +115,17 @@ typedef struct IEEE802_15_4_Header {
   UINT8 network;  // optionally included with 6LowPAN layer
   UINT8 mac_id;
   UINT8 type;
-  UINT8 dummy;
+  UINT8 flags;
 
 
   UINT8 GetType(){ return type;}
   UINT8 GetLength(){return length; }
+  //bool IsTimestamped() {return timestamped;}
+  // Timestamp has been changed to flags
+  UINT8 GetFlags() { return flags; }
+
+  void SetFlags(UINT8 flags) { this->flags = flags; }
+
   void SetLength(UINT8 _length){length = _length; }
 } IEEE802_15_4_Header_t;
 
@@ -125,7 +134,9 @@ typedef class IEEE802_15_4_Footer{}IEEE802_15_4_Footer_t;
 typedef class IEEE802_15_4_Metadata{
 	UINT8 Rssi;
 	UINT8 Lqi;
-	UINT32 ReceiveTimeStamp;
+	UINT32 ReceiveTimeStamp0;
+	UINT32 ReceiveTimeStamp1;
+
 
   public:
 	UINT8 GetRssi(){
@@ -134,8 +145,11 @@ typedef class IEEE802_15_4_Metadata{
 	UINT8 GetLqi(){
 		return Lqi;
 	}
-	UINT32 GetReceiveTimeStamp(){
-		return ReceiveTimeStamp;
+	UINT64 GetReceiveTimeStamp(){
+		UINT64 rtn;
+		rtn=((UINT64)ReceiveTimeStamp1)<<32;
+		rtn+=ReceiveTimeStamp0;
+		return rtn;
 	}
 	void SetRssi(UINT8 Rssi)
 	{
@@ -145,6 +159,11 @@ typedef class IEEE802_15_4_Metadata{
 	{
 		this->Lqi = Lqi;
 	}
+	void SetReceiveTimeStamp(INT64 timestamp){
+		this->ReceiveTimeStamp0 = (UINT32)timestamp;
+		this->ReceiveTimeStamp1= (UINT32)(timestamp>>32);
+	}
+
 }IEEE802_15_4_Metadata_t;
 #define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t))
 
