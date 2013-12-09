@@ -66,7 +66,7 @@ public:
 	UINT16 GetMaxPayload();
 	BOOL SetAddress(UINT16 address);
 	void SetMaxPayload(UINT16 payload);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, ConfigT* config);
+	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, UINT8 radioName, ConfigT* config);
 
 	NeighborTable* GetNeighborTable();
 	Neighbor_t* GetNeighbor(UINT16 macAddress);

@@ -18,15 +18,32 @@
 
 #include "RF231\RF231.h"
 
-// Currently supports only one radio
-DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8* radioID, UINT8 numberRadios, UINT8 mac_id )
+// Calls the corresponding radio object initialize function based on the radio chosen
+DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioID, UINT8 numberRadios, UINT8 mac_id )
 {
+
+	DeviceStatus status = DS_Fail;
+
 	if(eventHandlers == NULL)
 		return DS_Fail;
 
-	return grf231Radio.Initialize(eventHandlers, radioID, mac_id);
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.Initialize(eventHandlers, radioID, mac_id);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.Initialize(eventHandlers, radioID, mac_id);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_RADIO_Initialize : Unidentified radio \n");
+			break;
+	}
+
+	return status;
 
 }
+
 
 BOOL CPU_Radio_Reset(UINT8 id)
 {
@@ -36,10 +53,26 @@ BOOL CPU_Radio_Reset(UINT8 id)
 
 BOOL CPU_Radio_UnInitialize(UINT8 id)
 {
-	if(id == RF231RADIO)
-		return grf231Radio.UnInitialize();
+	BOOL result = FALSE;
+
+	switch(id)
+	{
+		case RF231RADIO:
+			result = grf231Radio.UnInitialize();
+			break;
+		case RF231RADIOLR:
+			result = grf231RadioLR.UnInitialize();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_RADIO_UnInitialize : Unidentified radio \n");
+			break;
+
+	}
+
+	return result;
 }
 
+// This function is no longer supported, it is upto the user to name the radio
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 {
 	*radioIDs=grf231Radio.GetRadioID();
@@ -47,12 +80,47 @@ UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 }
 
 UINT16 CPU_Radio_GetAddress(UINT8 radioID){
-	return grf231Radio.GetAddress();
-}
-BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address){
-	return grf231Radio.SetAddress(address);
+
+	UINT16 address = 0;
+
+	switch(radioID)
+	{
+	case RF231RADIO:
+		address = grf231Radio.GetAddress();
+		break;
+	case RF231RADIOLR:
+		address = grf231RadioLR.GetAddress();
+		break;
+	default:
+		hal_printf("[NATIVE] Error in function CPU_Radio_GetAddress : Unidentified radio \n");
+		break;
+	}
+
+	return address;
 }
 
+
+BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address){
+
+	BOOL status = FALSE;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.SetAddress(address);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.SetAddress(address);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_SetAddress : Unidentified radio \n");
+			break;
+	}
+
+	return status;
+}
+
+// Function is not currently supported
 void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 {
 	return NULL;
@@ -63,85 +131,214 @@ void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 
 	UINT8* msgcheck = (UINT8 *) msg;
 
-	if(radioID == RF231RADIO)
-		return (void *) grf231Radio.Send(msg, size);
-	else
-		return NULL;
+	switch(radioID)
+	{
+		case RF231RADIO:
+			return (void *) grf231Radio.Send(msg, size);
+		case RF231RADIOLR:
+			return (void *) grf231RadioLR.Send(msg, size);
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_Send : Unidentified radio \n");
+			break;
+	}
+
+	// Can only be here if you tried to access a radio that does not exist
+	return NULL;
 }
 
+// This function is used to send a time stamped packet, time stamping is done just before
+// physical send in hardware
 void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 eventTime)
 {
 
 	UINT8* msgcheck = (UINT8 *) msg;
 
-	if(radioID == RF231RADIO)
-		return (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
-	else
-		return NULL;
+	switch(radioID)
+	{
+		case RF231RADIO:
+			return (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
+		case RF231RADIOLR:
+			return (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime);
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_Send_TimeStamped : Unidentified radio \n");
+			break;
+	}
+
+	// Can only be here if you tried to access a radio that does not exist
+	return NULL;
 }
 
-
+// This function is used in combination with pre loading and is currently not supported
 DeviceStatus CPU_Radio_Send(UINT8 radioID)
 {
-
+	return DS_Fail;
 }
 
+// This function calls the corresponding radio turn on function based on the input radio id
 DeviceStatus CPU_Radio_TurnOn(UINT8 radioID)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.TurnOn();
+
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.TurnOn();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.TurnOn();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_TurnOn : Unidentified radio \n");
+			break;
+
+	}
+	return status;
 }
+
 
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.Sleep(level);
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.Sleep(level);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.Sleep(level);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_Sleep : Unidentified radio \n");
+			break;
+	}
+
+	return status;
+
 }
 
 DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.ChangeTxPower(power);
+	DeviceStatus status = DS_Fail;
 
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.ChangeTxPower(power);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.ChangeTxPower(power);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_ChangeTxPower : Unidentified radio \n");
+			break;
+	}
+
+	return status;
 }
 
 DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.ChangeChannel(channel);
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.ChangeChannel(channel);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.ChangeChannel(channel);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_ChangeTxPower : Unidentified radio \n");
+			break;
+	}
+
+	return status;
+
 }
 
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.ClearChannelAssesment();
-	else
-		return DS_Fail;
+	DeviceStatus status  = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.ClearChannelAssesment();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.ClearChannelAssesment();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_ClearChannelAssesment : Unidentified radio \n");
+			break;
+	}
+
+	return status;
 }
 
 
 DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroSecond)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.ClearChannelAssesment(numberMicroSecond);
-	else
-		return DS_Fail;
+	DeviceStatus status  = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.ClearChannelAssesment(numberMicroSecond);
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.ClearChannelAssesment(numberMicroSecond);
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_ClearChannelAssesment2 : Unidentified radio \n");
+			break;
+	}
+
+	return status;
+
 }
 
 UINT32 CPU_Radio_GetChannel(UINT8 radioID)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.GetChannel();
-	else
-		return 0;
+	UINT32 channel = 0;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			channel = grf231Radio.GetChannel();
+			break;
+		case RF231RADIOLR:
+			channel = grf231RadioLR.GetChannel();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_GetChannel : Unidentified radio \n");
+			break;
+	}
+
+	return channel;
 }
 
 UINT32 CPU_Radio_GetTxPower(UINT8 radioID)
 {
-	if(radioID == RF231RADIO)
-		return grf231Radio.GetTxPower();
-	else
-		return 0;
+	UINT32 txPower = 0;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			txPower = grf231Radio.GetTxPower();
+			break;
+		case RF231RADIOLR:
+			txPower = grf231RadioLR.GetTxPower();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_GetTxPower : Unidentified radio \n");
+			break;
+	}
+
+	return txPower;
 }
 
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID)
@@ -182,5 +379,5 @@ Radio* CPU_RadioLayer_GetRadio(UINT8 radioID)
 // a more sophisticated way of determining the number of radios supported, for now this is good
 UINT8 CPU_RadioLayer_NumberRadiosSupported()
 {
-	return 1;
+	return 2;
 }

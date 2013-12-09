@@ -20,12 +20,13 @@
 #include "RF231RegDef.h"
 #include <Samraksh\Message.h>
 #include <Samraksh\Radio.h>
+#include <spi\netmf_spi.h>
 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum RadioID
+enum RadioID : UINT8
 {
 	RF231RADIO,
 	RF231RADIOLR,
@@ -40,6 +41,7 @@ extern "C" {
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
 void radio_irq_handler();
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
+void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 void (*irq_handler)();
 }
 
@@ -77,7 +79,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 
 	GPIO_PIN kinterrupt;
 
-	RadioID radioName;
+	INT32 radioName;
 
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
@@ -181,20 +183,20 @@ public:
 
     UINT32 GetTxPower();
 
-    void SetRadioName(RadioID radio)
+    void SetRadioName(INT32 radio)
     {
     	this->radioName = radio;
     }
 
-    RadioID GetRadioName()
+    INT32 GetRadioName()
     {
     	return this->radioName;
     }
 
     // Functions added to support the long range radio
-    DeviceStatus EnableAntDiversity();
+    DeviceStatus AntDiversity(BOOL enable);
 
-    DeviceStatus EnablePARXTX();
+    DeviceStatus PARXTX(BOOL enable);
 
     void Amp(BOOL TurnOn);
 
@@ -203,7 +205,7 @@ public:
     // Calls the gpio initialize and spi initialize modules and asserts if the spi initialization failed
     // Once SPI initialization is complete, radio initialization including setting radio state, channel, tx power etc carried out here
     // The radio is sleeping at the end of initialization
-    DeviceStatus Initialize(RadioEventHandler *event_handler, RadioID radio, UINT8 mac_id);
+    DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id);
 
     DeviceStatus UnInitialize()
     {

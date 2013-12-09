@@ -73,7 +73,7 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config)
+DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, UINT8 radioID, MacConfig *config)
 {
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
@@ -95,14 +95,13 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		//m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
-		UINT8 radioIds = 1;
 		RadioAckPending=FALSE;
 		Initialized=TRUE;
 		m_recovery = 1;
 
-		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
+		CPU_Radio_Initialize(&Radio_Event_Handler, radioID, numberOfRadios, MacId);
 
-		CPU_Radio_TurnOn(radioIds);
+		CPU_Radio_TurnOn(radioID);
 
 		gHalTimerManagerObject.Initialize();
 		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, csmaMacScheduler)){ //50 milli sec Timer in micro seconds

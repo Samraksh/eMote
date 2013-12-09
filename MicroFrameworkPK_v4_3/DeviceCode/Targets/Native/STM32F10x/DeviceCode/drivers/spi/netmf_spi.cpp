@@ -145,11 +145,17 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		GPIO_InitTypeDef GPIO_InitStructure;
 
 
-		/* Configure SPIx pins: SCK, MISO and MOSI */
-		GPIO_InitStructure.GPIO_Pin = SPIy_PIN_SCK | SPIy_PIN_MISO | SPIy_PIN_MOSI | SPIy_NSS;
+		/* Configure SPIy pins: SCK, MOSI */
+		GPIO_InitStructure.GPIO_Pin = SPIy_PIN_SCK | SPIy_PIN_MOSI | SPIy_NSS;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPIy_GPIO, &GPIO_InitStructure);
+
+		  // SPI MISO pin
+		 GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+		 GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+		 GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;

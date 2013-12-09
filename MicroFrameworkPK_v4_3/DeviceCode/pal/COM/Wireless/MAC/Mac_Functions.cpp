@@ -31,11 +31,11 @@ NeighborTable m_NeighborTable;
 //Basic functions
 UINT8 MacName = 0;
 
-DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 routingAppID, UINT8 radioName, void* config){
 
-	if(MacName == CSMAMAC)
-		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
-	else if(MacName == OMAC)
+	if(macID == CSMAMAC)
+		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
+	else if(macID == OMAC)
 		//return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig *) config);
 		return DS_Fail;
 	else

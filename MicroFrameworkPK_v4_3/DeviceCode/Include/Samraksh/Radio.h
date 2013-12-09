@@ -39,6 +39,9 @@ extern "C"
 }
 
 
+// The radio id being a static in the radio class has been removed
+
+#if 0
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //All Radio objects needs to share the ID class to get a unique number
 class RadioID {
@@ -51,10 +54,11 @@ public:
 };
 
 UINT8 RadioID::UniqueRadioId=0;
+#endif
 
 // Base class definition for the radio driver interface for all radio device implementations
 template<class T>
-class Radio :public RadioID
+class Radio
 {
 	// Contains a unique id for each radio registered
 

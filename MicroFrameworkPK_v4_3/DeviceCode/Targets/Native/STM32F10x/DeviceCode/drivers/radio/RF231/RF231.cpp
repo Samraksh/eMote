@@ -2,7 +2,7 @@
 #include "RF231RegDef.h"
 #include <tinyhal.h>
 
-#define DEBUG_RF231 1
+//#define DEBUG_RF231 1
 
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
@@ -235,8 +235,12 @@ BOOL RF231Radio::Reset()
 			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 	#endif
-			// Enable the gpio pin as the interrupt point
-	CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+
+	// Enable the gpio pin as the interrupt point
+	if(this->GetRadioName() == RF231RADIO)
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	else if(this->GetRadioName() == RF231RADIOLR)
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
 	SlptrSet();
@@ -368,6 +372,15 @@ DeviceStatus RF231Radio::Sleep(int level)
 		sleep_pending = TRUE;
 		return DS_Success;
 	}
+
+	// Turn of things before going to sleep
+	if(RF231RADIOLR == this->GetRadioName())
+	{
+		this->Amp(FALSE);
+		this->PARXTX(FALSE);
+		this->AntDiversity(FALSE);
+	}
+
 	// Read current state of radio
 	UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 
@@ -540,8 +553,9 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	return temp;
 }
 
-DeviceStatus RF231Radio::EnableAntDiversity()
+DeviceStatus RF231Radio::AntDiversity(BOOL enable)
 {
+	// only works on the long range radio board
 	if(this->GetRadioName() != RF231RADIOLR)
 	{
 		return DS_Fail;
@@ -549,7 +563,15 @@ DeviceStatus RF231Radio::EnableAntDiversity()
 
 	UINT8 data = ReadRegister(RF231_REG_ANT_DIV);
 
-	data |= 0x0C;
+	if(enable)
+	{
+		data |= 0x0C;
+	}
+	else
+	{
+		data &= ~(3 << 2);
+	}
+
 
 	WriteRegister(RF231_REG_ANT_DIV, data);
 
@@ -557,8 +579,9 @@ DeviceStatus RF231Radio::EnableAntDiversity()
 
 }
 
-DeviceStatus RF231Radio::EnablePARXTX()
+DeviceStatus RF231Radio::PARXTX(BOOL enable)
 {
+	// only works on the long range radio board
 	if(this->GetRadioName() != RF231RADIOLR)
 	{
 		return DS_Fail;
@@ -566,7 +589,14 @@ DeviceStatus RF231Radio::EnablePARXTX()
 
 	UINT8 data = ReadRegister(RF231_REG_TX_CTRL_1);
 
-	data |= 0x80;
+	if(enable)
+	{
+		data |= 0x80;
+	}
+	else
+	{
+		data &= ~(1 << 7);
+	}
 
 	WriteRegister(RF231_REG_TX_CTRL_1, data);
 
@@ -584,7 +614,7 @@ void RF231Radio::Amp(BOOL TurnOn)
 	CPU_GPIO_SetPinState((GPIO_PIN) AMP_LR, TurnOn);
 }
 
-DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, RadioID radio, UINT8 mac_id)
+DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id)
 {
 	INIT_STATE_CHECK()
 #ifdef DEBUG_RF231
@@ -620,6 +650,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, RadioID ra
 			kseln		= 	 SELN_PIN_LR;
 			kinterrupt	= 	 INTERRUPT_PIN_LR;
 
+			// Enable the amp pin
 			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_LR, FALSE);
 
 		}
@@ -761,8 +792,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, RadioID ra
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
 		// Enable the gpio pin as the interrupt point
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-
+		if(this->GetRadioName() == RF231RADIO)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		else if(this->GetRadioName() == RF231RADIOLR)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 		SlptrSet();
 #ifdef DEBUG_RF231
@@ -865,6 +898,18 @@ DeviceStatus RF231Radio::TurnOn()
 		return DS_Success;
 	}
 
+	if(this->GetRadioName() == RF231RADIOLR)
+	{
+		// Enable antenna diversity mode
+		this->AntDiversity(TRUE);
+
+		// Enable external pa control
+		this->PARXTX(TRUE);
+
+		// take the amp  out of bypass mode
+		this->Amp(TRUE);
+	}
+
 #if 0
 	if(cmd != CMD_NONE || (state != STATE_SLEEP))
 		return EBUSY;
@@ -900,6 +945,8 @@ DeviceStatus RF231Radio::TurnOn()
 
 	// Change the state to RX_ON
 	state = STATE_RX_ON;
+
+
 
 	return DS_Success;
 
@@ -1302,9 +1349,15 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 
 extern RF231Radio grf231Radio;
+extern RF231Radio grf231RadioLR;
 
 extern "C"
 {
+
+	void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
+	{
+		grf231RadioLR.HandleInterrupt();
+	}
 
 	// Call radio_irq_handler from here
 	void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
