@@ -19,7 +19,7 @@
 
 extern "C"
 {
-	//void ManagedSDCallback(DeviceStatus status);
+	void ManagedSDCallback(DeviceStatus status);
 
 }
 
@@ -35,15 +35,13 @@ extern SDIO_Driver g_SDIODriver;
 
 INT32 SDInternal::InternalInitialize( HRESULT &hr )
 {
-#if 0
-    return g_SDIODriver.Initialize();
-#endif
-    return 0;
+	return 0;//g_SDIODriver.Initialize(ManagedSDCallback);
+
 }
 
 INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 writeAddressPtr, HRESULT &hr )
 {
-#if 0
+	/*
 	if(offset == 0)
 	{
 		// Erase and write, we need a better file system than this
@@ -58,16 +56,15 @@ INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offse
 	{
 		return DS_Fail;
 	}
-#endif
+	*/
+
 	return DS_Success;
 }
 
 INT32 SDInternal::InternalRead( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 readAddressPtr, HRESULT &hr )
 {
-#if 0
-	return g_SDIODriver.ReadBlock(dataArray.GetBuffer(), readAddressPtr, length);
-#endif
-	return 0;
+	return 0;//g_SDIODriver.ReadBlock(dataArray.GetBuffer(), readAddressPtr, length);
+
 }
 
 static HRESULT InitializeSDDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )

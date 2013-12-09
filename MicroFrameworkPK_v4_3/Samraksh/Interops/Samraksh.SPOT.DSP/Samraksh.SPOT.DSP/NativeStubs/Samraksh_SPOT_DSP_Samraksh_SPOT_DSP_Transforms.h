@@ -27,6 +27,7 @@ namespace Samraksh
                 static INT8 FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, HRESULT &hr );
                 static INT8 FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT16 param2, HRESULT &hr );
                 static INT8 FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, CLR_RT_TypedArray_UINT32 param1, UINT16 param2, HRESULT &hr );
+                static INT8 FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, CLR_RT_TypedArray_INT16 param1, UINT16 param2, HRESULT &hr );
                 static INT8 IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, HRESULT &hr );
                 static INT8 IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT16 param2, HRESULT &hr );
                 static INT8 IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, CLR_RT_TypedArray_UINT32 param1, UINT16 param2, HRESULT &hr );

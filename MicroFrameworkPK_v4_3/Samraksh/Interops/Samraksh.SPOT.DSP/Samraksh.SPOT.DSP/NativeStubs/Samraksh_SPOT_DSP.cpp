@@ -32,6 +32,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::FFT___BOOLEAN__SZARRAY_U1__SZARRAY_U1__U2,
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::FFT___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U2,
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::FFT___BOOLEAN__SZARRAY_U4__SZARRAY_U4__U2,
+    Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::FFT___BOOLEAN__SZARRAY_I2__SZARRAY_I2__U2,
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::IFFT___BOOLEAN__SZARRAY_U1__SZARRAY_U1__U2,
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::IFFT___BOOLEAN__SZARRAY_U2__SZARRAY_U2__U2,
     Library_Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms::IFFT___BOOLEAN__SZARRAY_U4__SZARRAY_U4__U2,
@@ -41,7 +42,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_DSP =
 {
     "Samraksh_SPOT_DSP", 
-    0xA2D142C0,
+    0x416D7630,
     method_lookup
 };
 

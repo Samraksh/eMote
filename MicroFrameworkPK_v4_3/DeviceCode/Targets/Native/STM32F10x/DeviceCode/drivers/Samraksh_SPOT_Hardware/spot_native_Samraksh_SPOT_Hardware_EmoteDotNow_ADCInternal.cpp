@@ -49,8 +49,6 @@ UINT32 prescaler = 0;
 
 BOOL thresholdingEnabled = FALSE;
 
-UINT32 gThresholdTime = 0;
-
 UINT32 gThresholdValue = 0;
 
 BOOL gThresholdingDone =FALSE;
@@ -62,6 +60,7 @@ extern HALTimerManager gHalTimerManagerObject;
 extern "C"
 {
 	void ADCCallback(void *param);
+	void ADCDualChannelCallback(void *param);
 }
 
 
@@ -69,6 +68,15 @@ extern "C"
 UINT16 *adcNativeBuffer = NULL;
 UINT16 *adcManagedBuffer = NULL;
 UINT32 adcBufferCounter = 0;
+
+
+UINT16 *adcManagedBufferChannel1 = NULL;
+UINT16 *adcManagedBufferChannel2 = NULL;
+
+UINT16* adcNativeBufferChannel1 = NULL;
+UINT16* adcNativeBufferChannel2 = NULL;
+UINT32 adcBufferCounter1 = 0;
+UINT32 adcBufferCounter2 = 0;
 
 
 INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
@@ -142,6 +150,62 @@ INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 sampleBuff,
 	 return DS_Success;
 }
 
+INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
+{
+	// Fail if the number of samples in each buffer is small
+	if(sampleBuff1.GetSize() < numSamples || sampleBuff2.GetSize() <  numSamples)
+		return DS_Fail;
+
+
+	adcManagedBufferChannel1 = sampleBuff1.GetBuffer();
+	adcManagedBufferChannel2 = sampleBuff2.GetBuffer();
+
+	adcNativeBufferChannel1 = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+	adcNativeBufferChannel2 = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+
+	 // Initialize the virtual timer
+    gHalTimerManagerObject.Initialize();
+
+	// Create a hal timer
+	if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCDualChannelCallback)){ //50 milli sec Timer in micro seconds
+	  			return DS_Fail;
+	}
+
+	adcNumSamples = numSamples;
+
+	return DS_Success;
+
+
+}
+
+INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
+{
+	// Fail if the number of samples in each buffer is small
+		if(sampleBuff1.GetSize() < numSamples || sampleBuff2.GetSize() <  numSamples)
+			return DS_Fail;
+
+
+		adcManagedBufferChannel1 = sampleBuff1.GetBuffer();
+		adcManagedBufferChannel2 = sampleBuff2.GetBuffer();
+
+		adcNativeBufferChannel1 = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+		adcNativeBufferChannel2 = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+
+		 // Initialize the virtual timer
+	    gHalTimerManagerObject.Initialize();
+
+		// Create a hal timer
+		if(!gHalTimerManagerObject.CreateTimer(ADC_VIRTUAL_TIMER, 0, samplingTime, FALSE, FALSE, ADCDualChannelCallback)){
+		  	return DS_Fail;
+		}
+
+		adcNumSamples = numSamples;
+
+		batchModeADC = TRUE;
+
+		return DS_Success;
+}
+
 INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, UINT32 threshold, HRESULT &hr )
 {
 	 INT32 retVal = 0;
@@ -169,6 +233,8 @@ INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UI
 		 adcNumSamples = numSamples;
 
 		 thresholdingEnabled = TRUE;
+
+		 gThresholdValue = threshold;
 
 		 return DS_Success;
 }
@@ -202,6 +268,8 @@ INT32 ADCInternal::ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 
 	    batchModeADC = TRUE;
 
 	    thresholdingEnabled = TRUE;
+
+	    gThresholdValue = threshold;
 
 	    return DS_Success;
 }
@@ -245,12 +313,47 @@ static HRESULT CleanupADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContex
 void ISR_adcProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
     GLOBAL_LOCK(irq);
-    SaveNativeEventToHALQueue( pContext, UINT32(g_adcUserData >> 16), UINT32(g_adcUserData & 0xFFFFFFFF) );
+    SaveNativeEventToHALQueue( pContext, UINT32(g_adcUserData >> 32), UINT32(g_adcUserData & 0xFFFFFFFF) );
 }
 
 
 extern "C"
 {
+	void ADCDualChannelCallback(void *param)
+	{
+		ADC_DEBUG_SETPINSTATE(25, TRUE);
+		ADC_DEBUG_SETPINSTATE(25, FALSE);
+
+		INT32 adcSampleValueChannel1 = AD_Read((ANALOG_CHANNEL) 0);
+		INT32 adcSampleValueChannel2 = AD_Read((ANALOG_CHANNEL) 1);
+
+		adcNativeBufferChannel1[adcBufferCounter1++] = adcSampleValueChannel1;
+		// Artifically inflate the values of q, app specific, cheating, but till filesystem comes this
+		// is the easiest way to distinguish between i and q
+		adcNativeBufferChannel2[adcBufferCounter2++] = adcSampleValueChannel2 + 4001;
+
+		if(adcBufferCounter1 >= adcNumSamples)
+		{
+			adcBufferCounter1 = 0;
+			adcBufferCounter2 = 0;
+
+			memcpy(adcManagedBufferChannel1, adcNativeBufferChannel1, adcNumSamples * sizeof(UINT16));
+			memcpy(adcManagedBufferChannel2, adcNativeBufferChannel2, adcNumSamples * sizeof(UINT16));
+
+
+			ISR_adcProc(g_adcContext);
+
+			if(batchModeADC == true)
+			{
+			   	gHalTimerManagerObject.StopTimer(ADC_VIRTUAL_TIMER);
+			 	private_free(adcNativeBufferChannel1);
+			 	private_free(adcNativeBufferChannel2);
+			}
+		}
+
+	}
+
+
 	void ADCCallback(void *param)
 	{
 		ADC_DEBUG_SETPINSTATE(25, TRUE);
@@ -262,7 +365,11 @@ extern "C"
 		{
 			if(adcSampleValue >= gThresholdValue)
 			{
-				gThresholdTime = (UINT32) (HAL_Time_CurrentTicks() & 0xffffffff);
+				//g_adcUserData = (UINT64) HAL_Time_CurrentTicks();
+				g_adcUserData = (UINT64) Time_GetLocalTime();
+
+				//hal_printf("Native Time is : %ld", g_adcUserData);
+
 				gThresholdingDone = TRUE;
 			}
 
@@ -277,12 +384,7 @@ extern "C"
 
 		  	if(thresholdingEnabled)
 		  	{
-		  		g_adcUserData = gThresholdTime;
-
-		  		if(gThresholdingDone)
-		  		{
-		  			gThresholdingDone = FALSE;
-		  		}
+		  		gThresholdingDone = FALSE;
 
 		  	}
 

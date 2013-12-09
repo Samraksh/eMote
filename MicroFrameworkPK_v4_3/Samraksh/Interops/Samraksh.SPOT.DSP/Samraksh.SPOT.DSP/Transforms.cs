@@ -32,6 +32,15 @@ namespace Samraksh.SPOT.DSP
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool FFT(UInt32[] input, UInt32[] output, UInt16 transformSize);
 
+        /// <summary>
+        /// Returns the Fast Fourier Transfrom of the UInt16 array X
+        /// </summary>
+        /// <param name="input">The input array</param>
+        /// <returns>Returns a Int16 array of size 'transformSize'</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern bool FFT(Int16[] input, Int16[] output, UInt16 transformSize);
+
+
         /**********************************************Inverse FFT******************************/
         /// <summary>
         /// Returns the Inverse Fast Fourier Transfrom of the byte array X

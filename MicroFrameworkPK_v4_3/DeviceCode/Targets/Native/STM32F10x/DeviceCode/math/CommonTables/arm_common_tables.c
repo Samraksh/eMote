@@ -240,6 +240,9 @@ const uint16_t armBitRevTable[1024] = {
 * Cos and Sin values are in interleaved fashion    
 *     
 */
+
+
+/*
 const float32_t twiddleCoef[6144] = {
   1.000000000000000000f, 0.000000000000000000f, 0.999998823451701880f,
     0.001533980186284766f, 0.999995293809576190f, 0.003067956762965976f,
@@ -2290,6 +2293,8 @@ const float32_t twiddleCoef[6144] = {
   -0.004601926120448350f, -0.999989411081928400f, -0.003067956762966483f,
     -0.999995293809576190f, -0.001533980186285111f, -0.999998823451701880f,
 };
+*/
+
 
 /*    
 * @brief  Q31 Twiddle factors Table    
@@ -2314,6 +2319,8 @@ const float32_t twiddleCoef[6144] = {
 *    
 */
 
+
+/*
 const q31_t twiddleCoefQ31[6144] = {
   0x7fffffff, 0x0, 0x7ffff621, 0x3243f5, 0x7fffd886, 0x6487e3, 0x7fffa72c,
     0x96cbc1,
@@ -3853,7 +3860,7 @@ const q31_t twiddleCoefQ31[6144] = {
     0xffcdbc0b, 0x800009df,
 
 };
-
+*/
 
 /*    
 * @brief  Q15 Twiddle factors Table    
@@ -4674,6 +4681,8 @@ const q15_t ALIGN4 armRecipTableQ15[64] = {
 /*    
 * @brief  Q31 table for reciprocal    
 */
+
+/*
 const q31_t armRecipTableQ31[64] = {
   0x7F03F03F, 0x7D137420, 0x7B31E739, 0x795E9F94, 0x7798FD29, 0x75E06928,
   0x7434554D, 0x72943B4B, 0x70FF9C40, 0x6F760031, 0x6DF6F593, 0x6C8210E3,
@@ -4687,3 +4696,4 @@ const q31_t armRecipTableQ31[64] = {
   0x4521CCE1, 0x448DB244, 0x43FC0CFA, 0x436CCD78, 0x42DFE4B4, 0x42554426,
   0x41CCDDB6, 0x4146A3C6, 0x40C28923, 0x40408102
 };
+*/

@@ -44,20 +44,14 @@
 	<Compile Include="BasicMathFunctions\arm_mult_q15.c" />
 	<Compile Include="BasicMathFunctions\arm_add_q15.c" />
 	<Compile Include="BasicMathFunctions\arm_sub_q15.c" />
-	<Compile Include="TransformFunctions\arm_cfft_radix4_q31.c" />
 	<Compile Include="TransformFunctions\arm_cfft_radix4_q15.c" />
-	<Compile Include="TransformFunctions\arm_cfft_radix4_init_q31.c" />
 	<Compile Include="TransformFunctions\arm_cfft_radix4_init_q15.c" />
-	<Compile Include="TransformFunctions\arm_rfft_init_q31.c" />
-	<Compile Include="TransformFunctions\arm_rfft_q31.c" />
 	<Compile Include="TransformFunctions\arm_bitreversal.c" />
 	<Compile Include="ComplexMathFunctions\arm_cmplx_mag_q31.c" />
 	<Compile Include="StatisticsFunctions\arm_max_q31.c" />
 	<Compile Include="FastMathFunctions\arm_sqrt_q31.c" />
 	<Compile Include="CommonTables\arm_common_tables.c" />
-	<Compile Include="SupportFunctions\arm_float_to_q31.c" />
 	<Compile Include="SupportFunctions\arm_float_to_q15.c" />
-	<Compile Include="SupportFunctions\arm_q31_to_float.c" />
 	<Compile Include="StatisticsFunctions\arm_power_q31.c" />
 	<Compile Include="StatisticsFunctions\arm_power_q15.c" />
   </ItemGroup>

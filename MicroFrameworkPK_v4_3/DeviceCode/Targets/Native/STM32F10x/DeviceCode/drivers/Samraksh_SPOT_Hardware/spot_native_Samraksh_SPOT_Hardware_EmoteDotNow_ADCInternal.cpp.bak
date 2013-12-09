@@ -40,6 +40,18 @@ INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 param0, INT
     return retVal;
 }
 
+INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 

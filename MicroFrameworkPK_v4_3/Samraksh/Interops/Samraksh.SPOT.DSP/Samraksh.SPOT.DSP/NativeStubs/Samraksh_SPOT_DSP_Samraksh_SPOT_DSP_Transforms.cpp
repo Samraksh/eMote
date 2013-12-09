@@ -34,6 +34,12 @@ INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0
     return retVal;
 }
 
+INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, CLR_RT_TypedArray_INT16 param1, UINT16 param2, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 INT8 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, HRESULT &hr )
 {
     INT8 retVal = 0; 
