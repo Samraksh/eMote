@@ -3,6 +3,9 @@ using Microsoft.SPOT;
 
 namespace Samraksh.SPOT.Net
 {
+    /// <summary>
+    /// Message class represents the message object being passed to native 
+    /// </summary>
     public class Message
     {
         /// <summary>
@@ -35,7 +38,15 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         private byte[] ReceiveMessage;
 
+        /// <summary>
+        /// Represents the size of the payload 
+        /// </summary>
         public UInt16 Size;
+
+        /// <summary>
+        /// Represents the time at which the packet was sent out 
+        /// </summary>
+        public UInt32 timeStamp;
 
         /// <summary>
         /// Default constructor to create a received message with the default size
