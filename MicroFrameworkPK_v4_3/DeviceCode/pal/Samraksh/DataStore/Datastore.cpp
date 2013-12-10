@@ -709,7 +709,7 @@ LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 	/* Traverse left of the address passed as parameter */
 	if(per_dir == GO_LEFT){
 		while(*address == (char)0xFF){
-			blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)*address);
+			blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)address);
 			blockID--;
 			if(blockID < lfirstBlockID){
 				blockID = llastBlockID;
@@ -722,7 +722,7 @@ LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 		cyclicDataRead(&header, address, sizeof(RECORD_HEADER));
 		while(*((char*)&header) != (char)0xFF){
 			if( SKIP_TO_NEXT_SECTOR_FLAG == *((unsigned char*)&header)){
-				blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)*address);
+				blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)address);
 				blockID++;
 				blockID = (blockID >llastBlockID)?(lfirstBlockID):(blockID);
 
@@ -738,7 +738,7 @@ LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 	/* Traverse right of the address passed as parameter */
 	else if(per_dir == GO_RIGHT){
 		while(*address == (char)0xFF){
-			blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)*address);
+			blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)address);
 			blockID++;
 			if(blockID > llastBlockID){
 				blockID = lfirstBlockID;
