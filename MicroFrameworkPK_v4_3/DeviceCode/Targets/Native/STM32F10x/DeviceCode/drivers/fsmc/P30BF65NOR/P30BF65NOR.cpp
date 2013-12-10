@@ -14,6 +14,7 @@
 #include <fsmc\stm32f10x_fsmc.h>
 #include "P30BF65NOR.h"
 
+#define CHECK_BIT(var, pos)	((var) & (1<<(pos)))
 
 P30BF65NOR_Driver gNORDriver;
 
@@ -307,13 +308,26 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Check to see if you are writing to an unerased location, return failure if that is true
-	// If the size of the record is 512 bytes (2^9 or 8192), then data portion
-	//if(ReadHalfWord(WriteAddr) != 0xffff && ((data & 8192) != 8192))
-	if(ReadHalfWord(WriteAddr) != 0xffff && ( ((data & 8) != 0) ))
+	// The 4th bit should be zero in incoming "data" and should be one (1000) at writeAddr.
+	// Raise error if above condition is not met.
+	if(ReadHalfWord(WriteAddr) != 0xffff)
+	{
+		if((CHECK_BIT(data,4)) != 0)
+		{
+			UINT16 readHalfWordValue = ReadHalfWord(WriteAddr);
+			if((CHECK_BIT(readHalfWordValue,4)) != (1<<4))
+			{
+				NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
+				return DS_Fail;
+			}
+		}
+	}
+
+	/*if(((data & (1<<4)) != 0) && ((ReadHalfWord(WriteAddr) & (1<<4)) != 1) )
 	{
 		NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
 		return DS_Fail;
-	}
+	}*/
 
 	// Clear the status register before doing anything
 	ClearStatusRegister();

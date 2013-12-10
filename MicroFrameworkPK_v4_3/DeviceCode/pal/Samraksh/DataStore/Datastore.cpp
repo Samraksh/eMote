@@ -1149,7 +1149,12 @@ void Data_Store::DeleteAll()
 	// So, only the 0th index is deleted at all times.
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
-	while(addressTable.table[deleteIndex].recordID != 0)
+	/*static int testErase = 0;
+	if(testErase == 0){
+		blockStorageDevice->EraseBlock(1);
+		testErase++;
+	}*/
+	while(addressTable.table[deleteIndex].givenPtr != 0)
 	{
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK)
