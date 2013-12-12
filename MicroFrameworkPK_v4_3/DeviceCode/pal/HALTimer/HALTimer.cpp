@@ -169,9 +169,6 @@ void HALTimerCallback(void *arg)
 {
 	UINT32 ticks;
 
-	CPU_GPIO_SetPinState((GPIO_PIN) 22,TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 22,FALSE);
-
 
 	HALTimer* topTimer = gHalTimerManagerObject.timerQueue.PeekTop();
 
@@ -200,8 +197,11 @@ void HALTimerCallback(void *arg)
 		topTimer = gHalTimerManagerObject.timerQueue.ExtractTop();
 
 		// Check if the timer has been disabled
-		if(topTimer->get_m_is_running())
-			(topTimer->get_m_callback())(NULL);
+		if(topTimer != NULL)
+		{
+			if(topTimer->get_m_is_running())
+				(topTimer->get_m_callback())(NULL);
+		}
 
 		ticks = topTimer->get_m_dtime();
 
@@ -219,6 +219,9 @@ void HALTimerCallback(void *arg)
 	{
 		g_STM32F10x_AdvancedTimer.SetCompare(*((UINT32 *)arg), topTimer->get_m_ticksTillExpire());
 	}
+
+	CPU_GPIO_SetPinState((GPIO_PIN) 24,TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 24,FALSE);
 
 }
 
