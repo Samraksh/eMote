@@ -15,6 +15,7 @@
 // Returns the status of the initalization task whether successful or not
 
 // History 		v0.1 - Added sleep functionality, channel change and power change functionality (nived.sivadas)
+//              v0.2 - Added long range radio support (nived.sivadas)
 
 #include "RF231\RF231.h"
 
@@ -47,7 +48,7 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 
 BOOL CPU_Radio_Reset(UINT8 id)
 {
-	return grf231Radio.Reset();
+	return FALSE;
 }
 
 
@@ -75,7 +76,7 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 // This function is no longer supported, it is upto the user to name the radio
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 {
-	*radioIDs=grf231Radio.GetRadioID();
+	//*radioIDs=grf231Radio.GetRadioID();
 	return 1;
 }
 
@@ -129,7 +130,10 @@ void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 {
 
-	UINT8* msgcheck = (UINT8 *) msg;
+	void *temptr = NULL;
+
+	CPU_GPIO_SetPinState((GPIO_PIN) 22, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 22, FALSE);
 
 	switch(radioID)
 	{
@@ -137,21 +141,20 @@ void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 			return (void *) grf231Radio.Send(msg, size);
 		case RF231RADIOLR:
 			return (void *) grf231RadioLR.Send(msg, size);
+			break;
 		default:
 			hal_printf("[NATIVE] Error in function CPU_Radio_Send : Unidentified radio \n");
 			break;
 	}
 
 	// Can only be here if you tried to access a radio that does not exist
-	return NULL;
+	return temptr;
 }
 
 // This function is used to send a time stamped packet, time stamping is done just before
 // physical send in hardware
 void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 eventTime)
 {
-
-	UINT8* msgcheck = (UINT8 *) msg;
 
 	switch(radioID)
 	{

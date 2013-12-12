@@ -4,6 +4,7 @@
 
 //#define DEBUG_RF231 1
 
+
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -1073,6 +1074,7 @@ void RF231Radio::HandleInterrupt()
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
 
+
 	irq_cause = ReadRegister(RF230_IRQ_STATUS);
 
 	if(irq_cause & TRX_IRQ_PLL_LOCK)
@@ -1237,8 +1239,10 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
+
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
+
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 					hal_printf("Radio Receive Error: Packet too big: %d ",rx_length);
 					return;
@@ -1284,6 +1288,9 @@ DeviceStatus RF231Radio::DownloadMessage()
 {
 	UINT16 crc;
 	INT16 lqi;
+
+
+
 	//////////////////////If Auto crc check is failing return false
 	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
 	if(!(phy_rssi & (1 << 7)))

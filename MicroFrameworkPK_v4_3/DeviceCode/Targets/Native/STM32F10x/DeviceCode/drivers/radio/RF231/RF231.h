@@ -121,10 +121,10 @@ class RF231Radio : public Radio<Message_15_4_t>
 	UINT8 tx_length;
 
 	// Recieve Message Buffer
-	UINT8 rx_msg[IEEE802_15_4_FRAME_LENGTH];
+	UINT8 rx_msg[sizeof(Message_15_4_t)];
 
 	// Send message buffer
-	UINT8 tx_msg[IEEE802_15_4_FRAME_LENGTH];
+	UINT8 tx_msg[sizeof(Message_15_4_t)];
 
 	// Initialize the rstn, seln and slptr pins
 	void GpioPinInitialize();

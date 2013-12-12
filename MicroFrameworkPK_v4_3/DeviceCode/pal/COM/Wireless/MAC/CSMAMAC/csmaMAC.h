@@ -62,7 +62,7 @@ public:
 
 
 	BOOL Resend(void* msg, int Size);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);
+	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MacConfig *config);
 	DeviceStatus SetConfig(MacConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int Size);

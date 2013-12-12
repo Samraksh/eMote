@@ -144,6 +144,11 @@ public:
 		return this->GetFirstFullBuffer();
 	}
 
+	BOOL IsBufferEmpty()
+	{
+		return this->IsEmpty();
+	}
+
 	Message_15_4_t** GetOldestPtr()
 	{
 		if(this->IsEmpty())

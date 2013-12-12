@@ -131,13 +131,13 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(Mac_Initialize(&Event_Handler, &MacID, MyAppID, (void*) &config) != DS_Success)
+	if(Mac_Initialize(&Event_Handler, MacName, MyAppID, configParams[11], (void*) &config) != DS_Success)
 		return DS_Fail;
 
-	if(CPU_Radio_ChangeTxPower(1, configParams[5]) != DS_Success)
+	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success)
 		return DS_Fail;
 
-	if(CPU_Radio_ChangeChannel(1, configParams[6]) != DS_Success)
+	if(CPU_Radio_ChangeChannel( configParams[11], configParams[10]) != DS_Success)
 		return DS_Fail;
 
 }
@@ -152,6 +152,12 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
    return Mac_GetNeighbourStatus(param0, param1.GetBuffer());
 }
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
+}
+
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
 }
 
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets)

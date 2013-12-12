@@ -13,6 +13,8 @@
 
 #include "Samraksh_SPOT_Net.h"
 #include "Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase.h"
+#include <Samraksh/Mac_decl.h>
+#include <Samraksh/MAC.h>
 
 using namespace Samraksh::SPOT::Net;
 
@@ -150,12 +152,6 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
    return Mac_GetNeighbourStatus(param0, param1.GetBuffer());
 }
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
-}
-
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
 }
 
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets)

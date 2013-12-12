@@ -169,6 +169,10 @@ void HALTimerCallback(void *arg)
 {
 	UINT32 ticks;
 
+	CPU_GPIO_SetPinState((GPIO_PIN) 22,TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 22,FALSE);
+
+
 	HALTimer* topTimer = gHalTimerManagerObject.timerQueue.PeekTop();
 
 	if(!topTimer)
