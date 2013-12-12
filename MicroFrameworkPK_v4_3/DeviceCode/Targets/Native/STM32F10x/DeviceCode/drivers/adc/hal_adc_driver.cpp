@@ -617,7 +617,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	/* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
-
+	adcNumSamples = numSamples;
 
 	dualADCMode = TRUE;
 
