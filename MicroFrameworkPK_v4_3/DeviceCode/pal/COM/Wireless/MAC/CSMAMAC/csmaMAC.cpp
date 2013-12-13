@@ -96,8 +96,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		CPU_Radio_TurnOn(this->radioName);
 
-		gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(3, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		//gHalTimerManagerObject.Initialize();
+		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
 		}
 
@@ -108,8 +108,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 	}
 
 	// Stop the timer
-	gHalTimerManagerObject.StopTimer(3);
-	gHalTimerManagerObject.StopTimer(2);
+	gHalTimerManagerObject.StopTimer(1);
+	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
