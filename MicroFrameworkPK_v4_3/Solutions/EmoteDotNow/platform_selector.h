@@ -154,8 +154,8 @@ UINT16 MF_NODE_ID;
 #define OUTPUT_REBOOT_PIN 23
 
 /* Defines the start address for the data store. To be kept in sync with the actual address in bl_nor_config */
-#define DATASTORE_START_ADDRESS 0x64010000
-#define DATASTORE_END_ADDRESS 0x64026000
+#define DATASTORE_START_ADDRESS 0x64020000
+#define DATASTORE_END_ADDRESS 0x64FE0000
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 

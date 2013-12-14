@@ -407,7 +407,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         public DataStatus ReadAllDataReferences(DataStore dStore, Data[] dataRefArray, UInt16 dataIdOffset)
         {
-            UInt16 dataId;
+            /*UInt16 dataId;
             int[] dataIdArray = new int[GetCountOfDataIds()];
             if (GetReadAllDataIds(dataIdArray) == false)
                 return DataStatus.Failure;
@@ -419,7 +419,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                     dataRefArray[arrayIndex] = new Data(dStore, dataId);
                     ++dataIdOffset;
                 }
-            }
+            }*/
             return DataStatus.Success;
         }
 
@@ -446,13 +446,18 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         public static DataStatus EraseAll()
         {
-            if(DataStore.DeleteAllData() != DataStatus.Success)
+            /*if(DataStore.DeleteAllData() != DataStatus.Success)
                 return DataStatus.Failure;
             
             if(DataStore.GC() != DataStatus.Success)
                 return DataStatus.Failure;
 
-            return DataStatus.Success;
+            return DataStatus.Success;*/
+
+            if (EraseAllBlocks() == true)
+                return DataStatus.Success;
+            else
+                return DataStatus.Failure;
         }
 
         public bool ReadWriteStatus()
@@ -572,6 +577,13 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private static bool DeleteAll();
+
+        /// <summary>
+        /// Delete all records in the Data Store
+        /// </summary>
+        /// <returns>Returns success or failure</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private static bool EraseAllBlocks();
 
         /// <summary>
         /// Garbage collects inactive records in Data Store

@@ -183,6 +183,7 @@ DeviceStatus P30BF65NOR_Driver::EraseBlock(UINT32 BlockAddr)
 {
 
 	DeviceStatus status;
+	NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Inside EraseBlock\n");
 
 	// Check if the block address is within the range of the flash device
 	if((BlockAddr + BOOT_BLOCK_OFFSET) > FLASH_LIMIT)
@@ -318,6 +319,7 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 			if((CHECK_BIT(readHalfWordValue,4)) != (1<<4))
 			{
 				NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
+				hal_printf("%x\n", WriteAddr);
 				return DS_Fail;
 			}
 		}
