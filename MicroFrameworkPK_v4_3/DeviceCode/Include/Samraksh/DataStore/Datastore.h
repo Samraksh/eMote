@@ -7,6 +7,7 @@
 //#include <Samraksh/DataStore/FlashDevice.h>
 //#include <Samraksh/DataStore/DatastoreInt.h>
 #include <Samraksh/DataStore/DatastoreReg.h>
+#include "platform_selector.h"
 
 //#define DEBUG_DATASTORE
 
@@ -370,6 +371,8 @@ public:
 	void DeleteAll();
 
 	void DataStoreGC();
+
+	void EraseAllBlocks();
 
     /* Destructor */
     ~Data_Store();

@@ -14,6 +14,7 @@
 #include <fsmc\stm32f10x_fsmc.h>
 #include "P30BF65NOR.h"
 
+#define CHECK_BIT(var, pos)	((var) & (1<<(pos)))
 
 P30BF65NOR_Driver gNORDriver;
 
@@ -182,6 +183,7 @@ DeviceStatus P30BF65NOR_Driver::EraseBlock(UINT32 BlockAddr)
 {
 
 	DeviceStatus status;
+	NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Inside EraseBlock\n");
 
 	// Check if the block address is within the range of the flash device
 	if((BlockAddr + BOOT_BLOCK_OFFSET) > FLASH_LIMIT)
@@ -307,11 +309,27 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Check to see if you are writing to an unerased location, return failure if that is true
-	if(ReadHalfWord(WriteAddr) != 0xffff && ((data & 8192) != 8192))
+	// The 4th bit should be zero in incoming "data" and should be one (1000) at writeAddr.
+	// Raise error if above condition is not met.
+	if(ReadHalfWord(WriteAddr) != 0xffff)
+	{
+		if((CHECK_BIT(data,4)) != 0)
+		{
+			UINT16 readHalfWordValue = ReadHalfWord(WriteAddr);
+			if((CHECK_BIT(readHalfWordValue,4)) != (1<<4))
+			{
+				NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
+				hal_printf("%x\n", WriteAddr);
+				return DS_Fail;
+			}
+		}
+	}
+
+	/*if(((data & (1<<4)) != 0) && ((ReadHalfWord(WriteAddr) & (1<<4)) != 1) )
 	{
 		NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Attempting to write to a non erased location\n");
 		return DS_Fail;
-	}
+	}*/
 
 	// Clear the status register before doing anything
 	ClearStatusRegister();
@@ -357,6 +375,8 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 // Internally calls write half word
 DeviceStatus P30BF65NOR_Driver::WriteBuffer(UINT16* pBuffer, UINT32 WriteAddr, UINT32 NumHalfWordToWrite)
 {
+	//pBuffer looks something like this - 00 10 00 00 06 00 00 00 ff ff ff ff. pBuffer[0] has 4096 (10 00). 1000 in hex is converted to 4096 in decimal.
+	//pBuffer[1] has 00 00. pBuffer[2] has 00 06.
 	for(UINT32 i = 0; i < NumHalfWordToWrite; i++)
 	{
 		if(WriteHalfWord(WriteAddr + i * 0x2, pBuffer[i]) != DS_Success)

@@ -89,6 +89,12 @@ INT8 DataStore::DeleteAll( HRESULT &hr )
 		return false;
 }
 
+INT8 DataStore::EraseAllBlocks( HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 INT8 DataStore::DataStoreGC( HRESULT &hr )
 {
     g_dataStoreObject.DataStoreGC();

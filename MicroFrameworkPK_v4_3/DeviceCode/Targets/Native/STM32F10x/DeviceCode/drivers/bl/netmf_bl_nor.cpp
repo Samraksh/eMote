@@ -1,5 +1,6 @@
 #include <tinyhal.h>
 #include "netmf_bl_nor.h"
+#include "platform_selector.h"
 
 extern P30BF65NOR_Driver gNORDriver;
 
@@ -9,7 +10,7 @@ BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
 	gNORDriver.Initialize();
 
-	/*for(UINT32 i = 0 ; i < 0x800000; i = i + 0x10000)
+	/*for(UINT32 i = 0 ; i < 0x80; i = i + 0x10000)
 	{
 	   gNORDriver.EraseBlock(i);
 	   for(volatile UINT16 j = 0; j < 65000; j++ );
@@ -30,7 +31,7 @@ const BlockDeviceInfo* STM32F10x_blDriver_nor::GetDeviceInfo( void* context )
 
 BOOL STM32F10x_blDriver_nor::Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff )
 {
-	UINT32 translAddress = Address - 0x64010000;
+	UINT32 translAddress = Address - DATASTORE_START_ADDRESS;
 
 	UINT32 NumHalfWords = NumBytes / 2;
 
@@ -43,7 +44,7 @@ BOOL STM32F10x_blDriver_nor::Write( void* context, ByteAddress address, UINT32 n
 {
 	DeviceStatus status;
 
-	UINT32 translAddress = address - 0x64010000;
+	UINT32 translAddress = address - DATASTORE_START_ADDRESS;
 	UINT32 numberOfHalfWordsToWrite = numBytes / 2;
 
 	status = gNORDriver.WriteBuffer((UINT16 *) pSectorBuff, translAddress, numberOfHalfWordsToWrite);
@@ -61,7 +62,7 @@ BOOL STM32F10x_blDriver_nor::Memset(void* context, ByteAddress address, UINT8 Da
 {
 	DeviceStatus status;
 
-	UINT32 translAddress = address - 0x64010000;
+	UINT32 translAddress = address - DATASTORE_START_ADDRESS;
 	uint16_t *buffer;
 	uint16_t tempData = (Data << 8);
 	tempData |= Data;
@@ -94,7 +95,7 @@ BOOL STM32F10x_blDriver_nor::IsBlockErased( void* context, ByteAddress Address, 
 
 BOOL STM32F10x_blDriver_nor::EraseBlock( void* context, ByteAddress address )
 {
-	UINT32 translAddress = address - 0x64010000;
+	UINT32 translAddress = address - DATASTORE_START_ADDRESS;
 
 	if(gNORDriver.EraseBlock(translAddress) != DS_Success)
 		return FALSE;
