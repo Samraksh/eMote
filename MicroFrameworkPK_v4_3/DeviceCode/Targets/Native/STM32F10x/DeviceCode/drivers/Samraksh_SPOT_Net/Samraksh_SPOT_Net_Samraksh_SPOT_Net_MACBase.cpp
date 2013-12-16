@@ -24,7 +24,7 @@ MacEventHandler_t MACBase::Event_Handler;
 UINT8 MacID = 0;
 UINT8 MACBase::MyAppID;
 
-extern UINT8 MacName;
+//extern UINT8 MacName;
 
 enum CallBackTypes
 {
@@ -113,8 +113,6 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MacConfig config;
 
-	MacName = param1;
-
 	config.CCA = (configParams[0] == 1) ? TRUE :  FALSE;
 	config.NumberOfRetries = configParams[1];
 	config.CCASenseTime = configParams[2];
@@ -131,7 +129,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(Mac_Initialize(&Event_Handler, MacName, MyAppID, configParams[11], (void*) &config) != DS_Success)
+	if(Mac_Initialize(&Event_Handler, param1, MyAppID, configParams[11], (void*) &config) != DS_Success)
 		return DS_Fail;
 
 	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success)
