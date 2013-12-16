@@ -2,8 +2,10 @@
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Samraksh.SPOT.Hardware;
+using Samraksh.SPOT.NonVolatileMemory;
 using System.IO.Ports;
 using System.Threading;
+
 
 namespace Samraksh.SPOT.APPS
 {
@@ -23,6 +25,21 @@ namespace Samraksh.SPOT.APPS
         abstract public int GetBytesSaved();
         
     }
+
+    /*public class dataStorage : PersistentStorage
+    {
+        DataStore dstore;
+        public dataStorage()
+        {
+            dstore = new DataStore((int)StorageType.NOR);
+        }
+
+        public override bool Write(byte[] data, UInt16 length)
+        {
+            
+            throw new NotImplementedException();
+        }
+    }*/
 
     public class NorStore : PersistentStorage
     {
@@ -222,6 +239,8 @@ namespace Samraksh.SPOT.APPS
 
         public static InterruptPort stopExperiment = new InterruptPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN7, false, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeLow);
 
+        DataStore dStore;
+
         public DataCollectorNOR()
         {
             Debug.Print("Initializing Serial ....");
@@ -246,7 +265,7 @@ namespace Samraksh.SPOT.APPS
 
             storage = new NorStore();
 
-            
+            dStore = new DataStore((int)StorageType.NOR);
         }
 
         void stopExperiment_OnInterrupt(uint data1, uint data2, DateTime time)
@@ -259,8 +278,20 @@ namespace Samraksh.SPOT.APPS
         {
             callbackTime.Write(true);
             callbackTime.Write(false);
-            buffer.Copy(sampleBuffer);
+            Type dataType = typeof(System.UInt16);
+            Data data = new Data(dStore, (uint)sampleBuffer.Length, dataType);
+            data.Write(sampleBuffer, sampleBuffer.Length);
+            //buffer.Copy(sampleBuffer);
             dataCollected += (sampleBuffer.Length * 2);
+        }
+
+        public void ShortToByte(ushort[] buffer)
+        {
+            for (int index = 0; index < buffer.Length; index++)
+            {
+                byte byte1 = buffer[index] >> 8;
+                byte byte2 = buffer[index] & 255;
+            }
         }
 
         public void Run()
@@ -268,20 +299,20 @@ namespace Samraksh.SPOT.APPS
             while (true)
             {
 
-                if (buffer.IsFull())
+                /*if (buffer.IsFull())
                 {
                     norWriteTime.Write(true);
                     buffer.Persist(storage);
                     norWriteTime.Write(false);
-                }
+                }*/
 
                 System.Threading.Thread.Sleep(10);
 
-                if (stopExperimentFlag)
+                /*if (stopExperimentFlag)
                 {
                     storage.WriteEof();
                     break;
-                }
+                }*/
             }
 
             Debug.Print("Total number of bytes collected : " + dataCollected.ToString());
