@@ -617,7 +617,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	/* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
-
+	adcNumSamples = numSamples;
 
 	dualADCMode = TRUE;
 
@@ -739,8 +739,8 @@ extern "C"
 				// of ADC1. Pretty cool  !!!
 				for(UINT16 i = 0; i < adcNumSamples; i++)
 				{
-					*g_adcUserBufferChannel1Ptr++ = (*g_adcDriverBufferDualModePtr & 0xffff);
-					*g_adcUserBufferChannel2Ptr++ = (*g_adcDriverBufferDualModePtr++ >> 16);
+					g_adcUserBufferChannel1Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+					g_adcUserBufferChannel2Ptr[i] = (g_adcDriverBufferDualModePtr[i] >> 16);
 				}
 			}
 
