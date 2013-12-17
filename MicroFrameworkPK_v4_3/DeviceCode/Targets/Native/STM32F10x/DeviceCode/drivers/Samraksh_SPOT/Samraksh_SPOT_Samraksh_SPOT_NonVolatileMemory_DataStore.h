@@ -27,10 +27,8 @@ namespace Samraksh
 
                 static INT32& Get_storageType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::FIELD__storageType ); }
 
-                static UNSUPPORTED_TYPE& Get_dStore( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::FIELD__dStore ); }
-
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
+                static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static float GetUsedKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static float GetFreeKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
@@ -39,6 +37,7 @@ namespace Samraksh
                 static INT8 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, HRESULT &hr );
                 static INT8 Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, INT32 param3, HRESULT &hr );
+                static UINT32 GetDataId( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 DeleteAll( HRESULT &hr );
                 static INT8 EraseAllBlocks( HRESULT &hr );
                 static INT8 DataStoreGC( HRESULT &hr );

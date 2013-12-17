@@ -91,9 +91,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
     public class Data
     {
         // Record Id unique to a pointer
-        static private UInt32 dataId;
+        private UInt32 dataId;
         private UInt32 m_Size = 0;
-        private byte[] buffer;
         private Int32 dataPointer;
         private Type dataType;
         
@@ -113,9 +112,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.dStore = dStore;
             this.m_Size = m_Size;
             this.dataType = dataType;
-            ++dataId;
+            //++dataId;
             //this.dataPointer = 0x0;
-            this.dataPointer = dStore.CreateData(dataId, m_Size);
+            //this.dataPointer = dStore.CreateData(dataId, m_Size);
+            this.dataPointer = dStore.CreateData(m_Size);
+            this.dataId = GetDataId();
+            
             
             //dataObj.Add(this);
             //dRefList.dataObj.Add(this);
@@ -144,6 +146,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
             else
                 return DataStatus.Failure;
         }*/
+
+        private UInt32 GetDataId()
+        {
+            return dStore.GetDataId();
+        }
 
         public DataStatus GetStatus()
         {
@@ -271,10 +278,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return (UInt32)dataObj.Count;
         }*/
 
-        ~Data()
+        /*~Data()
         {
             DisposeNativeMemoryPointer(dataId);
-        }
+            Debug.Print("Destructor");
+        }*/
+
 
         ///////////////////////////////////Internal methods/////////////////////////
 
@@ -335,7 +344,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// The block storage device type
         /// </summary>
         private int storageType;
-        DataStore dStore;
         ////List<Data> dataObj = new List<Data>();
 
         public DataStore(int storageType)
@@ -537,7 +545,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         // get amount of used space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public int CreateData(UInt32 dataId, UInt32 Size);
+        extern public int CreateData(UInt32 Size);
 
         // get amount of used space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -636,7 +644,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         //extern private UInt32 ConstructNativeMemoryPointer(UInt32 dataId, UInt32 bytes);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);       
+        extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public UInt32 GetDataId();
         
         // native call that destroys record created on the flash
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]

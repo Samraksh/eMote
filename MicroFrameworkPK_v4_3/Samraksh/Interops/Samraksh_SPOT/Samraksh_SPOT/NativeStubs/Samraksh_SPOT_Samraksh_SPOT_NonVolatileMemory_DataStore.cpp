@@ -19,9 +19,17 @@ using namespace Samraksh::SPOT::NonVolatileMemory;
 
 extern Data_Store g_dataStoreObject;
 
-INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 dId, UINT32 numBytes, HRESULT &hr )
+static int dataID;
+
+INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 numBytes, HRESULT &hr )
 {
-	return  (int)g_dataStoreObject.createRecord(dId, numBytes);
+	dataID++;
+	return  (int)g_dataStoreObject.createRecord(dataID, numBytes);
+}
+
+UINT32 DataStore::GetDataId( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	return dataID;
 }
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -80,6 +88,12 @@ INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_Typ
 		return false;
 }
 
+UINT32 DataStore::GetDataId( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    UINT32 retVal = 0; 
+    return retVal;
+}
+
 INT8 DataStore::DeleteAll( HRESULT &hr )
 {
     g_dataStoreObject.DeleteAll();
@@ -91,8 +105,11 @@ INT8 DataStore::DeleteAll( HRESULT &hr )
 
 INT8 DataStore::EraseAllBlocks( HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	g_dataStoreObject.EraseAllBlocks();
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 INT8 DataStore::DataStoreGC( HRESULT &hr )
