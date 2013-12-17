@@ -11,49 +11,6 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.NonVolatileMemory
 {
-    //using DATAID = UInt16;
-
-    /*public class DataID
-    {
-        public DataID(UInt16 value)
-        {
-            DATAID = value;
-        }
-
-        private static UInt16 DATAID;
-
-        public static implicit operator DataID(UInt16 value)
-        {
-            return new DataID(value);
-        }
-
-        public static explicit operator UInt16(DataID Data)
-        {
-            return DATAID;
-        }
-    }*/
-
-    /*struct DataID
-    {
-        private UInt16 value;
-
-        public DataID(UInt16 value)
-        {
-            this.value = value;
-        }
-
-        public static implicit operator DataID(UInt16 value)
-        {
-            return new DataID(value);
-        }
-
-        public static explicit operator UInt16(DataID did)
-        {
-            //DataID did = new DataID(d);
-            return did.value;
-        }
-    }*/
-
     public enum StorageType
     {
         NOR,
@@ -83,11 +40,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         InvalidPointer
     };
 
-    /*public class DataRefList
-    {
-        public List<Data> dataObj;
-    }*/
-
     public class Data
     {
         // Record Id unique to a pointer
@@ -97,9 +49,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         private Type dataType;
         
         DataStore dStore;
-        ////private List<Data> dataObj = new List<Data>();
-        ////DataRefList dRefList = new DataRefList();
-        ////dRefList.dataObj = new List<Data>();
 
         public Data(DataStore dStore, Type dataType)
         {
@@ -112,16 +61,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.dStore = dStore;
             this.m_Size = m_Size;
             this.dataType = dataType;
-            //++dataId;
-            //this.dataPointer = 0x0;
-            //this.dataPointer = dStore.CreateData(dataId, m_Size);
             this.dataPointer = dStore.CreateData(m_Size);
             this.dataId = GetDataId();
-            
-            
-            //dataObj.Add(this);
-            //dRefList.dataObj.Add(this);
-            //dStore.addDataReference(dataId);
         }
 
         /// <summary>
@@ -133,19 +74,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
         {
             this.dStore = dStore;
             this.dataPointer = LookupData(dataId);
-            //dataId = dId;
-            //buffer = new byte[MaxDataSize];
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
         }
-
-        /*public DataStatus Create()
-        {
-            dataPointer = dStore.CreateData(dataId, m_Size);
-            if (dataPointer != 0x0)
-                return DataStatus.Success;
-            else
-                return DataStatus.Failure;
-        }*/
 
         private UInt32 GetDataId()
         {
@@ -174,18 +104,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }*/
 
         /// <summary>
-        /// Write an integer to the data store
-        /// </summary>
-        /// <param name="data">Integer to be stored</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
-        /// <returns>Returns 4 (number of bytes written) if successful, returns -1 if operation fails.</returns>
-        /*public int Write(int data, UInt32 dataId)
-        {
-            byte[] buffer = new byte[sizeof(int)];
-            return dStore.Write(dataId, buffer, dataId);
-        }*/
-
-        /// <summary>
         /// Write a byte array into the data store
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
@@ -198,7 +116,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
             if (numBytes > data.Length)
                 return DataStatus.InvalidParameter;
-            //return dStore.Write(dataId, data, offset, numBytes);
+            
             bool retVal = dStore.Write((uint)dataPointer, data, numBytes);
             if (retVal == true)
                 return DataStatus.Success;
@@ -213,7 +131,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
             if (numBytes > data.Length)
                 return DataStatus.InvalidParameter;
-            //return dStore.Write(dataId, data, 0, numBytes);
+            
             bool retVal = dStore.Write((uint) dataPointer, data, numBytes);
             if (retVal == true)
                 return DataStatus.Success;
@@ -239,17 +157,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Get a dataId from the data store
-        /// </summary>
-        /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
-        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
-        /*private Data LookupDataId(UInt32 dataId)
-        {
-            return LookupData(dataId);
-        }*/
-
-        /// <summary>
         /// Delete a data/record from the data store
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
@@ -262,21 +169,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             else
                 return DataStatus.Failure;
         }
-
-        /*public bool ReadAllDataReferences(Data[] dataArray, UInt32 CountOfData)
-        {
-            for (UInt32 index = CountOfData; index < dataArray.Length; ++index)
-            {
-                dataArray = dataObj.ToArray();
-                dataObj[index];
-            }
-            return true;
-        }*/
-
-        /*public UInt32 CountOfDataReferences()
-        {
-            return (UInt32)dataObj.Count;
-        }*/
 
         /*~Data()
         {
@@ -339,12 +231,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         // Stores the current record id
         //private static UInt32 currentdataId = 0;
 
-        ////private byte[] buffer;
         /// <summary>
         /// The block storage device type
         /// </summary>
         private int storageType;
-        ////List<Data> dataObj = new List<Data>();
 
         public DataStore(int storageType)
         {
