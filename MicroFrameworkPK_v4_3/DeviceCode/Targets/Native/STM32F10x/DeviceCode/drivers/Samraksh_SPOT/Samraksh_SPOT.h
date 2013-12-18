@@ -16,6 +16,7 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
     static const int FIELD__m_Size = 1;
     static const int FIELD__storageType = 2;
 
+    TINYCLR_NATIVE_DECLARE(GetDataID___U4);
     TINYCLR_NATIVE_DECLARE(CreateData___I4__U4);
     TINYCLR_NATIVE_DECLARE(CreateDataStore___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetUsedKBytes___R4);
@@ -25,7 +26,6 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
     TINYCLR_NATIVE_DECLARE(Read___BOOLEAN__U4__SZARRAY_U1__I4);
     TINYCLR_NATIVE_DECLARE(Delete___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__U4__SZARRAY_U1__U4__I4);
-    TINYCLR_NATIVE_DECLARE(GetDataId___U4);
     TINYCLR_NATIVE_DECLARE(DeleteAll___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(EraseAllBlocks___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(DataStoreGC___STATIC__BOOLEAN);

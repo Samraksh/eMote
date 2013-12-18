@@ -297,6 +297,23 @@ RECORD_ID Data_Store::getRecordID(LPVOID givenPtr)
 }
 
 
+RECORD_ID Data_Store::getRecentRecordID()
+{
+	uint32 recIdIndex = 0;
+
+	while(addressTable.table[recIdIndex].recordID != 0)
+	{
+		++recIdIndex;
+	}
+	if(recIdIndex == 0)
+		return recIdIndex;
+	else{
+		recIdIndex--;
+		return addressTable.table[recIdIndex].recordID;
+	}
+}
+
+
 DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property )
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_INVALID_PARAM;
@@ -964,7 +981,7 @@ uint32 Data_Store::getCountOfRecordIds()
 	{
 		++recIdIndex;
 	}
-	return recIdIndex+1;
+	return recIdIndex;
 }
 
 

@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT</FeatureName>
-    <Guid>{e923edca-be3e-488a-ab24-3227c82a3d2b}</Guid>
+    <Guid>{fcacde3d-be1d-4a78-9f74-9e1d34454f8d}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_FEATUREPROJ>True</SAMRAKSH_SPOT_FEATUREPROJ>

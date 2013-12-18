@@ -62,7 +62,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.m_Size = m_Size;
             this.dataType = dataType;
             this.dataPointer = dStore.CreateData(m_Size);
-            this.dataId = GetDataId();
+            this.dataId = dStore.GetDataID();
         }
 
         /// <summary>
@@ -75,11 +75,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.dStore = dStore;
             this.dataPointer = LookupData(dataId);
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
-        }
-
-        private UInt32 GetDataId()
-        {
-            return dStore.GetDataId();
         }
 
         public DataStatus GetStatus()
@@ -305,7 +300,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         public DataStatus ReadAllDataReferences(DataStore dStore, Data[] dataRefArray, UInt16 dataIdOffset)
         {
-            /*UInt16 dataId;
+            UInt16 dataId;
             int[] dataIdArray = new int[GetCountOfDataIds()];
             if (GetReadAllDataIds(dataIdArray) == false)
                 return DataStatus.Failure;
@@ -317,7 +312,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                     dataRefArray[arrayIndex] = new Data(dStore, dataId);
                     ++dataIdOffset;
                 }
-            }*/
+            }
             return DataStatus.Success;
         }
 
@@ -433,6 +428,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         ///////////////////////////////////Internal methods/////////////////////////
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public UInt32 GetDataID();
+
         // get amount of used space
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size);
@@ -536,9 +534,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);
 
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt32 GetDataId();
-        
         // native call that destroys record created on the flash
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //extern private bool DisposeNativeMemoryPointer(UInt32 dataId);

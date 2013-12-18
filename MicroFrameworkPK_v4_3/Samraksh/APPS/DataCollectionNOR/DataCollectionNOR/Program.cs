@@ -9,7 +9,6 @@ using System.Threading;
 
 namespace Samraksh.SPOT.APPS
 {
-
     public abstract class PersistentStorage
     {
         abstract public bool Write(ushort[] data, UInt16 length);
@@ -43,23 +42,67 @@ namespace Samraksh.SPOT.APPS
 
     public class NorStore : PersistentStorage
     {
+        public static OutputPort resultFailure = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN3, false);
+        public static OutputPort resultRWData = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN4, false);
+        public static OutputPort resultDeleteData = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN5, false);
+
         public const uint NorSize = 12 * 1024 * 1024;
 
         public const bool debugMode = false;
 
         public int bytesWritten = 0;
 
-
         public ushort[] verfier = new ushort[1024];
+        public byte[] verfierDS = new byte[1024];
+
+        DataStore dStore;
+        Data dataDS;
+        Type dataType = typeof(System.Byte);
 
         public NorStore()
         {
-            Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize(NorSize);
+            dStore = new DataStore((int)StorageType.NOR);
+            //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize(NorSize);
         }
 
         public override bool Write(byte[] data, UInt16 length)
         {
-            return false;
+            resultRWData.Write(false);
+            dataDS = new Data(dStore, (uint)data.Length, dataType);
+            if (dataDS.Write(data, (uint)data.Length) == DataStatus.Success)
+            {
+                resultRWData.Write(true);
+                return true;
+            }
+            else
+            {
+                Debug.Print("Write to NOR failed\n");
+                resultRWData.Write(false);
+                resultFailure.Write(true);
+                return false;
+            }
+
+            if (debugMode)
+            {
+                if (dataDS.Read(verfierDS) != DataStatus.Success)
+                {
+                    Debug.Print("Read from NOR failed during verification\n");
+                    resultRWData.Write(false);
+                    resultFailure.Write(true);
+                    return false;
+                }
+
+                for (UInt16 index = 0; index < verfierDS.Length; index++)
+                {
+                    if (verfierDS[index] != data[index])
+                    {
+                        Debug.Print("Write Failed");
+                        resultRWData.Write(false);
+                        resultFailure.Write(true);
+                        return false;
+                    }
+                }
+            }
         }
 
         public override int GetBytesSaved()
@@ -148,16 +191,19 @@ namespace Samraksh.SPOT.APPS
 
         public override bool WriteEof()
         {
-            ushort[] eof = new ushort[512];
+            byte[] eof = new byte[1024];
 
             for (UInt16 i = 0; i < eof.Length; i++)
             {
-                eof[i] = 0x0c0c;
+                eof[i] = (byte)0x0c;
             }
 
-            Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(eof, (ushort) eof.Length);
-
-            return true;
+            //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(eof, (ushort) eof.Length);
+            dataDS = new Data(dStore, (uint)eof.Length, dataType);
+            if (dataDS.Write(eof, (uint)eof.Length) == DataStatus.Success)
+                return true;
+            else
+                return false;
         }
     }
 
@@ -165,6 +211,7 @@ namespace Samraksh.SPOT.APPS
     public class BufferStorage
     {
         public ushort[] buffer;
+        public byte[] byteBuffer;
 
         public Object bufferLock = new object();
 
@@ -196,7 +243,9 @@ namespace Samraksh.SPOT.APPS
         {
             lock (bufferLock)
             {
-                if (!storage.Write(buffer, (ushort)buffer.Length))
+                byteBuffer = ShortToByte(buffer);
+                //if (!storage.Write(buffer, (ushort)buffer.Length))
+                if (!storage.Write(byteBuffer, (UInt16)byteBuffer.Length))
                 {
                     return false;
                 }
@@ -207,10 +256,21 @@ namespace Samraksh.SPOT.APPS
             return true;
         }
 
-        
+        public byte[] ShortToByte(ushort[] inputBuffer)
+        {
+            byte[] outputBuffer = new byte[inputBuffer.Length * 2];
+            //outputBuffer = (byte)(Convert.ToByte(inputBuffer));
+            for(UInt16 index = 0; index < inputBuffer.Length; index++)
+            {
+                outputBuffer[index] = (byte)(inputBuffer[index] >> 8);
+                outputBuffer[index + 1] = (byte)(inputBuffer[index] & 255);
+            }
+            return outputBuffer;
+        }
 
     }
 
+    
     public class DataCollectorNOR
     {
 
@@ -265,7 +325,6 @@ namespace Samraksh.SPOT.APPS
 
             storage = new NorStore();
 
-            dStore = new DataStore((int)StorageType.NOR);
         }
 
         void stopExperiment_OnInterrupt(uint data1, uint data2, DateTime time)
@@ -278,20 +337,8 @@ namespace Samraksh.SPOT.APPS
         {
             callbackTime.Write(true);
             callbackTime.Write(false);
-            Type dataType = typeof(System.UInt16);
-            Data data = new Data(dStore, (uint)sampleBuffer.Length, dataType);
-            data.Write(sampleBuffer, sampleBuffer.Length);
-            //buffer.Copy(sampleBuffer);
+            buffer.Copy(sampleBuffer);
             dataCollected += (sampleBuffer.Length * 2);
-        }
-
-        public void ShortToByte(ushort[] buffer)
-        {
-            for (int index = 0; index < buffer.Length; index++)
-            {
-                byte byte1 = buffer[index] >> 8;
-                byte byte2 = buffer[index] & 255;
-            }
         }
 
         public void Run()
@@ -299,20 +346,20 @@ namespace Samraksh.SPOT.APPS
             while (true)
             {
 
-                /*if (buffer.IsFull())
+                if (buffer.IsFull())
                 {
                     norWriteTime.Write(true);
                     buffer.Persist(storage);
                     norWriteTime.Write(false);
-                }*/
+                }
 
                 System.Threading.Thread.Sleep(10);
 
-                /*if (stopExperimentFlag)
+                if (stopExperimentFlag)
                 {
                     storage.WriteEof();
                     break;
-                }*/
+                }
             }
 
             Debug.Print("Total number of bytes collected : " + dataCollected.ToString());

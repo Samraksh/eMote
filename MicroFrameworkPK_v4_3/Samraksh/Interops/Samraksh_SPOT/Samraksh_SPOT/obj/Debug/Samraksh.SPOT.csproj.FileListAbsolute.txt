@@ -31,4 +31,3 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT\Sam
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT\Samraksh_SPOT\obj\Debug\le\Samraksh_SPOT.pdbx
 D:\AnanthAtSamraksh\MF\microframeworkpk_v4_3\Samraksh\Interops\Samraksh_SPOT\Samraksh_SPOT\obj\Debug\Samraksh_SPOT.dll
 D:\AnanthAtSamraksh\MF\microframeworkpk_v4_3\Samraksh\Interops\Samraksh_SPOT\Samraksh_SPOT\obj\Debug\Samraksh_SPOT.pdb
-D:\AnanthAtSamraksh\MF\microframeworkpk_v4_3\Samraksh\Interops\Samraksh_SPOT\Samraksh_SPOT\obj\Debug\Samraksh.SPOT.csprojResolveAssemblyReference.cache

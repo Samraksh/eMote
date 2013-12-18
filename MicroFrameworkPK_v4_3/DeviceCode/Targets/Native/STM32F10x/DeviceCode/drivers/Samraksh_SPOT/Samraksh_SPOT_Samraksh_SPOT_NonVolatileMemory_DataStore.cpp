@@ -27,14 +27,19 @@ INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 numBytes, HRESULT
 	return  (int)g_dataStoreObject.createRecord(dataID, numBytes);
 }
 
-UINT32 DataStore::GetDataId( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT32 DataStore::GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	return dataID;
+    return dataID;
 }
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return g_dataStoreObject.init();
+    g_dataStoreObject.init();
+    dataID = g_dataStoreObject.getRecentRecordID();
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 float DataStore::GetUsedKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )

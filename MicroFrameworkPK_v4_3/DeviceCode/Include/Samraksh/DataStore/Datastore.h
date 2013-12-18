@@ -340,6 +340,8 @@ public:
     /* Symmetric API to lookup ID using PTR */
     RECORD_ID getRecordID(LPVOID givenPtr);
 
+    RECORD_ID getRecentRecordID();
+
     /* Write data to the store */
     uint32 writeData( LPVOID dest, uint32 *data, uint32 count );
 
