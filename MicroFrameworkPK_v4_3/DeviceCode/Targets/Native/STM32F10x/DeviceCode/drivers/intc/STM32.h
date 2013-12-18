@@ -350,8 +350,40 @@ struct STM32_AITC
        return;
 	}
 
+    // Nived.Sivadas - this function is configured for priority group 4 because sub priority is defaulted to 0
     void SetPriority( UINT32 Irq_Index, UINT32 priority )
     {
+
+    	// Coded assert
+    	if(Irq_Index > c_MaxInterruptIndex)
+    	{
+    		while(TRUE);
+    	}
+
+    	// Coded assert
+    	if(priority > 16)
+    	{
+    		while(TRUE);
+    	}
+
+    	UINT32 tmppriority = 0x0;
+    	UINT32 tmppre = 0x0;
+    	UINT32 tmpsub = 0x0F;
+
+    	tmppriority = (0x700 - ((SCB->AIRCR) & (uint32_t)0x700))>> 0x08;
+    	tmppre = (0x4 - tmppriority);
+    	tmpsub = tmpsub >> tmppriority;
+
+    	tmppriority = (UINT32) (priority << tmppre);
+    	tmppriority |=  (0 & tmpsub);
+    	tmppriority = (tmppriority << 0x04);
+
+    	NVIC->IP[(UINT32)Irq_Index] = tmppriority;
+    	// Nived.Sivadas - discovered difference between stm32 m3 and official cortex m3
+    	// the stm32 firmware uses only 4 bits of the 8 to set priorities
+    	// and hence supports only 16 priority levels as opposed to 255
+    	// making changes here to reflect this
+#if 0
         ASSERT(Irq_Index < c_MaxInterruptIndex);
         ASSERT(priority < 255);
 
@@ -366,7 +398,7 @@ struct STM32_AITC
 			// Nived : Need to implement SCB Driver for interrupts < 0
 			//SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff); } /* set Priority for Cortex-M3 System Interrupts */
 		}
-
+#endif
 
 	}
 
