@@ -17,7 +17,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         SD
     };
 
-    /* Error values */
+    /// <summary>
+    /// DataStore error values 
+    /// </summary>
     public enum DATASTORE_ERROR
     {
         DATASTORE_ERROR_NONE,
@@ -31,6 +33,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         DATASTORE_ERROR_UNEXPECTED_ERROR
     };
 
+    /// <summary>
+    /// DataStore status types
+    /// </summary>
     public enum DataStatus
     {
         Success,
@@ -40,6 +45,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         InvalidPointer
     };
 
+    /// <summary>
+    /// Data class. Provides functions to write, read and delete data. 
+    /// Provides a reference/handle to the data stored in the block storage device to the user.
+    /// </summary>
     public class Data
     {
         // Record Id unique to a pointer
@@ -50,12 +59,23 @@ namespace Samraksh.SPOT.NonVolatileMemory
         
         DataStore dStore;
 
+        /// <summary>
+        /// Data constructor that takes DataStore and the data type as parameters
+        /// </summary>
+        /// <param name="dStore"></param>
+        /// <param name="dataType"></param>
         public Data(DataStore dStore, Type dataType)
         {
             this.dStore = dStore;
             this.dataType = dataType;
         }
 
+        /// <summary>
+        /// Default data class constructor
+        /// </summary>
+        /// <param name="dStore">DataStore object</param>
+        /// <param name="m_Size">Size of the data object to be stored in data store</param>
+        /// <param name="dataType">Type of data to be stored in data store</param>
         public Data(DataStore dStore, UInt32 m_Size, Type dataType)
         {
             this.dStore = dStore;
@@ -68,8 +88,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// Returns a data object corresponding to the input parameter dataId.
         /// </summary>
-        /// <param name="StartdataId">Data ID of the first data record to be created</param>
-        /// <param name="MaxDataSize">Size of the bigggest data element which can be stored</param>
+        /// <param name="dStore">DataStore object</param>
+        /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
         public Data(DataStore dStore, UInt32 dataId)
         {
             this.dStore = dStore;
@@ -77,6 +97,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
         }
 
+        /// <summary>
+        /// Returns the last error status of data store.
+        /// </summary>
+        /// <returns>Returns success, failure or error status</returns>
         public DataStatus GetStatus()
         {
             if (dStore.LastErrorStatus() == (int)DATASTORE_ERROR.DATASTORE_ERROR_DATA_ID_ALREADY_EXISTS)
@@ -102,8 +126,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Write a byte array into the data store
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
-        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
+        /// <param name="offset">Offset within the data array from which to write to data store</param>
+        /// <param name="numBytes">Number of bytes to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
         public DataStatus Write(byte[] data, UInt32 offset, UInt32 numBytes)
         {
             if (dataPointer == 0x0)
@@ -119,6 +144,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
+        /// <summary>
+        /// Write a byte array into the data store
+        /// </summary>
+        /// <param name="data">Byte array to be written to data store</param>
+        /// <param name="numBytes">Number of bytes to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
         public DataStatus Write(byte[] data, UInt32 numBytes)
         {
             if (dataPointer == 0x0)
@@ -135,11 +166,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Read a byte array into the data store
+        /// Read a byte array from the data store into the array passed as parameter
         /// </summary>
-        /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
-        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
+        /// <param name="data">Byte array to be filled up with data for the corresponding data object</param>
+        /// <returns>Returns if read was a success or a failure</returns>
         public DataStatus Read(byte[] data)
         {
             if (dataPointer == 0x0)
@@ -154,9 +184,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// Delete a data/record from the data store
         /// </summary>
-        /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
-        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
+        /// <returns>Returns success or failure</returns>
         public DataStatus Delete()
         {
             if(DeleteData(dataId) == true)
@@ -175,32 +203,44 @@ namespace Samraksh.SPOT.NonVolatileMemory
         ///////////////////////////////////Internal methods/////////////////////////
 
         /// <summary>
-        /// Get a dataId from the data store
+        /// Get address of dataID from the data store
         /// </summary>
-        /// <param name="dataID">ID of the data/record to be deleted</param>
-        /// <returns>Returns success or failure of operation</returns>
+        /// <param name="dataId">ID of the data/record to be looked up</param>
+        /// <returns>Returns address/reference to the dataID</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private Int32 LookupData(UInt32 dataId);
 
         /// <summary>
         /// Delete the data represented by the dataId from data store.
         /// </summary>
-        /// <param name="dataID">ID of the data/record to be deleted</param>
-        /// <returns>Returns success or failure of operation</returns>
+        /// <param name="dataId">ID of the data/record to be deleted</param>
+        /// <returns>Returns true or false</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool DeleteData(UInt32 dataId);
 
-        //Returns the size of the NVM, if 0 operation failed
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dataId"></param>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private UInt32 ConstructNativeMemoryPointer(UInt32 dataId, UInt32 bytes);
 
-        // native call that destroys record created on the flash
+        /// <summary>
+        /// Native call that destroys record created on the flash
+        /// </summary>
+        /// <param name="dataId"></param>
+        /// <returns>Returns true or false</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool DisposeNativeMemoryPointer(UInt32 dataId);
         
     }
 
-
+    /// <summary>
+    /// DataStore class that holds data. 
+    /// DataStore can be any block storage device (eg. NOR, SD card)
+    /// </summary>
     public class DataStore
     {
 
@@ -231,6 +271,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         private int storageType;
 
+        /// <summary>
+        /// DataStore constructor that takes a storageType as parameter and initializes the data store with that storageType.
+        /// </summary>
+        /// <param name="storageType">storageType can be NOR, SD card or any other block storage device</param>
         public DataStore(int storageType)
         {
             this.storageType = storageType;
@@ -284,7 +328,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
             dataObj.Add(dataId);
         }*/
 
-        //public bool ReadAllDataIds(UInt32 dataId, UInt32 Size)
+        /// <summary>
+        /// Fills up the array passed as parameter with all dataIDs
+        /// </summary>
+        /// <param name="dataIdArray">Array which is filled up with the dataIDs</param>
+        /// <returns>Returns success or failure</returns>
         public DataStatus ReadAllDataIds(int[] dataIdArray)
         {
             if (GetReadAllDataIds(dataIdArray) == true)
@@ -293,12 +341,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
+        /// <summary>
+        /// Returns the count of dataIDs
+        /// </summary>
+        /// <returns>Returns count of dataIDs</returns>
         public UInt32 CountOfDataIds()
         {
             return GetCountOfDataIds();
         }
 
-        public DataStatus ReadAllDataReferences(DataStore dStore, Data[] dataRefArray, UInt16 dataIdOffset)
+        /// <summary>
+        /// Fills up the array (passed as first parameter) with the dataIDs starting from offset (passed as second parameter)
+        /// </summary>
+        /// <param name="dataRefArray"></param>
+        /// <param name="dataIdOffset"></param>
+        /// <returns>Returns success or failure</returns>
+        public DataStatus ReadAllDataReferences(Data[] dataRefArray, UInt16 dataIdOffset)
         {
             UInt16 dataId;
             int[] dataIdArray = new int[GetCountOfDataIds()];
@@ -309,7 +367,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
                 {
                     dataId = (UInt16)dataIdArray[dataIdOffset];
-                    dataRefArray[arrayIndex] = new Data(dStore, dataId);
+                    dataRefArray[arrayIndex] = new Data(this, dataId);
                     ++dataIdOffset;
                 }
             }
@@ -321,6 +379,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return (UInt32)dataObj.Count;
         }*/
 
+        /// <summary>
+        /// Deletes all dataIDs from the data store. Does not actually erase the data, but marks them as inactive.
+        /// </summary>
+        /// <returns>Returns success or failure</returns>
         public static DataStatus DeleteAllData()
         {
             if (DeleteAll() == true)
@@ -329,7 +391,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
-        public static DataStatus GC()
+        /// <summary>
+        /// Performs garbage collection on the data store. This is done internally by data store when there is not enough space to add new data.
+        /// GC rearranges data internally so that all active records are grouped together. Then the inactive records are erased one block at a time.
+        /// </summary>
+        /// <returns>Returns success or failure</returns>
+        private static DataStatus GC()
         {
             if(DataStoreGC() == true)
                 return DataStatus.Success;
@@ -337,6 +404,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
+        /// <summary>
+        /// Erases all data from data store.
+        /// </summary>
+        /// <returns>Returns success or failure</returns>
         public static DataStatus EraseAll()
         {
             /*if(DataStore.DeleteAllData() != DataStatus.Success)
@@ -353,11 +424,19 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
+        /// <summary>
+        /// Returns write status 
+        /// </summary>
+        /// <returns>Returns write status</returns>
         public bool ReadWriteStatus()
         {
             return GetReadWriteStatus();
         }
 
+        /// <summary>
+        /// Returns the last error status of data store
+        /// </summary>
+        /// <returns>Returns last error status of data store</returns>
         public int LastErrorStatus()
         {
             return GetLastErrorStatus();
@@ -388,10 +467,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }*/     
 
         /// <summary>
-        /// Write an integer to the data store
+        /// Write data array to the data store starting from the address (passed as first parameter)
         /// </summary>
-        /// <param name="data">Integer to be stored</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
+        /// <param name="address">Starting address from which to start writing the data</param>
+        /// <param name="data">Data array to be written to data store</param>
         /// <returns>Returns 4 (number of bytes written) if successful, returns -1 if operation fails.</returns>
         public bool Write(UInt32 address, byte[] data)
         {
@@ -400,10 +479,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Write a byte array into the data store
+        /// Write data array to the data store starting from the address (passed as first parameter). Amount of data to be written is specified by numBytes (third parameter)
         /// </summary>
-        /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="dataID">The dataID of stored data is copied to dataID</param>
+        /// <param name="address">Starting address from which to start writing the data</param>
+        /// <param name="data">Data array to be written to data store</param>
+        /// <param name="numBytes">Amount of data to be written</param>
         /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
         public bool Write(UInt32 address, byte[] data, UInt32 numBytes)
         {
@@ -411,16 +491,19 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Read a byte array from the data store
+        /// Read a byte array from the data store into data array starting from address (first parameter)
         /// </summary>
-        /// <param name="data">Byte array to be written to data store</param>
+        /// <param name="address">Starting address from which to start reading</param>
+        /// <param name="data">Byte array to be filled up with data from data store</param>
         /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
         public bool Read(UInt32 address, byte[] data)
         {
             return Read(address, data, storageType);
         }
 
-        // destroys the record on the flash
+        /// <summary>
+        /// Destroys the record in the data store
+        /// </summary>
         ~DataStore()
         {
             //DisposeNativeMemoryPointer(dataId);
@@ -428,29 +511,46 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         ///////////////////////////////////Internal methods/////////////////////////
 
+        /// <summary>
+        /// Returns the current dataID 
+        /// </summary>
+        /// <returns>Current dataID</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public UInt32 GetDataID();
 
-        // get amount of used space
+        /// <summary>
+        /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
+        /// </summary>
+        /// <param name="Size">Size of the data</param>
+        /// <returns>Reference to the created data</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size);
 
-        // get amount of used space
+        /// <summary>
+        /// Initializes the data store. Performs a scan of the device and builds up the list of active data inside the data store.
+        /// </summary>
+        /// <returns>True or false</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool CreateDataStore();
 
-        // get amount of used space
+        /// <summary>
+        /// Get amount of used space 
+        /// </summary>
+        /// <returns>Amount of used space</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private float GetUsedKBytes();
 
-        // get amount of free space
+        /// <summary>
+        /// Get amount of free space
+        /// </summary>
+        /// <returns>Amount of free space</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private float GetFreeKBytes();
 
         /// <summary>
-        /// Returns valid data records currently stored in the NVM
+        /// Returns valid data currently stored in the data store
         /// </summary>
-        /// <returns>Returns array with valid data records as unsigned integer</returns>
+        /// <returns>Returns array with valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool GetReadAllDataIds(int[] dataIdArray);
 
@@ -458,9 +558,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private bool GetReadAllDataReferences(int[] dataArray, UInt32 CountOfData);*/
 
         /// <summary>
-        /// Get the number of valid data records currently stored in the NVM
+        /// Get the count of valid data currently stored in the data store
         /// </summary>
-        /// <returns>Returns a the number of valid data records as unsigned integer</returns>
+        /// <returns>Returns the count of valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private UInt32 GetCountOfDataIds();
 
@@ -468,28 +568,28 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private UInt32 GetCountOfDataReferences();*/
 
         /// <summary>
-        /// Delete all records in the Data Store
+        /// Delete all references to data in the data store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private static bool DeleteAll();
 
         /// <summary>
-        /// Delete all records in the Data Store
+        /// Erases all data in the data store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private static bool EraseAllBlocks();
 
         /// <summary>
-        /// Garbage collects inactive records in Data Store
+        /// Garbage collects inactive records in data store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private static bool DataStoreGC();
 
         /// <summary>
-        /// Gets read/write status of the Data Store
+        /// Gets read/write status of the data store
         /// </summary>
         /// <returns>Returns status of read/write on data store</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -503,10 +603,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private static int GetLastErrorStatus();
 
         /// <summary>
-        /// Read data the data record represented by the dataId, into the buffer
+        /// Read from data into the buffer starting from address.
         /// </summary>
-        /// <param name="dataId">ID of the record to be read</param>
-        /// <param name="buffer">Byte buffer into which the data will be read</param>
+        /// <param name="address">Address of data to be read from</param>
+        /// <param name="buffer">Buffer into which the data will be read</param>
+        /// <param name="storageType">Block storage type</param>
         /// <returns>Returns number of bytes read, returns -1 if operation fails</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Read(UInt32 address, byte[] buffer, int storageType);
@@ -531,6 +632,14 @@ namespace Samraksh.SPOT.NonVolatileMemory
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //extern private UInt32 ConstructNativeMemoryPointer(UInt32 dataId, UInt32 bytes);
 
+        /// <summary>
+        /// Write data present in buffer starting from address and amount equal to numBytes. 
+        /// </summary>
+        /// <param name="address">Address from which to start writing data</param>
+        /// <param name="data">Buffer holding data to be written</param>
+        /// <param name="numBytes">Amount of data to be written</param>
+        /// <param name="storageType">Block storage type</param>
+        /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);
 
