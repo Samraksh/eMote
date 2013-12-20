@@ -2,7 +2,8 @@
 #include "RF231RegDef.h"
 #include <tinyhal.h>
 
-#define DEBUG_RF231 1
+//#define DEBUG_RF231 1
+
 
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
@@ -185,7 +186,10 @@ BOOL RF231Radio::Reset()
 
 	GLOBAL_LOCK(irq);
 
-	GpioPinInitialize();
+	if(TRUE != GpioPinInitialize())
+	{
+		return FALSE;
+	}
 			//configure_exti();
 	if(TRUE != SpiInitialize())
 	{
@@ -260,8 +264,12 @@ BOOL RF231Radio::Reset()
 			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 	#endif
-			// Enable the gpio pin as the interrupt point
-	CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+
+	// Enable the gpio pin as the interrupt point
+	if(this->GetRadioName() == RF231RADIO)
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+	else if(this->GetRadioName() == RF231RADIOLR)
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
 	SlptrSet();
@@ -393,6 +401,15 @@ DeviceStatus RF231Radio::Sleep(int level)
 		sleep_pending = TRUE;
 		return DS_Success;
 	}
+
+	// Turn of things before going to sleep
+	if(RF231RADIOLR == this->GetRadioName())
+	{
+		this->Amp(FALSE);
+		this->PARXTX(FALSE);
+		this->AntDiversity(FALSE);
+	}
+
 	// Read current state of radio
 	UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 
@@ -565,14 +582,75 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	return temp;
 }
 
+DeviceStatus RF231Radio::AntDiversity(BOOL enable)
+{
+	// only works on the long range radio board
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return DS_Fail;
+	}
 
-DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id)
+	UINT8 data = ReadRegister(RF231_REG_ANT_DIV);
+
+	if(enable)
+	{
+		data |= 0x0C;
+	}
+	else
+	{
+		data &= ~(3 << 2);
+	}
+
+
+	WriteRegister(RF231_REG_ANT_DIV, data);
+
+	return DS_Success;
+
+}
+
+DeviceStatus RF231Radio::PARXTX(BOOL enable)
+{
+	// only works on the long range radio board
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return DS_Fail;
+	}
+
+	UINT8 data = ReadRegister(RF231_REG_TX_CTRL_1);
+
+	if(enable)
+	{
+		data |= 0x80;
+	}
+	else
+	{
+		data &= ~(1 << 7);
+	}
+
+	WriteRegister(RF231_REG_TX_CTRL_1, data);
+
+	return DS_Success;
+
+}
+
+void RF231Radio::Amp(BOOL TurnOn)
+{
+	if(this->GetRadioName() != RF231RADIOLR)
+	{
+		return;
+	}
+
+	CPU_GPIO_SetPinState((GPIO_PIN) AMP_LR, TurnOn);
+}
+
+DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id)
 {
 	INIT_STATE_CHECK()
 #ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
 
 
 	// Set MAC datastructures
@@ -582,7 +660,29 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 
 	//If the radio hardware is not alrady initialised, initialize it
 	if(!IsInitialized()){
-		SetRadioID(RadioID::GetUniqueRadioId());//Get your unique ID
+
+		// Give the radio its name , rf231 or rf231 long range
+		this->SetRadioName(radio);
+
+		// Set the corresponding gpio pins
+		if(this->GetRadioName() == RF231RADIO)
+		{
+			kslpTr 		= 	 SLP_TR_PIN;
+			krstn 		= 	 RSTN_PIN;
+			kseln		= 	 SELN_PIN;
+			kinterrupt	= 	 INTERRUPT_PIN;
+		}
+		else if(this->GetRadioName() == RF231RADIOLR)
+		{
+			kslpTr		=    SLP_TR_PIN_LR;
+			krstn 		= 	 RSTN_PIN_LR;
+			kseln		= 	 SELN_PIN_LR;
+			kinterrupt	= 	 INTERRUPT_PIN_LR;
+
+			// Enable the amp pin
+			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_LR, FALSE);
+
+		}
 
 		//Get cpu serial and hash it to use as node id
 		UINT8 cpuserial[12];
@@ -611,7 +711,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
-		GpioPinInitialize();
+		if(TRUE != GpioPinInitialize())
+		{
+			return DS_Fail;
+		}
 		//configure_exti();
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
@@ -721,8 +824,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
 		// Enable the gpio pin as the interrupt point
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-
+		if(this->GetRadioName() == RF231RADIO)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		else if(this->GetRadioName() == RF231RADIOLR)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 		SlptrSet();
 #ifdef DEBUG_RF231
@@ -744,8 +849,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8* rad
 #endif
 	}
 
-	UINT8 tempId = Radio<Message_15_4_t>::GetRadioID();
-	*radioID = tempId;
 	return DS_Success;
 }
 
@@ -768,11 +871,34 @@ void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 // Assumes that the these pins are not used by other modules. This should generally be handled by the gpio module
 // Returns a void data type
 //template<class T>
-void RF231Radio::GpioPinInitialize()
+BOOL RF231Radio::GpioPinInitialize()
 {
+
+	if(CPU_GPIO_PinIsBusy(kseln))
+		return FALSE;
+
+	if(CPU_GPIO_PinIsBusy(kslpTr))
+		return FALSE;
+
+	if(CPU_GPIO_PinIsBusy(krstn))
+		return FALSE;
+
+
+	if(!CPU_GPIO_ReservePin(kseln, TRUE))
+		return FALSE;
+
+	if(!CPU_GPIO_ReservePin(kslpTr, TRUE))
+		return FALSE;
+
+	if(!CPU_GPIO_ReservePin(krstn, TRUE))
+		return FALSE;
+
+
 	CPU_GPIO_EnableOutputPin(kseln,TRUE);
 	CPU_GPIO_EnableOutputPin(kslpTr,FALSE);
 	CPU_GPIO_EnableOutputPin(krstn,TRUE);
+
+	return TRUE;
 
 #ifdef DEBUG_RF231
 	CPU_GPIO_EnableOutputPin((GPIO_PIN)0, TRUE);
@@ -794,12 +920,20 @@ BOOL RF231Radio::SpiInitialize()
 	config.MSK_IDLE               = false;
 	config.MSK_SampleEdge         = false;
 	config.Clock_RateKHz          = 2;
-	config.SPI_mod                = 0;
+	if(this->GetRadioName() == RF231RADIO)
+	{
+		config.SPI_mod                = SPIBUS1;
+	}
+	else if(this->GetRadioName() == RF231RADIOLR)
+	{
+		config.SPI_mod 				  = SPIBUS2;
+	}
+
 	config.MD_16bits = FALSE;
 
 
-
-	CPU_SPI_Enable();
+	// Enable the SPI depending on the radio who is the user
+	CPU_SPI_Enable(config);
 
 	return TRUE;
 }
@@ -816,6 +950,18 @@ DeviceStatus RF231Radio::TurnOn()
 	if(state != STATE_SLEEP)
 	{
 		return DS_Success;
+	}
+
+	if(this->GetRadioName() == RF231RADIOLR)
+	{
+		// Enable antenna diversity mode
+		this->AntDiversity(TRUE);
+
+		// Enable external pa control
+		this->PARXTX(TRUE);
+
+		// take the amp  out of bypass mode
+		this->Amp(TRUE);
 	}
 
 #if 0
@@ -853,6 +999,8 @@ DeviceStatus RF231Radio::TurnOn()
 
 	// Change the state to RX_ON
 	state = STATE_RX_ON;
+
+
 
 	return DS_Success;
 
@@ -978,6 +1126,7 @@ void RF231Radio::HandleInterrupt()
 	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS);
 
@@ -1143,9 +1292,14 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
+<<<<<<< HEAD
 			receive_timestamp = HAL_Time_CurrentTime();
+=======
+
+>>>>>>> LongRange
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
+
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
 					return;
@@ -1193,6 +1347,9 @@ DeviceStatus RF231Radio::DownloadMessage()
 {
 	UINT16 crc;
 	INT16 lqi;
+
+
+
 	//////////////////////If Auto crc check is failing return false
 	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
 	if(!(phy_rssi & (1 << 7)))
@@ -1256,9 +1413,15 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 
 extern RF231Radio grf231Radio;
+extern RF231Radio grf231RadioLR;
 
 extern "C"
 {
+
+	void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
+	{
+		grf231RadioLR.HandleInterrupt();
+	}
 
 	// Call radio_irq_handler from here
 	void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)

@@ -2,7 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_Net</FeatureName>
+<<<<<<< HEAD
     <Guid>{a74876b5-0e7c-4a0c-9410-3576f891f0f8}</Guid>
+=======
+    <Guid>{5134f897-6a60-41e5-a050-4ffe84ed0826}</Guid>
+>>>>>>> LongRange
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_NET_FEATUREPROJ>True</SAMRAKSH_SPOT_NET_FEATUREPROJ>

@@ -117,6 +117,33 @@ void COMInit(int COM, USART_InitTypeDef* USART_InitStruct)
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
 
+	// Fix added to protect long range radio against usart power - ask Nathan.Stohs for reasons
+	CPU_GPIO_EnableInputPin3((GPIO_PIN) 9, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+
+	if(CPU_GPIO_GetPinState((GPIO_PIN) 9) == TRUE)
+	{
+		// Lock the external radio seln pin
+		if(!CPU_GPIO_ReservePin(89, TRUE))
+				return FALSE;
+
+		// Lock the external radio slptr pin
+		if(!CPU_GPIO_ReservePin(27, TRUE))
+			return FALSE;
+
+		// Lock the external radio rstn pin
+		if(!CPU_GPIO_ReservePin(90, TRUE))
+			return FALSE;
+	}
+
+
+	// Reserve the two ports the TX/RX ports of usart 1/ COM1
+	if(!CPU_GPIO_ReservePin(9, TRUE))
+			return FALSE;
+
+
+	if(!CPU_GPIO_ReservePin(10, TRUE))
+				return FALSE;
+
 
   BOOL fRet = TRUE;
   UINT32 interruptIndex = 0;

@@ -47,6 +47,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
 
     //--//
 
@@ -122,6 +123,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
     static const int FIELD__Size = 6;
+    static const int FIELD__timeStamp = 7;
 
 
     //--//
@@ -142,22 +144,22 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_RadioConfiguration
 {
     static const int FIELD__TxPower = 1;
     static const int FIELD__Channel = 2;
+    static const int FIELD__name = 3;
 
 
     //--//
 
 };
 
-struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base
 {
     static const int FIELD_STATIC__config = 9;
     static const int FIELD_STATIC__currUser = 10;
-    static const int FIELD_STATIC__instance = 11;
-    static const int FIELD_STATIC__syncObject = 12;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__message = 6;
-    static const int FIELD__marshalBuffer = 7;
+    static const int FIELD__radioName = 7;
+    static const int FIELD__marshalBuffer = 8;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamrakshSPOTNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
@@ -178,6 +180,26 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
     TINYCLR_NATIVE_DECLARE(GetTxPower___I4);
     TINYCLR_NATIVE_DECLARE(GetChannel___I4);
     TINYCLR_NATIVE_DECLARE(ReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1);
+
+    //--//
+
+};
+
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4
+{
+    static const int FIELD_STATIC__instance = 11;
+    static const int FIELD_STATIC__syncObject = 12;
+
+
+    //--//
+
+};
+
+struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_LR
+{
+    static const int FIELD_STATIC__instance = 13;
+    static const int FIELD_STATIC__syncObject = 14;
+
 
     //--//
 

@@ -19,7 +19,7 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
         /// </summary>
-        const byte MarshalBufferSize = 11;
+        const byte MarshalBufferSize = 12;
 
         const byte MacMessageSize = 128;
         /// <summary>
@@ -45,13 +45,12 @@ namespace Samraksh.SPOT.Net
 
         static byte[] dataBuffer = new byte[MacMessageSize];
         
-        Radio.Radio_802_15_4 radioObj;
+        Radio.Radio_802_15_4_Base radioObj;
 
         /// <summary>
-        /// Constructor to initialize callbacks 
+        /// Constructor that takes in a macname parameter and initializes the corresponding mac object
         /// </summary>
-        /// <param name="drvName">Name of the callback</param>
-        /// <param name="drvData">Driver data</param>
+        /// <param name="macname">CSMA or OMAC</param>
         public MACBase(MacID macname)
         {
 
@@ -61,18 +60,27 @@ namespace Samraksh.SPOT.Net
             if (macname == MacID.CSMA)
             {
                 Radio.Radio_802_15_4.currUser = Radio.RadioUser.CSMAMAC;
-                radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
+                if (macconfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
+                    radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
+                else if (macconfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                    radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.CSMAMAC);
             }
             else if (macname == MacID.OMAC)
             {
                 Radio.Radio_802_15_4.currUser = Radio.RadioUser.OMAC;
-                radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
+                if (macconfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
+                    radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
+                else if (macconfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                    radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.OMAC);
             }
 
             this.macname = macname;
             //this.neighbor = new Neighbor();
 
-            Initialize(macconfig, macname);
+            if (Initialize(macconfig, macname) != DeviceStatus.Success)
+            {
+                throw new SystemException("Mac initialization failed\n");
+            }
 
         }
 
@@ -111,7 +119,7 @@ namespace Samraksh.SPOT.Net
         /// Returns the radio being used by the mac
         /// </summary>
         /// <returns>Radio_802_15_4 object</returns>
-        public Radio.Radio_802_15_4 GetRadio()
+        public Radio.Radio_802_15_4_Base GetRadio()
         {
             return radioObj;
         }
@@ -139,6 +147,7 @@ namespace Samraksh.SPOT.Net
             // Breaking the object boundary, but shallow instances of the radio can not initialize
             MarshalBuffer[9] = (byte)config.radioConfig.GetTxPower();
             MarshalBuffer[10] = (byte) config.radioConfig.GetChannel();
+            MarshalBuffer[11] = (byte)config.radioConfig.GetRadioName();
 
             return InternalInitialize(MarshalBuffer, (byte) macname);
         }
@@ -152,6 +161,25 @@ namespace Samraksh.SPOT.Net
         {
             macconfig = config;
 
+            if (radioObj.GetRadioName() != config.radioConfig.GetRadioName())
+            {
+                if (macname == MacID.CSMA)
+                {
+                    if (config.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                        radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.CSMAMAC);
+                    else
+                        radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
+                }
+                else if (macname == MacID.OMAC)
+                {
+                    if (config.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                        radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.OMAC);
+                    else
+                        radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
+                }
+            }
+                
+
             if (config.CCA)
                 MarshalBuffer[0] = 1;
             else
@@ -164,6 +192,7 @@ namespace Samraksh.SPOT.Net
             // Breaking the object boundary, but shallow instances of the radio can not initialize
             MarshalBuffer[5] = (byte)config.radioConfig.GetTxPower();
             MarshalBuffer[6] = (byte) config.radioConfig.GetChannel();
+            MarshalBuffer[7] = (byte)config.radioConfig.GetRadioName();
 
             return InternalReConfigure(MarshalBuffer, (byte)macname);
         }
@@ -411,6 +440,17 @@ namespace Samraksh.SPOT.Net
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern NetOpStatus Send(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
+
+        /// <summary>
+        /// This function sends a time stamped message 
+        /// </summary>
+        /// <param name="Address">The address of the reciever or broadcast</param>
+        /// <param name="message"></param>
+        /// <param name="offset"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
 
         /// <summary>
         /// Uninitialize the radio.

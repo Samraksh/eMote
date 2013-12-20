@@ -174,6 +174,8 @@ void HALTimerCallback(void *arg)
 	if(!topTimer)
 		return;
 
+
+
 	// Measure time elapsed since last interrupt fired
 	// This is necessary because the hardware timer can have other users and not just the virtual timer layer
 	// So if some spurious user set a compare value, it can not be assumed that the minimum timer in the queue
@@ -190,14 +192,20 @@ void HALTimerCallback(void *arg)
 	}
 
 
+
 	// Callback all timers that need to be served at this point
 	while(topTimer->get_m_ticksTillExpire() <= 0)
 	{
+
+
 		topTimer = gHalTimerManagerObject.timerQueue.ExtractTop();
 
 		// Check if the timer has been disabled
-		if(topTimer->get_m_is_running())
-			(topTimer->get_m_callback())(NULL);
+		if(topTimer != NULL)
+		{
+			if(topTimer->get_m_is_running())
+				(topTimer->get_m_callback())(NULL);
+		}
 
 		ticks = topTimer->get_m_dtime();
 
@@ -215,6 +223,8 @@ void HALTimerCallback(void *arg)
 	{
 		g_STM32F10x_AdvancedTimer.SetCompare(*((UINT32 *)arg), topTimer->get_m_ticksTillExpire());
 	}
+
+
 
 }
 

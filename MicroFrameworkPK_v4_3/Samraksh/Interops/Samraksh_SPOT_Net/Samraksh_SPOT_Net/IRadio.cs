@@ -40,6 +40,8 @@ namespace Samraksh.SPOT.Net.Radio
         /// </summary>
         private Channels Channel;
 
+        private RadioName name;
+
         /// <summary>
         /// Create a radio configuration object with default power (3dBm) and channel (26) 
         /// </summary>
@@ -47,6 +49,7 @@ namespace Samraksh.SPOT.Net.Radio
         {
             TxPower = TxPowerValue.Power_3dBm;
             Channel = Channels.Channel_26;
+            name = RadioName.RF231RADIO;
         }
 
         /// <summary>
@@ -57,6 +60,7 @@ namespace Samraksh.SPOT.Net.Radio
         {
             this.TxPower = config.TxPower;
             this.Channel = config.Channel;
+            this.name = config.name;
         }
 
         /// <summary>
@@ -64,10 +68,11 @@ namespace Samraksh.SPOT.Net.Radio
         /// </summary>
         /// <param name="power">Transmission power of the radio</param>
         /// <param name="channel">Channel of the radio</param>
-        public RadioConfiguration(TxPowerValue power, Channels channel)
+        public RadioConfiguration(TxPowerValue power, Channels channel, RadioName name)
         {
             this.Channel = channel;
             this.TxPower = power;
+            this.name = name;
         }
 
         /// <summary>
@@ -104,6 +109,24 @@ namespace Samraksh.SPOT.Net.Radio
         public TxPowerValue GetTxPower()
         {
             return TxPower;
+        }
+
+        /// <summary>
+        /// Sets the radio name 
+        /// </summary>
+        /// <param name="name"></param>
+        public void SetRadioName(RadioName name)
+        {
+            this.name = name;
+        }
+
+        /// <summary>
+        /// Returns the radio name 
+        /// </summary>
+        /// <returns></returns>
+        public RadioName GetRadioName()
+        {
+            return this.name;
         }
 
     };

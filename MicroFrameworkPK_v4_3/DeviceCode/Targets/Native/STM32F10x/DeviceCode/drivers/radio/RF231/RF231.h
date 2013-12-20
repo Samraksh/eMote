@@ -20,12 +20,17 @@
 #include "RF231RegDef.h"
 #include <Samraksh\Message.h>
 #include <Samraksh\Radio.h>
+#include <spi\netmf_spi.h>
 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define RF231RADIO 1
+enum RadioID : UINT8
+{
+	RF231RADIO,
+	RF231RADIOLR,
+};
 
 //Interrupts
 void radio_irq_init(void (*irq_handler)());
@@ -36,6 +41,7 @@ extern "C" {
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
 void radio_irq_handler();
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
+void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 void (*irq_handler)();
 }
 
@@ -67,12 +73,13 @@ class RF231Radio : public Radio<Message_15_4_t>
 	static const UINT32 kNodeId 	=	 NODE_ID;
 
 	// Pin Definitions for the state control pins declared by macros
-	static const GPIO_PIN kslpTr 	= 	 SLP_TR_PIN;
-	static const GPIO_PIN krstn 	= 	 RSTN_PIN;
-	static const GPIO_PIN kseln		= 	 SELN_PIN;
+	GPIO_PIN kslpTr;
+	GPIO_PIN krstn;
+	GPIO_PIN kseln;
 
-	static const GPIO_PIN kinterrupt	= INTERRUPT_PIN;
+	GPIO_PIN kinterrupt;
 
+	INT32 radioName;
 
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
@@ -120,7 +127,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 	UINT8 tx_msg[sizeof(Message_15_4_t)];
 
 	// Initialize the rstn, seln and slptr pins
-	void GpioPinInitialize();
+	BOOL GpioPinInitialize();
 
 	// Initialize the spi module
     BOOL SpiInitialize();
@@ -176,13 +183,29 @@ public:
 
     UINT32 GetTxPower();
 
+    void SetRadioName(INT32 radio)
+    {
+    	this->radioName = radio;
+    }
+
+    INT32 GetRadioName()
+    {
+    	return this->radioName;
+    }
+
+    // Functions added to support the long range radio
+    DeviceStatus AntDiversity(BOOL enable);
+
+    DeviceStatus PARXTX(BOOL enable);
+
+    void Amp(BOOL TurnOn);
 
     // This function has been moved from the cpp file because the linker is unable to call the function
     // otherwise, something to do with instantiation of the template
     // Calls the gpio initialize and spi initialize modules and asserts if the spi initialization failed
     // Once SPI initialization is complete, radio initialization including setting radio state, channel, tx power etc carried out here
     // The radio is sleeping at the end of initialization
-    DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8* radioID, UINT8 mac_id);
+    DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id);
 
     DeviceStatus UnInitialize()
     {
@@ -260,6 +283,8 @@ public:
 };
 
 RF231Radio grf231Radio;
+
+RF231Radio grf231RadioLR;
 
 
 #endif /* RADIO_H */

@@ -3,6 +3,9 @@ using Microsoft.SPOT;
 
 namespace Samraksh.SPOT.Net
 {
+    /// <summary>
+    /// Class represents the OMAC object 
+    /// </summary>
     public class OMAC : MACBase
     {
         private static OMAC instance;
