@@ -15,9 +15,9 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
 {
     static const int FIELD__m_Size = 1;
     static const int FIELD__storageType = 2;
-    static const int FIELD__dStore = 3;
 
-    TINYCLR_NATIVE_DECLARE(CreateData___I4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(GetDataID___U4);
+    TINYCLR_NATIVE_DECLARE(CreateData___I4__U4);
     TINYCLR_NATIVE_DECLARE(CreateDataStore___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetUsedKBytes___R4);
     TINYCLR_NATIVE_DECLARE(GetFreeKBytes___R4);
@@ -57,10 +57,8 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_GC
 
 struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data
 {
-    static const int FIELD_STATIC__dataId = 0;
-
-    static const int FIELD__m_Size = 1;
-    static const int FIELD__buffer = 2;
+    static const int FIELD__dataId = 1;
+    static const int FIELD__m_Size = 2;
     static const int FIELD__dataPointer = 3;
     static const int FIELD__dataType = 4;
     static const int FIELD__dStore = 5;

@@ -106,6 +106,7 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Har
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\be\Samraksh_SPOT_Hardware.dll
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\le\Samraksh_SPOT_Hardware.pdb
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\be\Samraksh_SPOT_Hardware.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.XML
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.dll
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.pdb
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\le\Samraksh_SPOT_Hardware.pe

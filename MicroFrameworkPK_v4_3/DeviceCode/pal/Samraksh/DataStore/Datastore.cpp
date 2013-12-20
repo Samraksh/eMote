@@ -196,6 +196,13 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             break;
         }
 
+
+        if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES){
+			/* If this is the case, user has to delete some records in order to use flash */
+			lastErrorVal = DATASTORE_ERROR_OUT_OF_FLASH_MEMORY;
+			break;
+		}
+
         /* Now that we have created enough free space, continue with the allocation */
         //// AnanthAtSamraksh - commenting out the code, since persistence is not yet implemented.
         //// AnanthAtSamraksh - uncommenting the code, as address to which data is written is 0. Address has to be incremented to point to start of data store region
@@ -294,6 +301,23 @@ LPVOID Data_Store::getAddress(RECORD_ID id)
 RECORD_ID Data_Store::getRecordID(LPVOID givenPtr)
 {
     return addressTable.getRecordID(givenPtr);
+}
+
+
+RECORD_ID Data_Store::getRecentRecordID()
+{
+	uint32 recIdIndex = 0;
+
+	while(addressTable.table[recIdIndex].recordID != 0)
+	{
+		++recIdIndex;
+	}
+	if(recIdIndex == 0)
+		return recIdIndex;
+	else{
+		recIdIndex--;
+		return addressTable.table[recIdIndex].recordID;
+	}
 }
 
 
@@ -964,7 +988,7 @@ uint32 Data_Store::getCountOfRecordIds()
 	{
 		++recIdIndex;
 	}
-	return recIdIndex+1;
+	return recIdIndex;
 }
 
 

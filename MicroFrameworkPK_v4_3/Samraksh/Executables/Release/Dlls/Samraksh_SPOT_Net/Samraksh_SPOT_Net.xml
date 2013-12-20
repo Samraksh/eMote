@@ -9,6 +9,38 @@
             Callback class, should only be used internally by the mac and not by any user programs
             </summary>
         </member>
+        <member name="M:Samraksh.SPOT.Net.Callbacks.SetReceiveCallback(Samraksh.SPOT.Net.ReceiveCallBack)">
+            <summary>
+            Set the receive callback to be called on arrival of a packet
+            </summary>
+            <param name="callback">Receivecallback function pointer</param>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Callbacks.SetNeighbourChangeCallback(Samraksh.SPOT.Net.NeighbourhoodChangeCallBack)">
+            <summary>
+            Set the neighbour change callback to be called when there is a change in neighbour table
+            </summary>
+            <param name="callback">Neighbourcallback function pointer</param>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Callbacks.GetReceiveCallback">
+            <summary>
+            Returns the recieve callback function
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Callbacks.GetNeighbourChangeCallback">
+            <summary>
+            Returns the neighbour change callback function registered
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Net.Callbacks.ReceiveFunction(System.UInt32,System.UInt32,System.DateTime)">
+            <summary>
+            First level callback from native code
+            </summary>
+            <param name="data1"></param>
+            <param name="data2"></param>
+            <param name="time"></param>
+        </member>
         <member name="T:Samraksh.SPOT.Net.DeviceStatus">
             <summary>
             Device status
@@ -37,6 +69,46 @@
         <member name="T:Samraksh.SPOT.Net.NetOpStatus">
             <summary>
             Net operation status
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_RadioInit">
+            <summary>
+            Radio initialization failed
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_RadioSync">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_RadioConfig">
+            <summary>
+            Radio configuration failed
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_MacInit">
+            <summary>
+            Mac layer initialization failed
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_MacConfig">
+            <summary>
+            Mac configuration failed
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_MacSendError">
+            <summary>
+            Mac layer send failed
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.E_MacBufferFull">
+            <summary>
+            Mac layer bufferis full
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Net.NetOpStatus.S_Success">
+            <summary>
+            Success
             </summary>
         </member>
         <member name="T:Samraksh.SPOT.Net.ReceiveCallBack">

@@ -140,13 +140,14 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
         /* Now we can create an enty in the address table */
         /* Since, we know that the givenAddr is usually an monotonically increasing value, its efficient
            to search for place to insert by searching from the last element */
-        for(index = table.size() - 1; index >= 0; index--){
-            if(table[index].givenPtr < entry->givenPtr){
-                /* Insert here */
-                table.insert(table.begin()+index+1, *entry);
-                break;  /* Break is pretty important :) */
-            }
-        }
+		for(index = table.size() - 1; index >= 0; index--){
+			if(table[index].givenPtr < entry->givenPtr){
+				/* Insert here */
+				table.insert(table.begin()+index+1, *entry);
+				break;  /* Break is pretty important :) */
+			}
+		}
+
         if(index < 0){
             /* Didn't insert anywhere as the given element is the smallest element or table is empty, so
                insert at the beginning */

@@ -16,39 +16,45 @@
 
 using namespace Samraksh::SPOT::DSP;
 
-UINT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT8 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-UINT16 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT16 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-UINT32 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, CLR_RT_TypedArray_UINT32 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-UINT8 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::FFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, CLR_RT_TypedArray_INT16 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT8 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-UINT16 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT16 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-UINT32 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, UINT16 param1, HRESULT &hr )
+INT8 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT16 param2, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Transforms::IFFT( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT32 param0, CLR_RT_TypedArray_UINT32 param1, UINT16 param2, HRESULT &hr )
+{
+    INT8 retVal = 0; 
     return retVal;
 }
 

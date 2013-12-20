@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_RealTime</FeatureName>
-    <Guid>{2e44f58c-cbb3-4494-ba22-c7c482c2b1b7}</Guid>
+    <Guid>{167d0a20-183f-465c-9525-e34e4ea05370}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_REALTIME_FEATUREPROJ>True</SAMRAKSH_SPOT_REALTIME_FEATUREPROJ>
