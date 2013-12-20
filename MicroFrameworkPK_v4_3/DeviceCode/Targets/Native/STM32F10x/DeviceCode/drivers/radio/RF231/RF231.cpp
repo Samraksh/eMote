@@ -161,7 +161,10 @@ BOOL RF231Radio::Reset()
 
 	GLOBAL_LOCK(irq);
 
-	GpioPinInitialize();
+	if(TRUE != GpioPinInitialize())
+	{
+		return FALSE;
+	}
 			//configure_exti();
 	if(TRUE != SpiInitialize())
 	{
@@ -683,7 +686,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
-		GpioPinInitialize();
+		if(TRUE != GpioPinInitialize())
+		{
+			return DS_Fail;
+		}
 		//configure_exti();
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
@@ -840,12 +846,34 @@ void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 // Assumes that the these pins are not used by other modules. This should generally be handled by the gpio module
 // Returns a void data type
 //template<class T>
-void RF231Radio::GpioPinInitialize()
+BOOL RF231Radio::GpioPinInitialize()
 {
+
+	if(CPU_GPIO_PinIsBusy(kseln))
+		return FALSE;
+
+	if(CPU_GPIO_PinIsBusy(kslpTr))
+		return FALSE;
+
+	if(CPU_GPIO_PinIsBusy(krstn))
+		return FALSE;
+
+
+	if(!CPU_GPIO_ReservePin(kseln, TRUE))
+		return FALSE;
+
+	if(!CPU_GPIO_ReservePin(kslpTr, TRUE))
+		return FALSE;
+
+	if(!CPU_GPIO_ReservePin(krstn, TRUE))
+		return FALSE;
+
 
 	CPU_GPIO_EnableOutputPin(kseln,TRUE);
 	CPU_GPIO_EnableOutputPin(kslpTr,FALSE);
 	CPU_GPIO_EnableOutputPin(krstn,TRUE);
+
+	return TRUE;
 
 #ifdef DEBUG_RF231
 	CPU_GPIO_EnableOutputPin((GPIO_PIN)0, TRUE);

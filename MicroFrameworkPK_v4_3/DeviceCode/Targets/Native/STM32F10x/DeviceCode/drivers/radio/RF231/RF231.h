@@ -127,7 +127,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 	UINT8 tx_msg[sizeof(Message_15_4_t)];
 
 	// Initialize the rstn, seln and slptr pins
-	void GpioPinInitialize();
+	BOOL GpioPinInitialize();
 
 	// Initialize the spi module
     BOOL SpiInitialize();
