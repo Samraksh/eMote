@@ -120,11 +120,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Fix added to protect long range radio against usart power - ask Nathan.Stohs for reasons
 	CPU_GPIO_EnableInputPin3((GPIO_PIN) 9, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
-	if(CPU_GPIO_GetPinState((GPIO_PIN) 9) == FALSE)
-	{
-		return FALSE;
-	}
-	else
+	if(CPU_GPIO_GetPinState((GPIO_PIN) 9) == TRUE)
 	{
 		// Lock the external radio seln pin
 		if(!CPU_GPIO_ReservePin(89, TRUE))

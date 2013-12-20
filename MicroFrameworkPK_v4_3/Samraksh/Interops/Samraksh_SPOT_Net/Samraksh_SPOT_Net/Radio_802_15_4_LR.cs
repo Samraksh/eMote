@@ -61,7 +61,7 @@ namespace Samraksh.SPOT.Net.Radio
                 throw new Samraksh.SPOT.Net.RadioNotConfiguredException();
             }
 
-            if (config.GetRadioName() != RadioName.RF231RADIO)
+            if (config.GetRadioName() != RadioName.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed");
             }

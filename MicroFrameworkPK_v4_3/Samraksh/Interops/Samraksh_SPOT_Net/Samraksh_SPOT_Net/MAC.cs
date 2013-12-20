@@ -77,7 +77,10 @@ namespace Samraksh.SPOT.Net
             this.macname = macname;
             //this.neighbor = new Neighbor();
 
-            Initialize(macconfig, macname);
+            if (Initialize(macconfig, macname) != DeviceStatus.Success)
+            {
+                throw new SystemException("Mac initialization failed\n");
+            }
 
         }
 
