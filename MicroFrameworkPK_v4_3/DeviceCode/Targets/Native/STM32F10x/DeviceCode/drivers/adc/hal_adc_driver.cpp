@@ -513,11 +513,18 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
-	UINT16 frequency =  CPU_MicrosecondsToTicks((UINT32) samplingTime) * 2 ;
+	UINT32 prescaler = 0x1;
+	UINT32 frequency = CPU_MicrosecondsToTicks((UINT32) samplingTime);
+
+	if(g_STM32F10x_Timer_Configuration.ratio4 > 8)
+	{
+		prescaler = g_STM32F10x_Timer_Configuration.ratio4 / 6;
+		frequency /= prescaler;
+	}
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 	TIM_TimeBaseStructure.TIM_Period = frequency;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0;
+	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);

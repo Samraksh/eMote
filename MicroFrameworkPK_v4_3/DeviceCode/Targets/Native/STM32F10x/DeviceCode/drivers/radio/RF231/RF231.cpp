@@ -1292,11 +1292,8 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-<<<<<<< HEAD
-			receive_timestamp = HAL_Time_CurrentTime();
-=======
 
->>>>>>> LongRange
+			receive_timestamp = HAL_Time_CurrentTime();
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 
