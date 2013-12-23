@@ -30,6 +30,7 @@ class PacketTimeSync_15_4{
                 hal_printf("SenderEventTime %u\n", *senderEventTime);
 
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
+
                 UINT32 sender_delay = *senderEventTime;
                 rcv_ts +=sender_delay;
                 return rcv_ts;

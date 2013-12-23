@@ -125,7 +125,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        UINT8 timeStampLength = 4;
 	        UINT32 eventOffset;
 	        UINT8 * timeStampPtr = (UINT8 *) &eventOffset;
-	        UINT32 timestamp = HAL_Time_CurrentTime() & (~(UINT32) 0);
+	        UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
 	        eventOffset = timestamp - eventTime;
 
 	#ifdef DEBUG_TIMESYNC
@@ -1172,7 +1172,7 @@ void RF231Radio::HandleInterrupt()
 				// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 				// Lets stick to 32, the iris implementation uses the timer to measure when the input was
 				// captured giving more accurate timestamping, we are going to rely on this less reliable technique
-				time = (HAL_Time_CurrentTime() >> 32);
+				time = (HAL_Time_CurrentTicks() >> 32);
 
 				// Time stamp the packet
 		//		rx_msg.SetTimeStamp(time);
@@ -1293,7 +1293,7 @@ void RF231Radio::HandleInterrupt()
 		else if(cmd == CMD_RECEIVE)
 		{
 
-			receive_timestamp = HAL_Time_CurrentTime();
+			receive_timestamp = HAL_Time_CurrentTicks();
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 
