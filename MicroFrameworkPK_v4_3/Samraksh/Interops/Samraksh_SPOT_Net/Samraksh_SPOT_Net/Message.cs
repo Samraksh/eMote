@@ -46,7 +46,14 @@ namespace Samraksh.SPOT.Net
         /// <summary>
         /// Represents the time at which the packet was sent out 
         /// </summary>
-        public UInt32 timeStamp;
+        public long senderEventTimeStamp;
+
+        private bool timeStamped;
+
+        public bool IsSenderTimeStamped()
+        {
+            return timeStamped;
+        }
 
         /// <summary>
         /// Default constructor to create a received message with the default size
@@ -68,8 +75,6 @@ namespace Samraksh.SPOT.Net
 
             Size = length;
 
-            Debug.Print("The Size is " + Size.ToString());
-
             ReceiveMessage = new byte[MacMessageSize];
 
             for (i = 0; i < length; i++)
@@ -83,10 +88,33 @@ namespace Samraksh.SPOT.Net
             Src = msg[i++ + 2];
             Src |= (UInt16) (msg[i++ + 2] << 8);
 
+            // Determines whether the message is unicast or not 
             if (msg[i++ + 2] == 1)
                 Unicast = true;
             else
                 Unicast = false;
+
+            // Check if the message is timestamped from the sender 
+            if (msg[i++ + 2] == 1)
+                timeStamped = true;
+            else
+                timeStamped = false;
+
+            // Elaborate conversion plan because nothing else works 
+            UInt32 lsbItem = msg[i++ + 2];
+            lsbItem |= ((UInt32)msg[i++ + 2] << 8);
+            lsbItem |= ((UInt32)msg[i++ + 2] << 16);
+            lsbItem |= ((UInt32)msg[i++ + 2] << 24);
+
+            UInt32 msbItem = msg[i++ + 2];
+            msbItem |= ((UInt32)msg[i++ + 2] << 8);
+            msbItem |= ((UInt32)msg[i++ + 2] << 16);
+            msbItem |= ((UInt32)msg[i++ + 2] << 24);
+
+            
+            long tempTimeStamp = ((long)msbItem << 32) | lsbItem;
+
+            senderEventTimeStamp = tempTimeStamp;
 
         }
 
@@ -141,6 +169,34 @@ namespace Samraksh.SPOT.Net
             this.Unicast = Unicast;
             this.RSSI = RSSI;
             this.LQI = LQI;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="Src"></param>
+        /// <param name="Unicast"></param>
+        /// <param name="RSSI"></param>
+        /// <param name="LQI"></param>
+        /// <param name="Size"></param>
+        public Message(byte[] message, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
+        {
+            //Create a message object of default size
+            ReceiveMessage = new byte[Size];
+
+            // Copy the message to the receive message buffer the traditional way 
+            for (int i = 0; i < message.Length; i++)
+            {
+                ReceiveMessage[i] = message[i];
+            }
+
+            // Copy other parameters to this object 
+            this.Src = Src;
+            this.Unicast = Unicast;
+            this.RSSI = RSSI;
+            this.LQI = LQI;
+            this.timeStamped = timeStamped;
         }
 
         /// <summary>

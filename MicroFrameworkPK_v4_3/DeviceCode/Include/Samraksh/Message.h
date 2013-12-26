@@ -92,15 +92,15 @@ public:
 #define TIMESTAMPED_FLAG (1 << 0)
 
 ///Well known message types: MFM stands for MicroFramework Message
-#define MFM_DATA 1
-#define MFM_TIMESYNC 2
-#define MFM_NEIGHBORHOOD 3
-#define MFM_ROUTING 4
-#define MFM_DISCOVERY 5
+#define MFM_DATA (1 << 0)
+#define MFM_TIMESYNC (1 << 1)
+#define MFM_NEIGHBORHOOD (1 << 2)
+#define MFM_ROUTING (1 << 3)
+#define MFM_DISCOVERY (1 << 4)
 
 
 //IEEE802.15.4 Message structure
-#define IEEE802_15_4_FRAME_LENGTH 125
+#define IEEE802_15_4_FRAME_LENGTH 126
 
 //All fields up to 'network' are 802.15.4 specification fields, network is a option field for 6LowPAN compatibility
 //mac_id is Samraksh's Radio API to demultiplex radio packets
@@ -162,6 +162,10 @@ typedef class IEEE802_15_4_Metadata{
 	void SetReceiveTimeStamp(INT64 timestamp){
 		this->ReceiveTimeStamp0 = (UINT32)timestamp;
 		this->ReceiveTimeStamp1= (UINT32)(timestamp>>32);
+	}
+
+	void SetRecieveTimeStamp(UINT32 timestamp){
+		this->ReceiveTimeStamp0 = timestamp;
 	}
 
 }IEEE802_15_4_Metadata_t;

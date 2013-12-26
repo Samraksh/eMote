@@ -130,6 +130,48 @@ BOOL csmaMAC::UnInitialize()
 
 UINT8 test = 0;
 
+BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
+{
+	Message_15_4_t msg_carrier;
+		if(Size >  csmaMAC::GetMaxPayload()){
+			hal_printf("CSMA Send Error: Packet is too big: %d ", Size);
+			return FALSE;
+		}
+		IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
+
+		header->length = Size + sizeof(IEEE802_15_4_Header_t);
+		header->fcf = (65 << 8);
+		header->fcf |= 136;
+		header->dsn = 97;
+		header->destpan = (34 << 8);
+		header->destpan |= 0;
+		header->dest =dest;
+		header->src = MF_NODE_ID;
+		header->network = MyConfig.Network;
+		header->mac_id = this->macName;
+		header->type = dataType;
+		header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+
+		UINT8* lmsg = (UINT8 *) msg;
+		UINT8* payload =  msg_carrier.GetPayload();
+
+		IEEE802_15_4_Metadata_t *metaData =  msg_carrier.GetMetaData();
+		metaData->SetReceiveTimeStamp(eventTime);
+
+		for(UINT8 i = 0 ; i < Size; i++)
+			payload[i] = lmsg[i];
+
+		//hal_printf("CSMA Sending: My address is : %d\n",MF_NODE_ID);
+		// Check if the circular buffer is full
+		if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+				return FALSE;
+
+		// Try to  send the packet out immediately if possible
+		SendFirstPacketToRadio(NULL);
+
+		return TRUE;
+}
+
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
 	Message_15_4_t msg_carrier;
@@ -150,6 +192,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->network = MyConfig.Network;
 	header->mac_id = this->macName;
 	header->type = dataType;
+	header->SetFlags(MFM_DATA);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
@@ -219,7 +262,15 @@ void csmaMAC::SendToRadio(){
 		// Check to see if there are any messages in the buffer
 		if(*temp != NULL){
 			RadioAckPending=TRUE;
-			*temp = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (msg), (msg->GetHeader())->GetLength());
+			if(msg->GetHeader()->GetFlags() & MFM_TIMESYNC)
+			{
+				UINT32 snapShot = (UINT32) msg->GetMetaData()->GetReceiveTimeStamp();
+				*temp = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (msg), (msg->GetHeader())->GetLength(), snapShot);
+			}
+			else
+			{
+				*temp = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (msg), (msg->GetHeader())->GetLength());
+			}
 
 		}
 	}
@@ -314,7 +365,6 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 				m_NeighborTable.Neighbor[index].Status = Alive;
 #endif
 			}
-
 			return msg;
 	}
 

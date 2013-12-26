@@ -48,6 +48,7 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase
     TINYCLR_NATIVE_DECLARE(GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
+    TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4);
 
     //--//
 
@@ -123,7 +124,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Message
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
     static const int FIELD__Size = 6;
-    static const int FIELD__timeStamp = 7;
+    static const int FIELD__senderEventTimeStamp = 7;
+    static const int FIELD__timeStamped = 8;
 
 
     //--//

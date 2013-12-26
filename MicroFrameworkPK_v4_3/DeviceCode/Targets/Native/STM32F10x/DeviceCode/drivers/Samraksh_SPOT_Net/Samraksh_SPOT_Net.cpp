@@ -82,6 +82,9 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighbourListInternal___SamrakshSPOTNetDeviceStatus__SZARRAY_U2,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal___SamrakshSPOTNetDeviceStatus__U2__SZARRAY_U1,
     Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
+    Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -184,7 +187,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
 {
     "Samraksh_SPOT_Net", 
-    0x51BD8673,
+    0xF9567F69,
     method_lookup
 };
 

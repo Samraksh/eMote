@@ -437,8 +437,6 @@ void ISR_TIM2(void* Param)
 	}
 	if(TIM_GetFlagStatus(TIM2, TIM_IT_Update))
 	{
-		CPU_GPIO_SetPinState((GPIO_PIN) 23, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		// An overflow just happened, update the 64 bit value
 		// maintained in software

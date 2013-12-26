@@ -21,7 +21,7 @@ namespace Samraksh.SPOT.Net
         /// </summary>
         const byte MarshalBufferSize = 12;
 
-        const byte MacMessageSize = 128;
+        const byte MacMessageSize = 126;
         /// <summary>
         /// Specifies the neighbour size
         /// </summary>
@@ -442,15 +442,28 @@ namespace Samraksh.SPOT.Net
         public extern NetOpStatus Send(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
 
         /// <summary>
-        /// This function sends a time stamped message 
+        /// This function sends a time stamped message, time stamping is done in the send in native code
         /// </summary>
         /// <param name="Address">The address of the reciever or broadcast</param>
-        /// <param name="message"></param>
-        /// <param name="offset"></param>
-        /// <param name="size"></param>
+        /// <param name="message">message packet</param>
+        /// <param name="offset">offset if any in the byte array</param>
+        /// <param name="size">size of the message</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
+
+        /// <summary>
+        /// This function allows user to send a timestamped message with a specified event time
+        /// </summary>
+        /// <param name="Address">The address of the reciever or broadcast</param>
+        /// <param name="message">message packet</param>
+        /// <param name="offset">offset if any in the byte array</param>
+        /// <param name="size">size of the packet</param>
+        /// <param name="eventTime">event you wish to inform other nodes about</param>
+        /// <returns>Result of send operation</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] message, UInt16 offset, UInt16 size, UInt32 eventTime);
+
 
         /// <summary>
         /// Uninitialize the radio.

@@ -33,14 +33,14 @@ BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
-	 if(size+2 > IEEE802_15_4_FRAME_LENGTH){
+	// Adding 2 for crc and 4 bytes for timestamp
+	 if(size+2+4 > IEEE802_15_4_FRAME_LENGTH){
 	                hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	                // Should be bad size
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
 	                return msg;
-	        }
-	        ASSERT(size+1 < IEEE802_15_4_FRAME_LENGTH);
+	 }
 
 	        INIT_STATE_CHECK();
 	        GLOBAL_LOCK(irq);
@@ -445,6 +445,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
+	// Adding two bytes for crc
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
 		hal_printf("Radio Send Error: Big packet: %d ", size+2);
 		
@@ -455,7 +456,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		
 		return msg;
 	}
-	ASSERT(size+1 < IEEE802_15_4_FRAME_LENGTH);
+
 
 	
 	

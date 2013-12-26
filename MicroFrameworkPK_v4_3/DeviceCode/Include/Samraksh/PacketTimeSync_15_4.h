@@ -27,12 +27,10 @@ class PacketTimeSync_15_4{
                 UINT8 * rcv_msg =  msg->GetPayload();
                 UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + size - sizeof(IEEE802_15_4_Header_t) + TIMESTAMP_OFFSET);
 
-                hal_printf("SenderEventTime %u\n", *senderEventTime);
-
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
 
                 UINT32 sender_delay = *senderEventTime;
-                rcv_ts +=sender_delay;
+                rcv_ts -=sender_delay;
                 return rcv_ts;
         }
 

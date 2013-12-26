@@ -8,12 +8,12 @@
 
 
 #include "Samraksh_SPOT_Net.h"
-#include "Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4.h"
+#include "Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base.h"
 
 using namespace Samraksh::SPOT::Net::Radio;
 
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::UnInitialize___SamrakshSPOTNetDeviceStatus( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::UnInitialize___SamrakshSPOTNetDeviceStatus( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -21,7 +21,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::UnInit
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = Radio_802_15_4::UnInitialize( pMngObj,  hr );
+        INT32 retVal = Radio_802_15_4_Base::UnInitialize( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -29,7 +29,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::UnInit
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetID___U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::GetID___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -37,7 +37,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetID_
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT8 retVal = Radio_802_15_4::GetID( pMngObj,  hr );
+        UINT8 retVal = Radio_802_15_4_Base::GetID( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT8( stack, retVal );
 
@@ -45,7 +45,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetID_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetAddress___U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::GetAddress___U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -53,7 +53,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetAdd
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT16 retVal = Radio_802_15_4::GetAddress( pMngObj,  hr );
+        UINT16 retVal = Radio_802_15_4_Base::GetAddress( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT16( stack, retVal );
 
@@ -61,7 +61,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetAdd
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetAddress___BOOLEAN__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::SetAddress___BOOLEAN__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -72,7 +72,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetAdd
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        INT8 retVal = Radio_802_15_4::SetAddress( pMngObj,  param0, hr );
+        INT8 retVal = Radio_802_15_4_Base::SetAddress( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -80,7 +80,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetAdd
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::TurnOn___SamrakshSPOTNetDeviceStatus( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::TurnOn___SamrakshSPOTNetDeviceStatus( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -88,7 +88,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::TurnOn
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = Radio_802_15_4::TurnOn( pMngObj,  hr );
+        INT32 retVal = Radio_802_15_4_Base::TurnOn( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -96,7 +96,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::TurnOn
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Sleep___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::Sleep___SamrakshSPOTNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -107,7 +107,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Sleep_
         UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::Sleep( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::Sleep( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -115,7 +115,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Sleep_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::PreLoad___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::PreLoad___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -129,7 +129,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::PreLoa
         UINT16 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 2, param1 ) );
 
-        INT32 retVal = Radio_802_15_4::PreLoad( pMngObj,  param0, param1, hr );
+        INT32 retVal = Radio_802_15_4_Base::PreLoad( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -137,7 +137,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::PreLoa
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendStrobe___SamrakshSPOTNetNetOpStatus( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::SendStrobe___SamrakshSPOTNetNetOpStatus( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -145,7 +145,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendSt
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = Radio_802_15_4::SendStrobe( pMngObj,  hr );
+        INT32 retVal = Radio_802_15_4_Base::SendStrobe( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -153,7 +153,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendSt
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Send___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::Send___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -167,7 +167,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Send__
         UINT16 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 2, param1 ) );
 
-        INT32 retVal = Radio_802_15_4::Send( pMngObj,  param0, param1, hr );
+        INT32 retVal = Radio_802_15_4_Base::Send( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -175,7 +175,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Send__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendTimeStamped___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::SendTimeStamped___SamrakshSPOTNetNetOpStatus__SZARRAY_U1__U2__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -192,7 +192,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendTi
         UINT32 param2;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 3, param2 ) );
 
-        INT32 retVal = Radio_802_15_4::SendTimeStamped( pMngObj,  param0, param1, param2, hr );
+        INT32 retVal = Radio_802_15_4_Base::SendTimeStamped( pMngObj,  param0, param1, param2, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -200,7 +200,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SendTi
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearChannelAssesment___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::ClearChannelAssesment___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -208,7 +208,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearC
 
         FAULT_ON_NULL(pMngObj);
 
-        INT8 retVal = Radio_802_15_4::ClearChannelAssesment( pMngObj,  hr );
+        INT8 retVal = Radio_802_15_4_Base::ClearChannelAssesment( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -216,7 +216,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearC
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearChannelAssesment___BOOLEAN__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::ClearChannelAssesment___BOOLEAN__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -227,7 +227,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearC
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        INT8 retVal = Radio_802_15_4::ClearChannelAssesment( pMngObj,  param0, hr );
+        INT8 retVal = Radio_802_15_4_Base::ClearChannelAssesment( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -235,7 +235,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ClearC
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::GetNextPacket___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -246,7 +246,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetNex
         CLR_RT_TypedArray_UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::GetNextPacket( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::GetNextPacket( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -254,7 +254,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetNex
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::InternalInitialize___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -265,7 +265,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Intern
         CLR_RT_TypedArray_UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::InternalInitialize( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::InternalInitialize( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -273,7 +273,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::Intern
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetTxPower___SamrakshSPOTNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::SetTxPower___SamrakshSPOTNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -284,7 +284,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetTxP
         INT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::SetTxPower( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::SetTxPower( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -292,7 +292,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetTxP
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetChannel___SamrakshSPOTNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::SetChannel___SamrakshSPOTNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -303,7 +303,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetCha
         INT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::SetChannel( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::SetChannel( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -311,7 +311,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::SetCha
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetTxPower___I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::GetTxPower___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -319,7 +319,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetTxP
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = Radio_802_15_4::GetTxPower( pMngObj,  hr );
+        INT32 retVal = Radio_802_15_4_Base::GetTxPower( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -327,7 +327,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetTxP
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetChannel___I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::GetChannel___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -335,7 +335,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetCha
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = Radio_802_15_4::GetChannel( pMngObj,  hr );
+        INT32 retVal = Radio_802_15_4_Base::GetChannel( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -343,7 +343,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::GetCha
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_Base::ReConfigure___SamrakshSPOTNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -354,7 +354,7 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4::ReConf
         CLR_RT_TypedArray_UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4::ReConfigure( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::ReConfigure( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

@@ -154,13 +154,31 @@ void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 
 INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	UINT16 address, offset, length;
+	UINT8* payload =param1.GetBuffer();
+	address=param0;
+	offset=param2;
+	length=param3;
+	memcpy (CSMAInteropBuffer, payload,  length);
+
+	return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks());
 }
 
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets)
 {
 	ManagedCallback(RecievedCallback, numberOfPackets);
+}
+
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
+{
+	UINT16 address, offset, length;
+		UINT8* payload =param1.GetBuffer();
+		address=param0;
+		offset=param2;
+		length=param3;
+		memcpy (CSMAInteropBuffer, payload,  length);
+
+		return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4);
 }
 
 void NeighbourChangedCallbackFn(INT16 numberOfNeighbours)

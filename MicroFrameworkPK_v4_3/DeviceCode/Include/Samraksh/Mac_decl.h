@@ -68,6 +68,7 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 
 DeviceStatus Mac_UnInitialize(UINT8 macID);
 UINT8 Mac_GetID();
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
+DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
 DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 
 //Neighbor functions
