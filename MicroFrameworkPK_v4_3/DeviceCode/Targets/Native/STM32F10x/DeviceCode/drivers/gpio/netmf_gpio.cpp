@@ -279,6 +279,7 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 }
 
 //Exported Functions
+BOOL gpioDriverInitialized = FALSE;
 
 // Initialize the ports GPIOA .... GPIOG of the Emote
 BOOL CPU_GPIO_Initialize()
@@ -287,6 +288,9 @@ BOOL CPU_GPIO_Initialize()
 	UINT16 port;
 	UINT16 pin;
 	STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR* pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr;
+
+	if(gpioDriverInitialized)
+		return TRUE;
 
 	// Configure clock source for all gpio ports
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
@@ -315,7 +319,7 @@ BOOL CPU_GPIO_Initialize()
 	}
 
 
-
+	gpioDriverInitialized = TRUE;
 
 	return TRUE;
 

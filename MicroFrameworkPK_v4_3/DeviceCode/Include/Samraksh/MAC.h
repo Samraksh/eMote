@@ -40,7 +40,8 @@ class MAC : public MAC_ID
 {
 
 public:
-    UINT8 MacId;
+    UINT8 macName;
+    UINT8 radioName;
     UINT16 MyAddress;
     BOOL Initialized;
     UINT8 AppCount;
@@ -66,7 +67,7 @@ public:
 	UINT16 GetMaxPayload();
 	BOOL SetAddress(UINT16 address);
 	void SetMaxPayload(UINT16 payload);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routintAppID, ConfigT* config);
+	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routintAppID, UINT8 radioName, ConfigT* config);
 
 	NeighborTable* GetNeighborTable();
 	Neighbor_t* GetNeighbor(UINT16 macAddress);

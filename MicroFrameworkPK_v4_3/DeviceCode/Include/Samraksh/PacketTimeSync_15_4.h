@@ -22,12 +22,15 @@
 class PacketTimeSync_15_4{
   public:
         //EventTime APIs
+		// Size here refers to the size of the whole packet including header
         static UINT64 EventTime(Message_15_4_t *msg, UINT8 size){
                 UINT8 * rcv_msg =  msg->GetPayload();
-                UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + size + TIMESTAMP_OFFSET);
+                UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + size - sizeof(IEEE802_15_4_Header_t) + TIMESTAMP_OFFSET);
+
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
+
                 UINT32 sender_delay = *senderEventTime;
-                rcv_ts +=sender_delay;
+                rcv_ts -=sender_delay;
                 return rcv_ts;
         }
 

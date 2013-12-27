@@ -132,8 +132,8 @@ public:
 		if(size > dummy->GetMessageSize())
 			return FALSE;
 		Message_15_4_t * buffer = this->GetNextFreeBuffer();
-		memset(buffer, 0 , buffer->GetMessageSize());
-		memcpy(buffer, msg, size);
+		memset(buffer, 0 , sizeof(Message_15_4_t));
+		memcpy(buffer, msg, sizeof(Message_15_4_t));
 		return TRUE;
 	}
 
@@ -142,6 +142,11 @@ public:
 			return (Message_15_4_t *)(NULL);
 
 		return this->GetFirstFullBuffer();
+	}
+
+	BOOL IsBufferEmpty()
+	{
+		return this->IsEmpty();
 	}
 
 	Message_15_4_t** GetOldestPtr()

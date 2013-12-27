@@ -260,3 +260,62 @@ HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::GetNeighborInternal
     }
     TINYCLR_NOCLEANUP();
 }
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
+
+        CLR_RT_TypedArray_UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+
+        UINT16 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+
+        UINT16 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
+
+        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_MACBase::SendTimeStamped___SamrakshSPOTNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
+
+        CLR_RT_TypedArray_UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+
+        UINT16 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+
+        UINT16 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
+
+        UINT32 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 5, param4 ) );
+
+        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, param4, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}

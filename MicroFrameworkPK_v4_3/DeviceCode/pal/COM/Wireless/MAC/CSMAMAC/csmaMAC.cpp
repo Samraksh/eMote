@@ -24,24 +24,16 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 	return gcsmaMacObject.RadioInterruptHandler(Interrupt, param);
 }
 
-void csmaMacScheduler(void * arg){
+void SendFirstPacketToRadio(void * arg){
 
-	discoveryCounter++;
-
-#ifdef DEBUG_MAC
-	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-#endif
-	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendToRadio();
-	if(discoveryCounter == DISCOVERY_FREQUENCY)
-	{
-		// Disabling neighbour discovery
-		gcsmaMacObject.SendHello();
-		discoveryCounter = 0;
-	}
-#ifdef DEBUG_MAC
-	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-#endif
+
+}
+
+// Send a beacon everytime this fires
+void beaconScheduler(void *arg){
+	gcsmaMacObject.UpdateNeighborTable();
+	gcsmaMacObject.SendHello();
 }
 
 DeviceStatus csmaMAC::SendHello()
@@ -73,11 +65,12 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config)
+DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config)
 {
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
-		MacId = csmaMAC::GetUniqueMacID();
+		this->macName = macName;
+		this->radioName = radioID;
 		csmaMAC::SetAddress(MF_NODE_ID);
 		MyAddress = MF_NODE_ID;
 		SetConfig(config);
@@ -95,20 +88,28 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 		//m_NeighborTable.InitObject();
 
 		UINT8 numberOfRadios = 1;
-		UINT8 radioIds = 1;
 		RadioAckPending=FALSE;
 		Initialized=TRUE;
 		m_recovery = 1;
 
-		CPU_Radio_Initialize(&Radio_Event_Handler, &radioIds, numberOfRadios, MacId);
+		CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName);
 
-		CPU_Radio_TurnOn(radioIds);
+		CPU_Radio_TurnOn(this->radioName);
 
-		gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, csmaMacScheduler)){ //50 milli sec Timer in micro seconds
+		//gHalTimerManagerObject.Initialize();
+		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
 		}
+
+		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
+			return DS_Fail;
+		}
+
 	}
+
+	// Stop the timer
+	gHalTimerManagerObject.StopTimer(1);
+	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
@@ -116,7 +117,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 	}
 	AppHandlers[routingAppID]=eventHandler;
 	CurrentActiveApp=routingAppID;
-	*macID=MacId;
 
 	return DS_Success;
 }
@@ -124,11 +124,53 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UI
 
 BOOL csmaMAC::UnInitialize()
 {
-	CPU_Radio_UnInitialize(1);
+	CPU_Radio_UnInitialize(this->radioName);
 
 }
 
 UINT8 test = 0;
+
+BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
+{
+	Message_15_4_t msg_carrier;
+		if(Size >  csmaMAC::GetMaxPayload()){
+			hal_printf("CSMA Send Error: Packet is too big: %d ", Size);
+			return FALSE;
+		}
+		IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
+
+		header->length = Size + sizeof(IEEE802_15_4_Header_t);
+		header->fcf = (65 << 8);
+		header->fcf |= 136;
+		header->dsn = 97;
+		header->destpan = (34 << 8);
+		header->destpan |= 0;
+		header->dest =dest;
+		header->src = MF_NODE_ID;
+		header->network = MyConfig.Network;
+		header->mac_id = this->macName;
+		header->type = dataType;
+		header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+
+		UINT8* lmsg = (UINT8 *) msg;
+		UINT8* payload =  msg_carrier.GetPayload();
+
+		IEEE802_15_4_Metadata_t *metaData =  msg_carrier.GetMetaData();
+		metaData->SetReceiveTimeStamp(eventTime);
+
+		for(UINT8 i = 0 ; i < Size; i++)
+			payload[i] = lmsg[i];
+
+		//hal_printf("CSMA Sending: My address is : %d\n",MF_NODE_ID);
+		// Check if the circular buffer is full
+		if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+				return FALSE;
+
+		// Try to  send the packet out immediately if possible
+		SendFirstPacketToRadio(NULL);
+
+		return TRUE;
+}
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
@@ -148,8 +190,9 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->dest =dest;
 	header->src = MF_NODE_ID;
 	header->network = MyConfig.Network;
-	header->mac_id = MacId;
+	header->mac_id = this->macName;
 	header->type = dataType;
+	header->SetFlags(MFM_DATA);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
@@ -163,7 +206,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 			return FALSE;
 
 	// Try to  send the packet out immediately if possible
-	//csmaMacScheduler(NULL);
+	SendFirstPacketToRadio(NULL);
 
 	return TRUE;
 }
@@ -205,10 +248,10 @@ void csmaMAC::SendToRadio(){
 		m_recovery = 1;
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
-		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(1, 200);
+		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds != DS_Success) {
 			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
-			if(CPU_Radio_ClearChannelAssesment2(1, 200)!=DS_Success){ 	return;}
+			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	return;}
 		}
 
 		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
@@ -219,7 +262,15 @@ void csmaMAC::SendToRadio(){
 		// Check to see if there are any messages in the buffer
 		if(*temp != NULL){
 			RadioAckPending=TRUE;
-			*temp = (Message_15_4_t *) CPU_Radio_Send(1, (msg), (msg->GetHeader())->GetLength());
+			if(msg->GetHeader()->GetFlags() & MFM_TIMESYNC)
+			{
+				UINT32 snapShot = (UINT32) msg->GetMetaData()->GetReceiveTimeStamp();
+				*temp = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (msg), (msg->GetHeader())->GetLength(), snapShot);
+			}
+			else
+			{
+				*temp = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (msg), (msg->GetHeader())->GetLength());
+			}
 
 		}
 	}
@@ -233,7 +284,7 @@ void csmaMAC::SendToRadio(){
 		if(RadioLockUp > 10){
 			hal_printf("CSMA: Radio seems to have lock up: %d \n", RadioLockUp);
 		}
-		CPU_Radio_Reset(1);
+		CPU_Radio_Reset(this->radioName);
 
 
 		if(m_recovery & LEVEL_0_RECOVER)
@@ -249,8 +300,8 @@ void csmaMAC::SendToRadio(){
 		{
 			m_recovery = m_recovery << 1;
 			RadioAckPending = FALSE;
-			CPU_Radio_Reset(1);
-			if(CPU_Radio_TurnOn(1) == DS_Fail)
+			CPU_Radio_Reset(this->radioName);
+			if(CPU_Radio_TurnOn(this->radioName) == DS_Fail)
 			{
 				hal_printf("Radio Reset failed");
 			}
@@ -268,9 +319,12 @@ void csmaMAC::SendToRadio(){
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+
+
 	UINT8 index;
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+
 		return msg;
 	}
 
@@ -311,7 +365,6 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 				m_NeighborTable.Neighbor[index].Status = Alive;
 #endif
 			}
-
 			return msg;
 	}
 
@@ -337,10 +390,19 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	//Call routing/app receive callback
-	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
+	MacReceiveFuncPtrType appHandler = AppHandlers[3]->RecieveHandler;
+
+	// Protect against catastrophic errors like dereferencing a null pointer
+	if(appHandler == NULL)
+	{
+		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
+		return temp;
+	}
 
 	// Nived.Sivadas The mac callback design has changed
+	//if(appHandler != NULL)
 	(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
@@ -376,13 +438,18 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 	{
 		case NO_Success:
 			{
+				gHalTimerManagerObject.StopTimer(3);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
+			// Attempt to send the next packet out since we have no scheduler
+				if(!m_send_buffer.IsBufferEmpty())
+					SendFirstPacketToRadio(NULL);
 			}
 			break;
 		
 		case NO_Busy:
 			Resend(msg, Size);
+			gHalTimerManagerObject.StartTimer(3);
 			break;
 			
 		case NO_BadPacket:

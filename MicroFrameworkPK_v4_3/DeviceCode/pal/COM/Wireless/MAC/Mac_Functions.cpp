@@ -7,6 +7,7 @@
 
 #include ".\CSMAMAC\csmaMAC.h"
 #include <Samraksh\Mac_decl.h>
+#include <Samraksh\PacketTimeSync_15_4.h>
 
 extern csmaMAC gcsmaMacObject;
 
@@ -29,13 +30,13 @@ NeighborTable m_NeighborTable;
 
 
 //Basic functions
-UINT8 MacName = 0;
+//UINT8 MacName = 0;
 
-DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* config){
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 routingAppID, UINT8 radioName, void* config){
 
-	if(MacName == CSMAMAC)
-		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, (MacConfig*)config) ;
-	else if(MacName == OMAC)
+	if(macID == CSMAMAC)
+		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
+	else if(macID == OMAC)
 		//return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig *) config);
 		return DS_Fail;
 	else
@@ -71,6 +72,41 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	(*managedBuffer)[6 + Size] = ((*temp)->GetHeader()->dest == MAC_BROADCAST_ADDRESS) ? 0 : 1;
 	//memcpy(*managedBuffer, *temp, ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t));
 
+	if(((*temp)->GetHeader())->GetFlags() & MFM_TIMESYNC)
+	{
+		// The packet is timestamped
+		(*managedBuffer)[7 + Size] = (BYTE) TRUE;
+		UINT64 EventTime = PacketTimeSync_15_4::EventTime((*temp), ((*temp)->GetHeader())->length);
+
+		UINT32 eventTime = (EventTime & 0xffffffff);
+
+		hal_printf("The Snap Shot in native is %u\n", eventTime);
+
+		(*managedBuffer)[8 + Size] = (EventTime & 0xff);
+		(*managedBuffer)[9 + Size] = (EventTime >> 8) & 0xff;
+		(*managedBuffer)[10 + Size] = (EventTime >> 16) & 0xff;
+		(*managedBuffer)[11 + Size] = (EventTime >> 24) & 0xff;
+		(*managedBuffer)[12 + Size] = (EventTime >> 32) & 0xff;
+		(*managedBuffer)[13 + Size] = (EventTime >> 40) & 0xff;
+		(*managedBuffer)[14 + Size] = (EventTime >> 48) & 0xff;
+		(*managedBuffer)[15 + Size] = (EventTime >> 56) & 0xff;
+
+
+	}
+	else
+	{
+		(*managedBuffer)[7 + Size] = (BYTE) FALSE;
+		(*managedBuffer)[8 + Size] = ((*temp)->GetMetaData()->GetReceiveTimeStamp() & 0xff);
+     	(*managedBuffer)[9 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 8) & 0xff);
+		(*managedBuffer)[10 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 16) & 0xff);
+		(*managedBuffer)[11 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 24) & 0xff);
+		(*managedBuffer)[12 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 32) & 0xff);
+		(*managedBuffer)[13 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 40) & 0xff);
+		(*managedBuffer)[14 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 48) & 0xff);
+		(*managedBuffer)[15 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 56) & 0xff);
+	}
+
+
 	m_receive_buffer.DropOldest(1);
 
 	return DS_Success;
@@ -82,21 +118,36 @@ DeviceStatus Mac_UnInitialize(UINT8 macID){
 }
 
 UINT8 Mac_GetID(){
-	return gcsmaMacObject.MacId ;
+	return gcsmaMacObject.macName ;
+}
+
+DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 eventTime){
+	if(macID == CSMAMAC)
+	{
+		if(gcsmaMacObject.SendTimeStamped(destAddress, dataType, msg, size, eventTime) != TRUE)
+		    return DS_Fail;
+		else
+			return DS_Success;
+	}
+	else if(macID == OMAC)
+			//return g_OMAC.Send(destAddress, dataType, msg, size);
+		return DS_Fail;
+	else
+		return DS_Fail;
 }
 
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 
 	//msg is just the payload,
 
-	if(MacName == CSMAMAC)
+	if(macID == CSMAMAC)
 	{
 		  if(gcsmaMacObject.Send(destAddress, dataType, msg, size) != TRUE)
 			  return DS_Fail;
 		  else
 			  return DS_Success;
 	}
-	else if(MacName == OMAC)
+	else if(macID == OMAC)
 		//return g_OMAC.Send(destAddress, dataType, msg, size);
 		return DS_Fail;
 	else
@@ -183,16 +234,16 @@ Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress){
 
 //Buffer functions
 UINT8 Mac_GetBufferSize(UINT8 macID){
-	if(MacName == CSMAMAC)
+	if(macID == CSMAMAC)
 		return  gcsmaMacObject.GetBufferSize();
-	else if(MacName == OMAC)
+	else if(macID == OMAC)
 		return 0;
 }
 
 UINT8 Mac_GetNumberPendingPackets(UINT8 macID){
-	if(MacName == CSMAMAC)
+	if(macID == CSMAMAC)
 		return gcsmaMacObject.GetSendPending();
-	else if(MacName == OMAC)
+	else if(macID == OMAC)
 		return 0;
 }
 

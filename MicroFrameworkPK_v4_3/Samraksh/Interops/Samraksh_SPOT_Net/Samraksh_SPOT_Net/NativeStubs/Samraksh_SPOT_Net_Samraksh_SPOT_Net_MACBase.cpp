@@ -92,3 +92,15 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
     return retVal;
 }
 
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+

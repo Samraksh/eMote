@@ -42,6 +42,8 @@
     <Compile Include="OMAC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Radio_802_15_4.cs" />
+    <Compile Include="Radio_802_15_4_Base.cs" />
+    <Compile Include="Radio_802_15_4_LR.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />

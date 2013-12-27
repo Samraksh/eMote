@@ -7,8 +7,11 @@
 
 //typedef UINT16 MacAddress_t;
 
-#define CSMAMAC 0
-#define OMAC 1
+enum MacNames
+{
+	CSMAMAC,
+	OMAC,
+};
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
@@ -61,10 +64,11 @@ public:
 
 
 //Basic functions
-DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, void* macConfig);
+DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);
 DeviceStatus Mac_UnInitialize(UINT8 macID);
 UINT8 Mac_GetID();
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
+DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
 DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 
 //Neighbor functions
