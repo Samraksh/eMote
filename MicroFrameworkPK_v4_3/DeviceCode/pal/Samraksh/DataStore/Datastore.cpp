@@ -1076,7 +1076,7 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
 }
 
 
-uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 numBytes)
+uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 numBytes)
 {
 	//debug_printf("Data_Store::readRawData\n");
     uint32 lNumBytes = 0;
@@ -1107,22 +1107,22 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 numBytes)
         lNumBytes = addressTable.getMaxWriteSize(src);
         lNumBytes = (numBytes < lNumBytes)?numBytes:lNumBytes;
 
-        cyclicDataRead( data, curLoc, lNumBytes);
+        cyclicDataRead( data, curLoc + offset, lNumBytes);
     }while(0);
     return lNumBytes;
 }
 
-uint32 Data_Store::readData(LPVOID src, uint32* data, uint32 count)
+uint32 Data_Store::readData(LPVOID src, uint32* data, uint32 offset, uint32 count)
 {
-    return readRawData( src, data, count*sizeof(int));
+    return readRawData( src, data, offset*sizeof(int), count*sizeof(int));
 }
 
-uint32 Data_Store::writeData( LPVOID dest, uint32* data, uint32 count )
+uint32 Data_Store::writeData( LPVOID dest, uint32* data, uint32 offset, uint32 count )
 {
-    return writeRawData( dest, data, count*sizeof(int));
+    return writeRawData( dest, data, offset*sizeof(int), count*sizeof(int));
 }
 
-uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
+uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 numBytes)
 {
 	//debug_printf("Data_Store::writeRawData\n");
 
@@ -1162,9 +1162,6 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
             break;
         }
 
-        ////AnanthAtSamraksh -- adding below line to get the data type from record header
-        cyclicDataRead( &recHeader, recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
-
         recordSize        = addressTable.getMaxWriteSize(addressTable.getGivenAddress(addressTable.getRecordID(dest)));
 
         recWriteStartAddr = addressTable.getCurrentLoc( dest,
@@ -1174,11 +1171,11 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
         /* Minimum of these two sizes */
         numBytesWritten   = (numBytes < numBytesWritten)?numBytes:numBytesWritten;
 
-        recWriteEndAddr   = incrementPointer(recWriteStartAddr , numBytesWritten - 1);              /* corresponding End address on flash */
+        recWriteEndAddr   = incrementPointer(recWriteStartAddr + offset, numBytesWritten - 1);              /* corresponding End address on flash */
         recEndAddr        = incrementPointer(recBaseAddr , recordSize - 1);     /* Last byte address of the record on flash */
 
         /* Now check if there is a overwrite possiblility */
-        isOverWriteDetected = detectOverWrite( recWriteStartAddr,
+        isOverWriteDetected = detectOverWrite( recWriteStartAddr + offset,
                                                data,
                                                numBytesWritten,
                                                &overWriteStartOffset );
@@ -1186,7 +1183,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
             /* No overwrites are detected, so its safe to just write data */
         	//debug_printf("Data_Store::writeRawData. No overwrite detected\n");
             numBytesWritten = cyclicDataWrite( data,
-                                               recWriteStartAddr ,
+                                               recWriteStartAddr + offset,
                                                numBytesWritten );
         }else{
             /* Possibility for Overwrite is detected.
@@ -1203,6 +1200,9 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
             LPVOID newRecWriteStartAddr = NULL;
 
             //debug_printf("Data_Store::writeRawData. Overwrite detected\n");
+
+            ////AnanthAtSamraksh -- adding below line to get the data type from record header
+            cyclicDataRead( &recHeader, recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
 
             newRecBaseAddr = createAllocation( recordID, lGivenPtr, recordSize, recHeader.dataType );
 
@@ -1236,7 +1236,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
 
             /* Write region-2 */
             cyclicDataWrite( data,
-                             lCurrentWriteLoc,
+                             lCurrentWriteLoc + offset,
                              lCurrentWriteLen );
 
             /* Move the current location pointer */

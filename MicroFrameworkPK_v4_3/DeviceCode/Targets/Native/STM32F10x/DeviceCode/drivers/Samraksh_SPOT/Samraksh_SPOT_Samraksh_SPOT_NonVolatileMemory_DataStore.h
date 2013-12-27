@@ -38,7 +38,9 @@ namespace Samraksh
                 static INT8 GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, HRESULT &hr );
                 static UINT32 GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, INT32 param3, HRESULT &hr );
+                static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
+                static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
+                static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
                 static INT8 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
                 static INT8 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
                 static INT8 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );

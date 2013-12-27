@@ -88,24 +88,41 @@ INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
     return retVal;
 }
 
-/*INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, INT32 storageType, HRESULT &hr )
+INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
 {
-	//g_dataStoreObject.writeRawData((void*)destAddress + (offset * sizeof(UINT8)), (void*) data.GetBuffer(), numBytes);
+	g_dataStoreObject.writeRawData((void*)destAddress + (offset * sizeof(UINT8)), (void*) data.GetBuffer(), numBytes);
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
+}
+
+INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT16 dataType, INT32 storageType, HRESULT &hr )
+{
+	g_dataStoreObject.writeRawData((void*)destAddress + (offset * sizeof(UINT16)), (void*) data.GetBuffer(), numBytes);
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
+}
+
+INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
+{
+	g_dataStoreObject.writeRawData((void*)destAddress + (offset * sizeof(UINT32)), (void*) data.GetBuffer(), numBytes);
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
+}
+
+/*INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 numBytes, INT32 storageType, HRESULT &hr )
+{
 	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), numBytes);
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return true;
 	else
 		return false;
 }*/
-
-INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 numBytes, INT32 storageType, HRESULT &hr )
-{
-	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), numBytes);
-	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
-	else
-		return false;
-}
 
 INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
 {

@@ -356,15 +356,15 @@ public:
     RECORD_ID getRecentRecordID();
 
     /* Write data to the store */
-    uint32 writeData( LPVOID dest, uint32 *data, uint32 count );
+    uint32 writeData( LPVOID dest, uint32 *data, uint32 offset, uint32 count );
 
     /* Write raw data - Can be of any word-size */
-    uint32 writeRawData(LPVOID dest, void* data, uint32 numBytes);
+    uint32 writeRawData(LPVOID dest, void* data, uint32 offset, uint32 numBytes);
 
-    uint32 readData(LPVOID src, uint32* data, uint32 count);
+    uint32 readData(LPVOID src, uint32* data, uint32 offset, uint32 count);
 
     /* Read raw data */
-    uint32 readRawData(LPVOID src, void *data, uint32 numBytes);
+    uint32 readRawData(LPVOID src, void *data, uint32 offset, uint32 numBytes);
 
     /* Returns the error code of any error in the previous call */
     DATASTORE_ERROR getLastError();
