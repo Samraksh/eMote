@@ -19,7 +19,7 @@ typedef struct
 {
     RECORD_ID  recordID;           /* Unique allocation identifier */
     LPVOID     givenPtr;           /* Smart pointer that was given to the application */
-    DWORD      allocationSize;     /* Size of the allocation */
+    UINT32     allocationSize;     /* Size of the allocation */
     LPVOID     currentLoc;         /* Current location of the corresponding data on the flash */
 }DATASTORE_ADDR_TBL_ENTRY;
 

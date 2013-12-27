@@ -10,6 +10,9 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT
 {
+    /// <summary>
+    /// Garbage Collector class
+    /// </summary>
     public class GC
     {
         /// <summary>

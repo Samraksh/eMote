@@ -24,6 +24,16 @@ INT32 Data::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 	return (INT32)g_dataStoreObject.getAddress(dataId);
 }
 
+UINT32 Data::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+	return g_dataStoreObject.getDataType(dataId);
+}
+
+UINT32 Data::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+    return g_dataStoreObject.getAllocationSize(dataId);
+}
+
 INT8 Data::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
     g_dataStoreObject.deleteRecord(dataId);

@@ -7,6 +7,8 @@
 //#include <Samraksh/DataStore/FlashDevice.h>
 //#include <Samraksh/DataStore/DatastoreInt.h>
 #include <Samraksh/DataStore/DatastoreReg.h>
+#include <typeinfo> //For typeid
+#include <stdint.h> //for int8_t, int16_t and int32_t
 #include "platform_selector.h"
 
 //#define DEBUG_DATASTORE
@@ -18,7 +20,7 @@
 #endif
 
 //typedefs
-typedef unsigned int RECORD_ID;
+//typedef short RECORD_ID;
 
 
 /* Constants */
@@ -35,6 +37,10 @@ typedef unsigned int RECORD_ID;
 
 #define FLAG_RECORD_ACTIVE      (1)     /* Because of flash properties, this has to be 1 */
 #define FLAG_RECORD_INACTIVE    (0)
+
+#define DATATYPE_BYTE    (00)
+#define DATATYPE_INT16   (01)
+#define DATATYPE_INT32   (10)
 
 #ifdef DATASTORE_DEBUG_DEFINED
 #define DATASTORE_ASSERT(condition, messageStr)     do{ASSERT(condition)}while(0);
@@ -100,12 +106,13 @@ typedef struct _datastore_properties
 typedef struct _record_header
 {
     char zero:1;
-    uint32 version:2;
+    uint32 dataType:2;
     uint32 activeFlag:1;
-    uint32 size:28;   /* sizeof(version+isActive+size) = 32bits */
+    int version;
+    uint32 size;   /* sizeof(version+isActive+size) = 32bits */
 
     uint32 recordID;
-    void*  nextLink;
+    //void*  nextLink;
 }RECORD_HEADER;
 
 
@@ -253,7 +260,7 @@ private:
     uint32 calculateLogHeadRoom();
 
     /* Create new allocation */
-    LPVOID createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes);
+    LPVOID createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType);
 
     /* Detect overwrites - Not sure if this needs to be a member function */
     bool detectOverWrite( void *addr, void *data, int dataLen, uint32* conflictStartLoc );
@@ -329,13 +336,19 @@ public:
 	LPVOID copyAddressTable(vector<DATASTORE_ADDR_TBL_ENTRY> *table);
 #endif
     /* Create a record in the data store */
-    LPVOID createRecord( RECORD_ID id, uint32 numBytes );
+    LPVOID createRecord( RECORD_ID id, uint32 numBytes, uint32 dataType );
 
     /* Delete record */
     DATASTORE_STATUS deleteRecord( RECORD_ID id );
 
     /* Get base address for given Record_id */
     LPVOID getAddress( RECORD_ID id );
+
+    /* Get data type for given Record_id */
+    uint32 getDataType( RECORD_ID id );
+
+    /* Get data type for given Record_id */
+    uint32 getAllocationSize( RECORD_ID id );
 
     /* Symmetric API to lookup ID using PTR */
     RECORD_ID getRecordID(LPVOID givenPtr);
@@ -355,7 +368,6 @@ public:
 
     /* Returns the error code of any error in the previous call */
     DATASTORE_ERROR getLastError();
-
 
 	/* Function that returns the current value of the Log point */
 	uint32 returnLogPoint();

@@ -1,6 +1,6 @@
 /* Copyright: The Samaraksh Company (All rights reserved)
- * Author: Mukundan Sridharan
- * Date: Feb 2013
+ * Author: Mukundan Sridharan, Ananth Muralidharan
+ * Date: Feb 2013, Nov 2013
  * Function: Provides access to Samraksh NVM DataStore filesystem
  */
 
@@ -11,6 +11,9 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.SPOT.NonVolatileMemory
 {
+    /// <summary>
+    /// Block device type
+    /// </summary>
     public enum StorageType
     {
         NOR,
@@ -56,14 +59,19 @@ namespace Samraksh.SPOT.NonVolatileMemory
         private UInt32 m_Size = 0;
         private Int32 dataPointer;
         private Type dataType;
+
+        private Byte dataTypeByte = new byte();
+        private UInt16 dataTypeUInt16 = new UInt16();
+        private UInt32 dataTypeUInt32 = new UInt32();
         
         DataStore dStore;
 
         /// <summary>
-        /// Data constructor that takes DataStore and the data type as parameters
+        /// Data constructor that takes DataStore and the data type as parameters. 
+        /// Possible to create max of 256 active data objects.
         /// </summary>
-        /// <param name="dStore"></param>
-        /// <param name="dataType"></param>
+        /// <param name="dStore">DataStore object</param>
+        /// <param name="dataType">Type of data to be stored in data store</param>
         public Data(DataStore dStore, Type dataType)
         {
             this.dStore = dStore;
@@ -71,29 +79,58 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Default data class constructor
+        /// Default data class constructor. Possible to create max of 256 active data objects.
         /// </summary>
         /// <param name="dStore">DataStore object</param>
-        /// <param name="m_Size">Size of the data object to be stored in data store</param>
+        /// <param name="m_Size">Size of the data object to be stored in data store. 
+        /// Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
         /// <param name="dataType">Type of data to be stored in data store</param>
         public Data(DataStore dStore, UInt32 m_Size, Type dataType)
         {
             this.dStore = dStore;
-            this.m_Size = m_Size;
             this.dataType = dataType;
-            this.dataPointer = dStore.CreateData(m_Size);
+            if (dataType == dataTypeByte.GetType())
+            {
+                //byte dataTypeByte = new byte();
+                m_Size = sizeof(byte) * m_Size;
+                this.dataPointer = dStore.CreateData(m_Size, 0);
+            }
+            else if (dataType == dataTypeUInt16.GetType())
+            {
+                //UInt16 dataTypeUInt16 = new UInt16();
+                m_Size = sizeof(UInt16) * m_Size;
+                this.dataPointer = dStore.CreateData(m_Size, 1);
+            }
+            else if (dataType == dataTypeUInt32.GetType())
+            {
+                //UInt32 dataTypeUInt32 = new UInt32();
+                m_Size = sizeof(UInt32) * m_Size;
+                this.dataPointer = dStore.CreateData(m_Size, 2);
+            }
+            this.m_Size = m_Size;
             this.dataId = dStore.GetDataID();
         }
 
         /// <summary>
         /// Returns a data object corresponding to the input parameter dataId.
+        /// Possible to create max of 256 active data objects.
         /// </summary>
         /// <param name="dStore">DataStore object</param>
         /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
         public Data(DataStore dStore, UInt32 dataId)
         {
             this.dStore = dStore;
+            this.dataId = dataId;
             this.dataPointer = LookupData(dataId);
+            this.m_Size = LookupSize(dataId);
+
+            UInt32 retType = LookupDataType(dataId);
+            if (retType == 0)
+                this.dataType = typeof(byte);
+            else if (retType == 1)
+                this.dataType = typeof(UInt16);
+            else if (retType == 2)
+                this.dataType = typeof(UInt32);
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
         }
 
@@ -127,17 +164,120 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
         /// <param name="offset">Offset within the data array from which to write to data store</param>
-        /// <param name="numBytes">Number of bytes to be written to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
         /// <returns>Returns success or failure</returns>
-        public DataStatus Write(byte[] data, UInt32 offset, UInt32 numBytes)
+        public DataStatus Write(byte[] data, UInt32 offset, UInt32 numData)
         {
+            bool retVal = false;
             if (dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (numBytes > data.Length)
+            if (dataType != dataTypeByte.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
                 return DataStatus.InvalidParameter;
+
+            if (offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(byte) * numData;
+            byte[] byteArray = new byte[numBytes];
             
-            bool retVal = dStore.Write((uint)dataPointer, data, numBytes);
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                byteArray[objIndex] = (byte)(data[objIndex + offset]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeByte);
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+            
+            if (retVal == true)
+                return DataStatus.Success;
+            else
+                return DataStatus.Failure;
+        }
+
+        /// <summary>
+        /// Write a UInt16 array into the data store
+        /// </summary>
+        /// <param name="data">UInt16 array to be written to data store</param>
+        /// <param name="offset">Offset within the data array from which to write to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
+        public DataStatus Write(UInt16[] data, UInt32 offset, UInt32 numData)
+        {
+            bool retVal = false;
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeUInt16.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            if (offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt16) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(data[objIndex + offset] >> 8);
+                byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex + offset]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+            
+            if (retVal == true)
+                return DataStatus.Success;
+            else
+                return DataStatus.Failure;
+        }
+
+        /// <summary>
+        /// Write a UInt32 array into the data store
+        /// </summary>
+        /// <param name="data">UInt32 array to be written to data store</param>
+        /// <param name="offset">Offset within the data array from which to write to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
+        public DataStatus Write(UInt32[] data, UInt32 offset, UInt32 numData)
+        {
+            bool retVal = false;
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeUInt32.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            if (offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt32) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                //byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(Convert.ToUInt32(data[objIndex].ToString()) >> 24);
+                byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(data[objIndex + offset] >> 24);
+                byteArray[objIndex * sizeof(UInt32) + 1] = (byte)(data[objIndex + offset] >> 16);
+                byteArray[objIndex * sizeof(UInt32) + 2] = (byte)(data[objIndex + offset] >> 8);
+                byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex + offset]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+            
             if (retVal == true)
                 return DataStatus.Success;
             else
@@ -148,17 +288,32 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Write a byte array into the data store
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="numBytes">Number of bytes to be written to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
         /// <returns>Returns success or failure</returns>
-        public DataStatus Write(byte[] data, UInt32 numBytes)
+        public DataStatus Write(byte[] data, UInt32 numData)
         {
+            bool retVal = false;
+
             if (dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (numBytes > data.Length)
+            if (dataType != dataTypeByte.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
                 return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(byte) * numData;
+            byte[] byteArray = new byte[numBytes];
             
-            bool retVal = dStore.Write((uint) dataPointer, data, numBytes);
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                byteArray[objIndex] = (byte)(data[objIndex]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeByte);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+
             if (retVal == true)
                 return DataStatus.Success;
             else
@@ -166,17 +321,221 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Read a byte array from the data store into the array passed as parameter
+        /// Write a UInt16 array into the data store
         /// </summary>
-        /// <param name="data">Byte array to be filled up with data for the corresponding data object</param>
-        /// <returns>Returns if read was a success or a failure</returns>
-        public DataStatus Read(byte[] data)
+        /// <param name="data">UInt16 array to be written to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
+        public DataStatus Write(UInt16[] data, UInt32 numData)
         {
+            bool retVal = false;
+
             if (dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dStore.Read((uint)dataPointer, data) == true)
+            if (dataType != dataTypeUInt16.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt16) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                //byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(Convert.ToUInt16(data[objIndex].ToString()) >> 8);
+                byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(data[objIndex] >> 8);
+                byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeUInt16);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+
+            if (retVal == true)
                 return DataStatus.Success;
+            else
+                return DataStatus.Failure;
+        }
+
+        /// <summary>
+        /// Write a UInt32 array into the data store
+        /// </summary>
+        /// <param name="data">UInt32 array to be written to data store</param>
+        /// <param name="numData">Count of data to be written to data store</param>
+        /// <returns>Returns success or failure</returns>
+        public DataStatus Write(UInt32[] data, UInt32 numData)
+        {
+            bool retVal = false;
+            
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeUInt32.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt32) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            for (uint objIndex = 0; objIndex < numData; ++objIndex)
+            {
+                byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(data[objIndex] >> 24);
+                byteArray[objIndex * sizeof(UInt32) + 1] = (byte)(data[objIndex] >> 16);
+                byteArray[objIndex * sizeof(UInt32) + 2] = (byte)(data[objIndex] >> 8);
+                byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
+            }
+            
+            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeUInt32);
+            retVal = dStore.Write((uint)dataPointer, byteArray, numBytes);
+            
+            if (retVal == true)
+                return DataStatus.Success;
+            else
+                return DataStatus.Failure;
+        }
+
+
+        /*private byte[] ObjectToByteArray(Object[] data)
+        {
+            if (data == null)
+                return null;
+
+            byte[] byteArray = new byte[sizeof(Int16) * data.Length];
+            for (int objIndex = 0; objIndex < data.Length; ++objIndex)
+            {
+                Microsoft.SPOT.Hardware.Utility.InsertValueIntoArray(byteArray, 0, data.Length, (uint)data);
+            }
+        }*/
+
+        /// <summary>
+        /// Read a byte array from the data store into the array passed as parameter
+        /// </summary>
+        /// <param name="data">Array to be filled up with data for the corresponding data object</param>
+        /// <param name="offset">Offset from source from which to read</param>
+        /// <param name="numData">Count of data to be read</param>
+        /// <returns>Returns if read was a success or a failure</returns>
+        public DataStatus Read(byte[] data, UInt32 offset, UInt32 numData)
+        {
+            bool retVal = false;
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeByte.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            if(offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(byte) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            retVal = dStore.Read((uint)dataPointer, byteArray, offset, numBytes, dataTypeByte);
+            
+            if (retVal == true)
+            {
+                for (uint objIndex = 0; objIndex < numData; ++objIndex)
+                {
+                    //data[objIndex] = (byte)(byteArray[(objIndex * sizeof(byte)) + (offset * sizeof(byte))]);
+                    data[objIndex] = (byte)(byteArray[objIndex * sizeof(byte)]);
+                }
+                return DataStatus.Success;
+            }
+            else
+                return DataStatus.Failure;
+        }
+
+        /// <summary>
+        /// Read a UInt16 array from the data store into the array passed as parameter
+        /// </summary>
+        /// <param name="data">Array to be filled up with UInt16 data</param>
+        /// <param name="offset">Offset from source from which to read</param>
+        /// <param name="numData">Count of data to be read</param>
+        /// <returns>Returns if read was a success or a failure</returns>
+        public DataStatus Read(UInt16[] data, UInt32 offset, UInt32 numData)
+        {
+            bool retVal = false;
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeUInt16.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            if (offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt16) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            retVal = dStore.Read((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt16);
+            
+            if (retVal == true)
+            {
+                for (uint objIndex = 0; objIndex < numData; ++objIndex)
+                {
+                    //data[objIndex] = (UInt16)((byteArray[(objIndex * sizeof(UInt16)) + (offset * sizeof(UInt16)) + 0] << 8) +
+                    //                                    byteArray[(objIndex * sizeof(UInt16)) + (offset * sizeof(UInt16)) + 1]);
+
+                    data[objIndex] = (UInt16)( ( byteArray[objIndex * sizeof(UInt16) + 0] << 8 ) +
+                                                        byteArray[objIndex * sizeof(UInt16) + 1] );
+                }
+                return DataStatus.Success;
+            }
+            else
+                return DataStatus.Failure;
+        }
+
+        /// <summary>
+        /// Read a UInt32 array from the data store into the array passed as parameter
+        /// </summary>
+        /// <param name="data">Array to be filled up with UInt32 data</param>
+        /// <param name="offset">Offset from source from which to read</param>
+        /// <param name="numData">Count of data to be read</param>
+        /// <returns>Returns if read was a success or a failure</returns>
+        public DataStatus Read(UInt32[] data, UInt32 offset, UInt32 numData)
+        {
+            bool retVal = false;
+            if (dataPointer == 0x0)
+                return DataStatus.InvalidPointer;
+
+            if (dataType != dataTypeUInt32.GetType())
+                return DataStatus.Failure;
+
+            if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            if (offset + numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            UInt32 numBytes = sizeof(UInt32) * numData;
+            byte[] byteArray = new byte[numBytes];
+            
+            retVal = dStore.Read((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt32);
+            
+            if (retVal == true)
+            {
+                for (uint objIndex = 0; objIndex < numData; ++objIndex)
+                {
+                    //data[objIndex] = (UInt32)((byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 0] << 24) +
+                    //                                (byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 1] << 16) +
+                    //                                (byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 2] << 8) +
+                    //                                byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 3]);
+
+                    data[objIndex] = (UInt32)( ( byteArray[objIndex * sizeof(UInt32) + 0] << 24 ) +
+                                                    ( byteArray[objIndex * sizeof(UInt32) + 1] << 16 ) +
+                                                    ( byteArray[objIndex * sizeof(UInt32) + 2] << 8 ) +
+                                                    byteArray[objIndex * sizeof(UInt32) + 3] );
+                }
+                return DataStatus.Success;
+            }
             else
                 return DataStatus.Failure;
         }
@@ -211,6 +570,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private Int32 LookupData(UInt32 dataId);
 
         /// <summary>
+        /// Get the data type of dataID
+        /// </summary>
+        /// <param name="dataId">ID of the data/record to be looked up</param>
+        /// <returns>Returns data type</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private UInt32 LookupDataType(UInt32 dataId);
+
+        /// <summary>
+        /// Get the allocation size for dataID
+        /// </summary>
+        /// <param name="dataId">ID of the data/record to be looked up</param>
+        /// <returns>Returns allocation size</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private UInt32 LookupSize(UInt32 dataId);
+
+        /// <summary>
         /// Delete the data represented by the dataId from data store.
         /// </summary>
         /// <param name="dataId">ID of the data/record to be deleted</param>
@@ -243,7 +618,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
     /// </summary>
     public class DataStore
     {
-
+        /// <summary>
+        /// Datastore error types
+        /// </summary>
         private enum DATASTORE_ERROR
         {
             DATASTORE_ERROR_NONE,
@@ -353,8 +730,8 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// Fills up the array (passed as first parameter) with the dataIDs starting from offset (passed as second parameter)
         /// </summary>
-        /// <param name="dataRefArray"></param>
-        /// <param name="dataIdOffset"></param>
+        /// <param name="dataRefArray">Array that holds the references to the data</param>
+        /// <param name="dataIdOffset">Offset from which the array references are to be fetched</param>
         /// <returns>Returns success or failure</returns>
         public DataStatus ReadAllDataReferences(Data[] dataRefArray, UInt16 dataIdOffset)
         {
@@ -470,13 +847,31 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Write data array to the data store starting from the address (passed as first parameter)
         /// </summary>
         /// <param name="address">Starting address from which to start writing the data</param>
-        /// <param name="data">Data array to be written to data store</param>
+        /// <param name="data">Data to be written to data store</param>
+        /// <param name="offset">Offset from which to start writing</param>
+        /// <param name="numBytes">Count of bytes to be written</param>
+        /// <param name="dataType">Data type to be written</param>
         /// <returns>Returns 4 (number of bytes written) if successful, returns -1 if operation fails.</returns>
-        public bool Write(UInt32 address, byte[] data)
+        /*public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes)
         {
-            //byte[] buffer = new byte[sizeof(int)];
-            return Write(address, data, (UInt32)data.Length, storageType);
+            return Write(address, data, offset, numBytes, storageType);
+        }*/
+        
+        /*public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
+        {
+            //return Write(address, data, (UInt32)data.Length, dataType, storageType);
+            return Write(address, data, offset, numBytes, dataType, storageType);
         }
+
+        public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
+        {
+            return Write(address, data, offset, numBytes, dataType, storageType);
+        }
+
+        public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
+        {
+            return Write(address, data, offset, numBytes, dataType, storageType);
+        }*/
 
         /// <summary>
         /// Write data array to the data store starting from the address (passed as first parameter). Amount of data to be written is specified by numBytes (third parameter)
@@ -484,21 +879,46 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="address">Starting address from which to start writing the data</param>
         /// <param name="data">Data array to be written to data store</param>
         /// <param name="numBytes">Amount of data to be written</param>
+        /// <param name="dataType">Data type to be written</param>
         /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
         public bool Write(UInt32 address, byte[] data, UInt32 numBytes)
         {
+            //return Write(address, data, numBytes, dataType, storageType);
             return Write(address, data, numBytes, storageType);
         }
+
+        /*public bool Write(UInt32 address, byte[] data, UInt32 numBytes, UInt16 dataType)
+        {
+            return Write(address, data, numBytes, dataType, storageType);
+        }
+
+        public bool Write(UInt32 address, byte[] data, UInt32 numBytes, UInt32 dataType)
+        {
+            return Write(address, data, numBytes, dataType, storageType);
+        }*/
 
         /// <summary>
         /// Read a byte array from the data store into data array starting from address (first parameter)
         /// </summary>
         /// <param name="address">Starting address from which to start reading</param>
         /// <param name="data">Byte array to be filled up with data from data store</param>
+        /// <param name="offset">Offset from which to start reading</param>
+        /// <param name="numBytes">Number of bytes to be read</param>
+        /// <param name="dataType">Data type of the data to be read</param>
         /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
-        public bool Read(UInt32 address, byte[] data)
+        public bool Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
         {
-            return Read(address, data, storageType);
+            return Read(address, data, offset, numBytes, dataType, storageType);
+        }
+
+        public bool Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
+        {
+            return Read(address, data, offset, numBytes, dataType, storageType);
+        }
+
+        public bool Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
+        {
+            return Read(address, data, offset, numBytes, dataType, storageType);
         }
 
         /// <summary>
@@ -512,26 +932,33 @@ namespace Samraksh.SPOT.NonVolatileMemory
         ///////////////////////////////////Internal methods/////////////////////////
 
         /// <summary>
-        /// Returns the current dataID 
-        /// </summary>
-        /// <returns>Current dataID</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt32 GetDataID();
-
-        /// <summary>
-        /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
-        /// </summary>
-        /// <param name="Size">Size of the data</param>
-        /// <returns>Reference to the created data</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public int CreateData(UInt32 Size);
-
-        /// <summary>
         /// Initializes the data store. Performs a scan of the device and builds up the list of active data inside the data store.
         /// </summary>
         /// <returns>True or false</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool CreateDataStore();
+
+        /// <summary>
+        /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
+        /// </summary>
+        /// <param name="Size">Size of the data</param>
+        /// <param name="dataTypeByte">Data type - byte</param>
+        /// <returns>Reference to the created data</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public int CreateData(UInt32 Size, byte dataTypeByte);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public int CreateData(UInt32 Size, UInt16 dataTypeUInt16);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public int CreateData(UInt32 Size, UInt32 dataTypeUInt16);
+
+        /// <summary>
+        /// Returns the current dataID 
+        /// </summary>
+        /// <returns>Current dataID</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern public UInt32 GetDataID();
 
         /// <summary>
         /// Get amount of used space 
@@ -603,16 +1030,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private static int GetLastErrorStatus();
 
         /// <summary>
-        /// Read from data into the buffer starting from address.
-        /// </summary>
-        /// <param name="address">Address of data to be read from</param>
-        /// <param name="buffer">Buffer into which the data will be read</param>
-        /// <param name="storageType">Block storage type</param>
-        /// <returns>Returns number of bytes read, returns -1 if operation fails</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool Read(UInt32 address, byte[] buffer, int storageType);
-
-        /// <summary>
         /// Read the data record IDs currently stored in the NVM into the unsigned integer array provided
         /// </summary>
         /// <param name="buffer">Buffer into which the data record IDs will be read into</param>
@@ -623,7 +1040,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// Delete the data represented by the dataID from data store.
         /// </summary>
-        /// <param name="dataID">ID of the data to be deleted</param>
+        /// <param name="dataId">ID of the data to be deleted</param>
         /// <returns>Returns success or failure of operation</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Delete(UInt32 dataId);
@@ -637,11 +1054,52 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <param name="address">Address from which to start writing data</param>
         /// <param name="data">Buffer holding data to be written</param>
+        /// <param name="offset"></param>
         /// <param name="numBytes">Amount of data to be written</param>
+        /// <param name="dataType">Data type of the data to be written</param>
         /// <param name="storageType">Block storage type</param>
         /// <returns>Returns success or failure</returns>
+        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, int storageType);*/
+
+        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);*/
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);
+
+        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, UInt16 dataType, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, UInt32 dataType, int storageType);*/
+
+
+        /// <summary>
+        /// Read from data into the buffer starting from address.
+        /// </summary>
+        /// <param name="address">Address of data to be read from</param>
+        /// <param name="buffer">Buffer into which the data will be read</param>
+        /// <param name="offset">Offset from which to start reading</param>
+        /// <param name="numBytes">Number of bytes to be read</param>
+        /// <param name="dataType">Data type of the data to be read</param>
+        /// <param name="storageType">Block storage type</param>
+        /// <returns>Returns number of bytes read, returns -1 if operation fails</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
+
 
         // native call that destroys record created on the flash
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]

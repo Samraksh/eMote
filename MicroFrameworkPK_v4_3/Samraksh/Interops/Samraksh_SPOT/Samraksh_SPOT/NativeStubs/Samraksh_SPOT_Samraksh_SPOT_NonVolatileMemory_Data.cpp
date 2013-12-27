@@ -13,19 +13,34 @@
 
 #include "Samraksh_SPOT.h"
 #include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data.h"
+#include <Samraksh\DataStore\Datastore.h>
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
-INT32 Data::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+extern Data_Store g_dataStoreObject;
+
+INT32 Data::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	return (INT32)g_dataStoreObject.getAddress(dataId);
 }
 
-INT8 Data::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+UINT32 Data::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	return g_dataStoreObject.getDataType(dataId);
+}
+
+UINT32 Data::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+    return g_dataStoreObject.getAllocationSize(dataId);
+}
+
+INT8 Data::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+    g_dataStoreObject.deleteRecord(dataId);
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
@@ -34,9 +49,8 @@ UINT32 Data::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 par
     return retVal;
 }
 
-INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+INT8 Data::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.deleteRecord(dataId);
 }
 

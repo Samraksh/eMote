@@ -32,6 +32,44 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupData__
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupDataType___U4__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
+
+        UINT32 retVal = Data::LookupDataType( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupSize___U4__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
+
+        UINT32 retVal = Data::LookupSize( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DeleteData___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

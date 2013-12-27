@@ -7,7 +7,7 @@ typedef unsigned short  ushort;
 typedef unsigned char   uchar;
 
 
-typedef unsigned int RECORD_ID;
+typedef short RECORD_ID;
 
 #endif
 

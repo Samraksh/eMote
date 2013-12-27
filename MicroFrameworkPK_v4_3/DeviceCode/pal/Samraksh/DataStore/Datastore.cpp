@@ -159,7 +159,7 @@ uint32 Data_Store::calculateLogHeadRoom()
 	return retVal;
 }
 
-LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes )
+LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType )
 {
 	//debug_printf("Data_Store::createAllocation\n");
     LPVOID retVal = NULL;
@@ -224,7 +224,10 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
                             sizeof(RECORD_HEADER) );
 
             header.activeFlag = FLAG_RECORD_INACTIVE;
-            header.nextLink = incrementPointer(retVal, sizeof(RECORD_HEADER));
+
+            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
+            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
+            //header.nextLink = incrementPointer(retVal, sizeof(RECORD_HEADER));
 
             cyclicDataWrite( &header,
                              oldRecAddr,
@@ -232,7 +235,9 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 
             /* Now, update the header struct and write it back */
             header.activeFlag = FLAG_RECORD_ACTIVE;
-            header.nextLink   = (LPVOID)~0;
+            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
+            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
+            ////header.nextLink   = (LPVOID)~0;
             header.version++;                 /* Move to next value */
             header.zero       = 0;
 
@@ -248,7 +253,25 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             entry.recordID       = recordID;
 
             header.activeFlag = FLAG_RECORD_ACTIVE;
-            header.nextLink   = (LPVOID)~0;
+
+            ////AnanthAtSamraksh - this gives an error -- undefined reference to `typeinfo for unsigned char' - during linking
+            /*if(typeid(uint8_t) == typeid(dataType))
+				header.dataType = DATATYPE_BYTE;
+			else if(typeid(uint16_t) == typeid(dataType))
+				header.dataType = DATATYPE_INT16;
+			else if(typeid(uint32_t) == typeid(dataType))
+				header.dataType = DATATYPE_INT32;*/
+
+            if(0 == dataType)
+				header.dataType = DATATYPE_BYTE;
+			else if(1 == dataType)
+				header.dataType = DATATYPE_INT16;
+			else if(2 == dataType)
+				header.dataType = DATATYPE_INT32;
+
+            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
+            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
+            ////header.nextLink   = (LPVOID)~0;
             header.recordID   = recordID;
             header.size       = numBytes;
             header.version    = 0;
@@ -295,6 +318,39 @@ LPVOID Data_Store::getAddress(RECORD_ID id)
         lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
     }
     return retVal;
+}
+
+// Get data type for given Record_id
+uint32 Data_Store::getDataType(RECORD_ID id)
+{
+    LPVOID dataCurLoc = NULL;
+    RECORD_HEADER recHeader = { 0 };
+
+    lastErrorVal = DATASTORE_ERROR_NONE;
+
+    if( NULL == (dataCurLoc = addressTable.getCurrentLoc(id)) ) {
+    	lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+    }
+    cyclicDataRead( &recHeader, (char*)dataCurLoc - sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
+
+    return recHeader.dataType;
+}
+
+
+// Get data type for given Record_id
+uint32 Data_Store::getAllocationSize(RECORD_ID id)
+{
+    LPVOID dataCurLoc = NULL;
+    RECORD_HEADER recHeader = { 0 };
+
+    lastErrorVal = DATASTORE_ERROR_NONE;
+
+    if( NULL == (dataCurLoc = addressTable.getCurrentLoc(id)) ) {
+    	lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+    }
+    cyclicDataRead( &recHeader, (char*)dataCurLoc - sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
+
+    return recHeader.size;
 }
 
 // Get base address for given Record_id
@@ -625,43 +681,7 @@ DATASTORE_STATUS Data_Store::compactLog()
                    clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
         }
         else if( 0 != recHeader.zero ){
-			/*int  currentBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);
-			char *sectorEndByte = (char*)blockDeviceInformation->Regions->BlockAddress(currentBlockID) +
-															   blockDeviceInformation->Regions->BytesPerBlock - 1;
-			int numBytesToIncrement = sectorEndByte - clearPtr + 1;
-
-			incrementClearPoint(numBytesToIncrement);
-			clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;*/
-
-        	/*UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
-			UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
-			int lfirstBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
-			int llastBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);*/
-
-        	//int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);
-        	//char* address = (char*)blockDeviceInformation->Regions->BlockAddress(blockID);
-
-        	////cyclicDataRead( &recHeader, clearPtr, sizeof(RECORD_HEADER) );
-        	////while(0 != recHeader.zero){
-				/*blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)address);
-				blockID++;
-				if(blockID > llastBlockID){
-					blockID = lfirstBlockID;
-				}
-				address = (char*)blockDeviceInformation->Regions->BlockAddress(blockID);
-
-				char *sectorEndByte = (char*)blockDeviceInformation->Regions->BlockAddress(blockID) + blockDeviceInformation->Regions->BytesPerBlock - 1;
-				int numBytesToIncrement = sectorEndByte - clearPtr + 1;*/
-
-				/*incrementClearPoint(sizeof(RECORD_HEADER) + recHeader.size);
-				clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
-				cyclicDataRead( &recHeader, clearPtr, sizeof(RECORD_HEADER) );
-			}*/
-
-
-			////AnanthAtSamraksh - commenting out below to fix a bug where clear ptr is not being updated
-        	//debug_printf("Data_Store::compactLog. Should never happen\n");
-            ASSERT(false);  /* This should never happen */
+			ASSERT(false);  /* This should never happen */
             break;  //When assert is removed
         }
         else if( 0 == recHeader.zero &&
@@ -677,14 +697,18 @@ DATASTORE_STATUS Data_Store::compactLog()
         	//debug_printf("Data_Store::compactLog. Migrating record\n");
             /* First mark the current location as inactive */
             recHeader.activeFlag = FLAG_RECORD_INACTIVE;
-            recHeader.nextLink   = (char*)blockDeviceInformation->Regions->Start + \
+            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
+            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
+            ////recHeader.nextLink   = (char*)blockDeviceInformation->Regions->Start + \
                                         logPointByteOffset + \
                                         sizeof(RECORD_HEADER);
             cyclicDataWrite( (LPVOID)&recHeader, clearPtr, sizeof(RECORD_HEADER) );
 
             /* Old record is marked inactive, now migrate the record to the end of log */
             recHeader.activeFlag = FLAG_RECORD_ACTIVE;
-            recHeader.nextLink   = (LPVOID)~0u;
+            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
+            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
+            ////recHeader.nextLink   = (LPVOID)~0u;
 
             cyclicDataWrite( &recHeader,
                              ((char*)blockDeviceInformation->Regions->Start) + logPointByteOffset,
@@ -1023,7 +1047,7 @@ DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
     return status;
 }
 
-LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes )
+LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dataType )
 {
     RECORD_HEADER header;
     LPVOID lGivenPtr = NULL;
@@ -1042,7 +1066,7 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes )
 
         /* Generate an unique pointer and register it with the address_table */
         lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
-        allocLoc  = createAllocation( recordID, lGivenPtr, numBytes );
+        allocLoc  = createAllocation( recordID, lGivenPtr, numBytes, dataType );
         if( NULL == allocLoc ){
             break;
         }
@@ -1114,6 +1138,8 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
     uint32 overWriteStartOffset = 0;    /* Doesn't matter much in new implementation */
     bool   isOverWriteDetected  = false;
 
+    RECORD_HEADER recHeader = { 0 };
+
     lastErrorVal = DATASTORE_ERROR_NONE;
 
     // AnanthAtSamraksh. The STM Driver accepts half words as inputs so all writes are in half word sizes
@@ -1135,6 +1161,9 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
                               "Invalid address being passed for write" );
             break;
         }
+
+        ////AnanthAtSamraksh -- adding below line to get the data type from record header
+        cyclicDataRead( &recHeader, recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
 
         recordSize        = addressTable.getMaxWriteSize(addressTable.getGivenAddress(addressTable.getRecordID(dest)));
 
@@ -1175,7 +1204,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 numBytes)
 
             //debug_printf("Data_Store::writeRawData. Overwrite detected\n");
 
-            newRecBaseAddr = createAllocation( recordID, lGivenPtr, recordSize );
+            newRecBaseAddr = createAllocation( recordID, lGivenPtr, recordSize, recHeader.dataType );
 
             //debug_printf("Data_Store::writeRawData. Overwrite detected. After createAllocation\n");
             if( NULL == newRecBaseAddr ){
