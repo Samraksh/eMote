@@ -91,19 +91,16 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.dataType = dataType;
             if (dataType == dataTypeByte.GetType())
             {
-                //byte dataTypeByte = new byte();
                 m_Size = sizeof(byte) * m_Size;
                 this.dataPointer = dStore.CreateData(m_Size, 0);
             }
             else if (dataType == dataTypeUInt16.GetType())
             {
-                //UInt16 dataTypeUInt16 = new UInt16();
                 m_Size = sizeof(UInt16) * m_Size;
                 this.dataPointer = dStore.CreateData(m_Size, 1);
             }
             else if (dataType == dataTypeUInt32.GetType())
             {
-                //UInt32 dataTypeUInt32 = new UInt32();
                 m_Size = sizeof(UInt32) * m_Size;
                 this.dataPointer = dStore.CreateData(m_Size, 2);
             }
@@ -163,7 +160,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Write a byte array into the data store
         /// </summary>
         /// <param name="data">Byte array to be written to data store</param>
-        /// <param name="offset">Offset within the data array from which to write to data store</param>
+        /// <param name="offset">Offset from which to write to data store. Recommended to be an even value (only for byte data type)</param>
         /// <param name="numData">Count of data to be written to data store</param>
         /// <returns>Returns success or failure</returns>
         public DataStatus Write(byte[] data, UInt32 offset, UInt32 numData)
@@ -181,17 +178,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
-            /*UInt32 numBytes = sizeof(byte) * numData;
-            byte[] byteArray = new byte[numBytes];
-            
-            for (uint objIndex = 0; objIndex < numData; ++objIndex)
-            {
-                //byteArray[objIndex] = (byte)(data[objIndex + offset]);
-                byteArray[objIndex] = (byte)(data[objIndex]);
-            }*/
-            
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeByte);
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
+            //Since the NOR flash cannot write to odd addresses.
+            if (offset % 2 == 1)
+                offset = offset + sizeof(byte); 
+
             retVal = dStore.Write((uint)dataPointer, data, offset, numData, dataTypeByte);
             
             if (retVal == true)
@@ -227,14 +217,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             
             for (uint objIndex = 0; objIndex < numData; ++objIndex)
             {
-                //byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(data[objIndex + offset] >> 8);
-                //byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex + offset]);
                 byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(data[objIndex] >> 8);
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
             
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt16);
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
             retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt16);
             
             if (retVal == true)
@@ -270,16 +256,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             
             for (uint objIndex = 0; objIndex < numData; ++objIndex)
             {
-                //byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(Convert.ToUInt32(data[objIndex].ToString()) >> 24);
-                //byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(data[objIndex + offset] >> 24);
                 byteArray[objIndex * sizeof(UInt32) + 0] = (byte)(data[objIndex] >> 24);
                 byteArray[objIndex * sizeof(UInt32) + 1] = (byte)(data[objIndex] >> 16);
                 byteArray[objIndex * sizeof(UInt32) + 2] = (byte)(data[objIndex] >> 8);
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
             
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt32);
-            //retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes);
             retVal = dStore.Write((uint)dataPointer, byteArray, offset, numBytes, dataTypeUInt32);
             
             if (retVal == true)
@@ -307,15 +289,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
-            /*UInt32 numBytes = sizeof(byte) * numData;
-            byte[] byteArray = new byte[numBytes];
-            
-            for (uint objIndex = 0; objIndex < numData; ++objIndex)
-            {
-                byteArray[objIndex] = (byte)(data[objIndex]);
-            }*/
-            
-            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeByte);
             retVal = dStore.Write((uint)dataPointer, data, 0, numData, dataTypeByte);
 
             if (retVal == true)
@@ -348,12 +321,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             
             for (uint objIndex = 0; objIndex < numData; ++objIndex)
             {
-                //byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(Convert.ToUInt16(data[objIndex].ToString()) >> 8);
                 byteArray[objIndex * sizeof(UInt16) + 0] = (byte)(data[objIndex] >> 8);
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
             
-            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeUInt16);
             retVal = dStore.Write((uint)dataPointer, byteArray, 0, numBytes, dataTypeUInt16);
 
             if (retVal == true)
@@ -392,7 +363,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
             
-            //retVal = dStore.Write((uint)dataPointer, byteArray, numBytes, dataTypeUInt32);
             retVal = dStore.Write((uint)dataPointer, byteArray, 0, numBytes, dataTypeUInt32);
             
             if (retVal == true)
@@ -401,18 +371,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 return DataStatus.Failure;
         }
 
-
-        /*private byte[] ObjectToByteArray(Object[] data)
-        {
-            if (data == null)
-                return null;
-
-            byte[] byteArray = new byte[sizeof(Int16) * data.Length];
-            for (int objIndex = 0; objIndex < data.Length; ++objIndex)
-            {
-                Microsoft.SPOT.Hardware.Utility.InsertValueIntoArray(byteArray, 0, data.Length, (uint)data);
-            }
-        }*/
 
         /// <summary>
         /// Read a byte array from the data store into the array passed as parameter
@@ -445,7 +403,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             {
                 for (uint objIndex = 0; objIndex < numData; ++objIndex)
                 {
-                    //data[objIndex] = (byte)(byteArray[(objIndex * sizeof(byte)) + (offset * sizeof(byte))]);
                     data[objIndex] = (byte)(byteArray[objIndex * sizeof(byte)]);
                 }
                 return DataStatus.Success;
@@ -485,9 +442,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             {
                 for (uint objIndex = 0; objIndex < numData; ++objIndex)
                 {
-                    //data[objIndex] = (UInt16)((byteArray[(objIndex * sizeof(UInt16)) + (offset * sizeof(UInt16)) + 0] << 8) +
-                    //                                    byteArray[(objIndex * sizeof(UInt16)) + (offset * sizeof(UInt16)) + 1]);
-
                     data[objIndex] = (UInt16)( ( byteArray[objIndex * sizeof(UInt16) + 0] << 8 ) +
                                                         byteArray[objIndex * sizeof(UInt16) + 1] );
                 }
@@ -528,11 +482,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             {
                 for (uint objIndex = 0; objIndex < numData; ++objIndex)
                 {
-                    //data[objIndex] = (UInt32)((byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 0] << 24) +
-                    //                                (byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 1] << 16) +
-                    //                                (byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 2] << 8) +
-                    //                                byteArray[(objIndex * sizeof(UInt32)) + (offset * sizeof(UInt32)) + 3]);
-
                     data[objIndex] = (UInt32)( ( byteArray[objIndex * sizeof(UInt32) + 0] << 24 ) +
                                                     ( byteArray[objIndex * sizeof(UInt32) + 1] << 16 ) +
                                                     ( byteArray[objIndex * sizeof(UInt32) + 2] << 8 ) +
@@ -755,11 +704,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return DataStatus.Success;
         }
 
-        /*public UInt32 CountOfDataReferences()
-        {
-            return (UInt32)dataObj.Count;
-        }*/
-
         /// <summary>
         /// Deletes all dataIDs from the data store. Does not actually erase the data, but marks them as inactive.
         /// </summary>
@@ -791,14 +735,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         public static DataStatus EraseAll()
         {
-            /*if(DataStore.DeleteAllData() != DataStatus.Success)
-                return DataStatus.Failure;
-            
-            if(DataStore.GC() != DataStatus.Success)
-                return DataStatus.Failure;
-
-            return DataStatus.Success;*/
-
             if (EraseAllBlocks() == true)
                 return DataStatus.Success;
             else
@@ -855,15 +791,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="offset">Offset from which to start writing</param>
         /// <param name="numBytes">Count of bytes to be written</param>
         /// <param name="dataType">Data type to be written</param>
-        /// <returns>Returns 4 (number of bytes written) if successful, returns -1 if operation fails.</returns>
-        /*public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes)
-        {
-            return Write(address, data, offset, numBytes, storageType);
-        }*/
-        
+        /// <returns>Returns true if successful and false if not</returns>
         public bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
         {
-            //return Write(address, data, (UInt32)data.Length, dataType, storageType);
             return Write(address, data, offset, numBytes, dataType, storageType);
         }
 
@@ -909,7 +839,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="offset">Offset from which to start reading</param>
         /// <param name="numBytes">Number of bytes to be read</param>
         /// <param name="dataType">Data type of the data to be read</param>
-        /// <returns>Returns the number of bytes written, returns -1 if operation failes</returns>
+        /// <returns>Returns true if successful and false if not</returns>
         public bool Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
         {
             return Read(address, data, offset, numBytes, dataType, storageType);
@@ -985,18 +915,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool GetReadAllDataIds(int[] dataIdArray);
 
-        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool GetReadAllDataReferences(int[] dataArray, UInt32 CountOfData);*/
-
         /// <summary>
         /// Get the count of valid data currently stored in the data store
         /// </summary>
         /// <returns>Returns the count of valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private UInt32 GetCountOfDataIds();
-
-        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private UInt32 GetCountOfDataReferences();*/
 
         /// <summary>
         /// Delete all references to data in the data store
@@ -1034,14 +958,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern private static int GetLastErrorStatus();
 
         /// <summary>
-        /// Read the data record IDs currently stored in the NVM into the unsigned integer array provided
-        /// </summary>
-        /// <param name="buffer">Buffer into which the data record IDs will be read into</param>
-        /// <returns>Returns the number of data iDs read</returns>
-        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt16 ReadAllDataIDs(UInt32[] buffer);*/
-        
-        /// <summary>
         /// Delete the data represented by the dataID from data store.
         /// </summary>
         /// <param name="dataId">ID of the data to be deleted</param>
@@ -1063,9 +979,6 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataType">Data type of the data to be written</param>
         /// <param name="storageType">Block storage type</param>
         /// <returns>Returns success or failure</returns>
-        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, int storageType);*/
-
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
 
@@ -1074,6 +987,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
+
+        /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private bool Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, int storageType);*/
 
         /*[MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private bool Write(UInt32 address, byte[] data, UInt32 numBytes, int storageType);
