@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT</FeatureName>
-    <Guid>{2ea46f9c-62f4-4c0b-bf9c-c77eb9d31fca}</Guid>
+    <Guid>{2602707c-0fab-416d-b822-c08da626df34}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_FEATUREPROJ>True</SAMRAKSH_SPOT_FEATUREPROJ>
@@ -10,7 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT.pe" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\dotnetmf.proj" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT.pe" />
+    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>
