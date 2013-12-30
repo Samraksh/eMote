@@ -211,4 +211,8 @@ struct Library_Samraksh_SPOT_Net_Samraksh_SPOT_Net_Radio_Radio_802_15_4_LR
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net;
 
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4;
+
+
 #endif  //_SAMRAKSH_SPOT_NET_H_

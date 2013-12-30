@@ -10,6 +10,27 @@
 #include "Samraksh_SPOT_Net.h"
 
 
+CLR_RT_HeapBlock_NativeEventDispatcher *Net_ne_Context;
+UINT64 Net_ne_userData;
+
+static HRESULT Initialize_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData ){
+	Net_ne_Context = pContext;
+	Net_ne_userData = userData;
+	return S_OK;
+}
+
+static HRESULT  EnableDisable_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable ){
+	return S_OK;
+}
+
+static HRESULT Cleanup_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext ){
+	Net_ne_Context = NULL;
+	Net_ne_userData = 0;
+	CleanupNativeEventsFromHALQueue( pContext );
+	return S_OK;
+}
+
+
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
@@ -169,4 +190,33 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Net =
     0xF9567F69,
     method_lookup
 };
+
+static const CLR_RT_DriverInterruptMethods g_CLR_Radio_802_15_4_DriverMethods =
+{
+  Initialize_Net_Driver,
+  EnableDisable_Net_Driver,
+  Cleanup_Net_Driver
+};
+
+static const CLR_RT_DriverInterruptMethods g_CLR_CSMA_MAC_DriverMethods =
+{
+  Initialize_Net_Driver,
+  EnableDisable_Net_Driver,
+  Cleanup_Net_Driver
+};
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4  =
+{
+    "RadioCallback_802_15_4",
+    DRIVER_INTERRUPT_METHODS_CHECKSUM,
+    &g_CLR_Radio_802_15_4_DriverMethods
+};
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback  =
+{
+    "CSMACallback",
+    DRIVER_INTERRUPT_METHODS_CHECKSUM,
+    &g_CLR_CSMA_MAC_DriverMethods
+};
+
 
