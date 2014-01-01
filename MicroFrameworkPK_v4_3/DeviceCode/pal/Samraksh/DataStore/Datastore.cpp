@@ -297,14 +297,24 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 
     *conflictStartLoc = dataLen;
 
-    for(int index = 0; index < dataLen; index++){
-        if((flashData[index] & givenData[index]) != givenData[index]){
-            // Overwrite detected
-            retVal = true;
-            *conflictStartLoc = index;
-            break;
-        }
+    ////AnanthAtSamraksh - changing below line on 12/31/2013
+    for(int index = 0; index < dataLen; ++index){
+		if(flashData[index] != 0xFF)
+		{
+			retVal = true;
+			*conflictStartLoc = index;
+			break;
+		}
     }
+
+	/*for(int index = 0; index < dataLen; index++){
+		if((flashData[index] & givenData[index]) != givenData[index]){
+			// Overwrite detected
+			retVal = true;
+			*conflictStartLoc = index;
+			break;
+		}
+	}*/
     return retVal;
 }
 
@@ -1223,7 +1233,11 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
 
             /* Temporary pointers that point to the write location and length at each step below */
             LPVOID lCurrentWriteLoc = newRecBaseAddr;
-            uint32 lCurrentWriteLen = calculateNumBytes(newRecBaseAddr, newRecWriteStartAddr) - 1;
+
+            ////AnanthAtSamraksh - changing below line on 12/31/2013
+            //uint32 lCurrentWriteLen = calculateNumBytes(newRecBaseAddr, newRecWriteStartAddr) - 1;
+            ////uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, recWriteStartAddr + offset + overWriteStartOffset) - 1;
+            uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, recWriteStartAddr + offset) - 1;
 
             /* Write region-1 */
             cyclicDataWrite( recBaseAddr,
@@ -1234,19 +1248,30 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
             lCurrentWriteLoc = incrementPointer(lCurrentWriteLoc, lCurrentWriteLen);
             lCurrentWriteLen = numBytesWritten;
 
+            ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-2 */
-            cyclicDataWrite( data,
+            /*cyclicDataWrite( data,
                              lCurrentWriteLoc + offset,
-                             lCurrentWriteLen );
+                             lCurrentWriteLen );*/
+            cyclicDataWrite( data,
+							 lCurrentWriteLoc,
+							 lCurrentWriteLen );
 
             /* Move the current location pointer */
             lCurrentWriteLoc = incrementPointer(lCurrentWriteLoc , lCurrentWriteLen);
-            lCurrentWriteLen = calculateNumBytes(recWriteEndAddr, recEndAddr) - 1;
 
+            ////AnanthAtSamraksh - changing below line on 12/31/2013
+            //lCurrentWriteLen = calculateNumBytes(recWriteEndAddr, recEndAddr) - 1;
+            lCurrentWriteLen = calculateNumBytes(recWriteStartAddr + offset + numBytesWritten, recEndAddr) - 1;
+
+            ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-3 */
-            cyclicDataWrite( incrementPointer(recWriteEndAddr, 1),
+            /*cyclicDataWrite( incrementPointer(recWriteEndAddr, 1),
                              lCurrentWriteLoc,
-                             lCurrentWriteLen );
+                             lCurrentWriteLen );*/
+            cyclicDataWrite( recWriteStartAddr + offset + numBytesWritten,
+							 lCurrentWriteLoc,
+							 lCurrentWriteLen );
 
             /* Congrats, thats all you had to do, write completed successfully :) */
         }
