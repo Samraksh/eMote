@@ -11,17 +11,11 @@ namespace Samraksh.SPOT.Apps
     public abstract class PersistentStorage
     {
         abstract public bool Write(ushort[] data, UInt16 length);
-
         abstract public bool Write(byte[] data, UInt16 length);
-
         abstract public ushort[] Read(int index, int bufferSize);
-
         abstract public bool Read(ushort[] data, UInt16 length);
-
         abstract public bool WriteEof(uint bufferSize);
-
         abstract public bool eof();
-
     }
 
     public class SDStore : PersistentStorage
@@ -34,8 +28,6 @@ namespace Samraksh.SPOT.Apps
 
         public static void mySdCallback(Samraksh.SPOT.Hardware.DeviceStatus status)
         {
-            ////Debug.Print("Recieved SD Callback\n");
-
             sdSuccessFlag = true;
 
             sdSuccess.Write(false);
@@ -139,23 +131,18 @@ namespace Samraksh.SPOT.Apps
         public NorStore()
         {
             //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize(NorSize);
-            ////Debug.Print("Inside NorStore\n");
             dStore = new DataStore((int)StorageType.NOR);
 
             if (DataStore.EraseAll() == DataStatus.Success)
                 Debug.Print("Datastore succesfully erased");
-
-            ////Debug.Print("Outside NorStore\n");
         }
 
         public override bool Write(ushort[] data, UInt16 length)
         {
             resultRWData.Write(false);
             dataDS = new Data(dStore, (uint)data.Length, dataType);
-            ////Debug.Print("WRITE TO NOR: " + data.ToString() + "\n");
             if (dataDS.Write(data, (uint)data.Length) == DataStatus.Success)
             {
-                ////Debug.Print("Write to NOR succeeded\n");
                 resultRWData.Write(true);
                 //return true;
             }
@@ -167,18 +154,18 @@ namespace Samraksh.SPOT.Apps
                 return false;
             }
 
-            if (debugMode)
+            ////AnanthAtSamraksh - this is not needed
+            /*if (debugMode)
             {
-                ////AnanthAtSamraksh - to be dealt with later
                 //verfierDS = Read(0, 1024);
 
-                /*if (dataDS.Read(verfierDS) != DataStatus.Success)
+                if (dataDS.Read(verfierDS) != DataStatus.Success)
                 {
                     Debug.Print("Read from NOR failed during verification\n");
                     resultRWData.Write(false);
                     resultFailure.Write(true);
                     return false;
-                }*/
+                }
 
                 for (UInt16 index = 0; index < verfierDS.Length; index++)
                 {
@@ -193,10 +180,11 @@ namespace Samraksh.SPOT.Apps
                 }
                 if (flag == true)
                     Debug.Print("Write and read succeeded");
-            }
+            }*/
             return true;
         }
 
+        ////AnanthAtSamraksh - similar to the write function that uses ushort[]
         public override bool Write(byte[] data, UInt16 length)
         {
             if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
@@ -207,7 +195,7 @@ namespace Samraksh.SPOT.Apps
             // Writing to NOR flash
             //if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.StartNewRecord())
             //{
-            ////AnanthAtSamraksh - to be looked into later
+            
             ////Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length);
 
             //    Samraksh.SPOT.Hardware.EmoteDotNow.NOR.EndRecord();
@@ -224,12 +212,8 @@ namespace Samraksh.SPOT.Apps
 
         public override ushort[] Read(int readIndex, int bufferSize)
         {
-            ////Debug.Print("Inside Read function \n");
             if (readCounter == 0)
             {
-                ////Debug.Print("Count of dataIDs " + dStore.CountOfDataIds() + "\n");
-                //int[] dataIdArray = new int[dStore.CountOfDataIds()];
-                //dStore.ReadAllDataIds(dataIdArray);     //Get all dataIDs into the dataIdArray.
                 dataRefArray = new Data[dStore.CountOfDataIds()];
                 dStore.ReadAllDataReferences(dataRefArray, 0);      //Get the data references into dataRefArray.
                 ++readCounter;
@@ -244,7 +228,6 @@ namespace Samraksh.SPOT.Apps
                     resultRWData.Write(false);
                     resultFailure.Write(true);
                 }
-                ////Debug.Print("READ FROM NOR: " + readBuffer.ToString() + "\n");
             }
             return readBuffer;
         }
@@ -272,7 +255,6 @@ namespace Samraksh.SPOT.Apps
 
         public override bool WriteEof(uint bufferSize)
         {
-            ////Debug.Print("Writing EOF \n");
             ushort[] eof = new ushort[bufferSize];
 
             for (UInt16 i = 0; i < eof.Length; i++)
@@ -305,7 +287,6 @@ namespace Samraksh.SPOT.Apps
         {
             lock (bufferLock)
             {
-                ////Debug.Print("buffer is full \n");
                 inpArray.CopyTo(buffer, 0);
                 bufferfull = true;
             }
@@ -315,7 +296,6 @@ namespace Samraksh.SPOT.Apps
         {
             lock (bufferLock)
             {
-                ////Debug.Print("returning bufferFull " + bufferfull + "\n");
                 return bufferfull;
             }
         }
@@ -324,7 +304,6 @@ namespace Samraksh.SPOT.Apps
         {
             lock (bufferLock)
             {
-                ////Debug.Print("Calling NOR write \n");
                 if (!storage.Write(buffer, (ushort)buffer.Length))
                 {
                     return false;
@@ -422,7 +401,6 @@ namespace Samraksh.SPOT.Apps
             callbackTime.Write(false);
 
             Debug.Print(" I " + ibuffer[200].ToString() + " Q " + qbuffer[200].ToString() + "\n");
-            //buffer.Copy(sampleBuffer);
             dataCollected += (sampleBuffer.Length * 2);
 
             if (ibuffer[0] == 0 && ibuffer[1] == 0 && ibuffer[2] == 0 && ibuffer[3] == 0)
@@ -435,37 +413,19 @@ namespace Samraksh.SPOT.Apps
                 }
             }
 
-            /*for (uint copyIndex = 0; copyIndex < ibuffer.Length; ++copyIndex)
-            {
-                ibufferByte[copyIndex * sizeof(UInt16) + 0] = (byte)(ibuffer[copyIndex] >> 8);
-                ibufferByte[copyIndex * sizeof(UInt16) + 1] = (byte)(ibuffer[copyIndex]);
-            }
-            for (uint copyIndex = 0; copyIndex < qbuffer.Length; ++copyIndex)
-            {
-                qbufferByte[copyIndex * sizeof(UInt16) + 0] = (byte)(qbuffer[copyIndex] >> 8);
-                qbufferByte[copyIndex * sizeof(UInt16) + 1] = (byte)(qbuffer[copyIndex]);
-            }*/
-
-            ////Debug.Print("Copying iBuffer\n");
             channelIBuffer.Copy(ibuffer);
-            ////System.Threading.Thread.Sleep(10);
-
-            ////Debug.Print("Copying qBuffer\n");
             channelQBuffer.Copy(qbuffer);
         }
 
 
         public bool XferToSD()
         {
-            ////Debug.Print("XferToSD : Writing to SD Card \n");
             ushort[] tempBuffer = new ushort[bufferSize];
             int readIndex = 1;
 
-            //while (!storage.eof())
             while (true)
             {
                 tempBuffer = storage.Read(readIndex, (ushort)bufferSize);
-                ////Debug.Print("From NOR: " + tempBuffer.ToString() + "\n");
                 if (tempBuffer[0] == 0x0c0c && tempBuffer[1] == 0x0c0c && tempBuffer[2] == 0x0c0c && tempBuffer[3] == 0x0c0c)
                 {
                     Debug.Print("XferToSD 0x0c: Writing to SD Card complete " + tempBuffer[0] + "\n");
@@ -483,21 +443,10 @@ namespace Samraksh.SPOT.Apps
                         Debug.Print("XferToSD : Write to SD Card failed \n");
                         return false;
                     }
-                    ////Debug.Print("XferToSD : still writing to SD Card \n");
                 }
                 ++readIndex;
                 Array.Clear(tempBuffer, 0, tempBuffer.Length);
-                
-                /*else
-                {
-                    Debug.Print("XferToSD : Read from NOR failed \n");
-                    return false;
-                }*/
-
-                //System.Threading.Thread.Sleep(20);
             }
-            //Debug.Print("XferToSD : Writing to SD Card complete \n");
-            //return true;
         }
 
         public void Run()
@@ -517,12 +466,6 @@ namespace Samraksh.SPOT.Apps
                     channelQBuffer.Persist(storage);
                 }
 
-                /*if (buffer.IsFull())
-                {
-                    Debug.Print("persisting \n");
-                    buffer.Persist(storage);
-                }*/
-
                 System.Threading.Thread.Sleep(1000);
 
                 if (stopExperimentFlag)
@@ -532,26 +475,6 @@ namespace Samraksh.SPOT.Apps
                     XferToSD();
                     break;
                 }
-
-                /*if (stopExperimentFlag)
-                {
-                    if (channelIBuffer.IsFull())
-                    {
-                        channelIBuffer.Persist(storage);
-                    }
-
-                    System.Threading.Thread.Sleep(10);
-
-                    if (channelQBuffer.IsFull())
-                    {
-                        channelQBuffer.Persist(storage);
-                    }
-
-                    storage.WriteEof();
-                    lcd.Write(Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_S, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_S, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_S, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_S);
-                    XferToSD();
-                    break;
-                }*/
             }
 
             lcd.Write(Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_D, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_D, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_D, Samraksh.SPOT.Hardware.EmoteDotNow.LCD.CHAR_D);
