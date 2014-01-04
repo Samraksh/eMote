@@ -95,7 +95,7 @@ namespace Samraksh.SPOT.APPS
         }
 
 
-        public override bool Write(ushort[] data, UInt16 length)
+        /*public override bool Write(ushort[] data, UInt16 length)
         {
             if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
             {
@@ -136,13 +136,13 @@ namespace Samraksh.SPOT.APPS
             }
 
             return true;
-        }
+        }*/
 
 
         public override byte[] Read(int bufferSize)
         {
             byte[] readBuffer = new byte[bufferSize];
-            if (dataDS.Read(readBuffer) != DataStatus.Success)
+            if (dataDS.Read(readBuffer, 0, (uint)bufferSize) != DataStatus.Success)
             {
                 Debug.Print("Read from NOR failed during verification\n");
                 resultRWData.Write(false);
@@ -152,7 +152,7 @@ namespace Samraksh.SPOT.APPS
         }
 
 
-        public override bool Read(ushort[] data, UInt16 length)
+        /*public override bool Read(ushort[] data, UInt16 length)
         {
             if (!Samraksh.SPOT.Hardware.EmoteDotNow.NOR.eof())
             {
@@ -166,7 +166,7 @@ namespace Samraksh.SPOT.APPS
                 return false;
 
             return true;
-        }
+        }*/
 
         public override bool WriteEof()
         {

@@ -14,22 +14,19 @@ namespace Exfiltrator
         public static void mySdCallback(Samraksh.SPOT.Hardware.DeviceStatus status)
         {
             Debug.Print("Recieved SD Callback\n");
-
             sdSuccessFlag = true;
         }
 
         public static void Main()
         {
-
             UInt16[] m_sendBuffer = new UInt16[256];
             byte[] m_serialBuffer = new byte[512];
 
             UInt16 counter = 0;
-
             UInt32 readBytes = 0;
-
             bool readDone = false;
-            
+
+            Debug.Print("Initializing Serial ....");
             SerialPort serialPort = new SerialPort("COM1");
             serialPort.BaudRate = 115200;
             serialPort.Parity = System.IO.Ports.Parity.None;
@@ -37,22 +34,19 @@ namespace Exfiltrator
             serialPort.DataBits = 8;
             serialPort.Handshake = Handshake.None;
 
-            serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortHandler);
+            //serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortHandler);
+            //Debug.Print("Opening serial port ....");
+            //serialPort.Open();
 
-            serialPort.Open();
-
+            Debug.Print("Initializing SD card ....");
             //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize();
-
             Samraksh.SPOT.Hardware.EmoteDotNow.SD.SDCallBackType sdResultCallBack = mySdCallback;
-
             Samraksh.SPOT.Hardware.EmoteDotNow.SD mysd = new Samraksh.SPOT.Hardware.EmoteDotNow.SD(sdResultCallBack);
-
             Samraksh.SPOT.Hardware.EmoteDotNow.SD.Initialize();
-
+            
             while (true)
             {
-                Debug.Print("Read : " + readBytes.ToString() + "\n");
-
+                Debug.Print("Reading from SD card \n");
                 Samraksh.SPOT.Hardware.EmoteDotNow.SD.Read(m_serialBuffer, 0, 512);
 
                 for (UInt16 i = 0; i < 64; i++)
@@ -65,13 +59,10 @@ namespace Exfiltrator
                     break;
 
                 serialPort.Write(m_serialBuffer, 0, 512);
-
+                Debug.Print("Read : " + readBytes.ToString() + "\n");
                 readBytes += 512;
-
                 Thread.Sleep(200);
-                
             }
-
             Debug.Print("Read is complete \n");
         }
 
@@ -84,8 +75,6 @@ namespace Exfiltrator
             serialPort.Read(m_recvBuffer, 0, numBytes);
             serialPort.Write(m_recvBuffer, 0, numBytes);
             serialPort.Flush();
-
         }
-
     }
 }
