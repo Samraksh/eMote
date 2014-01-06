@@ -111,7 +111,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// Returns a data object corresponding to the input parameter dataId.
         /// Possible to create max of 256 active data objects.
-        /// </summary>
+        /// </summary>Rea
         /// <param name="dStore">DataStore object</param>
         /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
         public Data(DataStore dStore, UInt32 dataId)
