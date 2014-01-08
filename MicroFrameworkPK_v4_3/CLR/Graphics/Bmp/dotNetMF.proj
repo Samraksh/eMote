@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="Bitmap.cpp" />
     <Compile Include="Graphics_Bmp.cpp" />
-    <ExtraProjects Include="dotNetMF_Stub.proj" />
+	<!--<ExtraProjects Include="dotNetMF_Stub.proj" />-->
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\clr\graphics\graphics.h" />

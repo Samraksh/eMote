@@ -47,7 +47,7 @@
     <Compile Include="Gif.cpp" />
     <Compile Include="Graphics_Gif.cpp" />
     <Compile Include="lzwread.cpp" />
-    <ExtraProjects Include="dotNetMF_Stub.proj" />
+	<!--<ExtraProjects Include="dotNetMF_Stub.proj" />-->
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\clr\graphics\graphics.h" />

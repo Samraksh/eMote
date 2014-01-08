@@ -55,7 +55,7 @@
     <Compile Include="Font.cpp" />
     <Compile Include="Font_Win32.cpp" Condition="'$(PLATFORM_FAMILY)'=='x86'" />
     <Compile Include="Graphics.cpp" />
-    <ExtraProjects Include="dotNetMF_Stub.proj" />
+	<!--<ExtraProjects Include="dotNetMF_Stub.proj" />-->
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(PLATFORM_INDEPENDENT_LIB_DIR)\CLR_defines.h" />

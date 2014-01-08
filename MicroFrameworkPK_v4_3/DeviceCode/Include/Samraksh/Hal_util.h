@@ -30,6 +30,7 @@ NO_BadPacket,
 NO_Collision,
 };
 
+#ifdef PLATFORM_ARM_EmoteDotNow
 // Implementing atomic class akin to linux
 // you can now do thread safe atomic increments and decrements
 
@@ -243,7 +244,7 @@ public:
 		return TRUE;
 	}
 };
-
+#endif
 
 
 #endif /* HAL_UTIL_H_ */

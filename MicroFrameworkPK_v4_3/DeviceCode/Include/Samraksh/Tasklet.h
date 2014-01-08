@@ -35,7 +35,9 @@ class Tasklet
 	Hal_Queue_KnownSize<TaskletType*, 16> taskletQueueLowPriority;
 	Hal_Queue_KnownSize<TaskletType*, 16> taskletQueueHighPriority;
 
+#ifdef PLATFORM_ARM_EmoteDotNow
 	LOCK taskletLock;
+#endif
 
 	TaskletType taskletCache;
 
