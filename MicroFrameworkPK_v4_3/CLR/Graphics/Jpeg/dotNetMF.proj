@@ -97,7 +97,7 @@
     <Compile Include="pfint.c" />
     <Compile Include="piint.c" />
     <Compile Include="transupp.c" />
-    <ExtraProjects Include="dotNetMF_Stub.proj" />
+	<!--<ExtraProjects Include="dotNetMF_Stub.proj" />-->
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\clr\graphics\graphics.h" />

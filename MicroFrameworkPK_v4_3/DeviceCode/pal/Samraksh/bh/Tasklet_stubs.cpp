@@ -10,11 +10,12 @@
  *
  *
  */
-#include <Samraksh/Tasklet.h>
 
 #ifdef PLATFORM_ARM_EmoteDotNow
 #include <intc/STM32.h>
 #endif
+
+#include <tinyhal.h>
 
 static void __SVC()  { __asm volatile ("svc #0x32");}
 
@@ -26,7 +27,8 @@ extern "C"
 	void Timer_Test_Handler(void *param);
 }
 
-Tasklet gTaskletManager;
+//Tasklet gTaskletManager;
+
 
 BOOL Tasklet_Initialize()
 {
@@ -104,12 +106,12 @@ extern "C"
 {
 	void ISR_Tasklet_High(void *param)
 	{
-		gTaskletManager.runhigh();
+		//gTaskletManager.runhigh();
 	}
 
 	void ISR_Tasklet_Low(void *param)
 	{
-		gTaskletManager.runlow();
+		//gTaskletManager.runlow();
 	}
 }
 
