@@ -121,24 +121,24 @@ bool LCD_PCF85162_Driver::Write(int data4, int data3, int data2, int data1)
 	currentColumn4 = data4;
 
 	if ( DP1 == true) {
-		byte1 = LCD_NUM[data1] | 0x10;
+		byte1 = LCD_NUM[currentColumn1] | 0x10;
 	} else {
-		byte1 = LCD_NUM[data1];
+		byte1 = LCD_NUM[currentColumn1];
 	}
 	if ( DP2 == true) {
-		byte2 = LCD_NUM[data2] | 0x10;
+		byte2 = LCD_NUM[currentColumn2] | 0x10;
 	} else {
-		byte2 = LCD_NUM[data2];
+		byte2 = LCD_NUM[currentColumn2];
 	}
 	if ( DP3 == true) {
-		byte3 = LCD_NUM[data3] | 0x10;
+		byte3 = LCD_NUM[currentColumn3] | 0x10;
 	} else {
-		byte3 = LCD_NUM[data3];
+		byte3 = LCD_NUM[currentColumn3];
 	}
 	if ( DP4 == true) {
-		byte4 = LCD_NUM[data4] | 0x10;
+		byte4 = LCD_NUM[currentColumn4] | 0x10;
 	} else {
-		byte4 = LCD_NUM[data4];
+		byte4 = LCD_NUM[currentColumn4];
 	}
 
 	// Nived.Sivadas - Changing all infinite whiles to timer based ones
@@ -247,38 +247,39 @@ bool LCD_PCF85162_Driver :: WriteN(int column, int data)
 		byte4 = LCD_NUM[currentColumn4];
 	}
 
+	// Nived.Sivadas - Changing all infinite whiles to timer based ones
 	I2C_GenerateSTART(I2C1, ENABLE);
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)) { ; }
 	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_MODE_SELECT);
 
   	I2C_Send7bitAddress(I2C1, 0x70, I2C_Direction_Transmitter);
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED);
 
   	I2C_SendData(I2C1, 0x80); // Load-data-pointer, reset to 0, 10000000
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
   	I2C_SendData(I2C1, 0x48); // Mode Set, 01001000
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
   	// Start sending display bytes
   	I2C_SendData(I2C1, byte4);
  	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
   	I2C_SendData(I2C1, byte3);
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
   	I2C_SendData(I2C1, byte2);
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
   	I2C_SendData(I2C1, byte1);
   	//while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED)) { ; }
-  	DID_I2C_STATE_CHANGE(I2C1,I2C_EVENT_MASTER_BYTE_TRANSMITTED);
+  	DID_I2C_STATE_CHANGE(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED);
 
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
