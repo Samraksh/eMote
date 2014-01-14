@@ -55,22 +55,30 @@ UINT32 DataStore::GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return dataID;
 }
 
-float DataStore::GetUsedKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+float DataStore::GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    float retVal = 0; 
-    return retVal;
+	return g_dataStoreObject.maxAllocationSize();
 }
 
-float DataStore::GetFreeKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+float DataStore::GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    float retVal = 0; 
-    return retVal;
+	return g_dataStoreObject.returnTotalSpace();
 }
 
-INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, HRESULT &hr )
+float DataStore::GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	return g_dataStoreObject.returnLogPoint();
+}
+
+float DataStore::GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	return g_dataStoreObject.returnFreeSpace();
+}
+
+INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, UINT16 arrayLength, UINT16 dataIdOffset, HRESULT &hr )
 {
     INT32 *managedBuffer = dataIdArray.GetBuffer();
-	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer);
+	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer, arrayLength, dataIdOffset);
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return true;
 	else

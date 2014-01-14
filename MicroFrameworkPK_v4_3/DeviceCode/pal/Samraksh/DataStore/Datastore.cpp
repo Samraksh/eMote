@@ -146,6 +146,8 @@ int Data_Store::calculateNumBytes(LPVOID fromAddr, LPVOID toAddr)
     return retVal;
 }
 
+
+/* Helper function to calculate Log-head room. Also used to get amount of free space. */
 uint32 Data_Store::calculateLogHeadRoom()
 {
     uint32 retVal = 0;
@@ -196,11 +198,29 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             break;
         }
 
+        if(allocationSize >= blockDeviceInformation->Regions->BytesPerBlock)
+		{
+			/* User cannot ask for space larger than size of a block */
+			lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+			break;
+		}
 
         if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES){
 			/* If this is the case, user has to delete some records in order to use flash */
-			lastErrorVal = DATASTORE_ERROR_OUT_OF_FLASH_MEMORY;
-			break;
+			/*lastErrorVal = DATASTORE_ERROR_OUT_OF_MEMORY;
+			break;*/
+
+        	/* If this is the case, user wants to keep writing to flash. So erase previous entries in addressTable */
+        	uint32 deleteIndex = 0;
+        	DATASTORE_STATUS status;
+        	while(addressTable.table[deleteIndex].givenPtr != 0)
+			{
+        		status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+				if(status != DATASTORE_STATUS_OK)
+				{
+					break;
+				}
+			}
 		}
 
         /* Now that we have created enough free space, continue with the allocation */
@@ -370,6 +390,7 @@ RECORD_ID Data_Store::getRecordID(LPVOID givenPtr)
 }
 
 
+/* Traverses through addressTable and returns most recent recordID */
 RECORD_ID Data_Store::getRecentRecordID()
 {
 	uint32 recIdIndex = 0;
@@ -987,6 +1008,8 @@ LPVOID Data_Store::scanFlashDevice()
 
 	for(int index = firstBlock;index <= lastBlock; index++){
 		numOfEntries += readRecordinBlock(index);
+		if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
+			break;
 	}
 
 	/* The device is new */
@@ -1002,27 +1025,74 @@ LPVOID Data_Store::scanFlashDevice()
 }
 
 
-void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array)
+/* Populates array passed as parameter with list of dataIDs*/
+void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arrayLength, ushort dataIdOffset)
 {
+	/* Since addressTable can hold only MAX_NUM_TABLE_ENTRIES, to make room for a new set of recordIDs requested by user,
+	 * copy entries from offset into start of addressTable. Make entries upwards of offset as 0. */
+	uint32 addressTableIndex = 0;
 	uint32 persistenceIndex = 0;
-	////UINT16 recordID_array[256];
-	while(addressTable.table[persistenceIndex].recordID != 0)
-	{
-		recordID_array[persistenceIndex] = addressTable.table[persistenceIndex].recordID;
-		persistenceIndex++;
+	uint32 copyIndex = 0;
+	int numOfEntries = 0;
+	dataIdOffset = dataIdOffset % MAX_NUM_TABLE_ENTRIES;
+
+	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
+	for(copyIndex = dataIdOffset; copyIndex < MAX_NUM_TABLE_ENTRIES; copyIndex++){
+		if(addressTable.table[copyIndex].givenPtr != 0)
+			break;
+
+		addressTable.table[addressTableIndex] = addressTable.table[copyIndex];
+		recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
+		memset(&addressTable.table[copyIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+		++addressTableIndex;
+		++persistenceIndex;
 	}
-	////return recordID_array;
+
+	/* Build the address table starting from offset until addressTable is filled up or user array is filled up. */
+	/* Get last block accessed from addressTable */
+	int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((uint32)addressTable.table[addressTableIndex].currentLoc);
+	numOfEntries += readRecordinBlock(blockID);
+	/* No more entries in that block. Go to next block */
+	if(numOfEntries == 0){
+		blockID = blockID + 1;
+	}
+	/* Remove entries from addressTable for the current block */
+	else{
+		blockID = blockID - 1;
+		while((uint32)addressTable.table[addressTableIndex].currentLoc != blockDeviceInformation->Regions->BlockAddress(blockID)){
+			memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+			recordID_array[persistenceIndex] = 0;
+			addressTableIndex--;
+			persistenceIndex--;
+		}
+	}
+
+	while(addressTable.table.size() <= MAX_NUM_TABLE_ENTRIES){
+		numOfEntries += readRecordinBlock(blockID);
+		++blockID;
+	}
+
+	while(addressTable.table[addressTableIndex].givenPtr != 0)
+	{
+		if(addressTable.table.size() > MAX_NUM_TABLE_ENTRIES || addressTableIndex > arrayLength)
+			break;
+
+		recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
+		++persistenceIndex;
+		++addressTableIndex;
+	}
 }
 
+/* Returns total count of dataIDs */
 uint32 Data_Store::getCountOfRecordIds()
 {
 	uint32 recIdIndex = 0;
-	////UINT16 recordID_array[256];
-	while(addressTable.table[recIdIndex].recordID != 0)
+	return addressTable.table.size();
+	/*while(addressTable.table[recIdIndex].recordID != 0)
 	{
 		++recIdIndex;
 	}
-	return recIdIndex;
+	return recIdIndex;*/
 }
 
 
@@ -1290,11 +1360,7 @@ void Data_Store::DeleteAll()
 	// So, only the 0th index is deleted at all times.
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
-	/*static int testErase = 0;
-	if(testErase == 0){
-		blockStorageDevice->EraseBlock(1);
-		testErase++;
-	}*/
+
 	while(addressTable.table[deleteIndex].givenPtr != 0)
 	{
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
@@ -1366,15 +1432,16 @@ void Data_Store::DeleteAll()
 #endif
 }
 
+/* Performs GC on flash */
 void Data_Store::DataStoreGC()
 {
 	compactLog();
 }
 
+/* Erases entire flash. Starts from first block and erases all blocks until final block. */
 void Data_Store::EraseAllBlocks()
 {
-    ////AnanthAtSamraksh - adding this temporarily as sometimes datastore fails due to regions in flash blocks that have FFs. It is better to clean erase and start over.
-	lastErrorVal = DATASTORE_ERROR_NONE;
+    lastErrorVal = DATASTORE_ERROR_NONE;
     UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
 
@@ -1400,12 +1467,33 @@ Data_Store::~Data_Store()
 #endif
 }
 
-#ifdef ENABLE_TEST
+
+/* Function to return maximum allocation size in block storage device. */
+uint32 Data_Store::maxAllocationSize()
+{
+	return blockDeviceInformation->Regions->BytesPerBlock;
+}
+
+
+/* Function to return total space in the block storage device. */
+uint32 Data_Store::returnTotalSpace()
+{
+	return (blockDeviceInformation->Regions->NumBlocks * blockDeviceInformation->Regions->BytesPerBlock);
+}
+
+/* Function to return amount of free space. Invokes calculateLogHeadRoom() */
+uint32 Data_Store::returnFreeSpace()
+{
+	return calculateLogHeadRoom();
+}
+
+/* Function that returns the current value of the Log point. Also used to get total amount of space used. */
 uint32 Data_Store::returnLogPoint()
 {
 	return logPointByteOffset;
 }
 
+#ifdef ENABLE_TEST
 uint32 Data_Store::returnClearPoint()
 {
     return clearLogPointByOffset;

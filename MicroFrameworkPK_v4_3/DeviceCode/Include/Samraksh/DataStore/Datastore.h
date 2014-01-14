@@ -256,7 +256,7 @@ private:
     /* Helper function to increment pointers so that it doesn't run out of circular buffer */
     int calculateNumBytes(LPVOID fromAddr, LPVOID toAddr);
 
-    /* Helper function to calculate Log-head room */
+    /* Helper function to calculate Log-head room. Also used to get amount of free space. */
     uint32 calculateLogHeadRoom();
 
     /* Create new allocation */
@@ -353,6 +353,7 @@ public:
     /* Symmetric API to lookup ID using PTR */
     RECORD_ID getRecordID(LPVOID givenPtr);
 
+    /* Returns most recent recordID */
     RECORD_ID getRecentRecordID();
 
     /* Write data to the store */
@@ -369,7 +370,16 @@ public:
     /* Returns the error code of any error in the previous call */
     DATASTORE_ERROR getLastError();
 
-	/* Function that returns the current value of the Log point */
+    /* Function to return maximum allocation size in block storage device. */
+    uint32 maxAllocationSize();
+
+    /* Function to return total space in the block storage device. */
+    uint32 returnTotalSpace();
+
+    /* Function to return amount of free space. Invokes calculateLogHeadRoom() */
+    uint32 returnFreeSpace();
+
+	/* Function that returns the current value of the Log point. Also used to get total used space. */
 	uint32 returnLogPoint();
 
 	/* Function that returns the current value of the Clear point */
@@ -378,14 +388,19 @@ public:
 	/* Function that returns the current value of the Erase point */
 	uint32 returnErasePoint();
 
-	void getRecordIDAfterPersistence(uint32*);
+	/* Populates array passed as parameter with list of dataIDs*/
+	void getRecordIDAfterPersistence(uint32*, ushort, ushort);
 
+	/* Returns total count of dataIDs */
 	uint32 getCountOfRecordIds();
 
-	void DeleteAll();
-
+	/* Performs GC on flash */
 	void DataStoreGC();
 
+	/* Deletes all entries in the address table*/
+	void DeleteAll();
+
+	/* Erases entire flash */
 	void EraseAllBlocks();
 
     /* Destructor */

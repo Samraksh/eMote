@@ -601,50 +601,91 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         private int storageType;
 
+        private static DataStore DSInstance;
+        private static int counter = 0;
+        private static System.Collections.Hashtable dataStoreInstances = new System.Collections.Hashtable();
+
+        private DataStore() { }
+
+        public static DataStore Instance
+        {
+            get
+            {
+                if (DSInstance == null)
+                {
+                    DSInstance = new DataStore();
+                    ++counter;
+                    dataStoreInstances.Add(counter, DSInstance);
+                }
+                return (DataStore)(dataStoreInstances[counter]);
+            }
+        }
+
         /// <summary>
         /// DataStore constructor that takes a storageType as parameter and initializes the data store with that storageType.
         /// </summary>
         /// <param name="storageType">storageType can be NOR, SD card or any other block storage device</param>
-        public DataStore(int storageType)
+        /*private DataStore(int storageType)
         {
             this.storageType = storageType;
             bool retVal = CreateDataStore();
             /*if( retVal == false )
-                throw new SystemException();*/
+                throw new SystemException();
+        }*/
+
+        /// <summary>
+        /// DataStore constructor that takes a storageType as parameter and initializes the data store with that storageType.
+        /// </summary>
+        /// <param name="storageType">storageType can be NOR, SD card or any other block storage device</param>
+        public bool InitDataStore(int storageType)
+        {
+            this.storageType = storageType;
+            return CreateDataStore();
         }
 
         //////////////////////////public properties and methods/////////////////////
 
         /// <summary>
-        /// Size of the DataStore in Kilo Bytes
+        /// Maximum allocation size possible
         /// </summary>
-        public UInt32 Size
+        public float MaxAllocationSize
         {
             get
             {
-                return m_Size;
+                return GetMaxAllocationSize();
+            }
+        }
+
+        /// <summary>
+        /// Size of the DataStore in Kilo Bytes
+        /// </summary>
+        public float Size
+        {
+            get
+            {
+                return GetTotalSpace();
             }
         }
 
         /// <summary>
         /// Number of Kilo Bytes of space already occupied by data
         /// </summary>
-        public float UsedKBytes
+        public float UsedBytes
         {
             get
             {
-                return GetUsedKBytes();
+                return GetUsedBytes();
             }
         }
 
         /// <summary>
         /// Number of Kilo Bytes of space available to store data
         /// </summary>
-        public float FreeKBytes
+        public float FreeBytes
         {
             get
             {
-                return GetFreeKBytes();
+                return GetFreeBytes();
             }
         }
 
@@ -663,9 +704,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <param name="dataIdArray">Array which is filled up with the dataIDs</param>
         /// <returns>Returns success or failure</returns>
-        public DataStatus ReadAllDataIds(int[] dataIdArray)
+        public DataStatus ReadAllDataIds(int[] dataIdArray, UInt16 dataIdOffset)
         {
-            if (GetReadAllDataIds(dataIdArray) == true)
+            if (GetReadAllDataIds(dataIdArray, (UInt16)dataIdArray.Length, dataIdOffset) == true)
                 return DataStatus.Success;
             else
                 return DataStatus.Failure;
@@ -689,6 +730,21 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus ReadAllDataReferences(Data[] dataRefArray, UInt16 dataIdOffset)
         {
             UInt16 dataId;
+            int[] dataIdArray = new int[dataRefArray.Length];
+            if (GetReadAllDataIds(dataIdArray, (UInt16)dataIdArray.Length, dataIdOffset) == false)
+                return DataStatus.Failure;
+            else
+            {
+                for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
+                {
+                    dataId = (UInt16)dataIdArray[arrayIndex];
+                    dataRefArray[arrayIndex] = new Data(this, dataId);
+                    ++dataIdOffset;
+                }
+            }
+            return DataStatus.Success;
+
+            /*UInt16 dataId;
             int[] dataIdArray = new int[GetCountOfDataIds()];
             if (GetReadAllDataIds(dataIdArray) == false)
                 return DataStatus.Failure;
@@ -701,7 +757,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                     ++dataIdOffset;
                 }
             }
-            return DataStatus.Success;
+            return DataStatus.Success;*/
         }
 
         /// <summary>
@@ -881,9 +937,21 @@ namespace Samraksh.SPOT.NonVolatileMemory
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size, byte dataTypeByte);
 
+        /// <summary>
+        /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
+        /// </summary>
+        /// <param name="Size">Size of the data</param>
+        /// <param name="dataTypeByte">Data type - UInt16</param>
+        /// <returns>Reference to the created data</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size, UInt16 dataTypeUInt16);
 
+        /// <summary>
+        /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
+        /// </summary>
+        /// <param name="Size">Size of the data</param>
+        /// <param name="dataTypeByte">Data type - UInt32</param>
+        /// <returns>Reference to the created data</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size, UInt32 dataTypeUInt16);
 
@@ -895,25 +963,39 @@ namespace Samraksh.SPOT.NonVolatileMemory
         extern public UInt32 GetDataID();
 
         /// <summary>
+        /// Method that returns maximum allocation size possible in data store
+        /// </summary>
+        /// <returns>Maximum allocation size possible in data store</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private float GetMaxAllocationSize();
+
+        /// <summary>
+        /// Get total available space 
+        /// </summary>
+        /// <returns>Amount of total space</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private float GetTotalSpace();
+
+        /// <summary>
         /// Get amount of used space 
         /// </summary>
         /// <returns>Amount of used space</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private float GetUsedKBytes();
+        extern private float GetUsedBytes();
 
         /// <summary>
         /// Get amount of free space
         /// </summary>
         /// <returns>Amount of free space</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private float GetFreeKBytes();
+        extern private float GetFreeBytes();
 
         /// <summary>
         /// Returns valid data currently stored in the data store
         /// </summary>
         /// <returns>Returns array with valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool GetReadAllDataIds(int[] dataIdArray);
+        extern private bool GetReadAllDataIds(int[] dataIdArray, UInt16 arrayLength, UInt16 dataIdOffset);
 
         /// <summary>
         /// Get the count of valid data currently stored in the data store

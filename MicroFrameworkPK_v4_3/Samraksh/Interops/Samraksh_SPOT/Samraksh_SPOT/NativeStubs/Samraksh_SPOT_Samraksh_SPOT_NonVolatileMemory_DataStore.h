@@ -33,9 +33,11 @@ namespace Samraksh
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT16 param1, HRESULT &hr );
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
                 static UINT32 GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static float GetUsedKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static float GetFreeKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT8 GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, HRESULT &hr );
+                static float GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static float GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static float GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static float GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static INT8 GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, UINT16 param1, UINT16 param2, HRESULT &hr );
                 static UINT32 GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
