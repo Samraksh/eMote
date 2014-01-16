@@ -23,8 +23,6 @@ namespace Samraksh
             struct DataStore
             {
                 // Helper Functions to access fields of managed object
-                static UINT32& Get_m_Size( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::FIELD__m_Size ); }
-
                 static INT32& Get_storageType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::FIELD__storageType ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers

@@ -52,7 +52,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
     /// Data class. Provides functions to write, read and delete data. 
     /// Provides a reference/handle to the data stored in the block storage device to the user.
     /// </summary>
-    public class Data
+    public class DataAllocation
     {
         // Record Id unique to a pointer
         private UInt32 dataId;
@@ -72,7 +72,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <param name="dStore">DataStore object</param>
         /// <param name="dataType">Type of data to be stored in data store</param>
-        public Data(DataStore dStore, Type dataType)
+        public DataAllocation(DataStore dStore, Type dataType)
         {
             this.dStore = dStore;
             this.dataType = dataType;
@@ -85,7 +85,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="m_Size">Size of the data object to be stored in data store. 
         /// Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
         /// <param name="dataType">Type of data to be stored in data store</param>
-        public Data(DataStore dStore, UInt32 m_Size, Type dataType)
+        public DataAllocation(DataStore dStore, UInt32 m_Size, Type dataType)
         {
             this.dStore = dStore;
             this.dataType = dataType;
@@ -114,7 +114,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>Rea
         /// <param name="dStore">DataStore object</param>
         /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
-        public Data(DataStore dStore, UInt32 dataId)
+        public DataAllocation(DataStore dStore, UInt32 dataId)
         {
             this.dStore = dStore;
             this.dataId = dataId;
@@ -588,7 +588,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
             DATASTORE_ERROR_UNEXPECTED_ERROR
         }
 
-        private UInt32 m_Size = 0;
+        //private UInt32 m_Size = 0;
         //private UInt16 Blocks=0;
         //private float UsedKiloBytes=0;
         //private float FreeKiloBytes=0;
@@ -601,12 +601,28 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         private int storageType;
 
+        /// <summary>
+        /// The only instance of DataStore.
+        /// </summary>
         private static DataStore DSInstance;
+        /// <summary>
+        /// Counter for multiton pattern 
+        /// </summary>
         private static int counter = 0;
+        /// <summary>
+        /// HashTable for storing multiple instances of DataStore initialized to different block storage devices
+        /// </summary>
         private static System.Collections.Hashtable dataStoreInstances = new System.Collections.Hashtable();
 
+        /// <summary>
+        /// Private constructor so that only one instance of DataStore exists.
+        /// </summary>
         private DataStore() { }
 
+        /// <summary>
+        /// Multiton pattern. This allows the DataStore to be initialized with different block storage devices such as NOR, NAND etc.
+        /// http://en.wikipedia.org/wiki/Multiton_pattern
+        /// </summary>
         public static DataStore Instance
         {
             get
@@ -703,6 +719,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Fills up the array passed as parameter with all dataIDs
         /// </summary>
         /// <param name="dataIdArray">Array which is filled up with the dataIDs</param>
+        /// <param name="dataIdOffset">Get all dataIDs from offset</param>
         /// <returns>Returns success or failure</returns>
         public DataStatus ReadAllDataIds(int[] dataIdArray, UInt16 dataIdOffset)
         {
@@ -727,7 +744,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataRefArray">Array that holds the references to the data</param>
         /// <param name="dataIdOffset">Offset from which the array references are to be fetched</param>
         /// <returns>Returns success or failure</returns>
-        public DataStatus ReadAllDataReferences(Data[] dataRefArray, UInt16 dataIdOffset)
+        public DataStatus ReadAllDataReferences(DataAllocation[] dataRefArray, UInt16 dataIdOffset)
         {
             UInt16 dataId;
             int[] dataIdArray = new int[dataRefArray.Length];
@@ -738,7 +755,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
                 {
                     dataId = (UInt16)dataIdArray[arrayIndex];
-                    dataRefArray[arrayIndex] = new Data(this, dataId);
+                    dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
                     ++dataIdOffset;
                 }
             }
@@ -941,7 +958,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
         /// </summary>
         /// <param name="Size">Size of the data</param>
-        /// <param name="dataTypeByte">Data type - UInt16</param>
+        /// <param name="dataTypeUInt16">Data type - UInt16</param>
         /// <returns>Reference to the created data</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public int CreateData(UInt32 Size, UInt16 dataTypeUInt16);
@@ -950,10 +967,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Creates data for the specified size in the block storage device. Allocates space, assigns a reference which is returned back to the user
         /// </summary>
         /// <param name="Size">Size of the data</param>
-        /// <param name="dataTypeByte">Data type - UInt32</param>
+        /// <param name="dataTypeUInt32">Data type - UInt32</param>
         /// <returns>Reference to the created data</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public int CreateData(UInt32 Size, UInt32 dataTypeUInt16);
+        extern public int CreateData(UInt32 Size, UInt32 dataTypeUInt32);
 
         /// <summary>
         /// Returns the current dataID 

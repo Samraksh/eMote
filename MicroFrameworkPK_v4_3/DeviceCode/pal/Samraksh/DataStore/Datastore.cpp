@@ -914,7 +914,7 @@ LPVOID Data_Store::readPointers()
 	return NULL;
 }
 
-int Data_Store::readRecordinBlock(int blockID)
+int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset)
 {
 	char* addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
 	//char *endAddr = addr + flashDevice.getBlockSize(blockID);
@@ -924,13 +924,11 @@ int Data_Store::readRecordinBlock(int blockID)
 	PRINT_DEBUG("Check Point 1.1 : In Function Read In Block");
 
 	DATASTORE_ADDR_TBL_ENTRY entry;
-	DATASTORE_STATUS status;
+	DATASTORE_STATUS status = DATASTORE_STATUS_OK;
 	int count = 0;
 	RECORD_HEADER header;
 	while(*addr != (char)0xFF && addr < (endAddr))
 	{
-		tempCount++;
-
 		//hal_printf("Count Number %d\n", tempCount);
 
 		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
@@ -945,9 +943,19 @@ int Data_Store::readRecordinBlock(int blockID)
 			entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
 			entry.recordID       = header.recordID;
 
+			/* Start adding entries from startOffset and keep adding until length is reached */
+
+			if(tempCount >= startOffset)
+			{
+				if(count < arrayLength)
+				{
+					status = addressTable.addEntry(&entry);
+					count++;	//Actual entries added to addressTable
+				}
+			}
+			tempCount++;	//To keep track of startOffset and length
 
 			/* Change the condition to check for the STATUS duplicate recordID */
-			status = addressTable.addEntry(&entry);
 			if(DATASTORE_STATUS_RECORD_ALREADY_EXISTS == status){
 				int oldEntryVer;
 				int curEntryVer;
@@ -982,7 +990,16 @@ int Data_Store::readRecordinBlock(int blockID)
 			}
 		}
 
-		count++;
+		if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES){
+			/* If this is the case, remove first entry from addressTable */
+			/*DATASTORE_STATUS status;
+			status = addressTable.removeEntry(addressTable.table[0].recordID);
+			if(status != DATASTORE_STATUS_OK)
+				break;*/
+			lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+			break;
+		}
+
 		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
 	}
 	PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
@@ -1007,7 +1024,7 @@ LPVOID Data_Store::scanFlashDevice()
 	char* returnAddress;
 
 	for(int index = firstBlock;index <= lastBlock; index++){
-		numOfEntries += readRecordinBlock(index);
+		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0);
 		if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
 			break;
 	}
@@ -1034,53 +1051,312 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	uint32 persistenceIndex = 0;
 	uint32 copyIndex = 0;
 	int numOfEntries = 0;
-	dataIdOffset = dataIdOffset % MAX_NUM_TABLE_ENTRIES;
+	static int referenceCounter;
 
-	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
-	for(copyIndex = dataIdOffset; copyIndex < MAX_NUM_TABLE_ENTRIES; copyIndex++){
-		if(addressTable.table[copyIndex].givenPtr != 0)
-			break;
+	ushort arrayLengthOrig = 0;
 
-		addressTable.table[addressTableIndex] = addressTable.table[copyIndex];
-		recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
-		memset(&addressTable.table[copyIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
-		++addressTableIndex;
-		++persistenceIndex;
-	}
+	arrayLength = (arrayLength > MAX_NUM_TABLE_ENTRIES ? MAX_NUM_TABLE_ENTRIES : arrayLength);
+	arrayLengthOrig = arrayLength;
 
-	/* Build the address table starting from offset until addressTable is filled up or user array is filled up. */
-	/* Get last block accessed from addressTable */
-	int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((uint32)addressTable.table[addressTableIndex].currentLoc);
-	numOfEntries += readRecordinBlock(blockID);
-	/* No more entries in that block. Go to next block */
-	if(numOfEntries == 0){
-		blockID = blockID + 1;
-	}
-	/* Remove entries from addressTable for the current block */
-	else{
-		blockID = blockID - 1;
-		while((uint32)addressTable.table[addressTableIndex].currentLoc != blockDeviceInformation->Regions->BlockAddress(blockID)){
-			memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
-			recordID_array[persistenceIndex] = 0;
-			addressTableIndex--;
-			persistenceIndex--;
+	/* If offset is less than MAX_NUM_TABLE_ENTRIES, then simply copy from addressTable (from offset) into user array.
+	 * If array length is greater than refCntr, then do a fresh read from flash, fill up addressTable (until arrayLength is reached).
+	 * Copy remaining entries to user array. */
+////	if (dataIdOffset < MAX_NUM_TABLE_ENTRIES)
+////	{
+		/* Clear addressTable and rebuild from beginning */
+		UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
+		int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
+		int blockID = firstBlock;
+		////int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)addressTable.table[addressTableIndex].currentLoc);
+
+		uint32 deleteIndex = 0;
+		DATASTORE_STATUS status;
+		while(addressTable.table[deleteIndex].givenPtr != 0)
+		{
+			status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+			if(status != DATASTORE_STATUS_OK)
+				break;
 		}
-	}
 
-	while(addressTable.table.size() <= MAX_NUM_TABLE_ENTRIES){
-		numOfEntries += readRecordinBlock(blockID);
-		++blockID;
-	}
+		/* Keep reading until count of records in addressTable is equal to offset */
+		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset);
+		while(numOfEntries < arrayLength)
+		{
+			++blockID;
+			arrayLength = arrayLength - numOfEntries;
+			dataIdOffset = 0;
+			numOfEntries += readRecordinBlock(blockID, arrayLength, dataIdOffset);
+			////if(numOfEntries == arrayLength)
+				////break;
+		}
 
-	while(addressTable.table[addressTableIndex].givenPtr != 0)
-	{
-		if(addressTable.table.size() > MAX_NUM_TABLE_ENTRIES || addressTableIndex > arrayLength)
-			break;
+		/* The numOfEntries can exceed offset depending on count of entries in a block.
+		 * So delete extra entries from addressTable */
+		/*while(numOfEntries != dataIdOffset){
+			status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+			numOfEntries--;
+			if(status != DATASTORE_STATUS_OK)
+				break;
+		}*/
 
-		recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
-		++persistenceIndex;
-		++addressTableIndex;
-	}
+		/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
+		for(copyIndex = 0; copyIndex < arrayLengthOrig; copyIndex++)
+		{
+			/*if(addressTable.table[copyIndex].givenPtr == 0)
+			{
+				numOfEntries += readRecordinBlock(blockID);
+				++blockID;
+				if(numOfEntries == 0)
+					break;
+			}*/
+
+			////addressTable.table[addressTableIndex] = addressTable.table[copyIndex];
+			recordID_array[copyIndex] = addressTable.table[copyIndex].recordID;
+			////memset(&addressTable.table[copyIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+			/*++addressTableIndex;
+			++persistenceIndex;
+			numOfEntries = 0;*/
+		}
+
+		/* If entire array has not been filled up, then read from flash (only amount remaining between persistenceIndex and arrayLength),
+		 * fill up addressTable and then copy to user array. */
+#if 0
+		if(persistenceIndex < arrayLength)
+		{
+			/* Build the address table starting from offset until addressTable is filled up or user array is filled up. */
+			/* Get last block accessed from addressTable */
+			////int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((uint32)addressTable.table[addressTableIndex].currentLoc);
+			numOfEntries += readRecordinBlock(blockID);
+			/* No more entries in that block. Go to next block */
+			if(numOfEntries == 0){
+				////blockID = blockID + 1;
+			}
+			/* Remove entries from addressTable for the current block */
+			else{
+				blockID = blockID - 1;
+				while((uint32)addressTable.table[addressTableIndex].currentLoc != blockDeviceInformation->Regions->BlockAddress(blockID)){
+					memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+					recordID_array[persistenceIndex] = 0;
+					addressTableIndex--;
+					persistenceIndex--;
+					////referenceCounter--;
+				}
+			}
+
+			int index = 0;
+			while(index <= (arrayLength - persistenceIndex)){
+				numOfEntries += readRecordinBlock(blockID);
+				++blockID;
+				++index;
+				/*if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES)
+					break;*/
+			}
+			////referenceCounter += index;
+
+			while(addressTable.table[addressTableIndex].givenPtr != 0)
+			{
+				if(addressTable.table.size() > MAX_NUM_TABLE_ENTRIES || addressTableIndex > arrayLength)
+					break;
+
+				recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
+				++persistenceIndex;
+				++addressTableIndex;
+			}
+
+		}	//if(persistenceIndex
+#endif
+
+////	}	//if (dataIdOffset
+
+#if 0
+	/* If offset is >= MAX_NUM_TABLE_ENTRIES, then read from flash, fill up addressTable until offset is reached.
+	 * Copy from addressTable (from offset) until end of addressTable or arrayLength is reached.
+	 * If end of addressTable is less than arrayLength, read difference amount between addressTable end and arrayLength,
+	 * from flash.  */
+	else if (dataIdOffset >= MAX_NUM_TABLE_ENTRIES){
+
+		UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
+		int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
+
+		int blockID = firstBlock;
+
+		/* Clear addressTable and rebuild from beginning */
+		uint32 deleteIndex = 0;
+		DATASTORE_STATUS status;
+		while(addressTable.table[deleteIndex].givenPtr != 0)
+		{
+			status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+			if(status != DATASTORE_STATUS_OK)
+			{
+				break;
+			}
+		}
+
+		/* Keep reading until count of records in addressTable is equal to offset */
+		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset);
+		while(numOfEntries < arrayLength)
+		{
+			++blockID;
+			arrayLength = arrayLength - numOfEntries;
+			dataIdOffset = 0;
+			numOfEntries += readRecordinBlock(blockID, arrayLength, dataIdOffset);
+		}
+
+
+		while(numOfEntries < dataIdOffset){
+			referenceCounter = readRecordinBlock(blockID);
+			++blockID;
+			numOfEntries = referenceCounter + numOfEntries;
+
+			if(numOfEntries > dataIdOffset)
+				break;
+
+			if(referenceCounter >= MAX_NUM_TABLE_ENTRIES){
+				uint32 deleteIndex = 0;
+				DATASTORE_STATUS status;
+				while(addressTable.table[deleteIndex].givenPtr != 0)
+				{
+					status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+					referenceCounter--;
+					if(status != DATASTORE_STATUS_OK)
+						break;
+				}
+			}
+		}	//while
+
+		//// If referenceCounter is incremented and it goes beyond dataIdOffset, then adjust index accordingly.
+		/*if(numOfEntries > dataIdOffset){
+			blockID--;
+
+			//// Find final index in addressTable
+			addressTableIndex = 0;
+			deleteIndex = 0;
+			while(addressTable.table[deleteIndex].givenPtr != 0)
+			{
+				++addressTableIndex;
+			}
+			//// Now start deleting final entries in addressTable until offset is reached
+			while(numOfEntries != dataIdOffset)
+			{
+				memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+				numOfEntries--;
+				addressTableIndex--;
+			}
+			/*while((uint32)addressTable.table[addressTableIndex].currentLoc != blockDeviceInformation->Regions->BlockAddress(blockID)){
+				memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+				recordID_array[persistenceIndex] = 0;
+				addressTableIndex--;
+				persistenceIndex--;
+				numOfEntries--;
+			}
+		}*/
+
+		/* Now read from flash, fill up addressTable and copy into user array */
+		/*int tempIndex = 0;
+		while(tempIndex <= arrayLength){
+			numOfEntries += readRecordinBlock(blockID);
+			++blockID;
+			++tempIndex;
+			////referenceCounter += numOfEntries;
+			if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES)
+				break;
+		}*/
+
+		/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
+		if(numOfEntries > dataIdOffset)
+		{
+			for(copyIndex = 0; copyIndex < numOfEntries - dataIdOffset; copyIndex++)
+			{
+				/*if(addressTable.table[copyIndex].givenPtr == 0)
+				{
+					numOfEntries += readRecordinBlock(blockID);
+					++blockID;
+					if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES)
+						break;
+
+					if(numOfEntries == 0)
+						break;
+				}*/
+
+				recordID_array[persistenceIndex] = addressTable.table[copyIndex].recordID;
+				++addressTableIndex;
+				++persistenceIndex;
+				numOfEntries = 0;
+			}
+		}
+
+		//for(copyIndex = (numOfEntries - dataIdOffset); copyIndex < ((numOfEntries - dataIdOffset) + arrayLength); copyIndex++){
+		for(copyIndex = (numOfEntries - dataIdOffset); copyIndex < (numOfEntries - dataIdOffset) + arrayLength; copyIndex++){
+			if(addressTable.table[copyIndex].givenPtr == 0)
+			{
+				numOfEntries += readRecordinBlock(blockID);
+				++blockID;
+				if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES)
+					break;
+
+				if(numOfEntries == 0)
+					break;
+			}
+
+			////addressTable.table[addressTableIndex] = addressTable.table[copyIndex];
+			recordID_array[persistenceIndex] = addressTable.table[copyIndex].recordID;
+			////memset(&addressTable.table[copyIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+			++addressTableIndex;
+			++persistenceIndex;
+			numOfEntries = 0;
+		}
+
+		/* If entire array has not been filled up, then read from flash (only amount remaining between persistenceIndex and arrayLength),
+		 * fill up addressTable and then copy to user array. */
+		if(persistenceIndex < arrayLength)
+		{
+			/* Build the address table starting from offset until addressTable is filled up or user array is filled up. */
+			/* Get last block accessed from addressTable */
+			////int blockID = blockDeviceInformation->Regions->BlockIndexFromAddress((uint32)addressTable.table[addressTableIndex].currentLoc);
+			numOfEntries += readRecordinBlock(blockID);
+			/* No more entries in that block. Go to next block */
+			if(numOfEntries == 0){
+				////blockID = blockID + 1;
+			}
+			/* Remove entries from addressTable for the current block */
+			else{
+				blockID = blockID - 1;
+				while((uint32)addressTable.table[addressTableIndex].currentLoc != blockDeviceInformation->Regions->BlockAddress(blockID)){
+					memset(&addressTable.table[addressTableIndex], 0, sizeof(DATASTORE_ADDR_TBL_ENTRY));
+					recordID_array[persistenceIndex] = 0;
+					addressTableIndex--;
+					persistenceIndex--;
+					////referenceCounter--;
+				}
+			}
+
+			int index = 0;
+			while(numOfEntries <= (arrayLength - persistenceIndex)){
+				index = readRecordinBlock(blockID);
+				if(index == 0)
+					break;
+				++blockID;
+				numOfEntries = numOfEntries + index;
+				//++index;
+			}
+			////referenceCounter += index;
+
+			while(addressTable.table[addressTableIndex].givenPtr != 0)
+			{
+				if(addressTable.table.size() > MAX_NUM_TABLE_ENTRIES || addressTableIndex > arrayLength)
+					break;
+
+				recordID_array[persistenceIndex] = addressTable.table[addressTableIndex].recordID;
+				++persistenceIndex;
+				++addressTableIndex;
+			}
+
+		}	//if(persistenceIndex
+
+		////referenceCounter = 0;
+	}	//else if
+#endif
+
 }
 
 /* Returns total count of dataIDs */
@@ -1478,7 +1754,8 @@ uint32 Data_Store::maxAllocationSize()
 /* Function to return total space in the block storage device. */
 uint32 Data_Store::returnTotalSpace()
 {
-	return (blockDeviceInformation->Regions->NumBlocks * blockDeviceInformation->Regions->BytesPerBlock);
+	//NumBlocks - 1, because DataStore starts from one block after initial block.
+	return ((blockDeviceInformation->Regions->NumBlocks - 1) * blockDeviceInformation->Regions->BytesPerBlock);
 }
 
 /* Function to return amount of free space. Invokes calculateLogHeadRoom() */
@@ -1490,7 +1767,7 @@ uint32 Data_Store::returnFreeSpace()
 /* Function that returns the current value of the Log point. Also used to get total amount of space used. */
 uint32 Data_Store::returnLogPoint()
 {
-	return logPointByteOffset;
+	return (logPointByteOffset - dataStoreStartByteOffset);
 }
 
 #ifdef ENABLE_TEST

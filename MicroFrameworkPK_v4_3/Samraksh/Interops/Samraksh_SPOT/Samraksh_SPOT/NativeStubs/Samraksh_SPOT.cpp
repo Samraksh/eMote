@@ -85,18 +85,18 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupData___I4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupDataType___U4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::LookupSize___U4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DeleteData___BOOLEAN__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::ConstructNativeMemoryPointer___U4__U4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data::DisposeNativeMemoryPointer___BOOLEAN__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupData___I4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupDataType___U4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupSize___U4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::DeleteData___BOOLEAN__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::ConstructNativeMemoryPointer___U4__U4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::DisposeNativeMemoryPointer___BOOLEAN__U4,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT =
 {
     "Samraksh_SPOT", 
-    0xEA912901,
+    0x1E6ADBBF,
     method_lookup
 };
 

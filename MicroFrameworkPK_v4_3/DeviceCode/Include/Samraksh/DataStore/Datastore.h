@@ -286,7 +286,7 @@ private:
     LPVOID readPointers();
 
    	/* Helper function for scanFLashDevice - used for scanning through the sectors */
-   	int readRecordinBlock(int blockID);
+   	int readRecordinBlock(int blockID, int, int);
 
     /* Helper function for scanFlashDevice */
     uint32 decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADER header);
@@ -306,6 +306,7 @@ private:
 
     //static BOOL instanceFlag;
     static BOOL initialized;
+
 
 public:
     // privatising constructors to ensure there is only one instance of data store in the

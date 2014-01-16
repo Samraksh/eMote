@@ -12,7 +12,7 @@
 
 
 #include "Samraksh_SPOT.h"
-#include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_Data.h"
+#include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation.h"
 #include <Samraksh\DataStore\Datastore.h>
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
