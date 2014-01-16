@@ -123,15 +123,16 @@ namespace Samraksh.SPOT.Apps
         public ushort[] verfier = new ushort[1024];
         public byte[] verfierDS = new byte[1024];
 
-        Data[] dataRefArray;
+        DataAllocation[] dataRefArray;
         DataStore dStore;
-        Data dataDS;
+        DataAllocation dataDS;
         Type dataType = typeof(ushort);
 
         public NorStore()
         {
             //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Initialize(NorSize);
-            dStore = new DataStore((int)StorageType.NOR);
+            dStore = DataStore.Instance;
+            dStore.InitDataStore((int)StorageType.NOR);
 
             if (DataStore.EraseAll() == DataStatus.Success)
                 Debug.Print("Datastore succesfully erased");
@@ -140,7 +141,7 @@ namespace Samraksh.SPOT.Apps
         public override bool Write(ushort[] data, UInt16 length)
         {
             resultRWData.Write(false);
-            dataDS = new Data(dStore, (uint)data.Length, dataType);
+            dataDS = new DataAllocation(dStore, (uint)data.Length, dataType);
             if (dataDS.Write(data, (uint)data.Length) == DataStatus.Success)
             {
                 resultRWData.Write(true);
@@ -214,7 +215,7 @@ namespace Samraksh.SPOT.Apps
         {
             if (readCounter == 0)
             {
-                dataRefArray = new Data[dStore.CountOfDataIds()];
+                dataRefArray = new DataAllocation[dStore.CountOfDataIds()];
                 dStore.ReadAllDataReferences(dataRefArray, 0);      //Get the data references into dataRefArray.
                 ++readCounter;
             }
@@ -263,7 +264,7 @@ namespace Samraksh.SPOT.Apps
             }
 
             //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(eof, (ushort)eof.Length);
-            dataDS = new Data(dStore, (uint)eof.Length, dataType);
+            dataDS = new DataAllocation(dStore, (uint)eof.Length, dataType);
             if (dataDS.Write(eof, (uint)eof.Length) == DataStatus.Success)
                 return true;
             else
