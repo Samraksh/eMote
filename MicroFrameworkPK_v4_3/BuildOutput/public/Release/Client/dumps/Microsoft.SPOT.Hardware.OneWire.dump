@@ -1,0 +1,51 @@
+Assembly: Microsoft.SPOT.Hardware.OneWire (4.3.0.0)
+
+Size: AssemblyRef         24 byte(s)      2 item(s) [Runtime:      8]
+Size: TypeRef             56 byte(s)      7 item(s) [Runtime:     28]
+Size: FieldRef             0 byte(s)      0 item(s) [Runtime:      0]
+Size: MethodRef           32 byte(s)      4 item(s) [Runtime:     16]
+Size: TypeDef             24 byte(s)      1 item(s) [Runtime:      8]
+Size: FieldDef             8 byte(s)      1 item(s) [Runtime:      2]
+Size: MethodDef          192 byte(s)     12 item(s) [Runtime:     24]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files      0 byte(s)      0 item(s)
+Size: Resources            0 byte(s)      0 item(s)
+Size: ResourcesData        0 byte(s)
+Size: Strings            150 byte(s)
+Size: Signatures          45 byte(s)
+Size: ByteCode            70 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.3.0.0)
+AssemblyRef: 0001[00000088] Microsoft.SPOT.Hardware (4.3.0.0)
+
+TypeRef 0000[00000094] [Scope: 0000] System Object
+TypeRef 0001[0000009c] [Scope: 0000] System.Collections ArrayList
+TypeRef 0002[000000a4] [Scope: 0001] Microsoft.SPOT.Hardware OutputPort
+TypeRef 0003[000000ac] [Scope: 0000] System Byte
+TypeRef 0004[000000b4] [Scope: 0001] Microsoft.SPOT.Hardware Port
+TypeRef 0005[000000bc] [Scope: 0001] Microsoft.SPOT.Hardware Cpu
+TypeRef 0006[000000c4] [Scope: 8005]  Pin
+
+MethodRef 0000[000000cc] [Type: 0001] .ctor [METHOD VOID()]
+MethodRef 0001[000000d4] [Type: 0001] Add [METHOD I4( OBJECT )]
+MethodRef 0002[000000dc] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0003[000000e4] [Type: 0004] get_Id [METHOD VALUETYPE [01000006]()]
+
+TypeDef 0000[000000ec] [Extends: 8000] [Enclosed: ffff] [Flags: 00001081] Microsoft.SPOT.Hardware OneWire
+
+FieldDef 0000[00000104] [Flags: 00000001] Microsoft.SPOT.Hardware.OneWire::_pin [FIELD U4]
+
+MethodDef 0000[0000010c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::TouchReset [METHOD I4()]
+MethodDef 0001[0000011c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::TouchBit [METHOD I4( I4 )]
+MethodDef 0002[0000012c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::TouchByte [METHOD I4( I4 )]
+MethodDef 0003[0000013c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::WriteByte [METHOD I4( I4 )]
+MethodDef 0004[0000014c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::ReadByte [METHOD I4()]
+MethodDef 0005[0000015c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::AcquireEx [METHOD I4()]
+MethodDef 0006[0000016c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::Release [METHOD I4()]
+MethodDef 0007[0000017c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::FindFirstDevice [METHOD I4( BOOLEAN, BOOLEAN )]
+MethodDef 0008[0000018c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::FindNextDevice [METHOD I4( BOOLEAN, BOOLEAN )]
+MethodDef 0009[0000019c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OneWire::SerialNum [METHOD I4( SZARRAY U1, BOOLEAN )]
+MethodDef 000a[000001ac] [Flags: 01000086] [RVA: 0000] Microsoft.SPOT.Hardware.OneWire::FindAllDevices [METHOD CLASS [01000001]()]
+MethodDef 000b[000001bc] [Flags: 00001486] [RVA: 0039] Microsoft.SPOT.Hardware.OneWire::.ctor [METHOD VOID( CLASS [01000002] )]

@@ -1,0 +1,5 @@
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\CreateSymdef.exe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\CreateSymdef.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\obj\CreateSymdef\__COMMON\ResolveAssemblyReference.cache
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\obj\CreateSymdef\__COMMON\CreateSymdef.exe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\obj\CreateSymdef\__COMMON\CreateSymdef.pdb

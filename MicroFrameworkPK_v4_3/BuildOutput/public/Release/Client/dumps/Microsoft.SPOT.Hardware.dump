@@ -1,0 +1,542 @@
+Assembly: Microsoft.SPOT.Hardware (4.3.0.0)
+
+Size: AssemblyRef         24 byte(s)      2 item(s) [Runtime:      8]
+Size: TypeRef            264 byte(s)     33 item(s) [Runtime:    132]
+Size: FieldRef            48 byte(s)      6 item(s) [Runtime:     24]
+Size: MethodRef          264 byte(s)     33 item(s) [Runtime:    132]
+Size: TypeDef           1608 byte(s)     67 item(s) [Runtime:    536]
+Size: FieldDef           832 byte(s)    104 item(s) [Runtime:    208]
+Size: MethodDef         4352 byte(s)    272 item(s) [Runtime:    544]
+Size: Attributes           0 byte(s)      0 item(s)
+Size: TypeSpec             0 byte(s)      0 item(s)
+Size: Resources Files      0 byte(s)      0 item(s)
+Size: Resources            0 byte(s)      0 item(s)
+Size: ResourcesData        0 byte(s)
+Size: Strings           2061 byte(s)
+Size: Signatures        1195 byte(s)
+Size: ByteCode          3511 byte(s)
+
+
+AssemblyRef: 0000[0000007c] mscorlib (4.3.0.0)
+AssemblyRef: 0001[00000088] Microsoft.SPOT.Native (4.3.0.0)
+
+TypeRef 0000[00000094] [Scope: 0000] System Object
+TypeRef 0001[0000009c] [Scope: 0000] System IDisposable
+TypeRef 0002[000000a4] [Scope: 0000] System Enum
+TypeRef 0003[000000ac] [Scope: 0000] System MulticastDelegate
+TypeRef 0004[000000b4] [Scope: 0000] System SystemException
+TypeRef 0005[000000bc] [Scope: 0001] Microsoft.SPOT BaseEvent
+TypeRef 0006[000000c4] [Scope: 0001] Microsoft.SPOT IEventProcessor
+TypeRef 0007[000000cc] [Scope: 0001] Microsoft.SPOT IEventListener
+TypeRef 0008[000000d4] [Scope: 0000] System TimeSpan
+TypeRef 0009[000000dc] [Scope: 0000] System DateTime
+TypeRef 000a[000000e4] [Scope: 0001] Microsoft.SPOT EventCategory
+TypeRef 000b[000000ec] [Scope: 0000] System.Collections ArrayList
+TypeRef 000c[000000f4] [Scope: 0000] System IAsyncResult
+TypeRef 000d[000000fc] [Scope: 0000] System AsyncCallback
+TypeRef 000e[00000104] [Scope: 0000] System.Reflection MethodInfo
+TypeRef 000f[0000010c] [Scope: 0001] Microsoft.SPOT ILog
+TypeRef 0010[00000114] [Scope: 0000] System InvalidOperationException
+TypeRef 0011[0000011c] [Scope: 0000] System ArgumentException
+TypeRef 0012[00000124] [Scope: 0000] System.Threading Monitor
+TypeRef 0013[0000012c] [Scope: 0000] System GC
+TypeRef 0014[00000134] [Scope: 0000] System ObjectDisposedException
+TypeRef 0015[0000013c] [Scope: 0000] System Delegate
+TypeRef 0016[00000144] [Scope: 0001] Microsoft.SPOT GenericEvent
+TypeRef 0017[0000014c] [Scope: 0000] System ArgumentNullException
+TypeRef 0018[00000154] [Scope: 0000] System String
+TypeRef 0019[0000015c] [Scope: 0000] System UInt32
+TypeRef 001a[00000164] [Scope: 0000] System ValueType
+TypeRef 001b[0000016c] [Scope: 0000] System.Runtime.CompilerServices RuntimeHelpers
+TypeRef 001c[00000174] [Scope: 0000] System Array
+TypeRef 001d[0000017c] [Scope: 0000] System RuntimeFieldHandle
+TypeRef 001e[00000184] [Scope: 0001] Microsoft.SPOT ExecutionConstraint
+TypeRef 001f[0000018c] [Scope: 0000] System.Threading TimerCallback
+TypeRef 0020[00000194] [Scope: 0000] System.Threading Timer
+
+FieldRef 0000[0000019c] [Type: 0016] Y [FIELD I4]
+FieldRef 0001[000001a4] [Type: 0016] X [FIELD I4]
+FieldRef 0002[000001ac] [Type: 0016] Time [FIELD VALUETYPE [01000009]]
+FieldRef 0003[000001b4] [Type: 0005] EventMessage [FIELD U1]
+FieldRef 0004[000001bc] [Type: 0016] EventCategory [FIELD U1]
+FieldRef 0005[000001c4] [Type: 0016] EventData [FIELD U4]
+
+MethodRef 0000[000001cc] [Type: 0000] .ctor [METHOD VOID()]
+MethodRef 0001[000001d4] [Type: 0010] .ctor [METHOD VOID()]
+MethodRef 0002[000001dc] [Type: 0011] .ctor [METHOD VOID()]
+MethodRef 0003[000001e4] [Type: 0012] Enter [METHOD VOID( OBJECT )]
+MethodRef 0004[000001ec] [Type: 0012] Exit [METHOD VOID( OBJECT )]
+MethodRef 0005[000001f4] [Type: 0000] Finalize [METHOD VOID()]
+MethodRef 0006[000001fc] [Type: 0013] SuppressFinalize [METHOD VOID( OBJECT )]
+MethodRef 0007[00000204] [Type: 0014] .ctor [METHOD VOID()]
+MethodRef 0008[0000020c] [Type: 0015] Combine [METHOD CLASS [01000015]( CLASS [01000015], CLASS [01000015] )]
+MethodRef 0009[00000214] [Type: 0000] Equals [METHOD BOOLEAN( OBJECT )]
+MethodRef 000a[0000021c] [Type: 0015] Remove [METHOD CLASS [01000015]( CLASS [01000015], CLASS [01000015] )]
+MethodRef 000b[00000224] [Type: 000b] .ctor [METHOD VOID()]
+MethodRef 000c[0000022c] [Type: 0007] OnEvent [METHOD BOOLEAN( CLASS [01000005] )]
+MethodRef 000d[00000234] [Type: 0007] InitializeForEventSource [METHOD VOID()]
+MethodRef 000e[0000023c] [Type: 0009] get_Now [METHOD VALUETYPE [01000009]()]
+MethodRef 000f[00000244] [Type: 000b] get_Item [METHOD OBJECT( I4 )]
+MethodRef 0010[0000024c] [Type: 000b] get_Count [METHOD I4()]
+MethodRef 0011[00000254] [Type: 000b] Add [METHOD I4( OBJECT )]
+MethodRef 0012[0000025c] [Type: 0006] ProcessEvent [METHOD CLASS [01000005]( U4, U4, VALUETYPE [01000009] )]
+MethodRef 0013[00000264] [Type: 0016] .ctor [METHOD VOID()]
+MethodRef 0014[0000026c] [Type: 0017] .ctor [METHOD VOID()]
+MethodRef 0015[00000274] [Type: 0018] ToUpper [METHOD STRING()]
+MethodRef 0016[0000027c] [Type: 0018] get_Length [METHOD I4()]
+MethodRef 0017[00000284] [Type: 0018] get_Chars [METHOD CHAR( I4 )]
+MethodRef 0018[0000028c] [Type: 0011] .ctor [METHOD VOID( STRING )]
+MethodRef 0019[00000294] [Type: 0018] Substring [METHOD STRING( I4, I4 )]
+MethodRef 001a[0000029c] [Type: 001b] InitializeArray [METHOD VOID( CLASS [0100001c], VALUETYPE [0100001d] )]
+MethodRef 001b[000002a4] [Type: 0004] .ctor [METHOD VOID()]
+MethodRef 001c[000002ac] [Type: 0005] .ctor [METHOD VOID()]
+MethodRef 001d[000002b4] [Type: 0009] get_UtcNow [METHOD VALUETYPE [01000009]()]
+MethodRef 001e[000002bc] [Type: 001e] Install [METHOD VOID( I4, I4 )]
+MethodRef 001f[000002c4] [Type: 001f] .ctor [METHOD VOID( OBJECT, I4 )]
+MethodRef 0020[000002cc] [Type: 0020] .ctor [METHOD VOID( CLASS [0100001f], OBJECT, I4, I4 )]
+
+TypeDef 0000[000002d4] [Extends: 8000] [Enclosed: ffff] [Flags: 00000000]  <PrivateImplementationDetails>{F26CD9E6-87CD-4654-95E4-50717EE70802}
+TypeDef 0001[000002ec] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c1] Microsoft.SPOT.Hardware Cpu
+TypeDef 0002[00000304] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  AnalogChannel
+TypeDef 0003[0000031c] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  AnalogOutputChannel
+TypeDef 0004[00000334] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c1] Microsoft.SPOT.Hardware Battery
+TypeDef 0005[0000034c] [Extends: 8000] [Enclosed: 0004] [Flags: 00001082]  ChargerModel
+TypeDef 0006[00000364] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware I2CDevice
+TypeDef 0007[0000037c] [Extends: 8000] [Enclosed: 0006] [Flags: 00001002]  Configuration
+TypeDef 0008[00000394] [Extends: 8000] [Enclosed: ffff] [Flags: 00005081] Microsoft.SPOT.Hardware SPI
+TypeDef 0009[000003ac] [Extends: 8000] [Enclosed: 0008] [Flags: 00001002]  Configuration
+TypeDef 000a[000003c4] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware NativeEventDispatcher
+TypeDef 000b[000003dc] [Extends: 000a] [Enclosed: ffff] [Flags: 00000001] Microsoft.SPOT EventSink
+TypeDef 000c[000003f4] [Extends: 8000] [Enclosed: 000b] [Flags: 00001003]  EventInfo
+TypeDef 000d[0000040c] [Extends: 8000] [Enclosed: 0006] [Flags: 00001002]  I2CTransaction
+TypeDef 000e[00000424] [Extends: 000d] [Enclosed: 0006] [Flags: 00001082]  I2CReadTransaction
+TypeDef 000f[0000043c] [Extends: 000d] [Enclosed: 0006] [Flags: 00001082]  I2CWriteTransaction
+TypeDef 0010[00000454] [Extends: 000a] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware Port
+TypeDef 0011[0000046c] [Extends: 8002] [Enclosed: 0010] [Flags: 000000ba]  InterruptMode
+TypeDef 0012[00000484] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware LargeBufferMarshaller
+TypeDef 0013[0000049c] [Extends: 8003] [Enclosed: 0012] [Flags: 00000482]  LargeBufferEventHandler
+TypeDef 0014[000004b4] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware AnalogInput
+TypeDef 0015[000004cc] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware AnalogOutput
+TypeDef 0016[000004e4] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware Button
+TypeDef 0017[000004fc] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware HardwareEvent
+TypeDef 0018[00000514] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware HardwareProvider
+TypeDef 0019[0000052c] [Extends: 0010] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware InputPort
+TypeDef 001a[00000544] [Extends: 0019] [Enclosed: ffff] [Flags: 00001081] Microsoft.SPOT.Hardware InterruptPort
+TypeDef 001b[0000055c] [Extends: 8000] [Enclosed: ffff] [Flags: 00005001] Microsoft.SPOT.Hardware LargeBuffer
+TypeDef 001c[00000574] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] Microsoft.SPOT.Hardware NativeEventHandler
+TypeDef 001d[0000058c] [Extends: 0010] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware OutputPort
+TypeDef 001e[000005a4] [Extends: 8005] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware PowerEvent
+TypeDef 001f[000005bc] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware PowerEventType
+TypeDef 0020[000005d4] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware PowerLevel
+TypeDef 0021[000005ec] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] Microsoft.SPOT.Hardware PowerLevelChangeEventHandler
+TypeDef 0022[00000604] [Extends: 8000] [Enclosed: ffff] [Flags: 000000c1] Microsoft.SPOT.Hardware PowerState
+TypeDef 0023[0000061c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] Microsoft.SPOT.Hardware PowerStateEventListener
+TypeDef 0024[00000634] [Extends: 8000] [Enclosed: ffff] [Flags: 00001000] Microsoft.SPOT.Hardware PowerStateEventProcessor
+TypeDef 0025[0000064c] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] Microsoft.SPOT.Hardware RebootEventHandler
+TypeDef 0026[00000664] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] Microsoft.SPOT.Hardware SleepChangeEventHandler
+TypeDef 0027[0000067c] [Extends: 8005] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware SleepEvent
+TypeDef 0028[00000694] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware SleepEventType
+TypeDef 0029[000006ac] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware SleepLevel
+TypeDef 002a[000006c4] [Extends: 001d] [Enclosed: ffff] [Flags: 00001081] Microsoft.SPOT.Hardware TristatePort
+TypeDef 002b[000006dc] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c1] Microsoft.SPOT.Hardware Watchdog
+TypeDef 002c[000006f4] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] Microsoft.SPOT.Hardware WatchdogBehavior
+TypeDef 002d[0000070c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] Microsoft.SPOT.Hardware WatchdogEvent
+TypeDef 002e[00000724] [Extends: 8004] [Enclosed: ffff] [Flags: 00001009] Microsoft.SPOT.Hardware WatchdogException
+TypeDef 002f[0000073c] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  PWMChannel
+TypeDef 0030[00000754] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  Pin
+TypeDef 0031[0000076c] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  PinUsage
+TypeDef 0032[00000784] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  PinValidInterruptMode
+TypeDef 0033[0000079c] [Extends: 8002] [Enclosed: 0001] [Flags: 000000ba]  PinValidResistorMode
+TypeDef 0034[000007b4] [Extends: 8002] [Enclosed: 0010] [Flags: 000000ba]  ResistorMode
+TypeDef 0035[000007cc] [Extends: 8002] [Enclosed: 0008] [Flags: 000000ba]  SPI_module
+TypeDef 0036[000007e4] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports BaudRate
+TypeDef 0037[000007fc] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports Handshake
+TypeDef 0038[00000814] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports Parity
+TypeDef 0039[0000082c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] System.IO.Ports Serial
+TypeDef 003a[00000844] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports SerialData
+TypeDef 003b[0000085c] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] System.IO.Ports SerialDataReceivedEventArgs
+TypeDef 003c[00000874] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] System.IO.Ports SerialDataReceivedEventHandler
+TypeDef 003d[0000088c] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports SerialError
+TypeDef 003e[000008a4] [Extends: 8000] [Enclosed: ffff] [Flags: 00001001] System.IO.Ports SerialErrorReceivedEventArgs
+TypeDef 003f[000008bc] [Extends: 8003] [Enclosed: ffff] [Flags: 00000481] System.IO.Ports SerialErrorReceivedEventHandler
+TypeDef 0040[000008d4] [Extends: 8000] [Enclosed: ffff] [Flags: 000010c0] System.IO.Ports SerialPortName
+TypeDef 0041[000008ec] [Extends: 8002] [Enclosed: ffff] [Flags: 000000b9] System.IO.Ports StopBits
+TypeDef 0042[00000904] [Extends: 801a] [Enclosed: 0000] [Flags: 00000093]  __StaticArrayInitTypeSize=52
+
+FieldDef 0000[0000091c] [Flags: 00000413] .<PrivateImplementationDetails>{F26CD9E6-87CD-4654-95E4-50717EE70802}::$$method0x600009a-1 [FIELD VALUETYPE [04000042]]
+FieldDef 0001[00000924] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.AnalogChannel::value__ [FIELD I4]
+FieldDef 0002[0000092c] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.AnalogOutputChannel::value__ [FIELD I4]
+FieldDef 0003[00000934] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Min [FIELD I4]
+FieldDef 0004[0000093c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Low [FIELD I4]
+FieldDef 0005[00000944] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Medium [FIELD I4]
+FieldDef 0006[0000094c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Full [FIELD I4]
+FieldDef 0007[00000954] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_FullMin [FIELD I4]
+FieldDef 0008[0000095c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Charge_Hysteresis [FIELD I4]
+FieldDef 0009[00000964] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Timeout_Charging [FIELD VALUETYPE [01000008]]
+FieldDef 000a[0000096c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Timeout_Charged [FIELD VALUETYPE [01000008]]
+FieldDef 000b[00000974] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Timeout_Charger [FIELD VALUETYPE [01000008]]
+FieldDef 000c[0000097c] [Flags: 00000026] Microsoft.SPOT.Hardware.Battery.ChargerModel::Timeout_Backlight [FIELD VALUETYPE [01000008]]
+FieldDef 000d[00000984] [Flags: 00000801] Microsoft.SPOT.Hardware.I2CDevice::m_xAction [FIELD OBJECT]
+FieldDef 000e[0000098c] [Flags: 00000006] Microsoft.SPOT.Hardware.I2CDevice::Config [FIELD CLASS [04000007]]
+FieldDef 000f[00000994] [Flags: 00000004] Microsoft.SPOT.Hardware.I2CDevice::m_disposed [FIELD BOOLEAN]
+FieldDef 0010[0000099c] [Flags: 00000026] Microsoft.SPOT.Hardware.I2CDevice.Configuration::Address [FIELD U2]
+FieldDef 0011[000009a4] [Flags: 00000026] Microsoft.SPOT.Hardware.I2CDevice.Configuration::ClockRateKhz [FIELD I4]
+FieldDef 0012[000009ac] [Flags: 00000001] Microsoft.SPOT.Hardware.SPI::m_config [FIELD CLASS [04000009]]
+FieldDef 0013[000009b4] [Flags: 00000001] Microsoft.SPOT.Hardware.SPI::m_cs [FIELD CLASS [0400001d]]
+FieldDef 0014[000009bc] [Flags: 00000001] Microsoft.SPOT.Hardware.SPI::m_disposed [FIELD BOOLEAN]
+FieldDef 0015[000009c4] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::ChipSelect_Port [FIELD VALUETYPE [04000030]]
+FieldDef 0016[000009cc] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::ChipSelect_ActiveState [FIELD BOOLEAN]
+FieldDef 0017[000009d4] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::ChipSelect_SetupTime [FIELD U4]
+FieldDef 0018[000009dc] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::ChipSelect_HoldTime [FIELD U4]
+FieldDef 0019[000009e4] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::Clock_IdleState [FIELD BOOLEAN]
+FieldDef 001a[000009ec] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::Clock_Edge [FIELD BOOLEAN]
+FieldDef 001b[000009f4] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::Clock_RateKHz [FIELD U4]
+FieldDef 001c[000009fc] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::SPI_mod [FIELD VALUETYPE [04000035]]
+FieldDef 001d[00000a04] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::BusyPin [FIELD VALUETYPE [04000030]]
+FieldDef 001e[00000a0c] [Flags: 00000026] Microsoft.SPOT.Hardware.SPI.Configuration::BusyPin_ActiveState [FIELD BOOLEAN]
+FieldDef 001f[00000a14] [Flags: 00000004] Microsoft.SPOT.Hardware.NativeEventDispatcher::m_threadSpawn [FIELD CLASS [0400001c]]
+FieldDef 0020[00000a1c] [Flags: 00000004] Microsoft.SPOT.Hardware.NativeEventDispatcher::m_callbacks [FIELD CLASS [0400001c]]
+FieldDef 0021[00000a24] [Flags: 00000004] Microsoft.SPOT.Hardware.NativeEventDispatcher::m_disposed [FIELD BOOLEAN]
+FieldDef 0022[00000a2c] [Flags: 00000001] Microsoft.SPOT.Hardware.NativeEventDispatcher::m_NativeEventDispatcher [FIELD OBJECT]
+FieldDef 0023[00000a34] [Flags: 00000011] Microsoft.SPOT.EventSink::_eventSink [FIELD CLASS [0400000b]]
+FieldDef 0024[00000a3c] [Flags: 00000011] Microsoft.SPOT.EventSink::_eventInfoTable [FIELD CLASS [0100000b]]
+FieldDef 0025[00000a44] [Flags: 00000006] Microsoft.SPOT.EventSink.EventInfo::EventListener [FIELD CLASS [01000007]]
+FieldDef 0026[00000a4c] [Flags: 00000006] Microsoft.SPOT.EventSink.EventInfo::EventFilter [FIELD CLASS [01000007]]
+FieldDef 0027[00000a54] [Flags: 00000006] Microsoft.SPOT.EventSink.EventInfo::EventProcessor [FIELD CLASS [01000006]]
+FieldDef 0028[00000a5c] [Flags: 00000006] Microsoft.SPOT.EventSink.EventInfo::Category [FIELD VALUETYPE [0100000a]]
+FieldDef 0029[00000a64] [Flags: 00000026] Microsoft.SPOT.Hardware.I2CDevice.I2CTransaction::Buffer [FIELD SZARRAY U1]
+FieldDef 002a[00000a6c] [Flags: 00000801] Microsoft.SPOT.Hardware.Port::m_interruptMode [FIELD VALUETYPE [04000011]]
+FieldDef 002b[00000a74] [Flags: 00000001] Microsoft.SPOT.Hardware.Port::m_resistorMode [FIELD VALUETYPE [04000034]]
+FieldDef 002c[00000a7c] [Flags: 00000001] Microsoft.SPOT.Hardware.Port::m_portId [FIELD U4]
+FieldDef 002d[00000a84] [Flags: 00000001] Microsoft.SPOT.Hardware.Port::m_flags [FIELD U4]
+FieldDef 002e[00000a8c] [Flags: 00000001] Microsoft.SPOT.Hardware.Port::m_glitchFilterEnable [FIELD BOOLEAN]
+FieldDef 002f[00000a94] [Flags: 00000001] Microsoft.SPOT.Hardware.Port::m_initialState [FIELD BOOLEAN]
+FieldDef 0030[00000a9c] [Flags: 00000106] Microsoft.SPOT.Hardware.Port.InterruptMode::value__ [FIELD I4]
+FieldDef 0031[00000aa4] [Flags: 00000011] Microsoft.SPOT.Hardware.LargeBufferMarshaller::m_initialized [FIELD BOOLEAN]
+FieldDef 0032[00000aac] [Flags: 00000011] Microsoft.SPOT.Hardware.LargeBufferMarshaller::OnLargeBufferRequest [FIELD CLASS [04000013]]
+FieldDef 0033[00000ab4] [Flags: 00000001] Microsoft.SPOT.Hardware.LargeBufferMarshaller::m_id [FIELD U2]
+FieldDef 0034[00000abc] [Flags: 00000011] Microsoft.SPOT.Hardware.AnalogInput::s_syncRoot [FIELD OBJECT]
+FieldDef 0035[00000ac4] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogInput::m_pin [FIELD VALUETYPE [04000030]]
+FieldDef 0036[00000acc] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogInput::m_channel [FIELD VALUETYPE [04000002]]
+FieldDef 0037[00000ad4] [Flags: 00000001] Microsoft.SPOT.Hardware.AnalogInput::m_scale [FIELD R8]
+FieldDef 0038[00000adc] [Flags: 00000001] Microsoft.SPOT.Hardware.AnalogInput::m_offset [FIELD R8]
+FieldDef 0039[00000ae4] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogInput::m_precision [FIELD I4]
+FieldDef 003a[00000aec] [Flags: 00000001] Microsoft.SPOT.Hardware.AnalogInput::m_disposed [FIELD BOOLEAN]
+FieldDef 003b[00000af4] [Flags: 00000011] Microsoft.SPOT.Hardware.AnalogOutput::s_syncRoot [FIELD OBJECT]
+FieldDef 003c[00000afc] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogOutput::m_pin [FIELD VALUETYPE [04000030]]
+FieldDef 003d[00000b04] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogOutput::m_channel [FIELD VALUETYPE [04000003]]
+FieldDef 003e[00000b0c] [Flags: 00000001] Microsoft.SPOT.Hardware.AnalogOutput::m_scale [FIELD R8]
+FieldDef 003f[00000b14] [Flags: 00000001] Microsoft.SPOT.Hardware.AnalogOutput::m_offset [FIELD R8]
+FieldDef 0040[00000b1c] [Flags: 00000021] Microsoft.SPOT.Hardware.AnalogOutput::m_precision [FIELD I4]
+FieldDef 0041[00000b24] [Flags: 00000106] Microsoft.SPOT.Hardware.Button::value__ [FIELD I4]
+FieldDef 0042[00000b2c] [Flags: 00000106] Microsoft.SPOT.Hardware.HardwareEvent::value__ [FIELD I4]
+FieldDef 0043[00000b34] [Flags: 00000011] Microsoft.SPOT.Hardware.HardwareProvider::s_hwProvider [FIELD CLASS [04000018]]
+FieldDef 0044[00000b3c] [Flags: 00000001] Microsoft.SPOT.Hardware.LargeBuffer::m_bytes [FIELD SZARRAY U1]
+FieldDef 0045[00000b44] [Flags: 00000001] Microsoft.SPOT.Hardware.LargeBuffer::m_fDisposed [FIELD BOOLEAN]
+FieldDef 0046[00000b4c] [Flags: 00000006] Microsoft.SPOT.Hardware.PowerEvent::EventType [FIELD VALUETYPE [0400001f]]
+FieldDef 0047[00000b54] [Flags: 00000006] Microsoft.SPOT.Hardware.PowerEvent::Level [FIELD VALUETYPE [04000020]]
+FieldDef 0048[00000b5c] [Flags: 00000006] Microsoft.SPOT.Hardware.PowerEvent::Time [FIELD VALUETYPE [01000009]]
+FieldDef 0049[00000b64] [Flags: 00000106] Microsoft.SPOT.Hardware.PowerEventType::value__ [FIELD U1]
+FieldDef 004a[00000b6c] [Flags: 00000106] Microsoft.SPOT.Hardware.PowerLevel::value__ [FIELD U1]
+FieldDef 004b[00000b74] [Flags: 00000011] Microsoft.SPOT.Hardware.PowerState::s_CurrentPowerLevel [FIELD VALUETYPE [04000020]]
+FieldDef 004c[00000b7c] [Flags: 00000011] Microsoft.SPOT.Hardware.PowerState::OnSleepChange [FIELD CLASS [04000026]]
+FieldDef 004d[00000b84] [Flags: 00000011] Microsoft.SPOT.Hardware.PowerState::OnPowerLevelChange [FIELD CLASS [04000021]]
+FieldDef 004e[00000b8c] [Flags: 00000011] Microsoft.SPOT.Hardware.PowerState::OnRebootEvent [FIELD CLASS [04000025]]
+FieldDef 004f[00000b94] [Flags: 00000006] Microsoft.SPOT.Hardware.SleepEvent::EventType [FIELD VALUETYPE [04000028]]
+FieldDef 0050[00000b9c] [Flags: 00000006] Microsoft.SPOT.Hardware.SleepEvent::Level [FIELD VALUETYPE [04000029]]
+FieldDef 0051[00000ba4] [Flags: 00000006] Microsoft.SPOT.Hardware.SleepEvent::WakeUpEvents [FIELD VALUETYPE [04000017]]
+FieldDef 0052[00000bac] [Flags: 00000006] Microsoft.SPOT.Hardware.SleepEvent::Time [FIELD VALUETYPE [01000009]]
+FieldDef 0053[00000bb4] [Flags: 00000106] Microsoft.SPOT.Hardware.SleepEventType::value__ [FIELD U1]
+FieldDef 0054[00000bbc] [Flags: 00000106] Microsoft.SPOT.Hardware.SleepLevel::value__ [FIELD U1]
+FieldDef 0055[00000bc4] [Flags: 00000106] Microsoft.SPOT.Hardware.WatchdogBehavior::value__ [FIELD I4]
+FieldDef 0056[00000bcc] [Flags: 00000006] Microsoft.SPOT.Hardware.WatchdogEvent::WatchdogEventTime [FIELD VALUETYPE [01000009]]
+FieldDef 0057[00000bd4] [Flags: 00000006] Microsoft.SPOT.Hardware.WatchdogEvent::WatchdogTimeoutValue [FIELD VALUETYPE [01000008]]
+FieldDef 0058[00000bdc] [Flags: 00000006] Microsoft.SPOT.Hardware.WatchdogEvent::OffendingMethod [FIELD CLASS [0100000e]]
+FieldDef 0059[00000be4] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.PWMChannel::value__ [FIELD I4]
+FieldDef 005a[00000bec] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.Pin::value__ [FIELD I4]
+FieldDef 005b[00000bf4] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.PinUsage::value__ [FIELD U1]
+FieldDef 005c[00000bfc] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.PinValidInterruptMode::value__ [FIELD U1]
+FieldDef 005d[00000c04] [Flags: 00000106] Microsoft.SPOT.Hardware.Cpu.PinValidResistorMode::value__ [FIELD U1]
+FieldDef 005e[00000c0c] [Flags: 00000106] Microsoft.SPOT.Hardware.Port.ResistorMode::value__ [FIELD I4]
+FieldDef 005f[00000c14] [Flags: 00000106] Microsoft.SPOT.Hardware.SPI.SPI_module::value__ [FIELD I4]
+FieldDef 0060[00000c1c] [Flags: 00000106] System.IO.Ports.BaudRate::value__ [FIELD I4]
+FieldDef 0061[00000c24] [Flags: 00000106] System.IO.Ports.Handshake::value__ [FIELD I4]
+FieldDef 0062[00000c2c] [Flags: 00000106] System.IO.Ports.Parity::value__ [FIELD I4]
+FieldDef 0063[00000c34] [Flags: 00000106] System.IO.Ports.SerialData::value__ [FIELD I4]
+FieldDef 0064[00000c3c] [Flags: 00000001] System.IO.Ports.SerialDataReceivedEventArgs::m_data [FIELD VALUETYPE [0400003a]]
+FieldDef 0065[00000c44] [Flags: 00000106] System.IO.Ports.SerialError::value__ [FIELD I4]
+FieldDef 0066[00000c4c] [Flags: 00000001] System.IO.Ports.SerialErrorReceivedEventArgs::m_error [FIELD VALUETYPE [0400003d]]
+FieldDef 0067[00000c54] [Flags: 00000106] System.IO.Ports.StopBits::value__ [FIELD I4]
+
+MethodDef 0000[00000c5c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Cpu::get_SystemClock [METHOD U4()]
+MethodDef 0001[00000c6c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Cpu::get_SlowClock [METHOD U4()]
+MethodDef 0002[00000c7c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Cpu::get_GlitchFilterTime [METHOD VALUETYPE [01000008]()]
+MethodDef 0003[00000c8c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Cpu::set_GlitchFilterTime [METHOD VOID( VALUETYPE [01000008] )]
+MethodDef 0004[00000c9c] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::ReadVoltage [METHOD I4()]
+MethodDef 0005[00000cac] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::ReadTemperature [METHOD I4()]
+MethodDef 0006[00000cbc] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::OnCharger [METHOD BOOLEAN()]
+MethodDef 0007[00000ccc] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::IsFullyCharged [METHOD BOOLEAN()]
+MethodDef 0008[00000cdc] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::StateOfCharge [METHOD I4()]
+MethodDef 0009[00000cec] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Battery::WaitForEvent [METHOD BOOLEAN( I4 )]
+MethodDef 000a[00000cfc] [Flags: 00000096] [RVA: 0000] Microsoft.SPOT.Hardware.Battery::GetChargerModel [METHOD CLASS [04000005]()]
+MethodDef 000b[00000d0c] [Flags: 00001483] [RVA: ffff] Microsoft.SPOT.Hardware.Battery.ChargerModel::.ctor [METHOD VOID()]
+MethodDef 000c[00000d1c] [Flags: 400040c4] [RVA: 0004] Microsoft.SPOT.Hardware.I2CDevice::Finalize [METHOD VOID()]
+MethodDef 000d[00000d2c] [Flags: 000001e6] [RVA: 001e] Microsoft.SPOT.Hardware.I2CDevice::Dispose [METHOD VOID()]
+MethodDef 000e[00000d3c] [Flags: 00001486] [RVA: 0028] Microsoft.SPOT.Hardware.I2CDevice::.ctor [METHOD VOID( CLASS [04000007] )]
+MethodDef 000f[00000d4c] [Flags: 41000081] [RVA: 005e] Microsoft.SPOT.Hardware.I2CDevice::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 0010[00000d5c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.I2CDevice::Execute [METHOD I4( SZARRAY CLASS [0400000d], I4 )]
+MethodDef 0011[00000d6c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.I2CDevice::Initialize [METHOD VOID()]
+MethodDef 0012[00000d7c] [Flags: 00000096] [RVA: 009d] Microsoft.SPOT.Hardware.I2CDevice::CreateReadTransaction [METHOD CLASS [0400000e]( SZARRAY U1 )]
+MethodDef 0013[00000d8c] [Flags: 00000096] [RVA: 00a2] Microsoft.SPOT.Hardware.I2CDevice::CreateWriteTransaction [METHOD CLASS [0400000f]( SZARRAY U1 )]
+MethodDef 0014[00000d9c] [Flags: 00001486] [RVA: 00a7] Microsoft.SPOT.Hardware.I2CDevice.Configuration::.ctor [METHOD VOID( U2, I4 )]
+MethodDef 0015[00000dac] [Flags: 400040c4] [RVA: 00b6] Microsoft.SPOT.Hardware.SPI::Finalize [METHOD VOID()]
+MethodDef 0016[00000dbc] [Flags: 000001e6] [RVA: 00d0] Microsoft.SPOT.Hardware.SPI::Dispose [METHOD VOID()]
+MethodDef 0017[00000dcc] [Flags: 00001486] [RVA: 00da] Microsoft.SPOT.Hardware.SPI::.ctor [METHOD VOID( CLASS [04000009] )]
+MethodDef 0018[00000ddc] [Flags: 41000081] [RVA: 0135] Microsoft.SPOT.Hardware.SPI::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 0019[00000dec] [Flags: 00000086] [RVA: 0198] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U2, I4, I4, SZARRAY U2, I4, I4, I4 )]
+MethodDef 001a[00000dfc] [Flags: 00000086] [RVA: 01d0] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U2, SZARRAY U2, I4 )]
+MethodDef 001b[00000e0c] [Flags: 00000086] [RVA: 01f8] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U2, SZARRAY U2 )]
+MethodDef 001c[00000e1c] [Flags: 00000086] [RVA: 0207] Microsoft.SPOT.Hardware.SPI::Write [METHOD VOID( SZARRAY U2 )]
+MethodDef 001d[00000e2c] [Flags: 00000086] [RVA: 020f] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U1, I4, I4, SZARRAY U1, I4, I4, I4 )]
+MethodDef 001e[00000e3c] [Flags: 00000086] [RVA: 0247] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U1, SZARRAY U1, I4 )]
+MethodDef 001f[00000e4c] [Flags: 00000086] [RVA: 026f] Microsoft.SPOT.Hardware.SPI::WriteRead [METHOD VOID( SZARRAY U1, SZARRAY U1 )]
+MethodDef 0020[00000e5c] [Flags: 00000086] [RVA: 027e] Microsoft.SPOT.Hardware.SPI::Write [METHOD VOID( SZARRAY U1 )]
+MethodDef 0021[00000e6c] [Flags: 00000486] [RVA: 0286] Microsoft.SPOT.Hardware.SPI::get_Config [METHOD CLASS [04000009]()]
+MethodDef 0022[00000e7c] [Flags: 00000486] [RVA: 028b] Microsoft.SPOT.Hardware.SPI::set_Config [METHOD VOID( CLASS [04000009] )]
+MethodDef 0023[00000e8c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.SPI::InternalWriteRead [METHOD VOID( SZARRAY U2, I4, I4, SZARRAY U2, I4, I4, I4 )]
+MethodDef 0024[00000e9c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.SPI::InternalWriteRead [METHOD VOID( SZARRAY U1, I4, I4, SZARRAY U1, I4, I4, I4 )]
+MethodDef 0025[00000eac] [Flags: 00001486] [RVA: 0291] Microsoft.SPOT.Hardware.SPI.Configuration::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, U4, U4, BOOLEAN, BOOLEAN, U4, VALUETYPE [04000035] )]
+MethodDef 0026[00000ebc] [Flags: 00001486] [RVA: 02a5] Microsoft.SPOT.Hardware.SPI.Configuration::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, U4, U4, BOOLEAN, BOOLEAN, U4, VALUETYPE [04000035], VALUETYPE [04000030], BOOLEAN )]
+MethodDef 0027[00000ecc] [Flags: 000001c6] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventDispatcher::EnableInterrupt [METHOD VOID()]
+MethodDef 0028[00000edc] [Flags: 000001c6] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventDispatcher::DisableInterrupt [METHOD VOID()]
+MethodDef 0029[00000eec] [Flags: 000001c4] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventDispatcher::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 002a[00000efc] [Flags: 400040c4] [RVA: 02e3] Microsoft.SPOT.Hardware.NativeEventDispatcher::Finalize [METHOD VOID()]
+MethodDef 002b[00000f0c] [Flags: 010001c6] [RVA: 02fd] Microsoft.SPOT.Hardware.NativeEventDispatcher::Dispose [METHOD VOID()]
+MethodDef 002c[00000f1c] [Flags: 00001486] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventDispatcher::.ctor [METHOD VOID( STRING, U8 )]
+MethodDef 002d[00000f2c] [Flags: 41000486] [RVA: 0312] Microsoft.SPOT.Hardware.NativeEventDispatcher::add_OnInterrupt [METHOD VOID( CLASS [0400001c] )]
+MethodDef 002e[00000f3c] [Flags: 41000486] [RVA: 036d] Microsoft.SPOT.Hardware.NativeEventDispatcher::remove_OnInterrupt [METHOD VOID( CLASS [0400001c] )]
+MethodDef 002f[00000f4c] [Flags: 00000081] [RVA: 03ac] Microsoft.SPOT.Hardware.NativeEventDispatcher::MultiCastCase [METHOD VOID( U4, U4, VALUETYPE [01000009] )]
+MethodDef 0030[00000f5c] [Flags: 00001481] [RVA: 03bc] Microsoft.SPOT.EventSink::.ctor [METHOD VOID()]
+MethodDef 0031[00000f6c] [Flags: 00000081] [RVA: 03c6] Microsoft.SPOT.EventSink::ProcessEvent [METHOD VOID( CLASS [0400000c], CLASS [01000005] )]
+MethodDef 0032[00000f7c] [Flags: 00000081] [RVA: 03eb] Microsoft.SPOT.EventSink::EventDispatchCallback [METHOD VOID( U4, U4, VALUETYPE [01000009] )]
+MethodDef 0033[00000f8c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.EventSink::EventConfig [METHOD VOID()]
+MethodDef 0034[00000f9c] [Flags: 00002491] [RVA: 0400] Microsoft.SPOT.EventSink::.cctor [METHOD VOID()]
+MethodDef 0035[00000fac] [Flags: 01000096] [RVA: 0421] Microsoft.SPOT.EventSink::AddEventListener [METHOD VOID( VALUETYPE [0100000a], CLASS [01000007] )]
+MethodDef 0036[00000fbc] [Flags: 01000096] [RVA: 0430] Microsoft.SPOT.EventSink::AddEventFilter [METHOD VOID( VALUETYPE [0100000a], CLASS [01000007] )]
+MethodDef 0037[00000fcc] [Flags: 01000096] [RVA: 043f] Microsoft.SPOT.EventSink::AddEventProcessor [METHOD VOID( VALUETYPE [0100000a], CLASS [01000006] )]
+MethodDef 0038[00000fdc] [Flags: 01000096] [RVA: 044a] Microsoft.SPOT.EventSink::RemoveEventListener [METHOD VOID( VALUETYPE [0100000a], CLASS [01000007] )]
+MethodDef 0039[00000fec] [Flags: 01000096] [RVA: 045c] Microsoft.SPOT.EventSink::RemoveEventFilter [METHOD VOID( VALUETYPE [0100000a], CLASS [01000007] )]
+MethodDef 003a[00000ffc] [Flags: 01000096] [RVA: 046e] Microsoft.SPOT.EventSink::RemoveEventProcessor [METHOD VOID( VALUETYPE [0100000a], CLASS [01000006] )]
+MethodDef 003b[0000100c] [Flags: 01000096] [RVA: 0480] Microsoft.SPOT.EventSink::PostManagerEvent [METHOD VOID( U1, U1, U2, U4 )]
+MethodDef 003c[0000101c] [Flags: 00000091] [RVA: 049e] Microsoft.SPOT.EventSink::GetEventInfo [METHOD CLASS [0400000c]( VALUETYPE [0100000a] )]
+MethodDef 003d[0000102c] [Flags: 00000091] [RVA: 04e4] Microsoft.SPOT.EventSink::GetEvent [METHOD VOID( U4, U4, VALUETYPE [01000009], BYREF CLASS [0400000c], BYREF CLASS [01000005] )]
+MethodDef 003e[0000103c] [Flags: 00001486] [RVA: 0551] Microsoft.SPOT.EventSink.EventInfo::.ctor [METHOD VOID()]
+MethodDef 003f[0000104c] [Flags: 00001484] [RVA: 0560] Microsoft.SPOT.Hardware.I2CDevice.I2CTransaction::.ctor [METHOD VOID( SZARRAY U1 )]
+MethodDef 0040[0000105c] [Flags: 00001483] [RVA: 0571] Microsoft.SPOT.Hardware.I2CDevice.I2CReadTransaction::.ctor [METHOD VOID( SZARRAY U1 )]
+MethodDef 0041[0000106c] [Flags: 00001483] [RVA: 0577] Microsoft.SPOT.Hardware.I2CDevice.I2CWriteTransaction::.ctor [METHOD VOID( SZARRAY U1 )]
+MethodDef 0042[0000107c] [Flags: 000000c4] [RVA: ffff] Microsoft.SPOT.Hardware.Port::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 0043[0000108c] [Flags: 00001484] [RVA: ffff] Microsoft.SPOT.Hardware.Port::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, VALUETYPE [04000034], VALUETYPE [04000011] )]
+MethodDef 0044[0000109c] [Flags: 00001484] [RVA: ffff] Microsoft.SPOT.Hardware.Port::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN )]
+MethodDef 0045[000010ac] [Flags: 00001484] [RVA: ffff] Microsoft.SPOT.Hardware.Port::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, BOOLEAN, VALUETYPE [04000034] )]
+MethodDef 0046[000010bc] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.Port::Read [METHOD BOOLEAN()]
+MethodDef 0047[000010cc] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.Port::get_Id [METHOD VALUETYPE [04000030]()]
+MethodDef 0048[000010dc] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.Port::ReservePin [METHOD BOOLEAN( VALUETYPE [04000030], BOOLEAN )]
+MethodDef 0049[000010ec] [Flags: 000001e6] [RVA: 057d] Microsoft.SPOT.Hardware.LargeBufferMarshaller::InitializeForEventSource [METHOD VOID()]
+MethodDef 004a[000010fc] [Flags: 000001e6] [RVA: 057e] Microsoft.SPOT.Hardware.LargeBufferMarshaller::OnEvent [METHOD BOOLEAN( CLASS [01000005] )]
+MethodDef 004b[0000110c] [Flags: 00001486] [RVA: 059b] Microsoft.SPOT.Hardware.LargeBufferMarshaller::.ctor [METHOD VOID( U2 )]
+MethodDef 004c[0000111c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller::MarshalBuffer [METHOD VOID( CLASS [0400001b] )]
+MethodDef 004d[0000112c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller::UnMarshalBuffer [METHOD VOID( BYREF CLASS [0400001b] )]
+MethodDef 004e[0000113c] [Flags: 01000496] [RVA: 05b3] Microsoft.SPOT.Hardware.LargeBufferMarshaller::add_OnLargeBufferRequest [METHOD VOID( CLASS [04000013] )]
+MethodDef 004f[0000114c] [Flags: 01000496] [RVA: 05c1] Microsoft.SPOT.Hardware.LargeBufferMarshaller::remove_OnLargeBufferRequest [METHOD VOID( CLASS [04000013] )]
+MethodDef 0050[0000115c] [Flags: 00002491] [RVA: 05cf] Microsoft.SPOT.Hardware.LargeBufferMarshaller::.cctor [METHOD VOID()]
+MethodDef 0051[0000116c] [Flags: 000201c6] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller.LargeBufferEventHandler::Invoke [METHOD VOID( U2 )]
+MethodDef 0052[0000117c] [Flags: 000401c6] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller.LargeBufferEventHandler::BeginInvoke [METHOD CLASS [0100000c]( U2, CLASS [0100000d], OBJECT )]
+MethodDef 0053[0000118c] [Flags: 000801c6] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller.LargeBufferEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0054[0000119c] [Flags: 00011486] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBufferMarshaller.LargeBufferEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 0055[000011ac] [Flags: 400040c4] [RVA: 05d4] Microsoft.SPOT.Hardware.AnalogInput::Finalize [METHOD VOID()]
+MethodDef 0056[000011bc] [Flags: 000001e6] [RVA: 05ee] Microsoft.SPOT.Hardware.AnalogInput::Dispose [METHOD VOID()]
+MethodDef 0057[000011cc] [Flags: 40001486] [RVA: 05f4] Microsoft.SPOT.Hardware.AnalogInput::.ctor [METHOD VOID( VALUETYPE [04000002], R8, R8, I4 )]
+MethodDef 0058[000011dc] [Flags: 00001486] [RVA: 06bd] Microsoft.SPOT.Hardware.AnalogInput::.ctor [METHOD VOID( VALUETYPE [04000002], I4 )]
+MethodDef 0059[000011ec] [Flags: 00001486] [RVA: 06d6] Microsoft.SPOT.Hardware.AnalogInput::.ctor [METHOD VOID( VALUETYPE [04000002] )]
+MethodDef 005a[000011fc] [Flags: 01000081] [RVA: 06ef] Microsoft.SPOT.Hardware.AnalogInput::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 005b[0000120c] [Flags: 00000486] [RVA: 0700] Microsoft.SPOT.Hardware.AnalogInput::get_Scale [METHOD R8()]
+MethodDef 005c[0000121c] [Flags: 00000486] [RVA: 0705] Microsoft.SPOT.Hardware.AnalogInput::set_Scale [METHOD VOID( R8 )]
+MethodDef 005d[0000122c] [Flags: 00000486] [RVA: 070b] Microsoft.SPOT.Hardware.AnalogInput::get_Offset [METHOD R8()]
+MethodDef 005e[0000123c] [Flags: 00000486] [RVA: 0710] Microsoft.SPOT.Hardware.AnalogInput::set_Offset [METHOD VOID( R8 )]
+MethodDef 005f[0000124c] [Flags: 00000486] [RVA: 0716] Microsoft.SPOT.Hardware.AnalogInput::get_Precision [METHOD I4()]
+MethodDef 0060[0000125c] [Flags: 00000486] [RVA: 071b] Microsoft.SPOT.Hardware.AnalogInput::get_Pin [METHOD VALUETYPE [04000030]()]
+MethodDef 0061[0000126c] [Flags: 00000086] [RVA: 0720] Microsoft.SPOT.Hardware.AnalogInput::Read [METHOD R8()]
+MethodDef 0062[0000127c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogInput::ReadRaw [METHOD I4()]
+MethodDef 0063[0000128c] [Flags: 00000094] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogInput::Initialize [METHOD VOID( VALUETYPE [04000002], I4 )]
+MethodDef 0064[0000129c] [Flags: 00000094] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogInput::Uninitialize [METHOD VOID( VALUETYPE [04000002] )]
+MethodDef 0065[000012ac] [Flags: 00002491] [RVA: 0761] Microsoft.SPOT.Hardware.AnalogInput::.cctor [METHOD VOID()]
+MethodDef 0066[000012bc] [Flags: 400040c4] [RVA: 0768] Microsoft.SPOT.Hardware.AnalogOutput::Finalize [METHOD VOID()]
+MethodDef 0067[000012cc] [Flags: 000001e6] [RVA: 0782] Microsoft.SPOT.Hardware.AnalogOutput::Dispose [METHOD VOID()]
+MethodDef 0068[000012dc] [Flags: 40001486] [RVA: 0788] Microsoft.SPOT.Hardware.AnalogOutput::.ctor [METHOD VOID( VALUETYPE [04000003], R8, R8, I4 )]
+MethodDef 0069[000012ec] [Flags: 00001486] [RVA: 0851] Microsoft.SPOT.Hardware.AnalogOutput::.ctor [METHOD VOID( VALUETYPE [04000003], I4 )]
+MethodDef 006a[000012fc] [Flags: 00001486] [RVA: 086a] Microsoft.SPOT.Hardware.AnalogOutput::.ctor [METHOD VOID( VALUETYPE [04000003] )]
+MethodDef 006b[0000130c] [Flags: 01000081] [RVA: 0883] Microsoft.SPOT.Hardware.AnalogOutput::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 006c[0000131c] [Flags: 00000486] [RVA: 0894] Microsoft.SPOT.Hardware.AnalogOutput::get_Scale [METHOD R8()]
+MethodDef 006d[0000132c] [Flags: 00000486] [RVA: 0899] Microsoft.SPOT.Hardware.AnalogOutput::set_Scale [METHOD VOID( R8 )]
+MethodDef 006e[0000133c] [Flags: 00000486] [RVA: 089f] Microsoft.SPOT.Hardware.AnalogOutput::get_Offset [METHOD R8()]
+MethodDef 006f[0000134c] [Flags: 00000486] [RVA: 08a4] Microsoft.SPOT.Hardware.AnalogOutput::set_Offset [METHOD VOID( R8 )]
+MethodDef 0070[0000135c] [Flags: 00000486] [RVA: 08aa] Microsoft.SPOT.Hardware.AnalogOutput::get_Precision [METHOD I4()]
+MethodDef 0071[0000136c] [Flags: 00000486] [RVA: 08af] Microsoft.SPOT.Hardware.AnalogOutput::get_Pin [METHOD VALUETYPE [04000030]()]
+MethodDef 0072[0000137c] [Flags: 00000086] [RVA: 08b4] Microsoft.SPOT.Hardware.AnalogOutput::Write [METHOD VOID( R8 )]
+MethodDef 0073[0000138c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogOutput::WriteRaw [METHOD VOID( I4 )]
+MethodDef 0074[0000139c] [Flags: 00000094] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogOutput::Initialize [METHOD VOID( VALUETYPE [04000003], I4 )]
+MethodDef 0075[000013ac] [Flags: 00000094] [RVA: ffff] Microsoft.SPOT.Hardware.AnalogOutput::Uninitialize [METHOD VOID( VALUETYPE [04000003] )]
+MethodDef 0076[000013bc] [Flags: 00002491] [RVA: 0924] Microsoft.SPOT.Hardware.AnalogOutput::.cctor [METHOD VOID()]
+MethodDef 0077[000013cc] [Flags: 000001c6] [RVA: 092b] Microsoft.SPOT.Hardware.HardwareProvider::GetSerialPins [METHOD VOID( STRING, BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 0078[000013dc] [Flags: 000001c6] [RVA: 094a] Microsoft.SPOT.Hardware.HardwareProvider::GetSerialPortsCount [METHOD I4()]
+MethodDef 0079[000013ec] [Flags: 000001c6] [RVA: 094f] Microsoft.SPOT.Hardware.HardwareProvider::SupportsNonStandardBaudRate [METHOD BOOLEAN( I4 )]
+MethodDef 007a[000013fc] [Flags: 000001c6] [RVA: 0955] Microsoft.SPOT.Hardware.HardwareProvider::GetBaudRateBoundary [METHOD VOID( I4, BYREF U4, BYREF U4 )]
+MethodDef 007b[0000140c] [Flags: 000001c6] [RVA: 095d] Microsoft.SPOT.Hardware.HardwareProvider::IsSupportedBaudRate [METHOD BOOLEAN( I4, BYREF U4 )]
+MethodDef 007c[0000141c] [Flags: 000001c6] [RVA: 0964] Microsoft.SPOT.Hardware.HardwareProvider::GetSupportBaudRates [METHOD VOID( I4, BYREF SZARRAY VALUETYPE [04000036], BYREF I4 )]
+MethodDef 007d[0000142c] [Flags: 000001c6] [RVA: 09a9] Microsoft.SPOT.Hardware.HardwareProvider::GetSpiPins [METHOD VOID( VALUETYPE [04000035], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 007e[0000143c] [Flags: 000001c6] [RVA: 09bd] Microsoft.SPOT.Hardware.HardwareProvider::GetSpiPortsCount [METHOD I4()]
+MethodDef 007f[0000144c] [Flags: 000001c6] [RVA: 09c2] Microsoft.SPOT.Hardware.HardwareProvider::GetI2CPins [METHOD VOID( BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 0080[0000145c] [Flags: 000001c6] [RVA: 09cf] Microsoft.SPOT.Hardware.HardwareProvider::GetPWMChannelsCount [METHOD I4()]
+MethodDef 0081[0000146c] [Flags: 000001c6] [RVA: 09d4] Microsoft.SPOT.Hardware.HardwareProvider::GetPwmPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [0400002f] )]
+MethodDef 0082[0000147c] [Flags: 000001c6] [RVA: 09da] Microsoft.SPOT.Hardware.HardwareProvider::GetAnalogChannelsCount [METHOD I4()]
+MethodDef 0083[0000148c] [Flags: 000001c6] [RVA: 09df] Microsoft.SPOT.Hardware.HardwareProvider::GetAnalogPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [04000002] )]
+MethodDef 0084[0000149c] [Flags: 000001c6] [RVA: 09e5] Microsoft.SPOT.Hardware.HardwareProvider::GetAvailablePrecisionInBitsForChannel [METHOD SZARRAY I4( VALUETYPE [04000002] )]
+MethodDef 0085[000014ac] [Flags: 000001c6] [RVA: 09eb] Microsoft.SPOT.Hardware.HardwareProvider::GetAnalogOutputChannelsCount [METHOD I4()]
+MethodDef 0086[000014bc] [Flags: 000001c6] [RVA: 09f0] Microsoft.SPOT.Hardware.HardwareProvider::GetAnalogOutputPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [04000003] )]
+MethodDef 0087[000014cc] [Flags: 000001c6] [RVA: 09f6] Microsoft.SPOT.Hardware.HardwareProvider::GetAvailableAnalogOutputPrecisionInBitsForChannel [METHOD SZARRAY I4( VALUETYPE [04000003] )]
+MethodDef 0088[000014dc] [Flags: 000001c6] [RVA: 09fc] Microsoft.SPOT.Hardware.HardwareProvider::GetPinsCount [METHOD I4()]
+MethodDef 0089[000014ec] [Flags: 000001c6] [RVA: 0a01] Microsoft.SPOT.Hardware.HardwareProvider::GetPinsMap [METHOD VOID( BYREF SZARRAY VALUETYPE [04000031], BYREF I4 )]
+MethodDef 008a[000014fc] [Flags: 000001c6] [RVA: 0a15] Microsoft.SPOT.Hardware.HardwareProvider::GetPinsUsage [METHOD VALUETYPE [04000031]( VALUETYPE [04000030] )]
+MethodDef 008b[0000150c] [Flags: 000001c6] [RVA: 0a1b] Microsoft.SPOT.Hardware.HardwareProvider::GetSupportedResistorModes [METHOD VALUETYPE [04000033]( VALUETYPE [04000030] )]
+MethodDef 008c[0000151c] [Flags: 000001c6] [RVA: 0a21] Microsoft.SPOT.Hardware.HardwareProvider::GetSupportedInterruptModes [METHOD VALUETYPE [04000032]( VALUETYPE [04000030] )]
+MethodDef 008d[0000152c] [Flags: 000001c6] [RVA: 0a27] Microsoft.SPOT.Hardware.HardwareProvider::GetButtonPins [METHOD VALUETYPE [04000030]( VALUETYPE [04000016] )]
+MethodDef 008e[0000153c] [Flags: 000001c6] [RVA: 0a2d] Microsoft.SPOT.Hardware.HardwareProvider::GetLCDMetrics [METHOD VOID( BYREF I4, BYREF I4, BYREF I4, BYREF I4 )]
+MethodDef 008f[0000154c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSerialPins [METHOD VOID( I4, BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 0090[0000155c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSerialPortsCount [METHOD I4()]
+MethodDef 0091[0000156c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeSupportsNonStandardBaudRate [METHOD BOOLEAN( I4 )]
+MethodDef 0092[0000157c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetBaudRateBoundary [METHOD VOID( I4, BYREF U4, BYREF U4 )]
+MethodDef 0093[0000158c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeIsSupportedBaudRate [METHOD BOOLEAN( I4, BYREF U4 )]
+MethodDef 0094[0000159c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSpiPins [METHOD VOID( VALUETYPE [04000035], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 0095[000015ac] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSpiPortsCount [METHOD I4()]
+MethodDef 0096[000015bc] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetI2CPins [METHOD VOID( BYREF VALUETYPE [04000030], BYREF VALUETYPE [04000030] )]
+MethodDef 0097[000015cc] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetPinsCount [METHOD I4()]
+MethodDef 0098[000015dc] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetPinsMap [METHOD VOID( SZARRAY VALUETYPE [04000031] )]
+MethodDef 0099[000015ec] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetPinUsage [METHOD VALUETYPE [04000031]( VALUETYPE [04000030] )]
+MethodDef 009a[000015fc] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSupportedResistorModes [METHOD VALUETYPE [04000033]( VALUETYPE [04000030] )]
+MethodDef 009b[0000160c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetSupportedInterruptModes [METHOD VALUETYPE [04000032]( VALUETYPE [04000030] )]
+MethodDef 009c[0000161c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetButtonPins [METHOD VALUETYPE [04000030]( VALUETYPE [04000016] )]
+MethodDef 009d[0000162c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetLCDMetrics [METHOD VOID( BYREF I4, BYREF I4, BYREF I4, BYREF I4 )]
+MethodDef 009e[0000163c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetPWMChannelsCount [METHOD I4()]
+MethodDef 009f[0000164c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetPWMPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [0400002f] )]
+MethodDef 00a0[0000165c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAnalogChannelsCount [METHOD I4()]
+MethodDef 00a1[0000166c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAnalogPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [04000002] )]
+MethodDef 00a2[0000167c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAvailablePrecisionInBitsForChannel [METHOD SZARRAY I4( VALUETYPE [04000002] )]
+MethodDef 00a3[0000168c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAnalogOutputChannelsCount [METHOD I4()]
+MethodDef 00a4[0000169c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAnalogOutputPinForChannel [METHOD VALUETYPE [04000030]( VALUETYPE [04000003] )]
+MethodDef 00a5[000016ac] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.HardwareProvider::NativeGetAvailableAnalogOutputPrecisionInBitsForChannel [METHOD SZARRAY I4( VALUETYPE [04000003] )]
+MethodDef 00a6[000016bc] [Flags: 00001486] [RVA: 0a37] Microsoft.SPOT.Hardware.HardwareProvider::.ctor [METHOD VOID()]
+MethodDef 00a7[000016cc] [Flags: 00000096] [RVA: 0a3c] Microsoft.SPOT.Hardware.HardwareProvider::Register [METHOD VOID( CLASS [04000018] )]
+MethodDef 00a8[000016dc] [Flags: 00000496] [RVA: 0a41] Microsoft.SPOT.Hardware.HardwareProvider::get_HwProvider [METHOD CLASS [04000018]()]
+MethodDef 00a9[000016ec] [Flags: 00002491] [RVA: 0a50] Microsoft.SPOT.Hardware.HardwareProvider::.cctor [METHOD VOID()]
+MethodDef 00aa[000016fc] [Flags: 00001486] [RVA: 0a51] Microsoft.SPOT.Hardware.InputPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, VALUETYPE [04000034] )]
+MethodDef 00ab[0000170c] [Flags: 00001484] [RVA: 0a5a] Microsoft.SPOT.Hardware.InputPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, VALUETYPE [04000034], VALUETYPE [04000011] )]
+MethodDef 00ac[0000171c] [Flags: 00001484] [RVA: 0a64] Microsoft.SPOT.Hardware.InputPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, BOOLEAN, VALUETYPE [04000034] )]
+MethodDef 00ad[0000172c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InputPort::get_Resistor [METHOD VALUETYPE [04000034]()]
+MethodDef 00ae[0000173c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InputPort::set_Resistor [METHOD VOID( VALUETYPE [04000034] )]
+MethodDef 00af[0000174c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InputPort::get_GlitchFilter [METHOD BOOLEAN()]
+MethodDef 00b0[0000175c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InputPort::set_GlitchFilter [METHOD VOID( BOOLEAN )]
+MethodDef 00b1[0000176c] [Flags: 000000c6] [RVA: ffff] Microsoft.SPOT.Hardware.InterruptPort::EnableInterrupt [METHOD VOID()]
+MethodDef 00b2[0000177c] [Flags: 000000c6] [RVA: ffff] Microsoft.SPOT.Hardware.InterruptPort::DisableInterrupt [METHOD VOID()]
+MethodDef 00b3[0000178c] [Flags: 00001486] [RVA: 0a6e] Microsoft.SPOT.Hardware.InterruptPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, VALUETYPE [04000034], VALUETYPE [04000011] )]
+MethodDef 00b4[0000179c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.InterruptPort::ClearInterrupt [METHOD VOID()]
+MethodDef 00b5[000017ac] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InterruptPort::get_Interrupt [METHOD VALUETYPE [04000011]()]
+MethodDef 00b6[000017bc] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.InterruptPort::set_Interrupt [METHOD VOID( VALUETYPE [04000011] )]
+MethodDef 00b7[000017cc] [Flags: 400040c4] [RVA: 0a82] Microsoft.SPOT.Hardware.LargeBuffer::Finalize [METHOD VOID()]
+MethodDef 00b8[000017dc] [Flags: 000001e6] [RVA: 0a9c] Microsoft.SPOT.Hardware.LargeBuffer::Dispose [METHOD VOID()]
+MethodDef 00b9[000017ec] [Flags: 00001486] [RVA: 0aa6] Microsoft.SPOT.Hardware.LargeBuffer::.ctor [METHOD VOID( I4 )]
+MethodDef 00ba[000017fc] [Flags: 41000081] [RVA: 0aba] Microsoft.SPOT.Hardware.LargeBuffer::Dispose [METHOD VOID( BOOLEAN )]
+MethodDef 00bb[0000180c] [Flags: 00000486] [RVA: 0ae5] Microsoft.SPOT.Hardware.LargeBuffer::get_Bytes [METHOD SZARRAY U1()]
+MethodDef 00bc[0000181c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBuffer::InternalCreateBuffer [METHOD VOID( I4 )]
+MethodDef 00bd[0000182c] [Flags: 00000081] [RVA: ffff] Microsoft.SPOT.Hardware.LargeBuffer::InternalDestroyBuffer [METHOD VOID()]
+MethodDef 00be[0000183c] [Flags: 000201c6] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventHandler::Invoke [METHOD VOID( U4, U4, VALUETYPE [01000009] )]
+MethodDef 00bf[0000184c] [Flags: 000401c6] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventHandler::BeginInvoke [METHOD CLASS [0100000c]( U4, U4, VALUETYPE [01000009], CLASS [0100000d], OBJECT )]
+MethodDef 00c0[0000185c] [Flags: 000801c6] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 00c1[0000186c] [Flags: 00011486] [RVA: ffff] Microsoft.SPOT.Hardware.NativeEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 00c2[0000187c] [Flags: 00001486] [RVA: 0aea] Microsoft.SPOT.Hardware.OutputPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN )]
+MethodDef 00c3[0000188c] [Flags: 00001484] [RVA: 0af1] Microsoft.SPOT.Hardware.OutputPort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, BOOLEAN, VALUETYPE [04000034] )]
+MethodDef 00c4[0000189c] [Flags: 00000086] [RVA: ffff] Microsoft.SPOT.Hardware.OutputPort::Write [METHOD VOID( BOOLEAN )]
+MethodDef 00c5[000018ac] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.OutputPort::get_InitialState [METHOD BOOLEAN()]
+MethodDef 00c6[000018bc] [Flags: 00001486] [RVA: 0afb] Microsoft.SPOT.Hardware.PowerEvent::.ctor [METHOD VOID()]
+MethodDef 00c7[000018cc] [Flags: 000201c6] [RVA: ffff] Microsoft.SPOT.Hardware.PowerLevelChangeEventHandler::Invoke [METHOD VOID( CLASS [0400001e] )]
+MethodDef 00c8[000018dc] [Flags: 000401c6] [RVA: ffff] Microsoft.SPOT.Hardware.PowerLevelChangeEventHandler::BeginInvoke [METHOD CLASS [0100000c]( CLASS [0400001e], CLASS [0100000d], OBJECT )]
+MethodDef 00c9[000018ec] [Flags: 000801c6] [RVA: ffff] Microsoft.SPOT.Hardware.PowerLevelChangeEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 00ca[000018fc] [Flags: 00011486] [RVA: ffff] Microsoft.SPOT.Hardware.PowerLevelChangeEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 00cb[0000190c] [Flags: 01000496] [RVA: 0b00] Microsoft.SPOT.Hardware.PowerState::add_OnSleepChange [METHOD VOID( CLASS [04000026] )]
+MethodDef 00cc[0000191c] [Flags: 01000496] [RVA: 0b0e] Microsoft.SPOT.Hardware.PowerState::remove_OnSleepChange [METHOD VOID( CLASS [04000026] )]
+MethodDef 00cd[0000192c] [Flags: 01000496] [RVA: 0b1c] Microsoft.SPOT.Hardware.PowerState::add_OnPowerLevelChange [METHOD VOID( CLASS [04000021] )]
+MethodDef 00ce[0000193c] [Flags: 01000496] [RVA: 0b2a] Microsoft.SPOT.Hardware.PowerState::remove_OnPowerLevelChange [METHOD VOID( CLASS [04000021] )]
+MethodDef 00cf[0000194c] [Flags: 01000496] [RVA: 0b38] Microsoft.SPOT.Hardware.PowerState::add_OnRebootEvent [METHOD VOID( CLASS [04000025] )]
+MethodDef 00d0[0000195c] [Flags: 01000496] [RVA: 0b46] Microsoft.SPOT.Hardware.PowerState::remove_OnRebootEvent [METHOD VOID( CLASS [04000025] )]
+MethodDef 00d1[0000196c] [Flags: 00000096] [RVA: 0b54] Microsoft.SPOT.Hardware.PowerState::Sleep [METHOD VOID( VALUETYPE [04000029], VALUETYPE [04000017] )]
+MethodDef 00d2[0000197c] [Flags: 00000096] [RVA: 0b80] Microsoft.SPOT.Hardware.PowerState::ChangePowerLevel [METHOD VOID( VALUETYPE [04000020] )]
+MethodDef 00d3[0000198c] [Flags: 00000096] [RVA: 0bb1] Microsoft.SPOT.Hardware.PowerState::RebootDevice [METHOD VOID( BOOLEAN )]
+MethodDef 00d4[0000199c] [Flags: 40000096] [RVA: 0bb7] Microsoft.SPOT.Hardware.PowerState::RebootDevice [METHOD VOID( BOOLEAN, I4 )]
+MethodDef 00d5[000019ac] [Flags: 00000093] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::Reboot [METHOD VOID( BOOLEAN )]
+MethodDef 00d6[000019bc] [Flags: 00000096] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::WaitForIdleCPU [METHOD BOOLEAN( I4, I4 )]
+MethodDef 00d7[000019cc] [Flags: 00000496] [RVA: 0bee] Microsoft.SPOT.Hardware.PowerState::get_CurrentPowerLevel [METHOD VALUETYPE [04000020]()]
+MethodDef 00d8[000019dc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::get_MaximumTimeToActive [METHOD VALUETYPE [01000008]()]
+MethodDef 00d9[000019ec] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::set_MaximumTimeToActive [METHOD VOID( VALUETYPE [01000008] )]
+MethodDef 00da[000019fc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::get_WakeupEvents [METHOD VALUETYPE [04000017]()]
+MethodDef 00db[00001a0c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::set_WakeupEvents [METHOD VOID( VALUETYPE [04000017] )]
+MethodDef 00dc[00001a1c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::get_Uptime [METHOD VALUETYPE [01000008]()]
+MethodDef 00dd[00001a2c] [Flags: 00002491] [RVA: 0bf2] Microsoft.SPOT.Hardware.PowerState::.cctor [METHOD VOID()]
+MethodDef 00de[00001a3c] [Flags: 00000093] [RVA: 0c14] Microsoft.SPOT.Hardware.PowerState::PostEvent [METHOD VOID( CLASS [01000005] )]
+MethodDef 00df[00001a4c] [Flags: 00000091] [RVA: 0c24] Microsoft.SPOT.Hardware.PowerState::MessageHandler [METHOD VOID( OBJECT )]
+MethodDef 00e0[00001a5c] [Flags: 00000091] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::InternalSleep [METHOD VOID( VALUETYPE [04000029], VALUETYPE [04000017] )]
+MethodDef 00e1[00001a6c] [Flags: 00000091] [RVA: ffff] Microsoft.SPOT.Hardware.PowerState::InternalChangePowerLevel [METHOD VOID( VALUETYPE [04000020] )]
+MethodDef 00e2[00001a7c] [Flags: 000001e6] [RVA: 0c59] Microsoft.SPOT.Hardware.PowerStateEventListener::InitializeForEventSource [METHOD VOID()]
+MethodDef 00e3[00001a8c] [Flags: 000001e6] [RVA: 0c5a] Microsoft.SPOT.Hardware.PowerStateEventListener::OnEvent [METHOD BOOLEAN( CLASS [01000005] )]
+MethodDef 00e4[00001a9c] [Flags: 00001486] [RVA: 0c78] Microsoft.SPOT.Hardware.PowerStateEventListener::.ctor [METHOD VOID()]
+MethodDef 00e5[00001aac] [Flags: 000001e6] [RVA: 0c7d] Microsoft.SPOT.Hardware.PowerStateEventProcessor::ProcessEvent [METHOD CLASS [01000005]( U4, U4, VALUETYPE [01000009] )]
+MethodDef 00e6[00001abc] [Flags: 00001486] [RVA: 0ccc] Microsoft.SPOT.Hardware.PowerStateEventProcessor::.ctor [METHOD VOID()]
+MethodDef 00e7[00001acc] [Flags: 000201c6] [RVA: ffff] Microsoft.SPOT.Hardware.RebootEventHandler::Invoke [METHOD VOID( BOOLEAN )]
+MethodDef 00e8[00001adc] [Flags: 000401c6] [RVA: ffff] Microsoft.SPOT.Hardware.RebootEventHandler::BeginInvoke [METHOD CLASS [0100000c]( BOOLEAN, CLASS [0100000d], OBJECT )]
+MethodDef 00e9[00001aec] [Flags: 000801c6] [RVA: ffff] Microsoft.SPOT.Hardware.RebootEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 00ea[00001afc] [Flags: 00011486] [RVA: ffff] Microsoft.SPOT.Hardware.RebootEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 00eb[00001b0c] [Flags: 000201c6] [RVA: ffff] Microsoft.SPOT.Hardware.SleepChangeEventHandler::Invoke [METHOD VOID( CLASS [04000027] )]
+MethodDef 00ec[00001b1c] [Flags: 000401c6] [RVA: ffff] Microsoft.SPOT.Hardware.SleepChangeEventHandler::BeginInvoke [METHOD CLASS [0100000c]( CLASS [04000027], CLASS [0100000d], OBJECT )]
+MethodDef 00ed[00001b2c] [Flags: 000801c6] [RVA: ffff] Microsoft.SPOT.Hardware.SleepChangeEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 00ee[00001b3c] [Flags: 00011486] [RVA: ffff] Microsoft.SPOT.Hardware.SleepChangeEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 00ef[00001b4c] [Flags: 00001486] [RVA: 0cd1] Microsoft.SPOT.Hardware.SleepEvent::.ctor [METHOD VOID()]
+MethodDef 00f0[00001b5c] [Flags: 00001486] [RVA: 0cd6] Microsoft.SPOT.Hardware.TristatePort::.ctor [METHOD VOID( VALUETYPE [04000030], BOOLEAN, BOOLEAN, VALUETYPE [04000034] )]
+MethodDef 00f1[00001b6c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.TristatePort::get_Active [METHOD BOOLEAN()]
+MethodDef 00f2[00001b7c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.TristatePort::set_Active [METHOD VOID( BOOLEAN )]
+MethodDef 00f3[00001b8c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.TristatePort::get_Resistor [METHOD VALUETYPE [04000034]()]
+MethodDef 00f4[00001b9c] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.TristatePort::set_Resistor [METHOD VOID( VALUETYPE [04000034] )]
+MethodDef 00f5[00001bac] [Flags: 00000486] [RVA: ffff] Microsoft.SPOT.Hardware.TristatePort::get_GlitchFilter [METHOD BOOLEAN()]
+MethodDef 00f6[00001bbc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::get_Enabled [METHOD BOOLEAN()]
+MethodDef 00f7[00001bcc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::set_Enabled [METHOD VOID( BOOLEAN )]
+MethodDef 00f8[00001bdc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::get_Timeout [METHOD VALUETYPE [01000008]()]
+MethodDef 00f9[00001bec] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::set_Timeout [METHOD VOID( VALUETYPE [01000008] )]
+MethodDef 00fa[00001bfc] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::get_Behavior [METHOD VALUETYPE [0400002c]()]
+MethodDef 00fb[00001c0c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::set_Behavior [METHOD VOID( VALUETYPE [0400002c] )]
+MethodDef 00fc[00001c1c] [Flags: 00000496] [RVA: 0ce0] Microsoft.SPOT.Hardware.Watchdog::get_LastOccurrence [METHOD CLASS [0400002d]()]
+MethodDef 00fd[00001c2c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::get_Log [METHOD CLASS [0100000f]()]
+MethodDef 00fe[00001c3c] [Flags: 00000496] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::set_Log [METHOD VOID( CLASS [0100000f] )]
+MethodDef 00ff[00001c4c] [Flags: 00000091] [RVA: ffff] Microsoft.SPOT.Hardware.Watchdog::GetLastOcurrenceDetails [METHOD BOOLEAN( BYREF VALUETYPE [01000009], BYREF VALUETYPE [01000008], BYREF CLASS [0100000e] )]
+MethodDef 0100[00001c5c] [Flags: 00001483] [RVA: 0cf4] Microsoft.SPOT.Hardware.WatchdogEvent::.ctor [METHOD VOID( VALUETYPE [01000009], VALUETYPE [01000008], CLASS [0100000e] )]
+MethodDef 0101[00001c6c] [Flags: 00001484] [RVA: 0d08] Microsoft.SPOT.Hardware.WatchdogException::.ctor [METHOD VOID()]
+MethodDef 0102[00001c7c] [Flags: 00001486] [RVA: 0d0d] System.IO.Ports.Serial::.ctor [METHOD VOID()]
+MethodDef 0103[00001c8c] [Flags: 00001483] [RVA: 0d12] System.IO.Ports.SerialDataReceivedEventArgs::.ctor [METHOD VOID( VALUETYPE [0400003a] )]
+MethodDef 0104[00001c9c] [Flags: 00000486] [RVA: 0d1c] System.IO.Ports.SerialDataReceivedEventArgs::get_EventType [METHOD VALUETYPE [0400003a]()]
+MethodDef 0105[00001cac] [Flags: 000201c6] [RVA: ffff] System.IO.Ports.SerialDataReceivedEventHandler::Invoke [METHOD VOID( OBJECT, CLASS [0400003b] )]
+MethodDef 0106[00001cbc] [Flags: 000401c6] [RVA: ffff] System.IO.Ports.SerialDataReceivedEventHandler::BeginInvoke [METHOD CLASS [0100000c]( OBJECT, CLASS [0400003b], CLASS [0100000d], OBJECT )]
+MethodDef 0107[00001ccc] [Flags: 000801c6] [RVA: ffff] System.IO.Ports.SerialDataReceivedEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 0108[00001cdc] [Flags: 00011486] [RVA: ffff] System.IO.Ports.SerialDataReceivedEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 0109[00001cec] [Flags: 00001483] [RVA: 0d21] System.IO.Ports.SerialErrorReceivedEventArgs::.ctor [METHOD VOID( VALUETYPE [0400003d] )]
+MethodDef 010a[00001cfc] [Flags: 00000486] [RVA: 0d2b] System.IO.Ports.SerialErrorReceivedEventArgs::get_EventType [METHOD VALUETYPE [0400003d]()]
+MethodDef 010b[00001d0c] [Flags: 000201c6] [RVA: ffff] System.IO.Ports.SerialErrorReceivedEventHandler::Invoke [METHOD VOID( OBJECT, CLASS [0400003e] )]
+MethodDef 010c[00001d1c] [Flags: 000401c6] [RVA: ffff] System.IO.Ports.SerialErrorReceivedEventHandler::BeginInvoke [METHOD CLASS [0100000c]( OBJECT, CLASS [0400003e], CLASS [0100000d], OBJECT )]
+MethodDef 010d[00001d2c] [Flags: 000801c6] [RVA: ffff] System.IO.Ports.SerialErrorReceivedEventHandler::EndInvoke [METHOD VOID( CLASS [0100000c] )]
+MethodDef 010e[00001d3c] [Flags: 00011486] [RVA: ffff] System.IO.Ports.SerialErrorReceivedEventHandler::.ctor [METHOD VOID( OBJECT, I4 )]
+MethodDef 010f[00001d4c] [Flags: 00000093] [RVA: 0d30] System.IO.Ports.SerialPortName::ConvertNameToIndex [METHOD I4( STRING )]

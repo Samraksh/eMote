@@ -1,0 +1,12 @@
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.OneWire.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.Hardware.OneWire.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Hardware.OneWire\__COMMON\Microsoft.SPOT.Hardware.OneWire.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Microsoft.SPOT.Hardware.OneWire\__COMMON\Microsoft.SPOT.Hardware.OneWire.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\le\Microsoft.SPOT.Hardware.OneWire.strings
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\le\Microsoft.SPOT.Hardware.OneWire.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\le\Microsoft.SPOT.Hardware.OneWire.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\be\Microsoft.SPOT.Hardware.OneWire.strings
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\be\Microsoft.SPOT.Hardware.OneWire.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\pe\be\Microsoft.SPOT.Hardware.OneWire.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\txt\Microsoft.SPOT.Hardware.OneWire_exports2.txt
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\dumps\Microsoft.SPOT.Hardware.OneWire.dump
