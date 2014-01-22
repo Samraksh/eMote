@@ -103,6 +103,8 @@ typedef struct _datastore_properties
 
 
 
+/* If position or value of activeFlag is changed, change corresponding bit value in file - P30BF65NOR.cpp -
+ * in function - P30BF65NOR_Driver::WriteHalfWord. At present activeFlag is the 4th bit. */
 typedef struct _record_header
 {
     char zero:1;

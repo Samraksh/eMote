@@ -309,8 +309,15 @@ DeviceStatus P30BF65NOR_Driver::WriteHalfWord(UINT32 WriteAddr, UINT16 data)
 	}
 
 	// Check to see if you are writing to an unerased location, return failure if that is true
-	// The 4th bit should be zero in incoming "data" and should be one (1000) at writeAddr.
+	// The 4th bit (activeFlag bit in record header) should be zero (inactive) in incoming "data" and should be one (1000) at corresponding writeAddr.
 	// Raise error if above condition is not met.
+	/* 4th bit is the activeFlag bit in a record_header
+	 * typedef struct _record_header
+	   {
+    	char zero:1;
+    	uint32 dataType:2;
+    	uint32 activeFlag:1;
+    */
 	if(ReadHalfWord(WriteAddr) != 0xffff)
 	{
 		if((CHECK_BIT(data,4)) != 0)

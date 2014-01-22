@@ -610,6 +610,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         private static int counter = 0;
         /// <summary>
+        /// For synchronization between multiple threads
+        /// </summary>
+        private static object syncObject = new Object();
+        /// <summary>
         /// HashTable for storing multiple instances of DataStore initialized to different block storage devices
         /// </summary>
         private static System.Collections.Hashtable dataStoreInstances = new System.Collections.Hashtable();
@@ -629,9 +633,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             {
                 if (DSInstance == null)
                 {
-                    DSInstance = new DataStore();
-                    ++counter;
-                    dataStoreInstances.Add(counter, DSInstance);
+                    lock (syncObject)
+                    {
+                        DSInstance = new DataStore();
+                        ++counter;
+                        dataStoreInstances.Add(counter, DSInstance);
+                    }
                 }
                 return (DataStore)(dataStoreInstances[counter]);
             }
@@ -673,7 +680,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Size of the DataStore in Kilo Bytes
+        /// Size of the DataStore in bytes
         /// </summary>
         public float Size
         {
@@ -684,7 +691,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Number of Kilo Bytes of space already occupied by data
+        /// Number of bytes of space already occupied by data
         /// </summary>
         public float UsedBytes
         {
@@ -695,7 +702,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Number of Kilo Bytes of space available to store data
+        /// Number of bytes of space available to store data
         /// </summary>
         public float FreeBytes
         {

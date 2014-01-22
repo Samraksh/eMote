@@ -1,5 +1,5 @@
 @echo off
 
-SET TESTSOURCE=D:\AnanthAtSamraksh\TestSuite
+SET TESTSOURCE=D:\AnanthAtSamraksh
 
 setenv_gcc.cmd 4.2.1 D:\AnanthAtSamraksh\Tools\codesourcery
