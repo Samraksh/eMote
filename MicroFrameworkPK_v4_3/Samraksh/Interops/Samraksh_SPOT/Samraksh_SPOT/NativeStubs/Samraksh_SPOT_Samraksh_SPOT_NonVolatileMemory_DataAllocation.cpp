@@ -13,31 +13,34 @@
 
 #include "Samraksh_SPOT.h"
 #include "Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation.h"
+#include <Samraksh\DataStore\Datastore.h>
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
-INT32 DataAllocation::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+extern Data_Store g_dataStoreObject;
+
+INT32 DataAllocation::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	return (INT32)g_dataStoreObject.getAddress(dataId);
 }
 
-UINT32 DataAllocation::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+UINT32 DataAllocation::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
-    return retVal;
+	return g_dataStoreObject.getDataType(dataId);
 }
 
-UINT32 DataAllocation::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+UINT32 DataAllocation::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.getAllocationSize(dataId);
 }
 
-INT8 DataAllocation::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+INT8 DataAllocation::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    g_dataStoreObject.deleteRecord(dataId);
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return true;
+	else
+		return false;
 }
 
 UINT32 DataAllocation::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
@@ -46,9 +49,8 @@ UINT32 DataAllocation::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, 
     return retVal;
 }
 
-INT8 DataAllocation::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+INT8 DataAllocation::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return g_dataStoreObject.deleteRecord(dataId);
 }
 

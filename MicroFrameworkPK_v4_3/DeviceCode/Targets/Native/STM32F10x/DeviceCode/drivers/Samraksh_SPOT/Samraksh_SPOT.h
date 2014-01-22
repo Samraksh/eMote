@@ -15,7 +15,8 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
 {
     static const int FIELD_STATIC__DSInstance = 0;
     static const int FIELD_STATIC__counter = 1;
-    static const int FIELD_STATIC__dataStoreInstances = 2;
+    static const int FIELD_STATIC__syncObject = 2;
+    static const int FIELD_STATIC__dataStoreInstances = 3;
 
     static const int FIELD__storageType = 1;
 
