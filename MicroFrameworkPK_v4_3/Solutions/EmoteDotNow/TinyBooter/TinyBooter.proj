@@ -103,7 +103,7 @@
   -->
   <ItemGroup>
     <DriverLibs Include="Tasklet.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\bh\dotNetMF_stubs.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\bh\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="GlobalLock_hal.$(LIB_EXT)" />
