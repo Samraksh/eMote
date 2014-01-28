@@ -25,7 +25,7 @@ ErrorStatus HSEStartUpStatus;
 
 static void RCC_Configuration(void);
 
-
+// This function should be unused.
 static void SetSysClockTo72(void)
 {
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
@@ -175,99 +175,57 @@ void LowLevelInit (void)
 
 }
 
-// RCC_Configuration : Controls the speed at which the System Clock, ADCClock, AHB, APB1 and APB2 run
-//  System Clock runs off the HSI at 48 Mhz
-//  ADC Clock runs at 12 Mhz
-//  HCLK, AHB run at 48 Mhz
-//  APB2 runs at 24 Mhz
-//  APB1 runs at 24 Mhz
+/*
+	RCC_Configuration : Controls the speed at which the System Clock, ADCClock, AHB, APB1 and APB2 run
+	SYSCLK runs from HSI at 8 Mhz
+	ADC Clock runs at 4 Mhz
+	HCLK, AHB run at 8 Mhz
+	APB2 runs at 8 Mhz
+	APB1 runs at 8 Mhz
+	
+	Nathan, 2014-01-28 
+*/
 static void RCC_Configuration(void)
 {
-
   RCC_DeInit();
 
+/* RTC clock and backup domain init. Not fully tested. Do not use (yet).
+  PWR_BackupAccessCmd(ENABLE);
+  BKP_DeInit();
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR,ENABLE);
+  RCC_LSEConfig(RCC_LSE_ON);
+  //while ( RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET ) { }	// Wait for LSE ready (working???)
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+  RCC_RTCCLKCmd(ENABLE);
+  RTC_WaitForLastTask();
+  RTC_WaitForSynchro();
+  RTC_WaitForLastTask();
+  BKP_RTCOutputConfig(BKP_RTCOutputSource_None);
+  */ // End RTC init Code
+
+  // Disable things we aren't using. Should be redunant.
+  RCC_PLLCmd(DISABLE);
   RCC_HSEConfig(RCC_HSE_OFF);
+  PWR_PVDCmd(DISABLE);
+  //RCC_LSICmd(DISABLE);
+  //PWR_WakeUpPinCmd(ENABLE);
+  
+  // Internal flash setup.
+  FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+  FLASH_SetLatency(FLASH_Latency_0); // 0 Wait states <= 24 MHz. Set to 1 for <= 48 MHz
+  
+  // Low power "numerical mode" flash. Here for reference only, conflicts with above.
+  //FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
+  //FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
 
-  //HSEStartUpStatus = RCC_WaitForHSEStartUp();
+  // Bus clocks... all defaults are fine (e.g. 1, or 2 for ADC).
+  //RCC_HCLKConfig(RCC_SYSCLK_Div1);
+  //RCC_PCLK2Config(RCC_HCLK_Div1);
+  //RCC_PCLK1Config(RCC_HCLK_Div1);
+  //RCC_ADCCLKConfig(RCC_PCLK2_Div2); // div2 is lowest setting --> 4 MHz
 
-
-  //if(HSEStartUpStatus == SUCCESS_STATUS)
-  //{
-
-    //hal_printf("Enable Prefetch Buffer/n");
-//#ifdef TINYCLR_SOLO
-    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-
-    //hal_printf("Flash 2 wait state/n");
-    FLASH_SetLatency(FLASH_Latency_1);
-//#endif
-    //hal_printf("/* HCLK = SYSCLK *//n");
-    RCC_HCLKConfig(RCC_SYSCLK_Div1);
-
-    //hal_printf("/* PCLK2 = HCLK *//n");
-    RCC_PCLK2Config(RCC_HCLK_Div1);
-
-    //hal_printf("/* PCLK1 = HCLK/2 *//n");
-    //Kartik : Changed it to RCC_HCLK_Div1 from RCC_HCLK_Div2
-    RCC_PCLK1Config(RCC_HCLK_Div2);
-
-    //hal_printf("/* ADCCLK = PCLK2/4 *//n");
-    RCC_ADCCLKConfig(RCC_PCLK2_Div4);
-
-    // Enabling FSMC peripheral clock here
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
-
-    //hal_printf("/* PLLCLK = 8MHz * 7 = 56 MHz *//n");
-    //RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_7);
-	//RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
-    RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
-
-    //hal_printf("/* Enable PLL *//n");
-    RCC_PLLCmd(ENABLE);
-
-
-    //hal_printf("/* Wait till PLL is ready *//n");
-    while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET)
-    {
-    }
-
-    //hal_printf("/* Select PLL as system clock source *//n");
-    //RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-	// Kartik : Change made to system clock from 72 to 8 Mhz; It is now powered of the HSI Oscillator
-    //	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-
-    //hal_printf("/* Wait till PLL is used as system clock source *//n");
-    //while(RCC_GetSYSCLKSource() != 0x00) //if sysclk is HSI
-	while(RCC_GetSYSCLKSource() != 0x08)	//if sysclk is PLL
-    {
-    }
-
-
-  //}
-
-/* Enable peripheral clocks --------------------------------------------------*/
-
-
-  //hal_printf("/* Enable DMA clock *//n");
-  //RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
-
-  //hal_printf("/* Enable ADC1 and GPIOC clock *//n");
-  //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA, ENABLE);
-
-  //hal_printf("/* Enable Peripheral on ABP1 : Timet TIM3 Clock Enable*//n");
-  //RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM2, ENABLE);
-
-  //hal_printf("/* Enable USART1 clock if Thermal Noise or Oversampling test is undertaken *//n");
-
-  //Enable LEDs
-  //STM_EVAL_LEDInit((Led_TypeDef)0);
-  //STM_EVAL_LEDInit((Led_TypeDef)1);
-  //STM_EVAL_LEDInit((Led_TypeDef)2);
-  //STM_EVAL_LEDInit((Led_TypeDef)3);
-
-
+  // Enabling FSMC peripheral clock here
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
 }
 
 
