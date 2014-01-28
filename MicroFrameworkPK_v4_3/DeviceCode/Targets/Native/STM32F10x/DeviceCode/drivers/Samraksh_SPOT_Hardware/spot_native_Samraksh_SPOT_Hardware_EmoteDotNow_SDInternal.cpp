@@ -92,7 +92,7 @@ void ManagedSDCallback(DeviceStatus status)
 void ISR_sdProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
     GLOBAL_LOCK(irq);
-    SaveNativeEventToHALQueue( pContext, UINT32(g_sdUserData >> 16), UINT32(g_sdUserData & 0xFFFFFFFF) );
+    SaveNativeEventToHALQueue( pContext, UINT32(g_sdUserData >> 32), UINT32(g_sdUserData & 0xFFFFFFFF) );
 }
 
 static const CLR_RT_DriverInterruptMethods g_SDInteropDriverMethods =

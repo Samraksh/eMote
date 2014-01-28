@@ -32,7 +32,7 @@ extern "C"
 
 		 g_adcUserData = *((UINT64 *) param);
 
-		 SaveNativeEventToHALQueue( g_adcContext, UINT32(g_adcUserData >> 16), UINT32(g_adcUserData & 0xFFFFFFFF) );
+		 SaveNativeEventToHALQueue( g_adcContext, UINT32(g_adcUserData >> 32), UINT32(g_adcUserData & 0xFFFFFFFF) );
 	}
 }
 
@@ -122,7 +122,7 @@ static HRESULT CleanupADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContex
 void ISR_adcProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
     GLOBAL_LOCK(irq);
-    SaveNativeEventToHALQueue( pContext, UINT32(g_adcUserData >> 16), UINT32(g_adcUserData & 0xFFFFFFFF) );
+    SaveNativeEventToHALQueue( pContext, UINT32(g_adcUserData >> 32), UINT32(g_adcUserData & 0xFFFFFFFF) );
 }
 
 

@@ -39,7 +39,7 @@ static void ISR_TestProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 
 {
     GLOBAL_LOCK(irq);
-    SaveNativeEventToHALQueue( pContext, UINT32(g_UserData >> 16), UINT32(g_UserData & 0xFFFFFFFF) );
+    SaveNativeEventToHALQueue( pContext, UINT32(g_UserData >> 32), UINT32(g_UserData & 0xFFFFFFFF) );
 }
 
 static const CLR_RT_DriverInterruptMethods g_InteropSampleDriverMethods = 

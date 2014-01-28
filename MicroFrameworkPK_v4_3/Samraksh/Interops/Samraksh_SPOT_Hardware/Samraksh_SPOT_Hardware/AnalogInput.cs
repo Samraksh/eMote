@@ -193,7 +193,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <param name="time"></param>
         static public void InternalCallback(uint data1, uint data2, DateTime time)
         {
-            MyCallback((data1 << 32) | data2);
+            MyCallback((long)(((long)data1 << 32) | (long)data2));
         }
     }
 
