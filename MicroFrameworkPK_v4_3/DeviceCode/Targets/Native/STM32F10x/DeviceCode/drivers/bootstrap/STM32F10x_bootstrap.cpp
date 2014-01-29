@@ -206,7 +206,7 @@ static void RCC_Configuration(void)
   BKP_RTCOutputConfig(BKP_RTCOutputSource_None);
   */ // End RTC init Code
 
-  // Disable things we aren't using. Should be redunant.
+  // Disable things we aren't using. Should be redundant.
   RCC_PLLCmd(DISABLE);
   RCC_HSEConfig(RCC_HSE_OFF);
   PWR_PVDCmd(DISABLE);
