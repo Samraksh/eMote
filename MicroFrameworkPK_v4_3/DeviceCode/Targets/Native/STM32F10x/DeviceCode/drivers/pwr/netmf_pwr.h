@@ -5,6 +5,9 @@
 #include <stm32f10x.h>
 #include <core_cm3.h>
 
+extern uint32_t SystemCoreClock;
+extern uint32_t SystemTimerClock;
+
 struct STM32F1x_Power_Driver
 {
     static const UINT32 c_SystemTime_Timer         = 2;

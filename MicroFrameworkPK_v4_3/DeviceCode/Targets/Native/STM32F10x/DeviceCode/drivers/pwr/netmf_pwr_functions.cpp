@@ -1,15 +1,17 @@
 #include <cores\arm\include\cpu.h>
 #include "netmf_pwr.h"
 
+// Deprecated
 BOOL CPU_Initialize() {
-    //return STM32F1x_Power_Driver::Initialize();
+
 }
 
+// Default to Low (8 MHz)
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
     switch(level)
     {
         case POWER_LEVEL__MID_POWER:
-			STM32F1x_Power_Driver::High_Power();
+			STM32F1x_Power_Driver::Low_Power();
             break;
 			
         case POWER_LEVEL__LOW_POWER:
@@ -21,7 +23,7 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 			break;
 			
         default:
-			STM32F1x_Power_Driver::High_Power();
+			STM32F1x_Power_Driver::Low_Power();
             break;
     }
 }

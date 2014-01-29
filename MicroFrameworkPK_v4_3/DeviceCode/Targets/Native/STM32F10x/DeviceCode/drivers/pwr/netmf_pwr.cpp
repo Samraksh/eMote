@@ -23,100 +23,90 @@ Should be able to fix that with some checking later.
 #include "../gpio/stm32f10x_gpio.h"
 
 enum stm_power_modes {
-	POWER_STATE_DEFAULT,
 	POWER_STATE_LOW,
 	POWER_STATE_HIGH,
 };
 
-static enum stm_power_modes stm_power_state;
+// Default state is LOW
+static enum stm_power_modes stm_power_state = POWER_STATE_LOW;
 
-// Start in high power (48 MHz) by default for USB
+// Deprecated. init now takes place in bootstrap section
 static void init_power() {
-	stm_power_state = POWER_STATE_DEFAULT; // default
-	RCC_DeInit();
-	PWR_DeInit();
-	RCC_HSEConfig(RCC_HSE_OFF);
-	RCC_LSEConfig(RCC_LSE_ON);
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-	RCC_RTCCLKCmd(ENABLE);
-	RCC_LSICmd(DISABLE);
-	STM32F1x_Power_Driver::High_Power();
+
 }
 
 void STM32F1x_Power_Driver::Low_Power() {
 
+	// Make sure actually changing
+	if (stm_power_state == POWER_STATE_LOW) {
+		return;
+	}
+
 	__disable_irq();
 
-	RCC_HSICmd(ENABLE);
-	RCC_HCLKConfig(RCC_SYSCLK_Div1);
-	RCC_PCLK1Config(RCC_HCLK_Div1);
-	RCC_PCLK2Config(RCC_HCLK_Div1);
+	// Set HSI (instead of PLL) as SYSCLK source
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+
+	// Spin waiting for HSI to be used.
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+
+	// Disable (now unused) PLL
 	RCC_PLLCmd(DISABLE);
+
+	// Set Bus speeds
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 8 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div1);   // 8 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div2); // 4 MHz
+
+	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+	FLASH_SetLatency(FLASH_Latency_0);
+
 	stm_power_state = POWER_STATE_LOW;
-	
+	SystemCoreClock = 8000000;
+	SystemTimerClock = 8000000;
+
 	__enable_irq();
 }
 
+// Deprecated, init now in bootstrap section
 void STM32F1x_Power_Driver::High_Power() {
 
+	// Make sure actually changing
 	if (stm_power_state == POWER_STATE_HIGH) {
 		return;
 	}
 	
 	__disable_irq();
-	
-	// Put in known state before high
-	// Should already be in Low
-	//STM32F1x_Power_Driver::Low_Power();
 
-	// Set source to HSI/2 * PLL_MUL_12 = 48 MHz
+	// Setup PLL for 8/2*12 = 48 MHz
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2,RCC_PLLMul_12);
 
-	RCC_PCLK1Config(RCC_HCLK_Div2);  // 36 MHz Max, must divide by 2
-	RCC_PCLK2Config(RCC_HCLK_Div1);  // 72 MHz Max, 48 MHz ok.
+	// Set Bus Speeds
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div2);   // 24 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div2);   // 24 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div8); // 3 MHz
+
+	// Set flash speeds
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+	FLASH_SetLatency(FLASH_Latency_1);
 
 	RCC_PLLCmd(ENABLE);				 // Enable PLL
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK); // Set PLL as clock source
+
+	// Spin waiting for PLL to be used.
+	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
 	stm_power_state = POWER_STATE_HIGH;
-	
+	SystemCoreClock = 48000000;
+	SystemTimerClock = 24000000;
+
 	__enable_irq();
 }
 
+// Deprecated
 BOOL STM32F1x_Power_Driver::Initialize() {
-
-	//PWR_PVDCmd(DISABLE);
-
-#if 0
-	GPIO_InitTypeDef gpio_b_itd;
-	GPIO_InitTypeDef gpio_g_itd;
-	
-	init_power();
-	
-	// The NOR chip must be explictly powered on
-	// and then put to sleep else it will 
-	// dump current (30+ mA!) in some undefined state
-	
-	// Enable 3.3v regulator for NOR
-	GPIO_StructInit(&gpio_b_itd);
-	gpio_b_itd.GPIO_Pin = GPIO_Pin_9;
-	gpio_b_itd.GPIO_Speed = GPIO_Speed_2MHz;
-	gpio_b_itd.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOB, &gpio_b_itd);
-	GPIO_SetBits(GPIOB, GPIO_Pin_9);
-	
-	// Set NOR 'Live' pin to 0 for sleep mode
-	GPIO_StructInit(&gpio_g_itd);
-	gpio_g_itd.GPIO_Pin = GPIO_Pin_7;
-	gpio_g_itd.GPIO_Speed = GPIO_Speed_2MHz;
-	gpio_g_itd.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOG, &gpio_g_itd);
-	GPIO_ResetBits(GPIOG, GPIO_Pin_7);
-
-	// Disable 3.3v regulator
-	GPIO_ResetBits(GPIOB, GPIO_Pin_9);
-#endif
     return TRUE;
 }
 

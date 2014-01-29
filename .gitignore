@@ -1,5 +1,6 @@
 # Ignore build objects
-MicroFrameworkPK_v4_3/Framework/Core/Native_Hardware/*.cache
+*.cache
+#MicroFrameworkPK_v4_3/Framework/Core/Native_Hardware/*.cache
 
 # Ignore binaries
 MicroFrameworkPK_v4_0/BuildOutput/ARM/

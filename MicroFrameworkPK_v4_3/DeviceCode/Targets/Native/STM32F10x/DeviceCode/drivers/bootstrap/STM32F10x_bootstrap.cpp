@@ -16,6 +16,7 @@
 #include <misc/misc.h>
 #include <flash/stm32f10x_flash.h>
 #include <pwr/stm32f10x_pwr.h>
+#include <pwr/netmf_pwr.h>
 
 ErrorStatus HSEStartUpStatus;
 
@@ -186,12 +187,15 @@ void LowLevelInit (void)
 	
 	Nathan, 2014-01-28 
 */
+uint32_t SystemCoreClock;
+uint32_t SystemTimerClock;
 static void RCC_Configuration(void)
 {
   RCC_DeInit();
   
   // Tell the rest of the drivers we are running at 8 MHz.
-  uint32_t SystemCoreClock = 8000000;
+  SystemCoreClock = 8000000;
+  SystemTimerClock = 8000000;
 
 /* RTC clock and backup domain init. Not fully tested. Do not use (yet).
   PWR_BackupAccessCmd(ENABLE);
@@ -210,9 +214,6 @@ static void RCC_Configuration(void)
   // Disable things we aren't using. Should be redundant.
   RCC_PLLCmd(DISABLE);
   RCC_HSEConfig(RCC_HSE_OFF);
-  //PWR_PVDCmd(DISABLE);
-  //RCC_LSICmd(DISABLE);
-  //PWR_WakeUpPinCmd(ENABLE);
   
   // Internal flash setup.
   FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
@@ -223,10 +224,6 @@ static void RCC_Configuration(void)
   //FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
 
   // Bus clocks... all defaults are fine (e.g. 1, or 2 for ADC).
-  //RCC_HCLKConfig(RCC_SYSCLK_Div1);
-  //RCC_PCLK2Config(RCC_HCLK_Div1);
-  //RCC_PCLK1Config(RCC_HCLK_Div1);
-  //RCC_ADCCLKConfig(RCC_PCLK2_Div2); // div2 is lowest setting --> 4 MHz
 
   // Enabling FSMC peripheral clock here
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
