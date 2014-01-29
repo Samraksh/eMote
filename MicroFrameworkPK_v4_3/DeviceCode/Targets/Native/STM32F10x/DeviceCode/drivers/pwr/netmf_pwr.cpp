@@ -82,7 +82,7 @@ void STM32F1x_Power_Driver::Low_Power() {
 	__enable_irq();
 }
 
-// Deprecated, init now in bootstrap section
+
 void STM32F1x_Power_Driver::High_Power() {
 
 	// Make sure actually changing
