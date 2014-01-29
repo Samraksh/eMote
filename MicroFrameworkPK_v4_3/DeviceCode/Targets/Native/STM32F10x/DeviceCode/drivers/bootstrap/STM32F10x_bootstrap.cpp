@@ -15,6 +15,7 @@
 #include <rcc/STM32F10x_rcc.h>
 #include <misc/misc.h>
 #include <flash/stm32f10x_flash.h>
+#include <pwr/stm32f10x_pwr.h>
 
 ErrorStatus HSEStartUpStatus;
 
