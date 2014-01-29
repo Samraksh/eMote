@@ -204,6 +204,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_time\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
+    <DriverLibs Include="STM32F10x_pwr.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="tinycrt_pal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF_loader.proj" />
   </ItemGroup>
