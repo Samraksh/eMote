@@ -460,10 +460,11 @@
     <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />

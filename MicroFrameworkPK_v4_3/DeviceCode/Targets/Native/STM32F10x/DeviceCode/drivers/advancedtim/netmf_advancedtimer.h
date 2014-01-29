@@ -2,12 +2,16 @@
 #define _NETMF_ADVANCEDTIMER_H_
 
 #include <tinyhal.h>
-#include "..\tim\stm32f10x_tim.h"
-#include <gpio\stm32f10x_gpio.h>
-#include <rcc\stm32f10x_rcc.h>
+//#include "..\tim\stm32f10x_tim.h"
+#include <gpio/stm32f10x_gpio.h>
+//#include <rcc\stm32f10x_rcc.h>
 #include <intc/STM32.h>
-#include <Samraksh\Hal_util.h>
-#include <Samraksh\Tasklet.h>
+#include <Samraksh/Hal_util.h>
+#include <Samraksh/Tasklet.h>
+
+#include <tim/stm32f10x_tim.h>
+#include <rcc/stm32f10x_rcc.h>
+#include <misc/misc.h>
 
 enum TimerClockRate
 {
@@ -34,16 +38,16 @@ public:
 
 	void Initialize()
 	{
-		//systemClockHz = 48000000;
-		//systemCycleClockHz = systemClockHz;
-		//clockCommonFactor = 1000000;
-		//slowClocksPerSecond = 48000000;
-		//slowClocksTenMhzGcd = 2000000;
-		//slowClocksMillisecondGcd = 1000;
-		//ratio1 = (slowClocksPerSecond/slowClocksTenMhzGcd);
-		//ratio2 = (slowClocksPerSecond/slowClocksMillisecondGcd);
-		//ratio3 = (systemCycleClockHz/clockCommonFactor);
-		//ratio4 = (slowClocksPerSecond / ONE_MHZ);
+		systemClockHz = 48000000;
+		systemCycleClockHz = systemClockHz;
+		clockCommonFactor = 1000000;
+		slowClocksPerSecond = 48000000;
+		slowClocksTenMhzGcd = 2000000;
+		slowClocksMillisecondGcd = 1000;
+		ratio1 = (slowClocksPerSecond/slowClocksTenMhzGcd);
+		ratio2 = (slowClocksPerSecond/slowClocksMillisecondGcd);
+		ratio3 = (systemCycleClockHz/clockCommonFactor);
+		ratio4 = (slowClocksPerSecond / ONE_MHZ);
 	}
 
 };

@@ -231,7 +231,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
 
-	/* Slave Mode selection: TIM3 */
+	/* Slave Mode selection: TIM2 */
 	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
 	TIM_SelectInputTrigger(TIM2, TIM_TS_ITR0);
 
@@ -243,27 +243,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
-
-#if 0
-	 /* Channel 1 Configuration in PWM mode */
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 127;
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
-
-	TIM_OC1Init(TIM1, &TIM_OCInitStructure);
-
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1;
-
-
-    TIM_OC2Init(TIM1, &TIM_OCInitStructure);
-#endif
 
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;

@@ -62,14 +62,14 @@ void STM32F1x_Power_Driver::Low_Power() {
 	
 	// Set timer prescaler for constant 8 MHz
 	// Very not tested
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM1->PSC = 0;
+	TIM2->PSC = 0;
+	TIM_GenerateEvent(TIM1, TIM_EventSource_Update);
+	TIM_GenerateEvent(TIM2, TIM_EventSource_Update);
+	TIM_ClearFlag(TIM1, TIM_FLAG_Update);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
 	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
@@ -97,14 +97,14 @@ void STM32F1x_Power_Driver::High_Power() {
 	
 	// Set timer prescaler for constant 8 MHz
 	// Very not tested
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	TIM_TimeBaseStructure.TIM_Prescaler = 2;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM1->PSC = 2;
+	TIM2->PSC = 2;
+	TIM_GenerateEvent(TIM1, TIM_EventSource_Update);
+	TIM_GenerateEvent(TIM2, TIM_EventSource_Update);
+	TIM_ClearFlag(TIM1, TIM_FLAG_Update);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
 	// Set Bus Speeds
 	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
