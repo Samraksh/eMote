@@ -181,24 +181,16 @@ BOOL AD_GetAvailablePrecisionsForChannel( ANALOG_CHANNEL channel, INT32* precisi
 // Turn on adc/dma and tim4 clocks
 void ADC_RCC_Configuration(void)
 {
-	 RCC_ADCCLKConfig(RCC_PCLK2_Div4);
-
-		  /* Enable peripheral clocks ------------------------------------------------*/
-		  /* Enable DMA1 clock */
+	/* Enable peripheral clocks ------------------------------------------------*/
+	/* Enable DMA1 clock */
 	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
 	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
 		  /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
 	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB |
-		                         RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
+		                    RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
 
-#if 0
-   RCC_ADCCLKConfig(RCC_PCLK2_Div2);
-   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
-   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOF | RCC_APB2Periph_ADC2 | RCC_APB2Periph_ADC3 , ENABLE);
-#endif
 }
 
 BOOL ADC_NVIC_Configuration(void)
