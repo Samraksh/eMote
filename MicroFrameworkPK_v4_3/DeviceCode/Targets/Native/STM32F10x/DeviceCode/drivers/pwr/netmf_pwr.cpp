@@ -21,6 +21,7 @@ Should be able to fix that with some checking later.
 #include "../rcc/stm32f10x_rcc.h"
 #include "../flash/stm32f10x_flash.h"
 #include "../gpio/stm32f10x_gpio.h"
+#include "../tim/stm32f10x_tim.h"
 
 enum stm_power_modes {
 	POWER_STATE_LOW,
@@ -58,6 +59,17 @@ void STM32F1x_Power_Driver::Low_Power() {
 	RCC_PCLK1Config(RCC_HCLK_Div1);   // 8 MHz
 	RCC_PCLK2Config(RCC_HCLK_Div1);   // 8 MHz
 	RCC_ADCCLKConfig(RCC_PCLK2_Div2); // 4 MHz
+	
+	// Set timer prescaler for constant 8 MHz
+	// Very not tested
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
 	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
@@ -81,26 +93,40 @@ void STM32F1x_Power_Driver::High_Power() {
 	__disable_irq();
 
 	// Setup PLL for 8/2*12 = 48 MHz
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2,RCC_PLLMul_12);
+	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
+	
+	// Set timer prescaler for constant 8 MHz
+	// Very not tested
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_TimeBaseStructure.TIM_Prescaler = 2;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
 	// Set Bus Speeds
 	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
 	RCC_PCLK1Config(RCC_HCLK_Div2);   // 24 MHz
 	RCC_PCLK2Config(RCC_HCLK_Div2);   // 24 MHz
-	RCC_ADCCLKConfig(RCC_PCLK2_Div8); // 3 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div4); // 6 MHz
 
 	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 	FLASH_SetLatency(FLASH_Latency_1);
 
-	RCC_PLLCmd(ENABLE);				 // Enable PLL
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK); // Set PLL as clock source
-
-	// Spin waiting for PLL to be used.
+	// Enable PLL and spin waiting for PLL ready
+	RCC_PLLCmd(ENABLE);
+	while ( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET ) { ; }
+	
+	// Set PLL as clock source and spin waiting for active
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
+	
 	stm_power_state = POWER_STATE_HIGH;
 	SystemCoreClock = 48000000;
-	SystemTimerClock = 24000000;
+	SystemTimerClock = 8000000; // I hope...
 
 	__enable_irq();
 }
