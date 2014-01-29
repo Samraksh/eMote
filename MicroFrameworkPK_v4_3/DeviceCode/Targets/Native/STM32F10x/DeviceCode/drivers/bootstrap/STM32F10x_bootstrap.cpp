@@ -190,7 +190,7 @@ static void RCC_Configuration(void)
   RCC_DeInit();
   
   // Tell the rest of the drivers we are running at 8 MHz.
-  SystemCoreClock = 8000000;
+  uint32_t SystemCoreClock = 8000000;
 
 /* RTC clock and backup domain init. Not fully tested. Do not use (yet).
   PWR_BackupAccessCmd(ENABLE);
@@ -209,7 +209,7 @@ static void RCC_Configuration(void)
   // Disable things we aren't using. Should be redundant.
   RCC_PLLCmd(DISABLE);
   RCC_HSEConfig(RCC_HSE_OFF);
-  PWR_PVDCmd(DISABLE);
+  //PWR_PVDCmd(DISABLE);
   //RCC_LSICmd(DISABLE);
   //PWR_WakeUpPinCmd(ENABLE);
   
