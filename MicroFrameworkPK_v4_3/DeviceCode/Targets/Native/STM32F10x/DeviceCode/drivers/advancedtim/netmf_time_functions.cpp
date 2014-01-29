@@ -20,43 +20,40 @@ UINT32 CPU_TicksPerSecond()
 	return SystemTimerClock;
 }
 
-// Returns ms??? --NPS
+// returning time in mSec
 UINT64 CPU_TicksToTime( UINT64 Ticks ) {	
-	return Ticks*1000/SystemTimerClock;
+	return Ticks * 1000/SystemTimerClock;
 }
 
-// Returns ms??? --NPS
+// returning time in mSec
 UINT64 CPU_TicksToTime( UINT32 Ticks32 ) {
-	return Ticks32*1000/SystemTimerClock;
+	return Ticks32 * 1000/SystemTimerClock;
 }
 
-
-UINT64 CPU_MillisecondsToTicks( UINT64 Ticks ) {
-	return SystemTimerClock/1000*Ticks;
+UINT64 CPU_MillisecondsToTicks( UINT64 mSec ) {
+	return mSec * SystemTimerClock/1000;
 }
 
-UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32 ) {
-	return SystemTimerClock/1000*Ticks32;
+UINT64 CPU_MillisecondsToTicks( UINT32 mSec ) {
+	return mSec * SystemTimerClock/1000;
 }
 
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec ) {
-	return SystemTimerClock/1000000*uSec;
+	return uSec * SystemTimerClock/1000000;
 }
 
 UINT32 CPU_MicrosecondsToTicks( UINT32 uSec ) {
-	return SystemTimerClock/1000000*uSec;
+	return uSec * SystemTimerClock/1000000;
 }
 
-// What is a Tick vs. a SystemClock???? --NPS
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec ){
-	return SystemTimerClock/1000000*uSec;
+	return uSec * SystemCoreClock/1000000;
 }
 
-// Is one of these (with above) not used??? --NPS
 int CPU_MicosecondsToSystemClocks( int uSec ) {
-	return SystemTimerClock/1000000*uSec;
+	return uSec * SystemCoreClock/1000000;
 }
 
 int CPU_SystemClocksToMicroseconds( int Ticks ) {
-	return Ticks*1000000/SystemTimerClock;
+	return Ticks * 1000000/SystemCoreClock ;
 }
