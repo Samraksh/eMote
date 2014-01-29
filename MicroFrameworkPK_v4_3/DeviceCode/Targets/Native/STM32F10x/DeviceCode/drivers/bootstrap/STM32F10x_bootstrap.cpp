@@ -188,6 +188,9 @@ void LowLevelInit (void)
 static void RCC_Configuration(void)
 {
   RCC_DeInit();
+  
+  // Tell the rest of the drivers we are running at 8 MHz.
+  SystemCoreClock = 8000000;
 
 /* RTC clock and backup domain init. Not fully tested. Do not use (yet).
   PWR_BackupAccessCmd(ENABLE);
