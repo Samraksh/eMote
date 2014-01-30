@@ -3,9 +3,18 @@
  *
  *  Created on: Sep 7, 2011
  *      Author: Sandip
+
+ Would be cooler to use TIM3 trigger instead of CC
+ Or use TIM1/TIM2 CC (already in use as main system timers).
+
+ But all kinds of timing problems.
+ Lots of cleanup could be done here after Nived's dual mode / continious mode addition.
+ --Nathan
+
  */
 
 #include <tinyhal.h>
+#include <pwr/netmf_pwr.h>
 #include "stm32f10x.h"
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
@@ -25,7 +34,6 @@ static UINT64 g_timeStamp = 0;
 
 UINT16 *g_adcUserBufferChannel1Ptr = NULL;
 UINT16 *g_adcUserBufferChannel2Ptr = NULL;
-
 
 UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
 UINT16* g_adcDriverBufferChannel2Ptr = NULL;
@@ -70,9 +78,6 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	// The production code should only have dma
 	if(!ADC_NVIC_Configuration())
 		return FALSE;
-
-
-
 
 	    /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
@@ -206,44 +211,13 @@ BOOL ADC_NVIC_Configuration(void)
 		 	return FALSE;
 
 	return TRUE;
-
-#if 0
-#ifdef  VECT_TAB_RAM
-  /* Set the Vector Table base location at 0x20000000 */
-  NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0);
-#else  /* VECT_TAB_FLASH  */
-  /* Set the Vector Table base location at 0x08000000 */
-  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
-#endif
-
-  /* Enable DMA channel1 IRQ Channel -----------------------------------------*/
-   NVIC_SetPriorityGrouping(7); /* 0 bits for pre-emption priority 4 bits for
-subpriority*/
-  NVIC_SetPriority(DMA1_Channel1_IRQn, 0x00); /* 0x00 = 0x0 << 3 | (0x0 & 0x7)*/
-  NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-
-
-  /* Enable TIM2 IRQ Channel -------------------------------------------------*/
-  NVIC_SetPriorityGrouping(7); /* 0 bits for pre-emption priority 4 bits for
-subpriority*/
-  NVIC_SetPriority(TIM2_IRQn, 0x02); /* 0x00 = 0x0 << 3 | (0x02 & 0x7) */
-  NVIC_EnableIRQ(TIM2_IRQn);
-#endif
 }
 
 void ADC_RCC_DUALMODE_Configuration(void)
 {
-	/* ADCCLK = PCLK2/4 */
-	  RCC_ADCCLKConfig(RCC_PCLK2_Div4);
-	  /* Enable peripheral clocks ------------------------------------------------*/
-	  /* Enable DMA1 clock */
 	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-
 	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-
-	  /* Enable ADC1, ADC2 and GPIOC clock */
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 |
-	                         RCC_APB2Periph_GPIOC, ENABLE);
+	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_GPIOC, ENABLE);
 }
 
 void ADC_GPIO_DUALMODE_Configuration(void)
@@ -263,6 +237,9 @@ void ADC_GPIO_DUALMODE_Configuration(void)
 void ADC_GPIO_Configuration(void)
 {
 
+// Note from Nathan: I don't think you actually have to toggle the pin...
+// TODO cleanup, maybe use TIM3 instead (can use ADC_ExternalTrigConv_T3_TRGO) instead of CC
+
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	// Output of TIM4 CH4 will trigger the adc conversion
@@ -281,31 +258,6 @@ void ADC_GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-
-#if 0
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_Init(GPIOF, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOF, &GPIO_InitStructure);
-
-  GPIO_WriteBit(GPIOF, GPIO_Pin_8, Bit_SET);
-#endif
-
 }
 
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
@@ -353,27 +305,39 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	// Hold the user buffer
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 
-	UINT32 prescaler = 0x1;
-	UINT32 frequency = CPU_MicrosecondsToTicks((UINT32) samplingTime);
+	UINT32 period = samplingTime * SystemCoreClock/1000000;
+	UINT32 prescaler = 1;
 
-	if(g_STM32F10x_Timer_Configuration.ratio4 > 8)
-	{
-		prescaler = g_STM32F10x_Timer_Configuration.ratio4 / 6;
-		frequency /= prescaler;
+	// Only have 16-bit timer
+	// If sampling rate is too low, period will be too large.
+	// So keep doubling the prescaler and halving the period.
+	// Note that actual prescaler used in timer is prescaler+1, adjust at end.
+	// TODO Add error check if sampling rate is too low.
+
+	if (period > 0xFFFF) {
+		period = period >> 1;
+		prescaler = 2;
 	}
 
+	while (period > 0xFFFF) {
+		prescaler = prescaler << 1;
+		period = period >> 1;
+	}
+
+	// Adjust
+	prescaler--;
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-    TIM_TimeBaseStructure.TIM_Period = (UINT16) frequency;
-	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
+    TIM_TimeBaseStructure.TIM_Period = (UINT16) period;
+	TIM_TimeBaseStructure.TIM_Prescaler = (UINT16) prescaler;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 
 	// Set up the compare channel
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = (frequency/2);
+	TIM_OCInitStructure.TIM_Pulse = period/2;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
     TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 
@@ -421,8 +385,6 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 
     /* ADC1 regular channel14 configuration */
  	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
-
-
 
    	  /* Enable ADC1 DMA */
    	ADC_DMACmd(ADC1, ENABLE);
@@ -505,26 +467,39 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
-	UINT32 prescaler = 0x1;
-	UINT32 frequency = CPU_MicrosecondsToTicks((UINT32) samplingTime);
+	UINT32 period = samplingTime * SystemCoreClock/1000000;
+	UINT32 prescaler = 1;
 
-	if(g_STM32F10x_Timer_Configuration.ratio4 > 8)
-	{
-		prescaler = g_STM32F10x_Timer_Configuration.ratio4 / 6;
-		frequency /= prescaler;
+	// Only have 16-bit timer
+	// If sampling rate is too low, period will be too large.
+	// So keep doubling the prescaler and halving the period.
+	// Note that actual prescaler used in timer is prescaler+1, adjust at end.
+	// TODO Add error check if sampling rate is too low.
+
+	if (period > 0xFFFF) {
+		period = period >> 1;
+		prescaler = 2;
 	}
 
+	while (period > 0xFFFF) {
+		prescaler = prescaler << 1;
+		period = period >> 1;
+	}
+
+	// Adjust
+	prescaler--;
+
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Period = frequency;
-	TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
+    TIM_TimeBaseStructure.TIM_Period = (UINT16) period;
+	TIM_TimeBaseStructure.TIM_Prescaler = (UINT16) prescaler;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 
 	// Set up the compare channel
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = (frequency/2);
+	TIM_OCInitStructure.TIM_Pulse = period;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 

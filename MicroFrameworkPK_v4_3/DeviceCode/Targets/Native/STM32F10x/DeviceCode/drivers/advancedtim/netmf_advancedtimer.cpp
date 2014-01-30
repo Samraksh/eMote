@@ -153,14 +153,11 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 	if(DidTimerOverflow())
 	{
 		ClearTimerOverflow();
-
 		m_lastRead += (0x1ull <<32);
 	}
 
 	m_lastRead |= currentValue;
-
 	//timerLock.release_and_restore();
-
 	return m_lastRead;
 }
 
