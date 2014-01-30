@@ -305,7 +305,7 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	// Hold the user buffer
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 
-	UINT32 period = samplingTime * SystemCoreClock/1000000;
+	UINT32 period = samplingTime * (SystemCoreClock/1000000);
 	UINT32 prescaler = 1;
 
 	// Only have 16-bit timer
@@ -467,7 +467,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
-	UINT32 period = samplingTime * SystemCoreClock/1000000;
+	UINT32 period = samplingTime * (SystemCoreClock/1000000);
 	UINT32 prescaler = 1;
 
 	// Only have 16-bit timer

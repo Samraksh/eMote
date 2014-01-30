@@ -236,8 +236,8 @@ static void RCC_Configuration(void)
 void BootstrapCode() {
 
 	LowLevelInit();
-	RCC_Configuration();
 	PrepareImageRegions();
+	RCC_Configuration();
 	//Boot_DisableWDT();
 }
 
