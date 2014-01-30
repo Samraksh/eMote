@@ -17,6 +17,9 @@ Not so on other timers.
 
 I'm sad I used a hard-coded TICK_ADJUST.
 Somebody fix this if you get time.
+
+Update: Apparently maybe this is handled in the "DriftParameters".
+What horrible naming.
 --NPS
 
 */
@@ -36,14 +39,18 @@ UINT32 CPU_TicksPerSecond()
 	return SystemTimerClock;
 }
 
-// Apparently this is real-time ticks to 100ns ticks.
+// OK, so the DriftParameters *should* correct this in the PAL layer
+// But that begs the question of what this function is really for...
 UINT64 CPU_TicksToTime( UINT64 Ticks ) {	
-	return Ticks * TICK_ADJUST;
+	//return Ticks * TICK_ADJUST;
+	return Ticks;
 }
 
-// Apparently this is real-time ticks to 100ns ticks.
+// OK, so the DriftParameters *should* correct this in the PAL layer
+// But that begs the question of what this function is really for...
 UINT64 CPU_TicksToTime( UINT32 Ticks32 ) {
-	return Ticks32 * TICK_ADJUST;
+	//return Ticks32 * TICK_ADJUST;
+	return Ticks32;
 }
 
 // Milli-seconds to real-time ticks???
