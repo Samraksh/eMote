@@ -337,7 +337,7 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	// Set up the compare channel
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = period/2;
+	TIM_OCInitStructure.TIM_Pulse = period-1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
     TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 
@@ -499,7 +499,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	// Set up the compare channel
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = period;
+	TIM_OCInitStructure.TIM_Pulse = period-1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 
