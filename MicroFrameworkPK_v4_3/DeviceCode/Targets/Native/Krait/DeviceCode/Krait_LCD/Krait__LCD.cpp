@@ -635,7 +635,13 @@ void LCD_BitBltEx ( int x, int y, int width, int height, char data[])
 
 void LCD_BitBltEx ( int x, int y, int width, int height, UINT32 data[])
 {
-	hal_printf("BitBltEx uint32\r\n");
+	//hal_printf("screenWidth %d screenHeight %d\r\n",config->width, config->height);
+	//hal_printf("BitBltEx uint32\r\n");
+	
+	// This can NOT be hardcoded and should be 0,0
+	// A bitmap should be made for the screen size (400x800) and then drawn on, but we don't have the memory for that size of a screen so we will just hardcode the offset we need to draw our logo in the middle of the screen
+	x = 129;
+	y = 300;
 
 	//ASSERT((x >= 0) && ((x+width)  <= LCDWidth));
     //ASSERT((y >= 0) && ((y+height) <= LCDHeight));
@@ -645,7 +651,7 @@ void LCD_BitBltEx ( int x, int y, int width, int height, UINT32 data[])
     //unsigned bytes_per_bpp = ((config->bpp) / 8);
 	//unsigned image_base = y*LCDWidth + x;
     
-	hal_printf("copying bitmap data\r\n");
+	//hal_printf("copying bitmap data\r\n");
 
 	int i, j;
 	unsigned bytes_per_bpp = ((config->bpp) / 8);
