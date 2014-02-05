@@ -475,6 +475,51 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
     return CharsRead;
 }
 
+// Optimised UART PAL for dotNOW board. --NPS
+#ifdef PLATFORM_ARM_EmoteDotNow
+BOOL USART_Driver::Flush( int ComPortNum ) {
+
+	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {
+		return FALSE;
+	}
+
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+	if ( !IS_USART_INITIALIZED(State))
+		return TRUE;
+
+	// Interrupts are off, but sending a byte will turn them on until buffer empty
+	if (!CPU_USART_TxBufferEmptyInterruptState(ComPortNum)) {
+		char c;
+
+		{
+			GLOBAL_LOCK(irq);
+			if (State.TxQueue.IsEmpty() == TRUE) {
+				return TRUE; // Nothing to send, we're good.
+			}
+		}
+
+		// By design, interrupts off means the TX buffer must be empty, no need to check.
+		if (RemoveCharFromTxBuffer( ComPortNum, c )); // Also sets event
+			CPU_USART_WriteCharToTxBuffer( ComPortNum, c ); // should always be true
+	}
+
+	// At this point, interrupts are ON and any remaining buffer should empty itself.
+
+	{
+	GLOBAL_LOCK(irq);
+	if (State.TxQueue.IsEmpty() == TRUE)
+		return TRUE; // Nothing to send, we're good.
+	}
+
+	// We know the TX is done when interrupts go off
+	// Spinning while we wait for the interrupts code finish... gg Microsoft design
+	// Really we should go about our business here... but assuming the semantics of Flush require the buffer to empty
+	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
+}
+#else
+
+// Original PAL driver
 BOOL USART_Driver::Flush( int ComPortNum )
 {
     NATIVE_PROFILE_PAL_COM();
@@ -569,6 +614,7 @@ BOOL USART_Driver::Flush( int ComPortNum )
 
     return TRUE;
 }
+#endif
 
 //--//
 
@@ -581,7 +627,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
     HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
 
     if (USART_FLAG_STATE(State, HAL_USART_STATE::c_TX_SWFLOW_CTRL))
-
     {
         switch( c )
         {
@@ -623,11 +668,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
         else
         {
             SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
-                
-#if !defined(BUILD_RTM)
-            lcd_printf("\fBuffer OVFLW\r\n");
-            hal_printf("Buffer OVFLW\r\n");
-#endif
             return FALSE;
         }
 	
@@ -649,7 +689,6 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
     }
 
     SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
-
     Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
 
     return TRUE;
@@ -683,9 +722,7 @@ BOOL USART_Driver::RemoveCharFromTxBuffer( int ComPortNum, char& c )
         if(Src)
         {
             c = *Src;
-
             Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-
             return TRUE;
         }
 

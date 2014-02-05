@@ -187,15 +187,13 @@ void LowLevelInit (void)
 	
 	Nathan, 2014-01-28 
 */
-uint32_t SystemCoreClock;
-uint32_t SystemTimerClock;
+
 static void RCC_Configuration(void)
 {
   RCC_DeInit();
   
-  // Tell the rest of the drivers we are running at 8 MHz.
-  SystemCoreClock = 8000000;
-  SystemTimerClock = 8000000;
+  //STM32F1x_Power_Driver::Low_Power();
+  STM32F1x_Power_Driver::High_Power(); // Default to high power for now to help with MFDeploy issues
 
 /* RTC clock and backup domain init. Not fully tested. Do not use (yet).
   PWR_BackupAccessCmd(ENABLE);
@@ -210,20 +208,10 @@ static void RCC_Configuration(void)
   RTC_WaitForLastTask();
   BKP_RTCOutputConfig(BKP_RTCOutputSource_None);
   */ // End RTC init Code
-
-  // Disable things we aren't using. Should be redundant.
-  RCC_PLLCmd(DISABLE);
-  RCC_HSEConfig(RCC_HSE_OFF);
-  
-  // Internal flash setup.
-  FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-  FLASH_SetLatency(FLASH_Latency_0); // 0 Wait states <= 24 MHz. Set to 1 for <= 48 MHz
   
   // Low power "numerical mode" flash. Here for reference only, conflicts with above.
   //FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
   //FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
-
-  // Bus clocks... all defaults are fine (e.g. 1, or 2 for ADC).
 
   // Enabling FSMC peripheral clock here
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);

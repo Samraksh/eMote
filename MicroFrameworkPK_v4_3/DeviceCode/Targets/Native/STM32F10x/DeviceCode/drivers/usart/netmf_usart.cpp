@@ -12,98 +12,13 @@
 #define COM1 0
 #define COM2 1
 
-USART_TypeDef* COM_USART[COMn] = {EVAL_COM1, EVAL_COM2};
-
-GPIO_TypeDef* COM_TX_PORT[COMn] = {EVAL_COM1_TX_GPIO_PORT, EVAL_COM2_TX_GPIO_PORT};
-
-GPIO_TypeDef* COM_RX_PORT[COMn] = {EVAL_COM1_RX_GPIO_PORT, EVAL_COM2_RX_GPIO_PORT};
-
-const uint32_t COM_USART_CLK[COMn] = {EVAL_COM1_CLK, EVAL_COM2_CLK};
-
-const uint32_t COM_TX_PORT_CLK[COMn] = {EVAL_COM1_TX_GPIO_CLK, EVAL_COM2_TX_GPIO_CLK};
-
-const uint32_t COM_RX_PORT_CLK[COMn] = {EVAL_COM1_RX_GPIO_CLK, EVAL_COM2_RX_GPIO_CLK};
-
-const uint16_t COM_TX_PIN[COMn] = {EVAL_COM1_TX_PIN, EVAL_COM2_TX_PIN};
-
-const uint16_t COM_RX_PIN[COMn] = {EVAL_COM1_RX_PIN, EVAL_COM2_RX_PIN};
-
-const uint16_t COM_RTS_PIN[COMn] = {0x0B, 0x00};
-const uint16_t COM_CTS_PIN[COMn] = {0x0C, 0x01};
-
-char debugInput[150] = {0};
-char debugOutput[150] = {0};
-
-int debugOutCounter = 0;
-
-int debugCounter = 0;
-
-//#define USART_DEBUG_GPIO 1
-
-//extern BOOL startRecord;
+uint8_t RX_BAD=2;
 
 extern "C"
 {
 void USART1_Handler(void *args);
 void USART2_Handler(void *args);
 }
-
-
-void COMInit(int COM, USART_InitTypeDef* USART_InitStruct)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  /* Enable GPIO clock */
-  RCC_APB2PeriphClockCmd(COM_TX_PORT_CLK[COM] | COM_RX_PORT_CLK[COM] | RCC_APB2Periph_AFIO, ENABLE);
-
-
-  /* Enable UART clock */
-  if (COM == COM1)
-  {
-    RCC_APB2PeriphClockCmd(COM_USART_CLK[COM], ENABLE);
-  }
-  else
-  {
-    /* Enable the USART2 Pins Software Remapping */
-    GPIO_PinRemapConfig(GPIO_Remap_USART2, ENABLE);
-    RCC_APB1PeriphClockCmd(COM_USART_CLK[COM], ENABLE);
-  }
-
-  /* Configure USART Tx as alternate function push-pull */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_InitStructure.GPIO_Pin = COM_TX_PIN[COM];
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(COM_TX_PORT[COM], &GPIO_InitStructure);
-
-  /* Configure USART Rx as input floating */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Pin = COM_RX_PIN[COM];
-  GPIO_Init(COM_RX_PORT[COM], &GPIO_InitStructure);
-
-
-  /* Configure USART RTS as alternate function push-pull */
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Pin = COM_RTS_PIN[COM];
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(COM_TX_PORT[COM], &GPIO_InitStructure);
-
-    /* Configure USART CTS as input floating */
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_InitStructure.GPIO_Pin = COM_CTS_PIN[COM];
-    GPIO_Init(COM_RX_PORT[COM], &GPIO_InitStructure);
-
-  /* USART configuration */
-  USART_Init(COM_USART[COM], USART_InitStruct);
-
-
-
-  /* Enable USART */
-  USART_Cmd(COM_USART[COM], ENABLE);
-
-  USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
- // USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) TRUE);
-}
-
 
 
 /*TODO 
@@ -124,7 +39,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	{
 		// Lock the external radio seln pin
 		if(!CPU_GPIO_ReservePin(89, TRUE))
-				return FALSE;
+			return FALSE;
 
 		// Lock the external radio slptr pin
 		if(!CPU_GPIO_ReservePin(27, TRUE))
@@ -138,20 +53,13 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 
 	// Reserve the two ports the TX/RX ports of usart 1/ COM1
 	if(!CPU_GPIO_ReservePin(9, TRUE))
-			return FALSE;
-
+		return FALSE;
 
 	if(!CPU_GPIO_ReservePin(10, TRUE))
-				return FALSE;
+		return FALSE;
 
-
-  BOOL fRet = TRUE;
   UINT32 interruptIndex = 0;
   HAL_CALLBACK_FPN callback = NULL;
-  //Initializing the USART structure for calling the Init on STM Driver
-  USART_InitTypeDef USART_InitStructure; 
-
-  //CPU_GPIO_EnableOutputPin((GPIO_PIN) 9, FALSE);
 
   if(ComPortNum == 0) //CLR has it as 0
   {	
@@ -165,37 +73,52 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
     interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
     callback = USART2_Handler;
   }
-  
 
-  USART_InitStructure.USART_BaudRate = BaudRate;
-
-  USART_InitStructure.USART_WordLength = DataBits;
-
-  USART_InitStructure.USART_StopBits = StopBits;
-
-  USART_InitStructure.USART_Parity = Parity;
-
-  USART_InitStructure.USART_HardwareFlowControl = FlowValue;
-
-  USART_InitStructure.USART_Mode =  USART_Mode_Rx |  USART_Mode_Tx;
-  
   // If unable to active the interrupt for the usart return false
   if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 
 
 
-  //USART_ITConfig(USART1, USART_IT_ORE, (FunctionalState) TRUE);
-  //USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) TRUE);
+  // Init UART1
 
-  COMInit( ComPortNum	, &USART_InitStructure);
-#ifdef USART_DEBUG_GPIO
-  CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, FALSE);
-  CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
-  CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
-  CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
-#endif
-  return fRet;
-    
+  USART_InitTypeDef USART_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  USART_ClockInitTypeDef USART_ClockInitStruct;
+
+
+  USART_DeInit(USART1);
+  USART_StructInit(&USART_InitStructure);
+
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
+
+  USART_ClockStructInit(&USART_ClockInitStruct);
+
+  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+  // Configure USART Tx as alternate function push-pull
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+  // Configure USART Rx as input floating
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+  USART_Init(USART1, &USART_InitStructure);
+  USART_ClockInit(USART1, &USART_ClockInitStruct);
+  USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+  USART_Cmd(USART1, ENABLE);
+
+  return TRUE;
 }
 
 // Not sure of a scenario where this fails
@@ -230,9 +153,11 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 		activeUsart = USART2;
 		break;
 	}
-	if(USART_GetFlagStatus(activeUsart, USART_SR_TXE)  == SET) return TRUE;
-	else return FALSE;
 
+	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TXE) == SET)
+		return TRUE;
+	else
+		return FALSE;
 }
 
 // if transmission is complete the Shift Register is empty
@@ -248,12 +173,11 @@ BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 		activeUsart = USART2;
 		break;
 	}
-	
-	if(USART_GetFlagStatus(activeUsart, USART_SR_TC) == SET)
+
+	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TC) == SET)
 		return TRUE;
 	else
 		return FALSE;
-
 }
 
 // Write char into the data register
@@ -272,17 +196,19 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		activeUsart = USART2;
 		break;
 	}
-	
-	//Transmit data to USART specified.
+
+	//Transmit data to USART specified
 	USART_SendData(activeUsart, c);
-    
+	USART_ITConfig(activeUsart, USART_IT_TXE,  ENABLE); // Why does this want to fire immediately?
 }
 
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
+	return; // Turned on dynamically.
+
 	if(ComPortNum != 0 && ComPortNum != 1)
-			return;
+		return;
 
 	// There is no way we have more than two usarts in the hardware, but need to check which usart is connected to
 	// the connector
@@ -297,41 +223,12 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 		break;
 	}
 
-
-#if 0
-	GLOBAL_LOCK(irq);
-	char c;
-
-	while(USART_RemoveCharFromTxBuffer(COM1, c))
-	{
-		USART_SendData(USART1, c);
-#if 0
-		if(startRecord == TRUE)
-		{
-			debugOutput[debugOutCounter++] = c;
-			if(debugOutCounter == 140)
-				debugOutCounter = 0;
-		}
-#endif
-		//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-
-		while(!(USART_GetFlagStatus(activeUsart, USART_SR_TXE) == SET));
-		//while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-	}
-#endif
-
-	//USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
 	USART_ITConfig(activeUsart, USART_IT_TXE, (FunctionalState) Enable);
-	//USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) !Enable);
-
-
-	//USART_ITConfig(USART1, USART_IT_TC, (FunctionalState) Enable);
 }
 
+// Returns TRUE if interrupt is enabled, NOT their current state.
 BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 {
-
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -343,13 +240,12 @@ BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 		break;
 	}
 
-	if(USART_GetITStatus(activeUsart, USART_IT_TXE) == SET) return TRUE;
-	else return FALSE;
-
+	return (activeUsart->CR1 & 0x80);
 }
 
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 {
+	return; // always on
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -363,11 +259,11 @@ void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 	// the connector
 
 	USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
-	//USART_ITConfig(activeUsart, USART_IT_TXE, (FunctionalState) Enable);
 }
 
 BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 {
+	return TRUE; // always on
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -379,9 +275,10 @@ BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 		break;
 	}
 
-	if(USART_GetITStatus(activeUsart, USART_CR1_RXNEIE) == SET) return TRUE;
-		else return FALSE;
-
+	if (USART_GetITStatus(activeUsart, USART_IT_RXNE) == SET)
+		return TRUE;
+	else
+		return FALSE;
 }
 
 BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
@@ -439,6 +336,45 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 extern "C"
 {
 
+
+void USART1_Handler(void *args) {
+	int err;
+
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
+		char c;
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		USART_ClearFlag(USART1, USART_FLAG_RXNE);
+		c = USART_ReceiveData(USART1)&0xFF;
+		
+		// Fix for strangeness at 8 MHz... disabled for now while we run at 48 MHz.
+		//if ( (RX_BAD-- > 0) && c != 'M' && c != 'S') { return; }
+		
+		USART_AddCharToRxBuffer(COM1, c);
+		return;
+	}
+
+	if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
+		char c;
+		// USART_IT_TXE pending bit only cleared by write
+		if ( USART_RemoveCharFromTxBuffer(COM1, c) ) {
+			USART_SendData(USART1, c);
+		}
+		else {
+			USART_ITConfig(USART1, USART_IT_TXE,  DISABLE);
+		}
+		return;
+	}
+
+	// How did we get here? Overruns, that's how.
+	// Seems to happen when a timer interrupt hits.
+	// Clear by read to SR and then DR
+	err = USART1->SR;
+	err = USART1->DR;
+}
+
+
+
+/*
 void USART1_Handler(void *args)
 {
 	volatile unsigned int ir = 0;
@@ -447,78 +383,15 @@ void USART1_Handler(void *args)
 
 	if(ir & USART_FLAG_RXNE)
 	{
-#ifdef USART_DEBUG_GPIO
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-#endif
 		USART1->SR &= ~USART_FLAG_RXNE;
-		if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
+		c = (char) USART_ReceiveData(USART1);
+		USART_AddCharToRxBuffer(COM1, c);
+		//if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
 		{
 
-#ifdef USART_DEBUG_GPIO
-			CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
-#endif
 		}
 		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
 
-#if 0
-	//if(ir & USART_FLAG_RXNE)
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-	{
-		GLOBAL_LOCK(irq);
-		//USART1->SR &= ~USART_FLAG_RXNE;
-
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-
-		while(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET)
-		{
-			//USART1->SR &= ~USART_FLAG_RXNE;
-
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-
-		//c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
-			//c = (char) (USART1->DR & 0x1FF);
-
-			USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF));
-		}
-		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-
-		USART1->SR &= ~USART_FLAG_RXNE;
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-
-
-		if((!(ir & USART_FLAG_RXNE)) || debugOutCounter == 150)
-		{
-			int temp = 0;
-			while(debugOutCounter > 0)
-			{
-				USART_AddCharToRxBuffer(COM1, debugOutput[temp++]);
-				debugOutCounter--;
-			}
-		}
-#endif
-#if 0
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-
-		do
-		{
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-			USART1->SR &= ~USART_FLAG_RXNE;
-
-			c = (char) (USART_ReceiveData(USART1) /* & 0x7F */);
-
-			USART_AddCharToRxBuffer(COM1, c);
-
-		}while(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET);
-
-		USART1->SR &= ~USART_FLAG_RXNE;
-
-		USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-		//Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-#endif
 	}
 
 	if(ir & USART_FLAG_TXE)
@@ -534,10 +407,6 @@ void USART1_Handler(void *args)
 			//if(USART_BytesInBuffer(COM1, false) == 1)
 			//{
 			//	USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-#if 0
-				CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-				CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-#endif
 			//}
 
 			 USART_SendData(USART1, c);
@@ -557,103 +426,8 @@ void USART1_Handler(void *args)
 	}
 
 }
+*/
 
-#if 0
-void USART1_Handler(void *args)
-{
-
-
-	if(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET)
-	{
-		GLOBAL_LOCK(irq);
-		//USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-
-		  //CPU_GPIO_SetPinState((GPIO_PIN) 9, TRUE);
-		  //CPU_GPIO_SetPinState((GPIO_PIN) 9, FALSE);
-		  //while(USART_GetITStatus(USART1, USART_SR_RXNE) != RESET)
-		 while(USART_GetFlagStatus(USART1, USART_SR_RXNE) != RESET)
-		 {
-			  char c = (char) (USART_ReceiveData(USART1) /* & 0x7F */); // read RX data
-
-			  CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			  CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-		  //debugInput[debugCounter++] = c;
-
-		  //for(int i = 0; i < 1000; i++);
-
-		  //if(debugCounter == 150)
-		  //	  debugCounter = 0;
-
-			  USART_AddCharToRxBuffer(COM1, c);
-		  }
-		  Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-		  //USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) FALSE);
-		  //USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-
-	}
-#if 0
-	//if(USART_GetITStatus(USART1, USART_IT_TC) == SET)
-	else if(USART_GetFlagStatus(USART1, USART_SR_TXE) != RESET)
-	{
-		//GLOBAL_LOCK(irq);
-		//USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-		 char c;
-
-		 //USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-
-		 while(USART_RemoveCharFromTxBuffer(COM1, c))
-		 {
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			 CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-
-			 USART_SendData(USART1, c);
-			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-			 //while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-		 }
-		 //else
-		 //{
-			 //USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-			 //USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-		 //}
-
-
-#if 0
-		    if (USART_RemoveCharFromTxBuffer(COM1, c))
-		    {
-		    		debugOutput[debugOutCounter++] = c;
-
-		    		if(debugOutCounter == 150)
-		    			debugOutCounter = 0;
-
-
-		    		USART_SendData(USART1, c);
-		    		// Some pal layer functionality is not doing its job making this necessary to slow down transmission
-		    		// The question is why is the transmission getting corrupted when the shift register is not checked, technically
-		    		// you dont need to do this
-		    		while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-		    }
-		    else
-		    {
-		    	//while(!CPU_USART_TxShiftRegisterEmpty(COM1));
-		    	//Turn off TXE interrupt when you are done sending and turn  on RXNE interrupt
-		    	// you may get something
-		    	USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-		    	USART_ITConfig(USART1, USART_IT_RXNE, (FunctionalState) TRUE);
-		    }
-#endif
-		    Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-
-	}
-#endif
-	else if(USART_GetITStatus(USART1, USART_IT_ORE) != RESET)
-	{
-			//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	}
-
-}
-#endif
 
 void USART2_Handler(void *args)
 {

@@ -10,6 +10,8 @@
 
 #include "netmf_advancedtimer.h"
 #include <Samraksh\HALTimer.h>
+#include <pwr/netmf_pwr.h>
+#include <rcc/stm32f10x_rcc.h>
 
 
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
@@ -222,6 +224,8 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef  TIM_OCInitStructure;
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
 
 	TIM_TimeBaseStructure.TIM_Period = 0xffff;
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
@@ -245,6 +249,16 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseStructure.TIM_Period = 0xffff;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	
+	// TIM1 timebase
+	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK2_Frequency) {
+		// No prescaler, so TIM clock == PCLK2
+		TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	}
+	else {
+		// Prescaler, so TIM clock = PCLK2 x 2
+		TIM_TimeBaseStructure.TIM_Prescaler = 5; // TODO make this more general
+	}
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 

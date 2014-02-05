@@ -8,16 +8,13 @@ extern STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 /*
 
 A "time" tick in MF parlance is a 100 ns tick used internally.
-A "SystemCoreClock" is the speed of the timer bus, either 8 or 24 MHz
 A "SystemTimerClock" is defined as an 8 MHz tick on TIM1 and TIM2.
-The prescaler on TIM1 and TIM2 is changed along with clock to enforce this.
-Not so on other timers.
+The prescaler on TIM1 is changed along with clock to enforce this.
+Not so on other timers, they must be checked.
 
-I'm sad I used a hard-coded TICK_ADJUST.
-Somebody fix this if you get time.
 
 The difference between the 8 MHz clock we use and the 10 MHz MF expects
-is accounted for in the DriftParameters (terrible naming).
+is accounted for in the DriftParameters (terrible naming, thanks MS).
 
 --NPS
 
@@ -72,13 +69,13 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec ) {
 
 
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec ){
-	return uSec * (SystemCoreClock/1000000);
+	return uSec * (SystemTimerClock/1000000);
 }
 
 int CPU_MicosecondsToSystemClocks( int uSec ) {
-	return uSec * (SystemCoreClock/1000000);
+	return uSec * (SystemTimerClock/1000000);
 }
 
 int CPU_SystemClocksToMicroseconds( int Ticks ) {
-	return Ticks * 1000000 / SystemCoreClock ;
+	return Ticks * 1000000 / SystemTimerClock ;
 }

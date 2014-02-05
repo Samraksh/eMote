@@ -24,12 +24,15 @@ Should be able to fix that with some checking later.
 #include "../tim/stm32f10x_tim.h"
 
 enum stm_power_modes {
+	POWER_STATE_DEFAULT,
 	POWER_STATE_LOW,
 	POWER_STATE_HIGH,
 };
 
+uint32_t SystemTimerClock;
+
 // Default state is LOW
-static enum stm_power_modes stm_power_state = POWER_STATE_LOW;
+static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 
 // Deprecated. init now takes place in bootstrap section
 static void init_power() {
@@ -62,21 +65,13 @@ void STM32F1x_Power_Driver::Low_Power() {
 	
 	// Set timer prescaler for constant 8 MHz
 	// Very not tested
-	TIM1->PSC = 0;
-	TIM2->PSC = 0;
-	TIM_GenerateEvent(TIM1, TIM_EventSource_Update);
-	TIM_GenerateEvent(TIM2, TIM_EventSource_Update);
-	TIM_ClearFlag(TIM1, TIM_FLAG_Update);
-	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
-	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	TIM_PrescalerConfig(TIM1, 0, TIM_PSCReloadMode_Immediate);
 
 	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 	FLASH_SetLatency(FLASH_Latency_0);
 
 	stm_power_state = POWER_STATE_LOW;
-	SystemCoreClock = 8000000;
 	SystemTimerClock = 8000000;
 
 	__enable_irq();
@@ -96,21 +91,20 @@ void STM32F1x_Power_Driver::High_Power() {
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
 	
 	// Set timer prescaler for constant 8 MHz
-	// Very not tested
-	TIM1->PSC = 2;
-	TIM2->PSC = 2;
-	TIM_GenerateEvent(TIM1, TIM_EventSource_Update);
-	TIM_GenerateEvent(TIM2, TIM_EventSource_Update);
-	TIM_ClearFlag(TIM1, TIM_FLAG_Update);
-	TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
-	TIM_ClearFlag(TIM2, TIM_FLAG_Update);
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	// Only TIM1 needed, TIM2 is slave
+	// PCLK @ 24 MHz, TIM runs x2, so /6
+	TIM_PrescalerConfig(TIM1, 5, TIM_PSCReloadMode_Immediate);
 
 	// Set Bus Speeds
 	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
 	RCC_PCLK1Config(RCC_HCLK_Div2);   // 24 MHz
 	RCC_PCLK2Config(RCC_HCLK_Div2);   // 24 MHz
-	RCC_ADCCLKConfig(RCC_PCLK2_Div4); // 6 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6); // 4 MHz
+	
+	// This is confusing, pay attention:
+	// If the PCLK1/2 prescaler != 1
+	// Then the associated TIM clock is x2
+	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
 
 	// Set flash speeds
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
@@ -125,8 +119,7 @@ void STM32F1x_Power_Driver::High_Power() {
 	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
 	
 	stm_power_state = POWER_STATE_HIGH;
-	SystemCoreClock = 48000000;
-	SystemTimerClock = 8000000; // I hope...
+	SystemTimerClock = 8000000;
 
 	__enable_irq();
 }

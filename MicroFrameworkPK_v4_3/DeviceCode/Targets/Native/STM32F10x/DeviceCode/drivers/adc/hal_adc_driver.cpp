@@ -263,6 +263,9 @@ void ADC_GPIO_Configuration(void)
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
 {
 
+	UINT32 period;
+	UINT32 prescaler = 1;
+
 	if(dmaModeInitialized)
 	{
 		TIM_Cmd(TIM4, ENABLE);
@@ -305,8 +308,17 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	// Hold the user buffer
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 
-	UINT32 period = samplingTime * (SystemCoreClock/1000000);
-	UINT32 prescaler = 1;
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+
+	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
+		// No prescaler, so TIM clock == PCLK1
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency/1000000);
+	}
+	else {
+		// Prescaler, so TIM clock = PCLK1 x 2
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+	}
 
 	// Only have 16-bit timer
 	// If sampling rate is too low, period will be too large.
@@ -450,6 +462,9 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
+	UINT32 period;
+	UINT32 prescaler;
+
 	ADC_RCC_Configuration();
 
 	ADC_GPIO_Configuration();
@@ -467,8 +482,19 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
-	UINT32 period = samplingTime * (SystemCoreClock/1000000);
-	UINT32 prescaler = 1;
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+
+	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
+		// No prescaler, so TIM clock == PCLK1
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency/1000000);
+	}
+	else {
+		// Prescaler, so TIM clock = PCLK1 x 2
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+	}
+
+	prescaler = 1;
 
 	// Only have 16-bit timer
 	// If sampling rate is too low, period will be too large.
@@ -687,7 +713,6 @@ extern "C"
 	{
 		  /* Clear ADC1 JEOC pending interrupt bit */
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
-
 	}
 
 	void DMA_HAL_HANDLER(void *param)
@@ -732,12 +757,10 @@ extern "C"
 
 	void TIM_HAL_HANDLER(void *param)
 	{
-		if(TIM_GetFlagStatus(TIM4, TIM_IT_CC4))
+		//if(TIM_GetFlagStatus(TIM4, TIM_IT_CC4))
+		if(TIM_GetITStatus(TIM4, TIM_IT_CC4))
 		{
-
 			TIM_ClearITPendingBit(TIM4, TIM_IT_CC4);
-
-
 		}
 	}
 }
