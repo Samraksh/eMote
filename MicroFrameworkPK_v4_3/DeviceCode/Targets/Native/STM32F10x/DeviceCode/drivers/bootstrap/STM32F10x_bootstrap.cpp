@@ -17,6 +17,7 @@
 #include <flash/stm32f10x_flash.h>
 #include <pwr/stm32f10x_pwr.h>
 #include <pwr/netmf_pwr.h>
+#include <tim/stm32f10x_tim.h>
 
 ErrorStatus HSEStartUpStatus;
 
@@ -192,6 +193,13 @@ static void RCC_Configuration(void)
 {
   RCC_DeInit();
   
+  // Reset TIM1-5
+  TIM_DeInit(TIM1);
+  TIM_DeInit(TIM2);
+  TIM_DeInit(TIM3);
+  TIM_DeInit(TIM4);
+  TIM_DeInit(TIM5);
+
   //STM32F1x_Power_Driver::Low_Power();
   STM32F1x_Power_Driver::High_Power(); // Default to high power for now to help with MFDeploy issues
 

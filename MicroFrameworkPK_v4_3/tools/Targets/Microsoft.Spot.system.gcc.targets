@@ -344,7 +344,7 @@
     <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
 
 
-    <Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />
+    <!--<Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />-->
 
     <MakeDir Directories="$(EXEName).bin" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).bin')" />
     <MakeDir Directories="$(EXEName).hex" Condition="'$(MultipleOutputSections)'=='true' and !Exists('$(EXEName).hex')" />

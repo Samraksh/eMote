@@ -46,7 +46,7 @@ void STM32F1x_Power_Driver::Low_Power() {
 		return;
 	}
 
-	__disable_irq();
+	GLOBAL_LOCK(irq);
 
 	// Set HSI (instead of PLL) as SYSCLK source
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
@@ -74,7 +74,6 @@ void STM32F1x_Power_Driver::Low_Power() {
 	stm_power_state = POWER_STATE_LOW;
 	SystemTimerClock = 8000000;
 
-	__enable_irq();
 }
 
 
@@ -84,8 +83,8 @@ void STM32F1x_Power_Driver::High_Power() {
 	if (stm_power_state == POWER_STATE_HIGH) {
 		return;
 	}
-	
-	__disable_irq();
+
+	GLOBAL_LOCK(irq);
 
 	// Setup PLL for 8/2*12 = 48 MHz
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
@@ -120,8 +119,6 @@ void STM32F1x_Power_Driver::High_Power() {
 	
 	stm_power_state = POWER_STATE_HIGH;
 	SystemTimerClock = 8000000;
-
-	__enable_irq();
 }
 
 // Deprecated
