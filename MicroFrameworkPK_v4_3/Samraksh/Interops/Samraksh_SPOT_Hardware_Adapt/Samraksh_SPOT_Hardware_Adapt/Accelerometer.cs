@@ -187,7 +187,7 @@ namespace Samraksh.SPOT.Hardware.Adapt
         /// </summary>
         /// <param name="RefreshRate">controls the rate at which the driver samples the accelerometer</param>
         /// <param name="callbackfunction">user callback function, if null the user is not intimated of changes in sensor values and should use polling</param>
-        public Accelerometer(Int32 RefreshRate)
+        public Accelerometer()
         {
             /*try
             {

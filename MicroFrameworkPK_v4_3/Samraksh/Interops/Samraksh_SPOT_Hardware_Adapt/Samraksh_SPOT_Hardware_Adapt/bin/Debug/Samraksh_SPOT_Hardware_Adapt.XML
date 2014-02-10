@@ -9,7 +9,7 @@
             Accelerometer class for Adapt
             </summary>
         </member>
-        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.#ctor(System.Int32)">
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.#ctor">
             <summary>
             Initializes the accelerometer sensor
             </summary>

@@ -10,7 +10,8 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT_Hardware" />
-    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware.pe" />
+    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware.pe" />-->
+<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotnetmf.proj" />
     <RequiredProjects Include="D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

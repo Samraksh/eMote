@@ -10,7 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT_Hardware_Adapt.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT_Hardware_Adapt" />
-    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware_Adapt.pe" />
-    <RequiredProjects Include="D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\NativeStubs\dotnetmf.proj" />
+	<!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware_Adapt.pe" />-->
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_SPOT_Hardware\dotnetmf.proj" />
   </ItemGroup>
 </Project>
