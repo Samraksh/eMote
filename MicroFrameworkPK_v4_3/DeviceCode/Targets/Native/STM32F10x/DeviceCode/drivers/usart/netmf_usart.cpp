@@ -135,6 +135,13 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 		break;
 	}
 
+	// un-Reserve the two ports the TX/RX ports of usart 1/ COM1
+	CPU_GPIO_ReservePin(9, FALSE);
+	CPU_GPIO_ReservePin(10, FALSE);
+	CPU_GPIO_ReservePin(89, FALSE);
+	CPU_GPIO_ReservePin(27, FALSE);
+	CPU_GPIO_ReservePin(90, FALSE);
+
 	USART_DeInit(activeUsart);
 
 	return TRUE;
