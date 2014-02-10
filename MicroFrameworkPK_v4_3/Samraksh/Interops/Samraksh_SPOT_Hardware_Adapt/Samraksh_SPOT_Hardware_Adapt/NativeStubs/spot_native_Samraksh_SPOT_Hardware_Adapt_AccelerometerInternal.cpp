@@ -14,7 +14,7 @@
 #include "spot_native.h"
 #include "spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal.h"
 
-using namespace Samraksh_SPOT_Hardware_Adapt;
+using namespace Samraksh::SPOT::Hardware::Adapt;
 
 INT16 AccelerometerInternal::ADAPT_Accel_Init( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {

@@ -22,6 +22,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal::ADAPT_Accel_Init___I2,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal::ADAPT_Accel_GetX___I2,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal::ADAPT_Accel_GetY___I2,
@@ -40,7 +41,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware_Adapt =
 {
     "Samraksh_SPOT_Hardware_Adapt", 
-    0x10CCB33C,
+    0x67563B3E,
     method_lookup
 };
 

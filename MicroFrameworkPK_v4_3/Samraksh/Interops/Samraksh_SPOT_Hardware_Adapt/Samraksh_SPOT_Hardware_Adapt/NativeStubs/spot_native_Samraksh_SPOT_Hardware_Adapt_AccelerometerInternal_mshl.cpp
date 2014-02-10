@@ -10,7 +10,7 @@
 #include "spot_native.h"
 #include "spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal.h"
 
-using namespace Samraksh_SPOT_Hardware_Adapt;
+using namespace Samraksh::SPOT::Hardware::Adapt;
 
 
 HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_AccelerometerInternal::ADAPT_Accel_Init___I2( CLR_RT_StackFrame& stack )

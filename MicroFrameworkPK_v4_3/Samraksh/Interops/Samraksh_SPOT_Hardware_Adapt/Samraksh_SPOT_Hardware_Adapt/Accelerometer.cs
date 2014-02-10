@@ -4,7 +4,7 @@ using Microsoft.SPOT.Hardware;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Samraksh_SPOT_Hardware_Adapt
+namespace Samraksh.SPOT.Hardware.Adapt
 {
     /// <summary>
     /// Accelerometer class for Adapt
@@ -224,7 +224,14 @@ namespace Samraksh_SPOT_Hardware_Adapt
             }*/
         }
 
+        public Data GetCurrentData()
+        {
+            sensorData.RawX = accelInternal.ADAPT_Accel_GetX();
+            sensorData.RawY = accelInternal.ADAPT_Accel_GetY();
+            sensorData.RawZ = accelInternal.ADAPT_Accel_GetZ();
 
+            return sensorData;
+        }
 
         private void WriteRegister(RegisterMap register, Byte value)
         {

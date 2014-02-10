@@ -24,19 +24,19 @@ INT16 AccelerometerInternal::ADAPT_Accel_Init( CLR_RT_HeapBlock* pMngObj, HRESUL
 
 INT16 AccelerometerInternal::ADAPT_Accel_GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = 0; 
+    INT16 retVal = 4; 
     return retVal;
 }
 
 INT16 AccelerometerInternal::ADAPT_Accel_GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = 0; 
+    INT16 retVal = 6; 
     return retVal;
 }
 
 INT16 AccelerometerInternal::ADAPT_Accel_GetZ( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = 0; 
+    INT16 retVal = 9; 
     return retVal;
 }
 
