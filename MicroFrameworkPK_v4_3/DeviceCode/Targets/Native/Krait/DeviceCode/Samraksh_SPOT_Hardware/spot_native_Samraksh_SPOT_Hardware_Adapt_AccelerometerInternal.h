@@ -14,6 +14,10 @@
 #ifndef _SPOT_NATIVE_SAMRAKSH_SPOT_HARDWARE_ADAPT_ACCELEROMETERINTERNAL_H_
 #define _SPOT_NATIVE_SAMRAKSH_SPOT_HARDWARE_ADAPT_ACCELEROMETERINTERNAL_H_
 
+//struct qup_i2c_dev *adapt_i2c_GSBI12;
+
+#define BMA250_ADDR (0x18)
+
 namespace Samraksh_SPOT_Hardware_Adapt
 {
     struct AccelerometerInternal
