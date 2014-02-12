@@ -23,6 +23,19 @@
 #include <spi\netmf_spi.h>
 
 
+/* AnanthAtSamraksh - adding below change to fix receive on LR radio extension board - 2/11/2014 */
+
+//for PA_BRD
+#define RF231_REG_TX_CTRL_1		0x04
+
+#define RF231_SPI SPI2
+#define RF231_SEL(x) { if(x) GPIO_WriteBit(GPIOF, GPIO_Pin_9, Bit_SET); else GPIO_WriteBit(GPIOF, GPIO_Pin_9, Bit_RESET); }
+#define RF231_RST(x) { if(x) GPIO_WriteBit(GPIOF, GPIO_Pin_10, Bit_SET); else GPIO_WriteBit(GPIOF, GPIO_Pin_10, Bit_RESET); }
+#define RF231_SLP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET); }
+#define RF231_AMP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_RESET); }
+
+/* AnanthAtSamraksh */
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -644,6 +644,50 @@ void RF231Radio::Amp(BOOL TurnOn)
 	CPU_GPIO_SetPinState((GPIO_PIN) AMP_LR, TurnOn);
 }
 
+
+/* AnanthAtSamraksh - adding below change to fix receive on LR radio extension board - 2/11/2014 */
+
+uint8_t  rf231_read_reg(uint8_t reg) {
+	uint8_t ret;
+	RF231_SEL(0);
+	while (SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_TXE) == RESET) { ; }
+	SPI_I2S_SendData(RF231_SPI, 0x80 | reg);
+	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
+	ret = SPI_I2S_ReceiveData(RF231_SPI);
+	while (SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_TXE) == RESET) { ; }
+	SPI_I2S_SendData(RF231_SPI, 0x00);
+	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
+	ret = SPI_I2S_ReceiveData(RF231_SPI);
+	RF231_SEL(1);
+	return ret;
+}
+
+uint8_t  rf231_write_reg(uint8_t reg, uint8_t data) {
+	uint8_t ret;
+	volatile int i;
+	RF231_SEL(0);
+	while (SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_TXE) == RESET) { ; }
+	SPI_I2S_SendData(RF231_SPI, 0xC0 | reg);
+	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
+	ret = SPI_I2S_ReceiveData(RF231_SPI);
+	while (SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_TXE) == RESET) { ; }
+	SPI_I2S_SendData(RF231_SPI, data);
+	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
+	ret = SPI_I2S_ReceiveData(RF231_SPI);
+	RF231_SEL(1);
+	for (i=0; i<10000; i++) { ; } // wait
+	return ret;
+}
+
+void rf231_enable_pa_rxtx(void) {
+	uint8_t data = rf231_read_reg(RF231_REG_TX_CTRL_1);
+	data |= 0x80;
+	rf231_write_reg(RF231_REG_TX_CTRL_1, data);
+}
+
+/* AnanthAtSamraksh */
+
+
 DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id)
 {
 	INIT_STATE_CHECK()
@@ -660,7 +704,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			return DS_Fail;
 
 	//If the radio hardware is not alrady initialised, initialize it
-	if(!IsInitialized()){
+	if(!IsInitialized())
+	{
 
 		// Give the radio its name , rf231 or rf231 long range
 		this->SetRadioName(radio);
@@ -795,6 +840,14 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 #endif
 		HAL_Time_Sleep_MicroSeconds(510);
 
+		if(this->GetRadioName() == RF231RADIOLR)
+		{
+			/* AnanthAtSamraksh - adding below line to fix receive on LR radio extension board - 2/11/2014 */
+			// Enable external PA and control from RF231
+			rf231_enable_pa_rxtx();
+		}
+
+
 		// Register controls the interrupts that are currently enabled
 	#ifndef RADIO_DEBUG
 		//WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_PLL_LOCK | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
@@ -848,6 +901,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
+
 	}
 
 	return DS_Success;

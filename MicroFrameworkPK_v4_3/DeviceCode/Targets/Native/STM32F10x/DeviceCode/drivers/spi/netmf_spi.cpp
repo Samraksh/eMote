@@ -103,11 +103,13 @@ void CPU_SPI_Uninitialize()
 }
 
 
+
 void CPU_SPI_Enable(SPI_CONFIGURATION config)
 {
 
 	if(config.SPI_mod == SPIBUS1)
 	{
+
 		RCC_PCLK2Config(RCC_HCLK_Div2);
 		RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
 
@@ -137,6 +139,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 	}
 	else if(config.SPI_mod == SPIBUS2)
 	{
+
 		RCC_PCLK1Config(RCC_HCLK_Div2);
 		RCC_PCLK2Config(RCC_HCLK_Div2);
 		RCC_APB2PeriphClockCmd(SPIy_GPIO_CLK, ENABLE);
@@ -172,7 +175,11 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_Cmd(SPIy, ENABLE);
 
 	}
+
 }
+
+
+
 
 void CPU_SPI_GetPins (UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi)
 {

@@ -16,6 +16,7 @@ REVISION LOG
 #include <gpio/stm32f10x_gpio.h>
 #include <spi/stm32f10x_spi.h>
 
+
 enum SPIBUS
 {
 	SPIBUS1,
