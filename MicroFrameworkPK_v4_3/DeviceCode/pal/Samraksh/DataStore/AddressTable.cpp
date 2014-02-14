@@ -129,12 +129,12 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
         /* Check if the entry for this record already exists - We need to check using
            recordID, as we need no guarantee that there is no duplication of recordID */
         if(NULL != getCurrentLoc(entry->recordID)){
-            status = DATASTORE_STATUS_INVALID_PARAM;
+            status = DATASTORE_STATUS_RECORD_ALREADY_EXISTS;
             break;
         }
         /* Also search for the address the given_address value to ensure no duplication property */
         if(NULL != getCurrentLoc(entry->givenPtr, (LPVOID)0x01, (LPVOID)(~0u))){
-            status = DATASTORE_STATUS_INVALID_PARAM;
+            status = DATASTORE_STATUS_RECORD_ALREADY_EXISTS;
             break;
         }
         /* Now we can create an enty in the address table */

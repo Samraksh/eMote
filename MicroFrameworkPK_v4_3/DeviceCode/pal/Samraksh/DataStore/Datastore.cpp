@@ -164,8 +164,22 @@ uint32 Data_Store::calculateLogHeadRoom()
 LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType )
 {
 	//debug_printf("Data_Store::createAllocation\n");
+	UINT32 logPtr     = NULL;
+	int  currBlockID = 0;
+	char *currBlockStartAddr = NULL;
+	char *currBlockEndAddr   = NULL;
+	int byteLeftInBlock = 0, byteLeftInBlockAfterAllocation = 0;
+	logPtr = blockDeviceInformation->Regions->Start + logPointByteOffset;
+	currBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress(logPtr);
+	currBlockStartAddr = (char*)blockDeviceInformation->Regions->BlockAddress(currBlockID);
+	currBlockEndAddr   = currBlockStartAddr + blockDeviceInformation->Regions->BytesPerBlock - 1;
+	byteLeftInBlock = (UINT32)currBlockEndAddr - logPtr + 1;
+
+
     LPVOID retVal = NULL;
     uint32 allocationSize = numBytes + sizeof(RECORD_HEADER);
+
+
     RECORD_HEADER header = { 0 };
 
     lastErrorVal = DATASTORE_ERROR_NONE;
@@ -173,7 +187,27 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
     	/* Create a dummy/Skip allocation if required to make sure that this allocation
     	           doesn't fall in sectors -  return value tells if an allocation was done or not
     	           We don't care to know the status here */
-	    createDummyAllocation(numBytes);
+    	if(byteLeftInBlock >= sizeof(RECORD_HEADER) && byteLeftInBlock < allocationSize)
+    	{
+    		createDummyAllocation(byteLeftInBlock);
+    	}
+    	else if(byteLeftInBlock > allocationSize)
+    	{
+        	byteLeftInBlockAfterAllocation = byteLeftInBlock - allocationSize;
+    		if(byteLeftInBlockAfterAllocation < sizeof(RECORD_HEADER))
+    		{
+				// Increase size of current allocation by remaining space.
+				allocationSize = allocationSize + byteLeftInBlockAfterAllocation;
+    		}
+    	}
+    	/*else if(byteLeftInBlock == allocationSize)
+    	{
+    		// Nothing to be done. Continue.
+    	}
+    	else
+    	{
+    		createDummyAllocation(numBytes);
+    	}*/
 
         if(calculateLogHeadRoom() < (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
             /* Free memory is below the minimum threshold, try creating some free
@@ -267,7 +301,8 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             /* This is the first time this record is being created - So init the header struct */
             DATASTORE_ADDR_TBL_ENTRY entry;
 
-            entry.allocationSize = numBytes;
+            //entry.allocationSize = numBytes;
+            entry.allocationSize = allocationSize - sizeof(RECORD_HEADER);
             entry.currentLoc     = (char*)incrementPointer(retVal , sizeof(RECORD_HEADER));
             entry.givenPtr       = givenPtr;
             entry.recordID       = recordID;
@@ -285,7 +320,8 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
             ////header.nextLink   = (LPVOID)~0;
             header.recordID   = recordID;
-            header.size       = numBytes;
+            //header.size       = numBytes;
+            header.size       = allocationSize - sizeof(RECORD_HEADER);
             header.version    = 0;
             header.zero       = 0;
 
@@ -1321,7 +1357,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
 
             ////AnanthAtSamraksh - changing below line on 12/31/2013
             //lCurrentWriteLen = calculateNumBytes(recWriteEndAddr, recEndAddr) - 1;
-            lCurrentWriteLen = calculateNumBytes(recWriteStartAddr + offset + numBytesWritten, recEndAddr) - 1;
+            lCurrentWriteLen = calculateNumBytes(recWriteStartAddr + offset + numBytesWritten - 1, recEndAddr) - 1;
 
             ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-3 */
