@@ -14,9 +14,8 @@
 struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
 {
     static const int FIELD_STATIC__DSInstance = 0;
-    static const int FIELD_STATIC__counter = 1;
-    static const int FIELD_STATIC__syncObject = 2;
-    static const int FIELD_STATIC__dataStoreInstances = 3;
+    static const int FIELD_STATIC__syncObject = 1;
+    static const int FIELD_STATIC__dataStoreInstances = 2;
 
     static const int FIELD__storageType = 1;
 
@@ -29,7 +28,7 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
     TINYCLR_NATIVE_DECLARE(GetTotalSpace___R4);
     TINYCLR_NATIVE_DECLARE(GetUsedBytes___R4);
     TINYCLR_NATIVE_DECLARE(GetFreeBytes___R4);
-    TINYCLR_NATIVE_DECLARE(GetReadAllDataIds___BOOLEAN__SZARRAY_I4__U2__U2);
+    TINYCLR_NATIVE_DECLARE(GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4);
     TINYCLR_NATIVE_DECLARE(GetCountOfDataIds___U4);
     TINYCLR_NATIVE_DECLARE(Delete___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__U4__SZARRAY_U1__U4__U4__U1__I4);

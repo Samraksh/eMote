@@ -175,7 +175,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFree
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___BOOLEAN__SZARRAY_I4__U2__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -186,11 +186,11 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetRead
         CLR_RT_TypedArray_INT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32_ARRAY( stack, 1, param0 ) );
 
-        UINT16 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 2, param1 ) );
+        INT32 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 2, param1 ) );
 
-        UINT16 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+        INT32 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 3, param2 ) );
 
         INT8 retVal = DataStore::GetReadAllDataIds( pMngObj,  param0, param1, param2, hr );
         TINYCLR_CHECK_HRESULT( hr );
