@@ -170,6 +170,9 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 
 		//uart_init(GSBI_ID_5);
 		msm_boot_uart_dm_gsbi_init(id);
+		
+		// Set to 115200 bps
+		writel(UART_CSR_115200, GSBI5_UART_DM_BASE+UART_CSR);
 
 		// Set the flow control
 		writel(FlowValue, MSM_BOOT_UART_DM_MR1(GSBI_ID_5));
@@ -546,14 +549,17 @@ void Krait_USART_Driver::BaudrateBoundary(int ComPortNum, UINT32& maxBaudrateHz,
 	if(ComPortNum == 0)
 	{
 		maxBaudrateHz = 115200;
-		minBaudrateHz = 57600;
+		minBaudrateHz = 115200;
+		//maxBaudrateHz = 115200;
+		//minBaudrateHz = 57600;
 	}
 
 }
 
 BOOL Krait_USART_Driver::IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 {
-	if(BaudrateHz == 57600)
+	if(BaudrateHz == 115200)
+	//if(BaudrateHz == 57600)
 		return TRUE;
 	else
 		return FALSE;
