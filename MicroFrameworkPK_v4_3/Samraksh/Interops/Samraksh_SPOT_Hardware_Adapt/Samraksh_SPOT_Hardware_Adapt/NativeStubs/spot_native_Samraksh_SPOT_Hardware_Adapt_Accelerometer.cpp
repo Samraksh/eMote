@@ -22,15 +22,81 @@ INT8 Accelerometer::ADAPT_Accel_Init( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT32 Accelerometer::ADAPT_Accel_GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 Accelerometer::ADAPT_Accel_Reset( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+    INT8 retVal = 0; 
     return retVal;
 }
 
-INT32 Accelerometer::ADAPT_Accel_GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 Accelerometer::ADAPT_Accel_SelfTest( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT16 Accelerometer::ADAPT_Accel_GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT16 retVal = 0; 
+    return retVal;
+}
+
+INT16 Accelerometer::ADAPT_Accel_GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT16 retVal = 0; 
+    return retVal;
+}
+
+INT16 Accelerometer::ADAPT_Accel_GetZ( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT16 retVal = 0; 
+    return retVal;
+}
+
+INT16 Accelerometer::ADAPT_Accel_GetTemperature( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT16 retVal = 0; 
+    return retVal;
+}
+
+UINT8 Accelerometer::ADAPT_Accel_Raw_Read( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+{
+    UINT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_Raw_Write( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT8 param1, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_advconfig( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_SetPowerMode( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT8 Accelerometer::ADAPT_Accel_GetAll( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, HRESULT &hr )
+{
+    INT8 retVal = 0; 
     return retVal;
 }
 

@@ -31,21 +31,95 @@
         </member>
         <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Init">
             <summary>
-            Initializes the lcd hardware
+            Initializes the accelerometer hardware
             </summary>
-            <returns>The result of lcd initialization: Success, Fail</returns>
+            <returns>The result of accelerometer initialization: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Reset">
+            <summary>
+            Resets the accelerometer hardware
+            </summary>
+            <returns>The result of accelerometer reset: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SelfTest">
+            <summary>
+            Runs the accelerometer self-test
+            </summary>
+            <returns>The result of accelerometer self-test: 0-Success, 1-Fail</returns>
         </member>
         <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetX">
             <summary>
-            Uninitializes the lcd hardware
+            Gets the accelerometer X value
             </summary>
-            <returns>The result of lcd uninitialize: Success, Fail</returns>
+            <returns>The accelerometer X value (Int16)</returns>
         </member>
         <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetY">
             <summary>
-            Uninitializes the lcd hardware
+            Gets the accelerometer Y value
             </summary>
-            <returns>The result of lcd uninitialize: Success, Fail</returns>
+            <returns>The accelerometer Y value (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetZ">
+            <summary>
+            Gets the accelerometer Z value
+            </summary>
+            <returns>The accelerometer Z value (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetTemperature">
+            <summary>
+            Gets the accelerometer temperature
+            </summary>
+            <returns>The accelerometer temperature (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Raw_Read(System.Byte)">
+            <summary>
+            Reads a register
+            </summary>
+            <param name="reg">The register to be read.</param>
+            <returns>The accelerometer register return value (Byte)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Raw_Write(System.Byte,System.Byte)">
+            <summary>
+            Writes a register
+            </summary>
+            <param name="reg">The register to be written.</param>
+            <param name="data">The register value to be written.</param>
+            <returns>The result of accelerometer register write: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_advconfig(System.UInt32)">
+            <summary>
+            Accelerometer advanced configuration
+            </summary>
+            <param name="configuration">The configuration to be used.</param>
+            <returns>The result of accelerometer advanced configuration: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetPowerMode(System.UInt32)">
+            <summary>
+            Accelerometer set power
+            </summary>
+            <param name="power">The power to be used.</param>
+            <returns>The result of accelerometer set power: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetBandwidth(System.UInt32)">
+            <summary>
+            Accelerometer set bandwidth
+            </summary>
+            <param name="bandwidth">The bandwidth to be used.</param>
+            <returns>The result of accelerometer set bandwidth: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetBandwidth(System.Byte)">
+            <summary>
+            Accelerometer set range
+            </summary>
+            <param name="range">The range to be used.</param>
+            <returns>The result of accelerometer set range: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetAll(System.Int16[])">
+            <summary>
+            Get all three axis
+            </summary>
+            <param name="data">Array of size 3 passed to the driver to be filled.</param>
+            <returns>The result of accelerometer get all: 0-Success, 1-Fail</returns>
         </member>
     </members>
 </doc>
