@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh_SPOT_Hardware_Adapt</FeatureName>
+    <Guid>{32b40ef1-40c0-4257-99a1-7632c719243c}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <SAMRAKSH_SPOT_HARDWARE_ADAPT_FEATUREPROJ>True</SAMRAKSH_SPOT_HARDWARE_ADAPT_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_SPOT_Hardware_Adapt.$(LIB_EXT)" />
+    <InteropFeature Include="Samraksh_SPOT_Hardware_Adapt" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware_Adapt.pe" />
+    <RequiredProjects Include=".\NativeStubs\.\NativeStubs\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

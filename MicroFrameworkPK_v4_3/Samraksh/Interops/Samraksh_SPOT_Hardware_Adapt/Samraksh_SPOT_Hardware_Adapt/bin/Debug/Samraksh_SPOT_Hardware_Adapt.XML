@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Samraksh_SPOT_Hardware_Adapt</name>
+    </assembly>
+    <members>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Success">
+            <summary>
+            Success
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Fail">
+            <summary>
+            Fail
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Ready">
+            <summary>
+            Ready
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Busy">
+            <summary>
+            Busy 
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.Adapt.Accelerometer">
+            <summary>
+            Emote LCD Interface class
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Init">
+            <summary>
+            Initializes the lcd hardware
+            </summary>
+            <returns>The result of lcd initialization: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetX">
+            <summary>
+            Uninitializes the lcd hardware
+            </summary>
+            <returns>The result of lcd uninitialize: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_GetY">
+            <summary>
+            Uninitializes the lcd hardware
+            </summary>
+            <returns>The result of lcd uninitialize: Success, Fail</returns>
+        </member>
+    </members>
+</doc>
