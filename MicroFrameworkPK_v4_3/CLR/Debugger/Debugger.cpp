@@ -12,7 +12,9 @@
 
 #include <crypto.h>
 
+#ifdef SAMRAKSH_RTOS_EXT
 extern BOOL RT_Dispose ();
+#endif
 //--//
 
 BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
@@ -396,7 +398,9 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg, void* owner )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
 
+#ifdef SAMRAKSH_RTOS_EXT
 	RT_Dispose();
+#endif
 	
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
@@ -794,7 +798,9 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool                fRet;
 
+#ifdef SAMRAKSH_RTOS_EXT
 	RT_Dispose();
+#endif
 
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
