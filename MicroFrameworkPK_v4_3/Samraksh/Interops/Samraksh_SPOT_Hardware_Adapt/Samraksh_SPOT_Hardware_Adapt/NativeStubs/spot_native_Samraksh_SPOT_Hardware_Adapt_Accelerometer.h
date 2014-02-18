@@ -38,7 +38,7 @@ namespace Samraksh
                     static INT8 ADAPT_Accel_advconfig( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                     static INT8 ADAPT_Accel_SetPowerMode( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                     static INT8 ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                    static INT8 ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
+                    static INT8 ADAPT_Accel_SetRange( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT8 ADAPT_Accel_GetAll( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, HRESULT &hr );
                 };
             }

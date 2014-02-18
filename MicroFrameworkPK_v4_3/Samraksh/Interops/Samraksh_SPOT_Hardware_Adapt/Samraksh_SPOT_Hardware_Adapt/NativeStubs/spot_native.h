@@ -25,7 +25,7 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_advconfig___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetPowerMode___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetBandwidth___BOOLEAN__U4);
-    TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetBandwidth___BOOLEAN__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetRange___BOOLEAN__U1);
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_GetAll___BOOLEAN__SZARRAY_I2);
 
     //--//

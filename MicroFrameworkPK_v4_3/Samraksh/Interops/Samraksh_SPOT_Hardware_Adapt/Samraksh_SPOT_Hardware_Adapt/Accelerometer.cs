@@ -109,7 +109,7 @@ namespace Samraksh.SPOT.Hardware.Adapt
         /// <param name="range">The range to be used.</param>
         /// <returns>The result of accelerometer set range: 0-Success, 1-Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool ADAPT_Accel_SetBandwidth(Byte range);
+        public extern bool ADAPT_Accel_SetRange(Byte range);
 
         /// <summary>
         /// Get all three axis

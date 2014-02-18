@@ -25,14 +25,14 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_advconfig___BOOLEAN__U4,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetPowerMode___BOOLEAN__U4,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetBandwidth___BOOLEAN__U4,
-    Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetBandwidth___BOOLEAN__U1,
+    Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetRange___BOOLEAN__U1,
     Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetAll___BOOLEAN__SZARRAY_I2,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT_Hardware_Adapt =
 {
     "Samraksh_SPOT_Hardware_Adapt", 
-    0x86FA656B,
+    0x2E0C4E11,
     method_lookup
 };
 

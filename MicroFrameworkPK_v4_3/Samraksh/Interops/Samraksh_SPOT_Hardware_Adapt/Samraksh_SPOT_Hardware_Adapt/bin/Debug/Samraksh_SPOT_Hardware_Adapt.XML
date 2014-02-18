@@ -107,7 +107,7 @@
             <param name="bandwidth">The bandwidth to be used.</param>
             <returns>The result of accelerometer set bandwidth: 0-Success, 1-Fail</returns>
         </member>
-        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetBandwidth(System.Byte)">
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetRange(System.Byte)">
             <summary>
             Accelerometer set range
             </summary>

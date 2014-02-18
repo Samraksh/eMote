@@ -88,7 +88,7 @@ INT8 Accelerometer::ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT32 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+INT8 Accelerometer::ADAPT_Accel_SetRange( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
