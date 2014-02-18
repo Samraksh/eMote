@@ -75,7 +75,7 @@ float DataStore::GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 	return g_dataStoreObject.returnFreeSpace();
 }
 
-INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, UINT16 arrayLength, UINT16 dataIdOffset, HRESULT &hr )
+INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, INT32 arrayLength, INT32 dataIdOffset, HRESULT &hr )
 {
     INT32 *managedBuffer = dataIdArray.GetBuffer();
 	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer, arrayLength, dataIdOffset);
