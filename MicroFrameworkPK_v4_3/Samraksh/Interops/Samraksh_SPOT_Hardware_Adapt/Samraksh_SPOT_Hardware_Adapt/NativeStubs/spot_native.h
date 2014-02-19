@@ -11,6 +11,25 @@
 #define _SPOT_NATIVE_H_
 
 #include <TinyCLR_Interop.h>
+struct Library_spot_native_Samraksh_SPOT_Hardware_Adapt_ADC
+{
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Init___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Conf___BOOLEAN__U1__U1__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Command___BOOLEAN__U1__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Status___U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Sample_Rate___BOOLEAN__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Get_Sample___U2);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Set_Chan___BOOLEAN__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Raw___BOOLEAN__U1__U1__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Cont_Get___U2__SZARRAY_U2__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Now___BOOLEAN__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Cont_Start___BOOLEAN__U1__U1);
+    TINYCLR_NATIVE_DECLARE(ADAPT_ADC_Cont_Stop___BOOLEAN);
+
+    //--//
+
+};
+
 struct Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer
 {
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_Init___BOOLEAN);
@@ -27,6 +46,14 @@ struct Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetBandwidth___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_SetRange___BOOLEAN__U1);
     TINYCLR_NATIVE_DECLARE(ADAPT_Accel_GetAll___BOOLEAN__SZARRAY_I2);
+
+    //--//
+
+};
+
+struct Library_spot_native_Samraksh_SPOT_Hardware_Adapt_FPGA
+{
+    TINYCLR_NATIVE_DECLARE(ADAPT_FPGA_Init___BOOLEAN);
 
     //--//
 

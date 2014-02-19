@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_Hardware</FeatureName>
-    <Guid>{0576bc1e-ad03-415d-a5e6-61ba0ffe9914}</Guid>
+    <Guid>{b34ed391-21dc-4b6d-af58-f013bb33eeec}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_HARDWARE_FEATUREPROJ>True</SAMRAKSH_SPOT_HARDWARE_FEATUREPROJ>
@@ -10,8 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_SPOT_Hardware" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware.pe" />-->
-<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\dotnetmf.proj" />
-    <RequiredProjects Include="D:\Main\Work\SOURCE\REPOCHANGE\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\NativeStubs\dotnetmf.proj" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_Hardware.pe" />
+    <RequiredProjects Include=".\NativeStubs\.\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

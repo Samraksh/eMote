@@ -5,12 +5,13 @@ using System.Runtime.CompilerServices;
 namespace Samraksh.SPOT.Hardware.Adapt
 {        
     /// <summary>
-    /// Emote LCD Interface class
+    /// Adapt Accelerometer Interface class
     /// </summary>
     public class Accelerometer
     {
         public Accelerometer()
         {
+            ADAPT_Accel_Init();
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace Samraksh.SPOT.Hardware.Adapt
         /// <summary>
         /// Accelerometer advanced configuration
         /// </summary>
-        /// <param name="configuration">The configuration to be used.</param>
+        /// <param name="config">The configuration to be used.</param>
         /// <returns>The result of accelerometer advanced configuration: 0-Success, 1-Fail</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool ADAPT_Accel_advconfig(UInt32 config);

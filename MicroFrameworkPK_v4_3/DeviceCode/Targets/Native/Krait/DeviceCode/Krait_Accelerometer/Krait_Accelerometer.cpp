@@ -1,20 +1,13 @@
-//-----------------------------------------------------------------------------
-//
-//                   ** WARNING! ** 
-//    This file was generated automatically by a tool.
-//    Re-running the tool will overwrite this file.
-//    You should copy this file to a custom location
-//    before adding any customization in the copy to
-//    prevent loss of your changes when the tool is
-//    re-run.
-//
-//-----------------------------------------------------------------------------
-
-
-#include "spot_native.h"
-#include "spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer.h"
-
+/*  Name : Krait_Accelerometer.cpp
+ *
+ *  Author : Christopher Morse
+ *
+ *  Description :
+ *
+ */
+#include <tinyhal.h>
 #include "..\Krait.h"
+#include "Krait_Accelerometer.h"
 
 #define MSM_TMR_BASE        0x0200A000
 #define MSM_DGT_BASE        (MSM_TMR_BASE + 0x24)
@@ -27,8 +20,6 @@
 #define GPT_ENABLE_EN                     1
 #define DGT_ENABLE_CLR_ON_MATCH_EN        2
 #define DGT_ENABLE_EN                     1
-
-using namespace Samraksh::SPOT::Hardware::Adapt;
 
 // Statics
 
@@ -83,6 +74,7 @@ static void gpio_set(UINT32 gpio, UINT32 dir)
 	writel(dir, addr); // second bit controls GPIO
 	return;
 }
+
 
 bool i2c_started = 0;
 
@@ -269,7 +261,7 @@ static uint8_t samraksh_i2c_write_reg(uint8_t addr, uint8_t reg, uint8_t data) {
 
 // --------------
 
-INT8 Accelerometer::ADAPT_Accel_Init( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 ADAPT_Accel_Init()
 {
     UINT8 data;
 
@@ -309,22 +301,22 @@ INT8 Accelerometer::ADAPT_Accel_Init( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 	// Set bandwidth to 7.81 Hz by default.
 	samraksh_i2c_write_reg(BMA250_ADDR, 0x10, 0);
 
-	return 1;
+	return 0;
 }
 
-INT8 Accelerometer::ADAPT_Accel_Reset( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 ADAPT_Accel_Reset()
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_SelfTest( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT8 ADAPT_Accel_SelfTest()
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT16 Accelerometer::ADAPT_Accel_GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT16 ADAPT_Accel_GetX()
 {
     INT16 xVal; 
 	UINT8 data[2];
@@ -338,7 +330,7 @@ INT16 Accelerometer::ADAPT_Accel_GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return xVal;
 }
 
-INT16 Accelerometer::ADAPT_Accel_GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT16 ADAPT_Accel_GetY()
 {
     INT16 yVal; 
 	UINT8 data[2];
@@ -352,55 +344,55 @@ INT16 Accelerometer::ADAPT_Accel_GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return yVal;
 }
 
-INT16 Accelerometer::ADAPT_Accel_GetZ( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT16 ADAPT_Accel_GetZ(  )
 {
     INT16 zVal = 77; 
     return zVal;
 }
 
-INT16 Accelerometer::ADAPT_Accel_GetTemperature( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT16 ADAPT_Accel_GetTemperature(  )
 {
     INT16 temperature = 982; 
     return temperature;
 }
 
-UINT8 Accelerometer::ADAPT_Accel_Raw_Read( CLR_RT_HeapBlock* pMngObj, UINT8 reg, HRESULT &hr )
+UINT8 ADAPT_Accel_Raw_Read( UINT8 reg )
 {
     UINT8 data = 0; 
     return data;
 }
 
-INT8 Accelerometer::ADAPT_Accel_Raw_Write( CLR_RT_HeapBlock* pMngObj, UINT8 reg, UINT8 data, HRESULT &hr )
+INT8 ADAPT_Accel_Raw_Write( UINT8 reg, UINT8 data )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_advconfig( CLR_RT_HeapBlock* pMngObj, UINT32 config, HRESULT &hr )
+INT8 ADAPT_Accel_advconfig( UINT32 config )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_SetPowerMode( CLR_RT_HeapBlock* pMngObj, UINT32 mode, HRESULT &hr )
+INT8 ADAPT_Accel_SetPowerMode( UINT32 mode )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_SetBandwidth( CLR_RT_HeapBlock* pMngObj, UINT32 bandwidth, HRESULT &hr )
+INT8 ADAPT_Accel_SetBandwidth( UINT32 bandwidth )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_SetRange( CLR_RT_HeapBlock* pMngObj, UINT8 range, HRESULT &hr )
+INT8 ADAPT_Accel_SetRange( UINT8 range )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-INT8 Accelerometer::ADAPT_Accel_GetAll( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 data, HRESULT &hr )
+INT8 ADAPT_Accel_GetAll( INT16 data[] )
 {
     INT8 retVal = 0; 
 

@@ -1,3 +1,5 @@
+// This file is a duplicate of AnalogInput_Base.cs. This file works in the namespace Samraksh.SPOT.Hardware.EmoteDotNow
+// and is kept to retain backwards compatibility.
 using System;
 using Microsoft.SPOT;
 using System.Runtime.CompilerServices;

@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_SPOT_Hardware_Adapt</FeatureName>
-    <Guid>{43602e1d-02e2-4aa5-a837-9c4f9374ed92}</Guid>
+    <Guid>{bee91163-5c77-4b30-8405-cca62f18bb7e}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_SPOT_HARDWARE_ADAPT_FEATUREPROJ>True</SAMRAKSH_SPOT_HARDWARE_ADAPT_FEATUREPROJ>

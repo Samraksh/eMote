@@ -8,12 +8,12 @@
 
 
 #include "spot_native.h"
-#include "spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer.h"
+#include "spot_native_Samraksh_SPOT_Hardware_Accelerometer.h"
 
-using namespace Samraksh::SPOT::Hardware::Adapt;
+using namespace Samraksh::SPOT::Hardware;
 
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_Init___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::Initialize___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -21,7 +21,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_Init( pMngObj,  hr );
+        INT8 retVal = Accelerometer::Initialize( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -29,7 +29,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_Reset___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::Reset___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -37,7 +37,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_Reset( pMngObj,  hr );
+        INT8 retVal = Accelerometer::Reset( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -45,7 +45,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SelfTest___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::SelfTest___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -53,7 +53,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_SelfTest( pMngObj,  hr );
+        INT8 retVal = Accelerometer::SelfTest( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -61,7 +61,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetX___I2( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::GetX___I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -69,7 +69,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT16 retVal = Accelerometer::ADAPT_Accel_GetX( pMngObj,  hr );
+        INT16 retVal = Accelerometer::GetX( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT16( stack, retVal );
 
@@ -77,7 +77,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetY___I2( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::GetY___I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -85,7 +85,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT16 retVal = Accelerometer::ADAPT_Accel_GetY( pMngObj,  hr );
+        INT16 retVal = Accelerometer::GetY( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT16( stack, retVal );
 
@@ -93,7 +93,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetZ___I2( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::GetZ___I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -101,7 +101,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT16 retVal = Accelerometer::ADAPT_Accel_GetZ( pMngObj,  hr );
+        INT16 retVal = Accelerometer::GetZ( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT16( stack, retVal );
 
@@ -109,7 +109,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetTemperature___I2( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::GetTemperature___I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -117,7 +117,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
 
         FAULT_ON_NULL(pMngObj);
 
-        INT16 retVal = Accelerometer::ADAPT_Accel_GetTemperature( pMngObj,  hr );
+        INT16 retVal = Accelerometer::GetTemperature( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT16( stack, retVal );
 
@@ -125,7 +125,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_Raw_Read___U1__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::ReadRegister___U1__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -136,7 +136,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        UINT8 retVal = Accelerometer::ADAPT_Accel_Raw_Read( pMngObj,  param0, hr );
+        UINT8 retVal = Accelerometer::ReadRegister( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT8( stack, retVal );
 
@@ -144,7 +144,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_Raw_Write___BOOLEAN__U1__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::WriteRegister___BOOLEAN__U1__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -158,7 +158,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT8 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_Raw_Write( pMngObj,  param0, param1, hr );
+        INT8 retVal = Accelerometer::WriteRegister( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -166,7 +166,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_advconfig___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::AdvancedConfig___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -177,7 +177,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_advconfig( pMngObj,  param0, hr );
+        INT8 retVal = Accelerometer::AdvancedConfig( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -185,7 +185,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetPowerMode___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::SetPowerMode___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -196,7 +196,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_SetPowerMode( pMngObj,  param0, hr );
+        INT8 retVal = Accelerometer::SetPowerMode( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -204,7 +204,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetBandwidth___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::SetBandwidth___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -215,7 +215,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_SetBandwidth( pMngObj,  param0, hr );
+        INT8 retVal = Accelerometer::SetBandwidth( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -223,7 +223,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_SetRange___BOOLEAN__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::SetRange___BOOLEAN__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -234,7 +234,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_SetRange( pMngObj,  param0, hr );
+        INT8 retVal = Accelerometer::SetRange( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -242,7 +242,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Accel_GetAll___BOOLEAN__SZARRAY_I2( CLR_RT_StackFrame& stack )
+HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Accelerometer::GetAllData___BOOLEAN__SZARRAY_I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -253,7 +253,7 @@ HRESULT Library_spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer::ADAPT_Ac
         CLR_RT_TypedArray_INT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 1, param0 ) );
 
-        INT8 retVal = Accelerometer::ADAPT_Accel_GetAll( pMngObj,  param0, hr );
+        INT8 retVal = Accelerometer::GetAllData( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 

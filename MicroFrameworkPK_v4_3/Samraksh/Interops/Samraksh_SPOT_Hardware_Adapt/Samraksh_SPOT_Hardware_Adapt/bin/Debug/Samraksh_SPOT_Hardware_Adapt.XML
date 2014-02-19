@@ -4,6 +4,98 @@
         <name>Samraksh_SPOT_Hardware_Adapt</name>
     </assembly>
     <members>
+        <member name="T:Samraksh.SPOT.Hardware.Adapt.ADC">
+            <summary>
+            Adapt ADC Interface class
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Init">
+            <summary>
+            Initializes the ADC (and FPGA if needed) hardware
+            </summary>
+            <returns>The result of ADC initialization: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Conf(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            ADC configuration register
+            </summary>
+            <param name="incc"></param>
+            <param name="refr"></param>
+            <param name="bw"></param>
+            <returns>The result of ADC configuration: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Command(System.Byte,System.Byte)">
+            <summary>
+            ADC command register
+            </summary>
+            <param name="chan"></param>
+            <param name="cmd"></param>
+            <returns>The result of ADC command: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Status">
+            <summary>
+            ADC status register
+            </summary>
+            <returns>The ADC status</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Sample_Rate(System.Byte)">
+            <summary>
+            Sets sample rate in increments of 13.33us (256 clocks @ 19.2 MHz).
+            </summary>
+            <param name="sample_rate_ticks"></param>
+            <returns>The result of ADC set sample rate: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Get_Sample">
+            <summary>
+            Returns the last ADC immediate mode sample stored
+            </summary>
+            <returns>The ADC status</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Set_Chan(System.Byte)">
+            <summary>
+            Bit vector for enabling ADC inputs 0-7. Auto mode only.
+            </summary>
+            <param name="chan"></param>
+            <returns>The result of ADC bit vector: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Raw(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            raw access mode. write_mode = 0. 'offset' is the offset of adc register from module base.
+            </summary>
+            <param name="offset"></param>
+            <param name="rw"></param>
+            <param name="data"></param>
+            <returns>The result of ADC raw access: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Cont_Get(System.UInt16[],System.Byte)">
+            <summary>
+            Get continuous mode samples (multiple).
+            </summary>
+            <param name="buffer">array to place samples (in event of multiple channels, user must sort out).</param>
+            <param name="toRead">Maximum number of samples to place into buffer (e.g. buffer size)</param>
+            <returns>Number of samples available (including what was returned)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Now(System.Byte)">
+            <summary>
+            Grab one sample on one channel and blocks until returned.
+            </summary>
+            <param name="chan"></param>
+            <returns>The result of ADC now: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Cont_Start(System.Byte,System.Byte)">
+            <summary>
+            Setup and start continuous mode.
+            </summary>
+            <param name="chan"></param>
+            <param name="sample_rate_ticks"></param>
+            <returns>The result of ADC continuous start: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.ADC.ADAPT_ADC_Cont_Stop">
+            <summary>
+            Stop continuous mode.
+            </summary>
+            <returns>The result of ADC stop continuous mode: 0-Success, 1-Fail</returns>
+        </member>
         <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Success">
             <summary>
             Success
@@ -26,7 +118,7 @@
         </member>
         <member name="T:Samraksh.SPOT.Hardware.Adapt.Accelerometer">
             <summary>
-            Emote LCD Interface class
+            Adapt Accelerometer Interface class
             </summary>
         </member>
         <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_Init">
@@ -90,7 +182,7 @@
             <summary>
             Accelerometer advanced configuration
             </summary>
-            <param name="configuration">The configuration to be used.</param>
+            <param name="config">The configuration to be used.</param>
             <returns>The result of accelerometer advanced configuration: 0-Success, 1-Fail</returns>
         </member>
         <member name="M:Samraksh.SPOT.Hardware.Adapt.Accelerometer.ADAPT_Accel_SetPowerMode(System.UInt32)">
@@ -120,6 +212,17 @@
             </summary>
             <param name="data">Array of size 3 passed to the driver to be filled.</param>
             <returns>The result of accelerometer get all: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.Adapt.FPGA">
+            <summary>
+            Adapt FPGA Interface class
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Adapt.FPGA.ADAPT_FPGA_Init">
+            <summary>
+            Initializes the FPGA hardware
+            </summary>
+            <returns>The result of FPGA initialization: 0-Success, 1-Fail</returns>
         </member>
     </members>
 </doc>

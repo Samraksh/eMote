@@ -31,8 +31,10 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="ADC.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Accelerometer.cs" />
+    <Compile Include="FPGA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
