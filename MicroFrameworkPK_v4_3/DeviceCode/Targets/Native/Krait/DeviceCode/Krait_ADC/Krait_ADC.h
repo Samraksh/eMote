@@ -8,6 +8,46 @@
 #ifndef KRAIT_ADC_H
 #define KRAIT_ADC_H
 
+#define FPGA_CS(x) (gpio_set(78, (x) ? 2 : 0))
+
+
+// TODO: Get rid of timer and GPIO stuff
+#define MSM_TMR_BASE        0x0200A000
+#define MSM_DGT_BASE        (MSM_TMR_BASE + 0x24)
+#define DGT_REG(off)        (MSM_DGT_BASE + (off))
+#define DGT_ENABLE           DGT_REG(0x0008)
+#define DGT_CLK_CTL          DGT_REG(0x0010)
+#define DGT_MATCH_VAL        DGT_REG(0x0000)
+#define DGT_CLEAR            DGT_REG(0x000C)
+#define GPT_ENABLE_CLR_ON_MATCH_EN        2
+#define GPT_ENABLE_EN                     1
+#define DGT_ENABLE_CLR_ON_MATCH_EN        2
+#define DGT_ENABLE_EN                     1
+
+// GPIO TLMM: Direction
+#define GPIO_INPUT      0
+#define GPIO_OUTPUT     1
+
+// GPIO TLMM: Pullup/Pulldown
+#define GPIO_NO_PULL    0
+#define GPIO_PULL_DOWN  1
+#define GPIO_KEEPER     2
+#define GPIO_PULL_UP    3
+
+// GPIO TLMM: Drive Strength
+#define GPIO_2MA        0
+#define GPIO_4MA        1
+#define GPIO_6MA        2
+#define GPIO_8MA        3
+#define GPIO_10MA       4
+#define GPIO_12MA       5
+#define GPIO_14MA       6
+#define GPIO_16MA       7
+
+// GPIO TLMM: Status
+#define GPIO_ENABLE     1
+#define GPIO_DISABLE    0
+
 INT8 fpga_init();
 
 // ADC REG COMMANDS

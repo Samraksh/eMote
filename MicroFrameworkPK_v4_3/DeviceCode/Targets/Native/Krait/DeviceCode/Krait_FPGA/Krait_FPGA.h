@@ -8,7 +8,21 @@
 #ifndef KRAIT_FPGA_H
 #define KRAIT_FPGA_H
 
-void fpga_init();
+#define FPGA_CS(x) (gpio_set(78, (x) ? 2 : 0))
+
+#define MSM_TMR_BASE        0x0200A000
+#define MSM_DGT_BASE        (MSM_TMR_BASE + 0x24)
+#define DGT_REG(off)        (MSM_DGT_BASE + (off))
+#define DGT_ENABLE           DGT_REG(0x0008)
+#define DGT_CLK_CTL          DGT_REG(0x0010)
+#define DGT_MATCH_VAL        DGT_REG(0x0000)
+#define DGT_CLEAR            DGT_REG(0x000C)
+#define GPT_ENABLE_CLR_ON_MATCH_EN        2
+#define GPT_ENABLE_EN                     1
+#define DGT_ENABLE_CLR_ON_MATCH_EN        2
+#define DGT_ENABLE_EN                     1
+
+uint8_t fpga_init();
 
 // ADC REG COMMANDS
 
