@@ -36,13 +36,13 @@ INT8 Accelerometer::SelfTest( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 INT16 Accelerometer::GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = 1; 
+    INT16 retVal = 0; 
     return retVal;
 }
 
 INT16 Accelerometer::GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = 259; 
+    INT16 retVal = 0; 
     return retVal;
 }
 

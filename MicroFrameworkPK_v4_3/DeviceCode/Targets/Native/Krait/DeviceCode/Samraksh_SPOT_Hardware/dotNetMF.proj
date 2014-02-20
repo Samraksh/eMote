@@ -13,9 +13,9 @@
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_Accelerometer_mshl.cpp" />
 <HFile Include="spot_native_Samraksh_SPOT_Hardware_Accelerometer.h" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_Accelerometer.cpp" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_ADCInternal_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_SPOT_Hardware_ADCInternal.h" />
-<Compile Include="spot_native_Samraksh_SPOT_Hardware_ADCInternal.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_AnalogInput_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_AnalogInput.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_AnalogInput.cpp" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal_mshl.cpp" />
 <HFile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.h" />
 <Compile Include="spot_native_Samraksh_SPOT_Hardware_EmoteDotNow_ADCInternal.cpp" />
