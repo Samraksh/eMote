@@ -21,6 +21,10 @@
 #define DGT_ENABLE_CLR_ON_MATCH_EN        2
 #define DGT_ENABLE_EN                     1
 
+// Globals
+
+bool i2c_started = 0;
+
 // Statics
 
 // TODO: Clean up the source so you can not use statics here
@@ -74,9 +78,6 @@ static void gpio_set(UINT32 gpio, UINT32 dir)
 	writel(dir, addr); // second bit controls GPIO
 	return;
 }
-
-
-bool i2c_started = 0;
 
 static void clear_SCL(void) {
     gpio_set(45, 0);
@@ -229,7 +230,7 @@ static uint8_t samraksh_i2c_read_reg(uint8_t addr, uint8_t reg, uint8_t size, ui
         else
             data[i] = i2c_read_byte(false, false);
     }
-    return 1;
+    return 0;
 }
 
 static uint8_t samraksh_i2c_write_reg(uint8_t addr, uint8_t reg, uint8_t data) {
@@ -239,7 +240,7 @@ static uint8_t samraksh_i2c_write_reg(uint8_t addr, uint8_t reg, uint8_t data) {
 	i2c_write_byte(false, false, reg);
 	i2c_write_byte(false, true,  data);
 
-	return 1;
+	return 0;
 
 	/* //Code for using the real I2C module from LK (porting it will be a bitch) --NPS
 	uint8_t my_data[2];
@@ -287,6 +288,9 @@ INT8 ADAPT_Accel_Init()
 		read_SDA();
 	}
 	mdelay(10);
+	
+	// Do a soft reset
+	samraksh_i2c_write_reg(BMA250_ADDR, 0x14, 0xB6);
 
 	// Init I2C module to 400 kHz if not already established
 	// This is hard, so we're just going to bit-bang I2C for now...
@@ -304,16 +308,17 @@ INT8 ADAPT_Accel_Init()
 	return 0;
 }
 
+// Perform softreset.
+// Returns all registers to default values
 INT8 ADAPT_Accel_Reset()
 {
-    INT8 retVal = 0; 
-    return retVal;
+	return samraksh_i2c_write_reg(BMA250_ADDR, 0x14, 0xB6);
 }
 
+// TODO
 INT8 ADAPT_Accel_SelfTest()
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return 0;
 }
 
 INT16 ADAPT_Accel_GetX()
@@ -326,6 +331,7 @@ INT16 ADAPT_Accel_GetX()
 	// Read X register
 	samraksh_i2c_read_reg(BMA250_ADDR, 0x02, 2, data);
 	xVal = (INT16) ((INT16)data[0] | ((INT16)data[1] << 8));
+	xVal = xVal >> 6;
 
     return xVal;
 }
@@ -337,67 +343,158 @@ INT16 ADAPT_Accel_GetY()
 
 	//if (adapt_i2c_GSBI12 == NULL) return 0;
 
-	// Read X register
+	// Read Y register
 	samraksh_i2c_read_reg(BMA250_ADDR, 0x04, 2, data);
 	yVal = (INT16) ((INT16)data[0] | ((INT16)data[1] << 8));
+	yVal = yVal >> 6;
 
     return yVal;
 }
 
 INT16 ADAPT_Accel_GetZ(  )
 {
-    INT16 zVal = 77; 
+    INT16 zVal; 
+	UINT8 data[2];
+
+	//if (adapt_i2c_GSBI12 == NULL) return 0;
+
+	// Read Z register
+	samraksh_i2c_read_reg(BMA250_ADDR, 0x06, 2, data);
+	zVal = (INT16) ((INT16)data[0] | ((INT16)data[1] << 8));
+	zVal = zVal >> 6;
+
     return zVal;
 }
 
+// Returns temperature in degrees C
 INT16 ADAPT_Accel_GetTemperature(  )
 {
-    INT16 temperature = 982; 
-    return temperature;
+    UINT8 t;
+
+	// Read temperature register
+	samraksh_i2c_read_reg(BMA250_ADDR, 0x08, 1, &t);
+	
+	// Center temperature is 24 degrees C and 1 LSB is 0.5 degree C
+	return (INT16)((t>>1) + 24);
 }
 
+// If you have the datasheet and want to read/write a particular register not listed...
 UINT8 ADAPT_Accel_Raw_Read( UINT8 reg )
 {
-    UINT8 data = 0; 
+    UINT8 data; 
+	samraksh_i2c_read_reg(BMA250_ADDR, reg, 1, &data);
     return data;
 }
 
+// If you have the datasheet and want to read/write a particular register not listed...
 INT8 ADAPT_Accel_Raw_Write( UINT8 reg, UINT8 data )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	return samraksh_i2c_write_reg(BMA250_ADDR, reg, data);
 }
 
+// TODO
 INT8 ADAPT_Accel_advconfig( UINT32 config )
 {
-    INT8 retVal = 0; 
-    return retVal;
+    return 0;
 }
 
+// Currently only sets suspend mode.
+// Other options revolve around interrupts.
 INT8 ADAPT_Accel_SetPowerMode( UINT32 mode )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	UINT8 retVal, data=0;
+	if (mode & ACCEL_SUSPEND)
+		data |= 0x80;
+	
+	// All other default values are 0.
+	retVal |= samraksh_i2c_write_reg(BMA250_ADDR, 0x11, data);
+    
+	return retVal;
 }
 
+// Accepts bandwidth in Hz, tries to pick the best one.
+// If you pick something out of the range, return error.
+// Rounds UP
 INT8 ADAPT_Accel_SetBandwidth( UINT32 bandwidth )
 {
-    INT8 retVal = 0; 
+    INT8 retVal = 0;
+	UINT8 data=0;
+	
+	if (bandwidth > 1000)
+		return 1; // error, bandwidth too high
+	
+	if (bandwidth <= 7)
+		data = 0;
+	else if (bandwidth <= 16)
+		data = 0x09;
+	else if (bandwidth <= 32)
+		data = 0x0A;
+	else if (bandwidth <= 64)
+		data = 0x0B;
+	else if (bandwidth <= 125)
+		data = 0x0C;
+	else if (bandwidth <= 250)
+		data = 0x0D;
+	else if (bandwidth <= 500)
+		data = 0x0E;
+	else if (bandwidth <= 1000)
+		data = 0x0F;
+		
+	retVal |= samraksh_i2c_write_reg(BMA250_ADDR, 0x10, data);
+	
     return retVal;
 }
 
+// Accepts range in +/- g
+// Default is 2
 INT8 ADAPT_Accel_SetRange( UINT8 range )
 {
-    INT8 retVal = 0; 
+    INT8 retVal = 0;
+	UINT8 data=0;
+	
+	if (range > 16)
+		return 1; // error, range too high
+	
+	if (range <= 2)
+		data = 0x3;
+	else if (range <= 4)
+		data = 0x5;
+	else if (range <= 8)
+		data = 0x8;
+	else if (range <= 16)
+		data = 0xC;
+		
+	retVal |= samraksh_i2c_write_reg(BMA250_ADDR, 0xF, data);
+	
     return retVal;
 }
 
+// Read XYZ in one shot
+// data array must be at least size 3.
 INT8 ADAPT_Accel_GetAll( INT16 data[] )
 {
-    INT8 retVal = 0; 
+    INT8 retVal = 0;
+	INT16 val; 
+	UINT8 d[6];
 
-	data[0] = 123;
-	data[1] = 345;
-	data[2] = 975;
+	//if (adapt_i2c_GSBI12 == NULL) return 0;
+
+	retVal = samraksh_i2c_read_reg(BMA250_ADDR, 0x02, 6, d);
+	
+	// X
+	val = (INT16) ((INT16)d[0] | ((INT16)d[1] << 8));
+	val = val >> 6;
+	data[0] = val;
+	
+	// Y
+	val = (INT16) ((INT16)d[2] | ((INT16)d[3] << 8));
+	val = val >> 6;
+	data[1] = val;
+	
+	// Z
+	val = (INT16) ((INT16)d[4] | ((INT16)d[5] << 8));
+	val = val >> 6;
+	data[2] = val;
+	
     return retVal;
 }

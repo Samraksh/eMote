@@ -9,6 +9,11 @@
 #define KRAIT_ACCELEROMETER_H
 
 #define BMA250_ADDR (0x18)
+
+enum {
+	ACCEL_SUSPEND = 0x00000001,
+};
+
 INT8 ADAPT_Accel_Init();
 INT8 ADAPT_Accel_Reset();
 INT8 ADAPT_Accel_SelfTest();
