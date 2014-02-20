@@ -207,30 +207,28 @@ namespace Samraksh.SPOT.Hardware
         public extern DeviceStatus Initialize();
 
         /// <summary>
-        /// Read the channel
+        /// Read one sample from the channel
         /// </summary>
         /// <param name="channel">Specify the channel to be read</param>
-        /// <returns>Return the read value</returns>
+        /// <returns>Returns the read value</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public UInt16 Read(int channel);
 
         /// <summary>
         /// Read batch mode
         /// </summary>
-        /// <param name="sampleBuff">Pass the buffer to be filled</param>
+        /// <param name="sampleBuff">The buffer to be filled</param>
         /// <param name="channel">Define the channel to be read</param>
-        /// <param name="NumSamples">Defines the number of samples to be read before callback</param>
+        /// <param name="NumSamples">Defines the number of samples to be read</param>
         /// <param name="SamplingTime">Defines the rate at which the adc should read channels</param>
-        /// <returns>Return the result of the operation: 0-Success, 1-Fail</returns>
+        /// <returns>Returns the result of the operation: 0-Success, 1-Fail</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public DeviceStatus ReadBatch(UInt16[] sampleBuff, int channel, uint NumSamples, uint SamplingTime);
 
         /// <summary>
-        /// Get the sample rate bounds of the ADC
+        /// Get the sample rate maximum of the ADC
         /// </summary>
-        /// <param name="channels">Pass the buffer to be filled</param>
-        /// <param name="max_sample_rate">Define the channel to be read</param>
-        /// <returns>Return the result of the operation:  0-Success, 1-Fail</returns>
+        /// <returns>Returns the maximum sample rate of the ADC.</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern public UInt32 GetMaxSampleRate();
     }
