@@ -195,6 +195,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         {
             bool retVal = false;
 
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
+
             if(offset < 0)
                 throw new DataStoreException("Offset should not be negative");
 
@@ -238,6 +241,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Write(UInt16[] data, int offset, int numData)
         {
             bool retVal = false;
+
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
@@ -284,6 +290,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Write(UInt32[] data, int offset, int numData)
         {
             bool retVal = false;
+
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
@@ -332,6 +341,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         {
             bool retVal = false;
 
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
+
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
@@ -361,6 +373,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Write(UInt16[] data, int numData)
         {
             bool retVal = false;
+
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
@@ -400,6 +415,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Write(UInt32[] data, int numData)
         {
             bool retVal = false;
+
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
@@ -443,6 +461,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Read(byte[] data, int offset, int numData)
         {
             bool retVal = false;
+
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
@@ -490,6 +511,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         {
             bool retVal = false;
 
+            if (data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
+
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
 
@@ -536,6 +560,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public DataStatus Read(UInt32[] data, int offset, int numData)
         {
             bool retVal = false;
+
+            if(data.Length == 0)
+                throw new DataStoreException("data array cannot be of zero length");
 
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
@@ -814,6 +841,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         public DataStatus ReadAllDataIds(int[] dataIdArray, int dataIdOffset)
         {
+            if (dataIdArray.Length == 0)
+                throw new DataStoreException("dataIdArray cannot be of zero length");
+
             if (dataIdOffset < 0)
                 throw new DataStoreException("dataIdOffset should not be negative");
 
@@ -855,33 +885,20 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
                 {
                     dataId = (UInt16)dataIdArray[arrayIndex];
-                    dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
-                    ++dataIdOffset;
+                    if(dataId != 0)
+                        dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
+
+                    //++dataIdOffset;
                 }
             }
             return DataStatus.Success;
-
-            /*UInt16 dataId;
-            int[] dataIdArray = new int[GetCountOfDataIds()];
-            if (GetReadAllDataIds(dataIdArray) == false)
-                return DataStatus.Failure;
-            else
-            {
-                for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
-                {
-                    dataId = (UInt16)dataIdArray[dataIdOffset];
-                    dataRefArray[arrayIndex] = new Data(this, dataId);
-                    ++dataIdOffset;
-                }
-            }
-            return DataStatus.Success;*/
         }
 
         /// <summary>
         /// Deletes all dataIDs from the data store. Does not actually erase the data, but marks them as inactive.
         /// </summary>
         /// <returns>Returns success or failure</returns>
-        public static DataStatus DeleteAllData()
+        private static DataStatus DeleteAllData()
         {
             if (DeleteAll() == true)
                 return DataStatus.Success;
