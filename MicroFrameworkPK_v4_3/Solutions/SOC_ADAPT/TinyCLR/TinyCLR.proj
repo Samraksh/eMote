@@ -339,9 +339,15 @@
     <DriverLibs Include="piezo_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Piezo\stubs\dotNetMF.proj" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <DriverLibs Include="cpu_power_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_power\dotNetMF.proj" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <DriverLibs Include="Krait_POWER.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_POWER\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="cpu_prestackinit_stubs.$(LIB_EXT)" />
