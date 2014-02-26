@@ -183,7 +183,7 @@ DeviceStatus P30BF65NOR_Driver::EraseBlock(UINT32 BlockAddr)
 {
 
 	DeviceStatus status;
-	NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Inside EraseBlock\n");
+	//NOR_DEBUG_PRINT("[NATIVE] [NOR Driver] Inside EraseBlock\n");
 
 	// Check if the block address is within the range of the flash device
 	if((BlockAddr + BOOT_BLOCK_OFFSET) > FLASH_LIMIT)
