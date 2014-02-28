@@ -72,7 +72,7 @@ void HAL_COMPLETION::DequeueAndExec()
         //
         // In case there's no other request to serve, set the next interrupt to be 356 years since last powerup (@25kHz).
         //
-        HAL_Time_SetCompare( ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue );
+        HAL_Time_SetCompare_Completion( ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue );
 
 #if defined(_DEBUG)
         ptr->EventTimeTicks = 0;
@@ -109,7 +109,7 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
     
     if(this == g_HAL_Completion_List.FirstNode())
     {
-        HAL_Time_SetCompare( EventTimeTicks );
+        HAL_Time_SetCompare_Completion( EventTimeTicks );
     }
 }
 

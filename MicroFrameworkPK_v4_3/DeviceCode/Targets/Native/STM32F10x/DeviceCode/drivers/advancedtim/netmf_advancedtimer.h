@@ -20,6 +20,10 @@ enum TimerClockRate
 	OneMHz
 };
 
+enum SetCompareType {
+	SET_COMPARE_TIMER,
+	SET_COMPARE_COMPLETION
+};		
 
 struct STM32F10x_Timer_Configuration
 {
@@ -74,7 +78,7 @@ public:
 	// The advanced timer combination will always be TIM1 -> TIM2.
 	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param);
 
-	DeviceStatus SetCompare(UINT32 counterCorrection, UINT32 compareValue);
+	DeviceStatus SetCompare(UINT32 counterCorrection, UINT32 compareValue, SetCompareType scType);
 
 	UINT32 GetCompare();
 	UINT32 GetCounter();
