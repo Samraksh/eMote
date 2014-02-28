@@ -2,6 +2,10 @@
 
 Data_Store g_dataStoreObject;
 
+/* AnanthAtSamraksh - To get rid of "undefined reference to static member error" */
+int Data_Store::startCount = 0;
+int Data_Store::endCount = 0;
+
 DeviceStatus Data_Store::init()
 {
     	 if(initialized == TRUE)
@@ -669,7 +673,7 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			void *rawDataIn = buff;
 			if(!blockStorageDevice->Write(address, numBytes, (BYTE *) rawDataIn, FALSE))
 			{
-				PRINT_DEBUG("Failed to write raw data to Memory");
+				//PRINT_DEBUG("Failed to write raw data to Memory");
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
@@ -683,7 +687,7 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			void *rawDataIn = buff;
 			if(!blockStorageDevice->Write(address, byteTillEnd, (BYTE *) rawDataIn, FALSE))
 			{
-				PRINT_DEBUG("Failed to write raw data to Memory");
+				//PRINT_DEBUG("Failed to write raw data to Memory");
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
@@ -693,7 +697,7 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 			rawDataIn = buff + byteTillEnd;
 			if(!blockStorageDevice->Write(address, (numBytes - byteTillEnd), (BYTE *) rawDataIn, FALSE))
 			{
-				PRINT_DEBUG("Failed to write raw data to Memory");
+				//PRINT_DEBUG("Failed to write raw data to Memory");
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
@@ -942,14 +946,15 @@ LPVOID Data_Store::readPointers()
 	return NULL;
 }
 
-int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset)
+int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset, bool *readDone)
 {
 	char* addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
 	//char *endAddr = addr + flashDevice.getBlockSize(blockID);
 	char *endAddr = addr + blockDeviceInformation->Regions->BytesPerBlock;
-	int tempCount = 0;
+	//static int startCount = 0;
+	//static int endCount = 0;
 
-	PRINT_DEBUG("Check Point 1.1 : In Function Read In Block");
+	//PRINT_DEBUG("Check Point 1.1 : In Function Read In Block");
 
 	DATASTORE_ADDR_TBL_ENTRY entry;
 	DATASTORE_STATUS status = DATASTORE_STATUS_OK;
@@ -973,15 +978,24 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset)
 
 			/* Start adding entries from startOffset and keep adding until length is reached */
 
-			if(tempCount >= startOffset)
+			if(startCount >= startOffset)
 			{
-				if(count < arrayLength)
+				if(endCount < arrayLength)
 				{
 					status = addressTable.addEntry(&entry);
+					endCount++;
 					count++;	//Actual entries added to addressTable
 				}
+				else if(endCount >= arrayLength)
+				{
+					/* AnanthAtSamraksh - ensure that values are reset before leaving. */
+					startCount = 0;
+					endCount = 0;
+					*readDone = true;
+					break;
+				}
 			}
-			tempCount++;	//To keep track of startOffset and length
+			startCount++;	//To keep track of startOffset and length
 
 			/* Change the condition to check for the STATUS duplicate recordID */
 			if(DATASTORE_STATUS_RECORD_ALREADY_EXISTS == status){
@@ -1030,7 +1044,8 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset)
 
 		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
 	}
-	PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
+	//PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
+	//startCount = 0; endCount = 0;
 	return count;
 }
 
@@ -1050,9 +1065,10 @@ LPVOID Data_Store::scanFlashDevice()
 	int lastBlock  = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 	int numOfEntries = 0;
 	char* returnAddress;
+	bool readDone = false;
 
 	for(int index = firstBlock;index <= lastBlock; index++){
-		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0);
+		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0, &readDone);
 		if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
 			break;
 	}
@@ -1078,13 +1094,17 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	uint32 copyIndex = 0;
 	int numOfEntries = 0;
 	ushort arrayLengthOrig = 0;
+	bool readDone = false;
 
 	arrayLength = (arrayLength > MAX_NUM_TABLE_ENTRIES ? MAX_NUM_TABLE_ENTRIES : arrayLength);
 	arrayLengthOrig = arrayLength;
 
 	/* Clear addressTable and rebuild from beginning */
 	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
+	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
+
 	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
+	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 	int blockID = firstBlock;
 
 	uint32 deleteIndex = 0;
@@ -1096,15 +1116,30 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 			break;
 	}
 
+	/* AnanthAtSamraksh - values before entering loop should be same as the ones while leaving */
+	startCount = 0;	endCount = 0; readDone = false;
+
 	/* Keep reading until count of records in addressTable is equal to offset */
-	numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset);
+	while(readDone == false)
+	{
+		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+		++blockID;
+		if(numOfEntries == 0 && lastBlock == (blockID-1))
+		{
+			readDone = true;
+			/* AnanthAtSamraksh - To ensure that these values are reset when this loop is exited.
+			 * Otherwise, repeated calls will retain old values leading to bugs. */
+			startCount = 0; endCount = 0;
+		}
+	}
+	/*numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset);
 	while(numOfEntries < arrayLength)
 	{
 		++blockID;
 		arrayLength = arrayLength - numOfEntries;
 		dataIdOffset = 0;
 		numOfEntries += readRecordinBlock(blockID, arrayLength, dataIdOffset);
-	}
+	}*/
 
 	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
 	for(copyIndex = 0; copyIndex < arrayLengthOrig; copyIndex++)
@@ -1394,67 +1429,6 @@ void Data_Store::DeleteAll()
 			break;
 		}
 	}
-#if 0
-	uint32 initialClearPtrBlockID;
-	uint32 currClearPtrBlockID;
-	DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
-	RECORD_HEADER recHeader = { 0 };
-	char *clearPtr = NULL;
-
-	clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
-
-	initialClearPtrBlockID = currClearPtrBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress( (UINT32)clearPtr );
-	while(initialClearPtrBlockID == currClearPtrBlockID)
-	{
-		/* Compact one block */
-		cyclicDataRead( &recHeader, clearPtr, sizeof(RECORD_HEADER) );
-		if(*((unsigned char*)&recHeader) == SKIP_TO_NEXT_SECTOR_FLAG){
-				   /* Checking for the flag indicating to skip to the next sector */
-				   int  currentBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);
-				   char *sectorEndByte = (char*)blockDeviceInformation->Regions->BlockAddress(currentBlockID) +
-																	   blockDeviceInformation->Regions->BytesPerBlock - 1;
-				   int numBytesToIncrement = sectorEndByte - clearPtr + 1;
-
-				   incrementClearPoint(numBytesToIncrement);
-				   clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
-		}
-		else if( 0 != recHeader.zero ){
-			ASSERT(false);  /* This should never happen */
-			break;  //When assert is removed
-		}
-		else if( 0 == recHeader.zero &&
-			FLAG_RECORD_ACTIVE == recHeader.activeFlag ){
-			/* Record that we are seeing is active, so we need to deactivate it
-			 * - Can't use write method directly because current call
-			   could be coming from there :) */
-
-			  /* Create a dummy/skip allocation if required */
-			createDummyAllocation(recHeader.size);
-
-
-			/* First mark the current location as inactive */
-			recHeader.activeFlag = FLAG_RECORD_INACTIVE;
-			recHeader.nextLink   = (char*)blockDeviceInformation->Regions->Start + \
-										logPointByteOffset + \
-										sizeof(RECORD_HEADER);
-			cyclicDataWrite( (LPVOID)&recHeader, clearPtr, sizeof(RECORD_HEADER) );
-
-			incrementLogPointer(sizeof(RECORD_HEADER) + recHeader.size);
-			incrementClearPoint(sizeof(RECORD_HEADER) + recHeader.size);
-
-			clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
-		}else{
-			/* Inactive record, just move the clear pointer to the next record */
-			incrementClearPoint(recHeader.size + sizeof(RECORD_HEADER));
-			clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
-		}
-		/* Now, check the blockID where my clearPointer is now */
-		currClearPtrBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);
-
-		status = DATASTORE_STATUS_OK;   //In a loop :)
-	}
-	return status;
-#endif
 }
 
 /* Performs GC on flash */
@@ -1481,6 +1455,9 @@ void Data_Store::EraseAllBlocks()
 			break;
 		}
 	}
+	// AnanthAtSamraksh - Very important to reset the values of pointers below. Else causes remarkable bugs.
+	logPointByteOffset = clearLogPointByOffset = dataStoreStartByteOffset;
+	erasePointByteOffset = dataStoreEndByteOffset;
 }
 
 Data_Store::~Data_Store()

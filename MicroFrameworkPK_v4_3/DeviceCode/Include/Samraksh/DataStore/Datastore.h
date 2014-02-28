@@ -233,6 +233,15 @@ private:
           or keep this info here like this! - Chethan */
     UINT32 hiddenClearPtrOffsetStore;
 
+    //static BOOL instanceFlag;
+
+	static BOOL initialized;
+
+	/* AnanthAtSamraksh - Used in getRecordIDAfterPersistence() to keep track of start and end of references requested.
+	 * These are initialized to zero by the compiler. */
+	static int startCount;
+	static int endCount;
+
     /* Private methods */
     /* Locks */
     DATASTORE_STATUS lockDataStore();
@@ -288,7 +297,7 @@ private:
     LPVOID readPointers();
 
    	/* Helper function for scanFLashDevice - used for scanning through the sectors */
-   	int readRecordinBlock(int blockID, int, int);
+   	int readRecordinBlock(int blockID, int, int, bool*);
 
     /* Helper function for scanFlashDevice */
     uint32 decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADER header);
@@ -305,9 +314,6 @@ private:
     bool createDummyAllocation(int nextAllocationSize);
 
     //static Data_Store<T> instance;
-
-    //static BOOL instanceFlag;
-    static BOOL initialized;
 
 
 public:
@@ -416,6 +422,7 @@ template<class T>
 Data_Store<T> Data_Store<T>::instance("NOR");
 */
 
+/* To get rid of "undefined reference to static member error" */
 BOOL Data_Store::initialized = FALSE;
 
 

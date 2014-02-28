@@ -132,8 +132,14 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new ArgumentException("Invalid dataType", "dataType");
             }
 
+            if (this.dataPointer == 0)
+                throw new DataStoreException("DataPointer is zero. Record could not be created.");
+
             this.m_Size = m_Size;
             this.dataId = dStore.GetDataID();
+
+            if (this.dataId == 0)
+                throw new DataStoreException("DataId is zero. Record could not be created.");
         }
 
         /// <summary>
@@ -147,6 +153,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
             this.dStore = dStore;
             this.dataId = dataId;
             this.dataPointer = LookupData(dataId);
+            if (this.dataPointer == 0)
+                throw new DataStoreException("DataPointer is zero. Record could not be created.");
+
             this.m_Size = LookupSize(dataId);
 
             UInt32 retType = LookupDataType(dataId);
@@ -738,21 +747,16 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         public static DataStore Instance(StorageType key)
         {
-            //get
-            //{
-            //if (DSInstance == null)
             if (!dataStoreInstances.Contains(key))
             {
                 lock (syncObject)
                 {
                     DSInstance = new DataStore();
-                    //++counter;
                     dataStoreInstances.Add(key, DSInstance);
                     DSInstance.InitDataStore(key);
                 }
             }
             return (DataStore)(dataStoreInstances[key]);
-            //}
         }
 
         /// <summary>
@@ -877,6 +881,10 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (dataIdOffset < 0)
                 throw new DataStoreException("dataIdOffset should not be negative");
 
+            /* User checks if array contents are null to break out of program. 
+             * Clear the contents of array so that null values are returned if there is no data allocation in DataStore. */
+            Array.Clear(dataRefArray, 0, dataRefArray.Length);
+
             int[] dataIdArray = new int[dataRefArray.Length];
             if (GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset) == false)
                 return DataStatus.Failure;
@@ -886,9 +894,16 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 {
                     dataId = (UInt16)dataIdArray[arrayIndex];
                     if (dataId != 0)
-                        dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
-
-                    //++dataIdOffset;
+                    {
+                        try
+                        {
+                            dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
+                        }
+                        catch (Exception)
+                        {
+                            return DataStatus.Failure;
+                        }
+                    }
                 }
             }
             return DataStatus.Success;
@@ -925,10 +940,18 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         public static DataStatus EraseAll()
         {
-            if (EraseAllBlocks() == true)
-                return DataStatus.Success;
+            // Remove contents from AddressTable also before erasing DataStore
+            if (DeleteAll() == true)
+            {
+                if (EraseAllBlocks() == true)
+                    return DataStatus.Success;
+                else
+                    return DataStatus.Failure;
+            }
             else
+            {
                 return DataStatus.Failure;
+            }
         }
 
         /// <summary>
