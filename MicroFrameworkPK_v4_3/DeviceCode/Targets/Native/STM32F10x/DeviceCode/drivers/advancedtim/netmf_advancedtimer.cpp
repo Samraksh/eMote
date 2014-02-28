@@ -7,6 +7,7 @@
  *
  */
 
+
 #include "netmf_advancedtimer.h"
 #include <Samraksh\HALTimer.h>
 #include <pwr/netmf_pwr.h>
@@ -248,7 +249,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_OCInitStructure.TIM_Pulse = 1;
 
 	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
-	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
 
 	/* Slave Mode selection: TIM2 */
 	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
@@ -287,7 +287,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
     TIM_OCInitStructure.TIM_Pulse = 1;
 
     TIM_OC3Init(TIM1, &TIM_OCInitStructure);
-	TIM_OC2Init(TIM1, &TIM_OCInitStructure);
 
     /* Master Mode selection */
   	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
@@ -341,7 +340,13 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_OCInitStructure.TIM_Pulse = 1;
 
 	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+
+	// the HAL_COMPLETION timer compare initialization
 	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+
+	// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
+	// however, doing so breaks the COM port output.
+	//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
 
     return DS_Success;
 
@@ -352,10 +357,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
 	UINT32 newCompareValue;
-	UINT32 currentCount =  GetCounter();
 
-	CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 	if(counterCorrection == 0)
 	{
 		newCompareValue = compareValue;
@@ -416,8 +418,6 @@ void ISR_TIM2(void* Param)
 		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
 		//if(TIM1->CNT > lsbValue)
 		{			
-			CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);	
-			CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);	
 			// Fire now we already missed the counter value
 			// Create a software trigger
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
@@ -448,8 +448,6 @@ void ISR_TIM2(void* Param)
 		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
 		//if(TIM1->CNT > lsbValue)
 		{			
-			CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);	
-			CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);	
 			// Fire now we already missed the counter value
 			// Create a software trigger
 			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
@@ -498,9 +496,6 @@ void ISR_TIM1( void* Param )
 
 		 //TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
 
-
-			CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);	
-					CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);	
 		TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
 
 		 // Schedule bottom half processing on arrival of interrupt
@@ -510,8 +505,6 @@ void ISR_TIM1( void* Param )
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-			CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);	
-					CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);	
 		HAL_COMPLETION::DequeueAndExec();
 	}
 
