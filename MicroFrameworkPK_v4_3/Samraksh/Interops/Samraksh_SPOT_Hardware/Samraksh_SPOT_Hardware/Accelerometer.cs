@@ -1,15 +1,18 @@
+
 using System;
-using Microsoft.SPOT;
 using System.Threading;
 using System.Runtime.CompilerServices;
 
-namespace Samraksh.SPOT.Hardware
-{
+namespace Samraksh.SPOT.Hardware {
     /// <summary>
     /// Adapt Accelerometer Interface class
     /// </summary>
-    public class Accelerometer
-    {
+    public class Accelerometer {
+        /// <summary>
+        /// Accelerometer call-back
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="time"></param>
         public delegate void AxlCallbackType(EventType eventType, DateTime time);
 
         private const Int32 sensorSamplingTimerDueTime = 1000;
@@ -21,14 +24,12 @@ namespace Samraksh.SPOT.Hardware
         private AxlCallbackType userCallbackFn;
         private Int16[] accelerometerDataBuffer = new Int16[3];
 
-        public enum EventType
-        {
+        public enum EventType {
             DataUpdate,
             FreeFall
         }
 
-        public struct Data
-        {
+        public struct Data {
             /// <summary>
             /// The raw x axis acceleration data 
             /// </summary>
@@ -44,8 +45,7 @@ namespace Samraksh.SPOT.Hardware
             public Single X;
             public Single Y;
             public Single Z;
-            public override string ToString()
-            {
+            public override string ToString() {
                 return "X=" + X.ToString() + "g, Y=" + Y.ToString() + "g, Z=" + Z.ToString() + "g";
             }
         }
@@ -53,19 +53,17 @@ namespace Samraksh.SPOT.Hardware
         /// <summary>
         /// Enum describing the GRange of the accelerometer   
         /// </summary>
-        public enum GRange : byte
-        {
+        public enum GRange : byte {
             TwoG = 0x00,
             FourG = 0x01,
             EightG = 0x02,
             SixteenG = 0x03
-        }        
+        }
 
         /// <summary>
         /// Enum describing the output resolution of the accelerometer    
         /// </summary>
-        public enum OutputResolution : byte
-        {
+        public enum OutputResolution : byte {
             FixedResolution = 0x00,
             FullResolution = 0x08
         }
@@ -73,11 +71,9 @@ namespace Samraksh.SPOT.Hardware
         /// <summary>
         /// Set the value of refresh rate 
         /// </summary>
-        public Int32 RefreshRate
-        {
+        public Int32 RefreshRate {
             get { return refreshRate; }
-            set
-            {
+            set {
                 refreshRate = value;
                 sensorSamplingTimer.Change(sensorSamplingTimerDueTime, refreshRate);
             }
@@ -86,16 +82,13 @@ namespace Samraksh.SPOT.Hardware
         /// <summary>
         /// Get the current sampling value of the accelerometer
         /// </summary>
-        public Data CurrentData
-        {
-            get
-            {
+        public Data CurrentData {
+            get {
                 return sensorData;
             }
         }
 
-        private void SamplingTimerInternalCallback(object state)
-        {
+        private void SamplingTimerInternalCallback(object state) {
             long currentTime = 0;
 
             //lock (i2cdevice)
@@ -110,18 +103,15 @@ namespace Samraksh.SPOT.Hardware
             sensorData.RawY = accelerometerDataBuffer[1];
             sensorData.RawZ = accelerometerDataBuffer[2];
 
-            if (currentResolution == OutputResolution.FullResolution)
-            {
+            if (currentResolution == OutputResolution.FullResolution) {
                 sensorData.X = 0.004f * sensorData.RawX;
                 sensorData.Y = 0.004f * sensorData.RawY;
                 sensorData.Z = 0.004f * sensorData.RawZ;
             }
-            else
-            {
+            else {
                 Single res = 0.0f;
 
-                switch (currentRange)
-                {
+                switch (currentRange) {
                     case GRange.TwoG:
                         res = 2.0f / 512.0f;
                         break;
@@ -144,14 +134,15 @@ namespace Samraksh.SPOT.Hardware
                 sensorData.Z = res * sensorData.RawZ;
 
             }
-            if (userCallbackFn != null)
-            {
+            if (userCallbackFn != null) {
                 userCallbackFn(EventType.DataUpdate, new DateTime(currentTime));
             }
         }
 
-        public Accelerometer()
-        {
+        /// <summary>
+        /// Accelerometer constructor
+        /// </summary>
+        public Accelerometer() {
             Initialize();
         }
 
@@ -160,8 +151,7 @@ namespace Samraksh.SPOT.Hardware
         /// </summary>
         /// <param name="RefreshRate">controls the rate at which the driver samples the accelerometer</param>
         /// <param name="callbackfunction">user callback function, if null the user is not intimated of changes in sensor values and should use polling</param>
-        public Accelerometer(Int32 RefreshRate, AxlCallbackType callbackfunction)
-        {
+        public Accelerometer(Int32 RefreshRate, AxlCallbackType callbackfunction) {
             Initialize();
 
             userCallbackFn = callbackfunction;
@@ -176,13 +166,11 @@ namespace Samraksh.SPOT.Hardware
             // Enable measurement
             //WriteRegister(RegisterMap.POWER_CTL, 0x08);
 
-            try
-            {
+            try {
 
                 sensorSamplingTimer = new Timer(SamplingTimerInternalCallback, null, sensorSamplingTimerDueTime, RefreshRate);
             }
-            catch
-            {
+            catch {
                 throw new Exception("Accelerometer Sampling Timer Initialization failed");
             }
         }

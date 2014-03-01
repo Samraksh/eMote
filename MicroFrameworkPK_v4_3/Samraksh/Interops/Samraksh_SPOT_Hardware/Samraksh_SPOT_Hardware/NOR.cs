@@ -1,7 +1,6 @@
 using System;
 using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Samraksh.SPOT.Hardware.EmoteDotNow
 {
@@ -17,11 +16,8 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         private static UInt32 writeAddressPtr = 0x0;
         private static UInt32 readAddressPtr = 0x0;
 
-        public static UInt16[] startOfRecordDelimiter = new UInt16[3];
+        public static UInt16[] startOfRecordDelimiter = new UInt16[2];
         public static UInt16[] endOfRecordDelimiter = new UInt16[2];
-
-        public static byte[] startOfRecordInBytes = Encoding.UTF8.GetBytes("Start ");
-        public static byte[] endOfRecordInBytes = Encoding.UTF8.GetBytes("End ");
 
         private static UInt32 maxSize = 12 * 1024 * 1024;
 
@@ -33,34 +29,22 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         /// <returns></returns>
         public static bool Initialize()
         {
-            startOfRecordDelimiter[0] = (UInt16) (startOfRecordInBytes[0] << 8);
-            startOfRecordDelimiter[0] |= (startOfRecordInBytes[1]);
-            startOfRecordDelimiter[1] = (UInt16) (startOfRecordInBytes[2] << 8);
-            startOfRecordDelimiter[1] |= (startOfRecordInBytes[3]);
-            startOfRecordDelimiter[2] = (UInt16) (startOfRecordInBytes[4] << 8);
-            startOfRecordDelimiter[2] |= (startOfRecordInBytes[5]);
+            startOfRecordDelimiter[0] = 0xfff0;
+            startOfRecordDelimiter[1] = 0xf0ff;
 
-            endOfRecordDelimiter[0] = (UInt16) (endOfRecordInBytes[0] << 8);
-            endOfRecordDelimiter[0] |= (UInt16)(endOfRecordInBytes[1]);
-            endOfRecordDelimiter[1] = (UInt16)(endOfRecordInBytes[2] << 8);
-            endOfRecordDelimiter[1] |= (UInt16)(endOfRecordInBytes[3]);
+            endOfRecordDelimiter[0] = 0xfeef;
+            endOfRecordDelimiter[1] = 0xeffe;
 
             return InternalInitialize();
         }
 
         public static bool Initialize(UInt32 maxSizeConfig)
         {
-            startOfRecordDelimiter[0] = (UInt16)(startOfRecordInBytes[0] << 8);
-            startOfRecordDelimiter[0] |= (startOfRecordInBytes[1]);
-            startOfRecordDelimiter[1] = (UInt16)(startOfRecordInBytes[2] << 8);
-            startOfRecordDelimiter[1] |= (startOfRecordInBytes[3]);
-            startOfRecordDelimiter[2] = (UInt16)(startOfRecordInBytes[4] << 8);
-            startOfRecordDelimiter[2] |= (startOfRecordInBytes[5]);
+            startOfRecordDelimiter[0] = 0xfff0;
+            startOfRecordDelimiter[1] = 0xf0ff;
 
-            endOfRecordDelimiter[0] = (UInt16)(endOfRecordInBytes[0] << 8);
-            endOfRecordDelimiter[0] |= (UInt16)(endOfRecordInBytes[1]);
-            endOfRecordDelimiter[1] = (UInt16)(endOfRecordInBytes[2] << 8);
-            endOfRecordDelimiter[1] |= (UInt16)(endOfRecordInBytes[3]);
+            endOfRecordDelimiter[0] = 0xfeef;
+            endOfRecordDelimiter[1] = 0xeffe;
 
             maxSize = maxSizeConfig;
 
@@ -79,14 +63,14 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             }
 
             // Start of record
-            result = InternalWrite(startOfRecordDelimiter, writeAddressPtr, 3);
+            result = InternalWrite(startOfRecordDelimiter, writeAddressPtr, 2);
 
             time[0] = (UInt16) (CurrentTimeStamp & 0xffff);
             time[1] = (UInt16) ((CurrentTimeStamp & 0xffff0000) >> 16);
             time[2] = (UInt16)((CurrentTimeStamp & 0xffff00000000) >> 32);
             time[3] = (UInt16)((CurrentTimeStamp) >> 48);
 
-            writeAddressPtr += 6;
+            writeAddressPtr += 4;
 
             // Time stamp the start of record
             result = InternalWrite(time, writeAddressPtr, 4);
@@ -103,7 +87,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
         {
             DeviceStatus result = DeviceStatus.Fail;
 
-            result = InternalWrite(endOfRecordDelimiter, writeAddressPtr, 2);
+            result = InternalWrite(startOfRecordDelimiter, writeAddressPtr, 2);
 
             writeAddressPtr += 4;
 
@@ -163,7 +147,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
             
             writeAddressPtr += (UInt32)(length * 2);
 
-            //Debug.Print("Current Fill Level : " + writeAddressPtr.ToString() + " \n");
+            Debug.Print("Current Fill Level : " + writeAddressPtr.ToString() + " \n");
 
             if (result == DeviceStatus.Success)
                 return true;
@@ -198,7 +182,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
 
         public static DeviceStatus Read(UInt16[] data, UInt16 length)
         {
-            if ((readAddressPtr + (length * 2) > writeAddressPtr) && (readAddressPtr < writeAddressPtr))
+            if (readAddressPtr + (length * 2) > writeAddressPtr)
             {
                 length = (UInt16) ((writeAddressPtr - readAddressPtr) / 2);
             }
@@ -207,7 +191,7 @@ namespace Samraksh.SPOT.Hardware.EmoteDotNow
 
             readAddressPtr += (UInt16)(length * 2);
 
-            //Debug.Print("Current Read level : " + readAddressPtr.ToString() + " \n");
+            Debug.Print("Current Read level : " + readAddressPtr.ToString() + " \n");
 
             return result;
         }

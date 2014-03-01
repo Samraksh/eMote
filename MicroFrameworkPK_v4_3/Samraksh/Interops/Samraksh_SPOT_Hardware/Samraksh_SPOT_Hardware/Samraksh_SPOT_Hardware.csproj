@@ -29,18 +29,42 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'dotNOW|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\dotNOW\</OutputPath>
+    <DefineConstants>DEBUG;DotNOW,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DocumentationFile>bin\Debug\Samraksh_SPOT_Hardware.XML</DocumentationFile>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ADAPT|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ADAPT\</OutputPath>
+    <DefineConstants>DEBUG;ADAPT,MF_FRAMEWORK_VERSION_V4_3</DefineConstants>
+    <DocumentationFile>bin\Debug\Samraksh_SPOT_Hardware.XML</DocumentationFile>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Accelerometer.cs" />
+    <Compile Include="DotNOW\AnalogInputDotNOW.cs" />
     <Compile Include="AnalogInput.cs" />
-    <Compile Include="AnalogInput_Base.cs" />
     <Compile Include="Common.cs" />
-    <Compile Include="FPGA.cs" />
-    <Compile Include="LCD.cs" />
-    <Compile Include="NOR.cs" />
+    <Compile Include="ADAPT\FPGA.cs" />
+    <Compile Include="DotNOW\LCD.cs" />
+    <Compile Include="DotNOW\NOR.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EmoteDotNow.cs" />
-    <Compile Include="SD.cs" />
+    <Compile Include="DotNOW\Mappings.cs" />
+    <Compile Include="DotNOW\SD.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
