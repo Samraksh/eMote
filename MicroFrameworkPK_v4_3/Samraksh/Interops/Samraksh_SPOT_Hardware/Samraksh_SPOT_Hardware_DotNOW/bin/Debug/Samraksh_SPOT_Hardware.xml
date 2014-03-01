@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Samraksh_SPOT_Hardware</name>
+    </assembly>
+    <members>
+        <member name="T:Samraksh.SPOT.Hardware.Accelerometer">
+            <summary>
+            Adapt Accelerometer Interface class
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.#ctor">
+            <summary>
+            Accelerometer constructor
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.#ctor(System.Int32,Samraksh.SPOT.Hardware.Accelerometer.AxlCallbackType)">
+            <summary>
+            Initializes the i2c and the accelerometer sensor
+            </summary>
+            <param name="RefreshRate">controls the rate at which the driver samples the accelerometer</param>
+            <param name="callbackfunction">user callback function, if null the user is not intimated of changes in sensor values and should use polling</param>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.Initialize">
+            <summary>
+            Initializes the accelerometer hardware
+            </summary>
+            <returns>The result of accelerometer initialization: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.Reset">
+            <summary>
+            Resets the accelerometer hardware
+            </summary>
+            <returns>The result of accelerometer reset: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.SelfTest">
+            <summary>
+            Runs the accelerometer self-test
+            </summary>
+            <returns>The result of accelerometer self-test: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.GetX">
+            <summary>
+            Gets the accelerometer X value
+            </summary>
+            <returns>The accelerometer X value (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.GetY">
+            <summary>
+            Gets the accelerometer Y value
+            </summary>
+            <returns>The accelerometer Y value (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.GetZ">
+            <summary>
+            Gets the accelerometer Z value
+            </summary>
+            <returns>The accelerometer Z value (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.GetTemperature">
+            <summary>
+            Gets the accelerometer temperature
+            </summary>
+            <returns>The accelerometer temperature (Int16)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.ReadRegister(System.Byte)">
+            <summary>
+            Reads a register
+            </summary>
+            <param name="reg">The register to be read.</param>
+            <returns>The  register return value (Byte)</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.WriteRegister(System.Byte,System.Byte)">
+            <summary>
+            Writes a register
+            </summary>
+            <param name="reg">The register to be written.</param>
+            <param name="data">The register value to be written.</param>
+            <returns>The result of accelerometer register write: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.AdvancedConfig(System.UInt32)">
+            <summary>
+            Accelerometer advanced configuration
+            </summary>
+            <param name="config">The configuration to be used.</param>
+            <returns>The result of accelerometer advanced configuration: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.SetPowerMode(System.UInt32)">
+            <summary>
+            Accelerometer set power
+            </summary>
+            <param name="power">The power to be used.</param>
+            <returns>The result of accelerometer set power: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.SetBandwidth(System.UInt32)">
+            <summary>
+            Accelerometer set bandwidth
+            </summary>
+            <param name="bandwidth">The bandwidth to be used.</param>
+            <returns>The result of accelerometer set bandwidth: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.SetRange(System.Byte)">
+            <summary>
+            Accelerometer set range
+            </summary>
+            <param name="range">The range to be used.</param>
+            <returns>The result of accelerometer set range: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.Accelerometer.GetAllData(System.Int16[])">
+            <summary>
+            Get all three axis
+            </summary>
+            <param name="data">Array of size 3 passed to the driver to be filled.</param>
+            <returns>The result of accelerometer get all: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="P:Samraksh.SPOT.Hardware.Accelerometer.RefreshRate">
+            <summary>
+            Set the value of refresh rate 
+            </summary>
+        </member>
+        <member name="P:Samraksh.SPOT.Hardware.Accelerometer.CurrentData">
+            <summary>
+            Get the current sampling value of the accelerometer
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.Accelerometer.AxlCallbackType">
+            <summary>
+            Accelerometer call-back
+            </summary>
+            <param name="eventType"></param>
+            <param name="time"></param>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.Accelerometer.Data.RawX">
+            <summary>
+            The raw x axis acceleration data 
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.Accelerometer.Data.RawY">
+            <summary>
+            The raw y axis acceleration data 
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.Accelerometer.Data.RawZ">
+            <summary>
+            The raw z axis acceleration data 
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.Accelerometer.GRange">
+            <summary>
+            Enum describing the GRange of the accelerometer   
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.Accelerometer.OutputResolution">
+            <summary>
+            Enum describing the output resolution of the accelerometer    
+            </summary>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.AdcCallBack">
+            <summary>
+            Defines a delegate for the continuous mode of the callback function
+            </summary>
+            <param name="state"></param>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.AnalogInput">
+            <summary>
+            AnalogInput class similar to Microsoft AnalogInput but with additional features
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.AnalogInput.MyCallback">
+            <summary>
+            Represents the callback function
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.AnalogInput.Initialize">
+            <summary>
+            Initializes the accelerometer hardware
+            </summary>
+            <returns>The result of accelerometer initialization: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.AnalogInput.Read(System.Int32)">
+            <summary>
+            Read one sample from the channel
+            </summary>
+            <param name="channel">Specify the channel to be read</param>
+            <returns>Returns the read value</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.AnalogInput.ReadBatch(System.UInt16[],System.Int32,System.UInt32,System.UInt32)">
+            <summary>
+            Read batch mode
+            </summary>
+            <param name="sampleBuff">The buffer to be filled</param>
+            <param name="channel">Define the channel to be read</param>
+            <param name="NumSamples">Defines the number of samples to be read</param>
+            <param name="SamplingTime">Defines the rate at which the adc should read channels</param>
+            <returns>Returns the result of the operation: 0-Success, 1-Fail</returns>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.AnalogInput.GetMaxSampleRate">
+            <summary>
+            Get the sample rate maximum of the ADC
+            </summary>
+            <returns>Returns the maximum sample rate of the ADC.</returns>
+        </member>
+        <member name="T:Samraksh.SPOT.Hardware.AdcSampleTime">
+            <summary>
+            Time taken to sample in the adc driver
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Success">
+            <summary>
+            Success
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Fail">
+            <summary>
+            Fail
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Ready">
+            <summary>
+            Ready
+            </summary>
+        </member>
+        <member name="F:Samraksh.SPOT.Hardware.DeviceStatus.Busy">
+            <summary>
+            Busy 
+            </summary>
+        </member>
+    </members>
+</doc>
