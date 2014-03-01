@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Samraksh.SPOT.Hardware.ADAPT</name>
+    </assembly>
+    <members>
+        <member name="T:Samraksh.SPOT.Hardware.ADAPT.FPGA">
+            <summary>
+            Adapt FPGA Interface class
+            </summary>
+        </member>
+        <member name="M:Samraksh.SPOT.Hardware.ADAPT.FPGA.Initialize">
+            <summary>
+            Initializes the FPGA hardware
+            </summary>
+            <returns>The result of FPGA initialization: 0-Success, 1-Fail</returns>
+        </member>
+    </members>
+</doc>
