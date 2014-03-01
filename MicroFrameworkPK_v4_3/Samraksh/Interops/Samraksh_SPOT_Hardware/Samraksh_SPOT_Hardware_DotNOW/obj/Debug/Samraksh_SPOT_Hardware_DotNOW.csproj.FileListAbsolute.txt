@@ -15,7 +15,6 @@ C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardwar
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\bin\Debug\BE\Samraksh_SPOT_Hardware.pdbx
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\bin\Debug\Samraksh_SPOT_Hardware.dll
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\bin\Debug\Samraksh_SPOT_Hardware.pdb
-C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\bin\Debug\Samraksh_SPOT_Hardware.xml
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\Samraksh_SPOT_Hardware_DotNOW.csprojResolveAssemblyReference.cache
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\be\Samraksh.SPOT.Hardware.DotNOW.pe
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\be\Samraksh.SPOT.Hardware.DotNOW.pdbx
@@ -23,3 +22,4 @@ C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardwar
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\le\Samraksh.SPOT.Hardware.DotNOW.pdbx
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\Samraksh.SPOT.Hardware.DotNOW.dll
 C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\obj\Debug\Samraksh.SPOT.Hardware.DotNOW.pdb
+C:\Samraksh Git\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware_DotNOW\bin\Debug\Samraksh.SPOT.Hardware.DotNOW.XML
