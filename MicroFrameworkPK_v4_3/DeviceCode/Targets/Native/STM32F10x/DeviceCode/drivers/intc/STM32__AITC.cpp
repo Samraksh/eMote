@@ -19,6 +19,80 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+//#define DEBUG_DOTNOW_ISR
+
+#ifdef DEBUG_DOTNOW_ISR
+UINT32 interrupt_count[64]; // Count of interrupts.
+static const UINT32 c_IRQ_INDEX_NonMaskableInt          = -14;
+static const UINT32 c_IRQ_INDEX_MemoryManagementInt          = -12;
+static const UINT32 c_IRQ_INDEX_BusFault          = -11;
+static const UINT32 c_IRQ_INDEX_UsageFault          = -10;
+static const UINT32 c_IRQ_INDEX_DebugMonitor          = -4;
+static const UINT32 c_IRQ_INDEX_SysTick          = -1;
+static const UINT32 c_IRQ_INDEX_WWDG          = 0;
+static const UINT32 c_IRQ_INDEX_PVD          = 1;
+static const UINT32 c_IRQ_INDEX_TAMPER       = 2;
+static const UINT32 c_IRQ_INDEX_RTC     = 3;
+static const UINT32 c_IRQ_INDEX_FLASH     = 4;
+static const UINT32 c_IRQ_INDEX_RCC    = 5;
+static const UINT32 c_IRQ_INDEX_EXTI0   = 6;
+static const UINT32 c_IRQ_INDEX_EXTI1      = 7;
+static const UINT32 c_IRQ_INDEX_EXTI2        = 8;
+static const UINT32 c_IRQ_INDEX_EXTI3        = 9;
+static const UINT32 c_IRQ_INDEX_EXTI4        = 10;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL1     = 11;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL2       = 12;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL3       = 13;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL4       = 14;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL5      = 15;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL6       = 16;
+static const UINT32 c_IRQ_INDEX_DMA_CHANNEL7       = 17;
+static const UINT32 c_IRQ_INDEX_ADC1_2       = 18;
+static const UINT32 c_IRQ_INDEX_USB_HP_CAN_TX    = 19;
+static const UINT32 c_IRQ_INDEX_USB_LP_CAN_RX0       = 20;
+static const UINT32 c_IRQ_INDEX_CAN_RX1       = 21;
+static const UINT32 c_IRQ_INDEX_CAN_SCE      = 22;
+static const UINT32 c_IRQ_INDEX_EXTI9_5      = 23;
+static const UINT32 c_IRQ_INDEX_TIM1_BRK_TIM9     = 24;
+static const UINT32 c_IRQ_INDEX_TIM1_UP_TIM10      = 25;
+static const UINT32 c_IRQ_INDEX_TIM1_TRG_COM_TIM11     = 26;
+static const UINT32 c_IRQ_INDEX_TIM1_CC       = 27;
+static const UINT32 c_IRQ_INDEX_TIM2       = 28;
+static const UINT32 c_IRQ_INDEX_TIM3       = 29;
+static const UINT32 c_IRQ_INDEX_TIM4       = 30;
+static const UINT32 c_IRQ_INDEX_I2C1_EV     = 31;
+static const UINT32 c_IRQ_INDEX_I2C1_ER      = 32;
+static const UINT32 c_IRQ_INDEX_I2C2_EV      = 33;
+static const UINT32 c_IRQ_INDEX_I2C2_ER      = 34;
+static const UINT32 c_IRQ_INDEX_SPI1       = 35;
+static const UINT32 c_IRQ_INDEX_SPI2       = 36;
+static const UINT32 c_IRQ_INDEX_USART1     = 37;
+static const UINT32 c_IRQ_INDEX_USART2      = 38;
+static const UINT32 c_IRQ_INDEX_USART3      = 39;
+static const UINT32 c_IRQ_INDEX_EXTI15_10    = 40;
+static const UINT32 c_IRQ_INDEX_RTCAlarm      = 41;
+static const UINT32 c_IRQ_INDEX_USBWakeUp     = 42;
+static const UINT32 c_IRQ_INDEX_TIM8_BRK_TIM12   = 43;
+static const UINT32 c_IRQ_INDEX_Tasklet_High    = 44;
+static const UINT32 c_IRQ_INDEX_Tasklet_Low    = 45;
+static const UINT32 c_IRQ_INDEX_TIM8_CC      = 46;
+static const UINT32 c_IRQ_INDEX_ADC3       = 47;
+static const UINT32 c_IRQ_INDEX_FSMC       = 48;
+static const UINT32 c_IRQ_INDEX_SDIO       = 49;
+static const UINT32 c_IRQ_INDEX_TIM5        = 50;
+static const UINT32 c_IRQ_INDEX_SPI3        = 51;
+static const UINT32 c_IRQ_INDEX_USART4       = 52;
+static const UINT32 c_IRQ_INDEX_USART5       = 53;
+static const UINT32 c_IRQ_INDEX_TIM6        = 54;
+static const UINT32 c_IRQ_INDEX_TIM7       = 55;
+static const UINT32 c_IRQ_INDEX_DMA2_Channel1       = 56;
+static const UINT32 c_IRQ_INDEX_DMA2_Channel2       = 57;
+static const UINT32 c_IRQ_INDEX_DMA2_Channel3       = 58;
+static const UINT32 c_IRQ_INDEX_DMA2_Channel4_5     = 59;
+static const UINT32 c_IRQ_INDEX_PendSV          = 60;	//Used to be -2, Modified by Mukundan for Preemptive thread
+static const UINT32 c_IRQ_INDEX_SVCall          = 61;    // Used to -5, Modified by Nived for bottom half thread
+#endif
+
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_STM32"
 #endif
@@ -120,6 +194,10 @@ void STM32_AITC_Driver::Initialize()
 
     // // set all priorities to the lowest
      IRQ_VECTORING* IsrVector = s_IsrTable;
+	 
+#ifdef DEBUG_DOTNOW_ISR
+	memset(interrupt_count, 0, 4*64);
+#endif
 
     // // set the priority level for each IRQ and stub the IRQ callback
      for (int i=0; i<c_VECTORING_GUARD;i++)
@@ -269,6 +347,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_SVCall]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SVCall];
 
@@ -293,6 +375,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_PendSV]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PendSV];
 
@@ -320,6 +406,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_PVD]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_PVD];
 
@@ -342,6 +432,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TAMPER]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TAMPER];
 
@@ -361,6 +455,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+			
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_RTC]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTC];
 
@@ -381,6 +479,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_FLASH]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FLASH];
 
@@ -402,6 +504,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_RCC]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RCC];
 
@@ -445,6 +551,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI1]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI1];
 
@@ -465,6 +575,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI2]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI2];
 
@@ -484,6 +598,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI3]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI3];
 
@@ -503,6 +621,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI4]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI4];
 
@@ -522,6 +644,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1];
 
@@ -541,6 +667,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL2]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL2];
 
@@ -560,6 +690,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL3]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL3];
 
@@ -580,6 +714,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL4]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL4];
 
@@ -599,6 +737,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL5]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL5];
 
@@ -618,6 +760,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL6]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL6];
 
@@ -637,6 +783,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL7]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL7];
 
@@ -656,6 +806,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_ADC1_2]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC1_2];
 
@@ -675,6 +829,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USB_HP_CAN_TX]++;
+#endif
 
 		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[18];
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_HP_CAN_TX];
@@ -695,6 +853,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USB_LP_CAN_RX0]++;
+#endif
 
 		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[19];
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USB_LP_CAN_RX0];
@@ -716,6 +878,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_CAN_RX1]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_RX1];
 
@@ -735,6 +901,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_CAN_SCE]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_CAN_SCE];
 
@@ -754,6 +924,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI9_5]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI9_5];
 
@@ -773,6 +947,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM1_BRK_TIM9]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_BRK_TIM9];
 
@@ -792,6 +970,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM1_UP_TIM10]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_UP_TIM10];
 
@@ -811,6 +993,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM1_TRG_COM_TIM11]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_TRG_COM_TIM11];
 
@@ -830,6 +1016,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM1_CC]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM1_CC];
 
@@ -878,6 +1068,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM3]++;
+#endif
 
 			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[28];
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM3];
@@ -899,6 +1093,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM4]++;
+#endif
 
 			//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[29];
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM4];
@@ -951,6 +1149,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_I2C1_EV]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_EV];
 
@@ -972,6 +1174,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_I2C1_ER]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C1_ER];
 
@@ -993,6 +1199,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_I2C2_EV]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_EV];
 
@@ -1014,6 +1224,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_I2C2_ER]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_I2C2_ER];
 
@@ -1035,6 +1249,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_SPI1]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI1];
 
@@ -1056,6 +1274,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_SPI2]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI2];
 
@@ -1077,6 +1299,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USART1]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART1];
 
@@ -1098,6 +1324,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USART2]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART2];
 
@@ -1119,6 +1349,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USART3]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART3];
 
@@ -1140,6 +1374,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI15_10]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI15_10];
 
@@ -1161,6 +1399,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_RTCAlarm]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_RTCAlarm];
 
@@ -1182,6 +1424,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USBWakeUp]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USBWakeUp];
 
@@ -1203,6 +1449,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM8_BRK_TIM12]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12];
 
@@ -1224,6 +1474,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USART4]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART4];
 
@@ -1245,6 +1499,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_USART5]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_USART5];
 
@@ -1266,6 +1524,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM8_CC]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM8_CC];
 
@@ -1287,6 +1549,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_ADC3]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_ADC3];
 
@@ -1331,6 +1597,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			// set before jumping elsewhere or allowing other interrupts
 			SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 			SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_FSMC]++;
+#endif
 
 			STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_FSMC];
 
@@ -1355,6 +1625,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_SDIO]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SDIO];
 
@@ -1376,6 +1650,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM5]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM5];
 
@@ -1397,6 +1675,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_SPI3]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_SPI3];
 
@@ -1420,6 +1702,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
 		//AITC.ClearInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_High);
 
+				
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_Tasklet_High]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_High];
 
@@ -1447,6 +1733,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 
 
 		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_Tasklet_Low]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_Low];
 
@@ -1466,6 +1756,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM6]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM6];
 
@@ -1487,6 +1781,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM7]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM7];
 
@@ -1508,6 +1806,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA2_Channel1]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel1];
 
@@ -1529,6 +1831,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA2_Channel2]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel2];
 
@@ -1550,6 +1856,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA2_Channel3]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel3];
 
@@ -1571,6 +1881,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_DMA2_Channel4_5]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5];
 
@@ -1593,6 +1907,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_EXTI0]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_EXTI0];
 
@@ -1613,6 +1931,10 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		
+#ifdef DEBUG_DOTNOW_ISR
+		interrupt_count[c_IRQ_INDEX_TIM2]++;
+#endif
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM2];
 
