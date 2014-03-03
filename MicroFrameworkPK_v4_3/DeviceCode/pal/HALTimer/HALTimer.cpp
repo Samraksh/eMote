@@ -102,7 +102,7 @@ BOOL HALTimerManager::StartTimer(UINT8 timer_id)
 					gHalTimerManagerObject.m_timer[i].set_m_ticksTillExpire(gHalTimerManagerObject.m_timer[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
 				}
 
-				g_STM32F10x_AdvancedTimer.SetCompare(currentTime, nextTimer->get_m_ticksTillExpire());
+				g_STM32F10x_AdvancedTimer.SetCompare(currentTime, nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 			}
 
 			return TRUE;
@@ -145,7 +145,7 @@ BOOL HALTimerManager::CreateTimer(UINT8 timer_id, UINT32 start_time, UINT32 dtim
 	if(m_active_timer == NULL)
 	{
 		m_lastInterruptFireTime = HAL_Time_CurrentTicks();
-		g_STM32F10x_AdvancedTimer.SetCompare(0, nextTimer->get_m_ticksTillExpire());
+		g_STM32F10x_AdvancedTimer.SetCompare(0, nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 		m_active_timer = nextTimer;
 	}
 #if 0
@@ -221,7 +221,7 @@ void HALTimerCallback(void *arg)
 	// Factoring time spent in the handler
 	if(topTimer)
 	{
-		g_STM32F10x_AdvancedTimer.SetCompare(*((UINT32 *)arg), topTimer->get_m_ticksTillExpire());
+		g_STM32F10x_AdvancedTimer.SetCompare(*((UINT32 *)arg), topTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 	}
 
 

@@ -55,12 +55,22 @@ INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 // This function has been tested using the rollover test for advanced timers - level_0c
 INT64 HAL_Time_CurrentTime()
 {
+	// time and ticks are actually the same thing, so we just return UINT64 of ticks
 	return CPU_TicksToTime(HAL_Time_CurrentTicks());
 }
 
+// This SetCompare function will tie in to the HALTimerManager framework in \pal\HALTimer\HALTimer.cpp
+// On a successful compare, a tasklet is launched that will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
-	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue);
+	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
+}
+
+// This SetCompare works within the HAL_COMPLETION \ HAL_CONTINUATION framework in \pal\AsyncProcCall
+// On a successful compare HAL_COMPLETION::DequeueAndExec(); will be called
+void HAL_Time_SetCompare_Completion( UINT64 CompareValue )
+{
+	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
@@ -314,73 +324,67 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
     // At this point not sure
     g_STM32F10x_Timer_Configuration.Initialize();
 
+	//===========================================
+	// The following wait and re-initialization is needed to get the SetCompare() working
+	for(int i=0; i<100000;i++){}
+
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = 1;
+
+	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+
+	// the HAL_COMPLETION timer compare initialization
+	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+
+	// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
+	// however, doing so breaks the COM port output.
+	//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
+
     return DS_Success;
 
 }
 
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
-DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT32 compareValue)
+DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
-
 	UINT32 newCompareValue;
 
 	if(counterCorrection == 0)
 	{
-		newCompareValue = GetCounter() + compareValue;
-#if 0
-		if(newCompareValue <  GetCounter())
-		{
-			 TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-			// Schedule bottom half processing on arrival of interrupt
-			Tasklet_Schedule_hi(tasklet);
-
-			return DS_Success;
-		}
-#endif
-		if(compareValue >> 16)
-		{
-			//TIM_SetCompare1(TIM2, TIM2->CNT + (compareValue >> 16));
-			TIM_SetCompare1(TIM2, newCompareValue >> 16);
-
-			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-		}
-		else
-		{
-			TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-
-			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		}
+		newCompareValue = compareValue;
 	}
 	else
 	{
 		newCompareValue = counterCorrection +  compareValue;
-#if 0
-		// We have gone past the counter value so set interrupt now
-		if(newCompareValue <  GetCounter())
-		{
-		    TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-			// Schedule bottom half processing on arrival of interrupt
-			Tasklet_Schedule_hi(tasklet);
-
-			return DS_Success;
-		}
-#endif
-		if(compareValue >> 16)
-		{
+	}
+	if(compareValue >> 16)
+	{
+		if (scType == SET_COMPARE_TIMER){
 			TIM_SetCompare1(TIM2, newCompareValue >> 16);
-
 			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+		} else {
+			TIM_SetCompare2(TIM2, newCompareValue >> 16);
+			TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
 		}
-		else
-		{
+	}
+	else
+	{
+		if (scType == SET_COMPARE_TIMER){
 			TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+		} else {
+			TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 		}
-
 	}
 
 	currentCompareValue = newCompareValue;
@@ -413,11 +417,10 @@ void ISR_TIM2(void* Param)
 
 		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
 		//if(TIM1->CNT > lsbValue)
-		{
+		{			
 			// Fire now we already missed the counter value
 			// Create a software trigger
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-			g_STM32F10x_AdvancedTimer.TriggerSoftwareInterrupt();
 
 			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
 
@@ -429,9 +432,36 @@ void ISR_TIM2(void* Param)
 			TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
+	}
+	if(TIM_GetFlagStatus(TIM2, TIM_IT_CC2))
+	{
+		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
+		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 
+		// Small values on the lsb are sometimes missed
 
+		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
+
+		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
+		//if(TIM1->CNT > lsbValue)
+		{			
+			// Fire now we already missed the counter value
+			// Create a software trigger
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+
+			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
+
+			// Schedule bottom half processing on arrival of interrupt
+			//Tasklet_Schedule_hi(tasklet);
+		}
+		else
+		{
+			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+		}
 	}
 	if(TIM_GetFlagStatus(TIM2, TIM_IT_Update))
 	{
@@ -466,15 +496,16 @@ void ISR_TIM1( void* Param )
 
 		 //TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
 
-
 		TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
 
 		 // Schedule bottom half processing on arrival of interrupt
      	Tasklet_Schedule_hi(tasklet);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-
-
+	}
+	if(TIM_GetFlagStatus(TIM1, TIM_IT_CC2))
+	{
+		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
+		HAL_COMPLETION::DequeueAndExec();
 	}
 
 }
