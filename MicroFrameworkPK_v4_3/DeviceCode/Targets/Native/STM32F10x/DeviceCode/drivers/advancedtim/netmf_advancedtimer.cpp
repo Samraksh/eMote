@@ -398,7 +398,7 @@ extern "C"
 void ISR_TIM2(void* Param)
 {
 
-	if(TIM_GetFlagStatus(TIM2, TIM_IT_CC1))
+	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
@@ -433,7 +433,7 @@ void ISR_TIM2(void* Param)
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
 	}
-	if(TIM_GetFlagStatus(TIM2, TIM_IT_CC2))
+	if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
@@ -463,7 +463,7 @@ void ISR_TIM2(void* Param)
 			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 		}
 	}
-	if(TIM_GetFlagStatus(TIM2, TIM_IT_Update))
+	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
 	{
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		// An overflow just happened, update the 64 bit value
@@ -488,7 +488,7 @@ void ISR_TIM1( void* Param )
 	g_STM32F10x_AdvancedTimer.Get64Counter();
 
 
-	if(TIM_GetFlagStatus(TIM1, TIM_IT_CC3))
+	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
@@ -501,7 +501,7 @@ void ISR_TIM1( void* Param )
 		 // Schedule bottom half processing on arrival of interrupt
      	Tasklet_Schedule_hi(tasklet);
 	}
-	if(TIM_GetFlagStatus(TIM1, TIM_IT_CC2))
+	if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
