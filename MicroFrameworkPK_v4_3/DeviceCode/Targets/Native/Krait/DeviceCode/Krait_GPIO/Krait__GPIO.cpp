@@ -63,6 +63,13 @@ void gpio_config_uart_dm(UINT8 id)
 	}
 }
 
+BOOL Krait_GPIO_Driver::GetPinState(GPIO_PIN pin) {
+	UINT32 *addr = (unsigned int *)GPIO_IN_OUT_ADDR(pin);
+	if (readl(addr)&1)
+		return TRUE;
+	else
+		return FALSE;
+}
 
 BOOL Krait_GPIO_Driver::Initialize()
 {

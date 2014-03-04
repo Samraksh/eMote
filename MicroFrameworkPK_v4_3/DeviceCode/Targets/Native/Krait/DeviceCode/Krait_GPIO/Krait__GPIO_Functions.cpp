@@ -53,8 +53,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
-    //return Krait_GPIO_Driver::GetPinState( Pin );
-    return TRUE;
+    return Krait_GPIO_Driver::GetPinState( Pin );
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
