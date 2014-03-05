@@ -1,0 +1,24 @@
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Directory>DeviceCode\Targets\Native\Interop\Samraksh_SPOT_Hardware_Adapt</Directory>
+    <AssemblyName>Samraksh_SPOT_Hardware_Adapt</AssemblyName>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+<ItemGroup>
+<HFile Include="spot_native.h" />
+<Compile Include="spot_native.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_ADC_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_ADC.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_ADC.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_Accelerometer.cpp" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_FPGA_mshl.cpp" />
+<HFile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_FPGA.h" />
+<Compile Include="spot_native_Samraksh_SPOT_Hardware_Adapt_FPGA.cpp" />
+</ItemGroup>
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

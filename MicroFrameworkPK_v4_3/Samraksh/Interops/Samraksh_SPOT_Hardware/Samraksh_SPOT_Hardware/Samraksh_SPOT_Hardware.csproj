@@ -31,8 +31,11 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="Accelerometer.cs" />
     <Compile Include="AnalogInput.cs" />
+    <Compile Include="AnalogInput_Base.cs" />
     <Compile Include="Common.cs" />
+    <Compile Include="FPGA.cs" />
     <Compile Include="LCD.cs" />
     <Compile Include="NOR.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

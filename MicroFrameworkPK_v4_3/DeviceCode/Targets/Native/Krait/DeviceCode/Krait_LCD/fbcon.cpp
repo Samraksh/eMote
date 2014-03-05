@@ -184,7 +184,7 @@ void display_image_on_screen(void)
 		    SPLASH_IMAGE_WIDTH * bytes_per_bpp);
 	}
     }
-    fbcon_flush();
+    //fbcon_flush();
 #if DISPLAY_MIPI_PANEL_NOVATEK_BLUE
     if(is_cmd_mode_enabled())
         mipi_dsi_cmd_mode_trigger();
@@ -200,7 +200,7 @@ void display_image_on_screen(void)
 		    SPLASH_IMAGE_HEIGHT * bytes_per_bpp);
 	}
     }
-    fbcon_flush();
+    //fbcon_flush();
 #endif
 }
 

@@ -1,0 +1,17 @@
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\le\Samraksh_SPOT_Hardware_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\be\Samraksh_SPOT_Hardware_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\le\Samraksh_SPOT_Hardware_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\be\Samraksh_SPOT_Hardware_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\Samraksh_SPOT_Hardware_Adapt.XML
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\Samraksh_SPOT_Hardware_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\Samraksh_SPOT_Hardware_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\le\Samraksh_SPOT_Hardware_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\le\Samraksh_SPOT_Hardware_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\be\Samraksh_SPOT_Hardware_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\bin\Debug\be\Samraksh_SPOT_Hardware_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\be\Samraksh_SPOT_Hardware_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\be\Samraksh_SPOT_Hardware_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\le\Samraksh_SPOT_Hardware_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\le\Samraksh_SPOT_Hardware_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\Samraksh_SPOT_Hardware_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_SPOT_Hardware_Adapt\Samraksh_SPOT_Hardware_Adapt\obj\Debug\Samraksh_SPOT_Hardware_Adapt.pdb

@@ -11,6 +11,13 @@
 
 
 Krait_GPIO_Driver g_Krait_GPIO_Driver;
+GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
+
+void gpio_irq(void *arg)
+{
+		//my_isr(GPIO_PIN, BOOL, null);
+		my_isr(0, TRUE, NULL);
+}
 
 //Taken from platform/msn8960/gpio.c
 void gpio_tlmm_config(UINT32 gpio, UINT8 func,
@@ -63,6 +70,13 @@ void gpio_config_uart_dm(UINT8 id)
 	}
 }
 
+BOOL Krait_GPIO_Driver::GetPinState(GPIO_PIN pin) {
+	UINT32 *addr = (unsigned int *)GPIO_IN_OUT_ADDR(pin);
+	if (readl(addr)&1)
+		return TRUE;
+	else
+		return FALSE;
+}
 
 BOOL Krait_GPIO_Driver::Initialize()
 {
@@ -71,6 +85,16 @@ BOOL Krait_GPIO_Driver::Initialize()
 BOOL Krait_GPIO_Driver::EnableInputPin(GPIO_PIN pin, BOOL glitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE isr, void* isr_param, GPIO_INT_EDGE intEdge, GPIO_RESISTOR resistorState )
 {
 	gpio_tlmm_config(pin, 1, GPIO_INPUT, resistorState, GPIO_8MA, GPIO_DISABLE);
+	
+	if(isr) {
+		UINT32 *addr = (UINT32 *)GPIO_INTR_CFG(pin);
+		UINT32 val = 0x7; // docs page 297, enable summary interrupt for pin.
+		writel(val, addr);
+		my_isr = isr;
+		CPU_INTC_ActivateInterrupt(TLMM_MSM_SUMMARY_IRQ, gpio_irq, 0);
+		CPU_INTC_InterruptEnable( TLMM_MSM_SUMMARY_IRQ );
+	}
+	
 	return TRUE;
 }
 
