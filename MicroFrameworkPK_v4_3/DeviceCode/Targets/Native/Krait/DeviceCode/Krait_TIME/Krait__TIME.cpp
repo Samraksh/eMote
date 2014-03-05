@@ -23,8 +23,10 @@ extern "C"
 {
 void TIMER_HANDLER(void *param)
 {
+#if defined(DEBUG_TIMER)
 	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
+#endif
 	
 	if(g_Krait_TIME_Driver.CounterValue() >= g_Krait_TIME_Driver.m_nextCompare)
 	{
@@ -38,8 +40,11 @@ void TIMER_HANDLER(void *param)
 }
 }
 
-BOOL Krait_TIME_Driver::Initialize  (){
-
+BOOL Krait_TIME_Driver::Initialize()
+{
+#if defined(DEBUG_TIMER)
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, FALSE);
+#endif
 	
 	// Initial numbers pulled from the Imote, Why ? Don't know, "the dots don't connect looking ahead" - Steve Jobs
 	g_Krait_TIME_Driver.m_lastRead    = 0;
@@ -47,8 +52,6 @@ BOOL Krait_TIME_Driver::Initialize  (){
 	g_Krait_TIME_Driver.m_nextCompare = 6750000;
 	
 	g_Krait_TIME_Driver.m_lastCompare = g_Krait_TIME_Driver.m_nextCompare;
-
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, FALSE);
 
 	// This function intially sets the compare value to 6750000 intially, rendering the next line moot
 	g_Krait_Timer_Driver.Initialize(0, TRUE, 0, 0, TIMER_HANDLER, NULL);
