@@ -40,6 +40,10 @@ UINT32 platform_tick_rate(void)
 
 }
 
+// Stub
+void HAL_Time_SetCompare_Completion(UINT64 val) {
+
+}
 
 
 BOOL Krait_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param )
