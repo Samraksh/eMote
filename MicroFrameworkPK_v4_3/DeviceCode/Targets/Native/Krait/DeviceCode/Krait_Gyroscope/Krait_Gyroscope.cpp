@@ -75,7 +75,7 @@ INT8 SetOffsets(INT16 xOffset, INT16 yOffset, INT16 zOffset)
 	return retVal;
 }
 
-INT8 SampleConfiguration(UIN32 config)
+INT8 SampleConfiguration(UINT32 config)
 {
 	INT8 retVal = 0;
 	return retVal;

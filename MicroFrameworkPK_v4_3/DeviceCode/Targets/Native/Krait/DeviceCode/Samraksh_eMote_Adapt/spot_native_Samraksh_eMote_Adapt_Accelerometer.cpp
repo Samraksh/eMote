@@ -13,6 +13,7 @@
 
 #include "spot_native.h"
 #include "spot_native_Samraksh_eMote_Adapt_Accelerometer.h"
+#include "..\Krait_Accelerometer\Krait_Accelerometer.h"
 
 using namespace Samraksh::eMote::Adapt;
 

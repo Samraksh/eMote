@@ -13,6 +13,7 @@
 
 #include "spot_native.h"
 #include "spot_native_Samraksh_eMote_Adapt_Gyroscope.h"
+#include "..\Krait_Gyroscope\Krait_Gyroscope.h"
 
 using namespace Samraksh::eMote::Adapt;
 

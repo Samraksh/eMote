@@ -13,12 +13,13 @@
 
 #include "spot_native.h"
 #include "spot_native_Samraksh_eMote_Adapt_FPGA.h"
+#include "..\Krait_FPGA\Krait_FPGA.h"
 
 using namespace Samraksh::eMote::Adapt;
 
 INT8 FPGA::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = 0; 
+    INT8 retVal = fpga_init(); 
     return retVal;
 }
 

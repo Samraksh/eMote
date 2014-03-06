@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_Adapt</FeatureName>
-    <Guid>{2610fe83-8110-4e02-b89a-503c4e4f1188}</Guid>
+    <Guid>{e03f9be1-50df-4130-834f-9f6af4e3d2ae}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_ADAPT_FEATUREPROJ>True</SAMRAKSH_EMOTE_ADAPT_FEATUREPROJ>
@@ -10,7 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_Adapt.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_Adapt" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Adapt.pe" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\dotnetmf.proj" />	
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Adapt.pe" />
+    <RequiredProjects Include=".\NativeStubs\.\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

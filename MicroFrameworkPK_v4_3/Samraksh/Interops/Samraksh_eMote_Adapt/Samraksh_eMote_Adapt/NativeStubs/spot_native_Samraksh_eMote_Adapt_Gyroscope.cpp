@@ -18,85 +18,85 @@ using namespace Samraksh::eMote::Adapt;
 
 INT8 Gyroscope::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = gyro_init(); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::Reset( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = gyro_reset(); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::SelfTest( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = gyro_self_test(); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT16 Gyroscope::GetX( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = gyro_get_X(); 
+    INT16 retVal = 0; 
     return retVal;
 }
 
 INT16 Gyroscope::GetY( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = gyro_get_Y(); 
+    INT16 retVal = 0; 
     return retVal;
 }
 
 INT16 Gyroscope::GetZ( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = gyro_get_Z(); 
+    INT16 retVal = 0; 
     return retVal;
 }
 
 INT16 Gyroscope::GetTemperature( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT16 retVal = gyro_get_temp(); 
+    INT16 retVal = 0; 
     return retVal;
 }
 
 UINT8 Gyroscope::ReadRegister( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
-    UINT8 retVal = gyro_raw_read(param0); 
+    UINT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::WriteRegister( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT8 param1, HRESULT &hr )
 {
-    INT8 retVal = gyro_raw_write(param0, param1); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::AdvancedConfiguration( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    INT8 retVal = gyro_config(param0); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::SetPowerMode( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    UINT8 retVal = gyro_sample_config(param0); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::SetOffsets( CLR_RT_HeapBlock* pMngObj, INT16 param0, INT16 param1, INT16 param2, HRESULT &hr )
 {
-    INT8 retVal = gyro_offsets(param0, param1, param2); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::SampleConfiguration( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    INT8 retVal = gyro_power(param0 ); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
 INT8 Gyroscope::GetAllData( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT16 param0, HRESULT &hr )
 {
-    INT8 retVal = gyro_get_XYZ(param0.GetBuffer()); 
+    INT8 retVal = 0; 
     return retVal;
 }
 
