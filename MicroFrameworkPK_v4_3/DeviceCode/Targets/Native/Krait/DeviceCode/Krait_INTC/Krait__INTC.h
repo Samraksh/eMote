@@ -83,11 +83,8 @@ extern "C"
 {
 void qgic_init(void);
 void register_int_handler(unsigned int vector, int_handler handler, void *arg);
-void unregister_int_handler(unsigned int vector);
 status_t mask_interrupt(unsigned int vector);
 status_t unmask_interrupt(unsigned int vector);
-bool gic_is_irq_pending(unsigned int vector);
-bool gic_is_irq_enabled(unsigned int vector);
 }
 
 struct ihandler {

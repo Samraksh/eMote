@@ -26,36 +26,30 @@ BOOL CPU_INTC_ActivateInterrupt( UINT32 Irq_Index, HAL_CALLBACK_FPN ISR, void* I
 {
 
 	register_int_handler(Irq_Index, (int_handler) ISR, ISR_Param);
-	return true;
 }
 
 BOOL CPU_INTC_DeactivateInterrupt( UINT32 Irq_Index )
 {
-	//TODO: check if interrupt is active, then use QGIC_ICACTIVER
-	mask_interrupt(Irq_Index);
-	unregister_int_handler(Irq_Index);
-	return true;
+
 }
 
 BOOL CPU_INTC_InterruptEnable( UINT32 Irq_Index )
 {
 	unmask_interrupt(Irq_Index);
-	return true;
 }
 
 BOOL CPU_INTC_InterruptDisable( UINT32 Irq_Index )
 {
 	mask_interrupt(Irq_Index);
-	return true;
 }
 
 BOOL CPU_INTC_InterruptEnableState( UINT32 Irq_Index )
 {
-	return gic_is_irq_enabled(Irq_Index);
+
 }
 
 BOOL CPU_INTC_InterruptState( UINT32 Irq_Index )
 {
-	return gic_is_irq_pending(Irq_Index);
+
 }
 
