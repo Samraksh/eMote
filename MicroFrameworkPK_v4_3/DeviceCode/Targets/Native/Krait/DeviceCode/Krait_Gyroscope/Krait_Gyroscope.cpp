@@ -29,19 +29,19 @@ INT8 gyro_self_test()
 
 INT16 gyro_get_X()
 {
-    INT16 xVal = 0; 
+    INT16 xVal = 1; 
     return xVal;
 }
 
 INT16 gyro_get_Y()
 {
-    INT16 yVal = 0; 
+    INT16 yVal = 22; 
     return yVal;
 }
 
 INT16 gyro_get_Z()
 {
-    INT16 zVal = 0; 
+    INT16 zVal = 444; 
     return zVal;
 }
 

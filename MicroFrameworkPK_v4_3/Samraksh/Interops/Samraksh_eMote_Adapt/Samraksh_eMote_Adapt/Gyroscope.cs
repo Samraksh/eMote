@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Samraksh.eMote.Adapt
 {
-    class Gyroscope
+    public class Gyroscope
     {
         public Gyroscope()
         {
