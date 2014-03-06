@@ -10,7 +10,7 @@
 #include "Krait_FPGA.h"
 
 // Globals
-uint8_t fpga_init_done;
+UINT8 fpga_init_done;
 
 // Statics
 
@@ -29,13 +29,13 @@ static void mdelay(unsigned int msecs)
 	writel(0, GPT_CLEAR);
 }
 
-static uint8_t sam_fpga_spi(uint8_t data) {
-    uint8_t bit = 0x80;
-    uint8_t ret = 0;
-    const uint8_t d = 10;
-    const uint8_t miso_pin = 82;
-    const uint8_t clk_pin = 79;
-    const uint8_t mosi_pin = 77;
+static UINT8 sam_fpga_spi(UINT8 data) {
+    UINT8 bit = 0x80;
+    UINT8 ret = 0;
+    const UINT8 d = 10;
+    const UINT8 miso_pin = 82;
+    const UINT8 clk_pin = 79;
+    const UINT8 mosi_pin = 77;
 
     // MISO input
     unsigned int *addr = (unsigned int *)GPIO_IN_OUT_ADDR(miso_pin);
@@ -79,10 +79,10 @@ static void gpio_set(UINT32 gpio, UINT32 dir)
 }
 
 // CMD52, read a register.
-static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg, uint8_t data) {
+static UINT8 fpga_cmd52_r(UINT8 func, UINT8 reg, UINT8 data) {
 
-	uint8_t resp, timeout, extra;
-	uint8_t spi_send[6] = {0x74, 0x04, 0x00, 0x01, 0x00, 0xFF};
+	UINT8 resp, timeout, extra;
+	UINT8 spi_send[6] = {0x74, 0x04, 0x00, 0x01, 0x00, 0xFF};
 	
 	// Data to write
 	spi_send[4] |= data;
@@ -118,10 +118,10 @@ static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg, uint8_t data) {
 }
 
 // CMD52, write to a register.
-static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
+static UINT8 fpga_cmd52_w(UINT8 func, UINT8 reg, UINT8 data) {
 
-	uint8_t resp, timeout, extra;
-	uint8_t spi_send[6] = {0x74, 0x84, 0x00, 0x01, 0x00, 0xFF};
+	UINT8 resp, timeout, extra;
+	UINT8 spi_send[6] = {0x74, 0x84, 0x00, 0x01, 0x00, 0xFF};
 	
 	// Data to write
 	spi_send[4] |= data;
@@ -157,7 +157,7 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 }
 
 // Functions
-uint8_t fpga_init() {
+UINT8 fpga_init() {
 	if (fpga_init_done) return; // Already started
 	fpga_init_done = 1;
 	
@@ -184,8 +184,8 @@ uint8_t fpga_init() {
 	
 	
 	{ // Send CMD0
-		uint8_t resp, timeout;
-		uint8_t spi_send[6] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
+		UINT8 resp, timeout;
+		UINT8 spi_send[6] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
 		//dprintf(INFO, "sending CMD0\n");
 		FPGA_CS(0); // assert
 		mdelay(1);
@@ -209,8 +209,8 @@ uint8_t fpga_init() {
 	
 	
 	{ // CMD59, disable CRC
-		uint8_t resp, timeout;
-		uint8_t spi_send[6] = {0x7B, 0x00, 0x00, 0x00, 0x00, 0x8B};
+		UINT8 resp, timeout;
+		UINT8 spi_send[6] = {0x7B, 0x00, 0x00, 0x00, 0x00, 0x8B};
 		//dprintf(INFO, "sending CMD59\n");
 		FPGA_CS(0); // assert
 		mdelay(1);
@@ -234,8 +234,8 @@ uint8_t fpga_init() {
 	
         
     { // CMD5, 4 extra bytes
-        uint8_t resp, timeout, extra[4];
-        uint8_t spi_send[6] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x87};
+        UINT8 resp, timeout, extra[4];
+        UINT8 spi_send[6] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x87};
         dprintf(INFO, "sending CMD5\n");
         FPGA_CS(0);
         mdelay(1);
@@ -271,48 +271,48 @@ uint8_t fpga_init() {
 // ADC REG COMMANDS
 
 // ADC configuration register.
-void fpga_adc_conf(uint8_t incc, uint8_t ref, uint8_t bw){
+void fpga_adc_conf(UINT8 incc, UINT8 ref, UINT8 bw){
 	
 }
 
 // ADC command register
-void fpga_adc_cmd(uint8_t chan, uint8_t cmd){
+void fpga_adc_cmd(UINT8 chan, UINT8 cmd){
 }
 
 // ADC status register
-uint8_t fpga_adc_get_stat(void){
+UINT8 fpga_adc_get_stat(void){
 }
 
 // Sets sample rate in increments of 13.33us (256 clocks @ 19.2 MHz).
-void fpga_adc_sample_rate(uint8_t sample_rate_ticks){
+void fpga_adc_sample_rate(UINT8 sample_rate_ticks){
 }
 
 // Returns the last ADC immediate mode sample stored
-uint16_t fpga_adc_get_sample(void){
+UINT16 fpga_adc_get_sample(void){
 }
 
 // Bit vector for enabling ADC inputs 0-7. Auto mode only.
-void fpga_adc_set_chan(uint8_t chan){
+void fpga_adc_set_chan(UINT8 chan){
 }
 
 // raw access mode. write_mode = 0. 'offset' is the offset of adc register from module base.
-uint8_t fpga_adc_raw(uint8_t offset, uint8_t rw, uint8_t data){
+UINT8 fpga_adc_raw(UINT8 offset, UINT8 rw, UINT8 data){
 }
 
 // Get continuous mode samples (multiple). NOTE: Undocumented, making guesses, may change
 // Return: Number of samples available (including what was returned)
 // buffer: array to place samples (in event of multiple channels, user must sort out).
 // toRead: Maximum number of samples to place into buffer (e.g. buffer size)
-uint16_t fpga_adc_cont_get(uint16_t *buffer, uint8_t toRead){
+UINT16 fpga_adc_cont_get(UINT16 *buffer, UINT8 toRead){
 }
 
 // ADC HIGHER LEVEL COMMANDS (composed of above for the user/speed).
 // Grab one sample on one channel and blocks until returned.
-uint16_t fpga_adc_now(uint8_t chan){
+UINT16 fpga_adc_now(UINT8 chan){
 }
 
 // Setup and start continuous mode.
-uint8_t fpga_adc_cont_start(uint8_t chan, uint8_t sample_rate_ticks){
+UINT8 fpga_adc_cont_start(UINT8 chan, UINT8 sample_rate_ticks){
 }
 
 // Stop continuous mode.
