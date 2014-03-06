@@ -1,0 +1,17 @@
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\le\Samraksh_eMote_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\be\Samraksh_eMote_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\le\Samraksh_eMote_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\be\Samraksh_eMote_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\Samraksh_eMote_Adapt.xml
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\Samraksh_eMote_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\Samraksh_eMote_Adapt.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\le\Samraksh_eMote_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\le\Samraksh_eMote_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\be\Samraksh_eMote_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\bin\Debug\be\Samraksh_eMote_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\be\Samraksh_eMote_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\be\Samraksh_eMote_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\le\Samraksh_eMote_Adapt.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\le\Samraksh_eMote_Adapt.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\Samraksh_eMote_Adapt.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt\obj\Debug\Samraksh_eMote_Adapt.pdb
