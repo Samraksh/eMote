@@ -112,6 +112,35 @@ void register_int_handler(unsigned int vector, int_handler func, void *arg)
 //	exit_critical_section();
 }
 
+void unregister_int_handler(unsigned int vector)
+{
+	ASSERT(vector < NR_IRQS);
+
+//	enter_critical_section();
+	handler[vector].func = 0;
+	handler[vector].arg = 0;
+//	exit_critical_section();
+}
+
+/*
+ * Before calling this function the interrupts should be disabled
+ * and the irq must be disabled at gic to avoid spurious interrupts
+ */
+bool gic_is_irq_pending(unsigned int vector)
+{
+	uint32_t mask, val;
+	mask = 1 << (vector % 32);
+	val = readl(GIC_DIST_PENDING_SET + (vector / 32) * 4);
+	return (bool) (val & mask);
+}
+
+bool gic_is_irq_enabled(unsigned int vector)
+{
+	uint32_t mask, val;
+	mask = 1 << (vector % 32);
+	val = readl(GIC_DIST_ENABLE_SET + (vector / 32) * 4);
+	return (bool) (val & mask);
+}
 
 }
 
