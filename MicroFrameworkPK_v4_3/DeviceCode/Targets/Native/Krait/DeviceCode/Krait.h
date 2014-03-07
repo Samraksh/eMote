@@ -123,6 +123,7 @@ typedef int kobj_id;
 #define GPIO_INTR_CFG(x)	(TLMM_BASE_ADDR + 0x1008 + (x)*0x10)
 #define GPIO_INTR_STATUS(x)	(TLMM_BASE_ADDR + 0x100C + (x)*0x10)
 #define TLMM_MSM_SUMMARY_IRQ	(GIC_SPI_START + 16)
+#define NR_MSM_GPIO			152 /*0...151*/
 //---------END GPIO--------
 
 // Turns out GSBI_BASE and QUP_BASE are lies. Check with datasheet.

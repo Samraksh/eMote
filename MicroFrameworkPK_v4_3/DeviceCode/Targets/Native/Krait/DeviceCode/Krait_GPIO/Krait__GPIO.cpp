@@ -13,11 +13,52 @@
 Krait_GPIO_Driver g_Krait_GPIO_Driver;
 GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
 
+struct Krait_GPIO_Config {
+private:
+public:
+	UINT32 enabled[(NR_MSM_GPIO / 32) + 1];
+	GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[NR_MSM_GPIO];
+	int GPIO_GET_NEXT_ENABLED(int next) {
+		int itr = next/32;
+		int rem = next%32;
+		do {
+			if(this->enabled[itr] > 0) {
+				do {
+					if(enabled[itr] & (1 << (rem))) {
+						return rem;
+					}
+					++rem;
+				}while(rem < 32);
+			}
+			rem = 0;
+			++itr;
+		}while(itr < /*ARRAY_SIZE*/((NR_MSM_GPIO/32)+1));
+		return NR_MSM_GPIO;
+	}
+	inline void GPIO_SET_ISR(UINT32 gpio, GPIO_INTERRUPT_SERVICE_ROUTINE isr) {
+		gpio_isr[gpio] = isr;
+	}
+	inline void GPIO_SET_ENABLED(UINT32 gpio) {
+		enabled[gpio/32] |= (1 << (gpio % 32));
+	}
+	inline void GPIO_CLR_ENABLED(UINT32 gpio) {
+		enabled[gpio/32] &= ~(1 << (gpio % 32));
+	}
+}s_Krait_GPIO_Config;
+
+
 void gpio_irq(void *arg)
 {
-		//my_isr(GPIO_PIN, BOOL, null);
-		my_isr(0, TRUE, NULL);
+	for(int itr = s_Krait_GPIO_Config.GPIO_GET_NEXT_ENABLED(0); itr < NR_MSM_GPIO; itr = s_Krait_GPIO_Config.GPIO_GET_NEXT_ENABLED(++itr))
+	{
+		if(s_Krait_GPIO_Config.gpio_isr[itr] != NULL) {
+			//my_isr(GPIO_PIN, BOOL, null);
+			s_Krait_GPIO_Config.gpio_isr[itr](itr, TRUE, NULL);
+			writel(1, GPIO_INTR_STATUS(itr)); //clear interrupt for this GPIO.
+		}
+	}
 }
+
 /**
  * Translate NetMF enum GPIO_RESISTOR in CPU_GPIO_decl.h to MSM GPIO_ states in Krait__GPIO.h. NetMF has no notion of GPIO_KEEPER state, so bump 2 to 3.
  */
@@ -94,6 +135,7 @@ BOOL Krait_GPIO_Driver::EnableInputPin(GPIO_PIN pin, BOOL glitchFilterEnable, GP
 	gpio_tlmm_config(pin, 1, GPIO_INPUT, gpio_map_state(resistorState), GPIO_8MA, GPIO_DISABLE);
 	
 	if(isr) {
+		//FIXME: GLOBAL_LOCK or disable IRQs around this.
 		UINT32 *addr = (UINT32 *)GPIO_INTR_CFG(pin);
 		UINT32 val =  0; // docs 80-N1622-3 page 297, enable summary interrupt for pin.  Skip setting INTR_RAW_STATUS_EN to save power and not use per-interrupt handlers.
 		switch(intEdge) {
@@ -109,15 +151,20 @@ BOOL Krait_GPIO_Driver::EnableInputPin(GPIO_PIN pin, BOOL glitchFilterEnable, GP
 		            val = 0b011;
 		            break;
 		        case GPIO_INT_EDGE_BOTH:
+		            //FIXME: read level and change polarity in interrupt handler.
 		            val = 0b101;
 		            break;
 		        default:
 		            return FALSE;
 		}
+		val |= 0b1000; //set and leave INTR_RAW_STATUS_EN bit.
 		writel(val, addr);
-		my_isr = isr;
+		//FIXME: wait 5us before trying to clear status?
+		writel(1, GPIO_INTR_STATUS(pin)); //clear interrupt for this GPIO.
+		s_Krait_GPIO_Config.GPIO_SET_ISR(pin, isr);
 		CPU_INTC_ActivateInterrupt(TLMM_MSM_SUMMARY_IRQ, gpio_irq, 0);
 		CPU_INTC_InterruptEnable( TLMM_MSM_SUMMARY_IRQ );
+		//FIXME: unlock or enable IRQs.
 	}
 	
 	return TRUE;
@@ -153,6 +200,7 @@ void Krait_GPIO_Driver::SetPinState(GPIO_PIN pin, BOOL pinState)
 
 void Krait_GPIO_Driver::DisablePin(GPIO_PIN pin, GPIO_RESISTOR resistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction)
 {
+	s_Krait_GPIO_Config.GPIO_CLR_ENABLED(pin);
     gpio_tlmm_config(pin, AltFunction, GPIO_INPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_DISABLE);
 }
 
