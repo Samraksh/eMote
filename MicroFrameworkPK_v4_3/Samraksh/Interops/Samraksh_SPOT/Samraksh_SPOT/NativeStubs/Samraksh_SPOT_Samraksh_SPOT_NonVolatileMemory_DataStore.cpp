@@ -17,42 +17,30 @@
 
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
+//AnanthAtSamraksh - to be kept in sync with the one in NonVolatileMemory.cs
+typedef enum DATASTORE_RETURN_STATUS
+{
+	Success = 0,
+	Failure = -1,
+	InvalidArgument = -2,
+	InvalidReference = -3
+	//AlreadyExists,
+	//InvalidPointer
+};
+
 extern Data_Store g_dataStoreObject;
 
-static UINT32 dataID;
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     g_dataStoreObject.init();
-    dataID = g_dataStoreObject.getRecentRecordID();
+
     if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
-}
-
-INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 numBytes, UINT8 dataType, HRESULT &hr )
-{
-    dataID++;
-	return  (int)g_dataStoreObject.createRecord(dataID, numBytes, dataType);
-    //return  (int)g_dataStoreObject.createRecord(dataID, numBytes, 0);
-}
-
-INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 numBytes, UINT16 dataType, HRESULT &hr )
-{
-    dataID++;
-	return  (int)g_dataStoreObject.createRecord(dataID, numBytes, dataType);
-}
-
-INT32 DataStore::CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 numBytes, UINT32 dataType, HRESULT &hr )
-{
-	dataID++;
-	return  (int)g_dataStoreObject.createRecord(dataID, numBytes, dataType);
-}
-
-UINT32 DataStore::GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    return dataID;
+		return Failure;
 }
 
 float DataStore::GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -79,48 +67,54 @@ INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 {
     INT32 *managedBuffer = dataIdArray.GetBuffer();
 	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer, arrayLength, dataIdOffset);
+
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 INT32 DataStore::GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return g_dataStoreObject.getCountOfRecordIds();
+    return (INT32)g_dataStoreObject.getCountOfRecordIds();
 }
 
-INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
-{
-    INT8 retVal = 0; 
-    return retVal;
-}
-
-INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
 {
 	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), offset * sizeof(UINT8), numBytes);
+
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
-INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT16 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT16 dataType, INT32 storageType, HRESULT &hr )
 {
 	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), offset * sizeof(UINT16), numBytes);
+
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
-INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
 {
     g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), offset * sizeof(UINT32), numBytes);
-	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 /*INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 numBytes, INT32 storageType, HRESULT &hr )
@@ -132,61 +126,76 @@ INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_Typ
 		return false;
 }*/
 
-INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
 {
     g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), offset * sizeof(UINT8), numBytes);
 	//readBuffer = readBuffer[offset * sizeof(dataType)];
-	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
-INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT16 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT16 dataType, INT32 storageType, HRESULT &hr )
 {
 	g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), offset * sizeof(UINT16), numBytes);
 	//readBuffer = readBuffer[offset * sizeof(dataType)];
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
-INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
+INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
 {
 	g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), offset * sizeof(UINT32), numBytes);
 	//readBuffer = readBuffer[offset * sizeof(dataType)];
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 INT8 DataStore::DeleteAll( HRESULT &hr )
 {
     g_dataStoreObject.DeleteAll();
+
     if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 INT8 DataStore::EraseAllBlocks( HRESULT &hr )
 {
 	g_dataStoreObject.EraseAllBlocks();
+
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 INT8 DataStore::DataStoreGC( HRESULT &hr )
 {
     g_dataStoreObject.DataStoreGC();
+
     if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return true;
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
 	else
-		return false;
+		return Failure;
 }
 
 INT8 DataStore::GetReadWriteStatus( HRESULT &hr )

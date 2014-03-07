@@ -10,15 +10,15 @@
 <ItemGroup>
 <HFile Include="Samraksh_SPOT.h" />
 <Compile Include="Samraksh_SPOT.cpp" />
-<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore_mshl.cpp" />
-<HFile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.h" />
-<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.cpp" />
 <Compile Include="Samraksh_SPOT_Samraksh_SPOT_GC_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_Samraksh_SPOT_GC.h" />
 <Compile Include="Samraksh_SPOT_Samraksh_SPOT_GC.cpp" />
-<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation_mshl.cpp" />
-<HFile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation.h" />
-<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation.cpp" />
+<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference_mshl.cpp" />
+<HFile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference.h" />
+<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference.cpp" />
+<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore_mshl.cpp" />
+<HFile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.h" />
+<Compile Include="Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
