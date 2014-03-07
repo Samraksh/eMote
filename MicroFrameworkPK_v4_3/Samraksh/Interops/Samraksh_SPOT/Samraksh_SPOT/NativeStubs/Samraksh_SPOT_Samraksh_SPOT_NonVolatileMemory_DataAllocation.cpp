@@ -24,12 +24,12 @@ INT32 DataAllocation::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRES
 	return (INT32)g_dataStoreObject.getAddress(dataId);
 }
 
-UINT32 DataAllocation::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+INT32 DataAllocation::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
 	return g_dataStoreObject.getDataType(dataId);
 }
 
-UINT32 DataAllocation::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+INT32 DataAllocation::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
     return g_dataStoreObject.getAllocationSize(dataId);
 }
@@ -43,9 +43,9 @@ INT8 DataAllocation::DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESU
 		return false;
 }
 
-UINT32 DataAllocation::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
+INT32 DataAllocation::ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
+    INT32 retVal = 0; 
     return retVal;
 }
 

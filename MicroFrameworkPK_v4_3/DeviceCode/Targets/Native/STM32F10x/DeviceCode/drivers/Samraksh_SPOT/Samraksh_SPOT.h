@@ -29,7 +29,7 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore
     TINYCLR_NATIVE_DECLARE(GetUsedBytes___R4);
     TINYCLR_NATIVE_DECLARE(GetFreeBytes___R4);
     TINYCLR_NATIVE_DECLARE(GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4);
-    TINYCLR_NATIVE_DECLARE(GetCountOfDataIds___U4);
+    TINYCLR_NATIVE_DECLARE(GetCountOfDataIds___I4);
     TINYCLR_NATIVE_DECLARE(Delete___BOOLEAN__U4);
     TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__U4__SZARRAY_U1__U4__U4__U1__I4);
     TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__U4__SZARRAY_U1__U4__U4__U2__I4);
@@ -78,10 +78,10 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation
     static const int FIELD__dStore = 8;
 
     TINYCLR_NATIVE_DECLARE(LookupData___I4__U4);
-    TINYCLR_NATIVE_DECLARE(LookupDataType___U4__U4);
-    TINYCLR_NATIVE_DECLARE(LookupSize___U4__U4);
+    TINYCLR_NATIVE_DECLARE(LookupDataType___I4__U4);
+    TINYCLR_NATIVE_DECLARE(LookupSize___I4__U4);
     TINYCLR_NATIVE_DECLARE(DeleteData___BOOLEAN__U4);
-    TINYCLR_NATIVE_DECLARE(ConstructNativeMemoryPointer___U4__U4__U4);
+    TINYCLR_NATIVE_DECLARE(ConstructNativeMemoryPointer___I4__U4__U4);
     TINYCLR_NATIVE_DECLARE(DisposeNativeMemoryPointer___BOOLEAN__U4);
 
     //--//

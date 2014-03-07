@@ -27,7 +27,7 @@ namespace Samraksh
 
                 static UINT32& Get_m_Size( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::FIELD__m_Size ); }
 
-                static INT32& Get_dataPointer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::FIELD__dataPointer ); }
+                static UINT32& Get_dataPointer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::FIELD__dataPointer ); }
 
                 static UNSUPPORTED_TYPE& Get_dataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::FIELD__dataType ); }
 
@@ -41,10 +41,10 @@ namespace Samraksh
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                static UINT32 LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                static UINT32 LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
+                static INT32 LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
+                static INT32 LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                static UINT32 ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
+                static INT32 ConstructNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
                 static INT8 DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
             };
         }

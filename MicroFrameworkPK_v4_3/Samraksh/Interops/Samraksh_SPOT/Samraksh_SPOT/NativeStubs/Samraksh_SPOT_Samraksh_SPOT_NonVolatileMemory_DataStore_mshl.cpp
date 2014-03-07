@@ -200,7 +200,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetRead
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCountOfDataIds___U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCountOfDataIds___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -208,9 +208,9 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCoun
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT32 retVal = DataStore::GetCountOfDataIds( pMngObj,  hr );
+        INT32 retVal = DataStore::GetCountOfDataIds( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT32( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

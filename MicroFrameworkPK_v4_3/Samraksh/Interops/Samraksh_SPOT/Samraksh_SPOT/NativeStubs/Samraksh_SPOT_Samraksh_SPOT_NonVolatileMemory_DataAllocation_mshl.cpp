@@ -32,7 +32,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::Lo
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupDataType___U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupDataType___I4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -43,15 +43,15 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::Lo
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        UINT32 retVal = DataAllocation::LookupDataType( pMngObj,  param0, hr );
+        INT32 retVal = DataAllocation::LookupDataType( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT32( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupSize___U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupSize___I4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -62,9 +62,9 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::Lo
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        UINT32 retVal = DataAllocation::LookupSize( pMngObj,  param0, hr );
+        INT32 retVal = DataAllocation::LookupSize( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT32( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
@@ -89,7 +89,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::De
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::ConstructNativeMemoryPointer___U4__U4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::ConstructNativeMemoryPointer___I4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -103,9 +103,9 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::Co
         UINT32 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 2, param1 ) );
 
-        UINT32 retVal = DataAllocation::ConstructNativeMemoryPointer( pMngObj,  param0, param1, hr );
+        INT32 retVal = DataAllocation::ConstructNativeMemoryPointer( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_UINT32( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

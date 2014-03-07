@@ -40,7 +40,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsedBytes___R4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFreeBytes___R4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCountOfDataIds___U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCountOfDataIds___I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Delete___BOOLEAN__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write___BOOLEAN__U4__SZARRAY_U1__U4__U4__U1__I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write___BOOLEAN__U4__SZARRAY_U1__U4__U4__U2__I4,
@@ -86,10 +86,10 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupData___I4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupDataType___U4__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupSize___U4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupDataType___I4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::LookupSize___I4__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::DeleteData___BOOLEAN__U4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::ConstructNativeMemoryPointer___U4__U4__U4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::ConstructNativeMemoryPointer___I4__U4__U4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataAllocation::DisposeNativeMemoryPointer___BOOLEAN__U4,
     NULL,
     NULL,
@@ -99,7 +99,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT =
 {
     "Samraksh_SPOT", 
-    0x3F666596,
+    0x9C1F1EA4,
     method_lookup
 };
 

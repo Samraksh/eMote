@@ -19,7 +19,7 @@ using namespace Samraksh::SPOT::NonVolatileMemory;
 
 extern Data_Store g_dataStoreObject;
 
-static int dataID;
+static UINT32 dataID;
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
@@ -85,9 +85,9 @@ INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 		return false;
 }
 
-UINT32 DataStore::GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    return g_dataStoreObject.getCountOfRecordIds();
+    return (INT32)g_dataStoreObject.getCountOfRecordIds();
 }
 
 INT8 DataStore::Delete( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
@@ -116,7 +116,7 @@ INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_Typ
 
 INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT32 dataType, INT32 storageType, HRESULT &hr )
 {
-	g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), offset * sizeof(UINT32), numBytes);
+    g_dataStoreObject.writeRawData((void*)destAddress, (void*) data.GetBuffer(), offset * sizeof(UINT32), numBytes);
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return true;
 	else
@@ -134,7 +134,7 @@ INT8 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_Typ
 
 INT8 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_TypedArray_UINT8 readBuffer, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
 {
-	g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), offset * sizeof(UINT8), numBytes);
+    g_dataStoreObject.readRawData((void *) srcAddress, (void *) readBuffer.GetBuffer(), offset * sizeof(UINT8), numBytes);
 	//readBuffer = readBuffer[offset * sizeof(dataType)];
 	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return true;

@@ -45,6 +45,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         Failure,
         AlreadyExists,
         InvalidParameter,
+        InvalidReference,
         InvalidPointer
     };
 
@@ -74,7 +75,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         // Record Id unique to a pointer
         private UInt32 dataId;
         private UInt32 m_Size = 0;
-        private Int32 dataPointer;
+        private UInt32 dataPointer;
         private Type dataType;
 
         private Byte dataTypeByte = new byte();
@@ -102,30 +103,31 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="m_Size">Size of the data object to be stored in data store. 
         /// Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
         /// <param name="dataType">Type of data to be stored in data store</param>
-        public DataAllocation(DataStore dStore, UInt32 m_Size, Type dataType)
+        public DataAllocation(DataStore dStore, int m_Size, Type dataType)
         {
             this.dStore = dStore;
             this.dataType = dataType;
 
+            //Size allocation should not be zero or negative
             if (m_Size <= 0)
             {
-                throw new ArgumentException("m_Size cannot be less then or equal to zero", "m_size");
+                throw new ArgumentException("m_Size cannot be less than or equal to zero", "m_size");
             }
 
             if (dataType == dataTypeByte.GetType())
             {
                 m_Size = sizeof(byte) * m_Size;
-                this.dataPointer = dStore.CreateData(m_Size, 0);
+                this.dataPointer = (UInt32)dStore.CreateData((UInt32)m_Size, 0);
             }
             else if (dataType == dataTypeUInt16.GetType())
             {
                 m_Size = sizeof(UInt16) * m_Size;
-                this.dataPointer = dStore.CreateData(m_Size, 1);
+                this.dataPointer = (UInt32)dStore.CreateData((UInt32)m_Size, 1);
             }
             else if (dataType == dataTypeUInt32.GetType())
             {
                 m_Size = sizeof(UInt32) * m_Size;
-                this.dataPointer = dStore.CreateData(m_Size, 2);
+                this.dataPointer = (UInt32)dStore.CreateData((UInt32)m_Size, 2);
             }
             else
             {
@@ -135,7 +137,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (this.dataPointer == 0)
                 throw new DataStoreException("DataPointer is zero. Record could not be created.");
 
-            this.m_Size = m_Size;
+            this.m_Size = (UInt32)m_Size;
             this.dataId = dStore.GetDataID();
 
             if (this.dataId == 0)
@@ -148,17 +150,17 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>Rea
         /// <param name="dStore">DataStore object</param>
         /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
-        public DataAllocation(DataStore dStore, UInt32 dataId)
+        public DataAllocation(DataStore dStore, int dataId)
         {
             this.dStore = dStore;
-            this.dataId = dataId;
-            this.dataPointer = LookupData(dataId);
+            this.dataId = (UInt32)dataId;
+            this.dataPointer = (UInt32)LookupData((UInt32)dataId);
             if (this.dataPointer == 0)
                 throw new DataStoreException("DataPointer is zero. Record could not be created.");
 
-            this.m_Size = LookupSize(dataId);
+            this.m_Size = (UInt32)LookupSize((UInt32)dataId);
 
-            UInt32 retType = LookupDataType(dataId);
+            int retType = LookupDataType((UInt32)dataId);
             if (retType == 0)
                 this.dataType = typeof(byte);
             else if (retType == 1)
@@ -213,15 +215,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeByte.GetType())
+            //DataType to be written should be the same as that created during allocation
+            if (this.dataType != dataTypeByte.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be written from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
@@ -232,7 +241,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Offset should not be odd for byte dataType");
             }
 
-            retVal = dStore.Write((uint)dataPointer, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
+            retVal = dStore.Write((uint)this.dataPointer, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -260,15 +269,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeUInt16.GetType())
+            //DataType to be written should be the same as that created during allocation
+            if (this.dataType != dataTypeUInt16.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+            
+            //Amount of data to be written from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
@@ -281,7 +297,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.Write((uint)this.dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -309,15 +325,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeUInt32.GetType())
+            //DataType to be written should be the same as that created during allocation
+            if (this.dataType != dataTypeUInt32.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+            
+            //Amount of data to be written from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
@@ -332,7 +355,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.Write((uint)this.dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -356,16 +379,22 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
+            //DataType to be written should be the same as that created during allocation
             if (dataType != dataTypeByte.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
-            retVal = dStore.Write((uint)dataPointer, data, 0, (UInt32)numData, dataTypeByte);
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            retVal = dStore.Write((uint)this.dataPointer, data, 0, (UInt32)numData, dataTypeByte);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -389,13 +418,19 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
+            //DataType to be written should be the same as that created during allocation
             if (dataType != dataTypeUInt16.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
@@ -407,7 +442,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)dataPointer, byteArray, 0, numBytes, dataTypeUInt16);
+            retVal = dStore.Write((uint)this.dataPointer, byteArray, 0, numBytes, dataTypeUInt16);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -431,13 +466,19 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeUInt32.GetType())
+            //DataType to be written should be the same as that created during allocation
+            if (this.dataType != dataTypeUInt32.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be written should not be greater than size of input array
             if (numData > data.Length)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be written should not be greater than allocation size
+            if (numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
@@ -451,7 +492,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)dataPointer, byteArray, 0, numBytes, dataTypeUInt32);
+            retVal = dStore.Write((uint)this.dataPointer, byteArray, 0, numBytes, dataTypeUInt32);
 
             if (retVal == true)
                 return DataStatus.Success;
@@ -480,22 +521,29 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeByte.GetType())
+            //DataType to be read should be the same as that created during allocation
+            if (this.dataType != dataTypeByte.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be read should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be read should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be read from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeByte);
+            retVal = dStore.Read((uint)this.dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeByte);
 
             if (retVal == true)
             {
@@ -529,22 +577,29 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeUInt16.GetType())
+            //DataType to be read should be the same as that created during allocation
+            if (this.dataType != dataTypeUInt16.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be read should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be read should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be read from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.Read((uint)this.dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == true)
             {
@@ -579,22 +634,29 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (numData < 0)
                 throw new DataStoreException("numData should not be negative");
 
-            if (dataPointer == 0x0)
+            if (this.dataPointer == 0x0)
                 return DataStatus.InvalidPointer;
 
-            if (dataType != dataTypeUInt32.GetType())
+            //DataType to be read should be the same as that created during allocation
+            if (this.dataType != dataTypeUInt32.GetType())
                 return DataStatus.Failure;
 
+            //Amount of data to be read should not be greater than size of input array
             if (numData > data.Length)
                 return DataStatus.InvalidParameter;
 
+            //Amount of data to be read should not be greater than allocation size
+            if (numData > this.m_Size)
+                return DataStatus.InvalidParameter;
+
+            //Amount of data to be read from offset should not be greater than allocation size
             if (offset + numData > this.m_Size)
                 return DataStatus.InvalidParameter;
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.Read((uint)this.dataPointer, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == true)
             {
@@ -638,7 +700,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataId">ID of the data/record to be looked up</param>
         /// <returns>Returns address/reference to the dataID</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private Int32 LookupData(UInt32 dataId);
+        extern private int LookupData(UInt32 dataId);
 
         /// <summary>
         /// Get the data type of dataID
@@ -646,7 +708,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataId">ID of the data/record to be looked up</param>
         /// <returns>Returns data type</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private UInt32 LookupDataType(UInt32 dataId);
+        extern private int LookupDataType(UInt32 dataId);
 
         /// <summary>
         /// Get the allocation size for dataID
@@ -654,7 +716,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="dataId">ID of the data/record to be looked up</param>
         /// <returns>Returns allocation size</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private UInt32 LookupSize(UInt32 dataId);
+        extern private int LookupSize(UInt32 dataId);
 
         /// <summary>
         /// Delete the data represented by the dataId from data store.
@@ -671,7 +733,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="bytes"></param>
         /// <returns></returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private UInt32 ConstructNativeMemoryPointer(UInt32 dataId, UInt32 bytes);
+        extern private int ConstructNativeMemoryPointer(UInt32 dataId, UInt32 bytes);
 
         /// <summary>
         /// Native call that destroys record created on the flash
@@ -861,7 +923,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Returns the count of dataIDs
         /// </summary>
         /// <returns>Returns count of dataIDs</returns>
-        public UInt32 CountOfDataIds()
+        public int CountOfDataIds()
         {
             return GetCountOfDataIds();
         }
@@ -874,7 +936,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         public DataStatus ReadAllDataReferences(DataAllocation[] dataRefArray, int dataIdOffset)
         {
-            UInt16 dataId;
+            UInt32 dataId;
             if (dataRefArray.Length == 0)
                 throw new DataStoreException("dataRefArray cannot be of zero length");
 
@@ -892,12 +954,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             {
                 for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
                 {
-                    dataId = (UInt16)dataIdArray[arrayIndex];
+                    dataId = (UInt32)dataIdArray[arrayIndex];
                     if (dataId != 0)
                     {
                         try
                         {
-                            dataRefArray[arrayIndex] = new DataAllocation(this, dataId);
+                            dataRefArray[arrayIndex] = new DataAllocation(this, (int)dataId);
                         }
                         catch (Exception)
                         {
@@ -935,7 +997,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         }
 
         /// <summary>
-        /// Erases all data from data store.
+        /// Deletes all dataIDs as well as erases all data from data store.
         /// </summary>
         /// <returns>Returns success or failure</returns>
         public static DataStatus EraseAll()
@@ -1159,7 +1221,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <returns>Returns the count of valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private UInt32 GetCountOfDataIds();
+        extern private int GetCountOfDataIds();
 
         /// <summary>
         /// Delete all references to data in the data store
