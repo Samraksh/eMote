@@ -31,7 +31,7 @@ namespace Samraksh
                 static float GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static float GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static float GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT8 GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, INT32 param1, INT32 param2, HRESULT &hr );
+                static INT32 GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, INT32 param1, INT32 param2, HRESULT &hr );
                 static INT32 GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
                 static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
@@ -39,8 +39,8 @@ namespace Samraksh
                 static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
                 static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
                 static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
-                static INT8 DeleteAll( HRESULT &hr );
-                static INT8 EraseAllBlocks( HRESULT &hr );
+                static INT32 DeleteAll( HRESULT &hr );
+                static INT32 EraseAllBlocks( HRESULT &hr );
                 static INT8 DataStoreGC( HRESULT &hr );
                 static INT8 GetReadWriteStatus( HRESULT &hr );
                 static INT32 GetLastErrorStatus( HRESULT &hr );

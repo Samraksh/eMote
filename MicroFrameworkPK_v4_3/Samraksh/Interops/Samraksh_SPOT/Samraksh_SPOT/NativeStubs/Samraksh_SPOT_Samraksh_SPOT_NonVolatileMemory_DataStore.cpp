@@ -63,7 +63,7 @@ float DataStore::GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 	return g_dataStoreObject.returnFreeSpace();
 }
 
-INT8 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, INT32 arrayLength, INT32 dataIdOffset, HRESULT &hr )
+INT32 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 dataIdArray, INT32 arrayLength, INT32 dataIdOffset, HRESULT &hr )
 {
     INT32 *managedBuffer = dataIdArray.GetBuffer();
 	g_dataStoreObject.getRecordIDAfterPersistence((UINT32 *) managedBuffer, arrayLength, dataIdOffset);
@@ -162,7 +162,7 @@ INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_Type
 		return Failure;
 }
 
-INT8 DataStore::DeleteAll( HRESULT &hr )
+INT32 DataStore::DeleteAll( HRESULT &hr )
 {
     g_dataStoreObject.DeleteAll();
 
@@ -174,7 +174,7 @@ INT8 DataStore::DeleteAll( HRESULT &hr )
 		return Failure;
 }
 
-INT8 DataStore::EraseAllBlocks( HRESULT &hr )
+INT32 DataStore::EraseAllBlocks( HRESULT &hr )
 {
 	g_dataStoreObject.EraseAllBlocks();
 

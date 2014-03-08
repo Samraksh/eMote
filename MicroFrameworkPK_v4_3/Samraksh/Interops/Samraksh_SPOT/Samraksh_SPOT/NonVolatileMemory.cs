@@ -953,8 +953,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (dataIdOffset < 0)
                 throw new DataStoreException("dataIdOffset should not be negative");
 
-            if (GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset) == true)
+            int retVal = GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset);
+
+            if (retVal == 0)
                 return DATASTORE_RETURN_STATUS.Success;
+            else if (retVal == -3)
+                return DATASTORE_RETURN_STATUS.InvalidReference;
             else
                 return DATASTORE_RETURN_STATUS.Failure;
         }
@@ -986,9 +990,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
             /* User checks if array contents are null to break out of program. 
              * Clear the contents of array so that null values are returned if there is no data allocation in DataStore. */
             Array.Clear(dataRefArray, 0, dataRefArray.Length);
-
             int[] dataIdArray = new int[dataRefArray.Length];
-            if (GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset) == false)
+            
+            int retVal = GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset);
+
+            if (retVal != 0)
                 return DATASTORE_RETURN_STATUS.Failure;
             else
             {
@@ -1017,8 +1023,12 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <returns>Returns success or failure</returns>
         public static DATASTORE_RETURN_STATUS DeleteAllData()
         {
-            if (DeleteAll() == true)
+            int retVal = DeleteAll();
+
+            if (retVal == 0)
                 return DATASTORE_RETURN_STATUS.Success;
+            else if (retVal == -3)
+                return DATASTORE_RETURN_STATUS.InvalidReference;
             else
                 return DATASTORE_RETURN_STATUS.Failure;
         }
@@ -1043,17 +1053,24 @@ namespace Samraksh.SPOT.NonVolatileMemory
         public static DATASTORE_RETURN_STATUS EraseAllData()
         {
             // Remove contents from AddressTable also before erasing DataStore
-            if (DeleteAll() == true)
+            int retVal = DeleteAll();
+
+            if (retVal == 0)
             {
-                if (EraseAllBlocks() == true)
+                //DeleteAll was successful
+                retVal = EraseAllBlocks();
+
+                if (retVal == 0)
                     return DATASTORE_RETURN_STATUS.Success;
+                else if (retVal == -3)
+                    return DATASTORE_RETURN_STATUS.InvalidReference;
                 else
                     return DATASTORE_RETURN_STATUS.Failure;
             }
+            else if (retVal == -3)
+                return DATASTORE_RETURN_STATUS.InvalidReference;
             else
-            {
                 return DATASTORE_RETURN_STATUS.Failure;
-            }
         }
 
         /*/// <summary>
@@ -1254,7 +1271,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <returns>Returns array with valid data as unsigned integer</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private bool GetReadAllDataIds(int[] dataIdArray, int arrayLength, int dataIdOffset);
+        extern private int GetReadAllDataIds(int[] dataIdArray, int arrayLength, int dataIdOffset);
 
         /// <summary>
         /// Get the count of valid data currently stored in the data store
@@ -1268,14 +1285,14 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private static bool DeleteAll();
+        extern private static int DeleteAll();
 
         /// <summary>
         /// Erases all data in the data store
         /// </summary>
         /// <returns>Returns success or failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private static bool EraseAllBlocks();
+        extern private static int EraseAllBlocks();
 
         /// <summary>
         /// Garbage collects inactive data in data store

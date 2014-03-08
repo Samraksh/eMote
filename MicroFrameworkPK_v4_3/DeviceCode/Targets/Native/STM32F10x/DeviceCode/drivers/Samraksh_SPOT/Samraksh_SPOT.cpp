@@ -67,7 +67,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetTotalSpace___R4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsedBytes___R4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFreeBytes___R4,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___I4__SZARRAY_I4__I4__I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCountOfDataIds___I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
@@ -79,8 +79,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__BOOLEAN,
-    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___STATIC__BOOLEAN,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__I4,
+    Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___STATIC__I4,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DataStoreGC___STATIC__BOOLEAN,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadWriteStatus___STATIC__BOOLEAN,
     Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetLastErrorStatus___STATIC__I4,
@@ -93,7 +93,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_SPOT =
 {
     "Samraksh_SPOT", 
-    0x0EE6ADC6,
+    0x7A484A95,
     method_lookup
 };
 

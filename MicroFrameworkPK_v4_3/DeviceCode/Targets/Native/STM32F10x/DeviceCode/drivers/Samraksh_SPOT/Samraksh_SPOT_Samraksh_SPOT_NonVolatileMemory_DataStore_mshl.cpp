@@ -93,7 +93,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFree
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___BOOLEAN__SZARRAY_I4__I4__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadAllDataIds___I4__SZARRAY_I4__I4__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -110,9 +110,9 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetRead
         INT32 param2;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 3, param2 ) );
 
-        INT8 retVal = DataStore::GetReadAllDataIds( pMngObj,  param0, param1, param2, hr );
+        INT32 retVal = DataStore::GetReadAllDataIds( pMngObj,  param0, param1, param2, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
@@ -338,25 +338,25 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT8 retVal = DataStore::DeleteAll( hr );
+        INT32 retVal = DataStore::DeleteAll( hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___STATIC__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
-        INT8 retVal = DataStore::EraseAllBlocks( hr );
+        INT32 retVal = DataStore::EraseAllBlocks( hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
