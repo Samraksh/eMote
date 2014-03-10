@@ -31,7 +31,7 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
 {
-    //Krait_GPIO_Driver::DisablePin( Pin, ResistorState, Direction, AltFunction );
+    Krait_GPIO_Driver::DisablePin( Pin, ResistorState, Direction, AltFunction );
 }
 
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
@@ -53,8 +53,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
-    //return Krait_GPIO_Driver::GetPinState( Pin );
-    return TRUE;
+    return Krait_GPIO_Driver::GetPinState( Pin );
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )

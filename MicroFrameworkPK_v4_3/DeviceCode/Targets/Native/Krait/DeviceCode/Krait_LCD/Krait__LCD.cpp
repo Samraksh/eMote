@@ -640,6 +640,7 @@ void LCD_BitBltEx ( int x, int y, int width, int height, UINT32 data[])
 	
 	// This can NOT be hardcoded and should be 0,0
 	// A bitmap should be made for the screen size (400x800) and then drawn on, but we don't have the memory for that size of a screen so we will just hardcode the offset we need to draw our logo in the middle of the screen
+	fbcon_clear();
 	x = 129;
 	y = 300;
 

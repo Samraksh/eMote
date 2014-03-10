@@ -43,6 +43,7 @@
 
   <ItemGroup Condition="'$(INSTRUCTION_SET)'=='arm' or '$(INSTRUCTION_SET)'=='thumb' ">
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\cpwait.s" />
+	<Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\Krait_POWER_ops.s" />
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\FirstEntry.s" />
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\IDelayLoop.s" />
     <Compile Include="AssemblyCode\arm\$(AS_SUBDIR)\Sampling_Profiler_RAM.s" />
@@ -52,6 +53,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(INSTRUCTION_SET)'=='thumb2'">
+     <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\Krait_POWER_ops.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\FirstEntry.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\IDelayLoop.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />

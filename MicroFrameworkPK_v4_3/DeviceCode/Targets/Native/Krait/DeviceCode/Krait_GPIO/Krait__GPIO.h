@@ -76,6 +76,8 @@ public:
 	static UINT32 Attributes( GPIO_PIN Pin );
 	static BOOL ReservePin( GPIO_PIN pin, BOOL fReserve );
 	static void SetPinState(GPIO_PIN pin, BOOL pinState);
+	static BOOL GetPinState(GPIO_PIN pin);
+	static void DisablePin(GPIO_PIN pin, GPIO_RESISTOR resistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction);
 };
 
 #endif

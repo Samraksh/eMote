@@ -16,6 +16,7 @@
 #define	ETIME		62	/* Timer expired */
 
 typedef UINT32 uint32_t;
+typedef UINT8 uint8_t;
 //from include/sys/types.h
 
 #define __ALIGNED(x) __attribute__((aligned(x)))
@@ -114,9 +115,16 @@ typedef int kobj_id;
 #define MSM_SDC3_BASE       0x12180000
 #define MSM_SDC4_BASE       0x121C0000
 
+//-------GPIO------------
+#define GIC_SPI_START 32
 #define GPIO_CONFIG_ADDR(x) (TLMM_BASE_ADDR + 0x1000 + (x)*0x10)
 #define GPIO_IN_OUT_ADDR(x) (TLMM_BASE_ADDR + 0x1004 + (x)*0x10)
+#define GPIO_INTR_CFG(x)	(TLMM_BASE_ADDR + 0x1008 + (x)*0x10)
+#define GPIO_INTR_STATUS(x)	(TLMM_BASE_ADDR + 0x100C + (x)*0x10)
+#define TLMM_MSM_SUMMARY_IRQ	(GIC_SPI_START + 16)
+//---------END GPIO--------
 
+// Turns out GSBI_BASE and QUP_BASE are lies. Check with datasheet.
 #define GSBI_BASE(id)         ((id) <= 7 ? (0x16000000 + (((id)-1) << 20)) : \
                                            (0x1A000000 + (((id)-8) << 20)))
 #define GSBI_UART_DM_BASE(id) (GSBI_BASE(id) + 0x40000)
