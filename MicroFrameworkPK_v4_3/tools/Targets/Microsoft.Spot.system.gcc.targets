@@ -254,7 +254,7 @@
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
 	
 	<GNU_LIB_DIR     Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\thumb</GNU_LIB_DIR>
-    <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\4.5.0\thumb</GNU_LIBGCC_DIR>
+    <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb2'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\thumb</GNU_LIBGCC_DIR>
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
     <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
 
