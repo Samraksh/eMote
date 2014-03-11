@@ -90,6 +90,9 @@ namespace Samraksh.SPOT.NonVolatileMemory
         private UInt32 m_Size = 0;
         private UInt32 dataReference;
         private ReferenceDataType referenceDataType;
+        /// <summary>
+        /// DataType of reference
+        /// </summary>
         public Type dataType;
 
         private Byte dataTypeByte = new byte();
@@ -197,11 +200,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Returns the last error status of data store.
         /// </summary>
         /// <returns>Returns success, failure or error status</returns>
-        /*public DATASTORE_RETURN_STATUS GetStatus()
+        public DATASTORE_RETURN_STATUS GetStatus()
         {
             if (dStore.LastErrorStatus() == (int)DATASTORE_ERROR.DATASTORE_ERROR_DATA_ID_ALREADY_EXISTS)
                 return DATASTORE_RETURN_STATUS.AlreadyExists;
@@ -211,11 +214,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
             return DATASTORE_RETURN_STATUS.Failure;
         }*/
 
-        /// <summary>
+        /*/// <summary>
         /// Create a data element, specify the maximum size of data element
         /// </summary>
         /// <param name="MaxDataSize">Size of the bigggest data element which can be stored</param>
-        /*public Data(UInt32 MaxDataSize)
+        public Data(UInt32 MaxDataSize)
         {
             dataId++;
             buffer = new byte[MaxDataSize];
