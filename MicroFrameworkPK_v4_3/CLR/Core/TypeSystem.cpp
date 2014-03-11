@@ -41,7 +41,7 @@ int s_CLR_RT_fTrace_Memory                     = TINYCLR_TRACE_DEFAULT(c_CLR_RT_
 #endif
 
 #if defined(TINYCLR_TRACE_MEMORY_STATS)
-int s_CLR_RT_fTrace_MemoryStats                = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_Info,c_CLR_RT_Trace_Info);
+int s_CLR_RT_fTrace_MemoryStats                = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_None,c_CLR_RT_Trace_None);
 #endif
 
 #if defined(TINYCLR_GC_VERBOSE)
