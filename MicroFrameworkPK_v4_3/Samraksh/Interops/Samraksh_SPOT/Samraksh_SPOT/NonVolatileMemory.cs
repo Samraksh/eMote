@@ -14,7 +14,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
     /// <summary>
     /// Block device type
     /// </summary>
-    public enum StorageType
+    public enum STORAGE_TYPE
     {
         NOR = 1,
         SD
@@ -39,7 +39,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
     /// <summary>
     /// Data types allowed in the DataStore
     /// </summary>
-    public enum ReferenceDataType
+    public enum REFERENCE_DATA_TYPE
     {
         BYTE,
         UINT16,
@@ -87,13 +87,13 @@ namespace Samraksh.SPOT.NonVolatileMemory
         private DataStore dStore;
         // Data Id unique to a pointer
         private UInt32 dataId;
-        private UInt32 m_Size = 0;
+        private UInt32 referenceSize = 0;
         private UInt32 dataReference;
-        private ReferenceDataType referenceDataType;
+        private REFERENCE_DATA_TYPE referenceDataType;
         /// <summary>
         /// DataType of reference
         /// </summary>
-        public Type dataType;
+        private Type dataType;
 
         private Byte dataTypeByte = new byte();
         private UInt16 dataTypeUInt16 = new UInt16();
@@ -119,33 +119,33 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <param name="m_Size">Size of the data object to be stored in data store. 
         /// Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
         /// <param name="referenceDataType">Type of data to be stored in data store</param>
-        public DataReference(DataStore dStore, int m_Size, ReferenceDataType referenceDataType)
+        public DataReference(DataStore dStore, int refSize, REFERENCE_DATA_TYPE referenceDataType)
         {
             this.dStore = dStore;
             this.referenceDataType = referenceDataType;
 
             //Size allocation should not be zero or negative
-            if (m_Size <= 0)
+            if (refSize <= 0)
             {
                 throw new ArgumentException("m_Size cannot be less than or equal to zero", "m_size");
             }
 
-            if (referenceDataType == ReferenceDataType.BYTE)
+            if (referenceDataType == REFERENCE_DATA_TYPE.BYTE)
             {
-                m_Size = sizeof(byte) * m_Size;
-                this.dataReference = (UInt32)CreateData((UInt32)m_Size, 0);
+                refSize = sizeof(byte) * refSize;
+                this.dataReference = (UInt32)CreateData((UInt32)refSize, 0);
                 this.dataType = typeof(byte);
             }
-            else if (referenceDataType == ReferenceDataType.UINT16)
+            else if (referenceDataType == REFERENCE_DATA_TYPE.UINT16)
             {
-                m_Size = sizeof(UInt16) * m_Size;
-                this.dataReference = (UInt32)CreateData((UInt32)m_Size, 1);
+                refSize = sizeof(UInt16) * refSize;
+                this.dataReference = (UInt32)CreateData((UInt32)refSize, 1);
                 this.dataType = typeof(UInt16);
             }
-            else if (referenceDataType == ReferenceDataType.UINT32)
+            else if (referenceDataType == REFERENCE_DATA_TYPE.UINT32)
             {
-                m_Size = sizeof(UInt32) * m_Size;
-                this.dataReference = (UInt32)CreateData((UInt32)m_Size, 2);
+                refSize = sizeof(UInt32) * refSize;
+                this.dataReference = (UInt32)CreateData((UInt32)refSize, 2);
                 this.dataType = typeof(UInt32);
             }
             else
@@ -156,7 +156,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (this.dataReference == 0)
                 throw new DataStoreException("DataPointer is NULL. Data could not be created.");
 
-            this.m_Size = (UInt32)m_Size;
+            this.referenceSize = (UInt32)refSize;
             this.dataId = GetDataID();
 
             if (this.dataId == 0)
@@ -177,24 +177,24 @@ namespace Samraksh.SPOT.NonVolatileMemory
             if (this.dataReference == 0)
                 throw new DataStoreException("Reference to data is NULL. Data was not created.");
 
-            this.m_Size = (UInt32)LookupDataSize((UInt32)dataId);
-            if (this.m_Size == 0)
+            this.referenceSize = (UInt32)LookupDataSize((UInt32)dataId);
+            if (this.referenceSize == 0)
                 throw new DataStoreException("Data size is zero. Data was not created.");
 
             int retType = LookupDataType((UInt32)dataId);
             if (retType == 0)
             {
-                this.referenceDataType = ReferenceDataType.BYTE;
+                this.referenceDataType = REFERENCE_DATA_TYPE.BYTE;
                 this.dataType = typeof(byte);
             }
             else if (retType == 1)
             {
-                this.referenceDataType = ReferenceDataType.UINT16;
+                this.referenceDataType = REFERENCE_DATA_TYPE.UINT16;
                 this.dataType = typeof(UInt16);
             }
             else if (retType == 2)
             {
-                this.referenceDataType = ReferenceDataType.UINT32;
+                this.referenceDataType = REFERENCE_DATA_TYPE.UINT32;
                 this.dataType = typeof(UInt32);
             }
             //m_Size = ConstructNativeMemoryPointer(dataId, MaxDataSize);
@@ -249,7 +249,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -257,11 +257,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             //Amount of data to be written from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written exceeds size of data allocated");
 
             //Since the NOR flash cannot write to odd addresses.
@@ -305,7 +305,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -313,11 +313,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             //Amount of data to be written from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written exceeds size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
@@ -363,7 +363,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -371,11 +371,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             //Amount of data to be written from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written exceeds size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
@@ -420,7 +420,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -428,7 +428,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             retVal = dStore.Write((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
@@ -462,7 +462,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -470,7 +470,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
@@ -513,7 +513,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than size of input array
@@ -521,7 +521,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than array size");
 
             //Amount of data to be written should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
@@ -563,11 +563,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             retVal = dStore.Write((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
@@ -597,11 +597,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)data.Length;
@@ -640,11 +640,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be written should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)data.Length;
@@ -693,7 +693,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -701,11 +701,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             //Amount of data to be read from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read exceeds size of data allocated");
 
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
@@ -751,7 +751,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -759,11 +759,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             //Amount of data to be read from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read exceeds size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
@@ -810,7 +810,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -818,11 +818,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             //Amount of data to be read from offset should not be greater than allocation size
-            if (offset + numData > this.m_Size)
+            if (offset + numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read exceeds size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
@@ -869,7 +869,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -877,7 +877,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
@@ -920,7 +920,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -928,7 +928,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
@@ -972,7 +972,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be read should not be greater than size of input array
@@ -980,7 +980,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be read is greater than array size");
 
             //Amount of data to be read should not be greater than allocation size
-            if (numData > this.m_Size)
+            if (numData > this.referenceSize)
                 throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
@@ -1023,11 +1023,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.BYTE)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(byte) * (UInt32)data.Length;
@@ -1066,11 +1066,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT16)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt16) * (UInt32)data.Length;
@@ -1110,11 +1110,11 @@ namespace Samraksh.SPOT.NonVolatileMemory
                 throw new DataStoreException("Reference to data is null");
 
             //DataType to be read should be the same as that created during allocation
-            if (this.referenceDataType != ReferenceDataType.UINT32)
+            if (this.referenceDataType != REFERENCE_DATA_TYPE.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
             //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.m_Size)
+            if (data.Length > this.referenceSize)
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
 
             UInt32 numBytes = sizeof(UInt32) * (UInt32)data.Length;
@@ -1173,6 +1173,28 @@ namespace Samraksh.SPOT.NonVolatileMemory
 
             return dataType;
         }*/
+
+        /// <summary>
+        /// Return data reference type 
+        /// </summary>
+        public Type getDataReferenceType
+        {
+            get
+            {
+                return this.dataType;
+            }
+        }
+
+        /// <summary>
+        /// Return data reference size 
+        /// </summary>
+        public int getDataReferenceSize
+        {
+            get
+            {
+                return (int)this.referenceSize;
+            }
+        }
 
         /*~Data()
         {
@@ -1287,7 +1309,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// <summary>
         /// The block storage device type
         /// </summary>
-        private StorageType storageType;
+        private STORAGE_TYPE storageType;
 
         /// <summary>
         /// The only instance of DataStore.
@@ -1315,7 +1337,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Multiton pattern. This allows the DataStore to be initialized with different block storage devices such as NOR, NAND etc.
         /// http://en.wikipedia.org/wiki/Multiton_pattern
         /// </summary>
-        public static DataStore Instance(StorageType storageTypeKey)
+        public static DataStore Instance(STORAGE_TYPE storageTypeKey)
         {
             if (!dataStoreInstances.Contains(storageTypeKey))
             {
@@ -1345,7 +1367,7 @@ namespace Samraksh.SPOT.NonVolatileMemory
         /// Takes a storageType as parameter and initializes the data store with that storageType.
         /// </summary>
         /// <param name="storageType">storageType can be NOR, SD card or any other block storage device</param>
-        private bool InitDataStore(StorageType storageType)
+        private bool InitDataStore(STORAGE_TYPE storageType)
         {
             this.storageType = storageType;
             return CreateDataStore();

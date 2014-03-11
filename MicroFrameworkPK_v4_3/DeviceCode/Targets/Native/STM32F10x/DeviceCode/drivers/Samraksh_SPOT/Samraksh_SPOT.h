@@ -34,7 +34,7 @@ struct Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference
 {
     static const int FIELD__dStore = 1;
     static const int FIELD__dataId = 2;
-    static const int FIELD__m_Size = 3;
+    static const int FIELD__referenceSize = 3;
     static const int FIELD__dataReference = 4;
     static const int FIELD__referenceDataType = 5;
     static const int FIELD__dataType = 6;

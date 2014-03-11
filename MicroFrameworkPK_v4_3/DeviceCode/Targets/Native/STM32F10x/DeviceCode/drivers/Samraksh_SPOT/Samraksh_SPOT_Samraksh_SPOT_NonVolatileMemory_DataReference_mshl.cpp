@@ -13,7 +13,7 @@
 using namespace Samraksh::SPOT::NonVolatileMemory;
 
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::LookupData___I4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::GetDataReference___I4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -24,7 +24,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::Loo
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        INT32 retVal = DataReference::LookupData( pMngObj,  param0, hr );
+        INT32 retVal = DataReference::GetDataReference( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -51,7 +51,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::Loo
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::LookupSize___I4__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::LookupDataSize___I4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -62,7 +62,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::Loo
         UINT32 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 1, param0 ) );
 
-        INT32 retVal = DataReference::LookupSize( pMngObj,  param0, hr );
+        INT32 retVal = DataReference::LookupDataSize( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

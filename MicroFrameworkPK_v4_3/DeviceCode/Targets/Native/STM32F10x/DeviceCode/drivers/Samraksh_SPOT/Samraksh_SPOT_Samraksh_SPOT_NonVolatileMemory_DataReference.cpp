@@ -20,7 +20,7 @@ using namespace Samraksh::SPOT::NonVolatileMemory;
 extern Data_Store g_dataStoreObject;
 static UINT32 dataID;
 
-INT32 DataReference::LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+INT32 DataReference::GetDataReference( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
 	return (INT32)g_dataStoreObject.getAddress(dataId);
 }
@@ -30,7 +30,7 @@ INT32 DataReference::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, H
 	return (INT32)g_dataStoreObject.getDataType(dataId);
 }
 
-INT32 DataReference::LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+INT32 DataReference::LookupDataSize( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
     return (INT32)g_dataStoreObject.getAllocationSize(dataId);
 }
