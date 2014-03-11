@@ -23,11 +23,15 @@ namespace Samraksh
             struct DataReference
             {
                 // Helper Functions to access fields of managed object
+                static UNSUPPORTED_TYPE& Get_dStore( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dStore ); }
+
                 static UINT32& Get_dataId( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dataId ); }
 
                 static UINT32& Get_m_Size( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__m_Size ); }
 
                 static UINT32& Get_dataReference( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dataReference ); }
+
+                static INT32& Get_referenceDataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__referenceDataType ); }
 
                 static UNSUPPORTED_TYPE& Get_dataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dataType ); }
 
@@ -37,12 +41,10 @@ namespace Samraksh
 
                 static UINT32& Get_dataTypeUInt32( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dataTypeUInt32 ); }
 
-                static UNSUPPORTED_TYPE& Get_dStore( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataReference::FIELD__dStore ); }
-
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT32 LookupData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
+                static INT32 GetDataReference( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT32 LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
-                static INT32 LookupSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
+                static INT32 LookupDataSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT8 param1, HRESULT &hr );
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT16 param1, HRESULT &hr );

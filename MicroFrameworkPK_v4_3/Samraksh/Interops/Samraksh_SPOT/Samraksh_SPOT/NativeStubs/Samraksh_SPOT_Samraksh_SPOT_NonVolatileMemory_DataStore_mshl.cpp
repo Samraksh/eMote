@@ -29,7 +29,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::CreateD
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetMaxAllocationSize___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetMaxAllocationSize___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -37,15 +37,15 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetMaxA
 
         FAULT_ON_NULL(pMngObj);
 
-        float retVal = DataStore::GetMaxAllocationSize( pMngObj,  hr );
+        INT32 retVal = DataStore::GetMaxAllocationSize( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_float( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetTotalSpace___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetTotalSpace___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -53,15 +53,15 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetTota
 
         FAULT_ON_NULL(pMngObj);
 
-        float retVal = DataStore::GetTotalSpace( pMngObj,  hr );
+        INT32 retVal = DataStore::GetTotalSpace( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_float( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsedBytes___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsedBytes___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -69,15 +69,15 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetUsed
 
         FAULT_ON_NULL(pMngObj);
 
-        float retVal = DataStore::GetUsedBytes( pMngObj,  hr );
+        INT32 retVal = DataStore::GetUsedBytes( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_float( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFreeBytes___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFreeBytes___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -85,9 +85,9 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetFree
 
         FAULT_ON_NULL(pMngObj);
 
-        float retVal = DataStore::GetFreeBytes( pMngObj,  hr );
+        INT32 retVal = DataStore::GetFreeBytes( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_float( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
@@ -127,6 +127,86 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetCoun
         FAULT_ON_NULL(pMngObj);
 
         INT32 retVal = DataStore::GetCountOfDataIds( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = DataStore::DeleteAll( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = DataStore::EraseAllBlocks( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DataStoreGC___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = DataStore::DataStoreGC( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadWriteStatus___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = DataStore::GetReadWriteStatus( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetLastErrorStatus___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = DataStore::GetLastErrorStatus( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -331,66 +411,6 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::Read___
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
         INT32 retVal = DataStore::Read( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DeleteAll___STATIC__I4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        INT32 retVal = DataStore::DeleteAll( hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::EraseAllBlocks___STATIC__I4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        INT32 retVal = DataStore::EraseAllBlocks( hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::DataStoreGC___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        INT8 retVal = DataStore::DataStoreGC( hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetReadWriteStatus___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        INT8 retVal = DataStore::GetReadWriteStatus( hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_NonVolatileMemory_DataStore::GetLastErrorStatus___STATIC__I4( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        INT32 retVal = DataStore::GetLastErrorStatus( hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

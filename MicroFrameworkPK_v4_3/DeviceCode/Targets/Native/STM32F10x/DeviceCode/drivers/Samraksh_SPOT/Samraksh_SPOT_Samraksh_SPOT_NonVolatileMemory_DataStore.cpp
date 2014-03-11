@@ -23,13 +23,13 @@ typedef enum DATASTORE_RETURN_STATUS
 	Success = 0,
 	Failure = -1,
 	InvalidArgument = -2,
-	InvalidReference = -3
+	InvalidReference = -3,
+	DataStoreNotInitialized = -4
 	//AlreadyExists,
 	//InvalidPointer
 };
 
 extern Data_Store g_dataStoreObject;
-
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
@@ -43,22 +43,22 @@ INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 		return Failure;
 }
 
-float DataStore::GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	return g_dataStoreObject.maxAllocationSize();
 }
 
-float DataStore::GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	return g_dataStoreObject.returnTotalSpace();
 }
 
-float DataStore::GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	return g_dataStoreObject.returnLogPoint();
 }
 
-float DataStore::GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetFreeBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	return g_dataStoreObject.returnFreeSpace();
 }
@@ -79,6 +79,53 @@ INT32 DataStore::GetReadAllDataIds( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 INT32 DataStore::GetCountOfDataIds( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return (INT32)g_dataStoreObject.getCountOfRecordIds();
+}
+
+INT32 DataStore::DeleteAll( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    g_dataStoreObject.DeleteAll();
+
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
+	else
+		return Failure;
+}
+
+INT32 DataStore::EraseAllBlocks( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	g_dataStoreObject.EraseAllBlocks();
+
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
+	else
+		return Failure;
+}
+
+INT8 DataStore::DataStoreGC( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    g_dataStoreObject.DataStoreGC();
+
+    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
+	else
+		return Failure;
+}
+
+INT8 DataStore::GetReadWriteStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 DataStore::GetLastErrorStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return g_dataStoreObject.getLastError();
 }
 
 INT32 DataStore::Write( CLR_RT_HeapBlock* pMngObj, UINT32 destAddress, CLR_RT_TypedArray_UINT8 data, UINT32 offset, UINT32 numBytes, UINT8 dataType, INT32 storageType, HRESULT &hr )
@@ -160,52 +207,5 @@ INT32 DataStore::Read( CLR_RT_HeapBlock* pMngObj, UINT32 srcAddress, CLR_RT_Type
 		return InvalidReference;
 	else
 		return Failure;
-}
-
-INT32 DataStore::DeleteAll( HRESULT &hr )
-{
-    g_dataStoreObject.DeleteAll();
-
-    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return Success;
-	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
-		return InvalidReference;
-	else
-		return Failure;
-}
-
-INT32 DataStore::EraseAllBlocks( HRESULT &hr )
-{
-	g_dataStoreObject.EraseAllBlocks();
-
-	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return Success;
-	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
-		return InvalidReference;
-	else
-		return Failure;
-}
-
-INT8 DataStore::DataStoreGC( HRESULT &hr )
-{
-    g_dataStoreObject.DataStoreGC();
-
-    if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
-		return Success;
-	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
-		return InvalidReference;
-	else
-		return Failure;
-}
-
-INT8 DataStore::GetReadWriteStatus( HRESULT &hr )
-{
-    INT8 retVal = 0; 
-    return retVal;
-}
-
-INT32 DataStore::GetLastErrorStatus( HRESULT &hr )
-{
-    return g_dataStoreObject.getLastError();
 }
 
