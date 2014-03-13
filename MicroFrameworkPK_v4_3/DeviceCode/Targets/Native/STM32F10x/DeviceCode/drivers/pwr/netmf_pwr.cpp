@@ -166,7 +166,9 @@ void STM32F1x_Power_Driver::Hibernate() {
 }
 
 void HAL_AssertEx() {
-	return;
+__asm__("    BKPT     #0");
+__asm__("L1: B        L1");
+__asm__("    BX       lr");
 }
 
 
