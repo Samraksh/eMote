@@ -1,0 +1,26 @@
+
+define trl
+set remotetimeout 10000
+target remote localhost:3333
+end
+
+define mass
+monitor stm32f1x mass_erase 0
+monitor stm32f1x mass_erase 1
+end
+
+define mri
+monitor reset init
+end
+
+define mrh
+monitor reset halt
+end
+
+define ul
+monitor stm32f1x unlock 0
+end
+
+define soft
+monitor soft_reset_halt
+end
