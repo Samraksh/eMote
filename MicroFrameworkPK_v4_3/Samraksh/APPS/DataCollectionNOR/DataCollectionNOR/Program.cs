@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using Samraksh.SPOT.Hardware;
-using Samraksh.SPOT.NonVolatileMemory;
+using Samraksh.eMote.DotNow;
+using Samraksh.eMote.NonVolatileMemory;
 using System.IO.Ports;
 using System.Threading;
 
@@ -21,9 +21,9 @@ namespace Samraksh.SPOT.APPS
 
     public class NorStore : PersistentStorage
     {
-        public static OutputPort resultFailure = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN3, false);
-        public static OutputPort resultRWData = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN2, false);
-        //public static OutputPort resultDeleteData = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN2, false);
+        public static OutputPort resultFailure = new OutputPort(Samraksh.eMote.DotNow.Pins.GPIO_J11_PIN3, false);
+        public static OutputPort resultRWData = new OutputPort(Samraksh.eMote.DotNow.Pins.GPIO_J12_PIN2, false);
+        //public static OutputPort resultDeleteData = new OutputPort(Samraksh.eMote.DotNow.Pins.GPIO_J12_PIN2, false);
 
         public const uint NorSize = 12 * 1024 * 1024;
         public const bool debugMode = true;
@@ -34,19 +34,19 @@ namespace Samraksh.SPOT.APPS
         public byte[] verfierDS = new byte[1024];
 
         DataStore dStore;
-        Data dataDS;
+        DataReference dataDS;
         Type dataType = typeof(System.Byte);
 
         public NorStore()
         {
-            dStore = new DataStore((int)StorageType.NOR);
+            dStore = DataStore.Instance(STORAGE_TYPE.NOR);
         }
 
         public override bool Write(byte[] data, UInt16 length)
         {
             resultRWData.Write(false);
-            dataDS = new Data(dStore, (uint)data.Length, dataType);
-            if (dataDS.Write(data, (uint)data.Length) == DataStatus.Success)
+            dataDS = new DataReference(dStore, data.Length, REFERENCE_DATA_TYPE.BYTE);
+            if (dataDS.Write(data, data.Length) == DATASTORE_RETURN_STATUS.Success)
             {
                 Debug.Print("Write to NOR succeeded\n");
                 resultRWData.Write(true);
@@ -97,18 +97,18 @@ namespace Samraksh.SPOT.APPS
 
         /*public override bool Write(ushort[] data, UInt16 length)
         {
-            if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.IsFull())
+            if (Samraksh.eMote.DotNow.NOR.IsFull())
             {
                 return false;
             }
 
-            if (!Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(data, length))
+            if (!Samraksh.eMote.DotNow.NOR.Write(data, length))
             {
                 Debug.Print("Write Failed");
                 return false;
             }
 
-            Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Read(verfier, length);
+            Samraksh.eMote.DotNow.NOR.Read(verfier, length);
 
             Debug.Print(verfier[10].ToString());
 
@@ -116,7 +116,7 @@ namespace Samraksh.SPOT.APPS
 
             if (debugMode)
             {
-                if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Read(verfier, length) != Samraksh.SPOT.Hardware.DeviceStatus.Success)
+                if (Samraksh.eMote.DotNow.NOR.Read(verfier, length) != Samraksh.eMote.DotNow.DeviceStatus.Success)
                 {
                     Debug.Print("Read from NOR failed during verification\n");
                     return false;
@@ -142,7 +142,7 @@ namespace Samraksh.SPOT.APPS
         public override byte[] Read(int bufferSize)
         {
             byte[] readBuffer = new byte[bufferSize];
-            if (dataDS.Read(readBuffer, 0, (uint)bufferSize) != DataStatus.Success)
+            if (dataDS.Read(readBuffer, 0, bufferSize) != DATASTORE_RETURN_STATUS.Success)
             {
                 Debug.Print("Read from NOR failed during verification\n");
                 resultRWData.Write(false);
@@ -154,9 +154,9 @@ namespace Samraksh.SPOT.APPS
 
         /*public override bool Read(ushort[] data, UInt16 length)
         {
-            if (!Samraksh.SPOT.Hardware.EmoteDotNow.NOR.eof())
+            if (!Samraksh.eMote.DotNow.NOR.eof())
             {
-                if (Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Read(data, length) != Samraksh.SPOT.Hardware.DeviceStatus.Success)
+                if (Samraksh.eMote.DotNow.NOR.Read(data, length) != Samraksh.eMote.DotNow.DeviceStatus.Success)
                 {
                     Debug.Print("Read from NOR failed \n");
                     return false;
@@ -177,9 +177,9 @@ namespace Samraksh.SPOT.APPS
                 eof[i] = (byte)0x0c;
             }
 
-            //Samraksh.SPOT.Hardware.EmoteDotNow.NOR.Write(eof, (ushort) eof.Length);
-            dataDS = new Data(dStore, (uint)eof.Length, dataType);
-            if (dataDS.Write(eof, (uint)eof.Length) == DataStatus.Success)
+            //Samraksh.eMote.DotNow.NOR.Write(eof, (ushort) eof.Length);
+            dataDS = new DataReference(dStore, eof.Length, REFERENCE_DATA_TYPE.BYTE);
+            if (dataDS.Write(eof, eof.Length) == DATASTORE_RETURN_STATUS.Success)
                 return true;
             else
                 return false;
@@ -261,17 +261,17 @@ namespace Samraksh.SPOT.APPS
         public ushort[] ibuffer = new ushort[numberOfSamples];
         public ushort[] qbuffer = new ushort[numberOfSamples];
 
-        public Samraksh.SPOT.Hardware.EmoteDotNow.AdcCallBack adcCallbackPtr;
+        public Samraksh.eMote.DotNow.AdcCallBack adcCallbackPtr;
         public System.IO.Ports.SerialPort serialPort;
         public BufferStorage buffer;
         public PersistentStorage storage;
 
-        public static OutputPort debugPort = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN1, false);
-        //public static OutputPort norWriteTime = new OutputPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J12_PIN5, false);
+        public static OutputPort debugPort = new OutputPort(Samraksh.eMote.DotNow.Pins.GPIO_J12_PIN1, false);
+        //public static OutputPort norWriteTime = new OutputPort(Samraksh.eMote.DotNow.Pins.GPIO_J12_PIN5, false);
 
         public int dataCollected = 0;
         public static bool stopExperimentFlag = false;
-        public static InterruptPort stopExperiment = new InterruptPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN7, false, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeLow);
+        public static InterruptPort stopExperiment = new InterruptPort(Samraksh.eMote.DotNow.Pins.GPIO_J11_PIN7, false, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeLow);
 
         public DataCollectorNOR()
         {
@@ -292,16 +292,16 @@ namespace Samraksh.SPOT.APPS
             stopExperiment.OnInterrupt += stopExperiment_OnInterrupt;
 
             adcCallbackPtr = AdcCallbackFn;
-            Samraksh.SPOT.Hardware.EmoteDotNow.AnalogInput.InitializeADC();
-            //Samraksh.SPOT.Hardware.EmoteDotNow.AnalogInput.InitChannel(Samraksh.SPOT.Hardware.EmoteDotNow.ADCChannel.ADC_Channel1);
-            //Samraksh.SPOT.Hardware.EmoteDotNow.AnalogInput.ConfigureContinuousMode(sampleBuffer, Samraksh.SPOT.Hardware.EmoteDotNow.ADCChannel.ADC_Channel1, bufferSize, sampleTime, AdcCallbackFn);
+            Samraksh.eMote.DotNow.AnalogInput.InitializeADC();
+            //Samraksh.eMote.DotNow.AnalogInput.InitChannel(Samraksh.eMote.DotNow.ADCChannel.ADC_Channel1);
+            //Samraksh.eMote.DotNow.AnalogInput.ConfigureContinuousMode(sampleBuffer, Samraksh.eMote.DotNow.ADCChannel.ADC_Channel1, bufferSize, sampleTime, AdcCallbackFn);
 
-            Samraksh.SPOT.Hardware.EmoteDotNow.AnalogInput.ConfigureContinuousModeDualChannel(ibuffer, qbuffer, numberOfSamples, samplingTime, AdcCallbackFn);
+            Samraksh.eMote.DotNow.AnalogInput.ConfigureContinuousModeDualChannel(ibuffer, qbuffer, numberOfSamples, samplingTime, AdcCallbackFn);
         }
 
         void stopExperiment_OnInterrupt(uint data1, uint data2, DateTime time)
         {
-            Samraksh.SPOT.Hardware.EmoteDotNow.AnalogInput.StopSampling();
+            Samraksh.eMote.DotNow.AnalogInput.StopSampling();
             stopExperimentFlag = true;
         }
 

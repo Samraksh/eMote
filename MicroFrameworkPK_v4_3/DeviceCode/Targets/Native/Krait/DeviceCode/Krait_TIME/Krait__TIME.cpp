@@ -73,7 +73,7 @@ UINT64 Krait_TIME_Driver::CounterValue()
 
 	UINT32 lastLowValue = (UINT32)(g_Krait_TIME_Driver.m_lastRead & 0x00000000FFFFFFFFull);
 
-	UINT32 value = Krait_TIMER_Driver :: GetCounter (Krait_TIMER_Driver :: c_SystemTimer);
+	UINT32 value = Krait_TIMER_Driver::GetCounter (Krait_TIMER_Driver::c_SystemTimer);
 
 	g_Krait_TIME_Driver.m_lastRead &= (0xFFFFFFFF00000000ull);
 

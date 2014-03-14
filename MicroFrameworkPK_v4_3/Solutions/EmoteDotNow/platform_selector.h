@@ -11,7 +11,9 @@
 //
 //#define TINYCLR_SOLO
 
-#if defined(PLATFORM_ARM_EmoteDotNow)
+#define PLATFORM_ARM_EmoteDotNow
+
+//#if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
 
 
@@ -143,11 +145,11 @@
 //Network Stack definitions
 UINT16 MF_NODE_ID;
 
-// Macros configuring the HALTimer system
-#define HALTIMER 5
-#define HALTIMER_MAX_RESOLUTION 1365
-#define HALTIMER_RESOLUTION_USEC HALTIMER_MAX_RESOLUTION
-#define NUM_HALTIMER_TIMERS 8
+// Macros configuring the VirtualTimer system
+#define VIRTUALTIMER 5
+#define VIRTUALTIMER_MAX_RESOLUTION 1365
+#define VIRTUALTIMER_RESOLUTION_USEC VIRTUALTIMER_MAX_RESOLUTION
+#define NUM_VIRTUALTIMER_TIMERS 8
 #define NUMBER_ADC_CHANNELS	3
 
 #define INPUT_REBOOT_PIN  22
@@ -161,6 +163,6 @@ UINT16 MF_NODE_ID;
 
 #include <processor_selector.h>
 
-#endif // PLATFORM_ARM_EmoteDotNow
+//#endif // PLATFORM_ARM_EmoteDotNow
 
 #endif // _PLATFORM_EmoteDotNow_SELECTOR_H_

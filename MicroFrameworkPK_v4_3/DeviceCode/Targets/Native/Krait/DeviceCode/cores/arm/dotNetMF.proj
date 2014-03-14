@@ -7,7 +7,7 @@
     <Description>Core HAL library</Description>
     <Level>HAL</Level>
     <LibraryFile>TinyHal.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\cores\arm\dotNetMF.proj</ProjectPath>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\cores\arm\dotNetMF.proj</ProjectPath>
     <ManifestFile>TinyHal.$(LIB_EXT).manifest</ManifestFile>
     <Groups>System</Groups>
     <LibraryCategory>

@@ -2,8 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//#if 0
 #include <cores\arm\include\cpu.h>
-#include "../TIAM3517.h"
+#include "TIAM3517_SPI.h"
 
 
 BOOL CPU_SPI_Initialize()
@@ -55,3 +56,5 @@ void   CPU_SPI_GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN&
 {
     return TIAM3517_SPI_Driver::GetPins( spi_mod, msk, miso, mosi );
 }
+
+//#endif

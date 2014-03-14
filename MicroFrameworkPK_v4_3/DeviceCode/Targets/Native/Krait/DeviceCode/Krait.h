@@ -249,4 +249,77 @@ enum handler_return {
 	INT_RESCHEDULE,
 };
 
+
+//AnanthAtSamraksh
+
+typedef enum {RESET = 0, SET = !RESET} FlagStatus, ITStatus;
+typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
+
+#define assert_param(expr) ((void)0) // @NK
+
+#define SPI1_BASE             (APB2PERIPH_BASE + 0x3000)
+#define SPI2_BASE             (APB1PERIPH_BASE + 0x3800)
+#define SPI3_BASE             (APB1PERIPH_BASE + 0x3C00)
+#define SPI1                ((SPI_TypeDef *) SPI1_BASE)
+#define SPI2                ((SPI_TypeDef *) SPI2_BASE)
+#define SPI3                ((SPI_TypeDef *) SPI3_BASE)
+
+#define PERIPH_BASE           ((uint32_t)0x40000000) /*!< Peripheral base address in the bit-band region */
+#define APB1PERIPH_BASE       PERIPH_BASE
+#define APB2PERIPH_BASE       (PERIPH_BASE + 0x10000)
+#define AHBPERIPH_BASE        (PERIPH_BASE + 0x20000)
+#define GPIOA_BASE            (APB2PERIPH_BASE + 0x0800)
+#define GPIOB_BASE            (APB2PERIPH_BASE + 0x0C00)
+#define GPIOC_BASE            (APB2PERIPH_BASE + 0x1000)
+#define GPIOD_BASE            (APB2PERIPH_BASE + 0x1400)
+#define GPIOE_BASE            (APB2PERIPH_BASE + 0x1800)
+#define GPIOF_BASE            (APB2PERIPH_BASE + 0x1C00)
+#define GPIOG_BASE            (APB2PERIPH_BASE + 0x2000)
+#define GPIOA               ((GPIO_TypeDef *) GPIOA_BASE)
+#define GPIOB               ((GPIO_TypeDef *) GPIOB_BASE)
+#define GPIOC               ((GPIO_TypeDef *) GPIOC_BASE)
+#define GPIOD               ((GPIO_TypeDef *) GPIOD_BASE)
+#define GPIOE               ((GPIO_TypeDef *) GPIOE_BASE)
+#define GPIOF               ((GPIO_TypeDef *) GPIOF_BASE)
+#define GPIOG               ((GPIO_TypeDef *) GPIOG_BASE)
+
+typedef struct
+{
+  volatile UINT32 CRL;
+  volatile UINT32 CRH;
+  volatile UINT32 IDR;
+  volatile UINT32 ODR;
+  volatile UINT32 BSRR;
+  volatile UINT32 BRR;
+  volatile UINT32 LCKR;
+} GPIO_TypeDef;
+
+/**
+  * @brief Serial Peripheral Interface
+  */
+
+typedef struct
+{
+  volatile UINT16 CR1;
+  UINT16  RESERVED0;
+  volatile UINT16 CR2;
+  UINT16  RESERVED1;
+  volatile UINT16 SR;
+  UINT16  RESERVED2;
+  volatile UINT16 DR;
+  UINT16  RESERVED3;
+  volatile UINT16 CRCPR;
+  UINT16  RESERVED4;
+  volatile UINT16 RXCRCR;
+  UINT16  RESERVED5;
+  volatile UINT16 TXCRCR;
+  UINT16  RESERVED6;
+  volatile UINT16 I2SCFGR;
+  UINT16  RESERVED7;
+  volatile UINT16 I2SPR;
+  UINT16  RESERVED8;
+} SPI_TypeDef;
+
+//AnanthAtSamraksh
+
 #endif

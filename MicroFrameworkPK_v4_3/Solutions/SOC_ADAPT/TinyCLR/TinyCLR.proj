@@ -53,6 +53,8 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\TinyCore.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt.featureproj" />
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" />-->
+  <Import Project="$(SPOCLIENT)\DeviceCode\Drivers\Samraksh\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
@@ -400,7 +402,7 @@
   -->
   <ItemGroup>
     <DriverLibs Include="Krait_time.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_time\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_TIME\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Krait_MMU.$(LIB_EXT)" />
@@ -479,10 +481,11 @@
     <DriverLibs Include="BlockStorage_HAL_SOC_ADAPT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_BlockStorage\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="SPI_HAL_SOC_ADAPT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SOC_ADAPT\DeviceCode\SPI_HAL\dotNetMF.proj" />
   </ItemGroup>
+  -->
   <!--<ItemGroup>
     <DriverLibs Include="BlockStorageAddDevices_HAL_SOC_ADAPT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\SOC_ADAPT\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
@@ -518,10 +521,15 @@
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_SPOT_Hardware\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
-  </ItemGroup>-->
+  </ItemGroup>
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_Adapt.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Samraksh\Samraksh_eMote_Net\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_eMote_Net.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Krait_Accelerometer.$(LIB_EXT)" />
@@ -535,5 +543,58 @@
     <DriverLibs Include="Krait_ADC.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_ADC\dotNetMF.proj" />
   </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Krait_SPI.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_SPI\dotNetMF.proj" />
+  </ItemGroup>
+    
+  
+  
+  
+  <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
+  
+  <!-- 									Wireless Stack Start								-->
+  
+  <ItemGroup>
+  <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Samraksh\Samraksh_eMote_Net\dotNetMF.proj" />
+  <DriverLibs Include="Samraksh_eMote_Net.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\Stubs\dotNetMF.proj" />
+    <DriverLibs Include="mac_stubs.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\VirtualTimer\dotNetMF.proj" />
+    <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\dotNetMF.proj" />
+    <DriverLibs Include="mac_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
+    <DriverLibs Include="csma_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
+    <DriverLibs Include="omac_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
+    <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Samraksh\radio\dotNetMF.proj" />
+    <DriverLibs Include="Radio_rf231.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  
+  <!--                      	    Wireless Networking Stack ::End                      -->
+  
+  <!--     - - - - - - - -        Samraksh's Extensions   End    - - - - - - - -           -->
+  
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

@@ -20,23 +20,12 @@
 //////////////////////////// Default Event Handler Definitions //////////////////////////////////////////
 
 
-extern "C"
-{
-	void* DefaultRecieveHandler(void *msg, UINT16 Size)
-	{
-
-	}
-
-	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status)
-	{
-
-	}
-
-	BOOL DefaultRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
-	{
-
-	}
-}
+// Typedef defining the signature of the receive function
+typedef  void* (*ReceiveFuncPtrType) (void *msg, UINT16 Size);
+// Typedef defining the signature of the send function
+typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
+// Typedef defining the signature of the RadioInterruptFuncPtr function
+typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param);
 
 
 // The radio id being a static in the radio class has been removed
@@ -96,14 +85,19 @@ public:
 		return MacHandlers[MacIndex];
 	}
 
+	ReceiveFuncPtrType DefaultRecieveHandler;
+	SendAckFuncPtrType DefaultSendAckHandler;
+	RadioInterruptFuncPtrType DefaultRadioInterruptHandler;
+
 	BOOL SetDefaultHandlers()
 	{
+		//AnanthAtSamraksh
 		defaultHandler.SetRecieveHandler(DefaultRecieveHandler);
 		defaultHandler.SetSendAckHandler(DefaultSendAckHandler);
 		defaultHandler.SetRadioInterruptHandler(DefaultRadioInterruptHandler);
 		MacHandlers[MacIDIndex] = &defaultHandler;
-
 	}
+
 	UINT16 GetAddress(){
 		return (UINT16) MyAddress;
 	}

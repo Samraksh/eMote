@@ -43,11 +43,11 @@
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
-    <Reference Include="Samraksh_SPOT">
-      <HintPath>..\..\..\Interops\Samraksh_SPOT\Samraksh_SPOT\bin\Debug\Samraksh_SPOT.dll</HintPath>
+    <Reference Include="Samraksh_eMote">
+      <HintPath>$(SPOCLIENT)\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Debug\Samraksh_eMote.dll</HintPath>
     </Reference>
-    <Reference Include="Samraksh_SPOT_Hardware">
-      <HintPath>..\..\..\Interops\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware\bin\Debug\Samraksh_SPOT_Hardware.dll</HintPath>
+    <Reference Include="Samraksh_eMote_DotNow">
+      <HintPath>$(SPOCLIENT)\Samraksh\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\obj\Debug\Samraksh_eMote_DotNow.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

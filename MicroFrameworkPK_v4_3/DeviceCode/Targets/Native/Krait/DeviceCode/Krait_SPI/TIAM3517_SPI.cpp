@@ -2,8 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//#if 0
 #include <tinyhal.h>
-#include "../TIAM3517.h"
+//#include "TIAM3517.h"
 
 #define SOC8200_USE_SPI1
 //#define SOC8200_USE_SPI2
@@ -13,6 +14,7 @@
 //--//
 
 /***************************************************************************/
+
 
 static UINT32 SPI_CHAN_TO_MOD(UINT32 x) {
 	if (x <  4) return OMAP3_SPI1;
@@ -25,7 +27,7 @@ static UINT32 SPI_CHAN_TO_MOD(UINT32 x) {
 /*
 	Returns TRUE if init success
 */
-BOOL TIAM3517_SPI_Driver::Initialize()
+BOOL Initialize()
 {   
 	UINT32 l; // Temp var
 	UINT32 i; // Timeout
@@ -114,17 +116,17 @@ BOOL TIAM3517_SPI_Driver::Initialize()
 }
 
 
-void TIAM3517_SPI_Driver::Uninitialize()
+void Uninitialize()
 {    
     
 }
 
-void TIAM3517_SPI_Driver::ISR( void* Param )
+void ISR( void* Param )
 {
-    ASSERT(0);
+    //ASSERT(0);
 }
 
-BOOL TIAM3517_SPI_Driver::nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* Write16, INT32 WriteCount, UINT16* Read16, INT32 ReadCount, INT32 ReadStartOffset )
+BOOL nWrite16_nRead16( const SPI_CONFIGURATION& Configuration, UINT16* Write16, INT32 WriteCount, UINT16* Read16, INT32 ReadCount, INT32 ReadStartOffset )
 {
     if(!Xaction_Start( Configuration )) return FALSE;
 
@@ -144,7 +146,7 @@ BOOL TIAM3517_SPI_Driver::nWrite16_nRead16( const SPI_CONFIGURATION& Configurati
     return Xaction_Stop( Configuration );
 }
 
-BOOL TIAM3517_SPI_Driver::nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Write8, INT32 WriteCount, UINT8* Read8, INT32 ReadCount, INT32 ReadStartOffset )
+BOOL nWrite8_nRead8( const SPI_CONFIGURATION& Configuration, UINT8* Write8, INT32 WriteCount, UINT8* Read8, INT32 ReadCount, INT32 ReadStartOffset )
 {   
 
     if(!Xaction_Start( Configuration )) return FALSE;
@@ -172,7 +174,7 @@ BOOL TIAM3517_SPI_Driver::nWrite8_nRead8( const SPI_CONFIGURATION& Configuration
 	After init, channel in disabled state.
 	Returns TRUE.
 */
-BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration )
+BOOL Xaction_Start( const SPI_CONFIGURATION& Configuration )
 {
 
 	UINT32 conf_reg;		// SPI channel configuration register
@@ -292,7 +294,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Start( const SPI_CONFIGURATION& Configuration 
 	Actual "stop" done in the read/write code now, so nothing to do here.
 	Returns: True
 */
-BOOL TIAM3517_SPI_Driver::Xaction_Stop( const SPI_CONFIGURATION& Configuration )
+BOOL Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 {   
 	return TRUE;
 /*
@@ -332,7 +334,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 	Perform 16-bit write or read
 	Returns FALSE on error
 */
-BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
+BOOL Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 {
     INT32 i;
     INT32 d;
@@ -450,7 +452,7 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction 
 	Perform 8-bit write/read.
 	Returns FALSE on error
 */
-BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
+BOOL Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 {
     INT32 i;
     INT32 d;
@@ -569,7 +571,9 @@ BOOL TIAM3517_SPI_Driver::Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 /*
 	Not used.
 */
-void TIAM3517_SPI_Driver::GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi )
+void GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& mosi )
 {
 
 }
+
+//#endif

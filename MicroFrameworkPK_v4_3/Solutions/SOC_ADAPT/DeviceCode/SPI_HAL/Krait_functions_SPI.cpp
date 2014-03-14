@@ -67,3 +67,24 @@ void CPU_SPI_GetPins( UINT32 spi_mod, GPIO_PIN& msk, GPIO_PIN& miso, GPIO_PIN& m
 }
 
 
+/*void CPU_SPI_Enable(SPI_CONFIGURATION config)
+{
+}
+
+BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
+{
+}
+
+UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
+{
+}
+
+UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
+{
+}
+
+UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
+{
+}*/
+
+

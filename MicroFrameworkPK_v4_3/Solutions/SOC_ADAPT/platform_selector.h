@@ -1,5 +1,5 @@
 #ifndef _PLATFORM_SOC_ADAPT_SELECTOR_H_
-#define _PLATFORM_SOC_ADAPT_SELECTOR_H_ 1
+#define _PLATFORM_SOC_ADAPT_SELECTOR_H_
 
 
 
@@ -9,9 +9,10 @@
 // processor and features
 //
 
+#define PLATFORM_ARM_KRAIT
 //#if defined(PLATFORM_ARM_SOC_ADAPT)
 #define HAL_SYSTEM_NAME                 "SOC_ADAPT"
-#define PLATFORM_ARM_KRAIT
+
 
 //
 // processor and features
@@ -117,8 +118,18 @@
 #define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    512  // there is one TX for each usart port
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    512  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
+
+//Network Stack definitions
+//UINT16 MF_NODE_ID;
+
+// Macros configuring the VirtualTimer system
+#define VIRTUALTIMER 5
+#define VIRTUALTIMER_MAX_RESOLUTION 1365
+#define VIRTUALTIMER_RESOLUTION_USEC VIRTUALTIMER_MAX_RESOLUTION
+#define NUM_VIRTUALTIMER_TIMERS 8
+
 //
-// communicaiton facilities
+// communication facilities
 /////////////////////////////////////////////////////////
 
 #include <processor_selector.h>

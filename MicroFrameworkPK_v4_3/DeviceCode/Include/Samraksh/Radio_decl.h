@@ -56,7 +56,6 @@ enum RadioType{
 typedef UINT8 ErrorType;
 
 // Typedef defining the signature of the receive function
-
 typedef  void* (*ReceiveFuncPtrType) (void *msg, UINT16 Size);
 
 // Typedef defining the signature of the send function
@@ -78,7 +77,12 @@ struct RadioConfig{
     UINT8 TimeStampOffset;
 };
 
-
+/*extern "C"
+{
+void* DefaultRecieveHandler(void *msg, UINT16 Size){}
+void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){}
+BOOL DefaultRadioInterruptHandler(RadioInterrupt Interrupt, void *param){}
+}*/
 
 typedef  class RadioEventHandler{
 

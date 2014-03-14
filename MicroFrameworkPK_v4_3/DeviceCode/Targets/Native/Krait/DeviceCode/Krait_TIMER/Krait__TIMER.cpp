@@ -24,6 +24,8 @@ static time_t timer_interval;
 
 static volatile uint32_t ticks;
 
+HAL_CALLBACK_FPN HALTimerHandlerFPN = NULL;
+
 
 extern "C"
 {
@@ -40,13 +42,136 @@ UINT32 platform_tick_rate(void)
 
 }
 
+
+/****************************************************************************************
+ * - Returns true of false depending on whether timer creation was successful or not.
+ * - Designed to provide an interface to PAL level functions to directly use timers.
+ * - Uses include HALTimer,	batched mode adc etc.
+
+ * - Can not accept a timer value equal to system timer or an ISR input of null
+****************************************************************************************/
+BOOL CPU_TIMER_Initialize(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+{
+	// Make sure timer input is not 0 in case macro is not defined.
+	// Also make sure that timer is not trying to re-initialize the system timer.
+	if(Timer == 0 || Timer == Krait_TIMER_Driver::c_SystemTimer)
+		return FALSE;
+
+	// Don't allow initialization of timers with NULL as the callback function
+	if(ISR == NULL)
+		return FALSE;
+
+	HALTimerHandlerFPN = ISR;
+
+#ifdef HALTIMERDEBUG
+		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+#endif
+
+	// Call timer driver initialize
+	if(!Krait_TIMER_Driver::Initialize(Timer, FreeRunning, ClkSource, Prescaler, HALTimerHandlerFPN, NULL))
+		return FALSE;
+
+	return TRUE;
+
+}
+
+
+/****************************************************************************************
+ * - Returns true if set compare is successful else returns false.
+ * - Accepts only timer values not equal to 0 and system timer.
+ * - Calls the timer driver's set compare function.
+ ****************************************************************************************/
+BOOL CPU_TIMER_SetCompare(UINT32 Timer, UINT32 Compare)
+{
+	// Check to make sure timer is not system timer
+	if(Timer == 0 || Timer == Krait_TIMER_Driver::c_SystemTimer)
+		return FALSE;
+
+	Krait_TIMER_Driver::SetCompare(Timer, Krait_TIMER_Driver::GetCounter(Timer) + Compare);
+
+	return TRUE;
+}
+
+/****************************************************************************************
+ * - Returns a 16 bit current counter value.
+ * - Accepts only legal timer values between 0 and c_MaxTimers.
+ * - Internally call the Timer_Driver getcounter function.
+****************************************************************************************/
+UINT16 CPU_TIMER_GetCounter(UINT32 Timer)
+{
+	// Check to make sure timer is a legal timer
+	// Typically should assert here, but returning 0
+	if(Timer < 0 || Timer > Krait_TIMER_Driver::c_MaxTimers)
+		return 0;
+
+	return Krait_TIMER_Driver::GetCounter(Timer);
+}
+
+/****************************************************************************************
+ * - Default hardware handler for the HAL Timer.
+ * - Function is designed to handle only timer 4,
+ *      changing this to another timer will require adding a case in the switch case.
+****************************************************************************************/
+/*void HALTimerHardwareHandler(void *args)
+{
+
+#ifdef HALTIMERDEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1 , TRUE);
+#endif
+
+	// Calculate the current counter value to remove the error due to instructions executed in this handler
+	UINT32 tick_correction = Krait_TIMER_Driver::GetCounter(HALTIMER);
+	int HALTimer = HALTIMER;
+	UINT32 resolution = HALTIMER_RESOLUTION_USEC;
+	//UINT32 resolution = gHalTimerManagerObject.get_timer_resolution();
+
+	UINT32 ticks = CPU_MicrosecondsToTicks(resolution);
+
+
+	switch(HALTimer)
+	{
+	case 4:
+		if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
+		  {
+		    TIM_ClearITPendingBit(TIM4, TIM_IT_CC1 );
+		    // Call PAL layer handler
+		    HALTimerHandlerFPN((void *) &tick_correction);
+
+		    Krait_TIMER_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
+		    //Timer_Driver::SetCompare(HALTimer, (UINT16)(0xFFFF));
+
+		  }
+		break;
+	case 5:
+			if (TIM_GetITStatus(TIM5, TIM_IT_CC1) != RESET)
+			  {
+			    TIM_ClearITPendingBit(TIM5, TIM_IT_CC1 );
+			    // Call PAL layer handler
+			    HALTimerHandlerFPN((void *) &tick_correction);
+
+			    //Timer_Driver::SetCompare(HALTimer, (UINT16)(tick_correction + ticks));
+			    //Timer_Driver::SetCompare(HALTimer, (UINT16)(0xFFFF));
+
+			 }
+		break;
+	default:
+		// Something went terribly wrong loop here to help debug
+		while(1);
+	}
+
+#ifdef HALTIMERDEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1 , FALSE);
+#endif
+}*/
+
+
 // Stub
 void HAL_Time_SetCompare_Completion(UINT64 val) {
 
 }
 
 
-BOOL Krait_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param )
+BOOL Krait_TIMER_Driver::Initialize( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param )
 {
 
 	// Seems like there is not a lot to go on for the hardware timers

@@ -8,8 +8,8 @@
     <Level>HAL</Level>
     <LibraryFile>Krait_INTC.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_INTC\dotNetMF.proj</ProjectPath>
-    <ManifestFile>TIAM3517_INTC.$(LIB_EXT).manifest</ManifestFile>
-    <Groups>Processor\TIAM3517</Groups>
+    <ManifestFile>Krait_INTC.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Processor\Krait</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="InterruptController_HAL" Guid="{08148BEE-6B1F-4050-AA21-510CA7F2FF98}" ProjectPath="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
@@ -27,7 +27,7 @@
     </Documentation>
     <PlatformIndependent>False</PlatformIndependent>
     <ProcessorSpecific>
-      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="TIAM3517" Guid="{0f4a5f89-0949-42e5-a398-cfd9dd50bbc2}" xmlns="">
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Krait" Guid="{0f4a5f89-0949-42e5-a398-cfd9dd50bbc2}" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
           <Minor>0</Minor>
@@ -39,7 +39,7 @@
         <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">Processor</ComponentType>
       </MFComponent>
     </ProcessorSpecific>
-    <CustomFilter>TIAM3517</CustomFilter>
+    <CustomFilter>Krait</CustomFilter>
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
@@ -52,7 +52,7 @@
   <PropertyGroup />
   <ItemGroup>
     <HFiles Include="..\Krait.h" />
-    <HFiles Include="..\Krait__INTC.h" />
+    <!--<HFiles Include="..\Krait__INTC.h" />-->
     <Compile Include="Krait_INTC_functions.cpp" />
     <Compile Include="Krait__INTC.cpp" />
   </ItemGroup>

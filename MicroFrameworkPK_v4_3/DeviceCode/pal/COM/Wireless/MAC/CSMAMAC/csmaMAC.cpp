@@ -1,13 +1,15 @@
 #include "csmaMAC.h"
-#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 
 //#define DEBUG_MAC 1
 
 csmaMAC gcsmaMacObject;
-extern HALTimerManager gHalTimerManagerObject;
+extern VirtualTimerManager gVirtualTimerManagerObject;
+extern UINT16 MF_NODE_ID;
 
 UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
+
 
 void* csmaRecieveHandler(void *msg, UINT16 Size)
 {
@@ -92,23 +94,25 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		Initialized=TRUE;
 		m_recovery = 1;
 
+		//hal_printf("csmaMAC.cpp: csmaMAC::Initialize: calling CPU_Radio_Initialize \n");
 		CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName);
 
+		//hal_printf("\ncsmaMAC.cpp: csmaMAC::Initialize: calling CPU_Radio_TurnOn \n");
 		CPU_Radio_TurnOn(this->radioName);
 
 		//gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		if(!gVirtualTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
 		}
 
-		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
+		if(!gVirtualTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
 			return DS_Fail;
 		}
 
 	}
 
 	// Stop the timer
-	gHalTimerManagerObject.StopTimer(1);
+	gVirtualTimerManagerObject.StopTimer(1);
 	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
@@ -206,6 +210,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 			return FALSE;
 
 	// Try to  send the packet out immediately if possible
+	hal_printf("\ncsmaMAC.cpp: Sending first packet to radio\n");
 	SendFirstPacketToRadio(NULL);
 
 	return TRUE;
@@ -243,6 +248,7 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 }
 
 void csmaMAC::SendToRadio(){
+	////hal_printf("\ncsmaMAC.cpp: SendToRadio\n");
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
 		m_recovery = 1;
@@ -250,7 +256,9 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds != DS_Success) {
-			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			hal_printf("\ncsmaMAC.cpp: calling CCA 2nd time\n");
+			////HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			HAL_Time_Sleep_MicroSeconds(200);
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	return;}
 		}
 
@@ -265,10 +273,12 @@ void csmaMAC::SendToRadio(){
 			if(msg->GetHeader()->GetFlags() & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) msg->GetMetaData()->GetReceiveTimeStamp();
+				hal_printf("\ncsmaMAC.cpp: CPU_Radio_Send_TimeStamped\n");
 				*temp = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (msg), (msg->GetHeader())->GetLength(), snapShot);
 			}
 			else
 			{
+				hal_printf("\ncsmaMAC.cpp: CPU_Radio_Send \n");
 				*temp = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (msg), (msg->GetHeader())->GetLength());
 			}
 
@@ -438,7 +448,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 	{
 		case NO_Success:
 			{
-				gHalTimerManagerObject.StopTimer(3);
+				gVirtualTimerManagerObject.StopTimer(3);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
@@ -449,7 +459,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 		
 		case NO_Busy:
 			Resend(msg, Size);
-			gHalTimerManagerObject.StartTimer(3);
+			gVirtualTimerManagerObject.StartTimer(3);
 			break;
 			
 		case NO_BadPacket:

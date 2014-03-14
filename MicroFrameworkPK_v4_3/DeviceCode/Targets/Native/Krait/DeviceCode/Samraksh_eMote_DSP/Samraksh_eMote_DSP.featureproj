@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh_eMote_DSP</FeatureName>
+    <Guid>{f8d4fd3d-6b47-4263-b90e-8992d5f167c3}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <SAMRAKSH_EMOTE_DSP_FEATUREPROJ>True</SAMRAKSH_EMOTE_DSP_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_DSP.$(LIB_EXT)" />
+    <InteropFeature Include="Samraksh_eMote_DSP" />
+    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_SPOT_DSP.pe" />-->
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_DSP\dotnetmf.proj" />
+  </ItemGroup>
+</Project>

@@ -49,9 +49,10 @@ UINT32 platform_tick_rate(void);
 struct Krait_TIMER_Driver
 {
 	static const UINT32 c_SystemTimer   = DGT;
+	static const UINT32 c_MaxTimers = 1;
 
 
-	static BOOL Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param );
+	static BOOL Initialize( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, HAL_CALLBACK_FPN ISR, void* ISR_Param );
 	static BOOL Uninitialize(UINT32 Timer);
 	static void EnableCompareInterrupt(UINT32 Timer);
 	static void DisableCompareInterrupt(UINT32 Timer);

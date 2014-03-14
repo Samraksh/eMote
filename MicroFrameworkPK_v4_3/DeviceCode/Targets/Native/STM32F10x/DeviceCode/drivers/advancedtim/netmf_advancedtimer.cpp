@@ -9,7 +9,7 @@
 
 
 #include "netmf_advancedtimer.h"
-#include <Samraksh\HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 #include <pwr/netmf_pwr.h>
 #include <rcc/stm32f10x_rcc.h>
 

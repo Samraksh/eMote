@@ -35,7 +35,10 @@ NeighborTable m_NeighborTable;
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 routingAppID, UINT8 radioName, void* config){
 
 	if(macID == CSMAMAC)
+	{
+		//hal_printf("Mac_Functions.cpp: Inside Mac_Initialize\n");
 		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
+	}
 	else if(macID == OMAC)
 		//return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig *) config);
 		return DS_Fail;

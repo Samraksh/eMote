@@ -18,8 +18,6 @@
 #include <Samraksh\Buffer.h>
 #include <Samraksh\Radio_decl.h>
 
-extern UINT16 MF_NODE_ID;
-
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
 #define MAX_APPS 4
@@ -33,7 +31,8 @@ public:
 	}
 };
 
-UINT8 MAC_ID::Unique_Mac_ID=0;
+//AnanthAtSamraksh -- commenting out below as compilation is not working
+////UINT8 MAC_ID::Unique_Mac_ID=0;
 
 template <class MessageT, class ConfigT>
 class MAC : public MAC_ID

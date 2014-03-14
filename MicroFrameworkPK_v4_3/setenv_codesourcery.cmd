@@ -1,5 +1,5 @@
 @echo off
 
-SET TESTSOURCE=D:\AnanthAtSamraksh
+SET TESTSOURCE=D:\Main\Work\NewTests
 
-setenv_gcc.cmd 4.4.1 D:\AnanthAtSamraksh\Tools\codesourcery4.5.0\codesourcery4.5.0\codesourcery-nick
+setenv_gcc.cmd 4.7.3 D:\Main\Work\Tools\CodeSourcery

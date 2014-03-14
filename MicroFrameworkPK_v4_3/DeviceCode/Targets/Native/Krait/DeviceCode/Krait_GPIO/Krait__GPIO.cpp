@@ -92,7 +92,8 @@ BOOL Krait_GPIO_Driver::Initialize()
 BOOL Krait_GPIO_Driver::EnableInputPin(GPIO_PIN pin, BOOL glitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE isr, void* isr_param, GPIO_INT_EDGE intEdge, GPIO_RESISTOR resistorState )
 {
 	gpio_tlmm_config(pin, 1, GPIO_INPUT, gpio_map_state(resistorState), GPIO_8MA, GPIO_DISABLE);
-	
+	//hal_printf("Inside VirtualTimerManager::Initialize\n");
+
 	if(isr) {
 		UINT32 *addr = (UINT32 *)GPIO_INTR_CFG(pin);
 		UINT32 val =  0; // docs 80-N1622-3 page 297, enable summary interrupt for pin.  Skip setting INTR_RAW_STATUS_EN to save power and not use per-interrupt handlers.

@@ -16,6 +16,7 @@
 
 #include <Samraksh/Mac_decl.h>
 #include <Samraksh/Message.h>
+#include <Samraksh/MAC.h>
 
 namespace Samraksh
 {

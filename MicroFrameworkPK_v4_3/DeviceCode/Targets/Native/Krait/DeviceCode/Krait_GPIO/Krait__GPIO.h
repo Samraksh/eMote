@@ -65,6 +65,79 @@ enum {
 #define GPIO_DISABLE    0
 
 
+//AnanthAtSamraksh
+
+#define MSM_GPIO_52					((UINT16)0x0001)  /*!< Pin 0 selected */
+#define MSM_GPIO_53					((UINT16)0x0002)  /*!< Pin 0 selected */
+#define MSM_GPIO_55					((UINT16)0x0004)  /*!< Pin 0 selected */
+#define MSM_GPIO_58					((UINT16)0x0008)  /*!< Pin 0 selected */
+
+#define GPIO_Pin_0                 ((UINT16)0x0001)  /*!< Pin 0 selected */
+#define GPIO_Pin_1                 ((UINT16)0x0002)  /*!< Pin 1 selected */
+#define GPIO_Pin_2                 ((UINT16)0x0004)  /*!< Pin 2 selected */
+#define GPIO_Pin_3                 ((UINT16)0x0008)  /*!< Pin 3 selected */
+#define GPIO_Pin_4                 ((UINT16)0x0010)  /*!< Pin 4 selected */
+#define GPIO_Pin_5                 ((UINT16)0x0020)  /*!< Pin 5 selected */
+#define GPIO_Pin_6                 ((UINT16)0x0040)  /*!< Pin 6 selected */
+#define GPIO_Pin_7                 ((UINT16)0x0080)  /*!< Pin 7 selected */
+#define GPIO_Pin_8                 ((UINT16)0x0100)  /*!< Pin 8 selected */
+#define GPIO_Pin_9                 ((UINT16)0x0200)  /*!< Pin 9 selected */
+#define GPIO_Pin_10                ((UINT16)0x0400)  /*!< Pin 10 selected */
+#define GPIO_Pin_11                ((UINT16)0x0800)  /*!< Pin 11 selected */
+#define GPIO_Pin_12                ((UINT16)0x1000)  /*!< Pin 12 selected */
+#define GPIO_Pin_13                ((UINT16)0x2000)  /*!< Pin 13 selected */
+#define GPIO_Pin_14                ((UINT16)0x4000)  /*!< Pin 14 selected */
+#define GPIO_Pin_15                ((UINT16)0x8000)  /*!< Pin 15 selected */
+#define GPIO_Pin_All               ((UINT16)0xFFFF)  /*!< All pins selected */
+
+
+/**
+  * @brief  Output Maximum frequency selection
+  */
+
+typedef enum
+{
+  GPIO_Speed_10MHz = 1,
+  GPIO_Speed_2MHz,
+  GPIO_Speed_50MHz
+}GPIOSpeed_TypeDef;
+#define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_Speed_10MHz) || ((SPEED) == GPIO_Speed_2MHz) || \
+                              ((SPEED) == GPIO_Speed_50MHz))
+
+/**
+  * @brief  Configuration Mode enumeration
+  */
+
+typedef enum
+{ GPIO_Mode_AIN = 0x0,
+  GPIO_Mode_IN_FLOATING = 0x04,
+  GPIO_Mode_IPD = 0x28,
+  GPIO_Mode_IPU = 0x48,
+  GPIO_Mode_Out_OD = 0x14,
+  GPIO_Mode_Out_PP = 0x10,
+  GPIO_Mode_AF_OD = 0x1C,
+  GPIO_Mode_AF_PP = 0x18
+}GPIOMode_TypeDef;
+
+/**
+  * @brief  GPIO Init structure definition
+  */
+
+typedef struct
+{
+  UINT16 GPIO_Pin;             /*!< Specifies the GPIO pins to be configured.
+                                      This parameter can be any value of @ref GPIO_pins_define */
+
+  GPIOSpeed_TypeDef GPIO_Speed;  /*!< Specifies the speed for the selected pins.
+                                      This parameter can be a value of @ref GPIOSpeed_TypeDef */
+
+  GPIOMode_TypeDef GPIO_Mode;    /*!< Specifies the operating mode for the selected pins.
+                                      This parameter can be a value of @ref GPIOMode_TypeDef */
+}GPIO_InitTypeDef;
+
+//AnanthAtSamraksh
+
+
 struct Krait_GPIO_Driver
 {
 private:

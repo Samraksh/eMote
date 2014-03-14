@@ -29,6 +29,8 @@ extern Buffer_15_4_t m_send_buffer;
 extern Buffer_15_4_t m_receive_buffer;
 extern NeighborTable m_NeighborTable;
 
+extern UINT16 MF_NODE_ID;
+
 #define DEBUG_CSMAMAC 1
 
 #if defined(DEBUG_CSMAMAC)
