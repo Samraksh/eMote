@@ -65,6 +65,7 @@
     <!-- has to change the MEMORY property to Capital letters for TARGETLOCATION_XXX-->
     <TARGETLOCATION Condition="'$(MEMORY)'=='FLASH'">FLASH</TARGETLOCATION>
     <TARGETLOCATION Condition="'$(MEMORY)'=='RAM'">RAM</TARGETLOCATION>
+    <TARGETLOCATION Condition="'$(MEMORY)'=='GMEM'">GMEM</TARGETLOCATION>
   </PropertyGroup>
 
   <PropertyGroup>

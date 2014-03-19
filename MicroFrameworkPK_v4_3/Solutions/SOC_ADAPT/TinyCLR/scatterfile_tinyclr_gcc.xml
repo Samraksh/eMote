@@ -38,6 +38,14 @@
 		-->
     </If>
 
+    <If Name="TARGETLOCATION" In="GMEM">
+        <Set Name="Heap_Begin"          Value="0x80410000"/>
+        <Set Name="Heap_End"            Value="0x804FFFFF"/>
+        <Set Name="Code_BaseAddress"    Value="0x2E000000"/>
+        <Set Name="Code_Size"           Value="0x000B0000"/>
+        <Set Name="Valid"               Value="true"/>
+    </If>
+
     <!-- ################################################################################ -->
 
     <If Name="Valid" Value="false">
@@ -69,7 +77,10 @@
         <FileMapping Name="*" Options="(.text*)" />
         <FileMapping Name="*" Options="(i.*)" />
         <FileMapping Name="*" Options="(t.*)" />
-        <If Name="TARGETLOCATION" In="RAM">     
+        <If Name="TARGETLOCATION" In="RAM">
+          <FileMapping Name="*" Options="(SectionForFlashOperations)" />
+        </If>
+        <If Name="TARGETLOCATION" In="GMEM">
           <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         </If>
         <FileMapping Name="*" Options="(.rodata*)" />

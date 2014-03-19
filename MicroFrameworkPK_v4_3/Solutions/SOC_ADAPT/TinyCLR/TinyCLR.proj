@@ -100,27 +100,27 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotNetMF_stub.proj" />
   </ItemGroup>
   -->
-  <!--<ItemGroup>
+  <ItemGroup Condition="'$(MEMORY)'=='GMEM'">
     <PlatformIndependentLibs Include="Graphics_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF_stub.proj" />
-  </ItemGroup>-->
-  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <PlatformIndependentLibs Include="Graphics.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <PlatformIndependentLibs Include="Graphics_Bmp.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <PlatformIndependentLibs Include="Graphics_Gif.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
-</ItemGroup>
-<ItemGroup>
+  </ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <PlatformIndependentLibs Include="Graphics_Jpeg.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Graphics\Bmp\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <DriverLibs Include="Graphics_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Graphics\dotNetMF.proj" />
   </ItemGroup>
@@ -152,9 +152,13 @@
     <PlatformIndependentLibs Include="SPOT_Hardware.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <PlatformIndependentLibs Include="SPOT_Graphics.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Graphics\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(MEMORY)'=='GMEM'">
+    <PlatformIndependentLibs Include="SPOT_Graphics_stub.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Graphics\dotNetMF_stub.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="IOPort.$(LIB_EXT)" />
@@ -438,7 +442,7 @@
     <DriverLibs Include="cpu_LCD_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\stubs\processor\stubs_lcd\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!('$(MEMORY)'=='GMEM')">
     <DriverLibs Include="Krait_LCD.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_LCD\dotNetMF.proj" />
   </ItemGroup>

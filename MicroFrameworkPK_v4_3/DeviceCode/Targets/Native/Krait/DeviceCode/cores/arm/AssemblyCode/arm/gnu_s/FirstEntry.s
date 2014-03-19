@@ -88,7 +88,11 @@ EntryPoint:
 	mcr		p15, 0, r0, c1, c0, 0
 
 	@ Relocating the arm base addresses
+	.ifdef TARGETLOCATION_GMEM
+	ldr             r0, =0x2E000000
+	.else
 	ldr             r0, =0x80200000
+	.endif
 	@ldr             r0, =0x88f00000
  	mcr             p15, 0, r0, c12, c0, 0
 
@@ -100,7 +104,7 @@ EntryPoint:
     @ ADD BOOT MARKER HERE IF YOU NEED ONE
     @ -----------------------------------------------
     .ifdef  PLATFORM_ARM_LPC22XX
-     orr     r0, pc,#0x80000000
+     orr     r0, pc,#0x2E000000
      mov     pc, r0
     .endif
 

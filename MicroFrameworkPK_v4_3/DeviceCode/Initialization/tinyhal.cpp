@@ -9,7 +9,7 @@
 #endif
 
 //--//
-#if defined(ARM_CPU_CORE_KRAIT)
+#if defined(ARM_CPU_CORE_KRAIT) && !defined(TARGETLOCATION_GMEM)
 extern void mipi_dsi_shutdown(void);
 #endif
 // we need this to force inclusion from library at link time
@@ -84,6 +84,11 @@ extern UINT32 Image$$ER_RAM$$Length;
 
 extern UINT32 Load$$ER_FLASH$$Base;
 extern UINT32 Image$$ER_FLASH$$Length;
+
+#elif  defined(TARGETLOCATION_GMEM)
+
+extern UINT32 Load$$ER_GMEM$$Base;
+extern UINT32 Image$$ER_GMEM$$Length;
 
 #else
     !ERROR
@@ -489,7 +494,7 @@ extern "C"
 
 void BootEntry()
 {
-#if defined(ARM_CPU_CORE_KRAIT)
+#if defined(ARM_CPU_CORE_KRAIT) && !defined(TARGETLOCATION_GMEM)
 mipi_dsi_shutdown();
 #endif
 #if (defined(GCCOP) && defined(COMPILE_THUMB))
@@ -528,6 +533,11 @@ mipi_dsi_shutdown();
 
     LOAD_IMAGE_Start  = (UINT32)&Load$$ER_FLASH$$Base;
     LOAD_IMAGE_Length = (UINT32)&Image$$ER_FLASH$$Length;
+
+#elif defined(TARGETLOCATION_GMEM)
+
+    LOAD_IMAGE_Start  = (UINT32)&Load$$ER_GMEM$$Base;
+    LOAD_IMAGE_Length = (UINT32)&Image$$ER_GMEM$$Length;
 
 #else
     !ERROR

@@ -11,7 +11,7 @@ BOOL RamWordTest( volatile UINT32* WordToTest )
 {
     BOOL result = TRUE;
 
-#if !defined(TARGETLOCATION_RAM)
+#if !defined(TARGETLOCATION_RAM) && !defined(TARGETLOCATION_GMEM)
     // order is important here if we have interrupts on IRQs might modify RAM areas after we save
     GLOBAL_LOCK(irq);
 
