@@ -201,6 +201,46 @@ HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::GetBitmap___SZARRAY_
 }
 
 
+HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::StretchImage___VOID__I4__I4__I4__I4__MicrosoftSPOTBitmap__I4__I4__I4__I4__U2( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_GRAPHICS();
+    TINYCLR_HEADER();
+
+    TINYCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::TileImage___VOID__I4__I4__MicrosoftSPOTBitmap__I4__I4__U2( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_GRAPHICS();
+    TINYCLR_HEADER();
+
+    TINYCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::Scale9Image___VOID__I4__I4__I4__I4__MicrosoftSPOTBitmap__I4__I4__I4__I4__U2( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_GRAPHICS();
+    TINYCLR_HEADER();
+
+    TINYCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::Dispose___VOID__BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    NATIVE_PROFILE_CLR_GRAPHICS();
+    TINYCLR_HEADER();
+
+    TINYCLR_SET_AND_LEAVE(stack.NotImplementedStub());
+
+    TINYCLR_NOCLEANUP();
+}
+
 //--//
 
 HRESULT Library_spot_graphics_native_Microsoft_SPOT_Bitmap::GetBitmap( CLR_RT_HeapBlock* pThis, bool fForWrite, CLR_GFX_Bitmap*& bitmap )
