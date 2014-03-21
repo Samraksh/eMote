@@ -23,7 +23,7 @@
 
 // Globals
 
-bool i2c_started = 0;
+static bool i2c_started = 0;
 
 // Statics
 
