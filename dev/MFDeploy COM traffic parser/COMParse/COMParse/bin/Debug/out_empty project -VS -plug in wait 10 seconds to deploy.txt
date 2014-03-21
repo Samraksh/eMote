@@ -1,0 +1,166 @@
+[20/03/2014 13:00:29]	COM port opened
+[20/03/2014 13:00:29]	COM port closed
+[20/03/2014 13:00:29]	COM port opened
+[20/03/2014 13:00:29]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:00:29]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 13:00:29]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:00:29]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:00:29]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:00:29]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:00:29]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:00:29]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:00:29]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 
+[20/03/2014 13:00:30]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 13:00:30]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:00:30]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:00:30]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 13:00:30]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:00:30]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:00:30]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:00:30]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 
+[20/03/2014 13:00:30]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 13:00:30]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:00:30]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:00:30]	Reset debugger state ???  00 00 00 10 00 00 00 00                         
+[20/03/2014 13:00:31]														Reset debugger state ??? ACK 00 04 00 50
+[20/03/2014 13:00:31]	Reset debugger state ???  00 00 00 00 00 00 00 00                         
+[20/03/2014 13:00:31]														Reset debugger state ??? ACK 00 04 00 50
+[20/03/2014 13:00:31]	40 00 02 00 
+[20/03/2014 13:00:31]														40 00 02 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00 08 00 00 00 09 00 00 00 0a 00 00 00 0b 00 00 00 0c 00
+[20/03/2014 13:00:31]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:00:32]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:00:33]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:00:34]	COM port closed
+[20/03/2014 13:03:42]	COM port opened
+[20/03/2014 13:03:42]	COM port closed
+[20/03/2014 13:03:42]	COM port opened
+[20/03/2014 13:03:42]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:43]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:44]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:45]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:46]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:47]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:49]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:50]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:51]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:52]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:53]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:54]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:55]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:56]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:57]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:58]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:03:59]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:04:00]	COM port closed
+[20/03/2014 13:05:27]	COM port opened
+[20/03/2014 13:05:27]	COM port closed
+[20/03/2014 13:05:27]	COM port opened
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]														31 00 58 F0 
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:05:27]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:05:27]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:05:27]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK 
+[20/03/2014 13:05:27]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0000000000000000
+[20/03/2014 13:05:27]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:05:27]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:05:27]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:05:27]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 13:05:27]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:05:28]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:05:28]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:05:28]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK 
+[20/03/2014 13:05:28]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0000000000000000
+[20/03/2014 13:05:28]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:05:28]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:05:28]	Reset debugger state ???  00 00 00 10 00 00 00 00                         
+[20/03/2014 13:05:28]														Reset debugger state ??? ACK 00 00 00 d0
+[20/03/2014 13:05:28]	Reset debugger state ???  00 00 00 00 00 00 00 00                         
+[20/03/2014 13:05:28]														Reset debugger state ??? ACK 00 00 00 d0
+[20/03/2014 13:05:28]	Reset debugger state ???  00 00 00 00 00 00 00 80                         
+[20/03/2014 13:05:28]														Reset debugger state ??? ACK 00 00 00 50
+[20/03/2014 13:05:28]														Message ACK    Assembly: mscorlib (4.3.0.0)     Assembly: Microsoft.SPOT.Native (4.3.0.0)     Assembly: Microsoft.SPOT.Hardware (4.3.0.0) 
+[20/03/2014 13:05:29]														Message ACK    Assembly: Microsoft.SPOT.Hardware.PWM (4.3.0.0)     Assembly: Microsoft.SPOT.Hardware.SerialPort (4.3.0.0) 
+[20/03/2014 13:05:29]	Reset debugger state ???  00 00 00 00 00 00 00 00                         
+[20/03/2014 13:05:29]														Message ACK    Assembly: Empty (1.0.0.0)  Attaching deployed file.0d
+[20/03/2014 13:05:29]														Message ACK Ready.0d
+[20/03/2014 13:05:29]	40 00 02 00 
+[20/03/2014 13:05:29]														40 00 02 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00 08 00 00 00 09 00 00 00 0a 00 00 00 0b 00 00 00 0c 00
+[20/03/2014 13:05:29]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:05:30]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:05:31]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:05:32]	COM port closed
+[20/03/2014 13:07:00]	COM port opened
+[20/03/2014 13:07:00]	COM port closed
+[20/03/2014 13:07:00]	COM port opened
+[20/03/2014 13:07:00]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:07:00]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 13:07:00]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:07:01]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:07:01]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:07:01]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 
+[20/03/2014 13:07:01]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 13:07:01]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:07:01]	PING  02 00 00 00 01 00 00 00                         
+[20/03/2014 13:07:01]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 13:07:01]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 13:07:01]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 13:07:01]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 13:07:01]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 13:07:01]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 13:07:02]														CLR Capability request ??? ACK 
+[20/03/2014 13:07:02]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 13:07:02]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 13:07:02]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 13:07:02]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 13:07:02]	Reset debugger state ???  00 00 00 10 00 00 00 00                         
+[20/03/2014 13:07:02]														Reset debugger state ??? ACK 00 04 00 50
+[20/03/2014 13:07:02]	Reset debugger state ???  00 00 00 00 00 00 00 00                         
+[20/03/2014 13:07:02]														Reset debugger state ??? ACK 00 04 00 50
+[20/03/2014 13:07:02]	40 00 02 00 
+[20/03/2014 13:07:02]														40 00 02 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00 08 00 00 00 09 00 00 00 0a 00 00 00 0b 00 00 00 0c 00
+[20/03/2014 13:07:02]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:07:03]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:07:04]	50 00 02 00  00 00 01 00                                     
+[20/03/2014 13:07:05]	COM port closed

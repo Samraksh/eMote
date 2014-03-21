@@ -1,0 +1,9 @@
+D:\Users\Chris\AppData\Local\Temporary Projects\COMParse\bin\Debug\COMParse.exe
+D:\Users\Chris\AppData\Local\Temporary Projects\COMParse\bin\Debug\COMParse.pdb
+D:\Users\Chris\AppData\Local\Temporary Projects\COMParse\obj\x86\Debug\COMParse.exe
+D:\Users\Chris\AppData\Local\Temporary Projects\COMParse\obj\x86\Debug\COMParse.pdb
+D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\obj\x86\Debug\COMParse.exe
+D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\obj\x86\Debug\COMParse.pdb
+D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\bin\Debug\COMParse.exe
+D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\bin\Debug\COMParse.pdb
+D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\obj\x86\Debug\COMParse.csprojResolveAssemblyReference.cache

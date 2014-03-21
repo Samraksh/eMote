@@ -1,0 +1,2733 @@
+[21/03/2014 16:02:23]	
+1	IRP_MJ_CREATE - Opens a COM port	
+    STATUS_SUCCESS	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+3	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_BAUD_RATE - Returns the baud rate that is currently set for a COM port	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+5	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_LINE_CONTROL - Request returns information about the line control set for a COM port	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+7	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_CHARS - Request returns the special characters that Serial uses with handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+9	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_HANDFLOW - Request returns information about the configuration of the handshake flow control set for a COM port	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+11	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_BAUD_RATE - Returns the baud rate that is currently set for a COM port	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+13	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_LINE_CONTROL - Request returns information about the line control set for a COM port	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+15	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_CHARS - Request returns the special characters that Serial uses with handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+17	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_HANDFLOW - Request returns information about the configuration of the handshake flow control set for a COM port	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+19	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_BAUD_RATE - Request sets the baud rate on a COM port. Serial verifies the specified baud rate	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+21	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_CLR_RTS - Request clears the RTS control signal 	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+23	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_CLR_DTR - Request clears the DTR control signal. 	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+25	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_LINE_CONTROL - Request sets the line control register	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+27	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_CHARS - Request sets the special characters that Serial uses for handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+29	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_HANDFLOW - Request sets the configuration of handshake flow control	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+31	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_TIMEOUTS - Request sets the timeout value's that the driver uses with read and write requests	
+            ReadIntervalTimeout         - 0	
+            ReadTotalTimeoutMultiplier  - 65535	
+            ReadTotalTimeoutConstant    - 65535	
+            WriteTotalTimeoutMultiplier - 65535	
+            WriteTotalTimeoutConstant   - 65535	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+33	IRP_MJ_CLOSE - Close a COM port	
+    STATUS_SUCCESS	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+35	IRP_MJ_CREATE - Opens a COM port	
+    STATUS_SUCCESS	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+37	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_BAUD_RATE - Returns the baud rate that is currently set for a COM port	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+39	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_LINE_CONTROL - Request returns information about the line control set for a COM port	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+41	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_CHARS - Request returns the special characters that Serial uses with handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+43	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_HANDFLOW - Request returns information about the configuration of the handshake flow control set for a COM port	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+45	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_BAUD_RATE - Returns the baud rate that is currently set for a COM port	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+47	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_LINE_CONTROL - Request returns information about the line control set for a COM port	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+49	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_CHARS - Request returns the special characters that Serial uses with handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+51	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_HANDFLOW - Request returns information about the configuration of the handshake flow control set for a COM port	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+53	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_BAUD_RATE - Request sets the baud rate on a COM port. Serial verifies the specified baud rate	
+            BaudRate - 115200	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+55	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_CLR_RTS - Request clears the RTS control signal 	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+57	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_CLR_DTR - Request clears the DTR control signal. 	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+59	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_LINE_CONTROL - Request sets the line control register	
+            StopBits   - 0	
+            Parity     - 0	
+            WordLength - 8	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+61	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_CHARS - Request sets the special characters that Serial uses for handshake flow control	
+            EofChar   - 0	
+            ErrorChar - 0	
+            BreakChar - 0	
+            EventChar - 0	
+            XonChar   - 17	
+            XoffChar  - 19	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+63	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_HANDFLOW - Request sets the configuration of handshake flow control	
+            ControlHandShake - -2147483648	
+            FlowReplace      - 0x00000000	
+            XonLimit         - 32768	
+            XoffLimit        - 8192	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+65	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_SET_TIMEOUTS - Request sets the timeout value's that the driver uses with read and write requests	
+            ReadIntervalTimeout         - 0	
+            ReadTotalTimeoutMultiplier  - 65535	
+            ReadTotalTimeoutConstant    - 65535	
+            WriteTotalTimeoutMultiplier - 65535	
+            WriteTotalTimeoutConstant   - 65535	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+67	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+69	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 80 2a 33 d5 23 23 2e 6b   MSpktV1.Ä*3’##.k	
+            00 00 00 00 1b 23 00 00 00 00 00 00 08 00 00 00   .....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+71	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            02 00 00 00 01 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+73	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 40	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+75	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 97 ad a6 10 00 00 00 00   MSdbgV1.ó≠¶.....	
+            00 00 00 00 31 00 1b 23 03 80 00 00 08 00 00 00   ....1..#.Ä......	
+            00 00 00 00 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+77	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+79	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 11 95 4f 81 b7 9a 6d dc   MSpktV1..ïOÅ∑öm‹	
+            08 00 02 00 1c 23 00 00 00 00 00 00 04 00 00 00   .....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+81	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            01 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+83	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 36	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+85	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 42 3c 1d dd de f9 1e 15   MSdbgV1.B<.›ﬁ˘..	
+            08 00 02 00 32 00 1c 23 03 80 00 00 04 00 00 00   ....2..#.Ä......	
+            1f 04 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+87	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+89	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 74 a8 35 d3 d9 28 1a bc   MSpktV1.t®5”Ÿ(.º	
+            08 00 02 00 1d 23 00 00 00 00 00 00 04 00 00 00   .....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+91	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            02 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+93	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 44	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+95	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 f0 b9 0d 9b 00 00 00 00   MSdbgV1.π.õ....	
+            08 00 02 00 33 00 1d 23 03 80 00 00 0c 00 00 00   ....3..#.Ä......	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+97	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+99	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 ca 69 91 90 6e b2 77 60   MSpktV1. iëên≤w`	
+            08 00 02 00 1e 23 00 00 00 00 00 00 04 00 00 00   .....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+101	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            03 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+103	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 56	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+105	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 c7 34 08 fa 2a ee 07 8f   MSdbgV1.«4.˙*Ó.è	
+            08 00 02 00 34 00 1e 23 03 80 00 00 18 00 00 00   ....4..#.Ä......	
+            4d 61 72 20 32 31 20 32 30 31 34 00 00 00 00 00   Mar 21 2014.....	
+            00 00 00 00 04 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+107	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+109	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 a9 6f 1b 89 b2 d6 98 a0   MSpktV1.©o.â≤÷ò†	
+            08 00 02 00 1f 23 00 00 00 00 00 00 04 00 00 00   .....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+111	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            05 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+113	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+115	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 1e 6d 9c b2 00 00 00 00   MSdbgV1..mú≤....	
+            08 00 02 00 35 00 1f 23 03 40 00 00 00 00 00 00   ....5..#.@......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+117	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+119	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 48 50 52 75 dc 64 ef c0   MSpktV1.HPRu‹dÔ¿	
+            08 00 02 00 20 23 00 00 00 00 00 00 04 00 00 00   .... #..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+121	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            06 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+123	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 104	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+125	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 ee fc 56 d0 81 75 49 a7   MSdbgV1.Ó¸V–ÅuIß	
+            08 00 02 00 36 00 20 23 03 80 00 00 48 00 00 00   ....6. #.Ä..H...	
+            04 00 03 00 00 00 00 00 4d 69 63 72 6f 73 6f 66   ........Microsof	
+            74 20 43 6f 70 79 72 69 67 68 74 20 28 43 29 20   t Copyright (C) 	
+            4d 69 63 72 6f 73 6f 66 74 20 43 6f 72 70 6f 72   Microsoft Corpor	
+            61 74 69 6f 6e 2e 20 20 41 6c 6c 20 72 69 67 00   ation.  All rig.	
+            04 00 03 00 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+127	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+129	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 fa 57 1b 39 6b fe 82 1c   MSpktV1.˙W.9k˛Ç.	
+            08 00 02 00 21 23 00 00 00 00 00 00 04 00 00 00   ....!#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:23]	
+131	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            07 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+133	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 96	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+135	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 80 35 13 54 eb 1b 28 64   MSdbgV1.Ä5.TÎ.(d	
+            08 00 02 00 37 00 21 23 03 80 00 00 40 00 00 00   ....7.!#.Ä..@...	
+            04 00 03 00 00 00 00 00 4d 69 63 72 6f 73 6f 66   ........Microsof	
+            74 20 43 6f 70 79 72 69 67 68 74 20 28 43 29 20   t Copyright (C) 	
+            4d 69 63 72 6f 73 6f 66 74 20 43 6f 72 70 6f 72   Microsoft Corpor	
+            61 74 69 6f 6e 2e 20 20 41 6c 6c 20 72 69 67 00   ation.  All rig.	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+137	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+139	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 16 81 c0 6c 23 23 2e 6b   MSpktV1..Å¿l##.k	
+            00 00 00 00 22 23 00 00 00 00 00 00 08 00 00 00   ...."#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+141	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            02 00 00 00 01 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+143	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 40	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+145	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 7a bf f1 ce 00 00 00 00   MSdbgV1.zøÒŒ....	
+            00 00 00 00 38 00 22 23 03 80 00 00 08 00 00 00   ....8."#.Ä......	
+            00 00 00 00 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+147	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+149	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 93 74 8a 28 b7 9a 6d dc   MSpktV1.ìtä(∑öm‹	
+            08 00 02 00 23 23 00 00 00 00 00 00 04 00 00 00   ....##..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+151	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            01 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+153	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 36	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+155	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 28 0f 87 02 de f9 1e 15   MSdbgV1.(.á.ﬁ˘..	
+            08 00 02 00 39 00 23 23 03 80 00 00 04 00 00 00   ....9.##.Ä......	
+            1f 04 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+157	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+159	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 e2 03 c6 6a d9 28 1a bc   MSpktV1.‚.∆jŸ(.º	
+            08 00 02 00 24 23 00 00 00 00 00 00 04 00 00 00   ....$#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+161	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            02 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+163	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 44	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+165	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 1d ab 5a 45 00 00 00 00   MSdbgV1..´ZE....	
+            08 00 02 00 3a 00 24 23 03 80 00 00 0c 00 00 00   ....:.$#.Ä......	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+167	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+169	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 50 04 8f 26 6e b2 77 60   MSpktV1.P.è&n≤w`	
+            08 00 02 00 25 23 00 00 00 00 00 00 04 00 00 00   ....%#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+171	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            03 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+173	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 56	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+175	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 47 31 89 31 2a ee 07 8f   MSdbgV1.G1â1*Ó.è	
+            08 00 02 00 3b 00 25 23 03 80 00 00 18 00 00 00   ....;.%#.Ä......	
+            4d 61 72 20 32 31 20 32 30 31 34 00 00 00 00 00   Mar 21 2014.....	
+            00 00 00 00 04 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+177	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+179	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 3f c4 e8 30 b2 d6 98 a0   MSpktV1.?ƒË0≤÷ò†	
+            08 00 02 00 26 23 00 00 00 00 00 00 04 00 00 00   ....&#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+181	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            05 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+183	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+185	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 f3 7f cb 6c 00 00 00 00   MSdbgV1.ÛÀl....	
+            08 00 02 00 3c 00 26 23 03 40 00 00 00 00 00 00   ....<.&#.@......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+187	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+189	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 5a f9 92 62 dc 64 ef c0   MSpktV1.Z˘íb‹dÔ¿	
+            08 00 02 00 27 23 00 00 00 00 00 00 04 00 00 00   ....'#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+191	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            06 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+193	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 104	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+195	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 38 86 4a 69 81 75 49 a7   MSdbgV1.8ÜJiÅuIß	
+            08 00 02 00 3d 00 27 23 03 80 00 00 48 00 00 00   ....=.'#.Ä..H...	
+            04 00 03 00 00 00 00 00 4d 69 63 72 6f 73 6f 66   ........Microsof	
+            74 20 43 6f 70 79 72 69 67 68 74 20 28 43 29 20   t Copyright (C) 	
+            4d 69 63 72 6f 73 6f 66 74 20 43 6f 72 70 6f 72   Microsoft Corpor	
+            61 74 69 6f 6e 2e 20 20 41 6c 6c 20 72 69 67 00   ation.  All rig.	
+            04 00 03 00 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+197	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+199	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 cc ac 5a 01 6b fe 82 1c   MSpktV1.Ã¨Z.k˛Ç.	
+            08 00 02 00 28 23 00 00 00 00 00 00 04 00 00 00   ....(#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+201	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            07 00 00 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+203	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 96	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+205	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 35 1b 43 fb eb 1b 28 64   MSdbgV1.5.C˚Î.(d	
+            08 00 02 00 3e 00 28 23 03 80 00 00 40 00 00 00   ....>.(#.Ä..@...	
+            04 00 03 00 00 00 00 00 4d 69 63 72 6f 73 6f 66   ........Microsof	
+            74 20 43 6f 70 79 72 69 67 68 74 20 28 43 29 20   t Copyright (C) 	
+            4d 69 63 72 6f 73 6f 66 74 20 43 6f 72 70 6f 72   Microsoft Corpor	
+            61 74 69 6f 6e 2e 20 20 41 6c 6c 20 72 69 67 00   ation.  All rig.	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+207	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+209	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 ec 82 87 12 0c 0e d2 83   MSpktV1.ÏÇá...“É	
+            01 00 02 00 29 23 00 00 00 00 00 00 08 00 00 00   ....)#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+211	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 00 10 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+213	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 36	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+215	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 b9 7d a1 0b 1b 19 f5 7f   MSdbgV1.π}°...ı	
+            01 00 02 00 3f 00 29 23 03 80 00 00 04 00 00 00   ....?.)#.Ä......	
+            00 04 00 50                                       ...P            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+217	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+219	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 43 e4 a0 88 00 00 00 00   MSpktV1.C‰†à....	
+            01 00 02 00 2a 23 00 00 00 00 00 00 08 00 00 00   ....*#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+221	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 00 00 00 00 00 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+223	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 36	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+225	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 12 bd 6d de 1b 19 f5 7f   MSdbgV1..Ωmﬁ..ı	
+            01 00 02 00 40 00 2a 23 03 80 00 00 04 00 00 00   ....@.*#.Ä......	
+            00 04 00 50                                       ...P            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+227	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:24]	
+229	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 94 25 af 9f 00 00 00 00   MSpktV1.î%Øü....	
+            40 00 02 00 2b 23 00 00 00 00 00 00 00 00 00 00   @...+#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+231	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 72	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+233	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 48 85 b5 14 4c d7 af 84   MSdbgV1.HÖµ.L◊ØÑ	
+            40 00 02 00 41 00 2b 23 03 80 00 00 28 00 00 00   @...A.+#.Ä..(...	
+            00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00   ................	
+            00 00 05 00 00 00 06 00 00 00 07 00 00 00 08 00   ................	
+            00 00 09 00 00 00 0a 00                           ........        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+235	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+237	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 3c 52 b9 2d dc c1 19 d2   MSpktV1.<Rπ-‹¡.“	
+            50 00 02 00 2c 23 00 00 00 00 00 00 04 00 00 00   P...,#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+239	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 01 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+241	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+243	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 76 bc ac 6e 68 95 1f 00   MSdbgV1.vº¨nhï..	
+            50 00 02 00 42 00 2c 23 03 80 00 00 0c 02 00 00   P...B.,#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 6d 73 63 6f   ............msco	
+            72 6c 69 62 00 00 00 00 00 00 00 00 00 00 00 00   rlib............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+245	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+247	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 16 ac 6d df 0f 9e f2 a0   MSpktV1..¨mﬂ.ûÚ†	
+            50 00 02 00 2d 23 00 00 00 00 00 00 04 00 00 00   P...-#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+249	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 02 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+251	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+253	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 50 b3 06 de b6 bc 08 f3   MSdbgV1.P≥.ﬁ∂º.Û	
+            50 00 02 00 43 00 2d 23 03 80 00 00 0c 02 00 00   P...C.-#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 4e 61 74 69 76   osoft.SPOT.Nativ	
+            65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   e...............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+255	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+257	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 6d d3 ac fc d3 5f eb 72   MSpktV1.m”¨¸”_Îr	
+            50 00 02 00 2e 23 00 00 00 00 00 00 04 00 00 00   P....#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+259	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 03 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+261	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+263	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 70 f5 c4 aa d4 4f 80 3e   MSdbgV1.pıƒ™‘OÄ>	
+            50 00 02 00 44 00 2e 23 03 80 00 00 0c 02 00 00   P...D..#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 48 61 72 64 77   osoft.SPOT.Hardw	
+            61 72 65 00 00 00 00 00 00 00 00 00 00 00 00 00   are.............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+265	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+267	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 e4 b1 6f ec a9 21 24 45   MSpktV1.‰±oÏ©!$E	
+            50 00 02 00 2f 23 00 00 00 00 00 00 04 00 00 00   P.../#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+269	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 04 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+271	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+273	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 68 24 ae 1f b5 e1 13 af   MSdbgV1.h$Æ.µ·.Ø	
+            50 00 02 00 45 00 2f 23 03 80 00 00 0c 02 00 00   P...E./#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 48 61 72 64 77   osoft.SPOT.Hardw	
+            61 72 65 2e 50 57 4d 00 00 00 00 00 00 00 00 00   are.PWM.........	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+275	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+277	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 d7 6a ac 90 75 e0 3d 97   MSpktV1.◊j¨êu‡=ó	
+            50 00 02 00 30 23 00 00 00 00 00 00 04 00 00 00   P...0#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+279	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 05 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+281	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+283	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 ec 1b 8c 03 76 57 c6 71   MSdbgV1.Ï.å.vW∆q	
+            50 00 02 00 46 00 30 23 03 80 00 00 0c 02 00 00   P...F.0#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 48 61 72 64 77   osoft.SPOT.Hardw	
+            61 72 65 2e 53 65 72 69 61 6c 50 6f 72 74 00 00   are.SerialPort..	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+285	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+287	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 fd 94 78 62 a6 bf d6 e5   MSpktV1.˝îxb¶ø÷Â	
+            50 00 02 00 31 23 00 00 00 00 00 00 04 00 00 00   P...1#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+289	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 06 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+291	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+293	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 d9 51 5e 77 ff a4 64 95   MSdbgV1.ŸQ^wˇ§dï	
+            50 00 02 00 47 00 31 23 03 80 00 00 0c 02 00 00   P...G.1#.Ä......	
+            07 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 48 61 72 64 77   osoft.SPOT.Hardw	
+            61 72 65 2e 55 73 62 00 00 00 00 00 00 00 00 00   are.Usb.........	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+295	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+297	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 86 eb b9 41 7a 7e cf 37   MSpktV1.ÜÎπAz~œ7	
+            50 00 02 00 32 23 00 00 00 00 00 00 04 00 00 00   P...2#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+299	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 07 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+301	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+303	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 e0 36 8b 70 c6 87 ad a9   MSdbgV1.‡6ãp∆á≠©	
+            50 00 02 00 48 00 32 23 03 80 00 00 0c 02 00 00   P...H.2#.Ä......	
+            0f 00 00 00 04 00 03 00 00 00 00 00 6d 73 63 6f   ............msco	
+            72 6c 69 62 00 00 00 00 00 00 00 00 00 00 00 00   rlib............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+305	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+307	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 eb e8 36 5e 52 43 48 8a   MSpktV1.ÎË6^RCHä	
+            50 00 02 00 33 23 00 00 00 00 00 00 04 00 00 00   P...3#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+309	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 08 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+311	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+313	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 8a 3a c2 40 91 5f 39 b5   MSdbgV1.ä:¬@ë_9µ	
+            50 00 02 00 49 00 33 23 03 80 00 00 0c 02 00 00   P...I.3#.Ä......	
+            0f 00 00 00 01 00 00 00 00 00 00 00 45 6d 70 74   ............Empt	
+            79 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   y...............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+315	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+317	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 88 1b 2c 62 8e 82 51 58   MSpktV1.à.,béÇQX	
+            50 00 02 00 34 23 00 00 00 00 00 00 04 00 00 00   P...4#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+319	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 09 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+321	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+323	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 0c 49 f8 a0 7a 5d 32 97   MSdbgV1..I¯†z]2ó	
+            50 00 02 00 4a 00 34 23 03 80 00 00 0c 02 00 00   P...J.4#.Ä......	
+            0f 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 48 61 72 64 77   osoft.SPOT.Hardw	
+            61 72 65 00 00 00 00 00 00 00 00 00 00 00 00 00   are.............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+325	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+327	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 a2 e5 f8 90 5d dd ba 2a   MSpktV1.¢Â¯ê]›∫*	
+            50 00 02 00 35 23 00 00 00 00 00 00 04 00 00 00   P...5#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:25]	
+329	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 0a 00                                       ....            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+331	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 556	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+333	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 41 18 ec c1 18 ae ba 5a   MSdbgV1.A.Ï¡.Æ∫Z	
+            50 00 02 00 4b 00 35 23 03 80 00 00 0c 02 00 00   P...K.5#.Ä......	
+            0f 00 00 00 04 00 03 00 00 00 00 00 4d 69 63 72   ............Micr	
+            6f 73 6f 66 74 2e 53 50 4f 54 2e 4e 61 74 69 76   osoft.SPOT.Nativ	
+            65 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   e...............	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................	
+            00 00 00 00 00 00 00 00 00 00 00 00               ............    	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+335	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+337	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 8b 7b 47 67 bc 06 94 0d   MSpktV1.ã{Ggº.î.	
+            01 00 02 00 36 23 00 00 00 00 00 00 08 00 00 00   ....6#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+339	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 00 00 80 00 00 00 00                           ...Ä....        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+341	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 36	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+343	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 5c 20 ac 67 f5 f9 f9 16   MSdbgV1.\ ¨gı˘˘.	
+            01 00 02 00 4c 00 36 23 03 80 00 00 04 00 00 00   ....L.6#.Ä......	
+            00 04 00 d0                                       ...–            	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+345	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+347	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 82 24 6f 54 00 00 00 00   MSpktV1.Ç$oT....	
+            b0 00 02 00 37 23 00 00 00 20 00 00 00 00 00 00   ∞...7#... ......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+349	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+351	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 80	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+353	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 e6 a1 0e 97 e1 46 b1 f1   MSdbgV1.Ê°.ó·F±Ò	
+            b0 00 02 00 4d 00 37 23 03 a0 00 00 30 00 00 00   ∞...M.7#.†..0...	
+            05 00 08 00 00 20 0a 08 00 00 02 00 ff ff ff ff   ..... ......ˇˇˇˇ	
+            c0 12 00 00 80 25 00 00 00 20 0a 08 00 00 02 00   ¿...Ä%... ......	
+            46 23 48 a4 00 00 00 00 00 00 00 00 00 00 00 00   F#H§............	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+355	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+357	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 d0 74 b0 7b 16 1a 2f c6   MSpktV1.–t∞{../∆	
+            05 00 00 00 38 23 00 00 00 00 00 00 08 00 00 00   ....8#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+359	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 20 0a 08 00 00 02 00                           . ......        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+361	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+363	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+365	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+367	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+369	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:26]	
+371	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+373	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+375	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+377	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+379	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+381	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+383	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+385	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+387	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+389	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:27]	
+391	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+393	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+395	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+397	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+399	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+401	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+403	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+405	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+407	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+409	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+411	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+413	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 74 61 ec f3 00 00 00 00   MSdbgV1.taÏÛ....	
+            05 00 00 00 4e 00 38 23 03 80 00 00 00 00 00 00   ....N.8#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+415	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:28]	
+417	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 af 2a 9d f5 ae e6 b0 00   MSpktV1.Ø*ùıÆÊ∞.	
+            03 00 00 00 39 23 00 00 00 00 00 00 08 04 00 00   ....9#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+419	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 20 0a 08 00 04 00 00 4d 53 53 70 6f 74 31 00   . ......MSSpot1.	
+            70 19 e2 25 83 f0 f0 b8 00 00 00 00 47 06 93 46   p.‚%É∏....G.ìF	
+            ff ff ff ff 04 00 03 00 00 00 00 00 01 02 01 00   ˇˇˇˇ............	
+            7c 00 00 00 94 00 00 00 c4 00 00 00 c4 00 00 00   |...î...ƒ...ƒ...	
+            ec 00 00 00 64 01 00 00 a4 01 00 00 a4 04 00 00   Ï...d...§...§...	
+            a4 04 00 00 a4 04 00 00 a4 04 00 00 a4 04 00 00   §...§...§...§...	
+            c0 06 00 00 e8 07 00 00 dc 08 00 00 dc 08 00 00   ¿...Ë...‹...‹...	
+            00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 03   ................	
+            03 02 00 00 fe fb 00 00 04 00 03 00 00 00 00 00   ....˛˚..........	
+            71 fe 00 00 04 00 03 00 00 00 00 00 7f fe a0 fd   q˛..........˛†˝	
+            00 00 00 00 c0 fe a0 fd 00 00 00 00 5e ff a0 fd   ....¿˛†˝....^ˇ†˝	
+            00 00 00 00 40 fe a0 fd 00 00 00 00 d0 fe 71 fe   ....@˛†˝....–˛q˛	
+            01 00 00 00 2c ff a0 fd 00 00 00 00 bd fc 04 00   ....,ˇ†˝....Ω¸..	
+            00 00 00 00 fd fe 04 00 04 00 00 00 a3 fd 05 00   ....˝˛......£˝..	
+            0f 00 00 00 38 ff 03 00 13 00 00 00 fc ff 00 00   ....8ˇ......¸ˇ..	
+            13 00 00 00 01 00 73 fe 00 80 ff ff f1 00 00 00   ......s˛.ÄˇˇÒ...	
+            02 1b 01 11 00 00 04 00 04 01 81 40 fe 00 00 00   ..........Å@˛...	
+            02 80 00 00 ff ff 1e 00 00 00 00 03 05 00 05 00   .Ä..ˇˇ..........	
+            00 01 ba 00 0e 01 73 fe 00 80 ff ff ff ff 1e 00   ..∫...s˛.Äˇˇˇˇ..	
+            00 0e 00 11 06 00 06 00 00 01 81 10 c3 01 a1 01   ..........Å.√.°.	
+            02 80 ff ff ff ff 2c 00 00 00 00 08 07 00 07 00   .Äˇˇˇˇ,.........	
+            00 01 b9 00 c9 01 a1 01 03 80 ff ff ff ff 2c 00   ..π.….°..Äˇˇˇˇ,.	
+            00 00 04 11 08 00 08 00 00 00 c1 10 08 00 16 00   ..........¡.....	
+            ff ff 36 00 11 00 16 00 ff ff 36 00 1b 00 16 00   ˇˇ6.....ˇˇ6.....	
+            ff ff 36 00 23 00 16 00 ff ff 36 00 2b 00 18 00   ˇˇ6.#...ˇˇ6.+...	
+            ff ff 01 00 cd fb f3 00 ff ff 06 01 13 01 18 00   ˇˇ..Õ˚Û.ˇˇ......	
+            ff ff 01 00 cd fb 17 01 ff ff 06 01 71 ff 00 00   ˇˇ..Õ˚..ˇˇ..qˇ..	
+            e6 01 00 00 00 01 00 02 ff ff 13 00 38 ff 0a 00   Ê.......ˇˇ..8ˇ..	
+            c4 40 00 40 00 01 00 02 ff ff 13 00 fc ff ff ff   ƒ@.@....ˇˇ..¸ˇˇˇ	
+            86 14 00 00 00 03 00 00 00 00 1a 00 fc ff ff ff   Ü...........¸ˇˇˇ	
+            86 14 00 00 00 03 00 00 00 00 1f 00 34 ff ff ff   Ü...........4ˇˇˇ	
+            86 00 00 00 00 01 00 00 00 00 13 00 34 ff ff ff   Ü...........4ˇˇˇ	
+            86 00 00 00 00 05 00 00 00 00 26 00 b3 ff ff ff   Ü.........&.≥ˇˇˇ	
+            86 00 00 00 00 01 00 00 00 00 13 00 34 00 ff ff   Ü...........4.ˇˇ	
+            86 00 00 00 01 0b 00 00 00 00 2d 00 34 00 24 00   Ü.........-.4.$.	
+            86 00 00 00 00 09 02 0b 1d 00 3f 00 43 00 ff ff   Ü.........?.C.ˇˇ	
+            86 00 00 00 00 05 00 00 00 00 26 00 58 00 ff ff   Ü.........&.X.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 62 00 ff ff   Ü.........L.b.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 6d 00 ff ff   Ü.........L.m.ˇˇ	
+            86 00 00 00 00 0e 00 00 00 00 4f 00 6d 00 40 00   Ü.........O.m.@.	
+            86 00 00 00 00 06 00 0e ff ff 62 00 79 00 58 00   Ü.......ˇˇb.y.X.	
+            86 00 00 00 00 08 00 09 ff ff 6b 00 79 00 ff ff   Ü.......ˇˇk.y.ˇˇ	
+            86 00 00 00 00 09 00 00 00 00 76 00 83 00 ff ff   Ü.........v.É.ˇˇ	
+            86 00 00 00 00 0a 00 00 00 00 82 00 8f 00 ff ff   Ü.........Ç.è.ˇˇ	
+            86 00 00 00 00 02 00 00 00 00 8f 00 9f 00 ff ff   Ü.........è.ü.ˇˇ	
+            86 00 00 00 00 07 00 00 00 00 94 00 ac 00 ff ff   Ü.........î.¨.ˇˇ	
+            86 00 00 00 00 07 00 00 00 00 9e 00 b5 00 ff ff   Ü.........û.µ.ˇˇ	
+            86 00 00 00 00 10 00 00 00 00 a8 00 c3 00 ff ff   Ü.........®.√.ˇˇ	
+            86 00 00 00 00 06 00 00 00 00 bd 00 cc 00 ff ff   Ü.........Ω.Ã.ˇˇ	
+            86 00 00 00 00 04 00 00 00 00 c7 00 d5 00 ff ff   Ü.........«.’.ˇˇ	
+            86 00 00 00 12 03 00 00 00 00 ce 00 de 00 ff ff   Ü.........Œ.ﬁ.ˇˇ	
+            86 00 00 00 13 01 00 00 00 00 d4 00 9f 00 ff ff   Ü.........‘.ü.ˇˇ	
+            86 00 00 00 00 0b 00 00 00 00 d8 00 e8 00 ff ff   Ü.........ÿ.Ë.ˇˇ	
+            86 00 00 00 00 07 00 00 00 00 94 00 f2 00 ff ff   Ü.........î.Ú.ˇˇ	
+            86 00 00 00 00 0b 00 00 00 00 d8 00 71 ff ff ff   Ü.........ÿ.qˇˇˇ	
+            81 00 00 00 00 02 00 00 00 00 e6 00 fd ff 6d 00   Å.........Ê.˝ˇm.	
+            91 24 00 00 00 00 03 05 ed 00 ea 00 fc ff 94 00   ë$......Ì.Í.¸ˇî.	
+            81 14 00 00 00 01 00 01 ff ff 13 00 1a 01 ff ff   Å.......ˇˇ....ˇˇ	
+            86 00 00 00 07 02 00 00 00 00 f5 00 62 00 ff ff   Ü.........ı.b.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 24 01 ff ff   Ü.........L.$.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 35 01 ff ff   Ü.........L.5.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 42 01 ff ff   Ü.........L.B.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 4d 01 ff ff   Ü.........L.M.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 59 01 ff ff   Ü.........L.Y.ˇˇ	
+            86 04 00 00 07 01 00 00                           Ü.......        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+421	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+423	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+425	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 89 a0 3b 95 00 00 00 00   MSdbgV1.â†;ï....	
+            03 00 00 00 4f 00 39 23 03 80 00 00 00 00 00 00   ....O.9#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+427	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+429	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 1d 7d 0c 54 3c 96 4b 77   MSpktV1..}.T<ñKw	
+            03 00 00 00 3a 23 00 00 00 00 00 00 08 04 00 00   ....:#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+431	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 24 0a 08 00 04 00 00 00 00 4c 00 6d 01 ff ff   .$........L.m.ˇˇ	
+            86 04 00 00 07 01 00 00 00 00 4c 00 81 01 99 00   Ü.........L.Å.ô.	
+            86 00 00 00 00 04 00 05 ff ff f9 00 81 01 ff ff   Ü.......ˇˇ˘.Å.ˇˇ	
+            86 00 00 00 00 05 00 00 00 00 01 01 8f 01 a6 00   Ü...........è.¶.	
+            86 00 00 00 00 04 00 09 ff ff f9 00 8f 01 b8 00   Ü.......ˇˇ˘.è.∏.	
+            86 00 00 00 00 05 00 09 ff ff 01 01 8f 01 ff ff   Ü.......ˇˇ..è.ˇˇ	
+            86 00 00 00 00 09 00 00 00 00 0a 01 d6 01 c7 00   Ü...........÷.«.	
+            96 00 00 00 12 03 00 03 ff ff 19 01 e3 01 d2 00   ñ.......ˇˇ..„.“.	
+            96 00 00 00 03 01 00 02 ff ff 20 01 ed 01 db 00   ñ.......ˇˇ .Ì.€.	
+            96 00 00 00 03 01 00 02 ff ff 20 01 f7 01 e6 00   ñ.......ˇˇ .˜.Ê.	
+            96 00 00 00 03 01 00 02 ff ff 20 01 00 42 69 74   ñ.......ˇˇ ..Bit	
+            6d 61 70 00 4d 61 78 57 69 64 74 68 00 4d 61 78   map.MaxWidth.Max	
+            48 65 69 67 68 74 00 43 65 6e 74 65 72 58 00 43   Height.CenterX.C	
+            65 6e 74 65 72 59 00 6d 5f 62 69 74 6d 61 70 00   enterY.m_bitmap.	
+            44 72 61 77 54 65 78 74 49 6e 52 65 63 74 00 53   DrawTextInRect.S	
+            65 74 43 6c 69 70 70 69 6e 67 52 65 63 74 61 6e   etClippingRectan	
+            67 6c 65 00 67 65 74 5f 57 69 64 74 68 00 67 65   gle.get_Width.ge	
+            74 5f 48 65 69 67 68 74 00 44 72 61 77 45 6c 6c   t_Height.DrawEll	
+            69 70 73 65 00 44 72 61 77 49 6d 61 67 65 00 52   ipse.DrawImage.R	
+            6f 74 61 74 65 49 6d 61 67 65 00 4d 61 6b 65 54   otateImage.MakeT	
+            72 61 6e 73 70 61 72 65 6e 74 00 53 74 72 65 74   ransparent.Stret	
+            63 68 49 6d 61 67 65 00 44 72 61 77 4c 69 6e 65   chImage.DrawLine	
+            00 44 72 61 77 52 65 63 74 61 6e 67 6c 65 00 44   .DrawRectangle.D	
+            72 61 77 54 65 78 74 00 53 65 74 50 69 78 65 6c   rawText.SetPixel	
+            00 47 65 74 50 69 78 65 6c 00 47 65 74 42 69 74   .GetPixel.GetBit	
+            6d 61 70 00 54 69 6c 65 49 6d 61 67 65 00 53 63   map.TileImage.Sc	
+            61 6c 65 39 49 6d 61 67 65 00 42 69 74 6d 61 70   ale9Image.Bitmap	
+            49 6d 61 67 65 54 79 70 65 00 46 6f 6e 74 00 6d   ImageType.Font.m	
+            5f 66 6f 6e 74 00 43 68 61 72 57 69 64 74 68 00   _font.CharWidth.	
+            67 65 74 5f 41 76 65 72 61 67 65 57 69 64 74 68   get_AverageWidth	
+            00 67 65 74 5f 4d 61 78 57 69 64 74 68 00 67 65   .get_MaxWidth.ge	
+            74 5f 41 73 63 65 6e 74 00 67 65 74 5f 44 65 73   t_Ascent.get_Des	
+            63 65 6e 74 00 67 65 74 5f 49 6e 74 65 72 6e 61   cent.get_Interna	
+            6c 4c 65 61 64 69 6e 67 00 67 65 74 5f 45 78 74   lLeading.get_Ext	
+            65 72 6e 61 6c 4c 65 61 64 69 6e 67 00 43 6f 6d   ernalLeading.Com	
+            70 75 74 65 45 78 74 65 6e 74 00 43 6f 6d 70 75   puteExtent.Compu	
+            74 65 54 65 78 74 49 6e 52 65 63 74 00 4d 69 63   teTextInRect.Mic	
+            72 6f 73 6f 66 74 2e 53 50 4f 54 2e 50 72 65 73   rosoft.SPOT.Pres	
+            65 6e 74 61 74 69 6f 6e 2e 4d 65 64 69 61 00 43   entation.Media.C	
+            6f 6c 6f 72 00 43 6f 6c 6f 72 55 74 69 6c 69 74   olor.ColorUtilit	
+            79 00 43 6f 6c 6f 72 46 72 6f 6d 52 47 42 00 47   y.ColorFromRGB.G	
+            65 74 52 56 61 6c 75 65 00 47 65 74 47 56 61 6c   etRValue.GetGVal	
+            75 65 00 47 65 74 42 56 61 6c 75 65 00 4d 69 63   ue.GetBValue.Mic	
+            72 6f 73 6f 66 74 2e 53 50 4f 54 2e 47 72 61 70   rosoft.SPOT.Grap	
+            68 69 63 73 00 00 00 00 00 00 11 11 20 04 00 14   hics........ ...	
+            07 14 07 14 07 14 07 00 01 00 10 20 00 00 06 07   ........... ....	
+            06 10 20 02 00 07 07 20 02 00 13 03 12 04 20 04   .. .... ...... .	
+            00 07 07 07 07 20 0a 01 14 0f 14 07 14 07 07 07   ..... ..........	
+            07 07 08 12 0c 11 08 20 08 00 0f 07 07 07 07 08   ....... ........	
+            12 0c 11 08 20 00 07 20 0d 00 12 0c 07 07 07 07   .... .. ........	
+            07 12 0c 07 07 12 0c 07 07 06 20 05 00 12 0c 07   .......... .....	
+            07 07 07 20 07 00 07 07 11 00 07 07 07 07 20 08   ... .......... .	
+            00 07 07 11 00 07 07 07 07 06 20 09 00 07 07 07   .......... .....	
+            11 00 07 07 07 07 06 20 01 00 12 0c 20 06 00 07   ....... .... ...	
+            07 11 00 07 07 06 20 06 00 12 0c 07 07 07 07 07   ...... .........	
+            20 0f 00 12 0c 07 07 07 07 07 07 07 12 0c 07 07    ...............	
+            12 0c 07 07 06 20 05 00 0f 11 08 12 0c 07 07 20   ..... ......... 	
+            03 00 07 07 12 0c 20 02 12 0c 07 07 20 00 13 03   ...... ..... ...	
+            20 0a 00 07 07 07 07 11 00 07 07 07 07 06 20 01    ............. .	
+            00 01 00 00 00 07 07 11 11 01 05 06 03 20 01 07   ............. ..	
+            04 20 03 00 0f 14 07 14 07 20 04 00 0f 14 07 14   . ....... ......	
+            07 07 20 08 00 0f 14 07 14 07 07 07 07 07 08 06   .. .............	
+            08 00 03 12 0c 03 03 03 00 01 03 12 0c 00 00 00   ................	
+            02 17 28 1c 00 02 28 02 80 2a 02 16 28 1c 00 de   ..(...(.Ä*..(..ﬁ	
+            05 02 28 03 80 dc 2a 02                           ..(.Ä‹*.        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+433	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+435	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+437	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 d5 dc 52 47 00 00 00 00   MSdbgV1.’‹RG....	
+            03 00 00 00 50 00 3a 23 03 80 00 00 00 00 00 00   ....P.:#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+439	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+441	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 9e c8 c3 f1 10 33 06 c5   MSpktV1.û»√Ò.3.≈	
+            03 00 00 00 3b 23 00 00 00 00 00 00 08 04 00 00   ....;#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+443	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 28 0a 08 00 04 00 00 00 00 00 00 00 07 00 07   .(..............	
+            00 0c 00 01 16 0a 16 0b 02 0f 01 12 00 12 01 04   ................	
+            05 0e 04 0e 05 0e 06 0e 07 0e 08 28 07 00 26 2a   ...........(..&*	
+            02 03 17 04 05 0e 04 0e 05 16 16 16 16 16 16 20   ............... 	
+            00 01 00 00 28 0c 00 2a 02 03 04 05 0e 04 0e 05   ....(..*........	
+            0e 06 0e 07 20 00 01 00 00 28 0f 00 2a 28 00 80   .... ....(..*(.Ä	
+            0c 08 7f 00 00 7f 01 00 12 00 12 01 6f 01 80 7e   ..........o.Ä~	
+            00 00 17 59 18 5b 80 02 00 7e 01 00 17 59 18 5b   ...Y.[Ä..~...Y.[	
+            80 03 00 2a 02 28 04 80 2a 02 03 04 05 20 00 04   Ä..*.(.Ä*.... ..	
+            00 00 28 28 00 2a 02 03 04 05 16 16 20 00 00 01   ..((.*...... ...	
+            00 16 1f 11 28 2b 00 2a 02 03 04 05 16 16 0e 04   ....(+.*........	
+            16 1f 11 28 2b 00 2a 04 1f 10 62 03 1e 62 60 02   ...(+.*...b..b`.	
+            60 2a 02 20 ff 00 00 00 5f d2 2a 02 1e 64 20 ff   `*. ˇ..._“*..d ˇ	
+            00 00 00 5f d2 2a 02 1f 10 64 20 ff 00 00 00 5f   ..._“*...d ˇ..._	
+            d2 2a 00 00 4d 53 53 70 6f 74 31 00 e1 71 18 1f   “*..MSSpot1.·q..	
+            21 6a ec 93 00 00 00 00 00 00 00 00 ff ff ff ff   !jÏì........ˇˇˇˇ	
+            01 00 00 00 00 00 00 00 1f 01 01 00 7c 00 00 00   ............|...	
+            a0 00 00 00 08 01 00 00 08 01 00 00 78 01 00 00   †...........x...	
+            d8 01 00 00 f8 01 00 00 78 02 00 00 88 02 00 00   ÿ...¯...x...à...	
+            88 02 00 00 98 02 00 00 a8 02 00 00 d4 03 00 00   à...ò...®...‘...	
+            50 04 00 00 60 07 00 00 78 07 00 00 00 00 00 00   P...`...x.......	
+            00 00 00 00 00 00 00 00 00 00 03 01 02 02 00 00   ................	
+            fe fb 00 00 04 00 03 00 00 00 00 00 01 00 00 00   ˛˚..............	
+            01 00 00 00 00 00 00 00 6e fe 00 00 04 00 03 00   ........n˛......	
+            00 00 00 00 40 fe a0 fd 00 00 00 00 5e ff a0 fd   ....@˛†˝....^ˇ†˝	
+            00 00 00 00 3b 00 18 00 01 00 00 00 f5 fd 8a fd   ....;.......ı˝ä˝	
+            00 00 00 00 3f 00 89 fd 00 00 00 00 80 ff 73 fe   ....?.â˝....Äˇs˛	
+            02 00 00 00 52 00 18 00 01 00 00 00 7f fd 86 fd   ....R.......˝Ü˝	
+            00 00 00 00 a9 fd a0 fd 00 00 00 00 55 fd a0 fd   ....©˝†˝....U˝†˝	
+            00 00 00 00 e8 fd a0 fd 00 00 00 00 dd ff 8b fd   ....Ë˝†˝....›ˇã˝	
+            00 00 00 00 f4 fd 73 fe 02 00 00 00 fc ff 04 00   ....Ù˝s˛....¸ˇ..	
+            00 00 00 00 26 fe 05 00 03 00 00 00 fc ff 06 00   ....&˛......¸ˇ..	
+            00 00 00 00 ae fe 06 00 07 00 00 00 3a fd 06 00   ....Æ˛......:˝..	
+            0a 00 00 00 bf fd 07 00 15 00 00 00 9d fc 08 00   ....ø˝......ù¸..	
+            19 00 00 00 a5 ff 08 00 1c 00 00 00 eb fc 08 00   ....•ˇ......Î¸..	
+            23 00 00 00 fc ff 00 00 00 00 00 00 da fe 09 00   #...¸ˇ......⁄˛..	
+            27 00 00 00 f6 fc 09 00 2d 00 00 00 fc ff 03 00   '...ˆ¸..-...¸ˇ..	
+            31 00 00 00 f3 fe 0c 00 37 00 00 00 6c 00 5b 00   1...Û˛..7...l.[.	
+            00 80 ff ff ff ff 00 00 00 00 01 11 00 00 00 00   .Äˇˇˇˇ..........	
+            00 00 c1 90 96 00 80 00 00 80 ff ff ff ff 01 00   ..¡êñ.Ä..Äˇˇˇˇ..	
+            00 01 03 11 00 00 02 00 02 00 01 10 b9 00 80 00   ............π.Ä.	
+            00 80 ff ff ff ff 05 00 00 01 02 11 02 00 03 00   .Äˇˇˇˇ..........	
+            01 00 00 10 a8 fd 00 00 01 80 02 00 ff ff 08 00   ....®˝...Ä..ˇˇ..	
+            00 00 00 05 03 00 03 00 00 01 bd 00 9e 00 43 00   ..........Ω.û.C.	
+            ff ff 11 00 a2 00 45 00 ff ff 11 00 01 fc 69 00   ˇˇ..¢.E.ˇˇ...¸i.	
+            ff ff 11 00 cd fb 78 00 ff ff 06 01 7a 00 00 00   ˇˇ..Õ˚x.ˇˇ..z...	
+            96 00 00 80 12 01 02 02 40 00 3e 00 fc ff fb 01   ñ..Ä....@.>.¸ˇ˚.	
+            86 14 00 00 00 01 00 01 ff ff 00 00 ac 00 00 02   Ü.......ˇˇ..¨...	
+            96 00 00 08 00 00 07 06 47 00 01 00 b1 00 55 02   ñ.......G...±.U.	
+            91 00 00 00 00 06 04 06 64 00 53 00 fd ff bb 02   ë.......d.S.˝ˇª.	
+            91 24 00 00 00 00 00 01 ff ff 01 00 fc ff ca 02   ë$......ˇˇ..¸ˇ .	
+            86 14 00 00 00 01 00 01 ff ff 00 00 72 fc cf 02   Ü.......ˇˇ..r¸œ.	
+            93 04 00 00 11 00 02 02 70 00 6c 00 e1 fe fb 02   ì.......p.l.·˛˚.	
+            93 00 00 00 0f 01 01 02 06 00 73 00 04 00 00 00   ì.........s.....	
+            00 80 01 00 06 00 00 00 00 80 01 00 cc 04 03 00   .Ä.......Ä..Ã...	
+            00 00 00 00 ff 7f 00 00 0d 00 00 00 48 65 6c 6c   ....ˇ......Hell	
+            6f 20 57 6f 72 6c 64 21 00 00 00 00 00 53 61 6d   o World!.....Sam	
+            72 61 6b 73 68 5f 53 50 4f 54 5f 48 61 72 64 77   raksh_SPOT_Hardw	
+            61 72 65 00 53 61 6d 72 61 6b 73 68 2e 53 50 4f   are.Samraksh.SPO	
+            54 2e 48 61 72 64 77 61 72 65 2e 45 6d 6f 74 65   T.Hardware.Emote	
+            44 6f 74 4e 6f 77 00 4c 43 44 00 45 78 74 65 6e   DotNow.LCD.Exten	
+            73 69 6f 6e 41 74 74 72 69 62 75 74 65 00 45 6d   sionAttribute.Em	
+            6f 74 65 4c 43 44 00 45 78 74 65 6e 73 69 6f 6e   oteLCD.Extension	
+            4d 65 74 68 6f 64 73 00 4c 43 44 45 78 74 65 6e   Methods.LCDExten	
+            73 69 6f 6e 73 00 54 6f                           sions.To        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+445	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+447	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+449	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 b4 9f 34 c0 00 00 00 00   MSdbgV1.¥ü4¿....	
+            03 00 00 00 51 00 3b 23 03 80 00 00 00 00 00 00   ....Q.;#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+451	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+453	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 5f a3 44 7f 74 c2 ad 30   MSpktV1._£Dt¬≠0	
+            03 00 00 00 3c 23 00 00 00 00 00 00 08 04 00 00   ....<#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+455	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 2c 0a 08 00 04 00 00 4c 43 44 00 53 63 72 6f   .,......LCD.Scro	
+            6c 6c 69 6e 67 5f 48 65 6c 6c 6f 5f 57 6f 72 6c   lling_Hello_Worl	
+            64 00 50 72 6f 67 72 61 6d 00 6d 73 67 00 73 6c   d.Program.msg.sl	
+            65 65 70 54 69 6d 65 00 4d 61 69 6e 00 47 65 74   eepTime.Main.Get	
+            46 6f 75 72 00 52 65 73 6f 75 72 63 65 73 00 53   Four.Resources.S	
+            63 72 6f 6c 6c 69 6e 67 5f 48 65 6c 6c 6f 5f 57   crolling_Hello_W	
+            6f 72 6c 64 2e 52 65 73 6f 75 72 63 65 73 2e 74   orld.Resources.t	
+            69 6e 79 72 65 73 6f 75 72 63 65 73 00 48 65 6c   inyresources.Hel	
+            6c 6f 20 57 6f 72 6c 64 20 20 00 53 63 72 6f 6c   lo World  .Scrol	
+            6c 69 6e 67 5f 48 65 6c 6c 6f 5f 57 6f 72 6c 64   ling_Hello_World	
+            2e 52 65 73 6f 75 72 63 65 73 00 48 65 6c 6c 6f   .Resources.Hello	
+            20 57 6f 72 6c 64 00 00 20 00 00 00 01 00 0f 20    World.. ...... 	
+            00 01 20 04 01 12 09 12 09 12 09 12 09 00 01 00   .. .............	
+            07 20 00 07 00 04 0f 0f 0f 0f 0f 20 01 04 07 00   . ......... ....	
+            01 11 25 12 29 20 00 11 2d 20 02 00 0f 11 2d 00   ..%.) ..- ....-.	
+            02 10 11 0d 11 05 00 01 12 09 04 06 0f 06 07 11   ................	
+            19 12 09 12 09 12 09 12 09 07 01 00 06 00 0f 07   ................	
+            14 12 09 14 12 09 14 12 09 14 12 09 07 0f 01 12   ................	
+            09 06 11 0d 00 00 11 0d 11 0d 01 00 01 0f 12 0c   ................	
+            06 05 00 00 00 02 0b 07 1f 30 59 45 4b 24 01 29   .........0YEK$.)	
+            01 2e 01 33 01 38 01 3d 01 42 01 47 01 4c 01 51   ...3.8.=.B.G.L.Q	
+            01 56 01 56 01 56 01 56 01 56 01 56 01 56 01 03   .V.V.V.V.V.V.V..	
+            00 08 00 0d 00 12 00 17 00 1c 00 21 00 26 00 2b   ...........!.&.+	
+            00 31 00 37 00 3d 00 43 00 49 00 4f 00 55 00 5b   .1.7.=.C.I.O.U.[	
+            00 61 00 67 00 6d 00 73 00 79 00 7f 00 85 00 8b   .a.g.m.s.y..Ö.ã	
+            00 91 00 56 01 56 01 56 01 56 01 56 01 56 01 97   .ë.V.V.V.V.V.V.ó	
+            00 9d 00 a3 00 a9 00 af 00 b5 00 bb 00 c1 00 c7   .ù.£.©.Ø.µ.ª.¡.«	
+            00 cd 00 d3 00 d9 00 de 00 e3 00 e8 00 ed 00 f2   .Õ.”.Ÿ.ﬁ.„.Ë.Ì.Ú	
+            00 f7 00 fc 00 01 01 06 01 0b 01 10 01 15 01 1a   .˜.¸............	
+            01 1f 01 38 53 01 17 0a 38 52 01 18 0a 38 4d 01   ...8S...8R...8M.	
+            19 0a 38 48 01 1a 0a 38 43 01 1b 0a 38 3e 01 1c   ..8H...8C...8>..	
+            0a 38 39 01 1d 0a 38 34 01 1e 0a 38 2f 01 1f 09   .89...84...8/...	
+            0a 38 29 01 1f 0a 0a 38 23 01 1f 0b 0a 38 1d 01   .8)....8#....8..	
+            1f 0b 0a 38 17 01 1f 0d 0a 38 11 01 1f 0e 0a 38   ...8.....8.....8	
+            0b 01 1f 0f 0a 38 05 01 1f 10 0a 38 ff 00 1f 11   .....8.....8ˇ...	
+            0a 38 f9 00 1f 12 0a 38 f3 00 1f 13 0a 38 ed 00   .8˘....8Û....8Ì.	
+            1f 14 0a 38 e7 00 1f 15 0a 38 e1 00 1f 16 0a 38   ...8Á....8·....8	
+            db 00 1f 17 0a 38 d5 00 1f 18 0a 38 cf 00 1f 19   €....8’....8œ...	
+            0a 38 c9 00 1f 1a 0a 38 c3 00 1f 1b 0a 38 bd 00   .8…....8√....8Ω.	
+            1f 1c 0a 38 b7 00 1f 1d 0a 38 b1 00 1f 1e 0a 38   ...8∑....8±....8	
+            ab 00 1f 1f 0a 38 a5 00 1f 20 0a 38 9f 00 1f 21   ´....8•.. .8ü..!	
+            0a 38 99 00 1f 22 0a 38 93 00 1f 23 0a 38 8d 00   .8ô..".8ì..#.8ç.	
+            1f 24 0a 38 87 00 1f 25 0a 38 81 00 1f 26 0a 2b   .$.8á..%.8Å..&.+	
+            7c 1f 27 0a 2b 77 1f 28 0a 2b 72 1f 29 0a 2b 6d   |.'.+w.(.+r.).+m	
+            1f 2a 0a 2b 68 1f 2b 0a 2b 63 1f 2c 0a 2b 5e 1f   .*.+h.+.+c.,.+^.	
+            2d 0a 2b 59 1f 2e 0a 2b 54 1f 2f 0a 2b 4f 1f 30   -.+Y...+T./.+O.0	
+            0a 2b 4a 1f 31 0a 2b 45 1f 32 0a 2b 40 1f 33 0a   .+J.1.+E.2.+@.3.	
+            2b 3b 1f 34 0a 2b 36 1f 35 0a 2b 31 1f 36 0a 2b   +;.4.+6.5.+1.6.+	
+            2c 1f 37 0a 2b 27 1f 38 0a 2b 22 1f 39 0a 2b 1d   ,.7.+'.8.+".9.+.	
+            1f 3a 0a 2b 18 1f 3b 0a 2b 13 1f 3c 0a 2b 0e 1f   .:.+..;.+..<.+..	
+            3d 0a 2b 09 1f 3e 0a 2b 04 16 0a 2b 00 06 2a 02   =.+..>.+...+..*.	
+            28 09 80 2a 00 20 cc 04 00 00 28 07 00 28 01 80   (.Ä*. Ã...(..(.Ä	
+            00 73 02 80 0a 06 6f 03 80 26 16 13 05 2b 2a 00   .s.Ä..o.Ä&...+*.	
+            7e 00 00 11 05 12 01 12 02 12 03 12 04 28 03 00   ~............(..	
+            00 06 07 08 09 11 04 6f 04 80 26 7e 01 00 28 05   .......o.Ä&~..(.	
+            80 00 00 11 05 17 58 13 05 11 05 20 10 27 00 00   Ä.....X.... .'..	
+            fe 04 13 06 11 06 2d c7 2a 00 02 6f 06 80 0a 06   ˛.....-«*..o.Ä..	
+            16 fe 01 16 fe 01 0c 08 2d 17 00 04 05 0e 04 0e   .˛..˛...-.......	
+            05 16 25 0d 54 09 25 0d 54 09 25 0d 54 09 54 2b   ..%.T.%.T.%.T.T+	
+            3d 02 02 02 02 28 07 80 0b 03 06 5d 10 01 04 07   =....(.Ä...]....	
+            03 6f 08 80 28 00 00 54 05 07 03 17 58 6f 08 80   .o.Ä(..T....Xo.Ä	
+            28 00 00 54 0e 04 07 03 18 58 6f 08 80 28 00 00   (..T.....Xo.Ä(..	
+            54 0e 05 07 03 19 58 6f 08 80 28 00 00 54 2a 72   T.....Xo.Ä(..T*r	
+            f1 00 80 00 00 20 f4 01 00 00 80 01 00 2a 02 28   Ò.Ä.. Ù...Ä..*.(	
+            09 80 2a 00 7e 02 00 14                           .Ä*.~...        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+457	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+459	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+461	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 52 fd 9f 46 00 00 00 00   MSdbgV1.R˝üF....	
+            03 00 00 00 52 00 3c 23 03 80 00 00 00 00 00 00   ....R.<#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+463	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+465	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 7e ef ca 59 ee 1d c8 c1   MSpktV1.~Ô YÓ.»¡	
+            03 00 00 00 3d 23 00 00 00 00 00 00 08 04 00 00   ....=#..........	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+467	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 30 0a 08 00 04 00 00 fe 01 16 fe 01 0b 07 2d   .0......˛..˛...-	
+            16 00 72 ff 00 d0 02 00 00 04 28 0a 80 6f 0b 80   ..rˇ.–....(.Äo.Ä	
+            73 0c 80 80 02 00 00 7e 02 00 0a 2b 00 06 2a 00   s.ÄÄ...~...+..*.	
+            28 06 00 02 8c 03 00 28 0d 80 74 08 40 0a 2b 00   (...å..(.Ät.@.+.	
+            06 2a 00 00 02 00 00 00 04 00 00 00 08 00 00 00   .*..............	
+            01 00 00 00 c3 00 00 00 00 00 00 00 4d 53 53 70   ....√.......MSSp	
+            6f 74 31 00 ab 92 33 ac af a5 ba 3c 00 00 00 00   ot1.´í3¨Ø•∫<....	
+            66 ae 9a cb ff ff ff ff 01 00 00 00 00 00 00 00   fÆöÀˇˇˇˇ........	
+            54 01 01 00 7c 00 00 00 94 00 00 00 e4 00 00 00   T...|...î...‰...	
+            e4 00 00 00 04 01 00 00 c4 01 00 00 2c 02 00 00   ‰.......ƒ...,...	
+            ac 03 00 00 ac 03 00 00 ac 03 00 00 ac 03 00 00   ¨...¨...¨...¨...	
+            ac 03 00 00 18 05 00 00 a0 05 00 00 34 06 00 00   ¨.......†...4...	
+            34 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00   4...............	
+            00 00 00 01 01 02 00 00 fe fb 00 00 04 00 03 00   ........˛˚......	
+            00 00 00 00 71 fe 00 00 04 00 03 00 00 00 00 00   ....q˛..........	
+            62 fe a0 fd 00 00 00 00 40 fe a0 fd 00 00 00 00   b˛†˝....@˛†˝....	
+            5e ff a0 fd 00 00 00 00 60 fe 71 fe 01 00 00 00   ^ˇ†˝....`˛q˛....	
+            c6 fe a0 fd 00 00 00 00 d9 ff a0 fd 00 00 00 00   ∆˛†˝....Ÿˇ†˝....	
+            97 ff 71 fe 01 00 00 00 01 00 00 00 06 80 00 00   óˇq˛.........Ä..	
+            8b ff a0 fd 00 00 00 00 5f fe 71 fe 01 00 00 00   ãˇ†˝...._˛q˛....	
+            fc ff 01 00 00 00 00 00 fc ff 09 00 03 00 00 00   ¸ˇ......¸ˇ......	
+            07 fd 03 00 08 00 00 00 fc ff 03 00 0d 00 00 00   .˝......¸ˇ......	
+            32 00 0f 00 03 80 ff ff ff ff 00 00 00 01 04 11   2....Äˇˇˇˇ......	
+            00 00 00 00 00 00 01 10 6e 00 0f 00 00 80 ff ff   ........n....Äˇˇ	
+            ff ff 05 00 03 01 00 11 00 00 00 00 00 00 81 04   ˇˇ............Å.	
+            7a 00 0f 00 02 80 ff ff ff ff 09 00 00 00 00 07   z....Äˇˇˇˇ......	
+            00 00 00 00 00 01 b9 00 88 00 0f 00 01 80 ff ff   ......π.à....Äˇˇ	
+            ff ff 09 00 00 01 05 11 01 00 03 00 02 00 01 10   ˇˇ..............	
+            bc 00 0f 00 02 80 ff ff ff ff 0f 00 00 00 00 07   º....Äˇˇˇˇ......	
+            03 00 03 00 00 01 b9 00 c2 00 0f 00 01 80 ff ff   ......π.¬....Äˇˇ	
+            ff ff 0f 00 00 09 00 11 04 00 04 00 00 08 01 10   ˇˇ..............	
+            3f 01 0f 00 02 80 ff ff ff ff 18 00 00 00 00 07   ?....Äˇˇˇˇ......	
+            0c 00 0c 00 00 01 b9 00 43 01 0f 00 01 80 ff ff   ......π.C....Äˇˇ	
+            ff ff 18 00 00 00 00 11 0d 00 0d 00 00 00 c1 10   ˇˇ............¡.	
+            cd fb 24 00 ff ff 06 01 94 00 39 00 ff ff 11 00   Õ˚$.ˇˇ..î.9.ˇˇ..	
+            a0 00 3c 00 ff ff 11 00 cd fb 24 00 ff ff 06 01   †.<.ˇˇ..Õ˚$.ˇˇ..	
+            cb 00 24 00 ff ff 01 00 da 00 24 00 ff ff 01 00   À.$.ˇˇ..⁄.$.ˇˇ..	
+            e9 00 24 00 ff ff 01 00 f8 00 24 00 ff ff 01 00   È.$.ˇˇ..¯.$.ˇˇ..	
+            07 01 5e 00 ff ff 01 00 0b 01 5e 00 ff ff 01 00   ..^.ˇˇ....^.ˇˇ..	
+            0f 01 5e 00 ff ff 01 00 13 01 5e 00 ff ff 01 00   ..^.ˇˇ....^.ˇˇ..	
+            cd fb 24 00 ff ff 06 01 fc ff 00 00 86 14 00 00   Õ˚$.ˇˇ..¸ˇ..Ü...	
+            00 04 00 03 ff ff 12 00 3e 00 ff ff 96 00 00 00   ....ˇˇ..>.ˇˇñ...	
+            07 01 00 00 00 00 18 00 18 fe ff ff 96 00 00 00   .........˛ˇˇñ...	
+            0c 01 00 00 00 00 1c 00 43 00 ff ff 96 00 00 00   ........C.ˇˇñ...	
+            07 04 00 00 00 00 20 00 56 00 ff ff 96 00 00 00   ...... .V.ˇˇñ...	
+            07 04 00 00 00 00 20 00 9a fe ff ff c6 01 02 00   ...... .ö˛ˇˇ∆...	
+            00 02 00 00 00 00 28 00 d1 ff ff ff c6 01 04 00   ......(.—ˇˇˇ∆...	
+            11 04 00 00 00 00 2c 00 64 ff ff ff c6 01 08 00   ......,.dˇˇˇ∆...	
+            00 02 00 00 00 00 34 00 fc ff ff ff 86 14 01 00   ......4.¸ˇˇˇÜ...	
+            00 03 00 00 00 00 03 00 fc ff 0a 00 86 14 00 00   ........¸ˇ..Ü...	
+            00 01 00 03 ff ff 00 00 3e 00 22 00 96 00 00 00   ....ˇˇ..>.".ñ...	
+            07 01 01 01 07 00 3f 00 18 fe 2c 00 96 00 00 00   ......?..˛,.ñ...	
+            0c 01 01 01 1e 00 44 00 43 00 36 00 96 00 00 00   ......D.C.6.ñ...	
+            07 05 02 04 54 00 49 00 56 00 5b 00 96 00 00 00   ....T.I.V.[.ñ...	
+            07 05 02 04 54 00 49 00 ab 00 80 00 96 00 00 00   ....T.I.´.Ä.ñ...	
+            00 03 00 02 ff ff 57 00 fc ff 8a 00 86 14 00 00   ....ˇˇW.¸ˇä.Ü...	
+            00 01 00 01 ff ff 00 00 ae fe ff ff 86 00 00 00   ....ˇˇ..Æ˛ˇˇÜ...	
+            01 01 00 00 00 00 60 00 17 01 ff ff 86 00 00 00   ......`...ˇˇÜ...	
+            01 01 00 00 00 00 60 00 3a fd ff ff 86 00 00 00   ......`.:˝ˇˇÜ...	
+            01 05 00 00 00 00 63 00 24 01 ff ff 86 00 00 00   ......c.$.ˇˇÜ...	
+            01 05 00 00 00 00 6e 00 2a 01 ff ff 86 00 00 00   ......n.*.ˇˇÜ...	
+            01 03 00 00 00 00 75 00 31 01 ff ff 86 00 00 00   ......u.1.ˇˇÜ...	
+            01 05 00 00 00 00 7b 00 bc 00 ff ff 86 00 00 00   ......{.º.ˇˇÜ...	
+            01 02 00 00 00 00 82 00 b3 ff ff ff 86 00 00 00   ......Ç.≥ˇˇˇÜ...	
+            01 01 00 00 00 00 60 00                           ......`.        	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+469	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+471	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+473	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 33 be f9 c1 00 00 00 00   MSdbgV1.3æ˘¡....	
+            03 00 00 00 53 00 3d 23 03 80 00 00 00 00 00 00   ....S.=#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+475	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+477	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            4d 53 70 6b 74 56 31 00 d5 b7 a4 77 33 2e f3 34   MSpktV1.’∑§w3.Û4	
+            03 00 00 00 3e 23 00 00 00 00 00 00 90 02 00 00   ....>#......ê...	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:29]	
+479	IRP_MJ_WRITE - Request transfers data from a client to a COM port	
+    STATUS_SUCCESS	
+            00 34 0a 08 88 02 00 00 00 41 6e 61 6c 6f 67 43   .4..à....AnalogC	
+            68 61 6e 6e 65 6c 00 53 61 6d 72 61 6b 73 68 2e   hannel.Samraksh.	
+            53 50 4f 54 2e 48 61 72 64 77 61 72 65 2e 45 6d   SPOT.Hardware.Em	
+            6f 74 65 44 6f 74 4e 6f 77 00 41 44 43 49 6e 74   oteDotNow.ADCInt	
+            65 72 6e 61 6c 00 49 6e 69 74 00 43 6f 6e 66 69   ernal.Init.Confi	
+            67 75 72 65 42 61 74 63 68 4d 6f 64 65 00 43 6f   gureBatchMode.Co	
+            6e 66 69 67 75 72 65 43 6f 6e 74 69 6e 75 6f 75   nfigureContinuou	
+            73 4d 6f 64 65 00 41 64 63 43 61 6c 6c 42 61 63   sMode.AdcCallBac	
+            6b 00 41 64 63 53 61 6d 70 6c 65 54 69 6d 65 00   k.AdcSampleTime.	
+            41 6e 61 6c 6f 67 49 6e 70 75 74 00 41 64 63 49   AnalogInput.AdcI	
+            6e 74 65 72 6e 61 6c 00 4d 79 43 61 6c 6c 62 61   nternal.MyCallba	
+            63 6b 00 49 6e 74 65 72 6e 61 6c 43 61 6c 6c 62   ck.InternalCallb	
+            61 63 6b 00 42 6c 69 6e 6b 00 45 6d 6f 74 65 4c   ack.Blink.EmoteL	
+            43 44 00 63 75 72 72 65 6e 74 43 6f 6c 75 6d 6e   CD.currentColumn	
+            31 00 63 75 72 72 65 6e 74 43 6f 6c 75 6d 6e 32   1.currentColumn2	
+            00 63 75 72 72 65 6e 74 43 6f 6c 75 6d 6e 33 00   .currentColumn3.	
+            63 75 72 72 65 6e 74 43 6f 6c 75 6d 6e 34 00 44   currentColumn4.D	
+            50 31 00 44 50 32 00 44 50 33 00 44 50 34 00 55   P1.DP2.DP3.DP4.U	
+            6e 69 6e 69 74 69 61 6c 69 7a 65 00 53 65 74 44   ninitialize.SetD	
+            50 00 57 72 69 74 65 4e 00 57 72 69 74 65 52 61   P.WriteN.WriteRa	
+            77 42 79 74 65 73 00 4c 43 44 00 50 69 6e 73 00   wBytes.LCD.Pins.	
+            41 44 43 43 61 6c 6c 62 61 63 6b 00 53 61 6d 72   ADCCallback.Samr	
+            61 6b 73 68 5f 53 50 4f 54 5f 48 61 72 64 77 61   aksh_SPOT_Hardwa	
+            72 65 00 00 20 00 00 20 02 00 10 07 20 01 00 11   re.. .. .... ...	
+            25 20 02 00 0f 0b 20 03 00 0f 0b 07 00 01 07 07   % .... .........	
+            00 01 0c 07 00 04 07 13 06 07 08 08 20 01 00 01   ............ ...	
+            20 03 11 11 01 11 15 10 20 01 00 11 11 06 11 00    ....... .......	
+            06 11 04 00 01 07 12 1d 00 01 0c 12 1d 00 05 07   ................	
+            13 06 12 1d 08 08 11 04 11 25 07 00 03 00 08 08   .........%......	
+            12 21 06 01 20 00 01 20 04 01 12 18 12 18 12 18   .!.. .. ........	
+            12 18 20 04 01 01 01 01 01 20 02 01 07 12 18 20   .. ...... ..... 	
+            04 01 07 07 07 07 20 01 01 12 10 00 02 03 04 28   ...... ........(	
+            03 80 00 00 00 2a 02 28 00 80 00 00 72 48 01 20   .Ä...*.(.Ä..rH. 	
+            d2 04 00 00 6a 16 73 00 00 80 01 00 00 2a 00 02   “...j.s..Ä...*..	
+            28 01 00 0a 2b 00 06 2a 00 02 28 02 00 0a 2b 00   (...+..*..(...+.	
+            06 2a 00 0e 04 80 02 00 14 fe 06 0e 00 73 01 80   .*...Ä...˛...s.Ä	
+            0a 7e 01 00 06 6f 02 80 00 02 03 04 05 28 03 00   .~...o.Ä.....(..	
+            26 17 0b 2b 00 07 2a 00 0e 04 80 02 00 14 fe 06   &..+..*...Ä...˛.	
+            0e 00 73 01 80 0a 7e 01 00 06 6f 02 80 00 02 03   ..s.Ä.~...o.Ä...	
+            04 05 28 04 00 26 17 0b 2b 00 07 2a 00 7e 02 00   ..(..&..+..*.~..	
+            17 6f 05 00 00 2a 02 28 00 80 00 00 00 2a 00 00   .o...*.(.Ä...*..	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:30]	
+481	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 32	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:30]	
+483	IRP_MJ_READ - Transfers data from a COM port to a client	
+    STATUS_SUCCESS	
+            4d 53 64 62 67 56 31 00 3f ea 49 53 00 00 00 00   MSdbgV1.?ÍIS....	
+            03 00 00 00 54 00 3e 23 03 80 00 00 00 00 00 00   ....T.>#.Ä......	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:30]	
+485	IRP_MJ_DEVICE_CONTROL - Request operates a serial port	
+    STATUS_SUCCESS	
+        IOCTL_SERIAL_GET_COMMSTATUS - Request returns information about the communication status of a COM port	
+            Errors           - 0	
+            HoldReasons      - 0	
+            AmountInInQueue  - 0	
+            AmountInOutQueue - 0	
+            EofReceived      - 0	
+            WaitForImmediate - 0	
+----------------------------------------------------------------------------------	
+[21/03/2014 16:02:30]	
+487	IRP_MJ_CLOSE - Close a COM port	
+    STATUS_SUCCESS	
+----------------------------------------------------------------------------------	

@@ -1,0 +1,1398 @@
+[20/03/2014 14:49:46]	COM port opened
+[20/03/2014 14:49:46]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:46]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:46]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	PING 
+[20/03/2014 14:49:47]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:47]	Reset debugger state ???  00 00 00 80 00 00 00 00                         
+[20/03/2014 14:49:47]														Reset debugger state ??? ACK 00 04 00 c0
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:47]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:48]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:48]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 14:49:48]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 14:49:48]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 14:49:48]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK 
+[20/03/2014 14:49:48]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 14:49:48]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 14:49:48]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 14:49:48]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:48]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:48]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 14:49:49]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 14:49:49]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 14:49:49]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 
+[20/03/2014 14:49:49]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 14:49:49]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 14:49:49]	Flash sector map 
+[20/03/2014 14:49:49]														Flash sector map 00 00 00 08 00 00 02 00 10 00 00 00 00 00 02 08 00 10 0a 00 20 00 00 00 00 10 0c 08 00 00 02 00 50 00 00 00 00 10 0e 08 00 e0 01 00 e0 00 00 00 00 e8 0f 08 00 18 00 00 30 00 00 00 00 00 02 64 00 00 fc 00 40 00 00 00
+[20/03/2014 14:49:49]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:49]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:49]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 14:49:49]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 14:49:49]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 14:49:49]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 14:49:50]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 14:49:50]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 14:49:50]														CLR Capability request ??? ACK 
+[20/03/2014 14:49:50]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 14:49:50]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 14:49:50]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 14:49:50]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 14:49:50]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:50]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:50]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:50]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:50]	Unknown 		78 78 0a                                        
+[20/03/2014 14:49:50]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:50]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:50]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 14:49:51]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 14:49:51]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 14:49:51]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 
+[20/03/2014 14:49:51]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 14:49:51]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 14:49:51]	???? Profiler ????  Copyright 20030d0aMicrosoft Corp0d0a1 Microsoft Way0d0aRedmond, WA0d0a98052-63990d0aU.S.A.0d0aAll rights reserved.0d0aMICROSOFT CONFIDENTIAL0d0a7e7@00v9d281adc4uKWffeedfb5r821d82aaYFc2lGe6c0=091dd817c4cc15Yf2c48fff1Ab3e0edd50ffa\b5M0ac815dbcab57f@aceWa6#a21cFac8a(#d7cfa0c3wbb_efd57fc9.0f<e113fce311d3Pd14Jzs02901499f1f498b0a9Af8cc95fc119ff40bbab0;bba7kSa3>z
+[20/03/2014 14:49:51]														???? Profiler ???? 
+[20/03/2014 14:49:51]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:51]														PING 00 00 00 00 00 00 00 00
+[20/03/2014 14:49:51]	CLR Capability request ???  01 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 1f0400
+[20/03/2014 14:49:51]	CLR Capability request ???  02 00 00 00                                     
+[20/03/2014 14:49:51]														CLR Capability request ??? ACK 0000000000000000000000
+[20/03/2014 14:49:51]	CLR Capability request ???  03 00 00 00                                     
+[20/03/2014 14:49:52]														CLR Capability request ??? ACK Mar 20 2014000000000000000000040000
+[20/03/2014 14:49:52]	CLR Capability request ???  05 00 00 00                                     
+[20/03/2014 14:49:52]														CLR Capability request ??? ACK 
+[20/03/2014 14:49:52]	CLR Capability request ???  06 00 00 00                                     
+[20/03/2014 14:49:52]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig0004000300000000
+[20/03/2014 14:49:52]	CLR Capability request ???  07 00 00 00                                     
+[20/03/2014 14:49:52]														CLR Capability request ??? ACK 0400030000000000Microsoft Copyright (C) Microsoft Corporation.  All rig
+[20/03/2014 14:49:52]	REBOOT  01 00 00 00                                     
+[20/03/2014 14:49:52]														REBOOT ACK 
+[20/03/2014 14:49:52]														34 0D 0A 45  4d 53 70 6b 74 56 31 00 ba e1 45 39 94 b9 43 b7 00 00 00 00 96 d2 00 00 03 00 00 00 08 00 00 00 
+[20/03/2014 14:49:52]	Unknown 		02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:52]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:52]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:49:52]	PING 
+[20/03/2014 14:49:52]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:49:52]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:52]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:49:52]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:49:53]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:49:53]	Erase sector:  00 00 02 08 18 72 09 00                         
+[20/03/2014 14:50:03]	Erase sector:  00 00 02 08 18 72 09 00                         
+[20/03/2014 14:50:05]														Erase sector ACK 
+[20/03/2014 14:50:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:05]														Write memory ACK
+[20/03/2014 14:50:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:05]														Write memory ACK
+[20/03/2014 14:50:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:05]														Write memory ACK
+[20/03/2014 14:50:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:06]														Write memory ACK
+[20/03/2014 14:50:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:06]														Write memory ACK
+[20/03/2014 14:50:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:06]														Write memory ACK
+[20/03/2014 14:50:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:06]														Write memory ACK
+[20/03/2014 14:50:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:06]														Write memory ACK
+[20/03/2014 14:50:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:07]														Write memory ACK
+[20/03/2014 14:50:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:07]														Write memory ACK
+[20/03/2014 14:50:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:07]														Write memory ACK
+[20/03/2014 14:50:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:07]														Write memory ACK
+[20/03/2014 14:50:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:07]														Write memory ACK
+[20/03/2014 14:50:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:08]														Write memory ACK
+[20/03/2014 14:50:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:08]														Write memory ACK
+[20/03/2014 14:50:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:08]														Write memory ACK
+[20/03/2014 14:50:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:08]														Write memory ACK
+[20/03/2014 14:50:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:08]														Write memory ACK
+[20/03/2014 14:50:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:09]														Write memory ACK
+[20/03/2014 14:50:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:09]														Write memory ACK
+[20/03/2014 14:50:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:09]														Write memory ACK
+[20/03/2014 14:50:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:09]														Write memory ACK
+[20/03/2014 14:50:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:09]														Write memory ACK
+[20/03/2014 14:50:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:10]														Write memory ACK
+[20/03/2014 14:50:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:10]														Write memory ACK
+[20/03/2014 14:50:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:10]														Write memory ACK
+[20/03/2014 14:50:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:10]														Write memory ACK
+[20/03/2014 14:50:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:10]														Write memory ACK
+[20/03/2014 14:50:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:11]														Write memory ACK
+[20/03/2014 14:50:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:11]														Write memory ACK
+[20/03/2014 14:50:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:11]														Write memory ACK
+[20/03/2014 14:50:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:11]														Write memory ACK
+[20/03/2014 14:50:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:11]														Write memory ACK
+[20/03/2014 14:50:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:12]														Write memory ACK
+[20/03/2014 14:50:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:12]														Write memory ACK
+[20/03/2014 14:50:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:12]														Write memory ACK
+[20/03/2014 14:50:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:12]														Write memory ACK
+[20/03/2014 14:50:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:12]														Write memory ACK
+[20/03/2014 14:50:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:13]														Write memory ACK
+[20/03/2014 14:50:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:13]														Write memory ACK
+[20/03/2014 14:50:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:13]														Write memory ACK
+[20/03/2014 14:50:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:13]														Write memory ACK
+[20/03/2014 14:50:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:13]														Write memory ACK
+[20/03/2014 14:50:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:14]														Write memory ACK
+[20/03/2014 14:50:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:14]														Write memory ACK
+[20/03/2014 14:50:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:14]														Write memory ACK
+[20/03/2014 14:50:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:14]														Write memory ACK
+[20/03/2014 14:50:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:14]														Write memory ACK
+[20/03/2014 14:50:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:15]														Write memory ACK
+[20/03/2014 14:50:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:15]														Write memory ACK
+[20/03/2014 14:50:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:15]														Write memory ACK
+[20/03/2014 14:50:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:15]														Write memory ACK
+[20/03/2014 14:50:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:15]														Write memory ACK
+[20/03/2014 14:50:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:16]														Write memory ACK
+[20/03/2014 14:50:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:16]														Write memory ACK
+[20/03/2014 14:50:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:16]														Write memory ACK
+[20/03/2014 14:50:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:16]														Write memory ACK
+[20/03/2014 14:50:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:16]														Write memory ACK
+[20/03/2014 14:50:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:17]														Write memory ACK
+[20/03/2014 14:50:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:17]														Write memory ACK
+[20/03/2014 14:50:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:17]														Write memory ACK
+[20/03/2014 14:50:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:17]														Write memory ACK
+[20/03/2014 14:50:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:17]														Write memory ACK
+[20/03/2014 14:50:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:18]														Write memory ACK
+[20/03/2014 14:50:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:18]														Write memory ACK
+[20/03/2014 14:50:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:18]														Write memory ACK
+[20/03/2014 14:50:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:18]														Write memory ACK
+[20/03/2014 14:50:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:18]														Write memory ACK
+[20/03/2014 14:50:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:19]														Write memory ACK
+[20/03/2014 14:50:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:19]														Write memory ACK
+[20/03/2014 14:50:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:19]														Write memory ACK
+[20/03/2014 14:50:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:19]														Write memory ACK
+[20/03/2014 14:50:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:19]														Write memory ACK
+[20/03/2014 14:50:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:20]														Write memory ACK
+[20/03/2014 14:50:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:20]														Write memory ACK
+[20/03/2014 14:50:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:20]														Write memory ACK
+[20/03/2014 14:50:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:20]														Write memory ACK
+[20/03/2014 14:50:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:20]														Write memory ACK
+[20/03/2014 14:50:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:21]														Write memory ACK
+[20/03/2014 14:50:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:21]														Write memory ACK
+[20/03/2014 14:50:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:21]														Write memory ACK
+[20/03/2014 14:50:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:21]														Write memory ACK
+[20/03/2014 14:50:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:21]														Write memory ACK
+[20/03/2014 14:50:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:22]														Write memory ACK
+[20/03/2014 14:50:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:22]														Write memory ACK
+[20/03/2014 14:50:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:22]														Write memory ACK
+[20/03/2014 14:50:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:22]														Write memory ACK
+[20/03/2014 14:50:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:22]														Write memory ACK
+[20/03/2014 14:50:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:23]														Write memory ACK
+[20/03/2014 14:50:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:23]														Write memory ACK
+[20/03/2014 14:50:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:23]														Write memory ACK
+[20/03/2014 14:50:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:23]														Write memory ACK
+[20/03/2014 14:50:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:23]														Write memory ACK
+[20/03/2014 14:50:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:24]														Write memory ACK
+[20/03/2014 14:50:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:24]														Write memory ACK
+[20/03/2014 14:50:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:24]														Write memory ACK
+[20/03/2014 14:50:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:24]														Write memory ACK
+[20/03/2014 14:50:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:24]														Write memory ACK
+[20/03/2014 14:50:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:25]														Write memory ACK
+[20/03/2014 14:50:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:25]														Write memory ACK
+[20/03/2014 14:50:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:25]														Write memory ACK
+[20/03/2014 14:50:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:25]														Write memory ACK
+[20/03/2014 14:50:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:25]														Write memory ACK
+[20/03/2014 14:50:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:26]														Write memory ACK
+[20/03/2014 14:50:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:26]														Write memory ACK
+[20/03/2014 14:50:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:26]														Write memory ACK
+[20/03/2014 14:50:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:26]														Write memory ACK
+[20/03/2014 14:50:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:26]														Write memory ACK
+[20/03/2014 14:50:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:27]														Write memory ACK
+[20/03/2014 14:50:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:27]														Write memory ACK
+[20/03/2014 14:50:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:27]														Write memory ACK
+[20/03/2014 14:50:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:27]														Write memory ACK
+[20/03/2014 14:50:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:27]														Write memory ACK
+[20/03/2014 14:50:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:28]														Write memory ACK
+[20/03/2014 14:50:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:28]														Write memory ACK
+[20/03/2014 14:50:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:28]														Write memory ACK
+[20/03/2014 14:50:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:28]														Write memory ACK
+[20/03/2014 14:50:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:28]														Write memory ACK
+[20/03/2014 14:50:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:29]														Write memory ACK
+[20/03/2014 14:50:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:29]														Write memory ACK
+[20/03/2014 14:50:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:29]														Write memory ACK
+[20/03/2014 14:50:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:29]														Write memory ACK
+[20/03/2014 14:50:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:29]														Write memory ACK
+[20/03/2014 14:50:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:30]														Write memory ACK
+[20/03/2014 14:50:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:30]														Write memory ACK
+[20/03/2014 14:50:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:30]														Write memory ACK
+[20/03/2014 14:50:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:30]														Write memory ACK
+[20/03/2014 14:50:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:30]														Write memory ACK
+[20/03/2014 14:50:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:31]														Write memory ACK
+[20/03/2014 14:50:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:31]														Write memory ACK
+[20/03/2014 14:50:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:31]														Write memory ACK
+[20/03/2014 14:50:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:31]														Write memory ACK
+[20/03/2014 14:50:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:31]														Write memory ACK
+[20/03/2014 14:50:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:32]														Write memory ACK
+[20/03/2014 14:50:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:32]														Write memory ACK
+[20/03/2014 14:50:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:32]														Write memory ACK
+[20/03/2014 14:50:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:32]														Write memory ACK
+[20/03/2014 14:50:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:32]														Write memory ACK
+[20/03/2014 14:50:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:33]														Write memory ACK
+[20/03/2014 14:50:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:33]														Write memory ACK
+[20/03/2014 14:50:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:33]														Write memory ACK
+[20/03/2014 14:50:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:33]														Write memory ACK
+[20/03/2014 14:50:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:33]														Write memory ACK
+[20/03/2014 14:50:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:34]														Write memory ACK
+[20/03/2014 14:50:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:34]														Write memory ACK
+[20/03/2014 14:50:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:34]														Write memory ACK
+[20/03/2014 14:50:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:34]														Write memory ACK
+[20/03/2014 14:50:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:34]														Write memory ACK
+[20/03/2014 14:50:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:35]														Write memory ACK
+[20/03/2014 14:50:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:35]														Write memory ACK
+[20/03/2014 14:50:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:35]														Write memory ACK
+[20/03/2014 14:50:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:35]														Write memory ACK
+[20/03/2014 14:50:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:35]														Write memory ACK
+[20/03/2014 14:50:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:36]														Write memory ACK
+[20/03/2014 14:50:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:36]														Write memory ACK
+[20/03/2014 14:50:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:36]														Write memory ACK
+[20/03/2014 14:50:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:36]														Write memory ACK
+[20/03/2014 14:50:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:36]														Write memory ACK
+[20/03/2014 14:50:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:37]														Write memory ACK
+[20/03/2014 14:50:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:37]														Write memory ACK
+[20/03/2014 14:50:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:37]														Write memory ACK
+[20/03/2014 14:50:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:37]														Write memory ACK
+[20/03/2014 14:50:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:37]														Write memory ACK
+[20/03/2014 14:50:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:38]														Write memory ACK
+[20/03/2014 14:50:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:38]														Write memory ACK
+[20/03/2014 14:50:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:38]														Write memory ACK
+[20/03/2014 14:50:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:38]														Write memory ACK
+[20/03/2014 14:50:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:38]														Write memory ACK
+[20/03/2014 14:50:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:39]														Write memory ACK
+[20/03/2014 14:50:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:39]														Write memory ACK
+[20/03/2014 14:50:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:39]														Write memory ACK
+[20/03/2014 14:50:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:39]														Write memory ACK
+[20/03/2014 14:50:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:39]														Write memory ACK
+[20/03/2014 14:50:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:40]														Write memory ACK
+[20/03/2014 14:50:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:40]														Write memory ACK
+[20/03/2014 14:50:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:40]														Write memory ACK
+[20/03/2014 14:50:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:40]														Write memory ACK
+[20/03/2014 14:50:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:40]														Write memory ACK
+[20/03/2014 14:50:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:41]														Write memory ACK
+[20/03/2014 14:50:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:41]														Write memory ACK
+[20/03/2014 14:50:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:41]														Write memory ACK
+[20/03/2014 14:50:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:41]														Write memory ACK
+[20/03/2014 14:50:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:41]														Write memory ACK
+[20/03/2014 14:50:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:42]														Write memory ACK
+[20/03/2014 14:50:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:42]														Write memory ACK
+[20/03/2014 14:50:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:42]														Write memory ACK
+[20/03/2014 14:50:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:42]														Write memory ACK
+[20/03/2014 14:50:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:42]														Write memory ACK
+[20/03/2014 14:50:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:43]														Write memory ACK
+[20/03/2014 14:50:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:43]														Write memory ACK
+[20/03/2014 14:50:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:43]														Write memory ACK
+[20/03/2014 14:50:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:43]														Write memory ACK
+[20/03/2014 14:50:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:43]														Write memory ACK
+[20/03/2014 14:50:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:44]														Write memory ACK
+[20/03/2014 14:50:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:44]														Write memory ACK
+[20/03/2014 14:50:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:44]														Write memory ACK
+[20/03/2014 14:50:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:44]														Write memory ACK
+[20/03/2014 14:50:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:44]														Write memory ACK
+[20/03/2014 14:50:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:45]														Write memory ACK
+[20/03/2014 14:50:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:45]														Write memory ACK
+[20/03/2014 14:50:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:45]														Write memory ACK
+[20/03/2014 14:50:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:45]														Write memory ACK
+[20/03/2014 14:50:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:45]														Write memory ACK
+[20/03/2014 14:50:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:46]														Write memory ACK
+[20/03/2014 14:50:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:46]														Write memory ACK
+[20/03/2014 14:50:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:46]														Write memory ACK
+[20/03/2014 14:50:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:46]														Write memory ACK
+[20/03/2014 14:50:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:46]														Write memory ACK
+[20/03/2014 14:50:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:47]														Write memory ACK
+[20/03/2014 14:50:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:47]														Write memory ACK
+[20/03/2014 14:50:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:47]														Write memory ACK
+[20/03/2014 14:50:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:47]														Write memory ACK
+[20/03/2014 14:50:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:47]														Write memory ACK
+[20/03/2014 14:50:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:48]														Write memory ACK
+[20/03/2014 14:50:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:48]														Write memory ACK
+[20/03/2014 14:50:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:48]														Write memory ACK
+[20/03/2014 14:50:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:48]														Write memory ACK
+[20/03/2014 14:50:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:48]														Write memory ACK
+[20/03/2014 14:50:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:49]														Write memory ACK
+[20/03/2014 14:50:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:49]														Write memory ACK
+[20/03/2014 14:50:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:49]														Write memory ACK
+[20/03/2014 14:50:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:49]														Write memory ACK
+[20/03/2014 14:50:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:49]														Write memory ACK
+[20/03/2014 14:50:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:50]														Write memory ACK
+[20/03/2014 14:50:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:50]														Write memory ACK
+[20/03/2014 14:50:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:50]														Write memory ACK
+[20/03/2014 14:50:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:50]														Write memory ACK
+[20/03/2014 14:50:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:50]														Write memory ACK
+[20/03/2014 14:50:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:51]														Write memory ACK
+[20/03/2014 14:50:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:51]														Write memory ACK
+[20/03/2014 14:50:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:51]														Write memory ACK
+[20/03/2014 14:50:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:51]														Write memory ACK
+[20/03/2014 14:50:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:51]														Write memory ACK
+[20/03/2014 14:50:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:52]														Write memory ACK
+[20/03/2014 14:50:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:52]														Write memory ACK
+[20/03/2014 14:50:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:52]														Write memory ACK
+[20/03/2014 14:50:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:52]														Write memory ACK
+[20/03/2014 14:50:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:52]														Write memory ACK
+[20/03/2014 14:50:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:53]														Write memory ACK
+[20/03/2014 14:50:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:53]														Write memory ACK
+[20/03/2014 14:50:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:53]														Write memory ACK
+[20/03/2014 14:50:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:53]														Write memory ACK
+[20/03/2014 14:50:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:53]														Write memory ACK
+[20/03/2014 14:50:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:54]														Write memory ACK
+[20/03/2014 14:50:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:54]														Write memory ACK
+[20/03/2014 14:50:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:54]														Write memory ACK
+[20/03/2014 14:50:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:54]														Write memory ACK
+[20/03/2014 14:50:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:54]														Write memory ACK
+[20/03/2014 14:50:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:55]														Write memory ACK
+[20/03/2014 14:50:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:55]														Write memory ACK
+[20/03/2014 14:50:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:55]														Write memory ACK
+[20/03/2014 14:50:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:55]														Write memory ACK
+[20/03/2014 14:50:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:55]														Write memory ACK
+[20/03/2014 14:50:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:56]														Write memory ACK
+[20/03/2014 14:50:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:56]														Write memory ACK
+[20/03/2014 14:50:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:56]														Write memory ACK
+[20/03/2014 14:50:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:56]														Write memory ACK
+[20/03/2014 14:50:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:56]														Write memory ACK
+[20/03/2014 14:50:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:57]														Write memory ACK
+[20/03/2014 14:50:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:57]														Write memory ACK
+[20/03/2014 14:50:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:57]														Write memory ACK
+[20/03/2014 14:50:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:57]														Write memory ACK
+[20/03/2014 14:50:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:57]														Write memory ACK
+[20/03/2014 14:50:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:58]														Write memory ACK
+[20/03/2014 14:50:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:58]														Write memory ACK
+[20/03/2014 14:50:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:58]														Write memory ACK
+[20/03/2014 14:50:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:58]														Write memory ACK
+[20/03/2014 14:50:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:58]														Write memory ACK
+[20/03/2014 14:50:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:59]														Write memory ACK
+[20/03/2014 14:50:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:59]														Write memory ACK
+[20/03/2014 14:50:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:59]														Write memory ACK
+[20/03/2014 14:50:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:59]														Write memory ACK
+[20/03/2014 14:50:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:50:59]														Write memory ACK
+[20/03/2014 14:50:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:00]														Write memory ACK
+[20/03/2014 14:51:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:00]														Write memory ACK
+[20/03/2014 14:51:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:00]														Write memory ACK
+[20/03/2014 14:51:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:00]														Write memory ACK
+[20/03/2014 14:51:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:00]														Write memory ACK
+[20/03/2014 14:51:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:01]														Write memory ACK
+[20/03/2014 14:51:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:01]														Write memory ACK
+[20/03/2014 14:51:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:01]														Write memory ACK
+[20/03/2014 14:51:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:01]														Write memory ACK
+[20/03/2014 14:51:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:01]														Write memory ACK
+[20/03/2014 14:51:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:02]														Write memory ACK
+[20/03/2014 14:51:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:02]														Write memory ACK
+[20/03/2014 14:51:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:02]														Write memory ACK
+[20/03/2014 14:51:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:02]														Write memory ACK
+[20/03/2014 14:51:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:02]														Write memory ACK
+[20/03/2014 14:51:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:03]														Write memory ACK
+[20/03/2014 14:51:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:03]														Write memory ACK
+[20/03/2014 14:51:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:03]														Write memory ACK
+[20/03/2014 14:51:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:03]														Write memory ACK
+[20/03/2014 14:51:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:03]														Write memory ACK
+[20/03/2014 14:51:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:04]														Write memory ACK
+[20/03/2014 14:51:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:04]														Write memory ACK
+[20/03/2014 14:51:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:04]														Write memory ACK
+[20/03/2014 14:51:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:04]														Write memory ACK
+[20/03/2014 14:51:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:04]														Write memory ACK
+[20/03/2014 14:51:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:05]														Write memory ACK
+[20/03/2014 14:51:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:05]														Write memory ACK
+[20/03/2014 14:51:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:05]														Write memory ACK
+[20/03/2014 14:51:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:05]														Write memory ACK
+[20/03/2014 14:51:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:05]														Write memory ACK
+[20/03/2014 14:51:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:06]														Write memory ACK
+[20/03/2014 14:51:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:06]														Write memory ACK
+[20/03/2014 14:51:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:06]														Write memory ACK
+[20/03/2014 14:51:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:06]														Write memory ACK
+[20/03/2014 14:51:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:06]														Write memory ACK
+[20/03/2014 14:51:06]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:07]														Write memory ACK
+[20/03/2014 14:51:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:07]														Write memory ACK
+[20/03/2014 14:51:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:07]														Write memory ACK
+[20/03/2014 14:51:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:07]														Write memory ACK
+[20/03/2014 14:51:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:07]														Write memory ACK
+[20/03/2014 14:51:07]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:08]														Write memory ACK
+[20/03/2014 14:51:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:08]														Write memory ACK
+[20/03/2014 14:51:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:08]														Write memory ACK
+[20/03/2014 14:51:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:08]														Write memory ACK
+[20/03/2014 14:51:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:08]														Write memory ACK
+[20/03/2014 14:51:08]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:09]														Write memory ACK
+[20/03/2014 14:51:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:09]														Write memory ACK
+[20/03/2014 14:51:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:09]														Write memory ACK
+[20/03/2014 14:51:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:09]														Write memory ACK
+[20/03/2014 14:51:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:09]														Write memory ACK
+[20/03/2014 14:51:09]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:10]														Write memory ACK
+[20/03/2014 14:51:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:10]														Write memory ACK
+[20/03/2014 14:51:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:10]														Write memory ACK
+[20/03/2014 14:51:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:10]														Write memory ACK
+[20/03/2014 14:51:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:10]														Write memory ACK
+[20/03/2014 14:51:10]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:11]														Write memory ACK
+[20/03/2014 14:51:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:11]														Write memory ACK
+[20/03/2014 14:51:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:11]														Write memory ACK
+[20/03/2014 14:51:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:11]														Write memory ACK
+[20/03/2014 14:51:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:11]														Write memory ACK
+[20/03/2014 14:51:11]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:12]														Write memory ACK
+[20/03/2014 14:51:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:12]														Write memory ACK
+[20/03/2014 14:51:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:12]														Write memory ACK
+[20/03/2014 14:51:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:12]														Write memory ACK
+[20/03/2014 14:51:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:12]														Write memory ACK
+[20/03/2014 14:51:12]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:13]														Write memory ACK
+[20/03/2014 14:51:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:13]														Write memory ACK
+[20/03/2014 14:51:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:13]														Write memory ACK
+[20/03/2014 14:51:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:13]														Write memory ACK
+[20/03/2014 14:51:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:13]														Write memory ACK
+[20/03/2014 14:51:13]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:14]														Write memory ACK
+[20/03/2014 14:51:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:14]														Write memory ACK
+[20/03/2014 14:51:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:14]														Write memory ACK
+[20/03/2014 14:51:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:14]														Write memory ACK
+[20/03/2014 14:51:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:14]														Write memory ACK
+[20/03/2014 14:51:14]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:15]														Write memory ACK
+[20/03/2014 14:51:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:15]														Write memory ACK
+[20/03/2014 14:51:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:15]														Write memory ACK
+[20/03/2014 14:51:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:15]														Write memory ACK
+[20/03/2014 14:51:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:15]														Write memory ACK
+[20/03/2014 14:51:15]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:16]														Write memory ACK
+[20/03/2014 14:51:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:16]														Write memory ACK
+[20/03/2014 14:51:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:16]														Write memory ACK
+[20/03/2014 14:51:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:16]														Write memory ACK
+[20/03/2014 14:51:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:16]														Write memory ACK
+[20/03/2014 14:51:16]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:17]														Write memory ACK
+[20/03/2014 14:51:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:17]														Write memory ACK
+[20/03/2014 14:51:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:17]														Write memory ACK
+[20/03/2014 14:51:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:17]														Write memory ACK
+[20/03/2014 14:51:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:17]														Write memory ACK
+[20/03/2014 14:51:17]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:18]														Write memory ACK
+[20/03/2014 14:51:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:18]														Write memory ACK
+[20/03/2014 14:51:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:18]														Write memory ACK
+[20/03/2014 14:51:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:18]														Write memory ACK
+[20/03/2014 14:51:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:18]														Write memory ACK
+[20/03/2014 14:51:18]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:19]														Write memory ACK
+[20/03/2014 14:51:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:19]														Write memory ACK
+[20/03/2014 14:51:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:19]														Write memory ACK
+[20/03/2014 14:51:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:19]														Write memory ACK
+[20/03/2014 14:51:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:19]														Write memory ACK
+[20/03/2014 14:51:19]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:20]														Write memory ACK
+[20/03/2014 14:51:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:20]														Write memory ACK
+[20/03/2014 14:51:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:20]														Write memory ACK
+[20/03/2014 14:51:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:20]														Write memory ACK
+[20/03/2014 14:51:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:20]														Write memory ACK
+[20/03/2014 14:51:20]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:21]														Write memory ACK
+[20/03/2014 14:51:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:21]														Write memory ACK
+[20/03/2014 14:51:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:21]														Write memory ACK
+[20/03/2014 14:51:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:21]														Write memory ACK
+[20/03/2014 14:51:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:21]														Write memory ACK
+[20/03/2014 14:51:21]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:22]														Write memory ACK
+[20/03/2014 14:51:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:22]														Write memory ACK
+[20/03/2014 14:51:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:22]														Write memory ACK
+[20/03/2014 14:51:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:22]														Write memory ACK
+[20/03/2014 14:51:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:22]														Write memory ACK
+[20/03/2014 14:51:22]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:23]														Write memory ACK
+[20/03/2014 14:51:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:23]														Write memory ACK
+[20/03/2014 14:51:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:23]														Write memory ACK
+[20/03/2014 14:51:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:23]														Write memory ACK
+[20/03/2014 14:51:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:23]														Write memory ACK
+[20/03/2014 14:51:23]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:24]														Write memory ACK
+[20/03/2014 14:51:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:24]														Write memory ACK
+[20/03/2014 14:51:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:24]														Write memory ACK
+[20/03/2014 14:51:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:24]														Write memory ACK
+[20/03/2014 14:51:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:24]														Write memory ACK
+[20/03/2014 14:51:24]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:25]														Write memory ACK
+[20/03/2014 14:51:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:25]														Write memory ACK
+[20/03/2014 14:51:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:25]														Write memory ACK
+[20/03/2014 14:51:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:25]														Write memory ACK
+[20/03/2014 14:51:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:25]														Write memory ACK
+[20/03/2014 14:51:25]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:26]														Write memory ACK
+[20/03/2014 14:51:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:26]														Write memory ACK
+[20/03/2014 14:51:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:26]														Write memory ACK
+[20/03/2014 14:51:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:26]														Write memory ACK
+[20/03/2014 14:51:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:26]														Write memory ACK
+[20/03/2014 14:51:26]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:27]														Write memory ACK
+[20/03/2014 14:51:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:27]														Write memory ACK
+[20/03/2014 14:51:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:27]														Write memory ACK
+[20/03/2014 14:51:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:27]														Write memory ACK
+[20/03/2014 14:51:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:27]														Write memory ACK
+[20/03/2014 14:51:27]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:28]														Write memory ACK
+[20/03/2014 14:51:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:28]														Write memory ACK
+[20/03/2014 14:51:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:28]														Write memory ACK
+[20/03/2014 14:51:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:28]														Write memory ACK
+[20/03/2014 14:51:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:28]														Write memory ACK
+[20/03/2014 14:51:28]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:29]														Write memory ACK
+[20/03/2014 14:51:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:29]														Write memory ACK
+[20/03/2014 14:51:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:29]														Write memory ACK
+[20/03/2014 14:51:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:29]														Write memory ACK
+[20/03/2014 14:51:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:29]														Write memory ACK
+[20/03/2014 14:51:29]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:30]														Write memory ACK
+[20/03/2014 14:51:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:30]														Write memory ACK
+[20/03/2014 14:51:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:30]														Write memory ACK
+[20/03/2014 14:51:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:30]														Write memory ACK
+[20/03/2014 14:51:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:30]														Write memory ACK
+[20/03/2014 14:51:30]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:31]														Write memory ACK
+[20/03/2014 14:51:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:31]														Write memory ACK
+[20/03/2014 14:51:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:31]														Write memory ACK
+[20/03/2014 14:51:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:31]														Write memory ACK
+[20/03/2014 14:51:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:31]														Write memory ACK
+[20/03/2014 14:51:31]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:32]														Write memory ACK
+[20/03/2014 14:51:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:32]														Write memory ACK
+[20/03/2014 14:51:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:32]														Write memory ACK
+[20/03/2014 14:51:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:32]														Write memory ACK
+[20/03/2014 14:51:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:32]														Write memory ACK
+[20/03/2014 14:51:32]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:33]														Write memory ACK
+[20/03/2014 14:51:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:33]														Write memory ACK
+[20/03/2014 14:51:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:33]														Write memory ACK
+[20/03/2014 14:51:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:33]														Write memory ACK
+[20/03/2014 14:51:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:33]														Write memory ACK
+[20/03/2014 14:51:33]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:34]														Write memory ACK
+[20/03/2014 14:51:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:34]														Write memory ACK
+[20/03/2014 14:51:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:34]														Write memory ACK
+[20/03/2014 14:51:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:34]														Write memory ACK
+[20/03/2014 14:51:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:34]														Write memory ACK
+[20/03/2014 14:51:34]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:35]														Write memory ACK
+[20/03/2014 14:51:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:35]														Write memory ACK
+[20/03/2014 14:51:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:35]														Write memory ACK
+[20/03/2014 14:51:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:35]														Write memory ACK
+[20/03/2014 14:51:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:35]														Write memory ACK
+[20/03/2014 14:51:35]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:36]														Write memory ACK
+[20/03/2014 14:51:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:36]														Write memory ACK
+[20/03/2014 14:51:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:36]														Write memory ACK
+[20/03/2014 14:51:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:36]														Write memory ACK
+[20/03/2014 14:51:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:36]														Write memory ACK
+[20/03/2014 14:51:36]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:37]														Write memory ACK
+[20/03/2014 14:51:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:37]														Write memory ACK
+[20/03/2014 14:51:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:37]														Write memory ACK
+[20/03/2014 14:51:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:37]														Write memory ACK
+[20/03/2014 14:51:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:37]														Write memory ACK
+[20/03/2014 14:51:37]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:38]														Write memory ACK
+[20/03/2014 14:51:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:38]														Write memory ACK
+[20/03/2014 14:51:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:38]														Write memory ACK
+[20/03/2014 14:51:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:38]														Write memory ACK
+[20/03/2014 14:51:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:38]														Write memory ACK
+[20/03/2014 14:51:38]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:39]														Write memory ACK
+[20/03/2014 14:51:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:39]														Write memory ACK
+[20/03/2014 14:51:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:39]														Write memory ACK
+[20/03/2014 14:51:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:39]														Write memory ACK
+[20/03/2014 14:51:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:39]														Write memory ACK
+[20/03/2014 14:51:39]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:40]														Write memory ACK
+[20/03/2014 14:51:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:40]														Write memory ACK
+[20/03/2014 14:51:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:40]														Write memory ACK
+[20/03/2014 14:51:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:40]														Write memory ACK
+[20/03/2014 14:51:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:40]														Write memory ACK
+[20/03/2014 14:51:40]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:41]														Write memory ACK
+[20/03/2014 14:51:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:41]														Write memory ACK
+[20/03/2014 14:51:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:41]														Write memory ACK
+[20/03/2014 14:51:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:41]														Write memory ACK
+[20/03/2014 14:51:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:41]														Write memory ACK
+[20/03/2014 14:51:41]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:42]														Write memory ACK
+[20/03/2014 14:51:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:42]														Write memory ACK
+[20/03/2014 14:51:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:42]														Write memory ACK
+[20/03/2014 14:51:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:42]														Write memory ACK
+[20/03/2014 14:51:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:42]														Write memory ACK
+[20/03/2014 14:51:42]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:43]														Write memory ACK
+[20/03/2014 14:51:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:43]														Write memory ACK
+[20/03/2014 14:51:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:43]														Write memory ACK
+[20/03/2014 14:51:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:43]														Write memory ACK
+[20/03/2014 14:51:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:43]														Write memory ACK
+[20/03/2014 14:51:43]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:44]														Write memory ACK
+[20/03/2014 14:51:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:44]														Write memory ACK
+[20/03/2014 14:51:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:44]														Write memory ACK
+[20/03/2014 14:51:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:44]														Write memory ACK
+[20/03/2014 14:51:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:44]														Write memory ACK
+[20/03/2014 14:51:44]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:45]														Write memory ACK
+[20/03/2014 14:51:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:45]														Write memory ACK
+[20/03/2014 14:51:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:45]														Write memory ACK
+[20/03/2014 14:51:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:45]														Write memory ACK
+[20/03/2014 14:51:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:45]														Write memory ACK
+[20/03/2014 14:51:45]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:46]														Write memory ACK
+[20/03/2014 14:51:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:46]														Write memory ACK
+[20/03/2014 14:51:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:46]														Write memory ACK
+[20/03/2014 14:51:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:46]														Write memory ACK
+[20/03/2014 14:51:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:46]														Write memory ACK
+[20/03/2014 14:51:46]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:47]														Write memory ACK
+[20/03/2014 14:51:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:47]														Write memory ACK
+[20/03/2014 14:51:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:47]														Write memory ACK
+[20/03/2014 14:51:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:47]														Write memory ACK
+[20/03/2014 14:51:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:47]														Write memory ACK
+[20/03/2014 14:51:47]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:48]														Write memory ACK
+[20/03/2014 14:51:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:48]														Write memory ACK
+[20/03/2014 14:51:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:48]														Write memory ACK
+[20/03/2014 14:51:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:48]														Write memory ACK
+[20/03/2014 14:51:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:48]														Write memory ACK
+[20/03/2014 14:51:48]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:49]														Write memory ACK
+[20/03/2014 14:51:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:49]														Write memory ACK
+[20/03/2014 14:51:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:49]														Write memory ACK
+[20/03/2014 14:51:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:49]														Write memory ACK
+[20/03/2014 14:51:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:49]														Write memory ACK
+[20/03/2014 14:51:49]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:50]														Write memory ACK
+[20/03/2014 14:51:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:50]														Write memory ACK
+[20/03/2014 14:51:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:50]														Write memory ACK
+[20/03/2014 14:51:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:50]														Write memory ACK
+[20/03/2014 14:51:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:50]														Write memory ACK
+[20/03/2014 14:51:50]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:51]														Write memory ACK
+[20/03/2014 14:51:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:51]														Write memory ACK
+[20/03/2014 14:51:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:51]														Write memory ACK
+[20/03/2014 14:51:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:51]														Write memory ACK
+[20/03/2014 14:51:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:51]														Write memory ACK
+[20/03/2014 14:51:51]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:52]														Write memory ACK
+[20/03/2014 14:51:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:52]														Write memory ACK
+[20/03/2014 14:51:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:52]														Write memory ACK
+[20/03/2014 14:51:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:52]														Write memory ACK
+[20/03/2014 14:51:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:52]														Write memory ACK
+[20/03/2014 14:51:52]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:53]														Write memory ACK
+[20/03/2014 14:51:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:53]														Write memory ACK
+[20/03/2014 14:51:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:53]														Write memory ACK
+[20/03/2014 14:51:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:53]														Write memory ACK
+[20/03/2014 14:51:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:53]														Write memory ACK
+[20/03/2014 14:51:53]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:54]														Write memory ACK
+[20/03/2014 14:51:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:54]														Write memory ACK
+[20/03/2014 14:51:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:54]														Write memory ACK
+[20/03/2014 14:51:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:54]														Write memory ACK
+[20/03/2014 14:51:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:54]														Write memory ACK
+[20/03/2014 14:51:54]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:55]														Write memory ACK
+[20/03/2014 14:51:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:55]														Write memory ACK
+[20/03/2014 14:51:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:55]														Write memory ACK
+[20/03/2014 14:51:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:55]														Write memory ACK
+[20/03/2014 14:51:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:55]														Write memory ACK
+[20/03/2014 14:51:55]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:56]														Write memory ACK
+[20/03/2014 14:51:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:56]														Write memory ACK
+[20/03/2014 14:51:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:56]														Write memory ACK
+[20/03/2014 14:51:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:56]														Write memory ACK
+[20/03/2014 14:51:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:56]														Write memory ACK
+[20/03/2014 14:51:56]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:57]														Write memory ACK
+[20/03/2014 14:51:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:57]														Write memory ACK
+[20/03/2014 14:51:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:57]														Write memory ACK
+[20/03/2014 14:51:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:57]														Write memory ACK
+[20/03/2014 14:51:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:57]														Write memory ACK
+[20/03/2014 14:51:57]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:58]														Write memory ACK
+[20/03/2014 14:51:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:58]														Write memory ACK
+[20/03/2014 14:51:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:58]														Write memory ACK
+[20/03/2014 14:51:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:58]														Write memory ACK
+[20/03/2014 14:51:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:58]														Write memory ACK
+[20/03/2014 14:51:58]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:59]														Write memory ACK
+[20/03/2014 14:51:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:59]														Write memory ACK
+[20/03/2014 14:51:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:59]														Write memory ACK
+[20/03/2014 14:51:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:59]														Write memory ACK
+[20/03/2014 14:51:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:51:59]														Write memory ACK
+[20/03/2014 14:51:59]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:00]														Write memory ACK
+[20/03/2014 14:52:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:00]														Write memory ACK
+[20/03/2014 14:52:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:00]														Write memory ACK
+[20/03/2014 14:52:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:00]														Write memory ACK
+[20/03/2014 14:52:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:00]														Write memory ACK
+[20/03/2014 14:52:00]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:01]														Write memory ACK
+[20/03/2014 14:52:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:01]														Write memory ACK
+[20/03/2014 14:52:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:01]														Write memory ACK
+[20/03/2014 14:52:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:01]														Write memory ACK
+[20/03/2014 14:52:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:01]														Write memory ACK
+[20/03/2014 14:52:01]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:02]														Write memory ACK
+[20/03/2014 14:52:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:02]														Write memory ACK
+[20/03/2014 14:52:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:02]														Write memory ACK
+[20/03/2014 14:52:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:02]														Write memory ACK
+[20/03/2014 14:52:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:02]														Write memory ACK
+[20/03/2014 14:52:02]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:03]														Write memory ACK
+[20/03/2014 14:52:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:03]														Write memory ACK
+[20/03/2014 14:52:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:03]														Write memory ACK
+[20/03/2014 14:52:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:03]														Write memory ACK
+[20/03/2014 14:52:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:03]														Write memory ACK
+[20/03/2014 14:52:03]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:04]														Write memory ACK
+[20/03/2014 14:52:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:04]														Write memory ACK
+[20/03/2014 14:52:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:04]														Write memory ACK
+[20/03/2014 14:52:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:04]														Write memory ACK
+[20/03/2014 14:52:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:04]														Write memory ACK
+[20/03/2014 14:52:04]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:05]														Write memory ACK
+[20/03/2014 14:52:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:05]														Write memory ACK
+[20/03/2014 14:52:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:05]														Write memory ACK
+[20/03/2014 14:52:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:05]														Write memory ACK
+[20/03/2014 14:52:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:05]														Write memory ACK
+[20/03/2014 14:52:05]	Write memory 1032 bytes <data suppressed>
+[20/03/2014 14:52:06]														Write memory ACK
+[20/03/2014 14:52:06]	Write memory 544 bytes <data suppressed>
+[20/03/2014 14:52:06]														Write memory ACK
+[20/03/2014 14:52:06]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:06]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:06]	CHECK SIGNATURE  00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:06]														69 67 6E 61  78 78 0a                                        
+[20/03/2014 14:52:06]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:06]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:06]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:06]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:06]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:06]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:06]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:07]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:07]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:07]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:07]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:07]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:07]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:07]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:07]	COM port closed
+[20/03/2014 14:52:07]	COM port opened
+[20/03/2014 14:52:07]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:07]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:07]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:07]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:07]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:07]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:07]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:07]	???? Profiler ????  Copyright 20030d0aMicrosoft Corp0d0a1 Microsoft Way0d0aRedmond, WA0d0a98052-63990d0aU.S.A.0d0aAll rights reserved.0d0aMICROSOFT CONFIDENTIAL0d0a7e7@00v9d281adc4uKWffeedfb5r821d82aaYFc2lGe6c0=091dd817c4cc15Yf2c48fff1Ab3e0edd50ffa\b5M0ac815dbcab57f@aceWa6#a21cFac8a(#d7cfa0c3wbb_efd57fc9.0f<e113fce311d3Pd14Jzs02901499f1f498b0a9Af8cc95fc119ff40bbab0;bba7kSa3>z
+[20/03/2014 14:52:08]														???? Profiler ???? 
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	PING 
+[20/03/2014 14:52:08]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:08]	EXECUTE  f9 01 02 08                                     
+[20/03/2014 14:52:08]														EXECUTE ACK 
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:08]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:09]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:09]	Unknown 		78 78 0a                                        
+[20/03/2014 14:52:09]	PING 
+[20/03/2014 14:52:09]														PING 01 00 00 00 01 00 00 00
+[20/03/2014 14:52:09]	EXECUTE  00 00 00 00                                     
+[20/03/2014 14:52:09]														EXECUTE ACK 
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]														Unknown 		ee                                              
+[20/03/2014 14:52:09]														34 0D 0A 45  4d 53 70 6b 74 56 31 00 ab 04 02 bf 94 b9 43 b7 00 00 00 00 e7 3e 00 00 03 00 00 00 08 00 00 00 
+[20/03/2014 14:52:09]	Unknown 		02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]														PING 00 00 00 00 94 bf 00 20
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:09]	PING  02 00 00 00 00 00 00 00                         
+[20/03/2014 14:52:10]	COM port closed

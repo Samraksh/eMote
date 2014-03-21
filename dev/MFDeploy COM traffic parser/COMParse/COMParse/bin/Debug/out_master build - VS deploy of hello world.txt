@@ -1,0 +1,41 @@
+[21/03/2014 16:14:23]	COM port opened
+[21/03/2014 16:14:23]	COM port closed
+[21/03/2014 16:14:23]	COM port opened
+[21/03/2014 16:14:23]	PING  02 00 00 00 01 00 00 00                         
+[21/03/2014 16:14:24]														PING 00 00 00 00 00 00 00 00
+[21/03/2014 16:14:24]	CLR Capability request  01 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 1f 04 00 
+[21/03/2014 16:14:24]	CLR Capability request  02 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 00 00 00 00 00 00 00 00 00 00 00 
+[21/03/2014 16:14:24]	CLR Capability request  03 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK Mar 21 201400 00 00 00 00 00 00 00 00 04 00 00 
+[21/03/2014 16:14:24]	CLR Capability request  05 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 
+[21/03/2014 16:14:24]	CLR Capability request  06 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 04 00 03 00 00 00 00 00 Microsoft Copyright (C) Microsoft Corporation.  All rig00 04 00 03 00 00 00 00 
+[21/03/2014 16:14:24]	CLR Capability request  07 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 04 00 03 00 00 00 00 00 Microsoft Copyright (C) Microsoft Corporation.  All rig
+[21/03/2014 16:14:24]	PING  02 00 00 00 01 00 00 00                         
+[21/03/2014 16:14:24]														PING 00 00 00 00 00 00 00 00
+[21/03/2014 16:14:24]	CLR Capability request  01 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 1f 04 00 
+[21/03/2014 16:14:24]	CLR Capability request  02 00 00 00                                     
+[21/03/2014 16:14:24]														CLR Capability request ACK 00 00 00 00 00 00 00 00 00 00 00 
+[21/03/2014 16:14:24]	CLR Capability request  03 00 00 00                                     
+[21/03/2014 16:14:25]														CLR Capability request ACK Mar 21 201400 00 00 00 00 00 00 00 00 04 00 00 
+[21/03/2014 16:14:25]	CLR Capability request  05 00 00 00                                     
+[21/03/2014 16:14:25]														CLR Capability request ACK 
+[21/03/2014 16:14:25]	CLR Capability request  06 00 00 00                                     
+[21/03/2014 16:14:25]														CLR Capability request ACK 04 00 03 00 00 00 00 00 Microsoft Copyright (C) Microsoft Corporation.  All rig00 04 00 03 00 00 00 00 
+[21/03/2014 16:14:25]	CLR Capability request  07 00 00 00                                     
+[21/03/2014 16:14:25]														CLR Capability request ACK 04 00 03 00 00 00 00 00 Microsoft Copyright (C) Microsoft Corporation.  All rig
+[21/03/2014 16:14:25]	Reset debugger state  00 00 00 10 00 00 00 00                         
+[21/03/2014 16:14:25]														Reset debugger state ACK 00 04 00 50
+[21/03/2014 16:14:25]	Reset debugger state  00 00 00 00 00 00 00 00                         
+[21/03/2014 16:14:25]														Reset debugger state ACK 00 04 00 50
+[21/03/2014 16:14:25]	List all assemblies 
+[21/03/2014 16:14:25]														List all assemblies 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00 08 00 00 00 09 00 00 00 0a 00 00 00 0b 00
+[21/03/2014 16:14:25]	Resolves an assembly  00 00 01 00                                     
+[21/03/2014 16:14:26]	Resolves an assembly  00 00 01 00                                     
+[21/03/2014 16:14:27]	Resolves an assembly  00 00 01 00                                     
+[21/03/2014 16:14:28]	COM port closed
