@@ -212,8 +212,6 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	return; // Turned on dynamically.
-
 	if(ComPortNum != 0 && ComPortNum != 1)
 		return;
 
