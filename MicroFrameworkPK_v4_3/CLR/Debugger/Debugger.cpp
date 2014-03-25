@@ -458,7 +458,12 @@ bool CLR_DBG_Debugger::Monitor_FlashSectorMap( WP_Message* msg, void* owner )
                             pData[ rangeIndex ].Start  = pRegion->BlockAddress(pRegion->BlockRanges[ j ].StartBlock);
                             pData[ rangeIndex ].Length = pRegion->BlockRanges[ j ].GetBlockCount() * pRegion->BytesPerBlock;
                             pData[ rangeIndex ].Usage  = pRegion->BlockRanges[ j ].RangeType & BlockRange::USAGE_MASK;
-                            rangeIndex++;
+							// we do not want to send back c_MEMORY_USAGE_FS information so we will filter out that here
+							if (pData[rangeIndex].Usage == 0x40){
+								rangeCount--;
+							} else {
+                            	rangeIndex++;
+							}
                         }
                     }
                 }
