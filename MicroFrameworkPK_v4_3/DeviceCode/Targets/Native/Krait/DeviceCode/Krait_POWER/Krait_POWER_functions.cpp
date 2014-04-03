@@ -13,6 +13,8 @@
 #include <tinyhal.h>
 #include "Krait__POWER.h"
 
+#include "..\Krait_PMIC\pmic_decl.h"
+
 
 void HAL_AssertEx() {
     // cause an abort and let the abort handler take over
@@ -23,16 +25,22 @@ void HAL_AssertEx() {
 
 BOOL CPU_Initialize() {
 	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
-	Krait_POWER_Driver::Init();
-	return TRUE;
+
+        PMIC_Initialize();
+        Krait_POWER_Driver::Init();
+
+        return TRUE;
 }
 
-/*
-Not yet supported.
-*/
+/**
+ * Minimal support.
+ */
 void CPU_Reset() {
-	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
-
+    NATIVE_PROFILE_HAL_PROCESSOR_POWER();
+    //FIXME: lock
+    Krait_POWER_Driver::Reset();
+    //FIXME: unlock
+    HAL_AssertEx();
     return;
 }
 

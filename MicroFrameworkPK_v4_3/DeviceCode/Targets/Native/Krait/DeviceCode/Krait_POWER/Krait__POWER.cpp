@@ -10,12 +10,15 @@
 
 #include "..\Krait.h"
 #include "Krait__POWER.h"
+#include "..\Krait_PMIC\pmic_decl.h"
 
 Krait_POWER_Driver g_Krait_POWER_Driver;
 
 
-static inline void outer_sync(void)
+namespace {
+    inline void outer_sync(void)
 { }
+}
 #define dsb() __asm__ __volatile__ ("dsb" : : : "memory")
 #define dmb() __asm__ __volatile__ ("dmb" : : : "memory")
 #define mb()            do { dsb(); outer_sync(); } while (0)
@@ -69,6 +72,13 @@ void /*__section(BootStrap)*/ Krait_POWER_Driver::Highpower() {
 
 void /*__section(BootStrap)*/ Krait_POWER_Driver::Lowpower() {
 
+}
+
+void Krait_POWER_Driver::Reset() {
+    __raw_writel(0,RESTART_REASON_ADDR);    //TODO: create new restart reason to load/boot NetMF.
+    pm8921_config_reset_pwr_off((unsigned)1);                //1=reset, 0=poweroff
+    __raw_writel(0, MSM_PSHOLD_CTL_SU);
+    //FIXME: watchdog-based reset.
 }
 
 void Krait_POWER_Driver::SleepWFI() {

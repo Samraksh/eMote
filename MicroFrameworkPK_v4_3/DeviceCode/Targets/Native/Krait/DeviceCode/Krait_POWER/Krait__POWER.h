@@ -15,6 +15,7 @@ struct Krait_POWER_Driver
 	static void Init();
 	static void Highpower();
 	static void Lowpower();
+	static void Reset();
 	static void SleepWFI();
 	static void SleepRetention();
 };
