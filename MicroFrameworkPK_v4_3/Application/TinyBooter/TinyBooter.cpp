@@ -94,6 +94,7 @@ void ApplicationEntryPoint()
 #endif
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort );
 
+		for (int i=0; i<1000; i++){}
         //
         // Send "presence" ping.
         //
