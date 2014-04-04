@@ -3,7 +3,7 @@
     <FeatureName>SD</FeatureName>
   </PropertyGroup>
 
-  <Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage_PAL.libcatproj"/>
+  <!--<Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage_PAL.libcatproj"/>-->
   <Import Project="$(SPOCLIENT)\Framework\Features\SD_HAL.libcatproj"/>
 
   <PropertyGroup>

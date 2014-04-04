@@ -19,11 +19,11 @@
     <MFSDKProductVersion Condition="'$(MFSDKProductVersion)'==''">$(MajorVersion).$(MinorVersion).$(BuildNumber).$(RevisionNumber)</MFSDKProductVersion>
     <MFSDKProductVersionCSV Condition="'$(MFSDKProductVersionCSV)'==''">$(MajorVersion), $(MinorVersion), $(BuildNumber), $(RevisionNumber)</MFSDKProductVersionCSV>
     <MFSDKShortProductVersion Condition="'$(MFSDKShortProductVersion)'==''">$(MajorVersion).$(MinorVersion)</MFSDKShortProductVersion>
-    <MFCompanyName Condition="'$(MFCompanyName)'==''">Microsoft</MFCompanyName>
-    <MFLongCompanyName Condition="'$(MFLongCompanyName)'==''">Microsoft Corporation</MFLongCompanyName>
-    <MFShortCompanyName Condition="'$(MFShortCompanyName)'==''">MSFT</MFShortCompanyName>
+    <MFCompanyName Condition="'$(MFCompanyName)'==''">Samraksh</MFCompanyName>
+    <MFLongCompanyName Condition="'$(MFLongCompanyName)'==''">The Samraksh Company</MFLongCompanyName>
+    <MFShortCompanyName Condition="'$(MFShortCompanyName)'==''">Emote</MFShortCompanyName>
     <MFTradeMark Condition="'$(MFTradeMark)'==''">.NET is a trademark of Microsoft Corporation.</MFTradeMark>
-    <MFCopyright Condition="'$(MFCopyright)'==''">Copyright (C) Microsoft Corporation.  All rights reserved.</MFCopyright>
+    <MFCopyright Condition="'$(MFCopyright)'==''">Copyright (C) 2014 Samraksh and Microsoft.</MFCopyright>
   </PropertyGroup>
   <PropertyGroup>
     <OEMSystemInfoString Condition="'$(OEMSystemInfoString)'==''">$(MFCompanyName) $(MFCopyright)</OEMSystemInfoString>

@@ -72,8 +72,8 @@
     
 	<!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS> -->
 	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fno-threadsafe-statics -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"          >$(CC_CPP_TARGETTYPE_FLAGS) -O3</CC_CPP_TARGETTYPE_FLAGS>
     <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
@@ -82,7 +82,8 @@
 
     <CC_FLAGS>$(CC_FLAGS)-xc </CC_FLAGS>
     <CPP_FLAGS>$(CPP_FLAGS)-xc++ -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
-
+    <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
+    <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
 
@@ -150,10 +151,10 @@
     <CC_CPP_COMMON_FLAGS Condition="'$(FLAVOR)'!='RTM'"    >$(CC_CPP_COMMON_FLAGS) -DTINYCLR_ENABLE_SOURCELEVELDEBUGGING </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(sampleprof)'=='true'" >$(CC_CPP_COMMON_FLAGS) -DFIQ_SAMPLING_PROFILER </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(latencyprof)'=='true'">$(CC_CPP_COMMON_FLAGS) -DFIQ_LATENCY_PROFILER </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"     >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_ARM </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"     >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_ARM -Wno-psabi</CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'=='GCCOP'"   >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(COMPILER_TOOL)'!='GCCOP'"   >$(CC_CPP_COMMON_FLAGS) -mthumb-interwork -DCOMPILE_THUMB </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(CC_CPP_COMMON_FLAGS) -mthumb -DCOMPILE_THUMB2 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(CC_CPP_COMMON_FLAGS) -mthumb -DCOMPILE_THUMB2 -Wno-psabi</CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb' and '$(ARMBUILD_ONLY)'!='true' "   >$(CC_CPP_COMMON_FLAGS) -mthumb </CC_CPP_COMMON_FLAGS>    
 
     <CC_CPP_COMMON_FLAGS Condition="'$(FLAVOR)'=='Instrumented' and '$(NATIVE_PROFILE_CLR)'!=''">$(CC_CPP_COMMON_FLAGS) -DNATIVE_PROFILE_CLR=$(NATIVE_PROFILE_CLR)</CC_CPP_COMMON_FLAGS>

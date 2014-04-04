@@ -16,6 +16,7 @@
 #define	ETIME		62	/* Timer expired */
 
 typedef UINT32 uint32_t;
+typedef UINT16 uint16_t;
 typedef UINT8 uint8_t;
 //from include/sys/types.h
 

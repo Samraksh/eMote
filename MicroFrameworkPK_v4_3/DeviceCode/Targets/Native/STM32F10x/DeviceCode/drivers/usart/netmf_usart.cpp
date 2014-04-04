@@ -9,8 +9,7 @@
 #include <rcc\stm32f10x_rcc.h>
 #include <intc\STM32.h>
 
-#define COM1 0
-#define COM2 1
+//ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
 uint8_t RX_BAD=2;
 
@@ -61,17 +60,24 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
   UINT32 interruptIndex = 0;
   HAL_CALLBACK_FPN callback = NULL;
 
-  if(ComPortNum == 0) //CLR has it as 0
-  {	
-    ComPortNum = COM1;
+  switch(ComPortNum)
+  {
+  case 0:
     interruptIndex = STM32_AITC::c_IRQ_INDEX_USART1;
     callback = USART1_Handler;
-  }
-  else
-  {
-    ComPortNum = COM2;
+    break;
+  case 1:
     interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
     callback = USART2_Handler;
+    break;
+  default: //FIXME: warn or do nothing. for now, just warn and init COM2 for backward-compatability.
+#ifdef DEBUG
+    hal_printf("%s: bad ComPortNum %d. Using COM2 instead.\n",__func__,ComPortNum);
+#endif
+    ComPortNum = ConvertCOM_ComPort(COM2);
+    interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
+    callback = USART2_Handler;
+    break;
   }
 
   // If unable to active the interrupt for the usart return false
@@ -354,14 +360,14 @@ void USART1_Handler(void *args) {
 		// Fix for strangeness at 8 MHz... disabled for now while we run at 48 MHz.
 		//if ( (RX_BAD-- > 0) && c != 'M' && c != 'S') { return; }
 		
-		USART_AddCharToRxBuffer(COM1, c);
+		USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), c);
 		return;
 	}
 
 	if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
 		char c;
 		// USART_IT_TXE pending bit only cleared by write
-		if ( USART_RemoveCharFromTxBuffer(COM1, c) ) {
+		if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c) ) {
 			USART_SendData(USART1, c);
 		}
 		else {
@@ -390,8 +396,8 @@ void USART1_Handler(void *args)
 	{
 		USART1->SR &= ~USART_FLAG_RXNE;
 		c = (char) USART_ReceiveData(USART1);
-		USART_AddCharToRxBuffer(COM1, c);
-		//if(!USART_AddCharToRxBuffer(COM1, (char) (USART1->DR & 0x1FF)))
+		USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), c);
+		//if(!USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), (char) (USART1->DR & 0x1FF)))
 		{
 
 		}
@@ -404,19 +410,19 @@ void USART1_Handler(void *args)
 	{
 		GLOBAL_LOCK(irq);
 
-		if(USART_RemoveCharFromTxBuffer(COM1, c))
+		if(USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c))
 	    {
 			//USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
 			//do
 			//{
-			//if(USART_BytesInBuffer(COM1, false) == 1)
+			//if(USART_BytesInBuffer(ConvertCOM_ComPort(COM1), false) == 1)
 			//{
 			//	USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
 			//}
 
 			 USART_SendData(USART1, c);
 			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-			//}while(USART_RemoveCharFromTxBuffer(COM1, c));
+			//}while(USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c));
 
 			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 		}
@@ -439,13 +445,13 @@ void USART2_Handler(void *args)
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		  char c = (char) USART_ReceiveData(USART2); // read RX data
-		  USART_AddCharToRxBuffer(COM2, c);
+		  USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM2), c);
 		 // Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
 	}
 	if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET)
 	{
 		 char c;
-		    if (USART_RemoveCharFromTxBuffer(COM2, c)) {
+		    if (USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM2), c)) {
 		    	USART_SendData(USART2, c);
 		    } else {
 		    	USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) FALSE);
