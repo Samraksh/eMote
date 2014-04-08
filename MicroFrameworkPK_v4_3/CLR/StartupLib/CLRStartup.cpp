@@ -644,8 +644,24 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_RT_Assembly::InitString();
 
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf( "\r\nTinyCLR (Build %d.%d.%d.%d)\r\n\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+
+        // Print generic optimization status after compiler version, but only once.
+#if defined(__GNUC__)
+#if defined(__OPTIMIZE__)
+#define SPEED_OPTIMIZE "speed-optimized"
+#else
+#define SPEED_OPTIMIZE "no-speed-optimization"
 #endif
+#if defined(__OPTIMIZE_SIZE__)
+#define SIZE_OPTIMIZE  "size-optimized"
+#else
+#define SIZE_OPTIMIZE "no-size-optimization"
+#endif
+        CLR_Debug::Printf( "Optimization: %s, %s\r\n", SPEED_OPTIMIZE , SIZE_OPTIMIZE );
+#endif  //defined(__GNUC__)
+
+        CLR_Debug::Printf( "\r\nTinyCLR (Build %d.%d.%d.%d)\r\n\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+#endif  //!defined(BUILD_RTM)
 
         CLR_RT_Memory::Reset         ();
         
