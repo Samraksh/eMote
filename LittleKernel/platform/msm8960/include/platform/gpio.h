@@ -52,6 +52,7 @@
 /* GPIO TLMM: Status */
 #define GPIO_ENABLE     0
 #define GPIO_DISABLE    1
+#define GPIO_OUTPUT_ENABLE 1
 
 void gpio_config_i2c(uint8_t gsbi_id);
 void gpio_config_uart_dm(uint8_t id);

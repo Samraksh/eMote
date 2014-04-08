@@ -41,15 +41,29 @@ void gpio_tlmm_config(uint32_t gpio, uint8_t func,
 	val |= func << 2;
 	val |= drvstr << 6;
 	val |= enable << 9;
+//val = 0x200;
+//if (gpio == 52) val = 0x200;
+//if (gpio == 51) val = 0x200;
 	unsigned int *addr = (unsigned int *)GPIO_CONFIG_ADDR(gpio);
+dprintf(INFO,"gpio: %d config: val: %x\taddr: %x\r\n",gpio,val,addr);
 	writel(val, addr);
 	return;
 }
-
+uint32_t gpio_get(uint32_t gpio){
+	unsigned int *addr = (unsigned int *)GPIO_IN_OUT_ADDR(gpio);
+	int readGPIO = readl(addr);
+	dprintf(INFO,"get GPIO(%d): %d\r\n",gpio,readGPIO);
+	return readGPIO;
+}
 void gpio_set(uint32_t gpio, uint32_t dir)
 {
 	unsigned int *addr = (unsigned int *)GPIO_IN_OUT_ADDR(gpio);
-	writel(dir, addr);
+dprintf(INFO,"gpio write: dir: %x\taddr: %x\r\n",dir,addr);
+	//writel(dir, addr);
+writel(dir ? 1UL << 1 : 0, addr);
+
+int readGPIO = readl(addr);
+dprintf(INFO,"set GPIO(%d): %d\r\n",gpio,readGPIO);
 	return;
 }
 

@@ -56,6 +56,9 @@
 #include "sparse_format.h"
 #include "mmc.h"
 #include "devinfo.h"
+#include <dev/pm8921.h>
+#include <platform/iomap.h>
+#include <platform/gpio.h>
 
 #include "scm.h"
 
@@ -887,12 +890,15 @@ void cmd_flash_mmc_img(const char *arg, void *data, unsigned sz)
 			return;
 		}
 
+// Remove boot img sig check --NPS
+#if 0
 		if (!strcmp(arg, "boot") || !strcmp(arg, "recovery")) {
 			if (memcmp((void *)data, BOOT_MAGIC, BOOT_MAGIC_SIZE)) {
 				fastboot_fail("image is not a boot image");
 				return;
 			}
 		}
+#endif
 
 		size = partition_get_size(index);
 		if (ROUND_TO_PAGE(sz,511) > size) {
@@ -1217,18 +1223,33 @@ void aboot_init(const struct app_descriptor *app)
 	dprintf(SPEW,"serial number: %s\n",sn_buf);
 	surf_udc_device.serialno = sn_buf;
 
+gpio_tlmm_config(52, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA,GPIO_OUTPUT_ENABLE);
+gpio_tlmm_config(51, 0, GPIO_INPUT, GPIO_NO_PULL, GPIO_2MA,GPIO_ENABLE);
+gpio_set(52,1);
+int bootMF = gpio_get(51);
+
 	/* Check if we should do something other than booting up */
 	if (keys_get_state(KEY_HOME) != 0)
 		boot_into_recovery = 1;
-	if (keys_get_state(KEY_VOLUMEUP) != 0)
-		boot_into_recovery = 1;
+		
+	// Samraksh uses VOL+
+	//if (keys_get_state(KEY_VOLUMEUP) != 0)
+		//boot_into_recovery = 1;
 	if(!boot_into_recovery)
 	{
-		if (keys_get_state(KEY_BACK) != 0)
-			goto fastboot;
+		// back now enters SBL3 loader
+		//if (keys_get_state(KEY_BACK) != 0)
+			//goto fastboot;
 		if (keys_get_state(KEY_VOLUMEDOWN) != 0)
 			goto fastboot;
+		if ((keys_get_state(KEY_VOLUMEUP) != 0) || (bootMF != 0))
+			goto samraksh;
 	}
+	
+	// Default to fastboot
+	// Assuming recovery stuff not needed...
+	// NPS
+	goto fastboot;
 
 	#if NO_KEYPAD_DRIVER
 	if (fastboot_trigger())
@@ -1268,6 +1289,88 @@ void aboot_init(const struct app_descriptor *app)
 	}
 	dprintf(CRITICAL, "ERROR: Could not do normal boot. Reverting "
 		"to fastboot mode.\n");
+
+samraksh:
+	dprintf(INFO, "Samraksh Boot Mode\n");
+	
+	/*
+	 * SAMRAKSH ADAPT BOOT quickstart -- NPS 2012-01-15
+	 * 
+	 * build with
+	 * make titan EMMC_BOOT=1 SIGNED_KERNEL=1
+	 * 
+	 * Currently we dump our binaries in Android's 'boot' partition
+	 * (kernel and init stuff). This means to re-enable Android,
+	 * you must re-flash boot partition.
+	 * 
+	 * To load this bootloader, boot into fastboot, possibily by
+	 * holding down the VOL- key at boot, then:
+	 * 
+	 * fastboot flash aboot emmc_appsboot.mbn
+	 * 
+	 * To create and flash an MF image:
+	 * 
+	 * Compile MF and C# to binary (.bin) format
+	 * 
+	 * pad the MF bin to exactly 3 MB (3*1024*1024 bytes), for example:
+	 * dd if=MF.bin bs=1M count=3 of=MF_padded.bin conv=sync
+	 * 
+	 * pad the C# binary to 2 MB:
+	 * dd if=c_sharp.bin bs=1M count=2 of=c_sharp_padded.bin conv=sync
+	 * 
+	 * combine the result into a single file
+	 * cat MF_padded.bin c_sharp_padded.bin > mf_boot.bin
+	 * 
+	 * Then program with fastboot:
+	 * fastboot flash boot mf_boot.bin
+	 * 
+	 * The code can be refactored for larger binaries, just make sure
+	 * there is sufficient room on the emmc partition you want to use.
+	 *
+	 * */
+	
+#define MF_SIZE 3*1024*1024			// bytes, needed for offset calcs
+#define CS_SIZE 2*1024*1024		
+#define SAM_PARTITION "boot"	
+
+	void *MF_addr = 0x80200000;		// MF Loc, coordinate with MF build
+	void *C_SHARP = 0x805E8000;		// C# load addr, must match MF build
+	unsigned long long ptn;			// EMMC Partition number
+	void (*entry)(void) = MF_addr;	// Function pointer to start
+	unsigned int index;
+	
+	// Map internal partition number to physical flash offset
+	index = partition_get_index(SAM_PARTITION);
+	ptn = partition_get_offset(index);
+	
+	// Scratch memory space, not currently used.
+	// From current mem map, should load 0x90000000
+	//unsigned char *image_addr;
+	//image_addr = (unsigned char *)target_get_scratch_address();
+	
+	// Read to scratch memory space
+	//dprintf(INFO, "Read to scratch 0x%X memory space from partition %d\n", image_addr, ptn);
+	//mmc_read(ptn, (void *)image_addr, (unsigned int) 4148*512 );
+	//mmc_read(ptn+NPS_OFFSET, (void *)(image_addr+NPS_OFFSET), 1024*1024);
+	
+	// Do 3MB read to MF location in RAM
+	mmc_read(ptn, (void*) MF_addr, (unsigned int) MF_SIZE );
+	
+	// Do 2MB read to C# RAM base (compiled into MF)
+	mmc_read(ptn+MF_SIZE, (void*) C_SHARP, (unsigned int) CS_SIZE );
+		
+	enter_critical_section();
+	platform_uninit();
+	arch_disable_cache(UCACHE);
+	arch_disable_mmu();
+	
+	dprintf(INFO, "Booting to 0x%X\n", (int)MF_addr);
+	
+	// Start MF!
+	entry();
+	
+	dprintf(INFO, "ERROR NO BOOT, MASSIVE FAIL =(\n");
+	while(1);
 
 fastboot:
 

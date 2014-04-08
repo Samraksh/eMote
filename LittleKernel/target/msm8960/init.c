@@ -130,6 +130,27 @@ void target_init(void)
 	keys_init();
 	keypad_init();
 
+struct pm8921_gpio gpio72_param_1 = {
+               PM_GPIO_DIR_OUT,
+               0,
+               1,
+               PM_GPIO_PULL_DN,
+               2,
+               PM_GPIO_STRENGTH_HIGH,
+               PM_GPIO_FUNC_NORMAL,
+               0,
+               0,
+       };
+
+       int rc = pm8921_gpio_config(PM_GPIO(72), &gpio72_param_1);
+rc = pm8921_gpio_config(PM_GPIO(58), &gpio72_param_1);
+rc = pm8921_gpio_config(PM_GPIO(55), &gpio72_param_1);
+rc = pm8921_gpio_config(PM_GPIO(53), &gpio72_param_1);
+rc = pm8921_gpio_config(PM_GPIO(52), &gpio72_param_1);
+rc = pm8921_gpio_config(PM_GPIO(68), &gpio72_param_1);
+	dprintf(INFO,"many should be high 4\r\n");
+
+
 	/* Display splash screen if enabled */
 #if DISPLAY_SPLASH_SCREEN
 	if ((platform_id == MSM8960) || (platform_id == MSM8660A)

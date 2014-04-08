@@ -45,6 +45,8 @@
 #include <platform.h>
 #include <baseband.h>
 #include <crypto_hash.h>
+#include <platform/iomap.h>
+#include <platform/gpio.h>
 
 /* 8960 */
 #define LINUX_MACHTYPE_8960_SIM     3230
@@ -139,11 +141,11 @@ void target_init(void)
 	    || (platform_id == MSM8227) || (platform_id == MSM8627)) {
 //		panel_backlight_on();
 		display_init();
-		dprintf(SPEW, "Diplay initialized\n");
-		display_image_on_screen();
+		dprintf(INFO, "Diplay NOT initialized\n");
+		//display_image_on_screen();
 //[SIM-wuxinbo-20120810]  backlight start after display init
                 mdelay(60);
-		panel_backlight_on();
+		//panel_backlight_on();
 //[SIM-wuxinbo-20120810]
 	}
 #endif
