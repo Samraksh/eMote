@@ -11,23 +11,14 @@
 
 const BlockRange STM32F10x_BlockRange_InternalFlash[] =
 {
-    //
-#if 0
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 }, 	//64 blocks, 128K for bootloader
-	    { BlockRange::BLOCKTYPE_CODE  		    , 64,319 },		//256 blocks, 512K for CLR
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,320,383 },		//32 blocaks, 64K for appliation A,  address 0x80A0000
-	    /*{ BlockRange::BLOCKTYPE_DEPLOYMENT      ,320,351 },		//32 blocaks, 64K for appliation A,  address 0x80A0000
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,352,383 },	*/	//32 blocaks, 64K for appliation B,  address 0x80B0000
-	    { BlockRange::BLOCKTYPE_STORAGE_A       ,384,447 },		//64 blocks, 128K for Storage A
-	    { BlockRange::BLOCKTYPE_STORAGE_B       ,448,507 },		//60 blocks, 120K for Storage B
-	    { BlockRange::BLOCKTYPE_CONFIG          ,508,511 } 		//4 blocks, 8K for Config
-#endif
-
-	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 }, 	//64 blocks, 128K for bootloader
-	    { BlockRange::BLOCKTYPE_CODE  		    , 64,385 },		//256 blocks, 512K for CLR
-	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,386,449 },  //32 blocaks, 64K for appliation A,  address 0x80A2000
-	    { BlockRange::BLOCKTYPE_STORAGE_A       ,450,509 },  //64 blocks, 128K for Storage A
-	    { BlockRange::BLOCKTYPE_CONFIG          ,509,511 }
+        // DANGER! Coordinate with applications (TinyBooter and MFUpdate).
+        // Always update comments, fix scatterfile targets, and tell everyone on the team before changing the map.
+        // It should be obvious that block ranges are inclusive, and different regions have exclusive ranges.
+	    { BlockRange::BLOCKTYPE_BOOTSTRAP       ,  0, 63 },  // 64 blocks, 128K for Booter,     address 0x0800_0000
+	    { BlockRange::BLOCKTYPE_CODE            , 64,385 },  //322 blocks, 644K for CLR,        address 0x0802_0000
+	    { BlockRange::BLOCKTYPE_DEPLOYMENT      ,386,449 },  // 64 blocks, 128K for Deployment, address 0x080C_1000
+	    { BlockRange::BLOCKTYPE_STORAGE_A       ,450,509 },  // 60 blocks, 120K for Storage A,  address 0x080E_1000
+	    { BlockRange::BLOCKTYPE_CONFIG          ,510,511 }   //  2 blocks,   4K for Config,     address 0x080F_F000
 
 };
 
