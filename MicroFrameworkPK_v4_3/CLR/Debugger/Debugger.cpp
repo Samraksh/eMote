@@ -911,7 +911,7 @@ bool CLR_DBG_Debugger::Monitor_DeploymentMap( WP_Message* msg, void* owner )
 	//TODO: NOR and SD cards?
 	NATIVE_PROFILE_CLR_DEBUGGER();
 	CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
-	CLR_DBG_Commands::Monitor_DeploymentMap::FlashSector map[2];
+	CLR_DBG_Commands::Monitor_DeploymentMap::Reply reply;
 	UINT32 memoryUsage = BlockUsage::DEPLOYMENT;
 	BlockStorageStream stream;
 	const BlockDeviceInfo* deviceInfo;
@@ -923,17 +923,16 @@ bool CLR_DBG_Debugger::Monitor_DeploymentMap( WP_Message* msg, void* owner )
 #endif
         return false;
     }
-
-    for(int itr=0; itr < 2; ++itr)
+    else
     {
-		deviceInfo = stream.Device->GetDeviceInfo();
-		map[itr].m_start = stream.BaseAddress + stream.CurrentIndex * stream.BlockLength;
-		map[itr].m_length = stream.Length;  //FIXME: read actual length.
-		map[itr].m_crc = 0x0;
-		stream.NextStream();
+        deviceInfo = stream.Device->GetDeviceInfo();
+		reply.m_data[0].m_start = stream.BaseAddress + stream.CurrentIndex * stream.BlockLength;
+		reply.m_data[0].m_length = stream.Length;  //FIXME: read actual length.
+		reply.m_data[0].m_crc = 0x0; //FIXME: compute crc.
+        reply.m_count = 1;
 	}
 
-    dbg->m_messaging->ReplyToCommand( msg, true, false, map, sizeof(map) );
+    dbg->m_messaging->ReplyToCommand( msg, true, false, (void*)&reply, sizeof(reply)/*bug in WireProtocol.cs*/ );
     return true;
 }
 

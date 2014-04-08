@@ -172,8 +172,8 @@ struct CLR_DBG_Commands
 
         struct Reply
         {
-
             FlashSector m_data[ 1 ];
+            CLR_UINT32 m_count;
         };
     };
 

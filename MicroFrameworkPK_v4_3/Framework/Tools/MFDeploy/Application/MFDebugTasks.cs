@@ -125,9 +125,9 @@ namespace Microsoft.NetMicroFramework.Tools.MFDeployTool.Debug
                         _DBG.WireProtocol.Commands.Monitor_DeploymentMap.DeploymentData dd = reply.m_map[i];
 
                         form.DumpToOutput("Assembly " + i.ToString());
-                        form.DumpToOutput("  Address: " + dd.m_address.ToString());
-                        form.DumpToOutput("  Size   : " + dd.m_size.ToString());
-                        form.DumpToOutput("  CRC    : " + dd.m_CRC.ToString());
+                        form.DumpToOutput("  Address: " + dd.m_address.ToString("X4"));
+                        form.DumpToOutput("  Size   : " + dd.m_size.ToString("X4"));
+                        form.DumpToOutput("  CRC    : " + dd.m_CRC.ToString("X4"));
                     }
 
                     if (reply.m_count == 0)

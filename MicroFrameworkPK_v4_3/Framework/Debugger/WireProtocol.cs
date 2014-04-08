@@ -374,9 +374,10 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
 
                 public void PrepareForDeserialize(int size, byte[] data, Converter converter)
                 {
-                    int num = (size - 4) / (3 * 4);  // size - sizof(m_count) divided by size of deplpoymentdata struct (3*sizeof(uint))
+                    m_count = (size - 4) / (3 * 4);  // size - sizof(m_count) divided by size of deplpoymentdata struct (3*sizeof(uint))
 
-                    m_map = new DeploymentData[num];
+                    m_map = new DeploymentData[m_count];
+
                 }
             }
         }
