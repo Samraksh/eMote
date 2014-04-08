@@ -908,10 +908,37 @@ bool CLR_DBG_Debugger::Monitor_MemoryMap( WP_Message* msg, void* owner )
 
 bool CLR_DBG_Debugger::Monitor_DeploymentMap( WP_Message* msg, void* owner )
 {
+	//TODO: NOR and SD cards?
+	NATIVE_PROFILE_CLR_DEBUGGER();
+	CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
+	CLR_DBG_Commands::Monitor_DeploymentMap::FlashSector map[2];
+	UINT32 memoryUsage = BlockUsage::DEPLOYMENT;
+	BlockStorageStream stream;
+	const BlockDeviceInfo* deviceInfo;
+    // find the block
+    if (!stream.Initialize( memoryUsage ))
+    {
+#if !defined(BUILD_RTM)
+        CLR_Debug::Printf( "ERROR: Could not find device for DEPLOYMENT usage\r\n" );
+#endif
+        return false;
+    }
+
+    for(int itr=0; itr < 2; ++itr)
+    {
+		deviceInfo = stream.Device->GetDeviceInfo();
+		map[itr].m_start = stream.BaseAddress + stream.CurrentIndex * stream.BlockLength;
+		map[itr].m_length = stream.Length;  //FIXME: read actual length.
+		map[itr].m_crc = 0x0;
+		stream.NextStream();
+	}
+
+    dbg->m_messaging->ReplyToCommand( msg, true, false, map, sizeof(map) );
     return true;
 }
 
 
+//FIXME: new command Monitor_DeploymentList goes here.  actually map in loaded and non-loaded assemblies.
 
 //--//
 

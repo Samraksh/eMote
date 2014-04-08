@@ -1,18 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>config_pal</AssemblyName>
+    <AssemblyName>config_pal_Redux</AssemblyName>
+    <ProjectGuid>{873f4f6c-5750-4050-895e-0247181ec03a}</ProjectGuid>
     <Size>
     </Size>
-    <ProjectGuid>{82d2840e-a334-4889-8c4a-acf984586e4d}</ProjectGuid>
-    <Description>System configuration</Description>
+    <Description>Configuration redux library mostly stubs with a couple of implemented functions</Description>
     <Level>PAL</Level>
-    <LibraryFile>config_pal.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\PAL\Configuration\dotNetMF.proj</ProjectPath>
-    <ManifestFile>config_pal.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>config_pal_Redux.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\pal\configuration\redux\dotNetMF.proj</ProjectPath>
+    <ManifestFile>config_pal_Redux.$(LIB_EXT).manifest</ManifestFile>
     <Groups>System</Groups>
     <LibraryCategory>
-      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Config_PAL" Guid="{EC117871-1E2D-49EC-B0D1-C4BDBF573127}" ProjectPath="" Conditional="" xmlns="">
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Config_PAL" Guid="{EC117871-1E2D-49EC-B0D1-C4BDBF573127}" ProjectPath="" xmlns="">
         <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
           <Major>4</Major>
           <Minor>0</Minor>
@@ -21,15 +21,18 @@
           <Extra />
           <Date>2009-04-30</Date>
         </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
       </MFComponent>
     </LibraryCategory>
     <Documentation>
     </Documentation>
     <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
-    <IsStub>False</IsStub>
-    <Directory>DeviceCode\pal\configuration</Directory>
+    <IsStub>True</IsStub>
+    <Directory>DeviceCode\pal\configuration\redux</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -37,17 +40,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="ConfigHelper.cpp" />
+    <Compile Include="ConfigHelper_redux.cpp" />
     <IncludePaths Include="DeviceCode\include" />
-  </ItemGroup>
-  <ItemGroup>
-    <SubDirectories Include="Stubs" />
-  </ItemGroup>
-  <ItemGroup>
-    <SubDirectories Include="redux" />
-  </ItemGroup>
-  <ItemGroup>
-    <ExtraProjects Include="dotNetMF_loader.proj" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

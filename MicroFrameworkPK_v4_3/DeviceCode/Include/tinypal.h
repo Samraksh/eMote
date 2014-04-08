@@ -47,5 +47,8 @@
 #include <Blockstorage_decl.h>
 #include <SD_decl.h>
 
+#include <ID_decl.h>
+
+
 #endif // _TINYPAL_H_
 
