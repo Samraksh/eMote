@@ -1,0 +1,17 @@
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\le\Samraksh_eMote_Net.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\be\Samraksh_eMote_Net.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\le\Samraksh_eMote_Net.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\be\Samraksh_eMote_Net.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\Samraksh_eMote_Net.xml
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\Samraksh_eMote_Net.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\Samraksh_eMote_Net.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\le\Samraksh_eMote_Net.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\le\Samraksh_eMote_Net.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\be\Samraksh_eMote_Net.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Debug\be\Samraksh_eMote_Net.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\be\Samraksh_eMote_Net.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\be\Samraksh_eMote_Net.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\le\Samraksh_eMote_Net.pe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\le\Samraksh_eMote_Net.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\Samraksh_eMote_Net.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Debug\Samraksh_eMote_Net.pdb
