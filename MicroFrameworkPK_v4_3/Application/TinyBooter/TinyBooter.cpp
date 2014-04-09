@@ -82,7 +82,7 @@ void ApplicationEntryPoint()
         hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);
         hal_printf( "%s Build Date: %s %s\r\n", HalName, __DATE__, __TIME__ );
 #if defined(__GNUC__)
-        hal_printf("GNU Compiler version %d.%d.%d %s, %s\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
+        hal_printf("GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
         hal_printf("Optimization: %s, %s\r\n",
 #if defined(__OPTIMIZE__)
                 "speed-optimized"
