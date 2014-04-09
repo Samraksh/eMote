@@ -204,6 +204,11 @@
             Counter for multiton pattern 
             </summary>
         </member>
+        <member name="F:Samraksh.SPOT.NonVolatileMemory.DataStore.syncObject">
+            <summary>
+            For synchronization between multiple threads
+            </summary>
+        </member>
         <member name="F:Samraksh.SPOT.NonVolatileMemory.DataStore.dataStoreInstances">
             <summary>
             HashTable for storing multiple instances of DataStore initialized to different block storage devices
@@ -446,17 +451,17 @@
         </member>
         <member name="P:Samraksh.SPOT.NonVolatileMemory.DataStore.Size">
             <summary>
-            Size of the DataStore in Kilo Bytes
+            Size of the DataStore in bytes
             </summary>
         </member>
         <member name="P:Samraksh.SPOT.NonVolatileMemory.DataStore.UsedBytes">
             <summary>
-            Number of Kilo Bytes of space already occupied by data
+            Number of bytes of space already occupied by data
             </summary>
         </member>
         <member name="P:Samraksh.SPOT.NonVolatileMemory.DataStore.FreeBytes">
             <summary>
-            Number of Kilo Bytes of space available to store data
+            Number of bytes of space available to store data
             </summary>
         </member>
         <member name="T:Samraksh.SPOT.NonVolatileMemory.DataStore.DATASTORE_ERROR">
