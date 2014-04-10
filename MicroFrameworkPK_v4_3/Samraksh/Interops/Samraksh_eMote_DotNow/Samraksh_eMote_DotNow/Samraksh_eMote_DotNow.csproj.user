@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <MF_GenerateStubs>True</MF_GenerateStubs>
     <MF_GenerateStubsDirectory>NativeStubs\</MF_GenerateStubsDirectory>
-    <MF_GenerateStubsRootName>spot_native</MF_GenerateStubsRootName>
+    <MF_GenerateStubsRootName>SamrakshEmoteDotNow</MF_GenerateStubsRootName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <MF_GenerateStubs>True</MF_GenerateStubs>
