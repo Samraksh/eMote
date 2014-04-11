@@ -10,6 +10,8 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_Adapt.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_Adapt" />
+	<InteropFeature Include="ADC" />
+    <InteropFeature Include="SD" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Adapt.pe" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\dotnetmf.proj" />	
   </ItemGroup>
