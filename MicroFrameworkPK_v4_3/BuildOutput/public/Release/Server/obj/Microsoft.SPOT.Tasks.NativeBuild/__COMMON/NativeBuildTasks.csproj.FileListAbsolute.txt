@@ -1,4 +1,0 @@
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks.NativeBuild.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\dll\Microsoft.SPOT.Tasks.NativeBuild.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Tasks.NativeBuild\__COMMON\Microsoft.SPOT.Tasks.NativeBuild.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Server\obj\Microsoft.SPOT.Tasks.NativeBuild\__COMMON\Microsoft.SPOT.Tasks.NativeBuild.pdb

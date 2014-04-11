@@ -8,20 +8,20 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 <ItemGroup>
-<HFile Include="spot_native.h" />
-<Compile Include="spot_native.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_Accelerometer_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Adapt_Accelerometer.h" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_Accelerometer.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_AnalogInput_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Adapt_AnalogInput.h" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_AnalogInput.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_FPGA_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Adapt_FPGA.h" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_FPGA.cpp" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_Gyroscope_mshl.cpp" />
-<HFile Include="spot_native_Samraksh_eMote_Adapt_Gyroscope.h" />
-<Compile Include="spot_native_Samraksh_eMote_Adapt_Gyroscope.cpp" />
+<HFile Include="SamrakshEmoteAdapt.h" />
+<Compile Include="SamrakshEmoteAdapt.cpp" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer_mshl.cpp" />
+<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer.h" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer.cpp" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput_mshl.cpp" />
+<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput.h" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput.cpp" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA_mshl.cpp" />
+<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA.h" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA.cpp" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Gyroscope_mshl.cpp" />
+<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Gyroscope.h" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Gyroscope.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

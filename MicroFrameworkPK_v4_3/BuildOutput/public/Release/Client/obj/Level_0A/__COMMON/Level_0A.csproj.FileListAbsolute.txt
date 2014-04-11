@@ -1,8 +1,0 @@
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.Resources.resources
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.csproj.GenerateResource.Cache
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.Resources.tinyresources
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.csproj.TinyGenerateResource.Cache
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.exe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Debug\Client\obj\Level_0A\__COMMON\Level_0A.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Release\Client\obj\Level_0A\__COMMON\Level_0A.exe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\BuildOutput\public\Release\Client\obj\Level_0A\__COMMON\Level_0A.pdb
