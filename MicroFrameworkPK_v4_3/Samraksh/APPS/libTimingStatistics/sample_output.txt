@@ -1,0 +1,88 @@
+FastMicrophone-2013-02-08-T2312-thread_sleep_vs_thread_suspend_no_effect_363ms.txt
+
+Using thread.sleep(20) instead of thread.suspend/thread.resume has no effect on processing delay, so thread.suspend/thread.resume is recommended to save overhead.
+
+
+Found debugger!
+
+Create TS.
+
+ Loading start at 808a3e8, end 809beb0
+
+   Assembly: mscorlib (4.3.0.0)     Assembly: Microsoft.SPOT.Native (4.3.0.0)     Assembly: Microsoft.SPOT.Hardware (4.3.0.0)
+   Assembly: Microsoft.SPOT.Hardware.PWM (4.3.0.0)     Assembly: Microsoft.SPOT.Hardware.SerialPort (4.3.0.0)
+   Assembly: Microsoft.SPOT.Hardware.Usb (4.3.0.0)  Loading Deployment Assemblies.
+
+Attaching deployed file.
+
+   Assembly: Samraksh_SPOT_Hardware (1.0.0.0)  Attaching deployed file.
+
+   Assembly: FastMicrophone (1.0.0.0)  Resolving.
+
+The debugging target runtime is loading the application assemblies and starting execution.
+Ready.
+
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\mscorlib.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\Microsoft.SPOT.Native.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\Microsoft.SPOT.Hardware.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\Microsoft.SPOT.Hardware.PWM.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\Microsoft.SPOT.Hardware.SerialPort.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Program Files (x86)\Microsoft .NET Micro Framework\v4.3\Assemblies\le\Microsoft.SPOT.Hardware.Usb.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\MicroFrameworkPK_v4_3\Samraksh\Executables\Release\Dlls\Samraksh_SPOT_Hardware\le\Samraksh_SPOT_Hardware.dll', Symbols loaded.
+'Microsoft.SPOT.Debugger.CorDebug.dll' (Managed): Loaded 'C:\Users\researcher\documents\visual studio 2012\Projects\FastMicrophone\FastMicrophone\bin\Debug\le\FastMicrophone.exe', Symbols loaded.
+The thread '<No Name>' (0x2) has exited with code 0 (0x0).
+	 Average(25): 3717877 Ticks; 0m:0s:371ms
+	 Average(25): 3717877 Ticks; 0m:0s:371ms
+	 Min(25): 3549102 Ticks; 	 Max(25): 7132289 Ticks. 	 Range: 3583187 Ticks.
+	 Min(25): 3549102 Ticks; 	 Max(25): 7132289 Ticks. 	 Range: 3583187 Ticks.
+	 Jitter(25): -168775|0|+3414412 Ticks. (min(25)-avg(25)|avg(25)-avg(25)|max(25)-avg(25))
+	 Average(29): 3626933 Ticks; 0m:0s:362ms
+	 Average(54): 3669037 Ticks; 0m:0s:366ms
+	 Min(29): 3536954 Ticks; 	 Max(29): 5038027 Ticks. 	 Range: 1501073 Ticks.
+	 Min(54): 3536954 Ticks; 	 Max(54): 7132289 Ticks. 	 Range: 3595335 Ticks.
+	 Jitter(29): -132083|-42104|+1368990 Ticks. (min(29)-avg(54)|avg(29)-avg(54)|max(29)-avg(54))
+	 Average(29): 3611346 Ticks; 0m:0s:361ms
+	 Average(83): 3648880 Ticks; 0m:0s:364ms
+	 Min(29): 3523226 Ticks; 	 Max(29): 4789853 Ticks. 	 Range: 1266627 Ticks.
+	 Min(83): 3523226 Ticks; 	 Max(83): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -125654|-37534|+1140973 Ticks. (min(29)-avg(83)|avg(29)-avg(83)|max(29)-avg(83))
+	 Average(29): 3617748 Ticks; 0m:0s:361ms
+	 Average(112): 3640819 Ticks; 0m:0s:364ms
+	 Min(29): 3538047 Ticks; 	 Max(29): 5006635 Ticks. 	 Range: 1468588 Ticks.
+	 Min(112): 3523226 Ticks; 	 Max(112): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -102772|-23071|+1365816 Ticks. (min(29)-avg(112)|avg(29)-avg(112)|max(29)-avg(112))
+	 Average(29): 3625523 Ticks; 0m:0s:362ms
+	 Average(141): 3637673 Ticks; 0m:0s:363ms
+	 Min(29): 3551981 Ticks; 	 Max(29): 5011339 Ticks. 	 Range: 1459358 Ticks.
+	 Min(141): 3523226 Ticks; 	 Max(141): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -85692|-12150|+1373666 Ticks. (min(29)-avg(141)|avg(29)-avg(141)|max(29)-avg(141))
+	 Average(9): 3734123 Ticks; 0m:0s:373ms
+	 Average(150): 3643460 Ticks; 0m:0s:364ms
+	 Min(9): 3564099 Ticks; 	 Max(9): 4994227 Ticks. 	 Range: 1430128 Ticks.
+	 Min(150): 3523226 Ticks; 	 Max(150): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(9): -79361|90663|+1350767 Ticks. (min(9)-avg(150)|avg(9)-avg(150)|max(9)-avg(150))
+	 Average(27): 3573534 Ticks; 0m:0s:357ms
+	 Average(177): 3632793 Ticks; 0m:0s:363ms
+	 Min(27): 3538267 Ticks; 	 Max(27): 3593170 Ticks. 	 Range: 54903 Ticks.
+	 Min(177): 3523226 Ticks; 	 Max(177): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(27): -94526|-59259|+-39623 Ticks. (min(27)-avg(177)|avg(27)-avg(177)|max(27)-avg(177))
+	 Average(29): 3634432 Ticks; 0m:0s:363ms
+	 Average(206): 3633024 Ticks; 0m:0s:363ms
+	 Min(29): 3550721 Ticks; 	 Max(29): 5234314 Ticks. 	 Range: 1683593 Ticks.
+	 Min(206): 3523226 Ticks; 	 Max(206): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -82303|1408|+1601290 Ticks. (min(29)-avg(206)|avg(29)-avg(206)|max(29)-avg(206))
+	 Average(29): 3621070 Ticks; 0m:0s:362ms
+	 Average(235): 3631549 Ticks; 0m:0s:363ms
+	 Min(29): 3537200 Ticks; 	 Max(29): 5008398 Ticks. 	 Range: 1471198 Ticks.
+	 Min(235): 3523226 Ticks; 	 Max(235): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -94349|-10479|+1376849 Ticks. (min(29)-avg(235)|avg(29)-avg(235)|max(29)-avg(235))
+	 Average(29): 3625974 Ticks; 0m:0s:362ms
+	 Average(264): 3630936 Ticks; 0m:0s:363ms
+	 Min(29): 3550461 Ticks; 	 Max(29): 5007338 Ticks. 	 Range: 1456877 Ticks.
+	 Min(264): 3523226 Ticks; 	 Max(264): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -80475|-4962|+1376402 Ticks. (min(29)-avg(264)|avg(29)-avg(264)|max(29)-avg(264))
+	 Average(29): 3623520 Ticks; 0m:0s:362ms
+	 Average(293): 3630202 Ticks; 0m:0s:363ms
+	 Min(29): 3550846 Ticks; 	 Max(29): 5020714 Ticks. 	 Range: 1469868 Ticks.
+	 Min(293): 3523226 Ticks; 	 Max(293): 7132289 Ticks. 	 Range: 3609063 Ticks.
+	 Jitter(29): -79356|-6682|+1390512 Ticks. (min(29)-avg(293)|avg(29)-avg(293)|max(29)-avg(293))
