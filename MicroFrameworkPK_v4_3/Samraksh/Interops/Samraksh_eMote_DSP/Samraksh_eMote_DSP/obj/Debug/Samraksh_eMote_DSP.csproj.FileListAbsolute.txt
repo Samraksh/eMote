@@ -1,0 +1,16 @@
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\le\Samraksh_eMote_DSP.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\be\Samraksh_eMote_DSP.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\le\Samraksh_eMote_DSP.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\be\Samraksh_eMote_DSP.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\Samraksh_eMote_DSP.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\Samraksh_eMote_DSP.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\le\Samraksh_eMote_DSP.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\le\Samraksh_eMote_DSP.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\be\Samraksh_eMote_DSP.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Debug\be\Samraksh_eMote_DSP.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\be\Samraksh_eMote_DSP.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\be\Samraksh_eMote_DSP.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\le\Samraksh_eMote_DSP.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\le\Samraksh_eMote_DSP.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\Samraksh_eMote_DSP.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Debug\Samraksh_eMote_DSP.pdb
