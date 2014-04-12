@@ -81,6 +81,9 @@ void ApplicationEntryPoint()
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort  );
         hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION);
         hal_printf( "%s Build Date: %s %s\r\n", HalName, __DATE__, __TIME__ );
+#include "..\..\DeviceCode\Include\Samraksh\githash.h"
+#include "..\..\DeviceCode\Include\Samraksh\teamid.h"
+        hal_printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
 #if defined(__GNUC__)
         hal_printf("GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
         hal_printf("Optimization: %s, %s\r\n",

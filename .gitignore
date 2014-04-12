@@ -51,3 +51,6 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT/Samraksh_SPOT/bin/
 #ignore Eclipse files
 MicroFrameworkPK_v4_0/.cproject
 MicroFrameworkPK_v4_0/.project
+#ignore header files generated at compile-time
+MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
+MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h

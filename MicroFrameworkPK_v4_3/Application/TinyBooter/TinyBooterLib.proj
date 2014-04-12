@@ -55,4 +55,12 @@
     <HFiles Include="tinybooter.h" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Samraksh.Emote.Targets" />
+  <PropertyGroup>
+    <PreBuildDependsOn>
+      CreateGitRevisionHeader;
+      CreateTeamHeader;
+      $(PreBuildDependsOn);
+    </PreBuildDependsOn>
+  </PropertyGroup>
 </Project>
