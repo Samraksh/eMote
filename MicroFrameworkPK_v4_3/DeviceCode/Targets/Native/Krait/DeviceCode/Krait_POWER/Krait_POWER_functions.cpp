@@ -47,16 +47,22 @@ void CPU_Reset() {
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
 {
 	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
-
+#if defined(DEBUG)
+#warning "Krait_POWER CPU_Sleep() is disabled in DEBUG build."
+	__asm__ __volatile__("andeq r0, r0, r0"); /*NOP*/
+	return;
+#endif
 	switch(level)
 	{
 		case SLEEP_LEVEL__AWAKE:
-			Krait_POWER_Driver::SleepWFI();
-			break;
+		    Krait_POWER_Driver::SleepWFI();
+		    break;
 		case SLEEP_LEVEL__SELECTIVE_OFF:
-
+            Krait_POWER_Driver::SleepWFI();
+            break;
 		case SLEEP_LEVEL__SLEEP:
 			Krait_POWER_Driver::SleepRetention();
+			break;
         case SLEEP_LEVEL__DEEP_SLEEP:
         case SLEEP_LEVEL__OFF:
         default:
