@@ -300,13 +300,28 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 void handle_rx(Krait_USART* port)
 {
 	UINT32 sr;
+	INT32 timeout=2000;
+
+	//We're here because of an RX event, so busy-wait polling the ready bit.
+	while(!(readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5)) & MSM_BOOT_UART_DM_SR_RXRDY) &&
+	        (timeout-- > 0)) {
+	}
+	if(timeout <= 0) {
+	    //it's not worth waiting?
+	    return;
+	}
 
 	// Handle Overrun
 	if ((readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5)) & MSM_BOOT_UART_DM_SR_UART_OVERRUN)) {
 			port->icount.overrun++;
 			USART_AddCharToRxBuffer(port->index, 0);
+			writel(MSM_BOOT_UART_DM_CMD_RESET_ERR_STAT, MSM_BOOT_UART_DM_CR(GSBI_ID_5));;
 			writel(MSM_BOOT_UART_DM_CMD_RESET_RX, MSM_BOOT_UART_DM_CR(GSBI_ID_5));
 	}
+
+	UINT32 data;
+	data = readl(MSM_BOOT_UART_DM_RF(GSBI_ID_5,0));
+
 
 	while((sr = readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5))) & MSM_BOOT_UART_DM_SR_RXRDY)
 	{
@@ -352,13 +367,13 @@ void handle_tx(Krait_USART* port)
 	}
 	else
 	{
-		msm_boot_uart_dm_write(GSBI_ID_5, 0, 1);
+		msm_boot_uart_dm_write(GSBI_ID_5, 0, 1); //FIXME: Writing 0 has no effect in function msm_boot_uart_dm_write, so what's the point? Not adding anything to the buffer screws up the last write to IMR at the handler's exit.
 	}
 }
 
 void handle_delta_cts(Krait_USART *port)
 {
-	msm_write(port, UART_CR_CMD_RESET_CTS, UART_CR);
+    writel(MSM_BOOT_UART_DM_CMD_RES_CTS_N, MSM_BOOT_UART_DM_CR(GSBI_ID_5));
 	port->icount.cts++;
 	//wake_up_interruptible(&port->state->port.delta_msr_wait);
 }
@@ -366,13 +381,14 @@ void handle_delta_cts(Krait_USART *port)
 
 BOOL Krait_USART_Driver::HandleInterrupt(void *args)
 {
+    UINT32 isr;
 	UINT32 misr;
 	// Need a better system than this
 	Krait_USART *usartport = &usart[0];
 
 	//usartport->ClockEnable();
-
-	misr = readl(MSM_BOOT_UART_DM_ISR(GSBI_ID_5)) ;
+	isr = readl(MSM_BOOT_UART_DM_ISR(GSBI_ID_5));
+	misr = readl(MSM_BOOT_UART_DM_MISR(GSBI_ID_5)) ;
 
 	//msm_write(usartport, 0 , UART_IMR);
 	writel(0, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
@@ -401,20 +417,12 @@ BOOL Krait_USART_Driver::Uninitialize( int ComPortNum)
 
 BOOL Krait_USART_Driver::TxBufferEmpty( int ComPortNum)
 {
-#if 0
-	UINT32 status;
+    if(readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5)) & MSM_BOOT_UART_DM_SR_TXRDY)
+    {
+        return TRUE;
+    }
 
-	if(ComPortNum > 2)
-		return FALSE;
-
-	Krait_USART *usartport = &usart[ComPortNum];
-
-	if((status = msm_read(usartport, UART_SR)) & UART_SR_TX_READY)
-	{
-		return TRUE;
-	}
-#endif
-	return TRUE;
+	return FALSE;
 }
 
 // The kernel code indicates that not all msm uarts have a TXDONE available or in other words there is not
