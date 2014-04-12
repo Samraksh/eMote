@@ -97,7 +97,7 @@ static void gpio_tlmm_config(UINT32 gpio, UINT8 func,
 static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 
 	uint8_t resp, timeout, extra;
-	uint8_t spi_send[6] = {0x74, 0x04, 0x00, 0x01, 0x00, 0xFF};
+	uint8_t spi_send[6] = {0x74, 0x00, 0x00, 0x01, 0x00, 0xFF};
 	
 	// Function area, 0 or 1
 	spi_send[1] |= (func << 4);
@@ -133,7 +133,7 @@ static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 
 	uint8_t resp, timeout, extra;
-	uint8_t spi_send[6] = {0x74, 0x84, 0x00, 0x01, 0x00, 0xFF};
+	uint8_t spi_send[6] = {0x74, 0x80, 0x00, 0x01, 0x00, 0xFF};
 	
 	// Data to write
 	spi_send[4] |= data;
@@ -173,6 +173,9 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 INT8 fpga_init() {
 	if (fpga_init_done) return 0; // Already started
 	fpga_init_done = 1;
+	
+	char ver[16]; // FPGA version string
+	const char *expected_version = "ADAPT v1.6 ÿÿÿÿ";
 	
 	// FPGA power state signaling pins
 	gpio_tlmm_config(90, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
@@ -278,6 +281,20 @@ INT8 fpga_init() {
 			return 1;
     }
 	
+	// Enable Func 1
+	fpga_cmd52_w(0,2,2);
+	
+	// FPGA ADC module reset command
+	fpga_cmd52_w(1, 0x61, 32); // ADC_CMD reg, cmd: reset
+	
+	// Version string should read: "ADAPT v1.6"
+	// Check here.
+	for(int i=0; i<16; i++) {
+		ver[i] = fpga_cmd52_r(1, i);
+		if (ver[i] != expected_version[i])
+			return 0; // TODO return error here.
+	}
+	
 	return 0;
 }
 
@@ -305,9 +322,7 @@ UINT16 fpga_adc_get_sample(void){
 
 // Bit vector for enabling ADC inputs 0-7. Auto mode only.
 INT8 fpga_adc_set_chan(UINT8 chan){
-	
-	UINT8 data = (0x07 & chan) + 0xF0;
-	fpga_cmd52_w(1, 0, data); // set channel and ADC_CONF register
+	return -1;
 }
 
 // raw access mode. write_mode = 0. 'offset' is the offset of adc register from module base.
@@ -326,13 +341,25 @@ UINT16 fpga_adc_cont_get(UINT16 *buffer, UINT8 toRead){
 UINT16 fpga_adc_now(UINT8 chan){
 
 	UINT16 ret;
-	UINT8 cmd = (chan & 0x03) + (2 << 5);
+	UINT8 cmd;
+	
+	cmd = 0x7;
+	// [2:0] INCC, forced to 3'b111 for GND reference, see ADC7689 datasheet
+	// [6:4] REF, forced to 3'b000 for internal 2.5v reference.
+	fpga_cmd52_w(1, 0x60, cmd); // Use immediate mode
+	
+	cmd = (chan & 0x03) + (2 << 5); // ADC_CMD reg
+	// [1:0] channel
+	// [7:5] command
+	// 1,2,3,4
+	// reset, get immediate, start auto, stop auto.
+	// Start and stop auto not currently supported.
 	fpga_cmd52_w(1, 0x61, cmd); // Use immediate mode
 	
-	while(fpga_cmd52_r(1, 0x62) & 0x1 == 1) { ; } // block waiting for sample
+	while(fpga_cmd52_r(1, 0x62) & 0x2) { ; } // ADC_STAT busy bit
 	
-	ret  =  fpga_cmd52_r(1, 0x64);
-	ret |= (fpga_cmd52_r(1, 0x65) << 8);
+	ret  =  fpga_cmd52_r(1, 0x64); 			// ADC_LAST_LO
+	ret |= (fpga_cmd52_r(1, 0x65) << 8); 	// ADC_LAST_HI
 	
 	return ret;
 }
