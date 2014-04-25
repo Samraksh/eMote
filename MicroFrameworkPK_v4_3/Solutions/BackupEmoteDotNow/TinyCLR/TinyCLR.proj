@@ -5,12 +5,12 @@
     <ProjectGuid>{d280cd35-8481-4eda-b878-6370c17e6273}</ProjectGuid>
     <Description />
     <Documentation />
-    <Directory>Solutions\EmoteDotNow\TinyCLR</Directory>
+    <Directory>Solutions\StaticEmoteDotNow\TinyCLR</Directory>
     <IsClrProject>True</IsClrProject>
     <InteropFeatures />
     <ExtraAssemblies />
-    <ProjectPath>$(SPOCLIENT)\Solutions\EmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
-    <MFSettingsFile>$(SPOCLIENT)\Solutions\EmoteDotNow\EmoteDotNow.settings</MFSettingsFile>
+    <ProjectPath>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\StaticEmoteDotNow.settings</MFSettingsFile>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
   </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
@@ -236,7 +236,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\Analog_DA_HAL\dotNetMF.proj" />
   </ItemGroup>
   <!--
   <ItemGroup>
@@ -426,7 +426,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="STM32F10x_lcd.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\LCD_PCF85162_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\LCD_PCF85162_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="STM32F10x_i2c.$(LIB_EXT)" />
@@ -500,41 +500,41 @@
   </ItemGroup>-->
   <ItemGroup>
     <DriverLibs Include="BlockStorageAddDevices_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\BlockStorageAddDevices_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="BlockStorageConfig_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\BlockStorageConfig_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="I2C_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\I2C_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\I2C_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="PWM_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\PWM_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\PWM_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="SD_Config_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\SD_Config_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\SD_Config_HAL\dotNetMF.proj" />
   </ItemGroup>
   <!--<ItemGroup>
     <DriverLibs Include="SPI_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\SPI_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\SPI_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
   <!--<ItemGroup>
     <DriverLibs Include="USART_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USART_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\USART_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
   <ItemGroup>
     <DriverLibs Include="USB_Config_PAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USB_Config_PAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\USB_Config_PAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="USB_HAL_EmoteDotNow.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USB_HAL\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\StaticEmoteDotNow\DeviceCode\USB_HAL\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />

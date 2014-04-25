@@ -179,6 +179,13 @@
     <MSBuild Condition="'$(PLATFORMS)'!=''" Projects="$(ProjectFile)" Targets="Build" Properties="PLATFORM=%(PLATFORMS.Identity);PLATFORMS=;FLAVOR=$(FLAVOR);MEMORY=$(MEMORY)" />
     <CallTarget Condition="'$(PLATFORMS)'==''" Targets="SanityCheck;DoBuild" />
   </Target>
+  
+  <Target Name="StaticBuild">
+    <!-- do the build for each specified platform, including dependencies and subdirectories -->
+    <Message Condition="'$(PLATFORMS)'!=''" Text="Building for platforms @(PLATFORMS,' ')"/>
+    <MSBuild Condition="'$(PLATFORMS)'!=''" Projects="$(ProjectFile)" Targets="Build" Properties="PLATFORM=%(PLATFORMS.Identity);PLATFORMS=;FLAVOR=$(FLAVOR);MEMORY=$(MEMORY)" />
+    <CallTarget Condition="'$(PLATFORMS)'==''" Targets="SanityCheck;DoStaticBuild" />
+  </Target>
 
   <Target Name="Rebuild">
     <!-- do the build for each specified platform -->
@@ -206,6 +213,10 @@
   <Target Name="DoBuild"
     DependsOnTargets="StartMessage;Prebuild;DoPreBuild;ExtraEnvironment;MakeDirectories;SubdirectoryProjects;BuildDependencies;CoreSystemBuild;PostBuild"
     />
+	
+  <Target Name="DoStaticBuild"
+    DependsOnTargets="StartMessage;Prebuild;DoPreBuild;ExtraEnvironment;MakeDirectories;SubdirectoryProjects;BuildDependencies;CoreSystemBuild"
+    />
 
 
   <Target Name="StartMessage" >
@@ -219,11 +230,16 @@
   </Target>
 
   <Target Name="RemoveHalDir"  Condition="'$(DST_DIR)'!=''">
-    <RemoveDir Directories="$(DST_DIR)\"  ContinueOnError="true" />
+    <RemoveDir Directories="$(DST_DIR)\$(LIB_EXT)"  ContinueOnError="true" />
+	<RemoveDir Directories="$(DST_DIR)\$(OBJ_EXT)"  ContinueOnError="true" />
+	<RemoveDir Directories="$(DST_DIR)\$(BIN_EXT)"  ContinueOnError="true" />
+	<RemoveDir Directories="$(DST_DIR)\$(STATICLIB_EXT)"  ContinueOnError="true" />
   </Target>
 
   <Target Name="RemoveClrDir"  Condition="'$(PLATFORM_INDEPENDENT_DST_DIR)'!=''">
-    <RemoveDir Directories="$(PLATFORM_INDEPENDENT_DST_DIR)\"  ContinueOnError="true" />
+    <RemoveDir Directories="$(PLATFORM_INDEPENDENT_DST_DIR)\$(PLATIND_STATICLIB_EXT)"  ContinueOnError="true" />
+	<RemoveDir Directories="$(PLATFORM_INDEPENDENT_DST_DIR)\$(LIB_EXT)"  ContinueOnError="true" />
+	<RemoveDir Directories="$(PLATFORM_INDEPENDENT_DST_DIR)\$(OBJ_EXT)"  ContinueOnError="true" />
   </Target>
 
   <Target Name="buildproject">

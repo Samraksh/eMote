@@ -240,6 +240,8 @@
     <EXEName>$(BIN_DIR)\$(AssemblyName)</EXEName>
 
     <TargetRule Condition="'$(OutputType)'=='Library'">ArmBuildLib</TargetRule>
+	<!-- Added by AnanthAtSamraksh as part of creating a static library -->
+	<!--<TargetRule Condition="'$(OutputType)'=='Executable'">BuildStaticLib</TargetRule>-->
     <TargetRule Condition="'$(OutputType)'=='Executable'">BuildAXF</TargetRule>
   </PropertyGroup>
   
@@ -330,21 +332,57 @@
   <Target Name="ArmBuildLib" Condition="'$(OutputType)'=='Library'" DependsOnTargets="FindCompileFilesExistence;FindFastCompileFilesExistence;DelBuildLib;ArmCompileC;ArmCompileCPP;ArmAssemble;CreateLibManifest;$(ExtraTargets);" Inputs="@(ObjFiles)" Outputs="@(TargetLib);@(TargetLib->'%(FullPath).manifest')">
     <Exec WorkingDirectory="$(OBJ_DIR)" Condition="'@(FilesExist)'!=''" Command="$(AR) $(ARFLAGS) @(TargetLib) @(ObjFiles->'%(FileName)%(Extension)',' ') "/>
   </Target>
-
+  
+  <!-- Added by AnanthAtSamraksh as part of creating a static library -->
+  <Target Name="BuildStaticLib" Condition="'$(OutputType)'=='Executable'">
+	<Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
+    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+  </Target>
+  
   <Target Name="BuildAXF" Condition="'$(OutputType)'=='Executable'" DependsOnTargets="ArmCompileCPP;ArmCompileC;ArmAssemble;$(ExtraEXETargets);BuildScatterfile" Inputs="@(EXEInputs);@(InputLibs);@(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)\%(FileName)%(Extension)');@(DriverLibs->'$(LIB_DIR)\%(FileName)%(Extension)');@(EXEScatterFile)" Outputs="@(EXEOutput)">
     <!-- 
         The GCC archiver does not support concatening libraries into a single one. The only way is to extract all the obj files then rearchive them altogether. 
         However, we probably want to consider using a BuildTask instead of using the following ugly script. 
     -->
-    <Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
-    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
-    <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+	
+	<!--<All ONEs go together and all TWOs go together>-->
+	<!--<ONE - compile using a single static library>-->
+	<!--<TWO - compile using multiple static libraries>-->
+	<!--ItemGroup Condition="'$(OutputType)'=='Executable'">
+		<DriverLibs Include="InteropAssembliesTable.$(LIB_EXT)" />
+		<DriverLibs Include="Samraksh_SPOT_DSP.$(LIB_EXT)" />
+		<DriverLibs Include="Samraksh_SPOT_Net.$(LIB_EXT)" />
+		<DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)" />
+	</ItemGroup-->
+	<Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
+	<!--Exec command="PrepareStaticLibsForConcat.cmd $(STATICLIB_DIR) " /-->
+	<Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+	<Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
     <Exec Command="rmdir $(LIB_DIR)\tmp" />
+	
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)\%(FileName)%(Extension)',' ') $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
     
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
+	
+	
+	<!--<From here onwards, files and folders required for the external developer is created>-->
+	<Exec Command="mkdir $(STATICLIB_DIR)" ContinueOnError="true"/>
+	<!--Exec command="mkdir $(PLATFORM_INDEPENDENT_RELATIVE_STATICLIB_DIR)" ContinueOnError="true"/-->
+	<!--Exec Command="del $(STATICLIB_DIR)\*.$(LIB_EXT) "/-->
+	<Exec command="copy $(PLATFORM_INDEPENDENT_DST_DIR)\$(LIB_EXT)\*.$(LIB_EXT) $(STATICLIB_DIR)"/>
+	<!--<ONE>--><Exec Command="copy $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) $(STATICLIB_DIR)"/>
+	<Exec Command="del /q $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT)"/>
+	<!--<TWO-a>--><!--<Exec Command="copy $(LIB_DIR)\*.$(LIB_EXT) $(STATICLIB_DIR)"/>-->
+	<!--<TWO-b>--><!--Exec Command="PrepareStaticLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ') "/-->
+	
+	<Exec Command="if exist $(OBJ_DIR)\allocator.$(OBJ_EXT) copy $(OBJ_DIR)\allocator.$(OBJ_EXT) $(STATICLIB_DIR)"/>
+	<Exec Command="if exist $(OBJ_DIR)\tinyclr.$(OBJ_EXT) copy $(OBJ_DIR)\tinyclr.$(OBJ_EXT) $(STATICLIB_DIR)"/>
+	<Exec Command="if exist $(OBJ_DIR)\tinyclr_dat.$(OBJ_EXT) copy $(OBJ_DIR)\tinyclr_dat.$(OBJ_EXT) $(STATICLIB_DIR)"/>
+	<Exec Command="if exist $(OBJ_DIR)\tinyclr_vector.$(OBJ_EXT) copy $(OBJ_DIR)\tinyclr_vector.$(OBJ_EXT) $(STATICLIB_DIR)" />
+	<Exec Command="if exist $(LIB_DIR)\InteropAssembliesTable.$(LIB_EXT) copy $(LIB_DIR)\InteropAssembliesTable.$(LIB_EXT) $(STATICLIB_DIR)"/>
+	<Exec Command="if exist $(DST_DIR)\bin\tinyclr_scatterfile.ldf copy $(DST_DIR)\bin\tinyclr_scatterfile.ldf $(STATICLIB_DIR)"/>
+	
     
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
-    <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
 
 
     <!--<Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />-->

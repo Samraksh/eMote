@@ -102,7 +102,11 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
+<<<<<<< HEAD
     0x15320C5B,
+=======
+    0x526B95A6,
+>>>>>>> Samraksh user prepares all required static libs for external developer;
     method_lookup
 };
 

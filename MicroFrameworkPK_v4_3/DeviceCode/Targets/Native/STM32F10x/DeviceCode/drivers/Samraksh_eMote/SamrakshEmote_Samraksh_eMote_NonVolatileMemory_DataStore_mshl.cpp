@@ -27,7 +27,6 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Create
         INT32 retVal = DataStore::CreateDataStore( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
-
     }
     TINYCLR_NOCLEANUP();
 }
