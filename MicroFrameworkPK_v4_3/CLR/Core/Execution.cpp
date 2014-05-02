@@ -11,6 +11,7 @@
 static const CLR_INT64 c_MaximumTimeToActive = (TIME_CONVERSION__ONEMINUTE * TIME_CONVERSION__TO_SECONDS);
 
 
+extern volatile BOOL stopMemoryAccess;
 //--//
 
 CLR_RT_ExecutionEngine::ExecutionConstraintCompensation CLR_RT_ExecutionEngine::s_compensation = { 0, 0, 0 };
@@ -1294,7 +1295,9 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 #ifdef DEBUG_CLR
         	CPU_GPIO_SetPinState( 8, TRUE);
 #endif
-			hr = th->Execute();
+			if (stopMemoryAccess == false){
+				hr = th->Execute();
+        	}
 #ifdef DEBUG_CLR
 			CPU_GPIO_SetPinState( 8, FALSE);
 #endif
