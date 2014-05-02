@@ -810,7 +810,12 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 #ifdef SAMRAKSH_RTOS_EXT
 	RT_Dispose();
 #endif
+	// If there are user threads running in managed code during deployment occassionally we fail to deploy.
+	// It seems that a managed call is made to the FLASH after being erased. 
+	// Here we help keep this from happening by turning off the AD.
 	AD_Shutdown();
+	// At this point we set a variable that will be used  elsewhere to keep managed code from executing.
+	// This variable will be set to true on reboot or if we get a PING.
 	stopMemoryAccess = true;
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;

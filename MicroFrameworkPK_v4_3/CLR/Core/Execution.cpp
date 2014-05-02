@@ -1295,6 +1295,10 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 #ifdef DEBUG_CLR
         	CPU_GPIO_SetPinState( 8, TRUE);
 #endif
+			// We should not be running managed code if we have erased  the  FLASH during deployment,
+			// but we check a variable that is set when we erase the FLASH for deployment and make
+			// sure we don't run any managed code if we have erased the FLASH.
+			// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
 			if (stopMemoryAccess == false){
 				hr = th->Execute();
         	}
