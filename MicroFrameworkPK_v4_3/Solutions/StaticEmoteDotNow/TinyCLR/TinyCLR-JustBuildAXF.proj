@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+  	<AssemblyName>tinyclr</AssemblyName>
+    <Directory>Solutions\StaticEmoteDotNow\TinyCLR</Directory>
+    <ProjectPath>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\EmoteDotNow.settings</MFSettingsFile>
+  </PropertyGroup>
+  
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Settings" />
+  <PropertyGroup>
+    <OutputType>Executable</OutputType>
+    <MultipleOutputSections Condition="'$(MEMORY)'=='FLASH'">true</MultipleOutputSections>
+    <ImageLocation Condition="'$(MEMORY)'=='FLASH'">\ER_FLASH</ImageLocation>
+  </PropertyGroup>
+  
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" /-->
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" /-->
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" /-->
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\Samraksh_SPOT_Net.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_DSP\Samraksh_SPOT_DSP.featureproj" /-->
+  <!--Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Interop.Settings" /-->
+  
+  
+  <!--ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
+    <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
+  </ItemGroup-->
+  
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Targets" />
+</Project>

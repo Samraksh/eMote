@@ -16,8 +16,8 @@ for %%i IN (%*) do (
       %GNU_TOOLS_BIN%\ar -x ..\%%i
     ) ELSE (
       IF EXIST "%GNU_TOOLS_BIN%\%GNU_TARGET%-ar.exe" (
-        @echo %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x ..\%%i
-        %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x ..\%%i
+		@echo %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x %1\%%i
+        %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x %1\%%i
       ) ELSE (
         IF EXIST "%GNU_TOOLS_BIN%\..\%GNU_TARGET%\bin\ar.exe" (
           @echo %GNU_TOOLS_BIN%\..\%GNU_TARGET%\bin\ar -x ..\%%i

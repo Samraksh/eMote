@@ -11,12 +11,11 @@ for %%i IN (%*) do (
   IF "%%i"=="%1" (
 	IF NOT EXIST %1\tmp mkdir %1\tmp
 	cd %1\tmp
-	REM copy ..\..\lib\*.lib %1
   ) 
 )
 
-for %%i IN (..\*.lib) do (
-      IF EXIST "%GNU_TOOLS_BIN%\%GNU_TARGET%-ar.exe" (
+for %%i IN (%1\*.lib) do (
+	  IF EXIST "%GNU_TOOLS_BIN%\%GNU_TARGET%-ar.exe" (
 		@echo %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x %%i
         %GNU_TOOLS_BIN%\%GNU_TARGET%-ar -x %%i
       ) ELSE (

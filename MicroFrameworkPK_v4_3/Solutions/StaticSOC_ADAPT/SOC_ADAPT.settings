@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Author>The Samraksh Company</Author>
+    <Description>Microframework 4.2 port to the ADAPT SOC based on  Qualcomm Krait core</Description>
+    <Documentation />
+    <PlatformGuid>{c6d227eb-9765-40b4-b22e-d70ebbfc15d0}</PlatformGuid>
+    <TARGETPLATFORM>SOC_ADAPT</TARGETPLATFORM>
+    <PLATFORM>SOC_ADAPT</PLATFORM>
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
+    <ENDIANNESS>le</ENDIANNESS>
+  </PropertyGroup>
+  <ItemGroup>
+    <IncludePaths Include="Solutions\StaticSOC_ADAPT" />
+  </ItemGroup>
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\Krait.settings" />
+</Project>

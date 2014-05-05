@@ -101,7 +101,7 @@
   </ItemGroup>
 
   <Target Name="MetaDataProcessorDat" DependsOnTargets="MetaDataProcessorDatBE;MetaDataProcessorCompileBE" />
-
+  
   <Target Name="MMP_CreateDatabaseAndDependencyMap" DependsOnTargets="MetaDataProcessorDump;MetaDataProcessorDat;MetadataProcessorXML" />
 
   <Target Name="MetaDataProcessorCompile"
@@ -127,7 +127,7 @@
     DependsOnTargets="ResolveRuntimeDependenciesLE"
     Condition="'$(MMP_PE_SKIP)' != 'true'"
     >
-
+		
       <ItemGroup>
         <MMP_PE_CreatedFiles Include="$(MMP_PE_CreateDatabaseFile)" Condition="'$(MMP_PE_CreateDatabaseFile)'!=''"/>
         <MMP_PE_CreatedFiles Include="$(MMP_PE_GenerateSkeletonFile)"  Condition="'$(MMP_PE_GenerateSkeletonFile)'!=''"/>

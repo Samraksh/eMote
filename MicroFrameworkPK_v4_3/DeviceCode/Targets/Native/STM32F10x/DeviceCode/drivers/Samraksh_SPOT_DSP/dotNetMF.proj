@@ -3,7 +3,7 @@
     <Directory>DeviceCode\Targets\Native\Interop\Samraksh_SPOT_DSP</Directory>
     <AssemblyName>Samraksh_SPOT_DSP</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Settings" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -12,10 +12,10 @@
 <Compile Include="Samraksh_SPOT_DSP.cpp" />
 <Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Statistics_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Statistics.h" />
-<Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Statistics.cpp" />
+<!--Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Statistics.cpp" /-->
 <Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms_mshl.cpp" />
 <HFile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms.h" />
-<Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms.cpp" />
+<!--Compile Include="Samraksh_SPOT_DSP_Samraksh_SPOT_DSP_Transforms.cpp" /-->
 </ItemGroup>
-<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Targets" />
 </Project>

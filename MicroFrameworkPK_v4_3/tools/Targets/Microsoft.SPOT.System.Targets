@@ -219,9 +219,7 @@
   </Target>
 
   <Target Name="RemoveHalDir"  Condition="'$(DST_DIR)'!=''">
-    <RemoveDir Directories="$(DST_DIR)\$(LIB_EXT)" ContinueOnError="true" />
-	<RemoveDir Directories="$(DST_DIR)\$(OBJ_EXT)" ContinueOnError="true" />
-	<RemoveDir Directories="$(DST_DIR)\$(BIN_EXT)" ContinueOnError="true" />
+    <RemoveDir Directories="$(DST_DIR)\"  ContinueOnError="true" />
   </Target>
 
   <Target Name="RemoveClrDir"  Condition="'$(PLATFORM_INDEPENDENT_DST_DIR)'!=''">

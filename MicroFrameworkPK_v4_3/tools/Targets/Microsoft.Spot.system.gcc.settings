@@ -7,8 +7,6 @@
   <PropertyGroup>
     <OBJ_EXT>obj</OBJ_EXT>
     <LIB_EXT>lib</LIB_EXT>
-    <BIN_EXT>bin</BIN_EXT>
-    <STATICLIB_EXT>staticLib</STATICLIB_EXT>
     <EXE_EXT>axf</EXE_EXT>
     <SCATTER_EXT>xml</SCATTER_EXT>
 

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <AssemblyName>tinyclr</AssemblyName>
+    <ProjectGuid>{d280cd35-8481-4eda-b878-6370c17e6273}</ProjectGuid>
+    <Description />
+    <Documentation />
+    <Directory>Solutions\StaticEmoteDotNow\TinyCLR</Directory>
+    <IsClrProject>True</IsClrProject>
+    <InteropFeatures />
+    <ExtraAssemblies />
+    <ProjectPath>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\TinyCLR\TinyCLR.proj</ProjectPath>
+    <MFSettingsFile>$(SPOCLIENT)\Solutions\StaticEmoteDotNow\EmoteDotNow.settings</MFSettingsFile>
+    <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.Build.Targets" />
+  <PropertyGroup>
+    <!--ProjectPath>$(SPOCLIENT)\ProjectTemplates\TinyCLR\TinyCLR.proj</ProjectPath-->
+    <OutputType>Executable</OutputType>
+    <MultipleOutputSections Condition="'$(MEMORY)'=='FLASH'">true</MultipleOutputSections>
+    <!--ADD_LOAD_IMAGE_CRC>true</ADD_LOAD_IMAGE_CRC>
+    <ExtraTargets>BuildSigFiles</ExtraTargets>
+    <ExtraEXETargets>MetaDataProcessorDat;TinyClrDat</ExtraEXETargets-->
+    <ImageLocation Condition="'$(MEMORY)'=='FLASH'">\ER_FLASH</ImageLocation>
+    <!--LINK_FLAGS Condition="'$(COMPILER_TOOL)'!='GCC'">$(LINK_FLAGS) $(SWTC)keep *(.init_array)</LINK_FLAGS>
+    <MMP_DAT_SKIP>false</MMP_DAT_SKIP>
+    <MMP_DAT_CreateDatabaseFile>$(BIN_DIR)\tinyclr.dat</MMP_DAT_CreateDatabaseFile>
+    <EXEScatterFileDefinition>$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition-->
+  </PropertyGroup>
+  <ItemGroup />
+  <!--ItemGroup>
+    <Compile Include="allocator.cpp" />
+    <Compile Include="tinyclr.cpp" />
+	<Compile Include="GNU_S\tinyclr_vector.cpp" />
+    <HFiles Include="$(SPOCLIENT)\clr\include\tinyclr_application.h" />
+    <ObjFiles Include="$(OBJ_DIR)\tinyclr_dat.$(OBJ_EXT)" />
+    <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_ram_functions.$(SCATTER_EXT)" />
+    <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)" />
+    <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_ram_functions.$(SCATTER_EXT)" />
+  </ItemGroup-->
+  
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" /-->
+  <!--<Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\Samraksh_SPOT.featureproj" />-->
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Hardware\Samraksh_SPOT_Hardware.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\RealTimeTimer.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_Net\Samraksh_SPOT_Net.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_DSP\Samraksh_SPOT_DSP.featureproj" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" /-->
+  
+  
+  
+  
+  
+  <!-- 									NVM/Data Store Extension        								-->
+  <!--ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
+    <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
+  </ItemGroup-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
+    <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  
+  <!-- 									Static library        								-->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\BuildOutput\THUMB2\GCC4.7\le\FLASH\debug\EmoteDotNow\staticLib\dotNetMF.proj" />
+    <DriverLibs Include="Static_library.$(LIB_EXT)" />
+  </ItemGroup>-->
+  
+    
+   
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

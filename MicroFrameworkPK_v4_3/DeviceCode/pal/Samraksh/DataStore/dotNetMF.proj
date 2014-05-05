@@ -38,7 +38,7 @@
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
   </PropertyGroup>
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Settings" />
   <PropertyGroup />
   <ItemGroup>
   	<Compile Include="Datastore.cpp"/>
@@ -54,5 +54,5 @@
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Targets" />
 </Project>
