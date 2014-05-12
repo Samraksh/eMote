@@ -91,7 +91,7 @@ BOOL Krait_GPIO_Driver::Initialize()
 
 BOOL Krait_GPIO_Driver::EnableInputPin(GPIO_PIN pin, BOOL glitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE isr, void* isr_param, GPIO_INT_EDGE intEdge, GPIO_RESISTOR resistorState )
 {
-	gpio_tlmm_config(pin, 1, GPIO_INPUT, gpio_map_state(resistorState), GPIO_8MA, GPIO_DISABLE);
+	gpio_tlmm_config(pin, 0, GPIO_INPUT, gpio_map_state(resistorState), GPIO_8MA, GPIO_DISABLE);
 	
 	if(isr) {
 		UINT32 *addr = (UINT32 *)GPIO_INTR_CFG(pin);
