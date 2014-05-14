@@ -185,7 +185,8 @@ public:
 class HALTimerManager
 {
 
-	UINT64 m_lastInterruptFireTime;
+	//UINT64 m_lastInterruptFireTime;
+	UINT64 m_lastQueueAdjustmentTime;
 
 public:
 
@@ -196,7 +197,7 @@ public:
 
 	UINT16 m_current_timer_id_;
 
-	HALTimer *m_active_timer;
+	//HALTimer *m_active_timer;
 
 	BOOL Initialize();
 
@@ -216,14 +217,14 @@ public:
 		return &timerQueue;
 	}
 
-	UINT64 get_m_lastInterruptFireTime()
+	UINT64 get_m_lastQueueAdjustmentTime()
 	{
-		return m_lastInterruptFireTime;
+		return m_lastQueueAdjustmentTime;
 	}
 
-	void set_m_lastInterruptFireTime(UINT64 lastInterruptFireTime)
+	void set_m_lastQueueAdjustmentTime(UINT64 lastQueueAdjustmentTime)
 	{
-		m_lastInterruptFireTime = lastInterruptFireTime;
+		m_lastQueueAdjustmentTime = lastQueueAdjustmentTime;
 	}
 
 };

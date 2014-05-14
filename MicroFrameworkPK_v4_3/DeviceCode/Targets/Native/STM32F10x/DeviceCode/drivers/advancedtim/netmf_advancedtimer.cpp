@@ -354,7 +354,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
-DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT32 compareValue, SetCompareType scType)
+DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
 	UINT32 newCompareValue;
 
@@ -364,7 +364,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT32 counterCorrection, UINT3
 	}
 	else
 	{
-		newCompareValue = counterCorrection +  compareValue;
+		newCompareValue = (UINT32) counterCorrection +  compareValue;
 	}
 	if(compareValue >> 16)
 	{
