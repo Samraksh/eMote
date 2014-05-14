@@ -78,7 +78,7 @@ public:
 	// The advanced timer combination will always be TIM1 -> TIM2.
 	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param);
 
-	DeviceStatus SetCompare(UINT32 counterCorrection, UINT32 compareValue, SetCompareType scType);
+	DeviceStatus SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType);
 
 	UINT32 GetCompare();
 	UINT32 GetCounter();
