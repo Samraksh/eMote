@@ -196,7 +196,7 @@ public:
 
 	UINT16 m_current_timer_id_;
 
-	HALTimer *m_active_timer;
+	//HALTimer *m_active_timer;
 
 	BOOL Initialize();
 
