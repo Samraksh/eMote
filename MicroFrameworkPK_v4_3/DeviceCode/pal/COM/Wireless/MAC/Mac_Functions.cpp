@@ -107,7 +107,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	}
 
 
-	m_receive_buffer.DropOldest(1);
+	//m_receive_buffer.DropOldest(1);
 
 	return DS_Success;
 
