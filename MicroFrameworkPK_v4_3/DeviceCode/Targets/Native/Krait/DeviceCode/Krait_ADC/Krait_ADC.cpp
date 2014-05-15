@@ -14,36 +14,6 @@ uint8_t fpga_init_done;
 
 // Statics
 
-static void udelay(unsigned usecs)
-{
-	usecs = (usecs * 33 + 1000 - 33) / 1000;
-
-	writel(0, GPT_CLEAR);
-	writel(0, GPT_ENABLE);
-	while (readl(GPT_COUNT_VAL) != 0) ;
-
-	writel(GPT_ENABLE_EN, GPT_ENABLE);
-	while (readl(GPT_COUNT_VAL) < usecs) ;
-
-	writel(0, GPT_ENABLE);
-	writel(0, GPT_CLEAR);
-}
-
-static void mdelay(unsigned int msecs)
-{
-	msecs *= 33;
-
-	writel(0, GPT_CLEAR);
-	writel(0, GPT_ENABLE);
-	while (readl(GPT_COUNT_VAL) != 0) ;
-
-	writel(GPT_ENABLE_EN, GPT_ENABLE);
-	while (readl(GPT_COUNT_VAL) < msecs) ;
-
-	writel(0, GPT_ENABLE);
-	writel(0, GPT_CLEAR);
-}
-
 static void gpio_set(UINT32 gpio, UINT32 dir)
 {
 	UINT32 *addr = (UINT32 *)GPIO_IN_OUT_ADDR(gpio);
@@ -64,13 +34,13 @@ static uint8_t sam_fpga_spi(uint8_t data) {
 
     while (bit) {
         gpio_set(mosi_pin, (data&bit) ? 2 : 0);     // Set output
-        udelay(d);
+        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(d);
         ret |= ( readl(addr)&1 ); // Latch input
         if(bit>1)
             ret = ret << 1;
         bit = bit >> 1;
         gpio_set(clk_pin, 2); // clock high
-        udelay(d);
+        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(d);
         gpio_set(clk_pin, 0); // clock low
     }
     //dprintf(INFO, "sent 0x%X got SPI 0x%X\n", data, ret);
@@ -106,7 +76,7 @@ static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 	spi_send[3] |= (reg << 1);
 	
 	FPGA_CS(0);
-	mdelay(1);
+	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 	for(int i=0; i<6; i++) {
 		timeout=0xF;
 		sam_fpga_spi(spi_send[i]);
@@ -145,7 +115,7 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 	spi_send[3] |= (reg << 1);
 	
 	FPGA_CS(0);
-	mdelay(1);
+	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 	for(int i=0; i<6; i++) {
 		timeout=0xF;
 		sam_fpga_spi(spi_send[i]);
@@ -196,7 +166,7 @@ INT8 fpga_init() {
 	FPGA_CS(1); // unassert at startup
 	
 	for(int i=0; i<10; i++) { sam_fpga_spi(0xFF); }
-	mdelay(10);
+	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(10000);
 	
 	
 	{ // Send CMD0
@@ -204,7 +174,7 @@ INT8 fpga_init() {
 		uint8_t spi_send[6] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
 		//dprintf(INFO, "sending CMD0\n");
 		FPGA_CS(0); // assert
-		mdelay(1);
+		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 		for(int i=0; i<6; i++) {
 			timeout=0xF;
 			sam_fpga_spi(spi_send[i]);
@@ -229,7 +199,7 @@ INT8 fpga_init() {
 		uint8_t spi_send[6] = {0x7B, 0x00, 0x00, 0x00, 0x00, 0x8B};
 		//dprintf(INFO, "sending CMD59\n");
 		FPGA_CS(0); // assert
-		mdelay(1);
+		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 		for(int i=0; i<6; i++) {
 			timeout=0xF;
 			sam_fpga_spi(spi_send[i]);
@@ -254,7 +224,7 @@ INT8 fpga_init() {
         uint8_t spi_send[6] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x87};
         //dprintf(INFO, "sending CMD5\n");
         FPGA_CS(0);
-        mdelay(1);
+        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
         for(int i=0; i<6; i++) {
             timeout=0xF;
             sam_fpga_spi(spi_send[i]);
@@ -381,13 +351,13 @@ INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 S
 	
 	do {
 	samples[i++] = fpga_adc_now(chan);
-	udelay(SamplingTime);
+	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(SamplingTime);
 	} while (i<NumSamples);
 
 	return 0;
 }
 
-// Returns max sample rate in Hz. 1000 for now to be conservative.
+// Returns max sample rate in Hz.
 UINT32 fpga_adc_get_bounds(void){
-	return 1000;
+	return 500;
 }
