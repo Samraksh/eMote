@@ -32,6 +32,7 @@ void SendFirstPacketToRadio(void * arg){
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
+	//CLR_Debug::Printf("beaconScheduler firing\r\n");
 	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendHello();
 }
@@ -85,8 +86,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		m_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
-		//m_NeighborTable.InitObject();
-
 		UINT8 numberOfRadios = 1;
 		RadioAckPending=FALSE;
 		Initialized=TRUE;
@@ -96,20 +95,22 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		CPU_Radio_TurnOn(this->radioName);
 
-		//gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		// This is the one-shot resend timer that will be activated if we need to resend a packet
+		if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ 
 			return DS_Fail;
 		}
 
+		// This is the beacon timer that will send a beacon every time it goes off
 		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
 			return DS_Fail;
 		}
+		gHalTimerManagerObject.StartTimer(2);
 
+		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
+		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, SendFirstPacketToRadio)){
+			return DS_Fail;
+		}
 	}
-
-	// Stop the timer
-	gHalTimerManagerObject.StopTimer(1);
-	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
@@ -220,13 +221,15 @@ void csmaMAC::UpdateNeighborTable(){
 
 	if(numberOfDeadNeighbours > 0)
 	{
+		//CLR_Debug::Printf("number of dead neighbors: %d\r\n",numberOfDeadNeighbours);
 		NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
 
 		// Check if neighbour change has been registered and the user is interested in this information
 		if(appHandler != NULL)
 		{
 			// Make the neighbour changed callback signalling dead neighbours
-			(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+			//(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+			(*appHandler)((INT16) (m_NeighborTable.NumberOfNeighbors()));
 		}
 	}
 	//m_NeighborTable.DegradeLinks();
@@ -243,6 +246,18 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 }
 
 void csmaMAC::SendToRadio(){
+	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
+	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
+	if (m_send_buffer.GetNumberMessagesInBuffer() > 1){
+		//CLR_Debug::Printf("Starting timer 3\r\n");
+		gHalTimerManagerObject.StartTimer(3);
+	}
+	else if (m_send_buffer.GetNumberMessagesInBuffer() == 0){
+		//CLR_Debug::Printf("Stopping timer 3\r\n");
+		gHalTimerManagerObject.StopTimer(3);
+	}
+
+
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
 		m_recovery = 1;
@@ -250,12 +265,20 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds != DS_Success) {
-			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
-			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	return;}
+			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 200));
+			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
+			{
+				gHalTimerManagerObject.StartTimer(1);
+				return;
+			}
 		}
 
 		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
 		Message_15_4_t* msg = *temp;
+
+		//UINT8* snd_payload = msg->GetPayload();
+
+		//hal_printf("-------> <%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
 
 		//if(temp == NULL || *temp == NULL){test = 0;}
 
@@ -332,6 +355,9 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	// Get the header packet
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
 	IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
+	//UINT8* rcv_payload = msg->GetPayload();
+
+	//hal_printf("(%d) <%d> %d\r\n",Size, (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
 
 	// If the message type is a discovery then return the same bag you got from the radio layer
 	// Don't make a callback here because the neighbour table takes care of informing the application of a changed situation of
@@ -434,11 +460,15 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 {
+	//Message_15_4_t* temp = (Message_15_4_t *)msg;
+
+	//UINT8* rcv_payload =  temp->GetPayload();
 	switch(status)
 	{
 		case NO_Success:
 			{
-				gHalTimerManagerObject.StopTimer(3);
+				//gHalTimerManagerObject.StopTimer(3);
+				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
@@ -448,11 +478,14 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			break;
 		
 		case NO_Busy:
+			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
+			//hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
-			gHalTimerManagerObject.StartTimer(3);
+			gHalTimerManagerObject.StartTimer(1);
 			break;
 			
-		case NO_BadPacket:
+		default:
+			//hal_printf("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			break;
 	}
 	
