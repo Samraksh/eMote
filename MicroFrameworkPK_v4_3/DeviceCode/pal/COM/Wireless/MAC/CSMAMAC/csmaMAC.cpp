@@ -85,8 +85,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		m_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
-		//m_NeighborTable.InitObject();
-
 		UINT8 numberOfRadios = 1;
 		RadioAckPending=FALSE;
 		Initialized=TRUE;
@@ -96,21 +94,22 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		CPU_Radio_TurnOn(this->radioName);
 
-		//gHalTimerManagerObject.Initialize();
-		if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		// This is the one-shot resend timer that will be activated if we need to resend a packet
+		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, TRUE, FALSE, SendFirstPacketToRadio)){ 
 			return DS_Fail;
 		}
 
+		// This is the beacon timer that will send a beacon every time it goes off
 		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
 			return DS_Fail;
 		}
 		gHalTimerManagerObject.StartTimer(2);
 
+		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
+		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, SendFirstPacketToRadio)){
+			return DS_Fail;
+		}
 	}
-
-	// Stop the timer
-	//gHalTimerManagerObject.StopTimer(1);
-	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
@@ -244,6 +243,14 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 }
 
 void csmaMAC::SendToRadio(){
+	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
+	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
+	if (m_send_buffer.GetNumberMessagesInBuffer() > 1)
+		gHalTimerManagerObject.StartTimer(3);
+	else
+		gHalTimerManagerObject.StopTimer(3);
+
+
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
 		m_recovery = 1;
