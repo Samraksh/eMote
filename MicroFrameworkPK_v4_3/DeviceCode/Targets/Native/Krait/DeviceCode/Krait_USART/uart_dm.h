@@ -143,7 +143,7 @@ enum MSM_BOOT_UART_DM_BITS_PER_CHAR {
                                               MSM_BOOT_UART_DM_RXLEV    | \
                                               MSM_BOOT_UART_DM_RXSTALE)
 */
-#define MSM_BOOT_UART_DM_IMR_ENABLED 		(MSM_BOOT_UART_DM_RXLEV | MSM_BOOT_UART_DM_RXSTALE)
+#define MSM_BOOT_UART_DM_IMR_ENABLED		(MSM_BOOT_UART_DM_RXLEV)
 
 /* UART Interrupt Programming Register */
 #define MSM_BOOT_UART_DM_IPR(id)             (GSBI_UART_DM_BASE(id) + 0x18)

@@ -12,6 +12,8 @@
 #include "gsbi.h"
 #include "uart_dm.h"
 
+#define GSBI5_UART_DM_BUFF_SIZE 256
+
 extern Krait_USART_Driver g_Krait_USART_Driver;
 
 extern unsigned int msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars);
@@ -291,7 +293,6 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 		CPU_INTC_ActivateInterrupt((UINT32) GSBI5_UARTDM_IRQ, USART_Handler, (void *) usartport->index);
 		CPU_INTC_InterruptEnable( (UINT32) GSBI5_UARTDM_IRQ );
 
-
 		hal_printf("Microframework 4.3 - UART_DM Initialized from USART PAL!!!\n");
 
 		return TRUE;
@@ -337,25 +338,23 @@ void handle_rx(Krait_USART* port)
 
 void handle_tx(Krait_USART* port)
 {
-	char c;
-	//char txdata[200];
-	//int counter = 0;
-	if(USART_RemoveCharFromTxBuffer(port->index, c))
-	{
-		//if(USART_BytesInBuffer(port->index, false) == 1)
-		//{
-		UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
-		UINT32 mask = ~(MSM_BOOT_UART_DM_TXLEV);
-		writel((reg & mask), MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
-		//}
-		msm_boot_uart_dm_write(GSBI_ID_5, &c, 1);
+	char c[GSBI5_UART_DM_BUFF_SIZE];
+	unsigned int count;
+
+	do {
+		for(count=0; count<GSBI5_UART_DM_BUFF_SIZE; count++) {
+			if(!USART_RemoveCharFromTxBuffer(port->index, c[count]))
+				break;
+		}
+
+	if(count > 0) {
+		msm_boot_uart_dm_write(GSBI_ID_5, c, count);
 	}
-	else
-	{
-		msm_boot_uart_dm_write(GSBI_ID_5, 0, 1);
-	}
+
+	} while(count > 0);
 }
 
+// Not used
 void handle_delta_cts(Krait_USART *port)
 {
 	msm_write(port, UART_CR_CMD_RESET_CTS, UART_CR);
@@ -367,28 +366,25 @@ void handle_delta_cts(Krait_USART *port)
 BOOL Krait_USART_Driver::HandleInterrupt(void *args)
 {
 	UINT32 misr;
-	// Need a better system than this
+
 	Krait_USART *usartport = &usart[0];
 
 	//usartport->ClockEnable();
 
+	// Interrupt bits
 	misr = readl(MSM_BOOT_UART_DM_ISR(GSBI_ID_5)) ;
 
-	//msm_write(usartport, 0 , UART_IMR);
+	// Mask all interrupts
 	writel(0, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 
-	if (misr & (MSM_BOOT_UART_DM_RXLEV | MSM_BOOT_UART_DM_RXSTALE))
-		handle_rx(usartport);
 	if (misr & MSM_BOOT_UART_DM_TXLEV)
 		handle_tx(usartport);
-	if (misr & MSM_BOOT_UART_DM_DELTA_CTS)
-		handle_delta_cts(usartport);
+	if (misr & MSM_BOOT_UART_DM_RXLEV)
+		handle_rx(usartport);
 
 	writel(MSM_BOOT_UART_DM_IMR_ENABLED, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
-	//msm_write(usartport, usartport->imr, UART_IMR); /* restore interrupt */
 
-	usartport->ClockDisable();
-
+	//usartport->ClockDisable();
 }
 
 
@@ -401,37 +397,11 @@ BOOL Krait_USART_Driver::Uninitialize( int ComPortNum)
 
 BOOL Krait_USART_Driver::TxBufferEmpty( int ComPortNum)
 {
-#if 0
-	UINT32 status;
-
-	if(ComPortNum > 2)
-		return FALSE;
-
-	Krait_USART *usartport = &usart[ComPortNum];
-
-	if((status = msm_read(usartport, UART_SR)) & UART_SR_TX_READY)
-	{
-		return TRUE;
-	}
-#endif
 	return TRUE;
 }
 
-// The kernel code indicates that not all msm uarts have a TXDONE available or in other words there is not
-// feature of the hardware that you can check this by. They have used a timer to accomplish this
-// Implementing this function by using a timer or a slow down for loop
 BOOL Krait_USART_Driver::TxShiftRegisterEmpty( int ComPortNum)
 {
-
-	UINT32 status;
-
-	// I want to sleep for 1ms this is roughly the number indicated in the linux kernel code
-	// This function is dummy since the timer module  is still under construction
-	HAL_Time_Sleep_MicroSeconds(1000);
-
-	// This may require some tuning and should be removed when the timer comes into play
-	for(int i = 0; i < 10000; i++);
-
 	return TRUE;
 }
 
@@ -445,14 +415,8 @@ void Krait_USART_Driver::WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 
 void Krait_USART_Driver::TxBufferEmptyInterruptEnable(int ComPortNum,BOOL Enable )
 {
-	Krait_USART *usartport = &usart[ComPortNum];
+	//Krait_USART *usartport = &usart[ComPortNum];
 
-/*
-	char c;
-
-	if(USART_RemoveCharFromTxBuffer(usartport->index, c))
-		msm_boot_uart_dm_write(GSBI_ID_5, &c, 1);
-*/
 	UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 	UINT32 mask = MSM_BOOT_UART_DM_TXLEV;
 	writel((reg | mask), MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
@@ -550,16 +514,15 @@ void Krait_USART_Driver::BaudrateBoundary(int ComPortNum, UINT32& maxBaudrateHz,
 	{
 		maxBaudrateHz = 115200;
 		minBaudrateHz = 115200;
-		//maxBaudrateHz = 115200;
-		//minBaudrateHz = 57600;
+		return;
 	}
-
+	maxBaudrateHz = 0;
+	minBaudrateHz = 0;
 }
 
 BOOL Krait_USART_Driver::IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 {
-	if(BaudrateHz == 115200)
-	//if(BaudrateHz == 57600)
+	if(BaudrateHz == 115200 && ComPortNum == 0)
 		return TRUE;
 	else
 		return FALSE;

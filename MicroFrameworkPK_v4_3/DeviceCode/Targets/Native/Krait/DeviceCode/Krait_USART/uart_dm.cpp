@@ -82,7 +82,10 @@ unsigned int msm_boot_uart_dm_reset(UINT8 id);
 static UINT8 gsbi_lookup[4];
 
 /* Extern functions */
-void udelay(unsigned usecs);
+//void udelay(unsigned usecs);
+static void udelay(unsigned usecs) {
+	HAL_Time_Sleep_MicroSeconds(usecs);
+}
 
 /*
  * Helper function to replace Line Feed char "\n" with
@@ -323,7 +326,7 @@ msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars)
 	unsigned int tx_word = 0;
 	int i = 0;
 	char *tx_data = NULL;
-	char new_data[1024];
+	//char new_data[1024];
 
 	if ((data == NULL) || (num_of_chars <= 0)) {
 		return MSM_BOOT_UART_DM_E_INVAL;
@@ -331,10 +334,11 @@ msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars)
 
 	/* Replace line-feed (/n) with carriage-return + line-feed (/r/n) */
 
-	msm_boot_uart_replace_lr_with_cr(data, num_of_chars, new_data, &i);
+	//msm_boot_uart_replace_lr_with_cr(data, num_of_chars, new_data, &i);
 
-	tx_data = new_data;
-	num_of_chars = i;
+	//tx_data = new_data;
+	//num_of_chars = i;
+	tx_data = data;
 
 	/* Write to NO_CHARS_FOR_TX register number of characters
 	 * to be transmitted. However, before writing TX_FIFO must
