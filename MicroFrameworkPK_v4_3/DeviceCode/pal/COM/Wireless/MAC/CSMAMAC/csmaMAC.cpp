@@ -95,7 +95,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		CPU_Radio_TurnOn(this->radioName);
 
 		// This is the one-shot resend timer that will be activated if we need to resend a packet
-		if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, TRUE, FALSE, SendFirstPacketToRadio)){ 
+		if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ 
 			return DS_Fail;
 		}
 
@@ -269,6 +269,10 @@ void csmaMAC::SendToRadio(){
 		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
 		Message_15_4_t* msg = *temp;
 
+		//UINT8* snd_payload = msg->GetPayload();
+
+		//hal_printf("-------> <%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
+
 		//if(temp == NULL || *temp == NULL){test = 0;}
 
 		// Check to see if there are any messages in the buffer
@@ -346,7 +350,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
 	//UINT8* rcv_payload = msg->GetPayload();
 
-	//hal_printf("(%d) %d\r\n",Size, ((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
+	//hal_printf("(%d) <%d> %d\r\n",Size, (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
 
 	// If the message type is a discovery then return the same bag you got from the radio layer
 	// Don't make a callback here because the neighbour table takes care of informing the application of a changed situation of
@@ -449,12 +453,15 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 {
-	UINT8* rcv_payload = (UINT8 *)msg;
+	//Message_15_4_t* temp = (Message_15_4_t *)msg;
+
+	//UINT8* rcv_payload =  temp->GetPayload();
 	switch(status)
 	{
 		case NO_Success:
 			{
 				//gHalTimerManagerObject.StopTimer(3);
+				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
@@ -465,12 +472,13 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 		
 		case NO_Busy:
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
-			//hal_printf("Resending #%d",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+			//hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
 			gHalTimerManagerObject.StartTimer(1);
 			break;
 			
-		case NO_BadPacket:
+		default:
+			//hal_printf("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			break;
 	}
 	
