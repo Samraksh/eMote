@@ -3,7 +3,7 @@
     <Directory>DeviceCode\Targets\Native\Interop\Samraksh_eMote</Directory>
     <AssemblyName>Samraksh_eMote</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -20,5 +20,5 @@
 <HFile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore.cpp" />
 </ItemGroup>
-<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.DotNow.Targets" />
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

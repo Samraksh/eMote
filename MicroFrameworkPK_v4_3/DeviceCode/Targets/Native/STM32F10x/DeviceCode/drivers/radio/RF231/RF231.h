@@ -20,7 +20,7 @@
 #include "RF231RegDef.h"
 #include <Samraksh\Message.h>
 #include <Samraksh\Radio.h>
-#include <spi\netmf_spi.h>
+#include <..\..\spi\netmf_spi.h>
 
 
 /* AnanthAtSamraksh - adding below change to fix receive on LR radio extension board - 2/11/2014 */

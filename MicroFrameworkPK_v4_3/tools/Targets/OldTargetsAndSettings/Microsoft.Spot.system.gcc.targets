@@ -238,8 +238,6 @@
     <EXEName>$(BIN_DIR)\$(AssemblyName)</EXEName>
 
     <TargetRule Condition="'$(OutputType)'=='Library'">ArmBuildLib</TargetRule>
-	<!-- Added by AnanthAtSamraksh as part of creating a static library -->
-	<!--<TargetRule Condition="'$(OutputType)'=='Executable'">BuildStaticLib</TargetRule>-->
     <TargetRule Condition="'$(OutputType)'=='Executable'">BuildAXF</TargetRule>
   </PropertyGroup>
   
@@ -295,7 +293,7 @@
     <EXEScatterFileDefinition Condition="'$(EXEScatterFileDefinition)'==''" Include="$(SPO_SDK)\tools\make\scatterfile_definition.xml"/>
     <EXEScatterFileDefinition Condition="'$(EXEScatterFileDefinition)'!=''" Include="$(EXEScatterFileDefinition)"/>
 
-    <EXEScatterFile Include="$(STATICLIB_DIR)\$(AssemblyName)_scatterfile.ldf"/>
+    <EXEScatterFile Include="$(BIN_DIR)\$(AssemblyName)_scatterfile.ldf"/>
     <EXEIncludePaths Include="$(ARMINC)"/>
   </ItemGroup>
 
@@ -330,125 +328,21 @@
   <Target Name="ArmBuildLib" Condition="'$(OutputType)'=='Library'" DependsOnTargets="FindCompileFilesExistence;FindFastCompileFilesExistence;DelBuildLib;ArmCompileC;ArmCompileCPP;ArmAssemble;CreateLibManifest;$(ExtraTargets);" Inputs="@(ObjFiles)" Outputs="@(TargetLib);@(TargetLib->'%(FullPath).manifest')">
     <Exec WorkingDirectory="$(OBJ_DIR)" Condition="'@(FilesExist)'!=''" Command="$(AR) $(ARFLAGS) @(TargetLib) @(ObjFiles->'%(FileName)%(Extension)',' ') "/>
   </Target>
-  
-  <!-- Added by AnanthAtSamraksh as part of creating a static library -->
-  <Target Name="BuildStaticLib" Condition="'$(OutputType)'=='Executable'">
-	<Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
-    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
-  </Target>
 
-  <Target Name="BuildAXF" Condition="'$(OutputType)'=='Executable'" DependsOnTargets="ArmCompileCPP;ArmCompileC;ArmAssemble;$(ExtraEXETargets)" Inputs="@(EXEInputs);@(InputLibs);@(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_STATICLIB_DIR)\%(FileName)%(Extension)');@(DriverLibs->'$(LIB_DIR)\%(FileName)%(Extension)');@(EXEScatterFile)" Outputs="@(EXEOutput)">
-  
+  <Target Name="BuildAXF" Condition="'$(OutputType)'=='Executable'" DependsOnTargets="ArmCompileCPP;ArmCompileC;ArmAssemble;$(ExtraEXETargets);BuildScatterfile" Inputs="@(EXEInputs);@(InputLibs);@(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)\%(FileName)%(Extension)');@(DriverLibs->'$(LIB_DIR)\%(FileName)%(Extension)');@(EXEScatterFile)" Outputs="@(EXEOutput)">
     <!-- 
         The GCC archiver does not support concatening libraries into a single one. The only way is to extract all the obj files then rearchive them altogether. 
         However, we probably want to consider using a BuildTask instead of using the following ugly script. 
     -->
-	
-	<!--<All ONEs go together; All TWOs go together>-->
-	<!--<ONE - is the method of compiling using a single static library>-->
-	<!--<TWO - is the method of compiling using multiple static libraries>-->
-	<!--ItemGroup Condition="'$(OutputType)'=='Executable'">
-		<DriverLibs Include="InteropAssembliesTable.$(LIB_EXT)"/>
-		<DriverLibs Include="Samraksh_SPOT_DSP.$(LIB_EXT)"/>
-		<DriverLibs Include="Samraksh_SPOT_Hardware.$(LIB_EXT)"/>
-		<DriverLibs Include="Samraksh_SPOT_Net.$(LIB_EXT)"/>
-	</ItemGroup-->
-    <!--<ONE>--><Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
-	<!--<ONE>--><Exec command="copy $(STATICLIB_DIR)static_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)"/>
-	<!--<ONE>--><!--Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) static_$(AssemblyName).$(LIB_EXT)" /-->
-	<!--<TWO>--><!--Exec command="copy $(STATICLIB_DIR)*.lib $(LIB_DIR)"/-->
-	<!--<TWO>--><!--Exec command="PrepareStaticLibsForConcat.cmd $(LIB_DIR)" /-->
-		
-	<!--Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" ContinueOnError="true"/-->
-	    
-	<!--<Exec Command="set cmd=dir $(PLATFORM_INDEPENDENT_RELATIVE_STATICLIB_DIR)\*.lib /b"/>
-	<Exec Command="FOR /F %%i IN (' %cmd% ') DO SET X=%X% %%i"/>
-	<Exec Command="set files="/>
-	<Exec Command="for /r %F in ($(PLATFORM_INDEPENDENT_RELATIVE_STATICLIB_DIR)\*.lib) do call set files=files %F"/>-->
-	
-	<ItemGroup Condition=" '$(PLATFORM)|$(TESTPLATFORM)' == 'EmoteDotNow|EmoteDotNow'">
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Core.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Hardware.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)IOPort.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)HeapPersistence_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)RPC_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Serialization_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)I2C.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)InterruptHandler.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Debugger.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Debugger_full.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Diagnostics.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Graphics_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Messaging.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CLRStartup.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_PWM.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_OneWire.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_Usb.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_SerialPort.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Serialization_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CorLib.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SecurityPkcs11.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Update.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Messaging_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)WireProtocol.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CRC.lib"/>
-		<!--StaticLibInputs  Include="$(STATICLIB_DIR)InteropAssembliesTable.lib"/-->
-	</ItemGroup>
-	
-	<ItemGroup Condition=" '$(PLATFORM)|$(TESTPLATFORM)' == 'SOC_ADAPT|SOC_ADAPT'">
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Core.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Hardware.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)IOPort.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)HeapPersistence_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)RPC_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Serialization_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)I2C.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Debugger.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Debugger_full.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Diagnostics.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Messaging.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CLRStartup.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_PWM.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_Usb.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware_SerialPort.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Serialization_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CorLib.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SecurityPkcs11.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Update.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Hardware.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Messaging_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)WireProtocol.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CRC.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Graphics.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Graphics_Bmp.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Graphics_Gif.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Graphics_Jpeg.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)SPOT_Graphics.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)InterruptHandler_stub.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)Messaging_stub.lib"/>
-		<!--StaticLibInputs  Include="$(STATICLIB_DIR)InteropAssembliesTable.lib"/-->
-	</ItemGroup>
-	
-	<ItemGroup Condition=" '$(PLATFORM)|$(TESTPLATFORM)' == 'EmoteDotNow|EmoteDotNowTestNative'">
-		<StaticLibInputs  Include="$(STATICLIB_DIR)WireProtocol.lib"/>
-		<StaticLibInputs  Include="$(STATICLIB_DIR)CRC.lib"/>
-	</ItemGroup>
-	
-	<ItemGroup>
-		<UserLibInputs  Include="$(LIB_DIR)tmp\*.obj"/>
-	</ItemGroup>
-	
-	
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(StaticLibInputs,' ') $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') @(UserLibInputs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
+    <Exec command="PrepareLibsForConcat.cmd $(LIB_DIR) @(DriverLibs,' ')" />
+    <Exec Command="$(AR) $(ARFLAGS) $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+    <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" />
+    <Exec Command="rmdir $(LIB_DIR)\tmp" />
     
-    <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCC'" Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIB_DIR)\libm.a&#x22; &#x22;$(GNU_LIB_DIR)\libc.a&#x22; &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22; -) -( $(ExtraLibs) -)"/>
     
-    <Exec Command="del /q $(LIB_DIR)\static_$(AssemblyName).$(LIB_EXT)"/>
-    <Exec Command="del $(LIB_DIR)\tmp\*.$(OBJ_EXT)" ContinueOnError="true"/>
-    <Exec Command="rmdir $(LIB_DIR)\tmp" ContinueOnError="true"/>
+    <Exec Condition="'$(COMPILER_TOOL)'=='GCCOP'"  Command="$(LINK) $(LINK_FLAGS) -u ARM_Vectors -u _start --Map $(EXEName).map --output=@(EXEOutput) --script=@(EXEScatterFile,' ') @(EXEInputs,' ') -( @(PlatformIndependentLibs->'$(PLATFORM_INDEPENDENT_RELATIVE_LIB_DIR)%(FileName)%(Extension)',' ') $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT) @(InputLibs,' ') -) -( &#x22;$(GNU_LIBGCC_DIR)\$(LIBGCC)&#x22;  -) -( $(ExtraLibs) -)"/>
+    <Exec Command="del /q $(LIB_DIR)\tmp_$(AssemblyName).$(LIB_EXT)"/>    
 
 
     <!--<Exec Command="$(OBJDUMP) -S -D -EL @(EXEOutput) > $(EXEName).axfdump" />-->

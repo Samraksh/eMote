@@ -6,7 +6,7 @@
     <Documentation />
     <TARGETPLATFORM>EmoteDotNow</TARGETPLATFORM>
     <PLATFORM>EmoteDotNow</PLATFORM>
-    <TESTPLATFORM>EmoteDotNow</TESTPLATFORM>
+    <TESTPLATFORM>EmoteDotNowTestNative</TESTPLATFORM>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
     <ENDIANNESS>le</ENDIANNESS>
   </PropertyGroup>

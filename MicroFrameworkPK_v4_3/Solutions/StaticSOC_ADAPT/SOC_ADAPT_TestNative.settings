@@ -7,7 +7,7 @@
     <PlatformGuid>{c6d227eb-9765-40b4-b22e-d70ebbfc15d0}</PlatformGuid>
     <TARGETPLATFORM>SOC_ADAPT</TARGETPLATFORM>
     <PLATFORM>SOC_ADAPT</PLATFORM>
-    <TESTPLATFORM>SOC_ADAPT</TESTPLATFORM>
+    <TESTPLATFORM>SOC_ADAPT_TestNative</TESTPLATFORM>
     <IsSolutionWizardVisible>True</IsSolutionWizardVisible>
     <ENDIANNESS>le</ENDIANNESS>
   </PropertyGroup>

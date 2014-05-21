@@ -3,7 +3,7 @@
     <Directory>DeviceCode\Targets\Native\Interop\Samraksh_eMote_Adapt</Directory>
     <AssemblyName>Samraksh_eMote_Adapt</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.Adapt.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup>
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -23,5 +23,5 @@
 <HFile Include="spot_native_Samraksh_eMote_Adapt_Gyroscope.h" />
 <Compile Include="spot_native_Samraksh_eMote_Adapt_Gyroscope.cpp" />
 </ItemGroup>
-<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.Adapt.Targets" />
+<Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

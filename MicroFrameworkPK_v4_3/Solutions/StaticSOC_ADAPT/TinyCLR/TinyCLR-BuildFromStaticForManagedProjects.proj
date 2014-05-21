@@ -7,7 +7,7 @@
     <MFSettingsFile>$(SPOCLIENT)\Solutions\StaticSOC_ADAPT\SOC_ADAPT.settings</MFSettingsFile>
   </PropertyGroup>
   
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.Adapt.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup>
     <OutputType>Executable</OutputType>
     <MultipleOutputSections Condition="'$(MEMORY)'=='FLASH'">true</MultipleOutputSections>
@@ -15,12 +15,12 @@
   </PropertyGroup>
   
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt.featureproj" />
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.Adapt.Interop.Settings" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_Adapt.$(LIB_EXT)" />
   </ItemGroup>
   
-  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Samraksh.Adapt.Targets" />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

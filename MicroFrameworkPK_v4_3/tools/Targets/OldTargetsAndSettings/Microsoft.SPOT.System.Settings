@@ -100,13 +100,12 @@
 
   <PropertyGroup Condition="'$(PlatformIndependentBuild)'!='true'">
     <OBJ_DIR>$(DST_DIR)\$(OBJ_EXT)\$(Directory)</OBJ_DIR>
-    <LIB_DIR>$(DST_DIR)\$(LIB_EXT)\</LIB_DIR>
-    <STATICLIB_DIR>$(DST_DIR)\$(STATICLIB_EXT)\</STATICLIB_DIR>
+    <LIB_DIR>$(DST_DIR)\$(LIB_EXT)</LIB_DIR>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(PlatformIndependentBuild)'=='true'">
     <OBJ_DIR>$(PLATFORM_INDEPENDENT_DST_DIR)\$(OBJ_EXT)\$(Directory)</OBJ_DIR>
-    <LIB_DIR>$(PLATFORM_INDEPENDENT_DST_DIR)\$(LIB_EXT)\</LIB_DIR>
+    <LIB_DIR>$(PLATFORM_INDEPENDENT_DST_DIR)\$(LIB_EXT)</LIB_DIR>
   </PropertyGroup>
 
   <PropertyGroup>

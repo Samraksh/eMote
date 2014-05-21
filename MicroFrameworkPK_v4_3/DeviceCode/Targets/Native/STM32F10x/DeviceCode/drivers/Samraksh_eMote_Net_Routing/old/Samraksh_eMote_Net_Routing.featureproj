@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Samraksh_eMote_Net_Routing</FeatureName>
+    <Guid>{17de702a-31db-471a-9f9c-c714dd3640ba}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <SAMRAKSH_EMOTE_NET_ROUTING_FEATUREPROJ>True</SAMRAKSH_EMOTE_NET_ROUTING_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_Net_Routing.$(LIB_EXT)" />
+    <InteropFeature Include="Samraksh_eMote_Net_Routing" />
+    <!--MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_Net_Routing.pe" /-->
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net_Routing\dotnetmf.proj" />
+  </ItemGroup>
+</Project>
