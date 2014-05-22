@@ -1,187 +1,254 @@
 /*
  *  Name : Krait__TIMER.cpp
  *
- *  Author : Nived.Sivadas@Samraksh.com
+ *  Author : nathan.stohs@samraksh.com
  *
- *  Description : The main system time is maintained here. The hardware clock used is the debug timer 
+ *  Description : The main system time is maintained here. The hardware clock used is the debug timer.
  *
  *  History : v1.0 - Initial Version - Nived.Sivadas
- *
+ *	History : v2.0 - Rewrite and Combine TIME and TIMER - Nathan Stohs 2014-05-23
  *
  */
 
 
 #include <tinyhal.h>
-
 #include "Krait__Time.h"
+#include "Krait__Timer.h"
 
-extern Krait_TIMER_Driver g_Krait_Timer_Driver;
+/******* TIMER CODE (AS OPPOSED TO TIME) **********/
 
-Krait_TIME_Driver g_Krait_TIME_Driver;
+// static prototypes
+static void TIME_HANDLER(void *arg);
+static inline void flush_timer();
 
-extern "C"
+
+// Code
+
+static BOOL InitializeTimer ( UINT32 Timer )
 {
-void TIMER_HANDLER(void *param)
-{
-#if defined(DEBUG_TIMER)
-	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
-#endif
+	GLOBAL_LOCK(irq);
 	
-	if(g_Krait_TIME_Driver.CounterValue() >= g_Krait_TIME_Driver.m_nextCompare)
+	if (Timer != 0) {
+		ASSERT();
+		return FALSE; // So far we only support DGT aka Timer0
+	}
+
+	writel(0, DGT_ENABLE);
+
+	//DGT uses LPXO source which is 27MHz.
+	// Set clock divider to 4.
+	
+	writel(3, DGT_CLK_CTL);
+	
+	writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL);
+	
+	writel(0, DGT_CLEAR);
+	writel(DGT_ENABLE_EN, DGT_ENABLE);
+
+	CPU_INTC_ActivateInterrupt(INT_DEBUG_TIMER_EXP, TIME_HANDLER, 0);
+	CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
+	
+	hal_printf("\rKrait DGT initialized\r\n");
+
+	return TRUE;
+}
+
+// Not used, but no reason to assert.
+static BOOL Uninitialize(UINT32 Timer)
+{
+	writel(0, DGT_ENABLE);
+	return TRUE;
+}
+
+// Always on
+static void EnableCompareInterrupt(UINT32 Timer)
+{
+	ASSERT();
+	//writel(DGT_ENABLE_CLR_ON_MATCH_EN , DGT_ENABLE);
+}
+
+// Always on
+static void DisableCompareInterrupt(UINT32 Timer)
+{
+	ASSERT();
+	//UINT32 dgt_enable = readl(DGT_ENABLE);
+	//writel((dgt_enable & (~DGT_ENABLE_CLR_ON_MATCH_EN)) , DGT_ENABLE);
+}
+
+// Not used.
+static void ForceInterrupt(UINT32 Timer)
+{
+	ASSERT();
+}
+
+// Set an interrupt for a number of ticks in the future
+static void SetCompare(UINT32 Timer, UINT32 Compare)
+{
+	UINT32 now;
+	flush_timer(); // Flush DGT to bigCounter
+	writel(Compare, DGT_MATCH_VAL); // let the overflow do its magic
+}
+
+
+static UINT32 GetCompare(UINT32 Timer)
+{
+	ASSERT(); // Shouldn't be used anywhere?
+	return readl(DGT_MATCH_VAL);
+}
+
+// Nobody touches my counter! (except init).
+static void SetCounter(UINT32 Timer, UINT32 Count)
+{
+	ASSERT();
+}
+
+static inline UINT32 GetCounter(UINT32 Timer)
+{
+	return readl(DGT_COUNT_VAL);
+}
+
+
+static BOOL DidCompareHit(UINT32 Timer)
+{
+	ASSERT();
+	return FALSE;
+}
+
+// I wish I knew what this was for....
+void HAL_Time_SetCompare_Completion(UINT64 val) {
+	return;
+}
+
+static void ResetCompareHit(UINT32 Timer)
+{
+	ASSERT();
+}
+
+/******* END TIMER CODE ***************************/
+
+/******* TIME CODE (AS OPPOSED TO TIMER) **********/
+
+static UINT64 bigCounter;
+static UINT64 nextCompare;
+
+// Add counter contents and reset to 0. IRQs should be off.
+static inline void flush_timer() {
+	bigCounter += readl(DGT_COUNT_VAL);
+	writel(0, DGT_CLEAR);
+}
+
+// Main handler called on overflow.
+static void TIME_HANDLER(void *arg) {
+	flush_timer();
+	
+	// Don't need to call TimeNow() since we just flushed
+	if(bigCounter >= nextCompare)
 	{
-	     // this also schedules the next one, if there is one
-	     HAL_COMPLETION::DequeueAndExec();
+		// this also schedules the next one, if there is one
+		writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
+		nextCompare = 0;
+		HAL_COMPLETION::DequeueAndExec();
 	}
 	else
 	{
-	        g_Krait_TIME_Driver.SetCompareValue( g_Krait_TIME_Driver.m_nextCompare );
+		SetCompareValue( nextCompare );
 	}
 }
-}
 
-BOOL Krait_TIME_Driver::Initialize()
+BOOL Initialize()
 {
-#if defined(DEBUG_TIMER)
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, FALSE);
-#endif
+	bigCounter  = 0;
+	nextCompare = 0;
 	
-	// Initial numbers pulled from the Imote, Why ? Don't know, "the dots don't connect looking ahead" - Steve Jobs
-	g_Krait_TIME_Driver.m_lastRead    = 0;
-	// What is this magical 6750000 number ? pulled from lk : Ans : Looks like 6750000 means the timer fires every 1s 
-	g_Krait_TIME_Driver.m_nextCompare = 6750000;
-	
-	g_Krait_TIME_Driver.m_lastCompare = g_Krait_TIME_Driver.m_nextCompare;
-
-	// This function intially sets the compare value to 6750000 intially, rendering the next line moot
-	g_Krait_Timer_Driver.Initialize(0, TRUE, 0, 0, TIMER_HANDLER, NULL);
-	
-	//Krait_TIMER_Driver::SetCompare( Krait_TIMER_Driver::c_SystemTimer, c_OverflowCheck );
-
-	//Krait_TIMER_Driver::EnableCompareInterrupt( Krait_TIMER_Driver::c_SystemTimer );
-
+	InitializeTimer(0);
 
 	return TRUE;
 }
-BOOL Krait_TIME_Driver::Uninitialize(){
+
+
+BOOL Uninitialize(){
 	return TRUE;
 }
 
-UINT64 Krait_TIME_Driver::CounterValue()
+UINT64 TimeNow()
 {
-	GLOBAL_LOCK(irq);
-
-	UINT32 lastLowValue = (UINT32)(g_Krait_TIME_Driver.m_lastRead & 0x00000000FFFFFFFFull);
-
-	UINT32 value = Krait_TIMER_Driver :: GetCounter (Krait_TIMER_Driver :: c_SystemTimer);
-
-	g_Krait_TIME_Driver.m_lastRead &= (0xFFFFFFFF00000000ull);
-
-	if(lastLowValue > value )
-	{
-		//DEBUG_TRACE3(TRACE_COUNTER_OVERFLOWS,"CounterValue: Overflow %08x %08x=>%08x", (g_PXA271_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
-		//hal_printf("System Timer Overflowed, CounterValue : Overflow %08x %08x=>%08x", (g_Krait_TIME_Driver.m_lastRead >> 32), lastLowValue, value);
-
-		// The following line allows Sleep to work properly but breaks the running of C# code
-		// g_Krait_TIME_Driver.m_lastRead += g_Krait_TIME_Driver.m_lastCompare;
-		g_Krait_TIME_Driver.m_lastRead += (0x1ull << 32);
-	}
-	    //Or else the value gets added simply
-	g_Krait_TIME_Driver.m_lastRead |= value;
-
-	return g_Krait_TIME_Driver.m_lastRead;
-
+	return bigCounter + GetCounter(0);
 }
 
-
-void Krait_TIME_Driver::SetCompareValue( UINT64 CompareValue )
+#define TICKS_PROXIMITY_FORCE 50
+void SetCompareValue( UINT64 CompareValue )
 {
+	UINT32 diff;
+	UINT64 now;
+	int forceInterrupt=0;
+	
+	if (nextCompare != 0 && CompareValue > nextCompare) {
+		//hal_printf("debug: new compare after current compare\r\n");
+		return;
+	}
+
     GLOBAL_LOCK(irq);
-    
-    g_Krait_TIME_Driver.m_lastCompare = g_Krait_TIME_Driver.m_nextCompare;
-    
-    g_Krait_TIME_Driver.m_nextCompare = CompareValue;
 
-    bool fForceInterrupt = false;
+	nextCompare = CompareValue;
 
-    // At this point we don't know if there is a register that we can check so the timer just returns false here and reset does not do anything
-    // We can afford to do this because the hardware automatically clears the interrupt
-    if(Krait_TIMER_Driver::DidCompareHit( Krait_TIMER_Driver :: c_SystemTimer ))
-    {
-        Krait_TIMER_Driver::ResetCompareHit( Krait_TIMER_Driver :: c_SystemTimer );
-    }
+	now = TimeNow();
+	if( CompareValue - now <= TICKS_PROXIMITY_FORCE ) {
+		forceInterrupt=1;
+		//hal_printf("force interrupt\r\n");
+	}
+	else if(CompareValue - now > MAX_TIMER_ROLLOVER) { // 0xFFFFFF00
+		//hal_printf("debug: new compare too far in future, deferring\r\n");
+		return; // We'll get it later
+	}
 
-    UINT64 CntrValue = CounterValue();
+	if (forceInterrupt)
+		diff = TICKS_PROXIMITY_FORCE; // a small time in the future
+	else
+		diff = CompareValue - now;
 
-    if(CompareValue <= CntrValue)
-    {
-	// Hmm, by the time we reach here the time has already passed
-        fForceInterrupt = true; 
-    }
-    else
-    {
-        UINT32 diff;
+	//hal_printf("debug: new compare set to: %d\r\n",diff);
 
-        if((CompareValue - CntrValue) > 0xFFFFFFFFull)
-        {
-            diff = 0xFFFFFFFFul;
-        }
-        else
-        {
-            diff = (UINT32)(CompareValue - CntrValue);
-        }        
-
-        Krait_TIMER_Driver::SetCompare( Krait_TIMER_Driver :: c_SystemTimer,  Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer ) + diff );
-
-        if(CounterValue() > CompareValue)
-        {
-            fForceInterrupt = true;
-        }
-    }
-
-    if(fForceInterrupt)
-    {
-	
-        // Force interrupt to process this.
-        //Krait_TIMER_Driver::ForceInterrupt( Krait_TIMER_Driver :: c_SystemTimer );
-	// Set compare pretty soon, since we dont seem to have/know a force interrupt register 
-	Krait_TIMER_Driver::SetCompare( Krait_TIMER_Driver :: c_SystemTimer,  Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer ) + 100 );
-    }
-	
+	SetCompare(0,  diff);
 }
 
-INT64 Krait_TIME_Driver::TicksToTime( UINT64 Ticks )
+INT64 TicksToTime( UINT64 Ticks )
 {
 	return CPU_TicksToTime( Ticks );
 }
 
-INT64 Krait_TIME_Driver::CurrentTime()
+INT64 CurrentTime()
 {
-	INT64 Time = CPU_TicksToTime( CounterValue() );
-	
-	return Time;
+	return CPU_TicksToTime( TimeNow() );
 }
 
-void Krait_TIME_Driver::Sleep_uSec( UINT32 uSec )
-{
-     GLOBAL_LOCK(irq);
+// Correction factor. Assumes -O0
+// Only corrects for native, not managed.
+#define TINYCLR_TIMER_MUNGE 13
 
-     UINT32 value   = Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer );
-     UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec ); 
-     
-     while((Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer) - value) <= maxDiff);
-     
+void Sleep_uSec( UINT32 uSec )
+{
+	GLOBAL_LOCK(irq);
+
+	if(uSec <= TINYCLR_TIMER_MUNGE) {
+		return;
+	}
+
+	UINT32 value   = GetCounter( 0 );
+	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE ); 
+
+	while((GetCounter(0) - value) <= maxDiff);
 }
 
 // Supposed to be implemented by calculating the approx number of instruction executed during this time and doing a for loop like implementation corresponding to the number of instructions
 // Also this function runs with interrupts enabled, may need to look at the actual implementation 
-void Krait_TIME_Driver::Sleep_uSec_Loop( UINT32 uSec )
+void Sleep_uSec_Loop( UINT32 uSec )
 {
+	if(uSec <= TINYCLR_TIMER_MUNGE) {
+		return;
+	}
 
-     UINT32 value   = Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer );
-     UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec ); 
-     
-     while((Krait_TIMER_Driver::GetCounter( Krait_TIMER_Driver :: c_SystemTimer) - value) <= maxDiff);
+	UINT32 value   = GetCounter( 0 );
+	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE); 
+
+	while((GetCounter(0) - value) <= maxDiff);
 }
-
-

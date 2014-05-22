@@ -360,6 +360,8 @@ UINT16 fpga_adc_cont_get(UINT16 *buffer, UINT8 toRead){
 UINT16 fpga_adc_now(UINT8 chan){
 	uint8_t cmd;
 	uint8_t ret[4];
+	
+	GLOBAL_LOCK(irq);
 
 	// [1:0] channel
 	// [7:5] command

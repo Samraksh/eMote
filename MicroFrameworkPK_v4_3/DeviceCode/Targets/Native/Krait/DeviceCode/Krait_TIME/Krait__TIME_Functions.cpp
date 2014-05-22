@@ -81,8 +81,6 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec )
 
 //--//
 
-#pragma arm section code = "SectionForFlashOperations"
-
 UINT32 __section(SectionForFlashOperations) CPU_MicrosecondsToSystemClocks( UINT32 uSec )
 {
     uSec *= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
@@ -110,27 +108,25 @@ int __section(SectionForFlashOperations) CPU_SystemClocksToMicroseconds( int Tic
     return Ticks;
 }
 
-#pragma arm section code
-
 // -- //
 
 
 BOOL HAL_Time_Initialize()
 {
-    return Krait_TIME_Driver::Initialize();
+    return Initialize();
 }
 
 BOOL HAL_Time_Uninitialize()
 {
-    return Krait_TIME_Driver::Uninitialize();
+    return Uninitialize();
 }
 
 UINT64 HAL_Time_CurrentTicks()
 {
-    return Krait_TIME_Driver::CounterValue();
+    return TimeNow();
 }
 
-/// Remove this method once dependency on this are gone.
+
 UINT64 Time_CurrentTicks()
 {
     return HAL_Time_CurrentTicks();
@@ -138,17 +134,17 @@ UINT64 Time_CurrentTicks()
 
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
-    return Krait_TIME_Driver::TicksToTime( Ticks );
+    return TicksToTime( Ticks );
 }
 
 INT64 HAL_Time_CurrentTime()
 {
-    return Krait_TIME_Driver::CurrentTime();
+    return CurrentTime();
 }
 
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
-    Krait_TIME_Driver::SetCompareValue( CompareValue );
+    SetCompareValue( CompareValue );
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
@@ -158,18 +154,14 @@ void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
     *c = 0;
 }
 
-//#pragma arm section code = "SectionForFlashOperations"
 
-//void __section(SectionForFlashOperations) HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 {
-    Krait_TIME_Driver::Sleep_uSec( uSec );
+    Sleep_uSec( uSec );
 }
-
-//#pragma arm section code
 
 void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
-    Krait_TIME_Driver::Sleep_uSec_Loop( uSec );
+    Sleep_uSec_Loop( uSec );
 }
 
