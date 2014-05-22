@@ -68,8 +68,7 @@ BOOL Krait_TIMER_Driver::Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 Cl
 
 	writel(tick_count, DGT_MATCH_VAL);
 	writel(0, DGT_CLEAR);
-	writel(DGT_ENABLE_EN | DGT_ENABLE_CLR_ON_MATCH_EN, DGT_ENABLE);
-	//writel(DGT_ENABLE_EN, DGT_ENABLE);
+	writel(DGT_ENABLE_EN, DGT_ENABLE);  // Do not set DGT_ENABLE_CLR_ON_MATCH_EN because Krait_TIME_Driver::CounterValue() increments the upper word.  Alternative fix is to increment in Krait_TIME_Driver by 0x88 instead of (0x1ull<<32).
 
 	//register_int_handler(INT_DEBUG_TIMER_EXP, timer_irq, 0);
 	CPU_INTC_ActivateInterrupt(INT_DEBUG_TIMER_EXP, timer_irq, 0);
