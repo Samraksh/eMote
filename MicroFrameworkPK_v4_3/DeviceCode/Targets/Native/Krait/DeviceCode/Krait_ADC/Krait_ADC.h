@@ -8,8 +8,20 @@
 #ifndef KRAIT_ADC_H
 #define KRAIT_ADC_H
 
-#define FPGA_CS(x) (gpio_set(78, (x) ? 2 : 0))
+#define FPGA_SCLK_PIN 79
+#define FPGA_MISO_PIN 82
+#define FPGA_MOSI_PIN 77
+#define FPGA_CS_PIN   78
 
+#define FPGA_CS(x) (gpio_set(FPGA_CS_PIN, (x) ? 2 : 0))
+
+#ifdef FPGA_O3_BUILD
+#define SAM_FPGA_SPI_CLK_A() __asm volatile ("nop")
+#define SAM_FPGA_SPI_CLK_B() __asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n")
+#else
+#define SAM_FPGA_SPI_CLK_A() __asm volatile ("nop")
+#define SAM_FPGA_SPI_CLK_B() __asm volatile ("nop")
+#endif
 
 // TODO: Get rid of timer and GPIO stuff
 #define MSM_TMR_BASE        0x0200A000
@@ -93,7 +105,6 @@ INT8 fpga_adc_cont_stop(void);
 INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 SamplingTime);
 
 UINT32 fpga_adc_get_bounds(void);
-
 
 #endif
 

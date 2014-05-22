@@ -8,11 +8,16 @@
 #include <tinyhal.h>
 #include "..\Krait.h"
 #include "Krait_ADC.h"
+//#include "..\Krait_GPIO\Krait__GPIO.h"
+
+//#define FPGA_O3_BUILD
 
 // Globals
 uint8_t fpga_init_done;
 
-// Statics
+// Statics, I use my own statics because these need to be optimised along with the ADC
+// Since we optimize per subproject and not whole project.
+// Once we get the whole thing running in -O3 then please make this sane.
 
 static void gpio_set(UINT32 gpio, UINT32 dir)
 {
@@ -24,30 +29,26 @@ static void gpio_set(UINT32 gpio, UINT32 dir)
 static uint8_t sam_fpga_spi(uint8_t data) {
     uint8_t bit = 0x80;
     uint8_t ret = 0;
-    const uint8_t d = 10;
-    const uint8_t miso_pin = 82;
-    const uint8_t clk_pin = 79;
-    const uint8_t mosi_pin = 77;
 
     // MISO input
-    unsigned int *addr = (unsigned int *)GPIO_IN_OUT_ADDR(miso_pin);
+    unsigned int *addr = (unsigned int *)GPIO_IN_OUT_ADDR(FPGA_MISO_PIN);
+
+	// Fully optimized we push about 1 MHz
 
     while (bit) {
-        gpio_set(mosi_pin, (data&bit) ? 2 : 0);     // Set output
-        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(d);
+        gpio_set(FPGA_MOSI_PIN, (data&bit) ? 2 : 0);     // Set output
+		SAM_FPGA_SPI_CLK_A();
         ret |= ( readl(addr)&1 ); // Latch input
         if(bit>1)
             ret = ret << 1;
         bit = bit >> 1;
-        gpio_set(clk_pin, 2); // clock high
-        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(d);
-        gpio_set(clk_pin, 0); // clock low
+        gpio_set(FPGA_SCLK_PIN, 2); // clock high
+		SAM_FPGA_SPI_CLK_B();
+        gpio_set(FPGA_SCLK_PIN, 0); // clock low
     }
     //dprintf(INFO, "sent 0x%X got SPI 0x%X\n", data, ret);
     return ret;
 }
-
-
 
 static void gpio_tlmm_config(UINT32 gpio, UINT8 func,
 		      UINT8 dir, UINT8 pull,
@@ -63,6 +64,66 @@ static void gpio_tlmm_config(UINT32 gpio, UINT8 func,
 	return;
 }
 
+
+/* Perform a multi-byte read from consecutive memory locations. Note: Seems limited to 4 bytes */
+static void fpga_cmd53_r(uint8_t func, uint8_t reg, uint8_t *dest, uint8_t size) {
+	uint8_t resp, timeout;
+	uint8_t spi_send[6] = {0x75, 0x14, 0x00, 0x00, 0x00, 0xFF};
+
+	// Function area, 0 or 1
+	spi_send[1] |= (func << 4);
+
+	// Register address bits;
+	spi_send[3] |= (reg << 1);
+	spi_send[2] |= (reg >> 7);
+
+	// number of bytes to read
+	// As of FPGA v1.6, we only seem to support 4 bytes
+	if (size > 4)
+		return;
+	spi_send[4] = size;
+
+	FPGA_CS(0);
+	for(int i=0; i<6; i++) {
+		timeout=0xF;
+		sam_fpga_spi(spi_send[i]);
+	}
+
+	do {
+		resp = sam_fpga_spi(0xFF);
+		timeout--;
+	} while(resp == 0xFF && timeout > 0);
+
+	// Data token, error token, data response ???
+	sam_fpga_spi(0);
+	sam_fpga_spi(0);
+	sam_fpga_spi(0);
+
+	// Data, bytes
+	for(int i=0; i<size; i++) {
+		dest[i] = sam_fpga_spi(0);
+	}
+
+	// 2 CRC bytes, ignored.
+	sam_fpga_spi(0);
+	sam_fpga_spi(0);
+
+	sam_fpga_spi(0xFF); // cleanup
+	FPGA_CS(1);
+
+	return;
+}
+
+// Wrapper function for reads larger than 4 bytes (see cmd53_r)
+// You MUST use this if you are reading > 4 bytes
+static void fpga_cmd53_r_wrap(uint8_t func, uint8_t reg, uint8_t *dest, uint8_t size) {
+	for(int i=0; i<size; i+=4)
+		if (size - i >= 4)
+			fpga_cmd53_r(func, reg+i, dest+i, 4);
+		else
+			fpga_cmd53_r(func, reg+i, dest+i, size-i);
+}
+
 // CMD52, read a register.
 static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 
@@ -76,12 +137,11 @@ static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 	spi_send[3] |= (reg << 1);
 	
 	FPGA_CS(0);
-	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 	for(int i=0; i<6; i++) {
 		timeout=0xF;
 		sam_fpga_spi(spi_send[i]);
 	}
-	//dprintf(INFO, "waiting for response\n");
+
 	do {
 		resp = sam_fpga_spi(0xFF);
 		timeout--;
@@ -89,11 +149,7 @@ static uint8_t fpga_cmd52_r(uint8_t func, uint8_t reg) {
 
 	// Get returned data
 	extra = sam_fpga_spi(0xFF);
-
 	sam_fpga_spi(0xFF); // cleanup
-
-	//dprintf(INFO, "Got CMD52 resp 0x%X timeout=%d\n", resp, timeout);
-	//dprintf(INFO, "Got CMD52 data 0x%X\n", extra);
 	FPGA_CS(1);
 	
 	return extra;
@@ -104,23 +160,22 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 
 	uint8_t resp, timeout, extra;
 	uint8_t spi_send[6] = {0x74, 0x80, 0x00, 0x01, 0x00, 0xFF};
-	
+
 	// Data to write
 	spi_send[4] |= data;
-	
+
 	// Function area, 0 or 1
 	spi_send[1] |= (func << 4);
-	
+
 	// Register address, largest is 0x66 so we only need to worry about bottom byte
 	spi_send[3] |= (reg << 1);
-	
+
 	FPGA_CS(0);
-	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(1000);
 	for(int i=0; i<6; i++) {
 		timeout=0xF;
 		sam_fpga_spi(spi_send[i]);
 	}
-	//dprintf(INFO, "waiting for response\n");
+
 	do {
 		resp = sam_fpga_spi(0xFF);
 		timeout--;
@@ -130,11 +185,8 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 	extra = sam_fpga_spi(0xFF);
 
 	sam_fpga_spi(0xFF); // cleanup
-
-	//dprintf(INFO, "Got CMD52 resp 0x%X timeout=%d\n", resp, timeout);
-	//dprintf(INFO, "Got CMD52 data 0x%X\n", extra);
 	FPGA_CS(1);
-	
+
 	return extra;
 }
 
@@ -143,32 +195,31 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 INT8 fpga_init() {
 	if (fpga_init_done) return 0; // Already started
 	fpga_init_done = 1;
-	
-	char ver[16]; // FPGA version string
-	const char *expected_version = "ADAPT v1.6 ÿÿÿÿ";
+
+	char ver[17]; // FPGA version string, 16 bytes plus null
+	const char *expected_version = "ADAPT v1.6 ÿÿÿÿÿ";
 	
 	// FPGA power state signaling pins
 	gpio_tlmm_config(90, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
 	gpio_tlmm_config(91, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
 
+	// FPGA power state pins default
 	gpio_set(90, 2); // ON/OFF, set ON (1)
 	gpio_set(91, 0); // Asleep/Awake, set Awake (0)
-	//dprintf(INFO, "Pwr Cfg pins set\n");
 
 	// Set SDIO pins into SPI comm mode
-	gpio_tlmm_config(82, 0, GPIO_INPUT,  GPIO_NO_PULL, GPIO_2MA, GPIO_DISABLE); // MISO
-	gpio_tlmm_config(78, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE); // CS
-	gpio_tlmm_config(79, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE); // SCLK
-	gpio_tlmm_config(77, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE); // MOSI
-	gpio_set(79, 0);
-	gpio_set(78, 2);
-	
+	gpio_tlmm_config(FPGA_MISO_PIN, 0, GPIO_INPUT,  GPIO_NO_PULL, GPIO_2MA, GPIO_DISABLE);
+	gpio_tlmm_config(FPGA_CS_PIN,   0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
+	gpio_tlmm_config(FPGA_SCLK_PIN, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
+	gpio_tlmm_config(FPGA_MOSI_PIN, 0, GPIO_OUTPUT, GPIO_NO_PULL, GPIO_2MA, GPIO_ENABLE);
+	gpio_set(FPGA_SCLK_PIN, 0);
+	gpio_set(FPGA_CS_PIN, 2);
+
 	FPGA_CS(1); // unassert at startup
-	
+
 	for(int i=0; i<10; i++) { sam_fpga_spi(0xFF); }
 	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(10000);
-	
-	
+
 	{ // Send CMD0
 		uint8_t resp, timeout;
 		uint8_t spi_send[6] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
@@ -186,14 +237,12 @@ INT8 fpga_init() {
 		} while(resp == 0xFF && timeout > 0);
 		sam_fpga_spi(0xFF); // cleanup byte
 
-		//dprintf(INFO, "Got CMD0 resp 0x%X timeout=%d\n", resp, timeout);
 		FPGA_CS(1);
-		
+
 		if (timeout == 0)
 			return 1;
 	}
-	
-	
+
 	{ // CMD59, disable CRC
 		uint8_t resp, timeout;
 		uint8_t spi_send[6] = {0x7B, 0x00, 0x00, 0x00, 0x00, 0x8B};
@@ -211,14 +260,12 @@ INT8 fpga_init() {
 		} while(resp == 0xFF && timeout > 0);
 		sam_fpga_spi(0xFF); // cleanup
 
-		//dprintf(INFO, "Got CMD59 resp 0x%X timeout=%d\n", resp, timeout);
 		FPGA_CS(1);
-		
+
 		if (timeout == 0)
 			return 1;
 	}
-	
-        
+
     { // CMD5, 4 extra bytes
         uint8_t resp, timeout, extra[4];
         uint8_t spi_send[6] = {0x45, 0x00, 0x00, 0x00, 0x00, 0x87};
@@ -241,30 +288,32 @@ INT8 fpga_init() {
 
         sam_fpga_spi(0xFF); // cleanup
 
-        //dprintf(INFO, "Got CMD5 resp 0x%X timeout=%d\n", resp, timeout);
-        //for(int i=0; i<4; i++)
-            //dprintf(INFO, "%X", extra[i]);
-        //dprintf(INFO, "\n");
         FPGA_CS(1);
 		
 		if (timeout == 0)
 			return 1;
     }
-	
+
 	// Enable Func 1
 	fpga_cmd52_w(0,2,2);
-	
+
 	// FPGA ADC module reset command
 	fpga_cmd52_w(1, 0x61, 32); // ADC_CMD reg, cmd: reset
-	
-	// Version string should read: "ADAPT v1.6"
-	// Check here.
-	for(int i=0; i<16; i++) {
-		ver[i] = fpga_cmd52_r(1, i);
-		if (ver[i] != expected_version[i])
-			return 0; // TODO return error here.
-	}
-	
+
+	// Version string should read: "ADAPT v1.6" plus some garbage
+	ver[16] = '\0';
+	fpga_cmd53_r_wrap(1, 0,  (uint8_t *)(ver)   , 16);
+
+	if ( strcmp(ver, expected_version) != 0 )
+		hal_printf("%s FPGA DRIVER not recognized!\r\n%s Expected\r\n", ver, expected_version);
+	else
+		hal_printf("%s FPGA DRIVER init\r\n", ver);
+
+	// Configure default ADC settings
+	// [2:0] INCC, forced to 3'b111 for GND reference, see ADC7689 datasheet
+	// [6:4] REF, forced to 3'b000 for internal 2.5v reference.
+	fpga_cmd52_w(1, 0x60, 0x07);
+
 	return 0;
 }
 
@@ -309,29 +358,39 @@ UINT16 fpga_adc_cont_get(UINT16 *buffer, UINT8 toRead){
 // ADC HIGHER LEVEL COMMANDS (composed of above for the user/speed).
 // Grab one sample on one channel and blocks until returned.
 UINT16 fpga_adc_now(UINT8 chan){
+	uint8_t cmd;
+	uint8_t ret[4];
 
-	UINT16 ret;
-	UINT8 cmd;
-	
-	cmd = 0x7;
-	// [2:0] INCC, forced to 3'b111 for GND reference, see ADC7689 datasheet
-	// [6:4] REF, forced to 3'b000 for internal 2.5v reference.
-	fpga_cmd52_w(1, 0x60, cmd); // Use immediate mode
-	
-	cmd = (chan & 0x03) + (2 << 5); // ADC_CMD reg
 	// [1:0] channel
 	// [7:5] command
 	// 1,2,3,4
 	// reset, get immediate, start auto, stop auto.
 	// Start and stop auto not currently supported.
-	fpga_cmd52_w(1, 0x61, cmd); // Use immediate mode
+	cmd = (chan & 0x03) + (2 << 5); // ADC_CMD reg
+	fpga_cmd52_w(1, 0x61, cmd);
+
+	// Either wait or poll the FPGA
+	// Not needed with cmd53 where we pull all at once.
+	//HAL_Time_Sleep_MicroSeconds_InterruptEnabled(100);
+	//while(fpga_cmd52_r(1, 0x62) & 0x2) { ; } // ADC_STAT busy bit
+
+	// Read two with two commands. Slower but easiest. Not used.
+	//ret[0]  =  fpga_cmd52_r(1, 0x64);		// ADC_LAST_LO
+	//ret[1]  =  fpga_cmd52_r(1, 0x65);		// ADC_LAST_HI
+
+	// Just checking the two regs does not work. Don't know why.
+	//fpga_cmd53_r(1, 0x64, ret, 2);
+
+	// Pull 4 regs at once, check busy bit, throw out middle, use last two (the sample)
+	do {
+		fpga_cmd53_r(1, 0x62, ret, 4);
+	}
+	while(ret[0] & 0x2); // Check ADC_BUSY bit
+	// In practice, we never need to loop.
 	
-	while(fpga_cmd52_r(1, 0x62) & 0x2) { ; } // ADC_STAT busy bit
-	
-	ret  =  fpga_cmd52_r(1, 0x64); 			// ADC_LAST_LO
-	ret |= (fpga_cmd52_r(1, 0x65) << 8); 	// ADC_LAST_HI
-	
-	return ret;
+	//hal_printf("%d\r\n", ret[2] | (ret[3]<<8));
+
+	return ret[2] | (ret[3]<<8);
 }
 
 // Setup and start continuous mode.
@@ -344,11 +403,11 @@ INT8 fpga_adc_cont_stop(void){
 }
 
 // Read a set number of samples
+// TODO: needs refreshed
 INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 SamplingTime){
-	
 	int i;
 	uint8_t chan = (UINT8)(channel & 0xFF);
-	
+
 	do {
 	samples[i++] = fpga_adc_now(chan);
 	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(SamplingTime);
@@ -359,5 +418,5 @@ INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 S
 
 // Returns max sample rate in Hz.
 UINT32 fpga_adc_get_bounds(void){
-	return 500;
+	return 1000;
 }
