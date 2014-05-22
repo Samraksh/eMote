@@ -81,8 +81,8 @@ EntryPoint:
 	.ifdef PLATFORM_ARM_SOC_ADAPT
 	/* Update the SCLTR */
 	mrc		p15, 0, r0, c1, c0, 0
-	bic		r0, r0, #(1<<15| 1<<13 | 1<<12)
-	bic		r0, r0, #(1<<2 | 1<<0)
+	bic		r0, r0, #(1<<15| 1<<13)
+	bic		r0, r0, #(1<<0)
 	orr		r0, r0, #(1<<1)
         /* Write SCTLR */
 	mcr		p15, 0, r0, c1, c0, 0
