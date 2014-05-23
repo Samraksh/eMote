@@ -257,7 +257,6 @@ void csmaMAC::SendToRadio(){
 		gHalTimerManagerObject.StopTimer(3);
 	}
 
-
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
 
 		m_recovery = 1;

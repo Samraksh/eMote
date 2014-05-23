@@ -9,7 +9,7 @@
 #ifndef NEIGHBORS_H_
 #define NEIGHBORS_H_
 
-#include <Samraksh/Mac_decl.h>
+//#include <Samraksh/Mac_decl.h>
 
 #define NeighbourChanged 1
 #define Received 0

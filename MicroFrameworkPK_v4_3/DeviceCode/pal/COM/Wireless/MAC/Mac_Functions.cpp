@@ -4,7 +4,7 @@
  *  Created on: Oct 1, 2012
  *      Author: Mukundan
  */
-
+//#include <Samraksh\RoutingEngine.h>
 #include ".\CSMAMAC\csmaMAC.h"
 #include <Samraksh\Mac_decl.h>
 #include <Samraksh\PacketTimeSync_15_4.h>
@@ -42,6 +42,26 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 ro
 	else
 		return DS_Fail;
 
+	return DS_Success;
+}
+
+//New function added by Dhrubo
+DeviceStatus Mac_GetNextWholePacket(Message_15_4_t** buffer)
+{
+	GLOBAL_LOCK(irq);
+
+	Message_15_4_t** temp = m_receive_buffer.GetOldestPtr();
+	(*buffer) = (*temp);
+	
+	if((*buffer) == NULL)
+		return DS_Fail;
+	
+	UINT8 Size = ((*buffer)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t);
+
+	if(Size > 127)
+		return DS_Fail;	
+
+	m_receive_buffer.DropOldest(1);
 	return DS_Success;
 }
 
@@ -138,8 +158,6 @@ DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType
 
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 
-	//msg is just the payload,
-
 	if(macID == CSMAMAC)
 	{
 		  if(gcsmaMacObject.Send(destAddress, dataType, msg, size) != TRUE)
@@ -176,6 +194,23 @@ DeviceStatus Mac_GetNeighbourList(UINT16 *buffer)
 	}
 
 	return DS_Success;
+}
+
+//Overloaded function added by Dhrubo
+DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, Neighbor_t* neighbor)
+{
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if(m_NeighborTable.Neighbor[i].MacAddress == macAddress)
+		{
+			Neighbor_t* temp = &m_NeighborTable.Neighbor[i];
+			(*neighbor) = (*temp);
+			return DS_Success;
+
+		}
+	}
+
+	return DS_Fail;
 }
 
 DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, UINT8 *buffer)

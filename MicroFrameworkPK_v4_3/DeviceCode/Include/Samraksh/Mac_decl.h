@@ -4,6 +4,7 @@
 #include "Hal_util.h"
 #include "Radio_decl.h"
 #include "Neighbors.h"
+#include "Message.h"
 
 //typedef UINT16 MacAddress_t;
 
@@ -78,8 +79,10 @@ DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 // Get the neighbour list
 DeviceStatus Mac_GetNeighbourList(UINT16 *buffer);
 DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, UINT8 *buffer);
+DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, Neighbor_t *neighbor);
 
 //Channel/freq functions
+DeviceStatus Mac_GetNextWholePacket(Message_15_4_t** buffer);
 DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer);
 //Buffer functions
 UINT8 Mac_GetBufferSize(UINT8 macID);
