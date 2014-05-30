@@ -38,6 +38,18 @@ enum {
 	GSBI_ID_12,
 };
 
+/* GPIO_INTR_CFGn bits */
+#define INTR_RAW_STATUS_EN 0b1000    /*!< This enables the RAW status for the summary interrupt on this GPIO.  This is a power saving mechanism.  Leave this disabled unless it is needed.  1:Enable  0:Disable*/
+#define INTR_DECT_CTL      0b0100    /*!< Controls the Edge or Level Detection of the Interrupt Controller.  1:Edge  0:Level*/
+#define INTR_POL_CTL       0b0010    /*!< Controls the Polarity Detection of the Interrupt Controller. Polarity 1 corresponds to active high and Polarity 0 corresponds to active low.  1:Polarity1  0:Polarity0*/
+#define INTR_ENABLE        0b0001    /*!< Controls if this GPIO generates a summary interrupt.  1:Enable 0:Disable*/
+
+/* GPIO_INTR_CFG_SUn bits */
+#define TARGET_PROC_APCC   0b100
+#define TARGET_PROC_NONE   0b111
+
+#define gpio_irq_clear(pin) (writel(0x1, GPIO_INTR_STATUS((pin))))  /*clear interrupt*/
+
 ////Below taken from platfrom/msm8690/include/platform/gpio.h
 
 // GPIO TLMM: Direction

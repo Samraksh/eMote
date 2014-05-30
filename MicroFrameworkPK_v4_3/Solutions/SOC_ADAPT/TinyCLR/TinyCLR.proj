@@ -223,8 +223,8 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\HeapPersistence\dotNetMF_stub.proj" />
   </ItemGroup>
   <ItemGroup>
-    <PlatformIndependentLibs Include="InterruptHandler_stub.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\Hardware\InterruptHandler\dotNetMF_Stub.proj" />
+    <PlatformIndependentLibs Include="InterruptHandler.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <PlatformIndependentLibs Include="Messaging_stub.$(LIB_EXT)" />
