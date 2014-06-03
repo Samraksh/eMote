@@ -18,8 +18,13 @@ extern BOOL RT_Dispose ();
 //--//
 
 BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
-volatile BOOL stopMemoryAccess = false;
 
+// During deployment some threads are Marked by the garbage collector and some user created threads are executed
+// both of which cause Hard Faults. The following variable is set before we erase the deployment area and cleared
+// upon reboot or continuation of debugging (usually by getting a PING debug message)
+// Since we are loading new code and then restarting, suppressing these actions should not break anything.
+volatile BOOL debuggerErasedFlash = false;
+static BOOL fNoCompaction = false;
 //--//
 
 void CLR_DBG_Debugger::Debugger_WaitForCommands()
@@ -98,7 +103,8 @@ HRESULT CLR_DBG_Debugger::CreateInstance()
     TINYCLR_HEADER();
 
     int iDebugger = 0;
-	stopMemoryAccess = false;
+	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     g_CLR_DBG_Debuggers = (CLR_DBG_Debugger*)&g_scratchDebugger[ 0 ];
 
@@ -142,7 +148,8 @@ HRESULT CLR_DBG_Debugger::Debugger_Initialize( COM_HANDLE port )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
     TINYCLR_HEADER();
-	stopMemoryAccess = false;
+	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     m_messaging->Initialize( port, c_Debugger_Lookup_Request, c_Debugger_Lookup_Request_count, c_Debugger_Lookup_Reply, c_Debugger_Lookup_Reply_count, (void*)this );
 
@@ -349,7 +356,8 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool fStopOnBoot = true;
-	stopMemoryAccess = false;
+	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 #if 0
@@ -810,25 +818,35 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 #ifdef SAMRAKSH_RTOS_EXT
 	RT_Dispose();
 #endif
-	// If there are user threads running in managed code during deployment occassionally we fail to deploy.
-	// It seems that a managed call is made to the FLASH after being erased. 
-	// Here we help keep this from happening by turning off the AD.
-	AD_Shutdown();
 	// At this point we set a variable that will be used  elsewhere to keep managed code from executing.
+	// and user created threads from being marked by the garbage collector
 	// This variable will be set to true on reboot or if we get a PING.
-	stopMemoryAccess = true;
+	debuggerErasedFlash = true;
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 
     CLR_DBG_Commands::Monitor_EraseMemory* cmd = (CLR_DBG_Commands::Monitor_EraseMemory*)msg->m_payload;
 
     if (m_deploymentStorageDevice == NULL) return false;
-
+	
 	GLOBAL_LOCK(irq);
     fRet = dbg->AccessMemory( cmd->m_address, cmd->m_length, NULL, AccessMemory_Erase );
 	::Watchdog_ResetCounter();
 	ENABLE_INTERRUPTS();
 
+	// performing garbage collection and compaction here can be used to force hard faults that occur during
+	// deployment after the Flash has been erased.
+	//g_CLR_RT_ExecutionEngine.PerformGarbageCollection();
+
+	// Here we are remembering what state the Compaction variable is in to use again after deployment is over
+	fNoCompaction = CLR_EE_DBG_IS(NoCompaction);
+	// Here we are telling the CLR to not do any garbage compaction because this causes a hard fault after
+	// the Flash has been erased
+	CLR_EE_DBG_SET(NoCompaction);
+
+	// for debugging purposes
+	//g_CLR_RT_ExecutionEngine.PerformHeapCompaction   ();
+	
     dbg->m_messaging->ReplyToCommand( msg, fRet, false );
 
     return fRet;
@@ -2967,6 +2985,8 @@ bool CLR_DBG_Debugger::Debugging_Resolve_Assembly( WP_Message* msg, void* owner 
 
         cmdReply.m_flags   = assm->m_flags;
         cmdReply.m_version = assm->m_header->version;
+
+		int testSize = sizeof(cmdReply);
 
         dbg->m_messaging->ReplyToCommand( msg, true, false, &cmdReply, sizeof(cmdReply) );
 
