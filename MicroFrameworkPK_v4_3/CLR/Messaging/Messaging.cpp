@@ -189,7 +189,8 @@ bool CLR_Messaging::Phy_TransmitMessage( void* state, const WP_Message* msg )
     NATIVE_PROFILE_CLR_MESSAGING();
     CLR_Messaging* messaging = (CLR_Messaging*)state;
 
-    return messaging->TransmitMessage( msg, true );
+    //return messaging->TransmitMessage( msg, true );
+    return messaging->TransmitMessage( msg, false );
 }
 
 //--//
