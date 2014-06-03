@@ -16,13 +16,21 @@
 
 using namespace Samraksh_Emote_Direct;
 
+unsigned int jumpVal = 0x0;
+
 UINT32 Static::SetJump( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    UINT32 retVal = 0; 
+    //TODO: boundary checking.
+    jumpVal = param0;
+    UINT32 retVal = jumpVal; 
     return retVal;
 }
 
 void Static::RunNative( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
+    typedef void (*funptr_void_foo_void)(void);
+    funptr_void_foo_void nativeFunction;
+    nativeFunction = (funptr_void_foo_void)jumpVal;
+    nativeFunction();
 }
 
