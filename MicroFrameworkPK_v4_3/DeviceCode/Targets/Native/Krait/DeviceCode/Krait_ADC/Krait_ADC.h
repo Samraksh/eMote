@@ -17,7 +17,7 @@
 
 #ifdef FPGA_O3_BUILD
 #define SAM_FPGA_SPI_CLK_A() __asm volatile ("nop")
-#define SAM_FPGA_SPI_CLK_B() __asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n")
+#define SAM_FPGA_SPI_CLK_B() __asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n")
 #else
 #define SAM_FPGA_SPI_CLK_A() __asm volatile ("nop")
 #define SAM_FPGA_SPI_CLK_B() __asm volatile ("nop")

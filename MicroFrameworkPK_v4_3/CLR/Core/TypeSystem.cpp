@@ -2,6 +2,16 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/***
+For some reason, we splat (data abort) if this is greater than -O0.
+Need to investigate, for now work around.
+Note the reset_options pragma at the end.
+--Nathan
+***/
+#ifdef PLATFORM_ARM_SOC_ADAPT
+#pragma GCC optimize ("O0")
+#endif
+
 #include "Core.h"
 
 #include "corhdr_private.h"
@@ -4482,3 +4492,7 @@ LPCSTR CLR_RT_AttributeParser::GetString()
 
     return m_assm->GetString( tk );
 }
+
+#ifdef PLATFORM_ARM_SOC_ADAPT
+#pragma GCC reset_options
+#endif

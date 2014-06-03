@@ -5,12 +5,14 @@
  *  Description :
  *
  */
+
+// zoom
+#pragma GCC optimize ("O3")
+#define FPGA_O3_BUILD
+
 #include <tinyhal.h>
 #include "..\Krait.h"
 #include "Krait_ADC.h"
-//#include "..\Krait_GPIO\Krait__GPIO.h"
-
-//#define FPGA_O3_BUILD
 
 // Globals
 uint8_t fpga_init_done;
@@ -389,6 +391,7 @@ UINT16 fpga_adc_now(UINT8 chan){
 	}
 	while(ret[0] & 0x2); // Check ADC_BUSY bit
 	// In practice, we never need to loop.
+	// Well, at -O0 we didn't, maybe we do otherwise
 	
 	//hal_printf("%d\r\n", ret[2] | (ret[3]<<8));
 
@@ -422,3 +425,5 @@ INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 S
 UINT32 fpga_adc_get_bounds(void){
 	return 1000;
 }
+
+#pragma GCC reset_options

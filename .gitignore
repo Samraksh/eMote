@@ -2,6 +2,11 @@
 *.cache
 #MicroFrameworkPK_v4_3/Framework/Core/Native_Hardware/*.cache
 
+# build meta data
+MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt
+MicroFrameworkPK_v4_3/CLR/Tools/MetaDataProcessor/MetaDataProcessor_assemblyinfo.txt
+MicroFrameworkPK_v4_3/CLR/Tools/TFConvert/TFConvert_assemblyinfo.txt
+
 # Ignore binaries
 MicroFrameworkPK_v4_0/BuildOutput/ARM/
 MicroFrameworkPK_v4_0/BuildOutput/THUMB2/
