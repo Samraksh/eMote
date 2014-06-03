@@ -53,6 +53,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\TinyCore.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Adapt\Samraksh_eMote_Adapt.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Direct\Samraksh_eMote_Direct.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <PlatformIndependentLibs Include="Core.$(LIB_EXT)" />
@@ -536,6 +537,10 @@
   <ItemGroup>
     <DriverLibs Include="Krait_ADC.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Krait_ADC\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_Direct.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\Krait\DeviceCode\Samraksh_eMote_Direct\dotNetMF.proj" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
