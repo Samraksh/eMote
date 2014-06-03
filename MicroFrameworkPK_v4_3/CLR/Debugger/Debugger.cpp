@@ -24,6 +24,7 @@ BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
 // upon reboot or continuation of debugging (usually by getting a PING debug message)
 // Since we are loading new code and then restarting, suppressing these actions should not break anything.
 volatile BOOL debuggerErasedFlash = false;
+static BOOL fNoCompaction = false;
 //--//
 
 void CLR_DBG_Debugger::Debugger_WaitForCommands()
@@ -103,6 +104,7 @@ HRESULT CLR_DBG_Debugger::CreateInstance()
 
     int iDebugger = 0;
 	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     g_CLR_DBG_Debuggers = (CLR_DBG_Debugger*)&g_scratchDebugger[ 0 ];
 
@@ -147,6 +149,7 @@ HRESULT CLR_DBG_Debugger::Debugger_Initialize( COM_HANDLE port )
     NATIVE_PROFILE_CLR_DEBUGGER();
     TINYCLR_HEADER();
 	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     m_messaging->Initialize( port, c_Debugger_Lookup_Request, c_Debugger_Lookup_Request_count, c_Debugger_Lookup_Reply, c_Debugger_Lookup_Reply_count, (void*)this );
 
@@ -354,6 +357,7 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool fStopOnBoot = true;
 	debuggerErasedFlash = false;
+	CLR_EE_DBG_RESTORE(NoCompaction,fNoCompaction);
 
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
 #if 0
@@ -833,9 +837,14 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 	// performing garbage collection and compaction here can be used to force hard faults that occur during
 	// deployment after the Flash has been erased.
 	//g_CLR_RT_ExecutionEngine.PerformGarbageCollection();
+
+	// Here we are remembering what state the Compaction variable is in to use again after deployment is over
+	fNoCompaction = CLR_EE_DBG_IS(NoCompaction);
 	// Here we are telling the CLR to not do any garbage compaction because this causes a hard fault after
 	// the Flash has been erased
 	CLR_EE_DBG_SET(NoCompaction);
+
+	// for debugging purposes
 	//g_CLR_RT_ExecutionEngine.PerformHeapCompaction   ();
 	
     dbg->m_messaging->ReplyToCommand( msg, fRet, false );

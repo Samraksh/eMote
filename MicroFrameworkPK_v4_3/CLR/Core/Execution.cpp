@@ -1931,8 +1931,12 @@ HRESULT CLR_RT_ExecutionEngine::InitializeLocals( CLR_RT_HeapBlock* locals, CLR_
                     {
                         TINYCLR_SET_AND_LEAVE(CLR_E_WRONG_TYPE);
                     }
-
-                    cls = *cls2;
+					if (debuggerErasedFlash == false){
+                    	cls = *cls2;
+					} else 
+					{
+                        TINYCLR_SET_AND_LEAVE(CLR_E_WRONG_TYPE);
+					}
                 }
                 goto done;
             }
