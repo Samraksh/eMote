@@ -248,7 +248,7 @@ private:
     DATASTORE_STATUS unlockDataStore();
 
     /* PRIVATE FUNCTIONS */
-    DATASTORE_STATUS initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property );
+    DATASTORE_STATUS initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property, bool eraseDataStore );
     /* Compact function */
     DATASTORE_STATUS compactLog();
 
@@ -321,7 +321,8 @@ public:
     // system
     Data_Store()
     {
-    	Data_Store("NOR");
+    	//AnanthAtSamraksh - by default, the dataStore is not clean erased.
+    	Data_Store("NOR", false);
     }
 
     /* Helper function for the addressTable. Gets a table, copies it to a new table and returns it */
@@ -330,14 +331,14 @@ public:
 
 
         /* Load with default settings */
-     Data_Store( char *flashDeviceName );
+     Data_Store( char *flashDeviceName, bool eraseDataStore );
 
           /* Create a Datastore with specific property - Only used with emulator */
      Data_Store( char *flashDeviceName,
-                      DATASTORE_PROPERTIES *property );
+                      DATASTORE_PROPERTIES *property, bool eraseDataStore );
 
 
-     DeviceStatus init();
+     DeviceStatus init(bool eraseDataStore);
 
 
 #ifdef ENABLE_PERSISTENCE

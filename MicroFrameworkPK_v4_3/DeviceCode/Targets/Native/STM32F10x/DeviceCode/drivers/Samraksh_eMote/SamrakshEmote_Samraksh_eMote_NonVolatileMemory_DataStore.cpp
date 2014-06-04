@@ -30,9 +30,9 @@ typedef enum DATASTORE_RETURN_STATUS
 
 extern Data_Store g_dataStoreObject;
 
-INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, INT8 eraseDataStore, HRESULT &hr )
 {
-    g_dataStoreObject.init();
+    g_dataStoreObject.init((bool)eraseDataStore);
 
     if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return Success;
