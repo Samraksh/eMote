@@ -12,7 +12,7 @@
 #include "gsbi.h"
 #include "uart_dm.h"
 
-#define GSBI5_UART_DM_BUFF_SIZE 256
+#define GSBI5_UART_DM_BUFF_SIZE PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE
 
 extern Krait_USART_Driver g_Krait_USART_Driver;
 
