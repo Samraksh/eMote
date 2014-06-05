@@ -10,6 +10,10 @@
  *
  */
 
+#ifndef SAM_FORCE_GCC_CMDLINE_OPTS
+#pragma GCC optimize ("O3")
+#endif
+
 
 #include <tinyhal.h>
 #include "Krait__Time.h"
@@ -84,9 +88,8 @@ static void ForceInterrupt(UINT32 Timer)
 // Set an interrupt for a number of ticks in the future
 static void SetCompare(UINT32 Timer, UINT32 Compare)
 {
-	UINT32 now;
 	flush_timer(); // Flush DGT to bigCounter
-	writel(Compare, DGT_MATCH_VAL); // let the overflow do its magic
+	writel(Compare, DGT_MATCH_VAL);
 }
 
 
@@ -175,7 +178,7 @@ UINT64 TimeNow()
 	return bigCounter + GetCounter(0);
 }
 
-#define TICKS_PROXIMITY_FORCE 50
+#define TICKS_PROXIMITY_FORCE 10
 void SetCompareValue( UINT64 CompareValue )
 {
 	UINT32 diff;
@@ -223,7 +226,7 @@ INT64 CurrentTime()
 
 // Correction factor. Assumes -O0
 // Only corrects for native, not managed.
-#define TINYCLR_TIMER_MUNGE 13
+#define TINYCLR_TIMER_MUNGE 4
 
 void Sleep_uSec( UINT32 uSec )
 {
@@ -233,8 +236,8 @@ void Sleep_uSec( UINT32 uSec )
 		return;
 	}
 
-	UINT32 value   = GetCounter( 0 );
 	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE ); 
+	UINT32 value   = GetCounter( 0 );
 
 	while((GetCounter(0) - value) <= maxDiff);
 }
@@ -247,8 +250,9 @@ void Sleep_uSec_Loop( UINT32 uSec )
 		return;
 	}
 
+	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE);
 	UINT32 value   = GetCounter( 0 );
-	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE); 
 
 	while((GetCounter(0) - value) <= maxDiff);
 }
+#pragma GCC reset_options

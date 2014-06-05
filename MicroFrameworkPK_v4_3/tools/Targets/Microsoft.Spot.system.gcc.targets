@@ -72,23 +72,23 @@
     
 	<!-- <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) -mabi=aapcs -ffunction-sections -fomit-frame-pointer -mlong-calls -fdollars-in-identifiers -fshort-wchar -fno-exceptions  -funsigned-char -mstructure-size-boundary=8</CC_CPP_COMMON_FLAGS> -->
 	<POS_INDEPENDENT>-mapcs -mabi=aapcs -fPIC -mno-apcs-stack-check </POS_INDEPENDENT>
-	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-m -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
-    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+	<CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-m -mcpu=cortex-m3 -funsigned-char -mstructure-size-boundary=8 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS)  -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"          >$(CC_CPP_TARGETTYPE_FLAGS) -O1</CC_CPP_TARGETTYPE_FLAGS>
     <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release'"      >$(CC_CPP_TARGETTYPE_FLAGS) -g -O1 </CC_CPP_TARGETTYPE_FLAGS>
+    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release'"      >$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
 
     <CC_FLAGS>$(CC_FLAGS)-xc </CC_FLAGS>
     <CPP_FLAGS>$(CPP_FLAGS)-xc++ -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
-    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
-    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
+    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
+    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
 
     <AS_CC_CPP_COMMON_FLAGS Condition="'$(COMPILER_TOOL)'!='GCCOP'">$(AS_CC_CPP_COMMON_FLAGS) $(FLOATING_POINT_FLAG) </AS_CC_CPP_COMMON_FLAGS>
-    <AS_CC_CPP_COMMON_FLAGS>$(AS_CC_CPP_COMMON_FLAGS) -mcpu=$(ARM_TYPE_FLAGS)</AS_CC_CPP_COMMON_FLAGS>
+    <AS_CC_CPP_COMMON_FLAGS>$(AS_CC_CPP_COMMON_FLAGS) </AS_CC_CPP_COMMON_FLAGS>
     <AS_CC_CPP_COMMON_FLAGS Condition="'$(ENDIANNESS)'=='le'">$(AS_CC_CPP_COMMON_FLAGS) -mlittle-endian</AS_CC_CPP_COMMON_FLAGS>
     <AS_CC_CPP_COMMON_FLAGS Condition="'$(ENDIANNESS)'=='be'">$(AS_CC_CPP_COMMON_FLAGS) -mbig-endian</AS_CC_CPP_COMMON_FLAGS>
   </PropertyGroup>
@@ -141,7 +141,7 @@
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -DDEBUG  -D_DEBUG </CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release'"      >$(CC_CPP_TARGETTYPE_FLAGS) -DNDEBUG</CC_CPP_TARGETTYPE_FLAGS>
 
-    <CPP_FLAGS Condition="'$(FLAVOR)'=='Release'">$(CPP_FLAGS) -fno-default-inline</CPP_FLAGS>
+    <CPP_FLAGS Condition="'$(FLAVOR)'=='Release'">$(CPP_FLAGS) </CPP_FLAGS>
 
     <CC_CPP_COMMON_FLAGS Condition="'$(TCP_IP_STACK)'=='LWIP'">$(CC_CPP_COMMON_FLAGS) -DTCPIP_LWIP</CC_CPP_COMMON_FLAGS>
 

@@ -5,6 +5,11 @@
  *
  * Description : Contains the hal level api for time
  */
+ 
+#ifndef SAM_FORCE_GCC_CMDLINE_OPTS
+#pragma GCC optimize ("O3")
+#endif
+ 
 #include <tinyhal.h>
 
 #include "Krait__Time.h"
@@ -165,3 +170,4 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
     Sleep_uSec_Loop( uSec );
 }
 
+#pragma GCC reset_options

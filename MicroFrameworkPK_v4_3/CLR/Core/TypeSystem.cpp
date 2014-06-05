@@ -9,7 +9,15 @@ Note the reset_options pragma at the end.
 --Nathan
 ***/
 #ifdef PLATFORM_ARM_SOC_ADAPT
+#ifndef SAM_FORCE_GCC_CMDLINE_OPTS
 #pragma GCC optimize ("O0")
+#pragma GCC optimize ("auto-inc-dec")
+#pragma GCC optimize ("cprop-registers")
+#pragma GCC optimize ("dce")
+#pragma GCC optimize ("defer-pop")
+#pragma GCC optimize ("delayed-branch")
+#pragma GCC optimize ("dse")
+#endif
 #endif
 
 #include "Core.h"

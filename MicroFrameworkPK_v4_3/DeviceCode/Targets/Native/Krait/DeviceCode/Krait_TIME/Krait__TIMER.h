@@ -39,21 +39,4 @@
 // Based on 32-bit DGT running at 6.75 MHz
 #define MAX_USEC_SLEEP 636291451
 
-//BOOL Initialize  ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 externalSync, void (*ISR)(UINT32), void* ISR_Param );
-
-/* now declared static
-UINT32 GetCounter(UINT32 Timer);
-BOOL InitializeTimer(UINT32 Timer);
-void SetCompare(UINT32 Timer, UINT32 Compare);
-UINT32 GetCompare(UINT32 Timer);
-BOOL Uninitialize(UINT32 Timer);
-void EnableCompareInterrupt(UINT32 Timer);
-void DisableCompareInterrupt(UINT32 Timer);
-void ForceInterrupt(UINT32 Timer);
-void SetCounter(UINT32 Timer, UINT32 Count);
-BOOL DidCompareHit(UINT32 Timer);
-void ResetCompareHit(UINT32 Timer);
-*/
-
-
 #endif /* KRAIT__TIMER_H_ */
