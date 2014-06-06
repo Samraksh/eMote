@@ -226,10 +226,10 @@
     <PlatformIndependentLibs Include="InterruptHandler.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Core\Hardware\InterruptHandler\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <PlatformIndependentLibs Include="Messaging_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Messaging\dotNetMF_Stub.proj" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <PlatformIndependentLibs Include="RPC_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\core\RPC\dotNetMF_Stub.proj" />

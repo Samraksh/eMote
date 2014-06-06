@@ -2,6 +2,9 @@
 *.cache
 #MicroFrameworkPK_v4_3/Framework/Core/Native_Hardware/*.cache
 
+MicroFrameworkPK_v4_3/BuildOutput/public/Release/Client/obj/Microsoft.SPOT.Graphics/
+MicroFrameworkPK_v4_3/BuildOutput/public/Release/Client/obj/Microsoft.SPOT.TinyCore/
+
 # build meta data
 MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt
 MicroFrameworkPK_v4_3/CLR/Tools/MetaDataProcessor/MetaDataProcessor_assemblyinfo.txt
