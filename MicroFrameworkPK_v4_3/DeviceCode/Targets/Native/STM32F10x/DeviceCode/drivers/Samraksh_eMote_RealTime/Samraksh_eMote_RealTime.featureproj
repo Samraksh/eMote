@@ -10,6 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_RealTime" />
+	<InteropFeature Include="RealTimeInteropTimer" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\RealTimeTimer.pe" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_RealTime\dotnetmf.proj" />
   </ItemGroup>
