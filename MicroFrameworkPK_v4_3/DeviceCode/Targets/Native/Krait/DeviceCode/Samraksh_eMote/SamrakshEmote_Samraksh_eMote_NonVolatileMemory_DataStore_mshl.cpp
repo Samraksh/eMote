@@ -13,7 +13,7 @@
 using namespace Samraksh::eMote::NonVolatileMemory;
 
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::CreateDataStore___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::CreateDataStore___I4__BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -21,9 +21,12 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Create
 
         FAULT_ON_NULL(pMngObj);
 
-        INT8 retVal = DataStore::CreateDataStore( pMngObj,  hr );
+        INT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT8( stack, 1, param0 ) );
+
+        INT32 retVal = DataStore::CreateDataStore( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
