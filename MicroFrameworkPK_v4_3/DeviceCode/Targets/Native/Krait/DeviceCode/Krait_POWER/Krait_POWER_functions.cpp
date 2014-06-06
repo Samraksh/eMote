@@ -26,9 +26,11 @@ void HAL_AssertEx() {
 
 BOOL CPU_Initialize() {
 	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
+	
+	return TRUE;
 
-        PMIC_Initialize();
-        Krait_POWER_Driver::Init();
+    PMIC_Initialize();
+	Krait_POWER_Driver::Init();
 
         return TRUE;
 }
@@ -80,6 +82,8 @@ void CPU_Reset() {
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
 {
 	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
+	
+	return;
 
 	switch(level)
 	{
@@ -100,6 +104,7 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents )
 
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
 	NATIVE_PROFILE_HAL_PROCESSOR_POWER();
+	return;
 	switch(level) {
 		case POWER_LEVEL__HIGH_POWER:
 			Krait_POWER_Driver::Highpower();

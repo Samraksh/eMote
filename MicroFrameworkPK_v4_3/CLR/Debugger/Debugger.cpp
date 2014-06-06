@@ -52,7 +52,8 @@ void CLR_DBG_Debugger::Debugger_Discovery()
 
     while(true)
     {
-        CLR_EE_DBG_EVENT_BROADCAST(CLR_DBG_Commands::c_Monitor_Ping, sizeof(cmd), &cmd, WP_Flags::c_NoCaching | WP_Flags::c_NonCritical);
+		BOOL result = true;
+        result = CLR_EE_DBG_EVENT_BROADCAST(CLR_DBG_Commands::c_Monitor_Ping, sizeof(cmd), &cmd, WP_Flags::c_NoCaching | WP_Flags::c_NonCritical);
 		//for(int i = 0 ; i < 10000; i++);
 		//CLR_EE_DBG_EVENT_BROADCAST(CLR_DBG_Commands::c_Monitor_Ping, sizeof(cmd), &cmd, WP_Flags::c_NoCaching | WP_Flags::c_NonCritical);
         // if we support soft reboot and the debugger is not stopped then we don't need to connect the debugger

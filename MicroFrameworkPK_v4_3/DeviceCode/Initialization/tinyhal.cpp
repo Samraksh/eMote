@@ -503,6 +503,13 @@ mipi_dsi_shutdown();
     *ptr = *ptr +4;
 #endif
 
+
+volatile int x=1;
+while(x) {
+x--;
+x++;
+}
+
 /*
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
     {
