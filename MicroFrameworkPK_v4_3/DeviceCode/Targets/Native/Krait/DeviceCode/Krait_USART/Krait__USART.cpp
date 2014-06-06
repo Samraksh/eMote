@@ -21,6 +21,7 @@ extern unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id);
 extern unsigned int msm_boot_uart_dm_reset(UINT8 id);
 extern unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id);
 extern int uart_putc(int port, char c);
+extern int uart_getc(int port, bool wait);
 
 extern "C"
 {
@@ -300,6 +301,9 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 
 void handle_rx(Krait_USART* port)
 {
+	char c = uart_getc(GSBI_ID_5, 0);
+	USART_AddCharToRxBuffer(port->index, c);
+	/*
 	UINT32 sr;
 
 	// Handle Overrun
@@ -311,9 +315,10 @@ void handle_rx(Krait_USART* port)
 
 	while((sr = readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5))) & MSM_BOOT_UART_DM_SR_RXRDY)
 	{
-		UINT32 c;
+		//UINT32 c;
+		char c;
 
-		c = readl(MSM_BOOT_UART_DM_RF(GSBI_ID_5, 0));
+		c = 0xFF & readl(MSM_BOOT_UART_DM_RF(GSBI_ID_5, 0));
 
 		if (sr & MSM_BOOT_UART_DM_RX_BREAK)
 		{
@@ -333,6 +338,7 @@ void handle_rx(Krait_USART* port)
 
 		USART_AddCharToRxBuffer(port->index, c);
 	}
+	*/
 
 }
 

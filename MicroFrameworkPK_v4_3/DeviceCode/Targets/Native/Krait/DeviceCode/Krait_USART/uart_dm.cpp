@@ -434,11 +434,11 @@ int uart_getc(int port, bool wait)
 {
 	int byte;
 	static unsigned int word = 0;
-	UINT8 gsbi_id = gsbi_lookup[port];
+	UINT8 gsbi_id = port; /*gsbi_lookup[port];*/
 
 	/* Don't do anything if UART is not initialized */
-	if (!uart_init_flag)
-		return 0;
+	//if (!uart_init_flag)
+	//	return 0;
 
 	if (!word) {
 		/* Read from FIFO only if it's a first read or all the four
