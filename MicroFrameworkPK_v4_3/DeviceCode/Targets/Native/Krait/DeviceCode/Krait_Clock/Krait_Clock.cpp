@@ -377,6 +377,10 @@ void clock_config(UINT32 ns, UINT32 md, UINT32 ns_addr, UINT32 md_addr)
 void clock_config_mmc(UINT32 interface, UINT32 freq)
 {
 	UINT32 reg = 0;
+	
+	hal_printf("YOU DUN GOOF'D, SEE __FILE__  __LINE__\r\n");
+	ASSERT(0); // THIS FUNCTION IS BROKEN, MMC_BOOT_MCI_CLK IS UNDEFINED
+	// FIX AND UNCOMMENT BELOW
 
 	switch (freq) {
 	case MMC_CLK_400KHZ:
@@ -399,7 +403,7 @@ void clock_config_mmc(UINT32 interface, UINT32 freq)
 	reg |= MMC_BOOT_MCI_CLK_ENABLE;
 	reg |= MMC_BOOT_MCI_CLK_ENA_FLOW;
 	reg |= MMC_BOOT_MCI_CLK_IN_FEEDBACK;
-	writel(reg, MMC_BOOT_MCI_CLK);
+	//writel(reg, MMC_BOOT_MCI_CLK);
 }
 
 /* Configure UART clock - based on the gsbi id */

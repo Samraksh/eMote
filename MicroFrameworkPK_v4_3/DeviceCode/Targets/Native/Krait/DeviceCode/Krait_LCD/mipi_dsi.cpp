@@ -1,4 +1,4 @@
-#include<tinyhal.h>
+#include <tinyhal.h>
 #include "mipi_dsi.h"
 #include "display.h"
 #include "fbcon.h"
@@ -15,9 +15,6 @@
  }
 
  static int cmd_mode_status = 0;
-
- extern void udelay(unsigned usecs);
- extern void mdelay(unsigned msecs);
  void mdp_start_dma(void);
  extern int mipi_dsi_phy_init(struct mipi_dsi_panel_config *pinfo);
  extern void config_mdt61_dsi_video_mode(void);
@@ -122,11 +119,11 @@ void mipi_dsi_panel_read_id_set_flag(void)
 //        mipi_panel_reset();
 #if 0
     gpio_set(TRULY_PANEL_RESET, 1);
-    mdelay(100);
+    HAL_Time_Sleep_MicroSeconds(100000);
     gpio_set(TRULY_PANEL_RESET, 0);
-    mdelay(100);
+    HAL_Time_Sleep_MicroSeconds(100000);
     gpio_set(TRULY_PANEL_RESET, 1);
-    mdelay(150);
+    HAL_Time_Sleep_MicroSeconds(150000);
 #endif
     manufacture_id =   mipi_himax_manufacture_id();
 
@@ -346,7 +343,7 @@ int mipi_dsi_cmds_tx(struct mipi_dsi_cmd *cmds, int count)
 		ret += dsi_cmd_dma_trigger_for_panel();
 		//writel(0x1, DSI_CMD_MODE_DMA_SW_TRIGGER);
 		//dsb_mipi();
-		udelay(80);
+		HAL_Time_Sleep_MicroSeconds(80);
 		cm++;
 	}
 	return ret;
@@ -393,7 +390,7 @@ int mipi_dsi_panel_initialize(struct mipi_dsi_panel_config *pinfo)
 
 	// Start the dma
 	//mdp_start_dma();
-	mdelay(30);
+	HAL_Time_Sleep_MicroSeconds(30000);
 
 	mipi_dsi_panel_read_id_set_flag();
 
@@ -442,7 +439,7 @@ struct fbcon_config *mipi_init(void)
 
 	mipi_dsi_phy_init(panel_info);
 
-	mdelay(3);
+	HAL_Time_Sleep_MicroSeconds(3000);
 	
 	status += mipi_dsi_panel_initialize(panel_info);
 
