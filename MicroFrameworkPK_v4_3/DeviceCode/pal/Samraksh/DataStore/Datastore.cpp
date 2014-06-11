@@ -1039,7 +1039,10 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 			addr = (char*)DATASTORE_END_ADDRESS + 0x10;*/
 
 		if(addr >= (char*)DATASTORE_END_ADDRESS || addr < (char*)DATASTORE_START_ADDRESS)
+		{
 			lastErrorVal = DATASTORE_ERROR_OUT_OF_BOUND_ACCESS;
+			break;
+		}
 	}
 	//PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
 	//startCount = 0; endCount = 0;

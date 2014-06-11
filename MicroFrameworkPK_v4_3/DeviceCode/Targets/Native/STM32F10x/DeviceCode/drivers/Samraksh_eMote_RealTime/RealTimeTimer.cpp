@@ -9,9 +9,10 @@
 #include <tinyhal.h>
 #include "RealTimeTimer.h"
 #include <stm32f10x.h>
-#include <tim/netmf_timers.h>
+//#include <tim/netmf_timers.h>
 #include <TinyCLR_Hardware.h>
 #include <TinyCLR_Runtime.h>
+#include "../Include/Samraksh/VirtualTimer.h"
 
 #define TICKS_PER_MICROSECOND SYSTEM_CLOCK_HZ/1000000
 //#define RT_HARDWARE_TIMER 3
@@ -22,34 +23,54 @@ static CLR_RT_HeapBlock_NativeEventDispatcher *g_Context = NULL;
 CLR_RT_ApplicationInterrupt interrupt;
 static UINT64 g_UserData = 0;
 bool SingleShot = FALSE;
-UINT16 RealTimeTimerTicks, RollOverTicks;
+UINT32 RealTimeTimerTicks, RollOverTicks;
 UINT32 ManagedTimerPeriodMicroSeconds;
 UINT32 ManagedTimerDueTimeMicroSeconds;
 UINT32 ManagedTimerTicks;
 UINT64 RealTimeCount=0;
-UINT16 RollOverCount=0;
-UINT16 RollOver=0;
+UINT32 RollOverCount=0;
+UINT32 RollOver=0;
+
+UINT32 maxTicks = 0;
 
 void ISR_REALTIME_TIMER (void* Param);
 void ISR_PendSV_Handler (void* Param);
 
 BOOL InitializeTimer (){
-	if (!Timer_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+
+	/*if(!VirtTimer_Initialize(VIRT_TIMER_REALTIME, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+		return FALSE;*/
+
+	maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_REALTIME);
+
+	if(!VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerTicks, FALSE, TRUE, ISR_REALTIME_TIMER)){ //50 milli sec Timer in micro seconds
+		return DS_Fail;
+	}
+
+	////VirtTimer_Start( VIRT_TIMER_REALTIME );
+
+	////VirtTimer_SetCounter(VIRT_TIMER_REALTIME, 0);
+	////VirtTimer_SetCompare(VIRT_TIMER_REALTIME, (UINT16)(RealTimeTimerTicks));
+
+	/*if (!Timer_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
 	{
 		return FALSE;
 	}
 	Timer_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-	Timer_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));
+	Timer_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));*/
 
 	return TRUE;
 }
 
 BOOL UnInitializeTimer (){
 
-	if (Timer_Driver :: Uninitialize (RT_HARDWARE_TIMER))
+	if(!VirtTimer_UnInitialize())
+		return FALSE;
+
+	/*if (Timer_Driver :: Uninitialize (RT_HARDWARE_TIMER))
 	{
 		return FALSE;
-	}
+	}*/
 
 	return TRUE;
 }
@@ -77,13 +98,16 @@ BOOL RT_Change(uint dueTime, uint period){
 	}
 
 	RollOver=0;
-	if(ManagedTimerTicks < 65536) {
+	if(maxTicks == 0)
+		maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_REALTIME);
+
+	if(ManagedTimerTicks < (maxTicks + 1)) {
 		RealTimeTimerTicks = ManagedTimerTicks;
 		RollOverCount=0;
 	}else {
-		RealTimeTimerTicks=65535;
-		RollOverCount= ManagedTimerTicks/65535;
-		RollOverTicks= ManagedTimerTicks - (RollOverCount* 65535);
+		RealTimeTimerTicks=maxTicks;
+		RollOverCount= ManagedTimerTicks/maxTicks;
+		RollOverTicks= ManagedTimerTicks - (RollOverCount* maxTicks);
 	}
 	InitializeTimer();
 
@@ -96,13 +120,13 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    g_UserData = userData;
    ManagedTimerPeriodMicroSeconds= userData;
    ManagedTimerTicks= TICKS_PER_MICROSECOND*ManagedTimerPeriodMicroSeconds;
-   if(ManagedTimerTicks < 65536) {
+   if(ManagedTimerTicks < (maxTicks + 1)) {
 	   RealTimeTimerTicks = ManagedTimerTicks;
 	   RollOverCount=0;
    }else {
-	   RealTimeTimerTicks=65535;
-	   RollOverCount= ManagedTimerTicks/65535;
-	   RollOverTicks= ManagedTimerTicks - (RollOverCount* 65535);
+	   RealTimeTimerTicks=maxTicks;
+	   RollOverCount= ManagedTimerTicks/maxTicks;
+	   RollOverTicks= ManagedTimerTicks - (RollOverCount* maxTicks);
    }
    InitializeTimer();
 
@@ -217,7 +241,7 @@ static void ISR_RealTimeTimerProc( CLR_RT_HeapBlock_NativeEventDispatcher *pCont
 void GeneratePendSVInterrupt(){
 	//E000ED04
 	//*((uint32_t volatile *)0x00000038) = 0x10000000;
-	SCB->ICSR |= SCB_ICSR_PENDSVSET;
+	////SCB->ICSR |= SCB_ICSR_PENDSVSET;
 	//*((uint32_t volatile *)SCB->ICSR = SCB_ICSR_PENDSVSET;
 }
 
@@ -239,10 +263,11 @@ void ISR_PendSV_Handler (void* Param){
 }
 
 void ISR_REALTIME_TIMER (void* Param){
-	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	/*if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 );
-	}
+	}*/
 	//HRESULT hresult;
 
 	if(RollOverCount==0){
@@ -251,7 +276,13 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 		//Ready to generate interrupt to CLR
 		if(!SingleShot) {
-			Timer_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
+
+			VirtTimer_Change(VIRT_TIMER_REALTIME, 0, (UINT16)( VirtTimer_GetCounter(VIRT_TIMER_REALTIME) )+ RealTimeTimerTicks, FALSE);
+			VirtTimer_Start( VIRT_TIMER_REALTIME );
+
+			////VirtTimer_SetCompare(VIRT_TIMER_REALTIME, (UINT16)( VirtTimer_GetCounter(VIRT_TIMER_REALTIME) )+ RealTimeTimerTicks);
+
+			//Timer_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
 		}
 		else {
 			UnInitializeTimer();
@@ -265,8 +296,14 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 				//Ready to generate interrupt to CLR
 				if(!SingleShot) {
-					Timer_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-					Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+					VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxTicks, FALSE);
+					VirtTimer_Start( VIRT_TIMER_REALTIME );
+
+					////VirtTimer_SetCounter(VIRT_TIMER_REALTIME, 0);
+					////VirtTimer_SetCompare(VIRT_TIMER_REALTIME, maxTicks);
+
+					//Timer_Driver::SetCounter(RT_HARDWARE_TIMER,0);
+					//Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 				}else {
 					UnInitializeTimer();
 				}
@@ -274,13 +311,21 @@ void ISR_REALTIME_TIMER (void* Param){
 				GeneratePendSVInterrupt();
 
 		}else if (RollOver==RollOverCount-1){
-				Timer_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
+
+				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RollOverTicks, FALSE);
+				VirtTimer_Start( VIRT_TIMER_REALTIME );
+				////VirtTimer_SetCompare(VIRT_TIMER_REALTIME, RollOverTicks);
+				//Timer_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
 				RollOver++;
 		}else{
 				RollOver++;
-				Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxTicks, FALSE);
+				VirtTimer_Start( VIRT_TIMER_REALTIME );
+				////VirtTimer_SetCompare(VIRT_TIMER_REALTIME, 65535);
+				//Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 		}
 	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 static const CLR_RT_DriverInterruptMethods g_InteropRealTimeTimerDriverMethods =

@@ -51,8 +51,6 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\LE\Samraksh_SPOT_Hardware.pdbx
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\BE\Samraksh_SPOT.pdbx
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\BE\Samraksh_SPOT_Hardware.pdbx
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\Samraksh_SPOT.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\Samraksh_SPOT_Hardware.dll
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\Samraksh_SPOT.pdb
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\Samraksh_SPOT.xml
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorRadarSD\DataCollectorRadarSD\bin\Debug\Samraksh_SPOT_Hardware.pdb

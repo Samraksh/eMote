@@ -468,7 +468,7 @@ BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
 
 	if(Configuration.CS_Setup_uSecs)
 	{
-		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Setup_uSecs);        
+		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Setup_uSecs);
 	}
 
 	return true;

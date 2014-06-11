@@ -90,7 +90,7 @@
 /////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////
-// communicaiton facilities
+// communication facilities
 //
 
 // Port definitions
@@ -118,7 +118,19 @@
 #define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    512  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 //
-// communicaiton facilities
+// communication facilities
+
+#define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
+
+const UINT8 g_CountOfHardwareTimers = 1;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {17};			//From Krait_Timer.h -- INT_DEBUG_TIMER_EXP
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};	//For additional virtual timer support, adjust values here as well as in VirtualTimer.cpp, VirtualTimer.h (VirtualTimer class)
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {SYSTEM_CLOCK_HZ};
+
+#define VIRT_TIMER_TIME 			0
+#define VIRT_TIMER_EVENTS 			1
+#define VIRT_TIMER_REALTIME 		2
+
 /////////////////////////////////////////////////////////
 
 #include <processor_selector.h>

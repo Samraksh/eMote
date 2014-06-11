@@ -1295,6 +1295,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// </summary>
         public static DataStore Instance(StorageType storageTypeKey, bool eraseDataStore = false)
         {
+            if (storageTypeKey != StorageType.NOR)
+                throw new DataStoreException("Storage type is not supported");
+
             if (!dataStoreInstances.Contains(storageTypeKey))
             {
                 lock (syncObject)

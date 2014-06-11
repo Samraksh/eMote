@@ -7,7 +7,7 @@
  * 2) The delay between initializing timer and enabling interrupts
  */
 
-#include "netmf_timers.h"
+//#include "netmf_timers.h"
 #include <stm32f10x.h>
 
 Timer_Driver g_Timer_Driver;

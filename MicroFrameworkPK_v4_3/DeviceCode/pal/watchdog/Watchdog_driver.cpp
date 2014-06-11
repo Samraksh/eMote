@@ -101,6 +101,7 @@ void Watchdog_Driver::WatchdogCallback( void* context )
     static int iReentrantState = 0;
     static INT64 lastTime = -1;
 
+    //AnanthAtSamraksh: using AdTim
     INT64 currentTime = HAL_Time_CurrentTime();
 
     ///

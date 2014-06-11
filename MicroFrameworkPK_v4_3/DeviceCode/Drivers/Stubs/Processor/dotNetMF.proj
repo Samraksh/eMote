@@ -24,7 +24,7 @@
     <SubDirectories Include="stubs_perfcounter"/>    
     <SubDirectories Include="stubs_power"/>
     <SubDirectories Include="stubs_spi"/>
-    <SubDirectories Include="stubs_time"/>    
+    <SubDirectories Include="stubs_time"/>  
     <SubDirectories Include="stubs_usart"/>
     <SubDirectories Include="stubs_usb"/>    
     <SubDirectories Include="stubs_watchdog"/>

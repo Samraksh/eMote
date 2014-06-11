@@ -9,6 +9,7 @@
 
 void CLR_RT_Random::Initialize()
 {
+	//AnanthAtSamraksh: using AdvTimer
     CLR_INT64  st  = HAL_Time_CurrentTime();
     CLR_INT32* ptr = (CLR_INT32*)&st;
 

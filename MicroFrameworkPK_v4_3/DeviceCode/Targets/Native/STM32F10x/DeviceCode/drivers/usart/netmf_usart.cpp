@@ -392,6 +392,7 @@ void __irq USART1_IRQHandler() {
 	static int idx;
 	unsigned int err;
 	unsigned int dummy;
+//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
@@ -446,7 +447,7 @@ void __irq USART1_IRQHandler() {
 uart1_isr_out:
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-
+//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 	return;
 
 }
@@ -505,6 +506,7 @@ void USART2_Handler(void *args)
 		    	USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) FALSE);
 		    }
 		return;
+		    ////Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 	}
 	err = USART2->SR;
 	err = USART2->DR;

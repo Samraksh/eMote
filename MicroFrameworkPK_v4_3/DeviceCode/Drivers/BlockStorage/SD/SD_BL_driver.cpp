@@ -170,7 +170,7 @@ BYTE SD_BS_Driver::SD_CheckBusy(void)
             break;
         }
 
-        HAL_Time_Sleep_MicroSeconds(SPI_DELAY); 
+        HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     }
 
     return rvalue;

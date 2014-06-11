@@ -5,11 +5,15 @@
 #ifndef _PLATFORM_EmoteDotNow_SELECTOR_H_
 #define _PLATFORM_EmoteDotNow_SELECTOR_H_ 1
 
+
+
 /////////////////////////////////////////////////////////
 //
 // processor and features
 //
 //#define TINYCLR_SOLO
+
+//#include "D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Samraksh\VirtualTimer.h"
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
@@ -86,7 +90,7 @@
 /////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////
-// communicaiton facilities
+// communication facilities
 //
 
 // Port definitions
@@ -135,7 +139,7 @@
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
-#define RT_HARDWARE_TIMER 3
+//#define RT_HARDWARE_TIMER 3
 
 //Enable GC extension
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
@@ -151,7 +155,6 @@ UINT16 MF_NODE_ID;
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365
 #define HALTIMER_RESOLUTION_USEC HALTIMER_MAX_RESOLUTION
-#define NUM_HALTIMER_TIMERS 8
 #define NUMBER_ADC_CHANNELS	3
 
 #define INPUT_REBOOT_PIN  22
@@ -169,9 +172,24 @@ UINT16 MF_NODE_ID;
 #error "need to define a SAM_USE_$_LOCK variant."
 #endif
 
+
+const UINT8 g_CountOfHardwareTimers = 1;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+
+#define VIRT_TIMER_TIME 			0
+#define VIRT_TIMER_EVENTS 			1
+#define VIRT_TIMER_REALTIME 		2
+#define VIRT_TIMER_MAC_SENDPKT 		3
+#define VIRT_TIMER_MAC_BEACON 		4
+#define VIRT_TIMER_MAC_FLUSHBUFFER 	5
+
+
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 
 #include <processor_selector.h>
+
 
 #endif // PLATFORM_ARM_EmoteDotNow
 

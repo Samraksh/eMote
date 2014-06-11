@@ -39,6 +39,7 @@
   <PropertyGroup />
   <ItemGroup>
     <HFiles Include="..\Krait.h" />
+    <!--HFiles Include="Krait__TIMER.h" /-->
     <HFiles Include="Krait__TIME.h" />
     <Compile Include="Krait__TIME.cpp" />
     <Compile Include="Krait__TIME_Functions.cpp" />

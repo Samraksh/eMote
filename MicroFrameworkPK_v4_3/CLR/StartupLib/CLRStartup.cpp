@@ -679,6 +679,7 @@ void ClrStartup( CLR_SETTINGS params )
                 CLR_Debug::Printf( "Ready.\r\n" );
 #endif
 
+
 #if defined(PLATFORM_WINDOWS)
                 (void)g_CLR_RT_ExecutionEngine.Execute( params.EmulatorArgs, params.MaxContextSwitches );
 #else

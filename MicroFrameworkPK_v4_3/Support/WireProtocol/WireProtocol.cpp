@@ -208,6 +208,7 @@ bool WP_Message::Process()
                             }
                             else
                             {
+                            	//AnanthAtSamraksh: defaulting to the AdvancedTimer
                                 m_payloadTicks = HAL_Time_CurrentTicks();
                                 m_rxState = ReceiveState::ReadingPayload;
                                 m_pos     = (UINT8*)m_payload;
@@ -236,7 +237,7 @@ bool WP_Message::Process()
 
         case ReceiveState::ReadingPayload:
             {
-
+            	//AnanthAtSamraksh: defaulting to the AdvancedTimer
                 UINT64 curTicks = HAL_Time_CurrentTicks();
 				 UINT64 Time;
                 // If the time between consecutive payload bytes exceeds the timeout threshold then assume that

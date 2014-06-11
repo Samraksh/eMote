@@ -5,6 +5,12 @@
 
 #include "Core.h" 
 #include <TinyCLR_Debugging.h>
+
+//AnanthAtSamraksh
+//#include <Samraksh/VirtualTimer.h>
+//#include "DeviceCode/Krait_TIME/Krait__TIME.h"
+//AnanthAtSamraksh
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //#define DEBUG_CLR 1
@@ -664,6 +670,33 @@ HRESULT CLR_RT_ExecutionEngine::CreateEntryPointArgs( CLR_RT_HeapBlock& argsBlk,
 
 #endif
 
+//AnanthAtSamraksh
+/*void Timer_0_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+}
+
+void Timer_1_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
+}
+
+void Timer_2_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, FALSE);
+}
+
+void Timer_3_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, FALSE);
+}*/
+//AnanthAtSamraksh
+
+
 HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSwitch )
 {            
     NATIVE_PROFILE_CLR_CORE();
@@ -671,6 +704,35 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
 
     CLR_RT_HeapBlock ref;
     CLR_RT_Thread*   thMain = NULL;
+
+
+    //******************************************************
+	//AnanthAtSamraksh
+	/*debug_printf("Inside ApplicationEntryPoint - tinyclr.cpp \r\n");
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 55, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 58, TRUE);
+
+	int periodValue = 1;
+	for(int i = 0; i < 1; i++)
+	{
+		VirtTimer_SetTimer(0, 0, periodValue*1000, FALSE, FALSE, Timer_0_Handler);
+		VirtTimer_SetTimer(1, 0, periodValue*1000, FALSE, FALSE, Timer_1_Handler);
+		VirtTimer_SetTimer(2, 0, periodValue*1000, FALSE, FALSE, Timer_2_Handler);
+		VirtTimer_SetTimer(3, 0, periodValue*1000, FALSE, FALSE, Timer_3_Handler);
+	}
+
+	for(UINT16 i = 0; i <= 0; i++)
+	{
+		for (UINT16 j = 1; j <= 1; j++)
+		{
+			VirtTimer_Start( (i+j)%8 );
+		}
+	}
+
+	//Sleep_uSec(2000);*/
+	//******************************************************
 
         
     if(TINYCLR_INDEX_IS_INVALID(g_CLR_RT_TypeSystem.m_entryPoint))

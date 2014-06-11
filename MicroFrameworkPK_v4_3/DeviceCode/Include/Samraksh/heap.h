@@ -22,9 +22,9 @@ using namespace std;
 // Macros defined in priority queue of known size
 
 // Parent and child pointers are satisfied by assuming constant positions in the array with respect to each other in a heap
-#define PARENT(x) ((x == 0) ? -1 : x/2)
-#define LEFTCHILD(x) (2 * x)
-#define RIGHTCHILD(x) (2 * x + 1)
+#define PARENT(x) ((x == 0) ? -1 : (x-1)/2)
+#define LEFTCHILD(x) (2 * x + 1)
+#define RIGHTCHILD(x) (2 * x + 2)
 
 
 template<typename T>
@@ -41,9 +41,9 @@ public:
 template<typename T, size_t size, typename Compare = myless<T> >
 class Hal_Heap_KnownSize
 {
-	T data[size];					/* body of the queue */
+	T data[size] = {0};					/* body of the queue */
 
-	UINT8 n;		/* number of queue elements */
+	UINT8 n = 0;		/* number of queue elements */
 
 	Compare comp;
 
@@ -97,6 +97,15 @@ class Hal_Heap_KnownSize
 
 public:
 
+	void heapify(int p)
+	{
+		//Don't heapify if there is only one element in the heap
+		if(n <= 1)
+			return;
+
+		bubble_down(p);
+	}
+
 	BOOL Insert(T item)
 	{
 		if(n >= size)
@@ -136,10 +145,24 @@ public:
 		return min;
 	}
 
-	T PeekTop()
+	T inline PeekTop()
 	{
 		return data[0];
+		/*T min = (T) 0;
+
+		if(n <= 0)
+		{
+			return (T) 0;
+		}
+		else
+		{
+			bubble_down(0);
+		}
+
+		return data[0];*/
 	}
+
+
 
 #if defined(WIN_DEBUG_ENABLE)
 	void PrintHeap()

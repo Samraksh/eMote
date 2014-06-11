@@ -472,16 +472,13 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
 	if (ComPortNum == 1)
 	{
         GLOBAL_LOCK(irq);
-     
         State.fDataEventSet  = FALSE;        
-
         if(!State.ManagedRxQueue.IsEmpty())
         {
             SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
         }
 	}
 #endif
-
     return CharsRead;
 }
 
