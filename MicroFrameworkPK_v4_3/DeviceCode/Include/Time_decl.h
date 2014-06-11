@@ -140,17 +140,17 @@ BOOL       Utility_SafeSprintf( LPSTR& szBuffer, size_t& iBuffer, LPCSTR format,
 
 //--//
 
-BOOL    HAL_Time_Initialize      (                     );
-BOOL    HAL_Time_Uninitialize    (                     );
-INT64   HAL_Time_TicksToTime     ( UINT64 Ticks        );
-INT64   HAL_Time_CurrentTime     (                     );
-void    HAL_Time_SetCompare      ( UINT64 CompareValue );
-void    HAL_Time_SetCompare_Completion      ( UINT64 CompareValue );
-void    HAL_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
+BOOL    CPU_Time_Initialize      (                     );
+BOOL    CPU_Time_Uninitialize    (                     );
+INT64   CPU_Time_TicksToTime     ( UINT64 Ticks        );
+INT64   CPU_Time_CurrentTime     (                     );
+void    CPU_Time_SetCompare      ( UINT64 CompareValue );
+void    CPU_Time_SetCompare_Completion      ( UINT64 CompareValue );
+void    CPU_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
 
 extern "C" 
 {
-    UINT64  HAL_Time_CurrentTicks( );
+    UINT64  CPU_Time_CurrentTicks( );
     UINT64  Time_CurrentTicks    ( ); 
 }
 
@@ -160,12 +160,12 @@ extern "C"
 
 #if defined(__GNUC__)
 
-void HAL_Time_Sleep_MicroSeconds_InRam( UINT32 uSec );
+void CPU_Time_Sleep_MicroSeconds_InRam( UINT32 uSec );
 #endif
 
 
-void    HAL_Time_Sleep_MicroSeconds( UINT32 uSec );
-void    HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec );
+void    CPU_Time_Sleep_MicroSeconds( UINT32 uSec );
+void    CPU_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec );
 // --//
     
     
@@ -187,11 +187,15 @@ UINT64  CPU_TicksToTime               ( UINT32 Ticks32 );
 //--//
 
 // Nived.Sivadas - adding this interface to enable the HALTimer
-BOOL CPU_TIMER_Initialize(UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM);
+BOOL CPU_TIMER_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM);
 
-BOOL CPU_TIMER_SetCompare(UINT32 Timer, UINT32 Compare);
+//TODO: AnanthAtSamraksh -- check if UINT64 is right
+////BOOL CPU_TIMER_SetCompare(UINT64 CompareValue);
+BOOL CPU_TIMER_SetCompare(UINT16 Timer, UINT32 CompareValue);
 
-UINT16 CPU_TIMER_GetCounter(UINT32 Timer);
+UINT16 CPU_TIMER_GetCounter(UINT16 Timer);
+
+UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
 
 #endif // _DRIVERS_TIME_DECL_H_
 

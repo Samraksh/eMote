@@ -2960,7 +2960,7 @@ struct CLR_RT_ExecutionEngine
         {
             if(m_recursion++ == 0)
             {
-                m_start = HAL_Time_CurrentTicks();
+                m_start = CPU_Time_CurrentTicks();
             }
         }
 
@@ -2970,14 +2970,14 @@ struct CLR_RT_ExecutionEngine
             {
                 if(--m_recursion == 0)
                 {
-                    m_cumulative += (HAL_Time_CurrentTicks() - m_start);
+                    m_cumulative += (CPU_Time_CurrentTicks() - m_start);
                 }
             }
         }
 
         CLR_INT64 Adjust( CLR_INT64 time ) const
         {
-            return time + ::HAL_Time_TicksToTime( m_cumulative );
+            return time + ::CPU_Time_TicksToTime( m_cumulative );
         }
     };
 

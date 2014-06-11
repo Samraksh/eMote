@@ -1,10 +1,12 @@
 #include "csmaMAC.h"
-#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
+//TODO: AnanthAtSamraksh - this is not right. Need to find out a better way
+#include <Timer/netmf_timers.cpp>
 
 //#define DEBUG_MAC 1
 
 csmaMAC gcsmaMacObject;
-extern HALTimerManager gHalTimerManagerObject;
+extern VirtualTimer gVirtualTimerObject;
 
 UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
@@ -96,12 +98,20 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		CPU_Radio_TurnOn(this->radioName);
 
 		// This is the one-shot resend timer that will be activated if we need to resend a packet
-		if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ 
+		/*if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){
 			return DS_Fail;
 		}
 
 		// This is the beacon timer that will send a beacon every time it goes off
-		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
+		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){*/
+
+		//gHalTimerManagerObject.Initialize();
+		//if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		if(!VirtTimer_SetTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+			return DS_Fail;
+		}
+
+		if(!VirtTimer_SetTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
 			return DS_Fail;
 		}
 		gHalTimerManagerObject.StartTimer(2);
@@ -111,6 +121,11 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 			return DS_Fail;
 		}
 	}
+
+	// Stop the timer
+	//gHalTimerManagerObject.StopTimer(1);
+	VirtTimer_Stop(1);
+	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
@@ -265,12 +280,16 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds != DS_Success) {
-			HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 200));
+			/*HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 200));
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
 			{
 				gHalTimerManagerObject.StartTimer(1);
 				return;
-			}
+			}*/
+			//TODO: AnanthAtSamraksh - check if this is right
+			CPU_Timer_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			//CPU_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	return;}
 		}
 
 		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
@@ -368,7 +387,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(m_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
+				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, CPU_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
 					NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
 
@@ -382,7 +401,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 			else
 			{
-				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, CPU_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
 #if 0
 				m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
 				m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
@@ -469,6 +488,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			{
 				//gHalTimerManagerObject.StopTimer(3);
 				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+
+				VirtTimer_Stop(3);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
@@ -481,7 +502,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
 			//hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
-			gHalTimerManagerObject.StartTimer(1);
+			//gHalTimerManagerObject.StartTimer(3);
+			VirtTimer_Start(3);
 			break;
 			
 		default:

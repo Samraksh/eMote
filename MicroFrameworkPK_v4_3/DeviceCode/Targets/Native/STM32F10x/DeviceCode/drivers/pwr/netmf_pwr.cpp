@@ -18,6 +18,11 @@ Should be able to fix that with some checking later.
 #include <tinyhal.h>
 #include "netmf_pwr.h"
 #include <stm32f10x.h>
+#include "stm32f10x_pwr.h"
+//#include "../rcc/stm32f10x_rcc.h"
+//#include "../flash/stm32f10x_flash.h"
+//#include "../gpio/stm32f10x_gpio.h"
+#include <Timer/Timer16Bit/stm32f10x_tim.h>
 
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,

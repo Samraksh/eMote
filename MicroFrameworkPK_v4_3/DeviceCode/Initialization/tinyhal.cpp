@@ -4,6 +4,10 @@
 
 #include <tinyhal.h>
 
+//TODO: AnanthAtSamraksh -- check with Mukundan
+#include <Samraksh/VirtualTimer.h>
+
+
 #if !defined(__GNUC__)
 #include <rt_fp.h>
 #endif
@@ -504,11 +508,6 @@ mipi_dsi_shutdown();
 #endif
 
 
-volatile int x=1;
-while(x) {
-x--;
-x++;
-}
 
 /*
 #if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
@@ -557,7 +556,10 @@ x++;
 
     HAL_Initialize();
 
-    HAL_Time_Initialize();
+    //TODO: AnanthAtSamraksh -- check this with Mukundan
+    //HAL_Time_Initialize();
+    //CPU_Timer_Initialize();
+    VirtTimer_Initialize();
 
     LCD_Initialize();
 #if !defined(BUILD_RTM) 

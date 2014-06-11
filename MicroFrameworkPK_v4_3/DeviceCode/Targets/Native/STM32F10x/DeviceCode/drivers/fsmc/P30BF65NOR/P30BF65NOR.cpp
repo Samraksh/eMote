@@ -437,9 +437,9 @@ DeviceStatus P30BF65NOR_Driver::ReturnToReadMode(void)
 DeviceStatus P30BF65NOR_Driver::Reset(void)
 {
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) FLASH_RESET, FALSE);
-	HAL_Time_Sleep_MicroSeconds(10);
+	CPU_Time_Sleep_MicroSeconds(10);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) FLASH_RESET, TRUE);
-	HAL_Time_Sleep_MicroSeconds(10);
+	CPU_Time_Sleep_MicroSeconds(10);
 
 	return DS_Success;
 }
@@ -460,10 +460,10 @@ DeviceStatus  P30BF65NOR_Driver::GetStatus(UINT32 Timeout)
 
 	UINT64 timeoutTicks = CPU_MicrosecondsToTicks(Timeout);
 
-	UINT64 timeoutAt = timeoutTicks + HAL_Time_CurrentTicks();
+	UINT64 timeoutAt = timeoutTicks + CPU_Time_CurrentTicks();
 
 	// Wait until device ready or timeout
-	while((INT64) (timeoutAt - HAL_Time_CurrentTicks()) > 0)
+	while((INT64) (timeoutAt - CPU_Time_CurrentTicks()) > 0)
 	{
 		NOR_WRITE(ADDR_SHIFT(0x0000, 0), 0x70);
 

@@ -101,7 +101,7 @@ void Watchdog_Driver::WatchdogCallback( void* context )
     static int iReentrantState = 0;
     static INT64 lastTime = -1;
 
-    INT64 currentTime = HAL_Time_CurrentTime();
+    INT64 currentTime = CPU_Time_CurrentTime();
 
     ///
     ///  If we have repeated watchdogs within the given rety timeout we will attempt to fix the problem

@@ -42,7 +42,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="HALTimer_stubs.cpp" />
+    <Compile Include="VirtualTimer_stubs.cpp" />
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

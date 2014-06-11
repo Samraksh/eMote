@@ -452,7 +452,7 @@ BOOL USB_Driver::Uninitialize( int Controller )
     CPU_USB_Uninitialize( Controller );
 
     // for soft reboot allow the USB to be off for at least 100ms
-    HAL_Time_Sleep_MicroSeconds(100000); // 100ms
+    CPU_Time_Sleep_MicroSeconds(100000); // 100ms
 
     return TRUE;
 }
@@ -672,7 +672,7 @@ int USB_Driver::Write( int UsbStream, const char* Data, size_t size )
                 irq.Release();
 //                lcd_printf("Looping in write\r\n");
 
-                HAL_Time_Sleep_MicroSeconds_InterruptEnabled(50);
+                CPU_Time_Sleep_MicroSeconds_InterruptEnabled(50);
 
                 irq.Acquire();
             }
@@ -798,7 +798,7 @@ BOOL USB_Driver::Flush( int UsbStream )
     {
         CPU_USB_StartOutput( State, endpoint );
 
-        HAL_Time_Sleep_MicroSeconds_InterruptEnabled(100); // don't call Events_WaitForEventsXXX because it will turn off interrupts
+        CPU_Time_Sleep_MicroSeconds_InterruptEnabled(100); // don't call Events_WaitForEventsXXX because it will turn off interrupts
 
         int cnt = State->Queues[endpoint]->NumberOfElements();
         retries  = (queueCnt == cnt) ? retries-1: USB_FLUSH_RETRY_COUNT;

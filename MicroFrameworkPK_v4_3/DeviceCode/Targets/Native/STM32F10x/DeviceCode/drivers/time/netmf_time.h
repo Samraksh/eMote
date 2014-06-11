@@ -10,7 +10,8 @@
 #define __NETMF_TIME_DRIVER__
 
 #include <tinyhal.h>
-#include <tim/netmf_timers.h>
+//TODO: AnanthAtSamraksh -- should there be a header file
+//#include <Timer/netmf_timers.cpp>
 
 
 struct Time_Driver

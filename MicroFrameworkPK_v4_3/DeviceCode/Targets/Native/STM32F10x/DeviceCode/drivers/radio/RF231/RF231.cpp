@@ -125,7 +125,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        UINT8 timeStampLength = 4;
 	        UINT32 eventOffset;
 	        UINT8 * timeStampPtr = (UINT8 *) &eventOffset;
-	        UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
+	        UINT32 timestamp = CPU_Time_CurrentTicks() & (~(UINT32) 0);
 	        eventOffset = timestamp - eventTime;
 
 	#ifdef DEBUG_TIMESYNC
@@ -200,7 +200,7 @@ BOOL RF231Radio::Reset()
 	// Specified in the datasheet a sleep of 510us
 	// The performance of this function is good but at times its found to generate different times. Its possible that there were other
 	// events happening on the pin that was used to measure this or there is a possible bug !!!
-	HAL_Time_Sleep_MicroSeconds(510);
+	CPU_Time_Sleep_MicroSeconds(510);
 
 	// Clear rstn pin
 	RstnClear();
@@ -209,7 +209,7 @@ BOOL RF231Radio::Reset()
 	SlptrClear();
 
 	// Sleep for 6us
-	HAL_Time_Sleep_MicroSeconds(6);
+	CPU_Time_Sleep_MicroSeconds(6);
 
 	RstnSet();
 
@@ -237,7 +237,7 @@ BOOL RF231Radio::Reset()
 	#endif
 	DID_STATE_CHANGE(RF230_TRX_OFF);
 
-	HAL_Time_Sleep_MicroSeconds(510);
+	CPU_Time_Sleep_MicroSeconds(510);
 
 			// Register controls the interrupts that are currently enabled
 	#ifndef RADIO_DEBUG
@@ -776,7 +776,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Specified in the datasheet a sleep of 510us
 		// The performance of this function is good but at times its found to generate different times. Its possible that there were other
 		// events happening on the pin that was used to measure this or there is a possible bug !!!
-		HAL_Time_Sleep_MicroSeconds(510);
+		CPU_Time_Sleep_MicroSeconds(510);
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
@@ -794,7 +794,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
 		// Sleep for 6us
-		HAL_Time_Sleep_MicroSeconds(6);
+		CPU_Time_Sleep_MicroSeconds(6);
 
 #ifdef DEBUG_RF231
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
@@ -838,7 +838,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
 #endif
-		HAL_Time_Sleep_MicroSeconds(510);
+		CPU_Time_Sleep_MicroSeconds(510);
 
 		if(this->GetRadioName() == RF231RADIOLR)
 		{
@@ -1035,7 +1035,7 @@ DeviceStatus RF231Radio::TurnOn()
 	state = STATE_SLEEP_2_TRX_OFF;
 
 	// Sleep for 200us and wait for the radio to come oout of sleep
-	HAL_Time_Sleep_MicroSeconds(200);
+	CPU_Time_Sleep_MicroSeconds(200);
 
 	DID_STATE_CHANGE(RF230_TRX_OFF);
 
@@ -1121,7 +1121,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
 	// Busy wait for the duration of numberMicrosecond
-	HAL_Time_Sleep_MicroSeconds(numberMicroSecond);
+	CPU_Time_Sleep_MicroSeconds(numberMicroSecond);
 
 	// Read the register to check the result of the assessment
 	trx_status = ReadRegister(RF230_TRX_STATUS);
@@ -1162,7 +1162,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
 	// Busy wait for the minimum duration of 140 us
-	HAL_Time_Sleep_MicroSeconds(150);
+	CPU_Time_Sleep_MicroSeconds(150);
 
 	trx_status = ReadRegister(RF230_TRX_STATE);
 
@@ -1227,7 +1227,7 @@ void RF231Radio::HandleInterrupt()
 				// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 				// Lets stick to 32, the iris implementation uses the timer to measure when the input was
 				// captured giving more accurate timestamping, we are going to rely on this less reliable technique
-				time = (HAL_Time_CurrentTicks() >> 32);
+				time = (CPU_Time_CurrentTicks() >> 32);
 
 				// Time stamp the packet
 		//		rx_msg.SetTimeStamp(time);
@@ -1348,7 +1348,7 @@ void RF231Radio::HandleInterrupt()
 		else if(cmd == CMD_RECEIVE)
 		{
 
-			receive_timestamp = HAL_Time_CurrentTicks();
+			receive_timestamp = CPU_Time_CurrentTicks();
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 

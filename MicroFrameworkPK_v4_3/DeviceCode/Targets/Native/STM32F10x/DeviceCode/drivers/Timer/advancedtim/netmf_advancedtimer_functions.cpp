@@ -1,9 +1,11 @@
+/*
 #include <tinyhal.h>
 #include <netmf_advancedtimer.h>
 #include <pwr/netmf_pwr.h>
 
 extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 extern STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
+*/
 
 /*
 
@@ -19,6 +21,9 @@ is accounted for in the DriftParameters (terrible naming, thanks MS).
 --NPS
 
 */
+
+/*
+////TODO: AnanthAtSamraksh - This is not to be used anymore. All functions below have been moved to netmf_timers.cpp.
 
 void CPU_CPWAIT()
 {
@@ -79,3 +84,5 @@ int CPU_MicosecondsToSystemClocks( int uSec ) {
 int CPU_SystemClocksToMicroseconds( int Ticks ) {
 	return Ticks * 1000000 / SystemTimerClock ;
 }
+*/
+

@@ -9,8 +9,10 @@
 
 
 #include "netmf_advancedtimer.h"
-#include <Samraksh\HALTimer.h>
 #include <stm32f10x.h>
+#include <Samraksh/VirtualTimer.h>
+#include <pwr/netmf_pwr.h>
+#include <rcc/stm32f10x_rcc.h>
 
 
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
@@ -23,36 +25,49 @@ void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 }
 
-extern HALTimerManager gHalTimerManagerObject;
+
 // Initialize the virtual timer layer
 // This is to ensure that users can not remove the hardware timer from underneath the virtual timer
 // layer without the knowledge of the virtual timer
-BOOL HAL_Time_Initialize()
+
+////TODO: AnanthAtSamraksh -- check this with Mukundan
+/*extern VirtualTimerMapper gVirtualTimerMapperObject;
+extern const UINT8 g_CountOfHardwareTimers;
+BOOL CPU_Timer_Initialize()
 {
-	return gHalTimerManagerObject.Initialize();
+	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+	{
+		if(gVirtualTimerMapperObject.Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer[i]))
+			return FALSE;
+	}
+	////return gVirtualTimerMapperObject.Initialize(1, 8);
 	//return TRUE;
 }
 
 // This function is called the uninitialize the timer system and the virtual timer layer
-BOOL HAL_Time_Uninitialize()
+BOOL CPU_Timer_Uninitialize()
 {
-	return gHalTimerManagerObject.DeInitialize();
-}
+	return gVirtualTimerMapperObject.UnInitialize();
+}*/
 
 // This function has been tested using the rollover test for advanced timers - Level_0b
-UINT64 HAL_Time_CurrentTicks()
+//TODO: AnanthAtSamraksh - commented this out
+/*UINT64 CPU_Timer_CurrentTicks()
 {
 	return g_STM32F10x_AdvancedTimer.Get64Counter();
-}
+}*/
 
 
-INT64 HAL_Time_TicksToTime( UINT64 Ticks )
+/*
+////TODO: AnanthAtSamraksh - moved below functions to netmf_timers.cpp
+
+INT64 CPU_Timer_TicksToTime( UINT64 Ticks )
 {
 	return CPU_TicksToTime( Ticks );
 }
 
 // This function has been tested using the rollover test for advanced timers - level_0c
-INT64 HAL_Time_CurrentTime()
+INT64 CPU_Timer_CurrentTime()
 {
 	// time and ticks are actually the same thing, so we just return UINT64 of ticks
 	return CPU_TicksToTime(HAL_Time_CurrentTicks());
@@ -60,19 +75,20 @@ INT64 HAL_Time_CurrentTime()
 
 // This SetCompare function will tie in to the HALTimerManager framework in \pal\HALTimer\HALTimer.cpp
 // On a successful compare, a tasklet is launched that will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
-void HAL_Time_SetCompare( UINT64 CompareValue )
+//TODO: AnanthAtSamraksh -- this name matches with the one in netmf_timers.cpp
+void CPU_Timer_SetCompare( UINT64 CompareValue )
 {
 	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
 }
 
 // This SetCompare works within the HAL_COMPLETION \ HAL_CONTINUATION framework in \pal\AsyncProcCall
 // On a successful compare HAL_COMPLETION::DequeueAndExec(); will be called
-void HAL_Time_SetCompare_Completion( UINT64 CompareValue )
+void CPU_Timer_SetCompare_Completion( UINT64 CompareValue )
 {
 	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
 }
 
-void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
+void CPU_Timer_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
     //*a = 1;
     //*b = 1;
@@ -96,8 +112,8 @@ UINT64 Time_CurrentTicks()
 // Will not work at other speeds at low uSec values ie ( < 30)
 // This function has poor accuracy at less than 10 microsecs
 // Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
-
-void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
+//TODO: AnanthAtSamraksh - should this be moved to netmf_timers.cpp
+void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec )
 {
 
 
@@ -130,11 +146,12 @@ void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 
 // This function is tuned to work when the processor is running at 8 MHz
 // When that changes this function no longer works efficiently
-void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
+void CPU_Timer_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
 	UINT32 limit = (uSec / 5);
 	for(volatile UINT32 i = 0; i < limit; i++);
 }
+*/
 
 // Returns the combined 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
@@ -349,6 +366,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
+//TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
 	UINT32 newCompareValue;
@@ -359,7 +377,9 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 	}
 	else
 	{
+		//TODO: AnanthAtSamraksh -- check if INT64 is right
 		newCompareValue = (UINT32) counterCorrection +  compareValue;
+		//newCompareValue = counterCorrection +  compareValue;
 	}
 	if(compareValue >> 16)
 	{

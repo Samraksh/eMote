@@ -22,9 +22,9 @@ using namespace std;
 // Macros defined in priority queue of known size
 
 // Parent and child pointers are satisfied by assuming constant positions in the array with respect to each other in a heap
-#define PARENT(x) ((x == 0) ? -1 : x/2)
-#define LEFTCHILD(x) (2 * x)
-#define RIGHTCHILD(x) (2 * x + 1)
+#define PARENT(x) ((x == 0) ? -1 : (x-1)/2)
+#define LEFTCHILD(x) (2 * x + 1)
+#define RIGHTCHILD(x) (2 * x + 2)
 
 
 template<typename T>

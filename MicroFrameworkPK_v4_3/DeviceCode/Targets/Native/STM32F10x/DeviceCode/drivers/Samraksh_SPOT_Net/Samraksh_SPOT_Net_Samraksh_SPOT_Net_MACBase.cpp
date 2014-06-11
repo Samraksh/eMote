@@ -161,7 +161,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	length=param3;
 	memcpy (CSMAInteropBuffer, payload,  length);
 
-	return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks());
+	return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) CPU_Time_CurrentTicks());
 }
 
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets)

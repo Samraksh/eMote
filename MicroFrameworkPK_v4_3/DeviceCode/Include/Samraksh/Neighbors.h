@@ -123,7 +123,7 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
 	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
-	UINT64 currentTime = HAL_Time_CurrentTicks();
+	UINT64 currentTime = CPU_Time_CurrentTicks();
 
 
 	//if (Neighbor[0].Status == Alive)

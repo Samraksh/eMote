@@ -7,6 +7,10 @@
 #include <Samraksh/Hal_util.h>
 #include <Samraksh/Tasklet.h>
 
+#include <Timer/Timer16Bit/stm32f10x_tim.h>
+#include <rcc/stm32f10x_rcc.h>
+#include <misc/misc.h>
+
 enum TimerClockRate
 {
 	EightMHz,
@@ -74,6 +78,7 @@ public:
 	// The advanced timer combination will always be TIM1 -> TIM2.
 	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param);
 
+	//TODO: AnanthAtSamraksh -- is INT64 for compareValue right?
 	DeviceStatus SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType);
 
 	UINT32 GetCompare();

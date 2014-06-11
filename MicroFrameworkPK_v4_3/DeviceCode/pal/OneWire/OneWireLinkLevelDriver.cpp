@@ -302,7 +302,7 @@ void msDelay(unsigned int delay)
 //
 void usDelay(unsigned int delay)
 {
-	HAL_Time_Sleep_MicroSeconds( delay);
+	CPU_Time_Sleep_MicroSeconds( delay);
 }
 
 //--------------------------------------------------------------------------

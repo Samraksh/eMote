@@ -12,13 +12,16 @@
 
 #include <tinyhal.h>
 #include <stm32f10x.h>
+#include "Timer/Timer16Bit/stm32f10x_tim.h"
+#include <rcc/stm32f10x_rcc.h>
+#include <misc/misc.h>
 
 
 
 #define MAX_TIMER 10
 #define DEBUG_ON
 
-struct Timer_Driver
+struct Timer16Bit_Driver
 {
 	static const UINT32 c_SystemTimer   = 2;
 	static const UINT32 c_ADCTimer = 4;
@@ -111,7 +114,7 @@ struct Timer_Driver
 		}
 	}
 
-	static void SetCompare( UINT32 Timer, UINT16 Compare )
+	static void SetCompare( UINT32 Timer, UINT32 Compare )
     {
 		//Set the compare register value for the specified time
 
@@ -339,9 +342,9 @@ struct Timer_Driver
     static void RCC_DeInit(UINT32 Timer);
 };
 
-BOOL Timer_Driver::m_timeOverFlowFlag = FALSE;
+BOOL Timer16Bit_Driver::m_timeOverFlowFlag = FALSE;
 
-extern Timer_Driver g_Timer_Driver;
+extern Timer16Bit_Driver g_Timer_Driver;
 extern "C"
 {
 	void Timer_IRQ_Handler( UINT32 Timer );

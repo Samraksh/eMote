@@ -1,14 +1,14 @@
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>STM32F10x_adtim</AssemblyName>
+    <AssemblyName>Timer16Bit</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
-    <Description>STM32F10x advanced timer</Description>
+    <Description>STM32F10x 16 bit timer</Description>
     <Level>HAL</Level>
-    <LibraryFile>STM32F10x_adtim.$(LIB_EXT)</LibraryFile>
-    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\advancedtim\dotNetMF.proj</ProjectPath>
-    <ManifestFile>STM32F10x_adtim.$(LIB_EXT).manifest</ManifestFile>
+    <LibraryFile>Timer16Bit.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj</ProjectPath>
+    <ManifestFile>Timer16Bit.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\STM32F10x</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="tim_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
@@ -31,7 +31,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\advancedtim</Directory>
+    <Directory>DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
@@ -39,9 +39,10 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-	<HFiles Include="netmf_advancedtimer.h" />
-	<Compile Include="netmf_advancedtimer.cpp" />
-	<Compile Include="netmf_time_functions.cpp" />
+	<HFiles Include="STM32F10x_tim.h" />
+	<HFiles Include="netmf_timers16Bit.h" />
+    <Compile Include="STM32F10x_tim.c" />
+	<Compile Include="netmf_timers16Bit.cpp" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

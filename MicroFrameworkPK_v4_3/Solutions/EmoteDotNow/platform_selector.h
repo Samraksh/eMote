@@ -5,11 +5,15 @@
 #ifndef _PLATFORM_EmoteDotNow_SELECTOR_H_
 #define _PLATFORM_EmoteDotNow_SELECTOR_H_ 1
 
+
+
 /////////////////////////////////////////////////////////
 //
 // processor and features
 //
 //#define TINYCLR_SOLO
+
+//#include "D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Samraksh\VirtualTimer.h"
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
@@ -148,7 +152,6 @@ UINT16 MF_NODE_ID;
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365
 #define HALTIMER_RESOLUTION_USEC HALTIMER_MAX_RESOLUTION
-#define NUM_HALTIMER_TIMERS 8
 #define NUMBER_ADC_CHANNELS	3
 
 #define INPUT_REBOOT_PIN  22
@@ -166,9 +169,66 @@ UINT16 MF_NODE_ID;
 #error "need to define a SAM_USE_$_LOCK variant."
 #endif
 
+
+const UINT8 g_CountOfHardwareTimers = 1;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
+////#define NUM_VIRTUALTIMER_TIMERS 16
+
+//extern VirtualTimerConfig g_VT_Config;
+/*VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
+
+
+g_VT_Config[0].hardwareTimerId = 1;
+g_VT_Config[0].countOfVirtualTimers = 8;
+g_VT_Config[1].hardwareTimerId = 2;
+g_VT_Config[1].countOfVirtualTimers = 8;*/
+
+/*struct VirtualTimerConfig
+{
+	UINT8 hardwareTimerId;
+	UINT8 countOfVirtualTimers;
+};
+
+VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];*/
+
+
+/*class VirtualTimerConfigInitialize
+{
+public:
+	struct VirtualTimerConfig
+	{
+		UINT16 hardwareTimerId;
+		UINT16 countOfVirtualTimers;
+	};
+
+	VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
+
+	VirtualTimerConfigInitialize()
+	{
+		g_VT_Config[0].hardwareTimerId = 1;
+		g_VT_Config[0].countOfVirtualTimers = 8;
+		g_VT_Config[1].hardwareTimerId = 2;
+		g_VT_Config[1].countOfVirtualTimers = 8;
+	}
+};*/
+
+
+/*class VirtualTimerConfigInitialize
+{
+	VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
+
+	g_VT_Config[0].hardwareTimerId = 1;
+	g_VT_Config[0].countOfVirtualTimers = 8;
+	g_VT_Config[1].hardwareTimerId = 2;
+	g_VT_Config[1].countOfVirtualTimers = 8;
+};*/
+
+
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
 
 #include <processor_selector.h>
+
 
 #endif // PLATFORM_ARM_EmoteDotNow
 
