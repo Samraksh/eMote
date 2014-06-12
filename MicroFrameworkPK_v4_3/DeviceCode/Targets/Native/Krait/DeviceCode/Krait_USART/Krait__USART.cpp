@@ -12,7 +12,8 @@
 #include "gsbi.h"
 #include "uart_dm.h"
 
-#define GSBI5_UART_DM_BUFF_SIZE PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE
+//#define GSBI5_UART_DM_BUFF_SIZE PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE
+#define GSBI5_UART_DM_BUFF_SIZE 4
 
 extern Krait_USART_Driver g_Krait_USART_Driver;
 
@@ -358,6 +359,18 @@ void handle_tx(Krait_USART* port)
 	}
 
 	} while(count > 0);
+
+	// The sending is async but MF sort of assumes its sync.
+	// Ideally this is handled via Flush() but MF PAL was't written with this in mind.
+
+	if (!(readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5)) & MSM_BOOT_UART_DM_SR_TXEMT)) {
+		while (!
+		       (readl(MSM_BOOT_UART_DM_ISR(GSBI_ID_5)) &
+			MSM_BOOT_UART_DM_TX_READY)) {
+			HAL_Time_Sleep_MicroSeconds(1);
+			/* Kick watchdog? */
+		}
+	}
 }
 
 // Not used
@@ -423,11 +436,15 @@ void Krait_USART_Driver::TxBufferEmptyInterruptEnable(int ComPortNum,BOOL Enable
 {
 	//Krait_USART *usartport = &usart[ComPortNum];
 
+	UINT32 newreg;
 	UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
-	UINT32 mask = MSM_BOOT_UART_DM_TXLEV;
-	writel((reg | mask), MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 
+	if (Enable)
+		newreg = reg | MSM_BOOT_UART_DM_TXLEV;
+	else
+		newreg = reg & ~MSM_BOOT_UART_DM_TXLEV;
 
+	writel(newreg, MSM_BOOT_UART_DM_IMR(GSBI_ID_5));
 }
 
 BOOL Krait_USART_Driver::TxBufferEmptyInterruptState(  int ComPortNum )
@@ -474,7 +491,7 @@ BOOL Krait_USART_Driver::RxBufferFullInterruptState( int ComPortNum )
 
 BOOL Krait_USART_Driver::TxHandshakeEnabledState(int ComPortNum)
 {
-
+	return FALSE;
 }
 
 BOOL Krait_USART_Driver::ProtectPins( int ComPortNum, BOOL On )
