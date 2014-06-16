@@ -32,6 +32,7 @@ void SendFirstPacketToRadio(void * arg){
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
+	//CLR_Debug::Printf("beaconScheduler firing\r\n");
 	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendHello();
 }
@@ -220,13 +221,15 @@ void csmaMAC::UpdateNeighborTable(){
 
 	if(numberOfDeadNeighbours > 0)
 	{
+		//CLR_Debug::Printf("number of dead neighbors: %d\r\n",numberOfDeadNeighbours);
 		NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
 
 		// Check if neighbour change has been registered and the user is interested in this information
 		if(appHandler != NULL)
 		{
 			// Make the neighbour changed callback signalling dead neighbours
-			(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+			//(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+			(*appHandler)((INT16) (m_NeighborTable.NumberOfNeighbors()));
 		}
 	}
 	//m_NeighborTable.DegradeLinks();
@@ -245,10 +248,14 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
 	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
-	if (m_send_buffer.GetNumberMessagesInBuffer() > 1)
+	if (m_send_buffer.GetNumberMessagesInBuffer() > 1){
+		//CLR_Debug::Printf("Starting timer 3\r\n");
 		gHalTimerManagerObject.StartTimer(3);
-	else
+	}
+	else if (m_send_buffer.GetNumberMessagesInBuffer() == 0){
+		//CLR_Debug::Printf("Stopping timer 3\r\n");
 		gHalTimerManagerObject.StopTimer(3);
+	}
 
 
 	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
