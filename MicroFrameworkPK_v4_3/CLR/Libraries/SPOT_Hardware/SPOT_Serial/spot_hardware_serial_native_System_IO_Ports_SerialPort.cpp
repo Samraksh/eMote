@@ -269,13 +269,13 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Write___
     {
 		if(CLR_EE_DBG_IS( Enabled ) && !CLR_EE_DBG_IS( Quiet )){
 			const char *dbgPtr = (const char *)ptr;
-			CLR_Debug::Emit( dbgPtr, -1 );
+			CLR_Debug::Emit( dbgPtr, count );
+			//CLR_Debug::Emit( dbgPtr, -1 );
     		//CLR_Debug::Emit( "\r\n" , -1 );	
 
-			int stringLen = (int)hal_strlen_s( dbgPtr );
-			ptr      += stringLen;
-        	totWrite += stringLen;
-        	count    -= stringLen;
+			ptr      += count;
+        	totWrite += count;
+        	count    -= count;
 		} else {
         	int write = ::USART_Write( port, (char*)ptr, count );		
 
