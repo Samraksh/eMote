@@ -302,45 +302,45 @@ BOOL Krait_USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, i
 
 void handle_rx(Krait_USART* port)
 {
-	char c = uart_getc(GSBI_ID_5, 0);
-	USART_AddCharToRxBuffer(port->index, c);
-	/*
-	UINT32 sr;
+	unsigned int data;
+	int read;
+	const int id = 5;
 
-	// Handle Overrun
-	if ((readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5)) & MSM_BOOT_UART_DM_SR_UART_OVERRUN)) {
-			port->icount.overrun++;
-			USART_AddCharToRxBuffer(port->index, 0);
-			writel(MSM_BOOT_UART_DM_CMD_RESET_RX, MSM_BOOT_UART_DM_CR(GSBI_ID_5));
+	// Pulling data from the RX side is a pain.
+	// The provided getChar() doesn't work because it ignores null '0' chars.
+
+	// So I went back to the docs to reimplement...
+	// Except the docs at least in this instance are utterly lying.
+	// What I am observing is completely different.
+	// Don't trust the docs if you are seeing weirdness --Nathan
+
+	if (!(readl(MSM_BOOT_UART_DM_SR(id)) & MSM_BOOT_UART_DM_SR_RXRDY))
+		return; // we got duped, no bytes ready to read in FIFO.
+
+	// This is supposed to init a new RX transfer. Maybe it does nothing.
+	writel(MSM_BOOT_UART_DM_DMRX_DEF_VALUE, MSM_BOOT_UART_DM_DMRX(id));
+
+	// Force SW Stale event, this should end the internal transfer.
+	writel(MSM_BOOT_UART_DM_GCMD_SW_FORCE_STALE, MSM_BOOT_UART_DM_CR(id));
+
+	// Should tell us how many bytes we need to read from FIFO...
+	read = readl(MSM_BOOT_UART_DM_RX_TOTAL_SNAP(id));
+
+	while(read>0) {
+		int i=0;
+		data = readl(MSM_BOOT_UART_DM_RF(id, 0));
+		while(i<4 && read>0) {
+			char c = data & 0xFF;
+			USART_AddCharToRxBuffer(port->index, c);
+			data = data >> 8;
+			read--;
+			i++;
+		}
 	}
 
-	while((sr = readl(MSM_BOOT_UART_DM_SR(GSBI_ID_5))) & MSM_BOOT_UART_DM_SR_RXRDY)
-	{
-		//UINT32 c;
-		char c;
-
-		c = 0xFF & readl(MSM_BOOT_UART_DM_RF(GSBI_ID_5, 0));
-
-		if (sr & MSM_BOOT_UART_DM_RX_BREAK)
-		{
-			port->icount.brk++;
-			//if (uart_handle_break(port))
-			//		continue;
-		}
-		else if (sr & MSM_BOOT_UART_DM_SR_PAR_FRAME_ERR)
-		{
-			port->icount.frame++;
-
-		}
-		else
-		{
-			port->icount.rx++;
-		}
-
-		USART_AddCharToRxBuffer(port->index, c);
-	}
-	*/
-
+	// Reset
+	writel(MSM_BOOT_UART_DM_CMD_RES_STALE_INT, MSM_BOOT_UART_DM_CR(id));
+	writel(MSM_BOOT_UART_DM_GCMD_DIS_STALE_EVT, MSM_BOOT_UART_DM_CR(id));
 }
 
 void handle_tx(Krait_USART* port)
@@ -461,20 +461,13 @@ void Krait_USART_Driver::RxBufferFullInterruptEnable( int ComPortNum, BOOL Enabl
 {
 	Krait_USART *usartport = &usart[ComPortNum];
 
-	UINT32 id = GSBI_ID_5;
+	const UINT32 id = GSBI_ID_5;
+	UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(id));
 
 	if(Enable)
-	{
-		writel(MSM_BOOT_UART_DM_RXLEV, MSM_BOOT_UART_DM_IMR(id));
-	}
+		writel(reg | MSM_BOOT_UART_DM_RXLEV  , MSM_BOOT_UART_DM_IMR(id));
 	else
-	{
-		UINT32 reg = readl(MSM_BOOT_UART_DM_IMR(id));
-		UINT32 mask = ~(MSM_BOOT_UART_DM_RXLEV);
-		writel((reg & mask), MSM_BOOT_UART_DM_IMR(id));
-	}
-
-
+		writel(reg & ~MSM_BOOT_UART_DM_RXLEV , MSM_BOOT_UART_DM_IMR(id));
 }
 
 BOOL Krait_USART_Driver::RxBufferFullInterruptState( int ComPortNum )
