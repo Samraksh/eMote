@@ -22,6 +22,10 @@ struct USART_Driver
     static BOOL RemoveCharFromTxBuffer( int ComPortNum, char& c     );
     static INT8 PowerSave             ( int ComPortNum, INT8 Enable );
 
+#ifdef USE_SAM_UART_BUF_EXT
+	static BOOL AddToRxBuffer	  ( int ComPortNum, char *data, size_t size );
+#endif
+
     static void PrepareForClockStop();
     static void ClockStopFinished();
 

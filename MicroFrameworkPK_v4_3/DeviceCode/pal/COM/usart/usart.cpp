@@ -48,6 +48,13 @@ BOOL USART_AddCharToRxBuffer( int ComPortNum, char c )
     return USART_Driver::AddCharToRxBuffer( ComPortNum, c );
 }
 
+#ifdef USE_SAM_UART_BUF_EXT
+BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size )
+{
+	return USART_Driver::AddToRxBuffer( ComPortNum, data, size );
+}
+#endif
+
 BOOL USART_RemoveCharFromTxBuffer( int ComPortNum, char& c )
 {
     return USART_Driver::RemoveCharFromTxBuffer( ComPortNum, c );
@@ -617,6 +624,64 @@ BOOL USART_Driver::Flush( int ComPortNum )
 #endif
 
 //--//
+
+#ifdef USE_SAM_UART_BUF_EXT
+// Special extensions for moving around UART data to improve efficiency.
+// Does NOT support software flow control
+// Nathan -- 2014-06-24
+BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
+
+	size_t toWrite, written;
+	UINT8 *dst;
+
+	ASSERT_IRQ_MUST_BE_OFF();
+	if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) return FALSE;
+	HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
+
+	GLOBAL_LOCK(irq);
+
+	toWrite = size;
+	written = 0;
+
+	// Write to system PAL queue
+	dst = State.RxQueue.Push(toWrite);
+	if (dst == NULL) return FALSE;
+	memcpy(dst, data, toWrite);
+	written = toWrite;
+
+	// Have to do it twice because its a circular buffer
+	// Might not have gotten all the data on first go due to looping.
+	if (written < size) {
+		toWrite = size - written;
+		dst = State.RxQueue.Push(toWrite);
+		if (dst == NULL) return FALSE;
+		memcpy(dst, &data[written], toWrite);
+	}
+
+	toWrite = size;
+	written = 0;
+
+	// Write to Managed PAL queue
+	dst = State.ManagedRxQueue.Push(toWrite);
+	if (dst == NULL) return FALSE;
+	memcpy(dst, data, toWrite);
+	written = toWrite;
+
+	// Have to do it twice because its a circular buffer
+	// Might not have gotten all the data on first go due to looping.
+	if (written < size) {
+		toWrite = size - written;
+		dst = State.ManagedRxQueue.Push(toWrite);
+		if (dst == NULL) return FALSE;
+		memcpy(dst, &data[written], toWrite);
+	}
+
+    SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
+    Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
+
+	return TRUE;
+}
+#endif
 
 BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 {

@@ -73,6 +73,11 @@ int  USART_Read( int ComPortNum, char* Data, size_t size );
 int  USART_Managed_Read( int ComPortNum, char* Data, size_t size );
 BOOL USART_Flush( int ComPortNum );
 BOOL USART_AddCharToRxBuffer( int ComPortNum, char c );
+
+#ifdef USE_SAM_UART_BUF_EXT
+BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size );
+#endif
+
 BOOL USART_RemoveCharFromTxBuffer( int ComPortNum, char& c );
 INT8 USART_PowerSave( int ComPortNum, INT8 Enable );
 void USART_PrepareForClockStop();
