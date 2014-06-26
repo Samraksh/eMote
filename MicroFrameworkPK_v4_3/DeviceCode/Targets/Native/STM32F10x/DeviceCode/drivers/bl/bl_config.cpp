@@ -39,7 +39,22 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] =
 
 //--//
 
+BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
+{
+    {											// Attributes
+        FALSE,									// BOOL Removable;
+        TRUE,									// BOOL SupportsXIP;
+        TRUE,									// BOOL WriteProtected
+    },
+    140,										// MaxSectorWrite_uSec (70us * 2)
+    40000,										// MaxBlockErase_uSec (40ms)
+    0x4,										// BytesPerSector
+    0x80000,									// Size;
+    1,											// NumRegions;
+    STM32F10x_BlockRegionInfo_InternalFlash,	// pointer to an array (NumRegions long) of region information
+};
 
+/*
 BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
 {
     {
@@ -57,6 +72,7 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_InternalFlash =
     1,											// UINT32 NumRegions;
     STM32F10x_BlockRegionInfo_InternalFlash,	// const BlockRegionInfo* pRegions;
 };
+*/
 
 BLOCK_CONFIG STM32F10x_blConfig_InternalFlash =
 {

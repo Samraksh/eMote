@@ -237,8 +237,24 @@ BOOL STM32F10x_blDriver::EraseBlock(void* context, ByteAddress Page_Address)
 
 
 
+// I don't know why this code was made so painful. I'll probably rediscover.
+// But you definitely can't do a global lock on a flash erase...
+// --NPS 2014-06-26
 BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 {
+	FLASH_Status stat;
+
+	FLASH_Unlock();
+
+	stat = FLASH_ErasePage(address);
+
+	while(stat != FLASH_COMPLETE) {
+		stat = FLASH_ErasePage(address);
+	}
+
+	return TRUE;
+
+	/*
 	GLOBAL_LOCK(irq);
 
 	FLASH_Unlock();
@@ -280,7 +296,7 @@ BOOL STM32F10x_blDriver::EraseBlock( void* context, ByteAddress address )
 	}
 	//FLASH_ErasePage(address);
     return TRUE;
-
+	*/
 }
 
 
