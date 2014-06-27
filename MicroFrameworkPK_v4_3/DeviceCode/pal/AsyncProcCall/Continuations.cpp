@@ -60,7 +60,7 @@ BOOL HAL_CONTINUATION::Dequeue_And_Execute()
 
     if(ptr)
     {
-        //SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+        SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 
         HAL_CALLBACK call = ptr->Callback;
 
@@ -68,7 +68,7 @@ BOOL HAL_CONTINUATION::Dequeue_And_Execute()
         call.Execute();
         irq.Acquire();
 
-        //SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );   // nestable
+        SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );   // nestable
 
         res = TRUE;
     }
