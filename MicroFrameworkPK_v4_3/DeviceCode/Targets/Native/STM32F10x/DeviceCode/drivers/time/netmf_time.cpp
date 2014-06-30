@@ -16,7 +16,9 @@
 
 Time_Driver g_Time_Driver;
 
-
+void HAL_Time_SetCompare_Completion(unsigned long long) {
+	return;
+}
 
 
 BOOL Time_Driver :: Initialize()
@@ -48,6 +50,12 @@ BOOL state = FALSE;
 
 UINT64 Time_Driver :: CounterValue()
 {
+	// Simplified to remove lock.
+	// I'm assuming that the overflow check is high priority and this isn't a problem.
+	// NPS -- 2014-06-30
+	return Timer_Driver::GetCounter(Timer_Driver::c_SystemTimer) + (g_Time_Driver.m_lastRead&0xFFFFFFFFFFFF0000ull);
+
+	/*
 	UINT16 value;
 
     GLOBAL_LOCK(irq);
@@ -99,6 +107,7 @@ UINT64 Time_Driver :: CounterValue()
 
     return g_Time_Driver.m_lastRead;
 #endif
+*/
 
 }
 
