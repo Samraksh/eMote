@@ -165,6 +165,8 @@ BOOL CPU_USART_TxBufferEmpty( int ComPortNum )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
 
 	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TXE) == SET)
@@ -185,6 +187,8 @@ BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
 
 	if (USART_GetFlagStatus(activeUsart, USART_FLAG_TC) == SET)
@@ -196,9 +200,6 @@ BOOL CPU_USART_TxShiftRegisterEmpty( int ComPortNum )
 // Write char into the data register
 void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 {
-	// Unsupported ComPortNum
-	if(ComPortNum != 0 && ComPortNum != 1)
-		return;
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -208,19 +209,18 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
 
 	//Transmit data to USART specified
 	USART_SendData(activeUsart, c);
-	USART_ITConfig(activeUsart, USART_IT_TXE,  ENABLE); // Why does this want to fire immediately?
+	//USART_ITConfig(activeUsart, USART_IT_TXE,  ENABLE); // Why does this want to fire immediately?
 }
 
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	if(ComPortNum != 0 && ComPortNum != 1)
-		return;
-
 	// There is no way we have more than two usarts in the hardware, but need to check which usart is connected to
 	// the connector
 	USART_TypeDef* activeUsart;
@@ -232,6 +232,8 @@ void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
 
 	USART_ITConfig(activeUsart, USART_IT_TXE, (FunctionalState) Enable);
@@ -256,7 +258,6 @@ BOOL CPU_USART_TxBufferEmptyInterruptState( int ComPortNum )
 
 void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	return; // always on
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -266,15 +267,15 @@ void CPU_USART_RxBufferFullInterruptEnable( int ComPortNum, BOOL Enable )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
-	// the connector
 
 	USART_ITConfig(activeUsart, USART_IT_RXNE, (FunctionalState) Enable);
 }
 
 BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 {
-	return TRUE; // always on
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -284,12 +285,12 @@ BOOL CPU_USART_RxBufferFullInterruptState( int ComPortNum )
 	case 1:
 		activeUsart = USART2;
 		break;
+	default:
+		activeUsart = USART1;
 	}
 
-	if (USART_GetITStatus(activeUsart, USART_IT_RXNE) == SET)
-		return TRUE;
-	else
-		return FALSE;
+	return (activeUsart->CR1 & 0x20);
+
 }
 
 BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
@@ -299,7 +300,8 @@ BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
 	Need to determine if HandShakeMode is enabled or not
 	*/
 
-    return TRUE; 
+	// No handshake
+    return FALSE;
 }
 
 void CPU_USART_ProtectPins( int ComPortNum, BOOL On )

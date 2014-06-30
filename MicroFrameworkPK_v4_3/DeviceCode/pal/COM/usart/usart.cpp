@@ -506,22 +506,14 @@ BOOL USART_Driver::Flush( int ComPortNum ) {
 			}
 		}
 
-		// By design, interrupts off means the TX buffer must be empty, no need to check.
-		if (RemoveCharFromTxBuffer( ComPortNum, c )); // Also sets event
-			CPU_USART_WriteCharToTxBuffer( ComPortNum, c ); // should always be true
+		if (RemoveCharFromTxBuffer( ComPortNum, c )) {
+			CPU_USART_WriteCharToTxBuffer( ComPortNum, c );
+			CPU_USART_TxBufferEmptyInterruptEnable( ComPortNum, TRUE );
+		}
 	}
 
 	// At this point, interrupts are ON and any remaining buffer should empty itself.
-
-	{
-	GLOBAL_LOCK(irq);
-	if (State.TxQueue.IsEmpty() == TRUE)
-		return TRUE; // Nothing to send, we're good.
-	}
-
-	// We know the TX is done when interrupts go off
-	// Spinning while we wait for the interrupts code finish... gg Microsoft design
-	// Really we should go about our business here... but assuming the semantics of Flush require the buffer to empty
+	// TXE Interrupt will be disabled when the buffer is empty, so we wait for that.
 	while( CPU_USART_TxBufferEmptyInterruptState(ComPortNum) == TRUE ) { ; }
 }
 #else
