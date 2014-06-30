@@ -1288,7 +1288,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
-		
+#ifndef SAM_EXT_UART_TURBO_MODE
 		void __irq USART1_IRQHandler()
 		{
 
@@ -1313,6 +1313,7 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
+#endif
 		
 		void __irq USART2_IRQHandler()
 		{

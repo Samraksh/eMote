@@ -22,7 +22,7 @@ struct USART_Driver
     static BOOL RemoveCharFromTxBuffer( int ComPortNum, char& c     );
     static INT8 PowerSave             ( int ComPortNum, INT8 Enable );
 
-#ifdef USE_SAM_UART_BUF_EXT
+#ifdef SAM_EXT_UART_TURBO_MODE
 	static BOOL AddToRxBuffer	  ( int ComPortNum, char *data, size_t size );
 #endif
 

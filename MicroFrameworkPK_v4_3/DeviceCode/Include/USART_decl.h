@@ -74,7 +74,7 @@ int  USART_Managed_Read( int ComPortNum, char* Data, size_t size );
 BOOL USART_Flush( int ComPortNum );
 BOOL USART_AddCharToRxBuffer( int ComPortNum, char c );
 
-#ifdef USE_SAM_UART_BUF_EXT
+#ifdef SAM_EXT_UART_TURBO_MODE
 BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size );
 #endif
 

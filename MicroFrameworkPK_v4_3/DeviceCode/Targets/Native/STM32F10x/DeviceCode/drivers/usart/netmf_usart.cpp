@@ -13,12 +13,11 @@
 
 uint8_t RX_BAD=2;
 
-extern "C"
-{
+#ifndef SAM_EXT_UART_TURBO_MODE
 void USART1_Handler(void *args);
-void USART2_Handler(void *args);
-}
+#endif
 
+void USART2_Handler(void *args);
 
 /*TODO 
 	Add error handling
@@ -60,6 +59,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
   UINT32 interruptIndex = 0;
   HAL_CALLBACK_FPN callback = NULL;
 
+#ifndef SAM_EXT_UART_TURBO_MODE
   switch(ComPortNum)
   {
   case 0:
@@ -71,33 +71,43 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
     callback = USART2_Handler;
     break;
   default: //FIXME: warn or do nothing. for now, just warn and init COM2 for backward-compatability.
-#ifdef DEBUG
-    hal_printf("%s: bad ComPortNum %d. Using COM2 instead.\n",__func__,ComPortNum);
-#endif
     ComPortNum = ConvertCOM_ComPort(COM2);
     interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
     callback = USART2_Handler;
     break;
   }
-
-  // If unable to active the interrupt for the usart return false
   if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-
-
+#else
+  switch(ComPortNum) {
+	case 0: // Setup USART1 to use hard wired native interrupts for performance. --NPS
+	  NVIC_InitTypeDef NVIC_InitStructure;
+	  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+	  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	  NVIC_Init(&NVIC_InitStructure);
+	  break;
+	default:
+	  interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
+	  callback = USART2_Handler;
+	  if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
+	  break;
+  }
+#endif
 
   // Init UART1
 
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
-  USART_ClockInitTypeDef USART_ClockInitStruct;
+  //USART_ClockInitTypeDef USART_ClockInitStruct;
 
 
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
   USART_DeInit(USART1);
   USART_StructInit(&USART_InitStructure);
 
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
-
-  USART_ClockStructInit(&USART_ClockInitStruct);
+  //USART_ClockStructInit(&USART_ClockInitStruct);
 
   USART_InitStructure.USART_BaudRate = 115200;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
@@ -109,7 +119,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
   // Configure USART Tx as alternate function push-pull
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 
   // Configure USART Rx as input floating
@@ -118,9 +128,14 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
   GPIO_Init(GPIOA, &GPIO_InitStructure);
 
   USART_Init(USART1, &USART_InitStructure);
-  USART_ClockInit(USART1, &USART_ClockInitStruct);
+  //USART_ClockInit(USART1, &USART_ClockInitStruct);
   USART_ClearITPendingBit(USART1, USART_IT_RXNE);
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+#ifdef SAM_EXT_UART_TURBO_MODE
+  USART_ClearITPendingBit(USART1, USART_IT_IDLE);
+  USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+#endif
 
   USART_Cmd(USART1, ENABLE);
 
@@ -213,16 +228,12 @@ void CPU_USART_WriteCharToTxBuffer( int ComPortNum, UINT8 c )
 		activeUsart = USART1;
 	}
 
-	//Transmit data to USART specified
 	USART_SendData(activeUsart, c);
-	//USART_ITConfig(activeUsart, USART_IT_TXE,  ENABLE); // Why does this want to fire immediately?
 }
 
 
 void CPU_USART_TxBufferEmptyInterruptEnable( int ComPortNum, BOOL Enable )
 {
-	// There is no way we have more than two usarts in the hardware, but need to check which usart is connected to
-	// the connector
 	USART_TypeDef* activeUsart;
 	switch(ComPortNum)
 	{
@@ -306,7 +317,7 @@ BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
 
 void CPU_USART_ProtectPins( int ComPortNum, BOOL On )
 {
-    /*
+    /* TODO
 	Maybe we can skip this as STM_EVAL_COMInit sets the 
 	appropriate GPIO pins.
 	*/
@@ -319,7 +330,7 @@ UINT32 CPU_USART_PortsCount()
 
 void CPU_USART_GetPins( int ComPortNum, GPIO_PIN& rxPin, GPIO_PIN& txPin,GPIO_PIN& ctsPin, GPIO_PIN& rtsPin )
 {   
-    //Return appropriate pins.
+    //TODO Return appropriate pins.
 }
 
 BOOL CPU_USART_SupportNonStandardBaudRate (int ComPortNum )
@@ -346,10 +357,79 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
   }
 }
 
-extern "C"
-{
+#ifdef SAM_EXT_UART_TURBO_MODE
 
+#define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
+#define USART_ERR_MASK 0xF  // Parity, Framing, Noise, or Overrun error
 
+extern "C" {
+
+//void USART1_Handler(void *args) {
+void __irq USART1_IRQHandler() {
+	static char buf[RX_HAL_BUF_SIZE];
+	static int idx;
+	unsigned int err;
+	unsigned int dummy;
+
+	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	
+	err = USART1->SR; // check status reg
+
+	if (err & USART_ERR_MASK) {
+		dummy = USART1->DR;
+		goto uart1_isr_out; // most likely overrun...
+	}
+
+	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so much do DR before we finish
+	if (idx > 0 && USART_GetITStatus(USART1, USART_IT_IDLE) == SET) {
+		USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
+		idx=0;
+	}
+
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
+		char c = USART_ReceiveData(USART1)&0xFF; // Also clears status
+
+		if (idx < RX_HAL_BUF_SIZE) {
+			buf[idx++] = c;
+		}
+		if (idx >= RX_HAL_BUF_SIZE) {
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
+			idx = 0;
+		}
+		goto uart1_isr_out;
+	}
+	else {
+		dummy = USART1->DR;	// Do a dummy read to clear status
+	}
+
+	// MF signals if there is TX work by toggling the interrupt enable
+	// So we check it and don't do anything if it isn't set
+	if (!(USART1->CR1 & 0x80)) {
+		goto uart1_isr_out;
+	}
+
+	if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
+		char c;
+		// USART_IT_TXE pending bit only cleared by write
+		if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c) ) {
+			USART_SendData(USART1, c);
+		}
+		else {
+			USART_ITConfig(USART1, USART_IT_TXE,  DISABLE);
+		}
+		goto uart1_isr_out;
+	}
+
+uart1_isr_out:
+	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+
+	return;
+
+}
+} // extern C
+#else // Old code
 void USART1_Handler(void *args) {
 	int err;
 
@@ -358,10 +438,10 @@ void USART1_Handler(void *args) {
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 		USART_ClearFlag(USART1, USART_FLAG_RXNE);
 		c = USART_ReceiveData(USART1)&0xFF;
-		
+
 		// Fix for strangeness at 8 MHz... disabled for now while we run at 48 MHz.
 		//if ( (RX_BAD-- > 0) && c != 'M' && c != 'S') { return; }
-		
+
 		USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), c);
 		return;
 	}
@@ -384,63 +464,7 @@ void USART1_Handler(void *args) {
 	err = USART1->SR;
 	err = USART1->DR;
 }
-
-
-
-/*
-void USART1_Handler(void *args)
-{
-	volatile unsigned int ir = 0;
-	char c;
-	ir = USART1->SR;
-
-	if(ir & USART_FLAG_RXNE)
-	{
-		USART1->SR &= ~USART_FLAG_RXNE;
-		c = (char) USART_ReceiveData(USART1);
-		USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), c);
-		//if(!USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), (char) (USART1->DR & 0x1FF)))
-		{
-
-		}
-		Events_Set(SYSTEM_EVENT_FLAG_COM_IN);
-
-	}
-
-	if(ir & USART_FLAG_TXE)
-	//if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET)
-	{
-		GLOBAL_LOCK(irq);
-
-		if(USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c))
-	    {
-			//USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-			//do
-			//{
-			//if(USART_BytesInBuffer(ConvertCOM_ComPort(COM1), false) == 1)
-			//{
-			//	USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-			//}
-
-			 USART_SendData(USART1, c);
-			 while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-			//}while(USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c));
-
-			 Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
-		}
-		else
-		{
-
-			USART_ITConfig(USART1, USART_IT_TXE, (FunctionalState) FALSE);
-			//USART_SendData(USART1, 0);
-			//while(!(USART_GetFlagStatus(USART1, USART_SR_TXE) == SET));
-
-		}
-	}
-
-}
-*/
-
+#endif
 
 void USART2_Handler(void *args)
 {
@@ -460,6 +484,4 @@ void USART2_Handler(void *args)
 		    }
 		    Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 	}
-}
-
 }

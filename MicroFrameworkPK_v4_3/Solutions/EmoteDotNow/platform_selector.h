@@ -121,10 +121,8 @@
 #define DEBUGGER_PORT      COM1
 #define MESSAGING_PORT     COM1
 
-// Use USART buffers and memcpy for performance
-// instead of doing everything single char
-// Experimental, currently disabled by default.
-//#define USE_SAM_UART_BUF_EXT
+// Experimental USART performance extensions/mods
+#define SAM_EXT_UART_TURBO_MODE
 
 //Setting the upper and lower thresholds for the GC to kick in
 //Our total heap is 48 K bytes
