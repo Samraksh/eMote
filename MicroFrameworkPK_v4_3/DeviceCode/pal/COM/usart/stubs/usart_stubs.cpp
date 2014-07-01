@@ -27,6 +27,11 @@ int USART_Read( int ComPortNum, char* Data, size_t size )
     return 0;
 }
 
+int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
+{
+    return 0;
+}
+
 BOOL USART_Flush( int ComPortNum )
 {
     return TRUE;
@@ -64,6 +69,11 @@ void USART_CloseAllPorts()
 }
 
 int  USART_BytesInBuffer( int ComPortNum, BOOL fRx )
+{
+    return 0;
+}
+
+int USART_BytesInManagedBuffer( int ComPortNum, BOOL fRx )
 {
     return 0;
 }
