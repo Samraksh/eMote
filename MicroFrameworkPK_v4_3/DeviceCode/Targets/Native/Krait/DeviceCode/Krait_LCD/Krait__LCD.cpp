@@ -4,13 +4,15 @@
 #include "fbcon.h"
 #include "Krait__LCD.h"
 #include "splash.h"
+#include "..\Krait_PMIC\pm8921.h"
+#include "..\Krait_PMIC\pmic_decl.h"
+#include "..\Krait_PMIC\pmic_defines.h"
 
 extern struct fbcon_config *mipi_init(void);
 extern void mipi_dsi_shutdown(void);
 extern void display_image_on_screen(void);
 extern void fbcon_putc(char c);
 extern void clock_config(UINT32 ns, UINT32 md, UINT32 ns_addr, UINT32 md_addr);
-extern void mdelay(unsigned msecs);
 static struct fbcon_config *config = NULL;
 static INT32 LCDWidth;
 static INT32 LCDHeight;
@@ -44,18 +46,8 @@ static UINT8 ldo_p_voltage_mult[LDO_VOLTAGE_ENTRIES] = {
 	30, /* 3.0V */
 	};
 
-
-typedef struct
-{
-	UINT32 initialized;
-
-	pm8921_read_func	read;
-	pm8921_write_func	write;
-
-} pm8921_dev_t;
-
-static pm8921_dev_t *dev;
-static pm8921_dev_t pmic;
+extern pm8921_dev_t *dev;
+extern pm8921_dev_t pmic;
 
 struct pm8921_gpio {
 	int direction;
@@ -68,17 +60,6 @@ struct pm8921_gpio {
 	int inv_int_pol;
 	int disable_pin;
 };
-
-void pm8921_init(pm8921_dev_t *pmic)
-{
-	ASSERT(pmic);
-	ASSERT(pmic->read);
-	ASSERT(pmic->write);
-
-	dev = pmic;
-
-	dev->initialized = 1;
-}
 
 int pm8921_gpio_config(int gpio, struct pm8921_gpio *param)
 {
@@ -191,64 +172,6 @@ void panel_backlight_off(void)
 	} else hal_printf("Turned off panel backlight\r\n");
 }
 
-int pa1_ssbi2_read_bytes(unsigned char  *buffer, unsigned short length,
-                                                unsigned short slave_addr)
-{
-    unsigned val = 0x0;
-    unsigned temp = 0x0000;
-    unsigned char *buf = buffer;
-    unsigned short len = length;
-    unsigned short addr = slave_addr;
-    unsigned long timeout = SSBI_TIMEOUT_US;
-
-    while(len)
-    {
-        val |= ((addr << PA1_SSBI2_REG_ADDR_SHIFT) |
-		(PA1_SSBI2_CMD_READ << PA1_SSBI2_CMD_RDWRN_SHIFT));
-        writel(val, PA1_SSBI2_CMD);
-        while(!((temp = readl(PA1_SSBI2_RD_STATUS)) & (1 << PA1_SSBI2_TRANS_DONE_SHIFT))) {
-            if (--timeout == 0) {
-	        hal_printf("In device ready function : Timeout");
-	        return 1;
-	    }
-	}
-        len--;
-        *buf++ = (temp & (PA1_SSBI2_REG_DATA_MASK << PA1_SSBI2_REG_DATA_SHIFT));
-    }
-    return 0;
-}
-
-int pa1_ssbi2_write_bytes(unsigned char  *buffer, unsigned short length,
-                                                unsigned short slave_addr)
-{
-    unsigned val;
-    unsigned char *buf = buffer;
-    unsigned short len = length;
-    unsigned short addr = slave_addr;
-    unsigned temp = 0x00;
-    unsigned char written_data1 = 0x00;
-    unsigned long timeout = SSBI_TIMEOUT_US;
-    //unsigned char written_data2 = 0x00;
-
-    while(len)
-    {
-        temp = 0x00;
-        written_data1 = 0x00;
-        val = (addr << PA1_SSBI2_REG_ADDR_SHIFT) |
-	  (PA1_SSBI2_CMD_WRITE << PA1_SSBI2_CMD_RDWRN_SHIFT) |
- (*buf & 0xFF);
-        writel(val, PA1_SSBI2_CMD);
-        while(!((temp = readl(PA1_SSBI2_RD_STATUS)) & (1 << PA1_SSBI2_TRANS_DONE_SHIFT))) {
-            if (--timeout == 0) {
-	        hal_printf("In device write function : Timeout");
-	        return 1;
-	    }
-	}
-        len--;
-        buf++;
-    }
-    return 0;
-}
 
 int pm8921_ldo_set_voltage(UINT32 ldo_id, UINT32 voltage)
 {
@@ -348,19 +271,19 @@ void mipi_dsi_panel_power_on(void)
        {
                hal_printf("FAIL pm8921_gpio_config(): rc=%d.\n", rc);
        }
-        mdelay(100);
+	   HAL_Time_Sleep_MicroSeconds(100000);
        rc = pm8921_gpio_config(PM_GPIO(43), &gpio43_param_0);
        if (rc)
        {
                hal_printf("FAIL pm8921_gpio_config(): rc=%d.\n", rc);
        }
-        mdelay(100);
+       HAL_Time_Sleep_MicroSeconds(100000);
        rc = pm8921_gpio_config(PM_GPIO(43), &gpio43_param_1);
        if (rc)
        {
                hal_printf("FAIL pm8921_gpio_config(): rc=%d.\n", rc);
        }
-        mdelay(150);
+      HAL_Time_Sleep_MicroSeconds(150000);
 }
 #else
 void mipi_panel_reset(void)
@@ -510,11 +433,7 @@ void display_init(void)
 
 BOOL LCD_Initialize()
 {
-	pmic.read = (pm8921_read_func) & pa1_ssbi2_read_bytes;
-	pmic.write = (pm8921_write_func) & pa1_ssbi2_write_bytes;
-
-	pm8921_init(&pmic);
-
+	PMIC_Initialize();
 
 	display_init();
 

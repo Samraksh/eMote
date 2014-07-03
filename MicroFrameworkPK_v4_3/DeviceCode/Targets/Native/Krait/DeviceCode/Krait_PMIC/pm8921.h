@@ -10,6 +10,18 @@
  * defined in Krait.h
  */
 
+typedef int (*pm8921_read_func)(UINT8 *data, UINT32 length, UINT32 addr);
+typedef int (*pm8921_write_func)(UINT8 *data, UINT32 length, UINT32 addr);
+
+typedef struct
+{
+	UINT32 initialized;
+
+	pm8921_read_func	read;
+	pm8921_write_func	write;
+
+} pm8921_dev_t;
+
 
 
     int pm8921_config_reset_pwr_off(unsigned reset);

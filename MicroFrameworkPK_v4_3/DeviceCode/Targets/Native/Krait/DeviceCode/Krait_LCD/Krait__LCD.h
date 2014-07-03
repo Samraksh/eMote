@@ -121,24 +121,4 @@
 #define GPIO_CNTL_BASE                        0x150
 #define GPIO_CNTL(n)                          (GPIO_CNTL_BASE + n)
 
-#define SSBI_TIMEOUT_US			100
-
-#define PA1_SSBI2_REG_ADDR_SHIFT        8
-#define PA1_SSBI2_CMD_RDWRN_SHIFT       24
-#define PA1_SSBI2_TRANS_DONE_SHIFT      27
-
-#define PA1_SSBI2_CMD_READ              1
-#define PA1_SSBI2_CMD_WRITE             0
-
-#define PA1_SSBI2_REG_DATA_MASK         0xFF
-#define PA1_SSBI2_REG_DATA_SHIFT        0
-
-typedef int (*pm8921_read_func)(UINT8 *data, UINT32 length, UINT32 addr);
-typedef int (*pm8921_write_func)(UINT8 *data, UINT32 length, UINT32 addr);
-
-#define PA1_SSBI2_CMD                   0x00500000
-#define PA1_SSBI2_RD_STATUS             0x00500004
-
-
-
 #endif

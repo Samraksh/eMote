@@ -25,20 +25,8 @@
 #include "pm8921.h"
 #include "pmic_defines.h"
 
-typedef int (*pm8921_read_func)(UINT8 *data, UINT32 length, UINT32 addr);
-typedef int (*pm8921_write_func)(UINT8 *data, UINT32 length, UINT32 addr);
-
-typedef struct
-{
-	UINT32 initialized;
-
-	pm8921_read_func	read;
-	pm8921_write_func	write;
-
-} pm8921_dev_t;
-
-static pm8921_dev_t *dev;
-static pm8921_dev_t pmic;
+pm8921_dev_t *dev;
+pm8921_dev_t pmic;
 
 
 void pm8921_init(pm8921_dev_t *pmic)
@@ -51,8 +39,6 @@ void pm8921_init(pm8921_dev_t *pmic)
 
 	dev->initialized = 1;
 }
-
-
 
 int pa1_ssbi2_read_bytes(unsigned char  *buffer, unsigned short length,
                                                 unsigned short slave_addr)
