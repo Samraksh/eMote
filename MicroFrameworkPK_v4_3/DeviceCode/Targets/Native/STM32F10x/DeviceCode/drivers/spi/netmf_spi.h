@@ -12,9 +12,6 @@ REVISION LOG
 
 #include <tinyhal.h>
 #include <stm32f10x.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <gpio/stm32f10x_gpio.h>
-#include <spi/stm32f10x_spi.h>
 
 
 enum SPIBUS

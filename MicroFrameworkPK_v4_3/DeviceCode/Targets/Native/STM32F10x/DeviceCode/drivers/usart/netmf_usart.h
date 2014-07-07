@@ -2,7 +2,7 @@
 //#define _STM32__USART_H_1   1
 #ifndef _NETMF_USART_H_
 #define _NETMF_USART_H_
-#include "STM32F10x_usart.h"
+#include <stm32f10x.h>
 #include "..\intc\STM32.h"
 
 //TODO Calculate this based on the System Clock value.

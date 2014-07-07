@@ -5,9 +5,6 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 #include <netmf_usart.h>
-#include <gpio\stm32f10x_gpio.h>
-#include <rcc\stm32f10x_rcc.h>
-#include <intc\STM32.h>
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 

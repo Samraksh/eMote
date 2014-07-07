@@ -12,12 +12,7 @@
  ======================================================**/
 
 #include <tinyhal.h>
-#include <rcc/STM32F10x_rcc.h>
-#include <misc/misc.h>
-#include <flash/stm32f10x_flash.h>
-#include <pwr/stm32f10x_pwr.h>
-#include <pwr/netmf_pwr.h>
-#include <tim/stm32f10x_tim.h>
+#include <stm32f10x.h>
 
 ErrorStatus HSEStartUpStatus;
 
@@ -201,7 +196,9 @@ static void RCC_Configuration(void)
   TIM_DeInit(TIM5);
 
   //STM32F1x_Power_Driver::Low_Power();
-  STM32F1x_Power_Driver::High_Power(); // Default to high power for now to help with MFDeploy issues
+  //STM32F1x_Power_Driver::High_Power(); // Default to high power for now to help with MFDeploy issues
+
+  CPU_ChangePowerLevel(POWER_LEVEL__HIGH_POWER);
 
 /* RTC clock and backup domain init. Not fully tested. Do not use (yet).
   PWR_BackupAccessCmd(ENABLE);

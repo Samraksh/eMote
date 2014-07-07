@@ -3,7 +3,6 @@
 
 #include <tinyhal.h>
 #include <stm32f10x.h>
-#include <core_cm3.h>
 
 extern uint32_t SystemTimerClock;
 

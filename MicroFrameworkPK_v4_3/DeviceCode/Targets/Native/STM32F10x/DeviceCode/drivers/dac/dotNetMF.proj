@@ -41,8 +41,6 @@
   <ItemGroup>
 	<HFiles Include="hal_dac_driver.h" />
 	<Compile Include="hal_dac_driver.cpp" />
-	<HFiles Include="STM32F10x_dac.h" />
-    <Compile Include="STM32F10x_dac.c" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

@@ -7,11 +7,10 @@
 #ifndef _MYSTM32_HEADER_H_
 #define _MYSTM32_HEADER_H_ 1
 
-
-
 #include <cores\arm\include\cpu.h>
-
-#include "misc/misc.h"
+#include <stm32f10x.h>
+// TODO: Namespace collision, both tinyhal.h (via cpu.h) and stm32f10x.h have FLASH defined
+// Actually tinyhal.h only uses FLASH, for the life of me I can't find where defined.
 
 #define BASE                  ((UINT32)0x40000000)
 //0x40010400

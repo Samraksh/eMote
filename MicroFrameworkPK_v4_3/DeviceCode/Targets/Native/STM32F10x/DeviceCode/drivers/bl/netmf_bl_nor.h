@@ -2,7 +2,6 @@
 #define _NETMF_BL_NOR_H_
 
 #include <stm32f10x.h>
-#include <fsmc/stm32f10x_fsmc.h>
 #include <fsmc/P30BF65NOR/P30BF65NOR.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)

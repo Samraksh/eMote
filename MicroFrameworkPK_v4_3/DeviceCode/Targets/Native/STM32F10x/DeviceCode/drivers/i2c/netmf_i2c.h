@@ -3,10 +3,7 @@
 
 #include <tinyhal.h>
 #include <Samraksh/Hal_util.h>
-#include "stm32f10x_i2c.h"
-#include "../gpio/stm32f10x_gpio.h"
-#include "../rcc/stm32f10x_rcc.h"
-#include "../i2c/stm32f10x_i2c.h"
+#include <stm32f10x.h>
 #include "../intc/STM32.h"
 
 #define I2C1_SDA 23

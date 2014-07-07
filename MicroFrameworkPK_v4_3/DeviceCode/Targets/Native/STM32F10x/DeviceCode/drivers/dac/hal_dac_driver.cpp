@@ -6,7 +6,7 @@
  */
 
 #include <tinyhal.h>
-#include "stm32f10x.h"
+#include <stm32f10x.h>
 #include "hal_dac_driver.h"
 
 DAC_InitTypeDef            DAC_InitStructure;

@@ -39,9 +39,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-	<HFiles Include="STM32F10x_spi.h" />	
 	<HFiles Include="netmf_spi.h" />	
-	<Compile Include="STM32F10x_spi.c" />
 	<Compile Include="netmf_spi.cpp" />
   </ItemGroup>
   <ItemGroup />

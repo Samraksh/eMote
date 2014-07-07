@@ -8,7 +8,7 @@
  */
 
 #include "netmf_timers.h"
-#include <intc/stm32.h>
+#include <stm32f10x.h>
 
 Timer_Driver g_Timer_Driver;
 
@@ -233,7 +233,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			g_Timer_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
 #endif
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM2, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM2_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 3:
 			//interrupt = TIM3_IRQn;
@@ -258,7 +258,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			g_Timer_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 #endif
 			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM3, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM3_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 4:
 			//interrupt = TIM4_IRQn;
@@ -283,7 +283,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			g_Timer_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 #endif
 			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM4_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 5:
 			//Timer base initialize
@@ -301,7 +301,7 @@ BOOL Timer_Driver::Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSour
 			TIM_OC1PreloadConfig(TIM5, TIM_OCPreload_Disable);
 			//NVIC Init
 			//NVIC_Init(&g_Timer_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM5, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM5_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		default:
 			ASSERT(TRUE);
@@ -512,7 +512,7 @@ void Timer_Driver::RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler )
 			break;
 	}
 
-	RCC_PCLK1Config(RCC_HCLK_Div1);
+	//RCC_PCLK1Config(RCC_HCLK_Div1);
 	RCC_APB1PeriphClockCmd(Timer_Clock, ENABLE);
 
 }

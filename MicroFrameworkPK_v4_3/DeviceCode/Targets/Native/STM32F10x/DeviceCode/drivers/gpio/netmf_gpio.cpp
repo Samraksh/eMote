@@ -3,10 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
-#include "stm32f10x_gpio.h"
-#include <rcc/stm32f10x_rcc.h>
-#include <exti/stm32f10x_exti.h>
-#include <intc/STM32.h>
+#include <stm32f10x.h>
 #include "netmf_gpio.h"
 
 //--//
@@ -200,26 +197,26 @@ UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 	switch(line)
 	{
 	case	0:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI0;
+		irq_number = EXTI0_IRQn;
 		break;
 	case 	1:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI1;
+		irq_number = EXTI1_IRQn;
 		break;
 	case 	2:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI2;
+		irq_number = EXTI2_IRQn;
 		break;
 	case    3:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI3;
+		irq_number = EXTI3_IRQn;
 		break;
 	case    4:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI4;
+		irq_number = EXTI4_IRQn;
 		break;
 	case	5:
 	case	6:
 	case    7:
 	case    8:
 	case    9:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI9_5;
+		irq_number = EXTI9_5_IRQn;
 		break;
 	case   10:
 	case   11:
@@ -227,7 +224,7 @@ UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 	case   13:
 	case   14:
 	case   15:
-		irq_number = STM32_AITC::c_IRQ_INDEX_EXTI15_10;
+		irq_number = EXTI15_10_IRQn;
 		break;
 
 	}

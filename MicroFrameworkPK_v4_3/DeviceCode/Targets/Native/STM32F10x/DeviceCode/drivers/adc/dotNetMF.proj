@@ -40,8 +40,6 @@
   <PropertyGroup />
   <ItemGroup>
 	<HFiles Include="hal_adc_driver.h" />
-	<HFiles Include="STM32F10x_adc.h" />
-    <Compile Include="STM32F10x_adc.c" />
 	<Compile Include="hal_adc_driver.cpp" />
   </ItemGroup>
   <ItemGroup />

@@ -27,8 +27,6 @@
 // constants
 //
 
-#define STM32F10X_XL  1
-
 #define SYSTEM_CLOCK_HZ                 48000000
 #define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
 #define CLOCK_COMMON_FACTOR             1000000

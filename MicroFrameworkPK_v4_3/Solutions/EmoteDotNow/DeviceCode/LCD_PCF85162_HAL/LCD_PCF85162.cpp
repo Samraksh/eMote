@@ -3,10 +3,8 @@
 //			 Nived.Sivadas - Removed all infinite while loops and replaced them with timeout loops
 
 #include <tinyhal.h>
+#include <stm32f10x.h>
 #include "LCD_PCF85162.h"
-#include <i2c/stm32f10x_i2c.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <gpio/stm32f10x_gpio.h>
 
 LCD_PCF85162_Driver glcdObject;
 

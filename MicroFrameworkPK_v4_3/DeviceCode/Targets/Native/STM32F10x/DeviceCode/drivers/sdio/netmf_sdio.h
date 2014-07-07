@@ -12,7 +12,7 @@
 #ifndef _NETMF_SDIO_H_
 #define _NETMF_SDIO_H_
 
-#include "stm32f10x_sdio.h"
+#include <stm32f10x.h>
 #include "stm32_eval_sdio_sd.h"
 #include <Samraksh/Hal_util.h>
 

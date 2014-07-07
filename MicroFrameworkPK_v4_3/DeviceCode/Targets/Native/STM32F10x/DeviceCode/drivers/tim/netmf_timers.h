@@ -11,9 +11,7 @@
 
 
 #include <tinyhal.h>
-#include <tim/stm32f10x_tim.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <misc/misc.h>
+#include <stm32f10x.h>
 
 
 

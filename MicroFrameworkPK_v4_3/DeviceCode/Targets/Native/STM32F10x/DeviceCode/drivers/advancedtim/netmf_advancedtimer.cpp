@@ -10,8 +10,7 @@
 
 #include "netmf_advancedtimer.h"
 #include <Samraksh\HALTimer.h>
-#include <pwr/netmf_pwr.h>
-#include <rcc/stm32f10x_rcc.h>
+#include <stm32f10x.h>
 
 
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;

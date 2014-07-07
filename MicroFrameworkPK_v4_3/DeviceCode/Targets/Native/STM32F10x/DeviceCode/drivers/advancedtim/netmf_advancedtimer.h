@@ -2,16 +2,10 @@
 #define _NETMF_ADVANCEDTIMER_H_
 
 #include <tinyhal.h>
-//#include "..\tim\stm32f10x_tim.h"
-#include <gpio/stm32f10x_gpio.h>
-//#include <rcc\stm32f10x_rcc.h>
+#include <stm32f10x.h>
 #include <intc/STM32.h>
 #include <Samraksh/Hal_util.h>
 #include <Samraksh/Tasklet.h>
-
-#include <tim/stm32f10x_tim.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <misc/misc.h>
 
 enum TimerClockRate
 {

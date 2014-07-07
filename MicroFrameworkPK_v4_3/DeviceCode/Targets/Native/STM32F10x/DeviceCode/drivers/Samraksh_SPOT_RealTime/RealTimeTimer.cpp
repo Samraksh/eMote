@@ -8,7 +8,7 @@
 
 #include <tinyhal.h>
 #include "RealTimeTimer.h"
-#include <gpio/stm32f10x_gpio.h>
+#include <stm32f10x.h>
 #include <tim/netmf_timers.h>
 #include <TinyCLR_Hardware.h>
 #include <TinyCLR_Runtime.h>

@@ -8,12 +8,7 @@
 #ifndef HAL_ADC_DRIVER_H_
 #define HAL_ADC_DRIVER_H_
 
-#include <gpio/stm32f10x_gpio.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <tim/stm32f10x_tim.h>
-#include <dma/stm32f10x_dma.h>
-#include <misc/misc.h>
-#include "stm32f10x_adc.h"
+#include <stm32f10x.h>
 #include <intc/STM32.h>
 
 void hal_adc_init(uint8_t sampTime);

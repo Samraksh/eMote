@@ -5,7 +5,6 @@
 //--//
 
 #include <stm32f10x.h>
-#include <flash/stm32f10x_flash.h>
 
 #define FLASH_BANK1_END_ADDRESS   ((uint32_t)0x807FFFF)
 #define CR_PG_Set                ((uint32_t)0x00000001)

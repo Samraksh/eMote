@@ -19,10 +19,7 @@
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
   ******************************************************************************
   */
-
-#include <gpio\stm32f10x_gpio.h>
-#include <rcc\stm32f10x_rcc.h>
-#include <fsmc\stm32f10x_fsmc.h>
+#include <stm32f10x.h>
 
 
 /* Define to prevent recursive inclusion -------------------------------------*/

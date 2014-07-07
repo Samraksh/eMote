@@ -8,10 +8,7 @@
 #ifndef HAL_DAC_DRIVER_H_
 #define HAL_DAC_DRIVER_H_
 
-#include <gpio/stm32f10x_gpio.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <misc/misc.h>
-#include "stm32f10x_dac.h"
+#include <stm32f10x.h>
 
 
 void hal_dac_init();

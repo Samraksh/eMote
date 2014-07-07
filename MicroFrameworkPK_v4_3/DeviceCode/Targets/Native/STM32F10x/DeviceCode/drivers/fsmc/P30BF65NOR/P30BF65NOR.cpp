@@ -9,9 +9,6 @@
  */
 
 #include <tinyhal.h>
-#include <gpio\stm32f10x_gpio.h>
-#include <rcc\stm32f10x_rcc.h>
-#include <fsmc\stm32f10x_fsmc.h>
 #include "P30BF65NOR.h"
 
 #define CHECK_BIT(var, pos)	((var) & (1<<(pos)))
@@ -90,7 +87,7 @@ DeviceStatus P30BF65NOR_Driver::Initialize(void)
 	  FSMC_NORSRAMInitStructure.FSMC_MemoryType = FSMC_MemoryType_NOR;
 	  FSMC_NORSRAMInitStructure.FSMC_MemoryDataWidth = FSMC_MemoryDataWidth_16b;
 	  FSMC_NORSRAMInitStructure.FSMC_BurstAccessMode = FSMC_BurstAccessMode_Disable;
-	  //FSMC_NORSRAMInitStructure.FSMC_AsynchronousWait = FSMC_AsynchronousWait_Disable;
+	  FSMC_NORSRAMInitStructure.FSMC_AsynchronousWait = FSMC_AsynchronousWait_Disable;
 	  FSMC_NORSRAMInitStructure.FSMC_WaitSignalPolarity = FSMC_WaitSignalPolarity_Low;
 	  FSMC_NORSRAMInitStructure.FSMC_WrapMode = FSMC_WrapMode_Disable;
 	  FSMC_NORSRAMInitStructure.FSMC_WaitSignalActive = FSMC_WaitSignalActive_BeforeWaitState;

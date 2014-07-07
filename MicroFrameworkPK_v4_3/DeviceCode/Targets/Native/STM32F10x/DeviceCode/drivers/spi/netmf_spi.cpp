@@ -10,7 +10,8 @@ TODO -
 
 /*--------- Includes ----------- */
 
-#include "spi/netmf_spi.h"
+#include "netmf_spi.h"
+#include <stm32f10x.h>
 
 /*--------- Macros ----------- */
 

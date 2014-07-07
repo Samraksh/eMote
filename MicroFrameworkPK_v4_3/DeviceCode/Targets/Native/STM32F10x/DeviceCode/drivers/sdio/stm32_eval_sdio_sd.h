@@ -29,10 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 //#include "stm32_eval.h"
-#include "stm32f10x_sdio.h"
-#include "../gpio/stm32f10x_gpio.h"
-#include "../dma/stm32f10x_dma.h"
-#include "../rcc/stm32f10x_rcc.h"
+#include <stm32f10x.h>
 
 #define SD_DETECT_PIN                    GPIO_Pin_7                 /* PC.7 */
 #define SD_DETECT_GPIO_PORT              GPIOC                       /* GPIOC */

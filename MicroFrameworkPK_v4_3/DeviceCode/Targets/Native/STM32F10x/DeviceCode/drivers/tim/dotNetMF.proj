@@ -39,9 +39,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-	<HFiles Include="STM32F10x_tim.h" />
 	<HFiles Include="netmf_timers.h" />
-    <Compile Include="STM32F10x_tim.c" />
 	<Compile Include="netmf_timers.cpp" />
   </ItemGroup>
   <ItemGroup />
