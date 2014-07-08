@@ -11,6 +11,7 @@
 
 //#include <cores\arm\include\cpu.h>
 #include <tinyhal.h>
+#include "..\Krait.h"
 #include "Krait__POWER.h"
 
 #include "..\Krait_PMIC\pmic_decl.h"
@@ -32,12 +33,44 @@ BOOL CPU_Initialize() {
         return TRUE;
 }
 
+
 /**
  * Minimal support.
  */
 void CPU_Reset() {
     NATIVE_PROFILE_HAL_PROCESSOR_POWER();
     //FIXME: lock
+
+	// if NetMF Config sector's bootloader flag is set, then set LK Shared IMEM fastboot flag.
+	const UINT32        c_Empty     = 0xFFFFFFFF;
+	const UINT32        c_Key       = ConfigurationSector::c_BootEntryKey;
+
+	volatile UINT32*    pAddr       = (volatile UINT32 *)&g_ConfigurationSector.BooterFlagArray[0];
+	bool                bDone       = false;
+
+	BlockStorageDevice *pBlockDevice = BlockStorageList::s_primaryDevice;
+	if ( pBlockDevice != NULL)
+	{
+		const BlockDeviceInfo* deviceInfo = pBlockDevice->GetDeviceInfo();
+
+		ByteAddress configSectAddress;
+		UINT32        iRegion, iRange;
+
+		pBlockDevice->FindForBlockUsage(BlockUsage::CONFIG, configSectAddress, iRegion, iRange );
+
+		for(int i=0; !bDone && i<ConfigurationSector::c_MaxBootEntryFlags; i++ )
+		{
+			switch(pAddr[i])
+			{
+				case ConfigurationSector::c_BootEntryKey:
+					writel(FASTBOOT_MODE, RESTART_REASON_ADDR);
+					bDone = true;
+					break;
+			}
+		}
+	}
+
+
     Krait_POWER_Driver::Reset();
     //FIXME: unlock
     HAL_AssertEx();

@@ -75,7 +75,6 @@ void /*__section(BootStrap)*/ Krait_POWER_Driver::Lowpower() {
 }
 
 void Krait_POWER_Driver::Reset() {
-    __raw_writel(0,RESTART_REASON_ADDR);    //TODO: create new restart reason to load/boot NetMF.
     pm8921_config_reset_pwr_off((unsigned)1);                //1=reset, 0=poweroff
     __raw_writel(0, MSM_PSHOLD_CTL_SU);
     //FIXME: watchdog-based reset.
