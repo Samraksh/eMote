@@ -505,6 +505,7 @@ void USART2_Handler(void *args)
 		    	USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) FALSE);
 		    }
 		return;
+		    ////Events_Set(SYSTEM_EVENT_FLAG_COM_OUT);
 	}
 	err = USART2->SR;
 	err = USART2->DR;

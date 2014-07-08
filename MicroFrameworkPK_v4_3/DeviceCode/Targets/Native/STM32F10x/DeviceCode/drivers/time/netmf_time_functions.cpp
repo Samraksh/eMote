@@ -85,7 +85,6 @@ UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32 )
 }
 
 //TODO: AnanthAtSamraksh - what to do with below 2 functions
-#if 0
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec )
 {
 	//return uSec;
@@ -128,7 +127,7 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec )
 	return uSec * 48;
 #endif
 }
-#endif
+
 
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec )
 {
@@ -202,60 +201,60 @@ int CPU_SystemClocksToMicroseconds( int Ticks )
 //#pragma arm section code
 
 
-BOOL CPU_Time_Initialize()
+BOOL HAL_Time_Initialize()
 {
 	//return TRUE;
 	return Time_Driver::Initialize();
 }
 
-BOOL CPU_Time_Uninitialize()
+BOOL HAL_Time_Uninitialize()
 {
 	return Time_Driver::Uninitialize();
 }
 
-UINT64 CPU_Time_CurrentTicks()
+UINT64 HAL_Time_CurrentTicks()
 {
 	return Time_Driver::CounterValue();
 }
 
-INT64 CPU_Time_TicksToTime( UINT64 Ticks )
+INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
 	return Time_Driver::TicksToTime( Ticks );
 }
 
-INT64 CPU_Time_CurrentTime()
+INT64 HAL_Time_CurrentTime()
 {
 	return Time_Driver::CurrentTime();
 }
 
-void CPU_Time_SetCompare( UINT64 CompareValue )
+void HAL_Time_SetCompare( UINT64 CompareValue )
 {
 	Time_Driver::SetCompareValue( CompareValue );
 }
 
-void CPU_Time_SetCompare_Completion(UINT64 val)
+void HAL_Time_SetCompare_Completion(UINT64 val)
 {
 	return;
 }
 
-void CPU_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
+void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
     *a = 1;
     *b = 1;
     *c = 0;
 }
 
-UINT64 Time_CurrentTicks()
+UINT64 Time_CurrentTicks(UINT16 Timer)
 {
-    return CPU_Time_CurrentTicks();
+    return HAL_Time_CurrentTicks(Timer);
 }
 
-void CPU_Time_Sleep_MicroSeconds( UINT32 uSec )
+void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 {
     Time_Driver::Sleep_uSec( uSec );
 }
 
-void CPU_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
+void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
 	Time_Driver::Sleep_uSec_Loop( uSec );
 }

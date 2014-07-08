@@ -318,7 +318,7 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
         // A timeout is used for XOFF incase the XOFF value was lost or never sent.
         // USART_TX_XOFF_TIMEOUT_TICKS is defined in the platform selector file
         if((USART_TX_XOFF_TIMEOUT_INFINITE != USART_TX_XOFF_TIMEOUT_TICKS              ) &&
-           (CPU_Time_CurrentTicks() - State.TicksStartTxXOFF) > USART_TX_XOFF_TIMEOUT_TICKS)
+           (HAL_Time_CurrentTicks() - State.TicksStartTxXOFF) > USART_TX_XOFF_TIMEOUT_TICKS)
         {
             SET_USART_FLAG(State, HAL_USART_STATE::c_TX_XON_STATE);
         }
@@ -703,7 +703,7 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
         switch( c )
         {
             case XOFF:
-                State.TicksStartTxXOFF = CPU_Time_CurrentTicks();
+                State.TicksStartTxXOFF = HAL_Time_CurrentTicks();
                 CLEAR_USART_FLAG(State, HAL_USART_STATE::c_TX_XON_STATE);
                 return TRUE;
             case XON:

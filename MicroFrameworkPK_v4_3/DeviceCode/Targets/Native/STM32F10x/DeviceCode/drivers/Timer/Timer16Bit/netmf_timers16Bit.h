@@ -344,7 +344,7 @@ struct Timer16Bit_Driver
 
 BOOL Timer16Bit_Driver::m_timeOverFlowFlag = FALSE;
 
-extern Timer16Bit_Driver g_Timer_Driver;
+extern Timer16Bit_Driver g_Timer16Bit_Driver;
 extern "C"
 {
 	void Timer_IRQ_Handler( UINT32 Timer );

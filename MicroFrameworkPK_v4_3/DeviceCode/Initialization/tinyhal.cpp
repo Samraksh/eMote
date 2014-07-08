@@ -362,6 +362,7 @@ void HAL_Initialize()
     HAL_Init_Custom_Heap();
 
     Time_Initialize();
+    //AnanthAtSamraksh - commenting out below for testing virtual timers.
     Events_Initialize();
 
     CPU_GPIO_Initialize();
@@ -552,11 +553,12 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
-    Tasklet_Initialize();
+    //TODO: AnanthAtSamraksh -- commenting out tasklets as part of virtual timer porting, as they are not needed any more.
+    //Tasklet_Initialize();
 
     HAL_Initialize();
 
-    //TODO: AnanthAtSamraksh -- check this with Mukundan
+    //TODO: AnanthAtSamraksh -- initialize the virtual timer
     //HAL_Time_Initialize();
     //CPU_Timer_Initialize();
     VirtTimer_Initialize();

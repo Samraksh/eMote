@@ -76,7 +76,7 @@ DeviceStatus SDIO_Driver::Initialize(SDIOStatusFuncPtrType sdCallbackFunction)
 
 	CPU_GPIO_SetPinState((GPIO_PIN) 37, TRUE);
 
-	CPU_Time_Sleep_MicroSeconds(500);
+	HAL_Time_Sleep_MicroSeconds(500);
 
 	this->sdCallbackFunction = sdCallbackFunction;
 

@@ -63,7 +63,7 @@ void HAL_COMPLETION::DequeueAndExec()
     // than their is a next completion and that the current one has expired.
     if(ptrNext)
     {
-        ASSERT(ptr->EventTimeTicks <= CPU_Time_CurrentTicks());
+        ASSERT(ptr->EventTimeTicks <= HAL_Time_CurrentTicks());
         
         Events_Set(SYSTEM_EVENT_FLAG_SYSTEM_TIMER);
 
@@ -72,7 +72,7 @@ void HAL_COMPLETION::DequeueAndExec()
         //
         // In case there's no other request to serve, set the next interrupt to be 356 years since last powerup (@25kHz).
         //
-        CPU_Time_SetCompare_Completion( ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue );
+        HAL_Time_SetCompare_Completion( ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue );
 
 #if defined(_DEBUG)
         ptr->EventTimeTicks = 0;
@@ -94,7 +94,7 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
 
     this->EventTimeTicks  = EventTimeTicks;
 #if defined(_DEBUG)
-    this->Start_RTC_Ticks = CPU_Time_CurrentTicks();
+    this->Start_RTC_Ticks = HAL_Time_CurrentTicks();
 #endif
 
     HAL_COMPLETION* ptr     = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
@@ -109,7 +109,7 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
     
     if(this == g_HAL_Completion_List.FirstNode())
     {
-        CPU_Time_SetCompare_Completion( EventTimeTicks );
+        HAL_Time_SetCompare_Completion( EventTimeTicks );
     }
 }
 
@@ -117,7 +117,7 @@ void HAL_COMPLETION::EnqueueDelta64( UINT64 uSecFromNow )
 {
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
     // grab time first to be closest to now as possible from when this function was called
-    UINT64 Now            = CPU_Time_CurrentTicks();
+    UINT64 Now            = HAL_Time_CurrentTicks();
     UINT64 EventTimeTicks = CPU_MicrosecondsToTicks( uSecFromNow );
 
     EnqueueTicks( Now + EventTimeTicks );
@@ -162,7 +162,7 @@ void HAL_COMPLETION::Abort()
             nextTicks = firstNode->EventTimeTicks;
         }
 
-        CPU_Time_SetCompare( nextTicks );
+        HAL_Time_SetCompare( nextTicks );
     }
 }
 
@@ -193,7 +193,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 
-    if(state & c_SetCompare) CPU_Time_SetCompare( Expire );
+    if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
 
@@ -202,7 +202,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         // let's get the first node again
         // it could have changed since CPU_Sleep re-enabled interrupts
         ptr = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
-        CPU_Time_SetCompare( (state & c_ResetCompare) ? ptr->EventTimeTicks : HAL_Completion_IdleValue );
+        HAL_Time_SetCompare( (state & c_ResetCompare) ? ptr->EventTimeTicks : HAL_Completion_IdleValue );
     }
 }
 

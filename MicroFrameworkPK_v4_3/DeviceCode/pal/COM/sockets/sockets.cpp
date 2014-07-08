@@ -1158,7 +1158,7 @@ INT32 Sockets_Driver::Write( int ComPortNum, const char* Data, size_t size )
     // the network stack (RTIP) can get overloaded with "hal_printf" messages which causes
     // the communication link to be killed (by sending a QUENCH message).  We have to add
     // an artificial delay here if the back-to-back writes are too close.
-    UINT64 tics = CPU_Time_CurrentTicks();
+    UINT64 tics = HAL_Time_CurrentTicks();
     UINT64 cmp = (CPU_MillisecondsToTicks((UINT32)5) / 10) + 1; // at least 500 uSec
     if(((tics - s_lastWrite) < cmp))
     {
@@ -1186,7 +1186,7 @@ INT32 Sockets_Driver::Write( int ComPortNum, const char* Data, size_t size )
     }
     else
     {
-        s_lastWrite = CPU_Time_CurrentTicks();
+        s_lastWrite = HAL_Time_CurrentTicks();
     }
 
     return ret;

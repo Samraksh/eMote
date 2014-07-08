@@ -70,9 +70,9 @@ BYTE SD_BS_Driver::SPISendByte(BYTE data)
     config.WriteCount = 1;
     config.BusyPin.Pin = GPIO_PIN_NONE;
     
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     CPU_SPI_Xaction_nWrite8_nRead8(config);
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     
     return ReadByte;
 } 
@@ -91,9 +91,9 @@ void SD_BS_Driver::SPISendCount(BYTE *pWrite, UINT32 WriteCount)
     config.WriteCount = WriteCount;
     config.BusyPin.Pin = GPIO_PIN_NONE;
 
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     CPU_SPI_Xaction_nWrite8_nRead8(config);
-	CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+	HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
 }
 
 void SD_BS_Driver::SPIRecvCount(BYTE *pRead, UINT32 ReadCount, UINT32 Offset)
@@ -112,19 +112,19 @@ void SD_BS_Driver::SPIRecvCount(BYTE *pRead, UINT32 ReadCount, UINT32 Offset)
     config.WriteCount = 1;
     config.BusyPin.Pin = GPIO_PIN_NONE;
 
-	CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+	HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     CPU_SPI_Xaction_nWrite8_nRead8(config);
-	CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+	HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
 }
 
 //Sets SD CS to INACTIVE state
 void SD_BS_Driver::SD_CsSetHigh()
 {
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     CPU_GPIO_EnableOutputPin(g_SD_BL_Config.SPI.DeviceCS, !g_SD_BL_Config.SPI.CS_Active);
 
     // to force SDC/MMC to release the bus after CS goes inactive, do one dummy write.
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     SPISendByte(DUMMY);
 }
 
@@ -132,7 +132,7 @@ void SD_BS_Driver::SD_CsSetHigh()
 void SD_BS_Driver::SD_CsSetLow()
 {
     CPU_GPIO_EnableOutputPin(g_SD_BL_Config.SPI.DeviceCS, g_SD_BL_Config.SPI.CS_Active);
-    CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+    HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
 }
 
 BYTE SD_BS_Driver::SD_CheckBusy(void)
@@ -170,7 +170,7 @@ BYTE SD_BS_Driver::SD_CheckBusy(void)
             break;
         }
 
-        CPU_Time_Sleep_MicroSeconds(SPI_DELAY);
+        HAL_Time_Sleep_MicroSeconds(SPI_DELAY);
     }
 
     return rvalue;

@@ -11,10 +11,10 @@
 //--//
 
 #if defined(__GNUC__)
-#define CPU_Time_Sleep_MicroSeconds_BS(x) CPU_Time_Sleep_MicroSeconds_InRam(x)
+#define HAL_Time_Sleep_MicroSeconds_BS(x) HAL_Time_Sleep_MicroSeconds_InRam(x)
 
 #else
-#define CPU_Time_Sleep_MicroSeconds_BS(x) CPU_Time_Sleep_MicroSeconds(x)
+#define HAL_Time_Sleep_MicroSeconds_BS(x) HAL_Time_Sleep_MicroSeconds(x)
 
 #endif 
 

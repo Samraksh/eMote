@@ -15,6 +15,7 @@
 #include <tinyhal.h>
 #include "heap.h"
 #include "Tasklet.h"
+#include "Time_decl.h"
 #endif
 
 
@@ -293,14 +294,14 @@ public:
 	////BOOL Initialize(VirtualTimerConfig& config);
 	//PAL interface for VirtualTimers
 	BOOL VirtTimer_Initialize();
-	VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id);
+	//VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
 	BOOL VirtTimer_UnInitialize();
 
-	UINT64 VirtTimer_GetTicks(UINT8 timer_id);
+	UINT64 VirtTimer_GetTicks(UINT16 timer_id);
 
 	////TODO: AnanthAtSamraksh -- check this with Mukundan
 	BOOL CPU_Timer_Initialize();

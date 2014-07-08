@@ -468,7 +468,7 @@ BOOL CPU_SPI_Xaction_Start( const SPI_CONFIGURATION& Configuration )
 
 	if(Configuration.CS_Setup_uSecs)
 	{
-		CPU_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Setup_uSecs);
+		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Setup_uSecs);
 	}
 
 	return true;
@@ -485,7 +485,7 @@ BOOL CPU_SPI_Xaction_Stop( const SPI_CONFIGURATION& Configuration )
 
 	if(Configuration.CS_Hold_uSecs)
     {
-		CPU_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Hold_uSecs);
+		HAL_Time_Sleep_MicroSeconds_InterruptEnabled(Configuration.CS_Hold_uSecs);
     }
 
 	if(Configuration.DeviceCS != GPIO_PIN_NONE && Configuration.DeviceCS != SPIx_NSS && Configuration.DeviceCS != SPIy_NSS )	// Use GPIO for the function of CS pin to keep it always active during the whole read/write access operation

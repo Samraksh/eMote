@@ -28,7 +28,7 @@ static inline void flush_timer();
 
 // Code
 
-static BOOL InitializeTimer ( UINT32 Timer )
+BOOL InitializeTimer ( UINT16 Timer )
 {
 	GLOBAL_LOCK(irq);
 	
@@ -86,7 +86,7 @@ static void ForceInterrupt(UINT32 Timer)
 }
 
 // Set an interrupt for a number of ticks in the future
-static void SetCompare(UINT32 Timer, UINT32 Compare)
+void SetCompare(UINT16 Timer, UINT32 Compare)
 {
 	flush_timer(); // Flush DGT to bigCounter
 	writel(Compare, DGT_MATCH_VAL);
@@ -105,7 +105,7 @@ static void SetCounter(UINT32 Timer, UINT32 Count)
 	ASSERT();
 }
 
-static inline UINT32 GetCounter(UINT32 Timer)
+UINT32 GetCounter(UINT16 Timer)
 {
 	return readl(DGT_COUNT_VAL);
 }

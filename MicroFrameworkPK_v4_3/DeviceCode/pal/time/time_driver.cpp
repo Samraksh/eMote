@@ -35,7 +35,7 @@ HRESULT TimeDriver::Initialize()
         m_Ticks_a = 1;
         m_Ticks_b = 1;
         m_Ticks_c = 0;
-        CPU_Time_GetDriftParameters(&m_Ticks_a, &m_Ticks_b, &m_Ticks_c);
+        HAL_Time_GetDriftParameters(&m_Ticks_a, &m_Ticks_b, &m_Ticks_c);
 
         m_timezoneOffset = 0; 
 
@@ -130,7 +130,8 @@ INT64 TimeDriver::GetTickCount()
 
 INT64 TimeDriver::GetMachineTime()
 {
-    INT64 time = CPU_Time_CurrentTime();
+	//AnanthAtSamraksh: defaulting to advancedTimer
+    INT64 time = HAL_Time_CurrentTime(1);
 
     if(m_Ticks_a != 0)
     {

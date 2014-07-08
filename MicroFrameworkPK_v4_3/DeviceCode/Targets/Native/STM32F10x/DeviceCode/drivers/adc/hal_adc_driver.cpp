@@ -18,7 +18,7 @@
 #include <stm32f10x.h>
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
-#include <Timer/advancedtim/netmf_advancedtimer.h>
+#include <Timer/advancedtimer/netmf_advancedtimer.h>
 #include <Timer/Timer16Bit/stm32f10x_tim.h>
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
@@ -718,7 +718,8 @@ extern "C"
 	void DMA_HAL_HANDLER(void *param)
 	{
 		// Record the time as close to the completion of sampling as possible
-		g_timeStamp = CPU_Time_CurrentTicks();
+		//AnanthAtSamraksh: using AdTim
+		g_timeStamp = HAL_Time_CurrentTicks(1);
 
 		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
 		{

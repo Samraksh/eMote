@@ -55,17 +55,18 @@ BOOL VirtTimer_Initialize()
 }
 
 //TODO: AnanthAtSamraksh -- is this right
-UINT64 VirtTimer_GetTicks(UINT8 timer_id)
+UINT64 VirtTimer_GetTicks(UINT16 timer_id)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	return CPU_Time_CurrentTicks();
+	return HAL_Time_CurrentTicks(g_HardwareTimerIDs[mapperId]);
+	//return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
 }
 
 
-VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id)
+/*VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id)
 {
 	if (timer_id < 0)
 		return TimerNotSupported;
@@ -78,7 +79,7 @@ VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id)
 		return TimerSupported;
 	else
 		return TimerNotSupported;
-}
+}*/
 
 
 VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
@@ -109,6 +110,7 @@ VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 }
 
 
+//AnanthAtSamraksh - when the virtual timer is stopped, it is not released by default. User has to explicitly release it by setting _isreserved to FALSE
 VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = timer_id;

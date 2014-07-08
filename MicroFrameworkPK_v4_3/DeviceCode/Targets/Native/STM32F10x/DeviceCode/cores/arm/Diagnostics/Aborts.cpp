@@ -282,13 +282,13 @@ dump_again:
         }
 
         // wait for 10 mSec
-        CPU_Time_Sleep_MicroSeconds(10000/64);
+        HAL_Time_Sleep_MicroSeconds(10000/64);
         
         // wait for it to release
         while(0 == (CurrentButtonsState ^ Buttons_CurrentHWState()));
         
         // wait for 10 mSec        
-        CPU_Time_Sleep_MicroSeconds(10000/64);
+        HAL_Time_Sleep_MicroSeconds(10000/64);
         
         if(CurrentButtonsState & BUTTON_B5)
         {
@@ -320,7 +320,7 @@ StartMonitorMode:
             LCD_Clear();
             lcd_printf("\fMONITOR MODE\r\n");
 
-            CPU_Time_Sleep_MicroSeconds(10000);
+            HAL_Time_Sleep_MicroSeconds(10000);
 
             while(1)
             {

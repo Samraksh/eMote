@@ -9,7 +9,8 @@
 
 void CLR_RT_Random::Initialize()
 {
-    CLR_INT64  st  = CPU_Time_CurrentTime();
+	//AnanthAtSamraksh: using AdvTimer
+    CLR_INT64  st  = HAL_Time_CurrentTime(1);
     CLR_INT32* ptr = (CLR_INT32*)&st;
 
     m_next = ptr[ 0 ] ^ ptr[ 1 ];

@@ -39,4 +39,9 @@
 // Based on 32-bit DGT running at 6.75 MHz
 #define MAX_USEC_SLEEP 636291451
 
+BOOL InitializeTimer ( UINT16 Timer );
+void SetCompare(UINT16 Timer, UINT32 Compare);
+UINT32 GetCounter(UINT16 Timer);
+
+
 #endif /* KRAIT__TIMER_H_ */

@@ -2,7 +2,8 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 ////#include <Timer/advancedtim/netmf_advancedtimer.h>
-#include <time/netmf_time.h>
+////#include <time/netmf_time.h>
+
 
 // Assumptions:
 // ============
@@ -35,7 +36,7 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 	// Created a new PAL- HAL to connection to ensure that all code is platform independent
 	// HALTIMER is a macro defined under platform_selector.h, defining this anywhere else breaks platform abstraction
 
-	if(!CPU_TIMER_Initialize(VTM_hardwareTimerId, FALSE, 0, 0, VirtualTimerCallback, NULL))
+	if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, 0, VirtualTimerCallback, NULL))
 		return FALSE;
 	else
 		return TRUE;
@@ -51,6 +52,7 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 		return FALSE;
 
 	g_VirtualTimerInfo[timer_id].set_m_is_running(FALSE);
+	//g_VirtualTimerInfo[timer_id].set_m_reserved(_isreserved);
 	return TRUE;
 }
 
@@ -62,8 +64,8 @@ BOOL VirtualTimerMapper::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 
 	if (timer_id < 0 || timer_id > m_current_timer_id_)
 		return FALSE;
 
-	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period);
-	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay);
+	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
 
 	g_VirtualTimerInfo[timer_id].set_m_start_delay(ticksStartDelay);
 	g_VirtualTimerInfo[timer_id].set_m_period(ticksPeriod);
@@ -87,7 +89,7 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	g_VirtualTimerInfo[timer_id].set_m_is_running(TRUE);
 
 	// Adjusting all timers in the timerQueue (even ones that are not active and not in the queue are adjusted but that won't affect anything). We could iterate and only adjust active ones, but it is not worth the time to check.
-	////UINT64 currentTime = CPU_Timer_CurrentTicks(timer_id);
+	////UINT64 currentTime = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[timer_id]);
 	UINT64 currentTime = CPU_Timer_CurrentTicks(VTM_hardwareTimerId);
 	UINT64 timeElapsed = currentTime - get_m_lastQueueAdjustmentTime();
 	set_m_lastQueueAdjustmentTime(currentTime);
@@ -120,9 +122,10 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	if ( nextTimer->get_m_timer_id() == timer_id )
 	{
 		////g_STM32F10x_AdvancedTimer.SetCompare(HAL_Time_CurrentTicks(), (UINT32)nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
-		////CPU_TIMER_SetCompare(VTM_hardwareTimerId, timer_id, CPU_Timer_CurrentTicks(timer_id), (UINT32)nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
+		////CPU_Timer_SetCompare(VTM_hardwareTimerId, timer_id, CPU_Timer_CurrentTicks(timer_id), (UINT32)nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 
-		CPU_TIMER_SetCompare(VTM_hardwareTimerId, (UINT32)nextTimer->get_m_ticksTillExpire() );
+		////CPU_Timer_SetCompare(VTM_hardwareTimerId, (UINT32)nextTimer->get_m_ticksTillExpire() );
+		CPU_Timer_SetCompare(VTM_hardwareTimerId, nextTimer->get_m_ticksTillExpire() );
 		////HAL_Time_SetCompare((UINT32)nextTimer->get_m_ticksTillExpire());
 	}
 
@@ -140,8 +143,8 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 
 
 	//UINT32 ticks = CPU_MicrosecondsToTicks(period);
-	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period);
-	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay);
+	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
 	//bool timerFound = false;
 
 	if(g_VirtualTimerInfo[timer_id].get_m_timer_id() == timer_id)
@@ -217,6 +220,7 @@ void VirtualTimerCallback(void *arg)
 		return;
 
 	UINT64 currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+	////hal_printf("%llu \n", currentTime);
 	gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].set_m_lastQueueAdjustmentTime(currentTime);
 
 	/*
@@ -309,6 +313,7 @@ void VirtualTimerCallback(void *arg)
 		//VirtualTimerInfo newTopTimer;
 		//BOOL timerExpired = FALSE;
 		currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+		////hal_printf("%llu \n", currentTime);
 		UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].get_m_lastQueueAdjustmentTime();
 		gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].set_m_lastQueueAdjustmentTime(currentTime);
 
@@ -317,8 +322,10 @@ void VirtualTimerCallback(void *arg)
 		//{
 			//gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
 			//TODO: AnanthAtSamraksh - a minor optimization. Adjust the ticks only for those timers which are active (get_m_is_running is true)
-			if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_is_running())
+			if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
 				gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
+
+			////hal_printf("%llu \n", gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire());
 
 			//if(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1000)
 			if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1500)
@@ -356,8 +363,9 @@ void VirtualTimerCallback(void *arg)
 		//g_STM32F10x_AdvancedTimer.SetCompare(HAL_Time_CurrentTicks(), (UINT32)topTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 		//CPU_Timer_SetCompare(CPU_Timer_CurrentTicks(timer_id), (UINT32)topTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
 		////HAL_Time_SetCompare((UINT32)topTimer->get_m_ticksTillExpire());
-		//CPU_TIMER_SetCompare(gVirtualTimerObject.virtualTimerMapper[k].VTM_hardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
-		CPU_TIMER_SetCompare(currentHardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
+		//CPU_Timer_SetCompare(gVirtualTimerObject.virtualTimerMapper[k].VTM_hardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
+		////CPU_Timer_SetCompare(currentHardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
+		CPU_Timer_SetCompare(currentHardwareTimerId, topTimer->get_m_ticksTillExpire() );
 	}
 	//}
 }
@@ -376,7 +384,7 @@ BOOL HALTimerManager::Initialize()
 	// Start Up Timer
 	// Created a new PAL- HAL to connection to ensure that all code is platform independent
 	// HALTIMER is a macro defined under platform_selector.h, defining this anywhere else breaks platform abstraction
-	if(!CPU_TIMER_Initialize(HALTIMER, TRUE, 0, 0, HALTimerCallback, NULL))
+	if(!CPU_Timer_Initialize(HALTIMER, TRUE, 0, 0, HALTimerCallback, NULL))
 		return FALSE;
 
 	// Number of active timers
@@ -390,7 +398,7 @@ BOOL HALTimerManager::Initialize()
 	timer_resolution_in_ticks = CPU_MicrosecondsToTicks((UINT32) HALTIMER_RESOLUTION_USEC);
 
 	// Set compare value for the timer
-	if(!CPU_TIMER_SetCompare(HALTIMER, (UINT16)timer_resolution_in_ticks))
+	if(!CPU_Timer_SetCompare(HALTIMER, (UINT16)timer_resolution_in_ticks))
 		return FALSE;
 
 	return TRUE;

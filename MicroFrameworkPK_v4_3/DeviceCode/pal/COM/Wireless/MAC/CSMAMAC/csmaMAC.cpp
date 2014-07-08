@@ -387,7 +387,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(m_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, CPU_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
+				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
 					NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
 
@@ -401,7 +401,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 			else
 			{
-				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, CPU_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
 #if 0
 				m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
 				m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);

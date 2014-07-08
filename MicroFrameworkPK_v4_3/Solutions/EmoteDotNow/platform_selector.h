@@ -173,6 +173,7 @@ UINT16 MF_NODE_ID;
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
 const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 ////#define NUM_VIRTUALTIMER_TIMERS 16
 
 //extern VirtualTimerConfig g_VT_Config;
