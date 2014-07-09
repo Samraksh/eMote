@@ -16,12 +16,12 @@ Buffer_15_4_t m_send_buffer;
 Buffer_15_4_t m_receive_buffer;
 NeighborTable m_NeighborTable;
 
-#define DEBUG_MACFUNCTIONS 1
+//#define DEBUG_MACFUNCTIONS 1
 
 #if defined(DEBUG_MACFUNCTIONS)
 #define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
 #define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_MAC(x) hal_printf(x)
+#define DEBUG_PRINTF_MAC(x) CLR_Debug::Printf(x)
 #else
 #define ENABLE_PIN(x,y)
 #define SET_PIN(x,y)
@@ -107,7 +107,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	}
 
 
-	m_receive_buffer.DropOldest(1);
+	//m_receive_buffer.DropOldest(1);
 
 	return DS_Success;
 
@@ -172,7 +172,7 @@ DeviceStatus Mac_GetNeighbourList(UINT16 *buffer)
 	if(neighbourCount == 0)
 	{
 		DEBUG_PRINTF_MAC("[NATIVE] : Neighbour Count is 0\n");
-		return DS_Fail;
+		buffer[0] = 0;
 	}
 
 	return DS_Success;

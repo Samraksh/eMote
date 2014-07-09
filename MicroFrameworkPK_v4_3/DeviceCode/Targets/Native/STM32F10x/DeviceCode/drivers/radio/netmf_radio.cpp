@@ -132,9 +132,6 @@ void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 
 	void *temptr = NULL;
 
-	CPU_GPIO_SetPinState((GPIO_PIN) 22, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 22, FALSE);
-
 	switch(radioID)
 	{
 		case RF231RADIO:
