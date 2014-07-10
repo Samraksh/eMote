@@ -84,7 +84,8 @@
     <CPP_FLAGS>$(CPP_FLAGS)-xc++ -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
-    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
+    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
+    <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-A8'"> -mfloat-abi=softfp </FLOATING_POINT_FLAG>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'=='true'"> </FLOATING_POINT_FLAG>
 
     <AS_CC_CPP_COMMON_FLAGS Condition="'$(COMPILER_TOOL)'!='GCCOP'">$(AS_CC_CPP_COMMON_FLAGS) $(FLOATING_POINT_FLAG) </AS_CC_CPP_COMMON_FLAGS>
