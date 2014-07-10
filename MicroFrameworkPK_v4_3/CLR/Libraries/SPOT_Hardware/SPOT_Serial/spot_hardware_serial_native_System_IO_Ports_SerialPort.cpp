@@ -272,24 +272,35 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Write___
 
     while(fRes && count > 0)
     {
-        int write = ::USART_Write( port, (char*)ptr, count );
+		if(CLR_EE_DBG_IS( Enabled ) && !CLR_EE_DBG_IS( Quiet )){
+			const char *dbgPtr = (const char *)ptr;
+			CLR_Debug::Emit( dbgPtr, count );
+			//CLR_Debug::Emit( dbgPtr, -1 );
+    		//CLR_Debug::Emit( "\r\n" , -1 );	
 
-        if(write == 0)
-        {
-            stack.m_evalStack[ 1 ].NumericByRef().s4 = totWrite;
+			ptr      += count;
+        	totWrite += count;
+        	count    -= count;
+		} else {
+        	int write = ::USART_Write( port, (char*)ptr, count );		
 
-            TINYCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents( stack.m_owningThread, *timeoutTicks, CLR_RT_ExecutionEngine::c_Event_SerialPort, fRes ));
-        }
-        else if(write < 0)
-        {
-            TINYCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
-        }
-        else
-        {
-            ptr      += write;
-            totWrite += write;
-            count    -= write;
-        }
+        	if(write == 0)
+        	{
+            	stack.m_evalStack[ 1 ].NumericByRef().s4 = totWrite;
+
+            	TINYCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.WaitEvents( stack.m_owningThread, *timeoutTicks, CLR_RT_ExecutionEngine::c_Event_SerialPort, fRes ));
+        	}
+        	else if(write < 0)
+        	{
+        	    TINYCLR_SET_AND_LEAVE(CLR_E_INVALID_PARAMETER);
+        	}
+        	else
+        	{
+        	    ptr      += write;
+        	    totWrite += write;
+        	    count    -= write;
+        	}
+		}
     }
 
     stack.PopValue();       // totRead
@@ -341,7 +352,11 @@ HRESULT Library_spot_hardware_serial_native_System_IO_Ports_SerialPort::Flush___
 
     portId = config[ Library_spot_hardware_serial_native_System_IO_Ports_SerialPort__Configuration::FIELD__PortIndex ].NumericByRef().u4;
 
-    ::USART_Flush( portId );
+	if(CLR_EE_DBG_IS( Enabled ) && !CLR_EE_DBG_IS( Quiet )){
+		CLR_Debug::Flush();
+	} else {
+    	::USART_Flush( portId );
+	}
 
     TINYCLR_NOCLEANUP();
 }
