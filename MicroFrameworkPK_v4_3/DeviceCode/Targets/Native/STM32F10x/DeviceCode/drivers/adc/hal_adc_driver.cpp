@@ -247,12 +247,12 @@ void ADC_GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	// GPIO_Init(GPIOB, &GPIO_InitStructure); // Disabling to allow for GPIO output
 
 	/* Configure PC.06 as output push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	// GPIO_Init(GPIOC, &GPIO_InitStructure); // Disabling to allow for GPIO output
 
 	/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
