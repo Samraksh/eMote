@@ -17,13 +17,13 @@
 #include <intc/stm32.h>
 
 
-//AnanthAtSamraksh - defining the list of timers supported by the drivers
+//AnanthAtSamraksh - defining the list of timers supported by the drivers. This has to match the IDs defined in "g_HardwareTimerIDs[]" in platform_selector.h
 //#define 32BIT_ADVTIMER		1
 //#define 16BIT_TIMER1		2
 //#define 16BIT_TIMER2		3
-const UINT8 ADVTIMER_32BIT = 1;
-const UINT8 TIMER1_16BIT = 2;
-const UINT8 TIMER2_16BIT = 3;
+extern const UINT8 ADVTIMER_32BIT;
+extern const UINT8 TIMER1_16BIT;
+extern const UINT8 TIMER2_16BIT;
 
 
 extern Timer16Bit_Driver g_Timer16Bit_Driver;
@@ -67,7 +67,7 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported by the drivers
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		if(g_Timer16Bit_Driver.Initialize(Timer, FreeRunning, ClkSource, Prescaler, ISR, NULL) != DS_Success)
+		if(!g_Timer16Bit_Driver.Initialize(Timer, FreeRunning, ClkSource, Prescaler, ISR, NULL))
 			return FALSE;
 	}
 	else if(Timer == ADVTIMER_32BIT )
@@ -78,6 +78,22 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 
 	return TRUE;
 
+}
+
+
+BOOL CPU_Timer_UnInitialize(UINT16 Timer)
+{
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		if(!g_Timer16Bit_Driver.Uninitialize(Timer))
+			return FALSE;
+	}
+	else if(Timer == ADVTIMER_32BIT )
+	{
+
+	}
+
+	return TRUE;
 }
 
 
@@ -93,8 +109,48 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
+		//AnanthAtSamraksh -- added below
+		GLOBAL_LOCK(irq);
+		g_Time_Driver.m_nextCompare = CompareValue;
+		bool fForceInterrupt = false;
+		UINT64 CntrValue = HAL_Time_CurrentTicks(Timer);
+
+		if(CompareValue <= CntrValue)
+		{
+			fForceInterrupt = true;
+		}
+		else
+		{
+			UINT32 diff;
+			//If compare is greater than total counter value, this is the best we can do
+			if((CompareValue - CntrValue) > g_Timer16Bit_Driver.c_MaxTimerValue)
+			{
+				diff = g_Timer16Bit_Driver.c_MaxTimerValue;
+			}
+			//Else store the difference
+			else
+			{
+				diff = (UINT32)(CompareValue - CntrValue);
+			}
+
+			//Store the compare to now + diff
+			g_Timer16Bit_Driver.SetCompare ( g_Timer16Bit_Driver.c_SystemTimer, (UINT16)(g_Timer16Bit_Driver.GetCounter( g_Timer16Bit_Driver.c_SystemTimer ) + diff));
+
+			//If meanwhile happens
+			if(HAL_Time_CurrentTicks(Timer) > CompareValue)
+			{
+				fForceInterrupt = true;
+			}
+		}
+
+		if(fForceInterrupt)
+		{
+			// Force interrupt to process this.
+			g_Timer16Bit_Driver.ForceInterrupt( g_Timer16Bit_Driver.c_SystemTimer );
+		}
+
 		//TODO: AnanthAtSamraksh -- g_Timer16Bit_Driver.GetCounter(Timer) returns a UINT16, whereas SetCompare takes a UINT32
-		g_Timer16Bit_Driver.SetCompare(Timer, g_Timer16Bit_Driver.GetCounter(Timer) + CompareValue);
+		//g_Timer16Bit_Driver.SetCompare(Timer, g_Timer16Bit_Driver.GetCounter(Timer) + CompareValue);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -135,6 +191,32 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer)
 	return counterValue;
 }
 
+
+UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
+{
+	// Check to make sure timer is a legal timer
+	// Typically should assert here, but returning 0
+	////if(Timer < 0 || Timer > g_Timer16Bit_Driver.c_MaxTimers)
+	//TODO: AnanthAtSamraksh - not checking if timer is greater than total timers configured.
+	//This can be done in the if...else loop
+	////if(Timer < 0 || Timer > NUM_VIRTUALTIMER_TIMERS)
+	/*if(Timer < 0)
+		return 0;*/
+
+	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported
+	UINT16 counterValue = 0;
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		counterValue = g_Timer16Bit_Driver.SetCounter(Timer, Count);
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		counterValue = g_STM32F10x_AdvancedTimer.SetCounter(Count);
+	}
+
+	return counterValue;
+}
+
 //TODO: AnanthAtSamraksh - to check if this is the right place
 UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
@@ -147,8 +229,32 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	UINT64 currentTicksValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
+		//AnanthAtSamraksh -- added below from
+		UINT16 value;
+		UINT64 m_lastRead = 0;
+		GLOBAL_LOCK(irq);
+		value = g_Timer16Bit_Driver.GetCounter(g_Timer16Bit_Driver.c_SystemTimer);
+
+		// Nived.Sivadas
+		// Workaround for the unusual didtimeoverflow bug, added another check
+		UINT16 lastSixteenBits = m_lastRead & 0x0000FFFFull;
+		m_lastRead &= (0xFFFFFFFFFFFF0000ull);
+
+		if(g_Timer16Bit_Driver.DidTimeOverFlow( g_Timer16Bit_Driver.c_SystemTimer ) || (value < lastSixteenBits))
+		{
+			g_Timer16Bit_Driver.ClearTimeOverFlow( g_Timer16Bit_Driver.c_SystemTimer );
+			m_lastRead += (0x1ull << 16);
+		}
+
+		//Or else the value gets added simply
+		m_lastRead += value;
+
+		ENABLE_INTERRUPTS();
+
+		return m_lastRead;
+
 		//TODO: AnanthAtSamraksh - what is the equivalent for 16 bit timer
-		currentTicksValue = g_Timer16Bit_Driver.GetCounter((UINT32)Timer);
+		//currentTicksValue = g_Timer16Bit_Driver.GetCounter((UINT32)Timer);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -259,6 +365,8 @@ void CPU_CPWAIT()
 }
 #endif
 
+
+#if 0
 UINT32 CPU_SystemClock(UINT16 Timer)
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -413,6 +521,8 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	}
 	//return uSec * (SystemTimerClock/1000000);
 }
+#endif
+
 
 #if 0
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec ){
@@ -491,7 +601,7 @@ UINT64 Time_CurrentTicks()
 // Will not work at other speeds at low uSec values ie ( < 30)
 // This function has poor accuracy at less than 10 microsecs
 // Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
-void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer = 1 )
+void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 {
 	/*
 	//AnanthAtSamraksh - CPU_Sleep is commented out as of 7/8/2014. So, does not matter what sleep level is entered.
@@ -537,6 +647,9 @@ void CPU_Timer_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 }
 #endif
 
+
+
+#if 0
 //TODO: AnanthAtSamraksh --- moved below functions from netmf_time_functions.cpp
 BOOL HAL_Time_Initialize(UINT16 Timer)
 {
@@ -704,7 +817,8 @@ void HAL_Time_SetCompare( UINT64 CompareValue, UINT16 Timer )
 		}
 		else
 		{
-			UINT32 diff;
+			//AnanthAtSamraksh -- commented out diff, as time keeping is done in the time driver
+			/*UINT32 diff;
 			//If compare is greater than total counter value, this is the best we can do
 			if((CompareValue - CntrValue) > 0xFFFF)
 			{
@@ -717,7 +831,8 @@ void HAL_Time_SetCompare( UINT64 CompareValue, UINT16 Timer )
 			}
 
 			//Store the compare to now + diff
-			g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), diff, SET_COMPARE_TIMER);
+			g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), diff, SET_COMPARE_TIMER);*/
+			g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), CompareValue, SET_COMPARE_TIMER);
 			////g_STM32F10x_AdvancedTimer.SetCompare ( g_STM32F10x_AdvancedTimer.c_SystemTimer, (UINT16)(Timer16Bit_Driver::GetCounter( Timer16Bit_Driver :: c_SystemTimer ) + diff));
 			//If meanwhile happens
 			if(HAL_Time_CurrentTicks(Timer) > CompareValue)
@@ -761,4 +876,4 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
 	//Time_Driver::Sleep_uSec_Loop( uSec );
 }
-
+#endif

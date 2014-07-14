@@ -10,6 +10,14 @@
 
 #endif
 
+//AnanthAtSamraksh
+#include <Samraksh/VirtualTimer.h>
+//#include "../../DeviceCode/Targets/Native/Krait/DeviceCode/Krait_TIME/Krait__TIME.h"
+//#include "../../DeviceCode/Targets/Native/Krait/DeviceCode/Krait_TIMER/Krait__TIMER.h"
+//#include "../../DeviceCode/Targets/Native/Krait/DeviceCode/Krait_INTC/Krait_INTC_functions.cpp"
+
+//extern Krait_Timer g_Krait_Timer;
+//AnanthAtSamraksh
 ////////////////////////////////////////////////////////////////////////////////
 
 struct Settings
@@ -629,6 +637,32 @@ bool ClrIsDebuggerStopped()
 
 #endif
 
+//AnanthAtSamraksh
+/*void Timer_0_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+	//HAL_Time_Sleep_MicroSeconds(1000);
+}
+
+void Timer_1_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
+}
+
+void Timer_2_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, FALSE);
+}
+
+void Timer_3_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, FALSE);
+}*/
+//AnanthAtSamraksh
 
 void ClrStartup( CLR_SETTINGS params )
 {
@@ -678,6 +712,43 @@ void ClrStartup( CLR_SETTINGS params )
 #if !defined(BUILD_RTM)
                 CLR_Debug::Printf( "Ready.\r\n" );
 #endif
+
+                //******************************************************
+                //AnanthAtSamraksh
+                //If uncommenting below, uncomment the includes at the top
+                /*debug_printf("Inside ApplicationEntryPoint - tinyclr.cpp \r\n");
+                CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
+                CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, TRUE);
+                CPU_GPIO_EnableOutputPin((GPIO_PIN) 55, TRUE);
+                CPU_GPIO_EnableOutputPin((GPIO_PIN) 58, TRUE);*/
+
+                /*int periodValue = 1;
+                for(int i = 0; i < 1; i++)
+                {
+                	VirtTimer_SetTimer(0, 0, periodValue*1000, FALSE, FALSE, Timer_0_Handler);
+                	VirtTimer_SetTimer(1, 0, periodValue*1000, FALSE, FALSE, Timer_1_Handler);
+                	VirtTimer_SetTimer(2, 0, periodValue*1000, FALSE, FALSE, Timer_2_Handler);
+                	VirtTimer_SetTimer(3, 0, periodValue*1000, FALSE, FALSE, Timer_3_Handler);
+                }
+
+                for(UINT16 i = 0; i <= 0; i++)
+                {
+                	for (UINT16 j = 0; j <= 3; j++)
+                	{
+                		VirtTimer_Start( (i+j)%8 );
+                	}
+                }*/
+
+                /*g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
+
+                UINT32 uSec = 10000;
+				UINT16 Timer = 0;
+				g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+				CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );*/
+                //******************************************************
+
+
+
 
 #if defined(PLATFORM_WINDOWS)
                 (void)g_CLR_RT_ExecutionEngine.Execute( params.EmulatorArgs, params.MaxContextSwitches );

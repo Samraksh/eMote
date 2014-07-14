@@ -121,9 +121,9 @@
 // communication facilities
 
 const UINT8 g_CountOfHardwareTimers = 1;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {17};			//From Krait_Timer.h -- INT_DEBUG_TIMER_EXP
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {4};
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {SYSTEM_CLOCK_HZ};
 
 /////////////////////////////////////////////////////////
 

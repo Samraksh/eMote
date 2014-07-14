@@ -102,7 +102,7 @@ void Watchdog_Driver::WatchdogCallback( void* context )
     static INT64 lastTime = -1;
 
     //AnanthAtSamraksh: using AdTim
-    INT64 currentTime = HAL_Time_CurrentTime(1);
+    INT64 currentTime = HAL_Time_CurrentTime();
 
     ///
     ///  If we have repeated watchdogs within the given rety timeout we will attempt to fix the problem

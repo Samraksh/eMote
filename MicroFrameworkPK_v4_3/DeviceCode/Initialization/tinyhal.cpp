@@ -6,6 +6,10 @@
 
 //TODO: AnanthAtSamraksh -- check with Mukundan
 #include <Samraksh/VirtualTimer.h>
+//AnanthAtSamraksh - comment lines below while building CLR for .Now; Uncomment for Adapt (just for testing...timer for instance)
+#include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
+extern Krait_Timer g_Krait_Timer;
+//AnanthAtSamraksh
 
 
 #if !defined(__GNUC__)
@@ -362,7 +366,7 @@ void HAL_Initialize()
     HAL_Init_Custom_Heap();
 
     Time_Initialize();
-    //AnanthAtSamraksh - commenting out below for testing virtual timers.
+
     Events_Initialize();
 
     CPU_GPIO_Initialize();
@@ -489,6 +493,177 @@ void HAL_Uninitialize()
     HAL_COMPLETION  ::Uninitialize();
 }
 
+
+//AnanthAtSamraksh
+void EnableGPIO()
+{
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 55, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 58, TRUE);
+}
+
+void Timer_0_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+	//UINT32 uSec = 500000;
+	//UINT16 Timer = 0;
+	//g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	////HAL_Time_Sleep_MicroSeconds(1000);
+}
+
+void Timer_1_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
+}
+
+void Timer_2_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 55, FALSE);
+}
+
+void Timer_3_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 58, FALSE);
+}
+
+void VirtualTimerTest()
+{
+	//debug_printf("Inside ApplicationEntryPoint - tinyclr.cpp \r\n");
+
+	int periodValue = 1;
+	for(int i = 0; i < 1; i++)
+	{
+		VirtTimer_SetTimer(0, 0, periodValue*250, FALSE, FALSE, Timer_0_Handler);
+		VirtTimer_SetTimer(1, 0, periodValue*250, FALSE, FALSE, Timer_1_Handler);
+		VirtTimer_SetTimer(2, 0, periodValue*250, FALSE, FALSE, Timer_2_Handler);
+		VirtTimer_SetTimer(3, 0, periodValue*250, FALSE, FALSE, Timer_3_Handler);
+	}
+
+	for(UINT16 i = 0; i <= 0; i++)
+	{
+		for (UINT16 j = 0; j <= 3; j++)
+		{
+			VirtTimer_Start( (i+j)%4 );
+			//for(int k = 0; k < 1; k++);
+		}
+	}
+}
+
+void TimerDriverTest()
+{
+	g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
+	UINT32 uSec = 500000;
+	UINT16 Timer = 0;
+	g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
+}
+
+void TimeTestA()
+{
+	INT64 prevTime = 0, currentTime = 0;
+
+	while(true)
+	{
+		prevTime = HAL_Time_CurrentTime();
+		currentTime = HAL_Time_CurrentTime();
+
+		if(currentTime > prevTime)
+			Timer_0_Handler(NULL);
+		else
+		{
+			Timer_1_Handler(NULL);
+			//break;
+		}
+	}
+}
+
+void TimeTestB()
+{
+	UINT64 prevTicks = 0, currentTicks = 0;
+
+	while(true)
+	{
+		prevTicks = HAL_Time_CurrentTicks();
+		currentTicks = HAL_Time_CurrentTicks();
+
+		if(currentTicks > prevTicks)
+			Timer_0_Handler(NULL);
+		else
+		{
+			Timer_1_Handler(NULL);
+			//break;
+		}
+	}
+}
+
+void TimeTestC()
+{
+	UINT64 prevTime = 0, currentTime = 0, elapsedTime = 0;
+
+	UINT32 timeout_ms =  100;
+	//700 is purely from observation while debugging.
+	UINT32 ticksScalingFactor = 0x4F812;
+	//convert timeout_ms to ticks for comparison with timeElapsed
+	UINT64 timeout_ticks = CPU_MicrosecondsToTicks(timeout_ms * 1000);
+	UINT32 events = 0;
+	const UINT32 c_EventsMask =  SYSTEM_EVENT_FLAG_USB_IN |
+												   SYSTEM_EVENT_FLAG_BUTTON;
+
+	while(true)
+	{
+		prevTime = HAL_Time_CurrentTime();			//returns ticks value
+
+		events = ::Events_WaitForEvents( c_EventsMask, timeout_ms );		//timeout is in milliseconds
+
+		currentTime = HAL_Time_CurrentTime();
+		elapsedTime = currentTime - prevTime;
+
+		if(events != 0)
+		{
+			 Events_Clear( events );
+		}
+
+		if(elapsedTime <= (timeout_ticks + ticksScalingFactor))
+			Timer_0_Handler(NULL);
+		else if(elapsedTime > (timeout_ticks + ticksScalingFactor))
+			Timer_1_Handler(NULL);
+	}
+}
+
+void TimeTestD()
+{
+	UINT64 prevTime = 0, currentTime = 0, elapsedTime = 0;
+	UINT16 ticksScalingFactor = 650;
+	UINT32 sleepValue = 100;
+	UINT16 incrementVal = 10;
+
+	while(true)
+	{
+		//sleepValue = (UINT32)(testMathInstance.pareto_prng() % (1 << 7));
+		UINT64 sleepValue_ticks = CPU_MicrosecondsToTicks(sleepValue);
+		prevTime = HAL_Time_CurrentTime();			//returns ticks value
+
+		HAL_Time_Sleep_MicroSeconds(sleepValue);
+
+		currentTime = HAL_Time_CurrentTime();
+		elapsedTime = currentTime - prevTime;
+
+		if(elapsedTime <= (sleepValue_ticks + ticksScalingFactor))
+			Timer_0_Handler(NULL);
+		else if(elapsedTime > (sleepValue_ticks + ticksScalingFactor))
+			Timer_1_Handler(NULL);
+
+		sleepValue += incrementVal;
+		ticksScalingFactor += 50;
+	}
+}
+//AnanthAtSamraksh
+
 extern "C"
 {
 
@@ -606,7 +781,27 @@ mipi_dsi_shutdown();
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
-    ApplicationEntryPoint();
+    //******************************************************
+	//AnanthAtSamraksh
+    EnableGPIO();
+
+    /* TimerTests */
+    //Uncomment - VirtTimer_Initialize()
+    //VirtualTimerTest();
+    //-------------------
+    /* comment - VirtTimer_Initialize() and uncomment below; uncomment include files at the top */
+    //TimerDriverTest();
+
+    //=============================
+
+    /* TimeTests */
+    //TimeTestA();
+    //TimeTestB();
+    //TimeTestC();
+    TimeTestD();
+
+    //******************************************************
+    //ApplicationEntryPoint();
 
     lcd_printf("\fmain exited!!???.  Halting CPU\r\n");
     debug_printf("main exited!!???.  Halting CPU\r\n");

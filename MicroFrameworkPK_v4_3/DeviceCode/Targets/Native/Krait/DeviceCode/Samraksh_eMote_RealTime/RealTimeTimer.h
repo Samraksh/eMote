@@ -13,8 +13,14 @@
 #include <TinyCLR_Interop.h>
 
 void ISR_PendSV_Handler(void* Param);
+/*void ISR_REALTIME_TIMER(void* Param );
+static void ISR_RealTimeTimerProc( CLR_RT_HeapBlock_NativeEventDispatcher *pContext );
+static HRESULT CleanupRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext );
+static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable );
+static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData );
+*/
 
-struct Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
+struct  Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
 {
     TINYCLR_NATIVE_DECLARE(Dispose___STATIC__VOID);
     TINYCLR_NATIVE_DECLARE(Change___STATIC__BOOLEAN__U4__U4);
@@ -24,7 +30,17 @@ struct Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
 
 };
 
-extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeTimer;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime;
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeInteropTimer;
+
+
+/*const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeTimer =
+{
+    "RealTimeTimer",
+    0x942D0E14,
+    method_lookup
+};
+*/
+
 
 #endif  //_REALTIMETIMER_H_

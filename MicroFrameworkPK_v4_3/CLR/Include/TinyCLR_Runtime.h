@@ -2961,7 +2961,7 @@ struct CLR_RT_ExecutionEngine
             if(m_recursion++ == 0)
             {
             	//AnanthAtSamraksh: using AdvTimer
-                m_start = HAL_Time_CurrentTicks(1);
+                m_start = HAL_Time_CurrentTicks();
             }
         }
 
@@ -2972,7 +2972,7 @@ struct CLR_RT_ExecutionEngine
                 if(--m_recursion == 0)
                 {
                 	//AnanthAtSamraksh: using AdvTimer
-                    m_cumulative += (HAL_Time_CurrentTicks(1) - m_start);
+                    m_cumulative += (HAL_Time_CurrentTicks() - m_start);
                 }
             }
         }

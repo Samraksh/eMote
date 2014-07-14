@@ -9,7 +9,11 @@
 #include <tinyhal.h>
 #include "RealTimeTimer.h"
 #include <gpio/stm32f10x_gpio.h>
+<<<<<<< HEAD
 #include <tim/netmf_timers.h>
+=======
+#include <Timer/Timer16Bit/netmf_timers16Bit.h>
+>>>>>>> -Made changes to RT extensions (for virtual timer)
 #include <TinyCLR_Hardware.h>
 #include <TinyCLR_Runtime.h>
 
@@ -34,22 +38,33 @@ void ISR_REALTIME_TIMER (void* Param);
 void ISR_PendSV_Handler (void* Param);
 
 BOOL InitializeTimer (){
-	if (!Timer_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+
+	if(!VirtTimer_Initialize(RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+		return FALSE;
+
+	VirtTimer_SetCounter(RT_HARDWARE_TIMER, 0);
+	VirtTimer_SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));
+
+
+	/*if (!Timer16Bit_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
 	{
 		return FALSE;
 	}
-	Timer_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-	Timer_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));
+	Timer16Bit_Driver::SetCounter(RT_HARDWARE_TIMER,0);
+	Timer16Bit_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));*/
 
 	return TRUE;
 }
 
 BOOL UnInitializeTimer (){
 
-	if (Timer_Driver :: Uninitialize (RT_HARDWARE_TIMER))
+	if(!VirtTimer_UnInitialize())
+		return FALSE;
+
+	/*if (Timer16Bit_Driver :: Uninitialize (RT_HARDWARE_TIMER))
 	{
 		return FALSE;
-	}
+	}*/
 
 	return TRUE;
 }
@@ -251,7 +266,8 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 		//Ready to generate interrupt to CLR
 		if(!SingleShot) {
-			Timer_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
+
+			Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer16Bit_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
 		}
 		else {
 			UnInitializeTimer();
@@ -265,8 +281,8 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 				//Ready to generate interrupt to CLR
 				if(!SingleShot) {
-					Timer_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-					Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+					Timer16Bit_Driver::SetCounter(RT_HARDWARE_TIMER,0);
+					Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 				}else {
 					UnInitializeTimer();
 				}
@@ -274,11 +290,11 @@ void ISR_REALTIME_TIMER (void* Param){
 				GeneratePendSVInterrupt();
 
 		}else if (RollOver==RollOverCount-1){
-				Timer_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
+			Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
 				RollOver++;
 		}else{
 				RollOver++;
-				Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+				Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 		}
 	}
 }
@@ -300,8 +316,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime =
 {
-    "Samraksh_eMote_RealTime", 
-    0x96FD394B,
+ "Samraksh_eMote_RealTime",
+ 0x25274F8E,
     method_lookup
 };
 

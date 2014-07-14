@@ -12,8 +12,16 @@
 void VirtualTimerCallback(void *arg);
 
 extern const UINT8 g_CountOfHardwareTimers;
+extern const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers];
 extern VirtualTimer gVirtualTimerObject;
-VirtualTimerMapper gVirtualTimerMapperObject;
+//VirtualTimerMapper<8> gVirtualTimerMapperObject;
+
+
+#ifdef PLATFORM_ARM_EmoteDotNow
+	const UINT8 VTCount0 = 8;
+#else
+	const UINT8 VTCount0 = 4;
+#endif
 
 
 
@@ -23,7 +31,38 @@ VirtualTimerMapper gVirtualTimerMapperObject;
 // The SetCompare timer then needs to be set appropriately
 
 ////BOOL VirtualTimerMapper::Initialize(VirtualTimerConfigInitialize::VirtualTimerConfig VTconfig)
-BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
+template<>
+BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+{
+	VTM_hardwareTimerId = VTM_countOfVirtualTimers = 0;
+
+	VTM_hardwareTimerId = temp_HWID;
+	VTM_countOfVirtualTimers = temp_countVTimers;
+
+	m_lastQueueAdjustmentTime = 0;
+
+	// Start Up Timer
+	// Created a new PAL- HAL to connection to ensure that all code is platform independent
+	// HALTIMER is a macro defined under platform_selector.h, defining this anywhere else breaks platform abstraction
+
+	if(!ISR)
+	{
+		if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, 0, VirtualTimerCallback, NULL))
+			return FALSE;
+		else
+			return TRUE;
+	}
+	else
+	{
+		if(!CPU_Timer_Initialize(Timer, FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
+			return FALSE;
+		else
+			return TRUE;
+	}
+}
+
+/*template<>
+BOOL VirtualTimerMapper<4>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 {
 	VTM_hardwareTimerId = VTM_countOfVirtualTimers = 0;
 
@@ -40,13 +79,31 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 		return FALSE;
 	else
 		return TRUE;
+}*/
 
+template<>
+BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
+{
+	if(!CPU_Timer_UnInitialize(temp_HWID))
+		return FALSE;
+	else
+		return TRUE;
 }
+
+/*template<>
+BOOL VirtualTimerMapper<4>::UnInitialize(UINT16 temp_HWID)
+{
+	if(!CPU_Timer_UnInitialize(temp_HWID))
+		return FALSE;
+	else
+		return TRUE;
+}*/
 
 
 // This function takes a timer id as input and changes its state to not running
 // This means that the timer does not go back on the queue once its extracted
-BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
+template<>
+BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
 {
 	if (timer_id < 0 || timer_id > m_current_timer_id_)
 		return FALSE;
@@ -56,10 +113,22 @@ BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 	return TRUE;
 }
 
+/*template<>
+BOOL VirtualTimerMapper<4>::StopTimer(UINT8 timer_id)
+{
+	if (timer_id < 0 || timer_id > m_current_timer_id_)
+		return FALSE;
+
+	g_VirtualTimerInfo[timer_id].set_m_is_running(FALSE);
+	//g_VirtualTimerInfo[timer_id].set_m_reserved(_isreserved);
+	return TRUE;
+}*/
+
 // This function takes a timer id and dtime as input and changes the corresponding values of the timer
 // Note if the timer is currently in the system when this happens, the values are modified only when the timer
 // finishes its current instance in the queue and when its added back in it assumes the new values
-BOOL VirtualTimerMapper::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
+template<>
+BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
 {
 	if (timer_id < 0 || timer_id > m_current_timer_id_)
 		return FALSE;
@@ -74,9 +143,26 @@ BOOL VirtualTimerMapper::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 
 	return TRUE;
 }
 
+/*template<>
+BOOL VirtualTimerMapper<4>::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
+{
+	if (timer_id < 0 || timer_id > m_current_timer_id_)
+		return FALSE;
+
+	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+
+	g_VirtualTimerInfo[timer_id].set_m_start_delay(ticksStartDelay);
+	g_VirtualTimerInfo[timer_id].set_m_period(ticksPeriod);
+	g_VirtualTimerInfo[timer_id].set_m_is_one_shot(is_one_shot);
+
+	return TRUE;
+}*/
+
 // This function takes a timer id as input and changes the state to running or returns false
 // if the timer you specified does not exist
-BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
+template<>
+BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 {
 	if (timer_id < 0 || timer_id > m_current_timer_id_)
 		return FALSE;
@@ -95,7 +181,7 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	set_m_lastQueueAdjustmentTime(currentTime);
 
 	//TimerHelperFunctions::AdjustVirtTimers();
-	for(UINT16 i = 0; i < m_current_timer_id_; i++)
+	for(UINT16 i = 0; i < VTM_countOfVirtualTimers; i++)
 	{
 		//Adjust only active timers
 		if (g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
@@ -103,7 +189,6 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	}
 
 	// Initializing timer
-	//TODO: AnanthAtSamraksh -- below should not be commented out, as ticksTillExpire needs to be set to right value due to above adjustment
 	UINT32 ticks;
 	ticks = g_VirtualTimerInfo[timer_id].get_m_period();
 	//g_VirtualTimerInfo[timer_id].set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(g_VirtualTimerInfo[timer_id].get_m_start_delay()));
@@ -132,7 +217,64 @@ BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 	return TRUE;
 }
 
-BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
+/*template<>
+BOOL VirtualTimerMapper<4>::StartTimer(UINT8 timer_id)
+{
+	if (timer_id < 0 || timer_id > m_current_timer_id_)
+		return FALSE;
+
+	// check to see if we are already running
+	if (g_VirtualTimerInfo[timer_id].get_m_is_running() == TRUE){
+		return TRUE;
+	}
+
+	g_VirtualTimerInfo[timer_id].set_m_is_running(TRUE);
+
+	// Adjusting all timers in the timerQueue (even ones that are not active and not in the queue are adjusted but that won't affect anything). We could iterate and only adjust active ones, but it is not worth the time to check.
+	////UINT64 currentTime = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[timer_id]);
+	UINT64 currentTime = CPU_Timer_CurrentTicks(VTM_hardwareTimerId);
+	UINT64 timeElapsed = currentTime - get_m_lastQueueAdjustmentTime();
+	set_m_lastQueueAdjustmentTime(currentTime);
+
+	//TimerHelperFunctions::AdjustVirtTimers();
+	for(UINT16 i = 0; i < VTM_countOfVirtualTimers; i++)
+	{
+		//Adjust only active timers
+		if (g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+			g_VirtualTimerInfo[i].set_m_ticksTillExpire(g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
+	}
+
+	// Initializing timer
+	UINT32 ticks;
+	ticks = g_VirtualTimerInfo[timer_id].get_m_period();
+	//g_VirtualTimerInfo[timer_id].set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(g_VirtualTimerInfo[timer_id].get_m_start_delay()));
+	g_VirtualTimerInfo[timer_id].set_m_ticksTillExpire(ticks + g_VirtualTimerInfo[timer_id].get_m_start_delay());
+
+
+	// Insert this into the queue
+	// If this happens to be the smallest, do the necessary bookkeeping and
+	// set the new value on the comparator
+	if( !timerQueue.Insert( &g_VirtualTimerInfo[timer_id] ) )
+		return FALSE;
+
+	VirtualTimerInfo *nextTimer = timerQueue.PeekTop();
+
+	// if the nextTimer to fire is the one we just started then we will set the SetCompare function
+	if ( nextTimer->get_m_timer_id() == timer_id )
+	{
+		////g_STM32F10x_AdvancedTimer.SetCompare(HAL_Time_CurrentTicks(), (UINT32)nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
+		////CPU_Timer_SetCompare(VTM_hardwareTimerId, timer_id, CPU_Timer_CurrentTicks(timer_id), (UINT32)nextTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
+
+		////CPU_Timer_SetCompare(VTM_hardwareTimerId, (UINT32)nextTimer->get_m_ticksTillExpire() );
+		CPU_Timer_SetCompare(VTM_hardwareTimerId, nextTimer->get_m_ticksTillExpire() );
+		////HAL_Time_SetCompare((UINT32)nextTimer->get_m_ticksTillExpire());
+	}
+
+	return TRUE;
+}*/
+
+template<>
+BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
 	// Can not accept anymore timers
 	if(m_current_timer_id_ > VTM_countOfVirtualTimers)
@@ -198,55 +340,102 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 	return TRUE;
 }
 
-/* Algorithm for the callback:
- * 1. Extract the top timer and execute its callback function.
- * 2. Then reset its "ticksTillExpire" value.
- * 3. Insert it back into the heap.
- * 4. For all the timers in the heap, go through each of them and adjust their ticksTillExpire value based on the amount of time spent in the callback function.
- * 5. For the top timer, set the interrupt to go off after the "ticksTillExpire" value. */
-void VirtualTimerCallback(void *arg)
+/*template<>
+BOOL VirtualTimerMapper<4>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
-	UINT32 ticks;
-	UINT16 i = 0;
-	//VirtualTimerInfo newTopTimer;
+	// Can not accept anymore timers
+	if(m_current_timer_id_ > VTM_countOfVirtualTimers)
+		return FALSE;
 
-	UINT16 currentHardwareTimerId = gVirtualTimerObject.VT_hardwareTimerId;
-	UINT16 currentVirtualTimerId = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].m_current_timer_id_;
+	if (timer_id < 0 || timer_id > m_current_timer_id_)
+		return FALSE;
 
-	//VirtualTimerInfo* topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.PeekTop();
-	VirtualTimerInfo* topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.ExtractTop();
 
-	if(!topTimer)
-		return;
+	//UINT32 ticks = CPU_MicrosecondsToTicks(period);
+	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+	//bool timerFound = false;
 
-	UINT64 currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
-	////hal_printf("%llu \n", currentTime);
-	gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].set_m_lastQueueAdjustmentTime(currentTime);
-
-	/*
-	// Measure time elapsed since last interrupt fired
-	// This is necessary because the hardware timer can have other users and not just the virtual timer layer
-	// So if some spurious user set a compare value, it can not be assumed that the minimum timer in the queue
-	// just fired. This creates a possibility that the ticks till expire would be negative
-	// as timeElapsed can be greater than time set in the compare value
-	// is timeElapsed can never be negative which has been proved through testing of the HAL_Time_CurrentTicks
-	UINT64 currentTime = CPU_Timer_CurrentTicks(topTimer->get_m_timer_id());
-	UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper[k].get_m_lastQueueAdjustmentTime();
-	gVirtualTimerObject.virtualTimerMapper[k].set_m_lastQueueAdjustmentTime(currentTime);
-
-	// Adjusting all timers in the timerQueue (even ones that are not active and not in the queue are adjusted but that won't affect anything). We could iterate and only adjust active ones, but it is not worth the time to check.
-	//TimerHelperFunctions::AdjustVirtTimers();
-	for(UINT16 j = 0; j < gVirtualTimerObject.virtualTimerMapper[k].m_current_timer_id_; j++)
+	if(g_VirtualTimerInfo[timer_id].get_m_timer_id() == timer_id)
 	{
-		gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].get_m_ticksTillExpire() - (INT64) timeElapsed);
+		// This timer already exists....changing it.
+		g_VirtualTimerInfo[timer_id].set_m_callBack(callback);
+		//g_VirtualTimerInfo[j].set_m_period(ticks);
+		g_VirtualTimerInfo[timer_id].set_m_period(ticksPeriod);
+		g_VirtualTimerInfo[timer_id].set_m_is_one_shot(is_one_shot);
+		g_VirtualTimerInfo[timer_id].set_m_is_running(FALSE);
+		g_VirtualTimerInfo[timer_id].set_m_reserved(_isreserved);
+		//g_VirtualTimerInfotimer_idj].set_m_start_delay(start_delay);
+		g_VirtualTimerInfo[timer_id].set_m_start_delay(ticksStartDelay);
+		g_VirtualTimerInfo[timer_id].set_m_timer_id(timer_id);
+		//g_VirtualTimerInfo[timer_id].set_m_ticksTillExpire(ticks);
+		g_VirtualTimerInfo[timer_id].set_m_ticksTillExpire(ticksPeriod + ticksStartDelay);
+		//timerFound == true;
+	}
+	else
+	{
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_callBack(callback);
+		//g_VirtualTimerInfo[m_current_timer_id_].set_m_period(ticks);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_period(ticksPeriod);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_is_one_shot(is_one_shot);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_is_running(FALSE);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_reserved(_isreserved);
+		//g_VirtualTimerInfo[m_current_timer_id_].set_m_start_delay(start_delay);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_start_delay(ticksStartDelay);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_timer_id(timer_id);
+		//g_VirtualTimerInfo[m_current_timer_id_].set_m_ticksTillExpire(ticks);
+		g_VirtualTimerInfo[m_current_timer_id_].set_m_ticksTillExpire(ticksPeriod + ticksStartDelay);
 	}
 
-	// Callback all timers that need to be served at this point
-	// At 48MHz it takes about 1500 ticks for 30us to pass, which is about the time it takes to setup and service a timer, so instead of doing all that we just service the callback now
-	//TODO: AnanthAtSamraksh - commented out the while loop
-	//while( (topTimer->get_m_ticksTillExpire()) <= 1500)
-	//{
-		topTimer = gVirtualTimerObject.virtualTimerMapper[k].timerQueue.ExtractTop();
+	m_current_timer_id_++;
+
+	return TRUE;
+}*/
+
+
+namespace VirtTimerHelperFunctions
+{
+	void HardwareVirtTimerMapper(UINT16 hardwareTimer_id, UINT8 &hardwareTimerIndex)
+	{
+		hardwareTimerIndex = -1;
+		for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+		{
+			if(hardwareTimer_id == g_HardwareTimerIDs[i])
+			{
+				hardwareTimerIndex = i;
+				break;
+			}
+		}
+	}
+}
+
+/* Algorithm for the callback:
+ * Overall idea is that, one timer controls CPU_Timer_SetCompare (which sets the interrupt to be fired after a certain amount of time),
+ * and rest of the timers have their timers adjusted based on time spent between and during call-backs.
+ * 1. Extract the top timer and execute its callback function.
+ * 2. Find out time spent in callback.
+ * 3. Subtract time spent in callback from topTimer's period and set that value to "ticksTillExpire" (if it is a repeating timer).
+ * 4. Insert it back into the heap.
+ * 5. For all the other timers in the heap, go through each of them and subtract topTimer's period and time spent in callback from their ticksTillExpire value.
+ * 6. For the top timer, set the interrupt to go off after the "ticksTillExpire" value. */
+void VirtualTimerCallback(void *arg)
+{
+	UINT32 ticks = 0, startDelay = 0;
+	UINT16 i = 0;
+	UINT64 currentTime = 0, beginExecTime = 0, endExecTime = 0, totalExecTime = 0;
+	INT64 ticksTillExpire = 0;
+
+	UINT16 currentHardwareTimerId = gVirtualTimerObject.VT_hardwareTimerId;
+	UINT8 currentHardwareTimerIndex = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(currentHardwareTimerId, currentHardwareTimerIndex);
+	if(currentHardwareTimerIndex == -1)
+		return;
+
+
+	if(currentHardwareTimerIndex == 0)
+	{
+		/*gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].get_m_ticksTillExpire() - (INT64) timeElapsed);
+	}
 	*/
 
 		/*// Check if the timer has been disabled
@@ -261,11 +450,11 @@ void VirtualTimerCallback(void *arg)
 		}*/
 
 	// Check if the timer has been disabled
-	if(topTimer != NULL)
+	/*if(topTimer != NULL)
 	{
 		if(topTimer->get_m_is_running())
 			(topTimer->get_m_callback())(NULL);
-	}
+	}*/
 
 
 		// if the timer is a one shot we don't place it back on the timer Queue
@@ -283,14 +472,15 @@ void VirtualTimerCallback(void *arg)
 			ticks = topTimer->get_m_period();*/
 
 	// if the timer is a one shot we don't place it back on the timer Queue
-	if (topTimer->get_m_is_one_shot()){
+	/*if (topTimer->get_m_is_one_shot()){
 		topTimer->set_m_is_running(FALSE);
+		VirtualTimerInfo* tempTopTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.ExtractTop();
 	} else {
 		ticks = topTimer->get_m_period();
 		/*topTimer->set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(topTimer->get_m_start_delay()));*/
 
-		//topTimer->set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(topTimer->get_m_start_delay()));
-		topTimer->set_m_ticksTillExpire(ticks + topTimer->get_m_start_delay());
+		//Subtract time spent in callback while setting ticksTillExpire. Assuming that CurrentTicks does not roll-over (endExecTime - beginExecTime)
+		/*topTimer->set_m_ticksTillExpire(ticks - totalExecTime);*/
 
 
 				/*// Check if timer deserves to go back or if someone has made it inactive
@@ -302,72 +492,153 @@ void VirtualTimerCallback(void *arg)
 				gVirtualTimerObject.virtualTimerMapper[k].timerQueue.Insert(topTimer);*/
 
 		// Check if timer deserves to go back or if someone has made it inactive
-		if(topTimer->get_m_is_running()){
-			//gVirtualTimerObject.virtualTimerMapper[k].timerQueue.Insert(topTimer);
+		/*if(topTimer->get_m_is_running()){
 			gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.Insert(topTimer);
+		}*/
+	}
+
+		//UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].m_current_timer_id_;
+		UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_id_;
+
+		//beginExecTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+
+		//VirtualTimerInfo* topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].timerQueue.PeekTop();
+		VirtualTimerInfo* topTimer = gVirtualTimerObject.virtualTimerMapper_0.timerQueue.PeekTop();
+		//VirtualTimerInfo* topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.ExtractTop();
+
+		if(!topTimer)
+			return;
+
+		if(topTimer->get_m_is_running())
+			(topTimer->get_m_callback())(NULL);
+
+		//endExecTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+
+		//totalExecTime = endExecTime - beginExecTime;
+
+		/*
+		// Measure time elapsed since last interrupt fired
+		// This is necessary because the hardware timer can have other users and not just the virtual timer layer
+		// So if some spurious user set a compare value, it can not be assumed that the minimum timer in the queue
+		// just fired. This creates a possibility that the ticks till expire would be negative
+		// as timeElapsed can be greater than time set in the compare value
+		// is timeElapsed can never be negative which has been proved through testing of the HAL_Time_CurrentTicks
+		UINT64 currentTime = CPU_Timer_CurrentTicks(topTimer->get_m_timer_id());
+		UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper[k].get_m_lastQueueAdjustmentTime();
+		gVirtualTimerObject.virtualTimerMapper[k].set_m_lastQueueAdjustmentTime(currentTime);
+
+		// Adjusting all timers in the timerQueue (even ones that are not active and not in the queue are adjusted but that won't affect anything). We could iterate and only adjust active ones, but it is not worth the time to check.
+		//TimerHelperFunctions::AdjustVirtTimers();
+		for(UINT16 j = 0; j < gVirtualTimerObject.virtualTimerMapper[k].m_current_timer_id_; j++)
+		{
+			gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[j].get_m_ticksTillExpire() - (INT64) timeElapsed);
 		}
-	}
+		*/
 
-	while(i < currentVirtualTimerId)
-	{
-		//VirtualTimerInfo newTopTimer;
-		//BOOL timerExpired = FALSE;
-		currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
-		////hal_printf("%llu \n", currentTime);
-		UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].get_m_lastQueueAdjustmentTime();
-		gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].set_m_lastQueueAdjustmentTime(currentTime);
+		// if the timer is a one shot we don't place it back on the timer Queue
+		if (topTimer->get_m_is_one_shot()){
+			topTimer->set_m_is_running(FALSE);
+			//VirtualTimerInfo* tempTopTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].timerQueue.ExtractTop();
+			VirtualTimerInfo* tempTopTimer = gVirtualTimerObject.virtualTimerMapper_0.timerQueue.ExtractTop();
+		} else {
+			ticks = topTimer->get_m_period();
 
-		// adjusting m_ticksTillExpire again to take into account time spent in callback
-		//for(; i < currentVirtualTimerId; i++)
-		//{
-			//gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
-			//TODO: AnanthAtSamraksh - a minor optimization. Adjust the ticks only for those timers which are active (get_m_is_running is true)
-			if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
-				gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].set_m_ticksTillExpire(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) timeElapsed);
+			//Subtract time spent in callback while setting ticksTillExpire. Assuming that CurrentTicks does not roll-over (endExecTime - beginExecTime)
+			//topTimer->set_m_ticksTillExpire(ticks - totalExecTime);
+			topTimer->set_m_ticksTillExpire(ticks);
 
-			////hal_printf("%llu \n", gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire());
+			// Check if timer deserves to go back or if someone has made it inactive
+			/*if(topTimer->get_m_is_running()){
+				gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.Insert(topTimer);
+			}*/
+		}
 
-			//if(gVirtualTimerObject.virtualTimerMapper[k].g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1000)
-			if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1500)
+		//for(i = 0; i < gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].VTM_countOfVirtualTimers; i++)
+		for(i = 0; i < gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers; i++)
+		{
+			//AnanthAtSamraksh - a minor optimization. Adjust the ticks only for those timers which are active (get_m_is_running is true)
+			//if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
 			{
-				//timerExpired = TRUE;
-				//newTopTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i];
-				if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_is_running())
-					(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].get_m_callback())(NULL);
-				//break;
+				// adjusting m_ticksTillExpire again to take into account time spent in callback
+				//Don't adjust the topTimer which we adjusted above
+				//if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_timer_id() != topTimer->get_m_timer_id())
+				if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_timer_id() != topTimer->get_m_timer_id())
+				{
+					currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+					//UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].get_m_lastQueueAdjustmentTime();
+					UINT64 timeElapsed = currentTime - gVirtualTimerObject.virtualTimerMapper_0.get_m_lastQueueAdjustmentTime();
+
+					//Subtract topTimer's period from rest of timer's ticksTillExpire value.
+					//ticksTillExpire = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_ticksTillExpire();
+					ticksTillExpire = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
+					////gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticksTillExpire - topTimer->get_m_period() - totalExecTime);
+					//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticksTillExpire - timeElapsed - totalExecTime);
+					//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticksTillExpire - timeElapsed);
+					gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticksTillExpire - timeElapsed);
+				}
 			}
-		//}
+		}
 
-		//if(timerExpired == TRUE)
-		//{
-			//topTimer = gVirtualTimerObject.virtualTimerMapper[k].timerQueue.PeekTop();
-			//topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.PeekTop();
-			//if(newTopTimer)
-			//{
-				//if(newTopTimer.get_m_is_running())
-					//(newTopTimer.get_m_callback())(NULL);
-			//}
-			//timerExpired = FALSE;
-		//}
-		//else
-			//break;
-		i++;
+		for(i = 0; i < gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers; i++)
+		{
+			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+			{
+				// Callback all timers that need to be served at this point
+				// At 48MHz it takes about 1500 ticks or 30us to pass, which is about the time it takes to setup and service a timer;
+				// so instead of doing all that we just service the callback now
+				//if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1500)
+				if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1500)
+				{
+					//beginExecTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+
+					//(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_callback())(NULL);
+					(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_callback())(NULL);
+
+					//if(gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_is_one_shot())
+						//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].set_m_is_running(FALSE);
+
+					if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_one_shot())
+						gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_is_running(FALSE);
+
+					//ticks = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].get_m_period();
+					ticks = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_period();
+
+					//endExecTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+
+					//totalExecTime = endExecTime - beginExecTime;
+
+					//Assuming that CurrentTicks does not roll-over (endExecTime - beginExecTime)
+					//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticks - totalExecTime);
+					//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticks);
+					gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticks);
+
+				}
+			}
+		}
+
+		//heapify
+		//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].timerQueue.heapify(0);
+		gVirtualTimerObject.virtualTimerMapper_0.timerQueue.heapify(0);
+
+		//topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].timerQueue.PeekTop();
+		topTimer = gVirtualTimerObject.virtualTimerMapper_0.timerQueue.PeekTop();
+
+		// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
+		if(topTimer)
+		{
+			CPU_Timer_SetCompare(currentHardwareTimerId, topTimer->get_m_ticksTillExpire() );
+		}
+		currentTime = CPU_Timer_CurrentTicks(currentHardwareTimerId);
+		//gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerIndex].set_m_lastQueueAdjustmentTime(currentTime);
+		gVirtualTimerObject.virtualTimerMapper_0.set_m_lastQueueAdjustmentTime(currentTime);
+
 	}
 
-	topTimer = gVirtualTimerObject.virtualTimerMapper[currentHardwareTimerId - 1].timerQueue.PeekTop();
-	//}
-
-	// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
-	if(topTimer)
+	else if(currentHardwareTimerIndex == 1)
 	{
-		//g_STM32F10x_AdvancedTimer.SetCompare(HAL_Time_CurrentTicks(), (UINT32)topTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
-		//CPU_Timer_SetCompare(CPU_Timer_CurrentTicks(timer_id), (UINT32)topTimer->get_m_ticksTillExpire(), SET_COMPARE_TIMER);
-		////HAL_Time_SetCompare((UINT32)topTimer->get_m_ticksTillExpire());
-		//CPU_Timer_SetCompare(gVirtualTimerObject.virtualTimerMapper[k].VTM_hardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
-		////CPU_Timer_SetCompare(currentHardwareTimerId, (UINT32)topTimer->get_m_ticksTillExpire() );
-		CPU_Timer_SetCompare(currentHardwareTimerId, topTimer->get_m_ticksTillExpire() );
+
 	}
-	//}
 }
 
 

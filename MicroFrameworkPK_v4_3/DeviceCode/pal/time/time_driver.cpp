@@ -131,7 +131,7 @@ INT64 TimeDriver::GetTickCount()
 INT64 TimeDriver::GetMachineTime()
 {
 	//AnanthAtSamraksh: defaulting to advancedTimer
-    INT64 time = HAL_Time_CurrentTime(1);
+    INT64 time = HAL_Time_CurrentTime();
 
     if(m_Ticks_a != 0)
     {

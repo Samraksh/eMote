@@ -39,9 +39,20 @@
 // Based on 32-bit DGT running at 6.75 MHz
 #define MAX_USEC_SLEEP 636291451
 
-BOOL InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR = 0, void* ISR_PARAM = 0 );
-void SetCompare(UINT16 Timer, UINT32 Compare);
-UINT32 GetCounter(UINT16 Timer);
+class Krait_Timer
+{
+private:
 
+public:
+	static UINT64 bigCounter;
+	static UINT64 nextCompare;
+
+	BOOL InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR = 0, void* ISR_PARAM = 0 );
+	void SetCompare(UINT16 Timer, UINT32 Compare);
+	UINT32 GetCounter(UINT16 Timer);
+};
+
+
+extern Krait_Timer g_Krait_Timer;
 
 #endif /* KRAIT__TIMER_H_ */

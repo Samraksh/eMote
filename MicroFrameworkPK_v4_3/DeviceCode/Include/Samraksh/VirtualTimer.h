@@ -188,7 +188,8 @@ struct TimerCompare
 public:
 	BOOL operator()(T timer1, T timer2)
 	{
-		return (*timer1 > *timer2);
+		if(timer1 && timer2)
+			return (*timer1 > *timer2);
 		////return (timer1->get_m_ticksTillExpire() > timer2->get_m_ticksTillExpire());
 		/*if(timer1->get_m_timer_run_count() == timer2->get_m_timer_run_count())
 		{
@@ -209,11 +210,8 @@ struct VirtualTimerConfig
 	UINT8 countOfVirtualTimers;
 };
 
-////Forward-declaration
-////class VirtualTimerMapper;
 
-
-//template<UINT8 TimerInfoSize>
+template<UINT8 TimerInfoSize>
 class VirtualTimerMapper
 {
 private:
@@ -229,10 +227,10 @@ public:
 	//TODO: AnanthAtSamraksh -- check if this is correct
 	////template<UINT8 T> VirtualTimerInfo<T> g_VirtualTimerInfo[T];
 	//Tried using a template, but did not work. Allocate an array of size equal to the count of largest count of virtual timers
-	//VirtualTimerInfo g_VirtualTimerInfo[TimerInfoSize];
-	VirtualTimerInfo g_VirtualTimerInfo[8];
+	VirtualTimerInfo g_VirtualTimerInfo[TimerInfoSize];
+	//VirtualTimerInfo g_VirtualTimerInfo[8];
 	//TODO: AnanthAtSamraksh - might need to change VTM_countOfVirtualTimers to 8 (the max virt timers defined in platform_selector.h
-	Hal_Heap_KnownSize<VirtualTimerInfo*, 8, TimerCompare<VirtualTimerInfo*> > timerQueue;
+	Hal_Heap_KnownSize<VirtualTimerInfo*, TimerInfoSize, TimerCompare<VirtualTimerInfo*> > timerQueue;
 
 	//HALTimer *m_active_timer;
 
@@ -242,7 +240,7 @@ public:
 	UINT8 Get_CountOfVirtualTimers();*/
 
 	////BOOL Initialize(VirtualTimerConfigInitialize::VirtualTimerConfig VTconfig);
-	BOOL Initialize(UINT16, UINT16);
+	BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 
 	BOOL SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 
@@ -253,9 +251,9 @@ public:
 	BOOL ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
 
 
-	BOOL UnInitialize();
+	BOOL UnInitialize(UINT16);
 
-	Hal_Heap_KnownSize<VirtualTimerInfo*, 8, TimerCompare<VirtualTimerInfo*> >* GetTimerQueue()
+	Hal_Heap_KnownSize<VirtualTimerInfo*, TimerInfoSize, TimerCompare<VirtualTimerInfo*> >* GetTimerQueue()
 	{
 		return &timerQueue;
 	}
@@ -274,34 +272,73 @@ public:
 
 
 extern const UINT8 g_CountOfHardwareTimers;
-//extern const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers];
+extern const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers];
+extern const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers];
 
 //template<UINT8 HardwareTimerId>
 class VirtualTimer
 {
 private:
 
+
 public:
 	UINT16 VT_hardwareTimerId;
 	UINT16 VT_countOfVirtualTimers;
 	////VirtualTimerInfo g_VirtualTimerInfo[];
 
+	/*UINT16 HardwareVirtTimerCountMapper(UINT8 hardwareTimer_id)
+	{
+		UINT8 VTCount = -1;
+		for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+		{
+			if(hardwareTimer_id == g_HardwareTimerIDs[i])
+			{
+				VTCount = g_VirtualTimerPerHardwareTimer[i];
+				break;
+			}
+		}
+		return VTCount;
+	}*/
+
+	//UINT16 VTCount = g_VirtualTimerPerHardwareTimer[HardwareTimerId];
+	//UINT16 VTCount = HardwareVirtTimerCountMapper(1);
+
 	////VirtualTimerMapper virtualTimerMapperObj;
-	//VirtualTimerMapper<g_VirtualTimerPerHardwareTimer[HardwareTimerId]> virtualTimerMapper[g_CountOfHardwareTimers];
-	VirtualTimerMapper virtualTimerMapper[g_CountOfHardwareTimers];
+	//VirtualTimerMapper<UINT16 VTCount = HardwareVirtTimerCountMapper(1)> virtualTimerMapper[g_CountOfHardwareTimers];
+
+	////Working solution
+	////VirtualTimerMapper<8> virtualTimerMapper[g_CountOfHardwareTimers];
+
+	////Proposed solution
+#ifdef PLATFORM_ARM_EmoteDotNow
+	VirtualTimerMapper<8> virtualTimerMapper_0;
+	VirtualTimerMapper<10> virtualTimerMapper_1;
+#else
+	VirtualTimerMapper<4> virtualTimerMapper_0;
+	VirtualTimerMapper<1> virtualTimerMapper_1;
+#endif
+
+	/*VirtualTimer& VirtualTimer::operator=(const VirtualTimer& virtTimer)
+	{
+		this = virtTimer;
+	}*/
 };
 
 	////BOOL Initialize(VirtualTimerConfig& config);
 	//PAL interface for VirtualTimers
-	BOOL VirtTimer_Initialize();
+	BOOL VirtTimer_Initialize(UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 	//VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
+	BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue);
+	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
 	BOOL VirtTimer_UnInitialize();
 
-	UINT64 VirtTimer_GetTicks(UINT16 timer_id);
+	UINT64 VirtTimer_GetTicks(UINT8 timer_id);
+	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);
+	UINT32 VirtTimer_GetCounter(UINT8 timer_id);
 
 	////TODO: AnanthAtSamraksh -- check this with Mukundan
 	BOOL CPU_Timer_Initialize();

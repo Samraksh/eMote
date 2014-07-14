@@ -26,44 +26,71 @@ namespace VirtTimerHelperFunctions
 
 		for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 		{
-			if(mapperTimerId < gVirtualTimerObject.virtualTimerMapper[mapperId].VTM_countOfVirtualTimers)
+			if(i == 0)
+			{
+				if(mapperTimerId < gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers)
+				{
+					mapperId = i;
+					break;
+				}
+				else
+				{
+					mapperTimerId -= gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers;
+				}
+			}
+			else if(i == 1)
+			{
+				if(mapperTimerId < gVirtualTimerObject.virtualTimerMapper_1.VTM_countOfVirtualTimers)
+				{
+					mapperId = i;
+					break;
+				}
+				else
+				{
+					mapperTimerId -= gVirtualTimerObject.virtualTimerMapper_1.VTM_countOfVirtualTimers;
+				}
+			}
+
+
+			/*if(mapperTimerId < gVirtualTimerObject.virtualTimerMapper[i].VTM_countOfVirtualTimers)
 			{
 				mapperId = i;
 				break;
 			}
 			else
 			{
-				mapperTimerId -= gVirtualTimerObject.virtualTimerMapper[mapperId].VTM_countOfVirtualTimers;
-			}
+				mapperTimerId -= gVirtualTimerObject.virtualTimerMapper[i].VTM_countOfVirtualTimers;
+			}*/
 		}
 	}
 }
 
 
-BOOL VirtTimer_Initialize()
+BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
 		gVirtualTimerObject.VT_hardwareTimerId = g_HardwareTimerIDs[i];
 		gVirtualTimerObject.VT_countOfVirtualTimers = g_VirtualTimerPerHardwareTimer[i];
 
-		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers))
-			return FALSE;
+		/*if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers))
+			return FALSE;*/
+
+		if(i == 0)
+		{
+			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, Timer, FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
+				return FALSE;
+		}
+		else if(i == 1)
+		{
+
+		}
+
 	}
 
 	return TRUE;
 }
 
-//TODO: AnanthAtSamraksh -- is this right
-UINT64 VirtTimer_GetTicks(UINT16 timer_id)
-{
-	UINT8 mapperTimerId = 0;
-	UINT8 mapperId = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	return HAL_Time_CurrentTicks(g_HardwareTimerIDs[mapperId]);
-	//return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
-}
 
 
 /*VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id)
@@ -88,11 +115,23 @@ VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay,
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(!gVirtualTimerObject.virtualTimerMapper[mapperId].SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
+	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
 		return TimerNotSupported;
 	else
-		return TimerSupported;
+		return TimerSupported;*/
 
+
+	if(mapperId == 0)
+	{
+		if(!gVirtualTimerObject.virtualTimerMapper_0.SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
+			return TimerNotSupported;
+		else
+			return TimerSupported;
+	}
+	else if(mapperId == 1)
+	{
+
+	}
 }
 
 
@@ -102,11 +141,22 @@ VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(!gVirtualTimerObject.virtualTimerMapper[mapperId].StartTimer(mapperTimerId))
+	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].StartTimer(mapperTimerId))
 		return TimerNotSupported;
 	else
-		return TimerSupported;
+		return TimerSupported;*/
 
+	if(mapperId == 0)
+	{
+		if(!gVirtualTimerObject.virtualTimerMapper_0.StartTimer(mapperTimerId))
+			return TimerNotSupported;
+		else
+			return TimerSupported;
+	}
+	else if(mapperId == 1)
+	{
+
+	}
 }
 
 
@@ -117,11 +167,22 @@ VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(gVirtualTimerObject.virtualTimerMapper[mapperId].StopTimer(mapperTimerId) == TimerNotSupported)
+	/*if(gVirtualTimerObject.virtualTimerMapper[mapperId].StopTimer(mapperTimerId) == TimerNotSupported)
 		return TimerNotSupported;
 	else
-		return TimerSupported;
+		return TimerSupported;*/
 
+	if(mapperId == 0)
+	{
+		if(gVirtualTimerObject.virtualTimerMapper_0.StopTimer(mapperTimerId) == TimerNotSupported)
+			return TimerNotSupported;
+		else
+			return TimerSupported;
+	}
+	else if(mapperId == 1)
+	{
+
+	}
 }
 
 
@@ -131,11 +192,59 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(!gVirtualTimerObject.virtualTimerMapper[mapperId].ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
+	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
 		return TimerNotSupported;
 	else
-		return TimerSupported;
+		return TimerSupported;*/
 
+	if(mapperId == 0)
+	{
+		if(!gVirtualTimerObject.virtualTimerMapper_0.ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
+			return TimerNotSupported;
+		else
+			return TimerSupported;
+	}
+	else if(mapperId == 1)
+	{
+
+	}
+}
+
+
+UINT64 VirtTimer_GetTicks(UINT8 timer_id)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	//AnanthAtSamraksh - changed below
+	//return HAL_Time_CurrentTicks(g_HardwareTimerIDs[mapperId]);
+	return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
+}
+
+UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count)
+{
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+	return CPU_Timer_SetCounter(g_HardwareTimerIDs[mapperId], Count);
+}
+
+
+UINT32 VirtTimer_GetCounter(UINT8 timer_id)
+{
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+	return CPU_Timer_GetCounter(g_HardwareTimerIDs[mapperId]);
+}
+
+
+BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue)
+{
+	return CPU_Timer_SetCompare(timer_id, CompareValue );
+}
+
+
+void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec)
+{
+	CPU_Timer_Sleep_MicroSeconds(uSec, timer_id);
 }
 
 
@@ -143,7 +252,16 @@ BOOL VirtTimer_UnInitialize()
 {
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
-		gVirtualTimerObject.virtualTimerMapper[i].UnInitialize();
+		if(i == 0)
+		{
+			gVirtualTimerObject.virtualTimerMapper_0.UnInitialize(g_HardwareTimerIDs[i]);
+		}
+		else if(i == 1)
+		{
+
+		}
+
+		//gVirtualTimerObject.virtualTimerMapper[i].UnInitialize();
 	}
 }
 

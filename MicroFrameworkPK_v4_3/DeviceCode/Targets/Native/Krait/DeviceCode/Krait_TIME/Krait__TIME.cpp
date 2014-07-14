@@ -17,8 +17,10 @@
 
 #include <tinyhal.h>
 #include "Krait__Time.h"
-#include "Krait__Timer.h"
+#include "../Krait_TIMER/Krait__Timer.h"
 
+
+#if 0
 /******* TIMER CODE (AS OPPOSED TO TIME) **********/
 
 // static prototypes
@@ -28,7 +30,24 @@ static inline void flush_timer();
 
 // Code
 
-BOOL InitializeTimer ( UINT16 Timer )
+//AnanthAtSamraksh
+#include "../Krait_INTC/Krait__INTC.h"
+static struct ihandler handler[NR_IRQS];
+
+//AnanthAtSamraksh
+extern "C"
+{
+
+void Timer_Handler(void* arg)
+{
+	TIME_HANDLER(arg);
+}
+
+}
+
+//AnanthAtSamraksh
+
+BOOL InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR, void* ISR_PARAM )
 {
 	GLOBAL_LOCK(irq);
 	
@@ -49,13 +68,19 @@ BOOL InitializeTimer ( UINT16 Timer )
 	writel(0, DGT_CLEAR);
 	writel(DGT_ENABLE_EN, DGT_ENABLE);
 
+	//AnanthAtSamraksh
+	handler[Timer].func = (int_handler)ISR;
+	handler[Timer].arg = ISR_PARAM;
+	//AnanthAtSamraksh
+
 	CPU_INTC_ActivateInterrupt(INT_DEBUG_TIMER_EXP, TIME_HANDLER, 0);
-	CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
+	//CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 	
 	hal_printf("\rKrait DGT initialized\r\n");
 
 	return TRUE;
 }
+
 
 // Not used, but no reason to assert.
 static BOOL Uninitialize(UINT32 Timer)
@@ -128,8 +153,10 @@ static void ResetCompareHit(UINT32 Timer)
 }
 
 /******* END TIMER CODE ***************************/
+#endif
 
 /******* TIME CODE (AS OPPOSED TO TIMER) **********/
+#if 0
 
 static UINT64 bigCounter;
 static UINT64 nextCompare;
@@ -150,13 +177,26 @@ static void TIME_HANDLER(void *arg) {
 		// this also schedules the next one, if there is one
 		writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
 		nextCompare = 0;
-		HAL_COMPLETION::DequeueAndExec();
+
+		//AnanthAtSamraksh
+		//HAL_COMPLETION::DequeueAndExec();
+
+		//AnanthAtSamraksh - taken from IRQ_Handler
+		uint32_t num = 0;
+		//enum handler_return ret;
+
+		//num = readl(GIC_CPU_INTACK);
+		//if (num > NR_IRQS)
+			//return;
+		handler[num].func(handler[num].arg);
+		//AnanthAtSamraksh
 	}
 	else
 	{
 		SetCompareValue( nextCompare );
 	}
 }
+
 
 BOOL Initialize()
 {
@@ -172,14 +212,17 @@ BOOL Initialize()
 BOOL Uninitialize(){
 	return TRUE;
 }
+#endif
 
 UINT64 TimeNow()
 {
-	return bigCounter + GetCounter(0);
+	return g_Krait_Timer.bigCounter + g_Krait_Timer.GetCounter(0);
 }
 
 #define SETCOMPARE_TIME_OVERHEAD 65
 #define SETCOMPARE_MIN_TIME 80
+
+#define TICKS_PROXIMITY_FORCE 10
 void SetCompareValue( UINT64 CompareValue )
 {
 	UINT32 diff;
@@ -189,11 +232,11 @@ void SetCompareValue( UINT64 CompareValue )
 
 	// New compare is after current compare.
 	// Undefined. Should never happen. Just drop it.
-	if (nextCompare != 0 && CompareValue > nextCompare) {
+	if (g_Krait_Timer.nextCompare != 0 && CompareValue > g_Krait_Timer.nextCompare) {
 		return;
 	}
 
-	nextCompare = CompareValue;
+    g_Krait_Timer.nextCompare = CompareValue;
 
 	now = TimeNow();
 
@@ -202,18 +245,23 @@ void SetCompareValue( UINT64 CompareValue )
 		return;
 	}
 
-	diff = CompareValue - now;
+	{
+		//if(CompareValue < now)
+			//diff = now - CompareValue;
+		//else
+			diff = CompareValue - now;
+	}
 
 	if (diff > MAX_TIMER_ROLLOVER) {
 		return;
 	}
 
 	if ( (diff-SETCOMPARE_TIME_OVERHEAD) < SETCOMPARE_MIN_TIME || diff < SETCOMPARE_TIME_OVERHEAD) {
-		SetCompare(0, SETCOMPARE_MIN_TIME);
+		g_Krait_Timer.SetCompare(0, SETCOMPARE_MIN_TIME);
 		return;
 	}
 
-	SetCompare(0,  diff - SETCOMPARE_TIME_OVERHEAD);
+	g_Krait_Timer.SetCompare(0,  diff - SETCOMPARE_TIME_OVERHEAD);
 }
 
 INT64 TicksToTime( UINT64 Ticks )
@@ -239,9 +287,9 @@ void Sleep_uSec( UINT32 uSec )
 	}
 
 	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE ); 
-	UINT32 value   = GetCounter( 0 );
+	UINT32 value   = g_Krait_Timer.GetCounter( 0 );
 
-	while((GetCounter(0) - value) <= maxDiff);
+	while((g_Krait_Timer.GetCounter(0) - value) <= maxDiff);
 }
 
 // Supposed to be implemented by calculating the approx number of instruction executed during this time and doing a for loop like implementation corresponding to the number of instructions
@@ -253,8 +301,8 @@ void Sleep_uSec_Loop( UINT32 uSec )
 	}
 
 	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE);
-	UINT32 value   = GetCounter( 0 );
+	UINT32 value   = g_Krait_Timer.GetCounter( 0 );
 
-	while((GetCounter(0) - value) <= maxDiff);
+	while((g_Krait_Timer.GetCounter(0) - value) <= maxDiff);
 }
 #pragma GCC reset_options

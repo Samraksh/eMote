@@ -140,20 +140,23 @@ BOOL       Utility_SafeSprintf( LPSTR& szBuffer, size_t& iBuffer, LPCSTR format,
 
 //--//
 
-BOOL    HAL_Time_Initialize      ( UINT16 Timer = 1    );
-BOOL    HAL_Time_Uninitialize    ( UINT16 Timer = 1    );
+BOOL    HAL_Time_Initialize      (     );
+BOOL    HAL_Time_Uninitialize    (     );
 INT64   HAL_Time_TicksToTime     ( UINT64 Ticks        );
 //TODO: AnanthAtSamraksh - defaulting to the advanced timer (#1)
-INT64   HAL_Time_CurrentTime     ( UINT16 Timer = 1    );
+//INT64   HAL_Time_CurrentTime     ( UINT16 Timer = 1    );
+INT64   HAL_Time_CurrentTime     (     );
 //TODO: AnanthAtSamraksh - defaulting to the advanced timer, but time driver uses 16-bit timer (#2)
-void    HAL_Time_SetCompare      ( UINT64 CompareValue, UINT16 Timer = 1 );
+//void    HAL_Time_SetCompare      ( UINT64 CompareValue, UINT16 Timer = 1 );
+void    HAL_Time_SetCompare      ( UINT64 CompareValue );
 void    HAL_Time_SetCompare_Completion      ( UINT64 CompareValue );
 void    HAL_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
 
 extern "C" 
 {
 	//TODO: AnanthAtSamraksh - defaulting to the advanced timer (#1)
-    UINT64  HAL_Time_CurrentTicks( UINT16 Timer = 1 );
+    //UINT64  HAL_Time_CurrentTicks( UINT16 Timer = 1 );
+    UINT64  HAL_Time_CurrentTicks(  );
     UINT64  Time_CurrentTicks    ( ); 
 }
 
@@ -192,15 +195,23 @@ UINT64  CPU_TicksToTime               ( UINT32 Ticks32, UINT16 Timer = 1 );
 //--//
 
 // Nived.Sivadas - adding this interface to enable the HALTimer
-BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM);
+BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
+BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 
 //TODO: AnanthAtSamraksh -- check if UINT64 is right
 ////BOOL CPU_TIMER_SetCompare(UINT64 CompareValue);
 BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue);
 
 UINT16 CPU_Timer_GetCounter(UINT16 Timer);
+UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);
 
 UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
+
+void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer = 1 );
+
+const UINT8 ADVTIMER_32BIT = 1;
+const UINT8 TIMER1_16BIT = 2;
+const UINT8 TIMER2_16BIT = 3;
 
 #endif // _DRIVERS_TIME_DECL_H_
 

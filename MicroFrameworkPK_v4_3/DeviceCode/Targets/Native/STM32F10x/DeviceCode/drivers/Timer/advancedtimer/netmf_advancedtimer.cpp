@@ -21,8 +21,8 @@ STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
 extern "C"
 {
-void ISR_TIM2(void* Param);
-void ISR_TIM1(void* Param);
+	void ISR_TIM2(void* Param);
+	void ISR_TIM1(void* Param);
 }
 
 
@@ -35,26 +35,26 @@ void ISR_TIM1(void* Param);
 extern const UINT8 g_CountOfHardwareTimers;
 BOOL CPU_Timer_Initialize()
 {
-for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
-{
-if(gVirtualTimerMapperObject.Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer[i]))
-return FALSE;
-}
-////return gVirtualTimerMapperObject.Initialize(1, 8);
-//return TRUE;
+	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
+	{
+		if(gVirtualTimerMapperObject.Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer[i]))
+			return FALSE;
+	}
+	////return gVirtualTimerMapperObject.Initialize(1, 8);
+	//return TRUE;
 }
 
 // This function is called the uninitialize the timer system and the virtual timer layer
 BOOL CPU_Timer_Uninitialize()
 {
-return gVirtualTimerMapperObject.UnInitialize();
+	return gVirtualTimerMapperObject.UnInitialize();
 }*/
 
 // This function has been tested using the rollover test for advanced timers - Level_0b
 //TODO: AnanthAtSamraksh - commented this out
 /*UINT64 CPU_Timer_CurrentTicks()
 {
-return g_STM32F10x_AdvancedTimer.Get64Counter();
+	return g_STM32F10x_AdvancedTimer.Get64Counter();
 }*/
 
 
@@ -63,14 +63,14 @@ return g_STM32F10x_AdvancedTimer.Get64Counter();
 
 INT64 CPU_Timer_TicksToTime( UINT64 Ticks )
 {
-return CPU_TicksToTime( Ticks );
+	return CPU_TicksToTime( Ticks );
 }
 
 // This function has been tested using the rollover test for advanced timers - level_0c
 INT64 CPU_Timer_CurrentTime()
 {
-// time and ticks are actually the same thing, so we just return UINT64 of ticks
-return CPU_TicksToTime(HAL_Time_CurrentTicks());
+	// time and ticks are actually the same thing, so we just return UINT64 of ticks
+	return CPU_TicksToTime(HAL_Time_CurrentTicks());
 }
 
 // This SetCompare function will tie in to the HALTimerManager framework in \pal\HALTimer\HALTimer.cpp
@@ -78,34 +78,34 @@ return CPU_TicksToTime(HAL_Time_CurrentTicks());
 //TODO: AnanthAtSamraksh -- this name matches with the one in netmf_timers.cpp
 void CPU_Timer_SetCompare( UINT64 CompareValue )
 {
-g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
+	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
 }
 
 // This SetCompare works within the HAL_COMPLETION \ HAL_CONTINUATION framework in \pal\AsyncProcCall
 // On a successful compare HAL_COMPLETION::DequeueAndExec(); will be called
 void CPU_Timer_SetCompare_Completion( UINT64 CompareValue )
 {
-g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
+	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
 }
 
 void CPU_Timer_GetDriftParameters ( INT32* a, INT32* b, INT64* c )
 {
-//*a = 1;
-//*b = 1;
-//*c = 0;
+	//*a = 1;
+	//*b = 1;
+	//*c = 0;
 
-// "correct"*A = raw*B + C
-// Correct is defined as 10 MHz
-// Raw is actually 8 MHz, so ratio is 1.25 = 5/4
-// 4*correct = 5*raw + 0
-*a = 4;
-*b = 5;
-*c = 0;
+	// "correct"*A = raw*B + C
+	// Correct is defined as 10 MHz
+	// Raw is actually 8 MHz, so ratio is 1.25 = 5/4
+	// 4*correct = 5*raw + 0
+	*a = 4;
+	*b = 5;
+	*c = 0;
 }
 
 UINT64 Time_CurrentTicks()
 {
-return HAL_Time_CurrentTicks();
+	return HAL_Time_CurrentTicks();
 }
 
 // This function is tuned for 8MHz of the emote
@@ -117,29 +117,29 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec )
 {
 
 
-if(uSec <= 10)
-{
-// UINT32 limit = uSec / 5;
-// for(volatile UINT32 i = 0; i < limit; i++);
-return;
-}
+	if(uSec <= 10)
+	{
+		// UINT32 limit = uSec / 5;
+		// for(volatile UINT32 i = 0; i < limit; i++);
+		return;
+	}
 
-GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
-if(uSec <= 30)
-{
-UINT32 limit = (uSec)/ 5;
-for(volatile UINT32 i = 0; i < limit; i++);
-return;
-}
+	if(uSec <= 30)
+	{
+		UINT32 limit = (uSec)/ 5;
+		for(volatile UINT32 i = 0; i < limit; i++);
+		return;
+	}
 
-UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
+	UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
 
-UINT32 ticks = CPU_MicrosecondsToTicks(uSec);
+	UINT32 ticks = CPU_MicrosecondsToTicks(uSec);
 
-while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
+	while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
 
-//while((((TIM2->CNT << 16) | TIM1->CNT) - currentCounterVal) <= ticks);
+	//while((((TIM2->CNT << 16) | TIM1->CNT) - currentCounterVal) <= ticks);
 
 
 }
@@ -148,64 +148,70 @@ while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
 // When that changes this function no longer works efficiently
 void CPU_Timer_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
-UINT32 limit = (uSec / 5);
-for(volatile UINT32 i = 0; i < limit; i++);
+	UINT32 limit = (uSec / 5);
+	for(volatile UINT32 i = 0; i < limit; i++);
 }
 */
 
 // Returns the current 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
 {
-// timerLock.acquire_and_save();
+	// timerLock.acquire_and_save();
 
-// Fix for rollover bug
-UINT16 tim1a = TIM1->CNT;
-UINT16 tim2a = TIM2->CNT;
-UINT16 tim1b = TIM1->CNT;
+	// Fix for rollover bug
+	UINT16 tim1a = TIM1->CNT;
+	UINT16 tim2a = TIM2->CNT;
+	UINT16 tim1b = TIM1->CNT;
 
-if(tim1b < tim1a)
-{
-tim2a = TIM2->CNT;
-}
+	if(tim1b < tim1a)
+	{
+		tim2a = TIM2->CNT;
+	}
 
 
-currentCounterValue = ((tim2a << 16) | tim1b);
+	currentCounterValue = ((tim2a << 16) | tim1b);
 
-// timerLock.release_and_restore();
+	// timerLock.release_and_restore();
 
-return currentCounterValue;
+	return currentCounterValue;
 }
 
 
 UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
 
-UINT32 currentValue = GetCounter();
+	UINT32 currentValue = GetCounter();
 
-//timerLock.acquire_and_save();
+	//timerLock.acquire_and_save();
 
-m_lastRead &= (0xFFFFFFFF00000000ull);
 
-if(DidTimerOverflow())
-{
-ClearTimerOverflow();
-m_lastRead += (0x1ull <<32);
-}
 
-m_lastRead |= currentValue;
-//timerLock.release_and_restore();
-return m_lastRead;
+	m_lastRead &= (0xFFFFFFFF00000000ull);
+
+	if(DidTimerOverflow())
+	{
+		ClearTimerOverflow();
+		m_lastRead += (0x1ull <<32);
+	}
+
+	m_lastRead |= currentValue;
+
+
+	//timerLock.release_and_restore();
+
+
+	return m_lastRead;
 }
 
 
 BOOL STM32F10x_AdvancedTimer::DidTimerOverflow()
 {
-return timerOverflowFlag;
+	return timerOverflowFlag;
 }
 
 void STM32F10x_AdvancedTimer::ClearTimerOverflow()
 {
-timerOverflowFlag = FALSE;
+	timerOverflowFlag = FALSE;
 }
 
 // Initialize the advanced timer system. This inolves initializing timer1 as a master timer and tim2 as a slave
@@ -213,86 +219,86 @@ timerOverflowFlag = FALSE;
 DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void *ISR_Param)
 {
 
-// Return if already initialized
-if(STM32F10x_AdvancedTimer::initialized)
-return DS_Success;
+	// Return if already initialized
+	if(STM32F10x_AdvancedTimer::initialized)
+		return DS_Success;
 
-STM32F10x_AdvancedTimer::initialized = TRUE;
+	STM32F10x_AdvancedTimer::initialized = TRUE;
 
-// Fix for usart failure on adding the advanced timer in the system
-// Fix breaks the NOR because it shares the remapped pins with the advanced timer
-// Attempting to change the comparator
-//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
+	// Fix for usart failure on adding the advanced timer in the system
+	// Fix breaks the NOR because it shares the remapped pins with the advanced timer
+	// Attempting to change the comparator
+	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
-// Initializes the special deferred function
-//AnanthAtSamraksh -- commenting out all usage of tasklets as they are not really necessary;
-//Timers are their only users
-////TaskletType* tasklet = GetTasklet();
+	// Initializes the special deferred function
+	//AnanthAtSamraksh -- commenting out all usage of tasklets as they are not really necessary;
+	//Timers are their only users
+	////TaskletType* tasklet = GetTasklet();
 
-// Maintains the last recorded 32 bit counter value
-currentCounterValue = 0;
+	// Maintains the last recorded 32 bit counter value
+	currentCounterValue = 0;
 
-// Set the timer overflow flag to false during intialization
-// This flag is set when an over flow happens on timer 2 which happens to represent
-// the most significant 16 bits of our timer system
-// This event has to be recorded to ensure that we keep track of ticks expired since birth
-timerOverflowFlag = FALSE;
+	// Set the timer overflow flag to false during intialization
+	// This flag is set when an over flow happens on timer 2 which happens to represent
+	// the most significant 16 bits of our timer system
+	// This event has to be recorded to ensure that we keep track of ticks expired since birth
+	timerOverflowFlag = FALSE;
 
-timerLock.init();
+	timerLock.init();
 
-callBackISR = ISR;
-callBackISR_Param = ISR_Param;
+	callBackISR = ISR;
+	callBackISR_Param = ISR_Param;
 
-// Keep tasklet ready for insertion into bh queue
-//AnanthAtSamraksh -- commenting out all usage of tasklets
-/*tasklet->action = ISR;
-if(!ISR_Param)
-tasklet->data = &currentCounterValue;
-else
-tasklet->data = ISR_Param;*/
+	// Keep tasklet ready for insertion into bh queue
+	//AnanthAtSamraksh -- commenting out all usage of tasklets
+	/*tasklet->action = ISR;
+	if(!ISR_Param)
+		tasklet->data = &currentCounterValue;
+	else
+		tasklet->data = ISR_Param;*/
 
-RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
-RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
 
-TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-TIM_OCInitTypeDef TIM_OCInitStructure;
-RCC_ClocksTypeDef RCC_Clocks;
-RCC_GetClocksFreq(&RCC_Clocks);
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef TIM_OCInitStructure;
+	RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
 
-TIM_TimeBaseStructure.TIM_Period = 0xffff;
-TIM_TimeBaseStructure.TIM_Prescaler = 0;
-TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
-TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-TIM_OCInitStructure.TIM_Pulse = 1;
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = 1;
 
-TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
 
-/* Slave Mode selection: TIM2 */
-TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
-TIM_SelectInputTrigger(TIM2, TIM_TS_ITR0);
+	/* Slave Mode selection: TIM2 */
+	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
+	TIM_SelectInputTrigger(TIM2, TIM_TS_ITR0);
 
-TIM_TimeBaseStructure.TIM_Prescaler = 0;
-TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-TIM_TimeBaseStructure.TIM_Period = 0xffff;
-TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 
-// TIM1 timebase
-if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK2_Frequency) {
-// No prescaler, so TIM clock == PCLK2
-TIM_TimeBaseStructure.TIM_Prescaler = 0;
-}
-else {
-// Prescaler, so TIM clock = PCLK2 x 2
-TIM_TimeBaseStructure.TIM_Prescaler = 5; // TODO make this more general
-}
+	// TIM1 timebase
+	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK2_Frequency) {
+		// No prescaler, so TIM clock == PCLK2
+		TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	}
+	else {
+	// Prescaler, so TIM clock = PCLK2 x 2
+		TIM_TimeBaseStructure.TIM_Prescaler = 5; // TODO make this more general
+	}
 
-TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
 
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
@@ -318,26 +324,26 @@ TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
 
     // Active timer 1 cc interrupt
-if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM1_CC, ISR_TIM1, NULL) )
-return DS_Fail;
+	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM1_CC, ISR_TIM1, NULL) )
+		return DS_Fail;
 
-if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM1_CC))
-return DS_Fail;
+	if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM1_CC))
+		return DS_Fail;
 
-// Activate TIM2 interrupt
-if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM2, ISR_TIM2, NULL) )
-return DS_Fail;
+	// Activate TIM2 interrupt
+	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM2, ISR_TIM2, NULL) )
+		return DS_Fail;
 
-if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM2))
-return DS_Fail;
+	if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM2))
+		return DS_Fail;
 
-//TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
+	//TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
 
-// Need the update flag for overflow bookkeeping
-TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
+	// Need the update flag for overflow bookkeeping
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
-// Enable both the timers, TIM1 because it the LS two bytes
+	// Enable both the timers, TIM1 because it the LS two bytes
     TIM_Cmd(TIM1, ENABLE);
     TIM_Cmd(TIM2,ENABLE);
 
@@ -346,29 +352,29 @@ TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
     // At this point not sure
     g_STM32F10x_Timer_Configuration.Initialize();
 
-//===========================================
-// The following wait and re-initialization is needed to get the SetCompare() working
-for(int i=0; i<100000;i++){}
+	//===========================================
+	// The following wait and re-initialization is needed to get the SetCompare() working
+	for(int i=0; i<100000;i++){}
 
-TIM_TimeBaseStructure.TIM_Period = 0xffff;
-TIM_TimeBaseStructure.TIM_Prescaler = 0;
-TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
-TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
-TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-TIM_OCInitStructure.TIM_Pulse = 1;
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = 1;
 
-TIM_OC1Init(TIM2, &TIM_OCInitStructure);
+	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
 
-// the HAL_COMPLETION timer compare initialization
-TIM_OC2Init(TIM2, &TIM_OCInitStructure);
+	// the HAL_COMPLETION timer compare initialization
+	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
 
-// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
-// however, doing so breaks the COM port output.
-//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
+	// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
+	// however, doing so breaks the COM port output.
+	//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
 
     return DS_Success;
 
@@ -379,42 +385,63 @@ TIM_OC2Init(TIM2, &TIM_OCInitStructure);
 //TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
-UINT32 newCompareValue;
+	UINT32 newCompareValue;
 
-if(counterCorrection == 0)
-{
-newCompareValue = compareValue;
-}
-else
-{
-//TODO: AnanthAtSamraksh -- check if INT64 is right
-newCompareValue = (UINT32) counterCorrection + compareValue;
-//newCompareValue = counterCorrection + compareValue;
-}
-if(compareValue >> 16)
-{
-if (scType == SET_COMPARE_TIMER){
-TIM_SetCompare1(TIM2, newCompareValue >> 16);
-TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-} else {
-TIM_SetCompare2(TIM2, newCompareValue >> 16);
-TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-}
-}
-else
-{
-if (scType == SET_COMPARE_TIMER){
-TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-} else {
-TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
-TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-}
-}
+	if(counterCorrection == 0)
+	{
+		newCompareValue = compareValue;
+	}
+	else
+	{
+		//TODO: AnanthAtSamraksh -- check if INT64 is right
+		newCompareValue = (UINT32) counterCorrection + compareValue;
+		//newCompareValue = counterCorrection + compareValue;
+	}
+	if(compareValue >> 16)
+	{
+		if (scType == SET_COMPARE_TIMER){
+			TIM_SetCompare1(TIM2, newCompareValue >> 16);
+			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+		} else {
+			TIM_SetCompare2(TIM2, newCompareValue >> 16);
+			TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
+		}
+	}
+	else
+	{
+		if (scType == SET_COMPARE_TIMER){
+				TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
+				TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+		} else {
+				TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
+				TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+		}
+	}
 
-currentCompareValue = newCompareValue;
+	currentCompareValue = newCompareValue;
 
-return DS_Success;
+	/*if(m_lastRead > 4294967296 && m_lastRead < 8569167668)
+	{
+		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
+	}*/
+	/*if(currentCompareValue >= 32375537 && currentCompareValue < 32506609)
+	{
+		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
+	}
+	else if(currentCompareValue >= 32506609 && currentCompareValue <= 32637681)
+	{
+		CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
+	}
+	else if(currentCompareValue > 32637681)
+	{
+		CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+	}*/
+
+	return DS_Success;
 }
 
 extern "C"
@@ -423,119 +450,169 @@ extern "C"
 void ISR_TIM2(void* Param)
 {
 
-if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
-{
-TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
+	{
+		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 
-//hal_printf("Current Compare Value %d", g_STM32F10x_AdvancedTimer.currentCompareValue);
-// Set the lsb of the 32 bit timer
-//TIM_SetCompare2(TIM1, TIM1->CNT + (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+		//hal_printf("Current Compare Value %d", g_STM32F10x_AdvancedTimer.currentCompareValue);
+		// Set the lsb of the 32 bit timer
+		//TIM_SetCompare2(TIM1, TIM1->CNT + (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+		//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 
-// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-// Small values on the lsb are sometimes missed
+		// Small values on the lsb are sometimes missed
 
-UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
+		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
-if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
-//if(TIM1->CNT > lsbValue)
-{	
-// Fire now we already missed the counter value
-// Create a software trigger
-TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+		/*if(lsbValue < 800)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)31, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)31, FALSE);
+		}
+		else if(lsbValue >= 500 && lsbValue < 990)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
+		}
+		else if(lsbValue >= 990 && lsbValue <= 995)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
+		}
+		else if(lsbValue > 995)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+		}*/
 
-//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
+		/*if(TIM1->CNT >= 750 && TIM1->CNT < 800)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
+		}
+		else if(TIM1->CNT >= 800 && TIM1->CNT <= 900)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
+		}
+		else if(TIM1->CNT > 900)
+		{
+			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
+		}*/
 
-// Schedule bottom half processing on arrival of interrupt
-//Tasklet_Schedule_hi(tasklet);
-}
-else
-{
-TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-}
-}
-if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
-{
-TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
-TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
-// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 
-// Small values on the lsb are sometimes missed
+		//if(lsbValue < 100)		//7.417secs
+		//if(lsbValue < 500)		//5.6996secs
+		//if(lsbValue < 750)		//4.412secs
+		//if(lsbValue < 1000)		//3.124secs
+		//if(lsbValue < 1250)		//1.837secs
+		//if(lsbValue < 1500)		//0.5497secs
+		//if(lsbValue < 2000)		//0.1198secs
+		//if(TIM1->CNT > lsbValue)
+		//AnanthAtSamraksh: if TIM1->CNT has overflown the lsbValue or if the difference between the 2 is 750.
+		//750 ticks * 125ns = 93us. If only 750 ticks remain, might as well trigger the event. Else, set the compare
+		//value for interrupt to go off at scheduled time.
+		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)	//2.695secs
+		{
+			// Fire now we already missed the counter value
+			// Create a software trigger
+			////TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 
-UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
+			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
 
-if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
-//if(TIM1->CNT > lsbValue)
-{	
-// Fire now we already missed the counter value
-// Create a software trigger
-TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+			// Schedule bottom half processing on arrival of interrupt
+			//Tasklet_Schedule_hi(tasklet);
+		}
+		else
+		{
+			TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+		}
+	}
+	if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
+	{
+		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
-//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
+		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 
-// Schedule bottom half processing on arrival of interrupt
-//Tasklet_Schedule_hi(tasklet);
-}
-else
-{
-TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-}
-}
-if(TIM_GetITStatus(TIM2, TIM_IT_Update))
-{
-TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-// An overflow just happened, update the 64 bit value
-// maintained in software
-// This is needed because microsoft's timers are polling based and
-// poll this 64 bit number
+		// Small values on the lsb are sometimes missed
 
-g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
+		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
-g_STM32F10x_AdvancedTimer.Get64Counter();
-}
+		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
+		//if(TIM1->CNT > lsbValue)
+		{
+			// Fire now we already missed the counter value
+			// Create a software trigger
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+
+			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
+
+			// Schedule bottom half processing on arrival of interrupt
+			//Tasklet_Schedule_hi(tasklet);
+		}
+		else
+		{
+			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+		}
+	}
+	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		// An overflow just happened, update the 64 bit value
+		// maintained in software
+		// This is needed because microsoft's timers are polling based and
+		// poll this 64 bit number
+
+		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
+
+		g_STM32F10x_AdvancedTimer.Get64Counter();
+	}
 
 }
 
 void ISR_TIM1( void* Param )
 {
-// calculate the current 32 bit value of the counters to account for
-// time spent in the handler when the next compare interrupt is set
-// This variable is pointed to by the tasklet
-// So changing the contents of this variable should be done with extreme caution
-// Update the 64 bit counter value
-g_STM32F10x_AdvancedTimer.Get64Counter();
+	// calculate the current 32 bit value of the counters to account for
+	// time spent in the handler when the next compare interrupt is set
+	// This variable is pointed to by the tasklet
+	// So changing the contents of this variable should be done with extreme caution
+	// Update the 64 bit counter value
+	g_STM32F10x_AdvancedTimer.Get64Counter();
 
 
-if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
-{
-TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
-TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
+	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
+	{
+		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+		//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
 
-//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
+		//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
 
-//AnanthAtSamraksh -- commenting out all usage of tasklets
-////TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
+		//AnanthAtSamraksh -- commenting out all usage of tasklets
+		////TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
 
-// Schedule bottom half processing on arrival of interrupt
-      ////Tasklet_Schedule_hi(tasklet);
+		// Schedule bottom half processing on arrival of interrupt
+			  ////Tasklet_Schedule_hi(tasklet);
 
-g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
+		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 
-}
-if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
-{
-TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
-TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-HAL_COMPLETION::DequeueAndExec();
-}
+	}
+	if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
+	{
+		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
+		HAL_COMPLETION::DequeueAndExec();
+	}
 
 }
 
