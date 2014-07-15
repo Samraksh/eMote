@@ -1,1 +1,0 @@
-D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\ADAPTEmulator\ADAPTEmulator\bin\Release\ADAPTEmulator.exe "/load:mscorlib.dll" "/load:Microsoft.SPOT.Native.dll"  "/load:Microsoft.SPOT.Hardware.dll"  "/load:D:\Main\Emote-dev\Dev\MicroFrameworkPK_v4_0\Emulator\NETMF_EmoteEmulator\ADAPTEmulator\EmulatorTestApp\bin\Release\EmulatorTestApp.exe"

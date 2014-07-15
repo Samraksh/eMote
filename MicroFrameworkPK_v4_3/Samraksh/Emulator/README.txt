@@ -1,0 +1,1 @@
+This used to be location where the Emulator sources were stored. Emulator has now (as of July 15, 2014) been moved to the Library repo. If you need access to the Emulator sources please contact Bill, Mukundan or Kenneth.
