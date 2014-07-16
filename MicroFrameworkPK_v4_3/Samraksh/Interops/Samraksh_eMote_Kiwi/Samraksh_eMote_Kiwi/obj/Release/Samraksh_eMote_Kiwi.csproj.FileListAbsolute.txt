@@ -1,0 +1,17 @@
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\le\Samraksh_eMote_Kiwi.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\be\Samraksh_eMote_Kiwi.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\le\Samraksh_eMote_Kiwi.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\be\Samraksh_eMote_Kiwi.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\Samraksh_eMote_Kiwi.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\Samraksh_eMote_Kiwi.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\le\Samraksh_eMote_Kiwi.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\le\Samraksh_eMote_Kiwi.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\be\Samraksh_eMote_Kiwi.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\be\Samraksh_eMote_Kiwi.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\be\Samraksh_eMote_Kiwi.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\be\Samraksh_eMote_Kiwi.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\le\Samraksh_eMote_Kiwi.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\le\Samraksh_eMote_Kiwi.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\Samraksh_eMote_Kiwi.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\Samraksh_eMote_Kiwi.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\TinyCLR_DebugReferences.cache

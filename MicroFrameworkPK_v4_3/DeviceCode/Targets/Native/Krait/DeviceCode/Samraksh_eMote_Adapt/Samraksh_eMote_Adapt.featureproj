@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_Adapt</FeatureName>
-    <Guid>{c3dcd255-2036-4b9f-a10a-a1c62ff68e65}</Guid>
+    <Guid>{6ba6a0aa-e3c4-4d41-a150-768158fa8886}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_ADAPT_FEATUREPROJ>True</SAMRAKSH_EMOTE_ADAPT_FEATUREPROJ>

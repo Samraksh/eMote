@@ -1,0 +1,17 @@
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\le\Samraksh_eMote_SensorBoard.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\be\Samraksh_eMote_SensorBoard.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\le\Samraksh_eMote_SensorBoard.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\be\Samraksh_eMote_SensorBoard.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\Samraksh_eMote_SensorBoard.xml
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\Samraksh_eMote_SensorBoard.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\Samraksh_eMote_SensorBoard.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\le\Samraksh_eMote_SensorBoard.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\le\Samraksh_eMote_SensorBoard.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\be\Samraksh_eMote_SensorBoard.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\bin\Debug\be\Samraksh_eMote_SensorBoard.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\be\Samraksh_eMote_SensorBoard.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\be\Samraksh_eMote_SensorBoard.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\le\Samraksh_eMote_SensorBoard.pe
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\le\Samraksh_eMote_SensorBoard.pdbx
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\Samraksh_eMote_SensorBoard.dll
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_SensorBoard\Samraksh_eMote_SensorBoard\obj\Debug\Samraksh_eMote_SensorBoard.pdb
