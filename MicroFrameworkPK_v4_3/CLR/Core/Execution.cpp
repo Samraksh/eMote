@@ -11,7 +11,7 @@
 static const CLR_INT64 c_MaximumTimeToActive = (TIME_CONVERSION__ONEMINUTE * TIME_CONVERSION__TO_SECONDS);
 
 
-extern volatile BOOL stopMemoryAccess;
+extern volatile BOOL debuggerErasedFlash;
 //--//
 
 CLR_RT_ExecutionEngine::ExecutionConstraintCompensation CLR_RT_ExecutionEngine::s_compensation = { 0, 0, 0 };
@@ -1299,7 +1299,7 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 			// but we check a variable that is set when we erase the FLASH for deployment and make
 			// sure we don't run any managed code if we have erased the FLASH.
 			// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
-			if (stopMemoryAccess == false){
+			if (debuggerErasedFlash == false){
 				hr = th->Execute();
         	}
 #ifdef DEBUG_CLR
@@ -1931,8 +1931,12 @@ HRESULT CLR_RT_ExecutionEngine::InitializeLocals( CLR_RT_HeapBlock* locals, CLR_
                     {
                         TINYCLR_SET_AND_LEAVE(CLR_E_WRONG_TYPE);
                     }
-
-                    cls = *cls2;
+					if (debuggerErasedFlash == false){
+                    	cls = *cls2;
+					} else 
+					{
+                        TINYCLR_SET_AND_LEAVE(CLR_E_WRONG_TYPE);
+					}
                 }
                 goto done;
             }

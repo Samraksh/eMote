@@ -265,77 +265,74 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 
 		}
 
-		void __irq HardFault_Handler()
-		{
-			//Big thanks to joseph.yiu for this handler. This is simply an adaptation of:
-			//http://www.st.com/mcu/forums-cat-6778-23.html
-			//****************************************************
-			//To test this application, you can use this snippet anywhere:
-			// //Let's crash the MCU!
-			// asm (" MOVS r0, #1 \n"
-			// " LDM r0,{r1-r2} \n"
-			// " BX LR; \n");
-			// Note that this works as-is in IAR 5.20, but could have a different syntax
-			// in other compilers.
-			//****************************************************
-			// hardfault_args is a pointer to your stack. you should change the adress
-			// assigned if your compiler places your stack anywhere else!
+void HardFault_HandlerC(unsigned long *hardfault_args){
+  	volatile unsigned long stacked_r0 ;
+  	volatile unsigned long stacked_r1 ;
+  	volatile unsigned long stacked_r2 ;
+  	volatile unsigned long stacked_r3 ;
+  	volatile unsigned long stacked_r12 ;
+  	volatile unsigned long stacked_lr ;
+  	volatile unsigned long stacked_pc ;
+  	volatile unsigned long stacked_psr ;
+  	volatile unsigned long _CFSR ;
+  	volatile unsigned long _HFSR ;
+  	volatile unsigned long _DFSR ;
+  	volatile unsigned long _AFSR ;
+  	volatile unsigned long _BFAR ;
+  	volatile unsigned long _MMAR ;
+ 
+  	stacked_r0 = ((unsigned long)hardfault_args[0]) ;
+  	stacked_r1 = ((unsigned long)hardfault_args[1]) ;
+  	stacked_r2 = ((unsigned long)hardfault_args[2]) ;
+  	stacked_r3 = ((unsigned long)hardfault_args[3]) ;
+  	stacked_r12 = ((unsigned long)hardfault_args[4]) ;
+  	stacked_lr = ((unsigned long)hardfault_args[5]) ;
+  	stacked_pc = ((unsigned long)hardfault_args[6]) ;
+  	stacked_psr = ((unsigned long)hardfault_args[7]) ;
+ 
+  	// Configurable Fault Status Register
+  	// Consists of MMSR, BFSR and UFSR
+  	_CFSR = (*((volatile unsigned long *)(0xE000ED28))) ;
+ 
+  	// Hard Fault Status Register
+  	_HFSR = (*((volatile unsigned long *)(0xE000ED2C))) ;
+ 
+  	// Debug Fault Status Register
+  	_DFSR = (*((volatile unsigned long *)(0xE000ED30))) ;
+ 
+  	// Auxiliary Fault Status Register
+  	_AFSR = (*((volatile unsigned long *)(0xE000ED3C))) ;
+ 
+  	// Read the Fault Address Registers. These may not contain valid values.
+  	// Check BFARVALID/MMARVALID to see if they are valid values
+  	// MemManage Fault Address Register
+  	_MMAR = (*((volatile unsigned long *)(0xE000ED34))) ;
+  	// Bus Fault Address Register
+  	_BFAR = (*((volatile unsigned long *)(0xE000ED38))) ;
 
-			CPU_GPIO_EnableOutputPin (9, FALSE);
-			CPU_GPIO_SetPinState(9,FALSE);
-			CPU_GPIO_SetPinState(9,TRUE);
-			CPU_GPIO_SetPinState(9,FALSE);
-			CPU_GPIO_SetPinState(9,TRUE);
-			CPU_GPIO_SetPinState(9,FALSE);
 
-			unsigned int stacked_r0;
-			unsigned int stacked_r1;
-			unsigned int stacked_r2;
-			unsigned int stacked_r3;
-			unsigned int stacked_r12;
-			unsigned int stacked_lr;
-			unsigned int stacked_pc;
-			unsigned int stacked_psr;
-			u32* hardfault_args = (u32*) 0x20000400;
+ 	// at this point you can read data from the variables with 
+	// "p/x stacked_pc"
+	// "info symbol <address>" should list the code line
+	// "info address <FunctionName>"
+	// "info registers" might help 
+	// "*((char *)0x00) = 5;" should create a hard-fault to test
+ 	while (1){
+	}
+	
+}
 
-			asm( "TST LR, #4 \n"
-			"ITE EQ \n"
-			"MRSEQ R0, MSP \n"
-			"MRSNE R0, PSP \n");
-
-			stacked_r0 = ((unsigned long) hardfault_args[0]);
-			stacked_r1 = ((unsigned long) hardfault_args[1]);
-			stacked_r2 = ((unsigned long) hardfault_args[2]);
-			stacked_r3 = ((unsigned long) hardfault_args[3]);
-
-			stacked_r12 = ((unsigned long) hardfault_args[4]);
-			stacked_lr = ((unsigned long) hardfault_args[5]);
-			stacked_pc = ((unsigned long) hardfault_args[6]);
-			stacked_psr = ((unsigned long) hardfault_args[7]);
-			unsigned long BFAR = (*((volatile unsigned long *)(0xE000ED38)));
-			unsigned long CFSR = (*((volatile unsigned long *)(0xE000ED28)));
-			unsigned long HFSR = (*((volatile unsigned long *)(0xE000ED2C)));
-			unsigned long DFSR = (*((volatile unsigned long *)(0xE000ED30)));
-			unsigned long AFSR = (*((volatile unsigned long *)(0xE000ED3C)));
-
-			/*printf ("[Hard fault handler]\n");
-			printf ("R0 = %x\n", stacked_r0);
-			printf ("R1 = %x\n", stacked_r1);
-			printf ("R2 = %x\n", stacked_r2);
-			printf ("R3 = %x\n", stacked_r3);
-			printf ("R12 = %x\n", stacked_r12);
-			printf ("LR = %x\n", stacked_lr);
-			printf ("PC = %x\n", stacked_pc);
-			printf ("PSR = %x\n", stacked_psr);
-			printf ("BFAR = %x\n", (*((volatile unsigned long *)(0xE000ED38))));
-			printf ("CFSR = %x\n", (*((volatile unsigned long *)(0xE000ED28))));
-			printf ("HFSR = %x\n", (*((volatile unsigned long *)(0xE000ED2C))));
-			printf ("DFSR = %x\n", (*((volatile unsigned long *)(0xE000ED30))));
-			printf ("AFSR = %x\n", (*((volatile unsigned long *)(0xE000ED3C))));*/
-
-			while (1)
-			{}
-		}
+	void __irq HardFault_Handler()
+	{
+			// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
+			asm(
+				"TST LR, #4 \n"
+				"ITE EQ \n"
+				"MRSEQ R0, MSP \n"
+				"MRSNE R0, PSP \n"
+				"B HardFault_HandlerC \n"
+   			);
+	}
 
 
 	void __irq SVC_Handler()
