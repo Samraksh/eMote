@@ -42,4 +42,5 @@ namespace Samraksh
         }
     }
 }
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_ADC;
 #endif  //_SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ACCELEROMETER_H_
