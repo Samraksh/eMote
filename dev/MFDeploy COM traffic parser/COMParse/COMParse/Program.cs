@@ -319,7 +319,7 @@ namespace COMParse
                 PayloadOperation payloadOp = PayloadOperation.RAW;
                 //String baseName = "empty project - VS - plug in quick deploy";
                 //String baseName = "4-16-13 build - successful clean VS deploy of hello world";
-                String baseName = "master build - VS deploy of hello world";
+                String baseName = "deployToEmpty";
                 //String baseName = "fullDeploy";
                 //String baseName = "empty project -VS -plug in wait 10 seconds to deploy";
                 String fileName = baseName + ".txt";

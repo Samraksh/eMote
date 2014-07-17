@@ -33,7 +33,8 @@ extern Data_Store g_dataStoreObject;
 
 INT8 DataStore::CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    g_dataStoreObject.init();
+	bool eraseDataStore = false;
+    g_dataStoreObject.init(eraseDataStore);
 
     if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
 		return Success;

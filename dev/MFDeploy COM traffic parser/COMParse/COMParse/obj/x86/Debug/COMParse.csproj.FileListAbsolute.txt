@@ -7,3 +7,8 @@ D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\obj\x86\D
 D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\bin\Debug\COMParse.exe
 D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\bin\Debug\COMParse.pdb
 D:\Users\Chris\Documents\Visual Studio 2010\Projects\COMParse\COMParse\obj\x86\Debug\COMParse.csprojResolveAssemblyReference.cache
+D:\Work\DotNet-MF\dev\MFDeploy COM traffic parser\COMParse\COMParse\obj\x86\Debug\COMParse.exe
+D:\Work\DotNet-MF\dev\MFDeploy COM traffic parser\COMParse\COMParse\obj\x86\Debug\COMParse.pdb
+D:\Work\DotNet-MF\dev\MFDeploy COM traffic parser\COMParse\COMParse\bin\Debug\COMParse.exe
+D:\Work\DotNet-MF\dev\MFDeploy COM traffic parser\COMParse\COMParse\bin\Debug\COMParse.pdb
+D:\Work\DotNet-MF\dev\MFDeploy COM traffic parser\COMParse\COMParse\obj\x86\Debug\COMParse.csprojResolveAssemblyReference.cache

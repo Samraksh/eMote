@@ -26,7 +26,7 @@ namespace Samraksh
                 static INT32& Get_storageType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::FIELD__storageType ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT8 CreateDataStore( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static INT32 CreateDataStore( CLR_RT_HeapBlock* pMngObj, INT8 param0, HRESULT &hr );
                 static INT32 GetMaxAllocationSize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 GetTotalSpace( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 GetUsedBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );

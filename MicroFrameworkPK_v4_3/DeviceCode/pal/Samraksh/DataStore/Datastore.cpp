@@ -6,7 +6,9 @@ Data_Store g_dataStoreObject;
 int Data_Store::startCount = 0;
 int Data_Store::endCount = 0;
 
-DeviceStatus Data_Store::init()
+//AnanthAtSamraksh - debugging -- int fromGetRecordIDAfterPersistence = 0;
+
+DeviceStatus Data_Store::init(bool eraseDataStore)
 {
     	 if(initialized == TRUE)
     		 return DS_Success;
@@ -17,9 +19,9 @@ DeviceStatus Data_Store::init()
     	 ByteAddress Address;
 
     	 if (!BlockStorageList::FindDeviceForPhysicalAddress(&blockStorageDevice, DATASTORE_START_ADDRESS, Address))
-		{
+		 {
 			return DS_Fail;
-		}
+		 }
 
     	 /*if(!blockStorageDevice->InitializeDevice())
     		 return DS_Fail;*/
@@ -31,9 +33,9 @@ DeviceStatus Data_Store::init()
     	 state = DATASTORE_STATE_UNINIT;
     	 DATASTORE_STATUS status;
 
-    	 lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+    	 //lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
 
-		 status = initDataStore( "NOR", &defaultProperty );
+		 status = initDataStore( "NOR", &defaultProperty, eraseDataStore );
 
     	 state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
     	 initialized = TRUE;
@@ -440,10 +442,10 @@ RECORD_ID Data_Store::getRecentRecordID()
 }
 
 
-DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property )
+DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property, bool eraseDataStore )
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_INVALID_PARAM;
-    //FLASH_PROPERTIES flashProp = { 0 };
+
     do{
         if( NULL == datastoreName ||
             NULL == property ){
@@ -455,26 +457,6 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
         ////// AnanthAtSamraksh - TODO - Add flash status to datastore.h and change initialize to add the status
         ////// AnanthAtSamraksh - TODO - Add initialization for the 3 block storage variables so they are pointing to what they need to be pointing to
 
-        /*if( FLASHDEVICE_STATE_READY != flashDevice.getDeviceState()){
-            lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
-            status       = DATASTORE_STATUS_INT_ERROR;
-            break;
-        }*/
-        /* End of Flash Emulator creation */
-
-        /* Initialize the Unique Pointer class */
-        //myUniquePtrGen = new uniquePtr( property->addressRangeStart,
-        //                                property->addressRangeEnd );
-        /*
-        DATASTORE_ASSERT( myUniquePtrGen != NULL,
-                          "new failed to create uniquePtr Object" );
-        if( NULL == myUniquePtrGen ){
-            status       = DATASTORE_STATUS_OUT_OF_MEM;
-            lastErrorVal = DATASTORE_ERROR_OUT_OF_MEMORY;
-            break;
-        }
-        */
-
         /* Initialize the internal variables */
         int lDataStoreStartBlockID = 0;      /* Will calculate BlockID of first block of datastore */
         LPVOID lDataStoreStartPtr = NULL;
@@ -483,9 +465,6 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
         lDataStoreStartBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress( blockDeviceInformation->Regions->Start + DATA_STORE_OFFSET );
         /* Datastore should start at the beginning of next block */
         lDataStoreStartBlockID = lDataStoreStartBlockID + 1;
-
-        //// AnanthAtSamraksh - adding this temporarily
-        ////blockStorageDevice->EraseBlock(lDataStoreStartBlockID);
 
         /* Now We have the address of the first block of datastore - Calculate byte offset from the
            beginning of the flash */
@@ -496,7 +475,9 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
         //dataStoreEndByteOffset   = flashDevice.getDeviceSize() - 1;
         dataStoreEndByteOffset   = dataStoreDeviceSize - 1;
 
-        //EraseAllBlocks();
+        //AnanthAtSamraksh -- erase flash if flag is set by user
+        if(eraseDataStore)
+        	EraseAllBlocks();
 
         /* Now, that the datastore is ready, we need to register it with the global
            registration table which is used for address translations later */
@@ -519,6 +500,12 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
         /* Now, scan the device for previously stored records and this should update
            my logPtr, erasePtr, cleanPtr */
         scanFlashDevice();
+        if(lastErrorVal == DATASTORE_ERROR_INVALID_PARAM || lastErrorVal == DATASTORE_ERROR_OUT_OF_BOUND_ACCESS)
+        {
+        	status = DATASTORE_STATUS_NOT_OK;
+        	state  = DATASTORE_STATE_UNINIT;
+        	break;
+        }
 
         lastErrorVal = DATASTORE_ERROR_NONE;
         status       = DATASTORE_STATUS_OK;
@@ -824,27 +811,27 @@ DATASTORE_STATUS Data_Store::compactLog()
     return status;
 }
 
-Data_Store::Data_Store(char *flashDeviceName)
+Data_Store::Data_Store(char *flashDeviceName, bool eraseDataStore)
 {
     state = DATASTORE_STATE_UNINIT;
     DATASTORE_STATUS status;
 
     lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
     status = initDataStore( flashDeviceName,
-                            &defaultProperty );
+                            &defaultProperty, eraseDataStore );
 
     state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
 }
 
 Data_Store::Data_Store( char *flashDeviceName,
-                           DATASTORE_PROPERTIES *property )
+                           DATASTORE_PROPERTIES *property, bool eraseDataStore )
 {
     state = DATASTORE_STATE_UNINIT;
     DATASTORE_STATUS status;
 
     lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
     status = initDataStore( flashDeviceName,
-                            property );
+                            property, eraseDataStore );
 
     state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
 }
@@ -958,6 +945,7 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 
 	DATASTORE_ADDR_TBL_ENTRY entry;
 	DATASTORE_STATUS status = DATASTORE_STATUS_OK;
+	lastErrorVal = DATASTORE_ERROR_NONE;
 	int count = 0;
 	RECORD_HEADER header;
 	while(*addr != (char)0xFF && addr < (endAddr))
@@ -1043,6 +1031,15 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 		}
 
 		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
+		/* AnanthAtSamraksh -- check if addr has gone beyond legitimate dataStore end address.
+		 * If yes, then set an error, so that use may take appropriate action such as erasing the dataStore while initializing.
+		 * */
+		//AnanthAtSamraksh - debugging
+		/*if(fromGetRecordIDAfterPersistence == 1)
+			addr = (char*)DATASTORE_END_ADDRESS + 0x10;*/
+
+		if(addr >= (char*)DATASTORE_END_ADDRESS || addr < (char*)DATASTORE_START_ADDRESS)
+			lastErrorVal = DATASTORE_ERROR_OUT_OF_BOUND_ACCESS;
 	}
 	//PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
 	//startCount = 0; endCount = 0;
@@ -1069,6 +1066,9 @@ LPVOID Data_Store::scanFlashDevice()
 
 	for(int index = firstBlock;index <= lastBlock; index++){
 		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0, &readDone);
+		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+		if(lastErrorVal != DATASTORE_ERROR_NONE )
+			return NULL;
 		if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
 			break;
 	}
@@ -1091,6 +1091,7 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 {
 	/* Since addressTable can hold only MAX_NUM_TABLE_ENTRIES, to make room for a new set of recordIDs requested by user,
 	 * copy entries from offset into start of addressTable. Make entries upwards of offset as 0. */
+	lastErrorVal = DATASTORE_ERROR_NONE;
 	uint32 copyIndex = 0;
 	int numOfEntries = 0;
 	ushort arrayLengthOrig = 0;
@@ -1122,7 +1123,14 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	/* Keep reading until count of records in addressTable is equal to offset */
 	while(readDone == false)
 	{
+		//AnanthAtSamraksh - debugging -- fromGetRecordIDAfterPersistence = 1;
 		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+		if(lastErrorVal != DATASTORE_ERROR_NONE )
+		{
+			readDone = true; startCount = 0; endCount = 0;
+			break;
+		}
 		++blockID;
 		if(numOfEntries == 0 && lastBlock == (blockID-1))
 		{
@@ -1142,9 +1150,12 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	}*/
 
 	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
-	for(copyIndex = 0; copyIndex < arrayLengthOrig; copyIndex++)
+	if(lastErrorVal == DATASTORE_ERROR_NONE)
 	{
-		recordID_array[copyIndex] = addressTable.table[copyIndex].recordID;
+		for(copyIndex = 0; copyIndex < arrayLengthOrig; copyIndex++)
+		{
+			recordID_array[copyIndex] = addressTable.table[copyIndex].recordID;
+		}
 	}
 }
 
@@ -1418,6 +1429,7 @@ void Data_Store::DeleteAll()
 {
 	// When an entry is removed from the addressTable, the entries prior to that are copied over to the existing entry.
 	// So, only the 0th index is deleted at all times.
+	lastErrorVal = DATASTORE_ERROR_NONE;
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
 
@@ -1426,6 +1438,7 @@ void Data_Store::DeleteAll()
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK)
 		{
+			lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
 			break;
 		}
 	}

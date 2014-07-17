@@ -64,7 +64,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore
 
     static const int FIELD__storageType = 1;
 
-    TINYCLR_NATIVE_DECLARE(CreateDataStore___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(CreateDataStore___I4__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetMaxAllocationSize___I4);
     TINYCLR_NATIVE_DECLARE(GetTotalSpace___I4);
     TINYCLR_NATIVE_DECLARE(GetUsedBytes___I4);
