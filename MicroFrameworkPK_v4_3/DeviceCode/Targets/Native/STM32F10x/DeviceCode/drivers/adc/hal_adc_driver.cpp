@@ -58,7 +58,6 @@ void DMA_HAL_HANDLER(void *param);
 void TIM_HAL_HANDLER(void *param);
 }
 
-
 BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
 
@@ -438,6 +437,18 @@ void AD_StopSampling()
 {
 	TIM_Cmd(TIM4, DISABLE);
 }
+
+void AD_Shutdown()
+{
+	TIM_Cmd(TIM4, DISABLE);
+
+	DMA_Cmd(DMA1_Channel1, DISABLE);
+	ADC_DMACmd(ADC1, DISABLE);
+	ADC_Cmd(ADC1, DISABLE);
+	ADC_Cmd(ADC2, DISABLE);
+	DMA_ClearITPendingBit(DMA1_IT_TC1);
+}
+
 
 DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
 {

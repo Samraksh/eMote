@@ -11,6 +11,7 @@
 static const CLR_INT64 c_MaximumTimeToActive = (TIME_CONVERSION__ONEMINUTE * TIME_CONVERSION__TO_SECONDS);
 
 
+extern volatile BOOL stopMemoryAccess;
 //--//
 
 CLR_RT_ExecutionEngine::ExecutionConstraintCompensation CLR_RT_ExecutionEngine::s_compensation = { 0, 0, 0 };
@@ -1294,7 +1295,13 @@ HRESULT CLR_RT_ExecutionEngine::ScheduleThreads( int maxContextSwitch )
 #ifdef DEBUG_CLR
         	CPU_GPIO_SetPinState( 8, TRUE);
 #endif
-			hr = th->Execute();
+			// We should not be running managed code if we have erased  the  FLASH during deployment,
+			// but we check a variable that is set when we erase the FLASH for deployment and make
+			// sure we don't run any managed code if we have erased the FLASH.
+			// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
+			if (stopMemoryAccess == false){
+				hr = th->Execute();
+        	}
 #ifdef DEBUG_CLR
 			CPU_GPIO_SetPinState( 8, FALSE);
 #endif

@@ -4,6 +4,7 @@
 
 #include "Core.h"
 
+extern volatile BOOL stopMemoryAccess;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(TINYCLR_TRACE_EXCEPTIONS) && defined(PLATFORM_WINDOWS)
@@ -588,12 +589,14 @@ HRESULT CLR_RT_Thread::Execute()
         // Process exception.
         //
 
+		if (stopMemoryAccess == true) break;
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped )) break;
 #endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         
         TINYCLR_CHECK_HRESULT(ProcessException());
 
+		if (stopMemoryAccess == true) break;
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
         if(CLR_EE_DBG_IS( Stopped )) break;
 #endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
