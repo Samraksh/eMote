@@ -11,8 +11,8 @@
 //-----------------------------------------------------------------------------
 
 
-#ifndef _SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ANALOGINPUT_H_
-#define _SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ANALOGINPUT_H_
+#ifndef _SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ADCINTERNAL_H_
+#define _SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ADCINTERNAL_H_
 
 namespace Samraksh
 {
@@ -20,16 +20,18 @@ namespace Samraksh
     {
         namespace Adapt
         {
-            struct AnalogInput
+            struct ADCInternal
             {
                 // Helper Functions to access fields of managed object
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT32 Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static UINT16 Read( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
-                static INT32 ReadBatch( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
-                static UINT32 GetMaxSampleRate( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static INT32 Initialize( HRESULT &hr );
+                static UINT32 Read( INT32 param0, HRESULT &hr );
+                static INT32 ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
+                static INT32 StopSampling( HRESULT &hr );
+                static UINT32 GetMaxSampleRate( HRESULT &hr );
+                static INT32 Uninitialize( HRESULT &hr );
             };
         }
     }
 }
-#endif  //_SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ANALOGINPUT_H_
+#endif  //_SAMRAKSHEMOTEADAPT_SAMRAKSH_EMOTE_ADAPT_ADCINTERNAL_H_

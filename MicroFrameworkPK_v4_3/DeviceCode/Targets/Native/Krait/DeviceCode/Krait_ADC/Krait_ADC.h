@@ -60,7 +60,7 @@
 #define GPIO_ENABLE     1
 #define GPIO_DISABLE    0
 
-INT8 fpga_init();
+INT32 fpga_init();
 
 // ADC REG COMMANDS
 
@@ -96,15 +96,17 @@ UINT16 fpga_adc_cont_get(UINT16 *buffer, UINT8 toRead);
 UINT16 fpga_adc_now(UINT8 chan);
 
 // Setup and start continuous mode.
-UINT8 fpga_adc_cont_start(UINT8 chan, UINT8 sample_rate_ticks);
+INT32 fpga_adc_cont_start(UINT16* sampleBuff1, INT32 channels, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
 
 // Stop continuous mode.
 // A particular case of fpga_adc_cmd(), only provided for convenience and to match cont_start.
-INT8 fpga_adc_cont_stop(void);
+INT32 fpga_adc_cont_stop(void);
 
 INT32 fpga_read_batch(UINT16 samples[], int channel, UINT32 NumSamples, UINT32 SamplingTime);
 
 UINT32 fpga_adc_get_bounds(void);
+
+INT32 fpga_uninit();
 
 #endif
 

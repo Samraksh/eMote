@@ -10,12 +10,12 @@
 <ItemGroup>
 <HFile Include="SamrakshEmoteAdapt.h" />
 <Compile Include="SamrakshEmoteAdapt.cpp" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal_mshl.cpp" />
+<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal.h" />
+<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal.cpp" />
 <Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer_mshl.cpp" />
 <HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer.h" />
 <Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer.cpp" />
-<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput_mshl.cpp" />
-<HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput.h" />
-<Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput.cpp" />
 <Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA_mshl.cpp" />
 <HFile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA.h" />
 <Compile Include="SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA.cpp" />

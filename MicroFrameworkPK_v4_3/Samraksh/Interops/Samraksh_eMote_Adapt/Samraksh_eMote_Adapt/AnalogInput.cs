@@ -5,88 +5,53 @@ using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.eMote.Adapt
 {
-    /*/// <summary>
-    /// Defines a delegate for the continuous mode of the callback function
+    /// <summary>
+    /// Defines a delegate for the continuous mode of the ADC callback function
     /// </summary>
-    /// <param name="state"></param>
-    public delegate void AdcCallBack(long thresholdTime);*/
+    /// <param name="time"></param>
+    public delegate void AdcCallBack(long time);
 
     /// <summary>
-    /// AnalogInput class similar to Microsoft AnalogInput but with additional features
+    /// AnalogInput class similar to Microsoft AnalogInput
     /// </summary>
     public class AnalogInput
     {
-        /*/// <summary>
-        /// Represents the adc internal class 
+        /// <summary>
+        /// Represents the ADC internal class 
         /// </summary>
-        //static ADCInternal AdcInternal;
+        static ADCInternal AdcInternal;
 
         /// <summary>
         /// Represents the callback function
         /// </summary>
-        AdcCallBack MyCallback;
+        static AdcCallBack MyCallback;
 
-        /// <summary>
-        /// Initializes the adc dll 
-        /// </summary>
-        /// 
-        public bool InitializeADC()
+        private AnalogInput()
         {
-            //AdcInternal = new ADCInternal("ADCCallback", 1234, 0);            
-
-            return true;
-        }*/
-
-        public AnalogInput()
-        {
-            //AdcInternal = new ADCInternal("ADCCallback", 1234, 0);
-            Initialize();
         }
 
-        /*/// <summary>
-        /// Initializes the adc hardware based on channel passed
+        /// <summary>
+        /// Initializes the ADC hardware
         /// </summary>
-        /// <param name="channel">channel 1 or 2</param>
-        /// <returns>Returns the result of the initialization operation</returns>
-        public int InitChannel(Cpu.AnalogChannel channel)
+        /// <returns>The result of ADC initialization: 0-Success, 1-Fail.</returns>
+        static public int Initialize()
         {
-            //return ADCInternal.Init((int) channel);
-        }*/
+            AdcInternal = new ADCInternal("ADCCallback", 1234, 0);
 
-        /*/// <summary>
-        /// Read both channel synchrnously
-        /// </summary>
-        /// <param name="data">array of size 2 bytes passed to the adc driver to be filled</param>
-        /// <returns>Returns the result of this operation</returns>
-        public bool DualChannelRead(ushort[] data)
-        {
-            return ADCInternal.DualChannelRead(data);
-        }*/
+            return ADCInternal.Initialize();
+        }
 
-        /*/// <summary>
+        /// <summary>
         /// Read a single channel
         /// </summary>
         /// <param name="channel">Channel to be read</param>
         /// <returns>Returns the result of the read operation</returns>
-        public double Read(Cpu.AnalogChannel channel)
+        static public double Read(AdcChannel channel)
         {
-            return ADCInternal.Read((int) channel);
-        }*/
-
-
-        /*static public bool ConfigureBatchModeWithThresholding(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, uint threshold, AdcCallBack Callback)
-        {
-            MyCallback = Callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
-            AdcInternal.OnInterrupt += eventHandler;
-
-            if (ADCInternal.ConfigureBatchModeWithThresholding(sampleBuff, (int) channel, NumSamples, SamplingTime, threshold) == DeviceStatus.Success)
-                return true;
-            else
-                return false;
+            return ADCInternal.Read(channel);
         }
 
-        static public bool ConfigureContinuousModeWithThresholding(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, uint threshold, AdcCallBack Callback)
+        /*static public bool ConfigureContinuousModeWithThresholding(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, uint threshold, AdcCallBack Callback)
         {
             MyCallback = Callback;
             NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
@@ -96,84 +61,24 @@ namespace Samraksh.eMote.Adapt
                 return true;
             else
                 return false;
-        }
+        }*/
 
         /// <summary>
-        /// Read the adc channels 1 and 2 in batch mode
-        /// </summary>
-        /// <param name="sampleBuff">Sample buffer to be filled</param>
-        /// <param name="NumSamples">Number of samples before callback</param>
-        /// <param name="SamplingTime">Sampling frequency</param>
-        /// <param name="Callback">Callback funtion to be called</param>
-        /// <returns></returns>
-        static public bool ConfigureBatchModeDualChannel(ushort[] sampleBuff1, ushort[]  sampleBuff2, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
-        {
-            MyCallback = Callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
-            AdcInternal.OnInterrupt += eventHandler;
-
-            if (ADCInternal.ConfigureBatchModeDualChannel(sampleBuff1, sampleBuff2, NumSamples, SamplingTime) != DeviceStatus.Success)
-            {
-                return false;
-            }
-            else
-                return true;
-        }
-
-        static public bool ConfigureContinuousModeDualChannel(ushort[] sampleBuff1, ushort[] sampleBuff2, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
-        {
-            MyCallback = Callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
-            AdcInternal.OnInterrupt += eventHandler;
-
-            if (ADCInternal.ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, NumSamples, SamplingTime) != DeviceStatus.Success)
-            {
-                return false;
-            }
-            else
-                return true;
-        }
-
-
-
-        /// <summary>
-        /// Read the ADC in batch mode and collect the specified number of samples before stopping
-        /// </summary>
-        /// <param name="sampleBuff">Buffer passed to the driver to be filled</param>
-        /// <param name="channel">Defne the channel to be read in batch mode</param>
-        /// <param name="NumSamples">Defines the number of samples to be read</param>
-        /// <param name="SamplingTime">Defines the sample time</param>
-        /// <param name="Callback">Defines the callback to be called when the samples are ready</param>
-        /// <returns></returns>
-        static public int ConfigureBatchMode(ushort[] sampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
-        {
-            MyCallback = Callback;
-            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
-            AdcInternal.OnInterrupt += eventHandler;
-
-            if (ADCInternal.ConfigureBatchMode(sampleBuff, (int)channel, NumSamples, SamplingTime) != DeviceStatus.Success)
-                return 0;
-            else
-                return 1;
-            
-        }
-
-        /// <summary>
-        /// Read the adc in continous mode and keep generating samples of adc forever
+        /// Read the ADC in continous mode and keep generating samples of ADC forever
         /// </summary>
         /// <param name="SampleBuff">Buffer passed to the driver</param>
-        /// <param name="channel">Specify the channel to be scanned</param>
+        /// <param name="channels">Bitmask of the channels to be read.</param>
         /// <param name="NumSamples">Specify the number of samples to be read before callback</param>
         /// <param name="SamplingTime">Specifies the sampling time</param>
         /// <param name="Callback">Specify the callback function</param>
         /// <returns></returns>
-        static public int ConfigureContinuousMode(ushort[] SampleBuff, Cpu.AnalogChannel channel, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
+        static public int ConfigureContinuousMode(ushort[] SampleBuff, AdcChannel channels, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
         {
             MyCallback = Callback;
             NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
             AdcInternal.OnInterrupt += eventHandler;
 
-            ADCInternal.ConfigureContinuousMode(SampleBuff,(int) channel, NumSamples, SamplingTime);
+            ADCInternal.ConfigureContinuousMode(SampleBuff, channels, NumSamples, SamplingTime);
             return 1;
         }
 
@@ -184,55 +89,55 @@ namespace Samraksh.eMote.Adapt
         static public int StopSampling()
         {
             return ADCInternal.StopSampling();
-        }*/
-
-        /*/// <summary>
-        /// Internal Callback called by the adc driver from native
-        /// </summary>
-        /// <param name="data1">Parameter passed from native</param>
-        /// <param name="data2"></param>
-        /// <param name="time"></param>
-        public void InternalCallback(uint data1, uint data2, DateTime time)
-        {
-            MyCallback((long)(((long)data1 << 32) | (long)data2));
-        }*/
-
-        /// <summary>
-        /// Initializes the accelerometer hardware
-        /// </summary>
-        /// <returns>The result of accelerometer initialization: 0-Success, 1-Fail</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus Initialize();
-
-        /// <summary>
-        /// Read one sample from the channel
-        /// </summary>
-        /// <param name="channel">Specify the channel to be read</param>
-        /// <returns>Returns the read value</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt16 Read(int channel);
-
-        /// <summary>
-        /// Read batch mode
-        /// </summary>
-        /// <param name="sampleBuff">The buffer to be filled</param>
-        /// <param name="channel">Define the channel to be read</param>
-        /// <param name="NumSamples">Defines the number of samples to be read</param>
-        /// <param name="SamplingTime">Defines the rate at which the adc should read channels</param>
-        /// <returns>Returns the result of the operation: 0-Success, 1-Fail</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public DeviceStatus ReadBatch(UInt16[] sampleBuff, int channel, uint NumSamples, uint SamplingTime);
+        }
 
         /// <summary>
         /// Get the sample rate maximum of the ADC
         /// </summary>
         /// <returns>Returns the maximum sample rate of the ADC.</returns>
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern public UInt32 GetMaxSampleRate();
+        static public UInt32 GetMaxSampleRate()
+        {
+            return ADCInternal.GetMaxSampleRate();
+        }
+
+        /// <summary>
+        /// Uninitializes the ADC hardware
+        /// </summary>
+        /// <returns>The result of ADC uninitialization: 0-Success, 1-Fail.</returns>
+        static public int Uninitialize()
+        {
+            return ADCInternal.Uninitialize();
+        }
+
+        /// <summary>
+        /// Internal Callback called by the ADC driver from native
+        /// </summary>
+        /// <param name="data1">Upper 32-bits of return data</param>
+        /// <param name="data2">Lower 32-bits of return data</param>
+        /// <param name="time">Time of the callback.</param>
+        static public void InternalCallback(uint data1, uint data2, DateTime time)
+        {
+            MyCallback((long)(((long)data1 << 32) | (long)data2));
+        }
     }
 
     /// <summary>
-    /// Time taken to sample in the adc driver
+    /// Time taken to sample in the ADC driver
+    /// </summary>
+    public enum AdcChannel
+    {
+        ADC_Channel1 = 0x01,
+        ADC_Channel2 = 0x02,
+        ADC_Channel3 = 0x04,
+        ADC_Channel4 = 0x08,
+        ADC_Channel5 = 0x10,
+        ADC_Channel6 = 0x20,
+        ADC_Channel7 = 0x40,
+        ADC_Channel8 = 0x80
+    }
+
+    /// <summary>
+    /// Time taken to sample in the ADC driver
     /// </summary>
     public enum AdcSampleTime
     {
@@ -246,102 +151,80 @@ namespace Samraksh.eMote.Adapt
         ADC_SampleTime_239_5_Cycles = 7,
     }
 
-
-    /*
+    /// <summary>
+    /// ADCInternal interface to the native driver
+    /// </summary>
+    public class ADCInternal : NativeEventDispatcher
+    {
         /// <summary>
-        /// ADCInternal interface to the native driver
+        /// Specifies the driver name for matching with the native eventdispatcher
         /// </summary>
-        public class ADCInternal : NativeEventDispatcher
+        /// <param name="strDrvName"></param>
+        /// <param name="drvData"></param>
+        /// <param name="callbackCount"></param>
+        public ADCInternal(string strDrvName, ulong drvData, int callbackCount)
+            : base(strDrvName, drvData)
         {
-            /// <summary>
-            /// Specifies the driver name for matching with the native eventdispatcher
-            /// </summary>
-            /// <param name="strDrvName"></param>
-            /// <param name="drvData"></param>
-            /// <param name="callbackCount"></param>
-            public ADCInternal(string strDrvName, ulong drvData, int callbackCount)
-                : base(strDrvName, drvData)
-            {
-
-            }
-
-            /// <summary>
-            /// Initializes the adc native driver
-            /// </summary>
-            /// <param name="channel">Specify the channel to be sampled</param>
-            /// <returns>Returns the result of the init function</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public int Init(int channel);
-
-            /// <summary>
-            /// Read the channel
-            /// </summary>
-            /// <param name="channel">Specify the channel to be read</param>
-            /// <returns>Return the read value</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public double Read(int channel);
-
-            /// <summary>
-            /// Configure the batch mode
-            /// </summary>
-            /// <param name="sampleBuff">Pass the buffer to be filled</param>
-            /// <param name="channel">Define the channel to be read</param>
-            /// <param name="NumSamples">Defines the number of samples to be read before callback</param>
-            /// <param name="SamplingTime">Defines the rate at which the adc should read channels</param>
-            /// <returns>Return the result of the operation</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureBatchMode(ushort[] sampleBuff, int channel, uint NumSamples, uint SamplingTime);
-
-            /// <summary>
-            /// Configure the adc in continuous mode 
-            /// </summary>
-            /// <param name="SampleBuff">pass the buffer to be filled</param>
-            /// <param name="channel">pass the channel to be sampled</param>
-            /// <param name="NumSamples">specify the number of samples to be collected before callback</param>
-            /// <param name="SamplingTime">specify the rate of sampling</param>
-            /// <returns>Returns the result of this operation</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
-
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureContinuousModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
-
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureBatchModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
-
-
-            /// <summary>
-            /// Configure continuous mode adc sampling with a threshold timestamp 
-            /// </summary>
-            /// <param name="SampleBuff"></param>
-            /// <param name="channel"></param>
-            /// <param name="NumSamples"></param>
-            /// <param name="SamplingTime"></param>
-            /// <param name="threshold"></param>
-            /// <returns></returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureContinuousModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
-
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public DeviceStatus ConfigureBatchModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);
-
-
-            /// <summary>
-            /// Read both the channel simulateously Channel 1 followed by Channel 2
-            /// </summary>
-            /// <param name="sample">specify the buffer to be filled</param>
-            /// <returns>Return the result of this operation</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public bool DualChannelRead(ushort[] sample);
-
-            /// <summary>
-            /// Stop batch mode and continous mode sampling of the adc 
-            /// </summary>
-            /// <returns>Returns the result of this operation</returns>
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern static public int StopSampling();
-
-
         }
-        */
+
+        /// <summary>
+        /// Initializes the ADC native driver
+        /// </summary>
+        /// <param name="channel">Specify the channel to be sampled</param>
+        /// <returns>Returns the result of the init function</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int Initialize();
+
+        /// <summary>
+        /// Read the channel
+        /// </summary>
+        /// <param name="channel">Specify the channel to be read</param>
+        /// <returns>Return the read value</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public UInt32 Read(AdcChannel channel);
+
+        /// <summary>
+        /// Configure the ADC in continuous mode 
+        /// </summary>
+        /// <param name="SampleBuff">The buffer to be filled</param>
+        /// <param name="channels">Bitmask of the channels to be read.</param>
+        /// <param name="NumSamples">Specify the number of samples to be collected before callback</param>
+        /// <param name="SamplingTime">Specify the rate of sampling</param>
+        /// <returns>Returns the result of this operation</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public DeviceStatus ConfigureContinuousMode(ushort[] SampleBuff, AdcChannel channels, uint NumSamples, uint SamplingTime);
+
+        /*/// <summary>
+        /// Configure continuous mode ADC sampling with a threshold timestamp 
+        /// </summary>
+        /// <param name="SampleBuff"></param>
+        /// <param name="channels">Bitmask of the channels to be read.</param>
+        /// <param name="NumSamples"></param>
+        /// <param name="SamplingTime"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public DeviceStatus ConfigureContinuousModeWithThresholding(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime, uint threshold);*/
+
+        /// <summary>
+        /// Stop batch mode and continous mode sampling of the ADC 
+        /// </summary>
+        /// <returns>Returns the result of this operation</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int StopSampling();
+
+        /// <summary>
+        /// Get the sample rate maximum of the ADC
+        /// </summary>
+        /// <returns>Returns the maximum sample rate of the ADC.</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public UInt32 GetMaxSampleRate();
+
+        /// <summary>
+        /// Uninitializes the ADC native driver
+        /// </summary>
+        /// <returns>Returns the result of the uninitialization function</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int Uninitialize();
+    }
 }

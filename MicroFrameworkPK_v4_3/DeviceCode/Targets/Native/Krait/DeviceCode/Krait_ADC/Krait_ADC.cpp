@@ -16,6 +16,15 @@
 
 // Globals
 uint8_t fpga_init_done;
+HAL_CALLBACK_FPN g_callback = NULL;
+
+UINT16 *g_adcUserBufferChannel1Ptr = NULL;
+UINT16 *g_adcUserBufferChannel2Ptr = NULL;
+
+UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
+UINT16* g_adcDriverBufferChannel2Ptr = NULL;
+
+static UINT64 g_timeStamp = 0;
 
 // Statics, I use my own statics because these need to be optimised along with the ADC
 // Since we optimize per subproject and not whole project.
@@ -194,7 +203,7 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 
 // FPGA GENERAL
 // Functions
-INT8 fpga_init() {
+INT32 fpga_init() {
 	if (fpga_init_done) return 0; // Already started
 	fpga_init_done = 1;
 
@@ -399,12 +408,47 @@ UINT16 fpga_adc_now(UINT8 chan){
 }
 
 // Setup and start continuous mode.
-UINT8 fpga_adc_cont_start(UINT8 chan, UINT8 sample_rate_ticks){
+INT32 fpga_adc_cont_start(UINT16* sampleBuff1, INT32 channels, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
+{
+	// Can not do anything with a null sample buffer
+	if(!sampleBuff1)
+		return DS_Fail;
+
+	// If number of samples is 0 there is nothing to do
+	if(numSamples == 0)
+		return DS_Fail;
+
+	// If the callback is null there is no point initializing the drivers and
+	// running the adc as the users will never to get see the data
+	if(!userCallback)
+		return DS_Fail;
+
+	g_callback = userCallback;
+
+	if(Param != NULL)
+	{
+		Param = &g_timeStamp;
+	}
+
+	// Hold the user buffer
+	g_adcUserBufferChannel1Ptr = sampleBuff1;
+
+
+	// for debugging, example callback
+	// Call the user with the current value of ticks
+	// Record the time as close to the completion of sampling as possible
+	g_timeStamp = HAL_Time_CurrentTicks();
+	g_timeStamp = 12345;
+	hal_printf("calling callback function %d\r\n",g_timeStamp);
+	g_callback(&g_timeStamp);
+
+	return DS_Success;
 }
 
 // Stop continuous mode.
 // A particular case of fpga_adc_cmd(), only provided for convenience and to match cont_start.
-INT8 fpga_adc_cont_stop(void){
+INT32 fpga_adc_cont_stop(void){
+	return 12;
 }
 
 // Read a set number of samples
@@ -426,4 +470,7 @@ UINT32 fpga_adc_get_bounds(void){
 	return 1000;
 }
 
+INT32 fpga_uninit(void){
+	return 123;
+}
 #pragma GCC reset_options

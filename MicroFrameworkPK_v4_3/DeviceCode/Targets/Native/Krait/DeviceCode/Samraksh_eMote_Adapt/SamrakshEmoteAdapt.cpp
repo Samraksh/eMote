@@ -13,6 +13,13 @@
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::Initialize___STATIC__I4,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::Read___STATIC__U4__SamraksheMoteAdaptAdcChannel,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::ConfigureContinuousMode___STATIC__SamraksheMoteAdaptDeviceStatus__SZARRAY_U2__SamraksheMoteAdaptAdcChannel__U4__U4,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::StopSampling___STATIC__I4,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::GetMaxSampleRate___STATIC__U4,
+    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal::Uninitialize___STATIC__I4,
+    NULL,
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer::Initialize___BOOLEAN,
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer::Reset___BOOLEAN,
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer::SelfTest___BOOLEAN,
@@ -28,10 +35,17 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer::SetRange___BOOLEAN__U1,
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer::GetAllData___BOOLEAN__SZARRAY_I2,
     NULL,
-    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput::Initialize___SamraksheMoteAdaptDeviceStatus,
-    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput::Read___U2__I4,
-    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput::ReadBatch___SamraksheMoteAdaptDeviceStatus__SZARRAY_U2__I4__U4__U4,
-    Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput::GetMaxSampleRate___U4,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_FPGA::Initialize___BOOLEAN,
     NULL,
@@ -54,7 +68,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Adapt =
 {
     "Samraksh_eMote_Adapt", 
-    0xE8ECEC66,
+    0x8405F623,
     method_lookup
 };
 

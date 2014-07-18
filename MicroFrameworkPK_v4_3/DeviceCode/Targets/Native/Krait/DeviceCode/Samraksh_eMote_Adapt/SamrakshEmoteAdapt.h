@@ -11,6 +11,19 @@
 #define _SAMRAKSHEMOTEADAPT_H_
 
 #include <TinyCLR_Interop.h>
+struct Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_ADCInternal
+{
+    TINYCLR_NATIVE_DECLARE(Initialize___STATIC__I4);
+    TINYCLR_NATIVE_DECLARE(Read___STATIC__U4__SamraksheMoteAdaptAdcChannel);
+    TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__SamraksheMoteAdaptDeviceStatus__SZARRAY_U2__SamraksheMoteAdaptAdcChannel__U4__U4);
+    TINYCLR_NATIVE_DECLARE(StopSampling___STATIC__I4);
+    TINYCLR_NATIVE_DECLARE(GetMaxSampleRate___STATIC__U4);
+    TINYCLR_NATIVE_DECLARE(Uninitialize___STATIC__I4);
+
+    //--//
+
+};
+
 struct Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer
 {
     TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
@@ -34,10 +47,9 @@ struct Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_Accelerometer
 
 struct Library_SamrakshEmoteAdapt_Samraksh_eMote_Adapt_AnalogInput
 {
-    TINYCLR_NATIVE_DECLARE(Initialize___SamraksheMoteAdaptDeviceStatus);
-    TINYCLR_NATIVE_DECLARE(Read___U2__I4);
-    TINYCLR_NATIVE_DECLARE(ReadBatch___SamraksheMoteAdaptDeviceStatus__SZARRAY_U2__I4__U4__U4);
-    TINYCLR_NATIVE_DECLARE(GetMaxSampleRate___U4);
+    static const int FIELD_STATIC__AdcInternal = 0;
+    static const int FIELD_STATIC__MyCallback = 1;
+
 
     //--//
 

@@ -17,10 +17,6 @@
 
 using namespace Samraksh::eMote::Adapt;
 
-CLR_RT_HeapBlock_NativeEventDispatcher *g_adcContext = NULL;
-static UINT64 g_adcUserData = 0;
-static BOOL g_adcInterruptEnabled = TRUE;
-
 INT8 Accelerometer::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	INT8 retVal = ADAPT_Accel_Init();
@@ -105,37 +101,3 @@ INT8 Accelerometer::GetAllData( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT
     return retVal;
 }
 
-static HRESULT InitializeADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )
-{
-   g_adcContext  = pContext;
-   g_adcUserData = userData;
-   return S_OK;
-}
-
-static HRESULT EnableDisableADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable )
-{
-   g_adcInterruptEnabled = fEnable;
-   return S_OK;
-}
-
-static HRESULT CleanupADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
-{
-    g_adcContext = NULL;
-    g_adcUserData = 0;
-    CleanupNativeEventsFromHALQueue( pContext );
-    return S_OK;
-}
-
-static const CLR_RT_DriverInterruptMethods g_AdcInteropDriverMethods =
-{
-  InitializeADCDriver,
-  EnableDisableADCDriver,
-  CleanupADCDriver
-};
-
-const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_ADC =
-{
-    "ADCCallback",
-    DRIVER_INTERRUPT_METHODS_CHECKSUM,
-    &g_AdcInteropDriverMethods
-};
