@@ -225,6 +225,11 @@ void HALTimerCallback(void *arg)
 			if(topTimer->get_m_is_running())
 				(topTimer->get_m_callback())(NULL);
 		}
+		else {
+			// queue is empty, exit.
+			break;
+		}
+
 
 		currentTime = HAL_Time_CurrentTicks();
 		timeElapsed = currentTime - gHalTimerManagerObject.get_m_lastQueueAdjustmentTime();
@@ -236,16 +241,18 @@ void HALTimerCallback(void *arg)
 		}
 
 		// if the timer is a one shot we don't place it back on the timer Queue
-		if (topTimer->get_m_is_one_shot()){
-			topTimer->set_m_is_running(FALSE);
-		} else {
-			ticks = topTimer->get_m_dtime();
+		if(topTimer != NULL) {
+			if (topTimer->get_m_is_one_shot()){
+				topTimer->set_m_is_running(FALSE);
+			} else {
+				ticks = topTimer->get_m_dtime();
 
-			topTimer->set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(topTimer->get_m_start_time()));
+				topTimer->set_m_ticksTillExpire(ticks + CPU_MicrosecondsToTicks(topTimer->get_m_start_time()));
 
-			// Check if timer deserves to go back or if someone has made it inactive
-			if(topTimer->get_m_is_running())
-				gHalTimerManagerObject.timerQueue.Insert(topTimer);
+				// Check if timer deserves to go back or if someone has made it inactive
+				if(topTimer->get_m_is_running())
+					gHalTimerManagerObject.timerQueue.Insert(topTimer);
+			}
 		}
 		topTimer = gHalTimerManagerObject.timerQueue.PeekTop();
 	}
