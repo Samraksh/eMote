@@ -238,6 +238,7 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 			break;
 	}
 
+	while( SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET ); // Spin until TX ready
 	SPI_I2S_SendData(SPI_mod, data);
 
 	return TRUE;
