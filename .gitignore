@@ -9,6 +9,7 @@
 MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt
 MicroFrameworkPK_v4_3/CLR/Tools/MetaDataProcessor/MetaDataProcessor_assemblyinfo.txt
 MicroFrameworkPK_v4_3/CLR/Tools/TFConvert/TFConvert_assemblyinfo.txt
+MicroFrameworkPK_v4_3/Solutions/Windows2/TinyCLR/Sample.Emulator.CLR_assemblyinfo.txt
 
 # Ignore binaries
 MicroFrameworkPK_v4_3/BuildOutput/
