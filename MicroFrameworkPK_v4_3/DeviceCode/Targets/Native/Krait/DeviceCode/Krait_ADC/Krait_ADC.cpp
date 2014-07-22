@@ -192,6 +192,41 @@ static uint8_t fpga_cmd52_w(uint8_t func, uint8_t reg, uint8_t data) {
 	return extra;
 }
 
+static const int FPGA_GPIO_BASE = 0x20;
+void fpga_gpio_set(UINT32 gpio, UINT32 dir) {
+	if (fpga_init_done != 1) {
+		fpga_init();
+	}
+
+	if (gpio > 31) {
+		return;
+	}
+
+	int my_pin = gpio - 1000;
+	int reg_offset = my_pin / 8;
+	int bit_offset = my_pin % 8;
+	unsigned int newval;
+
+	// Current register contents
+	newval = fpga_cmd52_r(1, FPGA_GPIO_BASE + reg_offset) | (1 << bit_offset);
+
+	// Set direction to output, '1'
+	fpga_cmd52_w(1, FPGA_GPIO_BASE + reg_offset, newval);
+
+	// Set actual output val , '0' or '1'
+	newval = fpga_cmd52_r(1, FPGA_GPIO_BASE + reg_offset + 4); // Current register contents.
+	if (dir == 0) {
+		newval &= ~(1 << bit_offset);
+	}
+	else {
+		newval |= (1 << bit_offset);
+	}
+
+	fpga_cmd52_w(1, FPGA_GPIO_BASE + reg_offset + 4, newval);
+
+	return;
+}
+
 // FPGA GENERAL
 // Functions
 INT8 fpga_init() {

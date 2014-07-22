@@ -10,6 +10,8 @@
 
 #include "../Krait.h"
 
+extern void fpga_gpio_set(UINT32 gpio, UINT32 dir);
+
 ////Below taken from platform/msm_shared/include/gsbi.h
 /* GSBI Registers */
 #define GSBI_CTRL_REG(id)        (GSBI_BASE(id) + 0x0)

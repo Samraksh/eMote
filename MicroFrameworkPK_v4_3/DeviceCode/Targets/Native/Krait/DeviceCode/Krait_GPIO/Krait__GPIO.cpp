@@ -79,8 +79,11 @@ void gpio_tlmm_config(UINT32 gpio, UINT8 func,
  */
 void gpio_set(UINT32 gpio, UINT32 dir)
 {
+	if (gpio > 1000) {
+		fpga_gpio_set(gpio, dir);
+		return;
+	}
 	UINT32 *addr = (UINT32 *)GPIO_IN_OUT_ADDR(gpio);
-	//writel(dir, addr);
 	writel(dir ? 1UL << 1 : 0, addr);
 	return;
 }

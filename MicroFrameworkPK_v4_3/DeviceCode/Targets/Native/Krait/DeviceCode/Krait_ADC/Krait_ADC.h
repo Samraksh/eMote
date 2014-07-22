@@ -62,6 +62,8 @@
 
 INT8 fpga_init();
 
+void fpga_gpio_set(UINT32 gpio, UINT32 dir);
+
 // ADC REG COMMANDS
 
 // ADC configuration register.
