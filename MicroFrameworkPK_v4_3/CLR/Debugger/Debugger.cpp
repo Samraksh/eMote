@@ -23,8 +23,9 @@ BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
 // both of which cause Hard Faults. The following variable is set before we erase the deployment area and cleared
 // upon reboot or continuation of debugging (usually by getting a PING debug message)
 // Since we are loading new code and then restarting, suppressing these actions should not break anything.
-volatile BOOL debuggerErasedFlash = false;
-static BOOL fNoCompaction = false;
+
+bool CLR_DBG_Debugger::debuggerErasedFlash = false;
+bool CLR_DBG_Debugger::fNoCompaction = false;
 //--//
 
 void CLR_DBG_Debugger::Debugger_WaitForCommands()
