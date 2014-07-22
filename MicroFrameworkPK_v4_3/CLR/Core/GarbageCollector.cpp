@@ -5,7 +5,12 @@
 #include "Core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-struct CLR_DBG_Debugger;
+
+#if !defined(WIN32)
+extern volatile BOOL debuggerErasedFlash;
+#else
+const BOOL debuggerErasedFlash = false;
+#endif
 
 CLR_RT_ProtectFromGC* CLR_RT_ProtectFromGC::s_first = NULL;
 
@@ -375,7 +380,7 @@ void CLR_RT_GarbageCollector::Mark()
 		// after the Flash has been erased. Since we are going to reboot anyway with new code, not Marking them now
 		// should be fine
 		// This variable will be set to false upon reboot or continuation of debugging (usually by getting a PING debug message)
-		if (CLR_DBG_Debugger::debuggerErasedFlash == false)
+		if (debuggerErasedFlash == false)
 		{
         	Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsReady   );
         	Thread_Mark( g_CLR_RT_ExecutionEngine.m_threadsWaiting );

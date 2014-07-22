@@ -1025,8 +1025,6 @@ struct CLR_DBG_Debugger
     static BlockStorageDevice*  m_deploymentStorageDevice;
 
 
-	static bool debuggerErasedFlash;
-	static bool fNoCompaction;
     //--//
 
     static void Debugger_Discovery();
