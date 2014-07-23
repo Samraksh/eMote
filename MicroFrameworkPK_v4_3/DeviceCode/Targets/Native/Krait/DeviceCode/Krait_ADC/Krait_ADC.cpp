@@ -198,11 +198,12 @@ void fpga_gpio_set(UINT32 gpio, UINT32 dir) {
 		fpga_init();
 	}
 
-	if (gpio > 31) {
+	int my_pin = gpio - 1000;
+
+	if (my_pin > 31) {
 		return;
 	}
 
-	int my_pin = gpio - 1000;
 	int reg_offset = my_pin / 8;
 	int bit_offset = my_pin % 8;
 	unsigned int newval;
