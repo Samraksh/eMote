@@ -18,13 +18,6 @@ extern BOOL RT_Dispose ();
 //--//
 
 BlockStorageDevice* CLR_DBG_Debugger::m_deploymentStorageDevice = NULL;
-
-// During deployment some threads are Marked by the garbage collector and some user created threads are executed
-// both of which cause Hard Faults. The following variable is set before we erase the deployment area and cleared
-// upon reboot or continuation of debugging (usually by getting a PING debug message)
-// Since we are loading new code and then restarting, suppressing these actions should not break anything.
-volatile BOOL debuggerErasedFlash = false;
-static BOOL fNoCompaction = false;
 //--//
 
 void CLR_DBG_Debugger::Debugger_WaitForCommands()
@@ -832,7 +825,7 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 	GLOBAL_LOCK(irq);
     fRet = dbg->AccessMemory( cmd->m_address, cmd->m_length, NULL, AccessMemory_Erase );
 	::Watchdog_ResetCounter();
-	ENABLE_INTERRUPTS();
+	//ENABLE_INTERRUPTS();
 
 	// performing garbage collection and compaction here can be used to force hard faults that occur during
 	// deployment after the Flash has been erased.
