@@ -822,7 +822,7 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 
     if (m_deploymentStorageDevice == NULL) return false;
 	
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
     fRet = dbg->AccessMemory( cmd->m_address, cmd->m_length, NULL, AccessMemory_Erase );
 	::Watchdog_ResetCounter();
 	//ENABLE_INTERRUPTS();
