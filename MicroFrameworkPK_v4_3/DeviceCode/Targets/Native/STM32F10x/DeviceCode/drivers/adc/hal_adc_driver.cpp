@@ -719,7 +719,7 @@ extern "C"
 	{
 		// Record the time as close to the completion of sampling as possible
 		//AnanthAtSamraksh: using AdTim
-		g_timeStamp = HAL_Time_CurrentTicks(1);
+		g_timeStamp = HAL_Time_CurrentTicks();
 
 		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
 		{

@@ -13,7 +13,7 @@
 //#include <rcc/stm32f10x_rcc.h>
 #include <Timer/Timer16Bit/stm32f10x_tim.h>
 //#include <dma/stm32f10x_dma.h>
-#include <misc/misc.h>
+//#include <misc/misc.h>
 #include "stm32f10x_adc.h"
 #include <intc/STM32.h>
 

@@ -11,9 +11,9 @@
 
 #include <tinyhal.h>
 #include <pwr/netmf_pwr.h>
-#include "Timer16Bit/netmf_timers16Bit.h"
-#include "advancedtimer/netmf_advancedtimer.h"
-#include "../time/netmf_time.h"
+#include "../Timer/Timer16Bit/netmf_timers16Bit.h"
+#include "../Timer/advancedtimer/netmf_advancedtimer.h"
+//#include "../time/netmf_time.h"
 #include <intc/stm32.h>
 
 
@@ -28,7 +28,7 @@ extern const UINT8 TIMER2_16BIT;
 
 extern Timer16Bit_Driver g_Timer16Bit_Driver;
 extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
-extern Time_Driver g_Time_Driver;
+//extern Time_Driver g_Time_Driver;
 static void ISR( void* Param );
 
 ////HAL_CALLBACK_FPN VirtualTimerHandlerFPN = NULL;
@@ -111,9 +111,9 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	{
 		//AnanthAtSamraksh -- added below
 		GLOBAL_LOCK(irq);
-		g_Time_Driver.m_nextCompare = CompareValue;
+		//g_Time_Driver.m_nextCompare = CompareValue;
 		bool fForceInterrupt = false;
-		UINT64 CntrValue = HAL_Time_CurrentTicks(Timer);
+		UINT64 CntrValue = HAL_Time_CurrentTicks();
 
 		if(CompareValue <= CntrValue)
 		{
@@ -137,7 +137,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 			g_Timer16Bit_Driver.SetCompare ( g_Timer16Bit_Driver.c_SystemTimer, (UINT16)(g_Timer16Bit_Driver.GetCounter( g_Timer16Bit_Driver.c_SystemTimer ) + diff));
 
 			//If meanwhile happens
-			if(HAL_Time_CurrentTicks(Timer) > CompareValue)
+			if(HAL_Time_CurrentTicks() > CompareValue)
 			{
 				fForceInterrupt = true;
 			}
@@ -207,7 +207,8 @@ UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 	UINT16 counterValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		counterValue = g_Timer16Bit_Driver.SetCounter(Timer, Count);
+		//counterValue = g_Timer16Bit_Driver.SetCounter(Timer, Count);
+		g_Timer16Bit_Driver.SetCounter(Timer, Count);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -218,7 +219,7 @@ UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 }
 
 //TODO: AnanthAtSamraksh - to check if this is the right place
-UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
+UINT32 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
 	//TODO: AnanthAtSamraksh - not checking if timer is greater than total timers configured. T
 	//This can be done in the if...else loop
@@ -226,23 +227,24 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	/*if(Timer < 0)
 		return 0;*/
 
-	UINT64 currentTicksValue = 0;
+	UINT32 currentTicksValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		//AnanthAtSamraksh -- added below from
 		UINT16 value;
-		UINT64 m_lastRead = 0;
+		UINT32 m_lastRead = 0;
 		GLOBAL_LOCK(irq);
 		value = g_Timer16Bit_Driver.GetCounter(g_Timer16Bit_Driver.c_SystemTimer);
 
 		// Nived.Sivadas
-		// Workaround for the unusual didtimeoverflow bug, added another check
+		// Workaround for the unusual didtimeroverflow bug, added another check
 		UINT16 lastSixteenBits = m_lastRead & 0x0000FFFFull;
-		m_lastRead &= (0xFFFFFFFFFFFF0000ull);
+		////m_lastRead &= (0xFFFFFFFFFFFF0000ull);
+		m_lastRead &= (0xFFFF0000ull);
 
-		if(g_Timer16Bit_Driver.DidTimeOverFlow( g_Timer16Bit_Driver.c_SystemTimer ) || (value < lastSixteenBits))
+		if(g_Timer16Bit_Driver.DidTimerOverFlow( g_Timer16Bit_Driver.c_SystemTimer ) || (value < lastSixteenBits))
 		{
-			g_Timer16Bit_Driver.ClearTimeOverFlow( g_Timer16Bit_Driver.c_SystemTimer );
+			g_Timer16Bit_Driver.ClearTimerOverFlow( g_Timer16Bit_Driver.c_SystemTimer );
 			m_lastRead += (0x1ull << 16);
 		}
 
@@ -258,12 +260,94 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
+		//AnanthAtSamraksh
+		////currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
+		currentTicksValue = g_STM32F10x_AdvancedTimer.GetCounter();
 	}
 
 	return currentTicksValue;
-
 }
+
+// This function is tuned for 8MHz of the emote
+// Will not work at other speeds at low uSec values ie ( < 30)
+// This function has poor accuracy at less than 10 microsecs
+// Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
+void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
+{
+	/*
+	//AnanthAtSamraksh - CPU_Sleep is commented out as of 7/8/2014. So, does not matter what sleep level is entered.
+	//But sleep level 2 is "SLEEP_LEVEL__SLEEP".
+	UINT32 sleepLevel = 2;
+	UINT32 WakeupSystemEvents = 0;
+	UINT32 Timeout_Milliseconds = uSec / 1000;
+	Events_WaitForEvents( sleepLevel, WakeupSystemEvents, Timeout_Milliseconds );
+	*/
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		if(uSec <= 10)
+		{
+			return;
+		}
+
+		GLOBAL_LOCK(irq);
+
+		if(uSec <= 30)
+		{
+			UINT32 limit = (uSec)/ 5;
+			for(volatile UINT32 i = 0; i < limit; i++);
+			return;
+		}
+
+		UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
+		UINT32 ticks = CPU_MicrosecondsToTicks(uSec, Timer);
+		while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
+	}
+}
+
+BOOL CPU_Timer_DidTimerOverflow(UINT8 Timer)
+{
+	BOOL retVal = FALSE;
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		retVal = g_Timer16Bit_Driver.DidTimerOverFlow(g_Timer16Bit_Driver.c_SystemTimer);
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		retVal = g_STM32F10x_AdvancedTimer.DidTimerOverflow();
+	}
+	return retVal;
+}
+
+void CPU_Timer_ClearTimerOverflow(UINT8 Timer)
+{
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		g_Timer16Bit_Driver.ClearTimerOverFlow(g_Timer16Bit_Driver.c_SystemTimer);
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		g_STM32F10x_AdvancedTimer.ClearTimerOverflow();
+	}
+}
+
+UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
+{
+	UINT32 maxTicks = 0;
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		maxTicks = g_Timer16Bit_Driver.GetMaxTicks();
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		maxTicks = g_STM32F10x_AdvancedTimer.GetMaxTicks();
+	}
+	return maxTicks;
+}
+
 
 /*
 // Default hardware handler for the HAL Timer
@@ -366,7 +450,7 @@ void CPU_CPWAIT()
 #endif
 
 
-#if 0
+
 UINT32 CPU_SystemClock(UINT16 Timer)
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -521,10 +605,9 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	}
 	//return uSec * (SystemTimerClock/1000000);
 }
-#endif
 
 
-#if 0
+
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec ){
 	//return uSec * (SystemTimerClock/1000000);
 	uSec *= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
@@ -532,7 +615,7 @@ UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec ){
 	return uSec;
 }
 
-int CPU_MicosecondsToSystemClocks( int uSec ) {
+int CPU_MicrosecondsToSystemClocks( int uSec ) {
 	//return uSec * (SystemTimerClock/1000000);
 	uSec *= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
 	uSec /= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
@@ -547,7 +630,7 @@ int CPU_SystemClocksToMicroseconds( int Ticks ) {
 }
 
 
-
+#if 0
 //AnanthAtSamraksh -- moved below functions from netmf_advancedtimer.cpp
 INT64 CPU_Timer_TicksToTime( UINT64 Ticks )
 {
@@ -597,45 +680,7 @@ UINT64 Time_CurrentTicks()
 }
 #endif
 
-// This function is tuned for 8MHz of the emote
-// Will not work at other speeds at low uSec values ie ( < 30)
-// This function has poor accuracy at less than 10 microsecs
-// Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
-void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
-{
-	/*
-	//AnanthAtSamraksh - CPU_Sleep is commented out as of 7/8/2014. So, does not matter what sleep level is entered.
-	//But sleep level 2 is "SLEEP_LEVEL__SLEEP".
-	UINT32 sleepLevel = 2;
-	UINT32 WakeupSystemEvents = 0;
-	UINT32 Timeout_Milliseconds = uSec / 1000;
-	Events_WaitForEvents( sleepLevel, WakeupSystemEvents, Timeout_Milliseconds );
-	*/
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
-	{
 
-	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		if(uSec <= 10)
-		{
-			return;
-		}
-
-		GLOBAL_LOCK(irq);
-
-		if(uSec <= 30)
-		{
-			UINT32 limit = (uSec)/ 5;
-			for(volatile UINT32 i = 0; i < limit; i++);
-			return;
-		}
-
-		UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
-		UINT32 ticks = CPU_MicrosecondsToTicks(uSec, Timer);
-		while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
-	}
-}
 
 #if 0
 // This function is tuned to work when the processor is running at 8 MHz

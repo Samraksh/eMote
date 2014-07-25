@@ -8,8 +8,8 @@
 #include <Samraksh/Tasklet.h>
 
 #include <Timer/Timer16Bit/stm32f10x_tim.h>
-#include <rcc/stm32f10x_rcc.h>
-#include <misc/misc.h>
+//#include <rcc/stm32f10x_rcc.h>
+//#include <misc/misc.h>
 
 enum TimerClockRate
 {
@@ -98,6 +98,8 @@ public:
 	void ClearTimerOverflow();
 	BOOL ResetCompareHit();
 	UINT64 Get64Counter();
+
+	UINT32 GetMaxTicks();
 
 	TaskletType* GetTasklet()
 	{

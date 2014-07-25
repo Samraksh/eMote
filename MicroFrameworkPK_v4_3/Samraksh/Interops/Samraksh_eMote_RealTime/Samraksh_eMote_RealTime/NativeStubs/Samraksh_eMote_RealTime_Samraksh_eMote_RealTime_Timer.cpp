@@ -11,8 +11,8 @@
 //-----------------------------------------------------------------------------
 
 
-#include "RealTimeTimer.h"
-#include "RealTimeTimer_Samraksh_eMote_RealTime_Timer.h"
+#include "Samraksh_eMote_RealTime.h"
+#include "Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer.h"
 
 using namespace Samraksh::eMote::RealTime;
 

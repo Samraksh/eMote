@@ -7,15 +7,15 @@
 //-----------------------------------------------------------------------------
 
 
-#include "RealTimeTimer.h"
+#include "Samraksh_eMote_RealTime.h"
 
 
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
-    Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer::Dispose___STATIC__VOID,
-    Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4,
-    Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer::GenerateInterrupt___STATIC__VOID,
+    Library_Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer::Dispose___STATIC__VOID,
+    Library_Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4,
+    Library_Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer::GenerateInterrupt___STATIC__VOID,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime =

@@ -12,7 +12,7 @@
 #include <stm32f10x.h>
 #include <Samraksh/VirtualTimer.h>
 #include <pwr/netmf_pwr.h>
-#include <rcc/stm32f10x_rcc.h>
+//#include <rcc/stm32f10x_rcc.h>
 
 
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
@@ -174,6 +174,12 @@ UINT32 STM32F10x_AdvancedTimer::GetCounter()
 	// timerLock.release_and_restore();
 
 	return currentCounterValue;
+}
+
+
+UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
+{
+	currentCounterValue = counterValue;
 }
 
 
@@ -385,6 +391,37 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 //TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
+
+	/*UINT32 now = GetCounter();
+
+	if (compareValue == 0) {
+		return DS_Success;
+	}
+
+	if (now >= compareValue) {
+		currentCompareValue = 0;
+		HAL_COMPLETION::DequeueAndExec();
+	}
+
+	if (compareValue - now > 0xFFFFFFFF) { // Too far in future to schedule, wait for roll-overs
+		currentCompareValue = compareValue;
+		return DS_Success;
+	}
+
+	// TIM2 already matches, just use TIM1
+	if( (now & 0xFFFF0000) == (compareValue & 0xFFFF0000) )
+	{
+		TIM_SetCompare2(TIM1, compareValue & 0xFFFF);
+		TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+	}
+	else	// Have to wait for TIM2 to match
+	{
+		TIM_SetCompare2(TIM2, (compareValue >> 16) & 0xFFFF);
+		TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
+	}
+
+	currentCompareValue = compareValue;*/
+
 	UINT32 newCompareValue;
 
 	if(counterCorrection == 0)
@@ -394,7 +431,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 	else
 	{
 		//TODO: AnanthAtSamraksh -- check if INT64 is right
-		newCompareValue = (UINT32) counterCorrection + compareValue;
+		newCompareValue = (UINT32) (counterCorrection + compareValue);
 		//newCompareValue = counterCorrection + compareValue;
 	}
 	if(compareValue >> 16)
@@ -420,28 +457,12 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 
 	currentCompareValue = newCompareValue;
 
-	/*if(m_lastRead > 4294967296 && m_lastRead < 8569167668)
-	{
-		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-	}*/
-	/*if(currentCompareValue >= 32375537 && currentCompareValue < 32506609)
-	{
-		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-	}
-	else if(currentCompareValue >= 32506609 && currentCompareValue <= 32637681)
-	{
-		CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-	}
-	else if(currentCompareValue > 32637681)
-	{
-		CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-	}*/
-
 	return DS_Success;
+}
+
+UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
+{
+	return (UINT32)0xFFFFFFFF;
 }
 
 extern "C"
@@ -575,7 +596,8 @@ void ISR_TIM2(void* Param)
 
 		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
 
-		g_STM32F10x_AdvancedTimer.Get64Counter();
+		////g_STM32F10x_AdvancedTimer.Get64Counter();
+		////g_STM32F10x_AdvancedTimer.GetCounter();
 	}
 
 }
@@ -587,7 +609,8 @@ void ISR_TIM1( void* Param )
 	// This variable is pointed to by the tasklet
 	// So changing the contents of this variable should be done with extreme caution
 	// Update the 64 bit counter value
-	g_STM32F10x_AdvancedTimer.Get64Counter();
+	////g_STM32F10x_AdvancedTimer.Get64Counter();
+	////g_STM32F10x_AdvancedTimer.GetCounter();
 
 
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))

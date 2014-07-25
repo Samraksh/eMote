@@ -125,6 +125,10 @@ const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {17};			//From Krait_T
 const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {4};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {SYSTEM_CLOCK_HZ};
 
+#define VIRT_TIMER_TIME 			0
+#define VIRT_TIMER_EVENTS 			1
+#define VIRT_TIMER_REALTIME 		2
+
 /////////////////////////////////////////////////////////
 
 #include <processor_selector.h>

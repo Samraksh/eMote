@@ -16,8 +16,16 @@
 
 
 #include <tinyhal.h>
-#include "Krait__Time.h"
-#include "../Krait_TIMER/Krait__Timer.h"
+#include "Krait__TIME.h"
+#include "../Krait.h"
+#include "../Include/Samraksh/VirtualTimer.h"
+#include "../Krait_TIMER/Krait__TIMER.h"
+
+Krait_Time g_Krait_Time;
+//extern Krait_Timer g_Krait_Timer;
+
+UINT64 Krait_Time::bigCounter = 0;
+////UINT64 Krait_Time::nextCompare = 0;
 
 
 #if 0
@@ -214,29 +222,74 @@ BOOL Uninitialize(){
 }
 #endif
 
-UINT64 TimeNow()
+
+BOOL Krait_Time::Initialize()
 {
-	return g_Krait_Timer.bigCounter + g_Krait_Timer.GetCounter(0);
+	return VirtTimer_Initialize();
 }
 
 #define SETCOMPARE_TIME_OVERHEAD 65
 #define SETCOMPARE_MIN_TIME 80
-
-#define TICKS_PROXIMITY_FORCE 10
-void SetCompareValue( UINT64 CompareValue )
+BOOL Krait_Time::Uninitialize()
 {
-	UINT32 diff;
+	return VirtTimer_UnInitialize();
+}
+
+INT64 Krait_Time::CurrentTime()
+{
+	//return CPU_TicksToTime( TimeNow() );
+	////return bigCounter + VirtTimer_GetCounter(0);
+	UINT32 currentValue = VirtTimer_GetTicks(0);
+
+	bigCounter &= (0xFFFFFFFF00000000ull);
+
+	if(VirtTimer_DidTimerOverflow(0))
+	{
+		VirtTimer_ClearTimerOverflow(0);
+		bigCounter += (0x1ull <<32);
+	}
+
+	bigCounter |= currentValue;
+
+	//return VirtTimer_TicksToTime(0, VirtTimer_GetTicks(0));
+	return VirtTimer_TicksToTime(0, bigCounter);
+}
+
+UINT64 Krait_Time::TimeNow()
+{
+	//return bigCounter + g_Krait_Timer.GetCounter(0);
+	////return bigCounter + VirtTimer_GetCounter(0);
+	//return VirtTimer_TicksToTime(0, VirtTimer_GetTicks(0));
+	return CurrentTime();
+}
+
+INT64 Krait_Time::TicksToTime( UINT64 Ticks )
+{
+	//return CPU_TicksToTime( Ticks );
+	return VirtTimer_TicksToTime(0, Ticks);
+}
+
+INT64 Krait_Time::CurrentTicks()
+{
+	////return VirtTimer_GetCounter(0);
+	return VirtTimer_GetTicks(0);
+}
+
+//#define TICKS_PROXIMITY_FORCE 10
+void Krait_Time::SetCompareValue( UINT64 CompareValue )
+{
+	/*UINT32 diff;
 	UINT64 now;
 
 	GLOBAL_LOCK(irq);
 
 	// New compare is after current compare.
 	// Undefined. Should never happen. Just drop it.
-	if (g_Krait_Timer.nextCompare != 0 && CompareValue > g_Krait_Timer.nextCompare) {
+	if (nextCompare != 0 && CompareValue > nextCompare) {
 		return;
 	}
 
-    g_Krait_Timer.nextCompare = CompareValue;
+    nextCompare = CompareValue;
 
 	now = TimeNow();
 
@@ -257,52 +310,81 @@ void SetCompareValue( UINT64 CompareValue )
 	}
 
 	if ( (diff-SETCOMPARE_TIME_OVERHEAD) < SETCOMPARE_MIN_TIME || diff < SETCOMPARE_TIME_OVERHEAD) {
-		g_Krait_Timer.SetCompare(0, SETCOMPARE_MIN_TIME);
+		VirtTimer_SetCompare(0, SETCOMPARE_MIN_TIME);
 		return;
 	}
 
-	g_Krait_Timer.SetCompare(0,  diff - SETCOMPARE_TIME_OVERHEAD);
+	VirtTimer_SetCompare(0,  diff - SETCOMPARE_TIME_OVERHEAD);
 }
 
-INT64 TicksToTime( UINT64 Ticks )
-{
-	return CPU_TicksToTime( Ticks );
-}
-
-INT64 CurrentTime()
-{
-	return CPU_TicksToTime( TimeNow() );
-}
 
 // Correction factor. Assumes -O0
 // Only corrects for native, not managed.
 #define TINYCLR_TIMER_MUNGE 4
 
-void Sleep_uSec( UINT32 uSec )
+void Krait_Time::Sleep_uSec( UINT32 uSec )
 {
-	GLOBAL_LOCK(irq);
+	VirtTimer_SleepMicroseconds(0, uSec);
+
+	/*GLOBAL_LOCK(irq);
 
 	if(uSec <= TINYCLR_TIMER_MUNGE) {
 		return;
 	}
 
-	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE ); 
-	UINT32 value   = g_Krait_Timer.GetCounter( 0 );
+	//UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE );
+	UINT32 maxDiff  = VirtTimer_MicrosecondsToSystemClocks( uSec-TINYCLR_TIMER_MUNGE );
+	//UINT32 value   = g_Krait_Timer.GetCounter( 0 );
+	UINT32 value   = VirtTimer_GetCounter( 0 );
 
-	while((g_Krait_Timer.GetCounter(0) - value) <= maxDiff);
+	//while((g_Krait_Timer.GetCounter(0) - value) <= maxDiff);
+	while((VirtTimer_GetCounter(0) - value) <= maxDiff);*/
 }
 
 // Supposed to be implemented by calculating the approx number of instruction executed during this time and doing a for loop like implementation corresponding to the number of instructions
 // Also this function runs with interrupts enabled, may need to look at the actual implementation 
-void Sleep_uSec_Loop( UINT32 uSec )
+void Krait_Time::Sleep_uSec_Loop( UINT32 uSec )
 {
-	if(uSec <= TINYCLR_TIMER_MUNGE) {
+	VirtTimer_SleepMicroseconds(0, uSec);
+
+	/*if(uSec <= TINYCLR_TIMER_MUNGE) {
 		return;
 	}
 
-	UINT32 maxDiff  = CPU_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE);
-	UINT32 value   = g_Krait_Timer.GetCounter( 0 );
+	UINT32 maxDiff  = VirtTimer_MicrosecondsToSystemClocks(uSec - TINYCLR_TIMER_MUNGE);
+	UINT32 value   = VirtTimer_GetCounter( 0 );
 
-	while((g_Krait_Timer.GetCounter(0) - value) <= maxDiff);
+	while((VirtTimer_GetCounter(0) - value) <= maxDiff);*/
 }
+
+
+// Add counter contents and reset to 0. IRQs should be off.
+/*void Krait_Time::flush_time() {
+	bigCounter += readl(DGT_COUNT_VAL);
+	writel(0, DGT_CLEAR);
+}*/
+
+// Main handler called on overflow.
+/*void Krait_Time::TIME_HANDLER(void *arg) {
+	flush_time();
+
+	// Don't need to call TimeNow() since we just flushed
+	if(bigCounter >= nextCompare)
+	{
+		// this also schedules the next one, if there is one
+		writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
+		nextCompare = 0;
+
+		//AnanthAtSamraksh
+		g_Krait_Timer.ExecuteFunction();
+		////uint32_t num = 0;
+		////handler[num].func(handler[num].arg);
+	}
+	else
+	{
+		g_Krait_Timer.SetCompare( (UINT16)0, nextCompare );
+	}
+}*/
+
+
 #pragma GCC reset_options

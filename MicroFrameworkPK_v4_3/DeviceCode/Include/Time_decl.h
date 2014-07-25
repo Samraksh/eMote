@@ -205,9 +205,15 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue);
 UINT16 CPU_Timer_GetCounter(UINT16 Timer);
 UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);
 
-UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
+////UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
+UINT32 CPU_Timer_CurrentTicks(UINT16 Timer);
 
 void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer = 1 );
+
+BOOL CPU_Timer_DidTimerOverflow(UINT8 Timer);
+void CPU_Timer_ClearTimerOverflow(UINT8 Timer);
+
+UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer);
 
 const UINT8 ADVTIMER_32BIT = 1;
 const UINT8 TIMER1_16BIT = 2;

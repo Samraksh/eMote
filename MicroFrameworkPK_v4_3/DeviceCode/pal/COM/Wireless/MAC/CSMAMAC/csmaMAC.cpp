@@ -107,24 +107,26 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		//gHalTimerManagerObject.Initialize();
 		//if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
-		if(!VirtTimer_SetTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
 			return DS_Fail;
 		}
 
-		if(!VirtTimer_SetTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){
+		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler)){
 			return DS_Fail;
 		}
-		gHalTimerManagerObject.StartTimer(2);
+		//gHalTimerManagerObject.StartTimer(2);
+		VirtTimer_Start(VIRT_TIMER_MAC_BEACON);
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
-		if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, SendFirstPacketToRadio)){
+		//if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, SendFirstPacketToRadio)){
+		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio)){
 			return DS_Fail;
 		}
 	}
 
 	// Stop the timer
 	//gHalTimerManagerObject.StopTimer(1);
-	VirtTimer_Stop(1);
+	VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);
 	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
@@ -265,11 +267,13 @@ void csmaMAC::SendToRadio(){
 	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
 	if (m_send_buffer.GetNumberMessagesInBuffer() > 1){
 		//CLR_Debug::Printf("Starting timer 3\r\n");
-		gHalTimerManagerObject.StartTimer(3);
+		//gHalTimerManagerObject.StartTimer(3);
+		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 	}
 	else if (m_send_buffer.GetNumberMessagesInBuffer() == 0){
 		//CLR_Debug::Printf("Stopping timer 3\r\n");
-		gHalTimerManagerObject.StopTimer(3);
+		//gHalTimerManagerObject.StopTimer(3);
+		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 	}
 
 
@@ -489,7 +493,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				//gHalTimerManagerObject.StopTimer(3);
 				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 
-				VirtTimer_Stop(3);
+				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
@@ -503,7 +507,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			//hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
 			//gHalTimerManagerObject.StartTimer(3);
-			VirtTimer_Start(3);
+			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 			break;
 			
 		default:

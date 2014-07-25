@@ -301,6 +301,11 @@ BOOL Timer16Bit_Driver::Uninitialize ( UINT32 Timer )
     return TRUE;
 }
 
+UINT32 Timer16Bit_Driver::GetMaxTicks()
+{
+	return (UINT32)0xFFFF;
+}
+
 void Timer16Bit_Driver::RCC_DeInit(UINT32 Timer)
 {
 		UINT32 Timer_Clock;

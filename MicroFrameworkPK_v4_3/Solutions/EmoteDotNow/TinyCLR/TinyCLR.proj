@@ -57,7 +57,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT\Samraksh_SPOT.featureproj" />
@@ -411,15 +411,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\bl\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_bl.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_timer.$(LIB_EXT)" />
@@ -473,10 +473,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
   </ItemGroup>
   
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <!--<ItemGroup>
     <DriverLibs Include="STM32F10x_usb.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\usb\dotNetMF.proj" />
@@ -590,9 +590,9 @@
   <!-- 									Realtime Extension        								-->
   
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_RealTime\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
-</ItemGroup>
+  </ItemGroup>
 <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_SPOT_RealTime\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_RealTimeTimer.$(LIB_EXT)" />
@@ -609,6 +609,12 @@
     <DriverLibs Include="STM32F10x_NVM.$(LIB_EXT)" />
   </ItemGroup>
   -->
+  
+  <!-- 									Samraksh Time Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
+    <DriverLibs Include="eMote_time.$(LIB_EXT)" />
+  </ItemGroup>
     
   <!-- 									Wireless Stack Start								-->
   
@@ -626,7 +632,7 @@
   </ItemGroup>
   -->
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\VirtualTimer\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>

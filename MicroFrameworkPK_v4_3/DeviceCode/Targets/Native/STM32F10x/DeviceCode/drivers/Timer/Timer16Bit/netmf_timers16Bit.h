@@ -13,8 +13,8 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 #include "Timer/Timer16Bit/stm32f10x_tim.h"
-#include <rcc/stm32f10x_rcc.h>
-#include <misc/misc.h>
+//#include <rcc/stm32f10x_rcc.h>
+//#include <misc/misc.h>
 
 
 
@@ -37,6 +37,8 @@ struct Timer16Bit_Driver
 	static BOOL Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param );
     static BOOL Uninitialize ( UINT32 Timer );
     static UINT8 System_Clock_Frequency();
+
+    UINT32 GetMaxTicks();
     //static void Timer_IRQ_Handler( UINT32 Timer );
 
 	static void EnableCompareInterrupt( UINT32 Timer )
@@ -215,7 +217,7 @@ struct Timer16Bit_Driver
 
 	//TODO: Verify the working of this function from main.cpp
 
-	static BOOL DidTimeOverFlow ( UINT32 Timer )
+	static BOOL DidTimerOverFlow ( UINT32 Timer )
 	{
 
 		//GLOBAL_LOCK(irq);
@@ -247,7 +249,7 @@ struct Timer16Bit_Driver
 
 	//TODO: Verify the working of this function!
 
-	static void ClearTimeOverFlow ( UINT32 Timer )
+	static void ClearTimerOverFlow ( UINT32 Timer )
 	{
 		//GLOBAL_LOCK(irq);
 

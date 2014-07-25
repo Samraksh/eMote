@@ -12,6 +12,7 @@
 #include <Timer/Timer16Bit/netmf_timers16Bit.h>
 #include <TinyCLR_Hardware.h>
 #include <TinyCLR_Runtime.h>
+#include "../Include/Samraksh/VirtualTimer.h"
 
 #define TICKS_PER_MICROSECOND SYSTEM_CLOCK_HZ/1000000
 //#define RT_HARDWARE_TIMER 3
@@ -34,22 +35,32 @@ void ISR_REALTIME_TIMER (void* Param);
 void ISR_PendSV_Handler (void* Param);
 
 BOOL InitializeTimer (){
-	if (!Timer16Bit_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+
+	if(!VirtTimer_Initialize(RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
+			return FALSE;
+
+	VirtTimer_SetCounter(RT_HARDWARE_TIMER, 0);
+	VirtTimer_SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));
+
+	/*if (!Timer16Bit_Driver :: Initialize (RT_HARDWARE_TIMER, TRUE, 0, 0, ISR_REALTIME_TIMER, NULL))
 	{
 		return FALSE;
 	}
 	Timer16Bit_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-	Timer16Bit_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));
+	Timer16Bit_Driver::SetCompare(RT_HARDWARE_TIMER, (UINT16)(RealTimeTimerTicks));*/
 
 	return TRUE;
 }
 
 BOOL UnInitializeTimer (){
 
-	if (Timer16Bit_Driver :: Uninitialize (RT_HARDWARE_TIMER))
+	if(!VirtTimer_UnInitialize())
+			return FALSE;
+
+	/*if (Timer16Bit_Driver :: Uninitialize (RT_HARDWARE_TIMER))
 	{
 		return FALSE;
-	}
+	}*/
 
 	return TRUE;
 }
@@ -251,7 +262,8 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 		//Ready to generate interrupt to CLR
 		if(!SingleShot) {
-			Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer16Bit_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
+			VirtTimer_SetCompare(RT_HARDWARE_TIMER, (UINT16)( VirtTimer_GetCounter(RT_HARDWARE_TIMER) )+ RealTimeTimerTicks);
+			//Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, (UINT16)(Timer16Bit_Driver::GetCounter(RT_HARDWARE_TIMER))+ RealTimeTimerTicks);
 		}
 		else {
 			UnInitializeTimer();
@@ -265,8 +277,10 @@ void ISR_REALTIME_TIMER (void* Param){
 #endif
 				//Ready to generate interrupt to CLR
 				if(!SingleShot) {
-					Timer16Bit_Driver::SetCounter(RT_HARDWARE_TIMER,0);
-					Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+					VirtTimer_SetCounter(RT_HARDWARE_TIMER, 0);
+					VirtTimer_SetCompare(RT_HARDWARE_TIMER, 65535);
+					//Timer16Bit_Driver::SetCounter(RT_HARDWARE_TIMER,0);
+					//Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 				}else {
 					UnInitializeTimer();
 				}
@@ -274,11 +288,13 @@ void ISR_REALTIME_TIMER (void* Param){
 				GeneratePendSVInterrupt();
 
 		}else if (RollOver==RollOverCount-1){
-			Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
+				VirtTimer_SetCompare(RT_HARDWARE_TIMER, RollOverTicks);
+				//Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, RollOverTicks);
 				RollOver++;
 		}else{
 				RollOver++;
-				Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
+				VirtTimer_SetCompare(RT_HARDWARE_TIMER, 65535);
+				//Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 		}
 	}
 }

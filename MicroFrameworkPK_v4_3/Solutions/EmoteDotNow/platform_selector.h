@@ -174,6 +174,13 @@ const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
 const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+
+#define VIRT_TIMER_TIME 			0
+#define VIRT_TIMER_EVENTS 			1
+#define VIRT_TIMER_REALTIME 		2
+#define VIRT_TIMER_MAC_SENDPKT 		3
+#define VIRT_TIMER_MAC_BEACON 		4
+#define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 ////#define NUM_VIRTUALTIMER_TIMERS 16
 
 //extern VirtualTimerConfig g_VT_Config;

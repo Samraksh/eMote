@@ -11,7 +11,10 @@
 #define _REALTIMETIMER_H_
 
 #include <TinyCLR_Interop.h>
-struct Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
+
+void ISR_PendSV_Handler(void* Param);
+
+struct  Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
 {
     TINYCLR_NATIVE_DECLARE(Dispose___STATIC__VOID);
     TINYCLR_NATIVE_DECLARE(Change___STATIC__BOOLEAN__U4__U4);
@@ -21,8 +24,7 @@ struct Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
 
 };
 
-
-
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeInteropTimer;
 
 #endif  //_REALTIMETIMER_H_

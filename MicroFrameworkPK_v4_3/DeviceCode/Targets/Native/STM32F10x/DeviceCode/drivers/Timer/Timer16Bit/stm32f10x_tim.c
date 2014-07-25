@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 //#include <tinyhal.h>
 #include "stm32f10x_tim.h"
-#include "..\..\rcc\stm32f10x_rcc.h"
+//#include "..\..\rcc\stm32f10x_rcc.h"
 
 /** @addtogroup STM32F10x_StdPeriph_Driver
   * @{

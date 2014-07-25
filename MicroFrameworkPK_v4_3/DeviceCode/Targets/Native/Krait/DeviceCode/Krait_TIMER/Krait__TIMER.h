@@ -44,15 +44,21 @@ class Krait_Timer
 private:
 
 public:
-	static UINT64 bigCounter;
+	//AnanthAtSamraksh
+	////static UINT64 bigCounter;
 	static UINT64 nextCompare;
+	BOOL timerOverflowFlag;
 
 	BOOL InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR = 0, void* ISR_PARAM = 0 );
 	void SetCompare(UINT16 Timer, UINT32 Compare);
 	UINT32 GetCounter(UINT16 Timer);
+	void SetCounter(UINT32 Timer, UINT32 Count);
+	BOOL DidTimerOverflow();
+	void ClearTimerOverflow();
+	UINT32 GetMaxTicks();
 };
 
 
-extern Krait_Timer g_Krait_Timer;
+//extern Krait_Timer g_Krait_Timer;
 
 #endif /* KRAIT__TIMER_H_ */

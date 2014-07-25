@@ -3,15 +3,16 @@
 //#define DEBUG_PRINT
 
 //AnanthAtSamraksh
-#include "../Include/Samraksh/VirtualTimer.h"
+//#include "../Include/Samraksh/VirtualTimer.h"
 
-extern Timer16Bit_Driver g_Timer16Bit_Driver;
-extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 static void ISR( void* Param );
+
+/*extern Timer16Bit_Driver g_Timer16Bit_Driver;
+extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 
 extern const UINT8 ADVTIMER_32BIT;
 extern const UINT8 TIMER1_16BIT;
-extern const UINT8 TIMER2_16BIT;
+extern const UINT8 TIMER2_16BIT;*/
 //AnanthAtSamraksh
 
 #if 0
@@ -276,7 +277,7 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 
 
 
-
+#if 0
 UINT32 CPU_SystemClock(UINT16 Timer)
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -431,7 +432,7 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	}
 	//return uSec * (SystemTimerClock/1000000);
 }
-
+#endif
 
 
 
@@ -466,7 +467,8 @@ BOOL HAL_Time_Initialize()
 	}
 	return TRUE;*/
 
-	return VirtTimer_Initialize();
+	//return VirtTimer_Initialize();
+	return g_Time_Driver.Initialize();
 }
 
 BOOL HAL_Time_Uninitialize()
@@ -486,7 +488,18 @@ BOOL HAL_Time_Uninitialize()
 
 	}*/
 
-	return VirtTimer_UnInitialize();
+	//return VirtTimer_UnInitialize();
+	return g_Time_Driver.Uninitialize();
+}
+
+INT64 HAL_Time_CurrentTime()
+{
+	//return Time_Driver::CurrentTime();
+	//return CPU_TicksToTime( HAL_Time_CurrentTicks(Timer) );
+	//return CPU_TicksToTime( CPU_Timer_CurrentTicks(0) );
+	//return CPU_TicksToTime( VirtTimer_GetTicks(0) );
+	//return VirtTimer_TicksToTime( 0, VirtTimer_GetTicks(0) );
+	return g_Time_Driver.CurrentTime();
 }
 
 
@@ -495,7 +508,8 @@ UINT64 Time_CurrentTicks()
 	//AnanthAtSamraksh - changed below
     //return HAL_Time_CurrentTicks(Timer);
 	//return VirtTimer_GetTicks(0);
-	return VirtTimer_GetCounter(0);
+	//return VirtTimer_GetCounter(0);
+	return g_Time_Driver.CurrentTicks();
 }
 
 
@@ -503,7 +517,8 @@ UINT64 HAL_Time_CurrentTicks()
 {
 	//AnanthAtSamraksh - changed below
 	//return VirtTimer_GetTicks(0);
-	return VirtTimer_GetCounter(0);
+	//return VirtTimer_GetCounter(0);
+	return g_Time_Driver.CurrentTicks();
 
 	/*if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
@@ -560,22 +575,17 @@ UINT64 HAL_Time_CurrentTicks()
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
 	//return Time_Driver::TicksToTime( Ticks );
-	return CPU_TicksToTime( Ticks );
-}
-
-INT64 HAL_Time_CurrentTime()
-{
-	//return Time_Driver::CurrentTime();
-	//return CPU_TicksToTime( HAL_Time_CurrentTicks(Timer) );
-	//return CPU_TicksToTime( CPU_Timer_CurrentTicks(0) );
-	return CPU_TicksToTime( VirtTimer_GetTicks(0) );
+	//return CPU_TicksToTime( Ticks );
+	//return VirtTimer_TicksToTime( 0, Ticks );
+	return g_Time_Driver.TicksToTime(Ticks);
 }
 
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
 	//AnanthAtSamraksh -- changed below
 	//CPU_Timer_SetCompare( 1, CompareValue );
-	VirtTimer_SetCompare(0, CompareValue);
+	//VirtTimer_SetCompare(0, CompareValue);
+	g_Time_Driver.SetCompareValue(CompareValue);
 
 	////Time_Driver::SetCompareValue( CompareValue );
 	/*if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -684,7 +694,8 @@ void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 	//AnanthAtSamraksh -- added below
     //Time_Driver::Sleep_uSec( uSec );
 	//CPU_Timer_Sleep_MicroSeconds(uSec, 1);
-	VirtTimer_SleepMicroseconds(0, uSec);
+	//VirtTimer_SleepMicroseconds(0, uSec);
+	g_Time_Driver.Sleep_uSec(uSec);
 }
 
 void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
@@ -692,6 +703,7 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 	//AnanthAtSamraksh -- added below
 	//Time_Driver::Sleep_uSec_Loop( uSec );
 	//CPU_Timer_Sleep_MicroSeconds(uSec, 1);
-	VirtTimer_SleepMicroseconds(0, uSec);
+	//VirtTimer_SleepMicroseconds(0, uSec);
+	g_Time_Driver.Sleep_uSec(uSec);
 }
 

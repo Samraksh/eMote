@@ -27,6 +27,7 @@ typedef void (*TIMER_CALLBACK_FPN)( void* arg );
 
 typedef enum _VirtualTimerReturnMessage
 {
+	TimerReserved = -2,
 	TimerNotSupported = -1,
 	TimerSupported = 1
 }VirtualTimerReturnMessage;
@@ -268,6 +269,25 @@ public:
 		m_lastQueueAdjustmentTime = lastQueueAdjustmentTime;
 	}
 
+	inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex);
+
+	/*inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
+	{
+		BOOL timerFound = FALSE;
+
+		for(int i = 0; i < m_current_timer_id_; i++)
+		{
+			if(g_VirtualTimerInfo[i].get_m_timer_id() == timer_id)
+			{
+				VTimerIndex = i;
+				timerFound = TRUE;
+				break;
+			}
+		}
+
+		return timerFound;
+	}*/
+
 };
 
 
@@ -327,21 +347,26 @@ public:
 	////BOOL Initialize(VirtualTimerConfig& config);
 	//PAL interface for VirtualTimers
 	BOOL VirtTimer_Initialize(UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
+	BOOL VirtTimer_UnInitialize();
 	//VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
-	BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue);
-	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
-	BOOL VirtTimer_UnInitialize();
 
-	UINT64 VirtTimer_GetTicks(UINT8 timer_id);
 	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);
 	UINT32 VirtTimer_GetCounter(UINT8 timer_id);
+	UINT32 VirtTimer_GetTicks(UINT8 timer_id);
+	UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks);
+	BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue);
+	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
 
-	////TODO: AnanthAtSamraksh -- check this with Mukundan
-	BOOL CPU_Timer_Initialize();
+	BOOL VirtTimer_DidTimerOverflow(UINT8 timer_id);
+	void VirtTimer_ClearTimerOverflow(UINT8 timer_id);
+
+	UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id);
+	////UINT32 VirtTimer_MicrosecondsToSystemClocks(UINT32 uSec);
+
 //};
 
 

@@ -22,3 +22,15 @@ D:\Main\Work\SOURCE\WORKING\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollec
 D:\Main\Work\SOURCE\WORKING\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\WinUsbInvoke.pdb
 D:\Main\Work\SOURCE\WORKING\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\Microsoft.SPOT.Tasks.pdb
 D:\Main\Work\SOURCE\WORKING\eMote\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\obj\Debug\DataCollectorHost.csprojResolveAssemblyReference.cache
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\DataCollectorHost.exe.config
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\obj\Debug\DataCollectorHost.exe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\obj\Debug\DataCollectorHost.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\DataCollectorHost.exe
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\DataCollectorHost.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\Microsoft.SPOT.Debugger.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\WinUsbInvoke.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\Microsoft.SPOT.Tasks.dll
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\Microsoft.SPOT.Debugger.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\WinUsbInvoke.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\bin\Debug\Microsoft.SPOT.Tasks.pdb
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\DataCollectorHost\DataCollectorHost\obj\Debug\DataCollectorHost.csprojResolveAssemblyReference.cache

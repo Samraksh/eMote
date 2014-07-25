@@ -269,7 +269,7 @@ namespace Samraksh.SPOT.APPS
 
         public static bool stopExperimentFlag = false;
 
-        public static InterruptPort stopExperiment = new InterruptPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN7, false, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeLow);
+        public static InterruptPort stopExperiment = new InterruptPort(Samraksh.SPOT.Hardware.EmoteDotNow.Pins.GPIO_J11_PIN7, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeLow);
 
         public static Samraksh.SPOT.Hardware.EmoteDotNow.EmoteLCD lcd;
        

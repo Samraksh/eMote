@@ -538,15 +538,15 @@ void VirtualTimerTest()
 	int periodValue = 1;
 	for(int i = 0; i < 1; i++)
 	{
-		VirtTimer_SetTimer(0, 0, periodValue*250, FALSE, FALSE, Timer_0_Handler);
-		VirtTimer_SetTimer(1, 0, periodValue*250, FALSE, FALSE, Timer_1_Handler);
-		VirtTimer_SetTimer(2, 0, periodValue*250, FALSE, FALSE, Timer_2_Handler);
-		VirtTimer_SetTimer(3, 0, periodValue*250, FALSE, FALSE, Timer_3_Handler);
+		//VirtTimer_SetTimer(0, 0, periodValue*10000, FALSE, FALSE, Timer_0_Handler);
+		//VirtTimer_SetTimer(1, 0, periodValue*10000, FALSE, FALSE, Timer_1_Handler);
+		VirtTimer_SetTimer(2, 0, periodValue*10000, FALSE, FALSE, Timer_2_Handler);
+		VirtTimer_SetTimer(3, 0, periodValue*10000, FALSE, FALSE, Timer_3_Handler);
 	}
 
 	for(UINT16 i = 0; i <= 0; i++)
 	{
-		for (UINT16 j = 0; j <= 3; j++)
+		for (UINT16 j = 2; j <= 3; j++)
 		{
 			VirtTimer_Start( (i+j)%4 );
 			//for(int k = 0; k < 1; k++);
@@ -559,24 +559,37 @@ void TimerDriverTest()
 	g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
 	UINT32 uSec = 500000;
 	UINT16 Timer = 0;
-	g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
-	CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
+	g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
+	//CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 }
 
 void TimeTestA()
 {
 	INT64 prevTime = 0, currentTime = 0;
+	UINT64 prevTicks = 0, currentTicks = 0;
+	static int counterTestA = 0;
+
+	debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
 
 	while(true)
 	{
+		counterTestA++;
+		if(counterTestA % 100000 == 0)
+			debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
+
+		prevTicks = HAL_Time_CurrentTicks();
 		prevTime = HAL_Time_CurrentTime();
+		HAL_Time_Sleep_MicroSeconds(5000);
 		currentTime = HAL_Time_CurrentTime();
+		currentTicks = HAL_Time_CurrentTicks();
 
 		if(currentTime > prevTime)
 			Timer_0_Handler(NULL);
 		else
 		{
 			Timer_1_Handler(NULL);
+			debug_printf("prevTime: %llu; currentTime: %llu \r\n", prevTime, currentTime);
+			debug_printf("prevTicks: %llu; currentTicks: %llu \r\n", prevTicks, currentTicks);
 			//break;
 		}
 	}
@@ -585,10 +598,15 @@ void TimeTestA()
 void TimeTestB()
 {
 	UINT64 prevTicks = 0, currentTicks = 0;
+	//static int counterTestB = 0;
 
 	while(true)
 	{
+		//counterTestB++;
+		//if(counterTestB >= 152081)
+			//int i = 0;
 		prevTicks = HAL_Time_CurrentTicks();
+		HAL_Time_Sleep_MicroSeconds(1000);
 		currentTicks = HAL_Time_CurrentTicks();
 
 		if(currentTicks > prevTicks)
@@ -596,6 +614,7 @@ void TimeTestB()
 		else
 		{
 			Timer_1_Handler(NULL);
+			debug_printf("prevTicks: %llu; currentTicks: %llu \n", prevTicks, currentTicks);
 			//break;
 		}
 	}
@@ -607,7 +626,7 @@ void TimeTestC()
 
 	UINT32 timeout_ms =  100;
 	//700 is purely from observation while debugging.
-	UINT32 ticksScalingFactor = 0x4F812;
+	UINT32 ticksScalingFactor = 0x4FD58;
 	//convert timeout_ms to ticks for comparison with timeElapsed
 	UINT64 timeout_ticks = CPU_MicrosecondsToTicks(timeout_ms * 1000);
 	UINT32 events = 0;
@@ -638,9 +657,9 @@ void TimeTestC()
 void TimeTestD()
 {
 	UINT64 prevTime = 0, currentTime = 0, elapsedTime = 0;
-	UINT16 ticksScalingFactor = 650;
+	UINT16 ticksScalingFactor = 10000;
 	UINT32 sleepValue = 100;
-	UINT16 incrementVal = 10;
+	UINT16 incrementVal = 100;
 
 	while(true)
 	{
@@ -656,10 +675,13 @@ void TimeTestD()
 		if(elapsedTime <= (sleepValue_ticks + ticksScalingFactor))
 			Timer_0_Handler(NULL);
 		else if(elapsedTime > (sleepValue_ticks + ticksScalingFactor))
+		{
 			Timer_1_Handler(NULL);
+			//debug_printf("prevTime: %llu; currentTime: %llu; elapsedTime: %llu \n", prevTime, currentTime, elapsedTime);
+		}
 
 		sleepValue += incrementVal;
-		ticksScalingFactor += 50;
+		//ticksScalingFactor += 50;
 	}
 }
 //AnanthAtSamraksh
@@ -734,9 +756,9 @@ mipi_dsi_shutdown();
     HAL_Initialize();
 
     //TODO: AnanthAtSamraksh -- initialize the virtual timer
-    //HAL_Time_Initialize();
-    //CPU_Timer_Initialize();
     VirtTimer_Initialize();
+    HAL_Time_Initialize();
+
 
     LCD_Initialize();
 #if !defined(BUILD_RTM) 
@@ -783,7 +805,7 @@ mipi_dsi_shutdown();
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     //******************************************************
 	//AnanthAtSamraksh
-    EnableGPIO();
+    //EnableGPIO();
 
     /* TimerTests */
     //Uncomment - VirtTimer_Initialize()
@@ -794,14 +816,14 @@ mipi_dsi_shutdown();
 
     //=============================
 
-    /* TimeTests */
+    /* TimeTests -- Uncomment VirtTimer_Initialize() */
     //TimeTestA();
     //TimeTestB();
     //TimeTestC();
-    TimeTestD();
+    //TimeTestD();
 
     //******************************************************
-    //ApplicationEntryPoint();
+    ApplicationEntryPoint();
 
     lcd_printf("\fmain exited!!???.  Halting CPU\r\n");
     debug_printf("main exited!!???.  Halting CPU\r\n");

@@ -68,6 +68,10 @@ namespace VirtTimerHelperFunctions
 
 BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(Timer, mapperTimerId, mapperId);
+
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
 		gVirtualTimerObject.VT_hardwareTimerId = g_HardwareTimerIDs[i];
@@ -78,7 +82,7 @@ BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 
 		if(i == 0)
 		{
-			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, Timer, FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
+			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
 				return FALSE;
 		}
 		else if(i == 1)
@@ -113,6 +117,7 @@ VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay,
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
+
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
 	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
@@ -124,7 +129,7 @@ VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay,
 	if(mapperId == 0)
 	{
 		if(!gVirtualTimerObject.virtualTimerMapper_0.SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
-			return TimerNotSupported;
+			return TimerReserved;
 		else
 			return TimerSupported;
 	}
@@ -139,6 +144,7 @@ VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
+
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
 	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].StartTimer(mapperTimerId))
@@ -165,6 +171,7 @@ VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = timer_id;
 	UINT8 mapperId = 0;
+
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
 	/*if(gVirtualTimerObject.virtualTimerMapper[mapperId].StopTimer(mapperTimerId) == TimerNotSupported)
@@ -190,6 +197,7 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
+
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
 	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
@@ -211,7 +219,17 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 }
 
 
-UINT64 VirtTimer_GetTicks(UINT8 timer_id)
+UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	return CPU_TicksToTime(Ticks, g_HardwareTimerIDs[mapperId]);
+}
+
+
+UINT32 VirtTimer_GetTicks(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
@@ -222,30 +240,74 @@ UINT64 VirtTimer_GetTicks(UINT8 timer_id)
 	return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
 }
 
-UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count)
-{
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-	return CPU_Timer_SetCounter(g_HardwareTimerIDs[mapperId], Count);
-}
-
-
 UINT32 VirtTimer_GetCounter(UINT8 timer_id)
 {
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
 	return CPU_Timer_GetCounter(g_HardwareTimerIDs[mapperId]);
 }
 
+UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	return CPU_Timer_SetCounter(g_HardwareTimerIDs[mapperId], Count);
+}
 
 BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue)
 {
-	return CPU_Timer_SetCompare(timer_id, CompareValue );
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	return CPU_Timer_SetCompare(g_HardwareTimerIDs[mapperId], CompareValue );
 }
 
 
 void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec)
 {
-	CPU_Timer_Sleep_MicroSeconds(uSec, timer_id);
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	CPU_Timer_Sleep_MicroSeconds(uSec, g_HardwareTimerIDs[mapperId]);
 }
+
+BOOL VirtTimer_DidTimerOverflow(UINT8 timer_id)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	return CPU_Timer_DidTimerOverflow(g_HardwareTimerIDs[mapperId]);
+}
+
+void VirtTimer_ClearTimerOverflow(UINT8 timer_id)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	CPU_Timer_ClearTimerOverflow(g_HardwareTimerIDs[mapperId]);
+}
+
+UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
+{
+	UINT8 mapperTimerId = 0;
+	UINT8 mapperId = 0;
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
+
+	return CPU_Timer_GetMaxTicks(g_HardwareTimerIDs[mapperId]);
+}
+
+/*UINT32 VirtTimer_MicrosecondsToSystemClocks(UINT32 uSec)
+{
+	return CPU_MicrosecondsToSystemClocks(uSec);
+}*/
 
 
 BOOL VirtTimer_UnInitialize()

@@ -31,7 +31,7 @@ struct  Library_RealTimeTimer_Samraksh_eMote_RealTime_Timer
 };
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime;
-extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeInteropTimer;
+////extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeInteropTimer;
 
 
 /*const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RealTimeTimer =

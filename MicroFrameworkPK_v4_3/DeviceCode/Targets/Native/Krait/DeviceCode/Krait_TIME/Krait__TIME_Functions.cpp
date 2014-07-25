@@ -17,8 +17,10 @@
 #include <tinyhal.h>
 
 #include "Krait__TIME.h"
-#include "../Krait_TIMER/Krait__TIMER.h"
-#include "../Include/Samraksh/VirtualTimer.h"
+//#include "../Krait_TIMER/Krait__TIMER.h"
+//#include "../Include/Samraksh/VirtualTimer.h"
+
+extern Krait_Time g_Krait_Time;
 
 //AnanthAtSamraksh
 //static void ISR( void* Param );
@@ -91,6 +93,7 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 #endif
 
 
+#if 0
 UINT32 CPU_SystemClock(UINT16 Timer)
 {
     return SYSTEM_CLOCK_HZ;
@@ -197,6 +200,7 @@ int __section(SectionForFlashOperations) CPU_SystemClocksToMicroseconds( int Tic
 
     return Ticks;
 }
+#endif
 
 // -- //
 
@@ -262,21 +266,36 @@ BOOL HAL_Time_Initialize()
 	//AnanthAtSamraksh - changed below
     //return g_Krait_Timer.InitializeTimer(0);
 	//return CPU_Timer_Initialize(0, TRUE, 0, 0, ISR, NULL);
-    return VirtTimer_Initialize();
+    //return VirtTimer_Initialize();
+    return g_Krait_Time.Initialize();
 }
 
 BOOL HAL_Time_Uninitialize()
 {
 	//AnanthAtSamraksh - changed below
     //return TRUE;
-	return VirtTimer_UnInitialize();
+	//return VirtTimer_UnInitialize();
+	g_Krait_Time.Uninitialize();
+}
+
+INT64 HAL_Time_CurrentTime()
+{
+	//AnanthAtSamraksh - changed below
+    //return CPU_TicksToTime( g_Krait_Timer.bigCounter + g_Krait_Timer.GetCounter(0) );
+    //return CPU_TicksToTime( CPU_Timer_CurrentTicks(0) );
+	//return CPU_TicksToTime( VirtTimer_GetTicks(0) );
+
+	//return VirtTimer_TicksToTime(0, g_Krait_Time.bigCounter + VirtTimer_GetTicks(0));
+	return g_Krait_Time.CurrentTime();
 }
 
 UINT64 Time_CurrentTicks()
 {
     //return HAL_Time_CurrentTicks(0);
     //return VirtTimer_GetTicks(0);
-	return VirtTimer_GetCounter(0);
+	//return VirtTimer_GetCounter(0);
+	//return g_Krait_Time.CurrentTicks();
+	return HAL_Time_CurrentTicks();
 }
 
 UINT64 HAL_Time_CurrentTicks()
@@ -286,26 +305,25 @@ UINT64 HAL_Time_CurrentTicks()
 	//AnanthAtSamraksh - changed below
 	//return CPU_Timer_CurrentTicks(0);
 	//return VirtTimer_GetTicks(0);
-	return VirtTimer_GetCounter(0);
+
+	//return VirtTimer_GetCounter(0);
+	//return VirtTimer_GetTicks(0);
+	return g_Krait_Time.CurrentTicks();
 }
 
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
-    return CPU_TicksToTime( Ticks );
+    //return CPU_TicksToTime( Ticks );
+	//return VirtTimer_TicksToTime(0, Ticks);
+	return g_Krait_Time.TicksToTime(Ticks);
 }
 
-INT64 HAL_Time_CurrentTime()
-{
-	//AnanthAtSamraksh - changed below
-    //return CPU_TicksToTime( g_Krait_Timer.bigCounter + g_Krait_Timer.GetCounter(0) );
-    //return CPU_TicksToTime( CPU_Timer_CurrentTicks(0) );
-    return CPU_TicksToTime( VirtTimer_GetTicks(0) );
-}
 
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
 	//AnanthAtSamraksh -- always use timer as 0
-	VirtTimer_SetCompare(0, CompareValue);
+	//VirtTimer_SetCompare(0, CompareValue);
+	g_Krait_Time.SetCompareValue(CompareValue);
 	//CPU_Timer_SetCompare( 1, CompareValue );
 }
 
@@ -322,7 +340,8 @@ void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 	//AnanthAtSamraksh - changed below. Note: this is not actual "sleep", but "busy waiting".
     //Sleep_uSec( uSec );
 	//CPU_Timer_Sleep_MicroSeconds(uSec, 1);
-	VirtTimer_SleepMicroseconds(0, uSec);
+	//VirtTimer_SleepMicroseconds(0, uSec);
+	g_Krait_Time.Sleep_uSec(uSec);
 }
 
 void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
@@ -330,7 +349,8 @@ void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 	//AnanthAtSamraksh - changed below
     //Sleep_uSec_Loop( uSec );
 	//CPU_Timer_Sleep_MicroSeconds(uSec, 1);
-	VirtTimer_SleepMicroseconds(0, uSec);
+	//VirtTimer_SleepMicroseconds(0, uSec);
+	g_Krait_Time.Sleep_uSec(uSec);
 }
 
 

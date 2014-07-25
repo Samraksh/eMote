@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_RealTime</FeatureName>
-    <Guid>{927d87a0-8944-490f-9ebb-c67643d33d52}</Guid>
+    <Guid>{3d195f23-ea4b-4789-a880-d8b0c38dfa86}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_REALTIME_FEATUREPROJ>True</SAMRAKSH_EMOTE_REALTIME_FEATUREPROJ>
@@ -10,7 +10,6 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_RealTime" />
-	<InteropFeature Include="RealTimeInteropTimer" />
     <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\RealTimeTimer.pe" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_RealTime\dotnetmf.proj" />
   </ItemGroup>
