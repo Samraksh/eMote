@@ -1031,7 +1031,7 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
 {
   uint32_t lastevent = 0;
   uint32_t flag1 = 0, flag2 = 0;
-  ErrorStatus status = ERROR;
+  ErrorStatus status = ERROR_STATUS;
 
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
@@ -1049,12 +1049,12 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
   if ((lastevent & I2C_EVENT) == I2C_EVENT)
   {
     /* SUCCESS: last event is equal to I2C_EVENT */
-    status = SUCCESS;
+    status = SUCCESS_STATUS;
   }
   else
   {
     /* ERROR: last event is different from I2C_EVENT */
-    status = ERROR;
+    status = ERROR_STATUS;
   }
   /* Return status */
   return status;
