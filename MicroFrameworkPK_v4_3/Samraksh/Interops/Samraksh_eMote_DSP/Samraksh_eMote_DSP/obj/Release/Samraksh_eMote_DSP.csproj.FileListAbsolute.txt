@@ -31,3 +31,4 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DS
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Release\le\Samraksh_eMote_DSP.pdbx
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Release\Samraksh_eMote_DSP.dll
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\obj\Release\Samraksh_eMote_DSP.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DSP\Samraksh_eMote_DSP\bin\Release\Samraksh_eMote_DSP.XML

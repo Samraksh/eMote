@@ -15,3 +15,5 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Sa
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\Samraksh_eMote_Kiwi.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\Samraksh_eMote_Kiwi.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\TinyCLR_DebugReferences.cache
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\bin\Release\Samraksh_eMote_Kiwi.XML
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Kiwi\Samraksh_eMote_Kiwi\obj\Release\Samraksh_eMote_Kiwi.csprojResolveAssemblyReference.cache

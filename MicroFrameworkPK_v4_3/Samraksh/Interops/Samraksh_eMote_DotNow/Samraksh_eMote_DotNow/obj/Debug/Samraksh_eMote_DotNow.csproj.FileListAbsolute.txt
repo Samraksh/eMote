@@ -15,4 +15,3 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DotNow\
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\obj\Debug\le\Samraksh_eMote_DotNow.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\obj\Debug\Samraksh_eMote_DotNow.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\obj\Debug\Samraksh_eMote_DotNow.pdb
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\obj\Debug\TinyCLR_DebugReferences.cache
