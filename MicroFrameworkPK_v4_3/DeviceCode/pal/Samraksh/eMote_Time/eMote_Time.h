@@ -2,6 +2,9 @@
  * Samraksh Time Driver
  * Initial Create - Kartik Natarajan
  * 04/20/2011
+ *
+ * Modified - Mukundan Sridharan; Ananth Muralidharan
+ * 07/25/2014
  * Notes -
  *
  */
@@ -12,18 +15,10 @@
 #include <tinyhal.h>
 #include "Time_decl.h"
 
-//AnanthAtSamraksh
-//#include "Timer\advancedtimer\netmf_advancedtimer.h"
-//#include "Timer\Timer16Bit\netmf_timers16Bit.h"
-//AnanthAtSamraksh
-
 
 struct Time_Driver
 {
-    ////UINT64 m_lastRead;
-    ////UINT64 m_nextCompare;
-
-	static UINT32 maxTicks;
+    static UINT32 maxTicks;
 	static UINT64 bigCounter;
 	static UINT32 prevTicks;
 

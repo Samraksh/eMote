@@ -33,7 +33,7 @@ static void TIMER_HANDLER(void *arg);
 static struct ihandler handler[NR_IRQS];
 
 ////UINT64 Krait_Timer::bigCounter = 0;
-UINT64 Krait_Timer::nextCompare = 0;
+UINT32 Krait_Timer::nextCompare = 0;
 Krait_Timer g_Krait_Timer;
 //extern Krait_Time g_Krait_Time;
 
@@ -50,7 +50,7 @@ void Timer_Handler(void* arg)
 
 //AnanthAtSamraksh
 
-BOOL Krait_Timer::InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR, void* ISR_PARAM )
+BOOL Krait_Timer::InitializeTimer ( UINT16 Timer, BOOL IsOneShot, HAL_CALLBACK_FPN ISR, void* ISR_PARAM )
 {
 	GLOBAL_LOCK(irq);
 
@@ -71,10 +71,13 @@ BOOL Krait_Timer::InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR, void* IS
 	writel(0, DGT_CLEAR);
 	writel(DGT_ENABLE_EN, DGT_ENABLE);
 
-	//AnanthAtSamraksh
-	handler[Timer].func = (int_handler)ISR;
-	handler[Timer].arg = ISR_PARAM;
+	//AnanthAtSamraksh - there is just one timer (0), so store ISR in position 0.
+	/*handler[Timer].func = (int_handler)ISR;
+	handler[Timer].arg = ISR_PARAM;*/
+	handler[0].func = (int_handler)ISR;
+	handler[0].arg = ISR_PARAM;
 	timerOverflowFlag = FALSE;
+	g_Krait_Timer.IsOneShot = IsOneShot;
 	//AnanthAtSamraksh
 
 	CPU_INTC_ActivateInterrupt(INT_DEBUG_TIMER_EXP, TIMER_HANDLER, 0);
@@ -99,9 +102,19 @@ static void TIMER_HANDLER(void *arg) {
 	////flush_timer();
 
 	UINT32 currentTicks = readl(DGT_COUNT_VAL);
+
+	writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
+	g_Krait_Timer.nextCompare = 0;
+	handler[0].func(handler[0].arg);
+
+	if(g_Krait_Timer.IsOneShot)
+	{
+		handler[0] = {0};
+	}
 	// Don't need to call TimeNow() since we just flushed
 	//if(g_Krait_Timer.bigCounter >= g_Krait_Timer.nextCompare)
-	if(currentTicks >= g_Krait_Timer.nextCompare)
+	//if(currentTicks >= g_Krait_Timer.nextCompare)
+	/*if(g_Krait_Timer.IsOneShot)
 	{
 		// this also schedules the next one, if there is one
 		//AnanthAtSamraksh -- commenting out below as it sets the setCompare to go off after a very long time and stops the callback from being invoked.
@@ -113,17 +126,40 @@ static void TIMER_HANDLER(void *arg) {
 		//// writel(Compare, DGT_MATCH_VAL) is setCompare and takes absolute time (current + future) in ticks.
 		//// When time expires, an interrupt is raised which calls the function registered while enabling the interrupt, which happens to be TIMER_HANDLER in this case.
 		////writel(readl(DGT_COUNT_VAL) + 0x10000, DGT_MATCH_VAL);
-		uint32_t num = 0;
-		handler[num].func(handler[num].arg);
-		//AnanthAtSamraksh
+
+		//uint32_t num = 0;
+		//handler[num].func(handler[num].arg);
+		handler[0].func(handler[0].arg);
+		handler[0] = {0};
 	}
 	else
-	{
+	{*/
 		//overflow case
 		//g_Krait_Timer.SetCompare( (UINT16)0, g_Krait_Timer.nextCompare );
 		//CPU_Timer_SetCompare(0, g_Krait_Timer.nextCompare);
-		g_Krait_Timer.SetCompare(0, g_Krait_Timer.nextCompare);
-	}
+
+		/*CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);*/
+
+		//writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
+		//if((currentTicks + g_Krait_Timer.nextCompare) < 0x3FFFF000)
+		/*if((currentTicks + g_Krait_Timer.nextCompare) > 0x3FFFFFFF)
+		{
+			//debug_printf("TIMER_HANDLER - clearing timer\r\n");
+			writel(0, DGT_CLEAR);
+			g_Krait_Timer.SetCompare(0, g_Krait_Timer.nextCompare);
+		}*/
+		//else
+			//g_Krait_Timer.SetCompare(0, (currentTicks + g_Krait_Timer.nextCompare));
+		////debug_printf("currentTicks: %d \r\n", currentTicks);
+
+		////g_Krait_Timer.SetCompare(0, g_Krait_Timer.nextCompare);
+		////g_Krait_Timer.SetCompare(0, (currentTicks + g_Krait_Timer.nextCompare));
+
+		/*writel(MAX_TIMER_ROLLOVER, DGT_MATCH_VAL); // reset the match value to default
+		g_Krait_Timer.nextCompare = 0;
+		handler[0].func(handler[0].arg);
+	}*/
 
 	//AnanthAtSamraksh
 	/*currentTicks = readl(DGT_COUNT_VAL);
@@ -157,7 +193,7 @@ void Krait_Timer::ClearTimerOverflow()
 
 UINT32 Krait_Timer::GetMaxTicks()
 {
-	return 0xFFFFFFFF;
+	return 0xFFFFFFFF;	//2^32
 }
 
 
@@ -195,6 +231,11 @@ void Krait_Timer::SetCompare(UINT16 Timer, UINT32 Compare)
 	////g_Krait_Time.flush_time(); // Flush DGT to bigCounter
 	//AnanthAtSamraksh
 	////flush_timer(); // Flush DGT to bigCounter
+	/*CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);*/
+	//if(Compare > 0x3FFFFF00)
+		//debug_printf("Compare: %d \r\n", Compare);
+	////writel(0, DGT_CLEAR);
 	writel(Compare, DGT_MATCH_VAL);
 }
 

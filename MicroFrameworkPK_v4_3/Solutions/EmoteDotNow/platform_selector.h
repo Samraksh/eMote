@@ -139,7 +139,7 @@
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
-#define RT_HARDWARE_TIMER 3
+//#define RT_HARDWARE_TIMER 3
 
 //Enable GC extension
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep

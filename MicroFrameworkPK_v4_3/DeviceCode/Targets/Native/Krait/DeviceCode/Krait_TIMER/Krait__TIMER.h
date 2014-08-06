@@ -46,10 +46,11 @@ private:
 public:
 	//AnanthAtSamraksh
 	////static UINT64 bigCounter;
-	static UINT64 nextCompare;
+	static UINT32 nextCompare;
 	BOOL timerOverflowFlag;
+	BOOL IsOneShot;
 
-	BOOL InitializeTimer ( UINT16 Timer, HAL_CALLBACK_FPN ISR = 0, void* ISR_PARAM = 0 );
+	BOOL InitializeTimer ( UINT16 Timer = 0, BOOL IsOneShot = FALSE, HAL_CALLBACK_FPN ISR = 0, void* ISR_PARAM = 0 );
 	void SetCompare(UINT16 Timer, UINT32 Compare);
 	UINT32 GetCounter(UINT16 Timer);
 	void SetCounter(UINT32 Timer, UINT32 Count);

@@ -32,7 +32,8 @@ UINT8 Timer16Bit_Driver::System_Clock_Frequency()
 	return System_Clock;
 }
 
-BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param )
+//BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param )
+BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param )
 {
 	//Assumption - System clock is available at this point.
 
@@ -195,7 +196,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSo
 		//if( !CPU_INTC_ActivateInterrupt(interrupt, ISR, ISR_Param) ) return FALSE;
 		//NVIC_Init( Timer, ISR, ISR_Param );
 
-		if (FreeRunning)
+		if (IsOneShot)
 		{
 			//TODO: Add code
 			//Set up a free running counter here, which matches its count register and generate interrupts

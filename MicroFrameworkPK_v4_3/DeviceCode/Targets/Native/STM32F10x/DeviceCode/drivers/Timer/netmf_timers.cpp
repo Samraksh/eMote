@@ -42,7 +42,8 @@ static void ISR( void* Param );
 //	Designed to provide an interface to pal level functions to directly timers users include HALTimer,
 //  Batched mode adc etc.
 //  Can not accept a timer value equal to system timer or an isr input of null.
-BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+//BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
 	// Make sure timer input is not 0 in case macro is not defined or the timer is not trying to
 	// re initialize the system  timer
@@ -67,7 +68,8 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported by the drivers
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		if(!g_Timer16Bit_Driver.Initialize(Timer, FreeRunning, ClkSource, Prescaler, ISR, NULL))
+		//if(!g_Timer16Bit_Driver.Initialize(Timer, IsOneShot, ClkSource, Prescaler, ISR, NULL))
+		if(!g_Timer16Bit_Driver.Initialize(Timer, IsOneShot, Prescaler, ISR, NULL))
 			return FALSE;
 	}
 	else if(Timer == ADVTIMER_32BIT )
@@ -490,6 +492,10 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
+		////return Ticks;
+		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
+		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
+		Ticks /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
 		return Ticks;
 	}
 }
@@ -507,6 +513,10 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
+		////return Ticks32;
+		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
+		Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
+		Ticks32 /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
 		return Ticks32;
 	}
 }

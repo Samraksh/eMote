@@ -76,9 +76,10 @@ void SetCompareValue( UINT64 CompareValue )
 
 
 
-BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+////BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
-	return g_Krait_Timer.InitializeTimer(0, ISR, ISR_PARAM);
+	return g_Krait_Timer.InitializeTimer(0, IsOneShot, ISR, ISR_PARAM);
 }
 
 BOOL CPU_Timer_UnInitialize(UINT16 Timer)
@@ -126,7 +127,14 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	setCompareValue = CompareValue + now;
 
 	//g_Krait_Timer.SetCompare(Timer, CompareValue);
-	g_Krait_Timer.SetCompare(Timer, setCompareValue);
+	////g_Krait_Timer.SetCompare(Timer, setCompareValue);
+	/*if(setCompareValue > 0x3FFFFF00)
+	{
+		writel(0, DGT_CLEAR);
+		g_Krait_Timer.SetCompare(0, CompareValue);
+	}
+	else*/
+		g_Krait_Timer.SetCompare(0, setCompareValue);
 	//SetCompareValue(CompareValue);
 
 	//AnanthAtSamraksh
@@ -135,6 +143,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 		setCompareCount++;
 		CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 	}*/
+
 }
 
 UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)

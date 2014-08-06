@@ -34,7 +34,8 @@ struct Timer16Bit_Driver
 	static BOOL Timer_Test();
 #endif
 
-	static BOOL Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param );
+	//static BOOL Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param );
+	static BOOL Initialize   ( UINT32 Timer, BOOL FreeRunning, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param );
     static BOOL Uninitialize ( UINT32 Timer );
     static UINT8 System_Clock_Frequency();
 

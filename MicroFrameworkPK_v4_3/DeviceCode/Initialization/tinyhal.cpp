@@ -497,6 +497,7 @@ void HAL_Uninitialize()
 //AnanthAtSamraksh
 void EnableGPIO()
 {
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 51, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 53, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 55, TRUE);
@@ -505,11 +506,14 @@ void EnableGPIO()
 
 void Timer_0_Handler(void *arg)
 {
+	UINT32 uSec = 100000;
+	UINT16 Timer = 0;
 	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
-	//UINT32 uSec = 500000;
-	//UINT16 Timer = 0;
-	//g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	////debug_printf("calling SetCompare 2 \r\n");
+	////g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
+	////g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	CPU_Timer_SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
 	////HAL_Time_Sleep_MicroSeconds(1000);
 }
 
@@ -527,8 +531,31 @@ void Timer_2_Handler(void *arg)
 
 void Timer_3_Handler(void *arg)
 {
-	CPU_GPIO_SetPinState((GPIO_PIN) 58, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 58, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 53, FALSE);
+}
+
+void Timer_4_Handler(void *arg)
+{
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+}
+
+void HardwareTimerDriverTest()
+{
+	//g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
+	CPU_Timer_Initialize(0, FALSE, 0, Timer_0_Handler, NULL);
+	UINT32 uSec = 100000;
+	UINT16 Timer = 0;
+	//while(true)
+	//{
+		////debug_printf("CPU_MicrosecondsToTicks(%d, 0): %llu \r\n", uSec, CPU_MicrosecondsToTicks(uSec, Timer));
+		////debug_printf("calling SetCompare 1 \r\n");
+		////g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
+		////g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+		CPU_Timer_SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	//}
+	//CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 }
 
 void VirtualTimerTest()
@@ -540,27 +567,19 @@ void VirtualTimerTest()
 	{
 		//VirtTimer_SetTimer(0, 0, periodValue*10000, FALSE, FALSE, Timer_0_Handler);
 		//VirtTimer_SetTimer(1, 0, periodValue*10000, FALSE, FALSE, Timer_1_Handler);
-		VirtTimer_SetTimer(2, 0, periodValue*10000, FALSE, FALSE, Timer_2_Handler);
-		VirtTimer_SetTimer(3, 0, periodValue*10000, FALSE, FALSE, Timer_3_Handler);
+		//VirtTimer_SetTimer(2, 0, periodValue*1000, FALSE, FALSE, Timer_2_Handler);
+		VirtTimer_SetTimer(3, 0, periodValue*500000, FALSE, FALSE, Timer_3_Handler);
+		VirtTimer_SetTimer(4, 0, periodValue*500000, FALSE, FALSE, Timer_4_Handler);
 	}
 
 	for(UINT16 i = 0; i <= 0; i++)
 	{
-		for (UINT16 j = 2; j <= 3; j++)
+		for (UINT16 j = 3; j <= 4; j++)
 		{
-			VirtTimer_Start( (i+j)%4 );
+			VirtTimer_Start( (i+j)%5 );
 			//for(int k = 0; k < 1; k++);
 		}
 	}
-}
-
-void TimerDriverTest()
-{
-	g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
-	UINT32 uSec = 500000;
-	UINT16 Timer = 0;
-	g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
-	//CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 }
 
 void TimeTestA()
@@ -569,17 +588,19 @@ void TimeTestA()
 	UINT64 prevTicks = 0, currentTicks = 0;
 	static int counterTestA = 0;
 
-	debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
+	////debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
 
 	while(true)
 	{
-		counterTestA++;
+		/*counterTestA++;
 		if(counterTestA % 100000 == 0)
-			debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
+			debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());*/
 
 		prevTicks = HAL_Time_CurrentTicks();
 		prevTime = HAL_Time_CurrentTime();
-		HAL_Time_Sleep_MicroSeconds(5000);
+		HAL_Time_Sleep_MicroSeconds(2000);
+		HAL_Time_Sleep_MicroSeconds(2000);
+		HAL_Time_Sleep_MicroSeconds(2000);
 		currentTime = HAL_Time_CurrentTime();
 		currentTicks = HAL_Time_CurrentTicks();
 
@@ -812,7 +833,7 @@ mipi_dsi_shutdown();
     //VirtualTimerTest();
     //-------------------
     /* comment - VirtTimer_Initialize() and uncomment below; uncomment include files at the top */
-    //TimerDriverTest();
+    //HardwareTimerDriverTest();
 
     //=============================
 
@@ -822,8 +843,11 @@ mipi_dsi_shutdown();
     //TimeTestC();
     //TimeTestD();
 
+    //while(1);
     //******************************************************
     ApplicationEntryPoint();
+
+
 
     lcd_printf("\fmain exited!!???.  Halting CPU\r\n");
     debug_printf("main exited!!???.  Halting CPU\r\n");

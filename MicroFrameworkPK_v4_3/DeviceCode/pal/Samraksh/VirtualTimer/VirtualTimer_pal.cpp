@@ -1,20 +1,16 @@
+/*
+ * Samraksh virtual timer driver
+ * Initial Create - Mukundan Sridharan; Ananth Muralidharan
+ * 07/24/2014
+ *
+ */
+
 #include <Samraksh/VirtualTimer.h>
 
 
 extern const UINT8 g_CountOfHardwareTimers;
 
 VirtualTimer gVirtualTimerObject;
-
-////TODO: AnanthAtSamraksh -- check this with Mukundan
-/*BOOL CPU_Timer_Initialize()
-{
-	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
-	{
-		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer[i]))
-			return FALSE;
-	}
-	return TRUE;
-}*/
 
 //Unnamed namespace
 namespace VirtTimerHelperFunctions
@@ -51,22 +47,13 @@ namespace VirtTimerHelperFunctions
 				}
 			}
 
-
-			/*if(mapperTimerId < gVirtualTimerObject.virtualTimerMapper[i].VTM_countOfVirtualTimers)
-			{
-				mapperId = i;
-				break;
-			}
-			else
-			{
-				mapperTimerId -= gVirtualTimerObject.virtualTimerMapper[i].VTM_countOfVirtualTimers;
-			}*/
 		}
 	}
 }
 
 
-BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+//BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+BOOL VirtTimer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
@@ -77,12 +64,10 @@ BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 		gVirtualTimerObject.VT_hardwareTimerId = g_HardwareTimerIDs[i];
 		gVirtualTimerObject.VT_countOfVirtualTimers = g_VirtualTimerPerHardwareTimer[i];
 
-		/*if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers))
-			return FALSE;*/
-
 		if(i == 0)
 		{
-			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
+			//if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
+			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], IsOneShot, Prescaler, ISR, ISR_PARAM))
 				return FALSE;
 		}
 		else if(i == 1)
@@ -96,35 +81,12 @@ BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT
 }
 
 
-
-/*VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id)
-{
-	if (timer_id < 0)
-		return TimerNotSupported;
-
-	UINT8 mapperTimerId = 0;
-	UINT8 mapperId = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	if(mapperTimerId > 0)
-		return TimerSupported;
-	else
-		return TimerNotSupported;
-}*/
-
-
 VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
-		return TimerNotSupported;
-	else
-		return TimerSupported;*/
-
 
 	if(mapperId == 0)
 	{
@@ -146,11 +108,6 @@ VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].StartTimer(mapperTimerId))
-		return TimerNotSupported;
-	else
-		return TimerSupported;*/
 
 	if(mapperId == 0)
 	{
@@ -174,11 +131,6 @@ VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	/*if(gVirtualTimerObject.virtualTimerMapper[mapperId].StopTimer(mapperTimerId) == TimerNotSupported)
-		return TimerNotSupported;
-	else
-		return TimerSupported;*/
-
 	if(mapperId == 0)
 	{
 		if(gVirtualTimerObject.virtualTimerMapper_0.StopTimer(mapperTimerId) == TimerNotSupported)
@@ -199,11 +151,6 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	/*if(!gVirtualTimerObject.virtualTimerMapper[mapperId].ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
-		return TimerNotSupported;
-	else
-		return TimerSupported;*/
 
 	if(mapperId == 0)
 	{
@@ -235,8 +182,6 @@ UINT32 VirtTimer_GetTicks(UINT8 timer_id)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	//AnanthAtSamraksh - changed below
-	//return HAL_Time_CurrentTicks(g_HardwareTimerIDs[mapperId]);
 	return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
 }
 
@@ -304,11 +249,6 @@ UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 	return CPU_Timer_GetMaxTicks(g_HardwareTimerIDs[mapperId]);
 }
 
-/*UINT32 VirtTimer_MicrosecondsToSystemClocks(UINT32 uSec)
-{
-	return CPU_MicrosecondsToSystemClocks(uSec);
-}*/
-
 
 BOOL VirtTimer_UnInitialize()
 {
@@ -322,8 +262,6 @@ BOOL VirtTimer_UnInitialize()
 		{
 
 		}
-
-		//gVirtualTimerObject.virtualTimerMapper[i].UnInitialize();
 	}
 }
 

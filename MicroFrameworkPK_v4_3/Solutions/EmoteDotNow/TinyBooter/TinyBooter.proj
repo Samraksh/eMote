@@ -104,7 +104,7 @@
     <DriverLibs Include="system_initialization_hal_loader.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Initialization\dotNetMF_loader.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="STM32F10x_flash.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" />
   </ItemGroup>
@@ -115,7 +115,7 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\dotNetMF.proj" />
@@ -128,6 +128,12 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
     <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
+  </ItemGroup>
+  
+  <!-- 									Samraksh Time Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\eMote_Time\dotNetMF.proj" />
+    <DriverLibs Include="eMote_time.$(LIB_EXT)" />
   </ItemGroup>
   
   <ItemGroup>
@@ -152,15 +158,15 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\i2c\dotNetMF.proj" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="STM32F10x_time.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\time\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />
-  </ItemGroup>
-  <!--
+  </ItemGroup-->
+  
   <ItemGroup>
     <DriverLibs Include="STM32F10x_lcd.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\LCD_PCF85162_HAL\dotNetMF.proj" />
@@ -194,7 +200,6 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\drivers\stubs\processor\stubs_timer\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
->>>>>>> -Initial commit for the VirtualTimer changes
     <DriverLibs Include="STM32F10x_pwr.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" />
   </ItemGroup>
@@ -315,7 +320,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\VirtualTimer\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
   </ItemGroup>
 
