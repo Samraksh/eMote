@@ -12,7 +12,7 @@
 
 // Assumptions:
 // ============
-// Assumes that the HAL core hardware timer is running at the same configuration  as the system timer becauses it uses the CPU_MicrosecondsToTicks
+// Assumes that the HAL core hardware timer is running at the same configuration  as the system timer because it uses the CPU_MicrosecondsToTicks
 // interface
 void VirtualTimerCallback(void *arg);
 
@@ -63,8 +63,6 @@ BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_coun
 	m_lastQueueAdjustmentTime = 0;
 
 	// Start Up Timer
-	// Created a new PAL- HAL to connection to ensure that all code is platform independent
-	// HALTIMER is a macro defined under platform_selector.h, defining this anywhere else breaks platform abstraction
 	if(!ISR)
 	{
 		//if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, 0, VirtualTimerCallback, NULL))
@@ -194,9 +192,6 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 
 	VirtualTimerInfo *nextTimer = timerQueue.PeekTop();
 
-	//if(timer_id == 2)
-		//debug_printf("starting timer 2\r\n");
-
 	// if the nextTimer to fire is the one we just started then we will set the SetCompare function
 	if ( nextTimer->get_m_timer_id() == timer_id )
 	{
@@ -239,9 +234,6 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 	g_VirtualTimerInfo[m_current_timer_id_].set_m_start_delay(ticksStartDelay);
 	g_VirtualTimerInfo[m_current_timer_id_].set_m_timer_id(timer_id);
 	g_VirtualTimerInfo[m_current_timer_id_].set_m_ticksTillExpire(ticksPeriod + ticksStartDelay);
-
-	//if(timer_id == 2)
-		//debug_printf("Setting timer 2\r\n");
 
 	m_current_timer_id_++;
 
@@ -336,8 +328,6 @@ void VirtualTimerCallback(void *arg)
 
 		for(i = 0; i < gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers; i++)
 		{
-			//if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_timer_id() == 2)
-				//debug_printf("timer 2 callback\r\n");
 			//AnanthAtSamraksh - a minor optimization. Adjust the ticks only for those timers which are active (get_m_is_running is true)
 			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
 			{
@@ -346,8 +336,6 @@ void VirtualTimerCallback(void *arg)
 				if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_timer_id() != topTimer->get_m_timer_id())
 				{
 					currentTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
-					/*if(currentTicks > 0x3F3D9340)
-						int i = 0;*/
 					UINT64 tickElapsed = 0;
 					UINT64 lastQueueAdjTick = gVirtualTimerObject.virtualTimerMapper_0.get_m_lastQueueAdjustmentTime();
 					if(currentTicks > lastQueueAdjTick)
@@ -390,8 +378,6 @@ void VirtualTimerCallback(void *arg)
 		// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
 		if(topTimer)
 		{
-			/*CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);*/
 			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentHardwareTimerIndex], (UINT32)topTimer->get_m_ticksTillExpire() );
 		}
 		currentTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);

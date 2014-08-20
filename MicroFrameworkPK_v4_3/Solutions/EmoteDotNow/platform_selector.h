@@ -90,7 +90,7 @@
 /////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////
-// communicaiton facilities
+// communication facilities
 //
 
 // Port definitions
@@ -181,56 +181,6 @@ const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 #define VIRT_TIMER_MAC_SENDPKT 		3
 #define VIRT_TIMER_MAC_BEACON 		4
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
-////#define NUM_VIRTUALTIMER_TIMERS 16
-
-//extern VirtualTimerConfig g_VT_Config;
-/*VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
-
-
-g_VT_Config[0].hardwareTimerId = 1;
-g_VT_Config[0].countOfVirtualTimers = 8;
-g_VT_Config[1].hardwareTimerId = 2;
-g_VT_Config[1].countOfVirtualTimers = 8;*/
-
-/*struct VirtualTimerConfig
-{
-	UINT8 hardwareTimerId;
-	UINT8 countOfVirtualTimers;
-};
-
-VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];*/
-
-
-/*class VirtualTimerConfigInitialize
-{
-public:
-	struct VirtualTimerConfig
-	{
-		UINT16 hardwareTimerId;
-		UINT16 countOfVirtualTimers;
-	};
-
-	VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
-
-	VirtualTimerConfigInitialize()
-	{
-		g_VT_Config[0].hardwareTimerId = 1;
-		g_VT_Config[0].countOfVirtualTimers = 8;
-		g_VT_Config[1].hardwareTimerId = 2;
-		g_VT_Config[1].countOfVirtualTimers = 8;
-	}
-};*/
-
-
-/*class VirtualTimerConfigInitialize
-{
-	VirtualTimerConfig g_VT_Config[CountOfHardwareTimers];
-
-	g_VT_Config[0].hardwareTimerId = 1;
-	g_VT_Config[0].countOfVirtualTimers = 8;
-	g_VT_Config[1].hardwareTimerId = 2;
-	g_VT_Config[1].countOfVirtualTimers = 8;
-};*/
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

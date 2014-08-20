@@ -495,7 +495,7 @@ void HAL_Uninitialize()
 
 
 //AnanthAtSamraksh
-void EnableGPIO()
+/*void EnableGPIO()
 {
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 51, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
@@ -592,9 +592,9 @@ void TimeTestA()
 
 	while(true)
 	{
-		/*counterTestA++;
-		if(counterTestA % 100000 == 0)
-			debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());*/
+		//counterTestA++;
+		//if(counterTestA % 100000 == 0)
+			//debug_printf("currentTime: %llu \r\n", HAL_Time_CurrentTime());
 
 		prevTicks = HAL_Time_CurrentTicks();
 		prevTime = HAL_Time_CurrentTime();
@@ -704,7 +704,7 @@ void TimeTestD()
 		sleepValue += incrementVal;
 		//ticksScalingFactor += 50;
 	}
-}
+}*/
 //AnanthAtSamraksh
 
 extern "C"

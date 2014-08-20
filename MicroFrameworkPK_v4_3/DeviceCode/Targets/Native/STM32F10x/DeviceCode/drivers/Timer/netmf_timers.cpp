@@ -28,7 +28,7 @@ extern const UINT8 TIMER2_16BIT;
 
 extern Timer16Bit_Driver g_Timer16Bit_Driver;
 extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
-//extern Time_Driver g_Time_Driver;
+
 static void ISR( void* Param );
 
 ////HAL_CALLBACK_FPN VirtualTimerHandlerFPN = NULL;
@@ -47,12 +47,6 @@ BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 {
 	// Make sure timer input is not 0 in case macro is not defined or the timer is not trying to
 	// re initialize the system  timer
-	/*if(Timer == 0)
-		return FALSE;*/
-
-	////TODO: AnanthAtSamraksh - is it right to place this here
-	/*if(Timer == g_Timer16Bit_Driver.c_SystemTimer)
-		return FALSE;*/
 
 	// Dont allow initializing of timers with NULL as the callback function
 	if(ISR == NULL)
@@ -156,9 +150,6 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		////g_STM32F10x_AdvancedTimer.SetCompare(Timer, g_Timer16Bit_Driver.GetCounter(Timer) + Compare);
-		////g_STM32F10x_AdvancedTimer.SetCompare(counterCorrection, Compare, scType);
-		////g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), Compare, SET_COMPARE_TIMER);
 		g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), CompareValue, SET_COMPARE_TIMER);
 	}
 

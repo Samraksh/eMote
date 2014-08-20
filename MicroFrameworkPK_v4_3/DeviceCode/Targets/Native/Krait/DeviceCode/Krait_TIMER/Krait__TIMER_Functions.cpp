@@ -17,63 +17,8 @@
 #include <tinyhal.h>
 
 #include "Krait__TIMER.h"
-//#include "../Krait_TIME/Krait__TIME.h"
 
 extern Krait_Timer g_Krait_Timer;
-//extern Krait_Time g_Krait_Time;
-
-
-/*UINT64 TimeNow()
-{
-	return g_Krait_Time.bigCounter + g_Krait_Timer.GetCounter(0);
-}
-
-#define TICKS_PROXIMITY_FORCE 10
-void SetCompareValue( UINT64 CompareValue )
-{
-	UINT32 diff;
-	UINT64 now;
-	int forceInterrupt=0;
-
-	if (g_Krait_Time.nextCompare != 0 && CompareValue > g_Krait_Time.nextCompare) {
-		//hal_printf("debug: new compare after current compare\r\n");
-		return;
-	}
-
-    GLOBAL_LOCK(irq);
-
-    g_Krait_Time.nextCompare = CompareValue;
-
-	now = TimeNow();
-	if( CompareValue - now <= TICKS_PROXIMITY_FORCE ) {
-		forceInterrupt=1;
-		//hal_printf("force interrupt\r\n");
-	}
-	else if(CompareValue - now > MAX_TIMER_ROLLOVER) { // 0xFFFFFF00
-		//hal_printf("debug: new compare too far in future, deferring\r\n");
-		return; // We'll get it later
-	}
-
-	if (forceInterrupt)
-		diff = TICKS_PROXIMITY_FORCE; // a small time in the future
-	else
-	{
-		//if(CompareValue < now)
-			//diff = now - CompareValue;
-		//else
-			diff = CompareValue - now;
-	}
-
-	//hal_printf("debug: new compare set to: %d\r\n",diff);
-
-	g_Krait_Timer.SetCompare(0,  diff);
-	//SetCompare(0,  (UINT32)CompareValue);
-	//AnanthAtSamraksh
-	//flush_timer(); // Flush DGT to bigCounter
-	//writel(diff, DGT_MATCH_VAL);
-	//AnanthAtSamraksh
-}*/
-
 
 
 ////BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
@@ -95,7 +40,6 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	//int forceInterrupt=0;
 
 	if (g_Krait_Timer.nextCompare != 0 && CompareValue > g_Krait_Timer.nextCompare) {
-		//hal_printf("debug: new compare after current compare\r\n");
 		return FALSE;
 	}
 
@@ -158,12 +102,6 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer)
 
 UINT32 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
-	//return g_Krait_Timer.GetCounter(Timer);
-
-	//AnanthAtSamraksh - added below
-	////g_Krait_Timer.bigCounter += readl(DGT_COUNT_VAL);
-	////writel(0, DGT_CLEAR);
-	////return g_Krait_Timer.bigCounter + g_Krait_Timer.GetCounter(0);
 	return g_Krait_Timer.GetCounter(0);
 }
 
@@ -233,31 +171,23 @@ UINT32 CPU_TicksPerSecond(UINT16 Timer)
 
 UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 {
-	//int additionValue = 0;
-    Ticks *= (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
+	Ticks *= (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
 
     UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
-    //if(Ticks % divisor >= 14)
-    	//additionValue = 1;
     Ticks /= divisor;
 
-    //return Ticks + additionValue;
     return Ticks;
 }
 
 UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 {
-	//int additionValue = 0;
-    UINT64 Ticks;
+	UINT64 Ticks;
 
     Ticks  = (UINT64)Ticks32 * (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
 
     UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
-    //if(Ticks % divisor >= 14)
-        	//additionValue = 1;
     Ticks /=                   divisor;
 
-    //return Ticks + additionValue;
     return Ticks;
 }
 

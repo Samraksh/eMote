@@ -29,26 +29,12 @@ static void TIMER_HANDLER(void *arg);
 
 //AnanthAtSamraksh
 #include "../Krait_INTC/Krait__INTC.h"
-//#include "../Krait_TIME/Krait__TIME.h"
+
 static struct ihandler handler[NR_IRQS];
 
-////UINT64 Krait_Timer::bigCounter = 0;
 UINT32 Krait_Timer::nextCompare = 0;
 Krait_Timer g_Krait_Timer;
-//extern Krait_Time g_Krait_Time;
 
-//AnanthAtSamraksh
-/*extern "C"
-{
-
-void Timer_Handler(void* arg)
-{
-	g_Krait_Time.TIME_HANDLER(arg);
-}
-
-}*/
-
-//AnanthAtSamraksh
 
 BOOL Krait_Timer::InitializeTimer ( UINT16 Timer, BOOL IsOneShot, HAL_CALLBACK_FPN ISR, void* ISR_PARAM )
 {
@@ -229,10 +215,8 @@ static void ForceInterrupt(UINT32 Timer)
 void Krait_Timer::SetCompare(UINT16 Timer, UINT32 Compare)
 {
 	////g_Krait_Time.flush_time(); // Flush DGT to bigCounter
-	//AnanthAtSamraksh
 	////flush_timer(); // Flush DGT to bigCounter
-	/*CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);*/
+
 	//if(Compare > 0x3FFFFF00)
 		//debug_printf("Compare: %d \r\n", Compare);
 	////writel(0, DGT_CLEAR);

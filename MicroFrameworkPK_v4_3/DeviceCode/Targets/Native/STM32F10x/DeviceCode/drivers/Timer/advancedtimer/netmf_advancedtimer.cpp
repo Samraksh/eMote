@@ -30,128 +30,6 @@ extern "C"
 // This is to ensure that users can not remove the hardware timer from underneath the virtual timer
 // layer without the knowledge of the virtual timer
 
-////TODO: AnanthAtSamraksh -- check this with Mukundan
-/*extern VirtualTimerMapper gVirtualTimerMapperObject;
-extern const UINT8 g_CountOfHardwareTimers;
-BOOL CPU_Timer_Initialize()
-{
-	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
-	{
-		if(gVirtualTimerMapperObject.Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer[i]))
-			return FALSE;
-	}
-	////return gVirtualTimerMapperObject.Initialize(1, 8);
-	//return TRUE;
-}
-
-// This function is called the uninitialize the timer system and the virtual timer layer
-BOOL CPU_Timer_Uninitialize()
-{
-	return gVirtualTimerMapperObject.UnInitialize();
-}*/
-
-// This function has been tested using the rollover test for advanced timers - Level_0b
-//TODO: AnanthAtSamraksh - commented this out
-/*UINT64 CPU_Timer_CurrentTicks()
-{
-	return g_STM32F10x_AdvancedTimer.Get64Counter();
-}*/
-
-
-/*
-////TODO: AnanthAtSamraksh - moved below functions to netmf_timers.cpp
-
-INT64 CPU_Timer_TicksToTime( UINT64 Ticks )
-{
-	return CPU_TicksToTime( Ticks );
-}
-
-// This function has been tested using the rollover test for advanced timers - level_0c
-INT64 CPU_Timer_CurrentTime()
-{
-	// time and ticks are actually the same thing, so we just return UINT64 of ticks
-	return CPU_TicksToTime(HAL_Time_CurrentTicks());
-}
-
-// This SetCompare function will tie in to the HALTimerManager framework in \pal\HALTimer\HALTimer.cpp
-// On a successful compare, a tasklet is launched that will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
-//TODO: AnanthAtSamraksh -- this name matches with the one in netmf_timers.cpp
-void CPU_Timer_SetCompare( UINT64 CompareValue )
-{
-	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
-}
-
-// This SetCompare works within the HAL_COMPLETION \ HAL_CONTINUATION framework in \pal\AsyncProcCall
-// On a successful compare HAL_COMPLETION::DequeueAndExec(); will be called
-void CPU_Timer_SetCompare_Completion( UINT64 CompareValue )
-{
-	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
-}
-
-void CPU_Timer_GetDriftParameters ( INT32* a, INT32* b, INT64* c )
-{
-	//*a = 1;
-	//*b = 1;
-	//*c = 0;
-
-	// "correct"*A = raw*B + C
-	// Correct is defined as 10 MHz
-	// Raw is actually 8 MHz, so ratio is 1.25 = 5/4
-	// 4*correct = 5*raw + 0
-	*a = 4;
-	*b = 5;
-	*c = 0;
-}
-
-UINT64 Time_CurrentTicks()
-{
-	return HAL_Time_CurrentTicks();
-}
-
-// This function is tuned for 8MHz of the emote
-// Will not work at other speeds at low uSec values ie ( < 30)
-// This function has poor accuracy at less than 10 microsecs
-// Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
-//TODO: AnanthAtSamraksh - should this be moved to netmf_timers.cpp
-void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec )
-{
-
-
-	if(uSec <= 10)
-	{
-		// UINT32 limit = uSec / 5;
-		// for(volatile UINT32 i = 0; i < limit; i++);
-		return;
-	}
-
-	GLOBAL_LOCK(irq);
-
-	if(uSec <= 30)
-	{
-		UINT32 limit = (uSec)/ 5;
-		for(volatile UINT32 i = 0; i < limit; i++);
-		return;
-	}
-
-	UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
-
-	UINT32 ticks = CPU_MicrosecondsToTicks(uSec);
-
-	while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
-
-	//while((((TIM2->CNT << 16) | TIM1->CNT) - currentCounterVal) <= ticks);
-
-
-}
-
-// This function is tuned to work when the processor is running at 8 MHz
-// When that changes this function no longer works efficiently
-void CPU_Timer_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
-{
-	UINT32 limit = (uSec / 5);
-	for(volatile UINT32 i = 0; i < limit; i++);
-}
-*/
 
 // Returns the current 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
@@ -185,12 +63,9 @@ UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 
 UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
-
 	UINT32 currentValue = GetCounter();
 
 	//timerLock.acquire_and_save();
-
-
 
 	m_lastRead &= (0xFFFFFFFF00000000ull);
 
@@ -202,9 +77,7 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 
 	m_lastRead |= currentValue;
 
-
 	//timerLock.release_and_restore();
-
 
 	return m_lastRead;
 }
