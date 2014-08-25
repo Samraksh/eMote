@@ -29,13 +29,15 @@ INT64 HAL_Time_CurrentTime()
 
 UINT64 Time_CurrentTicks()
 {
-	return g_Time_Driver.CurrentTicks();
+	//return g_Time_Driver.CurrentTicks();
+	return HAL_Time_CurrentTicks();
 }
 
 
 UINT64 HAL_Time_CurrentTicks()
 {
-	return g_Time_Driver.CurrentTicks();
+	//return g_Time_Driver.CurrentTicks();
+	return g_Time_Driver.TimeNow();
 }
 
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )

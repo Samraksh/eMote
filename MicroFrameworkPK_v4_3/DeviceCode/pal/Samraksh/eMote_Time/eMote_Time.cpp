@@ -79,12 +79,24 @@ void SetCompareHandler(void *arg)
 
 void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
+	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+
 	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE, TRUE, SetCompareHandler) == TimerReserved)
 	{
 		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE);
 	}
 
 	VirtTimer_Start( VIRT_TIMER_EVENTS );
+
+	/*if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE, TRUE, SetCompareHandler) == TimerReserved)
+	{
+		//VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE);
+	}
+
+	VirtTimer_Start( VIRT_TIMER_EVENTS );
+	//VirtTimer_Stop( VIRT_TIMER_EVENTS );
+	CPU_Timer_SetCompare(1, compareTicks);*/
 }
 
 
@@ -105,7 +117,7 @@ INT64 Time_Driver::CurrentTime()
 	}
 	else
 	{
-		currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (UINT64)(bigCounter + currentTicks));
+		currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
 	}
 
 	prevTicks = currentTicks;

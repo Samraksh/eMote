@@ -361,6 +361,8 @@ void ISR_REALTIME_TIMER (void* Param)
 
 	//debug_printf("Inside timer 2 callback\r\n");
 
+	static UINT16 RTTcounter = 0;
+
 	if(RollOverCount == 0)
 	{
 #ifdef DEBUG_RT_TIMER
@@ -371,7 +373,10 @@ void ISR_REALTIME_TIMER (void* Param)
 		{
 
 			//VirtTimer_Change(VIRT_TIMER_REALTIME, 0, (UINT16)( VirtTimer_GetCounter(VIRT_TIMER_REALTIME) )+ RealTimeTimerTicks, FALSE);
-			VirtTimer_Change(VIRT_TIMER_REALTIME, 0, ManagedTimerPeriodMicroSeconds, FALSE);
+			if(RTTcounter == 0){
+				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, ManagedTimerPeriodMicroSeconds, FALSE);
+				RTTcounter++;
+			}
 
 			////VirtTimer_Start( VIRT_TIMER_REALTIME );
 

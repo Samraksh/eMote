@@ -495,7 +495,7 @@ void HAL_Uninitialize()
 
 
 //AnanthAtSamraksh
-/*void EnableGPIO()
+void EnableGPIO()
 {
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 51, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 52, TRUE);
@@ -506,7 +506,7 @@ void HAL_Uninitialize()
 
 void Timer_0_Handler(void *arg)
 {
-	UINT32 uSec = 100000;
+	UINT32 uSec = 500000;
 	UINT16 Timer = 0;
 	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
 	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
@@ -545,7 +545,7 @@ void HardwareTimerDriverTest()
 {
 	//g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
 	CPU_Timer_Initialize(0, FALSE, 0, Timer_0_Handler, NULL);
-	UINT32 uSec = 100000;
+	UINT32 uSec = 500000;
 	UINT16 Timer = 0;
 	//while(true)
 	//{
@@ -704,7 +704,7 @@ void TimeTestD()
 		sleepValue += incrementVal;
 		//ticksScalingFactor += 50;
 	}
-}*/
+}
 //AnanthAtSamraksh
 
 extern "C"

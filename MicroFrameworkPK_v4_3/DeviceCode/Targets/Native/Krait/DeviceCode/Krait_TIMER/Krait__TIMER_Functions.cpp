@@ -72,10 +72,10 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 
 	//g_Krait_Timer.SetCompare(Timer, CompareValue);
 	////g_Krait_Timer.SetCompare(Timer, setCompareValue);
-	/*if(setCompareValue > 0x3FFFFF00)
+	/*if(setCompareValue > 0xFFFF0000 || setCompareValue < 0x0000FFFF)
 	{
 		writel(0, DGT_CLEAR);
-		g_Krait_Timer.SetCompare(0, CompareValue);
+		g_Krait_Timer.SetCompare(0, (0xFFFFFFFF - now) + CompareValue);
 	}
 	else*/
 		g_Krait_Timer.SetCompare(0, setCompareValue);

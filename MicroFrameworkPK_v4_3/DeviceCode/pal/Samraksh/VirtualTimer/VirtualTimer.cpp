@@ -205,6 +205,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 template<>
 BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
+	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
 	// Can not accept anymore timers
 	if(m_current_timer_id_ > VTM_countOfVirtualTimers)
 		return FALSE;
@@ -223,8 +224,19 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 	if(g_VirtualTimerInfo[VTimerIndex].get_m_reserved())
 		return FALSE;
 
-	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
-	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+	if(period == 0xFFFFFFFF)
+		ticksPeriod =  period;
+	else
+		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+
+	if(start_delay == 0xFFFFFFFF)
+		ticksStartDelay =  start_delay;
+	else
+		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+
+	//UINT64 ticksPeriod = CPU_MicrosecondsToTicks((UINT64)period, VTM_hardwareTimerId);
+	//UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+	//UINT64 ticksStartDelay = CPU_MicrosecondsToTicks((UINT64)start_delay, VTM_hardwareTimerId);
 
 	g_VirtualTimerInfo[m_current_timer_id_].set_m_callBack(callback);
 	g_VirtualTimerInfo[m_current_timer_id_].set_m_period(ticksPeriod);
@@ -272,8 +284,9 @@ void VirtualTimerCallback(void *arg)
 {
 	UINT32 ticks = 0, startDelay = 0;
 	UINT16 i = 0;
-	UINT64 currentTicks = 0;
+	UINT64 currentTicks = 0, startTicks = 0, endTicks = 0;
 	UINT64 beginExecTime = 0, endExecTime = 0, totalExecTime = 0;
+	UINT64 tickElapsed = 0;
 	INT64 ticksTillExpire = 0;
 
 	UINT16 currentHardwareTimerId = gVirtualTimerObject.VT_hardwareTimerId;
@@ -293,8 +306,12 @@ void VirtualTimerCallback(void *arg)
 		if(topTimer->get_m_timer_id() == 1)
 			int k = 0;
 
+		startTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
+
 		if(topTimer->get_m_is_running())
 			(topTimer->get_m_callback())(NULL);
+
+		endTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 
 		/*
 		// Measure time elapsed since last interrupt fired
@@ -320,10 +337,19 @@ void VirtualTimerCallback(void *arg)
 			topTimer->set_m_is_running(FALSE);
 			VirtualTimerInfo* tempTopTimer = gVirtualTimerObject.virtualTimerMapper_0.timerQueue.ExtractTop();
 		} else {
-			ticks = topTimer->get_m_period();
+			//ticks = topTimer->get_m_period();
+			//topTimer->set_m_ticksTillExpire(ticks);
 
 			//Subtract time spent in callback while setting ticksTillExpire. Assuming that CurrentTicks does not roll-over (endExecTime - beginExecTime)
-			topTimer->set_m_ticksTillExpire(ticks);
+			if(endTicks > startTicks)
+				tickElapsed = endTicks - startTicks;
+			else
+				tickElapsed = endTicks + (VirtTimer_GetMaxTicks(i) - startTicks);
+
+			//ticksTillExpire = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
+			ticks = topTimer->get_m_period();
+
+			topTimer->set_m_ticksTillExpire(ticks - tickElapsed);
 		}
 
 		for(i = 0; i < gVirtualTimerObject.virtualTimerMapper_0.VTM_countOfVirtualTimers; i++)
@@ -344,6 +370,11 @@ void VirtualTimerCallback(void *arg)
 						tickElapsed = currentTicks + (VirtTimer_GetMaxTicks(i) - lastQueueAdjTick);
 
 					ticksTillExpire = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
+					if(ticksTillExpire > tickElapsed)
+						int mma1 = 0;
+					else
+						int mma2 = 0;
+					INT64 ticksRemaining = ticksTillExpire - tickElapsed;
 					gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticksTillExpire - tickElapsed);
 				}
 			}
@@ -358,14 +389,21 @@ void VirtualTimerCallback(void *arg)
 				// so instead of doing all that we just service the callback now
 				if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= 1500)
 				{
+					startTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 					(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_callback())(NULL);
+					endTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
+
+					if(endTicks > startTicks)
+						tickElapsed = endTicks - startTicks;
+					else
+						tickElapsed = endTicks + (VirtTimer_GetMaxTicks(i) - startTicks);
 
 					if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_one_shot())
 						gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_is_running(FALSE);
 
 					ticks = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_period();
 
-					gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticks);
+					gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].set_m_ticksTillExpire(ticks - tickElapsed);
 				}
 			}
 		}
