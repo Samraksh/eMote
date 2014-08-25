@@ -171,16 +171,33 @@ UINT32 CPU_TicksPerSecond(UINT16 Timer)
 
 UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 {
+/*#if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
+	Ticks *= (ONE_MHZ               /SLOW_CLOCKS_PER_SECOND);
+
+	//UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
+	//Ticks /= divisor;
+	return Ticks;
+#else*/
 	Ticks *= (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
 
     UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
     Ticks /= divisor;
 
     return Ticks;
+//#endif
 }
 
 UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 {
+/*#if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
+	UINT64 Ticks;
+
+	Ticks  = (UINT64)Ticks32 * (ONE_MHZ               /SLOW_CLOCKS_PER_SECOND);
+
+	//UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
+	//Ticks /=                   divisor;
+	return Ticks;
+#else*/
 	UINT64 Ticks;
 
     Ticks  = (UINT64)Ticks32 * (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
@@ -189,6 +206,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
     Ticks /=                   divisor;
 
     return Ticks;
+//#endif
 }
 
 //--//

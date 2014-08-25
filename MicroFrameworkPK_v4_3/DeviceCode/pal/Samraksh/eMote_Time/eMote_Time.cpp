@@ -82,9 +82,27 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
 
-	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE, TRUE, SetCompareHandler) == TimerReserved)
+	UINT32 compareTimeInMicSecs = 0;
+
+	/*if(compareTicks >= 0xFFFFFFFF)
 	{
-		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE);
+		compareTimeInMicSecs = 0xFFFFFFFF;
+		//hal_printf("if compareTimeInMicSecs: %d \r\n", compareTimeInMicSecs-1);
+	}
+	else{
+		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
+		//hal_printf("else compareTimeInMicSecs: %d \r\n", compareTimeInMicSecs-1);
+	}*/
+
+	//if(compareTicks <= 0x25ED097B)
+	if(compareTicks <= 0x1999999A)
+		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
+	else
+		compareTimeInMicSecs = 0xFFFFFFFF;
+
+	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTimeInMicSecs, TRUE, TRUE, SetCompareHandler) == TimerReserved)
+	{
+		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTimeInMicSecs, TRUE);
 	}
 
 	VirtTimer_Start( VIRT_TIMER_EVENTS );

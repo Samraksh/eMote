@@ -92,22 +92,53 @@ BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
 }
 
 
-// This function takes a timer id as input and changes its state to not running
-// This means that the timer does not go back on the queue once its extracted
 template<>
-BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
+BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
+	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
+	// Can not accept anymore timers
+	if(m_current_timer_id_ > VTM_countOfVirtualTimers)
+		return FALSE;
+
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0)
 		return FALSE;
 
 	UINT8 VTimerIndex = 0;
+
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
 	if(!timerFound)
+		VTimerIndex = m_current_timer_id_;
+
+	if(g_VirtualTimerInfo[VTimerIndex].get_m_reserved())
 		return FALSE;
 
-	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(FALSE);
+	if(period == 0xFFFFFFFF)
+		ticksPeriod =  period;
+	else
+		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+
+	if(start_delay == 0xFFFFFFFF)
+		ticksStartDelay =  start_delay;
+	else
+		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+
+	//UINT64 ticksPeriod = CPU_MicrosecondsToTicks((UINT64)period, VTM_hardwareTimerId);
+	//UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+	//UINT64 ticksStartDelay = CPU_MicrosecondsToTicks((UINT64)start_delay, VTM_hardwareTimerId);
+
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_callBack(callback);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_period(ticksPeriod);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_is_one_shot(is_one_shot);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_is_running(FALSE);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_reserved(_isreserved);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_start_delay(ticksStartDelay);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_timer_id(timer_id);
+	g_VirtualTimerInfo[m_current_timer_id_].set_m_ticksTillExpire(ticksPeriod + ticksStartDelay);
+
+	m_current_timer_id_++;
+
 	return TRUE;
 }
 
@@ -118,6 +149,8 @@ BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
 template<>
 BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
 {
+	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
+
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0)
 		return FALSE;
@@ -128,8 +161,18 @@ BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_dela
 	if(!timerFound)
 		return FALSE;
 
-	UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
-	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
+	/*UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);*/
+
+	if(period == 0xFFFFFFFF)
+		ticksPeriod =  period;
+	else
+		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+
+	if(start_delay == 0xFFFFFFFF)
+		ticksStartDelay =  start_delay;
+	else
+		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
 
 	g_VirtualTimerInfo[VTimerIndex].set_m_start_delay(ticksStartDelay);
 	g_VirtualTimerInfo[VTimerIndex].set_m_period(ticksPeriod);
@@ -202,56 +245,24 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 }
 
 
+// This function takes a timer id as input and changes its state to not running
+// This means that the timer does not go back on the queue once its extracted
 template<>
-BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
+BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
 {
-	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
-	// Can not accept anymore timers
-	if(m_current_timer_id_ > VTM_countOfVirtualTimers)
-		return FALSE;
-
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0)
 		return FALSE;
 
 	UINT8 VTimerIndex = 0;
-
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
 	if(!timerFound)
-		VTimerIndex = m_current_timer_id_;
-
-	if(g_VirtualTimerInfo[VTimerIndex].get_m_reserved())
 		return FALSE;
 
-	if(period == 0xFFFFFFFF)
-		ticksPeriod =  period;
-	else
-		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
-
-	if(start_delay == 0xFFFFFFFF)
-		ticksStartDelay =  start_delay;
-	else
-		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
-
-	//UINT64 ticksPeriod = CPU_MicrosecondsToTicks((UINT64)period, VTM_hardwareTimerId);
-	//UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
-	//UINT64 ticksStartDelay = CPU_MicrosecondsToTicks((UINT64)start_delay, VTM_hardwareTimerId);
-
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_callBack(callback);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_period(ticksPeriod);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_is_one_shot(is_one_shot);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_is_running(FALSE);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_reserved(_isreserved);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_start_delay(ticksStartDelay);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_timer_id(timer_id);
-	g_VirtualTimerInfo[m_current_timer_id_].set_m_ticksTillExpire(ticksPeriod + ticksStartDelay);
-
-	m_current_timer_id_++;
-
+	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(FALSE);
 	return TRUE;
 }
-
 
 
 namespace VirtTimerHelperFunctions
