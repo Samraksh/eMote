@@ -178,40 +178,42 @@ UINT64 TimeNow()
 	return bigCounter + GetCounter(0);
 }
 
-#define TICKS_PROXIMITY_FORCE 10
+#define SETCOMPARE_TIME_OVERHEAD 65
+#define SETCOMPARE_MIN_TIME 80
 void SetCompareValue( UINT64 CompareValue )
 {
 	UINT32 diff;
 	UINT64 now;
-	int forceInterrupt=0;
-	
+
+	GLOBAL_LOCK(irq);
+
+	// New compare is after current compare.
+	// Undefined. Should never happen. Just drop it.
 	if (nextCompare != 0 && CompareValue > nextCompare) {
-		//hal_printf("debug: new compare after current compare\r\n");
 		return;
 	}
-
-    GLOBAL_LOCK(irq);
 
 	nextCompare = CompareValue;
 
 	now = TimeNow();
-	if( CompareValue - now <= TICKS_PROXIMITY_FORCE ) {
-		forceInterrupt=1;
-		//hal_printf("force interrupt\r\n");
-	}
-	else if(CompareValue - now > MAX_TIMER_ROLLOVER) { // 0xFFFFFF00
-		//hal_printf("debug: new compare too far in future, deferring\r\n");
-		return; // We'll get it later
+
+	if ( now >= CompareValue ) {
+		SetCompare(0,  SETCOMPARE_MIN_TIME);
+		return;
 	}
 
-	if (forceInterrupt)
-		diff = TICKS_PROXIMITY_FORCE; // a small time in the future
-	else
-		diff = CompareValue - now;
+	diff = CompareValue - now;
 
-	//hal_printf("debug: new compare set to: %d\r\n",diff);
+	if (diff > MAX_TIMER_ROLLOVER) {
+		return;
+	}
 
-	SetCompare(0,  diff);
+	if ( (diff-SETCOMPARE_TIME_OVERHEAD) < SETCOMPARE_MIN_TIME || diff < SETCOMPARE_TIME_OVERHEAD) {
+		SetCompare(0, SETCOMPARE_MIN_TIME);
+		return;
+	}
+
+	SetCompare(0,  diff - SETCOMPARE_TIME_OVERHEAD);
 }
 
 INT64 TicksToTime( UINT64 Ticks )

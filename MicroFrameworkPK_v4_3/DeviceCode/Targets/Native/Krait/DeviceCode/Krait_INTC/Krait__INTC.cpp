@@ -7,6 +7,11 @@
  *
  *
  */
+
+#ifndef SAM_FORCE_GCC_CMDLINE_OPTS
+#pragma GCC optimize ("O3")
+#endif
+
 #include "Krait__INTC.h"
 #include <tinyhal.h>
 static struct ihandler handler[NR_IRQS];
