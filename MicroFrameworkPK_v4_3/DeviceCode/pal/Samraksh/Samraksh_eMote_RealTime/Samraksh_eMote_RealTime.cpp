@@ -180,8 +180,16 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    ManagedTimerPeriodMicroSeconds = userData;
 #else
    //923 micSec is the difference between observed and actual values
-   if(userData > 923)
-	   ManagedTimerPeriodMicroSeconds = userData - 777;
+   if(userData >= 500 && userData < 750)
+   	   ManagedTimerPeriodMicroSeconds = userData + 400;
+   else if(userData >= 750 && userData < 1000)
+	   ManagedTimerPeriodMicroSeconds = userData + 350;
+   else if(userData >= 1000 && userData < 10000)
+   	   ManagedTimerPeriodMicroSeconds = userData + 175;		//Has to be reduced
+   else if(userData >= 10000 && userData < 500000)
+	   ManagedTimerPeriodMicroSeconds = userData + 100;
+   else if(userData >= 500000 && userData < 1000000)
+   	   ManagedTimerPeriodMicroSeconds = userData - 100;
    else
 	   ManagedTimerPeriodMicroSeconds = userData;
 
@@ -361,7 +369,7 @@ void ISR_REALTIME_TIMER (void* Param)
 
 	//debug_printf("Inside timer 2 callback\r\n");
 
-	static UINT16 RTTcounter = 0;
+	////static UINT16 RTTcounter = 0;
 
 	if(RollOverCount == 0)
 	{
@@ -373,10 +381,10 @@ void ISR_REALTIME_TIMER (void* Param)
 		{
 
 			//VirtTimer_Change(VIRT_TIMER_REALTIME, 0, (UINT16)( VirtTimer_GetCounter(VIRT_TIMER_REALTIME) )+ RealTimeTimerTicks, FALSE);
-			if(RTTcounter == 0){
+			/*if(RTTcounter == 0){
 				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, ManagedTimerPeriodMicroSeconds, FALSE);
 				RTTcounter++;
-			}
+			}*/
 
 			////VirtTimer_Start( VIRT_TIMER_REALTIME );
 
@@ -432,7 +440,7 @@ void ISR_REALTIME_TIMER (void* Param)
 		{
 				RollOver++;
 				////VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxTicks, FALSE);
-				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxMicroseconds, FALSE);
+				////VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxMicroseconds, FALSE);
 
 				////VirtTimer_Start( VIRT_TIMER_REALTIME );
 

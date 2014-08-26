@@ -182,8 +182,13 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 
     UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
     Ticks /= divisor;
-
     return Ticks;
+
+    /*if(Ticks > 0xFFFFFFFF)
+		return 0xFFFFFFFF;
+	else
+		return Ticks;*/
+
 //#endif
 }
 
@@ -204,8 +209,13 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 
     UINT64 divisor = (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
     Ticks /=                   divisor;
-
     return Ticks;
+
+    /*if(Ticks > 0xFFFFFFFF)
+    	return 0xFFFFFFFF;
+    else
+    	return Ticks;*/
+
 //#endif
 }
 
@@ -236,7 +246,8 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
 	//AnanthAtSamraksh - defaulting to an int during division results in lose of precision. Hence typecasting to a double.
     //return uSec * ((double)SLOW_CLOCKS_PER_SECOND / (double)ONE_MHZ);
-	return (uSec * (SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD)) / 4;
+	UINT64 slowClocksFactor = SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD;
+	return (uSec * slowClocksFactor) / 4;
 #else
     return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
 #endif
@@ -251,7 +262,17 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 
 	//There is a loss of precision for a uSec value that is not exactly divisible by 4
 	//4 * SLOW_CLOCKS_TEN_MHZ_GCD = ONE_MHZ
-	return (uSec * (SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD)) / 4;
+	UINT32 slowClocksFactor = SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD;
+	UINT32 ticksValue = (uSec * slowClocksFactor) / 4;
+	return ticksValue;
+	/*UINT64 ticksValue = ((UINT64)uSec * (UINT64)slowClocksFactor) / 4;
+	if(ticksValue > 0xFFFFFFFF)
+	{
+		hal_printf("returning 0xFFFFFFFF\r\n");
+		return 0xFFFFFFFF;
+	}
+	else
+		return (UINT32)ticksValue;*/
 #else
     return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
 #endif
