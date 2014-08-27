@@ -32,6 +32,10 @@
   <Import Condition="" Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" />
   
   <ItemGroup>
+	<DriverLibs Include="STM32F10x.$(LIB_EXT)" />
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\dotNetMF.proj" />
     <DriverLibs Include="usb_pal.$(LIB_EXT)" />
   </ItemGroup>
@@ -75,31 +79,31 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\cmsis\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_cmsis.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\exti\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_exti.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup-->
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\flash\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_flash.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\gpio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_gpio.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\misc\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_misc.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   <!-- <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\pwr\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_pwr.$(LIB_EXT)" />
   </ItemGroup>
    -->
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\rcc\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_rcc.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\spi\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_spi.$(LIB_EXT)" />
