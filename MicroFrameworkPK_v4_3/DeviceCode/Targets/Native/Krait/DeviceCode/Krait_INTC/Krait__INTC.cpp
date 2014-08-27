@@ -134,4 +134,5 @@ void IRQ_Handler()
 
 }
 
+#pragma GCC reset_options
 
