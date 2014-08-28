@@ -120,7 +120,8 @@ void HAL_COMPLETION::EnqueueDelta64( UINT64 uSecFromNow )
     UINT64 Now            = HAL_Time_CurrentTicks();
     UINT64 EventTimeTicks = CPU_MicrosecondsToTicks( uSecFromNow );
 
-    EnqueueTicks( Now + EventTimeTicks );
+    //EnqueueTicks( Now + EventTimeTicks );
+    EnqueueTicks( EventTimeTicks );
 }
 
 void HAL_COMPLETION::EnqueueDelta( UINT32 uSecFromNow )
