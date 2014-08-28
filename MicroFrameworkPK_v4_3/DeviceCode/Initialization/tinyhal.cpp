@@ -507,13 +507,13 @@ void EnableGPIO()
 void Timer_0_Handler(void *arg)
 {
 	UINT32 uSec = 500000;
-	UINT16 Timer = 0;
-	CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
+	UINT16 Timer = 1;
+	CPU_GPIO_SetPinState((GPIO_PIN) 51, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 51, FALSE);
 	////debug_printf("calling SetCompare 2 \r\n");
 	////g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
 	////g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
-	CPU_Timer_SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+	CPU_Timer_SetCompare(Timer, CPU_MicrosecondsToTicks(uSec, Timer));
 	////HAL_Time_Sleep_MicroSeconds(1000);
 }
 
@@ -544,16 +544,16 @@ void Timer_4_Handler(void *arg)
 void HardwareTimerDriverTest()
 {
 	//g_Krait_Timer.InitializeTimer(0, Timer_0_Handler, NULL);
-	CPU_Timer_Initialize(0, FALSE, 0, Timer_0_Handler, NULL);
+	CPU_Timer_Initialize(1, FALSE, 0, Timer_0_Handler, NULL);
 	UINT32 uSec = 500000;
-	UINT16 Timer = 0;
+	UINT16 Timer = 1;
 	//while(true)
 	//{
 		////debug_printf("CPU_MicrosecondsToTicks(%d, 0): %llu \r\n", uSec, CPU_MicrosecondsToTicks(uSec, Timer));
 		////debug_printf("calling SetCompare 1 \r\n");
 		////g_Krait_Timer.SetCompare(0, CPU_Timer_CurrentTicks(0) + CPU_MicrosecondsToTicks(uSec, Timer));
 		////g_Krait_Timer.SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
-		CPU_Timer_SetCompare(0, CPU_MicrosecondsToTicks(uSec, Timer));
+		CPU_Timer_SetCompare(Timer, CPU_MicrosecondsToTicks(uSec, Timer));
 	//}
 	//CPU_INTC_InterruptEnable( INT_DEBUG_TIMER_EXP );
 }

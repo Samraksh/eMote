@@ -486,7 +486,8 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 		////return Ticks;
 		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
 		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		Ticks /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
+		//Ticks /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
+		Ticks /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
 		return Ticks;
 	}
 }
@@ -507,7 +508,8 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		////return Ticks32;
 		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
 		Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		Ticks32 /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
+		//Ticks32 /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
+		Ticks32 /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
 		return Ticks32;
 	}
 }
@@ -573,7 +575,8 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		return ( uSec * (g_HardwareTimerFrequency[0] / 1000000) );
+		//return ( uSec * (g_HardwareTimerFrequency[0] / 1000000) );
+		return ( uSec * (g_HardwareTimerFrequency[0] / CLOCK_COMMON_FACTOR) );
 	}
 	//return uSec * (SystemTimerClock/1000000);
 }
@@ -602,7 +605,8 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		return ( uSec * (g_HardwareTimerFrequency[0] / 1000000) );
+		//return ( uSec * (g_HardwareTimerFrequency[0] / 1000000) );
+		return ( uSec * (g_HardwareTimerFrequency[0] / CLOCK_COMMON_FACTOR) );
 	}
 	//return uSec * (SystemTimerClock/1000000);
 }

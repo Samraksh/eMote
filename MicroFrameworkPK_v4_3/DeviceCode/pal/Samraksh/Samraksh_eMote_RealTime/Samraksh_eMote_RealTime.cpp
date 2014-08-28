@@ -179,17 +179,20 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
 #ifdef PLATFORM_ARM_EmoteDotNow
    ManagedTimerPeriodMicroSeconds = userData;
 #else
+   //850usec is the lowest that can be executed
    //923 micSec is the difference between observed and actual values
    if(userData >= 500 && userData < 750)
-   	   ManagedTimerPeriodMicroSeconds = userData + 400;
+   	   ManagedTimerPeriodMicroSeconds = userData + 350;
    else if(userData >= 750 && userData < 1000)
-	   ManagedTimerPeriodMicroSeconds = userData + 350;
+	   ManagedTimerPeriodMicroSeconds = userData + 375;		//Done
    else if(userData >= 1000 && userData < 10000)
-   	   ManagedTimerPeriodMicroSeconds = userData + 175;		//Has to be reduced
-   else if(userData >= 10000 && userData < 500000)
-	   ManagedTimerPeriodMicroSeconds = userData + 100;
+   	   ManagedTimerPeriodMicroSeconds = userData + 175;		//Done
+   else if(userData >= 10000 && userData < 100000)
+	   ManagedTimerPeriodMicroSeconds = userData - 50;		//Done
+   else if(userData >= 100000 && userData < 500000)
+   	   ManagedTimerPeriodMicroSeconds = userData;			//Done
    else if(userData >= 500000 && userData < 1000000)
-   	   ManagedTimerPeriodMicroSeconds = userData - 100;
+   	   ManagedTimerPeriodMicroSeconds = userData;			//Done
    else
 	   ManagedTimerPeriodMicroSeconds = userData;
 

@@ -114,12 +114,14 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 	if(g_VirtualTimerInfo[VTimerIndex].get_m_reserved())
 		return FALSE;
 
-	if(period == 0xFFFFFFFF || period >= 0x25ED097B)
+	//if(period == 0xFFFFFFFF || period >= 0x25ED097B)
+	if(period == 0xFFFFFFFF)
 		ticksPeriod =  0xFFFFFFFF;
 	else
 		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
 
-	if(start_delay == 0xFFFFFFFF || start_delay >= 0x25ED097B)
+	//if(start_delay == 0xFFFFFFFF || start_delay >= 0x25ED097B)
+	if(start_delay == 0xFFFFFFFF)
 		ticksStartDelay =  0xFFFFFFFF;
 	else
 		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
@@ -164,12 +166,14 @@ BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_dela
 	/*UINT32 ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
 	UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);*/
 
-	if(period == 0xFFFFFFFF || period >= 0x25ED097B)
+	//if(period == 0xFFFFFFFF || period >= 0x25ED097B)
+	if(period == 0xFFFFFFFF)
 		ticksPeriod =  0xFFFFFFFF;
 	else
 		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
 
-	if(start_delay == 0xFFFFFFFF || start_delay >= 0x25ED097B)
+	//if(start_delay == 0xFFFFFFFF || start_delay >= 0x25ED097B)
+	if(start_delay == 0xFFFFFFFF)
 		ticksStartDelay =  0xFFFFFFFF;
 	else
 		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);

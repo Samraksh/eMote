@@ -95,8 +95,16 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	}*/
 
 	//if(compareTicks <= 0x25ED097B)
-	if(compareTicks <= 0x19999999)
+	//if(compareTicks <= 0x19999999)
+	if(compareTicks < 0xFFFFFFFF)
+	{
+		//compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
+#ifdef PLATFORM_ARM_EmoteDotNow
 		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
+#else
+		compareTimeInMicSecs = compareTicks * 4 / 27;
+#endif
+	}
 	else
 		compareTimeInMicSecs = 0xFFFFFFFF;
 
