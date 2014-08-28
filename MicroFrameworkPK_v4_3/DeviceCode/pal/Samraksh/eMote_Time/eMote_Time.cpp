@@ -77,7 +77,7 @@ void SetCompareHandler(void *arg)
 	HAL_COMPLETION::DequeueAndExec();
 }
 
-void Time_Driver::SetCompareValue( UINT32 compareTicks )
+void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
@@ -102,7 +102,7 @@ void Time_Driver::SetCompareValue( UINT32 compareTicks )
 #ifdef PLATFORM_ARM_EmoteDotNow
 		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
 #else
-		compareTimeInMicSecs = (UINT32)compareTicks * 4 / 27;
+		compareTimeInMicSecs = ((UINT32)compareTicks) * 4 / 27;
 #endif
 	}
 	else
