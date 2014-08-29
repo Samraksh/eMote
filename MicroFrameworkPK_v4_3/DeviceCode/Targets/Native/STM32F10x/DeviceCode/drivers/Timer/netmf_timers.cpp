@@ -552,6 +552,18 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 }
 
 
+UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
+{
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		return (ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		return ((ticks * 1000000) / g_HardwareTimerFrequency[0]);
+	}
+}
+
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -898,11 +910,6 @@ void HAL_Time_SetCompare( UINT64 CompareValue, UINT16 Timer )
 			g_STM32F10x_AdvancedTimer.TriggerSoftwareInterrupt();
 		}
 	}
-}
-
-void HAL_Time_SetCompare_Completion(UINT64 val)
-{
-	return;
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )

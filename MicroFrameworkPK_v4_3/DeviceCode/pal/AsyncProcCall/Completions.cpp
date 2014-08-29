@@ -72,7 +72,10 @@ void HAL_COMPLETION::DequeueAndExec()
         //
         // In case there's no other request to serve, set the next interrupt to be 356 years since last powerup (@25kHz).
         //
-        HAL_Time_SetCompare_Completion( ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue );
+		// our  virtual timer only needs uSecFromNow and not currentTime plus uSecFromNow
+		// so instead of changing MS code that points to EnqueueTicks, we'll just subtract out currentTime at this point
+		UINT64 Now            = HAL_Time_CurrentTicks();
+        HAL_Time_SetCompare_Completion( (ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue) - Now );
 
 #if defined(_DEBUG)
         ptr->EventTimeTicks = 0;
@@ -109,7 +112,10 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
     
     if(this == g_HAL_Completion_List.FirstNode())
     {
-        HAL_Time_SetCompare_Completion( EventTimeTicks );
+		// our  virtual timer only needs uSecFromNow and not currentTime plus uSecFromNow
+		// so instead of changing MS code that points to EnqueueTicks, we'll just subtract out currentTime at this point
+		UINT64 Now            = HAL_Time_CurrentTicks();
+        HAL_Time_SetCompare_Completion( EventTimeTicks - Now );
     }
 }
 
@@ -120,8 +126,7 @@ void HAL_COMPLETION::EnqueueDelta64( UINT64 uSecFromNow )
     UINT64 Now            = HAL_Time_CurrentTicks();
     UINT64 EventTimeTicks = CPU_MicrosecondsToTicks( uSecFromNow );
 
-    //EnqueueTicks( Now + EventTimeTicks );
-    EnqueueTicks( EventTimeTicks );
+    EnqueueTicks( Now + EventTimeTicks );
 }
 
 void HAL_COMPLETION::EnqueueDelta( UINT32 uSecFromNow )

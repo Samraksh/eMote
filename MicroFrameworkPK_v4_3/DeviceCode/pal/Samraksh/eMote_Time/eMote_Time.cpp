@@ -82,16 +82,16 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
 
-	UINT32 compareTimeInMicSecs = 0;
+	UINT32 compareTimeInMicroSecs = 0;
 
 	/*if(compareTicks >= 0xFFFFFFFF)
 	{
-		compareTimeInMicSecs = 0xFFFFFFFF;
-		//hal_printf("if compareTimeInMicSecs: %d \r\n", compareTimeInMicSecs-1);
+		compareTimeInMicroSecs = 0xFFFFFFFF;
+		//hal_printf("if compareTimeInMicroSecs: %d \r\n", compareTimeInMicroSecs-1);
 	}
 	else{
-		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
-		//hal_printf("else compareTimeInMicSecs: %d \r\n", compareTimeInMicSecs-1);
+		compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
+		//hal_printf("else compareTimeInMicroSecs: %d \r\n", compareTimeInMicroSecs-1);
 	}*/
 
 	//if(compareTicks <= 0x25ED097B)
@@ -100,17 +100,17 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	{
 		//compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
 #ifdef PLATFORM_ARM_EmoteDotNow
-		compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
+		compareTimeInMicroSecs = CPU_TicksToMicroseconds(compareTicks, 1);
 #else
-		compareTimeInMicSecs = ((UINT32)compareTicks) * 4 / 27;
+		compareTimeInMicroSecs = ((UINT32)compareTicks) * 4 / 27;
 #endif
 	}
 	else
-		compareTimeInMicSecs = 0xFFFFFFFF;
+		compareTimeInMicroSecs = 0xFFFFFFFF;
 
-	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTimeInMicSecs, TRUE, TRUE, SetCompareHandler) == TimerReserved)
+	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTimeInMicroSecs, TRUE, TRUE, SetCompareHandler) == TimerReserved)
 	{
-		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTimeInMicSecs, TRUE);
+		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTimeInMicroSecs, TRUE);
 	}
 
 	VirtTimer_Start( VIRT_TIMER_EVENTS );
