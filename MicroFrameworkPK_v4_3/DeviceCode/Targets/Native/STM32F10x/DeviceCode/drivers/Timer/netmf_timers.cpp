@@ -560,7 +560,19 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		return ((ticks * 1000000) / g_HardwareTimerFrequency[0]);
+		return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+	}
+}
+
+UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
+{
+	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	{
+		return (ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+	}
+	else if(Timer == ADVTIMER_32BIT)
+	{
+		return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
 	}
 }
 

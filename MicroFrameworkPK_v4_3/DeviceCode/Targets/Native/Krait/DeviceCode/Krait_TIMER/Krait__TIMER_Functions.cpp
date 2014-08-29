@@ -241,6 +241,18 @@ UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32, UINT16 Timer )
 
 //--//
 
+UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
+{
+	UINT64 slowClocksFactor = SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD;
+	return ((ticks * 4) / slowClocksFactor);
+}
+
+UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
+{
+	UINT64 slowClocksFactor = SLOW_CLOCKS_PER_SECOND / SLOW_CLOCKS_TEN_MHZ_GCD;
+	return ((ticks * 4) / slowClocksFactor);
+}
+
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 {
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND

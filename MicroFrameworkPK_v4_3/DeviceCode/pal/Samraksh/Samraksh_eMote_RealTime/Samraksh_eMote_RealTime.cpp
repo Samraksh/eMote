@@ -146,9 +146,10 @@ BOOL RT_Change(uint dueTime, uint period)
 	if(maxTicks == 0)
 	{
 		maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_REALTIME);
-		maxMicroseconds = CPU_TicksToTime(maxTicks);
+		maxMicroseconds = CPU_TicksToMicroseconds(maxTicks);
+		/*maxMicroseconds = CPU_TicksToTime(maxTicks);
 		//AnanthAtSamraksh -- this is only for the case where the SYSTEM_CLOCK_HZ in platform_selector.h is 48mhz
-		maxMicroseconds *= 6;
+		maxMicroseconds *= 6;*/
 	}
 
 	////if(ManagedTimerTicks < (maxTicks)) {
@@ -204,9 +205,10 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    if(maxTicks == 0)
    {
 	   maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_REALTIME);
-	   maxMicroseconds = CPU_TicksToTime(maxTicks);
+	   maxMicroseconds = CPU_TicksToMicroseconds(maxTicks);
+	   /*maxMicroseconds = CPU_TicksToTime(maxTicks);
 	   //AnanthAtSamraksh -- this is only for the case where the SYSTEM_CLOCK_HZ in platform_selector.h is 48mhz
-	   maxMicroseconds *= 6;
+	   maxMicroseconds *= 6;*/
    }
 
    ////if(ManagedTimerTicks < (maxTicks)) {

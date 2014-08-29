@@ -186,8 +186,10 @@ UINT64  CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer = 1 );
 // the following function are used in flash operations that they have to be located in the RAM. 
 // It has been included in the scatterfile_ram_functions.xml
 UINT32  CPU_MicrosecondsToTicks       ( UINT32 uSec, UINT16 Timer = 1  );
-UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer = 1 );
 UINT64  CPU_MicrosecondsToTicks       ( UINT64 uSec, UINT16 Timer = 1  );
+UINT32  CPU_TicksToMicroseconds		  ( UINT32 ticks, UINT16 Timer = 1 );
+UINT64  CPU_TicksToMicroseconds		  ( UINT64 ticks, UINT16 Timer = 1 );
+
 //--//
 UINT32  CPU_MicrosecondsToSystemClocks( UINT32 uSec    );
 UINT64  CPU_TicksToTime               ( UINT64 Ticks, UINT16 Timer = 1   );
