@@ -140,6 +140,13 @@ UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 	return g_Krait_Timer.GetMaxTicks();
 }
 
+void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
+{
+    *a = 1;
+    *b = 1;
+    *c = 0;
+}
+
 
 /*void IRQ_Handler(void* arg)
 {
