@@ -119,7 +119,8 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
         // then check to make sure the events haven't happened on the way in
         // we must do this before we sleep!
 
-        UINT64 Expire           = HAL_Time_CurrentTicks() + CountsRemaining;
+        //UINT64 Expire           = HAL_Time_CurrentTicks() + CountsRemaining;
+        UINT64 Expire           = CountsRemaining;
         BOOL   RunContinuations = TRUE;
 
         while(true)
