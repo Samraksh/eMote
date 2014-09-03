@@ -36,8 +36,8 @@ UINT64 Time_CurrentTicks()
 
 UINT64 HAL_Time_CurrentTicks()
 {
-	//return g_Time_Driver.CurrentTicks();
-	return g_Time_Driver.TimeNow();
+	return g_Time_Driver.CurrentTicks();
+	//return g_Time_Driver.TimeNow();
 }
 
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
@@ -57,9 +57,7 @@ void HAL_Time_SetCompare_Completion(UINT64 CompareValue)
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
-    *a = 1;
-    *b = 1;
-    *c = 0;
+	CPU_GetDriftParameters(a, b, c);
 }
 
 void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )

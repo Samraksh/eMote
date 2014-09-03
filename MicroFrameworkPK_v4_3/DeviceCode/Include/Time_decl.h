@@ -219,6 +219,7 @@ BOOL CPU_Timer_DidTimerOverflow(UINT8 Timer);
 void CPU_Timer_ClearTimerOverflow(UINT8 Timer);
 
 UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer);
+void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c );
 
 const UINT8 ADVTIMER_32BIT = 1;
 const UINT8 TIMER1_16BIT = 2;

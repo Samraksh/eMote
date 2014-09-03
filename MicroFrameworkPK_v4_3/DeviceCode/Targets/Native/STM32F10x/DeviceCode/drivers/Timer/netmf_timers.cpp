@@ -341,6 +341,20 @@ UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 	return maxTicks;
 }
 
+void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
+{
+    //*a = 1;
+    //*b = 1;
+    //*c = 0;
+
+	// "correct"*A = raw*B + C
+	// Correct is defined as 10 MHz
+	// Raw is actually 8 MHz, so ratio is 1.25 = 5/4
+	// 4*correct = 5*raw + 0
+	*a = 4;
+    *b = 5;
+    *c = 0;
+}
 
 /*
 // Default hardware handler for the HAL Timer
