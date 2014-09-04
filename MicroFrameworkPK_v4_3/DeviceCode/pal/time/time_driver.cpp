@@ -130,14 +130,14 @@ INT64 TimeDriver::GetTickCount()
 
 INT64 TimeDriver::GetMachineTime()
 {
-	//AnanthAtSamraksh: defaulting to advancedTimer
-    INT64 time;
-   	INT64 ticks	= HAL_Time_CurrentTicks();
+	INT64 time = HAL_Time_CurrentTime();
+   	//INT64 ticks	= HAL_Time_CurrentTicks();
 
-    if(m_Ticks_a != 0)
+    /*if(m_Ticks_a != 0)
     {
-        time = (ticks * m_Ticks_b + m_Ticks_c) / m_Ticks_a;
-    }
+        //time = (ticks * m_Ticks_b + m_Ticks_c) / m_Ticks_a;
+        time = (time * m_Ticks_b + m_Ticks_c) / m_Ticks_a;
+    }*/
 
     return time;
 }

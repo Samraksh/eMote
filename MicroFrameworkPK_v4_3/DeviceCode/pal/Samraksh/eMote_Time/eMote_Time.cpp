@@ -63,7 +63,26 @@ BOOL Time_Driver::Uninitialize()
 
 UINT64 Time_Driver::CurrentTicks()
 {
-	return VirtTimer_GetTicks(VIRT_TIMER_TIME);
+	//return VirtTimer_GetTicks(VIRT_TIMER_TIME);
+
+	UINT64 currentTotalTicks = 0;
+	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
+
+	if(currentTicks < prevTicks)
+	{
+		UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
+		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
+		currentTotalTicks = bigCounter + (UINT64)prevTicks + (UINT64)diff;
+	}
+	else
+	{
+		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
+		currentTotalTicks = bigCounter + (UINT64)currentTicks;
+	}
+
+	prevTicks = currentTicks;
+
+	return currentTotalTicks;
 }
 
 UINT64 Time_Driver::CounterValue()
@@ -134,20 +153,34 @@ INT64 Time_Driver::TicksToTime( UINT64 Ticks )
 
 INT64 Time_Driver::CurrentTime()
 {
-	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
+	INT32 a, b;
+	INT64 c;
+	CPU_GetDriftParameters(&a, &b, &c);
+
+	UINT64 currentTotalTicks = CurrentTicks();
 	UINT64 currentTime = 0;
+
+	if(a != 0)
+	{
+		currentTime = (currentTotalTicks * b + c) / a;
+	}
+
+	/*UINT64 currentTime = 0;
+	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
 
 	if(currentTicks < prevTicks)
 	{
 		UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
-		currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
+		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
+		currentTime = bigCounter + (UINT64)prevTicks + (UINT64)diff;
 	}
 	else
 	{
-		currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
+		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
+		currentTime = bigCounter + (UINT64)currentTicks;
 	}
 
-	prevTicks = currentTicks;
+	prevTicks = currentTicks;*/
 
 	return (INT64)currentTime;
 }
