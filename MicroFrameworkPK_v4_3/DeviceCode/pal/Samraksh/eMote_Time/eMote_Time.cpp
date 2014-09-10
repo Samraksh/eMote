@@ -41,7 +41,13 @@ BOOL Time_Driver::Initialize()
 
 void TimeHandler(void *arg)
 {
-	g_Time_Driver.bigCounter += g_Time_Driver.maxTicks;
+	static int  timeHandlerCount = 0;
+
+	if(timeHandlerCount > 0)
+		g_Time_Driver.bigCounter += g_Time_Driver.maxTicks;
+
+	if(timeHandlerCount == 0)
+		timeHandlerCount++;
 }
 
 
@@ -70,9 +76,20 @@ UINT64 Time_Driver::CurrentTicks()
 
 	if(currentTicks < prevTicks)
 	{
-		UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
-		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
-		currentTotalTicks = bigCounter + (UINT64)prevTicks + (UINT64)diff;
+		//This if loop is exercised when the counter overflows.
+		//But, sometimes currentTicks is less than prevTicks (observed in .NOW and Adapt), even before the overflow. The reason is unknown.
+		//currTicks is supposed to increase monotonically, but sometimes it does not. That is why, the check happens once again.
+		currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
+		if(currentTicks < prevTicks)
+		{
+			UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
+			//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
+			currentTotalTicks = bigCounter + (UINT64)prevTicks + (UINT64)diff;
+		}
+		else
+		{
+			currentTotalTicks = bigCounter + (UINT64)currentTicks;
+		}
 	}
 	else
 	{
