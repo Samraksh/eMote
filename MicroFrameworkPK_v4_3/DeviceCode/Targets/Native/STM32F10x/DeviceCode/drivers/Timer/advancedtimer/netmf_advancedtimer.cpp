@@ -34,9 +34,7 @@ extern "C"
 // Returns the current 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
 {
-	// timerLock.acquire_and_save();
-
-	// Fix for rollover bug
+	GLOBAL_LOCK(irq);
 	UINT16 tim1a = TIM1->CNT;
 	UINT16 tim2a = TIM2->CNT;
 	UINT16 tim1b = TIM1->CNT;
@@ -46,11 +44,7 @@ UINT32 STM32F10x_AdvancedTimer::GetCounter()
 		tim2a = TIM2->CNT;
 	}
 
-
 	currentCounterValue = ((tim2a << 16) | tim1b);
-
-	// timerLock.release_and_restore();
-
 	return currentCounterValue;
 }
 
