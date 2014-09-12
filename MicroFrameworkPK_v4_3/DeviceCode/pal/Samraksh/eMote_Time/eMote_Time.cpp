@@ -84,43 +84,53 @@ UINT64 Time_Driver::CurrentTicks()
 
 	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
 
+	//Roll-over case
 	if(currentTicks < prevTicks)
 	{
 		//This if loop is exercised when the counter overflows.
 		//But, sometimes currentTicks is less than prevTicks (observed in .NOW and Adapt), even before the overflow. The reason is unknown.
 		//currTicks is supposed to increase monotonically, but sometimes it does not. That is why, the check happens once again.
-		//currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
-		//if(currentTicks < prevTicks)
-		//{
+		currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
+
+		if(currentTicks < prevTicks)		//Indeed it is a roll-over
+		{
 			UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
-			//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
-			//if(prevBigCounter == bigCounter)
+
+			//If bigCounter has been updated, just add bigCounter
 			if(bigCounterUpdated)
 			{
 				currentTotalTicks = bigCounter + (UINT64)diff;
 				bigCounterUpdated = false;
 			}
+			//If bigCounter has not been updated yet, add bigCounter with maxTicks. Set the overflow flag, so that when currTicks becomes
+			//larger than prevTicks after roll-over, maxTicks continues to be added.
 			else
 			{
-				//hal_printf("before currentTotalTicks: %llu\r\n", currentTotalTicks);
-				//hal_printf("currentTicks: %u; prevTicks: %u; diff: %u \r\n", currentTicks, prevTicks, diff);
 				currentTotalTicks = bigCounter + (UINT64)diff + (UINT64)maxTicks;
 				overflowCondition = true;
-				//hal_printf("after currentTotalTicks: %llu\r\n", currentTotalTicks);
 			}
 
-		//}
-		//else
-		//{
-			//currentTotalTicks = bigCounter + (UINT64)currentTicks;
-		//}
+		}
+		else		//false roll-over, due to a bad interrupt perhaps(?) that causes currentTicks to be less than prevTicks before the roll-over
+		{
+			goto normalCase;
+			/*if(bigCounterUpdated)
+			{
+				currentTotalTicks = bigCounter + (UINT64)currentTicks;
+				bigCounterUpdated = false;
+				overflowCondition = false;
+			}
+			else
+				if(overflowCondition)
+					currentTotalTicks = bigCounter + (UINT64)currentTicks + (UINT64)maxTicks;
+				else
+					currentTotalTicks = bigCounter + (UINT64)currentTicks;*/
+		}
 	}
-	else
+	else			//Normal case, where currTicks is greater then prevTicks
 	{
-		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
-		//hal_printf("else - before currentTotalTicks: %llu\r\n", currentTotalTicks);
-
-		//if(prevBigCounter == bigCounter)
+normalCase:
+		//currTicks is greater then prevTicks, and bigCounter has been updated
 		if(bigCounterUpdated)
 		{
 			currentTotalTicks = bigCounter + (UINT64)currentTicks;
@@ -128,12 +138,12 @@ UINT64 Time_Driver::CurrentTicks()
 			overflowCondition = false;
 		}
 		else
+			//currTicks is greater then prevTicks, bigCounter has not been updated, and maxTicks added during roll-over.
 			if(overflowCondition)
 				currentTotalTicks = bigCounter + (UINT64)currentTicks + (UINT64)maxTicks;
+			//currTicks is greater then prevTicks, bigCounter has not been updated, and maxTicks not added. This is the normal case
 			else
 				currentTotalTicks = bigCounter + (UINT64)currentTicks;
-
-		//hal_printf("else - after currentTotalTicks: %llu\r\n", currentTotalTicks);
 	}
 
 	prevTicks = currentTicks;

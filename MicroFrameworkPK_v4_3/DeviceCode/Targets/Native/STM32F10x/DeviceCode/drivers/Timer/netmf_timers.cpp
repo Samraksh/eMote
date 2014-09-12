@@ -253,7 +253,7 @@ UINT32 CPU_Timer_CurrentTicks(UINT16 Timer)
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		GLOBAL_LOCK(irq);
+		//GLOBAL_LOCK(irq);
 		//AnanthAtSamraksh
 		////currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
 		currentTicksValue = g_STM32F10x_AdvancedTimer.GetCounter();
