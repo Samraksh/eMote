@@ -126,7 +126,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 	// Stop the timer
 	//gHalTimerManagerObject.StopTimer(1);
-	VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);
+	//VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);
 	//gHalTimerManagerObject.StopTimer(2);
 
 	//Initalize upperlayer callbacks
@@ -266,12 +266,12 @@ void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
 	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
 	if (m_send_buffer.GetNumberMessagesInBuffer() > 1){
-		//CLR_Debug::Printf("Starting timer 3\r\n");
+		//CLR_Debug::Printf("Starting timer VIRT_TIMER_MAC_FLUSHBUFFER3\r\n");
 		//gHalTimerManagerObject.StartTimer(3);
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 	}
 	else if (m_send_buffer.GetNumberMessagesInBuffer() == 0){
-		//CLR_Debug::Printf("Stopping timer 3\r\n");
+		//CLR_Debug::Printf("Stopping timer VIRT_TIMER_MAC_FLUSHBUFFER3\r\n");
 		//gHalTimerManagerObject.StopTimer(3);
 		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 	}
@@ -291,9 +291,12 @@ void csmaMAC::SendToRadio(){
 				return;
 			}*/
 			//TODO: AnanthAtSamraksh - check if this is right
-			CPU_Timer_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			CPU_Timer_Sleep_MicroSeconds((MF_NODE_ID % 200));
 			//CPU_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
-			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	return;}
+			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	
+				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
+				return;
+			}
 		}
 
 		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
@@ -493,7 +496,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				//gHalTimerManagerObject.StopTimer(3);
 				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 
-				VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 			// Attempt to send the next packet out since we have no scheduler
