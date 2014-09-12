@@ -19,6 +19,8 @@ Time_Driver g_Time_Driver;
 UINT32 Time_Driver::maxTicks = 0;
 UINT32 Time_Driver::prevTicks = 0;
 UINT64 Time_Driver::bigCounter = 0;
+bool Time_Driver::bigCounterUpdated = false;
+bool Time_Driver::overflowCondition = false;
 
 
 void TimeCallback(void *arg);
@@ -43,8 +45,13 @@ void TimeHandler(void *arg)
 {
 	static int  timeHandlerCount = 0;
 
+	GLOBAL_LOCK(irq);
+
 	if(timeHandlerCount > 0)
+	{
 		g_Time_Driver.bigCounter += g_Time_Driver.maxTicks;
+		g_Time_Driver.bigCounterUpdated = true;
+	}
 
 	if(timeHandlerCount == 0)
 		timeHandlerCount++;
@@ -72,6 +79,9 @@ UINT64 Time_Driver::CurrentTicks()
 	//return VirtTimer_GetTicks(VIRT_TIMER_TIME);
 
 	UINT64 currentTotalTicks = 0;
+
+	//GLOBAL_LOCK(irq);
+
 	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
 
 	if(currentTicks < prevTicks)
@@ -84,7 +94,21 @@ UINT64 Time_Driver::CurrentTicks()
 		//{
 			UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
 			//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
-			currentTotalTicks = bigCounter + (UINT64)prevTicks + (UINT64)diff;
+			//if(prevBigCounter == bigCounter)
+			if(bigCounterUpdated)
+			{
+				currentTotalTicks = bigCounter + (UINT64)diff;
+				bigCounterUpdated = false;
+			}
+			else
+			{
+				//hal_printf("before currentTotalTicks: %llu\r\n", currentTotalTicks);
+				//hal_printf("currentTicks: %u; prevTicks: %u; diff: %u \r\n", currentTicks, prevTicks, diff);
+				currentTotalTicks = bigCounter + (UINT64)diff + (UINT64)maxTicks;
+				overflowCondition = true;
+				//hal_printf("after currentTotalTicks: %llu\r\n", currentTotalTicks);
+			}
+
 		//}
 		//else
 		//{
@@ -94,10 +118,32 @@ UINT64 Time_Driver::CurrentTicks()
 	else
 	{
 		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
-		currentTotalTicks = bigCounter + (UINT64)currentTicks;
+		//hal_printf("else - before currentTotalTicks: %llu\r\n", currentTotalTicks);
+
+		//if(prevBigCounter == bigCounter)
+		if(bigCounterUpdated)
+		{
+			currentTotalTicks = bigCounter + (UINT64)currentTicks;
+			bigCounterUpdated = false;
+			overflowCondition = false;
+		}
+		else
+			if(overflowCondition)
+				currentTotalTicks = bigCounter + (UINT64)currentTicks + (UINT64)maxTicks;
+			else
+				currentTotalTicks = bigCounter + (UINT64)currentTicks;
+
+		//hal_printf("else - after currentTotalTicks: %llu\r\n", currentTotalTicks);
 	}
 
 	prevTicks = currentTicks;
+	//if(prevBigCounter != bigCounter)
+	/*if(bigCounterUpdated)
+	{
+		hal_printf("before prevBigCounter: %llu\r\n", prevBigCounter);
+		prevBigCounter = bigCounter;
+		hal_printf("after prevBigCounter: %llu\r\n", prevBigCounter);
+	}*/
 
 	return currentTotalTicks;
 }
@@ -175,6 +221,8 @@ INT64 Time_Driver::CurrentTime()
 	CPU_GetDriftParameters(&a, &b, &c);
 
 	UINT64 currentTotalTicks = CurrentTicks();
+
+	GLOBAL_LOCK(irq);
 	UINT64 currentTime = 0;
 
 	if(a != 0)
