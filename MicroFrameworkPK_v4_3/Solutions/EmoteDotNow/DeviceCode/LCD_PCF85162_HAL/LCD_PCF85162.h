@@ -76,7 +76,9 @@ enum SymbolTypeDriver
         DISPLAY_CHAR_6,
         DISPLAY_CHAR_7,
         DISPLAY_CHAR_8,
-        DISPLAY_CHAR_9
+        DISPLAY_CHAR_9,
+		DISPLAY_CHAR_UNDERSCORE,
+		DISPLAY_CHAR_HYPHEN
     };
 
 class LCD_PCF85162_Driver

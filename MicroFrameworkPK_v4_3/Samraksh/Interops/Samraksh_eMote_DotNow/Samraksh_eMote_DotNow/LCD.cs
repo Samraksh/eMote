@@ -82,7 +82,9 @@ namespace Samraksh.eMote.DotNow
         CHAR_6,
         CHAR_7,
         CHAR_8,
-        CHAR_9
+        CHAR_9,
+		CHAR_UNDERSCORE,
+		CHAR_HYPEN
     };
 
     /// <summary>
