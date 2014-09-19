@@ -20,7 +20,7 @@
 #include <Samraksh/Hal_util.h>
 #include <advancedtim/netmf_advancedtimer.h>
 
-uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_4};
+uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
 
 void ADC_GPIO_Configuration(void);
