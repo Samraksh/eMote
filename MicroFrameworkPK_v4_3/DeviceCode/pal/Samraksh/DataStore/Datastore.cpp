@@ -1475,7 +1475,7 @@ void Data_Store::EraseAllBlocks()
 
 Data_Store::~Data_Store()
 {
-    DATASTORE_REG_RemoveEntry(this);
+    //DATASTORE_REG_RemoveEntry(this);
 #ifdef _EMULATOR_MODE
     delete flashDevice;
     delete myUniquePtrGen;
