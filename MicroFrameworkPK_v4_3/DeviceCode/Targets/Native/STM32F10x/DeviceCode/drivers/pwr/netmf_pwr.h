@@ -6,6 +6,8 @@
 
 extern uint32_t SystemTimerClock;
 
+UINT32 pwr_get_hsi(void);
+
 struct STM32F1x_Power_Driver
 {
     static const UINT32 c_SystemTime_Timer         = 2;
@@ -25,6 +27,7 @@ struct STM32F1x_Power_Driver
     static void Reset();
     static void Shutdown();
     static void Hibernate();
+	static UINT32 MeasureHSI();
 
 #if !defined(BUILD_RTM)
     static void   PerformanceCounter_Initialize  ();

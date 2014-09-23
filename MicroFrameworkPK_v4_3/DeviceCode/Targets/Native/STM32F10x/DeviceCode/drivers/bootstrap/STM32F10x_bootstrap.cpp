@@ -173,6 +173,26 @@ void LowLevelInit (void)
 
 }
 
+static void reset_all_timers(void) {
+  TIM_DeInit(TIM1);
+  TIM_DeInit(TIM2);
+  TIM_DeInit(TIM3);
+  TIM_DeInit(TIM4);
+  TIM_DeInit(TIM5);
+  TIM_DeInit(TIM6);
+  TIM_DeInit(TIM7);
+  TIM_DeInit(TIM8);
+  TIM_DeInit(TIM9);
+  TIM_DeInit(TIM10);
+  TIM_DeInit(TIM11);
+  TIM_DeInit(TIM12);
+  TIM_DeInit(TIM13);
+  TIM_DeInit(TIM14);
+  TIM_DeInit(TIM15);
+  TIM_DeInit(TIM16);
+  TIM_DeInit(TIM17);
+}
+
 /*
 	RCC_Configuration : Controls the speed at which the System Clock, ADCClock, AHB, APB1 and APB2 run
 	SYSCLK runs from HSI at 8 Mhz
@@ -186,37 +206,13 @@ void LowLevelInit (void)
 
 static void RCC_Configuration(void)
 {
+  // Most if not all of this should be moved to CPU_Initialize() power driver. --NPS
   RCC_DeInit();
   
-  // Reset TIM1-5
-  TIM_DeInit(TIM1);
-  TIM_DeInit(TIM2);
-  TIM_DeInit(TIM3);
-  TIM_DeInit(TIM4);
-  TIM_DeInit(TIM5);
+  // Reset Timers
+  reset_all_timers();
 
-  //STM32F1x_Power_Driver::Low_Power();
-  //STM32F1x_Power_Driver::High_Power(); // Default to high power for now to help with MFDeploy issues
-
-  CPU_ChangePowerLevel(POWER_LEVEL__HIGH_POWER);
-
-/* RTC clock and backup domain init. Not fully tested. Do not use (yet).
-  PWR_BackupAccessCmd(ENABLE);
-  BKP_DeInit();
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR,ENABLE);
-  RCC_LSEConfig(RCC_LSE_ON);
-  //while ( RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET ) { }	// Wait for LSE ready (working???)
-  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-  RCC_RTCCLKCmd(ENABLE);
-  RTC_WaitForLastTask();
-  RTC_WaitForSynchro();
-  RTC_WaitForLastTask();
-  BKP_RTCOutputConfig(BKP_RTCOutputSource_None);
-  */ // End RTC init Code
-  
-  // Low power "numerical mode" flash. Here for reference only, conflicts with above.
-  //FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
-  //FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
+  //CPU_ChangePowerLevel(POWER_LEVEL__HIGH_POWER);
 
   // Enabling FSMC peripheral clock here
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
