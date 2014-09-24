@@ -15,7 +15,6 @@
 
 STM32F10x_I2C_Driver g_STM32F10x_i2c_driver;
 
-STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 I2C_TypeDef* I2C_BUS_ARRAY[I2C_BUSES] = {I2C1, I2C2};
 
@@ -258,8 +257,8 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 
 
 		// Enable the pins in alternate mode configuration
-		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
-		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
+		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
 
 		I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
 		I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
@@ -363,8 +362,8 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 		{
 
 			// Enable the pins in alternate mode configuration
-			CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
-			CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
 
 		}
 	}
@@ -379,8 +378,8 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 		else
 		{
 			// Enable the pins in alternate mode configuration
-			CPU_GPIO_DisablePin(I2C2_SCL, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
-			CPU_GPIO_DisablePin(I2C2_SDA, RESISTOR_DISABLED, g_STM32F10x_Gpio_Driver.c_DirectionOut , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C2_SCL, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C2_SDA, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
 		}
 	}
 
