@@ -40,6 +40,12 @@ static void init_power() {
 // Result is in static global pwr_hsi_clock_measure
 static void do_hsi_measure() {
 	pwr_hsi_clock_measure=0;
+	RTC_SetAlarm(RTC_GetCounter()+1);
+	while(pwr_hsi_clock_measure < 2);
+}
+
+static void align_to_rtc() {
+	pwr_hsi_clock_measure=0;
 	RTC_SetAlarm(RTC_GetCounter()+2);
 	while(pwr_hsi_clock_measure < 2);
 }
@@ -48,14 +54,19 @@ UINT32 pwr_get_hsi(void) {
 	return pwr_hsi_clock_measure;
 }
 
-UINT32 STM32F1x_Power_Driver::MeasureHSI() {
-	uint32_t trim = 16;
-	int diff_hertz_20k;
+void STM32F1x_Power_Driver::CalibrateHSI() {
+	uint32_t trim;
 	NVIC_InitTypeDef NVIC_InitStruct;
+	uint32_t hsi_trim_error[32]; // Memoization table of absolute frequency error vs. TRIM
+	uint32_t hsi_trim_val[32]; // Memoization table of absolute frequency vs TRIM
+
+	// for some reason need to memset this... I think due to C++ object issue
+	memset(hsi_trim_error, 0xFFFFFFFF, sizeof(hsi_trim_error));
 
 	// First make sure the RTC is running, we will use that to measure.
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
+	RTC_SetPrescaler(0x0800); // 1/16 second
 	RCC_LSEConfig(RCC_LSE_ON);
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET); /* Wait till LSE is ready */
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
@@ -81,36 +92,88 @@ UINT32 STM32F1x_Power_Driver::MeasureHSI() {
 	TIM_DeInit(TIM6);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	TIM_TimeBaseStructInit(&TIM_TimeBaseInitStruct);
-	TIM_TimeBaseInitStruct.TIM_Prescaler = 127;
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 7;
 	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseInitStruct);
 
 	TIM_Cmd(TIM6, ENABLE);
 
-	do_hsi_measure(); // Work done in interrupts but will block until done.
+	trim = BKP_ReadBackupRegister(BKP_DR1); // backup register 1 contains last good TRIM value
+	if (trim == 0 || trim > 31) {
+		trim = 16; // default
+	}
 
-	// Trim is done in increments of about 40 kHz, but should be verified afterwards. Not done here.
-	if (pwr_hsi_clock_measure >= 8000000) { // too fast
-		diff_hertz_20k = (pwr_hsi_clock_measure - 8000000) / 20000;
-		if(diff_hertz_20k) {
-			trim--;
-			diff_hertz_20k--;
+	align_to_rtc(); // Wait 2 clocks so we are reasonably sure we are close to RTC clock edge.
+
+	// Find trim with min error.
+	// Note implicit assumptions about clock speed and TRIM relationship (not random).
+	while(trim > 0 && trim < 31) {
+		int min_trim = trim;
+		int skip=0; // if we get close enough, skip rest of tests.
+
+		if (hsi_trim_error[trim] == 0xFFFFFFFF && !skip) {
+			RCC_AdjustHSICalibrationValue(trim);
+			do_hsi_measure();
+			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
+				hsi_trim_error[trim] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
+			}
+			else {
+				hsi_trim_error[trim] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
+			}
+			hsi_trim_val[trim] = pwr_hsi_clock_measure;
+			if (hsi_trim_error[trim] < PWR_HSI_CLOSE_ENOUGH) {
+				skip=1;
+			}
 		}
-		trim -= (diff_hertz_20k>>1);
-	}
-	else {
-		diff_hertz_20k = (8000000 - pwr_hsi_clock_measure) / 20000; // to slow
-		if(diff_hertz_20k) {
-			trim++;
-			diff_hertz_20k--;
+
+		if (hsi_trim_error[trim-1] == 0xFFFFFFFF && !skip) {
+			RCC_AdjustHSICalibrationValue(trim-1);
+			do_hsi_measure();
+			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
+				hsi_trim_error[trim-1] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
+			}
+			else {
+				hsi_trim_error[trim-1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
+			}
+			hsi_trim_val[trim-1] = pwr_hsi_clock_measure;
+			if (hsi_trim_error[trim-1] < PWR_HSI_CLOSE_ENOUGH) {
+				skip=1;
+			}
 		}
-		trim += (diff_hertz_20k>>1);
-	}
 
-	if (trim != 16) {
-		RCC_AdjustHSICalibrationValue(trim);
-	}
+		if (hsi_trim_error[trim+1] == 0xFFFFFFFF && !skip) {
+			RCC_AdjustHSICalibrationValue(trim+1);
+			do_hsi_measure();
+			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
+				hsi_trim_error[trim+1] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
+			}
+			else {
+				hsi_trim_error[trim+1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
+			}
+			hsi_trim_val[trim+1] = pwr_hsi_clock_measure;
+			if (hsi_trim_error[trim+1] < PWR_HSI_CLOSE_ENOUGH) {
+				skip=1;
+			}
+		}
 
-	do_hsi_measure();
+		// Find min error
+		if (hsi_trim_error[min_trim] > hsi_trim_error[trim+1]) {
+			min_trim = trim+1;
+		}
+		else if (hsi_trim_error[min_trim] > hsi_trim_error[trim-1]) {
+			min_trim = trim-1;
+		}
+
+		// Success
+		if (min_trim == trim || skip || min_trim == 0 || min_trim == 31) {
+			RCC_AdjustHSICalibrationValue(min_trim);
+			pwr_hsi_clock_measure = hsi_trim_val[min_trim];
+			BKP_WriteBackupRegister(BKP_DR1, (uint16_t)min_trim);
+			trim = min_trim;
+			break;
+		}
+		// go around and try again
+		trim = min_trim;
+	}
 
 	// Clean up
 	TIM_DeInit(TIM6);
@@ -118,6 +181,12 @@ UINT32 STM32F1x_Power_Driver::MeasureHSI() {
 	NVIC_InitStruct.NVIC_IRQChannelCmd = DISABLE;
 	NVIC_Init(&NVIC_InitStruct);
 	RTC_ITConfig(RTC_IT_ALR, DISABLE);
+	PWR_BackupAccessCmd(DISABLE);
+	// Turn off RTC since not used currently.
+	RCC_RTCCLKCmd(DISABLE);
+	RCC_LSEConfig(RCC_LSE_OFF);
+	// Leave PWR module ON.
+	RCC_APB1PeriphClockCmd(/*RCC_APB1Periph_PWR |*/ RCC_APB1Periph_BKP, DISABLE);
 }
 
 extern "C" {

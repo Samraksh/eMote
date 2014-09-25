@@ -12,7 +12,7 @@ BOOL CPU_Initialize() {
 	// Then go back to HSI (for now).
 	if ((uint32_t)myaddr > 0x8020000) {
 		STM32F1x_Power_Driver::Low_Power();
-		STM32F1x_Power_Driver::MeasureHSI();
+		STM32F1x_Power_Driver::CalibrateHSI();
 		STM32F1x_Power_Driver::High_Power();
 	}
 	else { // Use High-power mode for TinyBooter for now. Probably can use 8 MHz but not sure we care.

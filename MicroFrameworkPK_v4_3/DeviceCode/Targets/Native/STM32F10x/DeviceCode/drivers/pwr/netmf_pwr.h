@@ -4,6 +4,9 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 
+#define PWR_HSI_SPEED 8000000
+#define PWR_HSI_CLOSE_ENOUGH 10000
+
 extern uint32_t SystemTimerClock;
 
 UINT32 pwr_get_hsi(void);
@@ -27,7 +30,7 @@ struct STM32F1x_Power_Driver
     static void Reset();
     static void Shutdown();
     static void Hibernate();
-	static UINT32 MeasureHSI();
+	static void CalibrateHSI();
 
 #if !defined(BUILD_RTM)
     static void   PerformanceCounter_Initialize  ();
