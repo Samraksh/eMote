@@ -55,6 +55,11 @@ void HAL_Time_SetCompare_Completion(UINT64 CompareValue)
 	g_Time_Driver.SetCompareValue(CompareValue);
 }
 
+void HAL_Time_Stop_Completion_timer()
+{
+	g_Time_Driver.StopTimer();
+}
+
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
 	CPU_GetDriftParameters(a, b, c);

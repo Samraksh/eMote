@@ -75,7 +75,10 @@ void HAL_COMPLETION::DequeueAndExec()
 		// our  virtual timer only needs uSecFromNow and not currentTime plus uSecFromNow
 		// so instead of changing MS code that points to EnqueueTicks, we'll just subtract out currentTime at this point
 		UINT64 Now            = HAL_Time_CurrentTicks();
-        HAL_Time_SetCompare_Completion( (ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue) - Now );
+        ///HAL_Time_SetCompare_Completion( (ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue) - Now );
+		if (ptrNext->Next()){
+        	HAL_Time_SetCompare_Completion( ptrNext->EventTimeTicks  - Now );
+		}
 
 #if defined(_DEBUG)
         ptr->EventTimeTicks = 0;
@@ -150,6 +153,7 @@ void HAL_COMPLETION::Abort()
     this->Start_RTC_Ticks = 0;
 #endif
 
+	
     if(firstNode == this)
     {
         UINT64 nextTicks;
@@ -159,16 +163,18 @@ void HAL_COMPLETION::Abort()
             //
             // In case there's no other request to serve, set the next interrupt to be 356 years since last powerup (@25kHz).
             //
-            nextTicks = HAL_Completion_IdleValue;
+            //nextTicks = HAL_Completion_IdleValue;
+			HAL_Time_Stop_Completion_timer();
         }
         else
         {
             firstNode = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
 
             nextTicks = firstNode->EventTimeTicks;
+			HAL_Time_Stop_Completion_timer();
+        	HAL_Time_SetCompare_Completion( nextTicks );
         }
 
-        HAL_Time_SetCompare( nextTicks );
     }
 }
 
@@ -199,7 +205,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 
-    if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
+    /*if(state & c_SetCompare) HAL_Time_SetCompare_Completion( Expire );
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
 
@@ -208,8 +214,12 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         // let's get the first node again
         // it could have changed since CPU_Sleep re-enabled interrupts
         ptr = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
-        HAL_Time_SetCompare( (state & c_ResetCompare) ? ptr->EventTimeTicks : HAL_Completion_IdleValue );
-    }
+        //HAL_Time_SetCompare_Completion( (state & c_ResetCompare) ? ptr->EventTimeTicks : HAL_Completion_IdleValue );
+		if (state & c_ResetCompare){
+			HAL_Time_Stop_Completion_timer();
+        	HAL_Time_SetCompare_Completion( ptr->EventTimeTicks );
+		}
+    }*/
 }
 
 void HAL_COMPLETION::Uninitialize()

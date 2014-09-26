@@ -104,6 +104,8 @@ VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay,
 
 VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 {
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 
@@ -126,6 +128,8 @@ VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 //AnanthAtSamraksh - when the virtual timer is stopped, it is not released by default. User has to explicitly release it by setting _isreserved to FALSE
 VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 {
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 	UINT8 mapperTimerId = timer_id;
 	UINT8 mapperId = 0;
 

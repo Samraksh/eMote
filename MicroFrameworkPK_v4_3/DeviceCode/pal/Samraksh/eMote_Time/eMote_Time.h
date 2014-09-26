@@ -28,6 +28,7 @@ struct Time_Driver
     BOOL Initialize  ();
     BOOL Uninitialize();
     UINT64 CounterValue();
+	void StopTimer();
     void SetCompareValue( UINT64 CompareValue );
     INT64 TicksToTime( UINT64 Ticks );
     INT64 CurrentTime();

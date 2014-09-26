@@ -169,6 +169,11 @@ void SetCompareHandler(void *arg)
 	HAL_COMPLETION::DequeueAndExec();
 }
 
+void Time_Driver::StopTimer()
+{
+	VirtTimer_Stop( VIRT_TIMER_EVENTS );
+}
+
 void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
 	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
