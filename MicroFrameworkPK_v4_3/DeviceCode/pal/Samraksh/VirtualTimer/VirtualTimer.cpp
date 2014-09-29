@@ -55,10 +55,10 @@ template<>
 BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 //BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL IsOneShot, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
 	VTM_hardwareTimerId = VTM_countOfVirtualTimers = 0;
 
 	VTM_hardwareTimerId = temp_HWID;
