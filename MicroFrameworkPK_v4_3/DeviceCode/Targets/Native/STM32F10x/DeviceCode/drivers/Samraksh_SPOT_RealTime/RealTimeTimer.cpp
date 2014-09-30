@@ -250,6 +250,7 @@ void ISR_PendSV_Handler (void* Param){
 }
 
 void ISR_REALTIME_TIMER (void* Param){
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 );
@@ -297,6 +298,7 @@ void ISR_REALTIME_TIMER (void* Param){
 				//Timer16Bit_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 		}
 	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 static const CLR_RT_DriverInterruptMethods g_InteropRealTimeTimerDriverMethods =
