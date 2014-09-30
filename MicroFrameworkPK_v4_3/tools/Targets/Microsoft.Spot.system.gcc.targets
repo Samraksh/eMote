@@ -126,6 +126,11 @@
     <AS_FLAGS>$(AS_FLAGS) --defsym PLATFORM_ARM_$(TARGETPROCESSOR)=1</AS_FLAGS>
     <AS_FLAGS>$(AS_FLAGS) --defsym PLATFORM_ARM_$(TARGETPLATFORM)=1</AS_FLAGS>
 
+    <AS_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"  >$(AS_FLAGS) --defsym SAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SAM_HEAP_END)'!=''"    >$(AS_FLAGS) --defsym SAM_HEAP_END=$(SAM_HEAP_END) </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''">$(AS_FLAGS) --defsym SAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"   >$(AS_FLAGS) --defsym SAM_STACK_TOP=$(SAM_STACK_TOP) </AS_FLAGS>
+
     <AS_FLAGS Condition="'$(reducesize)'=='true'">$(AS_FLAGS) --defsym HAL_REDUCESIZE=1</AS_FLAGS>
 
     <AS_FLAGS>$(AS_FLAGS) --defsym TARGETLOCATION_$(TARGETLOCATION)=1 $(AS_CC_CPP_COMMON_FLAGS) $(AS_TARGETTYPE_FLAGS) $(AS_INCS)</AS_FLAGS>
@@ -181,6 +186,11 @@
     <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) @(TinyCLR_Defines->'-D%(filename)',' ')</CC_CPP_COMMON_FLAGS>
 
     <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) @(CC_CPP_Defines->'-D%(filename)',' ')</CC_CPP_COMMON_FLAGS>
+
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"  >$(CC_CPP_COMMON_FLAGS) -DSAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_HEAP_END)'!=''"    >$(CC_CPP_COMMON_FLAGS) -DSAM_HEAP_END=$(SAM_HEAP_END) </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''">$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"   >$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_TOP=$(SAM_STACK_TOP) </CC_CPP_COMMON_FLAGS>
 
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(CLRROOT)\$(Directory)</CC_CPP_INCS>
     <CC_CPP_INCS>$(CC_CPP_INCS) -I$(SPO_SDK)\DeviceCode\include</CC_CPP_INCS>
@@ -451,6 +461,10 @@
     <BuildScatterFileProperties Include="COMPILER_TOOL_VERSION=$(COMPILER_TOOL_VERSION)" />
     <BuildScatterFileProperties Include="COMPILER_TOOL=$(COMPILER_TOOL)" />
     <BuildScatterFileProperties Include="PROFILE_BUILD=$TRUE" Condition="'$(FLAVOR)'=='Instrumented'" />
+    <BuildScatterFileProperties Include="SAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN)" Condition="'$(SAM_HEAP_BEGIN)'!=''"/>
+    <BuildScatterFileProperties Include="SAM_HEAP_END=$(SAM_HEAP_END)" Condition="'$(SAM_HEAP_END)'!=''"/>
+    <BuildScatterFileProperties Include="SAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM)" Condition="'$(SAM_STACK_BOTTOM)'!=''"/>
+    <BuildScatterFileProperties Include="SAM_STACK_TOP=$(SAM_STACK_TOP)" Condition="'$(SAM_STACK_TOP)'!=''"/>
   </ItemGroup>
   
   <Target Name="BuildScatterfile" Condition="'$(DEPEND)'!='ACTIVE'" Inputs="@(EXEScatterFileDefinition);@(ScatterFileReferences)" Outputs="@(EXEScatterFile)">

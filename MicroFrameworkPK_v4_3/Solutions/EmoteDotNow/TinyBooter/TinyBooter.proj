@@ -25,7 +25,6 @@
     <ScatterFileDefinition>scatterfile_bootloader_$(COMPILER_TOOL).$(SCATTER_EXT)</ScatterFileDefinition>
     <EXEScatterFileDefinition>scatterfile_bootloader_$(COMPILER_TOOL).$(SCATTER_EXT)</EXEScatterFileDefinition>
   </PropertyGroup>
-  <ItemGroup />
   <ItemGroup>
     <Compile Include="$(SRC_DIR)\Allocator.cpp" />
     <Compile Include="$(SRC_DIR)\TinyBooterEntry.cpp" />

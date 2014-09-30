@@ -17,4 +17,11 @@
 	<IncludePaths Include="DeviceCode\Targets\Native\STM32F10x\DeviceCode\processor" />
   </ItemGroup>
   <Import Project="$(SPOCLIENT)\devicecode\Targets\Native\STM32F10x\STM32F10x.settings" />
+  <!-- Samraksh Heap and Stack settings to be propagated across ASM, C/C++, and Linker Script targets -->
+  <PropertyGroup>
+    <SAM_HEAP_BEGIN>0x2000C000</SAM_HEAP_BEGIN>
+    <SAM_HEAP_END>0x20018000</SAM_HEAP_END>
+    <SAM_STACK_BOTTOM>0x20008000</SAM_STACK_BOTTOM>
+    <SAM_STACK_TOP>0x2000C000</SAM_STACK_TOP>
+  </PropertyGroup>
 </Project>
