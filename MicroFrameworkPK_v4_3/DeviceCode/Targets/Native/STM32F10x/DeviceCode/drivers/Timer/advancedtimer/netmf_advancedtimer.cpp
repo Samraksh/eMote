@@ -478,7 +478,7 @@ void ISR_TIM1( void* Param )
 	// Update the 64 bit counter value
 	////g_STM32F10x_AdvancedTimer.Get64Counter();
 	////g_STM32F10x_AdvancedTimer.GetCounter();
-CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
+CPU_GPIO_SetPinState((GPIO_PIN) 2, TRUE);
 
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
@@ -503,7 +503,7 @@ CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 		HAL_COMPLETION::DequeueAndExec();
 	}
-CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
 }
 
 }
