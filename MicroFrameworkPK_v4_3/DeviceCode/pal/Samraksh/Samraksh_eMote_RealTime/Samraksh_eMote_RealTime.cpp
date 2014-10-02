@@ -301,6 +301,7 @@ void GenerateInterrupt( HRESULT &hr )
 
 void GenerateSoftwareInterrupt()
 {
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 #ifdef PLATFORM_ARM_EmoteDotNow
 	//E000ED04
 	//*((uint32_t volatile *)0x00000038) = 0x10000000;
@@ -311,6 +312,7 @@ void GenerateSoftwareInterrupt()
 	HRESULT hresult;
 	GenerateInterrupt(hresult);
 #endif
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
@@ -384,7 +386,7 @@ static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext 
 
 void ISR_REALTIME_TIMER (void* Param)
 {
-	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 	/*if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
 	{
 		TIM_ClearITPendingBit(TIM3, TIM_IT_CC1 );
@@ -433,7 +435,7 @@ void ISR_REALTIME_TIMER (void* Param)
 				if(!SingleShot)
 				{
 					////VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxTicks, FALSE);
-					VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxMicroseconds, FALSE);
+					//VirtTimer_Change(VIRT_TIMER_REALTIME, 0, maxMicroseconds, FALSE);
 
 					////VirtTimer_Start( VIRT_TIMER_REALTIME );
 
@@ -452,7 +454,7 @@ void ISR_REALTIME_TIMER (void* Param)
 		else if (RollOver == RollOverCount-1)
 		{
 				////VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RollOverTicks, FALSE);
-				VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RollOverMicrosecs, FALSE);
+			//	VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RollOverMicrosecs, FALSE);
 
 				////VirtTimer_Start( VIRT_TIMER_REALTIME );
 
@@ -472,7 +474,7 @@ void ISR_REALTIME_TIMER (void* Param)
 				//Timer_Driver::SetCompare( RT_HARDWARE_TIMER, 65535);
 		}
 	}
-	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable )

@@ -211,7 +211,8 @@ private:
 
 public:
 
-	UINT16 m_current_timer_id_;
+	UINT16 m_current_timer_cnt_;
+	UINT16 m_current_timer_running_;
 
 	UINT16 VTM_hardwareTimerId;
 	UINT16 VTM_countOfVirtualTimers;
