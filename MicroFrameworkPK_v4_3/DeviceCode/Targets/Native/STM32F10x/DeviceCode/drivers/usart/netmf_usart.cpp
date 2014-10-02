@@ -392,7 +392,7 @@ void __irq USART1_IRQHandler() {
 	static int idx;
 	unsigned int err;
 	unsigned int dummy;
-CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
@@ -447,7 +447,7 @@ CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 uart1_isr_out:
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 	return;
 
 }

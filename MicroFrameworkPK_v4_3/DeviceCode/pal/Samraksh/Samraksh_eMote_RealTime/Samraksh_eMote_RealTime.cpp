@@ -301,7 +301,7 @@ void GenerateInterrupt( HRESULT &hr )
 
 void GenerateSoftwareInterrupt()
 {
-	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 #ifdef PLATFORM_ARM_EmoteDotNow
 	//E000ED04
 	//*((uint32_t volatile *)0x00000038) = 0x10000000;
@@ -312,7 +312,7 @@ void GenerateSoftwareInterrupt()
 	HRESULT hresult;
 	GenerateInterrupt(hresult);
 #endif
-	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 }
 
 static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
