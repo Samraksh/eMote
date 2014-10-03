@@ -240,7 +240,16 @@ INT64 Time_Driver::CurrentTime()
 	GLOBAL_LOCK(irq);
 	UINT64 currentTime = 0;
 
-	if(a != 0)
+	if (a == 1)
+	{
+		currentTime = (currentTotalTicks * b + c);
+	} else if (a == 2) {
+		currentTime = (currentTotalTicks * b + c);
+		currentTime = currentTime << 1;
+	} else if (a == 4) {
+		currentTime = (currentTotalTicks * b + c);
+		currentTime = currentTime << 2;
+	} else if(a != 0)
 	{
 		currentTime = (currentTotalTicks * b + c) / a;
 	}

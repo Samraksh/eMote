@@ -845,9 +845,9 @@ mipi_dsi_shutdown();
 
     //while(1);
     //******************************************************
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 2, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 2, TRUE);
     ApplicationEntryPoint();
 
 

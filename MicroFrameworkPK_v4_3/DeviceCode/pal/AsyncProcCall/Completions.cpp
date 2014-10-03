@@ -205,7 +205,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 
-    /*if(state & c_SetCompare) HAL_Time_SetCompare_Completion( Expire );
+    if(state & c_SetCompare) HAL_Time_SetCompare_Completion( Expire );
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
 
@@ -219,7 +219,7 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 			HAL_Time_Stop_Completion_timer();
         	HAL_Time_SetCompare_Completion( ptr->EventTimeTicks );
 		}
-    }*/
+    }
 }
 
 void HAL_COMPLETION::Uninitialize()
