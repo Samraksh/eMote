@@ -245,10 +245,10 @@ INT64 Time_Driver::CurrentTime()
 		currentTime = (currentTotalTicks * b + c);
 	} else if (a == 2) {
 		currentTime = (currentTotalTicks * b + c);
-		currentTime = currentTime << 1;
+		currentTime = currentTime >> 1;
 	} else if (a == 4) {
 		currentTime = (currentTotalTicks * b + c);
-		currentTime = currentTime << 2;
+		currentTime = currentTime >> 2;
 	} else if(a != 0)
 	{
 		currentTime = (currentTotalTicks * b + c) / a;
