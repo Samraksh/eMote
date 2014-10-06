@@ -11,6 +11,8 @@
 #ifndef HAL_UTIL_H_
 #define HAL_UTIL_H_
 
+#include <platform_selector.h>
+
 enum DeviceStatus{
 DS_Success,
 DS_Fail,
@@ -30,7 +32,9 @@ NO_BadPacket,
 NO_Collision,
 };
 
-#ifdef PLATFORM_ARM_EmoteDotNow
+
+
+#if defined(SAM_USE_ATOMIC_LOCK)
 // Implementing atomic class akin to linux
 // you can now do thread safe atomic increments and decrements
 

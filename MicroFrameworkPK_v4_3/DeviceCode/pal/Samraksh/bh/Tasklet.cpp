@@ -68,6 +68,8 @@ BOOL Tasklet::initialize()
 	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_SVCall, ISR_Tasklet, NULL) )
 	//	return FALSE;
 
+	LOCK_INIT();
+
 	initialized = TRUE;
 
 	return TRUE;
@@ -84,7 +86,7 @@ BOOL Tasklet::schedule(TaskletType* tasklet)
 	// may be between two high priority interrupts
 	// one consumes and one adds to the queue
 	// no relative favouring at this point, producers and consumers are treated alike
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	TaskletType** taskletInQueue = taskletQueueLowPriority.Push();
 
@@ -94,7 +96,7 @@ BOOL Tasklet::schedule(TaskletType* tasklet)
 	}
 
 		// release the interrupts
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 	return TRUE;
 }
@@ -111,7 +113,7 @@ BOOL Tasklet::schedule_hi(TaskletType* tasklet)
 	// failed to acquire a lock, likely stepped on another thread
 	// need a spin lock version of this function
 	// at the moment implementing spin lock through busy wait
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	TaskletType** taskletInQueue = taskletQueueHighPriority.Push();
 
@@ -120,7 +122,7 @@ BOOL Tasklet::schedule_hi(TaskletType* tasklet)
 		*taskletInQueue = tasklet;
 	}
 
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 	return TRUE;
 
@@ -165,7 +167,7 @@ BOOL Tasklet::runhigh()
 		return FALSE;
 
 	// Attempt to acquire a lock about to access shared data structure
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	if(!taskletQueueHighPriority.IsEmpty())
 	{
@@ -173,7 +175,7 @@ BOOL Tasklet::runhigh()
 
 	}
 
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 	if(tasklet == NULL)
 		return FALSE;
@@ -184,14 +186,14 @@ BOOL Tasklet::runhigh()
 		(*tasklet)->action((*tasklet)->data);
 	}
 
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	if(!taskletQueueHighPriority.IsEmpty())
 	{
 		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
 	}
 
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 
 	return TRUE;
@@ -209,7 +211,7 @@ BOOL Tasklet::runlow()
 	AITC.ClearInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_Low);
 
 	// Attempt to acquire a lock about to access shared data structure
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	if(!taskletQueueLowPriority.IsEmpty())
 	{
@@ -217,7 +219,7 @@ BOOL Tasklet::runlow()
 
 	}
 
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 	if(tasklet == NULL)
 		return FALSE;
@@ -228,14 +230,14 @@ BOOL Tasklet::runlow()
 		(*tasklet)->action((*tasklet)->data);
 	}
 
-	while(!taskletLock.acquire_and_save());
+	LOCK_ACQUIRE();
 
 	if(!taskletQueueLowPriority.IsEmpty())
 	{
 		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 	}
 
-	while(!taskletLock.release_and_restore());
+	LOCK_RELEASE();
 
 	return TRUE;
 

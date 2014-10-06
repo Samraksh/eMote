@@ -56,7 +56,9 @@ class STM32F10x_AdvancedTimer
 	UINT64 m_lastRead;
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
+#if defined(SAM_USE_ATOMIC_LOCK)
 	LOCK timerLock;
+#endif
 	TaskletType timerTasklet;
 
 public:

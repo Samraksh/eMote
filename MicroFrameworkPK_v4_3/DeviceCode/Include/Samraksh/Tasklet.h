@@ -28,6 +28,21 @@ public:
 };
 
 
+#if defined(SAM_USE_ATOMIC_LOCK)
+#define LOCK_INIT()  taskletLock.init()
+#define LOCK_ACQUIRE() while(!taskletLock.acquire_and_save())
+#define LOCK_RELEASE() while(!taskletLock.release_and_restore())
+#elif defined(SAM_USE_SMART_LOCK)
+#define LOCK_INIT()  /*sptr_tasklet = new SmartPtr_IRQ(this);SmartPtr_IRQ::ForceEnabled(this);*/
+#define LOCK_ACQUIRE() sptr_tasklet.Acquire()
+#define LOCK_RELEASE() sptr_tasklet.Release()
+#elif defined(SAM_USE_NO_LOCK)
+#define LOCK_INIT()
+#define LOCK_ACQUIRE()
+#define LOCK_RELEASE()
+#endif
+
+
 class Tasklet
 {
 
@@ -35,8 +50,11 @@ class Tasklet
 	Hal_Queue_KnownSize<TaskletType*, 16> taskletQueueLowPriority;
 	Hal_Queue_KnownSize<TaskletType*, 16> taskletQueueHighPriority;
 
-#ifdef PLATFORM_ARM_EmoteDotNow
+#if defined(SAM_USE_ATOMIC_LOCK)
 	LOCK taskletLock;
+#elif defined(SAM_USE_SMART_LOCK)
+	SmartPtr_IRQ sptr_tasklet;
+#elif defined(SAM_USE_NO_LOCK)
 #endif
 
 	TaskletType taskletCache;
