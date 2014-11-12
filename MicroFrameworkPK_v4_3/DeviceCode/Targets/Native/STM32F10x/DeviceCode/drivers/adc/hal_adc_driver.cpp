@@ -34,11 +34,13 @@ static UINT64 g_timeStamp = 0;
 
 UINT16 *g_adcUserBufferChannel1Ptr = NULL;
 UINT16 *g_adcUserBufferChannel2Ptr = NULL;
+UINT16 *g_adcUserBufferChannel3Ptr = NULL;
 
 UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
 UINT16* g_adcDriverBufferChannel2Ptr = NULL;
 
 UINT32 *g_adcDriverBufferDualModePtr = NULL;
+UINT32 *g_adcDriverBufferDualModePtr2 = NULL;
 
 UINT32 adcNumSamples = 0;
 
@@ -51,12 +53,78 @@ UINT16 g_adcDriverBufferChannel1[1000];
 UINT32 g_adcDriverBufferDualMode[1000];
 #endif
 
+
 extern "C"
 {
 void ADC_HAL_HANDLER(void *param);
 void DMA_HAL_HANDLER(void *param);
 void TIM_HAL_HANDLER(void *param);
 }
+
+
+static void InitADC1()
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+	ADC_InitTypeDef ADC_InitStruct;
+	NVIC_InitTypeDef NVIC_InitStruct;
+	DMA_InitTypeDef DMA_InitStructure;
+
+	ADC_DeInit(ADC1);
+
+	// Setup ADC1 EOC interrupt
+	NVIC_InitStruct.NVIC_IRQChannel = ADC1_2_IRQn;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStruct);
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,    ENABLE); //
+
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	//GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_0 | GPIO_Pin_4;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	// Init and calibrate
+	ADC_StructInit(&ADC_InitStruct);
+	ADC_InitStruct.ADC_NbrOfChannel = 1;
+	ADC_InitStruct.ADC_ScanConvMode = DISABLE;
+	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
+	ADC_Init(ADC1, &ADC_InitStruct);
+	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+	//ADC_DMACmd(ADC1, ENABLE);
+	ADC_Cmd(ADC1, ENABLE);
+	ADC_ResetCalibration(ADC1);
+	while(ADC_GetResetCalibrationStatus(ADC1));
+	ADC_StartCalibration(ADC1);
+	while(ADC_GetCalibrationStatus(ADC1));
+
+
+	// Set up dma
+	/* DMA1 channel1 configuration ----------------------------------------------*/
+	DMA_DeInit(DMA1_Channel1);
+	DMA_InitStructure.DMA_PeripheralBaseAddr = ADC1_DR_Address;
+	DMA_InitStructure.DMA_MemoryBaseAddr = (UINT32)g_adcDriverBufferChannel1Ptr;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	DMA_InitStructure.DMA_BufferSize = 2;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+
+	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+
+	/* Enable DMA1 channel1 */
+	DMA_Cmd(DMA1_Channel1, ENABLE);
+}
+
+
+
 
 BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
@@ -624,8 +692,251 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	TIM_Cmd(TIM4, ENABLE);
 
 	return DS_Success;
-
 }
+
+
+DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT16* sampleBuff3, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
+{
+	ADC_InitTypeDef           ADC_InitStructure;
+	DMA_InitTypeDef           DMA_InitStructure;
+	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef         TIM_OCInitStructure;
+
+	UINT32 period;
+	UINT32 prescaler;
+
+	ADC_RCC_Configuration();
+
+	ADC_GPIO_Configuration();
+
+	if(!ADC_NVIC_Configuration())
+		return DS_Fail;
+
+	g_callback = userCallback;
+
+	if(Param != NULL)
+	{
+		Param = &g_timeStamp;
+	}
+
+	g_adcUserBufferChannel1Ptr = sampleBuff1;
+	g_adcUserBufferChannel2Ptr = sampleBuff2;
+	g_adcUserBufferChannel3Ptr = sampleBuff3;
+
+
+
+	/*RCC_ClocksTypeDef RCC_Clocks;
+	RCC_GetClocksFreq(&RCC_Clocks);
+
+	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
+		// No prescaler, so TIM clock == PCLK1
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency/1000000);
+	}
+	else {
+		// Prescaler, so TIM clock = PCLK1 x 2
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+	}
+
+	prescaler = 1;
+
+	// Only have 16-bit timer
+	// If sampling rate is too low, period will be too large.
+	// So keep doubling the prescaler and halving the period.
+	// Note that actual prescaler used in timer is prescaler+1, adjust at end.
+	// TODO Add error check if sampling rate is too low.
+	if (period > 0xFFFF) {
+		period = period >> 1;
+		prescaler = 2;
+	}
+
+	while (period > 0xFFFF) {
+		prescaler = prescaler << 1;
+		period = period >> 1;
+	}
+
+	// Adjust
+	prescaler--;*/
+
+	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4, ENABLE);
+	TIM_DeInit(TIM3);
+
+    TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
+    //TIM_TimeBaseStructure.TIM_Period = 32000;	//250Hz @ 8MHz
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
+
+	/*// Set up the compare channel
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_Pulse = period-1;
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
+
+	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
+
+	TIM_ARRPreloadConfig(TIM4, ENABLE);*/
+
+
+#ifdef NATIVE_TEST
+    g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
+    g_adcDriverBufferDualModePtr2 = g_adcDriverBufferDualMode;
+#else
+    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 3) * numSamples);
+    //g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(3 * numSamples);
+    g_adcDriverBufferDualModePtr2 = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
+#endif
+
+	/* DMA1 channel1 configuration ----------------------------------------------*/
+	DMA_DeInit(DMA1_Channel1);
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
+	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	DMA_InitStructure.DMA_BufferSize = 3 * numSamples;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+
+	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+	/* Enable DMA1 Channel1 */
+	DMA_Cmd(DMA1_Channel1, ENABLE);
+
+
+
+	/* DMA1 channel2 configuration ----------------------------------------------*/
+	/*DMA_DeInit(DMA1_Channel2);
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
+	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr2;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	DMA_InitStructure.DMA_BufferSize = numSamples;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+	DMA_Init(DMA1_Channel2, &DMA_InitStructure);
+
+	DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
+	// Enable DMA1 Channel1
+	DMA_Cmd(DMA1_Channel2, ENABLE);*/
+
+
+
+	 /* ADC1 configuration ------------------------------------------------------*/
+	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T4_CC4;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfChannel = 1;
+	ADC_Init(ADC1, &ADC_InitStructure);
+	 /* ADC1 regular channels configuration */
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
+
+	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+	   /* Enable ADC1 DMA */
+	ADC_DMACmd(ADC1, ENABLE);
+
+	 /* ADC2 configuration ------------------------------------------------------*/
+	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfChannel = 1;
+	ADC_Init(ADC2, &ADC_InitStructure);
+	/* ADC2 regular channels configuration */
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_55Cycles5);
+
+	/* Enable ADC2 external trigger conversion */
+	ADC_ExternalTrigConvCmd(ADC2, ENABLE);
+
+
+
+	//AnanthAtSamraksh - Configuring new channel
+	/* ADC3 configuration ------------------------------------------------------*/
+	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfChannel = 1;
+	ADC_Init(ADC3, &ADC_InitStructure);
+	/* ADC3 regular channels configuration */
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_0, 1, ADC_SampleTime_55Cycles5);
+
+	/* Enable ADC3 external trigger conversion */
+	ADC_ExternalTrigConvCmd(ADC3, ENABLE);
+
+
+
+	/* Enable ADC1 */
+	ADC_Cmd(ADC1, ENABLE);
+
+	/* Enable ADC1 reset calibration register */
+	ADC_ResetCalibration(ADC1);
+	/* Check the end of ADC1 reset calibration register */
+	while(ADC_GetResetCalibrationStatus(ADC1));
+
+	/* Start ADC1 calibration */
+	ADC_StartCalibration(ADC1);
+	/* Check the end of ADC1 calibration */
+	while(ADC_GetCalibrationStatus(ADC1));
+
+	/* Enable ADC2 */
+	ADC_Cmd(ADC2, ENABLE);
+
+	/* Enable ADC2 reset calibration register */
+	ADC_ResetCalibration(ADC2);
+	/* Check the end of ADC2 reset calibration register */
+	while(ADC_GetResetCalibrationStatus(ADC2));
+
+	/* Start ADC2 calibration */
+	ADC_StartCalibration(ADC2);
+	/* Check the end of ADC2 calibration */
+	while(ADC_GetCalibrationStatus(ADC2));
+
+
+
+	/* Enable ADC3 */
+	ADC_Cmd(ADC3, ENABLE);
+
+	/* Enable ADC3 reset calibration register */
+	ADC_ResetCalibration(ADC3);
+	/* Check the end of ADC3 reset calibration register */
+	while(ADC_GetResetCalibrationStatus(ADC3));
+
+	/* Start ADC3 calibration */
+	ADC_StartCalibration(ADC3);
+	/* Check the end of ADC3 calibration */
+	while(ADC_GetCalibrationStatus(ADC3));
+
+
+
+	/* Start ADC1 Software Conversion */
+	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+
+	adcNumSamples = numSamples;
+
+	dualADCMode = TRUE;
+
+	TIM_Cmd(TIM3, ENABLE);
+
+	return DS_Success;
+}
+
 
 void ADC_Configuration ( uint8_t sampTime )
 {
@@ -706,6 +1017,7 @@ uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChan
 	return 1;
 }
 
+
 extern "C"
 {
 	void ADC_HAL_HANDLER(void *param)
@@ -715,6 +1027,69 @@ extern "C"
 	}
 
 	void DMA_HAL_HANDLER(void *param)
+	{
+		// Record the time as close to the completion of sampling as possible
+		g_timeStamp = HAL_Time_CurrentTicks();
+
+		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
+		{
+			DMA_ClearITPendingBit(DMA1_IT_TC1);
+
+			if(!dualADCMode)
+			{
+				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
+			}
+			else
+			{
+				// Possible memory corruption if adcNumSamples != length of g_adcDriverBufferDualModePtr
+				// Possible only while conducting native tests as C# programs use dynamic memory
+				// allocated from the heap
+				// BTW this is because the hardware in dual mode stores in the most significant bits of
+				// ADC1_DR the result of ADC2 and the least significant bits of ADC1_DR the result
+				// of ADC1. Pretty cool  !!!
+
+				static int buffer_index = 0;
+				buffer_index++;
+				//Sample audio and I channel
+				if(buffer_index % 32 == 0)
+				{
+					for(UINT16 i = 0; i < adcNumSamples; i++)
+					{
+						g_adcUserBufferChannel1Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+					}
+				}
+				//Sample audio and Q channel
+				else if(buffer_index % 32 == 16)
+				{
+					for(UINT16 i = 0; i < adcNumSamples; i++)
+					{
+						g_adcUserBufferChannel2Ptr[i] = (g_adcDriverBufferDualModePtr[i] >> 16);
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+					}
+				}
+				//Sample audio alone
+				else
+				{
+					for(UINT16 i = 0; i < adcNumSamples; i++)
+					{
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+					}
+				}
+			}
+
+			// Call the user with the current value of ticks
+			g_callback(&g_timeStamp);
+
+			if(batchModeADC)
+			{
+				// Disable the trigger if the batch mode is true
+				TIM_Cmd(TIM3, DISABLE);
+			}
+		}
+	}
+
+	void DMA_HAL_HANDLER1(void *param)
 	{
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
@@ -748,7 +1123,7 @@ extern "C"
 			if(batchModeADC)
 			{
 				// Disable the trigger if the batch mode is true
-				TIM_Cmd(TIM4, DISABLE);
+				TIM_Cmd(TIM3, DISABLE);
 			}
 
 		}
@@ -763,3 +1138,4 @@ extern "C"
 		}
 	}
 }
+

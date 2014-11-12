@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_DotNow</FeatureName>
-    <Guid>{c30241c0-4ece-4d07-aa57-f73ad44361e3}</Guid>
+    <Guid>{45837466-8035-4331-8287-2ddb1ccc4d48}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_DOTNOW_FEATUREPROJ>True</SAMRAKSH_EMOTE_DOTNOW_FEATUREPROJ>
@@ -10,7 +10,9 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote_DotNow.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote_DotNow" />
-    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_DotNow.pe" />
-    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
+	<InteropFeature Include="ADC" />
+    <InteropFeature Include="SD" />
+	<!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote_DotNow.pe" />-->
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotnetmf.proj" />
   </ItemGroup>
 </Project>

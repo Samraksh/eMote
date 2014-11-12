@@ -68,6 +68,11 @@ INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampl
     return AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
 }
 
+INT32 ADCInternal::ConfigureScanModeThreeChannels( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, CLR_RT_TypedArray_UINT16 sampleBuff3, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
+{
+	return AD_ConfigureScanModeThreeChannels(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), sampleBuff3.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+}
+
 // The functions are deprecated, this was added to help with the india effort
 // but this breaks abstraction and is a really poor design
 INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )

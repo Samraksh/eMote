@@ -32,5 +32,6 @@ namespace Samraksh.eMote.DotNow
         {
             public const Cpu.AnalogChannel ADC_Channel1 = (Cpu.AnalogChannel)0;
             public const Cpu.AnalogChannel ADC_Channel2 = (Cpu.AnalogChannel)1;
+            public const Cpu.AnalogChannel ADC_Channel3 = (Cpu.AnalogChannel)2;
         }
 }

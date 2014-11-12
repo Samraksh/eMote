@@ -30,6 +30,7 @@ namespace Samraksh
                 static INT32 ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
                 static INT32 ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
                 static INT32 ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
+                static INT32 ConfigureScanModeThreeChannels( CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, UINT32 param3, UINT32 param4, HRESULT &hr );
                 static INT32 ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr );
                 static INT32 ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr );
                 static INT8 DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );
@@ -38,4 +39,5 @@ namespace Samraksh
         }
     }
 }
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_ADC;
 #endif  //_SAMRAKSHEMOTEDOTNOW_SAMRAKSH_EMOTE_DOTNOW_ADCINTERNAL_H_

@@ -139,6 +139,33 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Configure
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::ConfigureScanModeThreeChannels___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__U4__U4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_TypedArray_UINT16 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 0, param0 ) );
+
+        CLR_RT_TypedArray_UINT16 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 1, param1 ) );
+
+        CLR_RT_TypedArray_UINT16 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16_ARRAY( stack, 2, param2 ) );
+
+        UINT32 param3;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 3, param3 ) );
+
+        UINT32 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 4, param4 ) );
+
+        INT32 retVal = ADCInternal::ConfigureScanModeThreeChannels( param0, param1, param2, param3, param4, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

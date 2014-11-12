@@ -136,6 +136,31 @@ namespace Samraksh.eMote.DotNow
 
 
         /// <summary>
+        /// Read the adc channels 1 and 2 in batch mode
+        /// </summary>
+        /// <param name="sampleBuff">Sample buffer to be filled</param>
+        /// <param name="NumSamples">Number of samples before callback</param>
+        /// <param name="SamplingTime">Sampling frequency</param>
+        /// <param name="Callback">Callback funtion to be called</param>
+        /// <returns></returns>
+        static public bool ConfigureScanModeThreeChannels(ushort[] sampleBuff1, ushort[] sampleBuff2, ushort[] sampleBuff3, uint NumSamples, uint SamplingTime, AdcCallBack Callback)
+        {
+            MyCallback = Callback;
+            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            AdcInternal.OnInterrupt += eventHandler;
+
+            if (ADCInternal.ConfigureScanModeThreeChannels(sampleBuff1, sampleBuff2, sampleBuff3, NumSamples, SamplingTime) != DeviceStatus.Success)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
+
+
+
+
+        /// <summary>
         /// Read the ADC in batch mode and collect the specified number of samples before stopping
         /// </summary>
         /// <param name="sampleBuff">Buffer passed to the driver to be filled</param>
@@ -272,6 +297,9 @@ namespace Samraksh.eMote.DotNow
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public DeviceStatus ConfigureBatchModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public DeviceStatus ConfigureScanModeThreeChannels(ushort[] SampleBuff1, ushort[] SampleBuff2, ushort[] SampleBuff3, uint NumSamples, uint SamplingTime);
 
 
         /// <summary>
