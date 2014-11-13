@@ -43,6 +43,7 @@ UINT32 *g_adcDriverBufferDualModePtr = NULL;
 UINT32 *g_adcDriverBufferDualModePtr2 = NULL;
 
 UINT32 adcNumSamples = 0;
+uint32_t ADC_RAW[1] = {0};
 
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
@@ -133,6 +134,7 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
+	NVIC_InitTypeDef 		  NVIC_InitStruct;
 
 	// Turn on the clocks for all the peripherals required
 	ADC_RCC_Configuration();
@@ -145,6 +147,13 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	// The production code should only have dma
 	if(!ADC_NVIC_Configuration())
 		return FALSE;
+
+	// Setup ADC1 EOC interrupt
+	/*NVIC_InitStruct.NVIC_IRQChannel = ADC1_2_IRQn;
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 3;
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStruct);*/
 
 	    /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
@@ -787,7 +796,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
     g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
     g_adcDriverBufferDualModePtr2 = g_adcDriverBufferDualMode;
 #else
-    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 3) * numSamples);
+    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 2) * numSamples);
     //g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(3 * numSamples);
     g_adcDriverBufferDualModePtr2 = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
 #endif
@@ -797,7 +806,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = 3 * numSamples;
+	DMA_InitStructure.DMA_BufferSize = 2 * numSamples;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
@@ -808,13 +817,13 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 
 	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
-	/* Enable DMA1 Channel1 */
+	// Enable DMA1 Channel1
 	DMA_Cmd(DMA1_Channel1, ENABLE);
 
 
 
-	/* DMA1 channel2 configuration ----------------------------------------------*/
-	/*DMA_DeInit(DMA1_Channel2);
+	/* DMA2 channel5 configuration for ADC3 ----------------------------------------------*/
+	DMA_DeInit(DMA2_Channel5);
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr2;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
@@ -826,11 +835,11 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_Init(DMA1_Channel2, &DMA_InitStructure);
+	DMA_Init(DMA2_Channel5, &DMA_InitStructure);
 
-	DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
+	DMA_ITConfig(DMA2_Channel5, DMA_IT_TC, ENABLE);
 	// Enable DMA1 Channel1
-	DMA_Cmd(DMA1_Channel2, ENABLE);*/
+	DMA_Cmd(DMA2_Channel5, ENABLE);
 
 
 
@@ -1053,27 +1062,34 @@ extern "C"
 				//Sample audio and I channel
 				if(buffer_index % 32 == 0)
 				{
+					//g_adcUserBufferChannel1Ptr = (uint16_t*)ADC_RAW[0];
 					for(UINT16 i = 0; i < adcNumSamples; i++)
 					{
 						g_adcUserBufferChannel1Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
-						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+						//g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr2[i] >> 16);
+						hal_printf("audio and I; g_adcDriverBufferDualModePtr[i]: %d \n", g_adcDriverBufferDualModePtr[i]);
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr2[i] & 0xffff);
 					}
 				}
 				//Sample audio and Q channel
 				else if(buffer_index % 32 == 16)
 				{
+					//g_adcUserBufferChannel2Ptr = (uint16_t*)ADC_RAW[1];
 					for(UINT16 i = 0; i < adcNumSamples; i++)
 					{
 						g_adcUserBufferChannel2Ptr[i] = (g_adcDriverBufferDualModePtr[i] >> 16);
-						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+						hal_printf("audio and Q; g_adcDriverBufferDualModePtr[i]: %d \n", g_adcDriverBufferDualModePtr[i]);
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr2[i] & 0xffff);
 					}
 				}
 				//Sample audio alone
 				else
 				{
+					//g_adcUserBufferChannel3Ptr = (uint16_t*)ADC_RAW[2];
 					for(UINT16 i = 0; i < adcNumSamples; i++)
 					{
-						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+						hal_printf("audio alone; buffer_index: %d; g_adcDriverBufferDualModePtr2[i]: %d \n", buffer_index, g_adcDriverBufferDualModePtr2[i]);
+						g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtr2[i] & 0xffff);
 					}
 				}
 			}
