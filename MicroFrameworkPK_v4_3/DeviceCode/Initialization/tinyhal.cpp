@@ -546,7 +546,7 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
-    Tasklet_Initialize();
+    //Tasklet_Initialize();
 
     HAL_Initialize();
 

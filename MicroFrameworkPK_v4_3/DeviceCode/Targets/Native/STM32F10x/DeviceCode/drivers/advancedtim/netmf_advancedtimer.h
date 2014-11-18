@@ -66,6 +66,7 @@ public:
 	static BOOL initialized;
 	BOOL timerOverflowFlag;
 	UINT32 currentCounterValue;
+	UINT64 epochCompareValue; // hack
 
 	// Stores the current active compare value in the system
 	UINT32 currentCompareValue;

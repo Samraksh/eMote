@@ -16,27 +16,29 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
-
 extern "C"
 {
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 }
 
-extern HALTimerManager gHalTimerManagerObject;
+//extern HALTimerManager gHalTimerManagerObject;
 // Initialize the virtual timer layer
 // This is to ensure that users can not remove the hardware timer from underneath the virtual timer
 // layer without the knowledge of the virtual timer
 BOOL HAL_Time_Initialize()
 {
-	return gHalTimerManagerObject.Initialize();
+	//return gHalTimerManagerObject.Initialize();
+	//STM32F10x_AdvancedTimer::Initialize(0, NULL, NULL);
+	g_STM32F10x_AdvancedTimer.Initialize(0, NULL, NULL);
 	//return TRUE;
 }
 
 // This function is called the uninitialize the timer system and the virtual timer layer
 BOOL HAL_Time_Uninitialize()
 {
-	return gHalTimerManagerObject.DeInitialize();
+	//return gHalTimerManagerObject.DeInitialize();
+	return TRUE;
 }
 
 // This function has been tested using the rollover test for advanced timers - Level_0b
@@ -62,14 +64,29 @@ INT64 HAL_Time_CurrentTime()
 // On a successful compare, a tasklet is launched that will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
-	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
+	GLOBAL_LOCK(irq);
+
+	UINT64 now = g_STM32F10x_AdvancedTimer.Get64Counter();
+
+	if (CompareValue < now || CompareValue == 0xFFFFFFFFFFFFFFFFull) { return; } // time in past, fail.
+
+	// Are we in the same epoch?
+	if ( (now & 0xFFFFFFFF00000000ull) != (CompareValue & 0xFFFFFFFF00000000ull) ) {
+		// Wrong epoch, wait for roll-over
+		if (g_STM32F10x_AdvancedTimer.epochCompareValue > CompareValue || g_STM32F10x_AdvancedTimer.epochCompareValue < now) {
+			g_STM32F10x_AdvancedTimer.epochCompareValue = CompareValue;
+		}
+		return;
+	}
+	g_STM32F10x_AdvancedTimer.epochCompareValue = 0; // Task is current epoch
+	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue&0xFFFFFFFF, SET_COMPARE_COMPLETION);
 }
 
 // This SetCompare works within the HAL_COMPLETION \ HAL_CONTINUATION framework in \pal\AsyncProcCall
 // On a successful compare HAL_COMPLETION::DequeueAndExec(); will be called
 void HAL_Time_SetCompare_Completion( UINT64 CompareValue )
 {
-	g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_COMPLETION);
+	HAL_Time_SetCompare(CompareValue);
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
@@ -202,10 +219,11 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
 	// Initializes the special deferred function
-	TaskletType* tasklet = GetTasklet();
+	//TaskletType* tasklet = GetTasklet();
 
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
+	epochCompareValue = 0;
 
 	// Set the timer overflow flag to false during intialization
 	// This flag is set when an over flow happens on timer 2 which happens to represent
@@ -218,11 +236,13 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 #endif
 
 	// Keep tasklet ready for insertion into bh queue
+	/*
 	tasklet->action = ISR;
 	if(!ISR_Param)
 		tasklet->data = &currentCounterValue;
 	else
 		tasklet->data = ISR_Param;
+	*/
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
@@ -351,48 +371,27 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 // the second stage involves lsb on tim1
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
-	UINT32 newCompareValue;
 
-	if(counterCorrection == 0)
-	{
-		newCompareValue = compareValue;
+	GLOBAL_LOCK(irq);
+
+	if( (compareValue>>16) > TIM2->CNT) {
+		TIM_SetCompare2(TIM2, compareValue >> 16);
+		TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
 	}
 	else
 	{
-		newCompareValue = (UINT32) counterCorrection +  compareValue;
-	}
-	if(compareValue >> 16)
-	{
-		if (scType == SET_COMPARE_TIMER){
-			TIM_SetCompare1(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-		} else {
-			TIM_SetCompare2(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-		}
-	}
-	else
-	{
-		if (scType == SET_COMPARE_TIMER){
-			TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		} else {
-			TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-		}
+		TIM_SetCompare2(TIM1, compareValue & 0xffff);
+		TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 	}
 
-	currentCompareValue = newCompareValue;
-
+	currentCompareValue = compareValue;
 	return DS_Success;
 }
-
-extern "C"
-{
 
 void ISR_TIM2(void* Param)
 {
 
+	/*
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
@@ -428,6 +427,7 @@ void ISR_TIM2(void* Param)
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		}
 	}
+	*/
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
@@ -440,6 +440,16 @@ void ISR_TIM2(void* Param)
 
 		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
+		// TIM2 is correct, check for TIM1.
+		if (TIM1->CNT >= lsbValue) { // Should also check if "close"
+			HAL_COMPLETION::DequeueAndExec(); // Done
+		}
+		else {
+			TIM_SetCompare2(TIM1, lsbValue); // Setup TIM1 then done
+			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+		}
+
+		/*
 		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
 		//if(TIM1->CNT > lsbValue)
 		{			
@@ -457,6 +467,7 @@ void ISR_TIM2(void* Param)
 			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 		}
+		*/
 	}
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
 	{
@@ -467,8 +478,11 @@ void ISR_TIM2(void* Param)
 		// poll this 64 bit number
 
 		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
-
 		g_STM32F10x_AdvancedTimer.Get64Counter();
+
+		if (g_STM32F10x_AdvancedTimer.epochCompareValue != 0) {
+			HAL_Time_SetCompare(g_STM32F10x_AdvancedTimer.epochCompareValue);
+		}
 	}
 
 }
@@ -480,9 +494,10 @@ void ISR_TIM1( void* Param )
 	// This variable is pointed to by the tasklet
 	// So changing the contents of this variable should be done with extreme caution
 	// Update the 64 bit counter value
-	g_STM32F10x_AdvancedTimer.Get64Counter();
+	//g_STM32F10x_AdvancedTimer.Get64Counter();
 
 
+	/*
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
@@ -496,14 +511,17 @@ void ISR_TIM1( void* Param )
 		 // Schedule bottom half processing on arrival of interrupt
      	Tasklet_Schedule_hi(tasklet);
 	}
+	*/
+
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
+
+		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
+
 		HAL_COMPLETION::DequeueAndExec();
 	}
 
 }
-
-}
-
