@@ -270,7 +270,7 @@ void ADC_RCC_Configuration(void)
 
 		  /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
 	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB |
-		                    RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
+		                    RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_ADC3, ENABLE);
 
 }
 
@@ -334,6 +334,11 @@ void ADC_GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	/* Configure PA.0 (ADC Channel0) as analog input */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
