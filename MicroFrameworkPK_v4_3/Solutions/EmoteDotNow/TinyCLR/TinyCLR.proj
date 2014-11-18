@@ -583,6 +583,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
     <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
+    <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
+  </ItemGroup>
   
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />

@@ -28,10 +28,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Samraksh_eMote.XML</DocumentationFile>
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="Algorithm.cs" />
     <Compile Include="NonVolatileMemory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GarbageCollector.cs" />

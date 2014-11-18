@@ -10,6 +10,12 @@
 <ItemGroup>
 <HFile Include="SamrakshEmote.h" />
 <Compile Include="SamrakshEmote.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.cpp" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_GC_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_GC.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_GC.cpp" />
