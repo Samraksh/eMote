@@ -13,18 +13,27 @@
 
 #include "SamrakshEmote.h"
 #include "SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.h"
+#include "Samraksh\Acoustic.h"
 
 using namespace Samraksh::eMote;
+static INT32 Pa = 1, Pm = 1;
 
 INT8 Algorithm_AcousticDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, HRESULT &hr )
 {
     INT8 retVal = 0; 
+
+	retVal = testFunction(param0.GetBuffer(), param1, Pa, Pm);
+
     return retVal;
 }
 
 INT8 Algorithm_AcousticDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, HRESULT &hr )
 {
     INT8 retVal = 0; 
+
+	Pa = param0;
+	Pm = param1;
+
     return retVal;
 }
 

@@ -90,14 +90,15 @@ namespace DataCollectorHost
     {
         static void Main(string[] args)
         {
-            string port = "";
+            string port = "COM1";
             string inputFile = "";
 
 
             Console.WriteLine("Enter the COM Port : ");
-            port = Console.ReadLine();
+            //port = Console.ReadLine();
             Console.WriteLine("Enter the name of the storage file : ");
-            inputFile = Console.ReadLine();
+            //inputFile = Console.ReadLine();
+            inputFile = "D:\\AnanthAtSamraksh\\ADC_Channel_changes\\testFirmware\\testFirmware\\test.data";
 
             DataCollector dc = new DataCollector(port, inputFile);
 
