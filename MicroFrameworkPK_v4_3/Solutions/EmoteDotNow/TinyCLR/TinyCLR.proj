@@ -567,6 +567,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DSP.$(LIB_EXT)" />
   </ItemGroup>
+
+  <!-- 									Algorithms Extension        								-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
+    <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
+  </ItemGroup>
   <!-- 									Realtime Extension        								-->
   
   <ItemGroup>
