@@ -270,9 +270,9 @@ void ADC_RCC_Configuration(void)
 	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
 
 	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	 RCC_APB1PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
+	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
-		  /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
+	 /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
 	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB |
 		                    RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_ADC3, ENABLE);
 
@@ -287,8 +287,8 @@ BOOL ADC_NVIC_Configuration(void)
 	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_ADC1_2, ADC_HAL_HANDLER, NULL) )
 	 		return FALSE;
 
-	/*if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, TIM_HAL_HANDLER, NULL) )
-		 	return FALSE;*/
+	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, TIM_HAL_HANDLER, NULL) )
+		 	//return FALSE;
 
 	return TRUE;
 }
@@ -731,20 +731,26 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1, DMA_HAL_HANDLER_FOR_RADAR, NULL) )
 		return DS_Fail;
 
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5, DMA_HAL_HANDLER_FOR_AUDIO, NULL) )
-		return DS_Fail;
+	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5, DMA_HAL_HANDLER_FOR_AUDIO, NULL) )
+		//return DS_Fail;
+
+	//if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_DMA2_Channel4_5))
+		//return DS_Fail;
 
 	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_ADC1_2, ADC_HAL_HANDLER, NULL) )
 		//return DS_Fail;
 
-	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_ADC3, ADC_HAL_HANDLER, NULL) )
-		//return DS_Fail;
-
-	/*if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM3, TIM_HAL_HANDLER, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_ADC3, ADC_HAL_HANDLER, NULL) )
 		return DS_Fail;
 
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12, TIM_HAL_HANDLER, NULL) )
-		return DS_Fail;*/
+	if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_ADC3))
+		return DS_Fail;
+
+	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM3, TIM_HAL_HANDLER, NULL) )
+		//return DS_Fail;
+
+	//if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12, TIM_HAL_HANDLER, NULL) )
+		//return DS_Fail;
 
 	/*if(!ADC_NVIC_Configuration())
 		return DS_Fail;*/
@@ -796,18 +802,19 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 | RCC_APB2Periph_TIM8, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
 	//-------------------------TIMER SETUP---------------------------------------------------------------------
 	//AnanthAtSamraksh - setup a timer for Radar (TIM4)
-	TIM_DeInit(TIM8);
+	TIM_DeInit(TIM3);
     TIM_TimeBaseStructure.TIM_Period = 32000;	//250Hz @ 8MHz
     TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
-	TIM_SelectOutputTrigger(TIM8, TIM_TRGOSource_Update);
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
 
 	// Set up the compare channel
 	/*TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
@@ -820,14 +827,14 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 
 	//AnanthAtSamraksh - setup a timer for Audio (TIM3)
-	TIM_DeInit(TIM3);
-	TIM_TimeBaseStructure.TIM_Period = 32000;	//2KHz @ 8MHz
+	TIM_DeInit(TIM8);
+	TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
-	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
+	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
+	TIM_SelectOutputTrigger(TIM8, TIM_TRGOSource_Update);
 
 	// Set up the compare channel
 	/*TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
@@ -848,7 +855,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 #else
     g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 2) * numSamples);
     //g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(3 * numSamples);
-    g_adcDriverBufferDualModePtrAudio = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
+    //g_adcDriverBufferDualModePtrAudio = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
 #endif
 
     //-------------------------DMA SETUP------------------------------------------------------------------------
@@ -868,15 +875,15 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 
-	//DMA_ITConfig(DMA1_Channel1, DMA1_IT_HT1, ENABLE);
-	DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
+	DMA_ITConfig(DMA1_Channel1, DMA1_IT_HT1, ENABLE);
+	//DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
 	// Enable DMA1 Channel1
 	DMA_Cmd(DMA1_Channel1, ENABLE);
 
 
 	//AnanthAtSamraksh - setup DMA for audio
 	/* DMA2 channel5 configuration for ADC3 ----------------------------------------------*/
-	DMA_DeInit(DMA2_Channel5);
+	/*DMA_DeInit(DMA2_Channel5);
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtrAudio;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
@@ -893,7 +900,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	//DMA_ITConfig(DMA2_Channel5, DMA2_IT_HT5, ENABLE);
 	DMA_ITConfig(DMA2_Channel5, DMA2_IT_TC5, ENABLE);
 	// Enable DMA2 Channel5
-	DMA_Cmd(DMA2_Channel5, ENABLE);
+	DMA_Cmd(DMA2_Channel5, ENABLE);*/
 	//-------------------------------------------------------------------------------------------------------------------
 
 
@@ -907,14 +914,13 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 	ADC_Init(ADC1, &ADC_InitStructure);
 
-	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	//ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
 	 /* ADC1 regular channels configuration */
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
-
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	   /* Enable ADC1 DMA */
-	//ADC_DMACmd(ADC1, ENABLE);
+	ADC_DMACmd(ADC1, ENABLE);
 
 
 	 /* ADC2 configuration ------------------------------------------------------*/
@@ -927,16 +933,16 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	ADC_Init(ADC2, &ADC_InitStructure);
 	/* ADC2 regular channels configuration */
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_55Cycles5);
-
 	/* Enable ADC2 external trigger conversion */
 	ADC_ExternalTrigConvCmd(ADC2, ENABLE);
 
 
+
 	//AnanthAtSamraksh - Configuring new channel
 	/* ADC3 configuration ------------------------------------------------------*/
-	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
-	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T8_TRGO;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
@@ -946,7 +952,6 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 	/* ADC3 regular channels configuration */
 	ADC_RegularChannelConfig(ADC3, ADC_Channel_0, 1, ADC_SampleTime_55Cycles5);
-
 	/* Enable ADC3 external trigger conversion */
 	ADC_ExternalTrigConvCmd(ADC3, ENABLE);
 	/* Enable ADC3 DMA */
@@ -995,14 +1000,14 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	//ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
 	/* Start ADC3 Software Conversion */
-	//ADC_SoftwareStartConvCmd(ADC3, ENABLE);
+	ADC_SoftwareStartConvCmd(ADC3, ENABLE);
 
 	adcNumSamples = numSamples;
 
 	dualADCMode = TRUE;
 
-	TIM_Cmd(TIM3, ENABLE);		//Audio
-	TIM_Cmd(TIM8, ENABLE);		//Radar
+	//TIM_Cmd(TIM3, ENABLE);		//Radar
+	//TIM_Cmd(TIM8, ENABLE);		//Audio
 
 	return DS_Success;
 }
@@ -1093,8 +1098,21 @@ extern "C"
 	void ADC_HAL_HANDLER(void *param)
 	{
 		//hal_printf("ADC_HAL_HANDLER\n");
-		  /* Clear ADC1 JEOC pending interrupt bit */
-		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+		static int buffer_index = 0;
+		buffer_index++;
+		if(buffer_index % 5 == 0)
+		{
+			g_timeStamp = HAL_Time_CurrentTicks();
+			for(UINT16 i = 0; i < adcNumSamples; i++)
+			{
+				g_adcUserBufferChannel3Ptr[i] = ADC_GetConversionValue(ADC3);
+			}
+			g_callback(&g_timeStamp);
+		}
+		//hal_printf("ADC_HAL_HANDLER: %d\n", *g_adcUserBufferChannel3Ptr);
+		/* Clear ADC1 JEOC pending interrupt bit */
+		//ADC_ClearITPendingBit(ADC3, ADC_IT_EOC);		//Does not make any difference
+
 	}
 
 	void DMA_HAL_HANDLER_FOR_RADAR(void *param)
@@ -1103,13 +1121,13 @@ extern "C"
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
 
-		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
+		if(DMA_GetFlagStatus(DMA1_FLAG_HT1) != RESET)
 		{
-			DMA_ClearITPendingBit(DMA1_FLAG_TC1);
+			DMA_ClearITPendingBit(DMA1_FLAG_HT1);
 
 			if(!dualADCMode)
 			{
-				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
+				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferDualModePtr, adcNumSamples * sizeof(UINT16));
 			}
 			else
 			{
@@ -1195,7 +1213,7 @@ extern "C"
 
 			if(!dualADCMode)
 			{
-				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
+				memcpy(g_adcUserBufferChannel3Ptr, g_adcDriverBufferDualModePtrAudio, adcNumSamples * sizeof(UINT16));
 			}
 			else
 			{
@@ -1231,6 +1249,7 @@ extern "C"
 			}
 		}
 	}
+
 
 	void DMA_HAL_HANDLER(void *param)
 	{
@@ -1276,7 +1295,7 @@ extern "C"
 
 	/*void TIM_HAL_HANDLER(void *param)
 	{
-		hal_printf("TIM_HAL_HANDLER\n");
+		//hal_printf("TIM_HAL_HANDLER\n");
 		//if(TIM_GetFlagStatus(TIM4, TIM_IT_CC4))
 		if(TIM_GetITStatus(TIM4, TIM_IT_CC4))
 		{
