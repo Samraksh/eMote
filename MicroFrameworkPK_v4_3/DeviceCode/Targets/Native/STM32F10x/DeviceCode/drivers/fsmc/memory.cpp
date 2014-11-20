@@ -13,7 +13,7 @@ uint16_t TxBuffer[BUFFER_SIZE];
 
 uint32_t WriteReadStatus = 0, Index = 0;
 NOR_IDTypeDef NOR_ID;
-uint16_t lastBlockAddress = 0x0;
+uint32_t lastBlockAddress = 0x0;
 
 
 typedef long Align;
@@ -63,7 +63,7 @@ void memory_init()
 	
 	while(lastBlockAddress <=  0x0FE000)
 	{
-			Flash *flashObj = (Flash*) malloc(sizeof(Flash)); 
+			Flash *flashObj = (Flash*) private_malloc(sizeof(Flash));
 			flashObj->address = (uint16_t *) lastBlockAddress;
 			flashObj->allocated = false;
 			flashObj->dirty = false;
@@ -107,7 +107,7 @@ void free_flash(void* ap)
 
 uint16_t* read_flash(void *ap)
 {
-	uint16_t RxBuffer[BUFFER_SIZE];
+	static uint16_t RxBuffer[BUFFER_SIZE];
 	
 	NOR_ReadBuffer(RxBuffer,(uint32_t) ap , BUFFER_SIZE);  
 	
