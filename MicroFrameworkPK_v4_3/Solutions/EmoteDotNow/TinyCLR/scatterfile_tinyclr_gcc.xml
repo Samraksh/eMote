@@ -4,10 +4,10 @@
     <Set Name="Valid" Value="false"/>
 
     <!-- ################################################################################ -->
-    <Set Name="Heap_Begin"          Value="0x20010000"/>
-    <Set Name="Heap_End"            Value="0x20017F00"/>
-    <Set Name="Stack_Bottom"        Value="0x20000000"/>
-    <Set Name="Stack_Top"           Value="0x20000008"/>
+    <Set Name="Heap_Begin"          Value="%SAM_HEAP_BEGIN%"/>
+    <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
+    <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
+    <Set Name="Stack_Top"           Value="%SAM_STACK_TOP%"/>
 
     <If Name="TARGETLOCATION" In="FLASH">
 		
@@ -91,6 +91,17 @@
         <If Name="TARGETLOCATION" In="FLASH">     
           <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         </If>
+        <FileMapping Name=". = ALIGN(4);" />
+        <!--
+        <FileMapping Name=".init_array :" />
+        <FileMapping Name="{" />
+     	-->
+     	<FileMapping Name="__init_array_start = .;" />
+      	<FileMapping Name="KEEP (*(.init_array*))" />
+      	<FileMapping Name="__init_array_end = .;" />
+      	<!--
+      	<FileMapping Name="}" />
+      	-->
       </ExecRegion>      
       <ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
       <!--<ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM">-->

@@ -76,6 +76,7 @@
         <FileMapping Name="*" Options="(rodata)" />
         <FileMapping Name="*" Options="(.constdata*)" />
         <FileMapping Name="*" Options="(.conststring*)" />
+        <!--<FileMapping Name="*" Options="(.init_array*)" />-->
         <IfNotDefined Name="Data_BaseAddress">
           <FileMapping Name="*" Options="(tinyclr_metadata)" />
         </IfNotDefined>
@@ -94,6 +95,17 @@
         <If Name="TARGETLOCATION" In="FLASH">     
           <FileMapping Name="*" Options="(SectionForFlashOperations)" />       
         </If>
+        <FileMapping Name=". = ALIGN(4);" />
+        <!--
+        <FileMapping Name=".init_array :" />
+        <FileMapping Name="{" />
+     	-->
+     	<FileMapping Name="__init_array_start = .;" />
+      	<FileMapping Name="KEEP (*(.init_array*))" />
+      	<FileMapping Name="__init_array_end = .;" />
+      	<!--
+      	<FileMapping Name="}" />
+      	-->
       </ExecRegion>      
       <ExecRegion Name="ER_RAM_RW" Align="0x10" Options="&gt;RELOC_RAM AT&gt;LR_%TARGETLOCATION%">
         <FileMapping Name="*" Options="(rwdata)" />

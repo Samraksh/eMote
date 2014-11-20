@@ -24,26 +24,22 @@
 
     .section SectionForStackBottom,       "a", %progbits
 StackBottom:
-    .word   0
+    .word   SAM_STACK_BOTTOM
     .section SectionForStackTop,          "a", %progbits
 StackTop:
-    .word   0
+    .word   SAM_STACK_TOP
     .section SectionForHeapBegin,         "a", %progbits
 HeapBegin:
-	.word   0x2000C000 @for stmxl of 96KB ram
-    @.word   0x20009000
+	.word   SAM_HEAP_BEGIN
     .section SectionForHeapEnd,           "a", %progbits
 HeapEnd:
-	.word   0x20018000 @for stmxl of 96KB ram
-    @.word   0x20010000 @for stm of 64KB ram
+	.word   SAM_HEAP_END
     .section SectionForCustomHeapBegin,   "a", %progbits
 CustomHeapBegin:
-	.word   0x2000C000 @for stmxl of 96KB ram
-    @.word   0x20009000
+	.word   SAM_HEAP_BEGIN
     .section SectionForCustomHeapEnd,     "a", %progbits
 CustomHeapEnd:
-	.word   0x20018000 @for stmxl of 96KB ram
-    @.word   0x20010000 @for stm of 64KB ram
+	.word   SAM_HEAP_END
 
     .global StackBottom
     .global StackTop
@@ -70,7 +66,7 @@ CustomHeapEnd:
 EntryPoint:
 	@Set stack pointer
 	@bl SystemInit_ExtMemCtl
-	LDR r0, =InitStackTop
+	LDR r0, =SAM_STACK_TOP
   	MSR msp, r0
 	bl VectorRelocate
     bl BootstrapCode
