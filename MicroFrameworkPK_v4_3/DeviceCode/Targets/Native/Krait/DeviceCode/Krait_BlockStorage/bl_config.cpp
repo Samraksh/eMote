@@ -28,7 +28,7 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_InternalFlash[1] =
 {
 
 		//0x88F00000,
-		0x80200000,
+		0x90000000,
 			2304,
 			0x800,
 			ARRAYSIZE_CONST_EXPR(STM32F10x_BlockRange_InternalFlash),

@@ -24,9 +24,9 @@
     </If>
 
     <If Name="TARGETLOCATION" In="RAM">
-		<Set Name="Heap_Begin"          Value="0x80410000"/>
-        <Set Name="Heap_End"            Value="0x804FFFFF"/>
-        <Set Name="Code_BaseAddress" Value="0x80200000"/>
+		<Set Name="Heap_Begin"          Value="0x90410000"/>
+        <Set Name="Heap_End"            Value="0x904FFFFF"/>
+        <Set Name="Code_BaseAddress" Value="0x90000000"/>
         <Set Name="Code_Size"        Value="0x00200000"/>
         <Set Name="Valid"            Value="true"/>
 		<!--
@@ -56,7 +56,7 @@
       </IfDefined>
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
-      <LoadRegion Name="RELOC_RAM" Base="0x80500000" Size="1M"/>
+      <LoadRegion Name="RELOC_RAM" Base="0x90500000" Size="1M"/>
     </NamedGroup>
 
     <EntryPoint Name="EntryPoint"/>
