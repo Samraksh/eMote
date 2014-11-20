@@ -267,6 +267,15 @@ struct CLR_DBG_Commands
     static const UINT32 c_Profiling_Command                        = 0x00030000; // Various incoming commands regarding profiling
     static const UINT32 c_Profiling_Stream                         = 0x00030001; // Stream for MFProfiler information.
 
+    static const UINT32 c_Emote_DynamicTestRunner_Process          = 0x00040000; // Generic command message
+    static const UINT32 c_Emote_DynamicTestRunner_MallocByteBuffer = 0x00040001; //
+    static const UINT32 c_Emote_DynamicTestRunner_ReadByteBuffer   = 0x00040002; //
+    static const UINT32 c_Emote_DynamicTestRunner_WriteByteBuffer  = 0x00040003; //
+    static const UINT32 c_Emote_DynamicTestRunner_FreeByteBuffer   = 0x00040004; //
+    static const UINT32 c_Emote_DynamicTestRunner_FreeAllBuffers   = 0x00040005; //
+    static const UINT32 c_Emote_DynamicTestRunner_ShowTests        = 0x00040006; //
+    static const UINT32 c_Emote_DynamicTestRunner_ShowByteBuffers  = 0x00040007; //
+
     //--//
 
     struct Debugging_Execution_Unlock
@@ -1017,6 +1026,91 @@ struct CLR_DBG_Commands
         CLR_UINT16 m_bitLen;
     };
     
+    struct Emote_DynamicTestRunner_Process
+    {
+        UINT32 m_command;
+        UINT32 m_paramCount;
+        UINT32 m_params[1];
+
+        struct Reply {
+            UINT32 m_success;
+            UINT32 m_result;
+        };
+    };
+
+    struct Emote_DynamicTestRunner_MallocByteBuffer
+    {
+        UINT32 size;
+
+        struct Reply {
+            UINT32 m_bufferAddr;
+        };
+    };
+
+    struct Emote_DynamicTestRunner_ReadByteBuffer
+    {
+        UINT32 m_bufferAddr;
+        UINT32 m_byteOffset;
+        UINT32 m_length;
+
+        struct Reply {
+            UINT32 m_success;
+            UINT32 m_length;
+            UINT8  m_data[1]; // dynamically allocated with a longer length.
+        };
+    };
+
+    struct Emote_DynamicTestRunner_WriteByteBuffer
+    {
+        UINT32 m_bufferAddr;
+        UINT32 m_byteOffset;
+        UINT32 m_length;
+        UINT8  m_data[1024];
+
+        struct Reply {
+            UINT32 m_success;
+        };
+    };
+
+    struct Emote_DynamicTestRunner_FreeByteBuffer
+    {
+        UINT32 m_bufferAddr;
+
+        struct Reply {
+            UINT32 m_success;
+        };
+    };
+
+    struct Emote_DynamicTestRunner_FreeAllBuffers
+    {
+        UINT32 m_command;
+
+        struct Reply {
+            UINT32 m_success;
+        };
+    };
+
+    struct Emote_DynamicTestRunner_ShowTests
+    {
+        UINT32 m_command;
+
+        struct Reply {
+            UINT32 m_success;
+            UINT32 m_testCount;
+            UINT32 m_testAddr[1]; //dynamically allocated with a longer length.
+        };
+    };
+
+    struct Emote_DynamicTestRunner_ShowByteBuffers
+    {
+        UINT32 m_command;
+
+        struct Reply {
+            UINT32 m_success;
+            UINT32 m_bufferCount;
+            UINT32 m_bufferAddr[1]; // dynamically allocated with a longer length.
+        };
+    };
 };
 
 struct CLR_DBG_Debugger
@@ -1159,6 +1253,15 @@ public:
     static bool Profiling_Command                       ( WP_Message* msg, void* owner );
     bool Profiling_ChangeConditions                     ( WP_Message* msg );
     bool Profiling_FlushStream                          ( WP_Message* msg );
+
+    static bool Emote_DynamicTestRunner_Process         ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_MallocByteBuffer( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_ReadByteBuffer  ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_WriteByteBuffer ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_FreeByteBuffer  ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_FreeAllBuffers  ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_ShowTests       ( WP_Message* msg, void* owner );
+    static bool Emote_DynamicTestRunner_ShowByteBuffers ( WP_Message* msg, void* owner );
 };
 
 //--//

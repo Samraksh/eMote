@@ -595,7 +595,13 @@
     <DriverLibs Include="STM32F10x_NVM.$(LIB_EXT)" />
   </ItemGroup>
   -->
-    
+
+  <!--                                  DynamicTestRunner Extension (stub also available)                  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DynamicTestRunner\dotNetMF.proj" />
+    <DriverLibs Include="DynamicTestRunner.$(LIB_EXT)" />
+  </ItemGroup>
+
   <!-- 									Wireless Stack Start								-->
   
   <ItemGroup>

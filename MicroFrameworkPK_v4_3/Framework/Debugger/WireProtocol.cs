@@ -462,6 +462,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         public const uint c_Profiling_Command = 0x00030000; // Controls various aspects of profiling.
         public const uint c_Profiling_Stream = 0x00030001; // Stream for MFProfiler information.
 
+        public const uint c_Emote_DynamicTestRunner_Process          = 0x00040000; // Samraksh RPC for, e.g. MATLAB-controlled tests.
+        public const uint c_Emote_DynamicTestRunner_MallocByteBuffer = 0x00040001; //
+        public const uint c_Emote_DynamicTestRunner_ReadByteBuffer   = 0x00040002; //
+        public const uint c_Emote_DynamicTestRunner_WriteByteBuffer  = 0x00040003; //
+        public const uint c_Emote_DynamicTestRunner_FreeByteBuffer   = 0x00040004; //
+        public const uint c_Emote_DynamicTestRunner_FreeAllBuffers   = 0x00040005; //
+        public const uint c_Emote_DynamicTestRunner_ShowTests        = 0x00040006; //
+        public const uint c_Emote_DynamicTestRunner_ShowByteBuffers  = 0x00040007; //
+
         public class Debugging_Execution_BasePtr
         {
             public class Reply
@@ -1583,6 +1592,132 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
             }
         }
 
+        public class Emote_DynamicTestRunner_Process
+        {
+            public uint m_functionAddr = 0;
+            public uint m_paramCount = 0;
+            public uint[] m_params = null;
+
+            public void PrepareForSend( uint functionAddr, uint paramCount, uint [] paramAddrs)
+            {
+                m_functionAddr = functionAddr;
+                m_paramCount = paramCount;
+                m_params = new uint [paramCount];
+                Array.Copy(paramAddrs, 0, m_params, 0, paramCount);
+            }
+
+            public class Reply_Process
+            {
+                public uint m_success;
+                public uint m_result;
+            }
+        }
+
+        public class Emote_DynamicTestRunner_MallocByteBuffer
+        {
+            public uint m_size = 0;
+
+            public class Reply_MallocByteBuffer
+            {
+                public uint m_bufferAddr = 0;
+            }
+        }
+
+        public class Emote_DynamicTestRunner_ReadByteBuffer
+        {
+            public uint m_bufferAddr = 0;
+            public uint m_byteOffset = 0;
+            public uint m_length = 0;
+
+            public class Reply_ReadByteBuffer : IConverter
+            {
+                public uint m_success = 0;
+                public uint m_length = 0;
+                public byte[] m_data = null;
+
+                public void PrepareForDeserialize(int size, byte[] data, Converter converter)
+                {
+                    if(size > 8) {
+                        size = size - 8;
+                    }
+                    m_data = new byte[size];
+                }
+            }
+        }
+
+        public class Emote_DynamicTestRunner_WriteByteBuffer
+        {
+            public uint m_bufferAddr = 0;
+            public uint m_byteOffset = 0;
+            public uint m_length = 0;
+            public byte[] m_data = null;
+
+            public void PrepareForSend( uint bufferAddr, uint byteOffsetOnDevice, uint length, byte [] dataAtOffset)
+            {
+                m_bufferAddr = bufferAddr;
+                m_byteOffset = byteOffsetOnDevice;
+                m_length = length;
+                m_data = new byte [length];
+                Array.Copy(dataAtOffset, 0, m_data, 0, length);
+            }
+            public class Reply_WriteByteBuffer
+            {
+                public uint m_success;
+            }
+        }
+
+        public class Emote_DynamicTestRunner_FreeByteBuffer
+        {
+            public uint m_bufferAddr;
+
+            public class Reply_FreeByteBuffer
+            {
+                public uint m_success;
+            }
+        }
+
+        public class Emote_DynamicTestRunner_FreeAllBuffers
+        {
+            public uint m_command = 0;
+
+            public class Reply_FreeAllBuffers {
+                public uint m_success;
+            }
+        }
+
+        public class Emote_DynamicTestRunner_ShowTests
+        {
+            public uint m_command = 0;
+
+            public class Reply_ShowTests : IConverter
+            {
+                public uint m_success;
+                public uint m_testCount;
+                public uint[] m_testAddr = null;
+                public void PrepareForDeserialize(int size, byte[] data, Converter converter)
+                {
+                    m_testAddr = new uint[(size - 8)/4];
+                }
+            }
+        }
+
+        public class Emote_DynamicTestRunner_ShowByteBuffers
+        {
+            public uint m_command = 0;
+
+            public class Reply_ShowByteBuffers : IConverter
+            {
+                public uint m_success = 0;
+                public uint m_bufferCount = 0;
+                public uint[] m_bufferAddr = null;
+
+                public void PrepareForDeserialize(int size, byte[] data, Converter converter)
+                {
+                    m_bufferAddr = new uint[(size - 8)/4];
+                }
+            }
+        }
+
         internal static string GetZeroTerminatedString(byte[] buf, bool fUTF8)
         {
             if (buf == null) return null;
@@ -1666,6 +1801,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
                         else return new Debugging_Deployment_Status.Reply();
 
                     case c_Profiling_Command: return new Profiling_Command.Reply();
+
+                    case c_Emote_DynamicTestRunner_Process: return new Emote_DynamicTestRunner_Process.Reply_Process();
+                    case c_Emote_DynamicTestRunner_MallocByteBuffer: return new Emote_DynamicTestRunner_MallocByteBuffer.Reply_MallocByteBuffer();
+                    case c_Emote_DynamicTestRunner_ReadByteBuffer: return new Emote_DynamicTestRunner_ReadByteBuffer.Reply_ReadByteBuffer();
+                    case c_Emote_DynamicTestRunner_WriteByteBuffer: return new Emote_DynamicTestRunner_WriteByteBuffer.Reply_WriteByteBuffer();
+                    case c_Emote_DynamicTestRunner_FreeByteBuffer: return new Emote_DynamicTestRunner_FreeByteBuffer.Reply_FreeByteBuffer();
+                    case c_Emote_DynamicTestRunner_FreeAllBuffers: return new Emote_DynamicTestRunner_FreeAllBuffers.Reply_FreeAllBuffers();
+                    case c_Emote_DynamicTestRunner_ShowTests: return new Emote_DynamicTestRunner_ShowTests.Reply_ShowTests();
+                    case c_Emote_DynamicTestRunner_ShowByteBuffers: return new Emote_DynamicTestRunner_ShowByteBuffers.Reply_ShowByteBuffers();
                 }
             }
             else
@@ -1757,6 +1901,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
                     case c_Debugging_Info_SetJMC: return new Debugging_Info_SetJMC();
 
                     case c_Profiling_Stream: return new Profiling_Stream();
+
+                    case c_Emote_DynamicTestRunner_Process: return new Emote_DynamicTestRunner_Process();
+                    case c_Emote_DynamicTestRunner_MallocByteBuffer: return new Emote_DynamicTestRunner_MallocByteBuffer();
+                    case c_Emote_DynamicTestRunner_ReadByteBuffer: return new Emote_DynamicTestRunner_ReadByteBuffer();
+                    case c_Emote_DynamicTestRunner_WriteByteBuffer: return new Emote_DynamicTestRunner_WriteByteBuffer();
+                    case c_Emote_DynamicTestRunner_FreeByteBuffer: return new Emote_DynamicTestRunner_FreeByteBuffer();
+                    case c_Emote_DynamicTestRunner_FreeAllBuffers: return new Emote_DynamicTestRunner_FreeAllBuffers();
+                    case c_Emote_DynamicTestRunner_ShowTests: return new Emote_DynamicTestRunner_ShowTests();
+                    case c_Emote_DynamicTestRunner_ShowByteBuffers: return new Emote_DynamicTestRunner_ShowByteBuffers();
                 }
             }
 

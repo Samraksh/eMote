@@ -3946,6 +3946,189 @@ namespace Microsoft.SPOT.Debugger
             return true;
         }
 
+        public bool DynamicTestRunnerProcess(uint command, uint paramCount, uint[] paramAddrs, out uint resultAddr)
+        {
+            bool ret = true;
+            resultAddr = new UInt32();
+            WireProtocol.Commands.Emote_DynamicTestRunner_Process cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_Process();
+            cmd.PrepareForSend(command, paramCount, paramAddrs);
+            WireProtocol.IncomingMessage reply =  SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_Process, 0, cmd);
+            if(reply == null) {
+                ret = false;
+            }
+
+            WireProtocol.Commands.Emote_DynamicTestRunner_Process.Reply_Process cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_Process.Reply_Process;
+            if(cmdReply == null) {
+                ret = false;
+            }
+            if(cmdReply.m_success == 0) {
+                ret = false;
+            }
+            else {
+                resultAddr = cmdReply.m_result;
+                ret = true;
+            }
+            return ret;
+        }
+
+        public bool DynamicTestRunnerMallocByteBuffer(uint size, out uint bufferAddr)
+        {
+            bufferAddr = new UInt32();
+            WireProtocol.Commands.Emote_DynamicTestRunner_MallocByteBuffer cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_MallocByteBuffer();
+            cmd.m_size = size;
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_MallocByteBuffer, 0, cmd);
+            if(reply == null) {
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_MallocByteBuffer.Reply_MallocByteBuffer cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_MallocByteBuffer.Reply_MallocByteBuffer;
+            if(cmdReply == null) {
+                return false;
+            }
+            bufferAddr = cmdReply.m_bufferAddr;
+            return true;
+        }
+
+        public bool DynamicTestRunnerReadByteBuffer(uint bufferAddr, uint byteOffset, uint length, out byte[] buf, out uint readLength)
+        {
+            bool ret = true;
+            buf = new byte[length];
+            readLength = new UInt32();
+
+            while(length > 0)
+            {
+                WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer();
+                cmd.m_bufferAddr = bufferAddr;
+                cmd.m_byteOffset = byteOffset;
+                cmd.m_length = length;
+
+                WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_ReadByteBuffer,  WireProtocol.Flags.c_NoCaching, cmd);
+                if(reply == null) {
+                    //readLength = 100; //debug aid. Most likely cause: other com failure.
+                    ret = false;
+                    break;
+                }
+
+                WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer.Reply_ReadByteBuffer cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer.Reply_ReadByteBuffer;
+                if(cmdReply == null) {
+                    //readLength = 200;  //debug aid. Most likely cause: PrepareForDeserialize created an object that does not agree with payload length.
+                    ret = false;
+                    break;
+                    }
+                if(cmdReply.m_data ==  null) {
+                    //readLength = 300;  //debug aid. Most likely cause: reply class does not implement IConverter or construct m_data.
+                    ret = false;
+                    break;
+                    }
+
+                uint actualLength = System.Math.Min(System.Math.Min((uint)cmdReply.m_length, length), (uint)cmdReply.m_data.Length);
+                readLength += actualLength;
+
+                Array.Copy(cmdReply.m_data, 0, buf, (int)byteOffset, (int)actualLength);
+
+                byteOffset += actualLength;
+                length -= actualLength;
+                if(cmdReply.m_success == 0/*false*/) {
+                    ret = false;
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        public bool DynamicTestRunnerWriteByteBuffer(uint bufferAddr, uint byteOffset, uint length, byte[] data)
+        {
+            WireProtocol.Commands.Emote_DynamicTestRunner_WriteByteBuffer cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_WriteByteBuffer();
+            cmd.PrepareForSend(bufferAddr, byteOffset, length, data);
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_WriteByteBuffer, 0, cmd);
+            if(reply == null) {
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_WriteByteBuffer.Reply_WriteByteBuffer cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_WriteByteBuffer.Reply_WriteByteBuffer;
+            if(cmdReply == null) {
+                return false;
+            }
+            return (cmdReply.m_success != 0);
+        }
+
+        public bool DynamicTestRunnerFreeByteBuffer(uint bufferAddr)
+        {
+            WireProtocol.Commands.Emote_DynamicTestRunner_FreeByteBuffer cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_FreeByteBuffer();
+            cmd.m_bufferAddr = bufferAddr;
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_FreeByteBuffer, 0, cmd);
+            if(reply == null) {
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_FreeByteBuffer.Reply_FreeByteBuffer cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_FreeByteBuffer.Reply_FreeByteBuffer;
+            if(cmdReply == null) {
+                return false;
+            }
+            return (cmdReply.m_success != 0);
+        }
+
+        public bool DynamicTestRunnerFreeAllBuffers(uint command)
+        {
+            WireProtocol.Commands.Emote_DynamicTestRunner_FreeAllBuffers cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_FreeAllBuffers();
+            cmd.m_command = command;
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_FreeAllBuffers, 0, cmd);
+            if(reply == null) {
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_FreeAllBuffers.Reply_FreeAllBuffers cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_FreeAllBuffers.Reply_FreeAllBuffers;
+            if(cmdReply == null) {
+                return false;
+            }
+            return (cmdReply.m_success != 0);
+        }
+
+        public bool DynamicTestRunnerShowTests(uint command, out uint[] testAddr)
+        {
+            uint max_count = 1016/4;
+            WireProtocol.Commands.Emote_DynamicTestRunner_ShowTests cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_ShowTests();
+            cmd.m_command = command;
+            WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_ShowTests, 0, cmd);
+            if(reply == null) {
+                testAddr = new uint[0];
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_ShowTests.Reply_ShowTests cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_ShowTests.Reply_ShowTests;
+            if(cmdReply == null) {
+                testAddr = new uint[0];
+                return false;
+            }
+
+            uint actualLength = System.Math.Min((uint)cmdReply.m_testCount, max_count);
+            actualLength = (uint)System.Math.Min(actualLength,cmdReply.m_testAddr.Length);
+
+            testAddr = new uint[actualLength];
+            Array.Copy(cmdReply.m_testAddr, 0, testAddr, (int)0, (int)actualLength);
+
+            return (cmdReply.m_success != 0);
+        }
+
+        public bool DynamicTestRunnerShowByteBuffers(uint command, out uint[] bufferAddr)
+        {
+            uint max_count = 1016/4;
+            WireProtocol.Commands.Emote_DynamicTestRunner_ShowByteBuffers cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_ShowByteBuffers();
+            cmd.m_command = command;
+            WireProtocol.IncomingMessage reply =  SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_ShowByteBuffers, 0, cmd);
+            if(reply == null) {
+                bufferAddr = new uint[0];
+                return false;
+            }
+            WireProtocol.Commands.Emote_DynamicTestRunner_ShowByteBuffers.Reply_ShowByteBuffers cmdReply = reply.Payload as WireProtocol.Commands.Emote_DynamicTestRunner_ShowByteBuffers.Reply_ShowByteBuffers;
+            if(cmdReply == null) {
+                bufferAddr = new uint[0];
+                return false;
+            }
+
+            uint actualLength = System.Math.Min((uint)cmdReply.m_bufferCount, max_count);
+
+            bufferAddr = new uint[actualLength];
+            Array.Copy(cmdReply.m_bufferAddr, 0, bufferAddr, (int)0, (int)actualLength);
+
+            return (cmdReply.m_success != 0);
+        }
+
         private WireProtocol.IncomingMessage DiscoverCLRCapability(uint caps)
         {
             WireProtocol.Commands.Debugging_Execution_QueryCLRCapabilities cmd = new WireProtocol.Commands.Debugging_Execution_QueryCLRCapabilities();

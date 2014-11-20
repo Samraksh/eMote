@@ -965,6 +965,237 @@ bool CLR_DBG_Debugger::Monitor_DeploymentMap( WP_Message* msg, void* owner )
 
 //--//
 
+// Pass PAL DynamicTestRunner library calls through the debugger interface.
+// For readability, use flattened namespace_fname as corresponding function name inside debugger.
+
+#include <Samraksh\DynamicTestRunner.h>
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_Process( WP_Message* msg, void* owner )
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    bool fRet = 0;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_Process* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_Process*)msg->m_payload;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_Process::Reply reply;
+
+    void* result = 0;
+    fRet = Emote_DynamicTestRunner::Process(cmd->m_command, cmd->m_paramCount, cmd->m_params, result);
+
+    reply.m_success = fRet;
+    reply.m_result = (UINT32)result;
+    dbg->m_messaging->ReplyToCommand( msg, fRet, false, &reply, sizeof(reply));
+    return fRet;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_MallocByteBuffer( WP_Message* msg, void* owner)
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    bool fRet = 0;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_MallocByteBuffer* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_MallocByteBuffer*)msg->m_payload;
+
+    UINT32 bufferAddr = 0;
+    fRet = Emote_DynamicTestRunner::MallocByteBuffer(&bufferAddr, cmd->size);
+
+    //retData;
+
+    if(fRet==false)
+    {
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false);
+    }
+    else
+    {
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false, &bufferAddr, sizeof(bufferAddr));
+    }
+
+    return fRet;
+}
+
+/**
+ * @detail Uses dynamic memory.
+ */
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_ReadByteBuffer( WP_Message* msg, void* owner )
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    bool fRet = false;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_ReadByteBuffer* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_ReadByteBuffer*)msg->m_payload;
+    const int max_length = 1024;  // must match WireProtocol packet size limit and TinyCLR_Debugging.h
+    int length = cmd->m_length > max_length ? max_length : cmd->m_length;
+
+    int cmdSize = length + offsetof(struct CLR_DBG_Commands::Emote_DynamicTestRunner_ReadByteBuffer::Reply, m_data);
+
+    CLR_DBG_Commands::Emote_DynamicTestRunner_ReadByteBuffer::Reply*  pTmp = (CLR_DBG_Commands::Emote_DynamicTestRunner_ReadByteBuffer::Reply*)private_malloc(cmdSize);
+
+    if(pTmp == NULL)
+    {
+        cmdSize = 12;
+        fRet = false;
+    }
+    else
+    {
+        memset(pTmp, 0, cmdSize);
+        pTmp->m_length = length;
+        fRet = Emote_DynamicTestRunner::ReadByteBuffer((UINT32*)cmd->m_bufferAddr, cmd->m_byteOffset, pTmp->m_length, (UINT8*)&(pTmp->m_data[0]) );
+        pTmp->m_success = fRet;
+    }
+    dbg->m_messaging->ReplyToCommand( msg, fRet, false, pTmp, cmdSize);
+    private_free(pTmp);
+    return fRet;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_WriteByteBuffer( WP_Message* msg, void* owner )
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    bool fRet = 0;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_WriteByteBuffer* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_WriteByteBuffer*)msg->m_payload;
+    struct CLR_DBG_Commands::Emote_DynamicTestRunner_WriteByteBuffer::Reply reply;
+
+    fRet = Emote_DynamicTestRunner::WriteByteBuffer((UINT32*)cmd->m_bufferAddr, cmd->m_byteOffset, cmd->m_length, cmd->m_data);
+
+    reply.m_success = fRet;
+    dbg->m_messaging->ReplyToCommand( msg, fRet, false, &reply, sizeof(reply));
+
+    return fRet;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_FreeByteBuffer( WP_Message* msg, void* owner )
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_FreeByteBuffer* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_FreeByteBuffer*)msg->m_payload;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_FreeByteBuffer::Reply reply;
+
+    reply.m_success = Emote_DynamicTestRunner::FreeByteBuffer(&(cmd->m_bufferAddr));
+
+    dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply));
+
+    return true;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_FreeAllBuffers( WP_Message* msg, void* owner )
+{
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    bool fRet;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+    CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+    CLR_DBG_Commands::Emote_DynamicTestRunner_FreeAllBuffers::Reply reply;
+
+    reply.m_success = fRet = Emote_DynamicTestRunner::FreeAllBuffers();
+
+
+    if(fRet==false)
+    {
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false);
+    }
+    else
+    {
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false,&reply,sizeof(reply));
+    }
+    return fRet;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_ShowTests( WP_Message* msg, void* owner )
+{
+     NATIVE_PROFILE_CLR_DEBUGGER();
+     bool fRet;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+     CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+     CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests*)msg->m_payload;
+
+     const int max_length = 1016;
+     int length = max_length;
+
+     int cmdSize = length + offsetof(struct CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests::Reply, m_testAddr);
+
+     CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests::Reply*  pTmp = (CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests::Reply*)private_malloc(cmdSize);
+
+    if(pTmp == NULL)
+    {
+        fRet = false;
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false);
+    }
+    else
+    {
+        memset(pTmp, 0, cmdSize);
+        UINT32 max_testCount = length / sizeof(pTmp->m_testAddr[0]);
+        pTmp->m_testCount = 0;
+        fRet = Emote_DynamicTestRunner::ShowTests(max_testCount, pTmp->m_testCount, (UINT32*)&(pTmp->m_testAddr[0]));
+        pTmp->m_success = fRet;
+        UINT32 used_size = offsetof(struct CLR_DBG_Commands::Emote_DynamicTestRunner_ShowTests::Reply, m_testAddr) + pTmp->m_testCount * sizeof(UINT32);
+        dbg->m_messaging->ReplyToCommand( msg, fRet, false, (void*)pTmp, used_size);
+        private_free(pTmp);
+    }
+    return fRet;
+}
+
+bool CLR_DBG_Debugger::Emote_DynamicTestRunner_ShowByteBuffers( WP_Message* msg, void* owner )
+{
+     NATIVE_PROFILE_CLR_DEBUGGER();
+     bool fRet = true;
+#if defined(SAMRAKSH_RTOS_EXT)
+    RT_Dispose();
+#endif
+
+     CLR_DBG_Debugger        * dbg = (CLR_DBG_Debugger*)owner;
+     CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers* cmd = (CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers*)msg->m_payload;
+
+     const int max_length = 1016;  // must match WireProtocol packet size limit and TinyCLR_Debugging.h
+     int length = max_length;
+
+     int cmdSize = length + offsetof(struct CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers::Reply, m_bufferAddr);
+
+     CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers::Reply*  pTmp = (CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers::Reply*)private_malloc(cmdSize);
+
+     if(pTmp == NULL)
+     {
+         fRet = false;
+         dbg->m_messaging->ReplyToCommand( msg, fRet, false);
+     }
+     else
+     {
+         memset(pTmp, 0, cmdSize);
+         UINT32 max_bufferCount = length / sizeof(pTmp->m_bufferAddr[0]);
+         pTmp->m_bufferCount = 0;
+         fRet = Emote_DynamicTestRunner::ShowByteBuffers(max_bufferCount, pTmp->m_bufferCount, (UINT32*)&(pTmp->m_bufferAddr[0]) );
+         pTmp->m_success = fRet;
+         UINT32 used_size = offsetof(struct CLR_DBG_Commands::Emote_DynamicTestRunner_ShowByteBuffers::Reply, m_bufferAddr) + pTmp->m_bufferCount * sizeof(UINT32);
+         dbg->m_messaging->ReplyToCommand( msg, fRet, false, (void*)pTmp, used_size);
+         private_free(pTmp);
+     }
+
+    return fRet;
+}
+
+//--//
+
 bool CLR_DBG_Debugger::Debugging_Execution_BasePtr( WP_Message* msg, void* owner )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
@@ -1252,7 +1483,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AuthCommand( WP_Message* msg, void* ow
     {
         if(respLen > 0)
         {
-            int cmdSize = respLen + offsetof(CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand::Reply, m_response);
+            int cmdSize = respLen + offsetof(struct CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand::Reply, m_response);
             
             CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand::Reply* pTmp = (CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand::Reply*)private_malloc(cmdSize);
 
@@ -1331,7 +1562,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_GetMissingPkts( WP_Message* msg, void*
     CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts::Reply reply, *pReply;
     CLR_INT32 replySize = sizeof(reply);
     CLR_INT32 int32Cnt = ARRAYSIZE(s_missingPkts);
-    CLR_INT32 sizeBytes = (int32Cnt << 2) + offsetof(CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts::Reply, m_missingPkts);
+    CLR_INT32 sizeBytes = (int32Cnt << 2) + offsetof(struct CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts::Reply, m_missingPkts);
 
     memset(&s_missingPkts, 0xFF, sizeof(s_missingPkts));
 
