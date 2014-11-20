@@ -61,7 +61,7 @@ namespace Samraksh.eMote
             /// </summary>
             public AcousticDetection()
             {
-                SetDetectionParameters(1, 2);
+                SetDetectionParameters(1, 1);
             }
 
             //////////////////////////public properties and methods/////////////////////
@@ -80,7 +80,7 @@ namespace Samraksh.eMote
             /// </summary>
             /// <returns>Returns true if a detection was found, false if no detection was found.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern public bool DetectionCalculation(ushort[] bufferAcoustic, Int32 numBytes);
+            extern public bool DetectionCalculation(ushort[] bufferAcoustic, Int32 numBytes, double[] processingOutput, bool historyUpdateControl);
 
             /// <summary>
             /// Sets detection parameters.

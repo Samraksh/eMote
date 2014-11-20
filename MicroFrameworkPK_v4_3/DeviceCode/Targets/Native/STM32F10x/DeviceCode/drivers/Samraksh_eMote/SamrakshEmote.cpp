@@ -15,7 +15,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__I4,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__I4__SZARRAY_R8__BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::SetDetectionParameters___BOOLEAN__I4__I4,
     NULL,
     NULL,
@@ -112,7 +112,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x6129A199,
+    0x0BE8BFEE,
     method_lookup
 };
 

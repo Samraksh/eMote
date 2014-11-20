@@ -13,7 +13,7 @@
 #include <TinyCLR_Interop.h>
 struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection
 {
-    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__I4);
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__I4__SZARRAY_R8__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__I4__I4);
 
     //--//

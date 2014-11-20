@@ -18,11 +18,11 @@
 using namespace Samraksh::eMote;
 static INT32 Pa = 1, Pm = 1;
 
-INT8 Algorithm_AcousticDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, HRESULT &hr )
+INT8 Algorithm_AcousticDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, CLR_RT_TypedArray_double param2, INT8 param3, HRESULT &hr )
 {
     INT8 retVal = 0; 
 
-	retVal = testFunction(param0.GetBuffer(), param1, Pa, Pm);
+	retVal = testFunction(param0.GetBuffer(), param1, param2.GetBuffer(), param3, Pa, Pm);
 
     return retVal;
 }
