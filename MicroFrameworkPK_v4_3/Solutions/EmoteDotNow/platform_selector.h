@@ -137,12 +137,12 @@
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
 #define RT_HARDWARE_TIMER 3
 
+#define SAM_CPPALLOC 1 /* allow operators new and delete on CLR_RT_Heap. */
+
 //Enable GC extension
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
 //#define SAMRAKSH_GC_EXT 1
 
-//Network Stack definitions
-UINT16 MF_NODE_ID;
 
 // Macros configuring the HALTimer system
 #define HALTIMER 5
