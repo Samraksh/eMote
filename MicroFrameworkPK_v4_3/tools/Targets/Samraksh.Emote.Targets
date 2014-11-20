@@ -22,7 +22,7 @@
   <Target Name='CreateTeamHeader'>
         <!-- always reset the teamid.h version file.  It's in the .gitignore, otherwise run command "git update-index - -assume-unchanged MicroFrameworkPK_v4_3\DeviceCode\Include\teamid.h" -->
         <Exec Command="echo #define YOU_ARE_AWESOME &quot;no builder ID provided.&quot; > $(SPOCLIENT)\DeviceCode\Include\Samraksh\teamid.h " />
-        <Exec Command="echo #define YOU_ARE_AWESOME &quot;%username%&quot; >> $(SPOCLIENT)\DeviceCode\Include\Samraksh\teamid.h " />
+        <Exec Condition="'$(USERNAME)'!=''" Command="echo #define YOU_ARE_AWESOME &quot;%username%&quot; > $(SPOCLIENT)\DeviceCode\Include\Samraksh\teamid.h " />
   </Target>
 
 </Project>
