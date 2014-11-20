@@ -41,6 +41,28 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
     return retVal;
 }
 
+INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, CLR_RT_TypedArray_INT16 param3, HRESULT &hr )
+{
+    INT8 retVal = 0;
+	INT16 tempIBuffer[param2];
+	INT16 tempQBuffer[param2];
+	UINT16 tempUnwrap[param2];
+	
+	// Find median I
+	memcpy(tempIBuffer, param0.GetBuffer(), param2 * sizeof(UINT16));
+	medianI = findMedian(tempIBuffer, param2);
+
+	// Find median Q
+	memcpy(tempQBuffer, param1.GetBuffer(), param2 * sizeof(UINT16));
+	medianQ = findMedian(tempQBuffer, param2);
+
+	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
+	memcpy(tempIBuffer, param0.GetBuffer(), param2 * sizeof(UINT16));
+	memcpy(tempQBuffer, param1.GetBuffer(), param2 * sizeof(UINT16));
+	retVal = calculatePhase(tempIBuffer, tempQBuffer, tempUnwrap, param2, medianI, medianQ, param3.GetBuffer(), m, n, threshold);
+
+    return retVal;
+}
 
 INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, INT32 param2, HRESULT &hr )
 {

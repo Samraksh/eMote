@@ -37,6 +37,13 @@ namespace Samraksh.eMote
             extern public bool DetectionCalculation(ushort[] bufferI, ushort[] bufferQ, ushort[] bufferUnwrap, Int32 numBytes, short[] acrTan);
 
             /// <summary>
+            /// Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
+            /// </summary>
+            /// <returns>Returns true if a detection was found, false if no detection was found.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public bool DetectionCalculation(ushort[] bufferI, ushort[] bufferQ, Int32 numBytes, short[] acrTan);
+
+            /// <summary>
             /// Sets detection parameters.
             /// </summary>
             /// <returns>Returns true if sucessful, false if failed.</returns>

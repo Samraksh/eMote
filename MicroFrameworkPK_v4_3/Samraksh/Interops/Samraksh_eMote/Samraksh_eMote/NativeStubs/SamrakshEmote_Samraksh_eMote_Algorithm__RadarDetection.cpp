@@ -22,6 +22,12 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
     return retVal;
 }
 
+INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, CLR_RT_TypedArray_INT16 param3, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, INT32 param2, HRESULT &hr )
 {
     INT8 retVal = 0; 
