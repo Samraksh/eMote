@@ -1,9 +1,8 @@
-
 /**
- * @file: STM32F10x_ID.cpp
- * @author: Michael Andrew McGrath
- * @copyright: The Samraksh Company, (C) 2014
- * @date: April 2, 2014
+ * @file   netmf_ID.cpp
+ * @author Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
+ * @date   April 2, 2014
+ * @copyright (C) 2014 The Samraksh Company
  */
  /**
  @details: Design goal: The STM32F10x has a Unique ID, but such a hardware item currently
@@ -17,8 +16,9 @@
  accessed via MFDeploy's DeviceInfo and other places.
  */
 
-#include <ID_decl.h>
+#include <Samraksh\ID_decl.h>
 
+UINT16 MF_NODE_ID;
 
 unsigned int ID_GetSerialNumbers(struct OEM_SERIAL_NUMBERS& OemSerialNumbers)
 {
@@ -33,4 +33,42 @@ unsigned int ID_GetSerialNumbers(struct OEM_SERIAL_NUMBERS& OemSerialNumbers)
 
     memcpy((void*)&(OemSerialNumbers.module_serial_number),(void*)&OemSerialNumbers.system_serial_number,sizeof(OemSerialNumbers.system_serial_number));
     return 1;
+}
+
+
+BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
+    UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
+    Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
+    Device_Serial1 = *(UINT32*)(0x1FFFF7EC);
+    Device_Serial2 = *(UINT32*)(0x1FFFF7F0);
+    if(num_of_bytes==12){
+        ptr[0] = (UINT8)(Device_Serial0 & 0x000000FF);
+        ptr[1] = (UINT8)((Device_Serial0 & 0x0000FF00) >> 8);
+        ptr[2] = (UINT8)((Device_Serial0 & 0x00FF0000) >> 16);
+        ptr[3] = (UINT8)((Device_Serial0 & 0xFF000000) >> 24);
+
+        ptr[4] = (UINT8)(Device_Serial1 & 0x000000FF);
+        ptr[5] = (UINT8)((Device_Serial1 & 0x0000FF00) >> 8);
+        ptr[6] = (UINT8)((Device_Serial1 & 0x00FF0000) >> 16);
+        ptr[7] = (UINT8)((Device_Serial1 & 0xFF000000) >> 24);
+
+        ptr[8] = (UINT8)(Device_Serial2 & 0x000000FF);
+        ptr[9] = (UINT8)((Device_Serial2 & 0x0000FF00) >> 8);
+        ptr[10] = (UINT8)((Device_Serial2 & 0x00FF0000) >> 16);
+        ptr[11] = (UINT8)((Device_Serial2 & 0xFF000000) >> 24);
+        return TRUE;
+    }
+    else return FALSE;
+
+}
+
+unsigned short ID_InitializeMF_NODE_ID() {
+    //Get cpu serial and hash it to use as node id
+    UINT8 cpuserial[12];
+    GetCPUSerial(cpuserial,12);
+    MF_NODE_ID=0;
+    UINT16 * temp = (UINT16 *) cpuserial;
+    for (int i=0; i< 6; i++){
+        MF_NODE_ID=MF_NODE_ID ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
+    }
 }

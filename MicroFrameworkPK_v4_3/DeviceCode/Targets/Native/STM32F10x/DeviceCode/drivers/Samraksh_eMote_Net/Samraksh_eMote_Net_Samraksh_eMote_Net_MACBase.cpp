@@ -24,6 +24,8 @@ MacEventHandler_t MACBase::Event_Handler;
 UINT8 MacID = 0;
 UINT8 MACBase::MyAppID;
 
+UINT16 MF_NODE_ID;
+
 //extern UINT8 MacName;
 
 enum CallBackTypes
