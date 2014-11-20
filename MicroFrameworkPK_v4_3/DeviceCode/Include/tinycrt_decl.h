@@ -69,6 +69,9 @@ int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg );
 
 #define _snprintf  DoNotUse_*printf []
 #define _vsnprintf DoNotUse_*printf []
+#define _vsnprintf_r DoNotUse_*printf []
+#define _svfprintf_r DoNotUse_*printf []
+#define _svfiprintf_r DoNotUse_*printf []
 
 #define strcpy    DoNotUse_*strcpy  []
 #define strncpy   DoNotUse_*strcpy  []
