@@ -43,7 +43,7 @@ UINT32 *g_adcDriverBufferDualModePtr = NULL;
 UINT32 *g_adcDriverBufferDualModePtrAudio = NULL;
 
 UINT32 adcNumSamples = 0;
-uint32_t ADC_RAW[1] = {0};
+//uint32_t ADC_RAW[1] = {0};
 
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
@@ -1100,15 +1100,21 @@ extern "C"
 		//hal_printf("ADC_HAL_HANDLER\n");
 		static int buffer_index = 0;
 		buffer_index++;
-		if(buffer_index % 5 == 0)
+		if(buffer_index % 10 == 0)
 		{
 			g_timeStamp = HAL_Time_CurrentTicks();
+			//TIM_Cmd(TIM8, ENABLE);		//Audio
+			memset(g_adcUserBufferChannel3Ptr, 0, adcNumSamples);
+			//hal_printf("g_adcUserBufferChannel3Ptr: %d; buffer_index: %d \n", *g_adcUserBufferChannel3Ptr, buffer_index);
 			for(UINT16 i = 0; i < adcNumSamples; i++)
 			{
 				g_adcUserBufferChannel3Ptr[i] = ADC_GetConversionValue(ADC3);
 			}
 			g_callback(&g_timeStamp);
 		}
+		//else if(buffer_index % 10 == 0)
+			//TIM_Cmd(TIM8, DISABLE);		//Audio
+
 		//hal_printf("ADC_HAL_HANDLER: %d\n", *g_adcUserBufferChannel3Ptr);
 		/* Clear ADC1 JEOC pending interrupt bit */
 		//ADC_ClearITPendingBit(ADC3, ADC_IT_EOC);		//Does not make any difference
