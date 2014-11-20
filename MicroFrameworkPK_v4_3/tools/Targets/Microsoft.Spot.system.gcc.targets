@@ -237,6 +237,8 @@
     <ARFLAGS>$(ARFLAGS) -rcs</ARFLAGS>
 
     <LINK_FLAGS>$(LINK_FLAGS) -static --gc-sections --no-warn-mismatch --library-path=$(LIB_DIR) --library-path=$(PLATFORM_INDEPENDENT_LIB_DIR)  </LINK_FLAGS>
+    <!-- <LINK_FLAGS>$(LINK_FLAGS) -specs=rdimon.specs -lc -lrdimon</LINK_FLAGS> Semihosting on Linux with librdimon.a -->
+    <!-- <LINK_FLAGS>$(LINK_FLAGS) -specs=generic-m-hosted.ld </LINK_FLAGS> --><!-- Semihosting with CodeSourcery -->
     
     <!-- 
         We need to allow multiple symbol definition in thumb mode because the ARM compatibility library interfere with GCC
