@@ -52,5 +52,6 @@
 #define WITH_LIB_OPENSSL_CRYPTO 1
 #define WITH_LIB_PTABLE 1
 #define DEBUG 1
+#define SAM_CPPALLOC 1 /* allow operators new and delete on CLR_RT_Heap. */
 #endif
 
