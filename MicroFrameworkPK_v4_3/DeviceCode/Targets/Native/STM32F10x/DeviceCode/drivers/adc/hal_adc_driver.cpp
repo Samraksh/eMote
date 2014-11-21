@@ -600,23 +600,25 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	// Adjust
 	prescaler--;
 
+	TIM_DeInit(TIM3);
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
     TIM_TimeBaseStructure.TIM_Period = (UINT16) period;
+    //TIM_TimeBaseStructure.TIM_Period = 32000;
 	TIM_TimeBaseStructure.TIM_Prescaler = (UINT16) prescaler;
+	//TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);
 
 	// Set up the compare channel
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	/*TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = period-1;
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
-
-	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
-
-	TIM_ARRPreloadConfig(TIM4, ENABLE);
+	TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+	TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
+	TIM_ARRPreloadConfig(TIM3, ENABLE);*/
 
 
 #ifdef NATIVE_TEST
@@ -639,75 +641,72 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-
-	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
+	DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
 	/* Enable DMA1 Channel1 */
 	DMA_Cmd(DMA1_Channel1, ENABLE);
+
 
 	 /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T4_CC4;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 	ADC_Init(ADC1, &ADC_InitStructure);
 	 /* ADC1 regular channels configuration */
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
-
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	   /* Enable ADC1 DMA */
 	ADC_DMACmd(ADC1, ENABLE);
+
 
 	 /* ADC2 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
 	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 	ADC_Init(ADC2, &ADC_InitStructure);
 	/* ADC2 regular channels configuration */
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_55Cycles5);
-
 	/* Enable ADC2 external trigger conversion */
 	ADC_ExternalTrigConvCmd(ADC2, ENABLE);
 
+
 	/* Enable ADC1 */
 	ADC_Cmd(ADC1, ENABLE);
-
 	/* Enable ADC1 reset calibration register */
 	ADC_ResetCalibration(ADC1);
 	/* Check the end of ADC1 reset calibration register */
 	while(ADC_GetResetCalibrationStatus(ADC1));
-
 	/* Start ADC1 calibration */
 	ADC_StartCalibration(ADC1);
 	/* Check the end of ADC1 calibration */
 	while(ADC_GetCalibrationStatus(ADC1));
 
+
 	/* Enable ADC2 */
 	ADC_Cmd(ADC2, ENABLE);
-
 	/* Enable ADC2 reset calibration register */
 	ADC_ResetCalibration(ADC2);
 	/* Check the end of ADC2 reset calibration register */
 	while(ADC_GetResetCalibrationStatus(ADC2));
-
 	/* Start ADC2 calibration */
 	ADC_StartCalibration(ADC2);
 	/* Check the end of ADC2 calibration */
 	while(ADC_GetCalibrationStatus(ADC2));
 
 	/* Start ADC1 Software Conversion */
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+	//ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
 	adcNumSamples = numSamples;
 
 	dualADCMode = TRUE;
 
 
-	TIM_Cmd(TIM4, ENABLE);
+	TIM_Cmd(TIM3, ENABLE);
 
 	return DS_Success;
 }
@@ -1097,7 +1096,7 @@ extern "C"
 {
 	void ADC_HAL_HANDLER(void *param)
 	{
-		//hal_printf("ADC_HAL_HANDLER\n");
+		hal_printf("ADC_HAL_HANDLER\n");
 		static int buffer_index = 0;
 		buffer_index++;
 		if(buffer_index % 10 == 0)
@@ -1259,6 +1258,7 @@ extern "C"
 
 	void DMA_HAL_HANDLER(void *param)
 	{
+		//hal_printf("DMA_HAL_HANDLER\n");
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
 
