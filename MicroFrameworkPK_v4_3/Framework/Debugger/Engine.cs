@@ -3993,12 +3993,14 @@ namespace Microsoft.SPOT.Debugger
             bool ret = true;
             buf = new byte[length];
             readLength = new UInt32();
+            uint device_byteOffset = byteOffset;
+            uint host_byteOffset = 0;
 
             while(length > 0)
             {
                 WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer cmd = new WireProtocol.Commands.Emote_DynamicTestRunner_ReadByteBuffer();
                 cmd.m_bufferAddr = bufferAddr;
-                cmd.m_byteOffset = byteOffset;
+                cmd.m_byteOffset = device_byteOffset;
                 cmd.m_length = length;
 
                 WireProtocol.IncomingMessage reply = SyncMessage(WireProtocol.Commands.c_Emote_DynamicTestRunner_ReadByteBuffer,  WireProtocol.Flags.c_NoCaching, cmd);
@@ -4023,9 +4025,10 @@ namespace Microsoft.SPOT.Debugger
                 uint actualLength = System.Math.Min(System.Math.Min((uint)cmdReply.m_length, length), (uint)cmdReply.m_data.Length);
                 readLength += actualLength;
 
-                Array.Copy(cmdReply.m_data, 0, buf, (int)byteOffset, (int)actualLength);
+                Array.Copy(cmdReply.m_data, 0, buf, (int)host_byteOffset, (int)actualLength);
 
-                byteOffset += actualLength;
+                device_byteOffset += actualLength;
+                host_byteOffset += actualLength;
                 length -= actualLength;
                 if(cmdReply.m_success == 0/*false*/) {
                     ret = false;
