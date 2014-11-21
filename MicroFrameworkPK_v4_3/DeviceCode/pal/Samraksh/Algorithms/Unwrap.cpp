@@ -63,7 +63,7 @@ BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 
 {
 	int i;
 	int unwrappedPhase;
-	UINT16 minPhase, maxPhase;
+	int minPhase, maxPhase;
 	BOOL detection = false, threshholdMet = false;
 
 	for (i=0; i<length; i++){
