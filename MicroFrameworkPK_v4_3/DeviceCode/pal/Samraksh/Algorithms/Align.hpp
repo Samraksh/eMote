@@ -6,17 +6,13 @@
  * @par    Maintainer: Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  */
 
-#ifndef _ALIGN_HPP_
-#define _ALIGN_HPP_
-
-#include "static_init.h"
 
 #include "Align.h"
 #include "Comp.h"
 #include "Int.h"
 #include "IntAttrib.h"
-#include "FFT.h"
 #include "DataTypes.h"
+#include "Util.h"
 
 /*
 	Helpers.	Required for circa 2001 compiler.
@@ -71,7 +67,7 @@ template <typename RealT, typename InvFftT>
 
 	// Do zero padding
 	unsigned i;
-	for (i=0; i < n; i++) {
+	for (i=0; i < AlignT<RealT>::n; i++) {  // MAM: in GCC 3.4+, in a template definition, unqualified names do not reference base class members.  Right now this n depends on the class constructor instantiating the base class.
 		padData[i] = CompT<RealT>(Data[i], 0);
 		padRef[i] = CompT<RealT>(Ref[i], 0);
 	}
@@ -167,7 +163,7 @@ template <typename RealT, typename InvFftT>
 	if ((0 < maxIndex) && (maxIndex < mid)) {
 		dataShift = maxIndex;
 
-		for (i = n; maxIndex < i; ) {
+		for (i = AlignT<RealT>::n; maxIndex < i; ) {
 			i--;
 			Data[i] = Data[i - dataShift];
 		}
@@ -179,10 +175,10 @@ template <typename RealT, typename InvFftT>
 	else if (mid < maxIndex) {
 		dataShift = maxIndex - padN;
 
-		for (i=0; i < n + maxIndex - padN; i++) {
+		for (i=0; i < AlignT<RealT>::n + maxIndex - padN; i++) {
 			Data[i] = Data[i - dataShift];
 		}
-		for ( ; i < n; i++) {
+		for ( ; i < AlignT<RealT>::n; i++) {
 			Data[i] = 0;
 		}
 	}
@@ -192,5 +188,3 @@ template <typename RealT, typename InvFftT>
 
 	return dataShift;
 }; // FftShiftT
-
-#endif /* _ALIGN_H_ */

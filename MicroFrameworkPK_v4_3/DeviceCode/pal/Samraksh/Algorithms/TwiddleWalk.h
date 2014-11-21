@@ -15,6 +15,7 @@ template<typename RealT>
 class TwidWalkT {
 public: // Core OO interface
 	TwidWalkT(unsigned Ln2OfN);
+	//virtual ~TwidWalkT();  //MAM: should have virtual destructor with virtual operator().
 
 	virtual void Start() = 0;
 	virtual void Next() = 0;

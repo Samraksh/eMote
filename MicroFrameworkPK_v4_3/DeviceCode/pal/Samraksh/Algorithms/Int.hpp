@@ -6,14 +6,13 @@
  * @par    Maintainer: Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  */
 
-#ifndef _INT_HPP_
-#define _INT_HPP_
 
-#include "static_init.h"
 
 #include "Comp.h"
 #include "IntAttrib.h"
 #include "Util.h"
+
+#include "Int.h"
 
 /*
 	Array Shift
@@ -86,4 +85,3 @@ template <typename TargT, typename SourceT>
 	return (IntAttribT<TargT>::Min() <= Source) && (Source <= IntAttribT<TargT>::Max());
 }; // InRange
 
-#endif /* _INT_HPP_ */

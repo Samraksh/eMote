@@ -6,10 +6,12 @@
  * @par    Maintainer: Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  */
 
-#ifndef _BUTTERFLY_HPP_
-#define _BUTTERFLY_HPP_
 
+#include "ButterFly.h"
+#include "Int.h"
 #include "IntAttrib.h"
+#include "Util.h"
+
 
 template<typename RealT>
 	int ButterFlyAccT<RealT>::operator ()
@@ -75,4 +77,3 @@ template<typename RealT>
 	return extraShift;
 }; // operator ()
 
-#endif /* _BUTTERFLY_HPP_ */

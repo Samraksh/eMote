@@ -6,8 +6,7 @@
  * @par    Maintainer: Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  */
 
-#ifndef _COMP_HPP_
-#define _COMP_HPP_
+#include "Comp.h"
 
 /*
 	Assignment
@@ -71,4 +70,3 @@ template<>
 }; // operation <<
 #endif // defined(SAM_IOSTREAM)
 
-#endif /* _COMP_HPP_ */

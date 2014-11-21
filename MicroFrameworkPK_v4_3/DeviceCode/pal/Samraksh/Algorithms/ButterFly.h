@@ -15,8 +15,6 @@
 #include "static_init.h"
 
 #include "Comp.h"
-#include "Int.h"
-#include "Util.h"
 
 template<typename RealT>
 class ButterFlyAccT {

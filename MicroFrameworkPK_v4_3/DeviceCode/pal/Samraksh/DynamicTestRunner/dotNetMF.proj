@@ -38,6 +38,8 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <ItemGroup>
     <Compile Include="DynamicTestRunner.cpp" />
+    <Compile Include="DynamicTestRunnerTestsInstantiations.cpp" />
+    <Compile Include="DynamicTestRunnerTests.cpp" />
     <Compile Include="GlobalTestsTable.cpp" />
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>

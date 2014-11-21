@@ -6,10 +6,8 @@
  * @par    Maintainer: Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  */
 
-#ifndef _TWIDDLE_WALK_HPP_
-#define _TWIDDLE_WALK_HPP_
 
-#include "static_init.h"
+#include "TwiddleWalk.h"
 
 #include <assert.h>
 
@@ -134,4 +132,3 @@ template<typename RealT>
 	RealT BitWalkT<RealT>::Scale() const
 		{ return RealT(1 << Shift()); };
 
-#endif /* _TWIDDLEWALK_HPP_ */

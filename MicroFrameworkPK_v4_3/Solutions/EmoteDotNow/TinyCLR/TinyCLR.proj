@@ -586,7 +586,7 @@
 
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
-    <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
+    <DriverLibs Include="Algorithms_pal.$(LIB_EXT)" />
   </ItemGroup>
   
   <!--<ItemGroup>

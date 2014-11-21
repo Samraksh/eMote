@@ -7,18 +7,20 @@
  * @brief  Inline code for the Fft module.
  */
 
-#ifndef _FFT_HPP_
-#define _FFT_HPP_
 
-#include "static_init.h"
-
+#include "Comp.h"
 #include "Int.h"
 #include "IntAttrib.h"
 #include "Util.h"
 
-//#include <algorithm>
+#include "FFT.h"
+
 #include <assert.h>
+
+#if defined(SAM_IOSTREAM)
 #include <stdio.h>
+#endif
+
 
 /*
 	Constructors
@@ -27,6 +29,10 @@ template <typename RealT, typename ButterFlyT, typename TwidleWalkT>
 	FftCompFixLenT<RealT,ButterFlyT,TwidleWalkT>::FftCompFixLenT(unsigned Ln2OfN) :
 		twidleWalk(Ln2OfN)
 	{ /* Nothing */ };
+
+template <typename RealT, typename ButterFlyT, typename TwidleWalkT>
+    FftCompFixLenT<RealT,ButterFlyT,TwidleWalkT>::~FftCompFixLenT()
+{ /* Nothing */ };
 
  /*
 	Core Computation
@@ -181,4 +187,3 @@ template <typename RealT, typename FftT>
 	return shift;
 } // Conj
 
-#endif

@@ -9,6 +9,7 @@
 #include <tinyhal.h>
 
 #include <Samraksh\DynamicTestRunner.h>
+
 #include "GlobalTestsTable.h"
 
 
@@ -159,14 +160,15 @@ bool Emote_DynamicTestRunner::Process (UINT32 command, UINT32 paramCount, UINT32
     bool fRet = true;
     //hal_printf("[Emote_DynamicTestRunner_Process]   calling function 0x%X\n",command);
 
-#if defined(COMPILE_THUMB2)
-	if((command % 2) == 0) {
-		command = command + 1;  //need odd address for thumb. user could have used even address from MAP file.
-	}
-#endif
-
 	//verify function address.
 	if(command > 0x8020000) {
+
+#if defined(COMPILE_THUMB2)
+    if((command % 2) == 0) {
+        command = command + 1;  //need odd address for thumb. user could have used even address from MAP file.
+    }
+#endif
+
 		bool matchedFunction = false;
 		struct TestEntry* ptr_test;
 		for(int itr=0; itr < GlobalTestCount; ++itr) {

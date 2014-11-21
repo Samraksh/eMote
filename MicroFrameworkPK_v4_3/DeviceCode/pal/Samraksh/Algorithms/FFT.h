@@ -11,6 +11,7 @@
 
 #include "Comp.h"
 
+
 /*
 	Complex valued FFTs, fixed length
 */
@@ -22,6 +23,7 @@ public: // Accessor and type functions for users of this class
 
 public: // The constructor
 	FftCompFixLenT(unsigned Ln2OfN);
+	~FftCompFixLenT();
 
 public: // The main operations
 	int operator () (CompT<RealT> Data[]); // returns the shift
@@ -60,5 +62,6 @@ protected:
 	Include code for inlining
 */
 #include "FFT.hpp"
+
 
 #endif /* _FFT_H_ */

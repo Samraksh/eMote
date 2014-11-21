@@ -1,5 +1,5 @@
 /**
- * @file      DynamicTestRunnerTests
+ * @file      DynamicTestRunnerTests.hpp
  * @author    Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  * @date      Oct 23, 2014
  * @copyright (C) 2014 The Samraksh Company

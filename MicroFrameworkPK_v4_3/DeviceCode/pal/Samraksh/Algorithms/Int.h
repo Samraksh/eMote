@@ -19,6 +19,9 @@ template<typename SmallT, typename BigT>
 template<typename Type>
 	void ShiftData(Type Data[], unsigned Start, unsigned Len, int Shift);
 
+template <typename TargT, typename SourceT>
+    bool InRange(SourceT Source);
+
 /*
 	Include code for inlining
 */

@@ -28,7 +28,7 @@ struct TestEntry GlobalTestTable[] = {
 	[SubUINT32] = {(generic_fptr)&Emote_DynamicTestRunner_Tests::Subtract<UINT32>,"TemplatedSubtractUINT32"},
 	[ARMFFTR4INITQ16] = {(generic_fptr)&arm_cfft_radix4_init_q15,"arm_cfft_radix4_init_q15"},
 	[ARMFFTR4Q15] = {(generic_fptr)&arm_cfft_radix4_q15,"arm_cfft_radix4_q15"},
-	[TWIDWALKCI16] = {(generic_fptr)&FftCompFixLenT_Int16T,"FftCompFixLenT_Int16T"},
+	[TWIDWALKCI16] = {(generic_fptr)&Emote_DynamicTestRunner_Tests::FftCompFixLenT_Int16T_Test,"FftCompFixLenT_Int16T"},
 };
 
 unsigned int GlobalTestCount = sizeof(GlobalTestTable) / sizeof(GlobalTestTable[0]);
