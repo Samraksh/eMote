@@ -54,7 +54,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // The sampling interval in micro seconds. Sample rate per sec = 1,000,000 / SampleIntervalMicroSec
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
-        public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)30, true);
+        public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
+
+        public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
+        public static OutputPort audioInterrupt = new OutputPort((Cpu.Pin)31, true);
 
         // Define the GPIO pins used
         private static class GpioPins {
@@ -114,8 +117,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
                 
-                //if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback)) {
-                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback)) 
+                //if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");

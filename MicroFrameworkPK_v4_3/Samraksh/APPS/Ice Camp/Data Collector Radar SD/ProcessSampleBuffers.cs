@@ -91,9 +91,11 @@ namespace Samraksh.AppNote.DataCollector.Radar
                 ADCCopyBuffers.Add(iqaBuff);
             }
             _adcCopyBuffersPtr = 0;
-
-            radarDetect.SetDetectionParameters(4, 2, 65);
+            
+            radarDetect.SetDetectionThreshold(65);
             acousticDetect.SetDetectionParameters(1, 1);
+            Counter.count = 0;
+            MoutOfNDetector.Init(2, 6); // m / n
         }
 
         /// <summary>
@@ -289,7 +291,9 @@ namespace Samraksh.AppNote.DataCollector.Radar
         /// <param name="iqa">The I-Q-A</param>
         /// <returns>True iff we're done sampling</returns>
         private static void ProcessBuffers(IQAud iqa)
-        {            
+        {
+            bool radarDetection = false;
+
             timeMeasure.Write(true);
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
@@ -299,12 +303,37 @@ namespace Samraksh.AppNote.DataCollector.Radar
             int i;            
             
             threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
-                
+
+            // The following code is for m detections in n seconds and can be enabled by uncommenting the following
+            // M and N can be set in SetupBuffers() above
+            // if you use m hits over n seconds below, then you need to comment out the "radarDetection = threshholdMet;" line that follows
+            /*Counter.count += 1;
+            if (threshholdMet)
+            {
+                MoutOfNDetector.Update(Counter.count, 1);
+            }
+            else
+            {
+                MoutOfNDetector.Update(Counter.count, 0);
+            }
+
+            if (MoutOfNDetector.state == 1 && MoutOfNDetector.prevstate == 0)
+            {
+                radarDetection = true;
+            }
+            else
+            {
+                radarDetection = false;
+            }*/
+
+            // If you just want to use the thresholdMet as the detection then use the following
+            radarDetection = threshholdMet;
+
             // This code makes the Kiwi speaker sound
             // *** Comment out if needed for time ****  
             for (i = 0; i < 300; i++)
             {
-                if (threshholdMet == true)
+                if (radarDetection == true)
                 {
                     buzzerGPIO.Write(buzzerState);
                     if (buzzerState == true)
@@ -324,7 +353,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             //// decision processing
             for (i = 0; i < 6; i++)
             {
-                Debug.Print(acousticDetectOutput[i].ToString());
+                //Debug.Print(acousticDetectOutput[i].ToString());
             }
             if (historyUpdateCtrl == true)
                 historyUpdateCtrl = false;
@@ -333,7 +362,55 @@ namespace Samraksh.AppNote.DataCollector.Radar
             acousticDetection = historyUpdateCtrl;
             //// end of decision processing
 
+            radarInterrupt.Write(radarDetection);
+            audioInterrupt.Write(acousticDetection);
+
             timeMeasure.Write(false);       
+        }
+
+        // Counter fpr storing shared state
+        public static class Counter
+        {
+            public static int count;
+        }
+        // M-out-of-N detector to detect Displacement Detection
+        // state is the current state of the detector
+        // state = 1 iff there are M hits in the last N seconds
+        public static class MoutOfNDetector
+        {
+            public static int state = 0;
+            public static int prevstate = 0;
+
+            private static int M, N, End;
+            private static int[] Buff;
+
+            public static void Init(int x, int y)
+            {
+                M = x;
+                N = y;
+                End = 0;
+                int i;
+
+                Buff = new int[M];
+                for (i = 0; i < M; i++)
+                    Buff[i] = -N;
+            }
+
+            public static void Update(int index, int detect)
+            {
+                prevstate = state;
+
+                if (detect == 1)
+                {
+                    Buff[End] = index;
+                    End = (End + 1) % M;
+                }
+
+                if (index - Buff[End] < N)
+                    state = 1;
+                else
+                    state = 0;
+            }
         }
     }
 }

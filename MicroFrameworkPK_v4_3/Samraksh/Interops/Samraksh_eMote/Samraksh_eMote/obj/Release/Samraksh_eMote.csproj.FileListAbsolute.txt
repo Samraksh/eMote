@@ -32,5 +32,3 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Sa
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\be\Samraksh_eMote.pdbx
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
