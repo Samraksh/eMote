@@ -113,8 +113,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
-                if (
-                    !AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback)) {
+                
+                //if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback)) {
+                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
                 }

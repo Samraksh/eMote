@@ -24,18 +24,20 @@ namespace Samraksh.AppNote.DataCollector.Radar
         // ---------------------------------------------
 
         /// <summary>
-        /// I-Q buffer pair
+        /// ADC buffer
         /// </summary>
         /// <remarks>Lets a pair of buffers be handled together as a single object</remarks>
-        private class IQPair
+        private class IQAud
         {
             // ReSharper disable once InconsistentNaming
             public readonly ushort[] IBuff;
             public readonly ushort[] QBuff;
-            public IQPair(ushort[] iBuff, ushort[] qBuff)
+            public readonly ushort[] audioBuff;
+            public IQAud(ushort[] iBuff, ushort[] qBuff, ushort[] audBuff)
             {
                 IBuff = iBuff;
                 QBuff = qBuff;
+                audioBuff = audBuff;
             }
         }
 
@@ -45,13 +47,13 @@ namespace Samraksh.AppNote.DataCollector.Radar
         // The ADC buffers that are populated by the ADC driver
         private static readonly ushort[] ADCBufferI = new ushort[ADCBufferSize];
         private static readonly ushort[] ADCBufferQ = new ushort[ADCBufferSize];
-        private static ushort[] ADCBufferAudio = new ushort[AudioBufferSize];
+        private static readonly ushort[] ADCBufferAudio = new ushort[AudioBufferSize];
 
         //public static ushort[] unwrapBuffer = new ushort[ADCBufferSize*50];  
 
         // The buffer queue and it's maximum length
         private static readonly Queue BufferQueue = new Queue();
-        private const int MaxBufferQueueLen = 3;
+        private const int MaxBufferQueueLen = 2;
 
         // A circular array of pre-allocated buffers that receive the contents of the ADC buffers
         private static readonly ArrayList ADCCopyBuffers = new ArrayList();
@@ -84,12 +86,13 @@ namespace Samraksh.AppNote.DataCollector.Radar
             {
                 var iBuff = new ushort[ADCBufferSize];
                 var qBuff = new ushort[ADCBufferSize];
-                var iqBuff = new IQPair(iBuff, qBuff);
-                ADCCopyBuffers.Add(iqBuff);
+                var aBuff = new ushort[AudioBufferSize];
+                var iqaBuff = new IQAud(iBuff, qBuff, aBuff);
+                ADCCopyBuffers.Add(iqaBuff);
             }
             _adcCopyBuffersPtr = 0;
 
-            radarDetect.SetDetectionParameters(8, 2, 65);
+            radarDetect.SetDetectionParameters(4, 2, 65);
             acousticDetect.SetDetectionParameters(1, 1);
         }
 
@@ -124,15 +127,16 @@ namespace Samraksh.AppNote.DataCollector.Radar
             // Get an I-Q buffer pair that will receive the ADC buffer data
             //  Note that we're using pre-allocated buffers rather than creating new
             //  This protects against the garbage collector
-            var iq = (IQPair)ADCCopyBuffers[_adcCopyBuffersPtr];
+            var iqa = (IQAud)ADCCopyBuffers[_adcCopyBuffersPtr];
             // Copy to the pair
-            ADCBufferI.CopyTo(iq.IBuff, 0);
-            ADCBufferQ.CopyTo(iq.QBuff, 0);
+            ADCBufferI.CopyTo(iqa.IBuff, 0);
+            ADCBufferQ.CopyTo(iqa.QBuff, 0);
+            ADCBufferAudio.CopyTo(iqa.audioBuff, 0);
             // Update the circular buffer pointer
             _adcCopyBuffersPtr = (_adcCopyBuffersPtr + 1) % ADCCopyBuffersCnt;
 
             // Enqueue the pair for processing
-            BufferQueue.Enqueue(iq);
+            BufferQueue.Enqueue(iqa);
             // Signal the processing thread
             SampleBufferSemaphore.Set();
         }
@@ -155,8 +159,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
                 while (BufferQueue.Count > 0)
                 {
                     // Get a buffer to process
-                    var iq = (IQPair)BufferQueue.Dequeue();
-                    ProcessBuffers(iq);
+                    var iqa = (IQAud)BufferQueue.Dequeue();
+                    ProcessBuffers(iqa);
                 }
                 // Check if the end-sampling flag is set. If so, we're done
                 if (!_collectIsDone)
@@ -170,7 +174,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
         }
 
-        public static short[] arcTan = new short[4097] {
+        // arcTan table is made here and then sent to radar detection because the 4097 size array pushes us over memory in MF code
+        public static readonly short[] arcTan = new short[4097] {
                     #region arcTan values
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
                      39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
@@ -279,22 +284,24 @@ namespace Samraksh.AppNote.DataCollector.Radar
                     };
 
         /// <summary>
-        /// Process an I-Q pair of buffers
+        /// Process AD data
         /// </summary>
-        /// <param name="iq">The I-Q pair</param>
+        /// <param name="iqa">The I-Q-A</param>
         /// <returns>True iff we're done sampling</returns>
-        private static void ProcessBuffers(IQPair iq)
+        private static void ProcessBuffers(IQAud iqa)
         {            
             timeMeasure.Write(true);
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
-            var iBuff = iq.IBuff;
-            var qBuff = iq.QBuff;
+            var iBuff = iqa.IBuff;
+            var qBuff = iqa.QBuff;
+            var aBuff = iqa.audioBuff;
             int i;            
             
-            //threshholdMet = pUn.DetectionCalculation(iBuff, qBuff, unwrapBuffer, ADCBufferSize, arcTan);
             threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
-                                          
+                
+            // This code makes the Kiwi speaker sound
+            // *** Comment out if needed for time ****  
             for (i = 0; i < 300; i++)
             {
                 if (threshholdMet == true)
@@ -306,18 +313,14 @@ namespace Samraksh.AppNote.DataCollector.Radar
                         buzzerState = true;
                 }
             }
-
-            for (i = 0; i < AudioBufferSize; i++)
-            {
-                ADCBufferAudio[i] = (ushort)i;
-            }
+            // *** Comment out above speaker code if needed for time **** 
 
             double[] acousticDetectOutput = new double[6];
             bool acousticDetection = false;
 
-            //
-            bool unusedReturnBool = acousticDetect.DetectionCalculation(ADCBufferAudio, 500, acousticDetectOutput, historyUpdateCtrl);
-            Debug.Print("tests");
+            // we have 2000 bytes of data but will only process 500 bytes (1/4 second)
+            bool unusedReturnBool = acousticDetect.DetectionCalculation(aBuff, 500, acousticDetectOutput, historyUpdateCtrl);
+
             //// decision processing
             for (i = 0; i < 6; i++)
             {

@@ -35,11 +35,11 @@
             The main program blocks until this thread ends
             </remarks>
         </member>
-        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.ProcessBuffers(Samraksh.AppNote.DataCollector.Radar.Program.IQPair)">
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.ProcessBuffers(Samraksh.AppNote.DataCollector.Radar.Program.IQAud)">
             <summary>
-            Process an I-Q pair of buffers
+            Process AD data
             </summary>
-            <param name="iq">The I-Q pair</param>
+            <param name="iqa">The I-Q-A</param>
             <returns>True iff we're done sampling</returns>
         </member>
         <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.Main">
@@ -49,9 +49,9 @@
             <exception cref="T:System.InvalidOperationException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="T:Samraksh.AppNote.DataCollector.Radar.Program.IQPair">
+        <member name="T:Samraksh.AppNote.DataCollector.Radar.Program.IQAud">
             <summary>
-            I-Q buffer pair
+            ADC buffer
             </summary>
             <remarks>Lets a pair of buffers be handled together as a single object</remarks>
         </member>
