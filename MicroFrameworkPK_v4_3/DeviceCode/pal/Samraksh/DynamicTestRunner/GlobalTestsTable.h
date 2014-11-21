@@ -23,8 +23,8 @@ enum TestIndex {
 	SubUINT8 = 2,
 	SubUINT32 = 3,
 	ARMFFTR4INITQ16 = 4,
-	ARMFFTR4Q15 = 5
-
+	ARMFFTR4Q15 = 5,
+	TWIDWALKCI16 = 6,
 };
 
 extern struct TestEntry GlobalTestTable[];

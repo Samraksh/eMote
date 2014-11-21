@@ -17,7 +17,7 @@
 #else
 #define HARD_BREAKPOINT()  
 #endif
-
+#endif
 extern "C"
 {
     extern void (**__init_array_start)();
