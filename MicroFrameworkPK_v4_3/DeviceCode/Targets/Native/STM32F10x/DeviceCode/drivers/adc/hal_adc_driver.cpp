@@ -722,8 +722,9 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
-	UINT32 period;
+	UINT32 period, periodAudio;
 	UINT32 prescaler;
+	UINT32 samplingTimeAudio;
 
 	ADC_RCC_Configuration();
 
@@ -770,11 +771,12 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 	adcNumSamples = numSamples/16;
 	adcNumSamplesAudio = numSamples;
+	samplingTimeAudio = samplingTime/16;
 	dualADCMode = TRUE;
 
 
 
-	/*RCC_ClocksTypeDef RCC_Clocks;
+	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
 
 	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
@@ -783,8 +785,9 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	}
 	else {
 		// Prescaler, so TIM clock = PCLK1 x 2
-		//period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
-		period = samplingTime * (RCC_Clocks.PCLK1_Frequency/(3*1000000));
+		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+		periodAudio = samplingTimeAudio * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+		//period = samplingTime * (RCC_Clocks.PCLK1_Frequency/(3*1000000));
 	}
 
 	prescaler = 1;
@@ -805,7 +808,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	}
 
 	// Adjust
-	prescaler--;*/
+	prescaler--;
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 
@@ -813,12 +816,15 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
 	//-------------------------TIMER SETUP---------------------------------------------------------------------
-	//AnanthAtSamraksh - setup a timer for Radar (TIM4)
+	//AnanthAtSamraksh - setup a timer for Radar (TIM3)
 	TIM_DeInit(TIM3);
-    TIM_TimeBaseStructure.TIM_Period = 64000;	//125Hz @ 8MHz
+	TIM_TimeBaseStructure.TIM_Period = (UINT16) period;	//125Hz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 48000;	//125Hz @ 8MHz
+    //TIM_TimeBaseStructure.TIM_Period = 64000;	//125Hz @ 8MHz
     //TIM_TimeBaseStructure.TIM_Period = (UINT16)(period * 4);	//250Hz @ 8MHz; 1000/250 Hz
-    TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    //TIM_TimeBaseStructure.TIM_Prescaler = 0;
+    TIM_TimeBaseStructure.TIM_Prescaler = (UINT16) prescaler;
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
@@ -834,9 +840,11 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	TIM_ARRPreloadConfig(TIM4, ENABLE);*/
 
 
-	//AnanthAtSamraksh - setup a timer for Audio (TIM3)
+	//AnanthAtSamraksh - setup a timer for Audio (TIM8)
 	TIM_DeInit(TIM8);
-	TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
+	TIM_TimeBaseStructure.TIM_Period = (UINT16) periodAudio;	//2KHz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 24000;	//2KHz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
 	//TIM_TimeBaseStructure.TIM_Period = (UINT16)(period / 2);	//2KHz @ 8MHz; 1000/2000 Hz
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -862,7 +870,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
     g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
     g_adcDriverBufferDualModePtrAudio = g_adcDriverBufferDualMode;
 #else
-    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 2) * adcNumSamples);
+    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32)) * adcNumSamples);
     //g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(3 * numSamples);
     //g_adcDriverBufferDualModePtrAudio = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
 #endif
@@ -874,7 +882,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = 2 * adcNumSamples;
+	DMA_InitStructure.DMA_BufferSize = adcNumSamples;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
@@ -1159,6 +1167,11 @@ extern "C"
 
 	void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 	{
+		static int radarCount = 0;
+		radarCount++;
+		if(radarCount % 800 == 0)
+		{
+			radarCount = 0;
 		//CPU_GPIO_SetPinState((GPIO_PIN)2, TRUE);
 		//CPU_GPIO_SetPinState((GPIO_PIN)3, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
@@ -1250,6 +1263,7 @@ extern "C"
 				TIM_Cmd(TIM8, DISABLE);
 			}
 		}
+		}
 	}
 
 
@@ -1305,6 +1319,7 @@ extern "C"
 
 	void DMA_HAL_HANDLER(void *param)
 	{
+		CPU_GPIO_SetPinState((GPIO_PIN)23, TRUE);
 		//hal_printf("DMA_HAL_HANDLER\n");
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
@@ -1332,6 +1347,7 @@ extern "C"
 				}
 			}
 
+			CPU_GPIO_SetPinState((GPIO_PIN)23, FALSE);
 			// Call the user with the current value of ticks
 			g_callback(&g_timeStamp);
 

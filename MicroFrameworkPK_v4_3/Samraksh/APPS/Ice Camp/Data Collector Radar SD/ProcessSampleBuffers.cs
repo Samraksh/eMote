@@ -92,7 +92,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
             
-            radarDetect.SetDetectionThreshold(65);
+            radarDetect.SetDetectionThreshold(20);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
@@ -298,6 +298,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             timeMeasure.Write(true);
 
+
             // Pull the members out. Re ferencing this way seems to be more efficient.
             var iBuff = iqa.IBuff;
             var qBuff = iqa.QBuff;
@@ -330,6 +331,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             // If you just want to use the thresholdMet as the detection then use the following
             radarDetection = threshholdMet;
+
+            Debug.Print(radarDetection.ToString());
 
             // This code makes the Kiwi speaker sound
             // *** Comment out if needed for time ****  
@@ -364,8 +367,9 @@ namespace Samraksh.AppNote.DataCollector.Radar
             acousticDetection = historyUpdateCtrl;
             //// end of decision processing
 
-            radarInterrupt.Write(radarDetection);
-            audioInterrupt.Write(acousticDetection);
+            //radarInterrupt.Write(radarDetection);
+            //audioInterrupt.Write(acousticDetection);
+
 
             timeMeasure.Write(false);       
         }
