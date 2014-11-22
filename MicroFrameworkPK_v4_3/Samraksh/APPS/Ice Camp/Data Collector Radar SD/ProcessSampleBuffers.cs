@@ -105,6 +105,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
         /// <param name="threshhold"></param>
         private static void ADCCallback(long threshhold)
         {
+            //Debug.Print(" I " + ADCBufferI[0].ToString() + " Q " + ADCBufferQ[0].ToString() + " Audio " + ADCBufferAudio[0].ToString() + "\n");
+            //Debug.Print(" I " + ADCBufferI[0].ToString() + " Q " + ADCBufferQ[0].ToString() + "\n");
             // Track the number of queues used
             //  Note that BufferQueue.Count can become smaller after this statement
             //      if WriteSampleBufferQueue dequeues a buffer but it cannot become larger

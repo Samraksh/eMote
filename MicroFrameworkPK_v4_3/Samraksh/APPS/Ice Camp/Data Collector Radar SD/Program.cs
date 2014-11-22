@@ -33,8 +33,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
         private const int AudioBufferSize = 2000;
-        private const int ADCBufferSize = 128; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 7813;
+        private const int ADCBufferSize = 125; // Number of ushorts per ADC buffer
+        private const int SampleIntervalMicroSec = 8000;
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
@@ -117,8 +117,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
                 
-                if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback)) 
-                //if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                //if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, AudioBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
