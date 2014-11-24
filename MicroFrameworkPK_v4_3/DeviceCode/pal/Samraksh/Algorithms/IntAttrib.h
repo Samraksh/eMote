@@ -30,7 +30,7 @@ class IntAttribT;
 template <typename NativeT, unsigned NumBitArg>
 class SignedAttribT {
 public:
-	static bool Signed()
+	static bool Signed()  //TODO: inline, const, or constexpr?
 		{ return true; };
 	static NativeT Min()
 		{ return ( -(1 << (NumBits() - 1)) ); };

@@ -13,8 +13,8 @@
 template <typename T>
 class CircularBufferT {
     T *m_buffer;
-    T *m_head;
-    T *m_tail;
+    size_t m_head;
+    size_t m_tail;
     const size_t m_size;
     size_t m_length;
 

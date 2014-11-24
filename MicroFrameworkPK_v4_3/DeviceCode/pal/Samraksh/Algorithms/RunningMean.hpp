@@ -19,7 +19,7 @@ template <typename IntElemT, size_t N, typename IntSumT>
   RunningMeanT<IntElemT,N,IntSumT>::RunningMeanT(IntElemT InitVal)
 {
     m_CircularBuffer = new CircularBufferT<IntElemT>(N);
-    m_CircularBuffer.Push(InitVal);
+    m_CircularBuffer->Push(InitVal);
     m_sum = InitVal;
     m_length = 1;
 };
@@ -31,7 +31,7 @@ template <typename IntElemT, size_t N, typename IntSumT>
     m_sum = 0;
     for(int itr = 0; itr < N; ++itr) {
         m_sum += InitVal[itr];
-        m_CircularBuffer.Push(InitVal[itr]);
+        m_CircularBuffer->Push(InitVal[itr]);
     }
     m_length = N;
 };
@@ -49,10 +49,10 @@ template <typename IntElemT, size_t N, typename IntSumT>
 {
     if(m_length == N) {
         IntElemT lastElem;
-        m_CircularBuffer.Pop(lastElem);
+        m_CircularBuffer->Pop(lastElem);
         m_sum -= lastElem;
     }
-    m_CircularBuffer.Push(elem);
+    m_CircularBuffer->Push(elem);
     m_sum += elem;
     if(m_length < N) {
         ++m_length;

@@ -18,8 +18,9 @@
 
 template<typename IntElemT, size_t N, typename IntSumT>
 class RunningMeanT {
+    //static_assert(IntAttribT<IntSumT>::Max() / IntAttribT<IntElemT>::Max() > N, "IntSumT not large enough to hold mean of buffer" );
 private:
-    CircularBufferT<IntElemT> m_CircularBuffer;
+    CircularBufferT<IntElemT>* m_CircularBuffer;
     IntSumT m_sum;
     size_t m_length;
     IntElemT m_mean;

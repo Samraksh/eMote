@@ -13,7 +13,7 @@
 #include "ButterFly.h"
 #include "Fft.h"
 #include "TwiddleWalk.h"
-
+#include "RunningMean.h"
 
 
 
@@ -49,16 +49,20 @@ RunningMeanT<Int16T, ALGORITHMS_N, Int32T>* runMeanI16 = NULL;
 
 INT16 RunningMeanT_Int16T(INT16* buffer, const UINT32 bufferLength)
 {
+#if defined(DEBUG)
+    ASSERT(bufferLength > 0);
+#endif
     INT16 fRet = 0;
     if(runMeanI16 == NULL) {
-        runMeanI16 = new RunningMeanT<Int16T, ALGORITHMS_N, Int32T>(buffer);
+        runMeanI16 = new RunningMeanT<Int16T, ALGORITHMS_N, Int32T>(buffer[0]);
     }
     else {
+        runMeanI16->Push(buffer[0]);
+    }
+    if(runMeanI16 != NULL) {
         for(int itr=0; itr < bufferLength; ++itr) {
             runMeanI16->Push(buffer[itr]);
         }
-    }
-    if(runMeanI16 != NULL) {
         fRet = runMeanI16->operator ()();
     }
     return fRet;
