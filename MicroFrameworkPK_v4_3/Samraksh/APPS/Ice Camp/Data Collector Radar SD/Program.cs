@@ -33,8 +33,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
         private const int AudioBufferSize = 2000;
-        private const int ADCBufferSize = 125; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 8000;
+        private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
+        private const int SampleIntervalMicroSec = 4000;
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
