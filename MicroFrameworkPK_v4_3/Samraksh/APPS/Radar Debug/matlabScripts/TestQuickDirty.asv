@@ -1,0 +1,57 @@
+function QuickDirtyTest(FileName)
+
+Lambda = 5.8e9/3e8;
+Rate = 256;
+
+[Real,Imag,firmwareRaw] = ReadRadarData(FileName);
+Time = [0 : length(firmwareRaw)-1]/Rate;
+Real([1:20]) = 0;
+Imag([1:20]) = 0;
+firmwareRaw([1:20]) = 0;
+
+ImagA = Imag - median(Imag);
+RealA = Real - median(Real);
+%ImagA = Imag - 1562;
+%RealA = Real - 1568;
+Rot = atan2(ImagA,RealA);
+UnRot = UnWrap(Rot/(2*pi), -0.5,0.5);
+unwrapMatlab = UnRot/Lambda/2;
+
+%raw
+% median I - 1562
+% median Q - 1568
+%firmwareRaw = firmwareRaw / 4096;
+%UnRotX = UnWrap(firmwareRaw/(2*pi), -0.5,0.5);
+UnRotX = firmwareRaw/(2;
+firmwareUnwrap = UnRotX/Lambda/2;
+
+
+%DeltaX = diff(firmwareRaw);
+%ModX = [0;mod(DeltaX + pi, 2*pi) - pi];
+%UnDeltaX = [0; mod(DeltaX + 0.5,1) - 0.5];
+%firmwareUnwrap = cumsum(ModX);
+
+%% Make Graph
+subplot(4,1,1);
+%GraphRelRange(Real,Imag, Lambda,Rate);
+plot(Time, Rot)
+axis tight;
+
+%% Make Graph
+subplot(4,1,2);
+plot(Time, unwrapMatlab)
+xlabel('matlab arctan');
+axis tight;
+
+subplot(4,1,3);
+%GraphAbs(Real,Imag, Rate);
+%plot(Time, Imag, 'b.-')
+plot(Time, firmwareRaw)
+xlabel('firmware raw');
+axis tight;
+
+subplot(4,1,4);
+plot(Time, firmwareUnwrap)
+xlabel('firmware Unwrap');
+%GraphFreq(Real,Imag, Rate);
+axis tight;

@@ -32,6 +32,8 @@ extern STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 HAL_CALLBACK_FPN g_callback = NULL;
 static UINT64 g_timeStamp = 0;
 
+static volatile bool DMA_Callback = false;
+
 UINT16 *g_adcUserBufferChannel1Ptr = NULL;
 UINT16 *g_adcUserBufferChannel2Ptr = NULL;
 UINT16 *g_adcUserBufferChannel3Ptr = NULL;
@@ -43,6 +45,7 @@ UINT32 *g_adcDriverBufferDualModePtr = NULL;
 UINT32 *g_adcDriverBufferDualModePtrAudio = NULL;
 
 UINT32 adcNumSamples = 0;
+UINT32 adcNumSamplesAudio = 0;
 //uint32_t ADC_RAW[1] = {0};
 
 BOOL batchModeADC = FALSE;
@@ -719,8 +722,9 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
-	UINT32 period;
+	UINT32 period, periodAudio;
 	UINT32 prescaler;
+	UINT32 samplingTimeAudio;
 
 	ADC_RCC_Configuration();
 
@@ -765,9 +769,14 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 	g_adcUserBufferChannel3Ptr = sampleBuff3;
 
+	adcNumSamples = numSamples/16;
+	adcNumSamplesAudio = numSamples;
+	samplingTimeAudio = samplingTime/16;
+	dualADCMode = TRUE;
 
 
-	/*RCC_ClocksTypeDef RCC_Clocks;
+
+	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
 
 	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
@@ -777,6 +786,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	else {
 		// Prescaler, so TIM clock = PCLK1 x 2
 		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+		periodAudio = samplingTimeAudio * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+		//period = samplingTime * (RCC_Clocks.PCLK1_Frequency/(3*1000000));
 	}
 
 	prescaler = 1;
@@ -797,7 +808,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	}
 
 	// Adjust
-	prescaler--;*/
+	prescaler--;
 
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 
@@ -805,11 +816,15 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
 	//-------------------------TIMER SETUP---------------------------------------------------------------------
-	//AnanthAtSamraksh - setup a timer for Radar (TIM4)
+	//AnanthAtSamraksh - setup a timer for Radar (TIM3)
 	TIM_DeInit(TIM3);
-    TIM_TimeBaseStructure.TIM_Period = 32000;	//250Hz @ 8MHz
-    TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStructure.TIM_Period = (UINT16) period;	//125Hz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 48000;	//125Hz @ 8MHz
+    //TIM_TimeBaseStructure.TIM_Period = 64000;	//125Hz @ 8MHz
+    //TIM_TimeBaseStructure.TIM_Period = (UINT16)(period * 4);	//250Hz @ 8MHz; 1000/250 Hz
+    //TIM_TimeBaseStructure.TIM_Prescaler = 0;
+    TIM_TimeBaseStructure.TIM_Prescaler = (UINT16) prescaler;
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
@@ -825,9 +840,12 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	TIM_ARRPreloadConfig(TIM4, ENABLE);*/
 
 
-	//AnanthAtSamraksh - setup a timer for Audio (TIM3)
+	//AnanthAtSamraksh - setup a timer for Audio (TIM8)
 	TIM_DeInit(TIM8);
-	TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
+	TIM_TimeBaseStructure.TIM_Period = (UINT16) periodAudio;	//2KHz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 24000;	//2KHz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = 4000;	//2KHz @ 8MHz
+	//TIM_TimeBaseStructure.TIM_Period = (UINT16)(period / 2);	//2KHz @ 8MHz; 1000/2000 Hz
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -852,7 +870,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
     g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
     g_adcDriverBufferDualModePtrAudio = g_adcDriverBufferDualMode;
 #else
-    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32) * 2) * numSamples);
+    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc((sizeof(UINT32)) * adcNumSamples);
     //g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(3 * numSamples);
     //g_adcDriverBufferDualModePtrAudio = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
 #endif
@@ -864,7 +882,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr;
 	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = 2 * numSamples;
+	DMA_InitStructure.DMA_BufferSize = adcNumSamples;
 	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
@@ -874,8 +892,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 
-	DMA_ITConfig(DMA1_Channel1, DMA1_IT_HT1, ENABLE);
-	//DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
+	//DMA_ITConfig(DMA1_Channel1, DMA1_IT_HT1, ENABLE);
+	DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
 	// Enable DMA1 Channel1
 	DMA_Cmd(DMA1_Channel1, ENABLE);
 
@@ -994,19 +1012,14 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	while(ADC_GetCalibrationStatus(ADC3));
 
 
-
 	/* Start ADC1 Software Conversion */
 	//ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
 	/* Start ADC3 Software Conversion */
 	ADC_SoftwareStartConvCmd(ADC3, ENABLE);
 
-	adcNumSamples = numSamples;
-
-	dualADCMode = TRUE;
-
 	//TIM_Cmd(TIM3, ENABLE);		//Radar
-	//TIM_Cmd(TIM8, ENABLE);		//Audio
+	TIM_Cmd(TIM8, ENABLE);		//Audio
 
 	return DS_Success;
 }
@@ -1096,21 +1109,53 @@ extern "C"
 {
 	void ADC_HAL_HANDLER(void *param)
 	{
-		hal_printf("ADC_HAL_HANDLER\n");
+		CPU_GPIO_SetPinState((GPIO_PIN)23, TRUE);
+
+		//hal_printf("ADC_HAL_HANDLER\n");
 		static int buffer_index = 0;
-		buffer_index++;
-		if(buffer_index % 10 == 0)
-		{
-			g_timeStamp = HAL_Time_CurrentTicks();
+		//buffer_index++;
+		//if(buffer_index % 5 == 0)
+		//{
+			//g_timeStamp = HAL_Time_CurrentTicks();
 			//TIM_Cmd(TIM8, ENABLE);		//Audio
-			memset(g_adcUserBufferChannel3Ptr, 0, adcNumSamples);
+			//memset(g_adcUserBufferChannel3Ptr, 0, adcNumSamples);
 			//hal_printf("g_adcUserBufferChannel3Ptr: %d; buffer_index: %d \n", *g_adcUserBufferChannel3Ptr, buffer_index);
-			for(UINT16 i = 0; i < adcNumSamples; i++)
-			{
-				g_adcUserBufferChannel3Ptr[i] = ADC_GetConversionValue(ADC3);
-			}
-			g_callback(&g_timeStamp);
-		}
+			//for(UINT16 i = 0; i < adcNumSamples; i++)
+			//{
+				if(buffer_index < adcNumSamplesAudio)
+					g_adcUserBufferChannel3Ptr[buffer_index++] = ADC_GetConversionValue(ADC3);
+
+				CPU_GPIO_SetPinState((GPIO_PIN)23, FALSE);
+
+				if(buffer_index == adcNumSamplesAudio && DMA_Callback)
+				{
+					g_timeStamp = HAL_Time_CurrentTicks();
+					CPU_GPIO_SetPinState((GPIO_PIN)2, TRUE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)8, TRUE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)4, TRUE);
+					buffer_index = 0;
+					DMA_Callback = false;
+					CPU_GPIO_SetPinState((GPIO_PIN)2, FALSE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)8, FALSE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)4, FALSE);
+					g_callback(&g_timeStamp);
+				}
+			//}
+
+			//if(DMA_Callback)
+			//{
+				/*for(UINT16 i = 0; i < adcNumSamples; i++)
+				{
+					g_adcUserBufferChannel1Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
+					g_adcUserBufferChannel2Ptr[i] = (g_adcDriverBufferDualModePtr[i] >> 16);
+				}*/
+				//DMA_Callback = false;
+				//g_callback(&g_timeStamp);
+			//}
+
+
+			//g_callback(&g_timeStamp);
+		//}
 		//else if(buffer_index % 10 == 0)
 			//TIM_Cmd(TIM8, DISABLE);		//Audio
 
@@ -1122,13 +1167,21 @@ extern "C"
 
 	void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 	{
+		static int radarCount = 0;
+		radarCount++;
+		if(radarCount % 800 == 0)
+		{
+			radarCount = 0;
+		//CPU_GPIO_SetPinState((GPIO_PIN)2, TRUE);
+		//CPU_GPIO_SetPinState((GPIO_PIN)3, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
 		//hal_printf("DMA_HAL_HANDLER_FOR_RADAR\n");
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
 
-		if(DMA_GetFlagStatus(DMA1_FLAG_HT1) != RESET)
+		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
 		{
-			DMA_ClearITPendingBit(DMA1_FLAG_HT1);
+			DMA_ClearITPendingBit(DMA1_FLAG_TC1);
 
 			if(!dualADCMode)
 			{
@@ -1151,6 +1204,13 @@ extern "C"
 					//hal_printf("Radar; g_adcUserBufferChannel1Ptr[i]: %d; g_adcUserBufferChannel2Ptr[i]: %d \n", g_adcUserBufferChannel1Ptr[i], g_adcUserBufferChannel2Ptr[i]);
 					//g_adcUserBufferChannel3Ptr[i] = (g_adcDriverBufferDualModePtrAudio[i] >> 16);
 				}
+
+				//CPU_GPIO_SetPinState((GPIO_PIN)2, FALSE);
+				//CPU_GPIO_SetPinState((GPIO_PIN)3, FALSE);
+				CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
+
+				if(!DMA_Callback)
+					DMA_Callback = true;
 
 				/*static int buffer_index = 0;
 				buffer_index++;
@@ -1192,7 +1252,7 @@ extern "C"
 
 			// Call the user with the current value of ticks
 			//if(g_adcUserBufferChannel1Ptr[adcNumSamples] != 0 || g_adcUserBufferChannel2Ptr[adcNumSamples] != 0)
-				g_callback(&g_timeStamp);
+				//g_callback(&g_timeStamp);
 
 			//hal_printf("DMA_HAL_HANDLER_THREE_CHANNELS\n");
 
@@ -1202,6 +1262,7 @@ extern "C"
 				TIM_Cmd(TIM3, DISABLE);
 				TIM_Cmd(TIM8, DISABLE);
 			}
+		}
 		}
 	}
 
@@ -1258,6 +1319,7 @@ extern "C"
 
 	void DMA_HAL_HANDLER(void *param)
 	{
+		CPU_GPIO_SetPinState((GPIO_PIN)23, TRUE);
 		//hal_printf("DMA_HAL_HANDLER\n");
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
@@ -1285,6 +1347,7 @@ extern "C"
 				}
 			}
 
+			CPU_GPIO_SetPinState((GPIO_PIN)23, FALSE);
 			// Call the user with the current value of ticks
 			g_callback(&g_timeStamp);
 

@@ -59,11 +59,11 @@ INT16 findMedian(INT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 m, INT32 n,  INT32 threshold)
+BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold)
 {
 	int i;
 	int unwrappedPhase;
-	UINT16 minPhase, maxPhase;
+	int minPhase, maxPhase;
 	BOOL detection = false, threshholdMet = false;
 
 	for (i=0; i<length; i++){

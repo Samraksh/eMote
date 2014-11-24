@@ -24,7 +24,7 @@ namespace Samraksh
             // Declaration of stubs. These functions are implemented by Interop code developers
             static INT8 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, CLR_RT_TypedArray_INT16 param4, HRESULT &hr );
             static INT8 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, CLR_RT_TypedArray_INT16 param3, HRESULT &hr );
-            static INT8 SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, INT32 param2, HRESULT &hr );
+            static INT8 SetDetectionThreshold( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
         };
     }
 }
