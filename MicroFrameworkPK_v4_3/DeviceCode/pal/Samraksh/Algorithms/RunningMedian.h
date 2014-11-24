@@ -1,4 +1,4 @@
-/*
+/**
  * @file   RunningMedian.h
  * @author Michael Andrew McGrath (michael.mcgrath@samraksh.com)
  * @date   Nov 6, 2014

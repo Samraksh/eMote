@@ -16,3 +16,11 @@ void* Emote_DynamicTestRunner_Tests::FftCompFixLenT_Int16T_Test(void* complex_bu
     fRet_shift = FftCompFixLenT_Int16T( param_complex_buffer, param_ln2OfN);
     return reinterpret_cast< void* >(fRet_shift);
 }
+
+void* RunningMeanT_Int16T_Test(void* buffer, void* bufferLength) {
+    INT16 fRet_mean = 0;
+    INT16* param_buffer = static_cast<INT16*>(buffer);
+    UINT32 param_bufferLength = *static_cast<UINT32*>(bufferLength);
+    fRet_mean = RunningMeanT_Int16T(param_buffer, param_bufferLength);
+    return reinterpret_cast<void*>(fRet_mean);
+}

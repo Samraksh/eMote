@@ -3,6 +3,7 @@
  * @author    Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  * @date      Nov 14, 2014
  * @copyright (C) 2014 The Samraksh Company
+ * @brief Expose instantiated algorithms templates to MATLAB by using void* API.
  */
 
 #ifndef _DYNAMICTESTRUNNERTESTS_H_
@@ -17,6 +18,8 @@ template <typename T> void* Add(void* ptr_int_length, void* ptr_u8_a_in, void* p
 template <typename T> void* Subtract(void* ptr_int_length, void* ptr_T_a_in, void* ptr_T_b_in, void* ptr_T_c_result);
 
 void* FftCompFixLenT_Int16T_Test(void* complex_buffer, void* ln2OfN);
+
+void* RunningMeanT_Int16T_Test(void* buffer, void* bufferLength);
 
 }
 

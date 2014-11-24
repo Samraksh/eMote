@@ -3,8 +3,9 @@
  * @author    Michael Andrew McGrath <Michael.McGrath@Samraksh.com>
  * @date      Nov 4, 2014
  * @copyright (C) 2014 The Samraksh Company
- * @brief     TODO: MSBUILD adds structs matching pattern "EmoteDynamicTest_*" to this file.
+ * @brief     API enum for MATLAB to refer to functions by index.
  *
+ * TODO: MSBUILD adds structs matching pattern "EmoteDynamicTest_*" to this file.
  */
 
 #ifndef GLOBALTESTSTABLE_H_
@@ -25,6 +26,7 @@ enum TestIndex {
 	ARMFFTR4INITQ16 = 4,
 	ARMFFTR4Q15 = 5,
 	TWIDWALKCI16 = 6,
+	RUNMEANI16 = 7
 };
 
 extern struct TestEntry GlobalTestTable[];
