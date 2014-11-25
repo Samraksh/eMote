@@ -110,8 +110,12 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 SetupBuffers();
                 // Initialize the ADC and the channels
                 AnalogInput.InitializeADC();
+
+                /* This overlaps the init in ConfigureScanModeThreeChannels
                 AnalogInput.InitChannel(ADCChannel.ADC_Channel1);
                 AnalogInput.InitChannel(ADCChannel.ADC_Channel2);
+                */
+
                 // Start the continuous mode dual channel sampling
                 //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
