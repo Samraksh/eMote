@@ -39,33 +39,39 @@ extern "C"
 INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
 {
 
-	return AD_Initialize((ANALOG_CHANNEL) param0, 0);
+	//return AD_Initialize((ANALOG_CHANNEL) param0, 0);
+	return 0;
 
 }
 
 double ADCInternal::Read( INT32 param0, HRESULT &hr )
 {
-	return (double) AD_Read((ANALOG_CHANNEL) param0);
+	return 0;
+	//return (double) AD_Read((ANALOG_CHANNEL) param0);
 }
 
 INT32 ADCInternal::ConfigureBatchMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureBatchMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    //return AD_ConfigureBatchMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+	return 0;
 }
 
 INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    //return AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+	return 0;
 }
 
 INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    //return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+	return 0;
 }
 
 INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    //return AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+	return 0;
 }
 
 INT32 ADCInternal::ConfigureScanModeThreeChannels( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, CLR_RT_TypedArray_UINT16 sampleBuff3, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
@@ -91,7 +97,7 @@ INT32 ADCInternal::ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 
 
 INT8 ADCInternal::DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
 {
-	return hal_adc_getData(param0.GetBuffer(), 0 , 2);
+	//return hal_adc_getData(param0.GetBuffer(), 0 , 2);
 
 }
 
