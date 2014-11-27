@@ -1,7 +1,7 @@
 #include <tinyhal.h>
 #include "Samraksh\Unwrap.h"
 
-int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
+static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
 
 
 enum PI
@@ -134,7 +134,12 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan)
         	newPhase = (int)NEG_HALF + findArcTan(valueI, abs(valueQ), arcTan);
     }
 
-    wPhase = newPhase;
+	// Ignore small changes
+	if ( abs(valueI) < 64 && abs(valueQ) < 64 ) {
+		newPhase = wPhase_prev;
+	}
+
+	wPhase = newPhase;
 
     phase_diff = wPhase - wPhase_prev + (int)FULL;
     if (phase_diff < 0)
