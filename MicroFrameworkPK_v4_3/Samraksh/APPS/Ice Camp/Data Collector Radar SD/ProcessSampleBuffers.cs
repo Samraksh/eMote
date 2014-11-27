@@ -92,7 +92,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
             
-            radarDetect.SetDetectionThreshold(50);
+            radarDetect.SetDetectionThreshold(25);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
@@ -310,7 +310,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
             // The following code is for m detections in n seconds and can be enabled by uncommenting the following
             // M and N can be set in SetupBuffers() above
             // if you use m hits over n seconds below, then you need to comment out the "radarDetection = threshholdMet;" line that follows
-            /*Counter.count += 1;
+            /*
+            Counter.count += 1;
             if (threshholdMet)
             {
                 MoutOfNDetector.Update(Counter.count, 1);
@@ -327,16 +328,17 @@ namespace Samraksh.AppNote.DataCollector.Radar
             else
             {
                 radarDetection = false;
-            }*/
+            }
+             * */
 
             // If you just want to use the thresholdMet as the detection then use the following
             radarDetection = threshholdMet;
 
-            Debug.Print(radarDetection.ToString());
+            //Debug.Print(radarDetection.ToString());
 
             // This code makes the Kiwi speaker sound
             // *** Comment out if needed for time ****  
-            for (i = 0; i < 300; i++)
+            for (i = 0; i < 600; i++)
             {
                 if (radarDetection == true)
                 {
