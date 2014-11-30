@@ -1,7 +1,8 @@
 function QuickDirtyTest(FileName)
 
 Lambda = 5.8e9/3e8;
-Rate = 128;
+Rate = 250;
+sampleLength = 25000;
 
 [Real,Imag,firmwareRaw] = ReadRadarData(FileName);
 
@@ -9,9 +10,9 @@ Rate = 128;
 %Imag([1:20]) = 0;
 %firmwareRaw([1:20]) = 0;
 
-Real = Real([100:13000]);
-Imag = Imag([100:13000]);
-firmwareRaw = firmwareRaw([100:13000]);
+Real = Real([100:sampleLength]);
+Imag = Imag([100:sampleLength]);
+firmwareRaw = firmwareRaw([100:sampleLength]);
 
 Time = [0 : length(firmwareRaw)-1]/Rate;
 

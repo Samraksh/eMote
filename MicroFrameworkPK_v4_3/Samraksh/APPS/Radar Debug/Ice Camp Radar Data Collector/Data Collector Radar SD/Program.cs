@@ -30,11 +30,12 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
         //  LargeDataStore lets multiple buffers be stored in one data reference
         //  For efficiency, ADCBufferSize should divide LargeDataStoreReferenceSize
-        private const int DataStoreBlockSize = 128 * 1024; // 128k bytes/block
+        private const int DataStoreBlockSize = 250 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
-        private const int ADCBufferSize = 128; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 7813;
+        private const int AudioBufferSize = 2000;
+        private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
+        private const int SampleIntervalMicroSec = 4000;
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
@@ -55,7 +56,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // The sampling interval in micro seconds. Sample rate per sec = 1,000,000 / SampleIntervalMicroSec
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
-        public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)30, true);
+        //public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)30, true);
 
         // Define the GPIO pins used
         private static class GpioPins {
@@ -127,7 +128,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 // Start the ADC buffer processing thread
                 //  This is done first since the ADC sampling below starts right away, so better to start WriteSampleBufferQueue thread first
                 //      Note that since we have ADC buffer queues, this isn't strictly necessary
-                var bufferThread = new Thread(WriteSampleBufferQueue);
+                var bufferThread = new Thread(SampleBufferQueue);
                 bufferThread.Start();
 
                 initializeVariables();
@@ -137,15 +138,20 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 SetupADCBuffers();
                 // Initialize the ADC and the channels
                 AnalogInput.InitializeADC();
+
+                /* This overlaps the init in ConfigureScanModeThreeChannels
                 AnalogInput.InitChannel(ADCChannel.ADC_Channel1);
                 AnalogInput.InitChannel(ADCChannel.ADC_Channel2);
+                */
+
                 // Start the continuous mode dual channel sampling
                 //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
-                if (
-                    !AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec,
-                        ADCCallback)) {
+                
+                //if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
+                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, AudioBufferSize, SampleIntervalMicroSec, ADCCallback))
+                {
                     EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
                 }

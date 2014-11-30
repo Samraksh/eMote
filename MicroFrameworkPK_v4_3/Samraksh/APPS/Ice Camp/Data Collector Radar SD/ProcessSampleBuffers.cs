@@ -92,7 +92,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
             
-            radarDetect.SetDetectionThreshold(25);
+            radarDetect.SetDetectionThreshold(35);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
@@ -296,7 +296,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
         {
             bool radarDetection = false;
 
-            timeMeasure.Write(true);
+            //timeMeasure.Write(true);
 
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
@@ -351,7 +351,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             // *** Comment out above speaker code if needed for time **** 
 
-            double[] acousticDetectOutput = new double[6];
+            /*double[] acousticDetectOutput = new double[6];
             bool acousticDetection = false;
 
             // we have 2000 bytes of data but will only process 500 bytes (1/4 second)
@@ -366,14 +366,14 @@ namespace Samraksh.AppNote.DataCollector.Radar
                 historyUpdateCtrl = false;
             else
                 historyUpdateCtrl = true;
-            acousticDetection = historyUpdateCtrl;
+            acousticDetection = historyUpdateCtrl;*/
             //// end of decision processing
 
             //radarInterrupt.Write(radarDetection);
             //audioInterrupt.Write(acousticDetection);
 
 
-            timeMeasure.Write(false);       
+            //timeMeasure.Write(false);       
         }
 
         // Counter fpr storing shared state

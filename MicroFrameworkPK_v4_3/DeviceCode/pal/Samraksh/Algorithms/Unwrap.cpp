@@ -135,7 +135,7 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan)
     }
 
 	// Ignore small changes
-	if ( abs(valueI) < 64 && abs(valueQ) < 64 ) {
+	if ( abs(valueI) < 20 && abs(valueQ) < 20 ) {
 		newPhase = wPhase_prev;
 	}
 

@@ -20,7 +20,7 @@
 #include <stm32f10x.h>
 #include "hal_adc_driver.h"
 
-#define DEBUG_3_CHAN
+//#define DEBUG_3_CHAN
 //#define USE_DMA_AUDIO
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
@@ -449,7 +449,9 @@ static void ADC_HAL_HANDLER(void *param)
 
 static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 {
+#ifdef DEBUG_3_CHAN
 	CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
+#endif
 
 	if(DMA_GetITStatus(DMA1_IT_TC1) != RESET)
 	{

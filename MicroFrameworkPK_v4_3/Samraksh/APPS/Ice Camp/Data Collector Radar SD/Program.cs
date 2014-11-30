@@ -29,7 +29,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
         //  LargeDataStore lets multiple buffers be stored in one data reference
         //  For efficiency, ADCBufferSize should divide LargeDataStoreReferenceSize
-        private const int DataStoreBlockSize = 128 * 1024; // 128k bytes/block
+        private const int DataStoreBlockSize = 250 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
         private const int AudioBufferSize = 2000;
@@ -54,10 +54,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // The sampling interval in micro seconds. Sample rate per sec = 1,000,000 / SampleIntervalMicroSec
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
-        public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
+        //public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
 
-        public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
-        public static OutputPort audioInterrupt = new OutputPort((Cpu.Pin)31, true);
+        //public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
+        //public static OutputPort audioInterrupt = new OutputPort((Cpu.Pin)31, true);
 
         // Define the GPIO pins used
         private static class GpioPins {
