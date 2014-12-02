@@ -29,7 +29,6 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\bin\Debug\Samraksh_eMote_DotNow.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\bin\Debug\Samraksh_eMote_DotNow.xml
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.csprojResolveAssemblyReference.cache
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\obj\Debug\TinyCLR_DebugReferences.cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\obj\Debug\Samraksh.AppNote.DataCollector.Radar.Resources.resources
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.csproj.GenerateResource.Cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Data Collector Radar SD\obj\Debug\Samraksh.AppNote.DataCollector.Radar.Resources.tinyresources

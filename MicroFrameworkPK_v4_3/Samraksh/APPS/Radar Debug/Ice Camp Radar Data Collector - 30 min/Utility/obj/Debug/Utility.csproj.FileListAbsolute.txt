@@ -22,7 +22,6 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\bin\Debug\Samraksh_eMote_DotNow.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\bin\Debug\Samraksh_eMote_DotNow.xml
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\obj\Debug\Utility.csprojResolveAssemblyReference.cache
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\obj\Debug\TinyCLR_DebugReferences.cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\obj\Debug\be\Utility.pe
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\obj\Debug\be\Utility.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Radar Debug\Ice Camp Radar Data Collector - 30 min\Utility\obj\Debug\le\Utility.pe

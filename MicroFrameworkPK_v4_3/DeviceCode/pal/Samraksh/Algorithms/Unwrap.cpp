@@ -59,7 +59,7 @@ INT16 findMedian(INT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold)
+BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold, INT32 noiseRejection)
 {
 	int i;
 	int unwrappedPhase;
@@ -69,7 +69,7 @@ BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	for (i=0; i<length; i++){
 		bufferI[i] = bufferI[i] - medianI;
 		bufferQ[i] = bufferQ[i] - medianQ; 
-		unwrappedPhase = (unwrapPhase(bufferI[i], bufferQ[i], arcTan) >> 12);	// divide by 4096
+		unwrappedPhase = (unwrapPhase(bufferI[i], bufferQ[i], arcTan, noiseRejection) >> 12);	// divide by 4096
 		bufferUnwrap[i] = (UINT16)unwrappedPhase;
 
 		if (i == 0) {minPhase = maxPhase = unwrappedPhase;}
@@ -100,7 +100,7 @@ int findArcTan(int small, int big, INT16* arcTan)
     return arcTan[temp];
 }
 
-int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan)
+int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection)
 {
 	int phase_diff;
     int newPhase = 0;
@@ -134,9 +134,11 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan)
         	newPhase = (int)NEG_HALF + findArcTan(valueI, abs(valueQ), arcTan);
     }
 
-	// Ignore small changes
-	if ( abs(valueI) < 20 && abs(valueQ) < 20 ) {
-		newPhase = wPhase_prev;
+	if (noiseRejection != 0){
+		// Ignore small changes
+		if ( abs(valueI) < noiseRejection && abs(valueQ) < noiseRejection ) {
+			newPhase = wPhase_prev;
+		}
 	}
 
 	wPhase = newPhase;

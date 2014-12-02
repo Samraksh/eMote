@@ -17,6 +17,7 @@
 
 using namespace Samraksh::eMote;
 static INT32 threshold;
+static INT32 noiseRejection;
 static INT16 medianI = 2040, medianQ = 2040;
 
 INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, CLR_RT_TypedArray_INT16 param4, HRESULT &hr )
@@ -36,7 +37,7 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
 	memcpy(tempIBuffer, param0.GetBuffer(), param3 * sizeof(UINT16));
 	memcpy(tempQBuffer, param1.GetBuffer(), param3 * sizeof(UINT16));
-	retVal = calculatePhase(tempIBuffer, tempQBuffer, param2.GetBuffer(), param3, medianI, medianQ, param4.GetBuffer(), threshold);
+	retVal = calculatePhase(tempIBuffer, tempQBuffer, param2.GetBuffer(), param3, medianI, medianQ, param4.GetBuffer(), threshold, noiseRejection);
 
     return retVal;
 }
@@ -59,16 +60,17 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
 	memcpy(tempIBuffer, param0.GetBuffer(), param2 * sizeof(UINT16));
 	memcpy(tempQBuffer, param1.GetBuffer(), param2 * sizeof(UINT16));
-	retVal = calculatePhase(tempIBuffer, tempQBuffer, tempUnwrap, param2, medianI, medianQ, param3.GetBuffer(), threshold);
+	retVal = calculatePhase(tempIBuffer, tempQBuffer, tempUnwrap, param2, medianI, medianQ, param3.GetBuffer(), threshold, noiseRejection);
 
     return retVal;
 }
 
-INT8 Algorithm_RadarDetection::SetDetectionThreshold( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr )
+INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, HRESULT &hr )
 {
     INT8 retVal = 0; 
 
 	threshold = param0;
+	noiseRejection = param1;
 
     return retVal;
 }

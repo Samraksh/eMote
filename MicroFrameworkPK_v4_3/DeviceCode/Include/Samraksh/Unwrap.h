@@ -2,10 +2,9 @@
 #define _UNWRAP_H_INCLUDED_
 
 INT16 findMedian(INT16* buffer, INT32 length);
-BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold);
-BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold);
+BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold, INT32 noiseRejection);
 int findArcTan(int small, int big, INT16* arcTan);
-int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan);
+int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection);
 
 /*int arcTan[] = {
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,

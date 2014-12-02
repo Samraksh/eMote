@@ -92,7 +92,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
             
-            radarDetect.SetDetectionThreshold(35);
+            radarDetect.SetDetectionParameters(65,20);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n

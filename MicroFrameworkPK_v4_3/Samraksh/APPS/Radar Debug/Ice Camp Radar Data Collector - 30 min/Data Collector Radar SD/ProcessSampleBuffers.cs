@@ -107,7 +107,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
             
-            radarDetect.SetDetectionThreshold(25);
+            radarDetect.SetDetectionParameters(65,20);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
         }
@@ -344,8 +344,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             else wrByte[0] = 0xdd;*/
             var iqBuffer = new ushort[ADCBufferSize * 3];
-            // for first DC_EST_SECS seconds, estimate DC
-            radarDetect.SetDetectionThreshold(65);
+            // for first DC_EST_SECS seconds, estimate DC            
             threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, unwrapBuffer, ADCBufferSize, arcTan);
             if (threshholdMet)
             {
