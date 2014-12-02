@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Data Collector Radar SD</name>
+    </assembly>
+    <members>
+        <member name="T:Samraksh.AppNote.DataCollector.Radar.Program">
+            <summary>
+            Main program
+            </summary>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.WrtieToSerial">
+            <summary>
+            Copy DataStore data to the SD card
+            </summary>
+            <returns>True iff the copy succeeded</returns>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.AlertSerialWrite(System.Boolean)">
+            <summary>
+            Show buffer write status
+            </summary>
+            <param name="alert">True iff alert</param>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.SetupADCBuffers">
+            <summary>
+            Populate the circular queue of ADC buffers
+            </summary>
+            <remarks>
+            Since the buffers are pre-allocated and the references are stored in a static object,
+                they won't be de-referenced over the lifetime of the program.
+            This ensures that allocating and de-referencing buffers won't cause the garbage collector to run
+            </remarks>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.ADCCallback(System.Int64)">
+            <summary>
+            ADC callback
+            </summary>
+            <remarks>Called when the ADC driver has collected a buffer's worth of data</remarks>
+            <param name="threshhold"></param>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.SampleBufferQueue">
+            <summary>
+            Process the sample buffer in a separate thread
+            </summary>
+            <remarks>
+            We do this so that the ADC callback will return quickly.
+            The main program blocks until this thread ends
+            </remarks>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.ProcessBuffers(Samraksh.AppNote.DataCollector.Radar.Program.IQAud)">
+            <summary>
+            Process AD data
+            </summary>
+            <param name="iqa">The I-Q-A</param>
+            <returns>True iff we're done sampling</returns>
+        </member>
+        <member name="M:Samraksh.AppNote.DataCollector.Radar.Program.Main">
+            <summary>
+            The main program
+            </summary>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="T:Samraksh.AppNote.DataCollector.Radar.Program.IQAud">
+            <summary>
+            ADC buffer
+            </summary>
+            <remarks>Lets a pair of buffers be handled together as a single object</remarks>
+        </member>
+    </members>
+</doc>
