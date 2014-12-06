@@ -1,4 +1,15 @@
 
+define icecamp
+trl
+ul
+mrh
+mass
+mrh
+monitor flash write_image ice_camp_v01.bin 0x8000000 bin
+mri
+disc
+end
+
 define trl
 set remotetimeout 10000
 target remote localhost:3333

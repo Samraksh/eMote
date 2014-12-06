@@ -69,7 +69,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
         public static Samraksh.eMote.Algorithm.RadarDetection radarDetect = new Samraksh.eMote.Algorithm.RadarDetection();
         public static Samraksh.eMote.Algorithm.AcousticDetection acousticDetect = new Samraksh.eMote.Algorithm.AcousticDetection();
 
-        private static bool historyUpdateCtrl = false; 
+        private static bool historyUpdateCtrl = false;
 
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
                 ADCCopyBuffers.Add(iqaBuff);
             }
             _adcCopyBuffersPtr = 0;
-            
-            radarDetect.SetDetectionParameters(65,20);
+
+            radarDetect.SetDetectionParameters(50, 26);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
@@ -303,8 +303,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
             var iBuff = iqa.IBuff;
             var qBuff = iqa.QBuff;
             var aBuff = iqa.audioBuff;
-            int i;            
-            
+            int i;
+
             threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
 
             // The following code is for m detections in n seconds and can be enabled by uncommenting the following
@@ -338,7 +338,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             // This code makes the Kiwi speaker sound
             // *** Comment out if needed for time ****  
-            for (i = 0; i < 600; i++)
+            /*for (i = 0; i < 600; i++)
             {
                 if (radarDetection == true)
                 {
@@ -348,7 +348,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
                     else
                         buzzerState = true;
                 }
-            }
+            }*/
             // *** Comment out above speaker code if needed for time **** 
 
             /*double[] acousticDetectOutput = new double[6];
