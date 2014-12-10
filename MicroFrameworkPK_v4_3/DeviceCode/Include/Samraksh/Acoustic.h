@@ -6,5 +6,6 @@
 
 INT8 testFunction(UINT16* buffer, INT32 length, double* processingOutput, bool historyUpdateControl, INT32 Pa, INT32 Pm);
 
+INT8 DetectionCalculationNative(UINT16* buffer, INT32 length, double* processingOutput, bool historyUpdateControl, INT32 Pa, INT32 Pm);
 
 #endif

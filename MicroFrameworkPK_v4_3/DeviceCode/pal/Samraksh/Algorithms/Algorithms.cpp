@@ -15,8 +15,6 @@
 #include "TwiddleWalk.h"
 #include "RunningMean.h"
 
-
-
 template class FftCompFixLenT<Int16T,ButterFlyAccT<Int16T>,BitWalkT<Int16T> >;
 
 
