@@ -54,15 +54,17 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // The sampling interval in micro seconds. Sample rate per sec = 1,000,000 / SampleIntervalMicroSec
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
+        //public static OutputPort radarEnableGPIO = new OutputPort((Cpu.Pin)25, true);
+        private static InputPort testPort = new InputPort((Cpu.Pin)25, false, Port.ResistorMode.Disabled);
         //public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
 
-        //public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
+        public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
         //public static OutputPort audioInterrupt = new OutputPort((Cpu.Pin)31, true);
 
         // Define the GPIO pins used
-        private static class GpioPins {
-            public static readonly InterruptPort EndCollect = new InterruptPort(Pins.GPIO_J11_PIN5, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeBoth);
-        }
+        //private static class GpioPins {
+        //    public static readonly InterruptPort EndCollect = new InterruptPort(Pins.GPIO_J11_PIN5, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeBoth);
+        //}
 
         // Flag that's set when the user enables the EndCollect GPIO pin
         //  This stops the data collection after the current buffer is processed

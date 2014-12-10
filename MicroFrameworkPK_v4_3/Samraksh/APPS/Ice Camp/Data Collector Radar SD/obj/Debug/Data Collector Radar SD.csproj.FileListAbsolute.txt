@@ -68,3 +68,39 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Ra
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\le\Data Collector Radar SD.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.exe
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\le\Data Collector Radar SD.exe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\be\Data Collector Radar SD.exe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\le\Data Collector Radar SD.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\be\Data Collector Radar SD.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Data Collector Radar SD.XML
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Data Collector Radar SD.exe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Data Collector Radar SD.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\le\Data Collector Radar SD.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\le\Data Collector Radar SD.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\be\Data Collector Radar SD.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\be\Data Collector Radar SD.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\LE\Samraksh_eMote.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\LE\Samraksh_eMote_DotNow.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\BE\Samraksh_eMote.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\BE\Samraksh_eMote_DotNow.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\LE\Samraksh_eMote.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\LE\Samraksh_eMote_DotNow.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\BE\Samraksh_eMote.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\BE\Samraksh_eMote_DotNow.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Samraksh_eMote.dll
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Samraksh_eMote_DotNow.dll
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Samraksh_eMote.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Samraksh_eMote_DotNow.pdb
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\bin\Debug\Samraksh_eMote_DotNow.xml
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.csprojResolveAssemblyReference.cache
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\TinyCLR_DebugReferences.cache
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Samraksh.AppNote.DataCollector.Radar.Resources.resources
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.csproj.GenerateResource.Cache
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Samraksh.AppNote.DataCollector.Radar.Resources.tinyresources
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\TinyResGen.cache
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\be\Data Collector Radar SD.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\be\Data Collector Radar SD.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\le\Data Collector Radar SD.pe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\le\Data Collector Radar SD.pdbx
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.exe
+C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.pdb

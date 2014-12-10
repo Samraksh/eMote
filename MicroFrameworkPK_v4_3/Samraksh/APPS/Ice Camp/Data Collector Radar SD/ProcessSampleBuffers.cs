@@ -338,17 +338,15 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             // This code makes the Kiwi speaker sound
             // *** Comment out if needed for time ****  
-            /*for (i = 0; i < 600; i++)
+            for (i = 0; i < 600 && (radarDetection == true); i++)
             {
-                if (radarDetection == true)
-                {
                     buzzerGPIO.Write(buzzerState);
                     if (buzzerState == true)
                         buzzerState = false;
                     else
                         buzzerState = true;
-                }
-            }*/
+            }
+            buzzerGPIO.Write(false);
             // *** Comment out above speaker code if needed for time **** 
 
             /*double[] acousticDetectOutput = new double[6];
@@ -369,7 +367,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             acousticDetection = historyUpdateCtrl;*/
             //// end of decision processing
 
-            //radarInterrupt.Write(radarDetection);
+            radarInterrupt.Write(radarDetection);
             //audioInterrupt.Write(acousticDetection);
 
 

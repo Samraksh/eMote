@@ -5,7 +5,7 @@ ul
 mrh
 mass
 mrh
-monitor flash write_image ice_camp_v01.bin 0x8000000 bin
+monitor flash write_image icecamp_v02.bin 0x8000000 bin
 mri
 disc
 end
