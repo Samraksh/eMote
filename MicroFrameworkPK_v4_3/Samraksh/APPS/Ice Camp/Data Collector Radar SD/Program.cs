@@ -23,7 +23,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// Main program
     /// </summary>
     public partial class Program {
-
+        public static LCD codeVersion = LCD.CHAR_2;
+        public static EmoteLCD lcd = new EmoteLCD();        
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
@@ -87,6 +88,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         public static void Main() {
             var finalMsg = string.Empty;
 
+            lcd.Initialize();
+            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             try {
                 Debug.EnableGCMessages(false);
 
