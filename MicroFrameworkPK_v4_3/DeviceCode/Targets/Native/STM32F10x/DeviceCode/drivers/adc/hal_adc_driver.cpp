@@ -414,7 +414,8 @@ static void push_data_up(uint32_t x) {
 
 	flag |= x;
 
-	if (flag == 0x3) {
+	//if (flag == 0x3) {
+	if (flag == 0x2) {
 		g_timeStamp = HAL_Time_CurrentTicks();
 		g_callback(&g_timeStamp);
 		flag = 0;
