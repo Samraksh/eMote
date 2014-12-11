@@ -34,20 +34,27 @@ int partitions(int low, int high, INT16* buffer){
     return i + 1;
 }
 
-INT16 findMedian(INT16* buffer, INT32 length)
+INT16 findMedian(UINT16* buffer, INT32 length)
 {
 	int left = 0;
     int right = length-1;
     int kth = (int)(length >> 1); // divide by 2
+
+	INT16 iBuffer[length];
+	int i;
+	for (i = 0; i< length; i++){
+		iBuffer[i] = (INT16)buffer[i];
+	}
+
     while (true)
     {
-    	int pivotIndex = partitions(left, right, buffer);
+    	int pivotIndex = partitions(left, right, iBuffer);
 
         int len = pivotIndex - left + 1;
 
         if (kth == len){
 			//buffer[0] = buffer[pivotIndex]; // for debugging median
-            return buffer[pivotIndex];
+            return iBuffer[pivotIndex];
 		}
         else if (kth < len)
         	right = pivotIndex - 1;
@@ -59,17 +66,19 @@ INT16 findMedian(INT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(INT16* bufferI, INT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold, INT32 noiseRejection)
+BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 threshold, INT32 noiseRejection)
 {
 	int i;
 	int unwrappedPhase;
 	int minPhase, maxPhase;
 	BOOL detection = false, threshholdMet = false;
+	INT16 iBufferI[length];
+	INT16 iBufferQ[length];
 
 	for (i=0; i<length; i++){
-		bufferI[i] = bufferI[i] - medianI;
-		bufferQ[i] = bufferQ[i] - medianQ; 
-		unwrappedPhase = (unwrapPhase(bufferI[i], bufferQ[i], arcTan, noiseRejection) >> 12);	// divide by 4096
+		iBufferI[i] = (INT16)bufferI[i] - medianI;
+		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
+		unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], arcTan, noiseRejection) >> 12);	// divide by 4096
 		bufferUnwrap[i] = (UINT16)unwrappedPhase;
 
 		if (i == 0) {minPhase = maxPhase = unwrappedPhase;}
