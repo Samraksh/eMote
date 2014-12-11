@@ -21,6 +21,7 @@ void* FftCompFixLenT_Int16T_Test(void* complex_buffer, void* ln2OfN);
 
 void* RunningMeanT_Int16T_Test(void* buffer, void* bufferLength);
 
+void* RunningMedianT_Int16T_Test(void* buffer, void* bufferLength);
 }
 
 #include "DynamicTestRunnerTests.hpp"

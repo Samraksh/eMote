@@ -17,5 +17,6 @@ INT32 FftCompFixLenT_Int16T(INT16 (*complex_buffer) [2], INT32 ln2OfN);
 
 INT16 RunningMeanT_Int16T(INT16* buffer, const UINT32 bufferLength);
 
+INT16 RunningMedianT_Int16T(INT16* buffer, const UINT32 bufferLength);
 
 #endif /* ALGORITHMS_H_ */

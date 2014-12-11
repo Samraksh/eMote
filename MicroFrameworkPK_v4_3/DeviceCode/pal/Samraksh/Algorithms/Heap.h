@@ -138,7 +138,7 @@ public:
         bool fRet = true;
         int index = 0;
         //DEBUG: ASSERT(isMember(ptr_heap));
-        index = (ptr_heap - &(m_heap[0]))/&(m_heap[0]);
+        index = (ptr_heap - &(m_heap[0]))/&(m_heap[0]); 
         fRet = MinRuleCheckChildren(index);
         return fRet;
     }

@@ -26,7 +26,8 @@ enum TestIndex {
 	ARMFFTR4INITQ16 = 4,
 	ARMFFTR4Q15 = 5,
 	TWIDWALKCI16 = 6,
-	RUNMEANI16 = 7
+	RUNMEANI16 = 7,
+	RUNMEDIANI16 = 8,
 };
 
 extern struct TestEntry GlobalTestTable[];

@@ -14,7 +14,7 @@
 #include "Fft.h"
 #include "TwiddleWalk.h"
 #include "RunningMean.h"
-
+#include "RunningMedian.h"
 
 
 template class FftCompFixLenT<Int16T,ButterFlyAccT<Int16T>,BitWalkT<Int16T> >;
@@ -66,6 +66,34 @@ INT16 RunningMeanT_Int16T(INT16* buffer, const UINT32 bufferLength)
 			buffer[itr] = fRet;
         }
         fRet = runMeanI16->operator ()();
+    }
+    return fRet;
+}
+
+
+template class RunningMedianT<Int16T, ALGORITHMS_N, Int32T>;
+
+RunningMedianT<Int16T, ALGORITHMS_N, Int32T>* runMedianI16 = NULL;
+
+INT16 RunningMedianT_Int16T(INT16* buffer, const UINT32 bufferLength)
+{
+#if defined(DEBUG)
+    ASSERT(bufferLength > 0);
+#endif
+    INT16 fRet = 0;
+    if(runMedianI16 == NULL) {
+        runMedianI16 = new RunningMedianT<Int16T, ALGORITHMS_N, Int32T>(buffer[0]);
+    }
+    else {
+        //runMeanI16->Push(buffer[0]);//BK: This is pushed below. We should not double push. 
+    }
+    if(runMedianI16 != NULL) {
+        for(int itr=0; itr < bufferLength; ++itr) { //BK: Push the buffer one by one into the buffer and save the median after pushing in place of the input 
+            runMedianI16->Push(buffer[itr]);
+			fRet = runMedianI16->operator ()();
+			buffer[itr] = fRet;
+        }
+        fRet = runMedianI16->operator ()();
     }
     return fRet;
 }
