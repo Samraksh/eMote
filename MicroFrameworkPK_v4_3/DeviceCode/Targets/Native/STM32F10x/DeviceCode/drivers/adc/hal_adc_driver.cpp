@@ -404,7 +404,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	//ADC_SoftwareStartConvCmd(ADC3, ENABLE);
 
 	TIM_Cmd(TIM3, ENABLE);		//Radar
-	TIM_Cmd(TIM8, ENABLE);		//Audio
+	//TIM_Cmd(TIM8, ENABLE);		//Audio DISABLED FOR NOW SINCE NOT USED
 
 	return DS_Success;
 }

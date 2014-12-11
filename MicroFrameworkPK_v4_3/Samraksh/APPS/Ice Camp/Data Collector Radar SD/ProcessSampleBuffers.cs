@@ -92,7 +92,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
 
-            radarDetect.SetDetectionParameters(50, 26);
+            radarDetect.SetDetectionParameters(65, 35);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 6); // m / n
@@ -317,7 +317,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
             // The following code is for m detections in n seconds and can be enabled by uncommenting the following
             // M and N can be set in SetupBuffers() above
             // if you use m hits over n seconds below, then you need to comment out the "radarDetection = threshholdMet;" line that follows
-            /*
+
             Counter.count += 1;
             if (threshholdMet)
             {
@@ -336,10 +336,9 @@ namespace Samraksh.AppNote.DataCollector.Radar
             {
                 radarDetection = false;
             }
-             * */
 
             // If you just want to use the thresholdMet as the detection then use the following
-            radarDetection = threshholdMet;
+            //radarDetection = threshholdMet;
 
             //Debug.Print(radarDetection.ToString());
 
