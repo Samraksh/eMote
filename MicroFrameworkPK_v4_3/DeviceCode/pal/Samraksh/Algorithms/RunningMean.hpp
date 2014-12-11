@@ -21,7 +21,7 @@ template <typename IntElemT, size_t N, typename IntSumT>
     m_CircularBuffer = new CircularBufferT<IntElemT>(N);
     m_CircularBuffer->Push(InitVal);
     m_sum = InitVal;
-    m_length = 1;
+    m_length = 0; //BK: Start counting zero since we pop element when it reaches N
 };
 
 template <typename IntElemT, size_t N, typename IntSumT>
