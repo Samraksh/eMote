@@ -57,11 +57,13 @@ INT16 RunningMeanT_Int16T(INT16* buffer, const UINT32 bufferLength)
         runMeanI16 = new RunningMeanT<Int16T, ALGORITHMS_N, Int32T>(buffer[0]);
     }
     else {
-        runMeanI16->Push(buffer[0]);
+        //runMeanI16->Push(buffer[0]);//BK: This is pushed below. We should not double push. 
     }
     if(runMeanI16 != NULL) {
-        for(int itr=0; itr < bufferLength; ++itr) {
+        for(int itr=0; itr < bufferLength; ++itr) { //BK: Push the buffer one by one into the buffer and save the mean after pushing in place of the input 
             runMeanI16->Push(buffer[itr]);
+			fRet = runMeanI16->operator ()();
+			buffer[itr] = fRet;
         }
         fRet = runMeanI16->operator ()();
     }
