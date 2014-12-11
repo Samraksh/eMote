@@ -142,7 +142,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  USART_DeInit(USART2);
 	  USART_StructInit(&USART_InitStructure);
 
-	  USART_InitStructure.USART_BaudRate = my_baudrate;
+	  USART_InitStructure.USART_BaudRate = 57600;
 	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	  USART_InitStructure.USART_Parity = USART_Parity_No;

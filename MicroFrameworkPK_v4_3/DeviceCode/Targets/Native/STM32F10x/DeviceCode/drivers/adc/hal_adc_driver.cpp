@@ -402,6 +402,9 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 	/* Start ADC3 Software Conversion */
 	//ADC_SoftwareStartConvCmd(ADC3, ENABLE);
+	
+	// UART DEBUG STUFF
+	CPU_USART_Initialize( 2, 115200, 0, 8, 1, 0 );
 
 	TIM_Cmd(TIM3, ENABLE);		//Radar
 	//TIM_Cmd(TIM8, ENABLE);		//Audio DISABLED FOR NOW SINCE NOT USED
@@ -448,6 +451,13 @@ static void ADC_HAL_HANDLER(void *param)
 }
 #endif
 
+static void send16(uint16_t x) {
+	while( USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET ); // spin
+	USART_SendData(USART2, x>>8);
+	while( USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET ); // spin
+	USART_SendData(USART2, x&0xFF);
+}
+
 static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 {
 #ifdef DEBUG_3_CHAN
@@ -462,6 +472,9 @@ static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 		{
 			radar_I_return[i] = (radarBuffer[i] & 0xffff);
 			radar_Q_return[i] = (radarBuffer[i] >> 16);
+			
+			send16(radar_I_return[i]);
+			send16(radar_Q_return[i]);
 		}
 		push_data_up(2);
 	}
