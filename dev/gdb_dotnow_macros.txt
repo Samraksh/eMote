@@ -8,6 +8,7 @@ mrh
 monitor flash write_image icecamp_v03a.bin 0x8000000 bin
 mri
 disc
+shell %SPOCLIENT%\..\dev\scripts\beep.bat
 end
 
 define trl
