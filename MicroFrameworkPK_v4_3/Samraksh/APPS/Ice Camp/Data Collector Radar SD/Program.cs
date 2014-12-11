@@ -23,7 +23,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// Main program
     /// </summary>
     public partial class Program {
-        public static LCD codeVersion = LCD.CHAR_3;
+        public static LCD codeVersion = LCD.CHAR_4;
         public static EmoteLCD lcd = new EmoteLCD();        
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
