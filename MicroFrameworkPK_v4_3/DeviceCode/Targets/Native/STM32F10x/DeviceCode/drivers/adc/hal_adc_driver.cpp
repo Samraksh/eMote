@@ -32,6 +32,7 @@ static void ADC_RCC_Configuration(void);
 
 static void ADC_HAL_HANDLER(void *param);
 static void DMA_HAL_HANDLER_FOR_RADAR(void *param);
+static void radar_adc_handler(void *param);
 
 #ifdef USE_DMA_AUDIO
 static void DMA_HAL_HANDLER_FOR_AUDIO(void *param);
@@ -73,9 +74,14 @@ static void ADC_RCC_Configuration(void)
 static BOOL ADC_NVIC_Configuration(void)
 {
 
-	if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER_FOR_RADAR, NULL) ) {
+	//if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER_FOR_RADAR, NULL) ) {
+	//	return FALSE;
+	//}
+	
+	if( !CPU_INTC_ActivateInterrupt(ADC1_2_IRQn, radar_adc_handler, NULL) ) {
 		return FALSE;
 	}
+	
 #ifndef USE_DMA_AUDIO
 	if( !CPU_INTC_ActivateInterrupt(ADC3_IRQn, ADC_HAL_HANDLER, NULL) ) {
 		return FALSE;
@@ -281,7 +287,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 
 	DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
-	DMA_Cmd(DMA1_Channel1, ENABLE);
+	//DMA_Cmd(DMA1_Channel1, ENABLE);
 
 
 	//AnanthAtSamraksh - setup DMA for audio
@@ -323,7 +329,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_7Cycles5);
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	/* Enable ADC1 DMA */
-	ADC_DMACmd(ADC1, ENABLE);
+	//ADC_DMACmd(ADC1, ENABLE);
+	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
 
 	/* ADC2 configuration ------------------------------------------------------*/
@@ -358,7 +365,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	/* Enable ADC3 external trigger conversion */
 	ADC_ExternalTrigConvCmd(ADC3, ENABLE);
 #ifdef USE_DMA_AUDIO
-	ADC_DMACmd(ADC3, ENABLE);
+	//ADC_DMACmd(ADC3, ENABLE);
 #endif
 
 	/* Enable ADC1 */
@@ -404,7 +411,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	//ADC_SoftwareStartConvCmd(ADC3, ENABLE);
 	
 	// UART DEBUG STUFF
-	CPU_USART_Initialize( 2, 115200, 0, 8, 1, 0 );
+	//CPU_USART_Initialize( 2, 115200, 0, 8, 1, 0 );
+	USART_Initialize( 1, 115200, 0, 8, 1, 0 );
 
 	TIM_Cmd(TIM3, ENABLE);		//Radar
 	//TIM_Cmd(TIM8, ENABLE);		//Audio DISABLED FOR NOW SINCE NOT USED
@@ -458,6 +466,23 @@ static void send16(uint16_t x) {
 	USART_SendData(USART2, x&0xFF);
 }
 
+static void radar_adc_handler(void *param) {
+
+	static uint32_t count=0;
+	
+	radar_I_return[count] = ADC_GetConversionValue(ADC1);
+	radar_Q_return[count] = ADC_GetConversionValue(ADC2);
+
+	USART_Write( 1, (char *)&radar_I_return[count], 2 );
+	USART_Write( 1, (char *)&radar_Q_return[count], 2 );
+	
+	count++;
+	if (count == adcNumSamplesRadar) {
+		push_data_up(2);
+		count=0;
+	}
+}
+
 static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 {
 #ifdef DEBUG_3_CHAN
@@ -473,9 +498,12 @@ static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 			radar_I_return[i] = (radarBuffer[i] & 0xffff);
 			radar_Q_return[i] = (radarBuffer[i] >> 16);
 			
-			send16(radar_I_return[i]+257);
-			send16(radar_Q_return[i]+257);
 		}
+		USART_Write( 1, (char *)radarBuffer, adcNumSamplesRadar<<2 );
+		// for(int i = 0; i < adcNumSamplesRadar; i++) {
+			// send16(11084);
+			// send16(11084);
+		// }
 		push_data_up(2);
 	}
 #ifdef DEBUG_3_CHAN

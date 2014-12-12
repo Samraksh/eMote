@@ -106,7 +106,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  // Configure USART Tx as alternate function push-pull
 	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	  GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	  // Configure USART Rx as input floating
@@ -142,7 +142,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  USART_DeInit(USART2);
 	  USART_StructInit(&USART_InitStructure);
 
-	  USART_InitStructure.USART_BaudRate = 57600;
+	  USART_InitStructure.USART_BaudRate = my_baudrate;
 	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	  USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -152,7 +152,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  // Configure USART Tx as alternate function push-pull
 	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	  GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	  // Configure USART Rx as input floating

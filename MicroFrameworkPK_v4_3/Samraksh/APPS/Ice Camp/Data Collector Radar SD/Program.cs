@@ -90,6 +90,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
 
             lcd.Initialize();
             lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+            Thread.Sleep(20000);
             try {
                 Debug.EnableGCMessages(false);
 
