@@ -11,9 +11,11 @@ BOOL CPU_Initialize() {
 	// Use low-power mode to measure HSI, but only from TinyCLR.
 	// Then go back to HSI (for now).
 	if ((uint32_t)myaddr > 0x8020000) {
-		STM32F1x_Power_Driver::Low_Power();
-		STM32F1x_Power_Driver::CalibrateHSI();
+		//STM32F1x_Power_Driver::Low_Power();
+		//STM32F1x_Power_Driver::CalibrateHSI();
 		STM32F1x_Power_Driver::High_Power();
+		// INIT UART2 EARLY
+		USART_Initialize( 1, 57600, 0, 8, 1, 0 );
 	}
 	else { // Use High-power mode for TinyBooter for now. Probably can use 8 MHz but not sure we care.
 		STM32F1x_Power_Driver::High_Power();

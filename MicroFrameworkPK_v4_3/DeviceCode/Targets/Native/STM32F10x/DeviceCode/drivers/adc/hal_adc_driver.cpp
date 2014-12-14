@@ -412,7 +412,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	
 	// UART DEBUG STUFF
 	//CPU_USART_Initialize( 2, 115200, 0, 8, 1, 0 );
-	USART_Initialize( 1, 115200, 0, 8, 1, 0 );
+	USART_Initialize( 1, 57600, 0, 8, 1, 0 );
 
 	TIM_Cmd(TIM3, ENABLE);		//Radar
 	//TIM_Cmd(TIM8, ENABLE);		//Audio DISABLED FOR NOW SINCE NOT USED
