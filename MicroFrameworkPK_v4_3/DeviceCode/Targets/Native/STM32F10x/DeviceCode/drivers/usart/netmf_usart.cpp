@@ -164,6 +164,9 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 	  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
+	  USART_ClearITPendingBit(USART2, USART_IT_IDLE);
+	  USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
+
 	  USART_Cmd(USART2, ENABLE);
 	  return TRUE;
 	}
@@ -490,22 +493,65 @@ void USART1_Handler(void *args) {
 
 void USART2_Handler(void *args)
 {
-	int err;
-	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-	{
-		  char c = (char) USART_ReceiveData(USART2); // read RX data
-		  USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM2), c);
+	static char buf[RX_HAL_BUF_SIZE];
+	static int idx;
+	unsigned int err;
+	unsigned int dummy;
+
+	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
+	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	
+	err = USART2->SR; // check status reg
+
+	if (err & USART_ERR_MASK) {
+		goto uart2_isr_out; // most likely overrun...
 	}
-	if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET)
-	{
-		 char c;
-		    if (USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM2), c)) {
-		    	USART_SendData(USART2, c);
-		    } else {
-		    	USART_ITConfig(USART2, USART_IT_TXE, (FunctionalState) FALSE);
-		    }
-		return;
+
+	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so much do DR before we finish
+	if (idx > 0 && USART_GetITStatus(USART2, USART_IT_IDLE) == SET) {
+		USART_AddToRxBuffer( ConvertCOM_ComPort(COM2), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
+		idx=0;
 	}
-	err = USART2->SR;
-	err = USART2->DR;
+
+	if (USART_GetITStatus(USART2, USART_IT_RXNE) == SET) {
+		char c = USART_ReceiveData(USART2)&0xFF; // Also clears status
+
+		if (idx < RX_HAL_BUF_SIZE) {
+			buf[idx++] = c;
+		}
+		if (idx >= RX_HAL_BUF_SIZE) {
+			USART_AddToRxBuffer( ConvertCOM_ComPort(COM2), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
+			idx = 0;
+		}
+		goto uart2_isr_out;
+	}
+	else {
+		dummy = USART2->DR;	// Do a dummy read to clear status
+	}
+
+	// MF signals if there is TX work by toggling the interrupt enable
+	// So we check it and don't do anything if it isn't set
+	if (!(USART2->CR1 & 0x80)) {
+		goto uart2_isr_out;
+	}
+
+	if (USART_GetITStatus(USART2, USART_IT_TXE)  == SET) {
+		char c;
+		// USART_IT_TXE pending bit only cleared by write
+		if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM2), c) ) {
+			USART_SendData(USART2, c);
+		}
+		else {
+			USART_ITConfig(USART2, USART_IT_TXE,  DISABLE);
+		}
+		goto uart2_isr_out;
+	}
+
+uart2_isr_out:
+	dummy = USART2->DR;
+	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
+
+	return;
+
 }

@@ -468,7 +468,8 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
         CharsRead += toRead;
     }
 
-    /*{
+	if (ComPortNum == 1)
+    {
         GLOBAL_LOCK(irq);
      
         State.fDataEventSet  = FALSE;        
@@ -477,7 +478,7 @@ int USART_Driver::ManagedRead( int ComPortNum, char* Data, size_t size ){
         {
             SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
         }
-     }*/
+     }
 
     return CharsRead;
 }
