@@ -91,9 +91,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
                 ADCCopyBuffers.Add(iqaBuff);
             }
             _adcCopyBuffersPtr = 0;
-
-            radarDetect.SetDetectionParameters(60, 30);
-            acousticDetect.SetDetectionParameters(1, 1);
+            
             Counter.count = 0;
             MoutOfNDetector.Init(2, 4); // m / n
         }

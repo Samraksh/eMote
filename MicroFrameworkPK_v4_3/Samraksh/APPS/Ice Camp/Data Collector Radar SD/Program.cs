@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using System.IO.Ports;
 using Samraksh.eMote.DotNow;
 using Samraksh.eMote.NonVolatileMemory;
 using AnalogInput = Samraksh.eMote.DotNow.AnalogInput;
@@ -23,7 +24,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// Main program
     /// </summary>
     public partial class Program {
-        public static LCD codeVersion = LCD.CHAR_5;
+        public static LCD codeVersion = LCD.CHAR_6;
         public static EmoteLCD lcd = new EmoteLCD();        
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
@@ -36,6 +37,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private const int AudioBufferSize = 2000;
         private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
         private const int SampleIntervalMicroSec = 4000;
+
+        public static SerialPort serialPort = new SerialPort("COM2");
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
@@ -78,6 +81,83 @@ namespace Samraksh.AppNote.DataCollector.Radar {
 
         // The maximum number of buffers used. Reported at the end.
         private static int _maxBuffersEnqueued;
+        private static string commandStr = "";
+
+        static void SerialPortHandler(object sender, SerialDataReceivedEventArgs e)
+        {            
+            byte[] m_recvBuffer = new byte[100];
+            string proccesCmd = "";
+            int i;
+            byte[] msgBuff = new byte[6];
+            
+            try {
+                int numBytes = serialPort.BytesToRead;
+                serialPort.Read(m_recvBuffer, 0, numBytes);
+                char[] rxStr = new char[numBytes];
+                for (i = 0; i < numBytes; i++)
+                {
+                    commandStr = string.Concat(commandStr, ((char)m_recvBuffer[i]).ToString());        
+                }
+
+                //commandStr = "aba?c\nNumber Two";
+                int tempPlace = commandStr.IndexOf('\r');
+                if ((tempPlace != -1))
+                {
+                    proccesCmd = commandStr.Substring(0, tempPlace + 1);
+                    commandStr = commandStr.Substring(tempPlace + 1, commandStr.Length - tempPlace - 1);
+
+                    int checksum = 0;
+                    for (i = 0; i < proccesCmd.Length - 2; i++)
+                    {
+                        checksum = checksum + (int)proccesCmd[i];
+                    }
+                    if ((byte)checksum != proccesCmd[proccesCmd.Length - 2])
+                    {
+                        //Debug.Print("Checksum failed");
+                    }
+                    else
+                    {
+                        //Debug.Print("Checksum the same");
+                        if (proccesCmd.Length == 6)
+                        {
+                            if (proccesCmd[0] == 'T' && proccesCmd[1] == 'S')
+                            {
+                                int threshold = (int)proccesCmd[2];
+                                int IQRej = (int)proccesCmd[3];
+                                if ((threshold > 10) && (threshold < 256) && (IQRej >= 0) && (IQRej < 256))
+                                {
+                                    //Debug.Print("Threshold set: " + threshold.ToString() + " " + IQRej.ToString());
+                                    radarDetect.SetDetectionParameters(threshold, IQRej);
+                                    msgBuff[0] = (byte)'T';
+                                    msgBuff[1] = (byte)'S';
+                                    msgBuff[2] = (byte)threshold;
+                                    msgBuff[3] = (byte)IQRej;
+                                    msgBuff[4] = (byte)checksum;
+                                    msgBuff[5] = (byte)'\r';
+                                    serialPort.Write(msgBuff, 0, 6);
+                                }
+                                else
+                                {
+                                    msgBuff[0] = (byte)'X';
+                                    msgBuff[1] = (byte)'X';
+                                    msgBuff[2] = (byte)threshold;
+                                    msgBuff[3] = (byte)IQRej;
+                                    msgBuff[4] = (byte)checksum;
+                                    msgBuff[5] = (byte)'\r';
+                                    serialPort.Write(msgBuff, 0, 6);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //finalMsg = ex.Message;
+                //EnhancedLcd.Display(LCDMessages.Error);
+            }
+            
+        }
 
 
         /// <summary>
@@ -89,7 +169,19 @@ namespace Samraksh.AppNote.DataCollector.Radar {
             var finalMsg = string.Empty;
 
             lcd.Initialize();
+            radarDetect.SetDetectionParameters(60, 30);
+            acousticDetect.SetDetectionParameters(1, 1);
+
             lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+
+            serialPort.BaudRate = 57600;
+            serialPort.Parity = Parity.None;
+            serialPort.StopBits = StopBits.One;
+            serialPort.DataBits = 8;
+            serialPort.Handshake = Handshake.None;
+            serialPort.DataReceived += new SerialDataReceivedEventHandler(SerialPortHandler);
+            serialPort.Open();
+
             Thread.Sleep(60000);
             try {
                 Debug.EnableGCMessages(false);
