@@ -113,20 +113,19 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                     proccesCmd = commandStr.Substring(0, tempPlace + 1);
                     commandStr = commandStr.Substring(tempPlace + 1, commandStr.Length - tempPlace - 1);
 
-                    int checksum = 0;
-                    for (i = 0; i < proccesCmd.Length - 2; i++)
+                    if (proccesCmd.Length == 6)
                     {
-                        checksum = checksum + (int)proccesCmd[i];
-                    }
-                    if ((byte)checksum != proccesCmd[proccesCmd.Length - 2])
-                    {
-                        //Debug.Print("Checksum failed");
-                    }
-                    else
-                    {
-                        //Debug.Print("Checksum the same");
-                        if (proccesCmd.Length == 6)
+                        int checksum = 0;
+                        for (i = 0; i < proccesCmd.Length - 2; i++)
                         {
+                            checksum = checksum + (int)proccesCmd[i];
+                        }
+                        if ((byte)checksum != proccesCmd[proccesCmd.Length - 2])
+                        {
+                            //Debug.Print("Checksum failed");
+                        }
+                        else
+                        {                            
                             if (proccesCmd[0] == 'T' && proccesCmd[1] == 'S')
                             {
                                 int threshold = (int)proccesCmd[2];
@@ -155,7 +154,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                                     msgBuff[5] = (byte)'\r';
                                     serialPort.Write(msgBuff, 0, 6);
                                 }*/
-                            }
+                            }                            
                         }
                     }
                 }

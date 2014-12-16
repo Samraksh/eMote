@@ -104,3 +104,4 @@ C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar S
 C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\le\Data Collector Radar SD.pdbx
 C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.exe
 C:\nathan\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\Data Collector Radar SD.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\APPS\Ice Camp\Data Collector Radar SD\obj\Debug\TinyCLR_DebugReferences.cache
