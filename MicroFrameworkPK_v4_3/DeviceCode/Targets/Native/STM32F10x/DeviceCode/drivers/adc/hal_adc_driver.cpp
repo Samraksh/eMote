@@ -185,9 +185,14 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	radar_Q_return 	= sampleBuff2;
 	audio_return 	= sampleBuff3;
 
-	adcNumSamplesRadar = numSamples/8;
-	adcNumSamplesAudio = numSamples;
+	adcNumSamplesRadar = numSamples;
+	adcNumSamplesAudio = numSamples*8;
 	samplingTimeAudio = samplingTimeRadar/8;
+
+	// Obsolete now that audio is out
+	//adcNumSamplesRadar = numSamples/8;
+	//adcNumSamplesAudio = numSamples;
+	//samplingTimeAudio = samplingTimeRadar/8;
 
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
