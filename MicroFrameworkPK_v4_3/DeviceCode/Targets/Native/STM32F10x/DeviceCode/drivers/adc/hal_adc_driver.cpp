@@ -20,6 +20,10 @@
 #include <stm32f10x.h>
 #include "hal_adc_driver.h"
 
+#define UGS_SYNC_BYTE 		0xE6
+#define UGS_TYPE_RADAR_RAW 	0x01
+#define UGS_ESCAPE_BYTE     0xEA
+
 //#define DEBUG_3_CHAN
 //#define USE_DMA_AUDIO
 
@@ -74,13 +78,13 @@ static void ADC_RCC_Configuration(void)
 static BOOL ADC_NVIC_Configuration(void)
 {
 
-	//if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER_FOR_RADAR, NULL) ) {
-	//	return FALSE;
-	//}
-	
-	if( !CPU_INTC_ActivateInterrupt(ADC1_2_IRQn, radar_adc_handler, NULL) ) {
+	if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER_FOR_RADAR, NULL) ) {
 		return FALSE;
 	}
+	
+	//if( !CPU_INTC_ActivateInterrupt(ADC1_2_IRQn, radar_adc_handler, NULL) ) {
+	//	return FALSE;
+	//}
 	
 #ifndef USE_DMA_AUDIO
 	if( !CPU_INTC_ActivateInterrupt(ADC3_IRQn, ADC_HAL_HANDLER, NULL) ) {
@@ -293,7 +297,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
 
 	DMA_ITConfig(DMA1_Channel1, DMA1_IT_TC1, ENABLE);
-	//DMA_Cmd(DMA1_Channel1, ENABLE);
+	DMA_Cmd(DMA1_Channel1, ENABLE);
 
 
 	//AnanthAtSamraksh - setup DMA for audio
@@ -335,8 +339,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_7Cycles5);
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	/* Enable ADC1 DMA */
-	//ADC_DMACmd(ADC1, ENABLE);
-	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	ADC_DMACmd(ADC1, ENABLE);
+	//ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
 
 	/* ADC2 configuration ------------------------------------------------------*/
@@ -418,7 +422,7 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 	
 	// UART DEBUG STUFF
 	//CPU_USART_Initialize( 2, 115200, 0, 8, 1, 0 );
-	USART_Initialize( 1, 57600, 0, 8, 1, 0 );
+	//USART_Initialize( 1, 57600, 0, 8, 1, 0 );
 
 	TIM_Cmd(TIM3, ENABLE);		//Radar
 	//TIM_Cmd(TIM8, ENABLE);		//Audio DISABLED FOR NOW SINCE NOT USED
@@ -491,9 +495,9 @@ static void radar_adc_handler(void *param) {
 
 static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 {
-#ifdef DEBUG_3_CHAN
-	CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-#endif
+	uint16_t bytes_to_send = adcNumSamplesRadar << 2; // 2 * 2 bytes per sample
+	char header[] = { UGS_SYNC_BYTE, UGS_TYPE_RADAR_RAW, bytes_to_send>>8, bytes_to_send&0xFF };
+	uint32_t crc;
 
 	if(DMA_GetITStatus(DMA1_IT_TC1) != RESET)
 	{
@@ -505,16 +509,17 @@ static void DMA_HAL_HANDLER_FOR_RADAR(void *param)
 			radar_Q_return[i] = (radarBuffer[i] >> 16);
 			
 		}
-		USART_Write( 1, (char *)radarBuffer, adcNumSamplesRadar<<2 );
-		// for(int i = 0; i < adcNumSamplesRadar; i++) {
-			// send16(11084);
-			// send16(11084);
-		// }
+		CRC_ResetDR();
+		CRC_CalcCRC( (uint32_t) header );
+		CRC_CalcBlockCRC( (uint32_t *)radarBuffer, adcNumSamplesRadar); // sad that I need the type case. Need to unify UINT32 and uint32_t
+		crc = CRC_GetCRC();
+		
+		USART_Write( 1 , header, 4 );
+		USART_Write( 1, (char *)radarBuffer, bytes_to_send );
+		USART_Write( 1, (char *)&crc, 4);
+		
 		push_data_up(2);
 	}
-#ifdef DEBUG_3_CHAN
-	CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-#endif
 }
 
 #ifdef USE_DMA_AUDIO
