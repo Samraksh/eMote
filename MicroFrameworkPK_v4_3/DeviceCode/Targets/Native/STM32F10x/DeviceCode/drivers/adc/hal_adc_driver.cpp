@@ -266,7 +266,8 @@ DeviceStatus AD_ConfigureScanModeThreeChannels(UINT16* sampleBuff1, UINT16* samp
 
 
 	radarBuffer = (UINT32 *) private_malloc( (sizeof(UINT32)) * adcNumSamplesRadar );
-	audioBuffer = (UINT16 *) private_malloc( adcNumSamplesAudio * (sizeof(UINT16)) );
+	//audioBuffer = (UINT16 *) private_malloc( adcNumSamplesAudio * (sizeof(UINT16)) );
+	audioBuffer = NULL;
 
 
     //-------------------------DMA SETUP------------------------------------------------------------------------
