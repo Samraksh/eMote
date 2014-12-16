@@ -294,14 +294,16 @@ namespace Samraksh.AppNote.DataCollector.Radar
         {
             bool radarDetection = false;
 
+            int thresholdDigit = ((int)(thresholdProgrammed / 10)) % 10;
+            int iqRejectionDigit = ((int)(iqRejectionProgrammed / 10)) % 10;
             //timeMeasure.Write(true);
             if (iqa.IBuff[0] > 1500 && iqa.IBuff[0] < 2500 && iqa.QBuff[0] > 1500 && iqa.QBuff[0] < 2500)
             {
-                lcd.Write(LCD.CHAR_A, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+                lcd.Write(LCD.CHAR_A, LCD.CHAR_0 + thresholdDigit, LCD.CHAR_0 + iqRejectionDigit, codeVersion);
             }
             else
             {
-                lcd.Write(LCD.CHAR_UNDERSCORE, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+                lcd.Write(LCD.CHAR_UNDERSCORE, LCD.CHAR_0 + thresholdDigit, LCD.CHAR_0 + iqRejectionDigit, codeVersion);
             }
 
             // Pull the members out. Re ferencing this way seems to be more efficient.

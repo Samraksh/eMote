@@ -34,11 +34,13 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private const int DataStoreBlockSize = 250 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
-        private const int AudioBufferSize = 2000;
+        private const int AudioBufferSize = 2;
         private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
         private const int SampleIntervalMicroSec = 4000;
 
         public static SerialPort serialPort = new SerialPort("COM2");
+        public static int thresholdProgrammed;
+        public static int iqRejectionProgrammed;
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
@@ -59,7 +61,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
         //public static OutputPort radarEnableGPIO = new OutputPort((Cpu.Pin)25, true);
-        private static InputPort testPort = new InputPort((Cpu.Pin)25, false, Port.ResistorMode.Disabled);
+
+        //private static InputPort testPort = new InputPort((Cpu.Pin)25, false, Port.ResistorMode.Disabled);
+        private static OutputPort enablePin = new OutputPort((Cpu.Pin)25, false);
+        
         //public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
 
         public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
@@ -84,8 +89,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private static string commandStr = "";
 
         static void SerialPortHandler(object sender, SerialDataReceivedEventArgs e)
-        {            
-            byte[] m_recvBuffer = new byte[100];
+        {
+            byte[] m_recvBuffer = new byte[30];
             string proccesCmd = "";
             int i;
             byte[] msgBuff = new byte[6];
@@ -94,6 +99,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 int numBytes = serialPort.BytesToRead;
                 serialPort.Read(m_recvBuffer, 0, numBytes);
                 char[] rxStr = new char[numBytes];
+                if (commandStr.Length >= 20)
+                    commandStr = string.Empty;
                 for (i = 0; i < numBytes; i++)
                 {
                     commandStr = string.Concat(commandStr, ((char)m_recvBuffer[i]).ToString());        
@@ -128,15 +135,17 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                                 {
                                     //Debug.Print("Threshold set: " + threshold.ToString() + " " + IQRej.ToString());
                                     radarDetect.SetDetectionParameters(threshold, IQRej);
-                                    msgBuff[0] = (byte)'T';
+                                    /*msgBuff[0] = (byte)'T';
                                     msgBuff[1] = (byte)'S';
                                     msgBuff[2] = (byte)threshold;
                                     msgBuff[3] = (byte)IQRej;
                                     msgBuff[4] = (byte)checksum;
                                     msgBuff[5] = (byte)'\r';
-                                    serialPort.Write(msgBuff, 0, 6);
+                                    serialPort.Write(msgBuff, 0, 6);*/
+                                    thresholdProgrammed = threshold;
+                                    iqRejectionProgrammed = IQRej;
                                 }
-                                else
+                                /*else
                                 {
                                     msgBuff[0] = (byte)'X';
                                     msgBuff[1] = (byte)'X';
@@ -145,7 +154,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                                     msgBuff[4] = (byte)checksum;
                                     msgBuff[5] = (byte)'\r';
                                     serialPort.Write(msgBuff, 0, 6);
-                                }
+                                }*/
                             }
                         }
                     }
@@ -170,9 +179,13 @@ namespace Samraksh.AppNote.DataCollector.Radar {
 
             lcd.Initialize();
             radarDetect.SetDetectionParameters(60, 30);
+            thresholdProgrammed = 60;
+            iqRejectionProgrammed = 30;
             acousticDetect.SetDetectionParameters(1, 1);
 
-            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+            int thresholdDigit = ((int)(thresholdProgrammed / 10)) % 10;
+            int iqRejectionDigit = ((int)(iqRejectionProgrammed / 10)) % 10;
+            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_0 + thresholdDigit, LCD.CHAR_0 + iqRejectionDigit, codeVersion);
 
             serialPort.BaudRate = 57600;
             serialPort.Parity = Parity.None;
@@ -220,7 +233,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
                 
                 //if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
-                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, AudioBufferSize, SampleIntervalMicroSec, ADCCallback))
+                if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, ADCBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
