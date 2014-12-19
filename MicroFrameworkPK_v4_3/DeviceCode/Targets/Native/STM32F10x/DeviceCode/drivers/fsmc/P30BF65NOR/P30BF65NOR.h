@@ -12,7 +12,7 @@
 
 #include <Samraksh\HAL_util.h>
 
-#define NOR_DEBUGGING_ENABLED
+//#define NOR_DEBUGGING_ENABLED
 
 #if defined(NOR_DEBUGGING_ENABLED)
 #define NOR_DEBUG_PRINT(x) hal_printf(x);
