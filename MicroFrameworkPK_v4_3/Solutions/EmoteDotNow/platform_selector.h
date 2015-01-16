@@ -144,6 +144,9 @@
 //Network Stack definitions
 UINT16 MF_NODE_ID;
 
+// Enable calibration of the HSI clock at start-up from the 32.768 kHz crystal.
+//#define DOTNOW_HSI_CALIB
+
 // Macros configuring the HALTimer system
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365

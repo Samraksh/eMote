@@ -2,26 +2,24 @@
 #include "netmf_pwr.h"
 
 BOOL CPU_Initialize() {
-	STM32F1x_Power_Driver::High_Power();
-	/*
 
 	// A total hack to determine if we're in TinyCLR or TinyBooter.
 	// There is probably a preprocessor define somewhere but I wasted 15 minutes on it.
 	// If you know it please fix me. -- NPS
 	BOOL (*myaddr)() = &CPU_Initialize;
-	
+
 	// Use low-power mode to measure HSI, but only from TinyCLR.
 	// Then go back to HSI (for now).
 	if ((uint32_t)myaddr > 0x8020000) {
+#ifdef DOTNOW_HSI_CALIB
 		STM32F1x_Power_Driver::Low_Power();
 		STM32F1x_Power_Driver::CalibrateHSI();
+#endif
 		STM32F1x_Power_Driver::High_Power();
 	}
 	else { // Use High-power mode for TinyBooter for now. Probably can use 8 MHz but not sure we care.
 		STM32F1x_Power_Driver::High_Power();
 	}
-
-	*/
 }
 
 // Default to Low (8 MHz)
