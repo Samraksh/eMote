@@ -16,12 +16,8 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
-
-extern "C"
-{
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
-}
 
 extern HALTimerManager gHalTimerManagerObject;
 // Initialize the virtual timer layer
@@ -44,7 +40,6 @@ UINT64 HAL_Time_CurrentTicks()
 {
 	return g_STM32F10x_AdvancedTimer.Get64Counter();
 }
-
 
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
@@ -99,8 +94,6 @@ UINT64 Time_CurrentTicks()
 
 void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 {
-
-
 	if(uSec <= 10)
 	{
 	//	UINT32 limit = uSec / 5;
@@ -124,8 +117,6 @@ void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 	while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
 
 	//while((((TIM2->CNT << 16) | TIM1->CNT) - currentCounterVal) <= ticks);
-
-
 }
 
 // This function is tuned to work when the processor is running at 8 MHz
@@ -227,6 +218,8 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
 
+	GLOBAL_LOCK(irq); // Interrupts off while we configure
+
 	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
@@ -260,54 +253,41 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
-    /* Master Mode selection */
+    /* Master Mode selection and Select the Master Slave Mode */
   	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
-
-  	/* Select the Master Slave Mode */
     TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
 
-
     // Active timer 1 cc interrupt
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM1_CC, ISR_TIM1, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(TIM1_CC_IRQn, ISR_TIM1, NULL) ) {
 		return DS_Fail;
-
-	if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM1_CC))
-		return DS_Fail;
+	}
 
 	// Activate TIM2 interrupt
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM2, ISR_TIM2, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(TIM2_IRQn, ISR_TIM2, NULL) ) {
 		return DS_Fail;
-
-	if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_TIM2))
-		return DS_Fail;
-
-	//TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
+	}
 
 	// Need the update flag for overflow bookkeeping
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
 	// Enable both the timers, TIM1 because it the LS two bytes
     TIM_Cmd(TIM1, ENABLE);
-    TIM_Cmd(TIM2,ENABLE);
+    TIM_Cmd(TIM2, ENABLE);
 
     // Initialize the timer parameters
     // should this be in  the beginning of this function or end ?
     // At this point not sure
     g_STM32F10x_Timer_Configuration.Initialize();
 
-	//===========================================
 	// The following wait and re-initialization is needed to get the SetCompare() working
-	for(int i=0; i<100000;i++){}
+	for(volatile int i=0; i<100000;i++);
 
 	TIM_TimeBaseStructure.TIM_Period = 0xffff;
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
     return DS_Success;
-
 }
 
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
@@ -344,14 +324,9 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 		}
 	}
-
 	currentCompareValue = newCompareValue;
-
 	return DS_Success;
 }
-
-extern "C"
-{
 
 void ISR_TIM2(void* Param)
 {
@@ -433,7 +408,6 @@ void ISR_TIM2(void* Param)
 
 		g_STM32F10x_AdvancedTimer.Get64Counter();
 	}
-
 }
 
 void ISR_TIM1( void* Param )
@@ -444,7 +418,6 @@ void ISR_TIM1( void* Param )
 	// So changing the contents of this variable should be done with extreme caution
 	// Update the 64 bit counter value
 	g_STM32F10x_AdvancedTimer.Get64Counter();
-
 
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
@@ -465,8 +438,4 @@ void ISR_TIM1( void* Param )
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 		HAL_COMPLETION::DequeueAndExec();
 	}
-
 }
-
-}
-
