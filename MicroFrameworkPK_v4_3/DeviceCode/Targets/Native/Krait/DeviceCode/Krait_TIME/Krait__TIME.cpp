@@ -278,7 +278,7 @@ INT64 Krait_Time::CurrentTicks()
 //#define TICKS_PROXIMITY_FORCE 10
 void Krait_Time::SetCompareValue( UINT64 CompareValue )
 {
-	/*UINT32 diff;
+	UINT32 diff;
 	UINT64 now;
 
 	GLOBAL_LOCK(irq);
