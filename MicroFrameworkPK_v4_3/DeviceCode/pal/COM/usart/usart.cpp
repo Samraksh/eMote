@@ -718,8 +718,9 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
 
     {
         GLOBAL_LOCK(irq);
-
-        UINT8* Dst = State.RxQueue.Push();
+		UINT8* Dst;
+#ifndef PLATFORM_ARM_EmoteDotNow
+        Dst = State.RxQueue.Push();
 
         if(Dst)
         {
@@ -745,6 +746,18 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
             SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
             return FALSE;
         }
+#else // Special addition for dotNOW since ports that aren't COM1 don't used unmanaged queue
+		if (ComPortNum == 0) { // only push to RxQueue for COM1.
+			Dst = State.RxQueue.Push();
+			if (Dst) {
+				*Dst = c;
+			}
+			else {
+				SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
+				return FALSE;
+			}
+		}
+#endif
 	
 		if( State.ManagedRxQueue.NumberOfElements() < State.RxBufferHighWaterMark )
 		{
