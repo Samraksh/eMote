@@ -6,10 +6,10 @@
 
 //TODO: AnanthAtSamraksh -- check with Mukundan
 #include <Samraksh/VirtualTimer.h>
-//AnanthAtSamraksh - comment lines below while building CLR for .Now; Uncomment for Adapt (just for testing...timer for instance)
+#if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
-//AnanthAtSamraksh
+#endif
 
 
 #if !defined(__GNUC__)
@@ -17,7 +17,7 @@ extern Krait_Timer g_Krait_Timer;
 #endif
 
 //--//
-#if defined(ARM_CPU_CORE_KRAIT)
+#if defined(PLATFORM_ARM_SOC_ADAPT)
 extern void mipi_dsi_shutdown(void);
 #endif
 // we need this to force inclusion from library at link time
@@ -712,7 +712,7 @@ extern "C"
 
 void BootEntry()
 {
-#if defined(ARM_CPU_CORE_KRAIT)
+#if defined(PLATFORM_ARM_SOC_ADAPT)
 mipi_dsi_shutdown();
 #endif
 #if (defined(GCCOP) && defined(COMPILE_THUMB))
