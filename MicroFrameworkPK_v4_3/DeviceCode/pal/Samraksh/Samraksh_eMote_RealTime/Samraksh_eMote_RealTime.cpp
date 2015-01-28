@@ -185,7 +185,8 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
 	else
 	{
 		//The actual clock period is about 11.5% faster than what the user requests. Hence subtracting 11.5%
-		ManagedTimerPeriodMicroSeconds = userData - (userData * 0.115);			//Done
+		//ManagedTimerPeriodMicroSeconds = userData - (userData * 0.115);			//Done
+		ManagedTimerPeriodMicroSeconds = userData;
 	}
 	/*else if(userData >= 1000 && userData < 10000)
 		ManagedTimerPeriodMicroSeconds = userData - 100;	//Done
