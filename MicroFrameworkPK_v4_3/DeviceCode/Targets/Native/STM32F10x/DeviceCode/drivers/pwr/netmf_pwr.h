@@ -7,39 +7,22 @@
 #define PWR_HSI_SPEED 8000000
 #define PWR_HSI_CLOSE_ENOUGH 10000
 
-extern uint32_t SystemTimerClock;
-
-UINT32 pwr_get_hsi(void);
-
-struct STM32F1x_Power_Driver
-{
-    static const UINT32 c_SystemTime_Timer         = 2;
-	//We have not defined any watch dog timers yet
-    //static const UINT32 c_Watchdog_Timer           = 3;
-    //static const UINT32 c_PerformanceCounter_Timer = 4;
-
-#if !defined(BUILD_RTM)
-    volatile UINT32* m_PerformanceCounter;
-#endif
-
-    static BOOL Initialize();
-    static void Sleep();
-	static void High_Power();
-	static void Low_Power();
-    static void Halt();
-    static void Reset();
-    static void Shutdown();
-    static void Hibernate();
-	static void CalibrateHSI();
-
-#if !defined(BUILD_RTM)
-    static void   PerformanceCounter_Initialize  ();
-    static void   PerformanceCounter_Uninitialize();
-    static UINT32 PerformanceCounter             ();
-#endif
+enum stm_power_modes {
+	POWER_STATE_DEFAULT,
+	POWER_STATE_LOW,
+	POWER_STATE_HIGH,
 };
 
+extern uint32_t SystemTimerClock;
+extern UINT32 pwr_get_hsi(void);
 
-#endif
+void Sleep();
+void PowerInit();
+void High_Power();
+void Low_Power();
+void Halt();
+void Reset();
+void Shutdown();
+void CalibrateHSI();
 
-//extern Power_Driver g_Power_Driver;
+#endif // #ifndef _NETMF_POWER_H_

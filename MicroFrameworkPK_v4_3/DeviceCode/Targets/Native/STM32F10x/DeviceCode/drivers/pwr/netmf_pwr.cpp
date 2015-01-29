@@ -6,40 +6,14 @@ STM32F1x Microframework power HAL driver
 Nathan Stohs
 nathan.stohs@samraksh.com
 
-Based on STM32F1x standard library
-
-Supports 2/3 of the sleep modes, all but 'off'
-due to concerns about bricking the device.
-Should be able to fix that with some checking later.
-
 */
 
-// TODO reconcile includes with .proj contents?
-#include <tinyhal.h>
 #include "netmf_pwr.h"
-#include <stm32f10x.h>
-#include "stm32f10x_pwr.h"
-//#include "../rcc/stm32f10x_rcc.h"
-//#include "../flash/stm32f10x_flash.h"
-//#include "../gpio/stm32f10x_gpio.h"
-#include <Timer/Timer16Bit/stm32f10x_tim.h>
 
-enum stm_power_modes {
-	POWER_STATE_DEFAULT,
-	POWER_STATE_LOW,
-	POWER_STATE_HIGH,
-};
-
-uint32_t SystemTimerClock;
+uint32_t SystemTimerClock; // Probably should get rid of this.
 static volatile int pwr_hsi_clock_measure;
 
-// Default state is LOW
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
-
-// Deprecated. init now takes place in bootstrap section
-static void init_power() {
-
-}
 
 // Sets up the interrupt do the measurement. Then blocks until done.
 // Result is in static global pwr_hsi_clock_measure
@@ -55,15 +29,55 @@ static void align_to_rtc() {
 	while(pwr_hsi_clock_measure < 2);
 }
 
-UINT32 pwr_get_hsi(void) {
-	return pwr_hsi_clock_measure;
+// A total hack to determine if we're in TinyCLR or TinyBooter.
+// There is probably a preprocessor define somewhere but I wasted 15 minutes on it.
+// If you know it please fix me. -- NPS
+static BOOL Am_I_TinyBooter() {
+	BOOL (*myaddr)() = &Am_I_TinyBooter;
+	if ((uint32_t)myaddr < 0x8020000) {
+		return TRUE;
+	}
+	return FALSE;
 }
 
-void STM32F1x_Power_Driver::CalibrateHSI() {
+// Returns measured HSI speed if the calibrate function was used.
+UINT32 pwr_get_hsi(void) {
+#ifdef DOTNOW_HSI_CALIB
+	return pwr_hsi_clock_measure;
+#else
+	return 0;
+#endif
+}
+
+// A total hack to determine if we're in TinyCLR or TinyBooter.
+// There is probably a preprocessor define somewhere but I wasted 15 minutes on it.
+// If you know it please fix me. -- NPS
+void PowerInit() {
+
+	if ( Am_I_TinyBooter() ) {
+		High_Power();
+		return;
+	}
+
+#ifdef DOTNOW_HSI_CALIB
+	Low_Power();
+	CalibrateHSI();
+#endif
+
+	High_Power();
+}
+
+// Currently this is only safe to do at startup.
+// Not tested for mid program execution.
+void CalibrateHSI() {
 	uint32_t trim;
 	NVIC_InitTypeDef NVIC_InitStruct;
 	uint32_t hsi_trim_error[32]; // Memoization table of absolute frequency error vs. TRIM
 	uint32_t hsi_trim_val[32]; // Memoization table of absolute frequency vs TRIM
+
+	if (SystemTimerClock != 8000000) {
+		return; // Must be done from low power mode.
+	}
 
 	// for some reason need to memset this... I think due to C++ object issue
 	memset(hsi_trim_error, 0xFFFFFFFF, sizeof(hsi_trim_error));
@@ -213,7 +227,7 @@ void __irq RTC_IRQHandler() {
 
 }
 
-void STM32F1x_Power_Driver::Low_Power() {
+void Low_Power() {
 
 	// Make sure actually changing
 	if (stm_power_state == POWER_STATE_LOW) {
@@ -247,11 +261,9 @@ void STM32F1x_Power_Driver::Low_Power() {
 
 	stm_power_state = POWER_STATE_LOW;
 	SystemTimerClock = 8000000;
-
 }
 
-
-void STM32F1x_Power_Driver::High_Power() {
+void High_Power() {
 
 	// Make sure actually changing
 	if (stm_power_state == POWER_STATE_HIGH) {
@@ -295,54 +307,46 @@ void STM32F1x_Power_Driver::High_Power() {
 	SystemTimerClock = 8000000;
 }
 
-// Deprecated
-BOOL STM32F1x_Power_Driver::Initialize() {
-    return TRUE;
-}
+void Sleep() {
+#if defined (NDEBUG) && (DOTNOW_ALLOW_SLEEP) // Do not sleep in debug builds
+	enum stm_power_modes power_now = stm_power_state;
 
-// Simple "wait for interrupt" sleep
-// Will wake from any source
-void STM32F1x_Power_Driver::Sleep() {
-#if 0
-	asm volatile ("CPSIE I");
-	__WFI();
+	GLOBAL_LOCK(irq);
+
+	Low_Power();
+	PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+
+	// Sleep is over
+
+	// Go back to high power if thats where we were
+	if (power_now == POWER_STATE_HIGH) {
+		High_Power();
+	}
 #endif
-	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
 }
 
-// Nived.Sivadas : called from CPU_Halt should stop the cpu in its tracks
-// Busy wait on true is the best solution at this point
-void STM32F1x_Power_Driver::Halt() {
-	//asm volatile ("CPSIE I");
-	//__WFI();
+// Not sure what the right thing is, so this seems reasonable.
+void Halt() {
+#ifdef NDEBUG
+	while(1) { __WFI(); }
+#else
 	while(1);
-	//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+#endif
 }
 
-// Nived.Sivadas : called from CPU_Reset should make a reset request
-void STM32F1x_Power_Driver::Reset() {
-   //Use the Watch dog to invoke a reset on the board
-   //WatchDog_Driver::ResetCpu();
+void Reset() {
+	__disable_irq();
+	NVIC_SystemReset();
 }
 
-// TODO
-void STM32F1x_Power_Driver::Shutdown() {
-	return;
-}
-
-// STOP mode in STM speak
-// Regulator ON vs LowPower?
-// Requires EXTI interrupt to wake?
-void STM32F1x_Power_Driver::Hibernate() {
-	asm volatile ("CPSIE I");
-	__WFI();
-    //PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+void Shutdown() {
+#ifdef NDEBUG
+	while(1) { PWR_EnterSTANDBYMode(); }
+#else
+	while(1);
+#endif
 }
 
 void HAL_AssertEx() {
 	return;
 }
-
-
-
-
