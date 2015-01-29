@@ -18,7 +18,6 @@
 #include <Samraksh\Buffer.h>
 #include <Samraksh\Radio_decl.h>
 
-extern UINT16 MF_NODE_ID;
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 

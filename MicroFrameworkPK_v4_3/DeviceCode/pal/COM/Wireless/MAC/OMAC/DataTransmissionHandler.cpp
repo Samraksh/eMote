@@ -61,7 +61,7 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 		  }
 		  //if we find out that some receiver is in the process of receiving,
 		  //then cancel the current transmission
-		  else if (headerPtr->dest != MF_NODE_ID) {
+		  else if (headerPtr->dest != CPU_Radio_GetAddress(this->radioName)) {
 			hal_printf("cancel2\n");
 			cancelTX();
 			call FIFOPreload.txPacket();

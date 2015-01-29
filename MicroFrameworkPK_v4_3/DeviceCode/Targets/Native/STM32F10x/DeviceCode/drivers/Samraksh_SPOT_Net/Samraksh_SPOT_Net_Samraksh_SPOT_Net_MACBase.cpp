@@ -61,13 +61,14 @@ UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-	MF_NODE_ID = param0;
-	return 1;;
+	Mac_SetRadioAddress(param0);
+	return 1;
 }
 
 UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	return MF_NODE_ID;
+	UINT16 temp = Mac_GetRadioAddress();
+	return temp;
 }
 
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )

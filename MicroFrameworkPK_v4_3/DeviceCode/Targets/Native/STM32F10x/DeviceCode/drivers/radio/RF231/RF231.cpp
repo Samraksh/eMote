@@ -4,7 +4,6 @@
 
 //#define DEBUG_RF231 1
 
-
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -47,8 +46,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        //__ASM volatile("cpsid i");
 	        //pulse 1
 	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 
 	        UINT32 channel = 0;
@@ -81,8 +80,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	#endif
 	        //pulse 2
 	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 
 	        // Push radio to pll on state
@@ -103,8 +102,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        //pulse 3
 	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 
 	        SlptrSet();
@@ -155,8 +154,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        //pulse 4
 	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	        //hal_printf("Radio timestamp: %lu \n", eventOffset);
 	#endif
 
@@ -174,8 +173,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        //pulse 5
 	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 	        //__ASM volatile("cpsie i");
 	        return temp;
@@ -262,8 +261,8 @@ BOOL RF231Radio::Reset()
 			// Sets the channel number
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 	#ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 
 	// Enable the gpio pin as the interrupt point
@@ -275,8 +274,8 @@ BOOL RF231Radio::Reset()
 
 	SlptrSet();
 	#ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 			// set software state machine state to sleep
 	state = STATE_SLEEP;
@@ -286,8 +285,8 @@ BOOL RF231Radio::Reset()
 
 	cmd = CMD_NONE;
 	#ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
 	return TRUE;
 }
@@ -467,8 +466,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//__ASM volatile("cpsid i");
 	//pulse 1
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 	UINT32 channel = 0;
@@ -503,8 +502,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 #endif
 	//pulse 2
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 	// Push radio to pll on state
@@ -526,8 +525,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 	//pulse 3
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 	//SlptrSet();
@@ -536,8 +535,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	//pulse 4
 #ifdef DEBUG_RF231
-	//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	//CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 	// Load buffer before initiating the transmit command
 	SelnClear();
@@ -558,8 +557,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	//pulse 5
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 	SelnSet();
@@ -577,8 +576,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	//pulse 6
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 	//__ASM volatile("cpsie i");
 	return temp;
@@ -663,7 +662,7 @@ uint8_t  rf231_read_reg(uint8_t reg) {
 	return ret;
 }
 
-uint8_t  rf231_write_reg(uint8_t reg, uint8_t data) {
+uint8_t rf231_write_reg(uint8_t reg, uint8_t data) {
 	uint8_t ret;
 	volatile int i;
 	RF231_SEL(0);
@@ -676,12 +675,13 @@ uint8_t  rf231_write_reg(uint8_t reg, uint8_t data) {
 	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
 	ret = SPI_I2S_ReceiveData(RF231_SPI);
 	RF231_SEL(1);
-	for (i=0; i<10000; i++) { ; } // wait
+	HAL_Time_Sleep_MicroSeconds(500);
+
 	return ret;
 }
 
 void rf231_enable_pa_rxtx(void) {
-	uint8_t data = rf231_read_reg(RF231_REG_TX_CTRL_1);
+	volatile uint8_t data = rf231_read_reg(RF231_REG_TX_CTRL_1);
 	data |= 0x80;
 	rf231_write_reg(RF231_REG_TX_CTRL_1, data);
 }
@@ -693,8 +693,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 {
 	INIT_STATE_CHECK()
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 
@@ -734,12 +734,13 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//Get cpu serial and hash it to use as node id
 		UINT8 cpuserial[12];
 		GetCPUSerial(cpuserial,12);
-		MF_NODE_ID=0;
+		UINT16 tempNum=0;
 		UINT16 * temp = (UINT16 *) cpuserial;
 		for (int i=0; i< 6; i++){
-			MF_NODE_ID=MF_NODE_ID ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
+			tempNum=tempNum ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
 		}
-		SetAddress(MF_NODE_ID);
+		hal_printf("gen tempNum: %d\r\n", tempNum);
+		SetAddress(tempNum);
 		SetInitialized(TRUE);
 
 		// Initially point to the driver buffer
@@ -755,8 +756,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//for(UINT8 i = 0; i < 30; i++)
 			//data[i] = 0;
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		if(TRUE != GpioPinInitialize())
 		{
@@ -764,8 +765,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 		//configure_exti();
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 		if(TRUE != SpiInitialize())
@@ -779,33 +780,33 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// events happening on the pin that was used to measure this or there is a possible bug !!!
 		HAL_Time_Sleep_MicroSeconds(510);
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Clear rstn pin
 		RstnClear();
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Clear the slptr pin
 		SlptrClear();
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Sleep for 6us
 		HAL_Time_Sleep_MicroSeconds(6);
 
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		RstnSet();
 
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// The RF230_TRX_CTRL_0 register controls the drive current of the digital output pads and the CLKM clock rate
 		// Setting value to 0
@@ -818,8 +819,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
 
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
 		// This fix will return false from initialize and enable the user of the function to exit gracefully
@@ -836,8 +837,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		DID_STATE_CHANGE(RF230_TRX_OFF);
 
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		HAL_Time_Sleep_MicroSeconds(510);
 
@@ -866,8 +867,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Nived.Sivadas - turning off auto crc check
 		//WriteRegister(RF230_PHY_TX_PWR, 0 | (0 & RF230_TX_PWR_MASK));
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		tx_power = 0 & RF230_TX_PWR_MASK;
 		channel = RF230_DEF_CHANNEL & RF230_CHANNEL_MASK;
@@ -875,8 +876,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Sets the channel number
 		WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Enable the gpio pin as the interrupt point
 		if(this->GetRadioName() == RF231RADIO)
@@ -886,8 +887,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		SlptrSet();
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// set software state machine state to sleep
 		state = STATE_SLEEP;
@@ -899,8 +900,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		cmd = CMD_NONE;
 #ifdef DEBUG_RF231
-		CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 	}
@@ -956,9 +957,7 @@ BOOL RF231Radio::GpioPinInitialize()
 
 	return TRUE;
 
-#ifdef DEBUG_RF231
-	CPU_GPIO_EnableOutputPin((GPIO_PIN)0, TRUE);
-#endif
+
 }
 
 // Calls the mf spi initialize function and returns true if the intialization was successful
@@ -1179,8 +1178,8 @@ void RF231Radio::HandleInterrupt()
 	INIT_STATE_CHECK();
 	UINT32 time;
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
 
@@ -1254,8 +1253,8 @@ void RF231Radio::HandleInterrupt()
 		if(cmd == CMD_TRANSMIT)
 		{
 #ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 			// Call radio send done event handler when the send is complete
 			rf230EventHandlers.RadioSendDoneEvent();
@@ -1292,8 +1291,8 @@ void RF231Radio::HandleInterrupt()
 				if(state == STATE_BUSY_TX)
 				{
 #ifdef DEBUG_RF231
-					//CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-					//CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+					//CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 					CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
 #endif
 
@@ -1391,8 +1390,8 @@ void RF231Radio::HandleInterrupt()
 		}
 	}
 #ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)0, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)0, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 }
 
@@ -1472,13 +1471,13 @@ extern RF231Radio grf231RadioLR;
 extern "C"
 {
 
-	void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
+	void  __attribute__((optimize("O0"))) Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
 	{
 		grf231RadioLR.HandleInterrupt();
 	}
 
 	// Call radio_irq_handler from here
-	void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
+	void  __attribute__((optimize("O0"))) Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 	{
 		grf231Radio.HandleInterrupt();
 	}

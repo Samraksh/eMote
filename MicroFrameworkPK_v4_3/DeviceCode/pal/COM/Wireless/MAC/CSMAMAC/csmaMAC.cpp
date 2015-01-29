@@ -74,8 +74,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 	if(!this->Initialized){
 		this->macName = macName;
 		this->radioName = radioID;
-		csmaMAC::SetAddress(MF_NODE_ID);
-		MyAddress = MF_NODE_ID;
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
@@ -139,6 +137,15 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 	return DS_Success;
 }
 
+BOOL csmaMAC::SetRadioAddress(UINT16 address){
+	CPU_Radio_SetAddress(this->radioName, address);
+	return true;
+}
+
+UINT16 csmaMAC::GetRadioAddress(){
+	UINT16 temp = CPU_Radio_GetAddress(this->radioName);
+	return temp;
+}
 
 BOOL csmaMAC::UnInitialize()
 {
@@ -164,7 +171,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 		header->destpan = (34 << 8);
 		header->destpan |= 0;
 		header->dest =dest;
-		header->src = MF_NODE_ID;
+		header->src = CPU_Radio_GetAddress(this->radioName);
 		header->network = MyConfig.Network;
 		header->mac_id = this->macName;
 		header->type = dataType;
@@ -179,7 +186,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 		for(UINT8 i = 0 ; i < Size; i++)
 			payload[i] = lmsg[i];
 
-		//hal_printf("CSMA Sending: My address is : %d\n",MF_NODE_ID);
+		//hal_printf("CSMA Sending: My address is : %d\n",CPU_Radio_GetAddress());
 		// Check if the circular buffer is full
 		if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 				return FALSE;
@@ -206,7 +213,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =dest;
-	header->src = MF_NODE_ID;
+	header->src = CPU_Radio_GetAddress(this->radioName);
 	header->network = MyConfig.Network;
 	header->mac_id = this->macName;
 	header->type = dataType;
@@ -218,7 +225,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	for(UINT8 i = 0 ; i < Size; i++)
 		payload[i] = lmsg[i];
 
-	//hal_printf("CSMA Sending: My address is : %d\n",MF_NODE_ID);
+	//hal_printf("CSMA Sending: My address is : %d\n",CPU_Radio_GetAddress());
 	// Check if the circular buffer is full
 	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 			return FALSE;
@@ -284,15 +291,15 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds != DS_Success) {
-			/*HAL_Time_Sleep_MicroSeconds((MF_NODE_ID % 200));
+			/*HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress() % 200));
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
 			{
 				gHalTimerManagerObject.StartTimer(1);
 				return;
 			}*/
 			//TODO: AnanthAtSamraksh - check if this is right
-			CPU_Timer_Sleep_MicroSeconds((MF_NODE_ID % 200));
-			//CPU_Time_Sleep_MicroSeconds((MF_NODE_ID % 500));
+			CPU_Timer_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
+			//CPU_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
@@ -421,7 +428,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	}
 
 	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
-	if(rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != MF_NODE_ID)
+	if(rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName))
 	{
 		//HandlePromiscousMessage(msg);
 		return msg;
@@ -464,7 +471,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
 		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
 		//HandleBroadcastMessage(msg);
-	}else if(rcv_msg_hdr->dest == MF_NODE_ID){
+	}else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName)){
 		//HandleUnicastMessage(msg);
 		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
 		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());

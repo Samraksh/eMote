@@ -39,8 +39,8 @@ void DiscoveryHandler::Initialize(){
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
 
-	m_p1 = CONTROL_P1[MF_NODE_ID % 7];
-	m_p2 = CONTROL_P2[MF_NODE_ID % 7];
+	m_p1 = CONTROL_P1[CPU_Radio_GetAddress(this->radioName) % 7];
+	m_p2 = CONTROL_P2[CPU_Radio_GetAddress(this->radioName) % 7];
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_p1, m_p2);
 
 	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root

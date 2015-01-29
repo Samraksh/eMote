@@ -33,7 +33,7 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = MF_NODE_ID;
+	header->src = CPU_Radio_GetAddress(this->radioName);
 
 	msg = (Message_15_4_t *) CPU_Radio_Preload(RadioID, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
 	return DS_Success;
@@ -50,7 +50,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		header->destpan = (34 << 8);
 		header->destpan |= 0;
 		header->dest =address;
-		header->src = MF_NODE_ID;
+		header->src = CPU_Radio_GetAddress(this->radioName);
 		header->mac_id = MacID;
 		//header->network = MyConfig.Network;
 
@@ -89,7 +89,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = MF_NODE_ID;
+	header->src = CPU_Radio_GetAddress(this->radioName);
 	//header->network = MyConfig.Network;
 	header->mac_id = MacID;
 #ifdef DEBUG_TIMESYNC

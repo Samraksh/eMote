@@ -55,9 +55,9 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 
 
 public:
-	UINT16 GetAddress(){return MyAddress;}
-	UINT16 GetMaxPayload(){return MaxPayload;	}
-	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
+	UINT16 GetRadioAddress();
+	UINT16 GetMaxPayload(){return MaxPayload;}
+	BOOL SetRadioAddress(UINT16 address);
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 
 

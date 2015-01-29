@@ -145,9 +145,6 @@
 //If the CLR has 500ms to sleep, it calls compaction. If it has 5ms to sleep calls mark&Sweep
 //#define SAMRAKSH_GC_EXT 1
 
-//Network Stack definitions
-UINT16 MF_NODE_ID;
-
 // Macros configuring the HALTimer system
 #define HALTIMER 5
 #define HALTIMER_MAX_RESOLUTION 1365
