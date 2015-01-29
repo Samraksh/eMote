@@ -42,7 +42,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	 }
 
 	        INIT_STATE_CHECK();
-	        GLOBAL_LOCK(irq);
+	        //GLOBAL_LOCK(irq);
 	        //__ASM volatile("cpsid i");
 	        //pulse 1
 	#ifdef DEBUG_RF231
@@ -184,7 +184,7 @@ BOOL RF231Radio::Reset()
 {
 	INIT_STATE_CHECK()
 
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	if(TRUE != GpioPinInitialize())
 	{
@@ -384,7 +384,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 {
 	// State variable change in this function, possible race condition
 	// Lock
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	// Initiailize state change check variables
 	// Primarily used if DID_STATE_CHANGE_ASSERT is used
@@ -462,7 +462,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	
 	INIT_STATE_CHECK();
 
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 	//__ASM volatile("cpsid i");
 	//pulse 1
 #ifdef DEBUG_RF231
@@ -752,7 +752,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Set the state of sleep pending to false
 		sleep_pending = FALSE;
 
-		GLOBAL_LOCK(irq);
+		//GLOBAL_LOCK(irq);
 		//for(UINT8 i = 0; i < 30; i++)
 			//data[i] = 0;
 #ifdef DEBUG_RF231
@@ -912,7 +912,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 //template<class T>
 void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 {
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	SelnClear();
 
@@ -999,7 +999,7 @@ BOOL RF231Radio::SpiInitialize()
 DeviceStatus RF231Radio::TurnOn()
 {
 	INIT_STATE_CHECK();
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	// The radio is not sleeping or is already on
 	if(state != STATE_SLEEP)
@@ -1064,7 +1064,7 @@ DeviceStatus RF231Radio::TurnOn()
 //template<class T>
 UINT8 RF231Radio::ReadRegister(UINT8 reg)
 {
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 	UINT8 read_reg;
 
 	SelnClear();
@@ -1103,7 +1103,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		state = STATE_RX_ON;
 	}
 
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	if(state != STATE_RX_ON)
 	{
@@ -1157,7 +1157,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 {
 	UINT8 trx_status;
 
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
