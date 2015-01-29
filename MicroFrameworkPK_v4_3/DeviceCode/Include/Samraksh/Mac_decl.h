@@ -65,6 +65,8 @@ public:
 
 //Basic functions
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);
+UINT16 Mac_GetRadioAddress();
+BOOL Mac_SetRadioAddress(UINT16 address);
 DeviceStatus Mac_UnInitialize(UINT8 macID);
 UINT8 Mac_GetID();
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,

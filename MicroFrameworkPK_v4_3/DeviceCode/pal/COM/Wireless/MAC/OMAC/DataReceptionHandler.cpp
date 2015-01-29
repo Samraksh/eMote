@@ -45,8 +45,8 @@ void DataReceptionHandler::Initialize(){
 		m_dataInterval = 10;
 	}
 
-	lastSeed = m_nextSeed = 119 * 119 * (MF_NODE_ID + 1);
-	m_mask = 137 * 29 * (MF_NODE_ID + 1);
+	lastSeed = m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(this->radioName) + 1);
+	m_mask = 137 * 29 * (CPU_Radio_GetAddress(this->radioName) + 1);
 	//m_nextSeed is updated with its passed pointer. It will be the next seed to use
 	//after 8 frames pass
 	m_nextWakeupSlot =
@@ -81,7 +81,7 @@ bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
 	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
-	sndMsg->nodeID = MF_NODE_ID;
+	sndMsg->nodeID = CPU_Radio_GetAddress(this->radioName);
 	dataBeaconBufferPtr->GetHeader()->type = OMAC_DATA_BEACON_TYPE;
 
 	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );

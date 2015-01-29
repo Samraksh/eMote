@@ -159,6 +159,8 @@ BOOL CPU_Radio_UnInitialize(UINT8 radioID);
 UINT8 CPU_Radio_NumberRadiosSupported();
 
 BOOL CPU_Radio_Reset(UINT8 radioID);
+UINT16 CPU_Radio_GetAddress(UINT8 radioID);
+BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address);
 
 DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power);
 

@@ -45,6 +45,16 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 ro
 	return DS_Success;
 }
 
+UINT16 Mac_GetRadioAddress(){
+	UINT16 temp = gcsmaMacObject.GetRadioAddress();
+	hal_printf("Mac_GetRadioAddress: %d\r\n",temp);
+	return temp;
+}
+BOOL Mac_SetRadioAddress(UINT16 address){
+	gcsmaMacObject.SetRadioAddress(address);
+	hal_printf("Mac_SetRadioAddress: %d\r\n",address);
+	return true;
+}
 
 DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 {

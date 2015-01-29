@@ -99,18 +99,16 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, RadioIDs, NumberRadios, MacId);
 		g_omac_RadioControl.Initialize(RadioIDs[0], MacId);
-		SetAddress(MF_NODE_ID);
-		MyAddress = MF_NODE_ID;
 
 #ifdef DEBUG_OMAC
-		hal_printf("Initializing OMAC: My address: %d\n", MF_NODE_ID);
+		hal_printf("Initializing OMAC: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
 #endif
 
 		//MAC <Message_15_4_t>::Initialize();
 		m_omac_scheduler.Initialize();
 	}else {
-		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", MF_NODE_ID);
+		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 	}
 
 	//Initialize upper layer call backs
@@ -209,7 +207,7 @@ BOOL OMAC::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = MF_NODE_ID;
+	header->src = CPU_Radio_GetAddress(this->radioName);;
 	header->network = MyConfig.Network;
 	header->mac_id = MacId;
 	header->type = dataType;

@@ -74,7 +74,7 @@ DeviceStatus CMaxTimeSync::Send(){
 	m_timeSyncMsg->globalTime1 = (UINT32) (x>>32);
 
 	m_timeSyncMsg->skew = m_globalTime.GetSkew();
-	m_timeSyncMsg->nodeID = MF_NODE_ID;
+	m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(this->radioName);
 	m_timeSyncMsg->seqNo = m_seqNo++;
 
 	header->dest= RADIO_BROADCAST_ADDRESS;
@@ -152,7 +152,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	}else {
 		if (m_globalTime.leader == msg_src) {
 			m_state = E_Leader;
-			m_globalTime.leader = MF_NODE_ID;
+			m_globalTime.leader = CPU_Radio_GetAddress(this->radioName);
 		}
 
 	}*/
