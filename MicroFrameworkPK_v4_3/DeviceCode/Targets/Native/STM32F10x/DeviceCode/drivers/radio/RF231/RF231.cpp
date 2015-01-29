@@ -675,8 +675,7 @@ uint8_t rf231_write_reg(uint8_t reg, uint8_t data) {
 	while ( SPI_I2S_GetFlagStatus(RF231_SPI, SPI_I2S_FLAG_RXNE) == RESET) {;}
 	ret = SPI_I2S_ReceiveData(RF231_SPI);
 	RF231_SEL(1);
-	HAL_Time_Sleep_MicroSeconds(500);
-
+	HAL_Time_Sleep_MicroSeconds(3500);
 	return ret;
 }
 
