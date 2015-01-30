@@ -19,10 +19,24 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_Hardware/Samraksh_SPOT_Har
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_Net/Samraksh_SPOT_Net/bin/
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_RealTime/RealTimeTimer/bin/
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT/Samraksh_SPOT/bin/
+
 .metadata
+
 #ignore Eclipse files
 MicroFrameworkPK_v4_0/.cproject
 MicroFrameworkPK_v4_0/.project
 #ignore header files generated at compile-time
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h
+
+.cproject
+/.settings/
+
+# Ignore VS Project junk
+bin/
+obj/
+.suo
+
+# keep Interop stuff... FOR NOW muhahaha!
+!MicroFrameworkPK_v4_3/Samraksh/Interops/*/*/bin
+!MicroFrameworkPK_v4_3/Samraksh/Interops/*/*/obj
