@@ -18,18 +18,13 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
-
-extern "C"
-{
-	void ISR_TIM2(void* Param);
-	void ISR_TIM1(void* Param);
-}
+void ISR_TIM2(void* Param);
+void ISR_TIM1(void* Param);
 
 
 // Initialize the virtual timer layer
 // This is to ensure that users can not remove the hardware timer from underneath the virtual timer
 // layer without the knowledge of the virtual timer
-
 
 // Returns the current 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
@@ -59,8 +54,6 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
 	UINT32 currentValue = GetCounter();
 
-	//timerLock.acquire_and_save();
-
 	m_lastRead &= (0xFFFFFFFF00000000ull);
 
 	if(DidTimerOverflow())
@@ -70,8 +63,6 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 	}
 
 	m_lastRead |= currentValue;
-
-	//timerLock.release_and_restore();
 
 	return m_lastRead;
 }
@@ -103,11 +94,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	// Attempting to change the comparator
 	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
-	// Initializes the special deferred function
-	//AnanthAtSamraksh -- commenting out all usage of tasklets as they are not really necessary;
-	//Timers are their only users
-	////TaskletType* tasklet = GetTasklet();
-
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
 
@@ -117,24 +103,15 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	// This event has to be recorded to ensure that we keep track of ticks expired since birth
 	timerOverflowFlag = FALSE;
 
-	timerLock.init();
+	//timerLock.init();
 
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
-
-	// Keep tasklet ready for insertion into bh queue
-	//AnanthAtSamraksh -- commenting out all usage of tasklets
-	/*tasklet->action = ISR;
-	if(!ISR_Param)
-		tasklet->data = &currentCounterValue;
-	else
-		tasklet->data = ISR_Param;*/
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
 
@@ -144,12 +121,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1;
-
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
 
 	/* Slave Mode selection: TIM2 */
 	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
@@ -173,28 +144,11 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
-
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 127;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
-
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 1;
-
-    TIM_OC3Init(TIM1, &TIM_OCInitStructure);
-
     /* Master Mode selection */
-   TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
+	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
 
    /* Select the Master Slave Mode */
     TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
-
 
     // Active timer 1 cc interrupt
 	if( !CPU_INTC_ActivateInterrupt(TIM1_CC_IRQn, ISR_TIM1, NULL) )
@@ -204,24 +158,22 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	if( !CPU_INTC_ActivateInterrupt(TIM2_IRQn, ISR_TIM2, NULL) )
 		return DS_Fail;
 
-	//TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
-
 	// Need the update flag for overflow bookkeeping
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
 	// Enable both the timers, TIM1 because it the LS two bytes
     TIM_Cmd(TIM1, ENABLE);
-    TIM_Cmd(TIM2,ENABLE);
+    TIM_Cmd(TIM2, ENABLE);
 
     // Initialize the timer parameters
     // should this be in the beginning of this function or end ?
     // At this point not sure
+	// Note this doesn't appear to be used anywhere and probably shouldn't be.
     g_STM32F10x_Timer_Configuration.Initialize();
 
 	//===========================================
 	// The following wait and re-initialization is needed to get the SetCompare() working
-	for(int i=0; i<100000;i++){}
+	//for(volatile int i=0; i<100000;i++){} // I bet it's not --NPS
 
 	TIM_TimeBaseStructure.TIM_Period = 0xffff;
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
@@ -229,19 +181,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1;
-
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
-
-	// the HAL_COMPLETION timer compare initialization
-	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
-
-	// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
-	// however, doing so breaks the COM port output.
-	//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
 
     return DS_Success;
 
@@ -295,7 +234,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 		newCompareValue = (UINT32) (counterCorrection + compareValue);
 		//newCompareValue = counterCorrection + compareValue;
 	}
-	if(compareValue >> 16)
+	if(compareValue >> 16) // UGHH THIS IS AN ABSOLUTE VALUE BEING TREATED AS A DIFFERENCE. LIKE THE 3RD TIME I HAVE TO FIX THIS.
 	{
 		if (scType == SET_COMPARE_TIMER){
 			TIM_SetCompare1(TIM2, newCompareValue >> 16);
@@ -326,21 +265,12 @@ UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
 	return (UINT32)0xFFFFFFFF;
 }
 
-extern "C"
-{
-
 void ISR_TIM2(void* Param)
 {
-//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-
-		//hal_printf("Current Compare Value %d", g_STM32F10x_AdvancedTimer.currentCompareValue);
-		// Set the lsb of the 32 bit timer
-		//TIM_SetCompare2(TIM1, TIM1->CNT + (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-		//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
@@ -348,45 +278,6 @@ void ISR_TIM2(void* Param)
 		// Small values on the lsb are sometimes missed
 
 		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
-
-		/*if(lsbValue < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)31, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)31, FALSE);
-		}
-		else if(lsbValue >= 500 && lsbValue < 990)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(lsbValue >= 990 && lsbValue <= 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(lsbValue > 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
-
-		/*if(TIM1->CNT >= 750 && TIM1->CNT < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(TIM1->CNT >= 800 && TIM1->CNT <= 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(TIM1->CNT > 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
-
-
 
 		//if(lsbValue < 100)		//7.417secs
 		//if(lsbValue < 500)		//5.6996secs
@@ -405,11 +296,6 @@ void ISR_TIM2(void* Param)
 			// Create a software trigger
 			////TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-
-			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-			// Schedule bottom half processing on arrival of interrupt
-			//Tasklet_Schedule_hi(tasklet);
 		}
 		else
 		{
@@ -460,7 +346,6 @@ void ISR_TIM2(void* Param)
 		////g_STM32F10x_AdvancedTimer.Get64Counter();
 		////g_STM32F10x_AdvancedTimer.GetCounter();
 	}
-			//CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 }
 
 void ISR_TIM1( void* Param )
@@ -470,23 +355,11 @@ void ISR_TIM1( void* Param )
 	// This variable is pointed to by the tasklet
 	// So changing the contents of this variable should be done with extreme caution
 	// Update the 64 bit counter value
-	////g_STM32F10x_AdvancedTimer.Get64Counter();
-	////g_STM32F10x_AdvancedTimer.GetCounter();
-//CPU_GPIO_SetPinState((GPIO_PIN) 2, TRUE);
 
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-		//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
-
-		//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
-
-		//AnanthAtSamraksh -- commenting out all usage of tasklets
-		////TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-		// Schedule bottom half processing on arrival of interrupt
-			  ////Tasklet_Schedule_hi(tasklet);
 
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 
@@ -497,7 +370,4 @@ void ISR_TIM1( void* Param )
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 		HAL_COMPLETION::DequeueAndExec();
 	}
-//CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
-}
-
 }
