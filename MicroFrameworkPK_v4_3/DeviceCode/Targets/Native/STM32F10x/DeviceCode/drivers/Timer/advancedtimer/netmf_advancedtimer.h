@@ -3,13 +3,9 @@
 
 #include <tinyhal.h>
 #include <stm32f10x.h>
-#include <intc/STM32.h>
+//#include <intc/STM32.h>
 #include <Samraksh/Hal_util.h>
-#include <Samraksh/Tasklet.h>
-
-#include <Timer/Timer16Bit/stm32f10x_tim.h>
-//#include <rcc/stm32f10x_rcc.h>
-//#include <misc/misc.h>
+//#include <Samraksh/Tasklet.h>
 
 enum TimerClockRate
 {

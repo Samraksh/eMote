@@ -13,12 +13,6 @@
 
 #include <tinyhal.h>
 #include <stm32f10x.h>
-//#include <rcc/STM32F10x_rcc.h>
-//#include <misc/misc.h>
-//#include <flash/stm32f10x_flash.h>
-//#include <pwr/stm32f10x_pwr.h>
-#include <pwr/netmf_pwr.h>
-#include <Timer/Timer16Bit/stm32f10x_tim.h>
 
 ErrorStatus HSEStartUpStatus;
 

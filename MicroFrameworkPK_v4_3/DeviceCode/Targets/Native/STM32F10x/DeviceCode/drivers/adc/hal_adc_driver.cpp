@@ -14,12 +14,11 @@
  */
 
 #include <tinyhal.h>
-#include <pwr/netmf_pwr.h>
 #include <stm32f10x.h>
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
-#include <Timer/Timer16Bit/stm32f10x_tim.h>
+//#include <Timer/Timer16Bit/stm32f10x_tim.h>
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
@@ -201,13 +200,13 @@ void ADC_RCC_Configuration(void)
 BOOL ADC_NVIC_Configuration(void)
 {
 
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_DMA_CHANNEL1, DMA_HAL_HANDLER, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER, NULL) )
 		 		return FALSE;
 
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_ADC1_2, ADC_HAL_HANDLER, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(ADC1_2_IRQn, ADC_HAL_HANDLER, NULL) )
 	 		return FALSE;
 
-	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, TIM_HAL_HANDLER, NULL) )
+	if( !CPU_INTC_ActivateInterrupt(TIM4_IRQn, TIM_HAL_HANDLER, NULL) )
 		 	return FALSE;
 
 	return TRUE;

@@ -8,7 +8,7 @@
  */
 
 #include "netmf_timers16Bit.h"
-#include <intc/stm32.h>
+//#include <intc/stm32.h>
 
 Timer16Bit_Driver g_Timer16Bit_Driver;
 
@@ -116,7 +116,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescal
 			g_Timer16Bit_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 			//NVIC_Init(&g_Timer16Bit_Driver.m_descriptors[Timer].interrupt);
 #endif
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM2, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM2_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 3:
 			//interrupt = TIM3_IRQn;
@@ -141,7 +141,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescal
 			g_Timer16Bit_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 #endif
 			//NVIC_Init(&g_Timer16Bit_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM3, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM3_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 4:
 			//interrupt = TIM4_IRQn;
@@ -166,7 +166,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescal
 			g_Timer16Bit_Driver.m_descriptors[Timer].interrupt.NVIC_IRQChannelCmd = ENABLE;
 #endif
 			//NVIC_Init(&g_Timer16Bit_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM4, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM4_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		case 5:
 			//Timer base initialize
@@ -184,7 +184,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescal
 			TIM_OC1PreloadConfig(TIM5, TIM_OCPreload_Disable);
 			//NVIC Init
 			//NVIC_Init(&g_Timer16Bit_Driver.m_descriptors[Timer].interrupt);
-			if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_TIM5, ISR, ISR_Param) ) return FALSE;
+			if( !CPU_INTC_ActivateInterrupt(TIM5_IRQn, ISR, ISR_Param) ) return FALSE;
 			break;
 		default:
 			ASSERT(TRUE);
