@@ -143,7 +143,14 @@ UINT8 RxBuffer_Com[1];
 UINT8 ManagedCodeRxBuffer_Com[1];
 #else
 UINT8 TxBuffer_Com[TX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
+
+// Just need a single RxBuffer_Com for dotNOW for COM2. Otherwise a waste of stack.
+#ifdef PLATFORM_ARM_EmoteDotNow
+UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE];
+#else
 UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
+#endif
+
 UINT8 ManagedCodeRxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
 #endif
 
@@ -260,7 +267,13 @@ BOOL USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, int Dat
             State.TicksStartTxXOFF      = 0;
 
             State.TxQueue.Initialize( &TxBuffer_Com[ComPortNum * TX_USART_BUFFER_SIZE], TX_USART_BUFFER_SIZE);
-            State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
+#ifdef PLATFORM_ARM_EmoteDotNow
+			if (ComPortNum == 0) {
+				State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
+			}
+#else
+			State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
+#endif
 			State.ManagedRxQueue.Initialize( &ManagedCodeRxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );			
             return CPU_USART_Initialize( ComPortNum, BaudRate, Parity, DataBits, StopBits, FlowValue );
         }
@@ -374,7 +387,12 @@ int USART_Driver::Write( int ComPortNum, const char* Data, size_t size )
 int USART_Driver::Read( int ComPortNum, char* Data, size_t size )
 {
     NATIVE_PROFILE_PAL_COM();
+#ifdef PLATFORM_ARM_EmoteDotNow
+	if(ComPortNum > 0) {ASSERT(FALSE); return -1;}
+#else
     if((ComPortNum < 0) || (ComPortNum >= TOTAL_USART_PORT)) {ASSERT(FALSE); return -1;}
+#endif
+
     if(Data == NULL                                        )                 return -1;
 
     HAL_USART_STATE& State = Hal_Usart_State[ComPortNum];
@@ -635,39 +653,31 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	toWrite = size;
 	written = 0;
 
-	{
-	GLOBAL_LOCK(irq);
-	// Write to system PAL queue
-	dst = State.RxQueue.Push(toWrite);
-	if (dst != NULL) {
-		memcpy(dst, data, toWrite);
-	}
-	written = toWrite;
-
-	// Have to do it twice because its a circular buffer
-	// Might not have gotten all the data on first go due to looping.
-	if (written < size) {
-		toWrite = size - written;
+	// Only COM1 uses RxQueue, others use managed queue
+	if (ComPortNum == 0) {
+		GLOBAL_LOCK(irq);
+		// Write to system PAL queue
 		dst = State.RxQueue.Push(toWrite);
 		if (dst != NULL) {
-			memcpy(dst, &data[written], toWrite);
+			memcpy(dst, data, toWrite);
+		}
+		written = toWrite;
+
+		// Have to do it twice because its a circular buffer
+		// Might not have gotten all the data on first go due to looping.
+		if (written < size) {
+			toWrite = size - written;
+			dst = State.RxQueue.Push(toWrite);
+			if (dst != NULL) {
+				memcpy(dst, &data[written], toWrite);
+			}
 		}
 	}
-	}
-
-	// If no managed queue to handle, we're done
-	// Don't bother using the managed queue unless we have stuff to do.
-    Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
-
-	if (State.UsartDataEventCallback == NULL) {
-		return TRUE;
-	}
-	
-	SetEvent( ComPortNum, USART_EVENT_DATA_CHARS ); // Needed if UsartDataEventCallback is NULL?
 
 	toWrite = size;
 	written = 0;
 
+	// Write to managed queue
 	{
 	GLOBAL_LOCK(irq);
 	// Write to Managed PAL queue
@@ -686,6 +696,11 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	}
 	}
 
+	if (State.UsartDataEventCallback != NULL) {
+		SetEvent( ComPortNum, USART_EVENT_DATA_CHARS );
+	}
+
+	Events_Set( SYSTEM_EVENT_FLAG_COM_IN );
 	return TRUE;
 }
 #endif
@@ -766,7 +781,7 @@ BOOL USART_Driver::AddCharToRxBuffer( int ComPortNum, char c )
         	}        
         	else
         	{
-            	//SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
+            	SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
 
             	return FALSE;
         	}
@@ -960,8 +975,16 @@ void USART_Driver::DiscardBuffer( int ComPortNum, BOOL fRx )
         {
             if(fRx)
             {
-                size_t nElements = State.RxQueue.NumberOfElements();
+				size_t nElements;
+#ifdef PLATFORM_ARM_EmoteDotNow
+				if (ComPortNum == 0) { // Only COM1 has RxQueue
+					nElements = State.RxQueue.NumberOfElements();
+					State.RxQueue.Pop(nElements);
+				}
+#else
+                nElements = State.RxQueue.NumberOfElements();
                 State.RxQueue.Pop(nElements);
+#endif
 				nElements = State.ManagedRxQueue.NumberOfElements();
                 State.ManagedRxQueue.Pop(nElements);
             }
@@ -1057,7 +1080,7 @@ void USART_Driver::SetEvent( int ComPortNum, unsigned int event )
 }
 
 //--//
-
+/*
 STREAM_DRIVER_DETAILS* COM1_driver_details( UINT32 handle )
 {
     static STREAM_DRIVER_DETAILS details = { 
@@ -1090,7 +1113,8 @@ STREAM_DRIVER_DETAILS* COM2_driver_details( UINT32 handle )
 {
     static STREAM_DRIVER_DETAILS details = { 
         DRIVER_BUFFERED_IO, 
-        &RxBuffer_Com[ RX_USART_BUFFER_SIZE * ConvertCOM_ComPort( COM2 ) ], 
+        //&RxBuffer_Com[ RX_USART_BUFFER_SIZE * ConvertCOM_ComPort( COM2 ) ],
+		&ManagedCodeRxBuffer_Com[ RX_USART_BUFFER_SIZE * ConvertCOM_ComPort( COM2 ) ],
         &TxBuffer_Com[ TX_USART_BUFFER_SIZE * ConvertCOM_ComPort( COM2 ) ], 
         RX_USART_BUFFER_SIZE, 
         TX_USART_BUFFER_SIZE, 
@@ -1111,5 +1135,4 @@ int COM2_write( char* buffer, size_t size )
 {
     return USART_Write(  ConvertCOM_ComPort( COM2 ), buffer, size );
 }
-
-
+*/
