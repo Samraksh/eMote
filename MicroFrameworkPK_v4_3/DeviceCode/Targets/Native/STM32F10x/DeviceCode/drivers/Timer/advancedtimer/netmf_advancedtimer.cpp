@@ -133,8 +133,11 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
 
+	// Reset
+	TIM_DeInit(TIM1);
+	TIM_DeInit(TIM2);
+
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
 
@@ -144,12 +147,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1;
-
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
 
 	/* Slave Mode selection: TIM2 */
 	TIM_SelectSlaveMode(TIM2, TIM_SlaveMode_Gated);
@@ -173,24 +170,8 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
 
-
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 127;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-    TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
-
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 1;
-
-    TIM_OC3Init(TIM1, &TIM_OCInitStructure);
-
     /* Master Mode selection */
-   TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
+	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
 
    /* Select the Master Slave Mode */
     TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
@@ -229,19 +210,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 1;
-
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);
-
-	// the HAL_COMPLETION timer compare initialization
-	TIM_OC2Init(TIM2, &TIM_OCInitStructure);
-
-	// Uncommenting the line below is to allow proper SetCompare for HAL_COMPLETION
-	// however, doing so breaks the COM port output.
-	//TIM_OC2Init(TIM1, &TIM_OCInitStructure);
 
     return DS_Success;
 
