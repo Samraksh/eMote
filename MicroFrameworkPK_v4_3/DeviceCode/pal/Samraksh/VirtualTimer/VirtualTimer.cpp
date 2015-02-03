@@ -243,6 +243,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 
 	UINT16 nextTimer = NULL;
 	UINT64 shortestTicks = TimerMaxValue;
+	bool timerInQueue = false;
 	for(i = 0; i < m_current_timer_cnt_; i++)
 	{
 		if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
@@ -251,12 +252,13 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 			{
 					shortestTicks = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
 					nextTimer = i;
+					timerInQueue = true;
 			}
 		}
 	}
 	
 	// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
-	if(nextTimer)
+	if(timerInQueue)
 	{
 		CPU_Timer_SetCompare(VTM_hardwareTimerId, (UINT32)gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticksTillExpire() );
 		gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
@@ -396,6 +398,7 @@ void VirtualTimerCallback(void *arg)
 
 		UINT16 nextTimer = NULL;
 		UINT64 shortestTicks = TimerMaxValue;
+		bool timerInQueue = false;
 		for(i = 0; i < currentVirtualTimerCount; i++)
 		{
 			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
@@ -404,12 +407,13 @@ void VirtualTimerCallback(void *arg)
 				{
 						shortestTicks = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
 						nextTimer = i;
+						timerInQueue = true;
 				}
 			}
 		}
 		
 		// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
-		if(nextTimer)
+		if(timerInQueue)
 		{
 			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentHardwareTimerIndex], (UINT32)gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticksTillExpire() );
 			gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
