@@ -54,6 +54,8 @@ UINT32 pwr_get_hsi(void) {
 // If you know it please fix me. -- NPS
 void PowerInit() {
 
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+
 	if ( Am_I_TinyBooter() ) {
 		High_Power();
 		return;
