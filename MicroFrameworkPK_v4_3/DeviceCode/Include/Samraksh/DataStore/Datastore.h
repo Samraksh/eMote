@@ -107,10 +107,11 @@ typedef struct _datastore_properties
  * in function - P30BF65NOR_Driver::WriteHalfWord. At present activeFlag is the 4th bit. */
 typedef struct _record_header
 {
-    char zero:1;
-    uint32 dataType:2;
-    uint32 activeFlag:1;
-    int version;
+    char zero:1;			//To validate if record has not been corrupted. This is always supposed to be zero. For instance, zero flag can become 1,
+    						//		when a record overwrites the header of another record.
+    uint32 dataType:2;		//Stores the datatype of record. Possible values are char, int16 and int32.
+    uint32 activeFlag:1;	//Indicates if the record is active or not
+    int version;			//Stores version of a record. When the same record is written to the flash again, its version is incremented by 1
     uint32 size;   /* sizeof(version+isActive+size) = 32bits */
 
     uint32 recordID;
@@ -213,11 +214,13 @@ private:
     PERSISTENCE_DIRECTION per_dir;
 #endif
     /* Internal pointers that maintain the circular buffer locations */
-    uint32 logPointByteOffset;
-    uint32 erasePointByteOffset;
-    uint32 clearLogPointByOffset;   /* Tells where the next record that can be checked for clearing is */
+    uint32 logPointByteOffset;		//Points to the current location in flash where new records can be written to
+    uint32 erasePointByteOffset;	//Points to the location in flash that was last erased. Blocks are never partially erased. They are always fully erased.
+    uint32 clearLogPointByOffset;   //When there is shortage of space, the GC moves active records from the portion of flash starting from the location pointed
+    								//to by this pointer. In other words, data could be written to flash until the location pointed to by clean point, provided
+    								//that block is erased.
 
-    /* Offsets telling start and end of flash data region - For ease of use */
+    /* Offsets indicating start and end of flash data region - For ease of use */
     uint32 dataStoreStartByteOffset;
     uint32 dataStoreEndByteOffset;
     uint32 dataStoreDeviceSize;

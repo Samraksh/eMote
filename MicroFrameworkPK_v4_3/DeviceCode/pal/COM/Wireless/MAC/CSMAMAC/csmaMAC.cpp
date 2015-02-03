@@ -1,6 +1,5 @@
 #include "csmaMAC.h"
 #include <Samraksh/VirtualTimer.h>
-//TODO: AnanthAtSamraksh - this is not right. Need to find out a better way
 #include <Timer/netmf_timers.cpp>
 
 //#define DEBUG_MAC 1

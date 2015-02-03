@@ -5,8 +5,6 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 //#include <led/stm32f10x_led.h>
-////TODO: AnanthAtSamraksh -- is this needed
-////#include <Timer/netmf_timers.cpp>
 //#include <gpio/stm32f10x_gpio.h>
 #include "STM32.h"
 

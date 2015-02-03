@@ -8,39 +8,75 @@ int Data_Store::endCount = 0;
 
 //AnanthAtSamraksh - debugging -- int fromGetRecordIDAfterPersistence = 0;
 
+
+/*
+ * Datastore constructor
+ */
+Data_Store::Data_Store(char *flashDeviceName, bool eraseDataStore)
+{
+    state = DATASTORE_STATE_UNINIT;
+    DATASTORE_STATUS status;
+
+    lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+    status = initDataStore( flashDeviceName,
+                            &defaultProperty, eraseDataStore );
+
+    state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
+}
+
+/*
+ * Datastore constructor
+ */
+Data_Store::Data_Store( char *flashDeviceName,
+                           DATASTORE_PROPERTIES *property, bool eraseDataStore )
+{
+    state = DATASTORE_STATE_UNINIT;
+    DATASTORE_STATUS status;
+
+    lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+    status = initDataStore( flashDeviceName,
+                            property, eraseDataStore );
+
+    state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
+}
+
+/*
+ * Initializes the datastore. If the parameter "eraseDataStore" is true, then NOR flash is erased.
+ * Returns success or failure.
+ */
 DeviceStatus Data_Store::init(bool eraseDataStore)
 {
-    	 if(initialized == TRUE)
-    		 return DS_Success;
+	 if(initialized == TRUE)
+		 return DS_Success;
 
-    	 myUniquePtrGen.init();
-    	 //flashDevice.init();
+	 myUniquePtrGen.init();
+	 //flashDevice.init();
 
-    	 ByteAddress Address;
+	 ByteAddress Address;
 
-    	 if (!BlockStorageList::FindDeviceForPhysicalAddress(&blockStorageDevice, DATASTORE_START_ADDRESS, Address))
-		 {
-			return DS_Fail;
-		 }
+	 if (!BlockStorageList::FindDeviceForPhysicalAddress(&blockStorageDevice, DATASTORE_START_ADDRESS, Address))
+	 {
+		return DS_Fail;
+	 }
 
-    	 /*if(!blockStorageDevice->InitializeDevice())
-    		 return DS_Fail;*/
+	 /*if(!blockStorageDevice->InitializeDevice())
+		 return DS_Fail;*/
 
-    	 if((blockDeviceInformation = blockStorageDevice->GetDeviceInfo()) == NULL)
-    		 return DS_Fail;
+	 if((blockDeviceInformation = blockStorageDevice->GetDeviceInfo()) == NULL)
+		 return DS_Fail;
 
 
-    	 state = DATASTORE_STATE_UNINIT;
-    	 DATASTORE_STATUS status;
+	 state = DATASTORE_STATE_UNINIT;
+	 DATASTORE_STATUS status;
 
-    	 //lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+	 //lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
 
-		 status = initDataStore( "NOR", &defaultProperty, eraseDataStore );
+	 status = initDataStore( "NOR", &defaultProperty, eraseDataStore );
 
-    	 state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
-    	 initialized = TRUE;
+	 state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
+	 initialized = TRUE;
 
-    	 return DS_Success;
+	 return DS_Success;
 }
 
 
@@ -52,6 +88,11 @@ LPVOID Data_Store::copyAddressTable(myVector *table)
 	return NULL;
 }
 
+/*
+ * Helper function to increment log pointer.
+ * Invoked by functions that create a new allocation, create a dummy allocation and
+ * 		the function that compacts or does the garbage collection.
+ */
 void Data_Store::incrementLogPointer( uint32 amount )
 {
     logPointByteOffset += amount;
@@ -67,6 +108,10 @@ void Data_Store::incrementLogPointer( uint32 amount )
     }
 }
 
+/*
+ * Helper function to increment log pointer.
+ * Invoked by the function that does the garbage collection.
+ */
 void Data_Store::incrementErasePoint(uint32 amount)
 {
     erasePointByteOffset += amount;
@@ -82,6 +127,10 @@ void Data_Store::incrementErasePoint(uint32 amount)
     }
 }
 
+/*
+ * Helper function to increment clear pointer.
+ * Invoked by the function that does the garbage collection.
+ */
 void Data_Store::incrementClearPoint(uint32 amount)
 {
     clearLogPointByOffset += amount;
@@ -97,7 +146,9 @@ void Data_Store::incrementClearPoint(uint32 amount)
     }
 }
 
-
+/*
+ * Helper function to safely increment any location on the flash by the specified "numBytes".
+ */
 LPVOID Data_Store::incrementPointer(LPVOID inputPtr, int numBytes)
 {
     char *lPtr = (char*)inputPtr;
@@ -121,6 +172,11 @@ LPVOID Data_Store::incrementPointer(LPVOID inputPtr, int numBytes)
     return lPtr;
 }
 
+/*
+ * Calculate the bytes between 2 addresses specified.
+ * Considers the cases where the destination address (toAddr)
+ * 		could be smaller than the source address (fromAddr).
+ */
 // Inclusive of pointers passed - So, subtract 1 from the value if appropriate
 int Data_Store::calculateNumBytes(LPVOID fromAddr, LPVOID toAddr)
 {
@@ -153,7 +209,9 @@ int Data_Store::calculateNumBytes(LPVOID fromAddr, LPVOID toAddr)
 }
 
 
-/* Helper function to calculate Log-head room. Also used to get amount of free space. */
+/*
+ * Helper function to calculate log head-room (see comments for compactLog to understand what log head-room is). Also used to get amount of free space.
+ */
 uint32 Data_Store::calculateLogHeadRoom()
 {
     uint32 retVal = 0;
@@ -167,6 +225,12 @@ uint32 Data_Store::calculateLogHeadRoom()
 	return retVal;
 }
 
+/*
+ * Function that creates the allocation for a new record on the NOR.
+ * 	-	This also creates an entry on the address table for the created record.
+ * 	-	If sufficient space is not available for a record on a block, a dummy allocation is created
+ * 			on the current block and the record is created in the adjacent block.
+ */
 LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType )
 {
 	//debug_printf("Data_Store::createAllocation\n");
@@ -226,7 +290,7 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
                 compactLog();                               /* Clear some memory */
                 prevHeadRoom = currentHeadRoom;
                 currentHeadRoom = calculateLogHeadRoom();   /* Check free space available now */
-                if(currentHeadRoom >= (MIN_SPACE_REQUIRED_FOR_COMPACTION+ allocationSize)){
+                if(currentHeadRoom >= (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
                     /* Come out if we have enough space */
                     break;
                 }
@@ -343,6 +407,9 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 }
 
 
+/*
+ * Helper function for the write function to check if a write is happening on an existing record.
+ */
 bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *conflictStartLoc )
 {
     char *flashData = (char*)addr;
@@ -372,7 +439,9 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
     return retVal;
 }
 
-// Get base address for given Record_id
+/*
+ * Get base address for given Record_id
+ */
 LPVOID Data_Store::getAddress(RECORD_ID id)
 {
     LPVOID retVal = NULL;
@@ -384,7 +453,9 @@ LPVOID Data_Store::getAddress(RECORD_ID id)
     return retVal;
 }
 
-// Get data type for given Record_id
+/*
+ * Get data type for given Record_id
+ */
 uint32 Data_Store::getDataType(RECORD_ID id)
 {
     LPVOID dataCurLoc = NULL;
@@ -401,7 +472,9 @@ uint32 Data_Store::getDataType(RECORD_ID id)
 }
 
 
-// Get data type for given Record_id
+/*
+ * Get data type for given Record_id
+ */
 uint32 Data_Store::getAllocationSize(RECORD_ID id)
 {
     LPVOID dataCurLoc = NULL;
@@ -417,14 +490,18 @@ uint32 Data_Store::getAllocationSize(RECORD_ID id)
     return recHeader.size;
 }
 
-// Get base address for given Record_id
+/*
+ * Get base address for given Record_id
+ */
 RECORD_ID Data_Store::getRecordID(LPVOID givenPtr)
 {
     return addressTable.getRecordID(givenPtr);
 }
 
 
-/* Traverses through addressTable and returns most recent recordID */
+/*
+ * Traverses through addressTable and returns most recent recordID
+ */
 RECORD_ID Data_Store::getRecentRecordID()
 {
 	uint32 recIdIndex = 0;
@@ -442,6 +519,11 @@ RECORD_ID Data_Store::getRecentRecordID()
 }
 
 
+/*
+ * Function that initializes the datastore. Following events happen during initialization:
+ * 	-	if "eraseDataStore" is true, then datastore is erased
+ * 	-	invokes "scanFlashDevice()" that rebuilds the address table by scanning through records in the NOR flash.
+ */
 DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property, bool eraseDataStore )
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_INVALID_PARAM;
@@ -514,6 +596,10 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
     return status;
 }
 
+/*
+ * Helper function for the "createAllocation" and "compactLog" function to create a dummy allocation,
+ * when there is insufficient space to fit in a new record or while moving records to new blocks.
+ */
 bool Data_Store::createDummyAllocation(int nextAllocationSize)
 {
     //char *logPtr     = NULL;
@@ -564,6 +650,9 @@ bool Data_Store::createDummyAllocation(int nextAllocationSize)
     return retVal;
 }
 
+/*
+ * Helper function that safely reads data into the buffer.
+ */
 uint32 Data_Store::cyclicDataRead( LPVOID buff,
                                       LPVOID currentLoc,
                                       uint32 numBytes )
@@ -621,6 +710,9 @@ uint32 Data_Store::cyclicDataRead( LPVOID buff,
     return retVal;
 }
 
+/*
+ * Helper function that safely writes data from the buffer into the address passed as a parameter.
+ */
 uint32 Data_Store::cyclicDataWrite( LPVOID buff,
                                        LPVOID currentLoc,
                                        uint32 numBytes )
@@ -704,6 +796,17 @@ DATASTORE_STATUS Data_Store::storeClearPtrOffset()
     return status;
 }
 
+/*
+ * The garbage collector/compaction function. Whenever space runs out for a new record in the NOR flash, this function
+ * is invoked to create space. Space is created by moving active records to a new block and by erasing
+ * inactive records. All records between the clean and the erase pointers can be erased.
+ * Some background info on garbage collection (ref.: http://www.google.com/patents/US6535949; http://rave.ohiolink.edu/etdc/view?acc_num=osu1365811711)
+ * Log point   - Points to the current location in flash where new records can be written to
+ * Erase point - Points to the location in flash that was last erased. Blocks are never partially erased. They are always fully erased.
+ * Clean point - When there is shortage of space, the GC moves active records from the portion of flash starting from the location pointed to by this pointer.
+ * 				 In other words, data could be written to flash until the location pointed to by clean point, provided that block is erased.
+ * Log headroom - Space between the log and erase point is called the log headroom and is the space available for writing new data.
+ */
 DATASTORE_STATUS Data_Store::compactLog()
 {
 	//debug_printf("Data_Store::compactLog\n");
@@ -811,32 +914,11 @@ DATASTORE_STATUS Data_Store::compactLog()
     return status;
 }
 
-Data_Store::Data_Store(char *flashDeviceName, bool eraseDataStore)
-{
-    state = DATASTORE_STATE_UNINIT;
-    DATASTORE_STATUS status;
-
-    lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
-    status = initDataStore( flashDeviceName,
-                            &defaultProperty, eraseDataStore );
-
-    state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
-}
-
-Data_Store::Data_Store( char *flashDeviceName,
-                           DATASTORE_PROPERTIES *property, bool eraseDataStore )
-{
-    state = DATASTORE_STATE_UNINIT;
-    DATASTORE_STATUS status;
-
-    lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
-    status = initDataStore( flashDeviceName,
-                            property, eraseDataStore );
-
-    state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
-}
 
 
+/*
+ * Helper function that safely traverses through the NOR flash.
+ */
 LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 {
 	int recordID;
@@ -895,6 +977,9 @@ LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 	return address;
 }
 
+/*
+ * If the device failed during use, this function is invoked to read the records from the NOR flash.
+ */
 LPVOID Data_Store::readPointers()
 {
 	char* returnAddress;
@@ -933,6 +1018,9 @@ LPVOID Data_Store::readPointers()
 	return NULL;
 }
 
+/*
+ * Keep going through the flash until the FF regions are reached. Store all records encountered into the address table.
+ */
 int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset, bool *readDone)
 {
 	char* addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
@@ -1049,11 +1137,17 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 	return count;
 }
 
+/*
+ * Helper function used while scanning the flash to find out which among 2 headers is the most recent one.
+ */
 uint32 Data_Store::decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADER header)
 {
     return((tempHeader.version+1)>header.version?tempHeader.version:header.version);
 }
 
+/*
+ * Function that recreates the address table during initialization of NOR flash
+ */
 LPVOID Data_Store::scanFlashDevice()
 {
 	/*LPVOID dataStoreStartAddr = (char*)blockRegionInfo.Start + dataStoreStartByteOffset;
@@ -1089,7 +1183,9 @@ LPVOID Data_Store::scanFlashDevice()
 }
 
 
-/* Populates array passed as parameter with list of dataIDs*/
+/*
+ * Populates array passed as parameter with list of dataIDs
+ */
 void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arrayLength, ushort dataIdOffset)
 {
 	/* Since addressTable can hold only MAX_NUM_TABLE_ENTRIES, to make room for a new set of recordIDs requested by user,
@@ -1162,7 +1258,9 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	}
 }
 
-/* Returns total count of dataIDs */
+/*
+ * Returns total count of dataIDs
+ */
 uint32 Data_Store::getCountOfRecordIds()
 {
 	uint32 recIdIndex = 0;
@@ -1170,6 +1268,9 @@ uint32 Data_Store::getCountOfRecordIds()
 }
 
 
+/*
+ * Delete a given record from the NOR flash. This is done by marking the record as inactive, and removing its entry from address table.
+ */
 DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
 {
     RECORD_HEADER header;
@@ -1201,6 +1302,10 @@ DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
     return status;
 }
 
+/*
+ * Create a new record. This is done by adding an entry to the address table and creating an allocation
+ * on the flash.
+ */
 LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dataType )
 {
     RECORD_HEADER header;
@@ -1229,7 +1334,9 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
     return lGivenPtr;
 }
 
-
+/*
+ * Function that reads the data read from flash into given address.
+ */
 uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 numBytes)
 {
 	//debug_printf("Data_Store::readRawData\n");
@@ -1276,6 +1383,9 @@ uint32 Data_Store::writeData( LPVOID dest, uint32* data, uint32 offset, uint32 c
     return writeRawData( dest, data, offset*sizeof(int), count*sizeof(int));
 }
 
+/*
+ * Function that writes data stored in buffer into the mentioned flash address
+ */
 uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 numBytes)
 {
 	//debug_printf("Data_Store::writeRawData\n");
@@ -1328,7 +1438,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
         recWriteEndAddr   = incrementPointer(recWriteStartAddr + offset, numBytesWritten - 1);              /* corresponding End address on flash */
         recEndAddr        = incrementPointer(recBaseAddr , recordSize - 1);     /* Last byte address of the record on flash */
 
-        /* Now check if there is a overwrite possiblility */
+        /* Now check if there is a overwrite possibility */
         isOverWriteDetected = detectOverWrite( recWriteStartAddr + offset,
                                                data,
                                                numBytesWritten,
@@ -1428,6 +1538,9 @@ DATASTORE_ERROR Data_Store::getLastError()
     return lastErrorVal;
 }
 
+/*
+ * Remove all entries from the address table
+ */
 void Data_Store::DeleteAll()
 {
 	// When an entry is removed from the addressTable, the entries prior to that are copied over to the existing entry.
@@ -1447,13 +1560,17 @@ void Data_Store::DeleteAll()
 	}
 }
 
-/* Performs GC on flash */
+/*
+ * Performs GC on flash
+ */
 void Data_Store::DataStoreGC()
 {
 	compactLog();
 }
 
-/* Erases entire flash. Starts from first block and erases all blocks until final block. */
+/*
+ * Erases entire flash. Starts from first block and erases all blocks until final block.
+ */
 void Data_Store::EraseAllBlocks()
 {
     lastErrorVal = DATASTORE_ERROR_NONE;
@@ -1486,27 +1603,35 @@ Data_Store::~Data_Store()
 }
 
 
-/* Function to return maximum allocation size in block storage device. */
+/*
+ * Function to return maximum allocation size in block storage device.
+ */
 uint32 Data_Store::maxAllocationSize()
 {
 	return blockDeviceInformation->Regions->BytesPerBlock;
 }
 
 
-/* Function to return total space in the block storage device. */
+/*
+ * Function to return total space in the block storage device.
+ */
 uint32 Data_Store::returnTotalSpace()
 {
 	//NumBlocks - 1, because DataStore starts from one block after initial block.
 	return ((blockDeviceInformation->Regions->NumBlocks - 1) * blockDeviceInformation->Regions->BytesPerBlock);
 }
 
-/* Function to return amount of free space. Invokes calculateLogHeadRoom() */
+/*
+ * Function to return amount of free space. Invokes calculateLogHeadRoom()
+ */
 uint32 Data_Store::returnFreeSpace()
 {
 	return calculateLogHeadRoom();
 }
 
-/* Function that returns the current value of the Log point. Also used to get total amount of space used. */
+/*
+ * Function that returns the current value of the Log point. Also used to get total amount of space used.
+ */
 uint32 Data_Store::returnLogPoint()
 {
 	return (logPointByteOffset - dataStoreStartByteOffset);
