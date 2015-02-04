@@ -1,25 +1,15 @@
-using System;
-using Microsoft.SPOT;
-
 namespace Samraksh.eMote.Adapt
 {
+    /// <summary>Device status</summary>
     public enum DeviceStatus
     {
-        /// <summary>
-        /// Success
-        /// </summary>
+        /// <summary>Success.</summary>
         Success,
-        /// <summary>
-        /// Fail
-        /// </summary>
+        /// <summary>Fail.</summary>
         Fail,
-        /// <summary>
-        /// Ready
-        /// </summary>
+        /// <summary>Ready.</summary>
         Ready,
-        /// <summary>
-        /// Busy 
-        /// </summary>
+        /// <summary>Busy.</summary>
         Busy,
     };
 }

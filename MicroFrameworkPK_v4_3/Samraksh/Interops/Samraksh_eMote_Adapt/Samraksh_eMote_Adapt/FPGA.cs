@@ -1,23 +1,18 @@
-using System;
-using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
 
 namespace Samraksh.eMote.Adapt
 {
-    /// <summary>
-    /// Adapt FPGA Interface class
-    /// </summary>
+    /// <summary>Adapt FPGA class</summary>
     public class FPGA
     {
+        /// <summary>FPGA constructor</summary>
         public FPGA()
         {
             Initialize();
         }
 
-        /// <summary>
-        /// Initializes the FPGA hardware
-        /// </summary>
-        /// <returns>The result of FPGA initialization: 0-Success, 1-Fail</returns>
+        /// <summary>Initialize FPGA hardware</summary>
+        /// <returns>Success / failure</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool Initialize();
     }
