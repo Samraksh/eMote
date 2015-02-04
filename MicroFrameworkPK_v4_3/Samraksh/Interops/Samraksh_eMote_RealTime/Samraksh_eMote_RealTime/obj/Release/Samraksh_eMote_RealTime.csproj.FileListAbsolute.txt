@@ -2,6 +2,7 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTim
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.pdb
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.XML
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.pe
@@ -14,30 +15,3 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTim
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\le\Samraksh_eMote_RealTime.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.pdb
-<<<<<<< HEAD
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.XML
-=======
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\TinyCLR_DebugReferences.cache
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.csprojResolveAssemblyReference.cache
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\Samraksh_eMote_RealTime.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.pe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\le\Samraksh_eMote_RealTime.pdbx
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.pe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\bin\Release\be\Samraksh_eMote_RealTime.pdbx
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\TinyCLR_DebugReferences.cache
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\be\Samraksh_eMote_RealTime.pe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\be\Samraksh_eMote_RealTime.pdbx
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\le\Samraksh_eMote_RealTime.pe
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\le\Samraksh_eMote_RealTime.pdbx
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.dll
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.pdb
-<<<<<<< HEAD
->>>>>>> -Rebased code on top of master
-=======
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.csprojResolveAssemblyReference.cache
->>>>>>> -Added #defines for Adapt

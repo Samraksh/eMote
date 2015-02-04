@@ -7,7 +7,7 @@
     <MF_GenerateStubs>True</MF_GenerateStubs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <MF_GenerateStubsRootName>RealTimeTimer</MF_GenerateStubsRootName>
+    <MF_GenerateStubsRootName>SamrakshEmoteRealtime</MF_GenerateStubsRootName>
     <MF_GenerateStubsDirectory>NativeStubs\</MF_GenerateStubsDirectory>
     <MF_GenerateStubs>True</MF_GenerateStubs>
   </PropertyGroup>

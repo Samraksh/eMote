@@ -8,11 +8,11 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 <ItemGroup>
-<HFile Include="Samraksh_eMote_RealTime.h" />
-<Compile Include="Samraksh_eMote_RealTime.cpp" />
-<Compile Include="Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer_mshl.cpp" />
-<HFile Include="Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer.h" />
-<Compile Include="Samraksh_eMote_RealTime_Samraksh_eMote_RealTime_Timer.cpp" />
+<HFile Include="SamrakshEmoteRealtime.h" />
+<Compile Include="SamrakshEmoteRealtime.cpp" />
+<Compile Include="SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer_mshl.cpp" />
+<HFile Include="SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer.h" />
+<Compile Include="SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>
