@@ -7,38 +7,49 @@ namespace Samraksh.eMote.SensorBoard
 {
 
 
+    /// <summary>
+    /// Kiwi Accelerometer
+    /// </summary>
     public class Accelerometer
     {
 
+        /// <summary>
+        /// Kiwi Accelerometer callback signature
+        /// </summary>
+        /// <param name="eventType">Event type</param>
+        /// <param name="time">Time of the event</param>
         public delegate void AxlCallbackType(EventType eventType, DateTime time);
 
+        /// <summary>
+        /// Types of Kiwi Accelerometer events
+        /// </summary>
         public enum EventType
         {
+            /// <summary>Updating data</summary>
             DataUpdate,
+            /// <summary>Freefall detected </summary>
             FreeFall
         }
 
+        /// <summary>Kiwi Accelerometer data structure</summary>
         public struct Data
         {
-            /// <summary>
-            /// The raw x axis acceleration data 
-            /// </summary>
+            /// <summary>Raw x axis acceleration data</summary>
             public Int16 RawX;
 
-            /// <summary>
-            /// The raw y axis acceleration data 
-            /// </summary>
+            /// <summary>Raw y axis acceleration data</summary>
             public Int16 RawY;
 
-            /// <summary>
-            /// The raw z axis acceleration data 
-            /// </summary>
+            /// <summary>Raw z axis acceleration data</summary>
             public Int16 RawZ;
 
+            /// <summary>Processed x axis acceleration data</summary>
             public Single X;
 
+            /// <summary>Processed y axis accelerometer data</summary>
             public Single Y;
 
+            /// <summary>Processed z azis accelerometer data</summary>
             public Single Z;
 
             public override string ToString()
@@ -48,25 +59,45 @@ namespace Samraksh.eMote.SensorBoard
 
         }
 
-        // Enum describing the GRange of the accelerometer
+        /// <summary>
+        /// Range of accelerometer
+        /// </summary>
+        /// <remarks>
+        /// "Range" refers to the range of values returned. 
+        /// <para>The user can choose the units in which the resulting data should be interpreted. </para>
+        /// <para>Lower G gives better precision but limited range of values.</para>
+        /// <para>Higher G gives less precision but larger range of values.</para>
+        /// <para>Hence a value of 13 for FourG would be 26 for TwoG.</para>
+        /// </remarks>
         public enum GRange : byte
         {
+            /// <summary>2 G range</summary>
             TwoG = 0x00,
+            /// <summary>4 G range</summary>
             FourG = 0x01,
+            /// <summary>8 G range</summary>
             EightG = 0x02,
+            /// <summary>16 G range</summary>
             SixteenG = 0x03
         }
 
-        // Enum describing the output resolution of the accelerometer
+        /// <summary>
+        /// Output resolution for Kiwi Accelerometer
+        /// </summary>
         public enum OutputResolution : byte
         {
+            /// <summary>Fixed resolution</summary>
             FixedResolution = 0x00,
+            /// <summary>Full resolution</summary>
             FullResolution = 0x08
         }
 
-        // Enum describing the register map on the accelerometer 
+        /// <summary>
+        /// Registers on the Kiwi Accelerometer
+        /// </summary>
         private enum RegisterMap : byte
         {
+            // ReSharper disable UnusedMember.Local
             DEVID = 0x00,
             THRESH_TAP = 0x1d,
             OFSX = 0x1e,
@@ -97,6 +128,7 @@ namespace Samraksh.eMote.SensorBoard
             DATAZ1 = 0x37,
             FIFO_CTL = 0x38,
             FIFO_STATUS = 0x39
+            // ReSharper restore UnusedMember.Local
         }
 
 
@@ -126,7 +158,7 @@ namespace Samraksh.eMote.SensorBoard
         private I2CDevice.I2CTransaction[] getAccelDataTransaction;
 
         /// <summary>
-        /// Set the value of refresh rate 
+        /// Set the value of refresh rate for the Kiwi Accelerometer
         /// </summary>
         public Int32 RefreshRate
         {
@@ -171,7 +203,7 @@ namespace Samraksh.eMote.SensorBoard
             }
             else
             {
-                Single res = 0.0f;
+                var res = 0.0f;
 
                 switch (currentRange)
                 {
@@ -204,10 +236,11 @@ namespace Samraksh.eMote.SensorBoard
         }
 
         /// <summary>
-        /// Initializes the i2c and the accelerometer sensor
+        /// Initialize the i2c and the Kiwi Accelerometer sensor
         /// </summary>
-        /// <param name="RefreshRate">controls the rate at which the driver samples the accelerometer</param>
-        /// <param name="callbackfunction">user callback function, if null the user is not intimated of changes in sensor values and should use polling</param>
+        /// <param name="RefreshRate">Sample rate</param>
+        /// <param name="callbackfunction">Callback method. Can be null.</param>
+        /// <remarks>If the callback method is null, the user is not notified of sensor events. User should poll instead.</remarks>
         public Accelerometer(Int32 RefreshRate, AxlCallbackType callbackfunction)
         {
             try
@@ -247,10 +280,10 @@ namespace Samraksh.eMote.SensorBoard
 
         private void WriteRegister(RegisterMap register, Byte value)
         {
-            Byte[] data = new Byte[] { (Byte)register, value };
+            var data = new[] { (Byte)register, value };
 
-            I2CDevice.I2CWriteTransaction write = I2CDevice.CreateWriteTransaction(data);
-            I2CDevice.I2CTransaction[] writeTransaction = new I2CDevice.I2CTransaction[] { write };
+            var write = I2CDevice.CreateWriteTransaction(data);
+            var writeTransaction = new I2CDevice.I2CTransaction[] { write };
 
             lock (i2cdevice)
             {

@@ -2,68 +2,87 @@ using System;
 using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable InconsistentNaming
+
 namespace Samraksh.eMote.DSP
 {
+    /// <summary>
+    /// Transforms on data
+    /// </summary>
     public class Transforms
     {
         /**********************************************FFT******************************/
         /// <summary>
-        /// Returns the Fast Fourier Transfrom of the byte array X
+        /// Calculate the Fast Fourier Transform 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a byte array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool FFT(byte[] input, byte[] output, UInt16 transformSize);
 
 
         /// <summary>
-        /// Returns the Fast Fourier Transfrom of the UInt16 array X
+        /// Calculate the Fast Fourier Transform 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a UInt16 array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool FFT(UInt16[] input, UInt16[] output,  UInt16 transformSize);
 
         /// <summary>
-        /// Returns the Fast Fourier Transfrom of the UInt16 array X
+        /// Calculate the Fast Fourier Transform 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a UInt32 array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool FFT(UInt32[] input, UInt32[] output, UInt16 transformSize);
 
         /// <summary>
-        /// Returns the Fast Fourier Transfrom of the UInt16 array X
+        /// Calculate the Fast Fourier Transform 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a Int16 array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool FFT(Int16[] input, Int16[] output, UInt16 transformSize);
 
 
         /**********************************************Inverse FFT******************************/
         /// <summary>
-        /// Returns the Inverse Fast Fourier Transfrom of the byte array X
+        /// Calculate the inverse Fast Fourier Transfrom 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a byte array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool IFFT(byte[] input, byte[] output, UInt16 transformSize);
 
 
         /// <summary>
-        /// Returns the Inverse Fast Fourier Transfrom of the UInt16 array X
+        /// Calculate the inverse Fast Fourier Transfrom 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a UInt16 array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool IFFT(UInt16[] input, UInt16[] output, UInt16 transformSize);
 
         /// <summary>
-        /// Returns the Inverse Fast Fourier Transfrom of the UInt16 array X
+        /// Calculate the inverse Fast Fourier Transfrom 
         /// </summary>
-        /// <param name="input">The input array</param>
-        /// <returns>Returns a UInt32 array of size 'transformSize'</returns>
+        /// <param name="input">Input array</param>
+        /// <param name="output">Output array</param>
+        /// <param name="transformSize">Size of the transform</param>
+        /// <returns>Transform array of size transformSize</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern bool IFFT(UInt32[] input, UInt32[] output, UInt16 transformSize);
 
@@ -76,3 +95,4 @@ namespace Samraksh.eMote.DSP
 
     }
 }
+// ReSharper restore InconsistentNaming

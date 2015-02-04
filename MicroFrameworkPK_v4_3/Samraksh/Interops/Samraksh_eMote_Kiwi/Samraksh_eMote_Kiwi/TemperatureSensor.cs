@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace Samraksh.eMote.SensorBoard
 {    
+    /// <summary>
+    /// Kiwi Temperature Sensor
+    /// </summary>
     public class TemperatureSensor
     {
         private enum DS18B20Commands : int
@@ -25,7 +28,7 @@ namespace Samraksh.eMote.SensorBoard
         private Object lockTemperature = new Object();
 
         /// <summary>
-        /// Read the temperature
+        /// Read current temperature
         /// </summary>
         public double Temperature
         {
@@ -48,7 +51,7 @@ namespace Samraksh.eMote.SensorBoard
         private void Sense(Object state)
         {
 
-            double temp = 0.0;
+            var temp = 0.0;
 
             m_oneWire.TouchReset();
             m_oneWire.WriteByte(0xCC);
@@ -78,6 +81,13 @@ namespace Samraksh.eMote.SensorBoard
             
         }
 
+        /// <summary>
+        /// Constructor for Kiwi Temperature Sensor
+        /// </summary>
+        /// <param name="pin"></param>
+        /// <param name="samplingRate"></param>
+        /// <exception cref="SystemException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public TemperatureSensor(Cpu.Pin pin, int samplingRate)
         {
 

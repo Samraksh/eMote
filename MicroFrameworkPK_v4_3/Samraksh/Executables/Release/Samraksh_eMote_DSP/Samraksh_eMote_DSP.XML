@@ -11,164 +11,183 @@
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Sum(System.Byte[])">
             <summary>
-            Returns the Sum of an Array
+            Sums an array
             </summary>
-            <param name="array">The Array of bytes</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Sum of array</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Sum(System.UInt16[])">
             <summary>
-            Returns the Sum of an Array
+            Sums an array
             </summary>
-            <param name="array">The Array of UInt16</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Sum of array</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Sum(System.UInt32[])">
             <summary>
-            Returns the Sum of an Array
+            Sums an array
             </summary>
-            <param name="array">The Array of UInt32</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Sum of array</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Sum(System.UInt64[])">
             <summary>
-            Returns the Sum of an Array
+            Sums an array
             </summary>
-            <param name="array">The Array of UInt64</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Sum of array</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Median(System.Byte[])">
             <summary>
-            Returns the Median of an Array
+            Calculate the median of an array
             </summary>
-            <param name="array">The Array of bytes</param>
-            <returns>The result of the method: byte</returns>
+            <param name="array">Input array</param>
+            <returns>Median value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Median(System.UInt16[])">
             <summary>
-            Returns the Median of an Array
+            Calculate the median of an array
             </summary>
-            <param name="array">The Array of UInt16</param>
-            <returns>The result of the method: UInt16</returns>
+            <param name="array">Input array</param>
+            <returns>Median value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Median(System.UInt32[])">
             <summary>
-            Returns the Median of an Array
+            Calculate the median of an array
             </summary>
-            <param name="array">The Array of UInt32</param>
-            <returns>The result of the method: UInt32</returns>
+            <param name="array">Input array</param>
+            <returns>Median value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Median(System.UInt64[])">
             <summary>
-            Returns the Median of an Array
+            Calculate the median of an array
             </summary>
-            <param name="array">The Array of UInt64</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Median value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Mode(System.Byte[])">
             <summary>
-            Returns the Mode of an Array
+            Calculate the mode of an rray
             </summary>
-            <param name="array">The Array of bytes</param>
-            <returns>The result of the method: byte</returns>
+            <param name="array">Input array</param>
+            <returns>Mode value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Mode(System.UInt16[])">
             <summary>
-            Returns the Mode of an Array
+            Calculate the mode of an rray
             </summary>
-            <param name="array">The Array of UInt16</param>
-            <returns>The result of the method: UInt16</returns>
+            <param name="array">Input array</param>
+            <returns>Mode value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Mode(System.UInt32[])">
             <summary>
-            Returns the Mode of an Array
+            Calculate the mode of an rray
             </summary>
-            <param name="array">The Array of UInt32</param>
-            <returns>The result of the method: UInt32</returns>
+            <param name="array">Input array</param>
+            <returns>Mode value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Mode(System.UInt64[])">
             <summary>
-            Returns the Mode of an Array
+            Calculate the mode of an rray
             </summary>
-            <param name="array">The Array of UInt64</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Mode value</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Variance(System.Byte[])">
             <summary>
-            Returns the Variance of an Array
+            Calculate the variance of an array
             </summary>
-            <param name="array">The Array of bytes</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Variance</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Variance(System.UInt16[])">
             <summary>
-            Returns the Variance of an Array
+            Calculate the variance of an array
             </summary>
-            <param name="array">The Array of UInt16</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Variance</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Variance(System.UInt32[])">
             <summary>
-            Returns the Variance of an Array
+            Calculate the variance of an array
             </summary>
-            <param name="array">The Array of UInt32</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Variance</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Statistics.Variance(System.UInt64[])">
             <summary>
-            Returns the Variance of an Array
+            Calculate the variance of an array
             </summary>
-            <param name="array">The Array of UInt64</param>
-            <returns>The result of the method: UInt64</returns>
+            <param name="array">Input array</param>
+            <returns>Variance</returns>
+        </member>
+        <member name="T:Samraksh.eMote.DSP.Transforms">
+            <summary>
+            Transforms on data
+            </summary>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.FFT(System.Byte[],System.Byte[],System.UInt16)">
             <summary>
-            Returns the Fast Fourier Transfrom of the byte array X
+            Calculate the Fast Fourier Transform 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a byte array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.FFT(System.UInt16[],System.UInt16[],System.UInt16)">
             <summary>
-            Returns the Fast Fourier Transfrom of the UInt16 array X
+            Calculate the Fast Fourier Transform 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a UInt16 array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.FFT(System.UInt32[],System.UInt32[],System.UInt16)">
             <summary>
-            Returns the Fast Fourier Transfrom of the UInt16 array X
+            Calculate the Fast Fourier Transform 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a UInt32 array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.FFT(System.Int16[],System.Int16[],System.UInt16)">
             <summary>
-            Returns the Fast Fourier Transfrom of the UInt16 array X
+            Calculate the Fast Fourier Transform 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a Int16 array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.IFFT(System.Byte[],System.Byte[],System.UInt16)">
             <summary>
-            Returns the Inverse Fast Fourier Transfrom of the byte array X
+            Calculate the inverse Fast Fourier Transfrom 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a byte array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.IFFT(System.UInt16[],System.UInt16[],System.UInt16)">
             <summary>
-            Returns the Inverse Fast Fourier Transfrom of the UInt16 array X
+            Calculate the inverse Fast Fourier Transfrom 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a UInt16 array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
         <member name="M:Samraksh.eMote.DSP.Transforms.IFFT(System.UInt32[],System.UInt32[],System.UInt16)">
             <summary>
-            Returns the Inverse Fast Fourier Transfrom of the UInt16 array X
+            Calculate the inverse Fast Fourier Transfrom 
             </summary>
-            <param name="input">The input array</param>
-            <returns>Returns a UInt32 array of size 'transformSize'</returns>
+            <param name="input">Input array</param>
+            <param name="output">Output array</param>
+            <param name="transformSize">Size of the transform</param>
+            <returns>Transform array of size transformSize</returns>
         </member>
     </members>
 </doc>
