@@ -55,7 +55,7 @@ class STM32F10x_AdvancedTimer
 	UINT64 m_lastRead;
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
-	LOCK timerLock;
+	//LOCK timerLock;
 
 public:
 

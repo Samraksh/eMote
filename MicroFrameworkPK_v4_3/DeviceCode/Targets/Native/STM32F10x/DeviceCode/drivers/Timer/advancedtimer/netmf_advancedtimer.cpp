@@ -112,7 +112,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	// This event has to be recorded to ensure that we keep track of ticks expired since birth
 	timerOverflowFlag = FALSE;
 
-	timerLock.init();
+	//timerLock.init();
 
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
