@@ -21,78 +21,6 @@
 
 //#define DEBUG_DOTNOW_ISR
 
-#ifdef DEBUG_DOTNOW_ISR
-UINT32 interrupt_count[64]; // Count of interrupts.
-static const UINT32 c_IRQ_INDEX_NonMaskableInt          = -14;
-static const UINT32 c_IRQ_INDEX_MemoryManagementInt          = -12;
-static const UINT32 c_IRQ_INDEX_BusFault          = -11;
-static const UINT32 c_IRQ_INDEX_UsageFault          = -10;
-static const UINT32 c_IRQ_INDEX_DebugMonitor          = -4;
-static const UINT32 c_IRQ_INDEX_SysTick          = -1;
-static const UINT32 c_IRQ_INDEX_WWDG          = 0;
-static const UINT32 c_IRQ_INDEX_PVD          = 1;
-static const UINT32 c_IRQ_INDEX_TAMPER       = 2;
-static const UINT32 c_IRQ_INDEX_RTC     = 3;
-static const UINT32 c_IRQ_INDEX_FLASH     = 4;
-static const UINT32 c_IRQ_INDEX_RCC    = 5;
-static const UINT32 c_IRQ_INDEX_EXTI0   = 6;
-static const UINT32 c_IRQ_INDEX_EXTI1      = 7;
-static const UINT32 c_IRQ_INDEX_EXTI2        = 8;
-static const UINT32 c_IRQ_INDEX_EXTI3        = 9;
-static const UINT32 c_IRQ_INDEX_EXTI4        = 10;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL1     = 11;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL2       = 12;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL3       = 13;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL4       = 14;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL5      = 15;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL6       = 16;
-static const UINT32 c_IRQ_INDEX_DMA_CHANNEL7       = 17;
-static const UINT32 c_IRQ_INDEX_ADC1_2       = 18;
-static const UINT32 c_IRQ_INDEX_USB_HP_CAN_TX    = 19;
-static const UINT32 c_IRQ_INDEX_USB_LP_CAN_RX0       = 20;
-static const UINT32 c_IRQ_INDEX_CAN_RX1       = 21;
-static const UINT32 c_IRQ_INDEX_CAN_SCE      = 22;
-static const UINT32 c_IRQ_INDEX_EXTI9_5      = 23;
-static const UINT32 c_IRQ_INDEX_TIM1_BRK_TIM9     = 24;
-static const UINT32 c_IRQ_INDEX_TIM1_UP_TIM10      = 25;
-static const UINT32 c_IRQ_INDEX_TIM1_TRG_COM_TIM11     = 26;
-static const UINT32 c_IRQ_INDEX_TIM1_CC       = 27;
-static const UINT32 c_IRQ_INDEX_TIM2       = 28;
-static const UINT32 c_IRQ_INDEX_TIM3       = 29;
-static const UINT32 c_IRQ_INDEX_TIM4       = 30;
-static const UINT32 c_IRQ_INDEX_I2C1_EV     = 31;
-static const UINT32 c_IRQ_INDEX_I2C1_ER      = 32;
-static const UINT32 c_IRQ_INDEX_I2C2_EV      = 33;
-static const UINT32 c_IRQ_INDEX_I2C2_ER      = 34;
-static const UINT32 c_IRQ_INDEX_SPI1       = 35;
-static const UINT32 c_IRQ_INDEX_SPI2       = 36;
-static const UINT32 c_IRQ_INDEX_USART1     = 37;
-static const UINT32 c_IRQ_INDEX_USART2      = 38;
-static const UINT32 c_IRQ_INDEX_USART3      = 39;
-static const UINT32 c_IRQ_INDEX_EXTI15_10    = 40;
-static const UINT32 c_IRQ_INDEX_RTCAlarm      = 41;
-static const UINT32 c_IRQ_INDEX_USBWakeUp     = 42;
-static const UINT32 c_IRQ_INDEX_TIM8_BRK_TIM12   = 43;
-static const UINT32 c_IRQ_INDEX_Tasklet_High    = 44;
-static const UINT32 c_IRQ_INDEX_Tasklet_Low    = 45;
-static const UINT32 c_IRQ_INDEX_TIM8_CC      = 46;
-static const UINT32 c_IRQ_INDEX_ADC3       = 47;
-static const UINT32 c_IRQ_INDEX_FSMC       = 48;
-static const UINT32 c_IRQ_INDEX_SDIO       = 49;
-static const UINT32 c_IRQ_INDEX_TIM5        = 50;
-static const UINT32 c_IRQ_INDEX_SPI3        = 51;
-static const UINT32 c_IRQ_INDEX_USART4       = 52;
-static const UINT32 c_IRQ_INDEX_USART5       = 53;
-static const UINT32 c_IRQ_INDEX_TIM6        = 54;
-static const UINT32 c_IRQ_INDEX_TIM7       = 55;
-static const UINT32 c_IRQ_INDEX_DMA2_Channel1       = 56;
-static const UINT32 c_IRQ_INDEX_DMA2_Channel2       = 57;
-static const UINT32 c_IRQ_INDEX_DMA2_Channel3       = 58;
-static const UINT32 c_IRQ_INDEX_DMA2_Channel4_5     = 59;
-static const UINT32 c_IRQ_INDEX_PendSV          = 60;	//Used to be -2, Modified by Mukundan for Preemptive thread
-static const UINT32 c_IRQ_INDEX_SVCall          = 61;    // Used to -5, Modified by Nived for bottom half thread
-#endif
-
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
 #pragma arm section rwdata = "s_IsrTable_STM32"
 #endif
@@ -145,8 +73,8 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_RTCAlarm       ,STM32_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_USBWakeUp       ,STM32_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_BRK_TIM12       ,STM32_AITC::c_IRQ_Priority_15 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_Tasklet_High       ,STM32_AITC::c_IRQ_Priority_14 ),
-	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_Tasklet_Low       ,STM32_AITC::c_IRQ_Priority_15 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_UP       ,STM32_AITC::c_IRQ_Priority_14 ),
+	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_TRG_COM       ,STM32_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_TIM8_CC       ,STM32_AITC::c_IRQ_Priority_15 ),
 	DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_ADC3       ,STM32_AITC::c_IRQ_Priority_15 ),
     DEFINE_IRQ( STM32_AITC::c_IRQ_INDEX_FSMC          ,STM32_AITC::c_IRQ_Priority_15  ),
@@ -1022,9 +950,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 		IsrVector->Handler.Execute();
 
-		// Tasklet run by directly writing to the register
-		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
-		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
@@ -1687,62 +1612,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 	
-	void __irq Tasklet_High_IRQHandler()
-	{
 
-
-		//STM32_AITC& AITC = STM32::AITC();
-
-		// Using direct clear register call here to shave off valuable time off
-		// the software interrupt
-		// Using the AITC api add overhead
-		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
-		//AITC.ClearInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_High);
-
-				
-#ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_Tasklet_High]++;
-#endif
-
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_High];
-
-		IsrVector->Handler.Execute();
-
-		//AITC.SetInterrupt(STM32_AITC::c_IRQ_INDEX_Tasklet_High);
-		//NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
-
-		// set before jumping elsewhere or allowing other interrupts
-		//SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		//SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-		//STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_High];
-
-		// In case the interrupt was forced, remove the flag.
-
-		//IsrVector->Handler.Execute();
-
-		//SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		//SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-	
-	void __irq Tasklet_Low_IRQHandler()
-	{
-
-
-		NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
-		
-#ifdef DEBUG_DOTNOW_ISR
-		interrupt_count[c_IRQ_INDEX_Tasklet_Low]++;
-#endif
-
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_Tasklet_Low];
-
-		// In case the interrupt was forced, remove the flag.
-
-		IsrVector->Handler.Execute();
-
-	}
-	
 	void __irq TIM6_IRQHandler()
 	{
 
@@ -1935,13 +1805,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[STM32_AITC::c_IRQ_INDEX_TIM2];
 
-		// In case the interrupt was forced, remove the flag.
-
 		IsrVector->Handler.Execute();
-
-		//Tasklet_Run();
-		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
-		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable

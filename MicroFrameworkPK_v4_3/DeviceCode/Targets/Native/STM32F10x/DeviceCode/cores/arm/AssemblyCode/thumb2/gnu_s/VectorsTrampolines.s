@@ -60,8 +60,8 @@
     .extern  RTCAlarm_IRQHandler
     .extern  USBWakeUp_IRQHandler
     .extern  TIM8_BRK_IRQHandler
-    .extern  Tasklet_High_IRQHandler
-    .extern  Tasklet_Low_IRQHandler
+    .extern  TIM8_UP_IRQHandler
+    .extern  TIM8_TRG_COM_IRQHandler
     .extern  TIM8_CC_IRQHandler
     .extern  ADC3_IRQHandler
     .extern  FSMC_IRQHandler
@@ -149,8 +149,8 @@ ARM_Vectors:
   .word  RTCAlarm_IRQHandler
   .word  USBWakeUp_IRQHandler
   .word  TIM8_BRK_IRQHandler
-  .word  Tasklet_High_IRQHandler
-  .word  Tasklet_Low_IRQHandler
+  .word  TIM8_UP_IRQHandler
+  .word  TIM8_TRG_COM_IRQHandler
   .word  TIM8_CC_IRQHandler
   .word  ADC3_IRQHandler
   .word  FSMC_IRQHandler
@@ -393,13 +393,13 @@ ARM_Vectors:
 
   .weak  TIM8_BRK_IRQHandler
   .thumb_set TIM8_BRK_IRQHandler,Default_Handler
-
+*/
   .weak  TIM8_UP_IRQHandler
   .thumb_set TIM8_UP_IRQHandler,Default_Handler
 
   .weak  TIM8_TRG_COM_IRQHandler
   .thumb_set TIM8_TRG_COM_IRQHandler,Default_Handler
-
+/*
   .weak  TIM8_CC_IRQHandler
   .thumb_set TIM8_CC_IRQHandler,Default_Handler
 

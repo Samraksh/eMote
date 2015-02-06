@@ -252,8 +252,8 @@ struct STM32_AITC
 	static const UINT32 c_IRQ_INDEX_RTCAlarm      = 41;
 	static const UINT32 c_IRQ_INDEX_USBWakeUp     = 42;
 	static const UINT32 c_IRQ_INDEX_TIM8_BRK_TIM12   = 43;
-	static const UINT32 c_IRQ_INDEX_Tasklet_High    = 44;
-	static const UINT32 c_IRQ_INDEX_Tasklet_Low    = 45;
+	static const UINT32 c_IRQ_INDEX_TIM8_UP    = 44;
+	static const UINT32 c_IRQ_INDEX_TIM8_TRG_COM    = 45;
 	static const UINT32 c_IRQ_INDEX_TIM8_CC      = 46;
 	static const UINT32 c_IRQ_INDEX_ADC3       = 47;
     static const UINT32 c_IRQ_INDEX_FSMC       = 48;
