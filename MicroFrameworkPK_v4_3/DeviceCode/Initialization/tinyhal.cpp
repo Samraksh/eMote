@@ -904,31 +904,31 @@ volatile INT32 SystemStates[SYSTEM_STATE_TOTAL_STATES];
 
  void SystemState_SetNoLock( SYSTEM_STATE State )
 {
-    //ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
+    ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
 
     ASSERT_IRQ_MUST_BE_OFF();
 
     SystemStates[State]++;
 
-    //ASSERT(SystemStates[State] > 0);
+    ASSERT(SystemStates[State] > 0);
 }
 
 
 void SystemState_ClearNoLock( SYSTEM_STATE State )
 {
-    //ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
+    ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
 
     ASSERT_IRQ_MUST_BE_OFF();
 
     SystemStates[State]--;
 
-    //ASSERT(SystemStates[State] >= 0);
+    ASSERT(SystemStates[State] >= 0);
 }
 
 
  BOOL SystemState_QueryNoLock( SYSTEM_STATE State )
 {
-    //ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
+    ASSERT(State < SYSTEM_STATE_TOTAL_STATES);
 
     ASSERT_IRQ_MUST_BE_OFF();
 

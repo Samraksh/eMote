@@ -1795,6 +1795,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 		STM32_AITC& AITC = STM32::AITC();
 
+		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
