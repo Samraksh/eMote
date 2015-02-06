@@ -13,7 +13,6 @@
 //
 //#define TINYCLR_SOLO
 
-//#include "D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Samraksh\VirtualTimer.h"
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
@@ -131,7 +130,7 @@
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD  16 * 1024
 #define PLATFORM_DEPENDENT_HEAP_SIZE_THRESHOLD_UPPER 32 * 1024
 
-// communicaiton facilities
+// communication facilities
 /////////////////////////////////////////////////////////
 
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
@@ -159,14 +158,6 @@
 /* Defines the start address for the data store. To be kept in sync with the actual address in bl_nor_config */
 #define DATASTORE_START_ADDRESS 0x64020000
 #define DATASTORE_END_ADDRESS 0x64FE0000
-
-/* Select a lock type to use with tasklets. */
-#define SAM_USE_ATOMIC_LOCK 1  /* Use old broken atomic lock code (for tasklets) that should not be in Hal_util.h*/
-//#define SAM_USE_SMART_LOCK 1 /* Use new broken SmartPtr lock code (for tasklets).  Samraksh SmartPtr implementation is FUBAR.*/
-//#define SAM_USE_NO_LOCK 1    /* Don't use any locks... about equivalent to what was/is currently happening.*/
-#if !defined(SAM_USE_ATOMIC_LOCK) && !defined(SAM_USE_SMART_LOCK) && !defined(SAM_USE_NO_LOCK)
-#error "need to define a SAM_USE_$_LOCK variant."
-#endif
 
 
 const UINT8 g_CountOfHardwareTimers = 1;

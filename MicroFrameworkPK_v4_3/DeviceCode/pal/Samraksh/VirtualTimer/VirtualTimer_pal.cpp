@@ -12,7 +12,6 @@ extern const UINT8 g_CountOfHardwareTimers;
 
 VirtualTimer gVirtualTimerObject;
 
-//Unnamed namespace
 namespace VirtTimerHelperFunctions
 {
 	void HardwareVirtTimerMapper(UINT8 timer_id, UINT8 &mapperTimerId, UINT8 &mapperId)
@@ -253,16 +252,11 @@ UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 
 BOOL VirtTimer_UnInitialize()
 {
+    BOOL ret = true;
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
-		if(i == 0)
-		{
-			gVirtualTimerObject.virtualTimerMapper_0.UnInitialize(g_HardwareTimerIDs[i]);
-		}
-		else if(i == 1)
-		{
-
-		}
+			ret &= gVirtualTimerObject.virtualTimerMapper_0.UnInitialize(g_HardwareTimerIDs[i]);
 	}
+	return ret;
 }
 

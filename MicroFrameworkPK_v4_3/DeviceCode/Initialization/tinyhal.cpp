@@ -769,9 +769,6 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
-    //TODO: AnanthAtSamraksh -- commenting out tasklets as part of virtual timer porting, as they are not needed any more.
-    //Tasklet_Initialize();
-
     HAL_Initialize();
 
     //TODO: AnanthAtSamraksh -- initialize the virtual timer

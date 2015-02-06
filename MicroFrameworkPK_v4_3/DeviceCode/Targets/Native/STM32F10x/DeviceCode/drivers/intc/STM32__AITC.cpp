@@ -1022,7 +1022,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 		IsrVector->Handler.Execute();
 
-		//Tasklet_Run();
 		// Tasklet run by directly writing to the register
 		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_High >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_High & (UINT8)0x1F);
 		NVIC->ISPR[STM32_AITC::c_IRQ_INDEX_Tasklet_Low >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_Tasklet_Low & (UINT8)0x1F);

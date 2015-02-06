@@ -103,11 +103,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	// Attempting to change the comparator
 	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
-	// Initializes the special deferred function
-	//AnanthAtSamraksh -- commenting out all usage of tasklets as they are not really necessary;
-	//Timers are their only users
-	////TaskletType* tasklet = GetTasklet();
-
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
 
@@ -122,13 +117,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
 
-	// Keep tasklet ready for insertion into bh queue
-	//AnanthAtSamraksh -- commenting out all usage of tasklets
-	/*tasklet->action = ISR;
-	if(!ISR_Param)
-		tasklet->data = &currentCounterValue;
-	else
-		tasklet->data = ISR_Param;*/
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 , ENABLE);
@@ -374,10 +362,6 @@ void ISR_TIM2(void* Param)
 			////TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 
-			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-			// Schedule bottom half processing on arrival of interrupt
-			//Tasklet_Schedule_hi(tasklet);
 		}
 		else
 		{
@@ -404,10 +388,6 @@ void ISR_TIM2(void* Param)
 			// Create a software trigger
 			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
 
-			//TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-			// Schedule bottom half processing on arrival of interrupt
-			//Tasklet_Schedule_hi(tasklet);
 		}
 		else
 		{
@@ -435,7 +415,6 @@ void ISR_TIM1( void* Param )
 {
 	// calculate the current 32 bit value of the counters to account for
 	// time spent in the handler when the next compare interrupt is set
-	// This variable is pointed to by the tasklet
 	// So changing the contents of this variable should be done with extreme caution
 	// Update the 64 bit counter value
 	////g_STM32F10x_AdvancedTimer.Get64Counter();
@@ -450,11 +429,6 @@ void ISR_TIM1( void* Param )
 
 		//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
 
-		//AnanthAtSamraksh -- commenting out all usage of tasklets
-		////TaskletType* tasklet = g_STM32F10x_AdvancedTimer.GetTasklet();
-
-		// Schedule bottom half processing on arrival of interrupt
-			  ////Tasklet_Schedule_hi(tasklet);
 
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 

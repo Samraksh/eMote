@@ -5,7 +5,6 @@
 #include <stm32f10x.h>
 //#include <intc/STM32.h>
 #include <Samraksh/Hal_util.h>
-//#include <Samraksh/Tasklet.h>
 
 enum TimerClockRate
 {
@@ -57,7 +56,6 @@ class STM32F10x_AdvancedTimer
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
 	LOCK timerLock;
-	TaskletType timerTasklet;
 
 public:
 
@@ -97,10 +95,6 @@ public:
 
 	UINT32 GetMaxTicks();
 
-	TaskletType* GetTasklet()
-	{
-		return &timerTasklet;
-	}
 
 };
 

@@ -1,3 +1,5 @@
+#error "THIS IS NOT THE HEAP YOU ARE LOOKING FOR..."
+
 /*
 *	Name	:	heap.h
 *   Author  :   nived.sivadas

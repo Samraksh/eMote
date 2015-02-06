@@ -689,7 +689,7 @@ INT64 CPU_Timer_CurrentTime()
 }
 
 // This SetCompare function will tie in to the HALTimerManager framework in \pal\HALTimer\HALTimer.cpp
-// On a successful compare, a tasklet is launched that will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
+// On a successful compare, will callback the HALTimerCallback in \pal\HALTimer\HALTimer.cpp
 //TODO: AnanthAtSamraksh -- this name matches with the one in netmf_timers.cpp
 /*void CPU_Timer_SetCompare( UINT64 CompareValue )
 {

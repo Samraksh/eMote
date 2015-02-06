@@ -13,8 +13,6 @@
 #include "WindowsUtil.h"
 #else
 #include <tinyhal.h>
-#include "heap.h"
-#include "Tasklet.h"
 #include "Time_decl.h"
 #endif
 
@@ -37,8 +35,6 @@ typedef enum _VirtualTimerReturnMessage
 class VirtualTimerInfo
 {
 
-	TaskletType m_timerTasklet;
-
 	// The Id referenced by the use of the timer
 	UINT8 m_timer_id_;
 
@@ -57,7 +53,7 @@ class VirtualTimerInfo
 	// Reserve the timer
 	BOOL   m_reserved_;
 
-	// maintians the number of ticks left to expire
+	// maintains the number of ticks left to expire
 	INT64   m_ticksTillExpire_;
 
 	// A pointer to the function that will be called on an interrupt
@@ -68,8 +64,7 @@ public:
 
 	void Initialize()
 	{
-		m_timerTasklet.action = NULL;
-		m_timerTasklet.data = NULL;
+
 	}
 
 	BOOL operator>(const VirtualTimerInfo &other) const
@@ -92,17 +87,6 @@ public:
 	void set_m_ticksTillExpire(INT64 d)
 	{
 		m_ticksTillExpire_ = d;
-	}
-
-	void set_m_timerTasklet(TIMER_CALLBACK_FPN callback)
-	{
-		m_timerTasklet.action = (HAL_CALLBACK_FPN) callback;
-		m_timerTasklet.data = NULL;
-	}
-
-	TaskletType* GetTasklet()
-	{
-		return &m_timerTasklet;
 	}
 
 	INT64 get_m_ticksTillExpire()
@@ -163,7 +147,6 @@ public:
 	void set_m_callBack(TIMER_CALLBACK_FPN callback)
 	{
 		m_callBack_ = callback;
-		set_m_timerTasklet(callback);
 	}
 
 	TIMER_CALLBACK_FPN get_m_callback()
@@ -217,7 +200,6 @@ public:
 	UINT16 VTM_hardwareTimerId;
 	UINT16 VTM_countOfVirtualTimers;
 	VirtualTimerInfo g_VirtualTimerInfo[TimerInfoSize];
-	Hal_Heap_KnownSize<VirtualTimerInfo*, TimerInfoSize, TimerCompare<VirtualTimerInfo*> > timerQueue;
 
 	//BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 	BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
@@ -232,11 +214,6 @@ public:
 
 
 	BOOL UnInitialize(UINT16);
-
-	Hal_Heap_KnownSize<VirtualTimerInfo*, TimerInfoSize, TimerCompare<VirtualTimerInfo*> >* GetTimerQueue()
-	{
-		return &timerQueue;
-	}
 
 	UINT64 get_m_lastQueueAdjustmentTime()
 	{
