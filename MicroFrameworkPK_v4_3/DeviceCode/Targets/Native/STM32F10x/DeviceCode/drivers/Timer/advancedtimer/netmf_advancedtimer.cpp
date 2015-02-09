@@ -18,13 +18,8 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
-
-extern "C"
-{
-	void ISR_TIM2(void* Param);
-	void ISR_TIM1(void* Param);
-}
-
+void ISR_TIM2(void* Param);
+void ISR_TIM1(void* Param);
 
 // Initialize the virtual timer layer
 // This is to ensure that users can not remove the hardware timer from underneath the virtual timer
@@ -282,9 +277,6 @@ UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
 	return (UINT32)0xFFFFFFFF;
 }
 
-extern "C"
-{
-
 void ISR_TIM2(void* Param)
 {
 //CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
@@ -440,6 +432,4 @@ void ISR_TIM1( void* Param )
 		HAL_COMPLETION::DequeueAndExec();
 	}
 //CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
-}
-
 }
