@@ -136,7 +136,7 @@
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
 //#define BUILD_RTM
 
-#define DOTNOW_ALLOW_SLEEP 0
+#define DISABLE_SLEEP
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension

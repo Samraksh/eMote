@@ -61,6 +61,10 @@ void PowerInit() {
 		return;
 	}
 
+#ifndef NDEBUG
+	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
+#endif
+
 #ifdef DOTNOW_HSI_CALIB
 	Low_Power();
 	CalibrateHSI();
@@ -309,31 +313,23 @@ void High_Power() {
 	SystemTimerClock = 8000000;
 }
 
+// Exit in the same power state as we entered.
 void Sleep() {
-#if defined (NDEBUG) && (DOTNOW_ALLOW_SLEEP) // Do not sleep in debug builds
-	enum stm_power_modes power_now = stm_power_state;
 
-	GLOBAL_LOCK(irq);
-
-	Low_Power();
-	PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
-
-	// Sleep is over
-
-	// Go back to high power if thats where we were
-	if (power_now == POWER_STATE_HIGH) {
-		High_Power();
+	switch(stm_power_state) {
+		case POWER_STATE_LOW:
+			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			break;
+		default:
+			__WFI();
+			break;
 	}
-#endif
+
 }
 
-// Not sure what the right thing is, so this seems reasonable.
+// Shouldn't be used, possibly for unrecoverable error in debug mode.
 void Halt() {
-#ifdef NDEBUG
-	while(1) { __WFI(); }
-#else
 	while(1);
-#endif
 }
 
 void Reset() {
@@ -342,11 +338,7 @@ void Reset() {
 }
 
 void Shutdown() {
-#ifdef NDEBUG
 	while(1) { PWR_EnterSTANDBYMode(); }
-#else
-	while(1);
-#endif
 }
 
 void HAL_AssertEx() {

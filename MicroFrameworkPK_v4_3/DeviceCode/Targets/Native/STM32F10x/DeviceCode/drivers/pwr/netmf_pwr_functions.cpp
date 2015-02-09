@@ -12,7 +12,6 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
         case POWER_LEVEL__HIGH_POWER:
 			High_Power();
 			break;
-
 		case POWER_LEVEL__LOW_POWER:
 		case POWER_LEVEL__MID_POWER:
         default:
@@ -22,6 +21,9 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 }
 
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
+#ifdef DISABLE_SLEEP
+	return;
+#else
     switch(level)
     {
 		case SLEEP_LEVEL__OFF:
@@ -33,10 +35,15 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
 			Sleep();
 			break;
     }
+#endif
 }
 
 void CPU_Halt() {
-    Halt();
+#ifdef NDEBUG
+	CPU_Reset();
+#else
+	Halt();
+#endif
 }
 
 void CPU_Reset() {
