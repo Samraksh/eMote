@@ -109,7 +109,7 @@ BOOL SmartPtr_IRQ::GetState(void* context)
 	    );
 
 
-	    return (Cp == 0);
+	    return Cp;
 }
 
 BOOL SmartPtr_IRQ::ForceDisabled(void* context)
