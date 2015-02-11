@@ -9,7 +9,7 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 
-
+//#define DEBUG_VT 1
 // Assumptions:
 // ============
 // Assumes that the HAL core hardware timer is running at the same configuration  as the system timer because it uses the CPU_MicrosecondsToTicks
@@ -56,10 +56,12 @@ template<>
 BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 //BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL IsOneShot, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+#ifdef DEBUG_VT
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+#endif
 	VTM_hardwareTimerId = VTM_countOfVirtualTimers = 0;
 
 	VTM_hardwareTimerId = temp_HWID;
@@ -196,6 +198,9 @@ BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_dela
 template<>
 BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 {
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
+#endif
 	UINT16 i;
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0)
@@ -266,6 +271,9 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	currentTicks = CPU_Timer_CurrentTicks(VTM_hardwareTimerId);
 	gVirtualTimerObject.virtualTimerMapper_0.set_m_lastQueueAdjustmentTime(currentTicks);
 
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
+#endif
 	return TRUE;
 }
 
@@ -331,6 +339,9 @@ void VirtualTimerCallback(void *arg)
 	if(currentHardwareTimerIndex == -1)
 		return;
 
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+#endif
 	//if(currentHardwareTimerIndex == 0)
 	//{
 		UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_cnt_;
@@ -338,7 +349,13 @@ void VirtualTimerCallback(void *arg)
 
 		startTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 		if (runningTimer->get_m_is_running()){
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+#endif			
 			(runningTimer->get_m_callback())(NULL);
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+#endif			
 		}
 		endTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 		if(endTicks > startTicks)
@@ -376,7 +393,13 @@ void VirtualTimerCallback(void *arg)
 					INT64 ticksRemaining = ticksTillExpire - tickElapsed;
 					if (ticksRemaining <= 1500){
 						startTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
+#ifdef DEBUG_VT
+						CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+#endif						
 						(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_callback())(NULL);
+#ifdef DEBUG_VT
+						CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+#endif	
 						endTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 						if(endTicks > startTicks)
 							tickElapsed = endTicks - startTicks;
@@ -421,7 +444,9 @@ void VirtualTimerCallback(void *arg)
 		currentTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 		gVirtualTimerObject.virtualTimerMapper_0.set_m_lastQueueAdjustmentTime(currentTicks);
 
-	//}
+#ifdef DEBUG_VT
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+#endif
 	//else if(currentHardwareTimerIndex == 1)
 	//{
 	//}
