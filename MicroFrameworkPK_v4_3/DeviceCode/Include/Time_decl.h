@@ -212,7 +212,7 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer);
 UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);
 
 ////UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
-UINT32 CPU_Timer_CurrentTicks(UINT16 Timer);
+UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
 
 void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer = 1 );
 

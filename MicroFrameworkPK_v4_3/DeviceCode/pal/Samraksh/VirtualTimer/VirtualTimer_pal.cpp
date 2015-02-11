@@ -176,7 +176,7 @@ UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks)
 }
 
 
-UINT32 VirtTimer_GetTicks(UINT8 timer_id)
+UINT64 VirtTimer_GetTicks(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;

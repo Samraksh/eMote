@@ -267,7 +267,7 @@ public:
 
 	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);
 	UINT32 VirtTimer_GetCounter(UINT8 timer_id);
-	UINT32 VirtTimer_GetTicks(UINT8 timer_id);
+	UINT64 VirtTimer_GetTicks(UINT8 timer_id);
 	UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks);
 	BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue);
 	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);

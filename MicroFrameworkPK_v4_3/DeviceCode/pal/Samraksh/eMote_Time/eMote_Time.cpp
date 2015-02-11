@@ -82,7 +82,7 @@ UINT64 Time_Driver::CurrentTicks()
 
 	//GLOBAL_LOCK(irq);
 
-	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
+	UINT64 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
 
 	//Roll-over case
 	if(currentTicks < prevTicks)

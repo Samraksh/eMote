@@ -91,6 +91,8 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	if(STM32F10x_AdvancedTimer::initialized)
 		return DS_Success;
 
+	m_lastRead = 0;
+
 	STM32F10x_AdvancedTimer::initialized = TRUE;
 
 	// Fix for usart failure on adding the advanced timer in the system
