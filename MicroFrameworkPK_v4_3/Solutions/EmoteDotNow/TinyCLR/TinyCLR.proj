@@ -39,6 +39,7 @@
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_$(COMPILER_TOOL).$(SCATTER_EXT)" />
     <ScatterFileReferences Include="$(SRC_DIR)\scatterfile_tinyclr_ram_functions.$(SCATTER_EXT)" />
   </ItemGroup>
+  <!-- #TestSystem: All project information below this line will automatically be used to update the native project files in the TestSuite -->
   <Import Project="$(SPOCLIENT)\Framework\Features\core.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\hardware.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\NativeEventDispatcher.featureproj" />
@@ -600,11 +601,7 @@
   <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\dotNetMF.proj" />
   <DriverLibs Include="Samraksh_eMote_NET.$(LIB_EXT)" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\Stubs\dotNetMF.proj" />
-    <DriverLibs Include="mac_stubs.$(LIB_EXT)" />
-  </ItemGroup>
-  -->
+  
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\VirtualTimer\dotNetMF.proj" />
     <DriverLibs Include="VirtualTimer.$(LIB_EXT)" />
