@@ -79,21 +79,25 @@ rem @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 rem set tool-chains variables 
 
 IF /I NOT "%COMPILER_TOOL%" == "VS" (
-  IF NOT "%VS110COMNTOOLS%" == "" (
-      CALL "%VS110COMNTOOLS%vsvars32.bat"
-  ) ELSE (
-    IF NOT "%VS100COMNTOOLS%" == "" (
-      CALL "%VS100COMNTOOLS%vsvars32.bat"
+    IF NOT "%VS120COMNTOOLS%" == "" ( 
+        CALL "%VS120COMNTOOLS%vsvars32.bat"
     ) ELSE (
-      IF NOT "%VS90COMNTOOLS%" == "" (
-        CALL "%VS90COMNTOOLS%vsvars32.bat"    
-      ) ELSE (
-        @ECHO WARNING: Could not find vsvars32.bat.
-        @ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
-        GOTO :EOF
-      )
-    )
-  )
+        IF NOT "%VS110COMNTOOLS%" == "" (
+            CALL "%VS110COMNTOOLS%vsvars32.bat"
+        ) ELSE (
+            IF NOT "%VS100COMNTOOLS%" == "" (
+            CALL "%VS100COMNTOOLS%vsvars32.bat"
+            ) ELSE (
+                IF NOT "%VS90COMNTOOLS%" == "" (
+                    CALL "%VS90COMNTOOLS%vsvars32.bat"    
+                ) ELSE ( 
+                    @ECHO WARNING: Could not find vsvars32.bat.
+                    @ECHO WARNING: VISUAL C++ DOES NOT APPEAR TO BE INSTALLED ON THIS MACHINE
+                    GOTO :EOF
+                )
+            )
+        )
+    )	
 )
 
 set TINYCLR_USE_MSBUILD=1   
@@ -335,6 +339,14 @@ GOTO :EOF
 
 rem @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 :SET_VS_VARS
+set VSSDK11INSTALLDIR=%SPOROOT%\tools\x86\MicrosoftSDKs\VSSDK\vs11\
+if NOT EXIST "%VSSDK11INSTALLDIR%" set VSSDK11INSTALLDIR=%VS110COMNTOOLS%VSSDK\
+
+set VSSDK12INSTALLDIR=%SPOROOT%\tools\x86\MicrosoftSDKs\VSSDK\vs12\
+if NOT EXIST "%VSSDK12INSTALLDIR%" set VSSDK12INSTALLDIR=%VS120COMNTOOLS%VSSDK\
+
+set VSSDK14INSTALLDIR=%SPOROOT%\tools\x86\MicrosoftSDKs\VSSDK\vs14\
+if NOT EXIST "%VSSDK14INSTALLDIR%" set VSSDK14INSTALLDIR=%VS140COMNTOOLS%VSSDK\
 
 set NO_ADS_WRAPPER=1
 set DOTNETMF_COMPILER=%COMPILER_TOOL_VERSION%
@@ -357,14 +369,19 @@ IF "%COMPILER_TOOL_VERSION_NUM%"=="11" (
   GOTO :EOF
 )
 
+IF "%COMPILER_TOOL_VERSION_NUM%"=="12" (
+  IF "" == "%VS120COMNTOOLS%" GOTO BAD_VS_ARG
+  CALL "%VS120COMNTOOLS%vsvars32.bat"
+  GOTO :EOF
+)
+
 :BAD_VS_ARG
 @ECHO.
-@ECHO Error - Invalid argument.  Could not find VSVARS32.bat for VS%COMPILER_TOOL_VERSION_NUM%
+@ECHO Error - Invalid argument.
+@ECHO Could not find VSVARS32.bat for VS%COMPILER_TOOL_VERSION_NUM%
 @ECHO.
 
 GOTO :EOF
-
-
 
 rem @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 :SET_SHC_VARS

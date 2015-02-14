@@ -13,6 +13,6 @@
     <Groups>DPWS</Groups>
     <Documentation>
     </Documentation>
-    <DPWSSERVER_FEATURPROJ>True</DPWSSERVER_FEATURPROJ>
+    <DPWSSERVER_FEATUREPROJ>True</DPWSSERVER_FEATUREPROJ>
   </PropertyGroup>
 </Project>

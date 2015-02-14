@@ -4,8 +4,8 @@
     <BuildToolName>RVDS</BuildToolName>
     <BuildToolGuid>{1942C531-3AAC-4abb-8B4F-C3111012F9D9}</BuildToolGuid>
     <Documentation></Documentation>
-    <ProcessorTypes>XScale;ARM7TDMI;ARM7TDMI-S;arm920t;arm926EJ-S;Cortex-M3</ProcessorTypes>
-    <ISAs>arm;thumb;thumb2</ISAs>
+    <ProcessorTypes>XScale;ARM7TDMI;ARM7TDMI-S;arm920t;arm926EJ-S;Cortex-M3;Cortex-M4;Cortex-M4.fp</ProcessorTypes>
+    <ISAs>arm;thumb;thumb2;thumb2fp</ISAs>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ADS_TOOLS)'==''">
@@ -35,7 +35,7 @@
     <TCPP>$(ADS_WRAPPER) "$(ADS_TOOLS_BIN)\tcpp.exe"</TCPP>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS4.0' or '$(COMPILER_TOOL_VERSION)'=='RVDS4.1'">
+  <PropertyGroup Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS4.0' or '$(COMPILER_TOOL_VERSION)'=='RVDS4.1'  or '$(COMPILER_TOOL_VERSION)'=='RVDS5.0'">
     <CPP >$(ADS_WRAPPER) "$(ADS_TOOLS_BIN)\armcc.exe"</CPP>	
     <TCC >$(ADS_WRAPPER) "$(ADS_TOOLS_BIN)\armcc.exe"</TCC>
     <TCPP>$(ADS_WRAPPER) "$(ADS_TOOLS_BIN)\armcc.exe"</TCPP>
@@ -63,6 +63,7 @@
     <FROMELF_FLAGS Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS3.1'">$(FROMELF_FLAGS) -c</FROMELF_FLAGS>
     <FROMELF_FLAGS Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS4.0'">$(FROMELF_FLAGS) -c</FROMELF_FLAGS>
     <FROMELF_FLAGS Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS4.1'">$(FROMELF_FLAGS) -c</FROMELF_FLAGS>
+    <FROMELF_FLAGS Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS5.0'">$(FROMELF_FLAGS) -c</FROMELF_FLAGS>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS3.0'">
@@ -92,7 +93,7 @@
     <LINK_FLAGS>$(LINK_FLAGS) $(SWTC)no_keep_init_arrays $(SWTC)feedback $(BIN_DIR)\$(AssemblyName)_$(TARGETPLATFORM)_$(TARGETLOCATION)_$(FLAVOR)_$(COMPILER_TOOL_VERSION).feedback</LINK_FLAGS>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS3.1' or '$(COMPILER_TOOL_VERSION)'=='RVDS4.0'  or '$(COMPILER_TOOL_VERSION)'=='RVDS4.1'">
+  <PropertyGroup Condition="'$(COMPILER_TOOL_VERSION)'=='RVDS3.1' or '$(COMPILER_TOOL_VERSION)'=='RVDS4.0'  or '$(COMPILER_TOOL_VERSION)'=='RVDS4.1' or '$(COMPILER_TOOL_VERSION)'=='RVDS5.0'">
     <POS_DEPENDENT   Condition = "'$(INSTRUCTION_SET)'=='arm'"                                    >$(SWTC)apcs /nointer/noropi/norwpi/noswst</POS_DEPENDENT>
     <POS_INDEPENDENT Condition = "'$(INSTRUCTION_SET)'=='arm'"                                    >$(SWTC)apcs /nointer/ropi/norwpi/noswst</POS_INDEPENDENT>
     <POS_DEPENDENT   Condition = "'$(INSTRUCTION_SET)'=='thumb' or '$(INSTRUCTION_SET)'=='thumb2'">$(SWTC)apcs /interwork/noropi/norwpi/noswst</POS_DEPENDENT>
@@ -118,11 +119,11 @@
     <CC_CPP_TARGETTYPE_FLAGS>$(CC_CPP_TARGETTYPE_FLAGS) $(SWTC)inline $(SWTC)dwarf2 $(SWTC)asm $(SWTC)interleave $(CC_CPP_TARGETTYPE_FLAGS_OPTIMIZATION)</CC_CPP_TARGETTYPE_FLAGS>
 
     <AS_FLAGS Condition = "'$(INSTRUCTION_SET)'=='thumb'">$(AS_FLAGS) $(SWTC)apcs /interwork </AS_FLAGS>
-    <AS_FLAGS>$(AS_FLAGS) $(SWTC)diag_suppress A1658</AS_FLAGS>
+    <AS_FLAGS>$(AS_FLAGS) $(SWTC)diag_suppress A1658,A9931</AS_FLAGS>
 
-    <CC_FLAGS  >$(CC_FLAGS) $(SWTC)c90 $(STRICT) $(SWTC)diag_suppress 2874,111,161,550,C3011 $(SWTC)diag_warning 40,187 $(SWTC)split_sections</CC_FLAGS>
-    <CPP_FLAGS >$(CPP_FLAGS) $(SWTC)cpp $(STRICT) $(SWTC)diag_suppress 2874,111,161,550,C3011 $(SWTC)diag_suppress 66,161,230,1293 $(SWTC)split_sections</CPP_FLAGS>
-    <LINK_FLAGS>$(LINK_FLAGS) $(SWTC)no_keep_init_arrays $(SWTC)feedback $(BIN_DIR)\$(AssemblyName)_$(TARGETPLATFORM)_$(TARGETLOCATION)_$(FLAVOR)_$(COMPILER_TOOL_VERSION).feedback</LINK_FLAGS>
+    <CC_FLAGS  >$(CC_FLAGS) $(SWTC)c90 $(STRICT) $(SWTC)diag_suppress 2874,111,161,550,C3011,C9931,A9931,L9931,C4052 $(SWTC)diag_warning 40,187 $(SWTC)split_sections</CC_FLAGS>
+    <CPP_FLAGS >$(CPP_FLAGS) $(SWTC)cpp $(STRICT) $(SWTC)diag_suppress 2874,111,161,550,C3011,C9931,A9931,L9931,C4052 $(SWTC)diag_suppress 66,161,230,1293 $(SWTC)split_sections</CPP_FLAGS>
+    <LINK_FLAGS>$(LINK_FLAGS) $(SWTC)diag_suppress L9931 $(SWTC)no_keep_init_arrays $(SWTC)feedback $(BIN_DIR)\$(AssemblyName)_$(TARGETPLATFORM)_$(TARGETLOCATION)_$(FLAVOR)_$(COMPILER_TOOL_VERSION).feedback</LINK_FLAGS>
   </PropertyGroup>
 
 
@@ -134,6 +135,7 @@
     <ARM_TYPE_FLAGS Condition="'$(PlatformIndependentBuild)'=='true'"></ARM_TYPE_FLAGS>
     <ARM_TYPE_FLAGS Condition="'$(PlatformIndependentBuild)'!='true' AND '$(DEVICE_TYPE)' != ''">$(SWTC)cpu $(DEVICE_TYPE)</ARM_TYPE_FLAGS>
     <ARM_TYPE_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'        AND '$(DEVICE_TYPE)' != ''">$(SWTC)cpu $(DEVICE_TYPE)</ARM_TYPE_FLAGS>
+    <ARM_TYPE_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2fp'      AND '$(DEVICE_TYPE)' != ''">$(SWTC)cpu $(DEVICE_TYPE)</ARM_TYPE_FLAGS>
 
     <!-- Use default fpu specification for Cortex-M4F -->
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'!='Cortex-M4.fp'"> $(SWTC)fpu softvfp </FLOATING_POINT_FLAG>
@@ -159,6 +161,7 @@
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"        >$(AS_FLAGS) $(SWTC)PD "COMPILE_ARM SETS \"1\""</AS_FLAGS>
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb'"      >$(AS_FLAGS) $(SWTC)PD "COMPILE_THUMB SETS \"1\""</AS_FLAGS>
     <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"     >$(AS_FLAGS) $(SWTC)PD "COMPILE_THUMB2 SETS \"1\""</AS_FLAGS>
+    <AS_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2fp'"   >$(AS_FLAGS) $(SWTC)PD "COMPILE_THUMB2 SETS \"1\""</AS_FLAGS>
 
     <!-- Assembler flags -->
     <AS_FLAGS>$(AS_FLAGS) $(SWTC)PD "TargetLocation SETS \"$(TARGETLOCATION)\""</AS_FLAGS>
@@ -201,6 +204,7 @@
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='arm'"     >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_ARM </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb'"   >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2'"  >$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB2 </CC_CPP_COMMON_FLAGS>
+    <CC_CPP_COMMON_FLAGS Condition="'$(INSTRUCTION_SET)'=='thumb2fp'">$(CC_CPP_COMMON_FLAGS) -DCOMPILE_THUMB2 </CC_CPP_COMMON_FLAGS>
 
     <CC_CPP_COMMON_FLAGS Condition="'$(FLAVOR)'=='Instrumented' and '$(NATIVE_PROFILE_CLR)'!=''">$(CC_CPP_COMMON_FLAGS) -DNATIVE_PROFILE_CLR=$(NATIVE_PROFILE_CLR)</CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(FLAVOR)'=='Instrumented' and '$(NATIVE_PROFILE_PAL)'!=''">$(CC_CPP_COMMON_FLAGS) -DNATIVE_PROFILE_PAL=$(NATIVE_PROFILE_PAL)</CC_CPP_COMMON_FLAGS>

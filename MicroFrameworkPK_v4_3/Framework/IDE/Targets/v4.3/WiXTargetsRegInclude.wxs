@@ -32,11 +32,4 @@
             />
     </RegistryKey>
 
-  <!-- Windows Desktop Express 2012 -->
-  <?include vs_skus\WDExpress11.wxs?>
-  <?include $(env.SPOCLIENT)\Framework\IDE\Targets\v4.3\WixTargetsRegIncludeInner.wxs?>
-  <!-- VisualStudio 2010 -->
-  <?include vs_skus\VisualStudio11.wxs?>
-  <?include $(env.SPOCLIENT)\Framework\IDE\Targets\v4.3\WixTargetsRegIncludeInner.wxs?>
-
-</Include>
+  </Include>
