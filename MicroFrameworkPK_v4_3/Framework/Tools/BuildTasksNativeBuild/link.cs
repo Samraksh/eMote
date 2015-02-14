@@ -321,7 +321,6 @@ namespace Microsoft.SPOT.Tasks.NativeBuild
 
             if ( mTargetType == eTargetType.DLL || mTargetType == eTargetType.EXE )
             {
-                builder.AppendSwitchIfNotNull("/DEBUGTYPE:", "CV,FIXUP");
                 builder.AppendSwitch("/NXCOMPAT");
                 builder.AppendSwitch("/DYNAMICBASE");
             }

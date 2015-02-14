@@ -20,6 +20,6 @@
     <Groups>DPWS</Groups>
     <Documentation>
     </Documentation>
-    <DPWSSTACK_FEATURPROJ>True</DPWSSTACK_FEATUREPROJ>
+    <DPWSSTACK_FEATUREPROJ>True</DPWSSTACK_FEATUREPROJ>
   </PropertyGroup>
 </Project>

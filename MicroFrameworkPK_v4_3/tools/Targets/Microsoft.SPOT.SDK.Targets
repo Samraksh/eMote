@@ -12,7 +12,14 @@
     <OUTPUT_WIXOBJ_DIR>$(OutputWiXObjRoot)Fragments\$(MSBuildProjectName)\</OUTPUT_WIXOBJ_DIR>
     <OUTPUT_WIXOBJ_DIR_LE>$(OutputWiXObjRoot)Fragments\le\$(MSBuildProjectName)\</OUTPUT_WIXOBJ_DIR_LE>
     <OUTPUT_WIXOBJ_DIR_BE>$(OutputWiXObjRoot)Fragments\be\$(MSBuildProjectName)\</OUTPUT_WIXOBJ_DIR_BE>
-    <DO_NOT_BUILD_DOCS>Tru</DO_NOT_BUILD_DOCS>
+    <DO_NOT_BUILD_DOCS>True</DO_NOT_BUILD_DOCS>
+    <CodeSignAuthenticodeCert>100040133</CodeSignAuthenticodeCert>
+    <!-- Temp using Corp cert for VSIX packages until MSOT obtains it's own cert
+         (Cleared with LCA so long as the contained binaries are signed with an MSOT publisher cert)
+    -->
+    <CodeSignOpcCert>160</CodeSignOpcCert>
+    <CodeSignStrangNameCert>150</CodeSignStrangNameCert>
+    <CodeSignApprovers>gokulk;richh</CodeSignApprovers>
     <!--
     <VSIPInstalled>false</VSIPInstalled>
     <XBUILD_OUTDIR>$(SPOCLIENT)\UE\Public\Docs\Built</XBUILD_OUTDIR>
@@ -25,6 +32,9 @@
     <DoCandle>false</DoCandle>
     <CandleInput>$(CandleInput);$(SPOCLIENT)\ReleaseInfo.settings</CandleInput>
     <SkipLit>true</SkipLit>
+    <WixMsiBuildNumber>$(BuildNumber)</WixMsiBuildNumber>
+    <!-- allow overriding the build number of the MSI so the MSI can be updated without re-versioning all the assemblies (which would trigger a need for firmware updates on all devices ) -->
+    <WixMsiBuildNumber Condition="'$(WixMsiBuildNumberOverride)'!=''">$(WixMsiBuildNumberOverride)</WixMsiBuildNumber>
   </PropertyGroup>
 
   <!--WiX Preprocessor Defines-->
@@ -55,7 +65,7 @@
       <Value>$(MinorVersion)</Value>
     </WiXDefines>
     <WiXDefines Include="ProdVerBuild">
-      <Value>$(BuildNumber)</Value>
+      <Value>$(WixMsiBuildNumber)</Value>
     </WiXDefines>
     <WiXDefines Include="ProdVerRevision">
       <Value>$(RevisionNumber)</Value>
@@ -66,7 +76,7 @@
     
 
     <WiXDefines Include="ProdVer">
-      <Value>$(MFSDKProductVersion)</Value>
+      <Value>$(MajorVersion).$(MinorVersion).$(WixMsiBuildNumber).$(RevisionNumber)</Value>
     </WiXDefines>
     <WiXDefines Include="ProdVerMajorMinor">
       <Value>$(MFSDKShortProductVersion)</Value>
@@ -302,10 +312,10 @@
     <BuildDependsOn Condition="'$(AssemblyBothEndian)'=='true'">$(BuildDependsOn);CandleLE;CandleBE</BuildDependsOn>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(ISOProject)' != '' ">
+  <!--PropertyGroup Condition=" '$(ISOProject)' != '' ">
     <BuildDependsOn>$(BuildDependsOn);BuildCDImage</BuildDependsOn>
     <CleanDependsOn>$(CleanDependsOn);CleanCDImage</CleanDependsOn>
-  </PropertyGroup>
+  </PropertyGroup-->
 
   <PropertyGroup Condition=" '$(DOCPROJ)' != '' AND EXISTS('$(XBUILDEXE)')">
     <BuildDependsOn>XBuild;GenerateCHM;$(BuildDependsOn)</BuildDependsOn>
@@ -756,6 +766,19 @@
       <Output TaskParameter="FoundFiles" ItemName="FoundFileOfType"/>
     </FindWixObjects>
 
+    <SignMSIAssemblies
+      Condition=" '$(SignBuild)' == 'true' And '$(SignProject)' == 'true' And ( '$(TinyCLR_Platform)' == 'Server' And '$(Configuration)' == 'Release' )"
+      Files="@(FoundFileOfType)"
+      FileTypes="@(CodeSignType)"
+      StageDirectory="$(BUILD_TREE_MSM)\$(MSBuildProjectName)\Bin"
+      JobDescription="$(CodeSignJobDescInternal)"
+      JobKeywords="$(CodeSignJobKeywInternal)"
+      Certificate="$(CodeSignAuthenticodeCert)"
+      Approvers="$(CodeSignApprovers)"
+      DisplayName="$(CodeSignDisplayNameInternal)"
+      DisplayURL="http://netmf.com"
+      />
+    
     <CreateSymbolRequest
       Condition=" '$(SymbolProject)' != '' "
       Files="@(FoundFileOfType)"
@@ -765,18 +788,6 @@
       Root="$(SPOROOT)"
       RequestFileName="symbolrequest.xml"/>
 
-    <SignMSIAssemblies
-      Condition=" '$(SignBuild)' == 'true' And '$(SignProject)' == 'true' And ( '$(TinyCLR_Platform)' == 'Server' And '$(Configuration)' == 'Release' )"
-      Files="@(FoundFileOfType)"
-      FileTypes="@(CodeSignType)"
-      StageDirectory="$(BUILD_TREE_MSM)\$(MSBuildProjectName)"
-      JobDescription="$(CodeSignJobDescInternal)"
-      JobKeywords="$(CodeSignJobKeywInternal)"
-      Certificate="23"
-      Approvers="lorenzte;zachl;colinmil"
-      DisplayName="$(CodeSignDisplayNameInternal)"
-      DisplayURL="http://msdn.microsoft.com/embedded/netmf"
-      />
   </Target>
 
   <Target
@@ -828,11 +839,11 @@
     <SignMSI
       Condition=" '$(SignBuild)' == 'true' And '$(SignProject)' == 'true' And ( '$(TinyCLR_Platform)' == 'Server' And '$(Configuration)' == 'Release' )"
       MSI="$(OUTPUT_MSM)"
-      StageDirectory="$(BUILD_TREE_MSM)\$(MSBuildProjectName)"
+      StageDirectory="$(BUILD_TREE_MSM)\$(MSBuildProjectName)\MSI"
       JobDescription="$(CodeSignJobDescMSI)"
       JobKeywords="$(CodeSignJobKeywMSI)"
-      Certificate="23"
-      Approvers="lorenzte;zachl;colinmil"
+      Certificate="$(CodeSignAuthenticodeCert)"
+      Approvers="$(CodeSignApprovers)"
       DisplayName="$(CodeSignDisplayNameMSI)"
       DisplayURL="http://msdn.microsoft.com/embedded/netmf"/>
   </Target>
