@@ -32,13 +32,13 @@ extern NeighborTable m_NeighborTable;
 #define DEBUG_CSMAMAC 1
 
 #if defined(DEBUG_CSMAMAC)
-#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
-#define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_CSMAMAC(x,y,z) hal_printf(x,y,z)
+#define ENABLE_PIN_CSMA(x,y) CPU_GPIO_EnableOutputPin(x,y)
+#define SET_PIN_CSMA(x,y) CPU_GPIO_SetPinState(x,y)
+#define DEBUG_PRINTF_CSMA(x,y,z) hal_printf(x,y,z)
 #else
-#define ENABLE_PIN(x,y)
-#define SET_PIN(x,y)
-#define DEBUG_PRINTF_MAC(x)
+#define ENABLE_PIN_CSMA(x,y)
+#define SET_PIN_CSMA(x,y)
+#define DEBUG_PRINTF_CSMA(x)
 #endif
 
 /*******************************************************************************************************/

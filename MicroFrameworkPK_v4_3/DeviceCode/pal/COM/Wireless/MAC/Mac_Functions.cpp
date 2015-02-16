@@ -19,11 +19,11 @@ NeighborTable m_NeighborTable;
 //#define DEBUG_MACFUNCTIONS 1
 
 #if defined(DEBUG_MACFUNCTIONS)
-#define ENABLE_PIN(x,y) CPU_GPIO_EnableOutputPin(x,y)
+#define ENABLE_PIN_MAC(x,y) CPU_GPIO_EnableOutputPin(x,y)
 #define SET_PIN(x,y) CPU_GPIO_SetPinState(x,y)
 #define DEBUG_PRINTF_MAC(x) CLR_Debug::Printf(x)
 #else
-#define ENABLE_PIN(x,y)
+#define ENABLE_PIN_MAC(x,y)
 #define SET_PIN(x,y)
 #define DEBUG_PRINTF_MAC(x)
 #endif

@@ -91,14 +91,14 @@ public:
 	uniquePtr()
 	{
 		start = (LPVOID) 0x0;
-		end = (LPVOID) (1 << 32);
+		end = (LPVOID) (1 << 31);
 		lastVal = (LPVOID) 1;
 	}
 
 	void init()
 	{
 		start = (LPVOID) 0x0;
-		end = (LPVOID) (1 << 32);
+		end = (LPVOID) (1 << 31);
 		lastVal = (LPVOID) 1;
 	}
 

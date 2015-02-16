@@ -246,7 +246,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticksTillExpire(ticks + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 
-	UINT16 nextTimer = NULL;
+	UINT16 nextTimer = 0;
 	UINT64 shortestTicks = TimerMaxValue;
 	bool timerInQueue = false;
 	for(i = 0; i < m_current_timer_cnt_; i++)
@@ -419,7 +419,7 @@ void VirtualTimerCallback(void *arg)
 			}
 		}
 
-		UINT16 nextTimer = NULL;
+		UINT16 nextTimer = 0;
 		UINT64 shortestTicks = TimerMaxValue;
 		bool timerInQueue = false;
 		for(i = 0; i < currentVirtualTimerCount; i++)

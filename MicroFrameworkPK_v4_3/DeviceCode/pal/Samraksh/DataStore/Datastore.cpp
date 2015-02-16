@@ -234,7 +234,7 @@ uint32 Data_Store::calculateLogHeadRoom()
 LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType )
 {
 	//debug_printf("Data_Store::createAllocation\n");
-	UINT32 logPtr     = NULL;
+	UINT32 logPtr     = 0;
 	int  currBlockID = 0;
 	char *currBlockStartAddr = NULL;
 	char *currBlockEndAddr   = NULL;
@@ -603,7 +603,7 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
 bool Data_Store::createDummyAllocation(int nextAllocationSize)
 {
     //char *logPtr     = NULL;
-    UINT32 logPtr     = NULL;
+    UINT32 logPtr     = 0;
     int  currBlockID = 0;
     char *currBlockStartAddr = NULL;
     char *currBlockEndAddr   = NULL;
@@ -773,7 +773,7 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
             //flashDevice.writeRawData( buff, byteTillEnd, currentLoc );
             /* Copy second piece */
 			address = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
-			rawDataIn = buff + byteTillEnd;
+			rawDataIn = (char*)buff + byteTillEnd;
 			if(!blockStorageDevice->Write(address, (numBytes - byteTillEnd), (BYTE *) rawDataIn, FALSE))
 			{
 				//PRINT_DEBUG("Failed to write raw data to Memory");
@@ -1368,7 +1368,7 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
         lNumBytes = addressTable.getMaxWriteSize(src);
         lNumBytes = (numBytes < lNumBytes)?numBytes:lNumBytes;
 
-        cyclicDataRead( data, curLoc + offset, lNumBytes);
+        cyclicDataRead( data, (char*)curLoc + offset, lNumBytes);
     }while(0);
     return lNumBytes;
 }
@@ -1435,11 +1435,11 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
         /* Minimum of these two sizes */
         numBytesWritten   = (numBytes < numBytesWritten)?numBytes:numBytesWritten;
 
-        recWriteEndAddr   = incrementPointer(recWriteStartAddr + offset, numBytesWritten - 1);              /* corresponding End address on flash */
+        recWriteEndAddr   = incrementPointer((char*) recWriteStartAddr + offset, numBytesWritten - 1);              /* corresponding End address on flash */
         recEndAddr        = incrementPointer(recBaseAddr , recordSize - 1);     /* Last byte address of the record on flash */
 
         /* Now check if there is a overwrite possibility */
-        isOverWriteDetected = detectOverWrite( recWriteStartAddr + offset,
+        isOverWriteDetected = detectOverWrite( (char*) recWriteStartAddr + offset,
                                                data,
                                                numBytesWritten,
                                                &overWriteStartOffset );
@@ -1447,7 +1447,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
             /* No overwrites are detected, so its safe to just write data */
         	//debug_printf("Data_Store::writeRawData. No overwrite detected\n");
             numBytesWritten = cyclicDataWrite( data,
-                                               recWriteStartAddr + offset,
+                                               (char*) recWriteStartAddr + offset,
                                                numBytesWritten );
         }else{
             /* Possibility for Overwrite is detected.
@@ -1466,7 +1466,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
             //debug_printf("Data_Store::writeRawData. Overwrite detected\n");
 
             ////AnanthAtSamraksh -- adding below line to get the data type from record header
-            cyclicDataRead( &recHeader, recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
+            cyclicDataRead( &recHeader, (char*)recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
 
             newRecBaseAddr = createAllocation( recordID, lGivenPtr, recordSize, recHeader.dataType );
 
@@ -1491,7 +1491,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
             ////AnanthAtSamraksh - changing below line on 12/31/2013
             //uint32 lCurrentWriteLen = calculateNumBytes(newRecBaseAddr, newRecWriteStartAddr) - 1;
             ////uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, recWriteStartAddr + offset + overWriteStartOffset) - 1;
-            uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, recWriteStartAddr + offset) - 1;
+            uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, (char*)recWriteStartAddr + offset) - 1;
 
             /* Write region-1 */
             cyclicDataWrite( recBaseAddr,
@@ -1516,14 +1516,14 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
 
             ////AnanthAtSamraksh - changing below line on 12/31/2013
             //lCurrentWriteLen = calculateNumBytes(recWriteEndAddr, recEndAddr) - 1;
-            lCurrentWriteLen = calculateNumBytes(recWriteStartAddr + offset + numBytesWritten - 1, recEndAddr) - 1;
+            lCurrentWriteLen = calculateNumBytes((char*)recWriteStartAddr + offset + numBytesWritten - 1, recEndAddr) - 1;
 
             ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-3 */
             /*cyclicDataWrite( incrementPointer(recWriteEndAddr, 1),
                              lCurrentWriteLoc,
                              lCurrentWriteLen );*/
-            cyclicDataWrite( recWriteStartAddr + offset + numBytesWritten,
+            cyclicDataWrite( (char*)recWriteStartAddr + offset + numBytesWritten,
 							 lCurrentWriteLoc,
 							 lCurrentWriteLen );
 
