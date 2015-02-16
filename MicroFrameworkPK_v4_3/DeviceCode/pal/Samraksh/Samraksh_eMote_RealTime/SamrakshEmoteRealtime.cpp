@@ -41,8 +41,11 @@ static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext 
 
 BOOL InitializeTimer ()
 {
-	if(!VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER)){ //50 milli sec Timer in micro seconds
-		return DS_Fail;
+	VirtualTimerReturnMessage retVal = VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER);
+
+	// if timer is already reserved we just change it to new value
+	if(retVal == TimerReserved){
+		VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, false);
 	}
 
 	VirtTimer_Start( VIRT_TIMER_REALTIME );
@@ -60,7 +63,8 @@ BOOL UnInitializeTimer ()
 
 BOOL RT_Dispose ()
 {
-	UnInitializeTimer();
+	//UnInitializeTimer();
+	VirtTimer_Stop( VIRT_TIMER_REALTIME );
 #ifdef PLATFORM_ARM_EmoteDotNow
 	CPU_INTC_DeactivateInterrupt(PEND_SV_INTERRUPT);
 #else
