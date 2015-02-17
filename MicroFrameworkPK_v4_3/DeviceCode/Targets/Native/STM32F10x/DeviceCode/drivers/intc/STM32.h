@@ -294,56 +294,47 @@ struct STM32_AITC
        return;
 	}
 
-    // Nived.Sivadas - this function is configured for priority group 4 because sub priority is defaulted to 0
+	// ! assumes the PROGROUP bits in AIRCR[10:8] have already been initialized by calling NVIC_PriorityGroupConfig in STM32_AITC_Driver::Initialize()
+	// ! assumes caller knew the setting to specify acceptable priority
+	// ! FYI, In STM32_AITC_Driver, SCB->AIRCR[10:8] set to NVIC_PriorityGroup_4 which uses 4 bits for priority and 0 bits for subgroup.
     void SetPriority( UINT32 Irq_Index, UINT32 priority )
     {
 
-    	// Coded assert
-    	if(Irq_Index > c_MaxInterruptIndex)
-    	{
-    		while(TRUE);
-    	}
 
     	// Coded assert
-    	if(priority > 16)
+		if(Irq_Index > c_MaxInterruptIndex)
     	{
-    		while(TRUE);
+			#if defined(DEBUG)
+				while(TRUE);
+			#else
+				return;
+			#endif
     	}
 
     	UINT32 tmppriority = 0x0;
     	UINT32 tmppre = 0x0;
     	UINT32 tmpsub = 0x0F;
 
-    	tmppriority = (0x700 - ((SCB->AIRCR) & (uint32_t)0x700))>> 0x08;
-    	tmppre = (0x4 - tmppriority);
-    	tmpsub = tmpsub >> tmppriority;
+		tmppriority = (0x700 - ((SCB->AIRCR) & (uint32_t)0x700))>> 0x08; // 0x4 bits for priorities.
+		tmppre = (0x04 - tmppriority); // number bits to shift priority.
+		tmpsub = tmpsub >> tmppriority; // number of sub-group bits to clear out.
 
-    	tmppriority = (UINT32) (priority << tmppre);
-    	tmppriority |=  (0 & tmpsub);
-    	tmppriority = (tmppriority << 0x04);
-
-    	NVIC->IP[(UINT32)Irq_Index] = tmppriority;
-    	// Nived.Sivadas - discovered difference between stm32 m3 and official cortex m3
-    	// the stm32 firmware uses only 4 bits of the 8 to set priorities
-    	// and hence supports only 16 priority levels as opposed to 255
-    	// making changes here to reflect this
-#if 0
-        ASSERT(Irq_Index < c_MaxInterruptIndex);
-        ASSERT(priority < 255);
-
-		if(Irq_Index > 0 && Irq_Index != c_IRQ_INDEX_SVCall)
-			IP[(UINT32)Irq_Index] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff);
-		else if(Irq_Index == c_IRQ_INDEX_SVCall)
+#if defined(DEBUG)
+		// Coded assert
+		if(priority > (0xF >> tmppre))
 		{
-			// Setting SVCall priority to 1 above the interrupt currently being running
-			//SCB->SHP[7] = 1;
-
-			*(__IO UINT32 *) 0xE000ED1C |= (1 << 24);
-			// Nived : Need to implement SCB Driver for interrupts < 0
-			//SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff); } /* set Priority for Cortex-M3 System Interrupts */
+			while(TRUE);
 		}
 #endif
+		tmppriority = (UINT32) (priority << tmppre); // assume caller knows how many priority bits exist, because it uses the lower bits of priority.
+		tmppriority |=  (0 & tmpsub);                // clear out subgroup.
+		tmppriority = (tmppriority << 0x04);         // STMicro PM0056 pg125.
 
+		NVIC->IP[(UINT32)Irq_Index] = (UINT8)tmppriority;
+		// Nived.Sivadas - discovered difference between stm32 m3 and official cortex m3
+		// the stm32 firmware uses only 4 bits of the 8 to set priorities
+		// and hence supports only 16 priority levels as opposed to 255
+		// ... 16 priority levels at most.
 	}
 
     UINT32 GetPriority( UINT32 Irq_Index )
