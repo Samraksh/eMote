@@ -119,7 +119,6 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 
 #ifdef SAM_EXT_UART_TURBO_MODE
-	  USART_ClearITPendingBit(USART1, USART_IT_IDLE);
 	  USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 #endif
 
