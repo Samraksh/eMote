@@ -67,7 +67,7 @@ BOOL AbortHandler_CheckMemoryRange( UINT8* start, UINT8* end )
 #define INRANGE(start,end,mem) ((UINT32)(start) >= HalSystemConfig.mem.Base && (UINT32)(end) <= (HalSystemConfig.mem.Base+HalSystemConfig.mem.Size))
 
     if(INRANGE(start,end,RAM1 )) return TRUE;
-    if(INRANGE(start,end,FLASH)) return TRUE;
+    if(INRANGE(start,end,FLASH1)) return TRUE;
 
 #undef INRANGE
 
@@ -342,8 +342,8 @@ StartMonitorMode:
                     case 'L':
                         monitor_debug_printf("rb=0x%08x\r\n", HalSystemConfig.RAM1.Base  );
                         monitor_debug_printf("rs=0x%08x\r\n", HalSystemConfig.RAM1.Size  );
-                        monitor_debug_printf("fb=0x%08x\r\n", HalSystemConfig.FLASH.Base);
-                        monitor_debug_printf("fs=0x%08x\r\n", HalSystemConfig.FLASH.Size);
+                        monitor_debug_printf("fb=0x%08x\r\n", HalSystemConfig.FLASH1.Base);
+                        monitor_debug_printf("fs=0x%08x\r\n", HalSystemConfig.FLASH1.Size);
                         break;
                         
                     case 'M':

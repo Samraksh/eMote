@@ -27,7 +27,7 @@ HAL_SYSTEM_CONFIG HalSystemConfig =
     STDIO,                                          // FILE*   stdio;
 
     { SRAM1_MEMORY_Base, SRAM1_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG RAM1;
-    { FLASH_MEMORY_Base, FLASH_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG FLASH;
+    { FLASH_MEMORY_Base, FLASH_MEMORY_Size },       // HAL_SYSTEM_MEMORY_CONFIG FLASH1;
 };
 
 /***************************************************************************/
