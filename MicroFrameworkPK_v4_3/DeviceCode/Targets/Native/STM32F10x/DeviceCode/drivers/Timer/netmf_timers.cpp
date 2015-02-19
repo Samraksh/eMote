@@ -244,8 +244,6 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 		//Or else the value gets added simply
 		m_lastRead += value;
 
-		ENABLE_INTERRUPTS();
-
 		return m_lastRead;
 
 		//TODO: AnanthAtSamraksh - what is the equivalent for 16 bit timer
