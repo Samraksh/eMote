@@ -4,36 +4,14 @@
 
 #include <tinyhal.h>
 
-//--//
-
-#define NVIC_ICER       0xE000E180
-#define NVIC_ISER       0xE000E100
-#define NVIC_ABR        0xE000E300
+#if defined(SAMRAKSH_RTOS_EXT)
+#warning "GLOBAL_LOCK may interfere with real time. Need a new version of SmartPtr that utilizes the BASEPRI register to disable all interrupts except realtime."
+#endif
 
 //--//
-#define DISABLED_MASK 0x3
 
 #define __ASM __asm
 //--//
-
-///////////////////////////////////////////////////////////////////
-// For Thumb2 code, we need to declare some functions as extern
-// and implement them in assembly, as the RVDS3.1 compiler does
-// not support inline assembly
-//
-extern "C"
-{
-void   IRQ_LOCK_Probe_asm();
-UINT32 IRQ_LOCK_Release_asm();
-UINT32 IRQ_LOCK_GetState_asm();
-UINT32 IRQ_LOCK_ForceDisabled_asm();
-UINT32 IRQ_LOCK_ForceEnabled_asm();
-UINT32 IRQ_LOCK_Disable_asm();
-void   IRQ_LOCK_Restore_asm();
-}
-//
-//
-///////////////////////////////////////////////////////////////////
 
 
 SmartPtr_IRQ::SmartPtr_IRQ(void* context)
@@ -66,8 +44,8 @@ BOOL SmartPtr_IRQ::WasDisabled()
 	__asm volatile(
 	    "MRS      r1,IPSR\n"
 	    "LDR      r0,[r0,#__cpp(offsetof(SmartPtr_IRQ, m_state))]\n"
-	    "CBZ      r1,L1\n"
-	    "MOV      r0,#1\n"
+	    "CBZ      r1,L1\n"/* if we are currently disabled, return m_state*/
+	    "MOV      r0,#1\n"/* if we are in an interrupt and are currently disabled, then return true.*/
 	    "L1  BX       lr\n"
 			);
 }
@@ -123,7 +101,6 @@ BOOL SmartPtr_IRQ::ForceDisabled(void* context)
 	    "EOR      r0,r0,#1\n"
 	    "BX       lr\n"
 	);
-	return TRUE;
 }
 
 BOOL SmartPtr_IRQ::ForceEnabled(void* context)
@@ -135,7 +112,6 @@ BOOL SmartPtr_IRQ::ForceEnabled(void* context)
 		"EOR      r0,r0,#1\n"
 		"BX       lr\n"
 			);
-	return TRUE;
 }
 
 void SmartPtr_IRQ::Disable()
