@@ -19,8 +19,11 @@
 #define TRX_SUPPORTED_CHANNELS          (0x07FFF800)
 
 // Simple assert function that prints a message and infinite whiles
-#define ASSERT_RADIO(x)  if(!x){ hal_printf("ASSERT FROM RADIO");  while(1); }
-
+#if !defined(NDEBUG)
+#define ASSERT_RADIO(x)  if(!(x)){ hal_printf("ASSERT FROM RADIO"); HARD_BREAKPOINT(); }
+#else
+#define ASSERT_RADIO(x)
+#endif
 
 /**
  * Tolerance of the phyTransmitPower PIB attribute.  This is encoded

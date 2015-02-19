@@ -434,7 +434,7 @@ void SineCosine_Precise( INT16 Angle, INT16& Sine, INT16& Cosine );
 
 //--//
 
-#if !defined(BUILD_RTM)
+#if !defined(BUILD_RTM) && !defined(NDEBUG)
 
 extern "C"
 {
@@ -510,7 +510,7 @@ void HAL_Assert  ( LPCSTR Func, int Line, LPCSTR File );
 extern void HAL_AssertEx();
 
 #if defined(PLATFORM_ARM)
-    #if !defined(BUILD_RTM)
+    #if !defined(BUILD_RTM) && !defined(NDEBUG)
         #define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
         #define _SIDE_ASSERTE(i) { if(!(i)) HAL_AssertEx(); }
     #endif
