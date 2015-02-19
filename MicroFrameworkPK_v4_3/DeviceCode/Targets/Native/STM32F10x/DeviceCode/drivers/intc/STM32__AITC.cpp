@@ -247,8 +247,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 	// "info address <FunctionName>"
 	// "info registers" might help 
 	// "*((char *)0x00) = 5;" should create a hard-fault to test
+    SOFT_BREAKPOINT();
+#if !defined(NDEBUG)
  	while (1){
 	}
+#endif
 	
 }
 
@@ -320,7 +323,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 	void __irq Default_Handler()
 	{
+	    SOFT_BREAKPOINT();
+#if !defined(NDEBUG)
 		while(1);
+#endif
 	}
 
 	void __irq PVD_IRQHandler()

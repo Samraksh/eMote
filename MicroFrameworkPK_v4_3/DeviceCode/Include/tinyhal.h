@@ -439,9 +439,11 @@ void SineCosine_Precise( INT16 Angle, INT16& Sine, INT16& Cosine );
 extern "C"
 {
 void HARD_Breakpoint();
+void SOFT_Breakpoint();
 }
 
 #define HARD_BREAKPOINT()     HARD_Breakpoint()
+#define SOFT_BREAKPOINT()     SOFT_Breakpoint()
 
 #if defined(_DEBUG)
 #define DEBUG_HARD_BREAKPOINT()     HARD_Breakpoint()
@@ -452,6 +454,7 @@ void HARD_Breakpoint();
 #else
 
 #define HARD_BREAKPOINT()
+#define SOFT_BREAKPOINT()
 #define DEBUG_HARD_BREAKPOINT()
 
 #endif  // !defined(BUILD_RTM)

@@ -329,6 +329,7 @@ void Sleep() {
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.
 void Halt() {
+    SOFT_BREAKPOINT();
 	while(1);
 }
 
@@ -338,6 +339,7 @@ void Reset() {
 }
 
 void Shutdown() {
+    SOFT_BREAKPOINT();
 	while(1) { PWR_EnterSTANDBYMode(); }
 }
 

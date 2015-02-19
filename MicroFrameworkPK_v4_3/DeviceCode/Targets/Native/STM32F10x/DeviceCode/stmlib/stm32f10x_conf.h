@@ -49,6 +49,13 @@
 #include "stm32f10x_wwdg.h"
 #include "misc.h" /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 
+// Samraksh
+#include "core_cm3.h"
+
+inline uint32_t JTAG_Attached() {
+    return (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk);
+}
+
 #endif /* __STM32F10x_CONF_H */
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

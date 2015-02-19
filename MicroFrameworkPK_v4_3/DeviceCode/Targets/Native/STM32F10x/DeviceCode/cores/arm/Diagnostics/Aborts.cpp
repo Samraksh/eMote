@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
+#include <stm32f10x.h>
 
 #if defined(PLATFORM_ARM_MC9328)
 #include <Targets\Native\MC9328\DeviceCode\MC9328MXL.h>
@@ -518,6 +519,17 @@ void HARD_Breakpoint_Handler(UINT32 *registers)
     CPU_Reset();
 
 #endif  // !defined(BUILD_RTM)
+}
+
+// Safely trigger hardware debugger breakpoint.
+// Do nothing when JTAG is not attached (because 0xBE00 BKPT causes hard fault exception if C_DEBUGEN = 0 and MON_EN = 0.)
+void SOFT_Breakpoint()
+{
+#if defined(DEBUG)
+    if(JTAG_Attached()) {
+        __ASM volatile("bkpt");
+    }
+#endif  // defined(DEBUG)
 }
 
 #if !defined(BUILD_RTM)
