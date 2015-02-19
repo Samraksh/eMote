@@ -402,7 +402,7 @@ void VirtualTimerHardwareHandler(void *args)
 		break;
 	default:
 		// Something went terribly wrong loop here to help debug
-		while(1);
+		HARD_BREAKPOINT();
 	}
 
 #ifdef TIMERDEBUG

@@ -323,10 +323,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 
 	void __irq Default_Handler()
 	{
-	    SOFT_BREAKPOINT();
-#if !defined(NDEBUG)
-		while(1);
-#endif
+		HARD_BREAKPOINT();
 	}
 
 	void __irq PVD_IRQHandler()

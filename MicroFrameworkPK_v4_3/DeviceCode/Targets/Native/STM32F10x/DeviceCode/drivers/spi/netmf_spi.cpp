@@ -234,7 +234,7 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 			break;
 		default:
 			// Die Here
-			while(1);
+			HARD_BREAKPOINT();
 			break;
 	}
 
@@ -258,7 +258,7 @@ UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 			break;
 		default:
 			// Die Here
-			while(1);
+			HARD_BREAKPOINT();
 			break;
 	}
 	while (SPI_I2S_GetFlagStatus(SPI_mod, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
@@ -277,7 +277,7 @@ UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 					break;
 				default:
 					// Die Here
-					while(1);
+					HARD_BREAKPOINT();
 					break;
 		}
 
@@ -301,7 +301,7 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 				break;
 			default:
 				// Die Here
-				while(1);
+				HARD_BREAKPOINT();
 				break;
 	}
 

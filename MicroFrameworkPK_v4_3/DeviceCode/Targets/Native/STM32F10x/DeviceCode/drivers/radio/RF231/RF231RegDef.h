@@ -562,7 +562,8 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 											if(poll_counter == 0xfff)    \
 											{  								\
 												hal_printf(RADIOERROR03);  \
-												while(1);				\
+												HARD_BREAKPOINT();          \
+												break;                      \
 											} 								\
 											poll_counter++; 				\
 										  }while(trx_status != x);							\
