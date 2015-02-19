@@ -393,8 +393,10 @@ void __irq USART1_IRQHandler() {
 	unsigned int dummy;
 //CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 
+	GLOBAL_LOCK(irq);
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+	//skip irq.Release() because both calls to USART_AddToRxBuffer assert IRQs disabled.
 	
 	err = USART1->SR; // check status reg
 
