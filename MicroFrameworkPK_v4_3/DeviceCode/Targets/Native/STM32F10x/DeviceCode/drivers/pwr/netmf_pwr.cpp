@@ -61,8 +61,16 @@ void PowerInit() {
 		return;
 	}
 
-#ifndef NDEBUG
+#if defined(DEBUG) // For flavors without DEBUG (e.g. Release RTM), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
+	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
+	{
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
+	}
+	else {
+#endif
+	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, DISABLE);
+#if defined(DEBUG)
+	}
 #endif
 
 #ifdef DOTNOW_HSI_CALIB
