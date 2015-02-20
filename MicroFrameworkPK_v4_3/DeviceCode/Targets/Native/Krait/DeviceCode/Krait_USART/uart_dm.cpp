@@ -72,7 +72,7 @@ static unsigned int msm_boot_uart_replace_lr_with_cr(char *data_in,
 static unsigned int msm_boot_uart_dm_init(UINT8 id);
 static unsigned int msm_boot_uart_dm_read(UINT8 id, unsigned int *data,
 					  int wait);
-unsigned int msm_boot_uart_dm_write(UINT8 id, char *data,
+unsigned int msm_boot_uart_dm_write(UINT8 id, const char *data,
 					   unsigned int num_of_chars);
 unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id);
 unsigned int msm_boot_uart_dm_reset(UINT8 id);
@@ -319,7 +319,7 @@ msm_boot_uart_dm_read(UINT8 id, unsigned int *data, int wait)
  * UART transmit operation
  */
 unsigned int
-msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars)
+msm_boot_uart_dm_write(UINT8 id, const char *data, unsigned int num_of_chars)
 {
 	unsigned int tx_word_count = 0;
 	unsigned int tx_char_left = 0, tx_char = 0;
@@ -338,7 +338,7 @@ msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars)
 
 	//tx_data = new_data;
 	//num_of_chars = i;
-	tx_data = data;
+	tx_data = (char*)data;
 
 	/* Write to NO_CHARS_FOR_TX register number of characters
 	 * to be transmitted. However, before writing TX_FIFO must

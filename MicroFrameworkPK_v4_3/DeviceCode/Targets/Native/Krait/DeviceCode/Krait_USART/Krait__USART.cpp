@@ -17,7 +17,7 @@
 
 extern Krait_USART_Driver g_Krait_USART_Driver;
 
-extern unsigned int msm_boot_uart_dm_write(UINT8 id, char *data, unsigned int num_of_chars);
+extern unsigned int msm_boot_uart_dm_write(UINT8 id, const char *data, unsigned int num_of_chars);
 extern unsigned int msm_boot_uart_dm_gsbi_init(UINT8 id);
 extern unsigned int msm_boot_uart_dm_reset(UINT8 id);
 extern unsigned int msm_boot_uart_dm_init_rx_transfer(UINT8 id);
