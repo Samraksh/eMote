@@ -40,6 +40,11 @@
 
 
 #if defined(__GNUC__)
+#if defined(__packed)
+#define POP_MACRO_PACKED
+#pragma push_macro("__packed")
+#undef __packed
+#endif
 #define __packed
 #define __gnu_packed __attribute__((packed))
 #else
@@ -109,6 +114,9 @@ struct __gnu_packed GifGraphicControlExtension  //6 bytes
 #pragma unpack 
 #endif
 
+#if defined(POP_MACRO_PACKED)
+#pragma pop_macro("__packed")
+#endif
 
 
 #endif
