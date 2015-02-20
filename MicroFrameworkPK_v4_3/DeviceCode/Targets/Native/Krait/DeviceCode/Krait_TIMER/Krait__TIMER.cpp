@@ -41,7 +41,7 @@ BOOL Krait_Timer::InitializeTimer ( UINT16 Timer, BOOL IsOneShot, HAL_CALLBACK_F
 	GLOBAL_LOCK(irq);
 
 	if (Timer != 0) {
-		ASSERT();
+		ASSERT(0);
 		return FALSE; // So far we only support DGT aka Timer0
 	}
 
@@ -193,14 +193,14 @@ static BOOL Uninitialize(UINT32 Timer)
 // Always on
 static void EnableCompareInterrupt(UINT32 Timer)
 {
-	ASSERT();
+	ASSERT(0);
 	//writel(DGT_ENABLE_CLR_ON_MATCH_EN , DGT_ENABLE);
 }
 
 // Always on
 static void DisableCompareInterrupt(UINT32 Timer)
 {
-	ASSERT();
+	ASSERT(0);
 	//UINT32 dgt_enable = readl(DGT_ENABLE);
 	//writel((dgt_enable & (~DGT_ENABLE_CLR_ON_MATCH_EN)) , DGT_ENABLE);
 }
@@ -208,7 +208,7 @@ static void DisableCompareInterrupt(UINT32 Timer)
 // Not used.
 static void ForceInterrupt(UINT32 Timer)
 {
-	ASSERT();
+	ASSERT(0);
 }
 
 // Set an interrupt for a number of ticks in the future
@@ -226,14 +226,14 @@ void Krait_Timer::SetCompare(UINT16 Timer, UINT32 Compare)
 
 static UINT32 GetCompare(UINT32 Timer)
 {
-	ASSERT(); // Shouldn't be used anywhere?
+	ASSERT(0); // Shouldn't be used anywhere?
 	return readl(DGT_MATCH_VAL);
 }
 
 // Nobody touches my counter! (except init).
 void Krait_Timer::SetCounter(UINT32 Timer, UINT32 Count)
 {
-	ASSERT();
+	ASSERT(0);
 }
 
 UINT32 Krait_Timer::GetCounter(UINT16 Timer)
@@ -244,7 +244,7 @@ UINT32 Krait_Timer::GetCounter(UINT16 Timer)
 
 static BOOL DidCompareHit(UINT32 Timer)
 {
-	ASSERT();
+	ASSERT(0);
 	return FALSE;
 }
 
@@ -255,7 +255,7 @@ static BOOL DidCompareHit(UINT32 Timer)
 
 static void ResetCompareHit(UINT32 Timer)
 {
-	ASSERT();
+	ASSERT(0);
 }
 
 
