@@ -100,8 +100,9 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer)
 	return (UINT16)g_Krait_Timer.GetCounter(Timer);
 }
 
-UINT32 CPU_Timer_CurrentTicks(UINT16 Timer)
+UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
+#warning "######## FIXME CPU_Timer_CurrentTicks does not implement latest 64-bit API! ##############"
 	return g_Krait_Timer.GetCounter(0);
 }
 
