@@ -38,7 +38,7 @@
 //extern void usDelay(int);
 
 // local function prototypes
-SMALLINT owAcquire(int,char *);
+SMALLINT owAcquire(int,const char *);
 void     owRelease(int);
 
 //---------------------------------------------------------------------------
@@ -50,9 +50,8 @@ void     owRelease(int);
 //
 // Returns: TRUE - success, port opened
 //
-SMALLINT owAcquire(int portnum, char *port_zstr)
+SMALLINT owAcquire(int portnum, const char *port_zstr)
 {
-  port_zstr = 0;
 
   //portnum = 0;
   UINT32 pin = (UINT32)portnum; 

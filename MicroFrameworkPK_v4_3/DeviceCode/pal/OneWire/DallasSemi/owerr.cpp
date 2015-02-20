@@ -58,7 +58,7 @@ typedef struct
    int owErrorNum;
 #ifdef DEBUG
    int lineno;
-   char *filename;
+   const char* filename;
 #endif
 } owErrorStruct;
 
@@ -141,7 +141,7 @@ int owHasErrors(void)
    //             int lineno - DEBUG only - the line number where it was raised
    //             char* filename - DEBUG only - the file name where it occured.
    //
-   void owRaiseError(int err, int lineno, char* filename)
+   void owRaiseError(int err, int lineno, const char* filename)
    {
       owErrorPointer = (owErrorPointer + 1) % SIZE_OWERROR_STACK;
       owErrorStack[ owErrorPointer ].owErrorNum = err;
@@ -334,7 +334,7 @@ int owHasErrors(void)
    {
    #ifdef DEBUG
       int l = owErrorStack[ owErrorPointer ].lineno;
-      char *f = owErrorStack[ owErrorPointer ].filename;
+      const char *f = owErrorStack[ owErrorPointer ].filename;
       int err = owGetErrorNum();
       hal_printf(/*filenum,*/"Error %d: %s line %d: %s\r\n",err,f,l,owErrorMsg[err]);
    #else
@@ -349,7 +349,7 @@ int owHasErrors(void)
    {
    #ifdef DEBUG
       int l = owErrorStack[ owErrorPointer ].lineno;
-      char *f = owErrorStack[ owErrorPointer ].filename;
+      const char *f = owErrorStack[ owErrorPointer ].filename;
       int err = owGetErrorNum();
       hal_printf("Error %d: %s line %d: %s\r\n",err,f,l,owErrorMsg[err]);
    #else

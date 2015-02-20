@@ -172,7 +172,6 @@
 
          typedef unsigned short ushort;
          typedef unsigned long ulong;
-		 typedef unsigned int UINT32;
 		 
 // general defines
 #define WRITE_FUNCTION 1
@@ -219,7 +218,7 @@ extern int owHasErrors(void);
 #ifdef DEBUG
    //Raises an exception with extra debug info
    #define OWERROR(err) owRaiseError(err,__LINE__,__FILE__)
-   extern void owRaiseError(int,int,char*);
+   extern void owRaiseError(int,int,const char*);
    #define OWASSERT(s,err,ret) if(!(s)){owRaiseError((err),__LINE__,__FILE__);return (ret);}
 #else
    //Raises an exception with just the error code
@@ -376,7 +375,7 @@ SMALLINT  owOverdriveAccess(int portnum);
 
 
 // external One Wire functions defined in owsesu.c
- SMALLINT owAcquire(int portnum, char *port_zstr);
+ SMALLINT owAcquire(int portnum, const char *port_zstr);
  int      owAcquireEx(char *port_zstr);
  void     owRelease(int portnum);
 
