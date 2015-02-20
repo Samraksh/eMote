@@ -34,7 +34,6 @@
 #define MIPI_DSI_BASE                         (0x04700000)
 #define REG_DSI(off)                          (MIPI_DSI_BASE + (off))
 
-#define MDP_DSI_VIDEO_EN                      (0xAA2F0000)
 #define MDP_OVERLAYPROC0_START                REG_MDP(0x00004)
 #define MDP_DMA_P_START                       REG_MDP(0x0000C)
 #define MDP_DMA_S_START                       REG_MDP(0x00010)
