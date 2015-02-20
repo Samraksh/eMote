@@ -89,7 +89,7 @@
    .section VectorsTrampolines, "xa", %progbits
 
 ARM_Vectors:
-  .word  Initial_spTop
+  .word  SAM_STACK_TOP
   .word  EntryPoint
   .word  NMI_Handler
   .word  HardFault_Handler
