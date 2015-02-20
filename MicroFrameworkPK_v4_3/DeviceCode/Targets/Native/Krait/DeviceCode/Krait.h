@@ -15,13 +15,18 @@
 
 #define	ETIME		62	/* Timer expired */
 
-typedef UINT32 uint32_t;
-typedef UINT16 uint16_t;
-typedef UINT8 uint8_t;
-//from include/sys/types.h
 
 #define __ALIGNED(x) __attribute__((aligned(x)))
 
+#if !defined(uint32_t)
+typedef UINT32 uint32_t;
+#endif
+#if !defined(uint16_t)
+typedef UINT16 uint16_t;
+#endif
+#if !defined(uint8_t)
+typedef UINT8 uint8_t;
+#endif
 //typedef uchar u_char;
 typedef ushort u_short;
 typedef uint u_int;
@@ -35,11 +40,13 @@ typedef unsigned long size_t;
 
 typedef int status_t;
 
+#if !defined(uintptr_t)
 typedef unsigned long uintptr_t;
+#endif
 typedef uintptr_t addr_t;
 
 //#define ASSERT(x) if(!x){ while(1); }
-#define ASSERT(x)
+//#define ASSERT(x)
 
 //typedef ulong intptr_t;
 //typedef uintptr_t addr_t;
