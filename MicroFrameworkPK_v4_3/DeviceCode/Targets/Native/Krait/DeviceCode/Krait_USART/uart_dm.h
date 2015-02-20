@@ -30,7 +30,7 @@
 #define __UART_DM_H__
 
 
-#define UART_DM_CLK_RX_TX_BIT_RATE 0xEE
+#define UART_DM_CLK_RX_TX_BIT_RATE 0xEE  //FIXME: was 0xFF in Krait_Clock.h but redefined here before being used.
 
 #define MSM_BOOT_UART_DM_EXTR_BITS(value, start_pos, end_pos) \
                                              ((value << (32 - end_pos))\
