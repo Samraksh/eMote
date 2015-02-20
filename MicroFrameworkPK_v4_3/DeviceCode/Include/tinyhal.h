@@ -85,6 +85,9 @@
 #define PLATFORM_ARM
 #define ADS_PACKED
 #define GNU_PACKED  __attribute__((packed))
+#if defined(__section)
+#undef __section //TinyCLR depends on stringification of __section macro parameter.
+#endif
 #define __section(x) __attribute__((section(#x)))
 #define __irq __attribute__((interrupt))
 #define __forceinline __attribute__((always_inline))
