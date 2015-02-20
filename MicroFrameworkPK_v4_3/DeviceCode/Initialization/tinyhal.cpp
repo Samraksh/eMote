@@ -94,7 +94,11 @@ extern UINT32 Load$$ER_FLASH$$Base;
 extern UINT32 Image$$ER_FLASH$$Length;
 
 #else
+#ifdef __GNUC__
+#pragma GCC diagnostic error "Need to define valid TARGETLOCATION!"
+#else
     !ERROR
+#endif
 #endif
 
 UINT32 LOAD_IMAGE_Start;
