@@ -166,9 +166,15 @@ void STM32F1x_Power_Driver::Hibernate() {
 }
 
 void HAL_AssertEx() {
-__asm__("    BKPT     #0");
-__asm__("L1: B        L1");
-__asm__("    BX       lr");
+/*
+// leave commented out because there was no response the pull request on 2014-03-14.
+#if !defined(NDEBUG)
+	if(JTAG_Attached()) {
+		SOFT_BREAKPOINT(); // use SOFT_BREAKPOINT() because there are too many assertions being thrown, and some assertions might be false positives due to other companies submitting junk to CodePlex.
+	}
+	return;
+#endif
+*/
 }
 
 
