@@ -53,7 +53,7 @@ static void fbcon_set_colors(unsigned bg, unsigned fg)
 void fbcon_clear(void)
 {
 	unsigned count = config->width * config->height;
-	memset(config->base, BGCOLOR, count * ((config->bpp) / 8));
+	memset((char*)config->base, BGCOLOR, count * ((config->bpp) / 8));
 }
 
 

@@ -541,7 +541,7 @@ void LCD_BitBltEx ( int x, int y, int width, int height, char data[])
     
     for (i = 0; i < height; i++)
     {
-    	memcpy (config->base + ((image_base + (i * (config->width))) * bytes_per_bpp),
+        memcpy ((char*)config->base + ((image_base + (i * (config->width))) * bytes_per_bpp),
 		data + (i * width * bytes_per_bpp),
 		width * bytes_per_bpp);
 	}
