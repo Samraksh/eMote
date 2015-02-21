@@ -72,12 +72,10 @@ BOOL Time_Driver::Uninitialize()
 	return TRUE;
 }
 
-//BOOL state = FALSE;
+
 
 UINT64 Time_Driver::CurrentTicks()
 {
-	//return VirtTimer_GetTicks(VIRT_TIMER_TIME);
-
 	UINT64 currentTotalTicks = 0;
 
 	//GLOBAL_LOCK(irq);
@@ -109,22 +107,10 @@ UINT64 Time_Driver::CurrentTicks()
 				currentTotalTicks = bigCounter + (UINT64)diff + (UINT64)maxTicks;
 				overflowCondition = true;
 			}
-
 		}
 		else		//false roll-over, due to a bad interrupt perhaps(?) that causes currentTicks to be less than prevTicks before the roll-over
 		{
 			goto normalCase;
-			/*if(bigCounterUpdated)
-			{
-				currentTotalTicks = bigCounter + (UINT64)currentTicks;
-				bigCounterUpdated = false;
-				overflowCondition = false;
-			}
-			else
-				if(overflowCondition)
-					currentTotalTicks = bigCounter + (UINT64)currentTicks + (UINT64)maxTicks;
-				else
-					currentTotalTicks = bigCounter + (UINT64)currentTicks;*/
 		}
 	}
 	else			//Normal case, where currTicks is greater then prevTicks
@@ -147,13 +133,6 @@ normalCase:
 	}
 
 	prevTicks = currentTicks;
-	//if(prevBigCounter != bigCounter)
-	/*if(bigCounterUpdated)
-	{
-		hal_printf("before prevBigCounter: %llu\r\n", prevBigCounter);
-		prevBigCounter = bigCounter;
-		hal_printf("after prevBigCounter: %llu\r\n", prevBigCounter);
-	}*/
 
 	return currentTotalTicks;
 }
@@ -176,30 +155,13 @@ void Time_Driver::StopTimer()
 
 void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
-	//CPU_GPIO_SetPinState((GPIO_PIN) 52, TRUE);
-	//CPU_GPIO_SetPinState((GPIO_PIN) 52, FALSE);
-
 	UINT32 compareTimeInMicroSecs = 0;
 
-	/*if(compareTicks >= 0xFFFFFFFF)
-	{
-		compareTimeInMicroSecs = 0xFFFFFFFF;
-		//hal_printf("if compareTimeInMicroSecs: %d \r\n", compareTimeInMicroSecs-1);
-	}
-	else{
-		compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
-		//hal_printf("else compareTimeInMicroSecs: %d \r\n", compareTimeInMicroSecs-1);
-	}*/
-
-	//if(compareTicks <= 0x25ED097B)
-	//if(compareTicks <= 0x19999999)
 	if(compareTicks < 0xFFFFFFFF)
 	{
-		//compareTimeInMicSecs = CPU_TicksToTime((UINT32)compareTicks, 1);
 #ifdef PLATFORM_ARM_EmoteDotNow
 		compareTimeInMicroSecs = (UINT32)(CPU_TicksToMicroseconds(compareTicks, 1));
 #else
-		//compareTimeInMicroSecs = ((UINT32)compareTicks) * 4 / 27;
 		compareTimeInMicroSecs = (UINT32)(CPU_TicksToMicroseconds(compareTicks, 1));
 #endif
 	}
@@ -212,15 +174,6 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	}
 
 	VirtTimer_Start( VIRT_TIMER_EVENTS );
-
-	/*if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE, TRUE, SetCompareHandler) == TimerReserved)
-	{
-		//VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTicks, TRUE);
-	}
-
-	VirtTimer_Start( VIRT_TIMER_EVENTS );
-	//VirtTimer_Stop( VIRT_TIMER_EVENTS );
-	CPU_Timer_SetCompare(1, compareTicks);*/
 }
 
 
@@ -241,35 +194,19 @@ INT64 Time_Driver::CurrentTime()
 	UINT64 currentTime = 0;
 
 	if (a == 1)
-	{
 		currentTime = (currentTotalTicks * b + c);
-	} else if (a == 2) {
+	else if (a == 2)
+	{
 		currentTime = (currentTotalTicks * b + c);
 		currentTime = currentTime >> 1;
-	} else if (a == 4) {
+	}
+	else if (a == 4)
+	{
 		currentTime = (currentTotalTicks * b + c);
 		currentTime = currentTime >> 2;
-	} else if(a != 0)
-	{
+	}
+	else if(a != 0)
 		currentTime = (currentTotalTicks * b + c) / a;
-	}
-
-	/*UINT64 currentTime = 0;
-	UINT32 currentTicks = VirtTimer_GetTicks(VIRT_TIMER_TIME);
-
-	if(currentTicks < prevTicks)
-	{
-		UINT32 diff = (maxTicks - prevTicks ) + currentTicks;
-		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)prevTicks + (UINT64)diff));
-		currentTime = bigCounter + (UINT64)prevTicks + (UINT64)diff;
-	}
-	else
-	{
-		//currentTime = VirtTimer_TicksToTime(VIRT_TIMER_TIME, (bigCounter + (UINT64)currentTicks));
-		currentTime = bigCounter + (UINT64)currentTicks;
-	}
-
-	prevTicks = currentTicks;*/
 
 	return (INT64)currentTime;
 }
