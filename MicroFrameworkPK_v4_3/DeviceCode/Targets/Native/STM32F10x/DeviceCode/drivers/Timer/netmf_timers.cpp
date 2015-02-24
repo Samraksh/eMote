@@ -212,7 +212,7 @@ UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 }
 
 //TODO: AnanthAtSamraksh - to check if this is the right place
-UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
+UINT32 CPU_Timer_CurrentTicks(UINT16 Timer)
 {
 	//TODO: AnanthAtSamraksh - not checking if timer is greater than total timers configured. T
 	//This can be done in the if...else loop
@@ -220,7 +220,7 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	/*if(Timer < 0)
 		return 0;*/
 
-	UINT64 currentTicksValue = 0;
+	UINT32 currentTicksValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		//AnanthAtSamraksh -- added below from
@@ -254,7 +254,7 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 		//GLOBAL_LOCK(irq);
 		//AnanthAtSamraksh
 		////currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
-		currentTicksValue = g_STM32F10x_AdvancedTimer.Get64Counter();
+		currentTicksValue = g_STM32F10x_AdvancedTimer.GetCounter();
 	}
 
 	return currentTicksValue;

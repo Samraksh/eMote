@@ -244,7 +244,6 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 	}
 	else
 	{
-		//TODO: AnanthAtSamraksh -- check if INT64 is right
 		newCompareValue = (UINT32) (counterCorrection + compareValue);
 		//newCompareValue = counterCorrection + compareValue;
 	}
@@ -281,13 +280,11 @@ UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
 
 void ISR_TIM2(void* Param)
 {
-//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 
-		//hal_printf("Current Compare Value %d", g_STM32F10x_AdvancedTimer.currentCompareValue);
 		// Set the lsb of the 32 bit timer
 		//TIM_SetCompare2(TIM1, TIM1->CNT + (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
 		//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
@@ -299,53 +296,7 @@ void ISR_TIM2(void* Param)
 
 		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
-		/*if(lsbValue < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)31, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)31, FALSE);
-		}
-		else if(lsbValue >= 500 && lsbValue < 990)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(lsbValue >= 990 && lsbValue <= 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(lsbValue > 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
 
-		/*if(TIM1->CNT >= 750 && TIM1->CNT < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(TIM1->CNT >= 800 && TIM1->CNT <= 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(TIM1->CNT > 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
-
-
-
-		//if(lsbValue < 100)		//7.417secs
-		//if(lsbValue < 500)		//5.6996secs
-		//if(lsbValue < 750)		//4.412secs
-		//if(lsbValue < 1000)		//3.124secs
-		//if(lsbValue < 1250)		//1.837secs
-		//if(lsbValue < 1500)		//0.5497secs
-		//if(lsbValue < 2000)		//0.1198secs
-		//if(TIM1->CNT > lsbValue)
 		//AnanthAtSamraksh: if TIM1->CNT has overflown the lsbValue or if the difference between the 2 is 750.
 		//750 ticks * 125ns = 93us. If only 750 ticks remain, might as well trigger the event. Else, set the compare
 		//value for interrupt to go off at scheduled time.

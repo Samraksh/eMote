@@ -217,6 +217,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 		return TRUE;
 	}
 
+#if 0
 	// Adjusting all timers in the timerQueue (even ones that are not active and not in the queue are adjusted but that won't affect anything). We could iterate and only adjust active ones, but it is not worth the time to check.
 	UINT64 currentTicks = CPU_Timer_CurrentTicks(VTM_hardwareTimerId);
 	UINT64 tickElapsed = 0;
@@ -230,8 +231,10 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	for( i = 0; i < m_current_timer_cnt_; i++)
 	{
 		//Adjust only active timers
-		if (g_VirtualTimerInfo[i].get_m_is_running() == TRUE){
-			g_VirtualTimerInfo[i].set_m_ticksTillExpire(g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) tickElapsed);
+		if (g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+		{
+			if((g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) tickElapsed) > 0)
+				g_VirtualTimerInfo[i].set_m_ticksTillExpire(g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) tickElapsed);
 			/*if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= shortestTicks)
 			{
 					shortestTicks = ticksTillExpire;
@@ -239,6 +242,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 			}*/
 		}
 	}
+#endif
 
 	// Initializing timer
 	UINT32 ticks;
@@ -268,8 +272,10 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 		CPU_Timer_SetCompare(VTM_hardwareTimerId, (UINT32)gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticksTillExpire() );
 		gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
 	}
+#if 0
 	currentTicks = CPU_Timer_CurrentTicks(VTM_hardwareTimerId);
 	gVirtualTimerObject.virtualTimerMapper_0.set_m_lastQueueAdjustmentTime(currentTicks);
+#endif
 
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
@@ -368,8 +374,8 @@ void VirtualTimerCallback(void *arg)
 			runningTimer->set_m_is_running(FALSE);
 		} else {
 			ticks = runningTimer->get_m_period();
-
-			runningTimer->set_m_ticksTillExpire(ticks - tickElapsed);
+			if((ticks > 0) && (ticks - tickElapsed) > 0)
+				runningTimer->set_m_ticksTillExpire(ticks - tickElapsed);
 		}
 
 		for(i = 0; i < currentVirtualTimerCount; i++)
