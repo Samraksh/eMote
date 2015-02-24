@@ -245,7 +245,7 @@ public:
 
 	void WriteRegister(UINT8 reg, UINT8 value);
 
-	BOOL Reset();
+	DeviceStatus Reset();
 
 	UINT8 ReadRegister(UINT8 reg);
 

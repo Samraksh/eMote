@@ -42,7 +42,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	 }
 
 	        INIT_STATE_CHECK();
-	        //GLOBAL_LOCK(irq);
+	        GLOBAL_LOCK(irq);
 	        //__ASM volatile("cpsid i");
 	        //pulse 1
 	#ifdef DEBUG_RF231
@@ -180,7 +180,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        return temp;
 }
 
-BOOL RF231Radio::Reset()
+DeviceStatus RF231Radio::Reset()
 {
 	INIT_STATE_CHECK()
 
@@ -188,7 +188,7 @@ BOOL RF231Radio::Reset()
 
 	if(TRUE != GpioPinInitialize())
 	{
-		return FALSE;
+		return DS_Fail;
 	}
 			//configure_exti();
 	if(TRUE != SpiInitialize())
@@ -288,7 +288,7 @@ BOOL RF231Radio::Reset()
 			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
 			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 	#endif
-	return TRUE;
+	return DS_Success;
 }
 
 
@@ -384,7 +384,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 {
 	// State variable change in this function, possible race condition
 	// Lock
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	// Initiailize state change check variables
 	// Primarily used if DID_STATE_CHANGE_ASSERT is used
@@ -462,7 +462,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	
 	INIT_STATE_CHECK();
 
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 	//__ASM volatile("cpsid i");
 	//pulse 1
 #ifdef DEBUG_RF231
@@ -751,7 +751,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Set the state of sleep pending to false
 		sleep_pending = FALSE;
 
-		//GLOBAL_LOCK(irq);
+		GLOBAL_LOCK(irq);
 		//for(UINT8 i = 0; i < 30; i++)
 			//data[i] = 0;
 #ifdef DEBUG_RF231
@@ -911,7 +911,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 //template<class T>
 void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 {
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	SelnClear();
 
@@ -998,7 +998,7 @@ BOOL RF231Radio::SpiInitialize()
 DeviceStatus RF231Radio::TurnOn()
 {
 	INIT_STATE_CHECK();
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	// The radio is not sleeping or is already on
 	if(state != STATE_SLEEP)
@@ -1042,8 +1042,9 @@ DeviceStatus RF231Radio::TurnOn()
 	//WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 	//DID_STATE_CHANGE(RF230_PLL_ON);
 
+	// If a packet is received since the last interrupt routine was called, clearing this register here will drop the packet
 	// Clear the interrupt register
-	ReadRegister(RF230_IRQ_STATUS);
+	//ReadRegister(RF230_IRQ_STATUS);
 
 	WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 
@@ -1063,7 +1064,7 @@ DeviceStatus RF231Radio::TurnOn()
 //template<class T>
 UINT8 RF231Radio::ReadRegister(UINT8 reg)
 {
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 	UINT8 read_reg;
 
 	SelnClear();
@@ -1102,7 +1103,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		state = STATE_RX_ON;
 	}
 
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	if(state != STATE_RX_ON)
 	{
@@ -1156,7 +1157,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 {
 	UINT8 trx_status;
 
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
@@ -1399,58 +1400,60 @@ DeviceStatus RF231Radio::DownloadMessage()
 {
 	UINT16 crc;
 	INT16 lqi;
+	DeviceStatus retStatus = DS_Success;
 
-
-
-	//////////////////////If Auto crc check is failing return false
 	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
-	if(!(phy_rssi & (1 << 7)))
-		return DS_Fail;
-
-	INIT_STATE_CHECK();
-	UINT8 length;
-	UINT8 counter = 0;
-	SelnClear();
+	if(!(phy_rssi & (1 << 7))){
+		// Auto crc check is failing return false
+		hal_printf("dm err phy_rssi: %d\r\n",phy_rssi);
+		retStatus = DS_Fail;
+	} else {
+		INIT_STATE_CHECK();
+		UINT8 length;
+		UINT8 counter = 0;
+		SelnClear();
 	
 
-	UINT8* temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
-	//erase the packet clean before writing anything
-	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH-2);
-
-	CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
-	length = CPU_SPI_WriteReadByte(config, 0);
+		UINT8* temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
+		//erase the packet clean before writing anything
+		memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH-2);
 	
-	if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
-					hal_printf("Radio Receive Error: Packet too big: %d ",length);
-					return DS_Fail;
-	}
-	else if(length >= 3)
-	{
-		UINT8 read;
-		CPU_SPI_WriteReadByte(config, 0);
-
-		//rx_msg.SetLength(length);
-
-		// Returns a pointer to the data buffer
-		//data = rx_msg;
-
-		read = length - 2;
-		temp_rx_msg_ptr[counter++] =length;
-		do
-		{
-			temp_rx_msg_ptr[counter++] = CPU_SPI_WriteReadByte(config, 0);
+		CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
+		length = CPU_SPI_WriteReadByte(config, 0);
+		
+		if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
+			hal_printf("Radio Receive Error: Packet too big: %d ",length);
+			retStatus = DS_Fail;
 		}
-		while(--read != 0);
-		
-		// Read the crc byte because we are trying to get to the lqi
-		crc = CPU_SPI_WriteReadByte(config, 0);
-		crc = CPU_SPI_WriteReadByte(config, 0);
+		else if(length >= 3)
+		{
+			UINT8 read;
+			CPU_SPI_WriteReadByte(config, 0);
 
-		lqi = CPU_SPI_WriteReadByte(config, 0);
+			//rx_msg.SetLength(length);
+
+			// Returns a pointer to the data buffer
+			//data = rx_msg;
+
+			read = length - 2;
+			temp_rx_msg_ptr[counter++] =length;
+			do
+			{
+				temp_rx_msg_ptr[counter++] = CPU_SPI_WriteReadByte(config, 0);
+			}
+			while(--read != 0);
 		
-		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-		metadata->SetLqi(lqi);
-		metadata->SetReceiveTimeStamp(receive_timestamp);
+			// Read the crc byte because we are trying to get to the lqi
+			crc = CPU_SPI_WriteReadByte(config, 0);
+			crc = CPU_SPI_WriteReadByte(config, 0);
+
+			lqi = CPU_SPI_WriteReadByte(config, 0);
+		
+			IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+			metadata->SetLqi(lqi);
+			metadata->SetReceiveTimeStamp(receive_timestamp);
+		}
+		rx_length = length - 2;
 	}
 	SelnSet();
 
@@ -1458,9 +1461,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	cmd = CMD_NONE;
 
-
-	rx_length = length - 2;
-	return DS_Success;
+	return retStatus;
 }
 
 

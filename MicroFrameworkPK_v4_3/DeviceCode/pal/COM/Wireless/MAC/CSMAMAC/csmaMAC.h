@@ -52,6 +52,7 @@ class csmaMAC: public MAC<Message_15_4_t, MacConfig>
 	UINT8 CurrentActiveApp;
 	BOOL RadioAckPending;
 	UINT8 m_recovery;
+	BOOL flushTimerRunning;
 
 
 public:

@@ -75,7 +75,6 @@ void HAL_COMPLETION::DequeueAndExec()
 		// our  virtual timer only needs uSecFromNow and not currentTime plus uSecFromNow
 		// so instead of changing MS code that points to EnqueueTicks, we'll just subtract out currentTime at this point
 		UINT64 Now            = HAL_Time_CurrentTicks();
-        ///HAL_Time_SetCompare_Completion( (ptrNext->Next() ? ptrNext->EventTimeTicks : HAL_Completion_IdleValue) - Now );
 		if (ptrNext->Next()){
         	HAL_Time_SetCompare_Completion( ptrNext->EventTimeTicks  - Now );
 		}
@@ -172,7 +171,8 @@ void HAL_COMPLETION::Abort()
 
             nextTicks = firstNode->EventTimeTicks;
 			HAL_Time_Stop_Completion_timer();
-        	HAL_Time_SetCompare_Completion( nextTicks );
+			UINT64 Now            = HAL_Time_CurrentTicks();
+        	HAL_Time_SetCompare_Completion( nextTicks - Now );
         }
 
     }
@@ -205,7 +205,8 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         state = 0;
     }
 
-    if(state & c_SetCompare) HAL_Time_SetCompare_Completion( Expire );
+	UINT64 Now            = HAL_Time_CurrentTicks();
+    if(state & c_SetCompare) HAL_Time_SetCompare_Completion( Expire - Now );
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
 
@@ -217,7 +218,8 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
         //HAL_Time_SetCompare_Completion( (state & c_ResetCompare) ? ptr->EventTimeTicks : HAL_Completion_IdleValue );
 		if (state & c_ResetCompare){
 			HAL_Time_Stop_Completion_timer();
-        	HAL_Time_SetCompare_Completion( ptr->EventTimeTicks );
+			Now            = HAL_Time_CurrentTicks();
+        	HAL_Time_SetCompare_Completion( ptr->EventTimeTicks - Now );
 		}
     }
 }

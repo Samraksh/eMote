@@ -33,7 +33,9 @@ void SendFirstPacketToRadio(void * arg){
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
-	//CLR_Debug::Printf("beaconScheduler firing\r\n");
+#ifdef DEBUG_MAC
+	hal_printf("bS fire\r\n");
+#endif
 	gcsmaMacObject.UpdateNeighborTable();
 	gcsmaMacObject.SendHello();
 }
@@ -64,6 +66,9 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.Network = config->Network;
 	MyConfig.NeighbourLivelinessDelay = config->NeighbourLivelinessDelay;
 
+#ifdef DEBUG_MAC
+	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighbourLivelinessDelay);
+#endif
 	return DS_Success;
 }
 
@@ -115,7 +120,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		VirtTimer_Start(VIRT_TIMER_MAC_BEACON);
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
-		//if(!gHalTimerManagerObject.CreateTimer(3, 0, 50000, FALSE, FALSE, SendFirstPacketToRadio)){
+		flushTimerRunning = false;
 		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio)){
 			return DS_Fail;
 		}
@@ -158,7 +163,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 {
 	Message_15_4_t msg_carrier;
 		if(Size >  csmaMAC::GetMaxPayload()){
-			hal_printf("CSMA Send Error: Packet is too big: %d ", Size);
+			hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 			return FALSE;
 		}
 		IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
@@ -185,7 +190,9 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 		for(UINT8 i = 0 ; i < Size; i++)
 			payload[i] = lmsg[i];
 
-		//hal_printf("CSMA Sending: My address is : %d\n",CPU_Radio_GetAddress());
+#ifdef DEBUG_MAC
+	hal_printf("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
+#endif
 		// Check if the circular buffer is full
 		if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 				return FALSE;
@@ -200,7 +207,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
 	Message_15_4_t msg_carrier;
 	if(Size >  csmaMAC::GetMaxPayload()){
-		hal_printf("CSMA Send Error: Packet is too big: %d ", Size);
+		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
@@ -223,8 +230,9 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 
 	for(UINT8 i = 0 ; i < Size; i++)
 		payload[i] = lmsg[i];
-
-	//hal_printf("CSMA Sending: My address is : %d\n",CPU_Radio_GetAddress());
+#ifdef DEBUG_MAC
+	//hal_printf("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
+#endif
 	// Check if the circular buffer is full
 	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 			return FALSE;
@@ -270,16 +278,24 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 
 void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
-	//hal_printf("<%d>\r\n",m_send_buffer.GetNumberMessagesInBuffer());
-	if (m_send_buffer.GetNumberMessagesInBuffer() > 1){
-		//CLR_Debug::Printf("Starting timer VIRT_TIMER_MAC_FLUSHBUFFER3\r\n");
+#ifdef DEBUG_MAC
+	hal_printf("SndRad<%d> %d\r\n",m_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
+#endif
+	if ( (m_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
+#ifdef DEBUG_MAC
+		hal_printf("start FLUSHBUFFER3\r\n");
+#endif
 		//gHalTimerManagerObject.StartTimer(3);
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+		flushTimerRunning = true;
 	}
-	else if (m_send_buffer.GetNumberMessagesInBuffer() == 0){
-		//CLR_Debug::Printf("Stopping timer VIRT_TIMER_MAC_FLUSHBUFFER3\r\n");
+	else if ( (m_send_buffer.GetNumberMessagesInBuffer() == 0) && (flushTimerRunning == true) ){
+#ifdef DEBUG_MAC		
+		hal_printf("stop FLUSHBUFFER3\r\n");
+#endif
 		//gHalTimerManagerObject.StopTimer(3);
 		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
+		flushTimerRunning = false;
 	}
 
 
@@ -289,7 +305,7 @@ void csmaMAC::SendToRadio(){
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
-		if(ds != DS_Success) {
+		if(ds == DS_Busy) {
 			/*HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress() % 200));
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
 			{
@@ -303,73 +319,45 @@ void csmaMAC::SendToRadio(){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
 			}
+		} else if (ds == DS_Fail) {
+			//hal_printf("Radio might have locked up\r\n");
+			//CPU_Radio_Reset(this->radioName);
+			VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
+			return;
 		}
 
-		Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
-		Message_15_4_t* msg = *temp;
+		//Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
+		//Message_15_4_t* msg = *temp;
+		
+		Message_15_4_t txMsg;
+		Message_15_4_t* txMsgPtr = &txMsg;
+		Message_15_4_t** tempPtr = m_send_buffer.GetOldestPtr();
+		Message_15_4_t* msgPtr = *tempPtr;
+		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+		memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+		
 
-		//UINT8* snd_payload = msg->GetPayload();
-
-		//hal_printf("-------> <%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
+		UINT8* snd_payload = txMsgPtr->GetPayload();
 
 		//if(temp == NULL || *temp == NULL){test = 0;}
 
 		// Check to see if there are any messages in the buffer
-		if(*temp != NULL){
+		if(txMsgPtr != NULL){
+#ifdef DEBUG_MAC
+			hal_printf("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
+#endif
 			RadioAckPending=TRUE;
-			if(msg->GetHeader()->GetFlags() & MFM_TIMESYNC)
+			if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
 			{
-				UINT32 snapShot = (UINT32) msg->GetMetaData()->GetReceiveTimeStamp();
-				*temp = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (msg), (msg->GetHeader())->GetLength(), snapShot);
+				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
 			}
 			else
 			{
-				*temp = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (msg), (msg->GetHeader())->GetLength());
-			}
-
-		}
-	}
-
-#if 0
-	else if(RadioAckPending)
-	{
-		RadioAckPending = FALSE;
-		hal_printf("Unable to recieve send ack from radio\n");
-		RadioLockUp++;
-		if(RadioLockUp > 10){
-			hal_printf("CSMA: Radio seems to have lock up: %d \n", RadioLockUp);
-		}
-		CPU_Radio_Reset(this->radioName);
-
-
-		if(m_recovery & LEVEL_0_RECOVER)
-		{
-			m_recovery = m_recovery << 1;
-		}
-		else if(m_recovery & LEVEL_1_RECOVER)
-		{
-			m_recovery = m_recovery << 1;
-			RadioAckPending = FALSE;
-		}
-		else if(m_recovery & LEVEL_2_RECOVER)
-		{
-			m_recovery = m_recovery << 1;
-			RadioAckPending = FALSE;
-			CPU_Radio_Reset(this->radioName);
-			if(CPU_Radio_TurnOn(this->radioName) == DS_Fail)
-			{
-				hal_printf("Radio Reset failed");
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
 			}
 		}
-		else
-		{
-			hal_printf("Unable to recieve send acks from radio\n");
-			//while(1);
-		}
-
 	}
-#endif
-
 }
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
@@ -378,7 +366,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	UINT8 index;
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
-		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+		hal_printf("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
 
 		return msg;
 	}
@@ -453,7 +441,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)
 	{
-		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
+		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\r\n");
 		return temp;
 	}
 
@@ -492,20 +480,22 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 {
-	//Message_15_4_t* temp = (Message_15_4_t *)msg;
-
-	//UINT8* rcv_payload =  temp->GetPayload();
+#ifdef DEBUG_MAC
+	Message_15_4_t* temp = (Message_15_4_t *)msg;
+	UINT8* rcv_payload =  temp->GetPayload();
+#endif
 	switch(status)
 	{
 		case NO_Success:
 			{
 				//gHalTimerManagerObject.StopTimer(3);
-				//hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
-
+#ifdef DEBUG_MAC
+				hal_printf("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+#endif				
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
 				(*appHandler)(msg, Size, status);
-			// Attempt to send the next packet out since we have no scheduler
+				// Attempt to send the next packet out since we have no scheduler
 				if(!m_send_buffer.IsBufferEmpty())
 					SendFirstPacketToRadio(NULL);
 			}
@@ -513,29 +503,22 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 		
 		case NO_Busy:
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
-			//hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+#ifdef DEBUG_MAC
+			hal_printf("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+#endif			
 			Resend(msg, Size);
 			//gHalTimerManagerObject.StartTimer(3);
 			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
+			flushTimerRunning = true;
 			break;
 			
 		default:
-			//hal_printf("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+#ifdef DEBUG_MAC
+			hal_printf("Error #%d\r\n",((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
+#endif			
 			break;
 	}
 	
-#if 0
-	//Radio sent it out successfully,
-	if(status==NO_Success){
-		SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
-		(*appHandler)(msg, Size, status);
-	}
-	else{	
-		//failed
-		//retry sending message
-		
-	}
-#endif
 
 	RadioAckPending=FALSE;
 	RadioLockUp=0;

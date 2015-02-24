@@ -46,9 +46,24 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 }
 
 
-BOOL CPU_Radio_Reset(UINT8 id)
+BOOL CPU_Radio_Reset(UINT8 radioID)
 {
-	return FALSE;
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.Reset();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.Reset();
+			break;
+		default:
+			hal_printf("[NATIVE] Error in function CPU_Radio_Reset : Unidentified radio \n");
+			break;
+	}
+
+	return status;
 }
 
 
