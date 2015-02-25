@@ -559,7 +559,10 @@ mipi_dsi_shutdown();
 
     HAL_Initialize();
 
+#ifndef SAM_APP_TINYBOOTER // TinyBooter uses SimpleTimer
     VirtTimer_Initialize();
+#endif
+
     HAL_Time_Initialize();
 
 

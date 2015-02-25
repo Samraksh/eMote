@@ -381,15 +381,19 @@ void Sleep() {
 	}
 #endif // EMOTE_WAKELOCKS
 
+#ifdef SAM_APP_TINYBOOTER
+	__WFI();
+#else
 	switch(stm_power_state) {
 		case POWER_STATE_LOW:
-			PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			__WFI();
 			break;
 		default:
 			__WFI();
 			break;
 	}
-
+#endif
 }
 
 // Shouldn't be used, possibly for unrecoverable error in debug mode.

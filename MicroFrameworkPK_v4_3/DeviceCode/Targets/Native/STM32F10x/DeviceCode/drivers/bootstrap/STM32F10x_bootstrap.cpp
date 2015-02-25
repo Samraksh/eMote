@@ -174,6 +174,7 @@ void LowLevelInit (void)
 }
 
 static void reset_all_timers(void) {
+  SysTick->CTRL = 0;
   TIM_DeInit(TIM1);
   TIM_DeInit(TIM2);
   TIM_DeInit(TIM3);
