@@ -176,7 +176,7 @@
   <Target Name="Build">
     <!-- do the build for each specified platform, including dependencies and subdirectories -->
     <Message Condition="'$(PLATFORMS)'!=''" Text="Building for platforms @(PLATFORMS,' ')"/>
-    <MSBuild Condition="'$(PLATFORMS)'!=''" Projects="$(ProjectFile)" Targets="Build" Properties="PLATFORM=%(PLATFORMS.Identity);PLATFORMS=;FLAVOR=$(FLAVOR);MEMORY=$(MEMORY)" />
+    <MSBuild Condition="'$(PLATFORMS)'!=''" Projects="$(ProjectFile)" Targets="Build" Properties="PLATFORM=%(PLATFORMS.Identity);PLATFORMS=;FLAVOR=$(FLAVOR);MEMORY=$(MEMORY);SamAppName=$(SamAppName)" />
     <CallTarget Condition="'$(PLATFORMS)'==''" Targets="SanityCheck;DoBuild" />
   </Target>
 

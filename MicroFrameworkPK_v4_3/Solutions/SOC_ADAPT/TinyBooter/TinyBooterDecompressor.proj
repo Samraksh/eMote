@@ -16,6 +16,9 @@
     <MFSettingsFile>
     </MFSettingsFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SamAppName>TINYBOOTERDECOMPRESSOR</SamAppName>
+  </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.Build.Targets" />
   <PropertyGroup>
