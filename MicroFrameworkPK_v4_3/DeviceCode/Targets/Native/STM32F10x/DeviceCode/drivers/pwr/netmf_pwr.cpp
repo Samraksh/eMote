@@ -29,17 +29,6 @@ static void align_to_rtc() {
 	while(pwr_hsi_clock_measure < 2);
 }
 
-// A total hack to determine if we're in TinyCLR or TinyBooter.
-// There is probably a preprocessor define somewhere but I wasted 15 minutes on it.
-// If you know it please fix me. -- NPS
-static BOOL Am_I_TinyBooter() {
-	BOOL (*myaddr)() = &Am_I_TinyBooter;
-	if ((uint32_t)myaddr < 0x8020000) {
-		return TRUE;
-	}
-	return FALSE;
-}
-
 // Returns measured HSI speed if the calibrate function was used.
 UINT32 pwr_get_hsi(void) {
 #ifdef DOTNOW_HSI_CALIB
@@ -49,17 +38,13 @@ UINT32 pwr_get_hsi(void) {
 #endif
 }
 
-// A total hack to determine if we're in TinyCLR or TinyBooter.
-// There is probably a preprocessor define somewhere but I wasted 15 minutes on it.
-// If you know it please fix me. -- NPS
 void PowerInit() {
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
-	if ( Am_I_TinyBooter() ) {
+#if defined(SAM_APP_TINYBOOTER)
 		High_Power();
-		return;
-	}
+#endif
 
 #if defined(DEBUG) // For flavors without DEBUG (e.g. Release RTM), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
