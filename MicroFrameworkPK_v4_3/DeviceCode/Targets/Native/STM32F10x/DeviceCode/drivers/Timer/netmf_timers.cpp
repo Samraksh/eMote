@@ -260,39 +260,31 @@ UINT64 CPU_Timer_CurrentTicks(UINT16 Timer)
 	return currentTicksValue;
 }
 
-// This function is tuned for 8MHz of the emote
-// Will not work at other speeds at low uSec values ie ( < 30)
-// This function has poor accuracy at less than 10 microsecs
-// Coming to the first if condition takes 13.5 us so for values less than 10 this is the best we can do
+// This function is tuned for 8MHz of the emote in Release mode
 void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 {
-	/*
-	//AnanthAtSamraksh - CPU_Sleep is commented out as of 7/8/2014. So, does not matter what sleep level is entered.
-	//But sleep level 2 is "SLEEP_LEVEL__SLEEP".
-	UINT32 sleepLevel = 2;
-	UINT32 WakeupSystemEvents = 0;
-	UINT32 Timeout_Milliseconds = uSec / 1000;
-	Events_WaitForEvents( sleepLevel, WakeupSystemEvents, Timeout_Milliseconds );
-	*/
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		if(uSec <= 10)
+		if(uSec <= 1)
 		{
 			return;
 		}
 
 		GLOBAL_LOCK(irq);
 
-		if(uSec <= 30)
+		if(uSec <= 5)
 		{
-			UINT32 limit = (uSec)/ 5;
+			UINT32 limit = (uSec << 1);
 			for(volatile UINT32 i = 0; i < limit; i++);
 			return;
 		}
+
+		// Adjustment for 5us of processing overhead
+		uSec = uSec - 5;
 
 		UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
 		UINT32 ticks = CPU_MicrosecondsToTicks(uSec, Timer);
