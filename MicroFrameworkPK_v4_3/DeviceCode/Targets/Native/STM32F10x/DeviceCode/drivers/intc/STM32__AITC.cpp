@@ -321,6 +321,12 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
 
+	// Stub here to save potential confusion later.
+	void __irq SysTick_Handler()
+	{
+		HARD_BREAKPOINT();
+	}
+
 	void __irq Default_Handler()
 	{
 		HARD_BREAKPOINT();
