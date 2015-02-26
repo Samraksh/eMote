@@ -284,7 +284,9 @@ public:
 
 	DeviceStatus PreLoadFrame();
 
-	DeviceStatus TurnOn();
+	DeviceStatus TurnOnRx();
+
+	DeviceStatus TurnOnPLL();
 
 	DeviceStatus TurnOff();
 

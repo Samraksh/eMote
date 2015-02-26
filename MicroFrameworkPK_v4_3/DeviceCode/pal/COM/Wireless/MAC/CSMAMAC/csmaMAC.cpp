@@ -97,7 +97,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName);
 
-		CPU_Radio_TurnOn(this->radioName);
+		CPU_Radio_TurnOnRx(this->radioName);
 
 		// This is the one-shot resend timer that will be activated if we need to resend a packet
 		/*if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){

@@ -190,7 +190,7 @@ DeviceStatus CPU_Radio_Send(UINT8 radioID)
 }
 
 // This function calls the corresponding radio turn on function based on the input radio id
-DeviceStatus CPU_Radio_TurnOn(UINT8 radioID)
+DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
 {
 
 	DeviceStatus status = DS_Fail;
@@ -198,13 +198,13 @@ DeviceStatus CPU_Radio_TurnOn(UINT8 radioID)
 	switch(radioID)
 	{
 		case RF231RADIO:
-			status = grf231Radio.TurnOn();
+			status = grf231Radio.TurnOnRx();
 			break;
 		case RF231RADIOLR:
-			status = grf231RadioLR.TurnOn();
+			status = grf231RadioLR.TurnOnRx();
 			break;
 		default:
-			hal_printf("[NATIVE] Error in function CPU_Radio_TurnOn : Unidentified radio \n");
+			hal_printf("[NATIVE] Error in function CPU_Radio_TurnOnRx : Unidentified radio\r\n");
 			break;
 
 	}
@@ -225,7 +225,7 @@ DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 			status = grf231RadioLR.Sleep(level);
 			break;
 		default:
-			hal_printf("[NATIVE] Error in function CPU_Radio_Sleep : Unidentified radio \n");
+			hal_printf("[NATIVE] Error in function CPU_Radio_Sleep : Unidentified radio\r\n");
 			break;
 	}
 

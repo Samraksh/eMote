@@ -59,7 +59,9 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        if(cmd != CMD_NONE || state == STATE_BUSY_TX)
 	        {
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-	                hal_printf("I have no command: %d or I am busy: %d\n\n", cmd, state);
+#ifdef DEBUG_RF231
+	                hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
+#endif
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
 	                return msg;
 	        }
@@ -69,7 +71,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        if(state == STATE_SLEEP)
 	        {
 	                sleep_pending = TRUE;
-	                TurnOn();
+	                //TurnOn();
 	        }
 
 	        // Send gives the CMD_TRANSMIT to the radio
@@ -186,7 +188,7 @@ DeviceStatus RF231Radio::Reset()
 
 	//GLOBAL_LOCK(irq);
 
-	if(TRUE != GpioPinInitialize())
+	/*if(TRUE != GpioPinInitialize())
 	{
 		return DS_Fail;
 	}
@@ -194,7 +196,8 @@ DeviceStatus RF231Radio::Reset()
 	if(TRUE != SpiInitialize())
 	{
 		ASSERT_RADIO("SPI Initialization failed");
-	}
+	}*/
+
 
 	// The radio intialization steps in the following lines are semantically copied from the corresponding tinyos implementation
 	// Specified in the datasheet a sleep of 510us
@@ -312,7 +315,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 
 	if(state == STATE_SLEEP)
 	{
-		if(TurnOn() != DS_Success)
+		if(TurnOnPLL() != DS_Success)
 		{
 			return DS_Fail;
 		}
@@ -351,7 +354,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 	// Turn it on, change the channel and push it back to sleep
 	if(state == STATE_SLEEP)
 	{
-		if(TurnOn() != DS_Success)
+		if(TurnOnPLL() != DS_Success)
 		{
 			return DS_Fail;
 		}
@@ -447,7 +450,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	// Adding two bytes for crc
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
-		hal_printf("Radio Send Error: Big packet: %d ", size+2);
+		hal_printf("Radio Send Error: Big packet: %d \r\n", size+2);
 		
 		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 		// Should be bad size
@@ -456,9 +459,6 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		
 		return msg;
 	}
-
-
-	
 	
 	INIT_STATE_CHECK();
 
@@ -492,7 +492,6 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	if(state == STATE_SLEEP)
 	{
 		sleep_pending = TRUE;
-		TurnOn();
 	}
 	// Send gives the CMD_TRANSMIT to the radio
 	//cmd = CMD_TRANSMIT;
@@ -738,7 +737,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		for (int i=0; i< 6; i++){
 			tempNum=tempNum ^ temp[i]; //XOR 72-bit number to generate 16-bit hash
 		}
+#ifdef DEBUG_RF231
 		hal_printf("gen tempNum: %d\r\n", tempNum);
+#endif
 		SetAddress(tempNum);
 		SetInitialized(TRUE);
 
@@ -995,13 +996,13 @@ BOOL RF231Radio::SpiInitialize()
 
 // This function moves the radio from sleep to RX_ON
 //template<class T>
-DeviceStatus RF231Radio::TurnOn()
+DeviceStatus RF231Radio::TurnOnRx()
 {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 
 	// The radio is not sleeping or is already on
-	if(state != STATE_SLEEP)
+	if(state == STATE_RX_ON)
 	{
 		return DS_Success;
 	}
@@ -1018,16 +1019,6 @@ DeviceStatus RF231Radio::TurnOn()
 		this->Amp(TRUE);
 	}
 
-#if 0
-	if(cmd != CMD_NONE || (state != STATE_SLEEP))
-		return EBUSY;
-	else if(state = STATE_RX_ON)
-		return EALREADY;
-
-	cmd = CMD_TURNON;
-
-	return ChangeState();
-#endif
 	SlptrClear();
 
 	// Even though an interrupt can never happen here, just for the sake of being in synch with the radio
@@ -1042,10 +1033,6 @@ DeviceStatus RF231Radio::TurnOn()
 	//WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 	//DID_STATE_CHANGE(RF230_PLL_ON);
 
-	// If a packet is received since the last interrupt routine was called, clearing this register here will drop the packet
-	// Clear the interrupt register
-	//ReadRegister(RF230_IRQ_STATUS);
-
 	WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 
 	// OPTIMIZATION_POSSIBLE
@@ -1055,7 +1042,52 @@ DeviceStatus RF231Radio::TurnOn()
 	// Change the state to RX_ON
 	state = STATE_RX_ON;
 
+	return DS_Success;
 
+}
+
+// This function moves the radio from sleep to RX_ON
+//template<class T>
+DeviceStatus RF231Radio::TurnOnPLL()
+{
+	INIT_STATE_CHECK();
+	GLOBAL_LOCK(irq);
+
+	// The radio is not sleeping or is already on
+	if(state == STATE_PLL_ON)
+	{
+		return DS_Success;
+	}
+
+	if(this->GetRadioName() == RF231RADIOLR)
+	{
+		// Enable antenna diversity mode
+		this->AntDiversity(TRUE);
+
+		// Enable external pa control
+		this->PARXTX(TRUE);
+
+		// take the amp  out of bypass mode
+		this->Amp(TRUE);
+	}
+
+	SlptrClear();
+
+	// Sleep for 200us and wait for the radio to come oout of sleep
+	HAL_Time_Sleep_MicroSeconds(200);
+
+	DID_STATE_CHANGE(RF230_TRX_OFF);
+
+	// Push radio to pll on state
+	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
+	{
+		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+	    // Wait for radio to go into pll on and return efail if the radio fails to transition
+	    DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+	}
+
+	state = STATE_PLL_ON;
+	cmd = CMD_NONE;
 
 	return DS_Success;
 
@@ -1093,10 +1125,14 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 {
 	UINT8 trx_status;
 
+	// The radio takes a minimum of 140 us to do cca, any numbers less than this are not acceptable
+	if(numberMicroSecond < 140)
+		return DS_Fail;
+
 	// If cca is initiated during sleep, come out of sleep do cca and go back to sleep
 	if(state == STATE_SLEEP)
 	{
-		if(TurnOn() != DS_Success)
+		if(TurnOnRx() != DS_Success)
 			return DS_Fail;
 
 		sleep_pending = TRUE;
@@ -1112,10 +1148,6 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 	}
 
 	//UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-
-	// The radio takes a minimum of 140 us to do cca, any numbers less than this are not acceptable
-	if(numberMicroSecond < 140)
-		return DS_Fail;
 
 	// Make a cca request
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
@@ -1198,6 +1230,9 @@ void RF231Radio::HandleInterrupt()
 		// let us process this interrupt then
 		if(cmd == CMD_NONE)
 		{
+#ifdef DEBUG_RF231
+			hal_printf("+++\r\n");
+#endif
 			// We better be in one of these states, other wise the radio and the software state machine are not in synch and
 			// we are in big trouble.
 			// All bets are off and we may have to reset at this point
@@ -1362,7 +1397,7 @@ void RF231Radio::HandleInterrupt()
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
 			}
 			else {
-				hal_printf("Radio Receive Error: Problem downloading message");
+				hal_printf("Radio Receive Error: Problem downloading message\r\n");
 			}
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
@@ -1405,8 +1440,12 @@ DeviceStatus RF231Radio::DownloadMessage()
 	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
 	if(!(phy_rssi & (1 << 7))){
 		// Auto crc check is failing return false
-		hal_printf("dm err phy_rssi: %d\r\n",phy_rssi);
+#ifdef DEBUG_RF231
+		hal_printf("dm err phy_rssi: 0x%x\r\n",phy_rssi);
+#endif
 		retStatus = DS_Fail;
+		SelnClear();
+		HAL_Time_Sleep_MicroSeconds(50);
 	} else {
 		INIT_STATE_CHECK();
 		UINT8 length;
@@ -1422,7 +1461,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 		length = CPU_SPI_WriteReadByte(config, 0);
 		
 		if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
-			hal_printf("Radio Receive Error: Packet too big: %d ",length);
+			hal_printf("Radio Receive Error: Packet too big: %d\r\n",length);
 			retStatus = DS_Fail;
 		}
 		else if(length >= 3)

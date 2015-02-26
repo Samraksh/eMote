@@ -144,7 +144,7 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 e
 DeviceStatus CPU_Radio_Send_Strobe(UINT8 radioID);	//Send preloaded message
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID);
 DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroSecond);
-DeviceStatus CPU_Radio_TurnOn(UINT8 radioID);
+DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID);
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level);
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID);
 BOOL CPU_Radio_SetTimeStamp2(UINT8 radioID, UINT64 timeStamp);
