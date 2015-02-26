@@ -391,7 +391,7 @@ void VirtualTimerCallback(void *arg)
 
 					ticksTillExpire = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire();
 					INT64 ticksRemaining = ticksTillExpire - tickElapsed;
-					if (ticksRemaining <= 1500){
+					if (ticksRemaining <= 0){
 						startTicks = CPU_Timer_CurrentTicks(g_HardwareTimerIDs[currentHardwareTimerIndex]);
 #ifdef DEBUG_VT
 						CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);

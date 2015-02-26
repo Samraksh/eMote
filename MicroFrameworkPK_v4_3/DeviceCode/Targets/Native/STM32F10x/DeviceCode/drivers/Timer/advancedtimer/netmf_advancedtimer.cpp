@@ -287,11 +287,6 @@ void ISR_TIM2(void* Param)
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 
-		//hal_printf("Current Compare Value %d", g_STM32F10x_AdvancedTimer.currentCompareValue);
-		// Set the lsb of the 32 bit timer
-		//TIM_SetCompare2(TIM1, TIM1->CNT + (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-		//TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
@@ -299,57 +294,9 @@ void ISR_TIM2(void* Param)
 
 		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
-		/*if(lsbValue < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)31, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)31, FALSE);
-		}
-		else if(lsbValue >= 500 && lsbValue < 990)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(lsbValue >= 990 && lsbValue <= 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(lsbValue > 995)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
-
-		/*if(TIM1->CNT >= 750 && TIM1->CNT < 800)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)25, FALSE);
-		}
-		else if(TIM1->CNT >= 800 && TIM1->CNT <= 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)29, FALSE);
-		}
-		else if(TIM1->CNT > 900)
-		{
-			CPU_GPIO_SetPinState((GPIO_PIN)30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)30, FALSE);
-		}*/
-
-
-
-		//if(lsbValue < 100)		//7.417secs
-		//if(lsbValue < 500)		//5.6996secs
-		//if(lsbValue < 750)		//4.412secs
-		//if(lsbValue < 1000)		//3.124secs
-		//if(lsbValue < 1250)		//1.837secs
-		//if(lsbValue < 1500)		//0.5497secs
-		//if(lsbValue < 2000)		//0.1198secs
-		//if(TIM1->CNT > lsbValue)
-		//AnanthAtSamraksh: if TIM1->CNT has overflown the lsbValue or if the difference between the 2 is 750.
-		//750 ticks * 125ns = 93us. If only 750 ticks remain, might as well trigger the event. Else, set the compare
+		//If only 10 ticks remain, might as well trigger the event. Else, set the compare
 		//value for interrupt to go off at scheduled time.
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)	//2.695secs
+		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)	
 		{
 			// Fire now we already missed the counter value
 			// Create a software trigger
@@ -375,7 +322,7 @@ void ISR_TIM2(void* Param)
 
 		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
 
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 750)
+		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)
 		//if(TIM1->CNT > lsbValue)
 		{
 			// Fire now we already missed the counter value
@@ -398,23 +345,12 @@ void ISR_TIM2(void* Param)
 		// poll this 64 bit number
 
 		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
-
-		////g_STM32F10x_AdvancedTimer.Get64Counter();
-		////g_STM32F10x_AdvancedTimer.GetCounter();
 	}
 			//CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 }
 
 void ISR_TIM1( void* Param )
 {
-	// calculate the current 32 bit value of the counters to account for
-	// time spent in the handler when the next compare interrupt is set
-	// So changing the contents of this variable should be done with extreme caution
-	// Update the 64 bit counter value
-	////g_STM32F10x_AdvancedTimer.Get64Counter();
-	////g_STM32F10x_AdvancedTimer.GetCounter();
-//CPU_GPIO_SetPinState((GPIO_PIN) 2, TRUE);
-
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC3))
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
