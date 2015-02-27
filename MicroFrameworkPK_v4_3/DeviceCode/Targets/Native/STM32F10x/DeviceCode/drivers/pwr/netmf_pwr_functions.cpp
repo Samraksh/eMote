@@ -21,7 +21,7 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 }
 
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
-#ifdef DISABLE_SLEEP
+#if defined (DISABLE_SLEEP) || (SAM_APP_TINYBOOTER) // To make grabbing it with the JTAG easier.
 	return;
 #else
     switch(level)
