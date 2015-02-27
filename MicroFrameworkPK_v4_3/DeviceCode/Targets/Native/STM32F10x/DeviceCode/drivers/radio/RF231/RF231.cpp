@@ -34,7 +34,9 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
 	// Adding 2 for crc and 4 bytes for timestamp
 	 if(size+2+4 > IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
 	                hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
+#endif
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	                // Should be bad size
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
@@ -450,7 +452,9 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	// Adding two bytes for crc
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
 		hal_printf("Radio Send Error: Big packet: %d \r\n", size+2);
+#endif
 		
 		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 		// Should be bad size
@@ -1389,7 +1393,9 @@ void RF231Radio::HandleInterrupt()
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
 					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+#endif
 					return;
 				}
 
@@ -1397,7 +1403,9 @@ void RF231Radio::HandleInterrupt()
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
 			}
 			else {
+#ifdef DEBUG_RF231
 				hal_printf("Radio Receive Error: Problem downloading message\r\n");
+#endif
 			}
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
@@ -1461,7 +1469,9 @@ DeviceStatus RF231Radio::DownloadMessage()
 		length = CPU_SPI_WriteReadByte(config, 0);
 		
 		if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
 			hal_printf("Radio Receive Error: Packet too big: %d\r\n",length);
+#endif
 			retStatus = DS_Fail;
 		}
 		else if(length >= 3)

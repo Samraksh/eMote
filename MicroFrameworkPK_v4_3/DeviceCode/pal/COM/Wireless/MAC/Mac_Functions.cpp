@@ -47,12 +47,10 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 ro
 
 UINT16 Mac_GetRadioAddress(){
 	UINT16 temp = gcsmaMacObject.GetRadioAddress();
-	hal_printf("Mac_GetRadioAddress: %d\r\n",temp);
 	return temp;
 }
 BOOL Mac_SetRadioAddress(UINT16 address){
 	gcsmaMacObject.SetRadioAddress(address);
-	hal_printf("Mac_SetRadioAddress: %d\r\n",address);
 	return true;
 }
 
@@ -90,7 +88,9 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 
 		UINT32 eventTime = (EventTime & 0xffffffff);
 
+#ifdef DEBUG_MACFUNCTIONS
 		hal_printf("The Snap Shot in native is %u\n", eventTime);
+#endif
 
 		(*managedBuffer)[8 + Size] = (EventTime & 0xff);
 		(*managedBuffer)[9 + Size] = (EventTime >> 8) & 0xff;
