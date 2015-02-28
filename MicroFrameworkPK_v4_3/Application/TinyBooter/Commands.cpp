@@ -1123,6 +1123,8 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
         }
     }
 
+	HAL_Time_Uninitialize();
+
      // Nived.Sivadas@samraksh.com : Reset_handler is not at the start of the executable, can change this but going with this for now
     //startAddress = (ApplicationStartAddress) TinyBooter_AddEntryOffSet((void *) startAddress);
 #ifdef PLATFORM_ARM_EmoteDotNow
