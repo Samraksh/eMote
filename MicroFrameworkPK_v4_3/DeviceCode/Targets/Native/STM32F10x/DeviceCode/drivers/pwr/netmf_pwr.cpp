@@ -46,7 +46,7 @@ void PowerInit() {
 		High_Power();
 #endif
 
-#if defined(DEBUG) // For flavors without DEBUG (e.g. Release RTM), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
+#if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
 	{
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
@@ -54,7 +54,7 @@ void PowerInit() {
 	else {
 #endif
 	DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, DISABLE);
-#if defined(DEBUG)
+#if !defined(BUILD_RTM)
 	}
 #endif
 
