@@ -137,6 +137,7 @@
 //#define BUILD_RTM
 
 #define DISABLE_SLEEP
+//#define EMOTE_WAKELOCKS // in power driver
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
