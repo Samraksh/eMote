@@ -248,11 +248,6 @@ static BOOL DidCompareHit(UINT32 Timer)
 	return FALSE;
 }
 
-// I wish I knew what this was for....
-/*void HAL_Time_SetCompare_Completion(UINT64 val) {
-	return;
-}*/
-
 static void ResetCompareHit(UINT32 Timer)
 {
 	ASSERT(0);
