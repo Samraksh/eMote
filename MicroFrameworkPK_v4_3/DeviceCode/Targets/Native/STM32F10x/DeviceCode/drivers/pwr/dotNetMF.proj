@@ -39,10 +39,10 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <HFiles Include="netmf_power.h" />	    
-    <Compile Include="netmf_pwr.cpp" />	
+    <HFiles Include="netmf_pwr.h" />
+	<HFiles Include="netmf_pwr_wakelock.h" />
+    <Compile Include="netmf_pwr.cpp" />
 	<Compile Include="netmf_pwr_functions.cpp" />
-
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />

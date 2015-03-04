@@ -9,11 +9,71 @@ nathan.stohs@samraksh.com
 */
 
 #include "netmf_pwr.h"
+#include "netmf_pwr_wakelock.h"
 
 uint32_t SystemTimerClock; // Probably should get rid of this.
 static volatile int pwr_hsi_clock_measure;
-
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
+
+#ifdef EMOTE_WAKELOCKS
+static volatile uint32_t wakelock;
+static volatile UINT64 waketime;
+
+void WakeLockInit(void) {
+	wakelock = 0;
+	waketime = 0;
+}
+
+void WakeLock(uint32_t lock) {
+	GLOBAL_LOCK(irq);
+	wakelock |= lock;
+}
+
+void WakeUnlock(uint32_t lock) {
+	GLOBAL_LOCK(irq);
+	wakelock &= ~lock;
+}
+
+void WakeUntil(UINT64 until) {
+	INT64 now;
+
+	// Value of 0 will force kill the wakelock
+	if (until == 0) {
+		waketime = 0;
+		return;
+	}
+
+	now = HAL_Time_CurrentTicks();
+
+	// Make sure time is valid (in the future)
+	// Make sure time is not before previous time.
+	if (until < now || until < waketime) {
+		return;
+	}
+
+	waketime = until;
+}
+
+uint32_t GetWakeLock(void) {
+	return wakelock;
+}
+
+UINT64 GetWakeUntil(void) {
+	return waketime;
+}
+
+BOOL WakeLockEnabled(void) {
+	return TRUE;
+}
+#else // EMOTE_WAKELOCKS
+void WakeLock(uint32_t lock) {}
+void WakeUnlock(uint32_t lock) {}
+void WakeUntil(UINT64 until) {}
+uint32_t GetWakeLock(void) {return 0;}
+UINT64 GetWakeUntil(void) {return 0;}
+void WakeLockInit(void) {}
+BOOL WakeLockEnabled(void) {return FALSE;}
+#endif // EMOTE_WAKELOCKS
 
 // Sets up the interrupt do the measurement. Then blocks until done.
 // Result is in static global pwr_hsi_clock_measure
@@ -39,6 +99,8 @@ UINT32 pwr_get_hsi(void) {
 }
 
 void PowerInit() {
+
+	WakeLockInit();
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
@@ -308,6 +370,24 @@ void High_Power() {
 
 // Exit in the same power state as we entered.
 void Sleep() {
+
+#ifdef EMOTE_WAKELOCKS
+	// First check wakelocks
+	// Really should use WFI but need execution loop polling for now.
+	// TODO above
+
+	if (wakelock) {
+		return;
+	}
+
+	if (waketime > 0) {
+		UINT64 now = HAL_Time_CurrentTicks();
+		if (waketime > now) {
+			return; // Wakelocked
+		}
+		waketime = 0; // Time is past, clear the time and continue to sleep
+	}
+#endif // EMOTE_WAKELOCKS
 
 	switch(stm_power_state) {
 		case POWER_STATE_LOW:
