@@ -5,7 +5,6 @@
  *
  */
 
-
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 
@@ -28,7 +27,6 @@ static const UINT64 TimerMaxValue = 0x0000FFFFFFFFFFFFull;
 	const UINT8 VTCount0 = 8;
 #endif
 
-
 template<>
 inline BOOL VirtualTimerMapper<VTCount0>::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
 {
@@ -46,7 +44,6 @@ inline BOOL VirtualTimerMapper<VTCount0>::VirtTimerIndexMapper(UINT8 timer_id, U
 
 	return timerFound;
 }
-
 
 // All active timers are placed in a timerQueue. Every time one is inserted, the list is adjusted in order with the timer that will go off soonest on top and the latest on bottom
 // Every time the list is changed the m_ticksTillExpire must be adjusted to reflect the current number of ticks before the topmost timer needs to have its callback called.
@@ -88,7 +85,6 @@ BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_coun
 	}
 }
 
-
 template<>
 BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
 {
@@ -97,7 +93,6 @@ BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
 	else
 		return TRUE;
 }
-
 
 template<>
 BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
@@ -132,10 +127,6 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 		ticksStartDelay =  0xFFFFFFFF;
 	else
 		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
-
-	//UINT64 ticksPeriod = CPU_MicrosecondsToTicks((UINT64)period, VTM_hardwareTimerId);
-	//UINT32 ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
-	//UINT64 ticksStartDelay = CPU_MicrosecondsToTicks((UINT64)start_delay, VTM_hardwareTimerId);
 
 	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_callBack(callback);
 	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_period(ticksPeriod);
@@ -232,11 +223,6 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 		//Adjust only active timers
 		if (g_VirtualTimerInfo[i].get_m_is_running() == TRUE){
 			g_VirtualTimerInfo[i].set_m_ticksTillExpire(g_VirtualTimerInfo[i].get_m_ticksTillExpire() - (INT64) tickElapsed);
-			/*if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticksTillExpire() <= shortestTicks)
-			{
-					shortestTicks = ticksTillExpire;
-					nextTimer = i;
-			}*/
 		}
 	}
 
@@ -447,9 +433,6 @@ void VirtualTimerCallback(void *arg)
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 #endif
-	//else if(currentHardwareTimerIndex == 1)
-	//{
-	//}
 }
 
 

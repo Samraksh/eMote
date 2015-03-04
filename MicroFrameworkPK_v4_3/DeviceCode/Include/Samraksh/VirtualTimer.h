@@ -86,6 +86,9 @@ public:
 
 	void set_m_ticksTillExpire(INT64 d)
 	{
+		if (d < 0){
+			d = 0;
+		}
 		m_ticksTillExpire_ = d;
 	}
 
