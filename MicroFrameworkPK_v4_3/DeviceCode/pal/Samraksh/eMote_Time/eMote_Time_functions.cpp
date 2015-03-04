@@ -7,6 +7,7 @@
 
 #include "eMote_Time.h"
 
+static const UINT64 HAL_Completion_IdleValue = 0x0000FFFFFFFFFFFFull;
 
 static void ISR( void* Param );
 
@@ -47,17 +48,12 @@ INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 
 void HAL_Time_SetCompare( UINT64 CompareValue )
 {
-	g_Time_Driver.SetCompareValue(CompareValue);
-}
-
-void HAL_Time_SetCompare_Completion(UINT64 CompareValue)
-{
-	g_Time_Driver.SetCompareValue(CompareValue);
-}
-
-void HAL_Time_Stop_Completion_timer()
-{
-	g_Time_Driver.StopTimer();
+	if (CompareValue == HAL_Completion_IdleValue){
+		g_Time_Driver.StopTimer();	
+	} else {
+		UINT64 Now = HAL_Time_CurrentTicks();
+		g_Time_Driver.SetCompareValue(CompareValue - Now );
+	}
 }
 
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )

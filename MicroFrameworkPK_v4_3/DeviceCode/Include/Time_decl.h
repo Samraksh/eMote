@@ -143,13 +143,8 @@ BOOL       Utility_SafeSprintf( LPSTR& szBuffer, size_t& iBuffer, LPCSTR format,
 BOOL    HAL_Time_Initialize      (     );
 BOOL    HAL_Time_Uninitialize    (     );
 INT64   HAL_Time_TicksToTime     ( UINT64 Ticks        );
-//TODO: AnanthAtSamraksh - defaulting to the advanced timer (#1)
-//INT64   HAL_Time_CurrentTime     ( UINT16 Timer = 1    );
 INT64   HAL_Time_CurrentTime     (     );
-//TODO: AnanthAtSamraksh - defaulting to the advanced timer, but time driver uses 16-bit timer (#2)
-//void    HAL_Time_SetCompare      ( UINT64 CompareValue, UINT16 Timer = 1 );
 void    HAL_Time_SetCompare      ( UINT64 CompareValue );
-void    HAL_Time_SetCompare_Completion      ( UINT64 CompareValue );
 void HAL_Time_Stop_Completion_timer();
 void    HAL_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
 

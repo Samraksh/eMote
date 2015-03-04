@@ -205,37 +205,6 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 //TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
 {
-
-	/*UINT32 now = GetCounter();
-
-	if (compareValue == 0) {
-		return DS_Success;
-	}
-
-	if (now >= compareValue) {
-		currentCompareValue = 0;
-		HAL_COMPLETION::DequeueAndExec();
-	}
-
-	if (compareValue - now > 0xFFFFFFFF) { // Too far in future to schedule, wait for roll-overs
-		currentCompareValue = compareValue;
-		return DS_Success;
-	}
-
-	// TIM2 already matches, just use TIM1
-	if( (now & 0xFFFF0000) == (compareValue & 0xFFFF0000) )
-	{
-		TIM_SetCompare2(TIM1, compareValue & 0xFFFF);
-		TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-	}
-	else	// Have to wait for TIM2 to match
-	{
-		TIM_SetCompare2(TIM2, (compareValue >> 16) & 0xFFFF);
-		TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-	}
-
-	currentCompareValue = compareValue;*/
-
 	UINT32 newCompareValue;
 
 	if(counterCorrection == 0)
@@ -346,7 +315,6 @@ void ISR_TIM2(void* Param)
 
 		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
 	}
-			//CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 }
 
 void ISR_TIM1( void* Param )

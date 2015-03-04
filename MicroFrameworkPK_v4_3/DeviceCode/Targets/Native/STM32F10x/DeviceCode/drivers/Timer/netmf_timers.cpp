@@ -98,11 +98,6 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 // Calls the timer driver set compare function.
 BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 {
-	// Check to make sure timer is not system timer
-	/*if(Timer == 0 || Timer == g_Timer16Bit_Driver.c_SystemTimer)
-		return FALSE;*/
-
-	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		//AnanthAtSamraksh -- added below
@@ -121,21 +116,13 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 			//If compare is greater than total counter value, this is the best we can do
 			if((CompareValue - CntrValue) > g_Timer16Bit_Driver.c_MaxTimerValue)
 			{
+				g_Timer16Bit_Driver.SetCompare ( g_Timer16Bit_Driver.c_SystemTimer, g_Timer16Bit_Driver.c_MaxTimerValue);
 				diff = g_Timer16Bit_Driver.c_MaxTimerValue;
 			}
 			//Else store the difference
 			else
 			{
-				diff = (UINT32)(CompareValue - CntrValue);
-			}
-
-			//Store the compare to now + diff
-			g_Timer16Bit_Driver.SetCompare ( g_Timer16Bit_Driver.c_SystemTimer, (UINT16)(g_Timer16Bit_Driver.GetCounter( g_Timer16Bit_Driver.c_SystemTimer ) + diff));
-
-			//If meanwhile happens
-			if(HAL_Time_CurrentTicks() > CompareValue)
-			{
-				fForceInterrupt = true;
+				g_Timer16Bit_Driver.SetCompare ( g_Timer16Bit_Driver.c_SystemTimer, CompareValue);
 			}
 		}
 

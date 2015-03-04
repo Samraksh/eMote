@@ -101,11 +101,7 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 
 	if(compareTicks < 0xFFFFFFFF)
 	{
-#ifdef PLATFORM_ARM_EmoteDotNow
 		compareTimeInMicroSecs = (UINT32)(CPU_TicksToMicroseconds(compareTicks, 1));
-#else
-		compareTimeInMicroSecs = (UINT32)(CPU_TicksToMicroseconds(compareTicks, 1));
-#endif
 	}
 	else
 	{
