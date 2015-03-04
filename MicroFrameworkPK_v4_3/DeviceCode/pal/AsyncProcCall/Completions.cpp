@@ -192,11 +192,11 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
     {
         state = 0;
     }
-
-	UINT64 Now            = HAL_Time_CurrentTicks();
+#ifndef DISABLE_SLEEP
     if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
 
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
+#endif
 
     if(state & (c_ResetCompare | c_NilCompare))
     {   
