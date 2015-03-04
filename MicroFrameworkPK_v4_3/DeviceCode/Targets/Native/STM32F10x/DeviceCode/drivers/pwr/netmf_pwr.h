@@ -13,7 +13,6 @@ enum stm_power_modes {
 	POWER_STATE_HIGH,
 };
 
-extern uint32_t SystemTimerClock;
 extern UINT32 pwr_get_hsi(void);
 
 void Sleep();

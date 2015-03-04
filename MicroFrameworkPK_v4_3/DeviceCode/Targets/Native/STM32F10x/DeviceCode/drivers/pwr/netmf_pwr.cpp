@@ -11,7 +11,6 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
 
-uint32_t SystemTimerClock; // Probably should get rid of this.
 static volatile int pwr_hsi_clock_measure;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 
@@ -105,7 +104,7 @@ void PowerInit() {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 
 #if defined(SAM_APP_TINYBOOTER)
-		High_Power();
+	High_Power();
 #endif
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
@@ -136,7 +135,7 @@ void CalibrateHSI() {
 	uint32_t hsi_trim_error[32]; // Memoization table of absolute frequency error vs. TRIM
 	uint32_t hsi_trim_val[32]; // Memoization table of absolute frequency vs TRIM
 
-	if (SystemTimerClock != 8000000) {
+	if (stm_power_state != POWER_STATE_LOW) {
 		return; // Must be done from low power mode.
 	}
 
@@ -321,7 +320,6 @@ void Low_Power() {
 	FLASH_SetLatency(FLASH_Latency_0);
 
 	stm_power_state = POWER_STATE_LOW;
-	SystemTimerClock = 8000000;
 }
 
 void High_Power() {
@@ -365,7 +363,6 @@ void High_Power() {
 	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
 	
 	stm_power_state = POWER_STATE_HIGH;
-	SystemTimerClock = 8000000;
 }
 
 // Exit in the same power state as we entered.
