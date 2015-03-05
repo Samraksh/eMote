@@ -1,0 +1,257 @@
+digraph Events_WaitForEvents {
+	subgraph cluster_events {
+		label = "events.cpp"
+		style=dashed;
+		Events_WaitForEvents;
+                Events_MaskedRead;
+                Events_Set;
+	}
+        subgraph cluster_tinyhal {
+                label = "tinyhal.cpp"
+                style=dashed;
+                SystemState_QueryNoLock;
+                SystemState_SetNoLock;
+                SystemState_ClearNoLock;
+        }
+	subgraph cluster_netmfadvancedtimer {
+		label = "netmf_advancedtimer.cpp";
+		style=dashed;
+		GetCounter;
+		Get64Counter;
+                ISR_TIM1;
+		ISR_TIM2;
+		DidTimerOverflow;
+		ClearTimerOverflow;
+		SetCompare;
+                GetMaxTicks;
+	}
+	subgraph cluster_netmftimers {
+		label = "netmf_timers.cpp";
+		style=dashed;
+		CPU_Timer_CurrentTicks;
+		CPU_Timer_SetCompare;
+		CPU_TicksToMicroseconds;
+                CPU_Timer_GetMaxTicks;
+	}
+        subgraph cluster_netmfpwrfunctions {
+                label = "netmf_pwr_functions.cpp";
+                style=dashed;
+                CPU_Sleep;
+        }
+	subgraph cluster_VirtualTimerpal {
+		label = "VirtualTimer_pal.cpp";
+		style=dashed;
+		VirtTimer_GetTicks;
+		VirtTimer_Stop;
+		VirtTimer_SetTimer;
+		VirtTimer_Change;
+		VirtTimer_Start;
+		VirtTimer_GetMaxTicks;
+		HardwareVirtTimerMapper3;
+	}
+	subgraph cluster_eMoteTime {
+		label = "eMote_Time.cpp";
+		style=dashed;
+		CurrentTicks;
+		StopTimer;
+		SetCompareValue;
+	}
+	subgraph cluster_eMoteTimefunctions {
+		label = "eMote_Time_functions.cpp";
+		style=dashed;
+		HAL_Time_CurrentTicks;
+		HAL_Time_SetCompare;
+	}
+
+	subgraph cluster_corecm3 {
+		label = "core_cm3.h";
+		style=dashed;
+		__enable_irq;
+		__disable_irq;
+		__get_PRIMASK;
+	}
+	subgraph cluster_SmartPtrthumb2 {
+		label = "SmartPtr_thumb2.cpp";
+		style=dashed;
+		Probe;
+		SmartPtr_IRQ;
+		Disable;
+                Acquire;
+                Release;
+	}
+	subgraph cluster_stm32f10xtim {
+		label = "stm32f10x_tim.c";
+		style=dashed;
+		TIM_GetITStatus;
+		TIM_ITConfig;
+		TIM_ClearITPendingBit;
+		TIM_SetCompare1;
+		TIM_SetCompare2;
+	}
+
+	subgraph cluster_VirtualTimer {
+		label = "VirtualTimer.cpp";
+		style=dashed;
+		VirtualTimerCallback;
+	        HardwareVirtTimerMapper2;	
+		subgraph cluster_VirtualTimerMapper {
+			label="template VirtualTimerMapper";
+			sytle=dashed;
+			"VirtualTimerMapper::SetTimer";
+			"VirtualTimerMapper::StopTimer";
+			set_m_last_QueueAdjustmentTime;
+			"VirtualTimerMapper::ChangeTimer";
+                        "VirtualTimerMapper::StartTimer";
+		        "VirtualTimerMapper::VirtTimerIndexMapper";
+		}
+
+		subgraph cluster_VirtualTimerInfo {
+			label = "class VirtualTimerInfo";
+			style=dashed;
+			get_m_is_running;
+			get_m_timer_id;
+			get_m_period
+			set_m_is_running;
+			get_m_is_one_shot;
+			get_m_callback;
+			set_m_ticksTillExpire
+		}
+	}
+	subgraph cluster_Completions {
+		label = "Completions.cpp";
+		style=dashed;
+		"HAL_COMPLETION::WaitForInterrupts";
+                "HAL_COMPLETION::DequeueAndExec";
+	}
+        subgraph cluster_Continuations {
+                label = "Continuations.cpp";
+                style=dashed;
+                "HAL_CONTINUATION::Dequeue_And_Execute";
+        }
+        subgraph cluster_AsyncProcCalls_decl {
+                label = "AsyncProcCalls_decl.h";
+                style=dashed;
+                "HAL_COMPLETION::Execute";
+                "HAL_CALLBACK::Execute";
+        }
+	subgraph cluster_AITC {
+		label = "netmf_AITC.cpp";
+		style=dashed;
+		TIM2_IRQHandler;
+		AITC;
+                TIM1_CC_IRQHandler;
+	}
+
+	start = Events_WaitForEvents;
+	
+        Events_WaitForEvents -> "HAL_COMPLETION::WaitForInterrupts" -> HAL_Time_SetCompare -> StopTimer -> VirtTimer_Stop;
+        "HAL_COMPLETION::WaitForInterrupts" -> CPU_Sleep;
+        "HAL_COMPLETION::DequeueAndExec" -> SmartPtr_IRQ;
+        "HAL_COMPLETION::DequeueAndExec" -> Events_Set;
+        "HAL_COMPLETION::DequeueAndExec" -> HAL_Time_SetCompare;
+        "HAL_COMPLETION::DequeueAndExec" -> "HAL_COMPLETION::Execute";
+        Events_WaitForEvents -> SmartPtr_IRQ;
+        Events_WaitForEvents -> HAL_Time_CurrentTicks;
+        Events_WaitForEvents -> Events_MaskedRead;
+        Events_WaitForEvents -> SystemState_QueryNoLock;
+        Events_WaitForEvents -> Release;
+        Events_WaitForEvents -> Acquire;
+        Events_WaitForEvents -> "HAL_CONTINUATION::Dequeue_And_Execute";	
+
+        Events_Set -> SmartPtr_IRQ;
+        Events_Set -> "NEVER USED: g_Event_Callback";
+
+	HAL_Time_SetCompare -> HAL_Time_CurrentTicks;
+	HAL_Time_SetCompare -> SetCompareValue;
+
+	SetCompareValue -> CPU_TicksToMicroseconds;
+	SetCompareValue -> VirtTimer_SetTimer;
+	SetCompareValue -> VirtTimer_Change;
+	SetCompareValue -> VirtTimer_Start;
+
+        "VirtualTimerMapper::SetTimer" -> "VirtualTimerMapper::VirtTimerIndexMapper";
+        "VirtualTimerMapper::ChangeTimer" -> "VirtualTimerMapper::VirtTimerIndexMapper";
+        "VirtualTimerMapper::StartTimer" -> "VirtualTimerMapper::VirtTimerIndexMapper";
+        "VirtualTimerMapper::StopTimer" -> "VirtualTimerMapper::VirtTimerIndexMapper";
+
+	VirtTimer_Stop -> HardwareVirtTimerMapper3;
+	VirtTimer_Stop -> "VirtualTimerMapper::StopTimer";
+	VirtTimer_SetTimer -> HardwareVirtTimerMapper3;
+	VirtTimer_SetTimer -> "VirtualTimerMapper::SetTimer";
+	"VirtualTimerMapper::VirtTimerIndexMapper" -> get_m_timer_id;
+	VirtTimer_Change -> HardwareVirtTimerMapper3;
+	VirtTimer_Change -> "VirtualTimerMapper::ChangeTimer";
+        VirtTimer_Start -> HardwareVirtTimerMapper3;
+        VirtTimer_Start -> "VirtualTimerMapper::StartTimer";	
+        VirtTimer_GetMaxTicks -> HardwareVirtTimerMapper3;
+        VirtTimer_GetMaxTicks -> CPU_Timer_GetMaxTicks;
+
+
+	Events_WaitForEvents -> Probe -> __get_PRIMASK;
+	Probe -> __enable_irq;
+	Probe -> __disable_irq;
+	__enable_irq -> TIM2_IRQHandler;
+        __enable_irq -> TIM1_CC_IRQHandler;
+
+	TIM2_IRQHandler -> AITC;
+	TIM2_IRQHandler -> SmartPtr_IRQ;
+	TIM2_IRQHandler -> SystemState_SetNoLock;
+        TIM2_IRQHandler -> "HAL_CALLBACK::Execute";
+        TIM2_IRQHandler -> SystemState_ClearNoLock;
+
+        "HAL_CALLBACK::Execute" -> ISR_TIM2;
+
+	ISR_TIM2 -> TIM_GetITStatus;
+	ISR_TIM2 ->	TIM_ITConfig;
+	ISR_TIM2 -> TIM_ClearITPendingBit;
+	ISR_TIM2 -> VirtualTimerCallback;
+
+        TIM1_CC_IRQHandler -> AITC;
+        TIM1_CC_IRQHandler -> SmartPtr_IRQ;
+        TIM1_CC_IRQHandler -> SystemState_SetNoLock;
+        TIM1_CC_IRQHandler -> "HAL_CALLBACK::Execute";
+        TIM1_CC_IRQHandler -> SystemState_ClearNoLock;
+
+        "HAL_CALLBACK::Execute" -> ISR_TIM1;
+
+        ISR_TIM1 -> TIM_GetITStatus;
+        ISR_TIM1 -> TIM_ITConfig;
+        ISR_TIM1 -> TIM_ClearITPendingBit;
+        ISR_TIM1 -> "HAL_COMPLETION::DequeueAndExec";
+	
+	VirtualTimerCallback -> get_m_is_running;
+	VirtualTimerCallback -> get_m_callback;
+	VirtualTimerCallback -> VirtTimer_GetMaxTicks;
+	VirtualTimerCallback -> get_m_is_one_shot;
+	VirtualTimerCallback -> set_m_is_running;
+	VirtualTimerCallback -> get_m_period;
+	VirtualTimerCallback -> set_m_ticksTillExpire;
+	VirtualTimerCallback -> get_m_timer_id;
+	VirtualTimerCallback -> CPU_Timer_SetCompare;
+        VirtualTimerCallback -> HardwareVirtTimerMapper2;
+
+	CPU_Timer_SetCompare -> SetCompare;
+        CPU_Timer_GetMaxTicks -> GetMaxTicks;
+
+	SetCompare -> TIM_SetCompare1;
+	SetCompare -> TIM_ITConfig;
+	SetCompare -> TIM_SetCompare2;
+
+	VirtualTimerCallback -> set_m_last_QueueAdjustmentTime;
+	VirtualTimerCallback -> CPU_Timer_CurrentTicks -> Get64Counter -> GetCounter;
+	GetCounter -> SmartPtr_IRQ -> Disable -> __get_PRIMASK;
+	Disable -> __disable_irq;
+	Get64Counter -> DidTimerOverflow;
+	Get64Counter -> ClearTimerOverflow;
+
+	HAL_Time_CurrentTicks -> CurrentTicks;
+	CurrentTicks -> VirtTimer_GetTicks;
+
+	VirtTimer_GetTicks -> CPU_Timer_CurrentTicks;
+
+        model=circuit;	
+        splines=true;
+
+
+}
+

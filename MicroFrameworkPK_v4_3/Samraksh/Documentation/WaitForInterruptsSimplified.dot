@@ -1,0 +1,16 @@
+digraph simplified {
+    "Completions.cpp" -> "netmf_pwr_functions.cpp";
+    "Completions.cpp" -> "eMote_Time_functions.cpp";
+    "Completions.cpp" -> "events.cpp";
+    "eMote_Time_functions.cpp" -> "eMote_Time.cpp";
+    "eMote_Time.cpp" -> "VirtualTimer_pal.cpp";
+    "eMote_Time.cpp" -> "netmf_timers.cpp";
+    "VirtualTimer.cpp" -> "netmf_timers.cpp";
+    "VirtualTimer_pal.cpp" -> "netmf_timers.cpp";
+    "VirtualTimer_pal.cpp" -> "VirtualTimer.cpp";
+    "VirtualTimer.cpp" -> "netmf_advancedtimer.cpp";
+    "VirtualTimer.cpp" -> "VirtualTimer_pal.cpp";
+    "netmf_timers.cpp" -> "netmf_advancedtimer.cpp";
+    "netmf_advancedtimer.cpp" -> "stm32f10x_tim.c";
+    "netmf_advancedtimer.cpp" -> "VirtualTimer.cpp";
+}
