@@ -103,6 +103,8 @@ STM32_AITC_Driver::IRQ_VECTORING __section(rwdata) STM32_AITC_Driver::s_IsrTable
 
 void STM32_AITC_Driver::Initialize()
 {
+	__enable_irq();
+
     STM32_AITC& AITC = STM32::AITC();
 
 	// Nived : Remains of stm's code here .. need to make this more elegant
