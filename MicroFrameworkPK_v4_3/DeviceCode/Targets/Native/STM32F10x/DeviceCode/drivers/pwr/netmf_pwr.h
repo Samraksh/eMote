@@ -5,7 +5,8 @@
 #include <stm32f10x.h>
 
 #define PWR_HSI_SPEED 8000000
-#define PWR_HSI_CLOSE_ENOUGH 10000
+#define PWR_HSI_CLOSE_ENOUGH 0
+#define PWR_HSI_DEFAULT_TRIM 16
 
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,
@@ -13,7 +14,7 @@ enum stm_power_modes {
 	POWER_STATE_HIGH,
 };
 
-extern UINT32 pwr_get_hsi(void);
+extern UINT32 pwr_get_hsi(int x);
 
 void Sleep();
 void PowerInit();

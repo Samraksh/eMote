@@ -11,7 +11,10 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
 
+#define PWR_RTC_TIMEOUT 2000000
+
 static volatile int pwr_hsi_clock_measure;
+static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
 
 #ifdef EMOTE_WAKELOCKS
@@ -89,9 +92,16 @@ static void align_to_rtc() {
 }
 
 // Returns measured HSI speed if the calibrate function was used.
-UINT32 pwr_get_hsi(void) {
+UINT32 pwr_get_hsi(int x) {
 #ifdef DOTNOW_HSI_CALIB
-	return pwr_hsi_clock_measure;
+	uint32_t ret;
+	switch(x) {
+		case 0: ret = pwr_hsi_clock_measure_orig; break;
+		case 1: ret = pwr_hsi_clock_measure; break;
+		case 2:
+		default: ret = PWR_HSI_SPEED;
+	}
+	return ret;
 #else
 	return 0;
 #endif
@@ -102,10 +112,6 @@ void PowerInit() {
 	WakeLockInit();
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-
-#if defined(SAM_APP_TINYBOOTER)
-	High_Power();
-#endif
 
 #if !defined(BUILD_RTM) // For non-RTM flavors (e.g. Release, Debug), do not artificially raise lowest power mode. But, in flavors Debug, Instrumented ...
 	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
@@ -119,9 +125,20 @@ void PowerInit() {
 	}
 #endif
 
+#if defined(SAM_APP_TINYBOOTER)
+	High_Power();
+	return;
+	// Its important that we return before doing HSI calibration.
+	// For some reason if we do it here and TinyCLR it freezes.
+	// Also no reason to waste time on it.
+	// Guessing its a double-init or deinit-init issue.
+#endif
+
 #ifdef DOTNOW_HSI_CALIB
 	Low_Power();
 	CalibrateHSI();
+#else
+	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM);
 #endif
 
 	High_Power();
@@ -131,6 +148,7 @@ void PowerInit() {
 // Not tested for mid program execution.
 void CalibrateHSI() {
 	uint32_t trim;
+	int err = 0;
 	NVIC_InitTypeDef NVIC_InitStruct;
 	uint32_t hsi_trim_error[32]; // Memoization table of absolute frequency error vs. TRIM
 	uint32_t hsi_trim_val[32]; // Memoization table of absolute frequency vs TRIM
@@ -147,7 +165,11 @@ void CalibrateHSI() {
 	PWR_BackupAccessCmd(ENABLE);
 	RTC_SetPrescaler(0x0800); // 1/16 second
 	RCC_LSEConfig(RCC_LSE_ON);
-	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET); /* Wait till LSE is ready */
+	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
+		if (err++ == PWR_RTC_TIMEOUT) {
+			return; // Give up;
+		}
+	}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 	RCC_RTCCLKCmd(ENABLE);
 	RTC_WaitForLastTask();
@@ -156,6 +178,7 @@ void CalibrateHSI() {
 	RCC_LSICmd(DISABLE);
 
 	pwr_hsi_clock_measure = 0;
+	pwr_hsi_clock_measure_orig = 0;
 
 	// Setup RTC interrupt
 	NVIC_InitStruct.NVIC_IRQChannel = RTC_IRQn;
@@ -181,6 +204,9 @@ void CalibrateHSI() {
 		trim = 16; // default
 	}
 
+	// TURN ON INTERRUPTS BECAUSE MIKE IS A BIG JERK
+	__enable_irq();
+
 	align_to_rtc(); // Wait 2 clocks so we are reasonably sure we are close to RTC clock edge.
 
 	// Find trim with min error.
@@ -199,6 +225,7 @@ void CalibrateHSI() {
 				hsi_trim_error[trim] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
 			}
 			hsi_trim_val[trim] = pwr_hsi_clock_measure;
+			if (trim == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
 			if (hsi_trim_error[trim] < PWR_HSI_CLOSE_ENOUGH) {
 				skip=1;
 			}
@@ -214,6 +241,7 @@ void CalibrateHSI() {
 				hsi_trim_error[trim-1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
 			}
 			hsi_trim_val[trim-1] = pwr_hsi_clock_measure;
+			if (trim-1 == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
 			if (hsi_trim_error[trim-1] < PWR_HSI_CLOSE_ENOUGH) {
 				skip=1;
 			}
@@ -229,9 +257,24 @@ void CalibrateHSI() {
 				hsi_trim_error[trim+1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
 			}
 			hsi_trim_val[trim+1] = pwr_hsi_clock_measure;
+			if (trim+1 == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
 			if (hsi_trim_error[trim+1] < PWR_HSI_CLOSE_ENOUGH) {
 				skip=1;
 			}
+		}
+
+		// Make sure Trim16 runs just for fun.
+		if (hsi_trim_error[16] == 0xFFFFFFFF) {
+			RCC_AdjustHSICalibrationValue(16);
+			do_hsi_measure();
+			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
+				hsi_trim_error[16] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
+			}
+			else {
+				hsi_trim_error[16] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
+			}
+			hsi_trim_val[16] = pwr_hsi_clock_measure;
+			pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure;
 		}
 
 		// Find min error
@@ -253,6 +296,9 @@ void CalibrateHSI() {
 		// go around and try again
 		trim = min_trim;
 	}
+
+	// TURN OFF INTERRUPTS BECAUSE MIKE IS A BIG JERK
+	__disable_irq();
 
 	// Clean up
 	TIM_DeInit(TIM6);

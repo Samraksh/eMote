@@ -10,6 +10,11 @@
 
 #endif
 
+// This is a quick hack... need a real interface for this... I'm a terrible person.
+#ifdef DOTNOW_HSI_CALIB
+extern UINT32 pwr_get_hsi(int x);
+#endif // DOTNOW_HSI_CALIB
+
 ////////////////////////////////////////////////////////////////////////////////
 
 struct Settings
@@ -664,6 +669,13 @@ void ClrStartup( CLR_SETTINGS params )
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
         CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
+#ifdef DOTNOW_HSI_CALIB
+		CLR_Debug::Printf("Clock nominal         :  %d Hz\r\n", pwr_get_hsi(2) );
+		CLR_Debug::Printf("Clock pre-calibration :  %d Hz\r\n", pwr_get_hsi(0) );
+		CLR_Debug::Printf("Clock post-calibration:  %d Hz\r\n", pwr_get_hsi(1) );
+#else //DOTNOW_HSI_CALIB
+		CLR_Debug::Printf("Clock Calibration Not Active\r\n");
+#endif // DOTNOW_HSI_CALIB
 #endif  //!defined(BUILD_RTM)
 
         CLR_RT_Memory::Reset         ();
