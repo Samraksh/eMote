@@ -5,8 +5,12 @@
 #include <stm32f10x.h>
 
 #define PWR_HSI_SPEED 8000000
-#define PWR_HSI_CLOSE_ENOUGH 0
+#define PWR_HSI_CLOSE_ENOUGH 8092
 #define PWR_HSI_DEFAULT_TRIM 16
+#define PWR_RTC_TIMEOUT 2000000
+
+#define PWR_HSI_TRIM_MIN_OR_MAX(x) (x == 0 || x == 31)
+#define PWR_HSI_TRIM_VALID(x) (x<=31)
 
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,

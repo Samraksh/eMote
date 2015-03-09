@@ -11,11 +11,11 @@ nathan.stohs@samraksh.com
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
 
-#define PWR_RTC_TIMEOUT 2000000
 
-static volatile int pwr_hsi_clock_measure;
+static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
 static enum stm_power_modes stm_power_state = POWER_STATE_DEFAULT;
+
 
 #ifdef EMOTE_WAKELOCKS
 static volatile uint32_t wakelock;
@@ -77,36 +77,6 @@ void WakeLockInit(void) {}
 BOOL WakeLockEnabled(void) {return FALSE;}
 #endif // EMOTE_WAKELOCKS
 
-// Sets up the interrupt do the measurement. Then blocks until done.
-// Result is in static global pwr_hsi_clock_measure
-static void do_hsi_measure() {
-	pwr_hsi_clock_measure=0;
-	RTC_SetAlarm(RTC_GetCounter()+1);
-	while(pwr_hsi_clock_measure < 2);
-}
-
-static void align_to_rtc() {
-	pwr_hsi_clock_measure=0;
-	RTC_SetAlarm(RTC_GetCounter()+2);
-	while(pwr_hsi_clock_measure < 2);
-}
-
-// Returns measured HSI speed if the calibrate function was used.
-UINT32 pwr_get_hsi(int x) {
-#ifdef DOTNOW_HSI_CALIB
-	uint32_t ret;
-	switch(x) {
-		case 0: ret = pwr_hsi_clock_measure_orig; break;
-		case 1: ret = pwr_hsi_clock_measure; break;
-		case 2:
-		default: ret = PWR_HSI_SPEED;
-	}
-	return ret;
-#else
-	return 0;
-#endif
-}
-
 void PowerInit() {
 
 	WakeLockInit();
@@ -144,30 +114,93 @@ void PowerInit() {
 	High_Power();
 }
 
+static void do_hsi_measure() {
+	// Re-align
+	RTC_ClearFlag(RTC_FLAG_ALR);
+	RTC_SetAlarm(RTC_GetCounter()+1);
+	while( RTC_GetFlagStatus(RTC_FLAG_ALR) == RESET );
+
+	// Do the measurement
+	TIM6->CNT=0;
+	RTC_ClearFlag(RTC_FLAG_ALR);
+	RTC_SetAlarm(RTC_GetCounter()+1);
+	while( RTC_GetFlagStatus(RTC_FLAG_ALR) == RESET );
+	pwr_hsi_clock_measure = (TIM6->CNT << 7);
+	RTC_ClearFlag(RTC_FLAG_ALR);
+}
+
+static void align_to_rtc() {
+	uint32_t now = RTC_GetCounter();
+
+	RTC_SetAlarm(++now);
+
+	// Make sure we weren't straddling the RTC clock edge
+	if (now == RTC_GetCounter()) {
+		RTC_ClearFlag(RTC_FLAG_ALR);
+		return;
+	}
+
+	// Spin until aligned.
+	while( RTC_GetFlagStatus(RTC_FLAG_ALR) == RESET );
+	RTC_ClearFlag(RTC_FLAG_ALR);
+}
+
+// Returns measured HSI speed if the calibrate function was used.
+UINT32 pwr_get_hsi(int x) {
+#ifdef DOTNOW_HSI_CALIB
+	uint32_t ret;
+	switch(x) {
+		case 0: ret = pwr_hsi_clock_measure_orig; break;
+		case 1: ret = pwr_hsi_clock_measure; break;
+		case 2:
+		default: ret = PWR_HSI_SPEED;
+	}
+	return ret;
+#else
+	return 0;
+#endif
+}
+
+static int trim_test(uint32_t *hsi_trim_error, uint32_t *hsi_trim_val, uint32_t trim) {
+	if (hsi_trim_error[trim] == 0xFFFFFFFF && PWR_HSI_TRIM_VALID(trim)) {
+		RCC_AdjustHSICalibrationValue(trim);
+		do_hsi_measure();
+		//hsi_trim_error[trim] = PWR_ABS( (int)PWR_HSI_SPEED - (int)pwr_hsi_clock_measure );
+		hsi_trim_error[trim] = abs( PWR_HSI_SPEED - pwr_hsi_clock_measure );
+		hsi_trim_val[trim] = pwr_hsi_clock_measure;
+		if (hsi_trim_error[trim] < PWR_HSI_CLOSE_ENOUGH) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 // Currently this is only safe to do at startup.
 // Not tested for mid program execution.
+// No longer uses interrupts. Also Mike is a Farty-pants (and rumor has it a BIG JERK).
 void CalibrateHSI() {
 	uint32_t trim;
-	int err = 0;
-	NVIC_InitTypeDef NVIC_InitStruct;
-	uint32_t hsi_trim_error[32]; // Memoization table of absolute frequency error vs. TRIM
-	uint32_t hsi_trim_val[32]; // Memoization table of absolute frequency vs TRIM
+	int err  = 0;
+	int skip = 0; 					// if we get close enough, skip rest of tests.
+	uint32_t hsi_trim_error[32];	// Memoization table of absolute frequency error vs. TRIM
+	uint32_t hsi_trim_val[32];		// Memoization table of absolute frequency vs TRIM
 
 	if (stm_power_state != POWER_STATE_LOW) {
 		return; // Must be done from low power mode.
 	}
 
-	// for some reason need to memset this... I think due to C++ object issue
+	// Reset tables
 	memset(hsi_trim_error, 0xFFFFFFFF, sizeof(hsi_trim_error));
+	memset(hsi_trim_val  , 0x00000000, sizeof(hsi_trim_val));
 
 	// First make sure the RTC is running, we will use that to measure.
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	PWR_BackupAccessCmd(ENABLE);
-	RTC_SetPrescaler(0x0800); // 1/16 second
+	RTC_SetPrescaler(0x0FFF); // 1/8th second
 	RCC_LSEConfig(RCC_LSE_ON);
 	while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET) {
 		if (err++ == PWR_RTC_TIMEOUT) {
-			return; // Give up;
+			return; // Crystal not starting. Give up.
 		}
 	}
 	RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
@@ -180,102 +213,38 @@ void CalibrateHSI() {
 	pwr_hsi_clock_measure = 0;
 	pwr_hsi_clock_measure_orig = 0;
 
-	// Setup RTC interrupt
-	NVIC_InitStruct.NVIC_IRQChannel = RTC_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStruct);
-
-	RTC_ITConfig(RTC_IT_ALR, ENABLE);
-
 	// Setup TIM6 to do the actual timing
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
 	TIM_DeInit(TIM6);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	TIM_TimeBaseStructInit(&TIM_TimeBaseInitStruct);
-	TIM_TimeBaseInitStruct.TIM_Prescaler = 7;
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 15;
 	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseInitStruct);
 
 	TIM_Cmd(TIM6, ENABLE);
 
 	trim = BKP_ReadBackupRegister(BKP_DR1); // backup register 1 contains last good TRIM value
-	if (trim == 0 || trim > 31) {
-		trim = 16; // default
+	if ( !PWR_HSI_TRIM_VALID(trim) ) {
+		trim = PWR_HSI_DEFAULT_TRIM;
 	}
 
-	// TURN ON INTERRUPTS BECAUSE MIKE IS A BIG JERK
-	ENABLE_INTERRUPTS();
-
-	align_to_rtc(); // Wait 2 clocks so we are reasonably sure we are close to RTC clock edge.
+	// Wait 1 tick so we are reasonably sure we are close to RTC clock edge. Keeps things clean.
+	align_to_rtc();
 
 	// Find trim with min error.
 	// Note implicit assumptions about clock speed and TRIM relationship (not random).
-	while(trim > 0 && trim < 31) {
+	// STARTING GUESS MUST BE GOOD. DOES NOT WORK FROM ANY GIVEN BASE. THERE ARE LOCAL MINIMA.
+	// SO WE MUST ALWAYS CHECK DEFAULT AS A STARTING "GOOD" GUESS.
+
+	// Test Hardware defaults (trim==16)
+	skip = trim_test(hsi_trim_error, hsi_trim_val, PWR_HSI_DEFAULT_TRIM);
+
+	while( PWR_HSI_TRIM_VALID(trim) ) {
 		int min_trim = trim;
-		int skip=0; // if we get close enough, skip rest of tests.
 
-		if (hsi_trim_error[trim] == 0xFFFFFFFF && !skip) {
-			RCC_AdjustHSICalibrationValue(trim);
-			do_hsi_measure();
-			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
-				hsi_trim_error[trim] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
-			}
-			else {
-				hsi_trim_error[trim] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
-			}
-			hsi_trim_val[trim] = pwr_hsi_clock_measure;
-			if (trim == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
-			if (hsi_trim_error[trim] < PWR_HSI_CLOSE_ENOUGH) {
-				skip=1;
-			}
-		}
-
-		if (hsi_trim_error[trim-1] == 0xFFFFFFFF && !skip) {
-			RCC_AdjustHSICalibrationValue(trim-1);
-			do_hsi_measure();
-			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
-				hsi_trim_error[trim-1] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
-			}
-			else {
-				hsi_trim_error[trim-1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
-			}
-			hsi_trim_val[trim-1] = pwr_hsi_clock_measure;
-			if (trim-1 == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
-			if (hsi_trim_error[trim-1] < PWR_HSI_CLOSE_ENOUGH) {
-				skip=1;
-			}
-		}
-
-		if (hsi_trim_error[trim+1] == 0xFFFFFFFF && !skip) {
-			RCC_AdjustHSICalibrationValue(trim+1);
-			do_hsi_measure();
-			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
-				hsi_trim_error[trim+1] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
-			}
-			else {
-				hsi_trim_error[trim+1] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
-			}
-			hsi_trim_val[trim+1] = pwr_hsi_clock_measure;
-			if (trim+1 == 16) { pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure; }
-			if (hsi_trim_error[trim+1] < PWR_HSI_CLOSE_ENOUGH) {
-				skip=1;
-			}
-		}
-
-		// Make sure Trim16 runs just for fun.
-		if (hsi_trim_error[16] == 0xFFFFFFFF) {
-			RCC_AdjustHSICalibrationValue(16);
-			do_hsi_measure();
-			if (pwr_hsi_clock_measure < PWR_HSI_SPEED) {
-				hsi_trim_error[16] = PWR_HSI_SPEED - pwr_hsi_clock_measure;
-			}
-			else {
-				hsi_trim_error[16] = pwr_hsi_clock_measure - PWR_HSI_SPEED;
-			}
-			hsi_trim_val[16] = pwr_hsi_clock_measure;
-			pwr_hsi_clock_measure_orig = pwr_hsi_clock_measure;
-		}
+		if (!skip) { skip = trim_test(hsi_trim_error, hsi_trim_val, trim);   }
+		if (!skip) { skip = trim_test(hsi_trim_error, hsi_trim_val, trim-1); }
+		if (!skip) { skip = trim_test(hsi_trim_error, hsi_trim_val, trim+1); }
 
 		// Find min error
 		if (hsi_trim_error[min_trim] > hsi_trim_error[trim+1]) {
@@ -285,52 +254,32 @@ void CalibrateHSI() {
 			min_trim = trim-1;
 		}
 
-		// Success
-		if (min_trim == trim || skip || min_trim == 0 || min_trim == 31) {
+		// Always sanity check against default value due to local-minima problem
+		// Must loop at least one more time as well.
+		if (hsi_trim_error[min_trim] > hsi_trim_error[PWR_HSI_DEFAULT_TRIM]) {
+			min_trim = PWR_HSI_DEFAULT_TRIM;
+		}
+		else if (min_trim == trim || skip || PWR_HSI_TRIM_MIN_OR_MAX(min_trim) ) {
 			RCC_AdjustHSICalibrationValue(min_trim);
 			pwr_hsi_clock_measure = hsi_trim_val[min_trim];
 			BKP_WriteBackupRegister(BKP_DR1, (uint16_t)min_trim);
-			trim = min_trim;
 			break;
 		}
 		// go around and try again
 		trim = min_trim;
 	}
 
-	// TURN OFF INTERRUPTS BECAUSE MIKE IS A BIG JERK
-	DISABLE_INTERRUPTS();
+	pwr_hsi_clock_measure_orig = hsi_trim_val[PWR_HSI_DEFAULT_TRIM];
 
 	// Clean up
 	TIM_DeInit(TIM6);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, DISABLE);
-	NVIC_InitStruct.NVIC_IRQChannelCmd = DISABLE;
-	NVIC_Init(&NVIC_InitStruct);
-	RTC_ITConfig(RTC_IT_ALR, DISABLE);
 	PWR_BackupAccessCmd(DISABLE);
 	// Turn off RTC since not used currently.
 	RCC_RTCCLKCmd(DISABLE);
 	RCC_LSEConfig(RCC_LSE_OFF);
 	// Leave PWR module ON.
 	RCC_APB1PeriphClockCmd(/*RCC_APB1Periph_PWR |*/ RCC_APB1Periph_BKP, DISABLE);
-}
-
-extern "C" {
-
-void __irq RTC_IRQHandler() {
-	uint32_t time = TIM6->CNT;
-	TIM6->CNT=0;
-	RTC_ClearITPendingBit(RTC_IT_ALR);
-
-	if(pwr_hsi_clock_measure == 0) { // do the measurement and come back.
-		RTC_SetAlarm(RTC_GetCounter()+1);
-		pwr_hsi_clock_measure=1;
-		return;
-	}
-	else {
-		pwr_hsi_clock_measure = (time << 7);
-	}
-}
-
 }
 
 void Low_Power() {
