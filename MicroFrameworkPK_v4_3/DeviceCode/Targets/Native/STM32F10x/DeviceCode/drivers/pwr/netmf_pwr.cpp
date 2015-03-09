@@ -205,7 +205,7 @@ void CalibrateHSI() {
 	}
 
 	// TURN ON INTERRUPTS BECAUSE MIKE IS A BIG JERK
-	__enable_irq();
+	ENABLE_INTERRUPTS();
 
 	align_to_rtc(); // Wait 2 clocks so we are reasonably sure we are close to RTC clock edge.
 
@@ -298,7 +298,7 @@ void CalibrateHSI() {
 	}
 
 	// TURN OFF INTERRUPTS BECAUSE MIKE IS A BIG JERK
-	__disable_irq();
+	DISABLE_INTERRUPTS();
 
 	// Clean up
 	TIM_DeInit(TIM6);
