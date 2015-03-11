@@ -68,7 +68,7 @@ BOOL USART_AddCharToRxBuffer( int ComPortNum, char c )
     return USART_Driver::AddCharToRxBuffer( ComPortNum, c );
 }
 
-#ifdef SAM_EXT_UART_TURBO_MODE
+#ifdef PLATFORM_ARM_EmoteDotNow
 BOOL USART_AddToRxBuffer( int ComPortNum, char *data, size_t size )
 {
 	return USART_Driver::AddToRxBuffer( ComPortNum, data, size );
@@ -655,11 +655,9 @@ BOOL USART_Driver::Flush( int ComPortNum )
 
 //--//
 
-#ifdef SAM_EXT_UART_TURBO_MODE
+#ifdef PLATFORM_ARM_EmoteDotNow
 // Special extensions for moving around UART data to improve efficiency.
 // Does NOT support software flow control
-// If the buffers are full, we ignore it.
-// Would be nice to note but not sure what else to do.
 // Nathan -- 2014-06-24
 BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
@@ -681,6 +679,9 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 		if (dst != NULL) {
 			memcpy(dst, data, toWrite);
 		}
+		else {
+			SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
+		}
 		written = toWrite;
 
 		// Have to do it twice because its a circular buffer
@@ -690,6 +691,9 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 			dst = State.RxQueue.Push(toWrite);
 			if (dst != NULL) {
 				memcpy(dst, &data[written], toWrite);
+			}
+			else {
+				SetEvent( ComPortNum, USART_EVENT_ERROR_RXOVER );
 			}
 		}
 	}

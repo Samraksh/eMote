@@ -8,11 +8,6 @@
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
-#ifndef SAM_EXT_UART_TURBO_MODE
-void USART1_Handler(void *args);
-uint8_t RX_BAD=2;
-#endif
-
 void USART2_Handler(void *args);
 
 /*TODO 
@@ -44,128 +39,97 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		}
 	}
 
-  UINT32 interruptIndex = 0;
-  HAL_CALLBACK_FPN callback = NULL;
-
-#ifndef SAM_EXT_UART_TURBO_MODE
-  switch(ComPortNum)
-  {
-  case 0:
-    interruptIndex = STM32_AITC::c_IRQ_INDEX_USART1;
-    callback = USART1_Handler;
-    break;
-  case 1:
-  default: // If not COM1 you get COM2
-    interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
-    callback = USART2_Handler;
-	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-    break;
-  }
-  if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-#else
-  switch(ComPortNum) {
-	case 0: // Setup USART1 to use hard wired native interrupts for performance. --NPS
-	  NVIC_InitTypeDef NVIC_InitStructure;
-	  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-	  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	  NVIC_Init(&NVIC_InitStructure);
-	  break;
-	default:
-	  interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
-	  callback = USART2_Handler;
-	  if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
-	  break;
-  }
-#endif
-
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
-  
+
   // Init UART1
   if (ComPortNum == 0) { // COM1
-  
 	// Reserve the two ports the TX/RX ports of usart 1/ COM1
 	// Not that the user can do anything with them anyway
-	CPU_GPIO_ReservePin(9, TRUE);
-	CPU_GPIO_ReservePin(10, TRUE);
-  
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
-	  USART_DeInit(USART1);
-	  USART_StructInit(&USART_InitStructure);
+	if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
+	if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
 
-	  USART_InitStructure.USART_BaudRate = 115200;
-	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	  USART_InitStructure.USART_Parity = USART_Parity_No;
-	  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
-	  // Configure USART Tx as alternate function push-pull
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
+	USART_DeInit(USART1);
+	USART_StructInit(&USART_InitStructure);
 
-	  // Configure USART Rx as input floating
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	USART_InitStructure.USART_BaudRate 				= 115200;
+	USART_InitStructure.USART_WordLength 			= USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits 				= USART_StopBits_1;
+	USART_InitStructure.USART_Parity 				= USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
 
-	  USART_Init(USART1, &USART_InitStructure);
-	  USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-	  USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+	// Configure USART Tx as alternate function push-pull
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-#ifdef SAM_EXT_UART_TURBO_MODE
-	  USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
-#endif
+	// Configure USART Rx as input floating
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	  USART_Cmd(USART1, ENABLE);
-	  return TRUE;
-	}
-	else { // COM2
+	USART_Init(USART1, &USART_InitStructure);
+	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+	USART_Cmd(USART1, ENABLE);
+	return TRUE;
+  }
+  else { // COM2
+	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
+	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
 
-	// Reserve pins.
-	  if(!CPU_GPIO_ReservePin(2, TRUE)) // TX
-		return FALSE;
-	  if(!CPU_GPIO_ReservePin(3, TRUE)) // RX
-		return FALSE;
-		
-	  UINT32 my_baudrate = BaudRate;
-	  CPU_USART_IsBaudrateSupported( 1, my_baudrate );
-	
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); // Assume this is already on from COM1
-	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	  USART_DeInit(USART2);
-	  USART_StructInit(&USART_InitStructure);
+	UINT32 interruptIndex = 0;
+	HAL_CALLBACK_FPN callback = NULL;
 
-	  USART_InitStructure.USART_BaudRate = my_baudrate;
-	  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	  USART_InitStructure.USART_Parity = USART_Parity_No;
-	  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
+	callback = USART2_Handler;
+	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 
-	  // Configure USART Tx as alternate function push-pull
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	UINT32 my_baudrate = BaudRate;
+	CPU_USART_IsBaudrateSupported( 1, my_baudrate );
 
-	  // Configure USART Rx as input floating
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	  GPIO_Init(GPIOA, &GPIO_InitStructure);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); // Assume this is already on from COM1
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+	USART_DeInit(USART2);
+	USART_StructInit(&USART_InitStructure);
 
-	  USART_Init(USART2, &USART_InitStructure);
-	  USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-	  USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+	USART_InitStructure.USART_BaudRate 				= my_baudrate;
+	USART_InitStructure.USART_WordLength 			= USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits 				= USART_StopBits_1;
+	USART_InitStructure.USART_Parity 				= USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode 					= USART_Mode_Rx | USART_Mode_Tx;
 
-	  USART_Cmd(USART2, ENABLE);
-	  return TRUE;
-	}
+	// Configure USART Tx as alternate function push-pull
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	// Configure USART Rx as input floating
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	USART_Init(USART2, &USART_InitStructure);
+	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+	USART_Cmd(USART2, ENABLE);
+	return TRUE;
+  }
 }
 
 // Not sure of a scenario where this fails
@@ -339,10 +303,7 @@ BOOL CPU_USART_TxHandshakeEnabledState( int comPort )
 
 void CPU_USART_ProtectPins( int ComPortNum, BOOL On )
 {
-    /* TODO or rather this is already done in the init code
-	Maybe we can skip this as STM_EVAL_COMInit sets the 
-	appropriate GPIO pins.
-	*/
+	// Nothing needed here.
 }
 
 UINT32 CPU_USART_PortsCount()
@@ -379,24 +340,20 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
   }
 }
 
-#ifdef SAM_EXT_UART_TURBO_MODE
-
 #define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
 #define USART_ERR_MASK 0xF  // Parity, Framing, Noise, or Overrun error
 
 extern "C" {
-
 void __irq USART1_IRQHandler() {
 	static char buf[RX_HAL_BUF_SIZE];
 	static int idx;
 	unsigned int err;
 	unsigned int dummy;
-//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 
-	GLOBAL_LOCK(irq);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-	//skip irq.Release() because both calls to USART_AddToRxBuffer assert IRQs disabled.
 	
 	err = USART1->SR; // check status reg
 
@@ -405,7 +362,7 @@ void __irq USART1_IRQHandler() {
 		goto uart1_isr_out; // most likely overrun...
 	}
 
-	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so much do DR before we finish
+	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so must do DR before we finish
 	if (idx > 0 && USART_GetITStatus(USART1, USART_IT_IDLE) == SET) {
 		USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
 		idx=0;
@@ -448,47 +405,11 @@ void __irq USART1_IRQHandler() {
 uart1_isr_out:
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 	return;
 
 }
 } // extern C
-#else // Old code
-void USART1_Handler(void *args) {
-	int err;
-
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
-		char c;
-		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-		USART_ClearFlag(USART1, USART_FLAG_RXNE);
-		c = USART_ReceiveData(USART1)&0xFF;
-
-		// Fix for strangeness at 8 MHz... disabled for now while we run at 48 MHz.
-		//if ( (RX_BAD-- > 0) && c != 'M' && c != 'S') { return; }
-
-		USART_AddCharToRxBuffer(ConvertCOM_ComPort(COM1), c);
-		return;
-	}
-
-	if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
-		char c;
-		// USART_IT_TXE pending bit only cleared by write
-		if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c) ) {
-			USART_SendData(USART1, c);
-		}
-		else {
-			USART_ITConfig(USART1, USART_IT_TXE,  DISABLE);
-		}
-		return;
-	}
-
-	// How did we get here? Overruns, that's how.
-	// Seems to happen when a timer interrupt hits.
-	// Clear by read to SR and then DR
-	err = USART1->SR;
-	err = USART1->DR;
-}
-#endif
 
 void USART2_Handler(void *args)
 {

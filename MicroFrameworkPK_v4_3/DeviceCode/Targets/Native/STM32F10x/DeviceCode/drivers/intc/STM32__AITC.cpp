@@ -1218,7 +1218,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
-#ifndef SAM_EXT_UART_TURBO_MODE
+#ifndef PLATFORM_ARM_EmoteDotNow
 		void __irq USART1_IRQHandler()
 		{
 
