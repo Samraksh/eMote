@@ -67,6 +67,11 @@ typedef void (*PFNUsartEvent) (void* context, unsigned int event);
 
 
 BOOL USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue );
+
+#ifdef PLATFORM_ARM_EmoteDotNow
+BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue );
+#endif
+
 BOOL USART_Uninitialize( int ComPortNum );
 int  USART_Write( int ComPortNum, const char* Data, size_t size );
 int  USART_Read( int ComPortNum, char* Data, size_t size );

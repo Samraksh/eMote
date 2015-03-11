@@ -12,14 +12,34 @@ static const INT8 XOFF_CLOCK_HALT = 0x02;
 
 //--//
 
+#ifdef PLATFORM_ARM_EmoteDotNow
+static int use_com0_managed;
+BOOL USART_InitializeManaged( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
+{
+	if (ComPortNum == 0) {
+		use_com0_managed = 1;
+	}
+    return USART_Driver::Initialize( ComPortNum, BaudRate, Parity, DataBits, StopBits, FlowValue );
+}
+#endif
 
 BOOL USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
+#ifdef PLATFORM_ARM_EmoteDotNow
+	if (ComPortNum == 0) {
+		use_com0_managed = 0;
+	}
+#endif
     return USART_Driver::Initialize( ComPortNum, BaudRate, Parity, DataBits, StopBits, FlowValue );
 }
 
 BOOL USART_Uninitialize( int ComPortNum )
 {
+#ifdef PLATFORM_ARM_EmoteDotNow
+	if (ComPortNum == 0) {
+		use_com0_managed = 0;
+	}
+#endif
     return USART_Driver::Uninitialize( ComPortNum );
 }
 
@@ -678,22 +698,23 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 	written = 0;
 
 	// Write to managed queue
-	{
-	GLOBAL_LOCK(irq);
-	// Write to Managed PAL queue
-	dst = State.ManagedRxQueue.Push(toWrite);
-	if (dst != NULL)
-		memcpy(dst, data, toWrite);
-	written = toWrite;
-
-	// Have to do it twice because its a circular buffer
-	// Might not have gotten all the data on first go due to looping.
-	if (written < size) {
-		toWrite = size - written;
+	// Only needed if managed queue setup from C#
+	if (use_com0_managed) {
+		GLOBAL_LOCK(irq);
+		// Write to Managed PAL queue
 		dst = State.ManagedRxQueue.Push(toWrite);
 		if (dst != NULL)
-			memcpy(dst, &data[written], toWrite);
-	}
+			memcpy(dst, data, toWrite);
+		written = toWrite;
+
+		// Have to do it twice because its a circular buffer
+		// Might not have gotten all the data on first go due to looping.
+		if (written < size) {
+			toWrite = size - written;
+			dst = State.ManagedRxQueue.Push(toWrite);
+			if (dst != NULL)
+				memcpy(dst, &data[written], toWrite);
+		}
 	}
 
 	if (State.UsartDataEventCallback != NULL) {
