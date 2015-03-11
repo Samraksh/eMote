@@ -65,6 +65,22 @@
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
+  <!-- Crypto Stuff -->
+  <Import Condition="'$(CRYPTO_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\Crypto.featureproj" />
+  <Import Condition="'$(SSL_OPEN_FEATUREPROJ)'==''" Project="$(SPOCLIENT)\Framework\Features\SSL_OPEN.featureproj" />
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\Tokens\OpenSSL\dotNetMF.proj" />
+    <DriverLibs Include="OpenSSL_PKCS11_Crypto.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\dotNetMF.proj" />
+    <DriverLibs Include="PKCS11_Engine.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\OpenSSL\OpenSSL_1_0_0\crypto\dotnetmf.proj" />
+    <DriverLibs Include="crypto_openssl.$(LIB_EXT)" />
+  </ItemGroup>
+  <!-- End Crypto Stuff -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\stmlib\dotNetMF.proj" />

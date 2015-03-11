@@ -136,7 +136,7 @@
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
 //#define BUILD_RTM
 
-#define DISABLE_SLEEP
+//#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
 
