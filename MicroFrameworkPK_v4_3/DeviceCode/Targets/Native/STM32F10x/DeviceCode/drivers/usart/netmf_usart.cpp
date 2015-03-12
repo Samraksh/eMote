@@ -10,6 +10,17 @@
 
 void USART2_Handler(void *args);
 
+#define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
+#define USART_ERR_MASK 0xF  // Parity, Framing, Noise, or Overrun error
+
+// Changes to use Continuations for adding data to RX queue instead of staying in interrupts for COM1.
+static char bufA[RX_HAL_BUF_SIZE]; // Double Buffering
+static char bufB[RX_HAL_BUF_SIZE];
+static char *buf;
+HAL_CONTINUATION Usart1Continuation;
+
+static struct uart_rx_job uart1_rx_job;
+
 /*TODO 
 	Add error handling
 	Define the APIs completely
@@ -48,6 +59,11 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Not that the user can do anything with them anyway
 	if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
 	if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
+
+	buf = bufA;
+
+	uart1_rx_job.port = ConvertCOM_ComPort(COM1);
+	Usart1Continuation.InitializeCallback( (HAL_CALLBACK_FPN)UART_RX_DO, &uart1_rx_job );
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
@@ -93,7 +109,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	UINT32 interruptIndex = 0;
 	HAL_CALLBACK_FPN callback = NULL;
 
-	interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
+	//interruptIndex = STM32_AITC::c_IRQ_INDEX_USART2;
+	interruptIndex = USART2_IRQn;
 	callback = USART2_Handler;
 	if(!CPU_INTC_ActivateInterrupt(interruptIndex, callback, NULL) ) return FALSE;
 
@@ -340,12 +357,30 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
   }
 }
 
-#define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
-#define USART_ERR_MASK 0xF  // Parity, Framing, Noise, or Overrun error
+static void UART_RX_DO(void *arg) {
+	char *buf;
+	int len;
+	int port;
+	struct uart_rx_job *job;
+
+	if (arg == NULL) { return; }
+
+	job = (struct uart_rx_job *)arg;
+
+	buf  = job->buf;
+	len  = job->len;
+	port = job->port;
+
+	USART_AddToRxBuffer( port, buf, len <= RX_HAL_BUF_SIZE ? len : RX_HAL_BUF_SIZE);
+}
+
+static void usart_swap_buf(char **buf, char *b1, char *b2) {
+	if (*buf == b1) { *buf = b2; }
+	else 		    { *buf = b1; }
+}
 
 extern "C" {
 void __irq USART1_IRQHandler() {
-	static char buf[RX_HAL_BUF_SIZE];
 	static int idx;
 	unsigned int err;
 	unsigned int dummy;
@@ -359,13 +394,16 @@ void __irq USART1_IRQHandler() {
 
 	if (err & USART_ERR_MASK) {
 		dummy = USART1->DR;
-		goto uart1_isr_out; // most likely overrun...
+		goto uart1_isr_out; // most likely an overrun... TODO: signal to PAL
 	}
 
 	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so must do DR before we finish
 	if (idx > 0 && USART_GetITStatus(USART1, USART_IT_IDLE) == SET) {
-		USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-		idx=0;
+		uart1_rx_job.len = idx;
+		uart1_rx_job.buf = buf;
+		idx = 0;
+		usart_swap_buf(&buf, bufA, bufB);
+		Usart1Continuation.Enqueue();
 	}
 
 	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
