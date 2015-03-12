@@ -703,7 +703,7 @@ BOOL USART_Driver::AddToRxBuffer( int ComPortNum, char *data, size_t size ) {
 
 	// Write to managed queue
 	// Only needed if managed queue setup from C#
-	if (use_com0_managed) {
+	if (ComPortNum > 0 || use_com0_managed) {
 		GLOBAL_LOCK(irq);
 		// Write to Managed PAL queue
 		dst = State.ManagedRxQueue.Push(toWrite);
