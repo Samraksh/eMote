@@ -6,6 +6,10 @@ BOOL CPU_Initialize() {
 	PowerInit();
 }
 
+BOOL CPU_JTAG_Attached(){
+	return JTAG_Attached();
+}
+
 void CPU_ChangePowerLevel(POWER_LEVEL level) {
     switch(level)
     {

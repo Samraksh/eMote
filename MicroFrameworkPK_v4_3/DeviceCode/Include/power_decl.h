@@ -52,6 +52,7 @@ enum POWER_LEVEL_CATEGORY
     
 //--//
 BOOL CPU_Initialize      ();
+BOOL CPU_JTAG_Attached();
 void CPU_Reset           ();
 void CPU_Sleep           (SLEEP_LEVEL level, UINT64 wakeEvents);
 void CPU_ChangePowerLevel(POWER_LEVEL level);

@@ -608,6 +608,17 @@ mipi_dsi_shutdown();
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
+#ifndef SAM_APP_TINYBOOTER
+	// if we have the JTAG attached we will wait two seconds to allow us to attach a debugger or openOCD
+	if(CPU_JTAG_Attached() > 0)
+	{
+		UINT64 finishConnectionLock = HAL_Time_CurrentTicks() + CPU_MicrosecondsToTicks((UINT64)2000000,ADVTIMER_32BIT);
+		UINT64 now = HAL_Time_CurrentTicks();
+		while (finishConnectionLock > now) {
+			 now = HAL_Time_CurrentTicks();
+		}
+	}
+#endif
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
