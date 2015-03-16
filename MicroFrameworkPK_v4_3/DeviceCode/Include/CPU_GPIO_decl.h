@@ -67,23 +67,23 @@ typedef void (*GPIO_INTERRUPT_SERVICE_ROUTINE)( GPIO_PIN Pin, BOOL PinState, voi
 
 BOOL   CPU_GPIO_Initialize     ();
 BOOL   CPU_GPIO_Uninitialize   ();
-UINT32 CPU_GPIO_Attributes     ( GPIO_PIN Pin );
-void CPU_GPIO_ConfigurePin( char GPIOBank, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed);
-void   CPU_GPIO_DisablePin     ( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction );
-void   CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState );
-BOOL   CPU_GPIO_EnableInputPin ( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
-BOOL   CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
-BOOL   CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
-BOOL   CPU_GPIO_GetPinState    ( GPIO_PIN Pin );
-void   CPU_GPIO_SetPinState    ( GPIO_PIN Pin, BOOL PinState );
-BOOL   CPU_GPIO_PinIsBusy      ( GPIO_PIN Pin );
-BOOL   CPU_GPIO_ReservePin     ( GPIO_PIN Pin, BOOL fReserve );
+UINT32 CPU_GPIO_Attributes     ( uint8_t GPIO_PortSource, GPIO_PIN Pin );
+void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING, GPIOSpeed_TypeDef speed = GPIO_Speed_2MHz);
+void   CPU_GPIO_DisablePin     ( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction );
+void   CPU_GPIO_EnableOutputPin( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL InitialState );
+BOOL   CPU_GPIO_EnableInputPin ( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
+BOOL   CPU_GPIO_EnableInputPin2( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
+BOOL   CPU_GPIO_EnableInputPin3( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );
+BOOL   CPU_GPIO_GetPinState    ( uint8_t GPIO_PortSource, GPIO_PIN Pin );
+void   CPU_GPIO_SetPinState    ( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState );
+BOOL   CPU_GPIO_PinIsBusy      ( uint8_t GPIO_PortSource, GPIO_PIN Pin );
+BOOL   CPU_GPIO_ReservePin     ( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL fReserve );
 UINT32 CPU_GPIO_GetDebounce    ();
 BOOL   CPU_GPIO_SetDebounce    ( INT64 debounceTimeMilliseconds );
 INT32  CPU_GPIO_GetPinCount    ();
 void   CPU_GPIO_GetPinsMap     ( UINT8* pins, size_t size );
-UINT8  CPU_GPIO_GetSupportedResistorModes(GPIO_PIN pin );
-UINT8  CPU_GPIO_GetSupportedInterruptModes(GPIO_PIN pin );
+UINT8  CPU_GPIO_GetSupportedResistorModes( GPIO_PIN pin );
+UINT8  CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin );
 
         
 //--//
