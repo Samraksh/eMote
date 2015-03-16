@@ -884,10 +884,13 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Enable the gpio pin as the interrupt point
-		if(this->GetRadioName() == RF231RADIO)
+		if(this->GetRadioName() == RF231RADIO){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-		else if(this->GetRadioName() == RF231RADIOLR)
+		}
+		else if(this->GetRadioName() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+			CPU_GPIO_ConfigurePin(GPIO_Bank_B, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+		}
 
 		SlptrSet();
 #ifdef DEBUG_RF231

@@ -68,7 +68,7 @@ typedef void (*GPIO_INTERRUPT_SERVICE_ROUTINE)( GPIO_PIN Pin, BOOL PinState, voi
 BOOL   CPU_GPIO_Initialize     ();
 BOOL   CPU_GPIO_Uninitialize   ();
 UINT32 CPU_GPIO_Attributes     ( GPIO_PIN Pin );
-void CPU_GPIO_ConfigurePin( GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed);
+void CPU_GPIO_ConfigurePin( char GPIOBank, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed);
 void   CPU_GPIO_DisablePin     ( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction );
 void   CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState );
 BOOL   CPU_GPIO_EnableInputPin ( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState );

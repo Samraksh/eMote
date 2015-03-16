@@ -391,8 +391,23 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 	return GPIO_ATTRIBUTE_NONE;
 }
 
-void CPU_GPIO_ConfigurePin( GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void CPU_GPIO_ConfigurePin( char GPIOBank, GPIO_PIN PinTemp, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
+	if(PinTemp > g_STM32F10x_Gpio_Driver.c_PinsPerPort)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins per port at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
+
+	GPIO_PIN Pin;
+	Pin = (GPIOBank * GPIO_PPP) + PinTemp;
+
+	if(Pin > g_STM32F10x_Gpio_Driver.c_MaxPins)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
+
 	GPIO_StructInit(&GPIO_Instances[Pin]);
 	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Instances[Pin].GPIO_Mode = mode;
@@ -402,6 +417,11 @@ void CPU_GPIO_ConfigurePin( GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeD
 
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
 {
+	if(Pin > g_STM32F10x_Gpio_Driver.c_MaxPins)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
 	GPIO_StructInit(&GPIO_Instances[Pin]);
 	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
