@@ -391,21 +391,20 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 	return GPIO_ATTRIBUTE_NONE;
 }
 
-// Debugging the i2c driver, this function is not doing what it is supposed to be doing
+void CPU_GPIO_ConfigurePin( GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+{
+	GPIO_StructInit(&GPIO_Instances[Pin]);
+	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
+	GPIO_Instances[Pin].GPIO_Mode = mode;
+	GPIO_Instances[Pin].GPIO_Speed = speed;	
+	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
+}
+
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-	GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
-
-	//GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-
-	//GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_InitStructure);
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+	GPIO_StructInit(&GPIO_Instances[Pin]);
+	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
+	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
 }
 
 // Configure the pin as an output pin, strange that this does not have a return type
