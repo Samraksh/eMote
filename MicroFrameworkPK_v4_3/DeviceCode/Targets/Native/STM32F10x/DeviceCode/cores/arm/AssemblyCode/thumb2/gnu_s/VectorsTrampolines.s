@@ -81,7 +81,7 @@
     .global  ARM_Vectors
     .global  Default_Handler
 
-    .equ  Initial_spTop,  0x2000C000
+    .equ  Initial_spTop,  SAM_STACK_TOP
 	.equ  BootRAM,        0xF1E0F85F
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

@@ -48,7 +48,7 @@ CustomHeapEnd:
     .global CustomHeapBegin
     .global CustomHeapEnd
 
-	.equ  InitStackTop,  0x2000C000     @for stmxl of 96KB ram
+	.equ  InitStackTop,  SAM_STACK_TOP     @for stmxl of 96KB ram
 	@.equ  InitStackTop,  0x20009000
 
     .section i.EntryPoint, "xa", %progbits
@@ -66,7 +66,7 @@ CustomHeapEnd:
 EntryPoint:
 	@Set stack pointer
 	@bl SystemInit_ExtMemCtl
-	LDR r0, =SAM_STACK_TOP
+	LDR r0, =InitStackTop
   	MSR msp, r0
 	bl VectorRelocate
     bl BootstrapCode
