@@ -205,6 +205,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
   	volatile unsigned long stacked_pc ;
   	volatile unsigned long stacked_psr ;
   	volatile unsigned long _CFSR ;
+	volatile unsigned long _UFSR ;
   	volatile unsigned long _HFSR ;
   	volatile unsigned long _DFSR ;
   	volatile unsigned long _AFSR ;
@@ -223,6 +224,9 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
   	// Configurable Fault Status Register
   	// Consists of MMSR, BFSR and UFSR
   	_CFSR = (*((volatile unsigned long *)(0xE000ED28))) ;
+
+	// Usage Fault Status Register
+	_UFSR = _CFSR >> 0x10;
  
   	// Hard Fault Status Register
   	_HFSR = (*((volatile unsigned long *)(0xE000ED2C))) ;
@@ -240,6 +244,54 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
   	// Bus Fault Address Register
   	_BFAR = (*((volatile unsigned long *)(0xE000ED38))) ;
 
+	                                       // Possible Causes of Fault Status Registers (Yiu, The definitive guide to the ARM Cortex-M3, 2010)
+	bool MMARVALID = (_MMAR & (1<<7)) > 0; // Indicates the Memory Manage Address register (MMAR) contains a valid fault addressing value.
+	bool MSTKERR   = (_MMAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
+	                                       // 1. Stack pointer is corrupted.
+	                                       // 2. Stack size is too large, reaching a region not defined by the MPU or disallowed in the MPU configuration.
+	bool MUNSTKERR = (_MMAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception). If there was no error
+	                                       // stacking but error occurred during unstacking, it might be because of the
+	                                       // following reasons:
+	                                       // 1. Stack pointer was corrupted during exception.
+	                                       // 2. MPU configuration was changed by exception handler.
+	bool DACCVIOL = (_MMAR & (1<<1)) > 0;  // Violation to memory access protection, which is defined by MPU setup.
+	                                       // For example, user application trying to access privileged-only region.
+	bool IACCVIOL = (_MMAR & (1<<0)) > 0;  // 1. Violation to memory access protection, which is defined by MPU setup.
+	                                       // For example, user application trying to access privileged-only region.
+	                                       // Stacked PC might be able to locate the code that caused the problem.
+	                                       // 2. Branch to nonexecutable regions.
+	                                       // 3. Invalid exception return code.
+	                                       // 4. Invalid entry in exception vector table. For example, loading of an executable
+	                                       // image for traditional ARM core into the memory, or exception happened before vector table was set.
+	                                       // 5. Stacked PC corrupted during exception handling.
+
+	bool BFARVALID = (_BFAR & (1<<7)) > 0; // Indicates the Bus Fault Address register contains a valid bus fault address.
+	bool STKERR    = (_BFAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
+	bool UNSTKERR  = (_BFAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception. If there was no error
+	                                       // stacking but error occurred during unstacking, it might be that the stack pointer was corrupted during exception.
+	bool IMPRECISERR=(_BFAR & (1<<2)) > 0;
+	bool PRECISERR = (_BFAR & (1<<1)) > 0;
+	bool IBUSERR   = (_BFAR & (1<<0)) > 0;
+
+	bool DIVBYZERO = (_UFSR & (1<<9)) > 0;
+	bool UNALIGNED = (_UFSR & (1<<8)) > 0;
+	bool NOCP      = (_UFSR & (1<<3)) > 0;
+	bool INVPC     = (_UFSR & (1<<2)) > 0;
+	bool INVSTATE  = (_UFSR & (1<<1)) > 0;
+	bool UNDEFINSTR= (_UFSR & (1<<0)) > 0;
+
+	bool DEBUGEVF  = (_HFSR &(1<<31)) > 0;
+	bool FORCED    = (_HFSR &(1<<30)) > 0; // 1. Trying to run SVC/BKPT within SVC/monitor or another handler with same or higher priority.
+	                                       // 2. A hard fault occurred if the corresponding handler is disabled or cannot be started because
+	                                       // another exception with the same or higher priority is running, or because another exception
+	                                       // with the same or higher priority is running, or because exception mask is set.
+	bool VECTBL    = (_HFSR &(1<< 1)) > 0;
+
+	bool EXTERNAL  = (_DFSR & (1<<4)) > 0;
+	bool VCATCH    = (_DFSR & (1<<3)) > 0;
+	bool DWTTRAP   = (_DFSR & (1<<2)) > 0;
+	bool BKPT      = (_DFSR & (1<<1)) > 0;
+	bool HALTED    = (_DFSR & (1<<0)) > 0;
 
  	// at this point you can read data from the variables with 
 	// "p/x stacked_pc"
