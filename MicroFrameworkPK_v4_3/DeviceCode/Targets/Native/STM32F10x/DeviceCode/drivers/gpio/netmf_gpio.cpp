@@ -8,169 +8,117 @@
 
 //--//
 
-#define GPIO_PORTS	7
-#define	GPIO_PPP	16
-#define GPIO_PINS	(GPIO_PORTS * GPIO_PPP)	//112
+#define NUMBER_OF_EXTI_LINES 16
 
-BOOL pinState = FALSE;
-
-
-extern "C"
-{
-void Default_EXTI_Handler(void *data);
-void EXTI0_IRQ_HANDLER(void *args);
-void EXTI1_IRQ_HANDLER(void *args);
-void EXTI2_IRQ_HANDLER(void *args);
-void EXTI3_IRQ_HANDLER(void *args);
-void EXTI4_IRQ_HANDLER(void *args);
-void EXTI9_5_IRQ_HANDLER(void *args);
-void EXTI15_10_IRQ_Handler(void *args);
-void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param );
-}
 
 STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
-const UINT8 STM32F10x_GPIO_Driver::c_Gpio_Attributes[STM32F10x_GPIO_Driver::c_MaxPins] =
-{
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   0
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   1
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   2
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   3
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   4
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   5
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   6
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   7
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   8
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   9
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  10
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  11
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  12
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  13
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  14
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  15
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  16
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  17
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  18
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  19
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  20
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  21
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  22
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  23
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  24
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  25
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  26
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  27
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  28
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  29
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  30
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  31
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  32
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  33
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  34
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  35
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  36
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  37
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  38
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  39
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  40
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  41
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  42
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  43
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  44
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  45
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  46
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  47
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  48
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  49
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  50
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  51
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  52
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  53
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  54
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  55
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  56
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  57
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  58
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  59
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  60
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  61
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  62
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  63
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  64
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  65
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  66
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  67
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  68
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  69
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  70
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  71
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  72
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  73
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  74
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  75
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  76
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  77
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  78
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  79
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  80
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  81
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  82
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  83
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  84
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  85
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  86
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  87
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  88
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  89
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  90
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  91
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  92
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  93
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  94
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  95
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  96
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  97
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  98
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //  99
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 100
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 101
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 102
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 103
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 104
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 105
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 106
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 107
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 108
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 109
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 110
-    GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 111
+
+// Not truly static, but passed by function pointers
+static void EXTI0_IRQ_HANDLER(void *args);
+static void EXTI1_IRQ_HANDLER(void *args);
+static void EXTI2_IRQ_HANDLER(void *args);
+static void EXTI3_IRQ_HANDLER(void *args);
+static void EXTI4_IRQ_HANDLER(void *args);
+static void EXTI9_5_IRQ_HANDLER(void *args);
+static void EXTI15_10_IRQ_Handler(void *args);
+//static void Default_EXTI_Handler(void *data);
+//static void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param );
 
 
-};
+static int GPIO_GetExtrCR(unsigned int line);
+GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin);
+uint16_t GPIO_GetPin(GPIO_PIN Pin);
 
 
-GPIO_InitTypeDef GPIO_Instances[GPIO_PINS];
+const uint GPIO_PORTS = STM32F10x_GPIO_Driver::c_MaxPorts;
+const uint GPIO_PPP = STM32F10x_GPIO_Driver::c_PinsPerPort;
+const uint GPIO_PINS = STM32F10x_GPIO_Driver::c_MaxPins;
+
 
 GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
+UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,
+											EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
 
-#define NUMBER_OF_EXTI_LINES 16
+static GPIO_INTERRUPT_SERVICE_ROUTINE gpio_isr[GPIO_PINS];
+static void* gpio_parm[GPIO_PINS];
+static uint8_t pin_reservations[14]; // 14*8 = 112
 
-UINT32 EXTILines[16] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
 //Local Functions
 
-int16_t GPIO_GetExtrCR(UINT32 line)
+static void handle_exti(unsigned int exti)
 {
-	if(line > (1 << NUMBER_OF_EXTI_LINES))
-		return -1;
-
-	for(UINT16 i = 0; i < NUMBER_OF_EXTI_LINES; i++)
+	if(EXTI_GetITStatus(exti) != RESET)
 	{
-		if(line & (1 << i))
+		EXTI_ClearITPendingBit(exti);
+
+		GPIO_INTERRUPT_SERVICE_ROUTINE my_isr;
+		UINT32 line = GPIO_GetExtrCR(exti);
+		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7; // Assuming this is right, not double-checked --NPS
+		UINT32 pin = line + port * GPIO_PPP;
+		void *parm;
+
+		// Shouldn't this be a HAL_CONTINUATION??? TODO --NPS
+		my_isr = gpio_isr[pin];
+		parm = gpio_parm[pin];
+		my_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)), parm);
+	}
+}
+
+static int GPIO_GetExtrCR(unsigned int line)
+{
+	if(line > (1 << NUMBER_OF_EXTI_LINES)) { return -1; }
+
+	for(int i = 0; i < NUMBER_OF_EXTI_LINES; i++)
+	{
+		if(line & (1 << i)){
 			return i;
+		}
+	}
+	return -1;
+}
+
+static BOOL IsOutputPin(GPIO_PIN Pin)
+{
+	GPIO_TypeDef *port;
+	unsigned int p;
+	unsigned int mode;
+	unsigned int mode_mask = 0x03;
+	BOOL isOutput;
+
+	if (Pin > GPIO_PINS) { return FALSE; }
+
+	port = GPIO_GetPortPtr(Pin);
+	p = GPIO_GetPin(Pin);
+
+	if (p < 8) { // check mode in CRL
+		mode = port->CRL;
+		mode_mask = mode_mask << (p*4);
+	}
+	else { // check mode in CRH
+		mode = port->CRH;
+		mode_mask = mode_mask << (p*2);
 	}
 
-	return -1;
+	if ( (mode & mode_mask) == 0 ) {
+		isOutput = FALSE;
+	}
+	else {
+		isOutput = TRUE;
+	}
+	return isOutput;
+}
 
+static inline bool CheckGPIO_PortSource_Pin(GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin)
+{
+	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
+
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins per port at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
+	return TRUE;
 }
 
 uint16_t GPIO_GetPin(GPIO_PIN Pin) {
@@ -276,66 +224,16 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 }
 
 //Exported Functions
-BOOL gpioDriverInitialized = FALSE;
+
 
 // Initialize the ports GPIOA .... GPIOG of the Emote
 BOOL CPU_GPIO_Initialize()
 {
-
-	UINT16 port;
-	UINT16 pin;
-	STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR* pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr;
-
-	if(gpioDriverInitialized)
-		return TRUE;
-
 	// Configure clock source for all gpio ports
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
-	// Initialize all the pins in all the ports to the following configuration
-	// - Input Floating
-	// - 2 MHZ (consumes the least power)
-	int ik = 0;
-
-	for(port = 0; port < g_STM32F10x_Gpio_Driver.c_MaxPorts; port++)
-	{
-		g_STM32F10x_Gpio_Driver.m_pinReservationInfo[port] = 0;
-	}
-
-	// Initialize the isr structure for each of the pins
-	for(pin = 0; pin < g_STM32F10x_Gpio_Driver.c_MaxPins; pin++)
-	{
-		GPIO_StructInit(&GPIO_Instances[pin]);
-		pinIsr->m_pin     = pin;
-		pinIsr->m_intEdge = GPIO_INT_NONE;
-		pinIsr->m_isr     = STUB_GPIOISRVector;
-		pinIsr->m_param   = NULL;
-
-		pinIsr++;
-
-		//CPU_GPIO_EnableOutputPin((GPIO_PIN) pin, FALSE);
-	}
-
-
-	gpioDriverInitialized = TRUE;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
+										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
 
 	return TRUE;
-
-#if 0
-	UINT8 ik;
-
-	for(ik = 0; ik < GPIO_PINS; ik++) {
-		GPIO_StructInit(&GPIO_Instances[ik]);
-	}
-
-	for(ik = 0; ik < GPIO_PORTS; ik++) {
-		GPIO_Reserve[ik] = 0x00000000U;
-	}
-
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
-
-	return TRUE;
-#endif
-
 }
 
 BOOL CPU_GPIO_Uninitialize()
@@ -369,119 +267,164 @@ BOOL CPU_GPIO_Uninitialize()
 
 BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 {
-	if(pinState == FALSE)
+	if(Pin > GPIO_PINS)
 	{
-		CPU_GPIO_SetPinState(Pin, TRUE);
-		pinState = TRUE;
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
 	}
-	else
-	{
+
+	bool pinState = CPU_GPIO_GetPinState(Pin);
+
+	if(pinState == FALSE) {
+		CPU_GPIO_SetPinState(Pin, TRUE);
+	} else {
 		CPU_GPIO_SetPinState(Pin, FALSE);
-		pinState = FALSE;
 	}
 }
 
 UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 {
-	if(Pin < g_STM32F10x_Gpio_Driver.c_MaxPins)
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return 0;
+	}
+	return (GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT);
+
+	/*if(Pin < GPIO_PINS)
 	{
 		return g_STM32F10x_Gpio_Driver.c_Gpio_Attributes[Pin];
 	}
 	
-	return GPIO_ATTRIBUTE_NONE;
+	return GPIO_ATTRIBUTE_NONE;*/
 }
 
-// Debugging the i2c driver, this function is not doing what it is supposed to be doing
+
+void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+{
+	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+		return;
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
+	GPIO_InitStructure.GPIO_Mode = mode; // output mode
+	GPIO_InitStructure.GPIO_Speed = speed;
+	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
+}
+
+void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+{
+	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = Pin;
+	GPIO_InitStructure.GPIO_Mode = mode; // output mode
+	GPIO_InitStructure.GPIO_Speed = speed;
+	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
+}
+
+
 void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
 
-	GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex);
+	CPU_GPIO_SetPinState(Pin, FALSE);
 
-	//GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-
-	//GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_InitStructure);
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+	// Remove any user interrupts
+	gpio_isr[Pin] = NULL;
+	gpio_parm[Pin] = NULL;
 }
 
 // Configure the pin as an output pin, strange that this does not have a return type
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
 	// Check if the input pin is less than max pins
-	if(Pin > g_STM32F10x_Gpio_Driver.c_MaxPins)
+	if(Pin > GPIO_PINS)
 	{
 		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return;
 	}
 
-	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
-	GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_Out_PP);
 	CPU_GPIO_SetPinState(Pin, InitialState);
 }
 
 BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
-}
-
-BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
-{
-
-	if(Pin > g_STM32F10x_Gpio_Driver.c_MaxPins)
+	if(Pin > GPIO_PINS)
 	{
 		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
 	}
 
-	GPIO_InitTypeDef GPIO_InitStructure;
+	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
+}
 
-    GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
-	if		(ResistorState == RESISTOR_DISABLED) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	}else if(ResistorState == RESISTOR_PULLDOWN) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPD;
-	}else if(ResistorState == RESISTOR_PULLUP) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPU;
-	}
-	else
+BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+{
+	if(Pin > GPIO_PINS)
 	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
+
+	GPIOMode_TypeDef mode;
+
+	if (ResistorState == RESISTOR_DISABLED) {
+		mode = GPIO_Mode_IN_FLOATING;
+	} else if(ResistorState == RESISTOR_PULLDOWN) {
+		mode = GPIO_Mode_IPD;
+	} else if(ResistorState == RESISTOR_PULLUP) {
+		mode = GPIO_Mode_IPU;
+	} else {
 		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Invalid resistor configuration at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
 	}
 
-	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, mode);
 	
 	return TRUE;
-
 }
 
 BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
 
 	EXTI_InitTypeDef EXTI_InitStructure;
-	GPIO_InitTypeDef GPIO_InitStructure;
 
-    GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
-	if		(ResistorState == RESISTOR_DISABLED) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	}else if(ResistorState == RESISTOR_PULLDOWN) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPD;
-	}else if(ResistorState == RESISTOR_PULLUP) {
-		GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_IPU;
+	GPIOMode_TypeDef mode;
+	if (ResistorState == RESISTOR_DISABLED) {
+		mode = GPIO_Mode_IN_FLOATING;
+	} else if(ResistorState == RESISTOR_PULLDOWN) {
+		mode = GPIO_Mode_IPD;
+	} else if(ResistorState == RESISTOR_PULLUP) {
+		mode = GPIO_Mode_IPU;
 	}
-	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
+
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, mode);
 
 	// Nived.Sivadas - adding interrupt support to the gpio pins
 	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
 
 	if(PIN_ISR)
 	{
-
 		EXTI_InitStructure.EXTI_Line = GPIO_GetExtiLine(Pin);
 
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
@@ -492,7 +435,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 			EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 		else if(GPIO_INT_EDGE_BOTH == IntEdge)
 			EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-    // Not supported on the device
+		// Not supported on the device
 		else if(GPIO_INT_LEVEL_HIGH == IntEdge || GPIO_INT_LEVEL_LOW == IntEdge)
 			return FALSE;
 
@@ -500,14 +443,15 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 		EXTI_Init(&EXTI_InitStructure);
 
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[Pin];
-
-		pinIsr.m_isr     = PIN_ISR;
-		pinIsr.m_param   = ISR_Param;
-		pinIsr.m_intEdge = IntEdge;
+		gpio_isr[Pin] = PIN_ISR;
+		gpio_parm[Pin] = ISR_Param;
 
 		CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
+	}
+	else
+	{
+		gpio_isr[Pin] = NULL;
+		gpio_parm[Pin] = NULL;
 	}
 
 	return TRUE;
@@ -518,46 +462,82 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 // If the pin is configured in one of the output modes, read the output data register
 BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
-	if((GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_AIN) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IN_FLOATING) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPD) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPU))
-		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
-	else
-		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
+
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	if(IsOutputPin(Pin)){
+		return (BOOL)GPIO_ReadOutputDataBit(port, pinInHex);
+	} else	{
+		return (BOOL)GPIO_ReadInputDataBit(port, pinInHex);
+	}
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
 
+	//If it isn't an output pin, then its not valid to Set(). EnableOutputPin() first.
+	//If you call Set() and it isn't an output, nothing will happen.
+	//if (!IsOutputPin(Pin)) { return; }
+
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
 	if(PinState) {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_SET);
-	}else {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_RESET);
+		GPIO_WriteBit(port, pinInHex, Bit_SET);
+	} else {
+		GPIO_WriteBit(port, pinInHex, Bit_RESET);
 	}
 }
+
 
 // Check if the pin is busy or in use, takes the Pin number as the input argument
 BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 {
-    return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
+
+	unsigned int bit = 1 << (Pin % 8);
+	unsigned int byte = Pin / 8;
+	if (pin_reservations[byte] & bit) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
 }
 
 // This function is used to reserve and unreserve pins to avoid gpio resource conflict issues
 BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
-	// Check if the pin you are about to configure is busy or already in use, if so return false
-	if(CPU_GPIO_PinIsBusy(Pin) && fReserve)
+	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT1("[Native] [GPIO Driver] The Pin is busy\n");
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
 	}
 
-    if(fReserve) {
-		SET_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
-	}else {
-		CLEAR_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
+	unsigned int bit = 1 << (Pin % 8);
+	unsigned int byte = Pin / 8;
+	if (pin_reservations[byte] & bit) {
+		if (fReserve) { return FALSE; } // Can't reserve it, busy, fail.
+		else { pin_reservations[byte] &= ~bit; } // Un-reserve a busy pin.
 	}
-
-    return TRUE;
-
+	else {
+		if (fReserve) { pin_reservations[byte] |= bit; } // Reserve it.
+		// Nothing to do for case where un-reserving a non-busy pin
+	}
+	return TRUE;
 }
 
 //STUB
@@ -574,332 +554,92 @@ BOOL CPU_GPIO_SetDebounce( INT64 debounceTimeMilliseconds )
 
 INT32 CPU_GPIO_GetPinCount()
 {
-    return g_STM32F10x_Gpio_Driver.c_MaxPins;
+    return GPIO_PINS;
 } 
 
 void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 {
-    UINT8 ik;
-	for(ik = 0; ik < size; ik++) {
-		pins[ik] = (UINT8)CPU_GPIO_Attributes((GPIO_PIN)ik);
+	if(size > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] size greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
+    UINT8 i;
+	for(i = 0; i < size; i++) {
+		pins[i] = CPU_GPIO_Attributes(i);	//GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT;
 	}
 }
 
 UINT8 CPU_GPIO_GetSupportedResistorModes( GPIO_PIN Pin )
 {
-	return g_STM32F10x_Gpio_Driver.c_GPIO_ResistorMode;
-
+	//return g_STM32F10x_Gpio_Driver.c_GPIO_ResistorMode;
+	return ((1<<RESISTOR_DISABLED) | (1<<RESISTOR_PULLUP) | (1 << RESISTOR_PULLDOWN));
 }
+
 UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 {
-    return g_STM32F10x_Gpio_Driver.c_GPIO_InterruptMode;
+    //return g_STM32F10x_Gpio_Driver.c_GPIO_InterruptMode;
+    return ((1<<GPIO_INT_EDGE_LOW) | (1<<GPIO_INT_EDGE_HIGH ) | (1<<GPIO_INT_EDGE_BOTH));
+}
+
+
+
+
+void EXTI0_IRQ_HANDLER(void *args)
+{
+	handle_exti(EXTI_Line0);
 }
 
 void EXTI1_IRQ_HANDLER(void *args)
 {
-	if(EXTI_GetITStatus(EXTI_Line1) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line1);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line1);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-	}
-
-}
-
-extern "C"
-{
-
-void EXTI0_IRQ_HANDLER(void *args)
-{
-  if(EXTI_GetITStatus(EXTI_Line0) != RESET)
-  {
-	  EXTI_ClearITPendingBit(EXTI_Line0);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line0);
-
-			UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-			UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-			STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-			if(pinIsr.m_isr)
-				pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-  }
-}
-
-
-
-extern "C"
-{
-void Default_EXTI_Handler(void *data)
-{
-
-}
+	handle_exti(EXTI_Line1);
 }
 
 void EXTI2_IRQ_HANDLER(void *args)
 {
-	int line = 0;
-
-	if(EXTI_GetITStatus(EXTI_Line2) != RESET)
-	{
-
-		EXTI_ClearITPendingBit(EXTI_Line2);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line2);
-
-			UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-			UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-			STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-			if(pinIsr.m_isr)
-				pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-	}
-
+	handle_exti(EXTI_Line2);
 }
 
 void EXTI3_IRQ_HANDLER(void *args)
 {
-	if(EXTI_GetITStatus(EXTI_Line3) != RESET)
-	{
-
-		EXTI_ClearITPendingBit(EXTI_Line3);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line3);
-
-			UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-			UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-			STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-			if(pinIsr.m_isr)
-				pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-	}
+	handle_exti(EXTI_Line3);
 }
 
 void EXTI4_IRQ_HANDLER(void *args)
 {
-	if(EXTI_GetITStatus(EXTI_Line4) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line4);
-		//Handles only PA4
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line4);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-	}
-
-
+	handle_exti(EXTI_Line4);
 }
 
 void EXTI9_5_IRQ_HANDLER(void *args)
 {
-	if(EXTI_GetITStatus(EXTI_Line5) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line5);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line5);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-	}
-	else if(EXTI_GetITStatus(EXTI_Line6) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line6);
-		//Handles only PC6
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line6);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-	}
-	else if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line7);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line7);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-	}
-	else if(EXTI_GetITStatus(EXTI_Line8) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line8);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line8);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-	}
-	else if(EXTI_GetITStatus(EXTI_Line9) != RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line9);
-
-		UINT32 line = GPIO_GetExtrCR(EXTI_Line9);
-
-		UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-		UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-		STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-		if(pinIsr.m_isr)
-			pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-	}
-
+	handle_exti(EXTI_Line5);
+	handle_exti(EXTI_Line6);
+	handle_exti(EXTI_Line7);
+	handle_exti(EXTI_Line8);
+	handle_exti(EXTI_Line9);
 }
 
 void EXTI15_10_IRQ_Handler(void *args)
 {
-	if(EXTI_GetITStatus(EXTI_Line10) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line10);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line10);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-		}
-		else if(EXTI_GetITStatus(EXTI_Line11) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line11);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line11);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-		}
-		else if(EXTI_GetITStatus(EXTI_Line12) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line12);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line12);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-		}
-		else if(EXTI_GetITStatus(EXTI_Line13) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line13);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line13);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-		}
-		else if(EXTI_GetITStatus(EXTI_Line14) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line14);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line14);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-
-		}
-		else if(EXTI_GetITStatus(EXTI_Line15) != RESET)
-		{
-			EXTI_ClearITPendingBit(EXTI_Line15);
-
-			UINT32 line = GPIO_GetExtrCR(EXTI_Line15);
-
-					UINT32 port = ((AFIO->EXTICR[line >> 2]) >> ( 4 * (line % 4))) & 0x7;
-
-					UINT32 pin = line + port * g_STM32F10x_Gpio_Driver.c_PinsPerPort;
-
-					STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR& pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr[pin];
-
-					if(pinIsr.m_isr)
-						pinIsr.m_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)),  pinIsr.m_param);
-		}
-
-
-}
+	handle_exti(EXTI_Line10);
+	handle_exti(EXTI_Line11);
+	handle_exti(EXTI_Line12);
+	handle_exti(EXTI_Line13);
+	handle_exti(EXTI_Line14);
+	handle_exti(EXTI_Line15);
 }
 
+
+
+
+/*
 void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param )
 {
-
 }
+
+void Default_EXTI_Handler(void *data)
+{
+}
+*/
 
 

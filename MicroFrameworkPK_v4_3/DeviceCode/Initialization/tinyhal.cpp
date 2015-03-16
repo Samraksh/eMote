@@ -746,15 +746,15 @@ UINT32 Checksum_RAMConstants()
     UINT32* RAMConstants = (UINT32*)&IMAGE_RAM_RO_BASE; 
     UINT32  Length       = (UINT32 )&IMAGE_RAM_RO_LENGTH; 
 
-    UINT32 CRC;
+    UINT32 CRCValue;
 
     // start with Vector area CRC
-    CRC = SUPPORT_ComputeCRC( NULL, 0x00000020, 0 );
+    CRCValue = SUPPORT_ComputeCRC( NULL, 0x00000020, 0 );
 
     // add the big block of RAM constants to CRC
-    CRC = SUPPORT_ComputeCRC( RAMConstants, Length, CRC );
+    CRCValue = SUPPORT_ComputeCRC( RAMConstants, Length, CRCValue );
 
-    return CRC;
+    return CRCValue;
 }
 
 void Verify_RAMConstants( void* arg )
@@ -763,11 +763,11 @@ void Verify_RAMConstants( void* arg )
 
     //debug_printf("RAMC\r\n");
 
-    UINT32 CRC = Checksum_RAMConstants();
+    UINT32 CRCValue = Checksum_RAMConstants();
 
-    if(CRC != g_Boot_RAMConstants_CRC)
+    if(CRCValue != g_Boot_RAMConstants_CRC)
     {
-        hal_printf( "RAMC CRC:%08x!=%08x\r\n", CRC, g_Boot_RAMConstants_CRC );
+        hal_printf( "RAMC CRC:%08x!=%08x\r\n", CRCValue, g_Boot_RAMConstants_CRC );
 
         UINT32* ROMConstants  = (UINT32*)&LOAD_RAM_RO_BASE;
         UINT32* RAMConstants  = (UINT32*)&IMAGE_RAM_RO_BASE;

@@ -46,6 +46,7 @@ TODO -
 /*--------- Global Variables ----------- */
 SPI_InitTypeDef SPI_InitStructure;
 SPI_TypeDef* SPI_mod;
+//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 //indicates the SPI peripheral initialized
 int SPI_Initialized[] = {0};
@@ -119,9 +120,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 
 		/* Configure SPIx pins: SCK, MISO and MOSI */
 		GPIO_InitStructure.GPIO_Pin = SPIx_PIN_SCK | SPIx_PIN_MISO | SPIx_PIN_MOSI | SPIx_NSS;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);
+		GPIO_ConfigurePin(SPIx_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 
 		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -151,15 +150,11 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 
 		/* Configure SPIy pins: SCK, MOSI */
 		GPIO_InitStructure.GPIO_Pin = SPIy_PIN_SCK | SPIy_PIN_MOSI | SPIy_NSS;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		GPIO_Init(SPIy_GPIO, &GPIO_InitStructure);
+		GPIO_ConfigurePin(SPIy_GPIO, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
-		  // SPI MISO pin
-		 GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-		 GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		 GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-		 GPIO_Init(GPIOB, &GPIO_InitStructure);
+		// SPI MISO pin
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+		GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
 
 		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
