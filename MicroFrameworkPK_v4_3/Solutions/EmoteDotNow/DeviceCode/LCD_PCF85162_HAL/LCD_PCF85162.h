@@ -3,6 +3,8 @@
 #ifndef LCD_PCF85162_H
 #define LCD_PCF85162_H
 
+#include <gpio\netmf_gpio.h>
+
 #define DISPLAY_DECIMAL_POINT 0x80
 
 enum BlinkTypeDriver {

@@ -17,6 +17,7 @@
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
 
+//#define SAM_APP_TINYBOOTER
 
 
 //

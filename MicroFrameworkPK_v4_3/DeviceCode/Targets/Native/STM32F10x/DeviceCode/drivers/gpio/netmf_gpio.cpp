@@ -30,6 +30,7 @@ const uint GPIO_PORTS = STM32F10x_GPIO_Driver::c_MaxPorts;
 const uint GPIO_PPP = STM32F10x_GPIO_Driver::c_PinsPerPort;
 const uint GPIO_PINS = STM32F10x_GPIO_Driver::c_MaxPins;
 
+
 //GPIO_InitTypeDef GPIO_Instances[GPIO_PINS];
 GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
 UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
@@ -413,7 +414,7 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 }
 
 
-void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
 	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
 		return;
@@ -441,7 +442,7 @@ void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_Type
 }
 
 
-void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
 	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
 
@@ -464,7 +465,7 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 	/*GPIO_StructInit(&GPIO_Instances[Pin]);
 	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin);
+	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin));
 	CPU_GPIO_SetPinState(Pin, FALSE);
 }
 
@@ -481,7 +482,7 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 	/*GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, GPIO_Mode_Out_PP);
+	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), GPIO_Mode_Out_PP);
 	CPU_GPIO_SetPinState(Pin, InitialState);
 }
 
@@ -516,7 +517,9 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 	{
 		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Invalid resistor configuration at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
-	}*/
+	}
+
+	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
 
 	GPIOMode_TypeDef mode;
 
@@ -531,8 +534,7 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 		return FALSE;
 	}
 
-	//GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
-	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, mode);
+	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), mode);
 	
 	return TRUE;
 }
@@ -568,7 +570,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 		mode = GPIO_Mode_IPU;
 	}
 
-	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, mode);
+	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), mode);
 
 	// Nived.Sivadas - adding interrupt support to the gpio pins
 	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
@@ -630,7 +632,7 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 	else
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
 
-	return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+	return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )

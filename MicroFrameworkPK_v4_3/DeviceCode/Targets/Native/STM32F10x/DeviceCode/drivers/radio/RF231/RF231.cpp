@@ -4,6 +4,8 @@
 
 //#define DEBUG_RF231 1
 
+//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
+
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -890,7 +892,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 		else if(this->GetRadioName() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-			CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+			GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
 
 		SlptrSet();

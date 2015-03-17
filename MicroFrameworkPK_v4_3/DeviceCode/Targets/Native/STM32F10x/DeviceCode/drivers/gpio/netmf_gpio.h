@@ -15,6 +15,7 @@
 
 struct STM32F10x_GPIO_Driver
 {
+public:
 	struct PIN_ISR_DESCRIPTOR
 	{
 			 GPIO_PIN 						m_pin;
@@ -45,10 +46,11 @@ struct STM32F10x_GPIO_Driver
     // applies to all GPIO pins
     static const UINT8 c_NumberofInterruptMode = 3;
     static const UINT8 c_GPIO_InterruptMode= (1<<GPIO_INT_EDGE_LOW) | (1<<GPIO_INT_EDGE_HIGH ) | (1<<GPIO_INT_EDGE_BOTH);
-
-
-
-
 };
+
+void GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING, GPIOSpeed_TypeDef speed = GPIO_Speed_2MHz);
+void GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING, GPIOSpeed_TypeDef speed = GPIO_Speed_2MHz);
+
+//STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 #endif

@@ -12,6 +12,7 @@ const uint8_t LCD_NUM[65] = { 0x00, 0xee, 0xef, 0x8d, 0xed, 0x8f, 0x8e, 0xcd, 0x
 
 
 LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
+//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 static bool LCD_Initialized = false;
 static bool LCD_WriteInProgress = false;
 
@@ -37,15 +38,16 @@ bool LCD_PCF85162_Driver::Initialize()
   	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   	GPIO_Init(GPIOB, &GPIO_InitStructure);*/
-  	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+    GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
   	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_SET);
 
- 	/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-  	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+  	/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   	GPIO_Init(GPIOB, &GPIO_InitStructure);*/
-  	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)6, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
-  	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)7, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+ 	//GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)7, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+ 	GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+
 
  	I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
   	I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;

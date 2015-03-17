@@ -8,6 +8,8 @@
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
+//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
+
 void USART2_Handler(void *args);
 
 /*TODO 
@@ -73,13 +75,13 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
+	GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating
 	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_10, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
+	GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_10, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
 
 	USART_Init(USART1, &USART_InitStructure);
 	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
@@ -119,13 +121,13 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
+	GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating
 	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_3, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
+	GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_3, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
 
 	USART_Init(USART2, &USART_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
