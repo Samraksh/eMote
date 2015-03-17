@@ -352,15 +352,18 @@ void SD_LowLevel_Init(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
+  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
   /*!< Configure PD.02 CMD line */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
+  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
   /*!< Configure SD_SPI_DETECT_PIN pin: SD Card detect pin */
   GPIO_InitStructure.GPIO_Pin = SD_DETECT_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_Init(SD_DETECT_GPIO_PORT, &GPIO_InitStructure);
+  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, SD_DETECT_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
 
   /*!< Enable the SDIO AHB Clock */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_SDIO, ENABLE);

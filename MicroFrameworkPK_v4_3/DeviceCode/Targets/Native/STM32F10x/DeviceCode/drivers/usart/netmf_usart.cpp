@@ -69,15 +69,17 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
 
 	// Configure USART Tx as alternate function push-pull
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
+	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
+	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_10, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
 
 	USART_Init(USART1, &USART_InitStructure);
 	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
@@ -113,15 +115,17 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_InitStructure.USART_Mode 					= USART_Mode_Rx | USART_Mode_Tx;
 
 	// Configure USART Tx as alternate function push-pull
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
+	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	/*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);*/
+	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_3, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
 
 	USART_Init(USART2, &USART_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);

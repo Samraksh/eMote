@@ -382,19 +382,22 @@ BOOL CPU_GPIO_Uninitialize()
 	return TRUE;
 }
 
-BOOL CPU_GPIO_TogglePinState(uint8_t GPIO_PortSource, GPIO_PIN Pin)
+BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
-		return;
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
 
 	if(pinState == FALSE)
 	{
-		CPU_GPIO_SetPinState(GPIO_PortSource, Pin, TRUE);
+		CPU_GPIO_SetPinState(Pin, TRUE);
 		pinState = TRUE;
 	}
 	else
 	{
-		CPU_GPIO_SetPinState(GPIO_PortSource, Pin, FALSE);
+		CPU_GPIO_SetPinState(Pin, FALSE);
 		pinState = FALSE;
 	}
 }
@@ -410,7 +413,7 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 }
 
 
-void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING, GPIOSpeed_TypeDef speed = GPIO_Speed_2MHz)
+void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
 	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
 		return;
@@ -437,44 +440,69 @@ void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_Type
 	GPIO_Init(GPIO_PORT_ARRAY[GPIO_PortSource], &GPIO_InitStructure);
 }
 
-void CPU_GPIO_DisablePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
+
+void CPU_GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = Pin;
+	GPIO_InitStructure.GPIO_Mode = mode; // output mode
+	GPIO_InitStructure.GPIO_Speed = speed;
+	GPIO_Init(GPIO_PORT_ARRAY[GPIO_PortSource], &GPIO_InitStructure);
+}
+
+
+void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Direction, GPIO_ALT_MODE AltFunction )
+{
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return;
+	}
 
 	/*GPIO_StructInit(&GPIO_Instances[Pin]);
 	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSource, Pin);
-	//TODO - To be disabled
+	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin);
+	CPU_GPIO_SetPinState(Pin, FALSE);
 }
 
 // Configure the pin as an output pin, strange that this does not have a return type
-void CPU_GPIO_EnableOutputPin( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL InitialState )
+void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
 	// Check if the input pin is less than max pins
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return;
+	}
 
 	/*GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	CPU_GPIO_ConfigurePin(GPIO_PortSource, Pin, GPIO_Mode_Out_PP);
-	CPU_GPIO_SetPinState(GPIO_PortSource, Pin, InitialState);
+	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, GPIO_Mode_Out_PP);
+	CPU_GPIO_SetPinState(Pin, InitialState);
 }
 
-BOOL CPU_GPIO_EnableInputPin( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
+	}
 
-	return CPU_GPIO_EnableInputPin2(GPIO_PortSource, Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
+	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
 }
 
-BOOL CPU_GPIO_EnableInputPin3( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
+	}
 
 	/*GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	if		(ResistorState == RESISTOR_DISABLED) {
@@ -504,15 +532,18 @@ BOOL CPU_GPIO_EnableInputPin3( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL Glitc
 	}
 
 	//GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);
-	CPU_GPIO_ConfigurePin(GPIO_PortSource, Pin, mode);
+	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, mode);
 	
 	return TRUE;
 }
 
-BOOL CPU_GPIO_EnableInputPin2( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
+BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, void* ISR_Param, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
+	}
 
 	EXTI_InitTypeDef EXTI_InitStructure;
 
@@ -537,11 +568,10 @@ BOOL CPU_GPIO_EnableInputPin2( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL Glitc
 		mode = GPIO_Mode_IPU;
 	}
 
-	CPU_GPIO_ConfigurePin(GPIO_PortSource, Pin, mode);
+	CPU_GPIO_ConfigurePin(GPIO_GetPort(Pin), Pin, mode);
 
 	// Nived.Sivadas - adding interrupt support to the gpio pins
-	//GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
-	GPIO_EXTILineConfig(GPIO_PortSource, (Pin % GPIO_PPP));
+	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
 
 	if(PIN_ISR)
 	{
@@ -579,10 +609,13 @@ BOOL CPU_GPIO_EnableInputPin2( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL Glitc
 // Return the state of the pin
 // In case the pin is configured as one of the input modes, read the input data register.
 // If the pin is configured in one of the output modes, read the output data register
-BOOL CPU_GPIO_GetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin )
+BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
+	}
 
 	/*if((GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_AIN) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IN_FLOATING) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPD) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPU))
 		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
@@ -590,23 +623,36 @@ BOOL CPU_GPIO_GetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin )
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
 
 	//TODO
-	//GPIO_ReadInputData(GPIO_PortSource);
-	if((GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_AIN) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IN_FLOATING) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPD) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPU))
+	//GPIO_ReadInputData(GPIO_PORT_ARRAY[GPIO_PortSource]);
+	//GPIO_ReadInputData(GPIO_GetPortPtr(Pin));
+	/*if((GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_AIN) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IN_FLOATING) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPD) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPU))
 		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 	else
-		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
+
+	return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 }
+
+void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
+{
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
+
+	if(PinState) {
+		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_SET);
+	} else {
+		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_RESET);
+	}
+}
+
 
 void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState )
 {
 	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
 		return;
-
-	/*if(PinState) {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_SET);
-	} else {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_RESET);
-	}*/
 
 	if(PinState) {
 		GPIO_WriteBit(GPIO_PORT_ARRAY[GPIO_PortSource], GPIO_GetPin(Pin), Bit_SET);
@@ -615,21 +661,28 @@ void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState 
 	}
 }
 
-// Check if the pin is busy or in use, takes the Pin number as the input argument
-BOOL CPU_GPIO_PinIsBusy( uint8_t GPIO_PortSource, GPIO_PIN Pin )
-{
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
-		return FALSE;
 
-    //return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
-    return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_PortSource] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
+// Check if the pin is busy or in use, takes the Pin number as the input argument
+BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
+{
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return FALSE;
+	}
+
+    return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
+    //return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_PortSource] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
 }
 
 // This function is used to reserve and unreserve pins to avoid gpio resource conflict issues
-BOOL CPU_GPIO_ReservePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL fReserve )
+BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
+	if(Pin > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
 		return FALSE;
+	}
 
 	// Check if the pin you are about to configure is busy or already in use, if so return false
 	if(CPU_GPIO_PinIsBusy(Pin) && fReserve)
@@ -638,17 +691,17 @@ BOOL CPU_GPIO_ReservePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL fReserve )
 		return FALSE;
 	}
 
-    /*if(fReserve) {
+    if(fReserve) {
 		SET_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
 	} else {
 		CLEAR_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
-	}*/
+	}
 
-    if(fReserve) {
+    /*if(fReserve) {
 		SET_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_PortSource], GPIO_GetPin(Pin));
 	} else {
 		CLEAR_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_PortSource], GPIO_GetPin(Pin));
-	}
+	}*/
 
     return TRUE;
 }
@@ -670,7 +723,7 @@ INT32 CPU_GPIO_GetPinCount()
     return GPIO_PINS;
 } 
 
-void CPU_GPIO_GetPinsMap( uint8_t GPIO_PortSource, UINT8* pins, size_t size )
+void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 {
     UINT8 ik;
 	for(ik = 0; ik < size; ik++) {

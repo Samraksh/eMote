@@ -34,44 +34,52 @@ DeviceStatus P30BF65NOR_Driver::Initialize(void)
 	  /*!< NOR Data lines configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9 |
 	                                GPIO_Pin_10 | GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	  /*GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
-	  GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  GPIO_Init(GPIOD, &GPIO_InitStructure);*/
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 |
 	                                GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 |
 	                                GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_Init(GPIOE, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOE, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOE, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  /*!< NOR Address lines configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |
 	                                GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_12 | GPIO_Pin_13 |
 	                                GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_Init(GPIOF, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOF, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOF, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 |
 	                                GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
-	  GPIO_Init(GPIOG, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOG, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOG, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
-	  GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
-	  GPIO_Init(GPIOE, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOE, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOE, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  /*!< NOE and NWE configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
-	  GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  /*!< NE2 configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	  GPIO_Init(GPIOG, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOG, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOG, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	  /*!< Configure PD6 for NOR memory Ready/Busy signal */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
 	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	  GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  //GPIO_Init(GPIOD, &GPIO_InitStructure);
+	  CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
 
 	  /*-- FSMC Configuration ----------------------------------------------------*/
 	  p.FSMC_AddressSetupTime = 0x02;

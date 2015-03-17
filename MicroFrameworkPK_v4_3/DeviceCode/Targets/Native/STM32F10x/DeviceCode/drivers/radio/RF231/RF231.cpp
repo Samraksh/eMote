@@ -272,9 +272,9 @@ DeviceStatus RF231Radio::Reset()
 
 	// Enable the gpio pin as the interrupt point
 	if(this->GetRadioName() == RF231RADIO)
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	else if(this->GetRadioName() == RF231RADIOLR)
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
 	SlptrSet();
@@ -310,6 +310,7 @@ UINT32 RF231Radio::GetTxPower()
 // Change the power level of the radio
 DeviceStatus RF231Radio::ChangeTxPower(int power)
 {
+	GLOBAL_LOCK(irq);
 	// Cannot change power level if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
 	if(state != STATE_SLEEP && state != STATE_RX_ON)
@@ -347,6 +348,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 // Change the channel of the radio
 DeviceStatus RF231Radio::ChangeChannel(int channel)
 {
+	GLOBAL_LOCK(irq);
 	// Cannot change channel if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
 	if(state != STATE_SLEEP && state != STATE_RX_ON)
@@ -730,7 +732,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 			// Enable the amp pin
 			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_LR, FALSE);
-
 		}
 
 		//Get cpu serial and hash it to use as node id
@@ -885,10 +886,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 #endif
 		// Enable the gpio pin as the interrupt point
 		if(this->GetRadioName() == RF231RADIO){
-			CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 		}
 		else if(this->GetRadioName() == RF231RADIOLR){
-			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
 
