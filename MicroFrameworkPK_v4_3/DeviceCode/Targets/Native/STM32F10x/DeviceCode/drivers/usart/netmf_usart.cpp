@@ -341,7 +341,6 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 }
 
 #define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
-#define USART_ERR_MASK 0x3  // Parity, Framing, Noise, or Overrun error
 
 extern "C" {
 void __irq USART1_IRQHandler() {
@@ -358,14 +357,18 @@ void __irq USART1_IRQHandler() {
 	status = USART1->SR; // check status reg
 	
 	if (status & (USART_FLAG_FE||USART_FLAG_PE||USART_FLAG_NE)) {
+		// clearing interrupt flag
 		dummy = USART1->DR;
 	} else if (status & USART_FLAG_RXNE){
+		// we got data
 		char c = USART_ReceiveData(USART1)&0xFF; // Also clears status
 
 		if (idx < RX_HAL_BUF_SIZE) {
+			// temporarily storing data into batches of RX_HAL_BUF_SIZE
 			buf[idx++] = c;
 		}
 		if (idx >= RX_HAL_BUF_SIZE) {
+			// we have enough data so we do the time intesive task of putting it into software receive buffer
 			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
 			idx = 0;
 		}
@@ -407,69 +410,6 @@ void __irq USART1_IRQHandler() {
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
 	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 	return;
-
-	// we should only clear framing errors and parity errors and toss that corrupted data
-	/*if (err & USART_ERR_MASK) {
-		dummy = USART1->DR;
-		goto uart1_isr_out; 
-	}
-
-	// Note that the IDLE flag is cleared by SR+DR read. Already did SR so must do DR before we finish
-	if (idx > 0 && USART_GetITStatus(USART1, USART_IT_IDLE) == SET) {
-		USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-		idx=0;
-	}
-
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
-		char c = USART_ReceiveData(USART1)&0xFF; // Also clears status
-
-		if (idx < RX_HAL_BUF_SIZE) {
-			buf[idx++] = c;
-		}
-		if (idx >= RX_HAL_BUF_SIZE) {
-			USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-			idx = 0;
-		}
-		// checking again in case there was an overrun and the 2nd byte was transferred to the receive buffer
-		if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
-			c = USART_ReceiveData(USART1)&0xFF; // Also clears status
-
-			if (idx < RX_HAL_BUF_SIZE) {
-				buf[idx++] = c;
-			}
-			if (idx >= RX_HAL_BUF_SIZE) {
-				USART_AddToRxBuffer( ConvertCOM_ComPort(COM1), buf, idx <= RX_HAL_BUF_SIZE ? idx : RX_HAL_BUF_SIZE);
-				idx = 0;
-			}
-		}
-	}
-	else {
-		dummy = USART1->DR;	// Do a dummy read to clear status
-	}
-
-	// MF signals if there is TX work by toggling the interrupt enable
-	// So we check it and don't do anything if it isn't set
-	if (!(USART1->CR1 & 0x80)) {
-		goto uart1_isr_out;
-	}
-
-	if (USART_GetITStatus(USART1, USART_IT_TXE)  == SET) {
-		char c;
-		// USART_IT_TXE pending bit only cleared by write
-		if ( USART_RemoveCharFromTxBuffer(ConvertCOM_ComPort(COM1), c) ) {
-			USART_SendData(USART1, c);
-		}
-		else {
-			USART_ITConfig(USART1, USART_IT_TXE,  DISABLE);
-		}
-	}
-
-uart1_isr_out:
-	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
-	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	return;
-*/
 }
 } // extern C
 
