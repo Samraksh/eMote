@@ -10,6 +10,13 @@ cd %TEMPTOOLPATH%\..\..
 set CLRROOT=%CD%
 cd %PREVCD%
 
+@rem Samraksh global msbuild
+set FLAVOR_ARM=Debug
+set FLAVOR_DAT=Debug
+set FLAVOR_PLATFORM=EmoteDotNow
+set FLAVOR_MEMORY=Flash
+set OEM_NAME=Samraksh
+
 @rem - CONFIGURATION OF DEBUG vs RELEASE FOR FIRMWARE, TOOLS, AND ASSEMBLIES
 
 if /I "%FLAVOR_WIN%"   == "Debug"   set FLAVOR_WIN=Debug
