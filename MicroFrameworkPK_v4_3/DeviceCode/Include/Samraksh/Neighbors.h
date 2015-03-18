@@ -11,7 +11,7 @@
 
 #include <Samraksh/Mac_decl.h>
 
-#define NeighbourChanged 1
+#define NeighborChanged 1
 #define Received 0
 
 #include "TinyCLR_Runtime.h"
@@ -89,7 +89,7 @@ public:
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
-	UINT8  UpdateNeighborTable(UINT32 NeighbourLivelinessDelay);
+	UINT8  UpdateNeighborTable(UINT32 NeighborLivelinessDelay);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 };
@@ -98,9 +98,9 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
-UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighbourLivelinessDelay)
+UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivelinessDelay)
 {
-	return BringOutYourDead(NeighbourLivelinessDelay);
+	return BringOutYourDead(NeighborLivelinessDelay);
 }
 
 DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){
@@ -119,7 +119,7 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
 	GLOBAL_LOCK(irq);
 
-	UINT8 deadNeighbours = 0;
+	UINT8 deadNeighbors = 0;
 
 	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(delay * 1000);
 
@@ -136,13 +136,13 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
 			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
 			Neighbor[i].Status = Dead;
-			deadNeighbours++;
+			deadNeighbors++;
 			NumberValidNeighbor--;
 		}
 	}
 
 
-	return deadNeighbours;
+	return deadNeighbors;
 
 }
 
@@ -255,7 +255,7 @@ DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status
 		Neighbor[*index].radioStartDelay = radioStartDelay;
 		Neighbor[*index].counterOffset = counterOffset;
 		Neighbor[*index].lastSeed = seed;
-		//ManagedCallback(NeighbourChanged, NumberValidNeighbor);
+		//ManagedCallback(NeighborChanged, NumberValidNeighbor);
 		return DS_Success;
 	}
 	else {

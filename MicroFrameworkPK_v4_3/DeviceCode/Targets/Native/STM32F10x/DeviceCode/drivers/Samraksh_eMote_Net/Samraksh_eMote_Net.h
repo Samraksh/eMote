@@ -14,7 +14,7 @@
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 {
     static const int FIELD_STATIC___receiveCallBack = 0;
-    static const int FIELD_STATIC___neighbourChangeCallBack = 1;
+    static const int FIELD_STATIC___neighborChangeCallBack = 1;
 
 
     //--//
@@ -23,11 +23,11 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 {
-    static const int FIELD_STATIC__macconfig = 2;
+    static const int FIELD_STATIC__MacConfig = 2;
     static const int FIELD_STATIC__neighbor = 3;
     static const int FIELD_STATIC__dataBuffer = 4;
 
-    static const int FIELD__NeighbourList = 1;
+    static const int FIELD__NeighborList = 1;
     static const int FIELD__ByteNeighbor = 2;
     static const int FIELD__MarshalBuffer = 3;
     static const int FIELD__message = 4;
@@ -45,7 +45,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
-    TINYCLR_NATIVE_DECLARE(GetNeighbourListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2);
+    TINYCLR_NATIVE_DECLARE(GetNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamraksheMoteNetDeviceStatus__U2__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4);
@@ -82,7 +82,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MacConfiguration
     static const int FIELD__CCASenseTime = 3;
     static const int FIELD__BufferSize = 4;
     static const int FIELD__RadioID = 5;
-    static const int FIELD__NeighbourLivelinesDelay = 6;
+    static const int FIELD__NeighborLivelinessDelay = 6;
     static const int FIELD__radioConfig = 7;
 
 
@@ -124,7 +124,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
     static const int FIELD__Unicast = 4;
     static const int FIELD__ReceiveMessage = 5;
     static const int FIELD__Size = 6;
-    static const int FIELD__senderEventTimeStamp = 7;
+    static const int FIELD__SenderEventTimeStamp = 7;
     static const int FIELD__timeStamped = 8;
 
 
@@ -155,8 +155,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 {
-    static const int FIELD_STATIC__config = 9;
-    static const int FIELD_STATIC__currUser = 10;
+    static const int FIELD_STATIC__Config = 9;
+    static const int FIELD_STATIC__CurrUser = 10;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__message = 6;

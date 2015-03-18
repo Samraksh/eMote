@@ -3,9 +3,7 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net.Radio
 {
-    /// <summary>
-    /// Class represents the generic radio object 
-    /// </summary>
+    /// <summary>Generic radio object</summary>
     public class Radio_802_15_4 : Radio_802_15_4_Base
     {
         private static Radio_802_15_4 instance;
@@ -20,15 +18,19 @@ namespace Samraksh.eMote.Net.Radio
         {
         }
 
+        /// <summary>Get the radio instance</summary>
+        /// <returns>Radio instance</returns>
+        /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
+        /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4 GetInstance()
         {
 
-            if (config == null)
+            if (Config == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (config.GetRadioName() != RadioName.RF231RADIO)
+            if (Config.GetRadioName() != RadioName.RF231RADIO)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
             }
@@ -51,14 +53,18 @@ namespace Samraksh.eMote.Net.Radio
 
 
 
+        /// <summary>Get the shallow radio instance</summary>
+        /// <param name="user">Shallow radio instance</param>
+        /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
+        /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4 GetShallowInstance(RadioUser user)
         {
-            if (config == null)
+            if (Config == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (config.GetRadioName() != RadioName.RF231RADIO)
+            if (Config.GetRadioName() != RadioName.RF231RADIO)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
             }

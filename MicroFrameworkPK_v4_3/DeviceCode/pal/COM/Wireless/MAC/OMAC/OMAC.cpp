@@ -69,7 +69,7 @@ DeviceStatus OMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
-	MyConfig.NeighbourLivelinessDelay = config->NeighbourLivelinessDelay;
+	MyConfig.NeighborLivelinessDelay = config->NeighborLivelinessDelay;
 	return DS_Success;
 }
 
@@ -226,7 +226,7 @@ Message_15_4_t* OMAC::FindFirstSyncedNbrMessage(){
 }
 
 void OMAC::UpdateNeighborTable(){
-	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
+	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivelinessDelay);
 	//g_NeighborTable.DegradeLinks();
 }
 

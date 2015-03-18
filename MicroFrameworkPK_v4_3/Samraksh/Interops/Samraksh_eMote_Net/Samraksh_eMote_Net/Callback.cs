@@ -4,10 +4,15 @@ using Microsoft.SPOT;
 namespace Samraksh.eMote.Net
 {
 
+    /// <summary>
+    /// Kinds of callbacks
+    /// </summary>
     public enum CallbackTypes
     {
+        /// <summary>Message received</summary>
         Received,
-        NeighbourChanged,
+        /// <summary>Neighborhood has changed</summary>
+        NeighborChanged,
     }
 
     /// <summary>
@@ -16,7 +21,7 @@ namespace Samraksh.eMote.Net
     public static class Callbacks
     {
         private static ReceiveCallBack _receiveCallBack = null;
-        private static NeighbourhoodChangeCallBack _neighbourChangeCallBack = null;
+        private static NeighborhoodChangeCallBack _neighborChangeCallBack = null;
 
         /// <summary>
         /// Set the receive callback to be called on arrival of a packet
@@ -28,12 +33,12 @@ namespace Samraksh.eMote.Net
         }
 
         /// <summary>
-        /// Set the neighbour change callback to be called when there is a change in neighbour table
+        /// Set the neighbor change callback to be called when there is a change in neighbor table
         /// </summary>
-        /// <param name="callback">Neighbourcallback function pointer</param>
-        public static void SetNeighbourChangeCallback(NeighbourhoodChangeCallBack callback)
+        /// <param name="callback">Neighborcallback function pointer</param>
+        public static void SetNeighborChangeCallback(NeighborhoodChangeCallBack callback)
         {
-            _neighbourChangeCallBack = callback;
+            _neighborChangeCallBack = callback;
         }
 
         /// <summary>
@@ -46,12 +51,12 @@ namespace Samraksh.eMote.Net
         }
 
         /// <summary>
-        /// Returns the neighbour change callback function registered
+        /// Returns the neighbor change callback function registered
         /// </summary>
         /// <returns></returns>
-        public static NeighbourhoodChangeCallBack GetNeighbourChangeCallback()
+        public static NeighborhoodChangeCallBack GetNeighborChangeCallback()
         {
-            return _neighbourChangeCallBack;
+            return _neighborChangeCallBack;
         }
 
         /// <summary>
@@ -60,19 +65,20 @@ namespace Samraksh.eMote.Net
         /// <param name="data1"></param>
         /// <param name="data2"></param>
         /// <param name="time"></param>
+        /// <exception caption="CallbackNotConfigured Exception" cref="CallbackNotConfiguredException"></exception>
         public static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
 
             if (_receiveCallBack == null)
                 throw new CallbackNotConfiguredException();
 
-            if (_neighbourChangeCallBack == null)
-                Debug.Print("The Neighbour Callback has not been configured \n");
+            if (_neighborChangeCallBack == null)
+                Debug.Print("The Neighbor Callback has not been configured \n");
 
             if ((data1 == (uint)CallbackTypes.Received) && (_receiveCallBack != null))
                 _receiveCallBack((UInt16)data2);
-            else if ((data1 == (uint)CallbackTypes.NeighbourChanged) && (_neighbourChangeCallBack != null))
-                _neighbourChangeCallBack((UInt16)data2);
+            else if ((data1 == (uint)CallbackTypes.NeighborChanged) && (_neighborChangeCallBack != null))
+                _neighborChangeCallBack((UInt16)data2);
 
         }
 

@@ -72,10 +72,10 @@ namespace Samraksh.eMote.Net
     public delegate void ReceiveCallBack(UInt16 NumberOfPacketsReceived);
 
     /// <summary>
-    /// Neighbourhood callback delegate
+    /// Neighborhood callback delegate
     /// </summary>
-    /// <param name="NumberOfChangedNeighbours">Number of neighbours that have changed</param>
-    public delegate void NeighbourhoodChangeCallBack(UInt16 NumberOfChangedNeighbours);
+    /// <param name="NumberOfChangedNeighbors">Number of neighbors that have changed</param>
+    public delegate void NeighborhoodChangeCallBack(UInt16 NumberOfChangedNeighbors);
 
 
 }

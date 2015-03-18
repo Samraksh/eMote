@@ -29,13 +29,13 @@ UINT8 MACBase::MyAppID;
 enum CallBackTypes
 {
 	RecievedCallback,
-	NeighbourChangedCallback,
+	NeighborChangedCallback,
 };
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2);
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
 
-void NeighbourChangedCallbackFn(INT16 numberOfNeighbours);
+void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets);
 
 extern Buffer_15_4_t m_receive_buffer;
@@ -119,13 +119,13 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
 	config.RadioID = configParams[4];
-	config.NeighbourLivelinessDelay = configParams[5];
-	config.NeighbourLivelinessDelay |= configParams[6] << 8;
-	config.NeighbourLivelinessDelay |= configParams[7] << 16;
-	config.NeighbourLivelinessDelay |= configParams[8] << 24;
+	config.NeighborLivelinessDelay = configParams[5];
+	config.NeighborLivelinessDelay |= configParams[6] << 8;
+	config.NeighborLivelinessDelay |= configParams[7] << 16;
+	config.NeighborLivelinessDelay |= configParams[8] << 24;
 
 	Event_Handler.SetRecieveHandler(&ReceiveDoneCallbackFn);
-	Event_Handler.SetNeighbourChangeHandler(&NeighbourChangedCallbackFn);
+	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);
 	Event_Handler.SetSendAckHandler(&ManagedSendAckCallback);
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
@@ -141,14 +141,14 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 }
 
-INT32 MACBase::GetNeighbourListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
+INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
 {
-    return Mac_GetNeighbourList(param0.GetBuffer());
+    return Mac_GetNeighborList(param0.GetBuffer());
 }
 
 INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
 {
-   return Mac_GetNeighbourStatus(param0, param1.GetBuffer());
+   return Mac_GetNeighborStatus(param0, param1.GetBuffer());
 }
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 }
@@ -182,9 +182,9 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 		return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4);
 }
 
-void NeighbourChangedCallbackFn(INT16 numberOfNeighbours)
+void NeighborChangedCallbackFn(INT16 numberOfNeighbors)
 {
-	ManagedCallback(NeighbourChangedCallback,(UINT16) numberOfNeighbours);
+	ManagedCallback(NeighborChangedCallback,(UINT16) numberOfNeighbors);
 }
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2)

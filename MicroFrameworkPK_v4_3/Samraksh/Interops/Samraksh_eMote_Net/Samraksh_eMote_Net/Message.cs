@@ -3,9 +3,7 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net
 {
-    /// <summary>
-    /// Message class represents the message object being passed to native 
-    /// </summary>
+    /// <summary>Message object. Passed to native</summary>
     public class Message
     {
         /// <summary>
@@ -13,24 +11,22 @@ namespace Samraksh.eMote.Net
         /// </summary>
         const byte MacMessageSize = 128;
 
-        /// <summary>
-        /// RSSI Value of the packet
-        /// </summary>
+        /// <summary>Received Signal Strength of message</summary>
+        /// <value>RSSI value</value>
         public byte RSSI;
 
-        /// <summary>
-        /// LQI measured during the packet reception
-        /// </summary>
+        /// <summary>Link Quality Indication measured during the packet reception</summary>
+        /// <value>LQI measured</value>
         public byte LQI;
 
         /// <summary>
         /// Source of the packet transmitted
         /// </summary>
+        /// <value>Source of the packet</value>
         public UInt16 Src;
 
-        /// <summary>
-        /// Flag to determine if transmission was unicast 
-        /// </summary>
+        /// <summary>Was message sent unicast?</summary>
+        /// <value>True if message was sent unicast, else broadcast</value>
         public bool Unicast;
 
         /// <summary>
@@ -38,35 +34,40 @@ namespace Samraksh.eMote.Net
         /// </summary>
         private byte[] ReceiveMessage;
 
-        /// <summary>
-        /// Represents the size of the payload 
-        /// </summary>
+        /// <summary>Size of the message payload</summary>
+        /// <value>Size of message payload</value>
         public UInt16 Size;
 
-        /// <summary>
-        /// Represents the time at which the packet was sent out 
-        /// </summary>
-        public long senderEventTimeStamp;
+        /// <summary>The time at which the packet was sent out</summary>
+        /// <value>Time the packet was sent out (microseconds)</value>
+        public long SenderEventTimeStamp;
+
+        /// <summary>The time at which the packet was sent out</summary>
+        /// <value>Time the packet was sent out (microseconds)</value>
+        [Obsolete("Use SenderEventTimestamp instead")]
+        public long senderEventTimeStamp {
+            get { return SenderEventTimeStamp; }
+            set { SenderEventTimeStamp = value; }
+        }
+
 
         private bool timeStamped;
 
+        /// <summary>Check if message is timestamped</summary>
+        /// <returns>True iff message is timestamped</returns>
         public bool IsSenderTimeStamped()
         {
             return timeStamped;
         }
 
-        /// <summary>
-        /// Default constructor to create a received message with the default size
-        /// </summary>
+        /// <summary>Create a message with the default size</summary>
         public Message()
         {
             ReceiveMessage = new byte[MacMessageSize];
         }
 
-        /// <summary>
-        /// Constructor that takes a byte array as argument and marshals the Size,Payload, RSSI, LQI, Src, Unicast information out of it, in that order
-        /// </summary>
-        /// <param name="msg">The data array input</param>
+        /// <summary>Create a message with Size, Payload, RSSI, LQI, Src and Unicast information specified in message array</summary>
+        /// <param name="msg">Message. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
         public Message(byte[] msg)
         {
             UInt16 i = 0;
@@ -114,13 +115,11 @@ namespace Samraksh.eMote.Net
             
             long tempTimeStamp = ((long)msbItem << 32) | lsbItem;
 
-            senderEventTimeStamp = tempTimeStamp;
+            SenderEventTimeStamp = tempTimeStamp;
 
         }
 
-        /// <summary>
-        /// Build a MAC Message Object with the constructor 
-        /// </summary>
+        /// <summary>Create a message with specified parameters</summary>
         /// <param name="message">Message payload</param>
         /// <param name="Src">Source of the packet</param>
         /// <param name="Unicast">Was transmission unicast</param>
@@ -144,9 +143,7 @@ namespace Samraksh.eMote.Net
             this.LQI = LQI;
         }
 
-        /// <summary>
-        /// Build a MAC Message Object with the constructor 
-        /// </summary>
+        /// <summary>Create a message with specified parameters</summary>
         /// <param name="message">Message payload</param>
         /// <param name="Src">Source of the packet</param>
         /// <param name="Unicast">Was transmission unicast</param>
@@ -171,9 +168,7 @@ namespace Samraksh.eMote.Net
             this.LQI = LQI;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <summary>Create a message with specified parameters</summary>
         /// <param name="message"></param>
         /// <param name="Src"></param>
         /// <param name="Unicast"></param>
@@ -199,19 +194,15 @@ namespace Samraksh.eMote.Net
             this.timeStamped = timeStamped;
         }
 
-        /// <summary>
-        /// Configurable size of the received message
-        /// </summary>
-        /// <param name="Size">Size of the array</param>
+        /// <summary>Configure size of messages</summary>
+        /// <param name="Size">Size of messages</param>
         public Message(int Size)
         {
             ReceiveMessage = new byte[Size];
         }
 
-        /// <summary>
-        /// Get the message
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>Get the next message</summary>
+        /// <returns>The message, as a byte array</returns>
         public byte[] GetMessage()
         {
             return ReceiveMessage;

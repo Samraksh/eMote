@@ -64,10 +64,10 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
-	MyConfig.NeighbourLivelinessDelay = config->NeighbourLivelinessDelay;
+	MyConfig.NeighborLivelinessDelay = config->NeighborLivelinessDelay;
 
 #ifdef DEBUG_MAC
-	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighbourLivelinessDelay);
+	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
 #endif
 	return DS_Success;
 }
@@ -243,23 +243,23 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	return TRUE;
 }
 
-// This function calls the updateneighbrtable of the neighbour object and calls the neighbour change
-// callback if the neighbours died
+// This function calls the updateneighbrtable of the neighbor object and calls the neighbor change
+// callback if the neighbors died
 void csmaMAC::UpdateNeighborTable(){
 
-	UINT8 numberOfDeadNeighbours = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighbourLivelinessDelay);
+	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivelinessDelay);
 
 
-	if(numberOfDeadNeighbours > 0)
+	if(numberOfDeadNeighbors > 0)
 	{
-		//CLR_Debug::Printf("number of dead neighbors: %d\r\n",numberOfDeadNeighbours);
-		NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
+		//CLR_Debug::Printf("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
+		NeighborChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighborHandler;
 
-		// Check if neighbour change has been registered and the user is interested in this information
+		// Check if neighbor change has been registered and the user is interested in this information
 		if(appHandler != NULL)
 		{
-			// Make the neighbour changed callback signalling dead neighbours
-			//(*appHandler)((INT16) ((-1) *numberOfDeadNeighbours));
+			// Make the neighbor changed callback signalling dead neighbors
+			//(*appHandler)((INT16) ((-1) *numberOfDeadNeighbors));
 			(*appHandler)((INT16) (m_NeighborTable.NumberOfNeighbors()));
 		}
 	}
@@ -380,8 +380,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//hal_printf("(%d) <%d> %d\r\n",Size, (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
 
 	// If the message type is a discovery then return the same bag you got from the radio layer
-	// Don't make a callback here because the neighbour table takes care of informing the application of a changed situation of
-	// it neighbours
+	// Don't make a callback here because the neighbor table takes care of informing the application of a changed situation of
+	// it neighbors
 	if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
@@ -390,12 +390,12 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 				// Insert into the table if a new node was discovered
 				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
-					NeighbourChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighbourHandler;
+					NeighborChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighborHandler;
 
-					// Check if  a neighbour change has been registered
+					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
 					{
-						// Insert neighbour always inserts one neighbour so the call back argument will alsways be 1
+						// Insert neighbor always inserts one neighbor so the call back argument will alsways be 1
 						(*appHandler)(1);
 					}
 				}

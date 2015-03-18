@@ -1,9 +1,10 @@
 ﻿using System;
-using Microsoft.SPOT;
-using Samraksh.eMote.Net;
 
 namespace Samraksh.eMote.Net.Radio
 {
+    /// <summary>
+    /// Kind of user
+    /// </summary>
     public enum RadioUser
     {
         /// <summary>
@@ -30,8 +31,7 @@ namespace Samraksh.eMote.Net.Radio
     /// </summary>
     public class RadioConfiguration
     {
-       
-        /// <summary>
+       /// <summary>
         /// Transmission power of the radio
         /// </summary>
         private TxPowerValue TxPower;
@@ -43,7 +43,7 @@ namespace Samraksh.eMote.Net.Radio
         private RadioName name;
 
         /// <summary>
-        /// Create a radio configuration object with default power (3dBm) and channel (26) 
+        /// Radio configuration constructor
         /// </summary>
         public RadioConfiguration()
         {
@@ -53,9 +53,9 @@ namespace Samraksh.eMote.Net.Radio
         }
 
         /// <summary>
-        /// Constructor takes RadioConfiguration as a parameter
+        /// Radio configuration constructor
         /// </summary>
-        /// <param name="config">RadioConfiguration</param>
+        /// <param name="config">Radio configuration</param>
         public RadioConfiguration(RadioConfiguration config)
         {
             this.TxPower = config.TxPower;
@@ -64,10 +64,10 @@ namespace Samraksh.eMote.Net.Radio
         }
 
         /// <summary>
-        /// Constructor that takes power and channel as input
+        /// Radio configuration constructor
         /// </summary>
-        /// <param name="power">Transmission power of the radio</param>
-        /// <param name="channel">Channel of the radio</param>
+        /// <param name="power">Transmission power</param>
+        /// <param name="channel">Channel</param>
         public RadioConfiguration(TxPowerValue power, Channels channel, RadioName name)
         {
             this.Channel = channel;
@@ -78,16 +78,16 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Set the channel 
         /// </summary>
-        /// <param name="channel">Takes Channels enum as input</param>
+        /// <param name="channel">Channel</param>
         public void SetChannel(Channels channel)
         {
             this.Channel = channel;
         }
 
         /// <summary>
-        /// Get the current channel
+        /// Get current channel
         /// </summary>
-        /// <returns>Channels enum</returns>
+        /// <returns>Channel</returns>
         public Channels GetChannel()
         {
             return Channel;
@@ -96,34 +96,34 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Set the transmission power of the radio
         /// </summary>
-        /// <param name="power">Takes TxPowerValue enum as input</param>
+        /// <param name="power">Transmission power value</param>
         public void SetTxPower(TxPowerValue power)
         {
             this.TxPower = power;
         }
 
         /// <summary>
-        /// Return the current transmission power
+        /// Get current transmission power
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Transmission power</returns>
         public TxPowerValue GetTxPower()
         {
             return TxPower;
         }
 
         /// <summary>
-        /// Sets the radio name 
+        /// Set radio name 
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Radio name</param>
         public void SetRadioName(RadioName name)
         {
             this.name = name;
         }
 
         /// <summary>
-        /// Returns the radio name 
+        /// Get radio name 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Radio name</returns>
         public RadioName GetRadioName()
         {
             return this.name;
@@ -139,19 +139,96 @@ namespace Samraksh.eMote.Net.Radio
     {
         //DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
         //DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack callback);  //Change configuration after initialization
+
+        /// <summary>
+        /// Unitialize radio
+        /// </summary>
+        /// <returns>Success of operation</returns>
         DeviceStatus UnInitialize();
+
+        /// <summary>
+        /// Reconfigure radio
+        /// </summary>
+        /// <param name="config">New radio configuration</param>
+        /// <returns>Success of operation</returns>
         DeviceStatus ReConfigure(RadioConfiguration config);
+
+        /// <summary>
+        /// Get radio ID
+        /// </summary>
+        /// <returns>Radio ID</returns>
         byte GetID();
+
+        /// <summary>
+        /// Get radio address
+        /// </summary>
+        /// <returns>Radio address</returns>
         UInt16 GetAddress();
-        bool SetAddress(UInt16 Address);
+
+        /// <summary>
+        /// Set radio address
+        /// </summary>
+        /// <param name="address">Radio address</param>
+        /// <returns></returns>
+        bool SetAddress(UInt16 address);
+
+        /// <summary>
+        /// Turn radio on
+        /// </summary>
+        /// <returns>Success of operation</returns>
         DeviceStatus TurnOn();
+
+        /// <summary>
+        /// Put radio to sleep
+        /// </summary>
+        /// <param name="level">Sleep level</param>
+        /// <returns>Success of operation</returns>
         DeviceStatus Sleep(byte level);
+
+        /// <summary>
+        /// Preload radio
+        /// </summary>
+        /// <param name="message">Message to preload</param>
+        /// <param name="size">Size of message</param>
+        /// <returns>Success of operation</returns>
         NetOpStatus PreLoad(byte[] message, UInt16 size);
-        NetOpStatus SendStrobe();	//Send preloaded message
+
+        /// <summary>
+        /// Send preloaded message
+        /// </summary>
+        /// <returns>Success of operation</returns>
+        NetOpStatus SendStrobe();
+
+        /// <summary>
+        /// Send message on radio
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        /// <param name="size">Size of message</param>
+        /// <returns>Success of operation</returns>
         NetOpStatus Send(byte[] message, UInt16 size);
+
+        /// <summary>
+        /// Sent time-stamped message
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        /// <param name="size">Size of message</param>
+        /// <param name="eventTime">Time stamp of message</param>
+        /// <returns>Success of message</returns>
         NetOpStatus SendTimeStamped(byte[] message, UInt16 size, UInt32 eventTime);
+
+        /// <summary>
+        /// Check if channel is clear
+        /// </summary>
+        /// <returns>True iff clear</returns>
         bool ClearChannelAssesment();
+
+        /// <summary>
+        /// Check if channel has been clear for the specified interval of time
+        /// </summary>
+        /// <param name="numberOfMicroSecond">Interval (microseconds)</param>
+        /// <returns>True iff clear</returns>
         bool ClearChannelAssesment(UInt16 numberOfMicroSecond);
+
         //UInt32 GetSNR();
         //UInt32 GetRSSI();
 

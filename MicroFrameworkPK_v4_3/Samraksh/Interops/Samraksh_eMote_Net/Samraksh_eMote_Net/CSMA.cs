@@ -14,10 +14,10 @@ namespace Samraksh.eMote.Net.Mac
         {
         }
 
-        // There can only be one csma mac object in the system
         /// <summary>
         /// Returns the instance of the CSMA object
         /// </summary>
+        /// <remarks>This is a singleton pattern. There can only be one CSMA Mac object.</remarks>
         public static CSMA Instance
         {
             get

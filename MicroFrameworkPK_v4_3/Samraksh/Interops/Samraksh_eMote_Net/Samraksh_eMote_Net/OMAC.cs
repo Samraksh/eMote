@@ -3,9 +3,7 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net
 {
-    /// <summary>
-    /// Class represents the OMAC object 
-    /// </summary>
+    /// <summary>OMAC objects</summary>
     public class OMAC : MACBase
     {
         private static OMAC instance;
@@ -19,6 +17,7 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// Returns the instance of the CSMA object
         /// </summary>
+        /// <value>Instance of CSMA object</value>
         public static OMAC Instance
         {
             get

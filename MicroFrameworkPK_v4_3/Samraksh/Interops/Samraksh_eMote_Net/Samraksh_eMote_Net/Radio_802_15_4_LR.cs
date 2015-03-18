@@ -3,9 +3,7 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net.Radio
 {
-    /// <summary>
-    /// Class represents the long range radio object, maps to the long range instance in native
-    /// </summary>
+    /// <summary>Long range radio</summary>
     public class Radio_802_15_4_LR : Radio_802_15_4_Base
     {
 
@@ -24,14 +22,18 @@ namespace Samraksh.eMote.Net.Radio
         {
         }
 
+        /// <summary>Get instance</summary>
+        /// <returns>Instance</returns>
+        /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
+        /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance()
         {
-            if (config == null)
+            if (Config == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (config.GetRadioName() != RadioName.RF231RADIOLR)
+            if (Config.GetRadioName() != RadioName.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
             }
@@ -53,15 +55,19 @@ namespace Samraksh.eMote.Net.Radio
 
 
 
+        /// <summary>Get shallow instance</summary>
+        /// <param name="user">Shallow instance</param>
+        /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
+        /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetShallowInstance(RadioUser user)
         {
 
-            if (config == null)
+            if (Config == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (config.GetRadioName() != RadioName.RF231RADIOLR)
+            if (Config.GetRadioName() != RadioName.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed");
             }

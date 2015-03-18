@@ -165,30 +165,30 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 
 }
 
-DeviceStatus Mac_GetNeighbourList(UINT16 *buffer)
+DeviceStatus Mac_GetNeighborList(UINT16 *buffer)
 {
-	UINT8 neighbourCount = 0;
+	UINT8 neighborCount = 0;
 
-	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbour List\n");
+	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
 		if(m_NeighborTable.Neighbor[i].Status == Alive)
 		{
-			buffer[neighbourCount++] = m_NeighborTable.Neighbor[i].MacAddress;
+			buffer[neighborCount++] = m_NeighborTable.Neighbor[i].MacAddress;
 		}
 	}
 
-	if(neighbourCount == 0)
+	if(neighborCount == 0)
 	{
-		DEBUG_PRINTF_MAC("[NATIVE] : Neighbour Count is 0\n");
+		DEBUG_PRINTF_MAC("[NATIVE] : Neighbor Count is 0\n");
 		buffer[0] = 0;
 	}
 
 	return DS_Success;
 }
 
-DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, UINT8 *buffer)
+DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 {
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{

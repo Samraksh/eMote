@@ -25,7 +25,7 @@ struct MacConfig {
     UINT8 CCASenseTime;
     UINT8 BufferSize;
     UINT8 RadioID;
-    UINT32 NeighbourLivelinessDelay;
+    UINT32 NeighborLivelinessDelay;
 };
 //struct MacConfig;
 
@@ -33,7 +33,7 @@ struct MacConfig {
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
 typedef void (*MacReceiveFuncPtrType) (UINT16 arg1);
 
-typedef void (*NeighbourChangeFuncPtrType) (INT16 arg2);
+typedef void (*NeighborChangeFuncPtrType) (INT16 arg2);
 
 // Typedef defining the signature of the send function
 typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
@@ -43,7 +43,7 @@ typedef  class MacEventHandler{
 public:
 	MacReceiveFuncPtrType RecieveHandler;
 	SendAckFuncPtrType SendAckHandler;
-	NeighbourChangeFuncPtrType neighbourHandler;
+	NeighborChangeFuncPtrType neighborHandler;
 
 	void SetRecieveHandler(MacReceiveFuncPtrType recieve_handler)
 	{
@@ -55,9 +55,9 @@ public:
 		this->SendAckHandler = send_ack_handler;
 	}
 
-	void SetNeighbourChangeHandler(NeighbourChangeFuncPtrType neighbour_change_handler)
+	void SetNeighborChangeHandler(NeighborChangeFuncPtrType neighbor_change_handler)
 	{
-		this->neighbourHandler = neighbour_change_handler;
+		this->neighborHandler = neighbor_change_handler;
 	}
 
 }MacEventHandler_t;
@@ -77,9 +77,9 @@ DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
 //NeighborTable* Mac_GetNeighborTable(UINT8 macID);
 //Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress);
 
-// Get the neighbour list
-DeviceStatus Mac_GetNeighbourList(UINT16 *buffer);
-DeviceStatus Mac_GetNeighbourStatus(UINT16 macAddress, UINT8 *buffer);
+// Get the neighbor list
+DeviceStatus Mac_GetNeighborList(UINT16 *buffer);
+DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer);
 
 //Channel/freq functions
 DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer);
