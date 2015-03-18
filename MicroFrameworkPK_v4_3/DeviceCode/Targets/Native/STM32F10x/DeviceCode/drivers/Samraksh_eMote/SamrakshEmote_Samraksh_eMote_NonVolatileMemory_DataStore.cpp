@@ -23,7 +23,8 @@ typedef enum DATASTORE_RETURN_STATUS
 	Failure = -1,
 	InvalidArgument = -2,
 	InvalidReference = -3,
-	DataStoreNotInitialized = -4
+	DataStoreNotInitialized = -4,
+	DataAllocationOutOfMemory = -5
 	//AlreadyExists,
 	//InvalidPointer
 };
@@ -122,7 +123,7 @@ INT8 DataStore::GetReadWriteStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT32 DataStore::GetLastErrorStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 DataStore::GetLastDatastoreStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return g_dataStoreObject.getLastError();
 }

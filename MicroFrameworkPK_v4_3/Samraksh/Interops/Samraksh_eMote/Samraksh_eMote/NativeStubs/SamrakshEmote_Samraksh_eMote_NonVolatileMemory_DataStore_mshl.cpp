@@ -201,7 +201,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetRea
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLastErrorStatus___I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLastDatastoreStatus___I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -209,7 +209,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLas
 
         FAULT_ON_NULL(pMngObj);
 
-        INT32 retVal = DataStore::GetLastErrorStatus( pMngObj,  hr );
+        INT32 retVal = DataStore::GetLastDatastoreStatus( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

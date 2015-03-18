@@ -17,6 +17,18 @@
 
 using namespace Samraksh::eMote::NonVolatileMemory;
 
+typedef enum DATASTORE_RETURN_STATUS
+{
+	Success = 0,
+	Failure = -1,
+	InvalidArgument = -2,
+	InvalidReference = -3,
+	DataStoreNotInitialized = -4,
+	DataAllocationOutOfMemory = -5
+	//AlreadyExists,
+	//InvalidPointer
+};
+
 extern Data_Store g_dataStoreObject;
 static UINT32 dataID;
 
@@ -78,6 +90,18 @@ UINT32 DataReference::GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 		dataID = g_dataStoreObject.getRecentRecordID();
 
     return dataID;
+}
+
+INT32 DataReference::GetLastDatastoreStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_NONE)
+		return Success;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_INVALID_GIVEN_ADDR)
+		return InvalidReference;
+	else if(g_dataStoreObject.getLastError() == DATASTORE_ERROR_OUT_OF_FLASH_MEMORY)
+		return DataAllocationOutOfMemory;
+	else
+		return Failure;
 }
 
 INT8 DataReference::DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )

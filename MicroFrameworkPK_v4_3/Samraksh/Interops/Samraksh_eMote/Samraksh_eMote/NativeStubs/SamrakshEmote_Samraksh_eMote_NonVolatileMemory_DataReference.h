@@ -50,6 +50,7 @@ namespace Samraksh
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT16 param1, HRESULT &hr );
                 static INT32 CreateData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
                 static UINT32 GetDataID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static INT32 GetLastDatastoreStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 DisposeNativeMemoryPointer( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
             };
         }

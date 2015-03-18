@@ -58,6 +58,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::CreateData___I4__U4__U2,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::CreateData___I4__U4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetDataID___U4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetLastDatastoreStatus___I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::DisposeNativeMemoryPointer___BOOLEAN__U4,
     NULL,
     NULL,
@@ -87,7 +88,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::EraseAllBlocks___I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::DataStoreGC___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetReadWriteStatus___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLastErrorStatus___I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLastDatastoreStatus___I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U4__I4,
@@ -99,12 +100,24 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0xFEBE1349,
+    0x0F090C9B,
     method_lookup
 };
 

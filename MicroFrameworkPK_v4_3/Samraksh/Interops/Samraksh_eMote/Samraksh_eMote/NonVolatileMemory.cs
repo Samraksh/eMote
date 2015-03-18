@@ -56,10 +56,82 @@ namespace Samraksh.eMote.NonVolatileMemory
         Failure = -1,
         InvalidArgument = -2,
         InvalidReference = -3,
-        DataStoreNotInitialized = -4
+        DataStoreNotInitialized = -4,
+        DataAllocationOutOfMemory = -5
         //AlreadyExists,
         //InvalidPointer
     };
+
+    /// <summary>
+    /// Different exception classes based on return value from native methods
+    /// </summary>
+    public class DataStoreInvalidArgumentException : Exception
+    {
+        public DataStoreInvalidArgumentException()
+        {
+        }
+
+        public DataStoreInvalidArgumentException(string message)
+            : base(message)
+        {
+        }
+
+        public DataStoreInvalidArgumentException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class DataStoreInvalidReferenceException : Exception
+    {
+        public DataStoreInvalidReferenceException()
+        {
+        }
+
+        public DataStoreInvalidReferenceException(string message)
+            : base(message)
+        {
+        }
+
+        public DataStoreInvalidReferenceException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class DataStoreNotInitializedException : Exception
+    {
+        public DataStoreNotInitializedException()
+        {
+        }
+
+        public DataStoreNotInitializedException(string message)
+            : base(message)
+        {
+        }
+
+        public DataStoreNotInitializedException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class DataStoreOutOfMemoryException : Exception
+    {
+        public DataStoreOutOfMemoryException()
+        {
+        }
+
+        public DataStoreOutOfMemoryException(string message)
+            : base(message)
+        {
+        }
+
+        public DataStoreOutOfMemoryException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 
     public class DataStoreException : Exception
     {
@@ -160,6 +232,18 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             if (this.dataReference == 0)
                 throw new DataStoreException("DataPointer is NULL. Data could not be created.");
+
+            int datastoreStatus = GetLastDatastoreStatus();
+            if (datastoreStatus == (int)DataStoreReturnStatus.Failure)
+                throw new DataStoreException("Failure while creating data reference");
+            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidArgument)
+                throw new DataStoreInvalidArgumentException("Failure - Invalid argument");
+            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidReference)
+                throw new DataStoreInvalidReferenceException("Failure - Invalid reference");
+            else if (datastoreStatus == (int)DataStoreReturnStatus.DataStoreNotInitialized)
+                throw new DataStoreNotInitializedException("Failure - datastore not initialized");
+            else if (datastoreStatus == (int)DataStoreReturnStatus.DataAllocationOutOfMemory)
+                throw new DataStoreOutOfMemoryException("Failure - out of memory during data allocation");
 
             this.referenceSize = (UInt32)refSize;
             this.dataId = GetDataID();
@@ -1243,6 +1327,13 @@ namespace Samraksh.eMote.NonVolatileMemory
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private UInt32 GetDataID();
 
+        /// <summary>
+        /// Gets error status of DataStore
+        /// </summary>
+        /// <returns>DataStore error status</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private int GetLastDatastoreStatus();
+
 
         /*/// <summary>
         /// 
@@ -1389,46 +1480,41 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
         public DataStoreReturnStatus ReadAllDataReferences(DataReference[] dataRefArray, int dataIdOffset)
         {
-            if (this != null)
+            UInt32 dataId;
+            if (dataRefArray.Length == 0)
+                throw new DataStoreException("dataRefArray cannot be of zero length");
+
+            if (dataIdOffset < 0)
+                throw new DataStoreException("dataIdOffset should not be negative");
+
+            /* User checks if array contents are null to break out of program. 
+                * Clear the contents of array so that null values are returned if there is no data allocation in DataStore. */
+            Array.Clear(dataRefArray, 0, dataRefArray.Length);
+            int[] dataIdArray = new int[dataRefArray.Length];
+
+            int retVal = GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset);
+
+            if (retVal != 0)
+                return DataStoreReturnStatus.Failure;
+            else
             {
-                UInt32 dataId;
-                if (dataRefArray.Length == 0)
-                    throw new DataStoreException("dataRefArray cannot be of zero length");
-
-                if (dataIdOffset < 0)
-                    throw new DataStoreException("dataIdOffset should not be negative");
-
-                /* User checks if array contents are null to break out of program. 
-                 * Clear the contents of array so that null values are returned if there is no data allocation in DataStore. */
-                Array.Clear(dataRefArray, 0, dataRefArray.Length);
-                int[] dataIdArray = new int[dataRefArray.Length];
-
-                int retVal = GetReadAllDataIds(dataIdArray, dataIdArray.Length, dataIdOffset);
-
-                if (retVal != 0)
-                    return DataStoreReturnStatus.Failure;
-                else
+                for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
                 {
-                    for (UInt16 arrayIndex = 0; arrayIndex < dataRefArray.Length; ++arrayIndex)
+                    dataId = (UInt32)dataIdArray[arrayIndex];
+                    if (dataId != 0)
                     {
-                        dataId = (UInt32)dataIdArray[arrayIndex];
-                        if (dataId != 0)
+                        try
                         {
-                            try
-                            {
-                                dataRefArray[arrayIndex] = new DataReference(this, (int)dataId);
-                            }
-                            catch (Exception)
-                            {
-                                return DataStoreReturnStatus.Failure;
-                            }
+                            dataRefArray[arrayIndex] = new DataReference(this, (int)dataId);
+                        }
+                        catch (Exception)
+                        {
+                            return DataStoreReturnStatus.Failure;
                         }
                     }
                 }
-                return DataStoreReturnStatus.Success;
             }
-            else
-                throw new DataStoreException("DataStore object is NULL. DataStore could be corrupt. Please try erasing the flash while initializing (eraseDataStore = true) and try again.");
+            return DataStoreReturnStatus.Success;
         }
 
         /// <summary>
@@ -1437,19 +1523,14 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <returns>Success / failure status</returns>
         public DataStoreReturnStatus DeleteAllData()
         {
-            if (this != null)
-            {
-                int retVal = DeleteAll();
+            int retVal = DeleteAll();
 
-                if (retVal == 0)
-                    return DataStoreReturnStatus.Success;
-                else if (retVal == -3)
-                    return DataStoreReturnStatus.InvalidReference;
-                else
-                    return DataStoreReturnStatus.Failure;
-            }
+            if (retVal == 0)
+                return DataStoreReturnStatus.Success;
+            else if (retVal == -3)
+                return DataStoreReturnStatus.InvalidReference;
             else
-                throw new DataStoreException("DataStore object is NULL. DataStore could be corrupt. Please try erasing the flash while initializing (eraseDataStore = true) and try again.");
+                return DataStoreReturnStatus.Failure;
         }
 
         /// <summary>
@@ -1471,30 +1552,25 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <returns>Success / failure status</returns>
         public DataStoreReturnStatus EraseAllData()
         {
-            if (this != null)
+            // Remove contents from AddressTable also before erasing DataStore
+            int retVal = DeleteAll();
+
+            if (retVal == 0)
             {
-                // Remove contents from AddressTable also before erasing DataStore
-                int retVal = DeleteAll();
+                //DeleteAll was successful
+                retVal = EraseAllBlocks();
 
                 if (retVal == 0)
-                {
-                    //DeleteAll was successful
-                    retVal = EraseAllBlocks();
-
-                    if (retVal == 0)
-                        return DataStoreReturnStatus.Success;
-                    else if (retVal == -3)
-                        return DataStoreReturnStatus.InvalidReference;
-                    else
-                        return DataStoreReturnStatus.Failure;
-                }
+                    return DataStoreReturnStatus.Success;
                 else if (retVal == -3)
                     return DataStoreReturnStatus.InvalidReference;
                 else
                     return DataStoreReturnStatus.Failure;
             }
+            else if (retVal == -3)
+                return DataStoreReturnStatus.InvalidReference;
             else
-                throw new DataStoreException("DataStore object is NULL. DataStore could be corrupt. Please try erasing the flash while initializing (eraseDataStore = true) and try again.");
+                return DataStoreReturnStatus.Failure;
         }
 
         
@@ -1641,7 +1717,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// </summary>
         /// <returns>DataStore error status</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int GetLastErrorStatus();
+        extern private int GetLastDatastoreStatus();
 
         //Returns the size of the NVM, if 0 operation failed
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]

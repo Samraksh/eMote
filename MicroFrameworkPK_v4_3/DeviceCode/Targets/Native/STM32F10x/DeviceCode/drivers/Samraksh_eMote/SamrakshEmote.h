@@ -50,6 +50,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
     TINYCLR_NATIVE_DECLARE(CreateData___I4__U4__U2);
     TINYCLR_NATIVE_DECLARE(CreateData___I4__U4__U4);
     TINYCLR_NATIVE_DECLARE(GetDataID___U4);
+    TINYCLR_NATIVE_DECLARE(GetLastDatastoreStatus___I4);
     TINYCLR_NATIVE_DECLARE(DisposeNativeMemoryPointer___BOOLEAN__U4);
 
     //--//
@@ -75,7 +76,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore
     TINYCLR_NATIVE_DECLARE(EraseAllBlocks___I4);
     TINYCLR_NATIVE_DECLARE(DataStoreGC___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetReadWriteStatus___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(GetLastErrorStatus___I4);
+    TINYCLR_NATIVE_DECLARE(GetLastDatastoreStatus___I4);
     TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4);
     TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4);
     TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U4__I4);

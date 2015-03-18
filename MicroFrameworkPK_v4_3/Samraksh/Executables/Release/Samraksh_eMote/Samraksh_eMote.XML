@@ -24,6 +24,11 @@
             DataStore return types
             </summary>
         </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreInvalidArgumentException">
+            <summary>
+            Different exception classes based on return value from native methods
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.NonVolatileMemory.DataReference">
             <summary>
             A data reference is is a pointer to a record in DataStore.
@@ -246,6 +251,12 @@
             </summary>
             <returns>Current DataID</returns>
         </member>
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.GetLastDatastoreStatus">
+            <summary>
+            Gets error status of DataStore
+            </summary>
+            <returns>DataStore error status</returns>
+        </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.DisposeNativeMemoryPointer(System.UInt32)">
             <summary>
             Native call that destroys data created on the flash
@@ -446,7 +457,7 @@
             </summary>
             <returns>True if status indicates success</returns>
         </member>
-        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.GetLastErrorStatus">
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.GetLastDatastoreStatus">
             <summary>
             Gets error status of DataStore
             </summary>
