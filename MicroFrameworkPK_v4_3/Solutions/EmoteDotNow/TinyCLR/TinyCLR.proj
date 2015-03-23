@@ -269,7 +269,7 @@
   </ItemGroup>
   <!-- ItemGroup>
     <DriverLibs Include="Crypto.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj" />
   </ItemGroup -->
   <ItemGroup>
     <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
