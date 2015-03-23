@@ -56,8 +56,8 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\serial_port.featureproj" Condition="'$(SERIAL_PORT_FEATUREPROJ)'==''" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SerialPort.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" />
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
@@ -181,14 +181,18 @@
     <PlatformIndependentLibs Include="SPOT_Hardware_OneWire.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_OneWire\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="usb_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
+    <DriverLibs Include="usb_pal_stubs.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\USB\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <!--ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Hardware_Usb.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Hardware\SPOT_Usb\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <PlatformIndependentLibs Include="CRC.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Support\CRC\dotNetMF.proj" />
@@ -543,14 +547,14 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USART_HAL\dotNetMF.proj" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="USB_Config_PAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USB_Config_PAL\dotNetMF.proj" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup-->
+  <!--ItemGroup>
     <DriverLibs Include="USB_HAL_EmoteDotNow.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USB_HAL\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
