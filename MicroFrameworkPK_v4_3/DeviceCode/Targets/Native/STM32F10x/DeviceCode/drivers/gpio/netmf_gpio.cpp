@@ -11,7 +11,7 @@
 #define NUMBER_OF_EXTI_LINES 16
 
 
-/*extern "C"
+extern "C"
 {
 void Default_EXTI_Handler(void *data);
 void EXTI0_IRQ_HANDLER(void *args);
@@ -22,7 +22,10 @@ void EXTI4_IRQ_HANDLER(void *args);
 void EXTI9_5_IRQ_HANDLER(void *args);
 void EXTI15_10_IRQ_Handler(void *args);
 void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param );
-}*/
+}
+
+GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin);
+uint16_t GPIO_GetPin(GPIO_PIN Pin);
 
 STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
@@ -35,7 +38,7 @@ const uint GPIO_PINS = STM32F10x_GPIO_Driver::c_MaxPins;
 GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
 UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,EXTI_Line8,EXTI_Line9,EXTI_Line10,EXTI_Line11,EXTI_Line12,EXTI_Line13,EXTI_Line14,EXTI_Line15};
 
-static BOOL pinState = FALSE;
+//static BOOL pinState = FALSE;
 static BOOL gpioDriverInitialized = FALSE;
 
 
@@ -158,6 +161,37 @@ static BOOL gpioDriverInitialized = FALSE;
 
 
 //Local Functions
+
+static BOOL IsOutputPin(GPIO_PIN Pin)
+{
+	GPIO_TypeDef *port;
+	unsigned int p;
+	unsigned int mode;
+	unsigned int mode_mask = 0x03;
+	BOOL isOutput;
+
+	if (Pin > GPIO_PINS) { return FALSE; }
+
+	port = GPIO_GetPortPtr(Pin);
+	p = GPIO_GetPin(Pin);
+
+	if (p < 8) { // check mode in CRL
+		mode = port->CRL;
+		mode_mask = mode_mask << (p*4);
+	}
+	else { // check mode in CRH
+		mode = port->CRH;
+		mode_mask = mode_mask << (p*2);
+	}
+
+	if ( (mode & mode_mask) == 0 ) {
+		isOutput = FALSE;
+	}
+	else {
+		isOutput = TRUE;
+	}
+	return isOutput;
+}
 
 static inline bool CheckGPIO_PortSource_Pin(uint8_t GPIO_PortSource, GPIO_PIN Pin)
 {
@@ -391,15 +425,17 @@ BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 		return FALSE;
 	}
 
+	bool pinState = CPU_GPIO_GetPinState(Pin);
+
 	if(pinState == FALSE)
 	{
 		CPU_GPIO_SetPinState(Pin, TRUE);
-		pinState = TRUE;
+		//pinState = TRUE;
 	}
 	else
 	{
 		CPU_GPIO_SetPinState(Pin, FALSE);
-		pinState = FALSE;
+		//pinState = FALSE;
 	}
 }
 
@@ -624,15 +660,16 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 	else
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
 
-	//TODO
-	//GPIO_ReadInputData(GPIO_PORT_ARRAY[GPIO_PortSource]);
-	//GPIO_ReadInputData(GPIO_GetPortPtr(Pin));
 	/*if((GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_AIN) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IN_FLOATING) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPD) || (GPIO_Instances[Pin].GPIO_Mode == GPIO_Mode_IPU))
 		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
 	else
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
 
-	return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+	if(IsOutputPin(Pin)){
+		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+	} else	{
+		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+	}
 }
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
@@ -643,6 +680,10 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 		return;
 	}
 
+	//If it isn't an output pin, then its not valid to Set(). EnableOutputPin() first.
+	//If you call Set() and it isn't an output, nothing will happen.
+	if (!IsOutputPin(Pin)) { return; }
+
 	if(PinState) {
 		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_SET);
 	} else {
@@ -651,7 +692,7 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 }
 
 
-void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState )
+/*void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState )
 {
 	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
 		return;
@@ -661,7 +702,7 @@ void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState 
 	} else {
 		GPIO_WriteBit(GPIO_PORT_ARRAY[GPIO_PortSource], GPIO_GetPin(Pin), Bit_RESET);
 	}
-}
+}*/
 
 
 // Check if the pin is busy or in use, takes the Pin number as the input argument
@@ -752,7 +793,6 @@ UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 
 
 
-/*
 extern "C"
 {
 
@@ -1005,7 +1045,7 @@ void EXTI15_10_IRQ_Handler(void *args)
 }
 
 }	//extern "C"
-*/
+
 
 void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param )
 {
