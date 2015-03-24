@@ -38,7 +38,7 @@ bool LCD_PCF85162_Driver::Initialize()
   	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   	GPIO_Init(GPIOB, &GPIO_InitStructure);*/
-    GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+    GPIO_ConfigurePin(GPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
   	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_SET);
 
  	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
@@ -46,7 +46,7 @@ bool LCD_PCF85162_Driver::Initialize()
   	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   	GPIO_Init(GPIOB, &GPIO_InitStructure);*/
  	//GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)7, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
- 	GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+ 	GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
 
 
  	I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;

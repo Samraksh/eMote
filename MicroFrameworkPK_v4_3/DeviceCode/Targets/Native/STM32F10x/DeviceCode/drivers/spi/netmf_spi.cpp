@@ -123,7 +123,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		GPIO_Init(SPIx_GPIO, &GPIO_InitStructure);*/
-		GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+		GPIO_ConfigurePin(GPIOA, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 
 		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
@@ -156,14 +156,14 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 		GPIO_Init(SPIy_GPIO, &GPIO_InitStructure);*/
-		GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+		GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 		// SPI MISO pin
 		/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
 		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOB, &GPIO_InitStructure);*/
-		GPIO_ConfigurePin(GPIO_PortSourceGPIOB, GPIO_Pin_14, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
+		GPIO_ConfigurePin(GPIOB, GPIO_Pin_14, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
 
 		SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
 		SPI_InitStructure.SPI_Mode = SPI_Mode_Master;

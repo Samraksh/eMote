@@ -892,7 +892,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 		else if(this->GetRadioName() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-			GPIO_ConfigurePin(GPIO_PortSourceGPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+			GPIO_ConfigurePin(GPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
 
 		SlptrSet();

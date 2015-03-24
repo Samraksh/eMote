@@ -27,14 +27,14 @@ void SDIO_Driver::GPIOInit()
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);*/
-	GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_Pin_5, GPIO_Mode_Out_PP, GPIO_Speed_50MHz);
+	GPIO_ConfigurePin(GPIOC, GPIO_Pin_5, GPIO_Mode_Out_PP, GPIO_Speed_50MHz);
 
 	/*!< Configure PC.08, PC.09, PC.10, PC.11, PC.12 pin: D0, D1, D2, D3, CLK pin */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
 	/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);*/
-	GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	GPIO_ConfigurePin(GPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 	/*CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_Pin_9, GPIO_Mode_Out_PP, GPIO_Speed_50MHz);
 	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_Pin_10, GPIO_Mode_Out_PP, GPIO_Speed_50MHz);
 	CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_Pin_11, GPIO_Mode_Out_PP, GPIO_Speed_50MHz);
@@ -49,13 +49,13 @@ void SDIO_Driver::GPIOInit()
 	/*!< Configure PD.02 CMD line */
 	/*GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);*/
-	GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	GPIO_ConfigurePin(GPIOC, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
 	/*!< Configure SD_SPI_DETECT_PIN pin: SD Card detect pin */
 	/*GPIO_InitStructure.GPIO_Pin = SD_DETECT_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(SD_DETECT_GPIO_PORT, &GPIO_InitStructure);*/
-	GPIO_ConfigurePin(GPIO_PortSourceGPIOC, SD_DETECT_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
+	GPIO_ConfigurePin(GPIOC, SD_DETECT_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
 
 }
 

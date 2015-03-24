@@ -193,7 +193,7 @@ static BOOL IsOutputPin(GPIO_PIN Pin)
 	return isOutput;
 }
 
-static inline bool CheckGPIO_PortSource_Pin(uint8_t GPIO_PortSource, GPIO_PIN Pin)
+static inline bool CheckGPIO_PortSource_Pin(GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin)
 {
 	/*if(GPIO_PortSource > GPIO_PortSourceGPIOG)
 	{
@@ -450,7 +450,7 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 }
 
 
-void GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
 	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
 		return;
@@ -474,11 +474,10 @@ void GPIO_ConfigurePin( uint8_t GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef 
 	GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_InitStructure.GPIO_Mode = mode; // output mode
 	GPIO_InitStructure.GPIO_Speed = speed;
-	GPIO_Init(GPIO_PORT_ARRAY[GPIO_PortSource], &GPIO_InitStructure);
+	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
 }
 
-
-void GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
+void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
 	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
 
@@ -486,7 +485,7 @@ void GPIO_ConfigurePin( uint8_t GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef 
 	GPIO_InitStructure.GPIO_Pin = Pin;
 	GPIO_InitStructure.GPIO_Mode = mode; // output mode
 	GPIO_InitStructure.GPIO_Speed = speed;
-	GPIO_Init(GPIO_PORT_ARRAY[GPIO_PortSource], &GPIO_InitStructure);
+	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
 }
 
 
@@ -501,7 +500,9 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 	/*GPIO_StructInit(&GPIO_Instances[Pin]);
 	GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin));
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex);
 	CPU_GPIO_SetPinState(Pin, FALSE);
 }
 
@@ -518,7 +519,9 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 	/*GPIO_Instances[Pin].GPIO_Pin = GPIO_GetPin(Pin);
 	GPIO_Instances[Pin].GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIO_GetPortPtr(Pin), &GPIO_Instances[Pin]);*/
-	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), GPIO_Mode_Out_PP);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_Out_PP);
 	CPU_GPIO_SetPinState(Pin, InitialState);
 }
 
@@ -570,7 +573,9 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 		return FALSE;
 	}
 
-	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), mode);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, mode);
 	
 	return TRUE;
 }
@@ -606,7 +611,9 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 		mode = GPIO_Mode_IPU;
 	}
 
-	GPIO_ConfigurePin(GPIO_GetPort(Pin), GPIO_GetPin(Pin), mode);
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+	GPIO_ConfigurePin(port, pinInHex, mode);
 
 	// Nived.Sivadas - adding interrupt support to the gpio pins
 	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
@@ -665,10 +672,12 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 	else
 		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));*/
 
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
 	if(IsOutputPin(Pin)){
-		return (BOOL)GPIO_ReadOutputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+		return (BOOL)GPIO_ReadOutputDataBit(port, pinInHex);
 	} else	{
-		return (BOOL)GPIO_ReadInputDataBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin));
+		return (BOOL)GPIO_ReadInputDataBit(port, pinInHex);
 	}
 }
 
@@ -682,12 +691,14 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 
 	//If it isn't an output pin, then its not valid to Set(). EnableOutputPin() first.
 	//If you call Set() and it isn't an output, nothing will happen.
-	if (!IsOutputPin(Pin)) { return; }
+	//if (!IsOutputPin(Pin)) { return; }
 
+	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
 	if(PinState) {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_SET);
+		GPIO_WriteBit(port, pinInHex, Bit_SET);
 	} else {
-		GPIO_WriteBit(GPIO_GetPortPtr(Pin), GPIO_GetPin(Pin), Bit_RESET);
+		GPIO_WriteBit(port, pinInHex, Bit_RESET);
 	}
 }
 
@@ -714,7 +725,9 @@ BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 		return FALSE;
 	}
 
-    return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
+	uint8_t port = GPIO_GetPort(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
+    return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[port] & pinInHex) > 0 ? TRUE : FALSE);
     //return  ((g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_PortSource] & GPIO_GetPin(Pin)) > 0 ? TRUE : FALSE);
 }
 
@@ -734,10 +747,12 @@ BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 		return FALSE;
 	}
 
+	uint8_t port = GPIO_GetPort(Pin);
+	uint16_t pinInHex = GPIO_GetPin(Pin);
     if(fReserve) {
-		SET_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
+		SET_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[port], pinInHex);
 	} else {
-		CLEAR_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[GPIO_GetPort(Pin)], GPIO_GetPin(Pin));
+		CLEAR_BIT(g_STM32F10x_Gpio_Driver.m_pinReservationInfo[port], pinInHex);
 	}
 
     /*if(fReserve) {

@@ -9,6 +9,7 @@
 #define HAL_ADC_DRIVER_H_
 
 #include <stm32f10x.h>
+#include <gpio\netmf_gpio.h>
 
 void hal_adc_init(uint8_t sampTime);
 uint8_t hal_adc_config();
