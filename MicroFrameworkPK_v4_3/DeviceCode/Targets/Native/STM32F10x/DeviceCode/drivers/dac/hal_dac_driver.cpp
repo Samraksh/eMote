@@ -15,12 +15,7 @@ DAC_InitTypeDef            DAC_InitStructure;
 
 void DAC_GPIO_Configuration(void)
 {
-   /*GPIO_InitTypeDef GPIO_InitStructure;
-
-   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_4;
-   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-   GPIO_Init(GPIOA, &GPIO_InitStructure);*/
-   GPIO_ConfigurePin(GPIO_PortSourceGPIOA, GPIO_Pin_4, GPIO_Mode_AIN);
+   GPIO_ConfigurePin(GPIOA, GPIO_Pin_4, GPIO_Mode_AIN);
 }
 
 void DAC_RCC_Configuration(void)
