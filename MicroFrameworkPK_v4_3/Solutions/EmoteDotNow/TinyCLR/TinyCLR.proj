@@ -80,6 +80,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\OpenSSL\OpenSSL_1_0_0\crypto\dotnetmf.proj" />
     <DriverLibs Include="crypto_openssl.$(LIB_EXT)" />
   </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Crypto\dotNetMF.proj" />
+    <DriverLibs Include="EmoteDotNow_Crypto_Config.$(LIB_EXT)" />
+  </ItemGroup>
   <!-- End Crypto Stuff -->
   <ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
