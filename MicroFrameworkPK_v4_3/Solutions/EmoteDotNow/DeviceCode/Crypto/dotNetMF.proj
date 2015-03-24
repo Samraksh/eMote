@@ -26,7 +26,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="PKCS11_config_EmoteDotNow.cpp" />
+    <Compile Include="PKCS11_Config_EmoteDotNow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <HFiles Include="$(SPOCLIENT)\devicecode\include\tinyclr_endian.h" />
