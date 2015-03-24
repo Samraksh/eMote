@@ -11,7 +11,7 @@
 #define NUMBER_OF_EXTI_LINES 16
 
 
-extern "C"
+/*extern "C"
 {
 void Default_EXTI_Handler(void *data);
 void EXTI0_IRQ_HANDLER(void *args);
@@ -22,7 +22,7 @@ void EXTI4_IRQ_HANDLER(void *args);
 void EXTI9_5_IRQ_HANDLER(void *args);
 void EXTI15_10_IRQ_Handler(void *args);
 void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param );
-}
+}*/
 
 STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
@@ -39,7 +39,7 @@ static BOOL pinState = FALSE;
 static BOOL gpioDriverInitialized = FALSE;
 
 
-const UINT8 STM32F10x_GPIO_Driver::c_Gpio_Attributes[GPIO_PINS] =
+/*const UINT8 STM32F10x_GPIO_Driver::c_Gpio_Attributes[GPIO_PINS] =
 {
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   0
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, //   1
@@ -153,7 +153,7 @@ const UINT8 STM32F10x_GPIO_Driver::c_Gpio_Attributes[GPIO_PINS] =
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 109
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 110
     GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT, // 111
-};
+};*/
 
 
 
@@ -405,12 +405,12 @@ BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 
 UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 {
-	if(Pin < GPIO_PINS)
+	/*if(Pin < GPIO_PINS)
 	{
 		return g_STM32F10x_Gpio_Driver.c_Gpio_Attributes[Pin];
 	}
 	
-	return GPIO_ATTRIBUTE_NONE;
+	return GPIO_ATTRIBUTE_NONE;*/
 }
 
 
@@ -727,9 +727,15 @@ INT32 CPU_GPIO_GetPinCount()
 
 void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 {
+	if(size > GPIO_PINS)
+	{
+		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] size greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		return;
+	}
     UINT8 ik;
 	for(ik = 0; ik < size; ik++) {
-		pins[ik] = (UINT8)CPU_GPIO_Attributes((GPIO_PIN)ik);
+		//pins[ik] = (UINT8)CPU_GPIO_Attributes((GPIO_PIN)ik);
+		pins[ik] = GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT;
 	}
 }
 
@@ -746,6 +752,7 @@ UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 
 
 
+/*
 extern "C"
 {
 
@@ -998,6 +1005,7 @@ void EXTI15_10_IRQ_Handler(void *args)
 }
 
 }	//extern "C"
+*/
 
 void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param )
 {
