@@ -73,12 +73,12 @@
     <DriverLibs Include="OpenSSL_PKCS11_Crypto.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\dotNetMF.proj" />
-    <DriverLibs Include="PKCS11_Engine.$(LIB_EXT)" />
-  </ItemGroup>
-  <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\OpenSSL\OpenSSL_1_0_0\crypto\dotnetmf.proj" />
     <DriverLibs Include="crypto_openssl.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\PKCS11\dotNetMF.proj" />
+    <DriverLibs Include="PKCS11_Engine.$(LIB_EXT)" />
   </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Crypto\dotNetMF.proj" />
@@ -280,10 +280,10 @@
     <DriverLibs Include="STM32F10x_ID.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\id\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\stubs\dotNetMF.proj" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
