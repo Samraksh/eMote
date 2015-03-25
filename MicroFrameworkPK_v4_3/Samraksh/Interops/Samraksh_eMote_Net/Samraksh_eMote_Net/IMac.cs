@@ -51,7 +51,7 @@ namespace Samraksh.eMote.Net
             /// <summary>
             /// Delay before a neighbor is deemed dead
             /// </summary>
-            public UInt32 NeighborLivelinessDelay;
+            public UInt32 NeighborLivenessDelay;
 
             /// <summary>
             /// Delay before a neighbor is deemed dead
@@ -59,8 +59,8 @@ namespace Samraksh.eMote.Net
             [Obsolete("Use NeighborLivenessDelay instead")]
             public UInt32 NeighbourLivelinesDelay
             {
-                get { return NeighborLivelinessDelay; }
-                set { NeighborLivelinessDelay = value; }
+                get { return NeighborLivenessDelay; }
+                set { NeighborLivenessDelay = value; }
             }
 
             /// <summary>
@@ -79,7 +79,7 @@ namespace Samraksh.eMote.Net
                 this.NumberOfRetries = 0;
                 this.RadioID = 1;
                 this.CCASenseTime = 140;
-                this.NeighborLivelinessDelay = 300;
+                this.NeighborLivenessDelay = 300;
                 this.radioConfig = new Radio.RadioConfiguration();
             }
 
@@ -94,7 +94,7 @@ namespace Samraksh.eMote.Net
                 this.NumberOfRetries = config.NumberOfRetries;
                 this.RadioID = config.RadioID;
                 this.CCASenseTime = config.CCASenseTime;
-                this.NeighborLivelinessDelay = config.NeighborLivelinessDelay;
+                this.NeighborLivenessDelay = config.NeighborLivenessDelay;
                 this.radioConfig = new Radio.RadioConfiguration(config.radioConfig);
             }
 
