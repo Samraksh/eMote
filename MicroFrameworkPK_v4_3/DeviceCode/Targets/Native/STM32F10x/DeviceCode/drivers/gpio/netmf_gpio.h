@@ -2,6 +2,7 @@
 #define _NETMF_GPIO_H_
 
 #include <tinyhal.h>
+#include <stm32f10x.h>
 
 #define DEBUG_GPIO 1
 

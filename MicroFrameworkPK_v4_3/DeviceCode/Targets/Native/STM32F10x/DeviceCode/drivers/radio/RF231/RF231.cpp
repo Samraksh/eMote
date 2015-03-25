@@ -312,7 +312,6 @@ UINT32 RF231Radio::GetTxPower()
 // Change the power level of the radio
 DeviceStatus RF231Radio::ChangeTxPower(int power)
 {
-	GLOBAL_LOCK(irq);
 	// Cannot change power level if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
 	if(state != STATE_SLEEP && state != STATE_RX_ON)
@@ -350,7 +349,6 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 // Change the channel of the radio
 DeviceStatus RF231Radio::ChangeChannel(int channel)
 {
-	GLOBAL_LOCK(irq);
 	// Cannot change channel if radio is in the middle of something
 	// There is no reason for this in the manual, but adding this check for sanity sake
 	if(state != STATE_SLEEP && state != STATE_RX_ON)
