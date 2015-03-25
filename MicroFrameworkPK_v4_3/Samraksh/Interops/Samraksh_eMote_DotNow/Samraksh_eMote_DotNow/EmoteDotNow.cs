@@ -1,11 +1,9 @@
-﻿using System;
-using Microsoft.SPOT;
-using Microsoft.SPOT.Hardware;
+﻿using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.eMote.DotNow
 {
         /// <summary>
-        /// Screw termial pin mapping
+        /// CPU pin mapping
         /// </summary>
         public static class Pins
         {
@@ -26,7 +24,7 @@ namespace Samraksh.eMote.DotNow
         }
 
         /// <summary>
-        /// Emote ADC channel mapping
+        /// ADC channel mapping
         /// </summary>
         public static class ADCChannel
         {

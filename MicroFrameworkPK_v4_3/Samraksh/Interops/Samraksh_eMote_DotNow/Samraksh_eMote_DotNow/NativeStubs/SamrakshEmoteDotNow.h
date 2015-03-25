@@ -42,8 +42,8 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal
 
 struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_AnalogInput
 {
-    static const int FIELD_STATIC__AdcInternal = 4;
-    static const int FIELD_STATIC__MyCallback = 5;
+    static const int FIELD_STATIC___adcInternal = 4;
+    static const int FIELD_STATIC___myCallback = 5;
 
 
     //--//

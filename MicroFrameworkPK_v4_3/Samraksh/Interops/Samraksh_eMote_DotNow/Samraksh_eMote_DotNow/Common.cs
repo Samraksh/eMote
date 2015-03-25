@@ -1,8 +1,8 @@
-using System;
-using Microsoft.SPOT;
-
 namespace Samraksh.eMote.DotNow
 {
+    /// <summary>
+    /// Status return codes for drivers
+    /// </summary>
     public enum DeviceStatus
     {
         /// <summary>

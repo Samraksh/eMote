@@ -1,25 +1,37 @@
 using System;
-using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
 using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.eMote.DotNow
 {
+    // ReSharper disable InconsistentNaming
+
+    /// <summary>
+    /// Micro SD device
+    /// </summary>
     public class SD
     {
+        /// <summary>
+        /// Callback delegate
+        /// </summary>
+        /// <param name="status">Operation status</param>
         public delegate void SDCallBackType(DeviceStatus status);
 
         public static SDInternal sdInternalObject;
 
         public static SDCallBackType sdCallbackFunction;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="sdCallback">Callback method</param>
         public SD(SDCallBackType sdCallback)
         {
             sdInternalObject = new SDInternal("SDCallback", 1233, 0);
 
             sdCallbackFunction = sdCallback;
 
-            NativeEventHandler eventHandler = new NativeEventHandler(InternalCallback);
+            var eventHandler = new NativeEventHandler(InternalCallback);
             sdInternalObject.OnInterrupt += eventHandler;
 
             
@@ -36,6 +48,10 @@ namespace Samraksh.eMote.DotNow
                 sdCallbackFunction(DeviceStatus.Fail);
         }
 
+        /// <summary>
+        /// Initialize the SD
+        /// </summary>
+        /// <returns>True iff success</returns>
         public static bool Initialize()
         {
             if (SDInternal.InternalInitialize() == DeviceStatus.Success)
@@ -46,9 +62,16 @@ namespace Samraksh.eMote.DotNow
 
     
 
+        /// <summary>
+        /// Read from SD
+        /// </summary>
+        /// <param name="dataArray">Array to receive data</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="length">Amount to read</param>
+        /// <returns>True iff success</returns>
         public static bool Read(byte[] dataArray, UInt16 offset, UInt16 length)
         {
-            DeviceStatus result = SDInternal.InternalRead(dataArray, offset, length, readAddressPtr);
+            var result = SDInternal.InternalRead(dataArray, offset, length, readAddressPtr);
 
             readAddressPtr += (UInt32)(length * 2);
 
@@ -58,6 +81,13 @@ namespace Samraksh.eMote.DotNow
                 return false;
         }
 
+        /// <summary>
+        /// Write to SD
+        /// </summary>
+        /// <param name="dataArray">Array to write</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="length">Amount to write</param>
+        /// <returns>True iff success</returns>
         public static bool Write(byte[] dataArray, UInt16 offset, UInt16 length)
         {
             DeviceStatus result = SDInternal.InternalWrite(dataArray, offset, length, writeAddressPtr);
@@ -92,4 +122,5 @@ namespace Samraksh.eMote.DotNow
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public static extern DeviceStatus InternalRead(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 readAddressPtr);
     }
+    // ReSharper restore InconsistentNaming
 }

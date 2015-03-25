@@ -1,17 +1,24 @@
 using System;
-using Microsoft.SPOT;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Samraksh.eMote.DotNow
 {
-
+    // ReSharper disable InconsistentNaming
+    /// <summary>
+    /// File positions
+    /// </summary>
     public enum FilePosition
     {
+        /// <summary>Beginning position</summary>
         Begin,
+        /// <summary>Ending position</summary>
         End,
     }
 
+    /// <summary>
+    /// NOR (on-board) flash 
+    /// </summary>
     public class NOR
     {
         private static UInt32 writeAddressPtr = 0x0;
@@ -28,9 +35,9 @@ namespace Samraksh.eMote.DotNow
         static bool fullFlag = false;
 
         /// <summary>
-        /// Initialize the nor flash
+        /// Initialize NOR flash
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if success</returns>
         public static bool Initialize()
         {
             startOfRecordDelimiter[0] = (UInt16) (startOfRecordInBytes[0] << 8);
@@ -48,6 +55,11 @@ namespace Samraksh.eMote.DotNow
             return InternalInitialize();
         }
 
+        /// <summary>
+        /// Initialize NOR flash to a specified size
+        /// </summary>
+        /// <param name="maxSizeConfig">Maximum size</param>
+        /// <returns>True if success</returns>
         public static bool Initialize(UInt32 maxSizeConfig)
         {
             startOfRecordDelimiter[0] = (UInt16)(startOfRecordInBytes[0] << 8);
@@ -67,11 +79,15 @@ namespace Samraksh.eMote.DotNow
             return InternalInitialize();
         }
 
+        /// <summary>
+        /// Start a new record in NOR
+        /// </summary>
+        /// <returns>True if success</returns>
         public static bool StartNewRecord()
         {
-            DeviceStatus result = DeviceStatus.Fail;
-            long CurrentTimeStamp = DateTime.Now.Ticks;
-            UInt16[] time = new UInt16[4];
+            var result = DeviceStatus.Fail;
+            var CurrentTimeStamp = DateTime.Now.Ticks;
+            var time = new UInt16[4];
 
             if (writeAddressPtr > 0.6 * maxSize)
             {
@@ -99,9 +115,13 @@ namespace Samraksh.eMote.DotNow
                 return false;
         }
 
+        /// <summary>
+        /// Write end of record to NOR
+        /// </summary>
+        /// <returns>True if success</returns>
         public static bool EndRecord()
         {
-            DeviceStatus result = DeviceStatus.Fail;
+            var result = DeviceStatus.Fail;
 
             result = InternalWrite(endOfRecordDelimiter, writeAddressPtr, 2);
 
@@ -118,6 +138,10 @@ namespace Samraksh.eMote.DotNow
                 return false;
         }
 
+        /// <summary>
+        /// Check if NOR is full
+        /// </summary>
+        /// <returns>True if full</returns>
         public static bool IsFull()
         {
             if (fullFlag == false)
@@ -126,11 +150,19 @@ namespace Samraksh.eMote.DotNow
                 return true;
         }
 
+        /// <summary>
+        /// Check if NOR is empty
+        /// </summary>
+        /// <returns>True if empty</returns>
         public static bool IsEmpty()
         {
             return (writeAddressPtr == 0x0);
         }
 
+        /// <summary>
+        /// Seek to specified position in NOR
+        /// </summary>
+        /// <param name="pos">Position to seek</param>
         public static void Seek(FilePosition pos)
         {
             if (pos == FilePosition.Begin)
@@ -144,6 +176,10 @@ namespace Samraksh.eMote.DotNow
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         private extern static bool InternalInitialize();
 
+        /// <summary>
+        /// Write end of file to NOR
+        /// </summary>
+        /// <returns>True if success</returns>
         public static bool eof()
         {
             if (readAddressPtr >= writeAddressPtr)
@@ -152,6 +188,12 @@ namespace Samraksh.eMote.DotNow
                 return false;
         }
 
+        /// <summary>
+        /// Write data to NOR
+        /// </summary>
+        /// <param name="data">Array of data to write</param>
+        /// <param name="length">Amount of data to write</param>
+        /// <returns>True if success</returns>
         public static bool Write(UInt16[] data, UInt16 length)
         {
             if (writeAddressPtr > 0.6 * maxSize)
@@ -159,7 +201,7 @@ namespace Samraksh.eMote.DotNow
                 fullFlag = true;
             }
 
-            DeviceStatus result = InternalWrite(data, writeAddressPtr, length);
+            var result = InternalWrite(data, writeAddressPtr, length);
             
             writeAddressPtr += (UInt32)(length * 2);
 
@@ -172,6 +214,13 @@ namespace Samraksh.eMote.DotNow
             
         }
 
+        /// <summary>
+        /// Write data to NOR
+        /// </summary>
+        /// <param name="data">Array of data to write</param>
+        /// <param name="length">Amount of data to write</param>
+        /// <param name="offset">Offset into array</param>
+        /// <returns>True if success</returns>
         public static bool Write(UInt16[] data, UInt16 length, UInt16 offset)
         {
 
@@ -180,7 +229,7 @@ namespace Samraksh.eMote.DotNow
                 fullFlag = true;
             }
 
-            DeviceStatus result = InternalWrite(data, writeAddressPtr, offset, length);
+            var result = InternalWrite(data, writeAddressPtr, offset, length);
 
             writeAddressPtr += (UInt32)(length * 2);
 
@@ -196,6 +245,12 @@ namespace Samraksh.eMote.DotNow
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         private extern static DeviceStatus InternalWrite(UInt16[] data, UInt32 addressPtr, UInt16 offset, UInt16 length);
 
+        /// <summary>
+        /// Read data from NOR
+        /// </summary>
+        /// <param name="data">Array to receive data</param>
+        /// <param name="length">Amount of data to read</param>
+        /// <returns>Status of operation</returns>
         public static DeviceStatus Read(UInt16[] data, UInt16 length)
         {
             if ((readAddressPtr + (length * 2) > writeAddressPtr) && (readAddressPtr < writeAddressPtr))
@@ -203,7 +258,7 @@ namespace Samraksh.eMote.DotNow
                 length = (UInt16) ((writeAddressPtr - readAddressPtr) / 2);
             }
 
-            DeviceStatus result = InternalRead(data, readAddressPtr, length);
+            var result = InternalRead(data, readAddressPtr, length);
 
             readAddressPtr += (UInt16)(length * 2);
 
@@ -214,6 +269,7 @@ namespace Samraksh.eMote.DotNow
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static DeviceStatus InternalRead(UInt16[] data, UInt32 readAddressPtr, UInt16 length);
-        
+        // ReSharper restore InconsistentNaming
+
     }
 }
