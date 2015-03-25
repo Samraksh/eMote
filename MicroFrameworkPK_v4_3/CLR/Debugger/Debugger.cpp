@@ -347,6 +347,9 @@ HRESULT CLR_DBG_Debugger::CreateListOfCalls( CLR_UINT32 pid, CLR_DBG_Commands::D
 
 bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
 {
+	static UINT64 previousPingTime = 0;
+	UINT64 currentPingTime = Time_GetMachineTime();
+	
     NATIVE_PROFILE_CLR_DEBUGGER();
     bool fStopOnBoot = true;
 	debuggerErasedFlash = false;
@@ -363,6 +366,10 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
     //
     CLR_EE_DBG_SET( Enabled );
 
+	if (currentPingTime < previousPingTime + CPU_MicrosecondsToTicks((UINT64)250000,ADVTIMER_32BIT))
+	{
+		msg->m_header.m_seq++;
+	}
     if((msg->m_header.m_flags & WP_Flags::c_Reply      ) == 0)
     {
         CLR_DBG_Commands::Monitor_Ping::Reply cmdReply;
@@ -389,12 +396,14 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
         // default is to stop the debugger (backwards compatibility)
         fStopOnBoot = (cmdReply != NULL) && (cmdReply->m_dbg_flags & CLR_DBG_Commands::Monitor_Ping::c_Ping_DbgFlag_Stop);
     }
-
+	
     if(CLR_EE_DBG_IS_MASK(State_Initialize, State_Mask))
     {
         if(fStopOnBoot) CLR_EE_DBG_SET(Stopped);
         else            CLR_EE_DBG_CLR(Stopped);
     }
+
+	previousPingTime = currentPingTime;
 
     return true;
 }
@@ -822,7 +831,7 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 
     if (m_deploymentStorageDevice == NULL) return false;
 	
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
     fRet = dbg->AccessMemory( cmd->m_address, cmd->m_length, NULL, AccessMemory_Erase );
 	::Watchdog_ResetCounter();
 	//ENABLE_INTERRUPTS();
