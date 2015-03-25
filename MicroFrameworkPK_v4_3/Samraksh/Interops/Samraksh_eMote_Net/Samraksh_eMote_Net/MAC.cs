@@ -33,11 +33,11 @@ namespace Samraksh.eMote.Net
 
         const byte MaxNeighbors = 255;
 
-        UInt16[] NeighborList = new UInt16[MaxNeighbors];
+		UInt16[] NeighborList = new UInt16[MaxNeighbors];
 
-        byte[] ByteNeighbor = new byte[NeighborSize];
+		byte[] ByteNeighbor = new byte[NeighborSize];
 
-        byte[] MarshalBuffer = new byte[MarshalBufferSize];
+		byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
         /// <summary>Configure MAC (obsolete)</summary>
         /// <value>Accesses MacConfig</value>
@@ -153,10 +153,10 @@ namespace Samraksh.eMote.Net
             MarshalBuffer[2] = config.CCASenseTime;
             MarshalBuffer[3] = config.BufferSize;
             MarshalBuffer[4] = config.RadioID;
-            MarshalBuffer[5] = (byte) (config.NeighborLivelinessDelay & 0xff);
-            MarshalBuffer[6] = (byte)((config.NeighborLivelinessDelay & 0xff00) >> 8);
-            MarshalBuffer[7] = (byte)((config.NeighborLivelinessDelay & 0xff0000) >> 16);
-            MarshalBuffer[8] = (byte)((config.NeighborLivelinessDelay & 0xff000000) >> 24);
+            MarshalBuffer[5] = (byte) (config.NeighborLivenessDelay & 0xff);
+            MarshalBuffer[6] = (byte)((config.NeighborLivenessDelay& 0xff00) >> 8);
+            MarshalBuffer[7] = (byte)((config.NeighborLivenessDelay& 0xff0000) >> 16);
+            MarshalBuffer[8] = (byte)((config.NeighborLivenessDelay& 0xff000000) >> 24);
             // Breaking the object boundary, but shallow instances of the radio can not initialize
             MarshalBuffer[9] = (byte)config.radioConfig.GetTxPower();
             MarshalBuffer[10] = (byte) config.radioConfig.GetChannel();
@@ -219,7 +219,7 @@ namespace Samraksh.eMote.Net
         [Obsolete("Use SetNeighborLivenessDelay instead")]
         public DeviceStatus SetNeighbourLivelinessDelay(UInt32 livelinessDelay)
         {
-            MacConfig.NeighborLivelinessDelay = livelinessDelay;
+            MacConfig.NeighbourLivelinesDelay= livelinessDelay;
 
             return ReConfigure(MacConfig, this.macname);
         }
@@ -228,7 +228,7 @@ namespace Samraksh.eMote.Net
         /// <param name="livenessDelay"></param>
         /// <returns>Result of setting this parameter</returns>
         public DeviceStatus SetNeighborLivelinessDelay(UInt32 livenessDelay) {
-            MacConfig.NeighborLivelinessDelay = livenessDelay;
+            MacConfig.NeighborLivenessDelay = livenessDelay;
 
             return ReConfigure(MacConfig, this.macname);
         }
@@ -237,18 +237,18 @@ namespace Samraksh.eMote.Net
         /// Get the current liveliness delay parameter
         /// </summary>
         /// <returns></returns>
-        [Obsolete("Use GetNeighborLiveness instead")]
+        [Obsolete("Use GetNeighborLivenessDelay instead")]
         public UInt32 GetNeighbourLivelinessDelay()
         {
-            return MacConfig.NeighborLivelinessDelay;
+            return MacConfig.NeighbourLivelinesDelay;
         }
 
         /// <summary>
         /// Get the current liveness delay parameter
         /// </summary>
         /// <returns></returns>
-        public UInt32 GetNeighborLivelinessDelay() {
-            return MacConfig.NeighborLivelinessDelay;
+        public UInt32 GetNeighborLivenessDelay() {
+            return MacConfig.NeighborLivenessDelay;
         }
 
 
@@ -362,52 +362,83 @@ namespace Samraksh.eMote.Net
             return MacConfig.BufferSize;
         }
 
-        /// <summary>Get the list of neighbors from the MAC</summary>
-        /// <returns>An array with the list of active neighbors</returns>
-        public UInt16[] GetNeighborList()
-        {
-            if (GetNeighborListInternal(NeighborList) != DeviceStatus.Success)
-            {
-                Debug.Print("Get NeighborListInternal fails\n");
-                return null;
-            }
+		/// <summary>Get the list of neighbors from the MAC</summary>
+		/// <returns>An array with the list of active neighbors</returns>
+		public UInt16[] GetNeighborList() {
+			if (GetNeighborListInternal(NeighborList) != DeviceStatus.Success) {
+				Debug.Print("Get NeighborListInternal fails\n");
+				return null;
+			}
 
-            return NeighborList;
-        }
+			return NeighborList;
+		}
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
+		/// <summary>Get the list of neighbors from the MAC</summary>
+		/// <returns>An array with the list of active neighbors</returns>
+		[Obsolete("Deprecated. Use GetNeighborList instead")]
+		public UInt16[] GetNeighbourList() {
+			if (GetNeighborListInternal(NeighborList) != DeviceStatus.Success) {
+				Debug.Print("Get NeighborListInternal fails\n");
+				return null;
+			}
+
+			return NeighborList;
+		}
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetNeighborListInternal(UInt16[] neighborlist);
 
 
+	    /// <summary>Get the details for a neighbor</summary>
+	    /// <param name="macAddress">Address of the neighbor</param>
+	    /// <returns>Neighbor</returns>
+	    public Neighbor GetNeighborStatus(UInt16 macAddress) {
+			if (GetNeighborInternal(macAddress, ByteNeighbor) == DeviceStatus.Success) {
+				neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
+				neighbor.ForwardLink.AveRSSI = ByteNeighbor[2]; //ForwardLink
+				neighbor.ForwardLink.LinkQuality = ByteNeighbor[3];
+				neighbor.ForwardLink.AveDelay = ByteNeighbor[4];
+				neighbor.ReverseLink.AveRSSI = ByteNeighbor[5];  //ReverseLink
+				neighbor.ReverseLink.LinkQuality = ByteNeighbor[6];
+				neighbor.ReverseLink.AveDelay = ByteNeighbor[7];
+				neighbor.Status = (NeighborStatus)ByteNeighbor[8];//Status
+				neighbor.PacketsReceived = (UInt16)(((ByteNeighbor[10] << 8) & 0xFF00) + ByteNeighbor[9]);//MacAddress
+				neighbor.LastHeardTime = (UInt64)((ByteNeighbor[18] << 56) + ByteNeighbor[17] << 48 + ByteNeighbor[16] << 40 + ByteNeighbor[15] << 32 + ByteNeighbor[14] << 24 +
+				ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + +ByteNeighbor[11]);//LastTimeHeard
+				neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
+				neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20]);
+				return neighbor;
+			}
 
-        /// <summary>Get the details for a neighbor</summary>
-        /// <param name="macAddress">Address of the neighbor</param>
-        /// <param name="neighbor">Reference to Neighbor object, in whcich the result will be returned</param>
-        /// <returns>Boolen. Success/Failure of operation</returns>
-        public Neighbor GetNeighborStatus(UInt16 macAddress)
-        {
-            if (GetNeighborInternal(macAddress, ByteNeighbor) == DeviceStatus.Success)
-            {
-                neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
-                neighbor.ForwardLink.AveRSSI = ByteNeighbor[2]; //ForwardLink
-                neighbor.ForwardLink.LinkQuality = ByteNeighbor[3];
-                neighbor.ForwardLink.AveDelay = ByteNeighbor[4];
-                neighbor.ReverseLink.AveRSSI = ByteNeighbor[5];  //ReverseLink
-                neighbor.ReverseLink.LinkQuality = ByteNeighbor[6];
-                neighbor.ReverseLink.AveDelay = ByteNeighbor[7];
-                neighbor.Status = (NeighborStatus)ByteNeighbor[8];//Status
-                neighbor.PacketsReceived = (UInt16)(((ByteNeighbor[10] << 8) & 0xFF00) + ByteNeighbor[9]);//MacAddress
-                neighbor.LastHeardTime = (UInt64)((ByteNeighbor[18] << 56) + ByteNeighbor[17] << 48 + ByteNeighbor[16] << 40 + ByteNeighbor[15] << 32 + ByteNeighbor[14] << 24 +
-                ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + +ByteNeighbor[11]);//LastTimeHeard
-                neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
-                neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20]);
-                return neighbor;
-            }
+			return null;
+		}
 
-            return null;
-        }
+	    /// <summary>Get the details for a neighbor</summary>
+	    /// <param name="macAddress">Address of the neighbor</param>
+		/// <returns>Neighbor</returns>
+	    [Obsolete("Deprecated. Use GetNeighborStatus instead")]
+		public Neighbor GetNeighbourStatus(UInt16 macAddress) {
+			if (GetNeighborInternal(macAddress, ByteNeighbor) == DeviceStatus.Success) {
+				neighbor.MacAddress = (UInt16)(((UInt16)(ByteNeighbor[1] << 8) & 0xFF00) + (UInt16)ByteNeighbor[0]);//MacAddress
+				neighbor.ForwardLink.AveRSSI = ByteNeighbor[2]; //ForwardLink
+				neighbor.ForwardLink.LinkQuality = ByteNeighbor[3];
+				neighbor.ForwardLink.AveDelay = ByteNeighbor[4];
+				neighbor.ReverseLink.AveRSSI = ByteNeighbor[5];  //ReverseLink
+				neighbor.ReverseLink.LinkQuality = ByteNeighbor[6];
+				neighbor.ReverseLink.AveDelay = ByteNeighbor[7];
+				neighbor.Status = (NeighborStatus)ByteNeighbor[8];//Status
+				neighbor.PacketsReceived = (UInt16)(((ByteNeighbor[10] << 8) & 0xFF00) + ByteNeighbor[9]);//MacAddress
+				neighbor.LastHeardTime = (UInt64)((ByteNeighbor[18] << 56) + ByteNeighbor[17] << 48 + ByteNeighbor[16] << 40 + ByteNeighbor[15] << 32 + ByteNeighbor[14] << 24 +
+				ByteNeighbor[13] << 16 + ByteNeighbor[12] << 8 + +ByteNeighbor[11]);//LastTimeHeard
+				neighbor.ReceiveDutyCycle = ByteNeighbor[19];//ReceiveDutyCycle
+				neighbor.FrameLength = (UInt16)(((ByteNeighbor[21] << 8) & 0xFF00) + ByteNeighbor[20]);
+				return neighbor;
+			}
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
+			return null;
+		}
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetNeighborInternal(UInt16 macAddress, byte[] byte_nbr);
 
         /// <summary>Get the ID of this CSMA instance</summary>
@@ -464,32 +495,51 @@ namespace Samraksh.eMote.Net
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus UnInitialize();
 
-        /// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
-        /// <param name="config">MAC configuration to use</param>
-        /// <param name="callback"></param>
-        /// <param name="receiveCallback">Method to call when message received</param>
-        /// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
-        /// <returns>Status of operation</returns>
-        public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback)
-        {
-            if (MacConfig == null)
-            {
-                MacConfig = new MacConfiguration(config);
-                Callbacks.SetReceiveCallback(receiveCallback);
-                Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
-                
-                // Configure the radio 
-                if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
-                    return DeviceStatus.Busy;
+		/// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
+		/// <param name="config">MAC configuration to use</param>
+		/// <param name="receiveCallback">Method to call when message received</param>
+		/// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
+		/// <returns>Status of operation</returns>
+		public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback) {
+			if (MacConfig == null) {
+				MacConfig = new MacConfiguration(config);
+				Callbacks.SetReceiveCallback(receiveCallback);
+				Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
 
-            }
-            else
-            {
-                // Return busy if the mac configuration is busy
-                return DeviceStatus.Busy;
-            }
+				// Configure the radio 
+				if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
+					return DeviceStatus.Busy;
+			}
+			else {
+				// Return busy if the mac configuration is busy
+				return DeviceStatus.Busy;
+			}
+			return DeviceStatus.Success;
+		}
 
-            return DeviceStatus.Success;
-        }
-    }
+	    /// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
+	    /// <param name="config">MAC configuration to use</param>
+	    /// <param name="receiveCallback">Method to call when message received</param>
+	    /// <param name="neighborChangeCallback">Method to call when neighborhood changed.</param>
+	    /// <returns>Status of operation</returns>
+	    [Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead.")]
+		public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighbourhoodChangeCallBack neighborChangeCallback) {
+			if (MacConfig == null) {
+				MacConfig = new MacConfiguration(config);
+				Callbacks.SetReceiveCallback(receiveCallback);
+				Callbacks.SetNeighbourChangeCallback(neighborChangeCallback);
+
+				// Configure the radio 
+				if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
+					return DeviceStatus.Busy;
+
+			}
+			else {
+				// Return busy if the mac configuration is busy
+				return DeviceStatus.Busy;
+			}
+
+			return DeviceStatus.Success;
+		}
+	}
 }

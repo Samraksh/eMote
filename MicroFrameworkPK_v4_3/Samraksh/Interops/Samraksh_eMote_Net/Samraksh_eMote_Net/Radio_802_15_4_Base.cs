@@ -325,22 +325,36 @@ namespace Samraksh.eMote.Net.Radio
         private extern DeviceStatus InternalInitialize(byte[] config);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
 
 
-        /// <summary>Set configuration for 802.15.4 radio.</summary>
-        /// <param name="config">Configuration to use</param>
-        /// <param name="rcallback">Message receive callback</param>
-        /// <param name="ncallback">Neighbor change callback</param>
-        /// <returns>Status of operation</returns>
-        public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighborhoodChangeCallBack ncallback)
-        {
-            Radio_802_15_4_Base.Config = new RadioConfiguration(config);
-            Callbacks.SetReceiveCallback(rcallback);
-            Callbacks.SetNeighborChangeCallback(ncallback);
+		/// <summary>Set configuration for 802.15.4 radio.</summary>
+		/// <param name="config">Configuration to use</param>
+		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="ncallback">Neighbor change callback</param>
+		/// <returns>Status of operation</returns>
+		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighborhoodChangeCallBack ncallback) {
+			Radio_802_15_4_Base.Config = new RadioConfiguration(config);
+			Callbacks.SetReceiveCallback(rcallback);
+			Callbacks.SetNeighborChangeCallback(ncallback);
 
-            return DeviceStatus.Success;
+			return DeviceStatus.Success;
 
-        }
+		}
 
-        /// <summary>
+		/// <summary>Set configuration for 802.15.4 radio.</summary>
+		/// <param name="config">Configuration to use</param>
+		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="ncallback">Neighbor change callback</param>
+		/// <returns>Status of operation</returns>
+		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
+		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback) {
+			Radio_802_15_4_Base.Config = new RadioConfiguration(config);
+			Callbacks.SetReceiveCallback(rcallback);
+			Callbacks.SetNeighbourChangeCallback(ncallback);
+
+			return DeviceStatus.Success;
+
+		}
+
+		/// <summary>
         /// Set Radio configuration for 802.15.4 radio.
         /// </summary>
         /// <param name="config">Configuration to use</param>

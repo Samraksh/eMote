@@ -15,6 +15,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 {
     static const int FIELD_STATIC___receiveCallBack = 0;
     static const int FIELD_STATIC___neighborChangeCallBack = 1;
+    static const int FIELD_STATIC___neighbourChangeCallBack = 2;
 
 
     //--//
@@ -23,9 +24,9 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 {
-    static const int FIELD_STATIC__MacConfig = 2;
-    static const int FIELD_STATIC__neighbor = 3;
-    static const int FIELD_STATIC__dataBuffer = 4;
+    static const int FIELD_STATIC__MacConfig = 3;
+    static const int FIELD_STATIC__neighbor = 4;
+    static const int FIELD_STATIC__dataBuffer = 5;
 
     static const int FIELD__NeighborList = 1;
     static const int FIELD__ByteNeighbor = 2;
@@ -56,8 +57,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_CSMA
 {
-    static const int FIELD_STATIC__instance = 5;
-    static const int FIELD_STATIC__syncObject = 6;
+    static const int FIELD_STATIC__instance = 6;
+    static const int FIELD_STATIC__syncObject = 7;
 
 
     //--//
@@ -82,7 +83,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MacConfiguration
     static const int FIELD__CCASenseTime = 3;
     static const int FIELD__BufferSize = 4;
     static const int FIELD__RadioID = 5;
-    static const int FIELD__NeighborLivelinessDelay = 6;
+    static const int FIELD__NeighborLivenessDelay = 6;
     static const int FIELD__radioConfig = 7;
 
 
@@ -116,6 +117,32 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighborTable
 
 };
 
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Neighbour
+{
+    static const int FIELD__MacAddress = 1;
+    static const int FIELD__ForwardLink = 2;
+    static const int FIELD__ReverseLink = 3;
+    static const int FIELD__Status = 4;
+    static const int FIELD__PacketsReceived = 5;
+    static const int FIELD__LastHeardTime = 6;
+    static const int FIELD__ReceiveDutyCycle = 7;
+    static const int FIELD__FrameLength = 8;
+
+
+    //--//
+
+};
+
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighbourTable
+{
+    static const int FIELD__NumberValidNeighbour = 1;
+    static const int FIELD__Neighbor = 2;
+
+
+    //--//
+
+};
+
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
 {
     static const int FIELD__RSSI = 1;
@@ -134,8 +161,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_OMAC
 {
-    static const int FIELD_STATIC__instance = 7;
-    static const int FIELD_STATIC__syncObject = 8;
+    static const int FIELD_STATIC__instance = 8;
+    static const int FIELD_STATIC__syncObject = 9;
 
 
     //--//
@@ -155,8 +182,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 {
-    static const int FIELD_STATIC__Config = 9;
-    static const int FIELD_STATIC__CurrUser = 10;
+    static const int FIELD_STATIC__Config = 10;
+    static const int FIELD_STATIC__CurrUser = 11;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__message = 6;
@@ -189,8 +216,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__instance = 11;
-    static const int FIELD_STATIC__syncObject = 12;
+    static const int FIELD_STATIC__instance = 12;
+    static const int FIELD_STATIC__syncObject = 13;
 
 
     //--//
@@ -199,8 +226,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_LR
 {
-    static const int FIELD_STATIC__instance = 13;
-    static const int FIELD_STATIC__syncObject = 14;
+    static const int FIELD_STATIC__instance = 14;
+    static const int FIELD_STATIC__syncObject = 15;
 
 
     //--//
