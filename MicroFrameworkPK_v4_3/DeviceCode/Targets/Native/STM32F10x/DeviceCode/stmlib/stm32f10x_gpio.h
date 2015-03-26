@@ -142,6 +142,7 @@ typedef enum
 #define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< Pin 15 selected */
 #define GPIO_Pin_All               ((uint16_t)0xFFFF)  /*!< All pins selected */
 
+
 #define IS_GPIO_PIN(PIN) ((((PIN) & (uint16_t)0x00) == 0x00) && ((PIN) != (uint16_t)0x00))
 
 #define IS_GET_GPIO_PIN(PIN) (((PIN) == GPIO_Pin_0) || \

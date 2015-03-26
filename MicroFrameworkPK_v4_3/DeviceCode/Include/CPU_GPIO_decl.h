@@ -5,6 +5,7 @@
 #ifndef _DRIVERS_GPIO_DECL_H_
 #define _DRIVERS_GPIO_DECL_H_ 1
 
+
 //--//
 
 #define GPIO_PIN_NONE               0xFFFFFFFF
