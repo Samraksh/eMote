@@ -611,12 +611,14 @@ void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 
 UINT8 CPU_GPIO_GetSupportedResistorModes( GPIO_PIN Pin )
 {
-	return g_STM32F10x_Gpio_Driver.c_GPIO_ResistorMode;
+	//return g_STM32F10x_Gpio_Driver.c_GPIO_ResistorMode;
+	return ((1<<RESISTOR_DISABLED) | (1<<RESISTOR_PULLUP) | (1 << RESISTOR_PULLDOWN));
 }
 
 UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 {
-    return g_STM32F10x_Gpio_Driver.c_GPIO_InterruptMode;
+    //return g_STM32F10x_Gpio_Driver.c_GPIO_InterruptMode;
+    return ((1<<GPIO_INT_EDGE_LOW) | (1<<GPIO_INT_EDGE_HIGH ) | (1<<GPIO_INT_EDGE_BOTH));
 }
 
 
