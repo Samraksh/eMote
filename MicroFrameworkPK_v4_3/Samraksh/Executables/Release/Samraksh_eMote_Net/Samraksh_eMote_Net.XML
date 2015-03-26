@@ -436,13 +436,6 @@
             <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Configure(Samraksh.eMote.Net.Mac.MacConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighbourhoodChangeCallBack)">
-            <summary>Configure the MAC object. Must be called before a call to get instance</summary>
-            <param name="config">MAC configuration to use</param>
-            <param name="receiveCallback">Method to call when message received</param>
-            <param name="neighborChangeCallback">Method to call when neighborhood changed.</param>
-            <returns>Status of operation</returns>
-        </member>
         <member name="P:Samraksh.eMote.Net.MACBase.macconfig">
             <summary>Configure MAC (obsolete)</summary>
             <value>Accesses MacConfig</value>

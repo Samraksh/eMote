@@ -15,7 +15,6 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Sam
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.pdb
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Release\Samraksh_eMote_Net.XML
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\TinyCLR_DebugReferences.cache
 C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.csprojResolveAssemblyReference.cache
 C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\TinyCLR_DebugReferences.cache
 C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.dll
@@ -36,3 +35,4 @@ C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Sam
 C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\le\Samraksh_eMote_Net.pe
 C:\SamrakshGit\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\le\Samraksh_eMote_Net.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.csprojResolveAssemblyReference.cache
+D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\TinyCLR_DebugReferences.cache

@@ -516,30 +516,5 @@ namespace Samraksh.eMote.Net
 			}
 			return DeviceStatus.Success;
 		}
-
-	    /// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
-	    /// <param name="config">MAC configuration to use</param>
-	    /// <param name="receiveCallback">Method to call when message received</param>
-	    /// <param name="neighborChangeCallback">Method to call when neighborhood changed.</param>
-	    /// <returns>Status of operation</returns>
-	    [Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead.")]
-		public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighbourhoodChangeCallBack neighborChangeCallback) {
-			if (MacConfig == null) {
-				MacConfig = new MacConfiguration(config);
-				Callbacks.SetReceiveCallback(receiveCallback);
-				Callbacks.SetNeighbourChangeCallback(neighborChangeCallback);
-
-				// Configure the radio 
-				if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
-					return DeviceStatus.Busy;
-
-			}
-			else {
-				// Return busy if the mac configuration is busy
-				return DeviceStatus.Busy;
-			}
-
-			return DeviceStatus.Success;
-		}
 	}
 }
