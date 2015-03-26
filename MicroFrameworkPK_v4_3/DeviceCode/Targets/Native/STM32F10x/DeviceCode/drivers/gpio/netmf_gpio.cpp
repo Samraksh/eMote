@@ -34,7 +34,7 @@ uint16_t GPIO_GetPin(GPIO_PIN Pin);
 const uint GPIO_PORTS = STM32F10x_GPIO_Driver::c_MaxPorts;
 const uint GPIO_PPP = STM32F10x_GPIO_Driver::c_PinsPerPort;
 const uint GPIO_PINS = STM32F10x_GPIO_Driver::c_MaxPins;
-//static BOOL gpioDriverInitialized = FALSE;
+
 
 GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
 UINT32 EXTILines[NUMBER_OF_EXTI_LINES] = {EXTI_Line0,EXTI_Line1,EXTI_Line2,EXTI_Line3,EXTI_Line4,EXTI_Line5,EXTI_Line6,EXTI_Line7,
@@ -229,44 +229,11 @@ HAL_CALLBACK_FPN GPIO_GetCallBack(GPIO_PIN Pin)
 // Initialize the ports GPIOA .... GPIOG of the Emote
 BOOL CPU_GPIO_Initialize()
 {
-	/*UINT16 port;
-	UINT16 pin;
-	STM32F10x_GPIO_Driver::PIN_ISR_DESCRIPTOR* pinIsr = g_STM32F10x_Gpio_Driver.m_pinIsr;
-
-	if(gpioDriverInitialized)
-		return TRUE;*/
-
 	// Configure clock source for all gpio ports
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
 										RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | RCC_APB2Periph_AFIO, ENABLE);
 
-	/*// Initialize all the pins in all the ports to the following configuration
-	// - Input Floating
-	// - 2 MHZ (consumes the least power)
-	int ik = 0;
-
-	for(port = 0; port < GPIO_PORTS; port++)
-	{
-		g_STM32F10x_Gpio_Driver.m_pinReservationInfo[port] = 0;
-	}
-
-	// Initialize the isr structure for each of the pins
-	for(pin = 0; pin < GPIO_PINS; pin++)
-	{
-		pinIsr->m_pin     = pin;
-		pinIsr->m_intEdge = GPIO_INT_NONE;
-		pinIsr->m_isr     = STUB_GPIOISRVector;
-		pinIsr->m_param   = NULL;
-
-		pinIsr++;
-
-		//CPU_GPIO_EnableOutputPin((GPIO_PIN) pin, FALSE);
-	}
-
-	gpioDriverInitialized = TRUE;*/
-
 	return TRUE;
-
 }
 
 BOOL CPU_GPIO_Uninitialize()
@@ -523,19 +490,6 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 		GPIO_WriteBit(port, pinInHex, Bit_RESET);
 	}
 }
-
-
-/*void CPU_GPIO_SetPinState( uint8_t GPIO_PortSource, GPIO_PIN Pin, BOOL PinState )
-{
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
-		return;
-
-	if(PinState) {
-		GPIO_WriteBit(GPIO_PORT_ARRAY[GPIO_PortSource], GPIO_GetPin(Pin), Bit_SET);
-	} else {
-		GPIO_WriteBit(GPIO_PORT_ARRAY[GPIO_PortSource], GPIO_GetPin(Pin), Bit_RESET);
-	}
-}*/
 
 
 // Check if the pin is busy or in use, takes the Pin number as the input argument
