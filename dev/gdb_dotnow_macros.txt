@@ -24,3 +24,14 @@ end
 define soft
 monitor soft_reset_halt
 end
+
+define di
+monitor dump_image dump.bin 0x8000000 1048576
+end
+
+define wi
+mrh
+mass
+mrh
+monitor flash write_image dump.bin 0x8000000 bin
+end
