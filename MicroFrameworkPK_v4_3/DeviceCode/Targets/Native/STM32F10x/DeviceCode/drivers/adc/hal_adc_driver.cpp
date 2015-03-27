@@ -256,8 +256,7 @@ void ADC_GPIO_Configuration(void)
 	/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	//GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_ConfigurePin(GPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_InitStructure.GPIO_Mode);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)

@@ -27,13 +27,13 @@ BOOL HAL_CONFIG_BLOCK::IsGoodBlock() const
     DEBUG_TRACE2( TRACE_CONFIG, "read header CRC=0x%08x at %08x\r\n", HeaderCRC, (size_t)this );
 
     // what is the header's CRC
-    UINT32 CRCValue = SUPPORT_ComputeCRC( ((UINT8*)&DataCRC), sizeof(*this) - offsetof(HAL_CONFIG_BLOCK,DataCRC), c_Seed );
+    UINT32 CRC = SUPPORT_ComputeCRC( ((UINT8*)&DataCRC), sizeof(*this) - offsetof(HAL_CONFIG_BLOCK,DataCRC), c_Seed );
 
-    DEBUG_TRACE1(TRACE_CONFIG, "calc header CRC=0x%08x\r\n", CRCValue);
+    DEBUG_TRACE1(TRACE_CONFIG, "calc header CRC=0x%08x\r\n", CRC);
 
-    if(CRCValue != HeaderCRC)
+    if(CRC != HeaderCRC)
     {
-        DEBUG_TRACE3( TRACE_ALWAYS, "FAILED HEADER CRC at %08x: 0x%08x != 0x%08x\r\n", (size_t)this, CRCValue, HeaderCRC );
+        DEBUG_TRACE3( TRACE_ALWAYS, "FAILED HEADER CRC at %08x: 0x%08x != 0x%08x\r\n", (size_t)this, CRC, HeaderCRC );
         return FALSE;
     }
 
@@ -45,13 +45,13 @@ BOOL HAL_CONFIG_BLOCK::IsGoodData() const
     DEBUG_TRACE1( TRACE_CONFIG, "read Size=%5d\r\n", Size );
 
     // what is the blob's CRC
-    UINT32 CRCValue = SUPPORT_ComputeCRC( Data(), Size, 0 );
+    UINT32 CRC = SUPPORT_ComputeCRC( Data(), Size, 0 );
 
-    DEBUG_TRACE1( TRACE_CONFIG, "calc blob CRC=0x%08x\r\n", CRCValue );
+    DEBUG_TRACE1( TRACE_CONFIG, "calc blob CRC=0x%08x\r\n", CRC );
 
     // this indicates that this record has been marked as invalid, but still allows the helper to move
     // to the next record.
-    if(CRCValue != DataCRC)
+    if(CRC != DataCRC)
     {
         return FALSE;
     }

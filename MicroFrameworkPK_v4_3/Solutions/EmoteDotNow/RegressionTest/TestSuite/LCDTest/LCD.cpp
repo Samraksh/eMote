@@ -13,6 +13,7 @@ EmoteDotNow_LCD_Driver::EmoteDotNow_LCD_Driver(){
 
 bool EmoteDotNow_LCD_Driver::Initialize()
 {
+	GPIO_InitTypeDef GPIO_InitStructure;
 	I2C_InitTypeDef I2C_InitStruct;
 
 	GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
@@ -20,11 +21,16 @@ bool EmoteDotNow_LCD_Driver::Initialize()
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 	RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
 
-	CPU_GPIO_ConfigurePin(GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  	GPIO_Init(GPIOB, &GPIO_InitStructure);
   	GPIO_WriteBit(GPIOB, GPIO_Pin_12, Bit_SET);
 
-	CPU_GPIO_ConfigurePin(GPIO_Pin_6, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
-	CPU_GPIO_ConfigurePin(GPIO_Pin_7, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+ 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+  	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+  	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
  	I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
   	I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;

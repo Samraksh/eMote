@@ -14,7 +14,6 @@
 #define CHECK_BIT(var, pos)	((var) & (1<<(pos)))
 
 P30BF65NOR_Driver gNORDriver;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 // Initializes the FSMC, the address and data lines and enables the clocks, also turns on FLASH_RESET pin  for the emoteDotNow
 // Returns DS_Fail in the event we are unable to read the manufacture id at the end of the initialization else returns success
@@ -35,38 +34,44 @@ DeviceStatus P30BF65NOR_Driver::Initialize(void)
 	  /*!< NOR Data lines configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_8 | GPIO_Pin_9 |
 	                                GPIO_Pin_10 | GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_ConfigurePin(GPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+	  GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 |
 	                                GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 |
 	                                GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_ConfigurePin(GPIOE, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOE, &GPIO_InitStructure);
 
 	  /*!< NOR Address lines configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |
 	                                GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_12 | GPIO_Pin_13 |
 	                                GPIO_Pin_14 | GPIO_Pin_15;
-	  GPIO_ConfigurePin(GPIOF, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOF, &GPIO_InitStructure);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 |
 	                                GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
-	  GPIO_ConfigurePin(GPIOG, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOG, &GPIO_InitStructure);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
-	  GPIO_ConfigurePin(GPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
-	  GPIO_ConfigurePin(GPIOE, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOE, &GPIO_InitStructure);
 
 	  /*!< NOE and NWE configuration */
 	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
-	  GPIO_ConfigurePin(GPIOD, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	  /*!< NE2 configuration */
-	  GPIO_ConfigurePin(GPIOG, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	  GPIO_Init(GPIOG, &GPIO_InitStructure);
 
 	  /*!< Configure PD6 for NOR memory Ready/Busy signal */
-	  GPIO_ConfigurePin(GPIOD, GPIO_Pin_6, GPIO_Mode_IN_FLOATING, GPIO_Speed_50MHz);
+	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+	  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	  GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	  /*-- FSMC Configuration ----------------------------------------------------*/
 	  p.FSMC_AddressSetupTime = 0x02;

@@ -15,7 +15,6 @@
 #include <stm32f10x.h>
 #include "stm32_eval_sdio_sd.h"
 #include <Samraksh/Hal_util.h>
-#include <gpio\netmf_gpio.h>
 
 
 typedef void (*SDIOStatusFuncPtrType) (DeviceStatus status);

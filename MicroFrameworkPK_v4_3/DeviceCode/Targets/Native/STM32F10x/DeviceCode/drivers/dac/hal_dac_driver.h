@@ -9,7 +9,6 @@
 #define HAL_DAC_DRIVER_H_
 
 #include <stm32f10x.h>
-#include <gpio\netmf_gpio.h>
 
 
 void hal_dac_init();

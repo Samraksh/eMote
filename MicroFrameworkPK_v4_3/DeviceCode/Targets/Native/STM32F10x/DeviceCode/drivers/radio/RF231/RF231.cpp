@@ -4,8 +4,6 @@
 
 //#define DEBUG_RF231 1
 
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
-
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -274,9 +272,9 @@ DeviceStatus RF231Radio::Reset()
 
 	// Enable the gpio pin as the interrupt point
 	if(this->GetRadioName() == RF231RADIO)
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 	else if(this->GetRadioName() == RF231RADIOLR)
-		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
 	SlptrSet();
@@ -732,6 +730,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 			// Enable the amp pin
 			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_LR, FALSE);
+
 		}
 
 		//Get cpu serial and hash it to use as node id
@@ -885,13 +884,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 		// Enable the gpio pin as the interrupt point
-		if(this->GetRadioName() == RF231RADIO){
-			CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-		}
-		else if(this->GetRadioName() == RF231RADIOLR){
-			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-			GPIO_ConfigurePin(GPIOB, (GPIO_PIN)12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
-		}
+		if(this->GetRadioName() == RF231RADIO)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN,FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
+		else if(this->GetRadioName() == RF231RADIOLR)
+			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR,FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 		SlptrSet();
 #ifdef DEBUG_RF231

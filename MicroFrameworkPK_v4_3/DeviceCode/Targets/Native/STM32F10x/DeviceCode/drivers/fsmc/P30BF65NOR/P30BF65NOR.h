@@ -11,7 +11,6 @@
 #include <stm32f10x.h>
 
 #include <Samraksh\HAL_util.h>
-#include <gpio\netmf_gpio.h>
 
 //#define NOR_DEBUGGING_ENABLED
 
