@@ -424,7 +424,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="tinycrt_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\TinyCRT\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="virtualkey_hal_stubs.$(LIB_EXT)" />
