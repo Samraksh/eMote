@@ -41,4 +41,11 @@ struct Time_Driver
 
 extern Time_Driver g_Time_Driver;
 
+// Profile delays related to setting the hal system event timer.
+#if defined(DEBUG_EMOTE_TIME)
+extern volatile UINT64 badComparesCount;
+extern volatile UINT64 badComparesAvg;
+extern volatile UINT64 badComparesMax;
+#endif
+
 #endif //__NETMF_TIME_DRIVER__

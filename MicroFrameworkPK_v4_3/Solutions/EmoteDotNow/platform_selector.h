@@ -134,6 +134,8 @@
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
 //#define BUILD_RTM
 
+//#define DEBUG_EMOTE_TIME     // record delay when HAL_Time_SetCompare is asked to compare against a time in the past
+
 //#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
 //#define DOTNOW_HSI_CALIB
