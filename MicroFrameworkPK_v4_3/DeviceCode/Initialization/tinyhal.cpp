@@ -514,12 +514,12 @@ mipi_dsi_shutdown();
     *ptr = *ptr +4;
 #endif
 
-/*
-#if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT)
+
+#if !defined(BUILD_RTM) && !defined(PLATFORM_ARM_OS_PORT) && defined(DEBUG)
     {
         int  marker;
         int* ptr = &marker - 1; // This will point to the current top of the stack.
-        int* end = &StackBottom;
+        int* end = (int*)SAM_STACK_BOTTOM;
 
         while(ptr >= end)
         {
@@ -527,7 +527,7 @@ mipi_dsi_shutdown();
         }
     }
 #endif
-*/
+
     // these are needed for patch access
 
 #if defined(TARGETLOCATION_RAM)
