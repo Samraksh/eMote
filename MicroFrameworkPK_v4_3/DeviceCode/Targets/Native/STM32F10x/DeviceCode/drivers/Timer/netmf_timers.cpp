@@ -45,6 +45,12 @@ static void ISR( void* Param );
 //BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 BOOL CPU_Timer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 {
+    // assumptions about clock settings used in optimizations. TODO: use static assert.
+    ASSERT(CLOCK_COMMON_FACTOR == 1000000);
+    ASSERT(g_HardwareTimerFrequency[0] == 8000000);
+    ASSERT(ONE_MHZ == 1000000);
+    ASSERT(SLOW_CLOCKS_PER_SECOND == 48000000);
+
 	// Make sure timer input is not 0 in case macro is not defined or the timer is not trying to
 	// re initialize the system  timer
 
@@ -399,7 +405,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
 		Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
 		//Ticks32 /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
-		Ticks32 /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
+		Ticks32 >> 8; // /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
 		return Ticks32;
 	}
 }
@@ -409,10 +415,7 @@ UINT64 CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer )
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		UINT64 Ticks;
-		Ticks = mSec * (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_MILLISECOND_GCD);
-		// Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intemediate stages
-		//Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
-		Ticks = (Ticks * SLOW_CLOCKS_MILLISECOND_GCD)/ 1000;
+		Ticks = mSec * (SLOW_CLOCKS_PER_SECOND/ 1000);
 		return Ticks;
 	}
 	else if(Timer == ADVTIMER_32BIT)
@@ -429,7 +432,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 	{
 		UINT64 Ticks;
 		Ticks  = (UINT64)mSec * (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_MILLISECOND_GCD);
-		// Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intemediate stages
+		// Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intermediate stages
 		//Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
 		Ticks = (Ticks * SLOW_CLOCKS_MILLISECOND_GCD)/ 1000;
 		return Ticks;
@@ -446,24 +449,32 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		return (ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+		return (ticks >> 4) / 3; //(ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+		return ticks >> 3; //((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
 	}
 }
 
 UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
 {
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
-	{
-		return (ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
-	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
-	}
+    UINT32 ret;
+    switch(Timer)
+    {
+    case ADVTIMER_32BIT:
+        ret = ticks >> 3;  // ticks * CLOCK_COMMON_FACTOR / g_HardwareTimerFrequency[0];
+        break;
+    case TIMER1_16BIT:
+        // fall through to TIMER2_16BIT
+    case TIMER2_16BIT:
+		ret = ticks / 48;  // ticks * ONE_MHZ / SLOW_CLOCKS_PER_SECOND; //TODO: ensure compiler emits division (single-cycle on STM32F103xG)
+		break;
+    default:
+        ASSERT(FALSE);
+        ret = 0;
+    }
+    return ret;
 }
 
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
