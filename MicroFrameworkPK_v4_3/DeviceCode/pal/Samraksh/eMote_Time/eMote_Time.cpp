@@ -101,7 +101,7 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 
 	if(compareTicks < 0xFFFFFFFF)
 	{
-		compareTimeInMicroSecs = (UINT32)(CPU_TicksToMicroseconds(compareTicks, 1));
+		compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
 	}
 	else
 	{
