@@ -379,10 +379,7 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		////return Ticks;
-		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
 		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		//Ticks /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
 		Ticks /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
 		return Ticks;
 	}
@@ -401,11 +398,15 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		////return Ticks32;
-		//AnanthAtSamraksh -- took this from CPU_SystemClocksToMicroseconds
-		Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		//Ticks32 /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
-		Ticks32 >> 8; // /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
+		// this reduces to multiplying by 1 if CLOCK_COMMON_FACTOR == 1000000
+		if (CLOCK_COMMON_FACTOR != 1000000){
+			Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);				 
+		}
+		if (g_HardwareTimerFrequency[0] == 8000000){
+			Ticks32 >> 3;
+		} else {
+			Ticks32 /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
+		}
 		return Ticks32;
 	}
 }
@@ -431,10 +432,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		UINT64 Ticks;
-		Ticks  = (UINT64)mSec * (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_MILLISECOND_GCD);
-		// Nived.Sivadas - rewriting to avoid possibility of floating point arithmetic in intermediate stages
-		//Ticks /= (1000                  /SLOW_CLOCKS_MILLISECOND_GCD);
-		Ticks = (Ticks * SLOW_CLOCKS_MILLISECOND_GCD)/ 1000;
+		Ticks = mSec * (SLOW_CLOCKS_PER_SECOND/ 1000);
 		return Ticks;
 	}
 	else if(Timer == ADVTIMER_32BIT)
@@ -449,11 +447,19 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		return (ticks >> 4) / 3; //(ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+		if (SLOW_CLOCKS_PER_SECOND == 48000000){
+			return (ticks >> 4) / 3; //(ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+		} else {
+			return (ticks * (ONE_MHZ / SLOW_CLOCKS_PER_SECOND));
+		}
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		return ticks >> 3; //((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+		if (g_HardwareTimerFrequency[0] == 8000000){
+			return ticks >> 3;
+		} else {
+			return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+		}		 
 	}
 }
 
@@ -463,7 +469,12 @@ UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
     switch(Timer)
     {
     case ADVTIMER_32BIT:
-        ret = ticks >> 3;  // ticks * CLOCK_COMMON_FACTOR / g_HardwareTimerFrequency[0];
+		if (g_HardwareTimerFrequency[0] == 8000000)
+		{
+        	ret = ticks >> 3;
+		} else {
+			ret = ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+		}
         break;
     case TIMER1_16BIT:
         // fall through to TIMER2_16BIT
