@@ -17,7 +17,7 @@
 
 using namespace Samraksh::eMote::NonVolatileMemory;
 
-typedef enum DATASTORE_RETURN_STATUS
+enum DATASTORE_RETURN_STATUS
 {
 	Success = 0,
 	Failure = -1,

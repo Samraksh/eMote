@@ -33,7 +33,7 @@
     <Required>False</Required>
     <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
     <IsStub>False</IsStub>
-    <Directory>DeviceCode\pal\DataStore</Directory>
+    <Directory>DeviceCode\pal\Samraksh\DataStore</Directory>
     <OutputType>Library</OutputType>
     <PlatformIndependentBuild>false</PlatformIndependentBuild>
     <Version>4.0.0.0</Version>
