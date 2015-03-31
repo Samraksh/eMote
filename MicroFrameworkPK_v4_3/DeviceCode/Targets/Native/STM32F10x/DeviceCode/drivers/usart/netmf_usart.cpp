@@ -342,9 +342,10 @@ void __irq USART1_IRQHandler() {
 	volatile unsigned int dummy;
 
 	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-
+	GLOBAL_LOCK(irq);
 	SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 	SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+
 	
 	status = USART1->SR; // check status reg
 	
@@ -382,6 +383,7 @@ void __irq USART1_IRQHandler() {
 			idx=0;
 		}
 	}
+	irq.Release();
 
 	// MF signals if there is TX work by toggling the interrupt enable
 	// So we check it and don't do anything if it isn't set
@@ -398,6 +400,7 @@ void __irq USART1_IRQHandler() {
 		}
 	}
 	
+	irq.Acquire();
 	SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
 	SystemState_ClearNoLock( SYSTEM_STATE_ISR              );
 	//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
