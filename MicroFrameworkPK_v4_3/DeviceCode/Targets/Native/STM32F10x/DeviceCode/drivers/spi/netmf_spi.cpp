@@ -50,6 +50,41 @@ SPI_TypeDef* SPI_mod;
 //indicates the SPI peripheral initialized
 int SPI_Initialized[] = {0};
 
+const UINT32 TIMEOUT = 0x00400000; \
+
+#if defined(DEBUG_SAM_SPI)
+volatile UINT64 spiSpinWaitCount = 0;
+volatile UINT64 spiSpinWaitAvg = 0;
+volatile UINT64 spiSpinWaitMax = 0;
+volatile UINT64 spiSpinWaitFailureCount = 0;
+
+#define TIMEOUT_WAIT(x) { \
+    volatile UINT32 itr_time = 0; \
+    while((x) && ++itr_time < TIMEOUT ) {__NOP();}; \
+    if(itr_time >= TIMEOUT) { ++spiSpinWaitFailureCount; ASSERT(0); } \
+    ++spiSpinWaitCount; \
+    if(spiSpinWaitMax < itr_time) { spiSpinWaitMax = itr_time;}; \
+    spiSpinWaitAvg = (spiSpinWaitAvg * (spiSpinWaitCount - 1) + itr_time) / spiSpinWaitCount; \
+    { \
+        static volatile UINT64 localCount = 0; \
+        static volatile UINT64 localAvg = 0; \
+        static volatile UINT64 localMax = 0; \
+        localCount++; \
+        if(localMax < itr_time) { localMax = itr_time; }; \
+        localAvg = (localAvg * (localCount - 1) + itr_time) / localCount; \
+    } \
+ }
+
+#else
+
+#define TIMEOUT_WAIT(x) { \
+                            volatile int itr_time = 0; \
+                            while( (x) && ++itr_time < TIMEOUT ) { __NOP(); } \
+                            if( itr_time >= TIMEOUT ) { ASSERT(0); } \
+                        }
+#endif
+
+
 /*--------- Internal fucntion prototypes ----------- */
 
 BOOL CPU_SPI_Initialize ()
@@ -232,7 +267,9 @@ BOOL CPU_SPI_WriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 			break;
 	}
 
-	while( SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET ); // Spin until TX ready
+
+	TIMEOUT_WAIT( SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET ); // Spin until TX ready
+
 	SPI_I2S_SendData(SPI_mod, data);
 
 	return TRUE;
@@ -255,7 +292,7 @@ UINT8 CPU_SPI_ReadByte(const SPI_CONFIGURATION&  Configuration)
 			HARD_BREAKPOINT();
 			break;
 	}
-	while (SPI_I2S_GetFlagStatus(SPI_mod, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
+	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, (uint16_t )SPI_I2S_FLAG_RXNE) == RESET);
 	return SPI_I2S_ReceiveData(SPI_mod);
 }
 
@@ -276,7 +313,7 @@ UINT8 CPU_SPI_WriteReadByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 		}
 
 	SPI_I2S_SendData(SPI_mod, data);
-	while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
+	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
 	return SPI_I2S_ReceiveData(SPI_mod);
 
 }
@@ -299,9 +336,9 @@ UINT8 CPU_SPI_ReadWriteByte(const SPI_CONFIGURATION& Configuration, UINT8 data)
 				break;
 	}
 
-	while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
+	TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
 	read_data = SPI_I2S_ReceiveData(SPI_mod);
-	//while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
+	//TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
 	SPI_I2S_SendData(SPI_mod, data);
 
 	return read_data;
@@ -549,7 +586,7 @@ BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 
 	while(i--)
     {
-		while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);        
+		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
 		if (WriteCount != 0)
 		{
 		    SPI_I2S_SendData(SPI_mod, Write16[0]);
@@ -560,7 +597,7 @@ BOOL CPU_SPI_Xaction_nWrite16_nRead16( SPI_XACTION_16& Transaction )
 		}
 
 		//wait till we are ready to recieve		
-		while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
+		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
 		Data16 = SPI_I2S_ReceiveData(SPI_mod);		
 		
 	    // repeat last write word for all subsequent reads
@@ -638,7 +675,7 @@ BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
     // Start transmission 
     while(i--)
     {		
-		while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);        
+		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_TXE) == RESET);
 		SPI_I2S_SendData(SPI_mod, Write8[0]);
 				
 		//if(WriteCount != 0)
@@ -652,7 +689,7 @@ BOOL CPU_SPI_Xaction_nWrite8_nRead8( SPI_XACTION_8& Transaction )
 		//}
 
 		// wait for data reception
-		while (SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);        
+		TIMEOUT_WAIT(SPI_I2S_GetFlagStatus(SPI_mod, SPI_I2S_FLAG_RXNE) == RESET);
 		Data8 = (UINT8) SPI_I2S_ReceiveData(SPI_mod);	
 
 		

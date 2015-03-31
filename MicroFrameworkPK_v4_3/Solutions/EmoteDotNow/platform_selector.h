@@ -137,6 +137,7 @@
 //#define BUILD_RTM
 
 // TODO: centralize Samraksh's many driver debug macros here...
+//#define DEBUG_SAM_SPI        // record delay and errors in SPI busy wait
 //#define DEBUG_EMOTE_TIME     // record delay when HAL_Time_SetCompare is asked to compare against a time in the past
 //#define DEBUG_EMOTE_ADVTIME  // record delay when STM32F10x_AdvancedTimer::SetCompare is asked to compare against a time in the past
 

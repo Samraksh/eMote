@@ -26,5 +26,10 @@ void RCC_Config();
 void NVIC_Config();
 void SPI_StructInit(const SPI_CONFIGURATION& Configuration);
 
-
+#if defined(DEBUG_SAM_SPI)
+extern volatile UINT64 spiSpinWaitCount;
+extern volatile UINT64 spiSpinWaitAvg;
+extern volatile UINT64 spiSpinWaitMax;
+extern volatile UINT64 spiSpinWaitFailureCount;
+#endif
 #endif
