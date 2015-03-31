@@ -197,6 +197,11 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 }
 
+#if defined(DEBUG_EMOTE_ADVTIME)
+volatile UINT64 badSetComparesCount = 0;    //!< number of requests set in the past.
+volatile UINT64 badSetComparesAvg = 11;     //!< average delay of requests set in the past. init to observed value.
+volatile UINT64 badSetComparesMax = 0;      //!< observed worst-case.
+#endif
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
 //TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
@@ -227,6 +232,21 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 	else
 	{
 		if (scType == SET_COMPARE_TIMER){
+#if defined(DEBUG_EMOTE_ADVTIME)
+			volatile UINT64 Now = g_STM32F10x_AdvancedTimer.Get64Counter();
+			if(Now > (counterCorrection + compareValue)) {
+				UINT64 delta = Now - counterCorrection + compareValue;
+				++badSetComparesCount;
+				if(badSetComparesMax < delta) {
+					badSetComparesMax = delta;
+				}
+				badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
+			}
+#else
+			if(compareValue < 100) {
+				newCompareValue += 100;
+			}
+#endif
 				TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
 				TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 		} else {

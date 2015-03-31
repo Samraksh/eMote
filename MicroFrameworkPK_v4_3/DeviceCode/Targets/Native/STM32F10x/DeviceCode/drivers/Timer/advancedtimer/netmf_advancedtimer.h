@@ -100,4 +100,11 @@ public:
 
 BOOL STM32F10x_AdvancedTimer::initialized = FALSE;
 
+// Profile delays related to setting the advanced timer comparison.
+#if defined(DEBUG_EMOTE_ADVTIME)
+extern volatile UINT64 badSetComparesCount;
+extern volatile UINT64 badSetComparesAvg;
+extern volatile UINT64 badSetComparesMax;
+#endif
+
 #endif

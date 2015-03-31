@@ -135,6 +135,8 @@
 //#define BUILD_RTM
 
 //#define DEBUG_EMOTE_TIME     // record delay when HAL_Time_SetCompare is asked to compare against a time in the past
+//#define DEBUG_EMOTE_ADVTIME  // record delay when STM32F10x_AdvancedTimer::SetCompare is asked to compare against a time in the past
+
 
 //#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
