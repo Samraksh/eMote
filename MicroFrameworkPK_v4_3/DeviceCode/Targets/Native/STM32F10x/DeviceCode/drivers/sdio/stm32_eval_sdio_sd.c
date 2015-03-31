@@ -193,6 +193,8 @@ static SD_Error SDEnWideBus(FunctionalState NewState);
 static SD_Error IsCardProgramming(uint8_t *pstatus);
 static SD_Error FindSCR(uint16_t rca, uint32_t *pscr);
 static uint8_t convert_from_bytes_to_power_of_two(uint16_t NumberOfBytes);
+
+void SD_LowLevel_Init(void);
   
 /**
   * @}

@@ -71,7 +71,7 @@ DeviceStatus Data_Store::init(bool eraseDataStore)
 
 	 //lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
 
-	 status = initDataStore( "NOR", &defaultProperty, eraseDataStore );
+	 status = initDataStore( (char*)"NOR", &defaultProperty, eraseDataStore );
 
 	 state = (status == DATASTORE_STATUS_OK)?(DATASTORE_STATE_READY):(DATASTORE_STATE_INT_ERROR);
 	 initialized = TRUE;

@@ -38,9 +38,9 @@
 #define FLAG_RECORD_ACTIVE      (1)     /* Because of flash properties, this has to be 1 */
 #define FLAG_RECORD_INACTIVE    (0)
 
-#define DATATYPE_BYTE    (00)
-#define DATATYPE_INT16   (01)
-#define DATATYPE_INT32   (10)
+#define DATATYPE_BYTE    (0)
+#define DATATYPE_INT16   (1)
+#define DATATYPE_INT32   (2)
 
 #ifdef DATASTORE_DEBUG_DEFINED
 #define DATASTORE_ASSERT(condition, messageStr)     do{ASSERT(condition)}while(0);
@@ -325,7 +325,7 @@ public:
     Data_Store()
     {
     	//AnanthAtSamraksh - by default, the dataStore is not clean erased.
-    	Data_Store("NOR", false);
+    	Data_Store((char*)"NOR", false);
     }
 
     /* Helper function for the addressTable. Gets a table, copies it to a new table and returns it */
