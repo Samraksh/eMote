@@ -61,7 +61,15 @@ static void handle_exti(unsigned int exti)
 		// Shouldn't this be a HAL_CONTINUATION??? TODO --NPS
 		my_isr = gpio_isr[pin];
 		parm = gpio_parm[pin];
-		my_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)), parm);
+		if(my_isr != NULL)
+		{
+		    my_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)), parm);
+		}
+		else
+		{
+		    GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] No GPIO callback defined at %s, %s \n", __LINE__, __FILE__);
+		    ASSERT(my_isr != NULL);
+		}
 	}
 }
 
