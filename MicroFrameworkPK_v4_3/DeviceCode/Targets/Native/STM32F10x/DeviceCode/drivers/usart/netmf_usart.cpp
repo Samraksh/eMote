@@ -349,7 +349,7 @@ void __irq USART1_IRQHandler() {
 	
 	status = USART1->SR; // check status reg
 	
-	if (status & (USART_FLAG_FE||USART_FLAG_PE||USART_FLAG_NE)) {
+	if (status & (USART_FLAG_FE|USART_FLAG_PE|USART_FLAG_NE)) {
 		// clearing interrupt flag
 		dummy = USART1->DR;
 	} else if (status & USART_FLAG_RXNE){
