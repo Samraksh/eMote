@@ -352,7 +352,7 @@ void ISR_TIM1( void* Param )
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-		HAL_COMPLETION::DequeueAndExec();
+		// Do nothing. TODO: check other flag to detect when multiple overflows happened since last entry, and record error for future decision-making.
 	}
 //CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
 }
