@@ -6,6 +6,15 @@ using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.eMote.Net
 {
+    /*/// <summary>
+    /// Custom exception class for eMote.Net namespace
+    /// </summary>
+    public class eMoteNetException : Exception
+    {
+        public eMoteNetException() { }
+        public eMoteNetException(string message) { }
+        public eMoteNetException(string message, Exception innerException) { }
+    }*/
 
     /// <summary>Kinds of protocol</summary>
     public enum MacID
@@ -94,11 +103,13 @@ namespace Samraksh.eMote.Net
             this.macname = macname;
             //this.neighbor = new Neighbor();
 
-            if (Initialize(MacConfig, macname) != DeviceStatus.Success)
-            {
-                throw new SystemException("Mac initialization failed\n");
-            }
+            DeviceStatus status = Initialize(MacConfig, macname);
 
+            if (status != DeviceStatus.Success)
+            {
+                throw new MacNotConfiguredException("Mac initialization failed. One reason for failure could be that a USB cable is attached to the DotNow.\n");
+            }
+            
         }
 
         /// <summary>Releases the memory held by a packet. Make this call after assigning the acquired packet to a packet reference</summary>
