@@ -195,7 +195,12 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 
 		}
 
-void HardFault_HandlerC(unsigned long *hardfault_args){
+#if defined(__GNUC__) && defined(DEBUG)
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+#endif
+void HardFault_HandlerC(unsigned long *hardfault_args)
+{
   	volatile unsigned long stacked_r0 ;
   	volatile unsigned long stacked_r1 ;
   	volatile unsigned long stacked_r2 ;
@@ -306,6 +311,9 @@ void HardFault_HandlerC(unsigned long *hardfault_args){
 #endif
 	
 }
+#if defined(__GNUC__) && defined(DEBUG)
+#pragma GCC pop_options
+#endif
 
 	void __irq HardFault_Handler()
 	{
