@@ -64,16 +64,18 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
-	MyConfig.NeighborLivelinessDelay = config->NeighborLivelinessDelay;
+	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
 #ifdef DEBUG_MAC
-	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
+	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivenessDelay);
 #endif
 	return DS_Success;
 }
 
 DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config)
 {
+	DeviceStatus status;
+
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
 		this->macName = macName;
@@ -95,9 +97,11 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		Initialized=TRUE;
 		m_recovery = 1;
 
-		CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName);
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success)
+			return status;
 
-		CPU_Radio_TurnOnRx(this->radioName);
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success)
+			return status;
 
 		// This is the one-shot resend timer that will be activated if we need to resend a packet
 		/*if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){
@@ -247,7 +251,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 // callback if the neighbors died
 void csmaMAC::UpdateNeighborTable(){
 
-	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivelinessDelay);
+	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 
 
 	if(numberOfDeadNeighbors > 0)
