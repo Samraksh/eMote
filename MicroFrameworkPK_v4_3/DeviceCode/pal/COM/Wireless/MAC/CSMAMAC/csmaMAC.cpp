@@ -395,6 +395,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
 					{
+					    GLOBAL_LOCK(irq);  // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue calls ASSERT_IRQ_MUST_BE_OFF()
 						// Insert neighbor always inserts one neighbor so the call back argument will alsways be 1
 						(*appHandler)(1);
 					}
@@ -447,6 +448,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	// Nived.Sivadas The mac callback design has changed
 	//if(appHandler != NULL)
+	GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
 	(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
 
 
