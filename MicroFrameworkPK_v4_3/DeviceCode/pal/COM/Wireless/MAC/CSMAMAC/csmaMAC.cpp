@@ -64,10 +64,10 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
-	MyConfig.NeighborLivelinessDelay = config->NeighborLivelinessDelay;
+	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
 #ifdef DEBUG_MAC
-	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
+	hal_printf("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivenessDelay);
 #endif
 	return DS_Success;
 }
@@ -251,7 +251,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 // callback if the neighbors died
 void csmaMAC::UpdateNeighborTable(){
 
-	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivelinessDelay);
+	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 
 
 	if(numberOfDeadNeighbors > 0)
