@@ -63,7 +63,11 @@ void HAL_COMPLETION::DequeueAndExec()
     // than their is a next completion and that the current one has expired.
     if(ptrNext)
     {
-        ASSERT(ptr->EventTimeTicks <= HAL_Time_CurrentTicks());
+#if !defined(BUILD_RTM) && !defined(NDEBUG)
+        volatile UINT64 Now = HAL_Time_CurrentTicks();
+        volatile INT64 diff =  (INT64)Now - ptr->EventTimeTicks;
+        ASSERT( diff > 0 );// ptr->EventTimeTicks <= HAL_Time_CurrentTicks());
+#endif
         
         Events_Set(SYSTEM_EVENT_FLAG_SYSTEM_TIMER);
 
