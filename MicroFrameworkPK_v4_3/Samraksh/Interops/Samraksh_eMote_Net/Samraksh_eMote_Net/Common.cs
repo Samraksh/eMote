@@ -24,6 +24,10 @@ namespace Samraksh.eMote.Net
         /// Busy 
         /// </summary>
         Busy,
+        /// <summary>
+        /// Timeout 
+        /// </summary>
+        Timeout,
     };
 
     /// <summary>
