@@ -4,8 +4,25 @@ using Microsoft.SPOT.Hardware;
 using System.Collections;
 using System.Threading;
 
-namespace Samraksh.eMote.SensorBoard
-{    
+namespace Samraksh.eMote.Kiwi
+{
+    public class TemperatureSensorException : Exception
+    {
+        public TemperatureSensorException()
+        {
+        }
+
+        public TemperatureSensorException(string message)
+            : base(message)
+        {
+        }
+
+        public TemperatureSensorException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
     /// <summary>
     /// Kiwi Temperature Sensor
     /// </summary>
@@ -50,7 +67,6 @@ namespace Samraksh.eMote.SensorBoard
 
         private void Sense(Object state)
         {
-
             var temp = 0.0;
 
             m_oneWire.TouchReset();
@@ -69,7 +85,6 @@ namespace Samraksh.eMote.SensorBoard
             if ((tempLo & 0x1) > 0)
             {
                 temp += 0.5;
-            
             }
 
             temp += (tempLo >> 1);
@@ -78,7 +93,6 @@ namespace Samraksh.eMote.SensorBoard
                 temp *= -1;
 
             Temperature = temp;
-            
         }
 
         /// <summary>
@@ -90,12 +104,11 @@ namespace Samraksh.eMote.SensorBoard
         /// <exception cref="InvalidOperationException"></exception>
         public TemperatureSensor(Cpu.Pin pin, int samplingRate)
         {
-
             Temperature = 0;
 
             if (samplingRate < 750)
             {
-                throw new SystemException("Conversion time is 750ms, can not support this sampling rate");
+                throw new TemperatureSensorException("Conversion time is 750ms, can not support this sampling rate");
             }
 
             try
@@ -104,7 +117,8 @@ namespace Samraksh.eMote.SensorBoard
             }
             catch (Exception e)
             {
-                Debug.Print("Exception from  One Wire Class "  + e.ToString());
+                Debug.Print("TemperatureSensor OutputPort exception: " + e.ToString());
+                return;
             }
 
             try
@@ -113,18 +127,26 @@ namespace Samraksh.eMote.SensorBoard
             }
             catch (Exception e)
             {
-                Debug.Print("Exception from One Wire Class " + e.ToString());
+                Debug.Print("TemperatureSensor OneWire exception: " + e.ToString());
+                return;
             }
 
-            m_devices = m_oneWire.FindAllDevices();
+            try
+            {
+                m_devices = m_oneWire.FindAllDevices();
+            }
+            catch (Exception e)
+            {
+                Debug.Print("TemperatureSensor FindAllDevices exception: " + e.ToString());
+                return;
+            }
 
             if (m_devices == null || m_devices.Count < 1)
             {
-                throw new InvalidOperationException("No devices found on OneWire bus");
+                throw new TemperatureSensorException("No devices found on OneWire bus");
             }
 
             m_samplingTimer = new Timer(Sense, null, 0, samplingRate);
-
         }
     }
 }

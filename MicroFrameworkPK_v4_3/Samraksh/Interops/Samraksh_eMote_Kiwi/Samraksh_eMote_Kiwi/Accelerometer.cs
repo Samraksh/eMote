@@ -3,9 +3,42 @@ using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using System.Threading;
 
-namespace Samraksh.eMote.SensorBoard
+namespace Samraksh.eMote.Kiwi
 {
 
+    public class I2CInitializationException : Exception
+    {
+        public I2CInitializationException()
+        {
+        }
+
+        public I2CInitializationException(string message)
+            : base(message)
+        {
+        }
+
+        public I2CInitializationException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
+    public class TimerException : Exception
+    {
+        public TimerException()
+        {
+        }
+
+        public TimerException(string message)
+            : base(message)
+        {
+        }
+
+        public TimerException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 
     /// <summary>
     /// Kiwi Accelerometer
@@ -31,8 +64,8 @@ namespace Samraksh.eMote.SensorBoard
             FreeFall
         }
 
-        /// <summary>Kiwi Accelerometer data structure</summary>
-        public struct Data
+        /// <summary>Kiwi Accelerometer data class</summary>
+        public class Data
         {
             /// <summary>Raw x axis acceleration data</summary>
             public Int16 RawX;
@@ -134,25 +167,18 @@ namespace Samraksh.eMote.SensorBoard
 
         private const ushort address = 0x53;
         private const int clock = 100;
-
         private const Int32 sensorSamplingTimerDueTime = 1000;
+        private Byte[] accelDataBuffer;
+        private Int32 refreshRate;
 
         private I2CDevice.Configuration config;
         private I2CDevice i2cdevice;
-
         private GRange currentRange = GRange.SixteenG;
-
         private OutputResolution currentResolution = OutputResolution.FullResolution;
-
         private Data sensorData;
-
-        private Int32 refreshRate;
-
         private Timer sensorSamplingTimer;
-
         private AxlCallbackType userCallbackFn;
 
-        private Byte[] accelDataBuffer;
         private I2CDevice.I2CWriteTransaction writeAccelDataBuffer;
         private I2CDevice.I2CReadTransaction readAccelDataBuffer;
         private I2CDevice.I2CTransaction[] getAccelDataTransaction;
@@ -213,21 +239,17 @@ namespace Samraksh.eMote.SensorBoard
                     case GRange.FourG:
                         res = 4.0f / 512.0f;
                         break;
-
                     case GRange.EightG:
                         res = 8.0f / 512.0f;
                         break;
-
                     case GRange.SixteenG:
                         res = 16.0f / 512.0f;
                         break;
-                        
                 }
 
                 sensorData.X = res * sensorData.RawX;
                 sensorData.Y = res * sensorData.RawY;
                 sensorData.Z = res * sensorData.RawZ;
-
             }
             if (userCallbackFn != null)
             {
@@ -250,7 +272,7 @@ namespace Samraksh.eMote.SensorBoard
             }
             catch
             {
-                throw new Exception("I2C Bus initialization failed");
+                throw new I2CInitializationException("I2C Bus initialization failed");
             }
 
             accelDataBuffer = new Byte[6];
@@ -269,12 +291,11 @@ namespace Samraksh.eMote.SensorBoard
 
             try
             {
-
                 sensorSamplingTimer = new Timer(SamplingTimerInternalCallback, null, sensorSamplingTimerDueTime, RefreshRate);
             }
             catch
             {
-                throw new Exception("Sampling Timer Initialization failed");
+                throw new TimerException("Sampling Timer Initialization failed");
             }
         }
 
@@ -290,7 +311,6 @@ namespace Samraksh.eMote.SensorBoard
                 i2cdevice.Config = config;
                 i2cdevice.Execute(writeTransaction, 10);
             }
-
         }
 
         private Byte ReadRegister(RegisterMap register)

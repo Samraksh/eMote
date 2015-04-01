@@ -11,17 +11,17 @@
 #define _KIWISENSORBOARD_H_
 
 #include <TinyCLR_Interop.h>
-struct Library_KiwiSensorBoard_Samraksh_eMote_SensorBoard_Accelerometer
+struct Library_KiwiSensorBoard_Samraksh_eMote_Kiwi_Accelerometer
 {
-    static const int FIELD__config = 1;
-    static const int FIELD__i2cdevice = 2;
-    static const int FIELD__currentRange = 3;
-    static const int FIELD__currentResolution = 4;
-    static const int FIELD__sensorData = 5;
-    static const int FIELD__refreshRate = 6;
-    static const int FIELD__sensorSamplingTimer = 7;
-    static const int FIELD__userCallbackFn = 8;
-    static const int FIELD__accelDataBuffer = 9;
+    static const int FIELD__accelDataBuffer = 1;
+    static const int FIELD__refreshRate = 2;
+    static const int FIELD__config = 3;
+    static const int FIELD__i2cdevice = 4;
+    static const int FIELD__currentRange = 5;
+    static const int FIELD__currentResolution = 6;
+    static const int FIELD__sensorData = 7;
+    static const int FIELD__sensorSamplingTimer = 8;
+    static const int FIELD__userCallbackFn = 9;
     static const int FIELD__writeAccelDataBuffer = 10;
     static const int FIELD__readAccelDataBuffer = 11;
     static const int FIELD__getAccelDataTransaction = 12;
@@ -31,7 +31,7 @@ struct Library_KiwiSensorBoard_Samraksh_eMote_SensorBoard_Accelerometer
 
 };
 
-struct Library_KiwiSensorBoard_Samraksh_eMote_SensorBoard_TemperatureSensor
+struct Library_KiwiSensorBoard_Samraksh_eMote_Kiwi_TemperatureSensor
 {
     static const int FIELD__m_pin = 1;
     static const int FIELD__m_oneWire = 2;
@@ -45,7 +45,7 @@ struct Library_KiwiSensorBoard_Samraksh_eMote_SensorBoard_TemperatureSensor
 
 };
 
-struct Library_KiwiSensorBoard_Samraksh_eMote_SensorBoard_Accelerometer__Data
+struct Library_KiwiSensorBoard_Samraksh_eMote_Kiwi_Accelerometer__Data
 {
     static const int FIELD__RawX = 1;
     static const int FIELD__RawY = 2;
