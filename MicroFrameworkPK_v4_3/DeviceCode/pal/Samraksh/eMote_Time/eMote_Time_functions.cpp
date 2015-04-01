@@ -52,22 +52,22 @@ volatile UINT64 badComparesAvg = 11;     //!< average delay of requests set in t
 volatile UINT64 badComparesMax = 0;      //!< observed worst-case.
 #endif
 
-void HAL_Time_SetCompare( UINT64 CompareValue )
+void HAL_Time_SetCompare( UINT64 CompareTicks )
 {
-	if (CompareValue == HAL_Completion_IdleValue){
+	if (CompareTicks == HAL_Completion_IdleValue){
 		g_Time_Driver.StopTimer();
 	} else {
-		UINT64 Now = HAL_Time_CurrentTicks();
-		if(CompareValue > Now) {
-			g_Time_Driver.SetCompareValue(CompareValue - Now );
+		UINT64 NowTicks = HAL_Time_CurrentTicks();
+		if(CompareTicks > NowTicks) {
+			g_Time_Driver.SetCompareValue(CompareTicks - NowTicks );
 		}
 		else {
 #if defined(DEBUG_EMOTE_TIME)
 			++badComparesCount;
-			if(badComparesMax < (Now - CompareValue)) { badComparesMax = Now - CompareValue; }
-			badComparesAvg = (badComparesAvg * (badComparesCount - 1) + (Now - CompareValue)) / badComparesCount;
+			if(badComparesMax < (NowTicks - CompareTicks)) { badComparesMax = NowTicks - CompareTicks; }
+			badComparesAvg = (badComparesAvg * (badComparesCount - 1) + (NowTicks - CompareTicks)) / badComparesCount;
 #endif
-			g_Time_Driver.SetCompareValue(Now + 100);  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
+			g_Time_Driver.SetCompareValue( 100 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
 		}
 	}
 }
