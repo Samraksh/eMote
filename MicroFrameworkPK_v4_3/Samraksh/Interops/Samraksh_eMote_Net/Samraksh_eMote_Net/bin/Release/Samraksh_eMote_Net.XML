@@ -10,7 +10,7 @@
             </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.CallbackTypes.Received">
-            <summary>Message received</summary>
+            <summary>Packet received</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighborChanged">
             <summary>Neighborhood has changed</summary>
@@ -171,12 +171,12 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Mac.IMac.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
             <summary>
-            Send message
+            Send packet
             </summary>
             <param name="address">Address of recipient (can use Addresses.BROADCAST)</param>
-            <param name="message">Byte array of to send</param>
+            <param name="packet">Byte array of to send</param>
             <param name="offset">Offset into array</param>
-            <param name="size">Size of message</param>
+            <param name="size">Size of packet</param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Mac.IMac.GetAddress">
@@ -228,7 +228,7 @@
             <summary>
             Remove packet from pending
             </summary>
-            <param name="msg">Message to remove</param>
+            <param name="msg">Packet to remove</param>
             <returns>Status of result</returns>
         </member>
         <member name="F:Samraksh.eMote.Net.MACBase.MarshalBufferSize">
@@ -261,7 +261,7 @@
             <summary>
             Get the next packet from the mac buffer
             </summary>
-            <returns>Next message</returns>
+            <returns>Next packet</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetRadio">
             <summary>Returns the radio being used by the MAC</summary>
@@ -284,7 +284,7 @@
             <param name="livelinessDelay"></param>
             <returns>Result of setting this parameter</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.SetNeighborLivelinessDelay(System.UInt32)">
+        <member name="M:Samraksh.eMote.Net.MACBase.SetNeighborLivenessDelay(System.UInt32)">
             <summary>Set the liveness delay</summary>
             <param name="livenessDelay"></param>
             <returns>Result of setting this parameter</returns>
@@ -307,7 +307,7 @@
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.SetNumberOfRetries(System.Byte)">
-            <summary>Set the number of times to try to send a message</summary>
+            <summary>Set the number of times to try to send a packet</summary>
             <param name="NumberOfRetries">Number of times to try to send</param>
             <returns>DeviceStatus</returns>
         </member>
@@ -348,12 +348,12 @@
             <summary>
             Initialize native MAC, radio and interop drivers.
             </summary>
-            <param name="config">MAC configuration.</param>
-            <param name="receiveMessage">Byte array for received messages.</param>
+            <param name="macname">MAC configuration.</param>
+            <param name="marshalBuffer">Byte array for received packets.</param>
             <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket(System.Byte[])">
-            <summary>Remove a message packet from the buffer</summary>
+            <summary>Remove a packet from the buffer</summary>
             <param name="msg">The removed packed</param>
             <returns>Status of operation</returns>
         </member>
@@ -401,27 +401,27 @@
             <returns>Address of the device</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send a message</summary>
+            <summary>Send a packet</summary>
             <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
-            <param name="message">Byte array containing the message to be sent</param>
+            <param name="packet">Byte array containing the packet to be sent</param>
             <param name="offset">The first byte in the array to send. Normally 0</param>
             <param name="size">The number of bytes to send</param>
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send a time stamped message. Time stamping is ddone in the send in native code</summary>
+            <summary>Send a time stamped packet. Time stamping is ddone in the send in native code</summary>
             <param name="Address">The address of reciever</param>
-            <param name="message">Message to send</param>
+            <param name="packet">Packet to send</param>
             <param name="offset">offset if any in the byte array</param>
-            <param name="size">size of the message</param>
+            <param name="size">size of the packet</param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.UInt32)">
-            <summary>Send a time stamped message. Time stamp is specified in call</summary>
+            <summary>Send a time stamped packet. Time stamp is specified in call</summary>
             <param name="Address">Address of reciever</param>
-            <param name="message">Message to send</param>
+            <param name="packet">Packet to send</param>
             <param name="offset">offset if any in the byte array</param>
-            <param name="size">size of the message</param>
+            <param name="size">size of the packet</param>
             <param name="eventTime">Time to use for timestamp</param>
             <returns>Status of operation</returns>
         </member>
@@ -432,7 +432,7 @@
         <member name="M:Samraksh.eMote.Net.MACBase.Configure(Samraksh.eMote.Net.Mac.MacConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighborhoodChangeCallBack)">
             <summary>Configure the MAC object. Must be called before a call to get instance</summary>
             <param name="config">MAC configuration to use</param>
-            <param name="receiveCallback">Method to call when message received</param>
+            <param name="receiveCallback">Method to call when packet received</param>
             <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
             <returns>Status of operation</returns>
         </member>
@@ -810,32 +810,32 @@
             <summary>
             Preload radio
             </summary>
-            <param name="message">Message to preload</param>
-            <param name="size">Size of message</param>
+            <param name="packet">Packet to preload</param>
+            <param name="size">Size of packet</param>
             <returns>Success of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendStrobe">
             <summary>
-            Send preloaded message
+            Send preloaded packet
             </summary>
             <returns>Success of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.Send(System.Byte[],System.UInt16)">
             <summary>
-            Send message on radio
+            Send packet on radio
             </summary>
-            <param name="message">Message to send</param>
-            <param name="size">Size of message</param>
+            <param name="packet">Packet to send</param>
+            <param name="size">Size of packet</param>
             <returns>Success of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendTimeStamped(System.Byte[],System.UInt16,System.UInt32)">
             <summary>
-            Sent time-stamped message
+            Sent time-stamped packet
             </summary>
-            <param name="message">Message to send</param>
-            <param name="size">Size of message</param>
-            <param name="eventTime">Time stamp of message</param>
-            <returns>Success of message</returns>
+            <param name="packet">Packet to send</param>
+            <param name="size">Size of packet</param>
+            <param name="eventTime">Time stamp of packet</param>
+            <returns>Success of packet</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment">
             <summary>
@@ -853,91 +853,87 @@
         <member name="T:Samraksh.eMote.Net.MacID">
             <summary>Kinds of protocol</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Message">
-            <summary>Message object. Passed to native</summary>
+        <member name="T:Samraksh.eMote.Net.Packet">
+            <summary>Packet object. Passed to native</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.MacMessageSize">
+        <member name="F:Samraksh.eMote.Net.Packet.MacPacketSize">
             <summary>
-            Defines the default size of the mac message
+            Defines the default size of the mac packet
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.RSSI">
-            <summary>Received Signal Strength of message</summary>
+        <member name="F:Samraksh.eMote.Net.Packet.RSSI">
+            <summary>Received Signal Strength of packet</summary>
             <value>RSSI value</value>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.LQI">
+        <member name="F:Samraksh.eMote.Net.Packet.LQI">
             <summary>Link Quality Indication measured during the packet reception</summary>
             <value>LQI measured</value>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.Src">
+        <member name="F:Samraksh.eMote.Net.Packet.Src">
             <summary>
             Source of the packet transmitted
             </summary>
             <value>Source of the packet</value>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.Unicast">
-            <summary>Was message sent unicast?</summary>
-            <value>True if message was sent unicast, else broadcast</value>
+        <member name="F:Samraksh.eMote.Net.Packet.Unicast">
+            <summary>Was packet sent unicast?</summary>
+            <value>True if packet was sent unicast, else broadcast</value>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.ReceiveMessage">
-            <summary>
-            Received Message
-            </summary>
+        <member name="F:Samraksh.eMote.Net.Packet.Size">
+            <summary>Size of the packet payload</summary>
+            <value>Size of packet payload</value>
         </member>
-        <member name="F:Samraksh.eMote.Net.Message.Size">
-            <summary>Size of the message payload</summary>
-            <value>Size of message payload</value>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Message.SenderEventTimeStamp">
+        <member name="F:Samraksh.eMote.Net.Packet.SenderEventTimeStamp">
             <summary>The time at which the packet was sent out</summary>
             <value>Time the packet was sent out (microseconds)</value>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.IsSenderTimeStamped">
-            <summary>Check if message is timestamped</summary>
-            <returns>True iff message is timestamped</returns>
+        <member name="M:Samraksh.eMote.Net.Packet.IsSenderTimeStamped">
+            <summary>Check if packet is timestamped</summary>
+            <returns>True iff packet is timestamped</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor">
-            <summary>Create a message with the default size</summary>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor">
+            <summary>Create a packet with the default size</summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Byte[])">
-            <summary>Create a message with Size, Payload, RSSI, LQI, Src and Unicast information specified in message array</summary>
-            <param name="msg">Message. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
+            <summary>Configure size of packets</summary>
+            <param name="Size">Size of packets</param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte)">
-            <summary>Create a message with specified parameters</summary>
-            <param name="message">Message payload</param>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[])">
+            <summary>Create a packet with Size, Payload, RSSI, LQI, Src and Unicast information specified in packet array</summary>
+            <param name="msg">Packet. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte)">
+            <summary>Create a packet with specified parameters</summary>
+            <param name="packet">Packet payload</param>
             <param name="Src">Source of the packet</param>
             <param name="Unicast">Was transmission unicast</param>
             <param name="RSSI">RSSI</param>
             <param name="LQI">LQI</param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte,System.UInt16)">
-            <summary>Create a message with specified parameters</summary>
-            <param name="message">Message payload</param>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte,System.UInt16)">
+            <summary>Create a packet with specified parameters</summary>
+            <param name="packet">Packet payload</param>
             <param name="Src">Source of the packet</param>
             <param name="Unicast">Was transmission unicast</param>
             <param name="RSSI">RSSI</param>
             <param name="LQI">LQI</param>
             <param name="Size">Size of the payload buffer </param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte,System.UInt16,System.Boolean)">
-            <summary>Create a message with specified parameters</summary>
-            <param name="message"></param>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[],System.UInt16,System.Boolean,System.Byte,System.Byte,System.UInt16,System.Boolean)">
+            <summary>Create a packet with specified parameters</summary>
+            <param name="packet"></param>
             <param name="Src"></param>
             <param name="Unicast"></param>
             <param name="RSSI"></param>
             <param name="LQI"></param>
             <param name="Size"></param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Int32)">
-            <summary>Configure size of messages</summary>
-            <param name="Size">Size of messages</param>
+        <member name="P:Samraksh.eMote.Net.Packet.ReceivedMessage">
+            <summary>
+            Received Message
+            </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Message.GetMessage">
-            <summary>Get the next message</summary>
-            <returns>The message, as a byte array</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Message.senderEventTimeStamp">
+        <member name="P:Samraksh.eMote.Net.Packet.senderEventTimeStamp">
             <summary>The time at which the packet was sent out</summary>
             <value>Time the packet was sent out (microseconds)</value>
         </member>
@@ -989,8 +985,8 @@
             <param name="drvData">Driver data</param>
             <exception caption="RadioNotConfigured Exception" cref="T:Samraksh.eMote.Net.RadioNotConfiguredException"></exception>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ReleaseMessage">
-            <summary>Releases the message packet's memory.</summary>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ReleasePacket">
+            <summary>Releases the packet packet's memory.</summary>
             <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
             <returns></returns>
         </member>
@@ -998,27 +994,27 @@
             <summary>Get the next packet from the radio driver.</summary>
             <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
             Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
-            <returns>A data packet of message type to the caller</returns>
+            <returns>A data packet of packet type to the caller</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Initialize(Samraksh.eMote.Net.Radio.RadioConfiguration)">
             <summary>
             Initialize native radio and interop drivers.
             </summary>
             <param name="config">MAC configuration.</param>
-            <param name="callback">Callback method for received messages.</param>
+            <param name="callback">Callback method for received packets.</param>
             <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure(Samraksh.eMote.Net.Radio.RadioConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighborhoodChangeCallBack)">
             <summary>Set configuration for 802.15.4 radio.</summary>
             <param name="config">Configuration to use</param>
-            <param name="rcallback">Message receive callback</param>
+            <param name="rcallback">Packet receive callback</param>
             <param name="ncallback">Neighbor change callback</param>
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure(Samraksh.eMote.Net.Radio.RadioConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighbourhoodChangeCallBack)">
             <summary>Set configuration for 802.15.4 radio.</summary>
             <param name="config">Configuration to use</param>
-            <param name="rcallback">Message receive callback</param>
+            <param name="rcallback">Packet receive callback</param>
             <param name="ncallback">Neighbor change callback</param>
             <returns>Status of operation</returns>
         </member>
@@ -1089,26 +1085,26 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.PreLoad(System.Byte[],System.UInt16)">
             <summary>
-            Load the message into the transmit buffer of the radio.
+            Load the packet into the transmit buffer of the radio.
             </summary>
-            <param name="message">Message to load</param>
-            <param name="size">Size of message</param>
+            <param name="packet">Packet to load</param>
+            <param name="size">Size of packet</param>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendStrobe">
-            <summary>Send the message in the transmit buffer</summary>
+            <summary>Send the packet in the transmit buffer</summary>
             <returns>Result of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte[],System.UInt16)">
-            <summary>Load and send a message</summary>
-            <param name="message">Message to send</param>
-            <param name="size">Size of message</param>
+            <summary>Load and send a packet</summary>
+            <param name="packet">Packet to send</param>
+            <param name="size">Size of packet</param>
             <returns>Result of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte[],System.UInt16,System.UInt32)">
-            <summary>Load and send a time-stamped message, with specified time stamp</summary>
-            <param name="message">Message to send</param>
-            <param name="size">Size of message</param>
+            <summary>Load and send a time-stamped packet, with specified time stamp</summary>
+            <param name="packet">Packet to send</param>
+            <param name="size">Size of packet</param>
             <param name="eventTime">The time stamp.</param>
             <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
