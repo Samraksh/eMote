@@ -921,10 +921,7 @@ DeviceStatus RF231Radio::UnInitialize()
     DeviceStatus ret = DS_Success;
     if(IsInitialized())
     {
-        ret = Sleep(0);
-        if(ret == DS_Fail) {
-            goto uninit_out;
-        }
+        RstnClear();
         ASSERT((active_mac_index & 0xFF00) == 0)
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
@@ -936,11 +933,10 @@ DeviceStatus RF231Radio::UnInitialize()
         }
         else if(this->GetRadioName() == RF231RADIOLR){
             CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
-            CPU_GPIO_DisablePin((GPIO_PIN)12, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+            CPU_GPIO_DisablePin((GPIO_PIN) AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);  //FIXME: check this.
         }
         SetInitialized(FALSE);
     }
-uninit_out:
     return ret;
 }
 

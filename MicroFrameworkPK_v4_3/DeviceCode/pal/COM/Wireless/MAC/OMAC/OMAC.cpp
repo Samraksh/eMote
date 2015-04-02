@@ -128,7 +128,10 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8
 //UnInitialize
 BOOL OMAC::UnInitialize()
 {
-	return TRUE;
+	BOOL ret = TRUE;
+	Initialized=FALSE;
+	ret &= CPU_Radio_UnInitialize(this->radioName);
+	return ret;
 }
 
 
