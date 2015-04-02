@@ -50,7 +50,7 @@ SPI_TypeDef* SPI_mod;
 //indicates the SPI peripheral initialized
 int SPI_Initialized[] = {0};
 
-const UINT32 TIMEOUT = 0x00400000; \
+const UINT32 TIMEOUT = 2000; \
 
 #if defined(DEBUG_SAM_SPI)
 volatile UINT64 spiSpinWaitCount = 0;
