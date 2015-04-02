@@ -29,17 +29,19 @@ extern Buffer_15_4_t m_send_buffer;
 extern Buffer_15_4_t m_receive_buffer;
 extern NeighborTable m_NeighborTable;
 
-#define DEBUG_CSMAMAC 1
+//#define DEBUG_CSMAMAC 1
 
 #if defined(DEBUG_CSMAMAC)
 #define ENABLE_PIN_CSMA(x,y) CPU_GPIO_EnableOutputPin(x,y)
 #define SET_PIN_CSMA(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_CSMA(x,y,z) hal_printf(x,y,z)
+#define DEBUG_PRINTF_CSMA(x, ...) hal_printf("[CSMA]" x, ##__VA_ARGS__)
 #else
 #define ENABLE_PIN_CSMA(x,y)
 #define SET_PIN_CSMA(x,y)
-#define DEBUG_PRINTF_CSMA(x)
+#define DEBUG_PRINTF_CSMA(x, ...)
 #endif
+
+extern volatile UINT32 csmaSendToRadioFailCount;
 
 /*******************************************************************************************************/
 
