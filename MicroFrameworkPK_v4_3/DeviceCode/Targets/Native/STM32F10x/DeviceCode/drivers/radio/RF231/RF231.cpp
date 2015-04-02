@@ -340,7 +340,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 			sleep_pending = TRUE;
 			return DS_Fail;
 		}
-		sleep_pending == FALSE;
+		sleep_pending = FALSE;
 	}
 
 	return DS_Success;
@@ -380,7 +380,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 			sleep_pending = TRUE;
 			return DS_Fail;
 		}
-		sleep_pending == FALSE;
+		sleep_pending = FALSE;
 	}
 
 	return DS_Success;
