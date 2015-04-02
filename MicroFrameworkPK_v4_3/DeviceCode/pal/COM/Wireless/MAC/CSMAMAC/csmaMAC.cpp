@@ -106,11 +106,13 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		//gHalTimerManagerObject.Initialize();
 		//if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
-		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
+		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio) != TimerSupported){ //50 milli sec Timer in micro seconds
+			SOFT_BREAKPOINT();
 			return DS_Fail;
 		}
 
-		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler)){
+		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler) != TimerSupported){
+			SOFT_BREAKPOINT();
 			return DS_Fail;
 		}
 		//gHalTimerManagerObject.StartTimer(2);
@@ -118,7 +120,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
 		flushTimerRunning = false;
-		if(!VirtTimer_SetTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio)){
+		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio) != TimerSupported){
+			SOFT_BREAKPOINT();
 			return DS_Fail;
 		}
 	}
@@ -130,6 +133,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 	//Initialize upperlayer callbacks
 	if(routingAppID >=MAX_APPS) {
+		SOFT_BREAKPOINT();
 		return DS_Fail;
 	}
 	AppHandlers[routingAppID]=eventHandler;
@@ -150,7 +154,24 @@ UINT16 csmaMAC::GetRadioAddress(){
 
 BOOL csmaMAC::UnInitialize()
 {
-	return CPU_Radio_UnInitialize(this->radioName);
+	BOOL ret = TRUE;
+	if(this->Initialized) {
+		if( VirtTimer_Stop(VIRT_TIMER_MAC_BEACON) != TimerSupported ) {
+			SOFT_BREAKPOINT();
+			ret = FALSE;
+		}
+		if( VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT) != TimerSupported ) {
+			SOFT_BREAKPOINT();
+			ret = FALSE;
+		}
+		if( VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER) != TimerSupported ) {
+			SOFT_BREAKPOINT();
+			ret = FALSE;
+		}
+
+		ret &= CPU_Radio_UnInitialize(this->radioName);
+	}
+	return ret;
 }
 
 UINT8 test = 0;
@@ -309,6 +330,7 @@ void csmaMAC::SendToRadio(){
 				return;
 			}
 		} else if (ds == DS_Fail) {
+			SOFT_BREAKPOINT();
 #ifdef DEBUG_CSMAMAC
 			ASSERT(0);
 			DEBUG_PRINTF_CSMA("Radio might have locked up\r\n");
@@ -386,7 +408,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
 					{
-					    GLOBAL_LOCK(irq);  // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue calls ASSERT_IRQ_MUST_BE_OFF()
+						GLOBAL_LOCK(irq);  // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue calls ASSERT_IRQ_MUST_BE_OFF()
 						// Insert neighbor always inserts one neighbor so the call back argument will alsways be 1
 						(*appHandler)(1);
 					}
