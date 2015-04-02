@@ -340,7 +340,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power)
 			sleep_pending = TRUE;
 			return DS_Fail;
 		}
-		sleep_pending == FALSE;
+		sleep_pending = FALSE;
 	}
 
 	return DS_Success;
@@ -380,7 +380,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 			sleep_pending = TRUE;
 			return DS_Fail;
 		}
-		sleep_pending == FALSE;
+		sleep_pending = FALSE;
 	}
 
 	return DS_Success;
@@ -917,6 +917,30 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	return DS_Success;
 }
 
+DeviceStatus RF231Radio::UnInitialize()
+{
+    DeviceStatus ret = DS_Success;
+    if(IsInitialized())
+    {
+        RstnClear();
+        ASSERT((active_mac_index & 0xFF00) == 0)
+        if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
+                ret = DS_Fail;
+        }
+        SpiUnInitialize();
+        GpioPinUnInitialize();
+        if(this->GetRadioName() == RF231RADIO){
+            CPU_GPIO_DisablePin(INTERRUPT_PIN, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+        }
+        else if(this->GetRadioName() == RF231RADIOLR){
+            CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+            CPU_GPIO_DisablePin((GPIO_PIN)12, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+        }
+        SetInitialized(FALSE);
+    }
+    return ret;
+}
+
 //template<class T>
 void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 {
@@ -965,8 +989,29 @@ BOOL RF231Radio::GpioPinInitialize()
 
 	return TRUE;
 
+}
+
+//TODO: combine GpioPinUnInitialize and GpioPinInitialize
+BOOL RF231Radio::GpioPinUnInitialize()
+{
+
+    if(!CPU_GPIO_ReservePin(kseln, FALSE))
+        return FALSE;
+
+    if(!CPU_GPIO_ReservePin(kslpTr, FALSE))
+        return FALSE;
+
+    if(!CPU_GPIO_ReservePin(krstn, FALSE))
+        return FALSE;
+
+    CPU_GPIO_DisablePin(kseln, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+    CPU_GPIO_DisablePin(kslpTr, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+    CPU_GPIO_DisablePin(krstn, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+
+    return TRUE;
 
 }
+
 
 // Calls the mf spi initialize function and returns true if the intialization was successful
 //template<class T>
@@ -999,6 +1044,18 @@ BOOL RF231Radio::SpiInitialize()
 	CPU_SPI_Enable(config);
 
 	return TRUE;
+}
+
+
+BOOL RF231Radio::SpiUnInitialize()
+{
+    BOOL ret = FALSE;
+    if(IsInitialized())
+    {
+        CPU_SPI_Uninitialize(config);
+        ret = TRUE;
+    }
+    return ret;
 }
 
 

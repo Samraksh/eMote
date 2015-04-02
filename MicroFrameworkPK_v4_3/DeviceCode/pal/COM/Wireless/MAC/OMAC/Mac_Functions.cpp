@@ -52,6 +52,7 @@ DeviceStatus Mac_RemovePacket(UINT8 macID, UINT8* msg){
 	return DS_Fail;
 }
 
+#if 0
 //MAC Aggregate APIs
 BOOL MacLayer_Initialize(){
 	return FALSE;
@@ -64,5 +65,5 @@ BOOL MacLayer_UnInitialize(){
 UINT8 MacLayer_NumberMacsSupported(){
 	return FALSE;
 }
-
+#endif
 

@@ -142,9 +142,11 @@ class RF231Radio : public Radio<Message_15_4_t>
 
 	// Initialize the rstn, seln and slptr pins
 	BOOL GpioPinInitialize();
+	BOOL GpioPinUnInitialize();
 
 	// Initialize the spi module
     BOOL SpiInitialize();
+    BOOL SpiUnInitialize();
 
     // All the below functions can be made inline, but this may increase the executable size, so i am deciding against this now
     // Am assuming the speed is not significant enough to warrant the change to inline
@@ -221,10 +223,7 @@ public:
     // The radio is sleeping at the end of initialization
     DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id);
 
-    DeviceStatus UnInitialize()
-    {
-    	return DS_Fail;
-    }
+    DeviceStatus UnInitialize();
 
     void* Send(void* msg, UINT16 size);
 

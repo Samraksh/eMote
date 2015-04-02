@@ -140,7 +140,33 @@ public:
 
 	// Responsible for uninitializing the radio
 	//virtual DeviceStatus UnInitialize()
-	DeviceStatus UnInitialize();
+	DeviceStatus UnInitialize(UINT8 mac_id)
+	{
+	    DeviceStatus ret = DS_Fail;
+	    // remove from list of IDs. what a PITA.
+	    for(int itr=0; itr < MAX_MACS_SUPPORTED; ++itr) {
+	        if(Radio<T>::MacIDs[itr] == mac_id) {
+
+	            Radio<T>::MacIDs[itr] = 0;
+	            for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
+	                Radio<T>::MacIDs[itr_inner] = Radio<T>::MacIDs[itr_inner + 1];
+	            }
+	            Radio<T>::MacIDs[MAX_MACS_SUPPORTED - 1] = 0;
+
+	            MacHandlers[itr] = NULL;
+	            for(int itr_inner=itr; itr_inner < MAX_MACS_SUPPORTED; ++itr_inner) {
+	                MacHandlers[itr_inner] = MacHandlers[itr_inner + 1];
+	            }
+	            MacHandlers[MAX_MACS_SUPPORTED - 1] = NULL;
+
+	            MacIDIndex--;
+
+	            ret = DS_Success;
+	            break;
+	        }
+	    }
+	    return ret;
+	}
 
 
 	// Defines the send interface recieves an empty pointer from the radio layer

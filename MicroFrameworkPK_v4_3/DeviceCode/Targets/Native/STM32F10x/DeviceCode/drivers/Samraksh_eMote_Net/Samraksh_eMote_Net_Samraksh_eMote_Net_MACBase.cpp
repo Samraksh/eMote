@@ -108,7 +108,7 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 
 INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
 {
-	INT32 result;
+	INT32 result = DS_Success;
 
 	UINT8* configParams = param0.GetBuffer();
 
@@ -130,15 +130,22 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(Mac_Initialize(&Event_Handler, param1, MyAppID, configParams[11], (void*) &config) != DS_Success)
+	if(Mac_Initialize(&Event_Handler, param1, MyAppID, configParams[11], (void*) &config) != DS_Success) {
+	    hr = -1;
 		return DS_Fail;
+	}
 
-	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success)
+	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success) {
+	    hr = -1;
 		return DS_Fail;
+	}
 
-	if(CPU_Radio_ChangeChannel( configParams[11], configParams[10]) != DS_Success)
+	if(CPU_Radio_ChangeChannel( configParams[11], configParams[10]) != DS_Success) {
+	    hr = -1;
 		return DS_Fail;
+	}
 
+	return DS_Success;
 }
 
 INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
