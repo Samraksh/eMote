@@ -140,6 +140,26 @@ void CPU_SPI_Uninitialize()
 }
 
 
+void CPU_SPI_Uninitialize(SPI_CONFIGURATION config)
+{
+#if defined(DEBUG_SPI)
+    hal_printf("SPI Uninitialize #\n");
+#endif
+
+    if(config.SPI_mod == SPIBUS1)
+    {
+        //SPI1
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_SPI1, DISABLE);
+    }
+    else if(config.SPI_mod == SPIBUS2)
+    {
+        //SPI2
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, ENABLE);
+        RCC_APB1PeriphResetCmd(RCC_APB1Periph_SPI2, DISABLE);
+    }
+}
+
 
 void CPU_SPI_Enable(SPI_CONFIGURATION config)
 {
