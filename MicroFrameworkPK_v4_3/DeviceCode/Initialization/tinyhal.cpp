@@ -470,6 +470,8 @@ void HAL_Uninitialize()
 
     SOCKETS_CloseConnections();
 
+    MacLayer_UnInitialize();
+
 #if !defined(HAL_REDUCESIZE)
     CPU_UninitializeCommunication();
 #endif
