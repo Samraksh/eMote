@@ -922,10 +922,7 @@ DeviceStatus RF231Radio::UnInitialize()
     DeviceStatus ret = DS_Success;
     if(IsInitialized())
     {
-        ret = Sleep(0);
-        if(ret == DS_Fail) {
-            goto uninit_out;
-        }
+        RstnClear();
         ASSERT((active_mac_index & 0xFF00) == 0)
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
@@ -941,7 +938,6 @@ DeviceStatus RF231Radio::UnInitialize()
         }
         SetInitialized(FALSE);
     }
-uninit_out:
     return ret;
 }
 
