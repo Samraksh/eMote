@@ -14,7 +14,7 @@
 #define NeighborChanged 1
 #define Received 0
 
-#include "TinyCLR_Runtime.h"
+//#include "TinyCLR_Runtime.h"
 
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12
