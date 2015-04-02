@@ -1,0 +1,234 @@
+using System;
+using Microsoft.SPOT;
+
+namespace Samraksh.eMote.Net
+{
+    /// <summary>Packet object. Passed to native</summary>
+    public class Packet
+    {
+        /// <summary>
+        /// Defines the default size of the mac packet
+        /// </summary>
+        const byte MacPacketSize = 128;
+
+        /// <summary>Received Signal Strength of packet</summary>
+        /// <value>RSSI value</value>
+        public byte RSSI;
+
+        /// <summary>Link Quality Indication measured during the packet reception</summary>
+        /// <value>LQI measured</value>
+        public byte LQI;
+
+        /// <summary>
+        /// Source of the packet transmitted
+        /// </summary>
+        /// <value>Source of the packet</value>
+        public UInt16 Src;
+
+        /// <summary>Was packet sent unicast?</summary>
+        /// <value>True if packet was sent unicast, else broadcast</value>
+        public bool Unicast;
+
+        /// <summary>
+        /// Received Message
+        /// </summary>
+        public byte[] ReceivedMessage
+        {
+            get
+            {
+                return ReceivedMessage;
+            }
+            set
+            {
+                ReceivedMessage = value;
+            }
+        }
+
+        /// <summary>Size of the packet payload</summary>
+        /// <value>Size of packet payload</value>
+        public UInt16 Size;
+
+        /// <summary>The time at which the packet was sent out</summary>
+        /// <value>Time the packet was sent out (microseconds)</value>
+        public long SenderEventTimeStamp;
+
+        /// <summary>The time at which the packet was sent out</summary>
+        /// <value>Time the packet was sent out (microseconds)</value>
+        [Obsolete("Use SenderEventTimestamp instead")]
+        public long senderEventTimeStamp {
+            get { return SenderEventTimeStamp; }
+            set { SenderEventTimeStamp = value; }
+        }
+
+
+        private bool timeStamped;
+
+        /// <summary>Check if packet is timestamped</summary>
+        /// <returns>True iff packet is timestamped</returns>
+        public bool IsSenderTimeStamped()
+        {
+            return timeStamped;
+        }
+
+        /// <summary>Create a packet with the default size</summary>
+        public Packet()
+        {
+            ReceivedMessage = new byte[MacPacketSize];
+        }
+
+        /// <summary>Configure size of packets</summary>
+        /// <param name="Size">Size of packets</param>
+        public Packet(int Size)
+        {
+            ReceivedMessage = new byte[Size];
+        }
+
+        /// <summary>Create a packet with Size, Payload, RSSI, LQI, Src and Unicast information specified in packet array</summary>
+        /// <param name="msg">Packet. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
+        public Packet(byte[] msg)
+        {
+            UInt16 i = 0;
+            UInt16 length = (UInt16) msg[0];
+            length |= (UInt16) (msg[1] << 8);
+
+            Size = length;
+
+            ReceivedMessage = new byte[MacPacketSize];
+
+            //Copy msg from position 2 onwards to ReceivePacket
+            Array.Copy(msg, 2, ReceivedMessage, 0, length);
+
+            /*for (i = 0; i < length; i++)
+            {
+                ReceivePacket[i] = msg[i + 2];
+            }*/
+
+            RSSI = msg[i++ + 2];
+            LQI = msg[i++ + 2];
+
+            Src = msg[i++ + 2];
+            Src |= (UInt16) (msg[i++ + 2] << 8);
+
+            // Determines whether the packet is unicast or not 
+            if (msg[i++ + 2] == 1)
+                Unicast = true;
+            else
+                Unicast = false;
+
+            // Check if the packet is timestamped from the sender 
+            if (msg[i++ + 2] == 1)
+                timeStamped = true;
+            else
+                timeStamped = false;
+
+            // Elaborate conversion plan because nothing else works 
+            UInt32 lsbItem = msg[i++ + 2];
+            lsbItem |= ((UInt32)msg[i++ + 2] << 8);
+            lsbItem |= ((UInt32)msg[i++ + 2] << 16);
+            lsbItem |= ((UInt32)msg[i++ + 2] << 24);
+
+            UInt32 msbItem = msg[i++ + 2];
+            msbItem |= ((UInt32)msg[i++ + 2] << 8);
+            msbItem |= ((UInt32)msg[i++ + 2] << 16);
+            msbItem |= ((UInt32)msg[i++ + 2] << 24);
+
+            
+            long tempTimeStamp = ((long)msbItem << 32) | lsbItem;
+
+            SenderEventTimeStamp = tempTimeStamp;
+
+        }
+
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="packet">Packet payload</param>
+        /// <param name="Src">Source of the packet</param>
+        /// <param name="Unicast">Was transmission unicast</param>
+        /// <param name="RSSI">RSSI</param>
+        /// <param name="LQI">LQI</param>
+        public Packet(byte[] packet, UInt16 Src, bool Unicast, byte RSSI, byte LQI)
+        {
+            //Create a packet object of default size
+            ReceivedMessage = new byte[MacPacketSize];
+
+            // Copy packet to receive packet buffer
+            Array.Copy(packet, ReceivedMessage, packet.Length);
+
+            /*// Copy the packet to the receive packet buffer the traditional way 
+            for (int i = 0; i < packet.Length; i++)
+            {
+                ReceivePacket[i] = packet[i];
+            }*/
+
+            // Copy other parameters to this object 
+            this.Src = Src;
+            this.Unicast = Unicast;
+            this.RSSI = RSSI;
+            this.LQI = LQI;
+        }
+
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="packet">Packet payload</param>
+        /// <param name="Src">Source of the packet</param>
+        /// <param name="Unicast">Was transmission unicast</param>
+        /// <param name="RSSI">RSSI</param>
+        /// <param name="LQI">LQI</param>
+        /// <param name="Size">Size of the payload buffer </param>
+        public Packet(byte[] packet, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size)
+        {
+            //Create a packet object of default size
+            ReceivedMessage = new byte[Size];
+
+            // Copy packet to receive packet buffer
+            Array.Copy(packet, ReceivedMessage, packet.Length);
+
+            /*// Copy the packet to the receive packet buffer the traditional way 
+            for (int i = 0; i < packet.Length; i++)
+            {
+                ReceivePacket[i] = packet[i];
+            }*/
+
+            // Copy other parameters to this object 
+            this.Src = Src;
+            this.Unicast = Unicast;
+            this.RSSI = RSSI;
+            this.LQI = LQI;
+        }
+
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="packet"></param>
+        /// <param name="Src"></param>
+        /// <param name="Unicast"></param>
+        /// <param name="RSSI"></param>
+        /// <param name="LQI"></param>
+        /// <param name="Size"></param>
+        public Packet(byte[] packet, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
+        {
+            //Create a packet object of default size
+            ReceivedMessage = new byte[Size];
+
+            // Copy packet to receive packet buffer
+            Array.Copy(packet, ReceivedMessage, packet.Length);
+
+            /*// Copy the packet to the receive packet buffer the traditional way 
+            for (int i = 0; i < packet.Length; i++)
+            {
+                ReceivePacket[i] = packet[i];
+            }*/
+
+            // Copy other parameters to this object 
+            this.Src = Src;
+            this.Unicast = Unicast;
+            this.RSSI = RSSI;
+            this.LQI = LQI;
+            this.timeStamped = timeStamped;
+        }
+
+        /*/// <summary>Get the next packet</summary>
+        /// <returns>The packet, as a byte array</returns>
+        public byte[] GetPacket()
+        {
+            return ReceivedMessage;
+        }*/
+
+    }
+}

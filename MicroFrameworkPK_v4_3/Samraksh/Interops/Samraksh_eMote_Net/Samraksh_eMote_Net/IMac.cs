@@ -261,14 +261,14 @@ namespace Samraksh.eMote.Net
             DeviceStatus UnInitialize();
             
             /// <summary>
-            /// Send message
+            /// Send packet
             /// </summary>
             /// <param name="address">Address of recipient (can use Addresses.BROADCAST)</param>
-            /// <param name="message">Byte array of to send</param>
+            /// <param name="packet">Byte array of to send</param>
             /// <param name="offset">Offset into array</param>
-            /// <param name="size">Size of message</param>
+            /// <param name="size">Size of packet</param>
             /// <returns></returns>
-            NetOpStatus Send(UInt16 address, byte[] message, UInt16 offset, UInt16 size);
+            NetOpStatus Send(UInt16 address, byte[] packet, UInt16 offset, UInt16 size);
             
             /// <summary>
             /// Get address of MAC instance
@@ -323,7 +323,7 @@ namespace Samraksh.eMote.Net
             /// <summary>
             /// Remove packet from pending
             /// </summary>
-            /// <param name="msg">Message to remove</param>
+            /// <param name="msg">Packet to remove</param>
             /// <returns>Status of result</returns>
             DeviceStatus RemovePacket(byte[] msg);
 

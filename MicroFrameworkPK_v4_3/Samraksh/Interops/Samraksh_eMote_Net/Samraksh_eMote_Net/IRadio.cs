@@ -188,33 +188,33 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Preload radio
         /// </summary>
-        /// <param name="message">Message to preload</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet to preload</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>Success of operation</returns>
-        NetOpStatus PreLoad(byte[] message, UInt16 size);
+        NetOpStatus PreLoad(byte[] packet, UInt16 size);
 
         /// <summary>
-        /// Send preloaded message
+        /// Send preloaded packet
         /// </summary>
         /// <returns>Success of operation</returns>
         NetOpStatus SendStrobe();
 
         /// <summary>
-        /// Send message on radio
+        /// Send packet on radio
         /// </summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet to send</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>Success of operation</returns>
-        NetOpStatus Send(byte[] message, UInt16 size);
+        NetOpStatus Send(byte[] packet, UInt16 size);
 
         /// <summary>
-        /// Sent time-stamped message
+        /// Sent time-stamped packet
         /// </summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="size">Size of message</param>
-        /// <param name="eventTime">Time stamp of message</param>
-        /// <returns>Success of message</returns>
-        NetOpStatus SendTimeStamped(byte[] message, UInt16 size, UInt32 eventTime);
+        /// <param name="packet">Packet to send</param>
+        /// <param name="size">Size of packet</param>
+        /// <param name="eventTime">Time stamp of packet</param>
+        /// <returns>Success of packet</returns>
+        NetOpStatus SendTimeStamped(byte[] packet, UInt16 size, UInt32 eventTime);
 
         /// <summary>
         /// Check if channel is clear
