@@ -326,7 +326,7 @@ void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_Ty
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = Pin;
-	GPIO_InitStructure.GPIO_Mode = mode; // output mode
+	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_Speed = speed;
 	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
 }
