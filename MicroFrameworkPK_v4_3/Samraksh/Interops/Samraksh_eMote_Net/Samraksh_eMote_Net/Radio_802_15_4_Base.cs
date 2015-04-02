@@ -133,16 +133,16 @@ namespace Samraksh.eMote.Net.Radio
     /// </summary>
     public class Radio_802_15_4_Base : NativeEventDispatcher, IRadio
     {
-        // Size of the radio message
-        const byte RadioMessageSize = 128;
+        // Size of the radio packet
+        const byte RadioPacketSize = 128;
 
         // Size of the radio configuration byte array for marshalling purposes
         // Note we are marshalling because NETMF does not support passing custom types to native code
         const byte RadioConfigSize = 3;
 
-        byte[] dataBuffer = new byte[RadioMessageSize];
+        byte[] dataBuffer = new byte[RadioPacketSize];
 
-        Message message;
+        Packet packet;
 
         private RadioName radioName;
 
@@ -225,12 +225,12 @@ namespace Samraksh.eMote.Net.Radio
             ShallowInitialize(Config);
         }
 
-        /// <summary>Releases the message packet's memory.</summary>
+        /// <summary>Releases the packet packet's memory.</summary>
         /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
         /// <returns></returns>
-        public void ReleaseMessage()
+        public void ReleasePacket()
         {
-            message = null;
+            packet = null;
         }
 
         /*
@@ -281,15 +281,17 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>Get the next packet from the radio driver.</summary>
         /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
         /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
-        /// <returns>A data packet of message type to the caller</returns>
-        public Message GetNextPacket()
+        /// <returns>A data packet of packet type to the caller</returns>
+        public Packet GetNextPacket()
         {
+            Array.Clear(dataBuffer, 0, dataBuffer.Length);
+
             if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
                 return null;
 
-            message = new Message(dataBuffer);
+            packet = new Packet(dataBuffer);
 
-            return message;
+            return packet;
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -308,7 +310,7 @@ namespace Samraksh.eMote.Net.Radio
         /// Initialize native radio and interop drivers.
         /// </summary>
         /// <param name="config">MAC configuration.</param>
-        /// <param name="callback">Callback method for received messages.</param>
+        /// <param name="callback">Callback method for received packets.</param>
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         private DeviceStatus Initialize(RadioConfiguration config)
         {
@@ -327,7 +329,7 @@ namespace Samraksh.eMote.Net.Radio
 
 		/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="rcallback">Packet receive callback</param>
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
 		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighborhoodChangeCallBack ncallback) {
@@ -341,7 +343,7 @@ namespace Samraksh.eMote.Net.Radio
 
 		/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="rcallback">Packet receive callback</param>
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
 		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
@@ -459,34 +461,34 @@ namespace Samraksh.eMote.Net.Radio
         public extern DeviceStatus Sleep(byte level);
 
         /// <summary>
-        /// Load the message into the transmit buffer of the radio.
+        /// Load the packet into the transmit buffer of the radio.
         /// </summary>
-        /// <param name="message">Message to load</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet to load</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus PreLoad(byte[] message, UInt16 size);
+        public extern NetOpStatus PreLoad(byte[] packet, UInt16 size);
 
-        /// <summary>Send the message in the transmit buffer</summary>
+        /// <summary>Send the packet in the transmit buffer</summary>
         /// <returns>Result of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendStrobe();	//Send preloaded message
+        public extern NetOpStatus SendStrobe();	//Send preloaded packet
 
-        /// <summary>Load and send a message</summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="size">Size of message</param>
+        /// <summary>Load and send a packet</summary>
+        /// <param name="packet">Packet to send</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>Result of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus Send(byte[] message, UInt16 size);
+        public extern NetOpStatus Send(byte[] packet, UInt16 size);
 
-        /// <summary>Load and send a time-stamped message, with specified time stamp</summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="size">Size of message</param>
+        /// <summary>Load and send a time-stamped packet, with specified time stamp</summary>
+        /// <param name="packet">Packet to send</param>
+        /// <param name="size">Size of packet</param>
         /// <param name="eventTime">The time stamp.</param>
         /// <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
         /// <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(byte[] message, UInt16 size, UInt32 eventTime);
+        public extern NetOpStatus SendTimeStamped(byte[] packet, UInt16 size, UInt32 eventTime);
 
         /// <summary>Assess channel activity</summary>
         /// <remarks>Default is 140 microseconds.</remarks>

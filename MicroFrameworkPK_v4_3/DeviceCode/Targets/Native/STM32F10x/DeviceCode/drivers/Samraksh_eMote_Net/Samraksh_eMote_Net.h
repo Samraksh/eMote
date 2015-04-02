@@ -31,7 +31,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD__NeighborList = 1;
     static const int FIELD__ByteNeighbor = 2;
     static const int FIELD__MarshalBuffer = 3;
-    static const int FIELD__message = 4;
+    static const int FIELD__packet = 4;
     static const int FIELD__macname = 5;
     static const int FIELD__radioObj = 6;
 
@@ -143,16 +143,17 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighbourTable
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
+
+
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Packet
 {
     static const int FIELD__RSSI = 1;
     static const int FIELD__LQI = 2;
     static const int FIELD__Src = 3;
     static const int FIELD__Unicast = 4;
-    static const int FIELD__ReceiveMessage = 5;
-    static const int FIELD__Size = 6;
-    static const int FIELD__SenderEventTimeStamp = 7;
-    static const int FIELD__timeStamped = 8;
+    static const int FIELD__Size = 5;
+    static const int FIELD__SenderEventTimeStamp = 6;
+    static const int FIELD__timeStamped = 7;
 
 
     //--//
@@ -168,6 +169,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_OMAC
     //--//
 
 };
+
+
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 {
@@ -186,7 +189,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     static const int FIELD_STATIC__CurrUser = 11;
 
     static const int FIELD__dataBuffer = 5;
-    static const int FIELD__message = 6;
+    static const int FIELD__packet = 6;
     static const int FIELD__radioName = 7;
     static const int FIELD__marshalBuffer = 8;
 

@@ -9,7 +9,7 @@ namespace Samraksh.eMote.Net
     /// </summary>
     public enum CallbackTypes
     {
-        /// <summary>Message received</summary>
+        /// <summary>Packet received</summary>
         Received,
         /// <summary>Neighborhood has changed</summary>
         NeighborChanged,

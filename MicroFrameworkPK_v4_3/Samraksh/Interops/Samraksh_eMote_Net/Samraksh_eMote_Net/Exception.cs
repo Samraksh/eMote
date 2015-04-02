@@ -15,7 +15,7 @@ namespace Samraksh.eMote.Net
     public class RadioNotConfiguredException : System.Exception
     {
         public RadioNotConfiguredException() { Debug.Print("The Radio has not been configured with a config object or a callback\n"); }
-        public RadioNotConfiguredException(string message) { Debug.Print(message); }
+        public RadioNotConfiguredException(string packet) { Debug.Print(packet); }
     }
 
     public class RadioBusyException : System.Exception

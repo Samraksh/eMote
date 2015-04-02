@@ -39,7 +39,7 @@
     <Compile Include="IMac.cs" />
     <Compile Include="IRadio.cs" />
     <Compile Include="MAC.cs" />
-    <Compile Include="Message.cs" />
+    <Compile Include="Packet.cs" />
     <Compile Include="OMAC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Radio_802_15_4.cs" />
