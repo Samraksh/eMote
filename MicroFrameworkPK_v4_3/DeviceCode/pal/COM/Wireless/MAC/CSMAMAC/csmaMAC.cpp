@@ -175,6 +175,7 @@ BOOL csmaMAC::UnInitialize()
 
 		ret &= CPU_Radio_UnInitialize(this->radioName);
 	}
+	this->Initialized = FALSE;
 	return ret;
 }
 
