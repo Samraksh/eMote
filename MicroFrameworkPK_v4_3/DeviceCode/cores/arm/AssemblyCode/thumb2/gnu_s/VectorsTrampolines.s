@@ -18,7 +18,7 @@ ARM_Vectors:
     .word HARD_Breakpoint
     .word NMI_Handler
 
-    @ remaming vectors
+    @ reaming vectors
     .zero 460
 
     .end

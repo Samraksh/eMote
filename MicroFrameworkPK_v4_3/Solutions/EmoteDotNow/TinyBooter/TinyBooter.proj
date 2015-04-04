@@ -208,7 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="tinycrt_pal_loader.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF_loader.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\TinyCRT\dotNetMF_loader.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />

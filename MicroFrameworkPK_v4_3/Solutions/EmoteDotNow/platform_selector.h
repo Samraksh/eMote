@@ -39,12 +39,14 @@
 
 #define SRAM1_MEMORY_Base   0x20000000
 #define SRAM1_MEMORY_Size   0x00018000
-#if defined(TINYCLR_SOLO)
+#if defined(TINYCLR_SOLO) || defined(SAM_APP_TINYBOOTER)
 #define FLASH_MEMORY_Base   0x08000000
+#define FLASH_MEMORY_Size   0x00100000
 #else
 #define FLASH_MEMORY_Base   0x08020000
+#define FLASH_MEMORY_Size   0x000D0000
 #endif
-#define FLASH_MEMORY_Size   0x00100000
+
 
 #define TXPROTECTRESISTOR               RESISTOR_DISABLED
 #define RXPROTECTRESISTOR               RESISTOR_DISABLED

@@ -12,7 +12,7 @@
    .section BootVectors, "xa", %progbits
 
 Boot_Vectors:
-    .word SAM_STACK_TOP
+    .word StackTop
     .word EntryPoint
     .word HARD_Breakpoint
     @.word NMI_Handler

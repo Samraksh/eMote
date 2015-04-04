@@ -81,7 +81,6 @@
     .global  ARM_Vectors
     .global  Default_Handler
 
-    .equ  Initial_spTop,  SAM_STACK_TOP
 	.equ  BootRAM,        0xF1E0F85F
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -89,7 +88,7 @@
    .section VectorsTrampolines, "xa", %progbits
 
 ARM_Vectors:
-  .word  SAM_STACK_TOP
+  .word  StackTop
   .word  EntryPoint
   .word  NMI_Handler
   .word  HardFault_Handler
