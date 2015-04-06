@@ -88,8 +88,8 @@
    .section VectorsTrampolines, "xa", %progbits
 
 ARM_Vectors:
-  .word  StackTop
-  .word  EntryPoint
+  .word  StackTop            @ Cortex-M3 MSP initial value
+  .word  EntryPoint          @ reset vector
   .word  NMI_Handler
   .word  HardFault_Handler
   .word  MemManage_Handler
