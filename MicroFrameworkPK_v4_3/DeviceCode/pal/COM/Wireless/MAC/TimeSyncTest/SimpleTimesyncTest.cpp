@@ -23,7 +23,7 @@
 
 
 //extern HALTimerManager gHalTimerManagerObject;
-extern VirtualTimer gVirtualTimerObject;
+//extern VirtualTimer gVirtualTimerObject;
 //extern VirtualTimerMapper gVirtualTimerMapperObject;
 extern SimpleTimesyncTest gSimpleTimesyncTest;
 extern UINT16 MF_NODE_ID;
@@ -124,7 +124,7 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
 	l_offset = rcv_ltime - EventTime;
 
-	m_globalTime.regressgt.Insert(msg_src, rcv_ltime, l_offset, (INT64) EventTime);
+	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset, (INT64) EventTime);
 
 #ifdef DEBUG_TSYNC
 	if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
@@ -133,7 +133,7 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 		if (RcvCount>=2  ){
 
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
-			float relfreq = m_globalTime.regressgt.FindRelativeFreq(msg_src);
+			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
 			INT64 y = Time_GetLocalTime();
 			UINT32 start_delay = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
@@ -174,7 +174,7 @@ BOOL SimpleTimesyncTest::Send(){
 		m_timeSyncMsg->testnumber12 = 7;
 		m_timeSyncMsg->testnumber13 = 8;
 
-		m_timeSyncMsg->nodeID = MF_NODE_ID;
+		m_timeSyncMsg->nodeID = 0;//BK: WILDHACK
 		m_timeSyncMsg->seqNo = ++SendCount;
 		m_timeSyncMsg->testnumber20 = 9;
 		m_timeSyncMsg->testnumber21 = 10;
