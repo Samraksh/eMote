@@ -4,7 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-
+#include <Samraksh\..\..\PAL\COM\Wireless\MAC\TimesyncTest\SimpleTimesyncTest.cpp>
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -17,6 +17,8 @@ void ApplicationEntryPoint()
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
     ClrStartup( clrSettings );
+
+    SimpleTimesyncTest_Initialize();
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );
