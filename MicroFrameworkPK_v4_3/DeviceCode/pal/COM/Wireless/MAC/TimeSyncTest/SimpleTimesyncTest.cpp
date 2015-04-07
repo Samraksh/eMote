@@ -2,7 +2,8 @@
  * TimesyncTest.cpp
  */
 #include <tinyhal.h>
-#include <Samraksh/HALTimer.h>
+//#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 #include "SimpleTimesyncTest.h"
 
 
@@ -15,13 +16,15 @@
 #define NBRCLOCKMONITORPIN 31
 #define NBCLOCKMONITORPERIOD 10000
 #define LOCALCLOCKMONITORPIN 30
-#define HAL_LocalClockMonitor_TIMER 32
-#define HAL_NbrClockMonitor_TIMER 33
-#define HAL_SimpleTimesyncTest_Send_TIMER 34
-#define HAL_NbrClockMonitorStart_TIMER 35
+#define LocalClockMonitor_TIMER 32
+#define NbrClockMonitor_TIMER 33
+#define SimpleTimesyncTest_Send_TIMER 34
+#define NbrClockMonitorStart_TIMER 35
 
 
-extern HALTimerManager gHalTimerManagerObject;
+//extern HALTimerManager gHalTimerManagerObject;
+extern VirtualTimer gVirtualTimerObject;
+//extern VirtualTimerMapper gVirtualTimerMapperObject;
 extern SimpleTimesyncTest gSimpleTimesyncTest;
 extern UINT16 MF_NODE_ID;
 //extern Buffer_15_4_t m_receive_buffer;
@@ -104,7 +107,7 @@ void SimpleNeighborClockMonitorTimerHandler(void * arg) {
 }
 
 void StartNeighborClockMonitoyTimerHandler(void *arg){
-	gHalTimerManagerObject.StartTimer(HAL_NbrClockMonitor_TIMER);
+	VirtTimer_Start(NbrClockMonitor_TIMER);
 }
 
 // TIMESYNCTEST
@@ -113,7 +116,7 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
-	bool TimerReturn = gHalTimerManagerObject.StopTimer(HAL_NbrClockMonitor_TIMER);
+	bool TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 #endif
 
 	UINT64 rcv_ltime;
@@ -132,12 +135,12 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
 			float relfreq = m_globalTime.regressgt.FindRelativeFreq(msg_src);
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
-			INT64 y = HAL_Time_CurrentTime();
-			UINT32 start_time = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
+			INT64 y = Time_GetLocalTime();
+			UINT32 start_delay = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
 
-			TimerReturn = gHalTimerManagerObject.ChangeTimer(HAL_NbrClockMonitor_TIMER, NeighborsPeriodLength);
-			TimerReturn = gHalTimerManagerObject.ChangeTimer(HAL_NbrClockMonitorStart_TIMER, start_time);
-			TimerReturn = gHalTimerManagerObject.StartTimer(HAL_NbrClockMonitorStart_TIMER);
+			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, TRUE);
+
+			TimerReturn = VirtTimer_Start(NbrClockMonitorStart_TIMER);
 		}
 	}
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
@@ -148,7 +151,7 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 BOOL SimpleTimesyncTest::Send(){
 
 #ifdef DEBUG_TSYNC
-	gHalTimerManagerObject.StopTimer(HAL_LocalClockMonitor_TIMER);
+	VirtTimer_Stop(LocalClockMonitor_TIMER);
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
 #endif
 	Message_15_4_t * msg_15_4_ptr = &msg_15_4; //Create a new message
@@ -156,7 +159,7 @@ BOOL SimpleTimesyncTest::Send(){
 	SimpleTimeSyncMsg* m_timeSyncMsg = (SimpleTimeSyncMsg *) msg_15_4_ptr->GetPayload();
 
 	INT64 y,d;
-		y = HAL_Time_CurrentTime();
+		y = Time_GetLocalTime();
 		m_timeSyncMsg->testnumber00 = 1;
 		m_timeSyncMsg->testnumber01 = 2;
 		m_timeSyncMsg->testnumber02 = 3;
@@ -183,7 +186,7 @@ BOOL SimpleTimesyncTest::Send(){
 
 #ifdef DEBUG_TSYNC
 		CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
-		gHalTimerManagerObject.StartTimer(HAL_LocalClockMonitor_TIMER);
+		VirtTimer_Start(LocalClockMonitor_TIMER);
 #endif
 		return TRUE;
 }
@@ -197,7 +200,7 @@ BOOL SimpleTimesyncTest::Initialize(){
 	Config.Network = 138;
 	myEventHandler.SetRecieveHandler(SimpleTimesyncTest_ReceiveHandler);
 	myEventHandler.SetSendAckHandler(SimpleTimesyncTest_SendAckHandler);
-	gHalTimerManagerObject.Initialize();
+	VirtTimer_Initialize();
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 #ifdef DEBUG_TIMESYNCTEST
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
@@ -214,10 +217,14 @@ BOOL SimpleTimesyncTest::Initialize(){
 	Mac_Initialize(&myEventHandler,MacId, MyAppID, Config.RadioID, (void*) &Config);
 
 	Nbr2beFollowed=0;
-	gHalTimerManagerObject.CreateTimer(HAL_SimpleTimesyncTest_Send_TIMER, 0, 10000000, FALSE, FALSE, SimpleTimesyncTest_Send_Timer_Handler); //10 sec Timer in micro seconds
-	gHalTimerManagerObject.CreateTimer(HAL_LocalClockMonitor_TIMER, 0,(UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
-	gHalTimerManagerObject.CreateTimer(HAL_NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
-	gHalTimerManagerObject.CreateTimer(HAL_NbrClockMonitorStart_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, StartNeighborClockMonitoyTimerHandler);
+
+	//gVirtualTimerObject.CreateTimer(SimpleTimesyncTest_Send_TIMER, 0, 10000000, FALSE, FALSE, SimpleTimesyncTest_Send_Timer_Handler); //10 sec Timer in micro seconds
+	VirtTimer_SetTimer(SimpleTimesyncTest_Send_TIMER, 0, 10000000, FALSE, FALSE, SimpleTimesyncTest_Send_Timer_Handler);
+	//gVirtualTimerObject.CreateTimer(LocalClockMonitor_TIMER, 0,(UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
+	VirtTimer_SetTimer(LocalClockMonitor_TIMER, 0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
+	//gVirtualTimerObject.CreateTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	VirtTimer_SetTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	//gVirtualTimerObject.CreateTimer(NbrClockMonitorStart_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, StartNeighborClockMonitoyTimerHandler);
 
 	return TRUE;
 }
@@ -225,7 +232,7 @@ BOOL SimpleTimesyncTest::Initialize(){
 BOOL SimpleTimesyncTest::StartTest(){
 	SendCount=0;
 	RcvCount=0;
-	gHalTimerManagerObject.StartTimer(HAL_SimpleTimesyncTest_Send_TIMER);
+	VirtTimer_Start(SimpleTimesyncTest_Send_TIMER);
 	while(1){
 		if(CPU_GPIO_GetPinState((GPIO_PIN) 24)) {
 			CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
