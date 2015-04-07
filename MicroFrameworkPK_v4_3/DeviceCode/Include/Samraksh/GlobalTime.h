@@ -16,8 +16,6 @@
 #define INVALID_TIMESTAMP 0x7FFFFFFFFFFFFFFF
 #define UnknownRelativeFreq 255
 
-extern UINT16 MF_NODE_ID;
-
 struct TSSamples {
 	UINT16 nbrID;
 	INT64 localTime[MAX_SAMPLES];
@@ -29,6 +27,11 @@ struct TSSamples {
 	INT64 offsetAvg;
 	float avgSkew;
 	float relativeFreq;
+	//INT64 Last_TS_localtime;
+	//INT64 Last_Adjust_localtime;
+		//INT64 First_TS_localtime;
+	//INT64 AvgUpdate_TS_localtime;
+	//INT64 SkewCompute_localtime;
 };
 
 class Regression {
@@ -54,7 +57,9 @@ private:
 		//is that all times in the table should be relatively close to each other.
 		//i is the first nonempty entry in the table
 	    UINT8 i,j;
-	    for(i = 0; i < MAX_SAMPLES && nbrLocalTimes[i] == INVALID_TIMESTAMP; ++i);
+	    for(i = 0; i < MAX_SAMPLES && nbrLocalTimes[i] == INVALID_TIMESTAMP; ++i){
+	    	j = 0;
+	    }
 
 
 	    UINT8 firstIdx, lastIdx;
@@ -194,7 +199,9 @@ public:
 		ret = (INT64) (samples[nbrIndex].avgSkew * (curTime - Last_Adjust_localtime));
 		return ret ;
 	}
-
+	/*void SetAdjustTime(INT64 localtime,UINT8 nbrIndex){
+		samples[nbrIndex].Last_Adjust_localtime = localtime;
+	}*/
 	void Insert(UINT16 nbr,INT64 nbr_ltime, INT64 nbr_loffset, INT64 localtime){
 		UINT16 nbrIndex = FindNbr(nbr);
 		//Add new neighbor if not found
@@ -258,7 +265,7 @@ class GlobalTime {
 public:
 	static INT64 offset;
 	static float skew;
-	static Regression regressgt;
+	static Regression regressgt2;
 	static BOOL synced;
 	static UINT16 leader;
 
@@ -267,9 +274,9 @@ public:
 	INT64 Read(){
 		INT64 rtn;
 		rtn = HAL_Time_CurrentTime();
-		//if(leader!=MF_NODE_ID || leader!=0xFFFF){
-		//	return regressgt.NbrTime(leader,rtn);
-		//}
+		if(leader!=0x0000 || leader!=0xFFFF){ //Bk: if(leader!=MF_NODE_ID || leader!=0xFFFF){
+			return regressgt2.NbrTime(leader,rtn);
+		}
 		return  rtn;
 	};
 	float GetSkew();
@@ -283,19 +290,11 @@ public:
 
 
 INT64 GlobalTime::Local2NbrTime(UINT16 nbr, INT64 time){
-	return regressgt.NbrTime(nbr,time);
+	return regressgt2.NbrTime(nbr,time);
 }
 
-/* static INT64 GlobalTime::Read(){
-	INT64 rtn;
-	rtn = HAL_Time_CurrentTime();
-	if(leader!=MF_NODE_ID || leader!=0xFFFF){
-		return regressgt.NbrTime(leader,rtn);
-	}
-	return  rtn;
-} */
 void GlobalTime::Init(){
-	regressgt.Init();
+	regressgt2.Init();
 	leader = 0xFFFF;
 	offset=0;
 }
@@ -303,7 +302,7 @@ float GlobalTime::GetSkew(){
 	return skew;
 }
 BOOL GlobalTime::Adjust(UINT64 value, INT64 localtime, BOOL add){
-	regressgt.Last_Adjust_localtime = localtime;
+	regressgt2.Last_Adjust_localtime = localtime;
 	if(add){
 		offset+=value;
 	}else{
