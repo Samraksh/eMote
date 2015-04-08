@@ -31,7 +31,6 @@
   <ItemGroup>
     <Compile Include="$(SRC_DIR)\Allocator.cpp" />
     <Compile Include="$(SRC_DIR)\TinyBooterEntry.cpp" />
-	<Compile Include="GNU_S\tinyclr_vector.cpp" />
     <CompressBinAsm Include="$(AS_SUBDIR)\TinyBooter_dat.s" />
     <CompressBinComp Include="$(OBJ_DIR)\TinyBooter_compressed.dat" />
     <CompressBinFile Include="$(BIN_DIR)\TinyBooter.bin" />

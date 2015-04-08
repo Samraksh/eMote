@@ -13,8 +13,9 @@
     .extern BootEntry
     .endif
 
+    .extern  VectorRelocate
     .extern  BootstrapCode
-    .extern  Boot_Vectors         @ Even if we don't use this symbol, it's required by the linker to properly include the Vector trampolines.
+    @ .extern  Boot_Vectors         @ Boot_Vectors is obsolete.  Ignore the original warning comment.
 	.extern  ARM_Vectors
 	.extern  Prot_Bytes
 	.extern  SystemInit_ExtMemCtl
@@ -55,7 +56,7 @@ CustomHeapEnd:
     .word   EntryPoint
 
     @ have to reference them otherwise they dont get linked in
-    .word   Boot_Vectors
+    @ .word   Boot_Vectors @ Boot_Vectors is obsolete.
     .word   ARM_Vectors
     .word   Prot_Bytes
 
