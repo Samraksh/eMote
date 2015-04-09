@@ -40,6 +40,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
+    <HFiles Include="DeviceCode/Include/Samraksh/GlobalTime.h" />
     <HFiles Include="SimpleTimesyncTest.h" />
     <Compile Include="SimpleTimesyncTest.cpp" />
     <IncludePaths Include="DeviceCode\include" />
