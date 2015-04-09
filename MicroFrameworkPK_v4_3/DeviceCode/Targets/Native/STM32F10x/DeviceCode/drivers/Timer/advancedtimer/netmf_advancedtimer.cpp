@@ -18,6 +18,9 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
+static void set_compare_upper_16(UINT64 target);
+static void set_compare_lower_16(UINT64 target);
+
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 
@@ -197,71 +200,84 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 }
 
-#if defined(DEBUG_EMOTE_ADVTIME)
-volatile UINT64 badSetComparesCount = 0;    //!< number of requests set in the past.
-volatile UINT64 badSetComparesAvg = 11;     //!< average delay of requests set in the past. init to observed value.
-volatile UINT64 badSetComparesMax = 0;      //!< observed worst-case.
-#endif
+// TODO, improve code in situation where lower_16 is small value.
+static void set_compare_upper_16(UINT64 target) {
+	uint16_t tar_upper;
+	uint16_t now_upper;
+	uint32_t now;
+
+	GLOBAL_LOCK(irq);
+	now = g_STM32F10x_AdvancedTimer.GetCounter();
+	tar_upper = (target >> 16) & 0xFFFF;
+	now_upper = (now >> 16) & 0xFFFF;
+
+	if (tar_upper < now_upper) {
+		// This is either a bad input or a 32-bit roll-over.
+		// Assume the latter, doesn't hurt us... I think --NPS
+		TIM_SetCompare1(TIM2, tar_upper);
+		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+
+		// Check for miss
+		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
+			// Didn't miss, done for now
+			return;
+		}
+		else { // We missed. Back-off.
+			TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+			__DSB(); __ISB();
+		}
+	}
+
+	if (tar_upper > now_upper) {
+		TIM_SetCompare1(TIM2, tar_upper);
+		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+
+		// Make sure we didn't miss on a roll-over
+		// Assuming we can only be off by at most 1 TIM2 tick.
+		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
+			// Didn't miss, done for now
+			return;
+		}
+		else { // We missed. Back-off and keep going with the lower bits
+			TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+			__DSB(); __ISB();
+		}
+		// Else we just keep going with the lower bits
+	}
+	set_compare_lower_16(target);
+}
+
+// Assumes ONLY lower 16-bit need to be aligned.
+// There will be hiccups when lower 16-bits is small, e.g. 0
+static void set_compare_lower_16(UINT64 target) {
+	uint16_t tar_lower;
+	uint16_t now_lower;
+	uint32_t now;
+	const uint16_t MISSED_TIMER_DELAY = 40; // 5us @ 8 MHz
+
+	GLOBAL_LOCK(irq);
+	now = g_STM32F10x_AdvancedTimer.GetCounter();
+	tar_lower = target & 0xFFFF;
+	now_lower = now & 0xFFFF;
+
+	// Don't attempt to set a timer for less than 5us.
+	// TODO: This is probably not the right thing to do.
+	if (tar_lower - now_lower > MISSED_TIMER_DELAY || tar_lower < now_lower) {
+		tar_lower = now_lower + MISSED_TIMER_DELAY;
+	}
+
+	TIM_SetCompare3(TIM1, tar_lower);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+}
+
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT64 compareValue, SetCompareType scType)
 {
-	UINT64 newCompareValue;
-	UINT64 init = Get64Counter();
-
-	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
-	// TODO: change the 800 to something that is not hardcoded as this could break at other frequencies
-	if (compareValue < (init + 800)){
-		compareValue += 800;
-	}
-
-	if(counterCorrection == 0)
-	{
-		newCompareValue = compareValue;
-	}
-	else
-	{
-		newCompareValue = counterCorrection + compareValue;
-	}
-	
-	if(newCompareValue >> 16)
-	{
-		if (scType == SET_COMPARE_TIMER){
-			TIM_SetCompare1(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-		} else {
-			TIM_SetCompare2(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-		}
-	}
-	else
-	{
-		if (scType == SET_COMPARE_TIMER){
-#if defined(DEBUG_EMOTE_ADVTIME)
-			volatile UINT64 Now = g_STM32F10x_AdvancedTimer.Get64Counter();
-			if(Now > (counterCorrection + compareValue)) {
-				UINT64 delta = Now - counterCorrection + compareValue;
-				++badSetComparesCount;
-				if(badSetComparesMax < delta) {
-					badSetComparesMax = delta;
-				}
-				badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
-			}
-#else
-			if(newCompareValue < 100) {
-				newCompareValue += 100;
-			}
-#endif
-				TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-				TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		} else {
-				TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
-				TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-		}
-	}
-
-	
-	currentCompareValue = newCompareValue;
+	set_compare_upper_16( compareValue );
+	currentCompareValue = compareValue;
 	return DS_Success;
 }
 
@@ -280,52 +296,9 @@ void ISR_TIM2(void* Param)
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-		// Small values on the lsb are sometimes missed
-
-		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
-
-		//If only 10 ticks remain, might as well trigger the event. Else, set the compare
-		//value for interrupt to go off at scheduled time.
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)	
-		{
-			// Fire now we already missed the counter value
-			// Create a software trigger
-			////TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-
-		}
-		else
-		{
-			TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		}
+		set_compare_lower_16( g_STM32F10x_AdvancedTimer.currentCompareValue );
 	}
-	if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
-	{
-		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
-		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-
-		// Small values on the lsb are sometimes missed
-
-		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
-
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)
-		//if(TIM1->CNT > lsbValue)
-		{
-			// Fire now we already missed the counter value
-			// Create a software trigger
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-
-		}
-		else
-		{
-			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-		}
-	}
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
 	{
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
@@ -344,18 +317,8 @@ void ISR_TIM1( void* Param )
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-		//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
 
-		//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
-
-
+		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-
-	}
-	if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
-	{
-		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-		HAL_COMPLETION::DequeueAndExec();
 	}
 }
