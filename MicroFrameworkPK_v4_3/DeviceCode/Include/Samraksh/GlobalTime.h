@@ -146,6 +146,10 @@ public:
 	TSSamples samples[MAX_NBR];
 	INT64 Last_Adjust_localtime;
 
+	Regression(){
+		Init();
+	};
+
 	UINT8 FindNbr(UINT16 nbr){
 		for(int i=0; i < MAX_NBR; i++){
 			if (samples[i].nbrID == nbr){
@@ -265,9 +269,13 @@ class GlobalTime {
 public:
 	static INT64 offset;
 	static float skew;
-	static Regression regressgt2;
+	Regression regressgt2;
 	static BOOL synced;
 	static UINT16 leader;
+
+	GlobalTime(){
+
+	};
 
 	void Init();
 
