@@ -204,10 +204,16 @@ volatile UINT64 badSetComparesMax = 0;      //!< observed worst-case.
 #endif
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
-//TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
-DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
+DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT64 compareValue, SetCompareType scType)
 {
-	UINT32 newCompareValue;
+	UINT64 newCompareValue;
+	UINT64 init = Get64Counter();
+
+	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
+	// TODO: change the 800 to something that is not hardcoded as this could break at other frequencies
+	if (compareValue < (init + 800)){
+		compareValue += 800;
+	}
 
 	if(counterCorrection == 0)
 	{
@@ -215,11 +221,10 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 	}
 	else
 	{
-		//TODO: AnanthAtSamraksh -- check if INT64 is right
-		newCompareValue = (UINT32) (counterCorrection + compareValue);
-		//newCompareValue = counterCorrection + compareValue;
+		newCompareValue = counterCorrection + compareValue;
 	}
-	if(compareValue >> 16)
+	
+	if(newCompareValue >> 16)
 	{
 		if (scType == SET_COMPARE_TIMER){
 			TIM_SetCompare1(TIM2, newCompareValue >> 16);
@@ -243,7 +248,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 				badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
 			}
 #else
-			if(compareValue < 100) {
+			if(newCompareValue < 100) {
 				newCompareValue += 100;
 			}
 #endif
@@ -255,8 +260,8 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT3
 		}
 	}
 
+	
 	currentCompareValue = newCompareValue;
-
 	return DS_Success;
 }
 
@@ -267,7 +272,6 @@ UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
 
 void ISR_TIM2(void* Param)
 {
-//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
@@ -354,5 +358,4 @@ void ISR_TIM1( void* Param )
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
 		HAL_COMPLETION::DequeueAndExec();
 	}
-//CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
 }

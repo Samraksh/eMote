@@ -53,8 +53,8 @@ class VirtualTimerInfo
 	// Reserve the timer
 	BOOL   m_reserved_;
 
-	// maintains the number of ticks left to expire
-	INT64   m_ticksTillExpire_;
+	// maintains the ticks needed to load into the comparator
+	UINT64   m_ticks_when_match_;
 
 	// A pointer to the function that will be called on an interrupt
 	TIMER_CALLBACK_FPN m_callBack_;
@@ -69,7 +69,7 @@ public:
 
 	BOOL operator>(const VirtualTimerInfo &other) const
 	{
-		if(m_ticksTillExpire_ > other.m_ticksTillExpire_)
+		if(m_ticks_when_match_ > other.m_ticks_when_match_)
 			return TRUE;
 		else
 			return FALSE;
@@ -78,23 +78,23 @@ public:
 
 	BOOL operator<(const VirtualTimerInfo &other) const
 	{
-		if(m_ticksTillExpire_ < other.m_ticksTillExpire_)
+		if(m_ticks_when_match_ < other.m_ticks_when_match_)
 			return TRUE;
 		else
 			return FALSE;
 	}
 
-	void set_m_ticksTillExpire(INT64 d)
+	void set_m_ticks_when_match_(UINT64 d)
 	{
 		if (d < 0){
 			d = 0;
 		}
-		m_ticksTillExpire_ = d;
+		m_ticks_when_match_ = d;
 	}
 
-	INT64 get_m_ticksTillExpire()
+	UINT64 get_m_ticks_when_match_()
 	{
-		return m_ticksTillExpire_;
+		return m_ticks_when_match_;
 	}
 
 	void set_m_timer_id(UINT8 timer_id)
@@ -215,18 +215,7 @@ public:
 
 	BOOL ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
 
-
 	BOOL UnInitialize(UINT16);
-
-	UINT64 get_m_lastQueueAdjustmentTime()
-	{
-		return m_lastQueueAdjustmentTime;
-	}
-
-	void set_m_lastQueueAdjustmentTime(UINT64 lastQueueAdjustmentTime)
-	{
-		m_lastQueueAdjustmentTime = lastQueueAdjustmentTime;
-	}
 
 	inline BOOL VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex);
 

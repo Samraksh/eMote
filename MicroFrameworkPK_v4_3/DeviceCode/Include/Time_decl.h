@@ -201,7 +201,7 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 
 //TODO: AnanthAtSamraksh -- check if UINT64 is right
 ////BOOL CPU_TIMER_SetCompare(UINT64 CompareValue);
-BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue);
+BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue);
 
 UINT16 CPU_Timer_GetCounter(UINT16 Timer);
 UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);

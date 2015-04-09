@@ -102,7 +102,7 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 // Returns true if set compare is successfull else returns false.
 // Accepts only Timer values not equal to 0 and system timer.
 // Calls the timer driver set compare function.
-BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
+BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
@@ -143,7 +143,7 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		g_STM32F10x_AdvancedTimer.SetCompare(CPU_Timer_CurrentTicks(Timer), CompareValue, SET_COMPARE_TIMER);
+		g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
 	}
 
 	return TRUE;
