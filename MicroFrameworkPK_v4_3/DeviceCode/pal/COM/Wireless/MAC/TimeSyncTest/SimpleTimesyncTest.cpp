@@ -12,7 +12,7 @@
 #define DEBUG_TSYNC 1
 
 #define TIMESYNCSENDPIN 2
-#define TIMESYNCRECEIVEPIN 3
+#define TIMESYNCRECEIVEPIN 4
 #define NBRCLOCKMONITORPIN 31
 #define NBCLOCKMONITORPERIOD 10000
 #define LOCALCLOCKMONITORPIN 30
@@ -201,10 +201,10 @@ BOOL SimpleTimesyncTest::Initialize(){
 	myEventHandler.SetRecieveHandler(SimpleTimesyncTest_ReceiveHandler);
 	myEventHandler.SetSendAckHandler(SimpleTimesyncTest_SendAckHandler);
 	VirtTimer_Initialize();
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 #ifdef DEBUG_TIMESYNCTEST
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) NBRCLOCKMONITORPIN, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) LOCALCLOCKMONITORPIN, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, FALSE);
