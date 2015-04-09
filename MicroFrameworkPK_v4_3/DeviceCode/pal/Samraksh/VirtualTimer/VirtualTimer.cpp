@@ -210,9 +210,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	}
 
 	// Initializing timer
-	UINT32 ticks;
-	ticks = g_VirtualTimerInfo[VTimerIndex].get_m_period();
-	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks()  + ticks + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
+	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks()  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 
 	// TODO: checking to see if we are within a timer callback already probably no longer needs to  be done and we can probably delete inVTCallback
@@ -326,7 +324,7 @@ void VirtualTimerCallback(void *arg)
 	UINT64 matchTicks;
 	for(i = 0; i < currentVirtualTimerCount; i++){
 		// TODO: 500 is hardcoded here but should be changed to allow for frequency changes
-		matchTicks = HAL_Time_CurrentTicks() + 500;
+		matchTicks = HAL_Time_CurrentTicks() + 100;
 		if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE){
 			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_timer_id() != runningTimer->get_m_timer_id())
 			{
