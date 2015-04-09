@@ -50,6 +50,7 @@ UINT32 STM32F10x_AdvancedTimer::GetCounter()
 UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 {
 	currentCounterValue = counterValue;
+	return currentCounterValue;
 }
 
 
@@ -82,7 +83,7 @@ void STM32F10x_AdvancedTimer::ClearTimerOverflow()
 	timerOverflowFlag = FALSE;
 }
 
-// Initialize the advanced timer system. This inolves initializing timer1 as a master timer and tim2 as a slave
+// Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
 // and using timer1 as a prescaler to timer2.
 DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void *ISR_Param)
 {
@@ -103,7 +104,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
 
-	// Set the timer overflow flag to false during intialization
+	// Set the timer overflow flag to false during initialization
 	// This flag is set when an over flow happens on timer 2 which happens to represent
 	// the most significant 16 bits of our timer system
 	// This event has to be recorded to ensure that we keep track of ticks expired since birth
@@ -272,10 +273,31 @@ static void set_compare_lower_16(UINT64 target) {
 	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 }
 
+#if defined(DEBUG_EMOTE_ADVTIME)
+volatile UINT64 badSetComparesCount = 0;       //!< number of requests set in the past.
+volatile UINT64 badSetComparesAvg = 0;         //!< average delay of requests set in the past.
+volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
+volatile UINT64 badCounterCorrectionCount = 0; //!< number of bad corrections (checks for values >0 in rework).
+#endif
+
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT64 compareValue, SetCompareType scType)
 {
+#if defined(DEBUG_EMOTE_ADVTIME)
+	volatile UINT64 NowTicks = g_STM32F10x_AdvancedTimer.Get64Counter();
+	if(counterCorrection > 0) {
+		++badCounterCorrectionCount;
+	}
+	if(NowTicks > (counterCorrection + compareValue)) {
+		UINT64 delta = NowTicks - counterCorrection + compareValue;
+		++badSetComparesCount;
+		if(badSetComparesMax < delta) {
+			badSetComparesMax = delta;
+		}
+		badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
+	}
+#endif
 	set_compare_upper_16( compareValue );
 	currentCompareValue = compareValue;
 	return DS_Success;

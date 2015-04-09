@@ -105,6 +105,7 @@ BOOL STM32F10x_AdvancedTimer::initialized = FALSE;
 extern volatile UINT64 badSetComparesCount;
 extern volatile UINT64 badSetComparesAvg;
 extern volatile UINT64 badSetComparesMax;
+extern volatile UINT64 badCounterCorrectionCount;
 #endif
 
 #endif

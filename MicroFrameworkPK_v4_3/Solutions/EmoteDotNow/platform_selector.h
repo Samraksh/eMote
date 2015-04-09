@@ -134,9 +134,18 @@
 ///////////////////////////////////////SAMRAKSH's CLR and Network Stack Definitions/////////////////////
 //#define BUILD_RTM
 
+// TODO: centralize Samraksh's many driver debug macros here...
 //#define DEBUG_EMOTE_TIME     // record delay when HAL_Time_SetCompare is asked to compare against a time in the past
 //#define DEBUG_EMOTE_ADVTIME  // record delay when STM32F10x_AdvancedTimer::SetCompare is asked to compare against a time in the past
 
+#if defined(BUILD_RTM) || !defined(DEBUG)
+#if defined(DEBUG_EMOTE_TIME) || defined(DEBUG_EMOTE_ADVTIME)
+#warning "######################################################################"
+#warning " WARNING! FOUND DEBUG MACROS IN NON-DEBUG FLAVOR! YMMV. DO NOT SHIP! >_<"
+#warning "######################################################################"
+#error "To proceed with using selected debug macros in Release flavor, please temporarily comment-out this #error line."
+#endif /* DEBUG_* */
+#endif /* !DEBUG */
 
 //#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
