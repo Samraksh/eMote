@@ -277,20 +277,16 @@ static void set_compare_lower_16(UINT64 target) {
 volatile UINT64 badSetComparesCount = 0;       //!< number of requests set in the past.
 volatile UINT64 badSetComparesAvg = 0;         //!< average delay of requests set in the past.
 volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
-volatile UINT64 badCounterCorrectionCount = 0; //!< number of bad corrections (checks for values >0 in rework).
 #endif
 
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
-DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT64 compareValue, SetCompareType scType)
+DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
 #if defined(DEBUG_EMOTE_ADVTIME)
 	volatile UINT64 NowTicks = g_STM32F10x_AdvancedTimer.Get64Counter();
-	if(counterCorrection > 0) {
-		++badCounterCorrectionCount;
-	}
-	if(NowTicks > (counterCorrection + compareValue)) {
-		UINT64 delta = NowTicks - (counterCorrection + compareValue);
+	if(NowTicks > compareValue) {
+		UINT64 delta = NowTicks - compareValue;
 		++badSetComparesCount;
 		if(badSetComparesMax < delta) {
 			badSetComparesMax = delta;

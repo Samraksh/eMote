@@ -138,12 +138,10 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 			g_Timer16Bit_Driver.ForceInterrupt( g_Timer16Bit_Driver.c_SystemTimer );
 		}
 
-		//TODO: AnanthAtSamraksh -- g_Timer16Bit_Driver.GetCounter(Timer) returns a UINT16, whereas SetCompare takes a UINT32
-		//g_Timer16Bit_Driver.SetCompare(Timer, g_Timer16Bit_Driver.GetCounter(Timer) + CompareValue);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
-		g_STM32F10x_AdvancedTimer.SetCompare(0, CompareValue, SET_COMPARE_TIMER);
+		g_STM32F10x_AdvancedTimer.SetCompare(CompareValue);
 	}
 
 	return TRUE;
