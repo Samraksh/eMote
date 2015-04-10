@@ -318,7 +318,7 @@ void VirtualTimerCallback(void *arg)
 		// calculating the next time this timer will fire
 		runningTimer->set_m_ticks_when_match_(HAL_Time_CurrentTicks() + runningTimer->get_m_period());
 	}
-
+/*
 	// we go through all running timers (except the one that just fired) and call any callbacks that need to be called because there is not enough time to set the timer comparator, 
 	// then exit this function, and then exit the timer interrupt which called this function
 	UINT64 matchTicks;
@@ -340,7 +340,7 @@ void VirtualTimerCallback(void *arg)
 			}
 		}
 	}
-		
+	*/	
 	// we look for the running timer that needs to be fired the earliest and set the timer comparator
 	UINT16 nextTimer = 0;
 	UINT64 smallestTicks = 0x0000FFFFFFFFFFFFull;

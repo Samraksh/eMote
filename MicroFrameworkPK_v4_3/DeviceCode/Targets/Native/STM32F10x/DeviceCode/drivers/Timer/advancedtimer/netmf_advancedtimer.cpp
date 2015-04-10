@@ -256,13 +256,11 @@ static void set_compare_lower_16(UINT64 target) {
 	// TODO: This is probably not the right thing to do.
 	if ( tar_lower >= now_lower){
 		if ( (tar_lower - now_lower) < MISSED_TIMER_DELAY){
-			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-			return;
+			tar_lower = now_lower + MISSED_TIMER_DELAY;
 		}
 	} else {
 		if ( ( (0xffffffff - now_lower) + tar_lower) < MISSED_TIMER_DELAY) {
-			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-			return;
+			tar_lower = now_lower + MISSED_TIMER_DELAY;
 		}
 	}
 
