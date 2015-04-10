@@ -119,10 +119,10 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
 	config.RadioID = configParams[4];
-	config.NeighborLivelinessDelay = configParams[5];
-	config.NeighborLivelinessDelay |= configParams[6] << 8;
-	config.NeighborLivelinessDelay |= configParams[7] << 16;
-	config.NeighborLivelinessDelay |= configParams[8] << 24;
+	config.NeighborLivenessDelay = configParams[5];
+	config.NeighborLivenessDelay |= configParams[6] << 8;
+	config.NeighborLivenessDelay |= configParams[7] << 16;
+	config.NeighborLivenessDelay |= configParams[8] << 24;
 
 	Event_Handler.SetRecieveHandler(&ReceiveDoneCallbackFn);
 	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);

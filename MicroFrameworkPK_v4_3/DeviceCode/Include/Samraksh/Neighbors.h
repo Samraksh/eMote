@@ -89,7 +89,7 @@ public:
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
-	UINT8  UpdateNeighborTable(UINT32 NeighborLivelinessDelay);
+	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 };
@@ -98,9 +98,9 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
-UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivelinessDelay)
+UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
-	return BringOutYourDead(NeighborLivelinessDelay);
+	return BringOutYourDead(NeighborLivenessDelay);
 }
 
 DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){

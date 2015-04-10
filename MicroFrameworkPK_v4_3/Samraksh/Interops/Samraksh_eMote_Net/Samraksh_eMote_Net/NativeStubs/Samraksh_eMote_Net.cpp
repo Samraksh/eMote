@@ -10,6 +10,27 @@
 #include "Samraksh_eMote_Net.h"
 
 
+CLR_RT_HeapBlock_NativeEventDispatcher *Net_ne_Context;
+UINT64 Net_ne_userData;
+
+static HRESULT Initialize_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData ){
+	Net_ne_Context = pContext;
+	Net_ne_userData = userData;
+	return S_OK;
+}
+
+static HRESULT  EnableDisable_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable ){
+	return S_OK;
+}
+
+static HRESULT Cleanup_Net_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext ){
+	Net_ne_Context = NULL;
+	Net_ne_userData = 0;
+	CleanupNativeEventsFromHALQueue( pContext );
+	return S_OK;
+}
+
+
 static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
@@ -69,6 +90,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNeighborInternal___SamraksheMoteNetDeviceStatus__U2__SZARRAY_U1,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -189,7 +212,36 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net =
 {
     "Samraksh_eMote_Net", 
-    0x6F8ADE4D,
+    0x357DDFC6,
     method_lookup
 };
+
+static const CLR_RT_DriverInterruptMethods g_CLR_Radio_802_15_4_DriverMethods =
+{
+  Initialize_Net_Driver,
+  EnableDisable_Net_Driver,
+  Cleanup_Net_Driver
+};
+
+static const CLR_RT_DriverInterruptMethods g_CLR_CSMA_MAC_DriverMethods =
+{
+  Initialize_Net_Driver,
+  EnableDisable_Net_Driver,
+  Cleanup_Net_Driver
+};
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4  =
+{
+    "RadioCallback_802_15_4",
+    DRIVER_INTERRUPT_METHODS_CHECKSUM,
+    &g_CLR_Radio_802_15_4_DriverMethods
+};
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback  =
+{
+    "CSMACallback",
+    DRIVER_INTERRUPT_METHODS_CHECKSUM,
+    &g_CLR_CSMA_MAC_DriverMethods
+};
+
 

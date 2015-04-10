@@ -25,7 +25,7 @@ struct MacConfig {
     UINT8 CCASenseTime;
     UINT8 BufferSize;
     UINT8 RadioID;
-    UINT32 NeighborLivelinessDelay;
+    UINT32 NeighborLivenessDelay;
 };
 //struct MacConfig;
 

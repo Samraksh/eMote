@@ -238,4 +238,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_LR
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net;
 
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4;
+
+
 #endif  //_SAMRAKSH_EMOTE_NET_H_
