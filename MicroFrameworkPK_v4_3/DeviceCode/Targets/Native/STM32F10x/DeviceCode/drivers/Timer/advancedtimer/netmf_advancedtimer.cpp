@@ -158,10 +158,14 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
     /* Master Mode selection */
 	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
-
    /* Select the Master Slave Mode */
     TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
 
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
     // Active timer 1 cc interrupt
 	if( !CPU_INTC_ActivateInterrupt(TIM1_CC_IRQn, ISR_TIM1, NULL) )
@@ -175,6 +179,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
 
 	// Need the update flag for overflow bookkeeping
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
 	// Enable both the timers, TIM1 because it the LS two bytes
@@ -188,14 +193,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	//===========================================
 	// The following wait and re-initialization is needed to get the SetCompare() working
-	for(int i=0; i<100000;i++){}
-
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	//for(int i=0; i<100000;i++){}
 
     return DS_Success;
 
