@@ -59,7 +59,7 @@ public:
 	UINT32 currentCounterValue;
 
 	// Stores the current active compare value in the system
-	UINT32 currentCompareValue;
+	volatile UINT64 currentCompareValue;
 
 	HAL_CALLBACK_FPN callBackISR;
 	void* callBackISR_Param;
