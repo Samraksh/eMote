@@ -208,11 +208,17 @@ static void set_compare_upper_16(UINT64 target) {
 	uint32_t now;
 
 	GLOBAL_LOCK(irq);
-	now = g_STM32F10x_AdvancedTimer.GetCounter();
+	now = g_STM32F10x_AdvancedTimer.Get64Counter();
+	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
+	// TODO: change the 800 to something that is not hardcoded as this could break at other frequencies
+	if (target < (now + 800)){
+		target += 800;
+	}
+
 	tar_upper = (target >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
 
-	if (tar_upper < now_upper) {
+	if (tar_upper > 0){
 		// This is either a bad input or a 32-bit roll-over.
 		// Assume the latter, doesn't hurt us... I think --NPS
 		TIM_SetCompare1(TIM2, tar_upper);
@@ -230,23 +236,6 @@ static void set_compare_upper_16(UINT64 target) {
 		}
 	}
 
-	if (tar_upper > now_upper) {
-		TIM_SetCompare1(TIM2, tar_upper);
-		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-
-		// Make sure we didn't miss on a roll-over
-		// Assuming we can only be off by at most 1 TIM2 tick.
-		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
-			// Didn't miss, done for now
-			return;
-		}
-		else { // We missed. Back-off and keep going with the lower bits
-			TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-			__DSB(); __ISB();
-		}
-		// Else we just keep going with the lower bits
-	}
 	set_compare_lower_16(target);
 }
 
@@ -265,8 +254,16 @@ static void set_compare_lower_16(UINT64 target) {
 
 	// Don't attempt to set a timer for less than 5us.
 	// TODO: This is probably not the right thing to do.
-	if (tar_lower - now_lower > MISSED_TIMER_DELAY || tar_lower < now_lower) {
-		tar_lower = now_lower + MISSED_TIMER_DELAY;
+	if ( tar_lower >= now_lower){
+		if ( (tar_lower - now_lower) < MISSED_TIMER_DELAY){
+			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
+			return;
+		}
+	} else {
+		if ( ( (0xffffffff - now_lower) + tar_lower) < MISSED_TIMER_DELAY) {
+			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
+			return;
+		}
 	}
 
 	TIM_SetCompare3(TIM1, tar_lower);
