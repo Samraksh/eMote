@@ -290,7 +290,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT6
 		++badCounterCorrectionCount;
 	}
 	if(NowTicks > (counterCorrection + compareValue)) {
-		UINT64 delta = NowTicks - counterCorrection + compareValue;
+		UINT64 delta = NowTicks - (counterCorrection + compareValue);
 		++badSetComparesCount;
 		if(badSetComparesMax < delta) {
 			badSetComparesMax = delta;
