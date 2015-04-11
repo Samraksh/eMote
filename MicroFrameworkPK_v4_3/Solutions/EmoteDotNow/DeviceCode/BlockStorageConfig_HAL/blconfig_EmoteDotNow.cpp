@@ -1,5 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Copyright (c) 2007-20015 The Samraksh Company.  All rights reserved.
+// External NOR Flash configuration file.
+// FIXME: Is this depreciated, or just not finished? - MAM@20150318
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <tinyhal.h>
@@ -23,7 +25,7 @@
 #define BLCONFIG_EmoteDotNow_WAIT_STATES       7                    /* New freescale board uses 75 nS parts */
 #define BLCONFIG_EmoteDotNow_RELEASE_COUNTS    0
 #define BLCONFIG_EmoteDotNow_BIT_WIDTH         (16 | (1 << 16))     /* Data is on D15-D0 on the freescale boards  */
-#define BLCONFIG_EmoteDotNow_BASE_ADDRESS      FLASH_MEMORY_Base
+#define BLCONFIG_EmoteDotNow_BASE_ADDRESS      FLASH_MEMORY_Base    /* FIXME: why does this use FLASH_MEMORY_Base which is defined in platform_selector.h as internal flash address */
 #define BLCONFIG_EmoteDotNow_SIZE_IN_BYTES     8*1024*1024
 #define BLCONFIG_EmoteDotNow_BYTES_PER_SECTOR  2
 #define BLCONFIG_EmoteDotNow_BYTES_PER_BLOCK   0x20000

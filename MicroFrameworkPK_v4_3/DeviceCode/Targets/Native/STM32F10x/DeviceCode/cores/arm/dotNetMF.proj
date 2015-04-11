@@ -56,7 +56,7 @@
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\FirstEntry.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\IDelayLoop.s" />
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />
-	 <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\BootVectors.s" />	 
+	 <!-- <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\BootVectors.s" /> --> <!-- BootVectors.s is obsolete. -->
 	 <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\ProtectionArea.s" />	 
     </ItemGroup>
 

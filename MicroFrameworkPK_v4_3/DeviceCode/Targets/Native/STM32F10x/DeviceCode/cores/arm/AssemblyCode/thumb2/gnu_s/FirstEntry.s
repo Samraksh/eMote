@@ -13,8 +13,9 @@
     .extern BootEntry
     .endif
 
+    .extern  VectorRelocate
     .extern  BootstrapCode
-    .extern  Boot_Vectors         @ Even if we don't use this symbol, it's required by the linker to properly include the Vector trampolines.
+    @ .extern  Boot_Vectors         @ Boot_Vectors is obsolete.  Ignore the original warning comment.
 	.extern  ARM_Vectors
 	.extern  Prot_Bytes
 	.extern  SystemInit_ExtMemCtl
@@ -24,22 +25,22 @@
 
     .section SectionForStackBottom,       "a", %progbits
 StackBottom:
-    .word   SAM_STACK_BOTTOM
+    .word   0
     .section SectionForStackTop,          "a", %progbits
 StackTop:
-    .word   SAM_STACK_TOP
+    .word   0
     .section SectionForHeapBegin,         "a", %progbits
 HeapBegin:
-	.word   SAM_HEAP_BEGIN
+    .word   0
     .section SectionForHeapEnd,           "a", %progbits
 HeapEnd:
-	.word   SAM_HEAP_END
+    .word   0
     .section SectionForCustomHeapBegin,   "a", %progbits
 CustomHeapBegin:
-	.word   SAM_HEAP_BEGIN
+    .word   0
     .section SectionForCustomHeapEnd,     "a", %progbits
 CustomHeapEnd:
-	.word   SAM_HEAP_END
+    .word   0
 
     .global StackBottom
     .global StackTop
@@ -48,9 +49,6 @@ CustomHeapEnd:
     .global CustomHeapBegin
     .global CustomHeapEnd
 
-	.equ  InitStackTop,  SAM_STACK_TOP     @for stmxl of 96KB ram
-	@.equ  InitStackTop,  0x20009000
-
     .section i.EntryPoint, "xa", %progbits
 
     @ signature & mini vector table
@@ -58,7 +56,7 @@ CustomHeapEnd:
     .word   EntryPoint
 
     @ have to reference them otherwise they dont get linked in
-    .word   Boot_Vectors
+    @ .word   Boot_Vectors @ Boot_Vectors is obsolete.
     .word   ARM_Vectors
     .word   Prot_Bytes
 
@@ -66,8 +64,8 @@ CustomHeapEnd:
 EntryPoint:
 	@Set stack pointer
 	@bl SystemInit_ExtMemCtl
-	LDR r0, =InitStackTop
-  	MSR msp, r0
+    LDR r0, =StackTop   @ new SYS stack pointer for a full decrementing stack
+    MSR msp, r0         @ stack top
 	bl VectorRelocate
     bl BootstrapCode
     bl BootEntry
