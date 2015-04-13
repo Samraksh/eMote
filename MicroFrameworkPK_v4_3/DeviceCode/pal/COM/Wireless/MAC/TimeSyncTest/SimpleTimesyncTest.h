@@ -71,6 +71,8 @@ public:
 	UINT16 SendCount;
 	UINT16 RcvCount;
 	UINT16 Nbr2beFollowed;
+	bool LocalClkMonitorPinState;
+	bool NeighClkMonitorPinState;
 
 
 	BOOL Initialize();
