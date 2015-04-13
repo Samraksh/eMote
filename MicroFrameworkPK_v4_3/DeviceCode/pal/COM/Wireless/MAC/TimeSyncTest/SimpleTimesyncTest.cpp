@@ -11,11 +11,12 @@
 #define DEBUG_TIMESYNCTEST 1
 #define DEBUG_TSYNC 1
 
+//#define ACTIVITYPIN 24
 #define TIMESYNCSENDPIN 2
-#define TIMESYNCRECEIVEPIN 4
+#define TIMESYNCRECEIVEPIN 23
 #define NBRCLOCKMONITORPIN 31
-#define NBCLOCKMONITORPERIOD 10000
-#define LOCALCLOCKMONITORPIN 30
+#define NBCLOCKMONITORPERIOD 100000
+#define LOCALCLOCKMONITORPIN 29
 #define LocalClockMonitor_TIMER 32
 #define NbrClockMonitor_TIMER 33
 #define SimpleTimesyncTest_Send_TIMER 34
@@ -86,29 +87,32 @@ void SimpleTimesyncTest_SendAckHandler (void* msg, UINT16 size, NetOpStatus stat
 
 void SimpleLocalClockMonitorTimerHandler(void * arg) {
 	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN)) {
-		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, FALSE);
+
+	if(gSimpleTimesyncTest.LocalClkMonitorPinState) {
+		gSimpleTimesyncTest.LocalClkMonitorPinState = false;
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
 	}
 	else {
-		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, TRUE);
+		gSimpleTimesyncTest.LocalClkMonitorPinState = true;
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, true);
 	}
 	//g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ISLocalCLKScheduled = FALSE;
 	//LocalClockMonitorTimerScheduler();
 
 }
+
 void SimpleNeighborClockMonitorTimerHandler(void * arg) {
 	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) NBRCLOCKMONITORPIN)) {
-		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, FALSE);
+	if(gSimpleTimesyncTest.NeighClkMonitorPinState) {
+		gSimpleTimesyncTest.NeighClkMonitorPinState = false;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
 	}
 	else {
-		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, TRUE);
+		gSimpleTimesyncTest.NeighClkMonitorPinState = true;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
 	}
 }
 
-void StartNeighborClockMonitoyTimerHandler(void *arg){
-	VirtTimer_Start(NbrClockMonitor_TIMER);
-}
 
 // TIMESYNCTEST
 
@@ -135,12 +139,13 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
 			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
-			INT64 y = Time_GetLocalTime();
+			INT64 y = HAL_Time_CurrentTime();
 			UINT32 start_delay = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
+			//start_delay = 3200;
 
 			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, TRUE);
 
-			TimerReturn = VirtTimer_Start(NbrClockMonitorStart_TIMER);
+			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
 		}
 	}
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
@@ -159,7 +164,7 @@ BOOL SimpleTimesyncTest::Send(){
 	SimpleTimeSyncMsg* m_timeSyncMsg = (SimpleTimeSyncMsg *) msg_15_4_ptr->GetPayload();
 
 	INT64 y,d;
-		y = Time_GetLocalTime();
+		y = HAL_Time_CurrentTime();
 		m_timeSyncMsg->testnumber00 = 1;
 		m_timeSyncMsg->testnumber01 = 2;
 		m_timeSyncMsg->testnumber02 = 3;
@@ -201,7 +206,7 @@ BOOL SimpleTimesyncTest::Initialize(){
 	myEventHandler.SetRecieveHandler(SimpleTimesyncTest_ReceiveHandler);
 	myEventHandler.SetSendAckHandler(SimpleTimesyncTest_SendAckHandler);
 	VirtTimer_Initialize();
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) ACTIVITYPIN, FALSE);
 #ifdef DEBUG_TIMESYNCTEST
 	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
 	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
@@ -213,6 +218,9 @@ BOOL SimpleTimesyncTest::Initialize(){
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
 
+	LocalClkMonitorPinState = false;
+	NeighClkMonitorPinState = false;
+
 	MacId = CSMAMAC;
 	Mac_Initialize(&myEventHandler,MacId, MyAppID, Config.RadioID, (void*) &Config);
 
@@ -223,7 +231,7 @@ BOOL SimpleTimesyncTest::Initialize(){
 	//gVirtualTimerObject.CreateTimer(LocalClockMonitor_TIMER, 0,(UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
 	VirtTimer_SetTimer(LocalClockMonitor_TIMER, 0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
 	//gVirtualTimerObject.CreateTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
-	VirtTimer_SetTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	VirtTimer_SetTimer(NbrClockMonitor_TIMER, 0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
 	//gVirtualTimerObject.CreateTimer(NbrClockMonitorStart_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, StartNeighborClockMonitoyTimerHandler);
 
 	return TRUE;
@@ -232,15 +240,16 @@ BOOL SimpleTimesyncTest::Initialize(){
 BOOL SimpleTimesyncTest::StartTest(){
 	SendCount=0;
 	RcvCount=0;
+	int a;
 	VirtTimer_Start(SimpleTimesyncTest_Send_TIMER);
 	while(1){
-		if(CPU_GPIO_GetPinState((GPIO_PIN) 24)) {
-			CPU_GPIO_SetPinState((GPIO_PIN) 24, FALSE);
-		}
-		else {
-			CPU_GPIO_SetPinState((GPIO_PIN) 24, TRUE);
-		}
-		//HAL_Time_Sleep_MicroSeconds(5000000);
+//		if(CPU_GPIO_GetPinState((GPIO_PIN) ACTIVITYPIN)) {
+//			CPU_GPIO_SetPinState((GPIO_PIN) ACTIVITYPIN, FALSE);
+//		}
+//		else {
+//			CPU_GPIO_SetPinState((GPIO_PIN) ACTIVITYPIN, TRUE);
+//		}
+//		//HAL_Time_Sleep_MicroSeconds(5000000);
 	}
 	return TRUE;
 }
