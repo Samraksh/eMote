@@ -1123,15 +1123,15 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
         }
     }
 
-	HAL_Time_Uninitialize();
 
-     // Nived.Sivadas@samraksh.com : Reset_handler is not at the start of the executable, can change this but going with this for now
-    //startAddress = (ApplicationStartAddress) TinyBooter_AddEntryOffSet((void *) startAddress);
 #ifdef PLATFORM_ARM_EmoteDotNow
-    int JumpAddress = *(__IO UINT32 *) (startAddress + 4);
-    pFunction Jump_To_Application = (pFunction) JumpAddress;
-    //__set_MSP(*(__IO UINT32*) startAddress);
+    HAL_Time_Uninitialize();
+
+    int ResetVector = *(__IO UINT32 *) (startAddress + 4);  // Cortex-M3 vector table is MSP followed by Reset
+    pFunction Jump_To_Application = (pFunction) ResetVector;
+    // Contract: MSP is set by target application entry.
     Jump_To_Application();
+
 #else
         (*startAddress)();
 #endif
@@ -1406,7 +1406,7 @@ bool Loader_Engine::Monitor_Execute( WP_Message* msg )
         device->Read(signatureAddress, 4, (BYTE*)&data);
         fAddressOK = (data == Tinybooter_ProgramWordCheck());        
     }
-    else //ram
+    else if(cmd->m_address != 0) //ram // Samraksh: c_EnumerateAndLaunchAddress == 0 means we read address at 0 which will alias to our image's first address and incorrectly set fAddressOK to true and trigger execution at the stack top (because Cortex-M3 first word is stack top instead of reset trampoline) so it may hard fault.
     {
         fAddressOK = (*(UINT32*)signatureAddress == Tinybooter_ProgramWordCheck());
     }

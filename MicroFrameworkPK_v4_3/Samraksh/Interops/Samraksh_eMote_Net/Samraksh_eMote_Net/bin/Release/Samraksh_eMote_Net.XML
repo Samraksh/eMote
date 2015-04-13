@@ -90,6 +90,11 @@
             Busy 
             </summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.DeviceStatus.Timeout">
+            <summary>
+            Timeout 
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.NetOpStatus">
             <summary>
             Net operation status

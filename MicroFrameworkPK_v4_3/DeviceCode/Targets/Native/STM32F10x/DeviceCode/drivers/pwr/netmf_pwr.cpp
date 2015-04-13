@@ -381,15 +381,18 @@ void Sleep() {
 	}
 #endif // EMOTE_WAKELOCKS
 
-#ifdef SAM_APP_TINYBOOTER
+#ifdef SAM_APP_TINYBOOTER // Normally not reachable anyway.
+	__DSB();
 	__WFI();
 #else
 	switch(stm_power_state) {
 		case POWER_STATE_LOW:
 			//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+			__DSB();
 			__WFI();
 			break;
 		default:
+			__DSB();
 			__WFI();
 			break;
 	}

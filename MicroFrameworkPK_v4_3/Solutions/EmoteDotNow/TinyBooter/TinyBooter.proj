@@ -31,7 +31,6 @@
   <ItemGroup>
     <Compile Include="$(SRC_DIR)\Allocator.cpp" />
     <Compile Include="$(SRC_DIR)\TinyBooterEntry.cpp" />
-	<Compile Include="GNU_S\tinyclr_vector.cpp" />
     <CompressBinAsm Include="$(AS_SUBDIR)\TinyBooter_dat.s" />
     <CompressBinComp Include="$(OBJ_DIR)\TinyBooter_compressed.dat" />
     <CompressBinFile Include="$(BIN_DIR)\TinyBooter.bin" />
@@ -208,7 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="tinycrt_pal_loader.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\devicecode\pal\TinyCRT\dotNetMF_loader.proj" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\TinyCRT\dotNetMF_loader.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="TinyHal.$(LIB_EXT)" />
