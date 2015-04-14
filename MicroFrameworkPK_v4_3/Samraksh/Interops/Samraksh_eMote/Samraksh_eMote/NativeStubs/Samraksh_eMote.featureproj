@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote</FeatureName>
-    <Guid>{956fa372-0002-4c29-b17a-6da7b670d6b0}</Guid>
+    <Guid>{497d0354-6aff-4973-ba9f-7e2d88d25453}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_FEATUREPROJ>True</SAMRAKSH_EMOTE_FEATUREPROJ>

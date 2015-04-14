@@ -17,7 +17,7 @@
 
 using namespace Samraksh::eMote::NonVolatileMemory;
 //AnanthAtSamraksh - to be kept in sync with the one in NonVolatileMemory.cs
-typedef enum DATASTORE_RETURN_STATUS
+enum DATASTORE_RETURN_STATUS
 {
 	Success = 0,
 	Failure = -1,

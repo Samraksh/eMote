@@ -4,31 +4,6 @@
         <name>Samraksh_eMote</name>
     </assembly>
     <members>
-        <member name="T:Samraksh.eMote.NonVolatileMemory.StorageType">
-            <summary>
-            Block device type
-            </summary>
-        </member>
-        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreError">
-            <summary>
-            DataStore error values 
-            </summary>
-        </member>
-        <member name="T:Samraksh.eMote.NonVolatileMemory.ReferenceDataType">
-            <summary>
-            Data types allowed in DataStore
-            </summary>
-        </member>
-        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreReturnStatus">
-            <summary>
-            DataStore return types
-            </summary>
-        </member>
-        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreInvalidArgumentException">
-            <summary>
-            Different exception classes based on return value from native methods
-            </summary>
-        </member>
         <member name="T:Samraksh.eMote.NonVolatileMemory.DataReference">
             <summary>
             A data reference is is a pointer to a record in DataStore.
@@ -505,6 +480,31 @@
         <member name="P:Samraksh.eMote.NonVolatileMemory.DataStore.FreeBytes">
             <summary>
             Number of bytes of space available to store data
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.StorageType">
+            <summary>
+            Block device type
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreError">
+            <summary>
+            DataStore error values 
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.ReferenceDataType">
+            <summary>
+            Data types allowed in DataStore
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreReturnStatus">
+            <summary>
+            DataStore return types
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.NonVolatileMemory.DataStoreInvalidArgumentException">
+            <summary>
+            Different exception classes based on return value from native methods
             </summary>
         </member>
         <member name="T:Samraksh.eMote.GC">
