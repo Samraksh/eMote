@@ -240,12 +240,30 @@ namespace Samraksh.eMote.NonVolatileMemory
             return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated. Use WriteRaw instead.")]
         public int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
             return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated. Use WriteRaw instead.")]
         public int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
@@ -267,11 +285,29 @@ namespace Samraksh.eMote.NonVolatileMemory
             return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         public int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
             return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         public int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
             return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
@@ -292,12 +328,30 @@ namespace Samraksh.eMote.NonVolatileMemory
             return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated. Use ReadRaw instead.")]
         public int Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
             return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated. Use ReadRaw instead.")]
         public int Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
@@ -319,11 +373,29 @@ namespace Samraksh.eMote.NonVolatileMemory
             return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         public int ReadRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
             return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="offset"></param>
+        /// <param name="numBytes"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         public int ReadRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
             return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);

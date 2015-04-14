@@ -39,7 +39,12 @@ namespace Samraksh.eMote.NonVolatileMemory
             this.dataType = dataType;
         }*/
 
-        public void VerifyDataReferenceParams(int offset, int numData)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <param name="numData"></param>
+        private void VerifyDataReferenceParams(int offset, int numData)
         {
             if (offset < 0)
                 throw new DataStoreException("Offset should not be negative");
@@ -56,7 +61,12 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written exceeds size of data allocated");
         }
 
-        public void VerifyDataReferenceParams(byte[] data, int numData)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="numData"></param>
+        private void VerifyDataReferenceParams(byte[] data, int numData)
         {
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
@@ -77,7 +87,12 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
         }
 
-        public void VerifyDataReferenceParams(UInt16[] data, int numData)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="numData"></param>
+        private void VerifyDataReferenceParams(UInt16[] data, int numData)
         {
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
@@ -98,7 +113,12 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
         }
 
-        public void VerifyDataReferenceParams(UInt32[] data, int numData)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="numData"></param>
+        private void VerifyDataReferenceParams(UInt32[] data, int numData)
         {
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
@@ -119,7 +139,12 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
         }
 
-        public static DataStoreReturnStatus CheckWriteStatus(int retVal)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="retVal"></param>
+        /// <returns></returns>
+        private static DataStoreReturnStatus CheckWriteStatus(int retVal)
         {
             if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -129,7 +154,12 @@ namespace Samraksh.eMote.NonVolatileMemory
                 return DataStoreReturnStatus.Failure;
         }
 
-        public static DataStoreReturnStatus CheckReadStatus(int retVal)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="retVal"></param>
+        /// <returns></returns>
+        private static DataStoreReturnStatus CheckReadStatus(int retVal)
         {
             if (retVal == -3)
                 return DataStoreReturnStatus.InvalidReference;
@@ -265,33 +295,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
-
-                //Amount of data to be written from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -307,12 +310,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a ushsort (UInt16) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
@@ -329,33 +326,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
-
-                //Amount of data to be written from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -373,12 +343,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a uint (UInt32) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
@@ -395,33 +359,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
-
-                //Amount of data to be written from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -441,12 +378,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a byte array into DataStore, specifying the amount to write.</summary>
@@ -463,26 +394,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -491,12 +402,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a ushsort (UInt16) array into DataStore, specifying the amount to write.</summary>
@@ -513,26 +418,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -550,12 +435,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a uint (UInt32) array into DataStore, specifying the amount to write.</summary>
@@ -572,26 +451,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be written is greater than array size");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -611,12 +470,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
 
@@ -634,19 +487,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-                
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-                 
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -655,12 +495,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a ushsort (UInt16) array into DataStore.</summary>
@@ -677,19 +511,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -707,12 +528,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Write a uint (UInt32) array into DataStore.</summary>
@@ -729,19 +544,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be written should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -761,12 +563,6 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
-            /*if (retVal == 0)
-                return DataStoreReturnStatus.Success;
-            else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
 
@@ -784,33 +580,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
-
-                //Amount of data to be read from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -834,10 +603,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a ushort (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
@@ -854,33 +619,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
-
-                //Amount of data to be read from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -905,10 +643,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a uint (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
@@ -925,33 +659,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams(offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (offset < 0)
-                    throw new DataStoreException("Offset should not be negative");
-
-                if (numData < 0)
-                    throw new DataStoreException("numData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");
-
-                //Amount of data to be read from offset should not be greater than allocation size
-                if (offset + numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read exceeds size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -978,10 +685,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
 
@@ -999,26 +702,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("Data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("NumData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as that used to create");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1042,10 +725,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a ushort (UInt16) array from DataStore, specifying the amount to read.</summary>
@@ -1062,26 +741,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("NumData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as that used to create");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1106,10 +765,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a uint (UInt16) from DataStore, specifying the amount to read.</summary>
@@ -1126,26 +781,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("Data array cannot be of zero length");
-
-                if (numData < 0)
-                    throw new DataStoreException("NumData should not be negative");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as the one during creation");
-
-                //Amount of data to be read should not be greater than size of input array
-                if (numData > data.Length)
-                    throw new DataStoreException("Amount of data to be read is greater than array size");
-
-                //Amount of data to be read should not be greater than allocation size
-                if (numData > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be read is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1172,10 +807,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
 
@@ -1193,19 +824,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("Data array cannot be of zero length");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.BYTE)
-                    throw new DataStoreException("DataType is not the same as that used to create");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1229,10 +847,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a ushort (UInt16) array from DataStore.</summary>
@@ -1249,19 +863,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("Data array cannot be of zero length");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT16)
-                    throw new DataStoreException("DataType is not the same as that used to create");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1286,10 +887,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
         /// <summary>Read a uint (UInt16) from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
@@ -1306,19 +903,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 VerifyDataReferenceParams(data, numData);
                 VerifyDataReferenceParams((int)offset, numData);
-                /*if (data.Length == 0)
-                    throw new DataStoreException("Data array cannot be of zero length");
-
-                if (this.dataReference == 0x0)
-                    throw new DataStoreException("Reference to data is null");
-
-                //DataType to be read should be the same as that created during allocation
-                if (this.referenceDataType != ReferenceDataType.UINT32)
-                    throw new DataStoreException("DataType is not the same as that used to create");
-
-                //Amount of data to be written should not be greater than allocation size
-                if (data.Length > this.referenceSize)
-                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");*/
             }
             catch (Exception ex)
             {
@@ -1345,10 +929,6 @@ namespace Samraksh.eMote.NonVolatileMemory
             {
                 return CheckReadStatus(retVal);
             }
-            /*else if (retVal == -3)
-                return DataStoreReturnStatus.InvalidReference;
-            else
-                return DataStoreReturnStatus.Failure;*/
         }
 
 

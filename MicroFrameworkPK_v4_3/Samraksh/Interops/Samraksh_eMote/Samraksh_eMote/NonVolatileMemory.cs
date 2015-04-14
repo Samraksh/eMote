@@ -82,6 +82,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataStoreInvalidReferenceException : Exception
     {
         public DataStoreInvalidReferenceException()
@@ -99,6 +102,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataStoreNotInitializedException : Exception
     {
         public DataStoreNotInitializedException()
@@ -116,6 +122,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataStoreOutOfMemoryException : Exception
     {
         public DataStoreOutOfMemoryException()
@@ -133,6 +142,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class DataStoreException : Exception
     {
         public DataStoreException()
