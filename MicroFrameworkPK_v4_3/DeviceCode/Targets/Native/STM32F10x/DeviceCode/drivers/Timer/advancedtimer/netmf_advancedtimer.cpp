@@ -18,6 +18,13 @@
 STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 
+static void set_compare_upper16(UINT64 target);
+static void set_compare_lower16(UINT64 target);
+
+static volatile int waiting_for_epoch; 	// Are we waiting for a 32-bit roll-over?
+static volatile UINT64 currentEpoch;
+static volatile UINT64 lastTime;		// A cache of the last time read. Not necessarily current.
+
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 
@@ -43,15 +50,37 @@ UINT32 STM32F10x_AdvancedTimer::GetCounter()
 	return currentCounterValue;
 }
 
-
+// This should never be called. --NPS
 UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 {
+	ASSERT(1);
 	currentCounterValue = counterValue;
+	return currentCounterValue;
 }
 
 
 UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
+	UINT64 a,b,c;
+	UINT64 roll = 0;
+	GLOBAL_LOCK(irq);
+
+	// Shouldn't need this, but keeping for compatibility. Remove when deemed safe.
+	ClearTimerOverflow();
+
+	a = GetCounter();
+	b = currentEpoch;
+	c = GetCounter();
+
+	if (c < a) { // If we managed to roll-over while in this function.
+		roll = 1ull<<32;
+	}
+
+	// currentEpoch will be incremented later in the interrupt once we unlock
+	lastTime = currentEpoch + c + roll;
+	return lastTime;
+
+	/*
 	UINT32 currentValue = GetCounter();
 
 	m_lastRead &= (0xFFFFFFFF00000000ull);
@@ -66,6 +95,7 @@ UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 	m_lastRead |= currentValue;
 
 	return m_lastRead;
+	*/
 }
 
 
@@ -79,7 +109,7 @@ void STM32F10x_AdvancedTimer::ClearTimerOverflow()
 	timerOverflowFlag = FALSE;
 }
 
-// Initialize the advanced timer system. This inolves initializing timer1 as a master timer and tim2 as a slave
+// Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
 // and using timer1 as a prescaler to timer2.
 DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void *ISR_Param)
 {
@@ -99,8 +129,12 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
+	currentCompareValue = 0xFFFFFFFFFFFFFFFFull;
+	waiting_for_epoch = 0;
+	currentEpoch = 0;
+	lastTime = 0;
 
-	// Set the timer overflow flag to false during intialization
+	// Set the timer overflow flag to false during initialization
 	// This flag is set when an over flow happens on timer 2 which happens to represent
 	// the most significant 16 bits of our timer system
 	// This event has to be recorded to ensure that we keep track of ticks expired since birth
@@ -154,10 +188,14 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
     /* Master Mode selection */
 	TIM_SelectOutputTrigger(TIM1, TIM_TRGOSource_Update);
-
    /* Select the Master Slave Mode */
     TIM_SelectMasterSlaveMode(TIM1, TIM_MasterSlaveMode_Enable);
 
+	TIM_TimeBaseStructure.TIM_Period = 0xffff;
+	TIM_TimeBaseStructure.TIM_Prescaler = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
     // Active timer 1 cc interrupt
 	if( !CPU_INTC_ActivateInterrupt(TIM1_CC_IRQn, ISR_TIM1, NULL) )
@@ -171,6 +209,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	//TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
 
 	// Need the update flag for overflow bookkeeping
+	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 
 	// Enable both the timers, TIM1 because it the LS two bytes
@@ -184,78 +223,152 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	//===========================================
 	// The following wait and re-initialization is needed to get the SetCompare() working
-	for(int i=0; i<100000;i++){}
-
-	TIM_TimeBaseStructure.TIM_Period = 0xffff;
-	TIM_TimeBaseStructure.TIM_Prescaler = 0;
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+	//for(int i=0; i<100000;i++){}
 
     return DS_Success;
 
 }
 
+// TODO, improve code in situation where lower_16 is small value.
+
+static inline UINT64 getEpoch(UINT64 t) {
+	return t & 0xFFFFFFFF00000000ull;
+}
+
+static inline int is_same_epoch(void) {
+	GLOBAL_LOCK(irq);
+	//if ((g_STM32F10x_AdvancedTimer.Get64Counter() & 0xFFFFFFFF00000000ull) == ( g_STM32F10x_AdvancedTimer.currentCompareValue & 0xFFFFFFFF00000000ull ))
+	if ( currentEpoch == getEpoch(g_STM32F10x_AdvancedTimer.currentCompareValue) )
+		return 1;
+	else
+		return 0;
+}
+
+static inline void cancelCompare() {
+	GLOBAL_LOCK(irq);
+	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	g_STM32F10x_AdvancedTimer.currentCompareValue = 0xFFFFFFFFFFFFFFFFull;
+	waiting_for_epoch = 0;
+	__DSB(); __ISB();
+}
+
+// Assumes already in the correct epoch
+static void set_compare_upper16(UINT64 target) {
+	uint16_t tar_upper;
+	uint16_t now_upper;
+	uint32_t now;
+
+	ASSERT(!waiting_for_epoch);
+	if (waiting_for_epoch) return;
+
+	GLOBAL_LOCK(irq);
+	now = g_STM32F10x_AdvancedTimer.GetCounter();
+	now_upper = (now >> 16) & 0xFFFF;
+	tar_upper = (target >> 16) & 0xFFFF;
+
+	// We know the epoch (upper 32-bits of 64-bit time) is aligned.
+
+	if (tar_upper != now_upper) {
+		TIM_SetCompare1(TIM2, tar_upper);
+		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+
+		// Make sure we didn't miss on a roll-over
+		// Assuming we can only be off by at most 1 TIM2 tick.
+		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
+			// Didn't miss, done for now
+			return;
+		}
+		else { // We missed. Upper bits are aligned. Back-off and keep going with the lower bits
+			TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+			__DSB(); __ISB();
+		}
+		// Else we just keep going with the lower bits
+	}
+	// If we get here, uppers are already aligned, fall through to lower bits
+	set_compare_lower16(target);
+}
+
+// Assumes ONLY lower 16-bit need to be aligned.
+// There will be hiccups when lower 16-bits is small, e.g. 0
+static void set_compare_lower16(UINT64 target) {
+	uint16_t tar_lower;
+	uint16_t now_lower;
+	uint32_t now;
+	uint16_t fire_at;
+	int diff;
+	const uint16_t MISSED_TIMER_DELAY = 80; // 10us @ 8 MHz
+
+	GLOBAL_LOCK(irq);
+	now = g_STM32F10x_AdvancedTimer.GetCounter();
+	tar_lower = target & 0xFFFF;
+	now_lower = now & 0xFFFF;
+
+	diff = tar_lower - now_lower;
+
+	if ( diff <= 0 ) { // Do it now
+		TIM1->EGR |= 1 << 6; // Set interrupt from software.
+		return;
+	}	
+
+	if ( diff < MISSED_TIMER_DELAY ) {
+		fire_at = now_lower+MISSED_TIMER_DELAY; // Fire as early as possible.
+	}
+	else {
+		fire_at = tar_lower; // Fire on schedule
+	}
+
+	TIM_SetCompare3(TIM1,fire_at);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+}
+
 #if defined(DEBUG_EMOTE_ADVTIME)
-volatile UINT64 badSetComparesCount = 0;    //!< number of requests set in the past.
-volatile UINT64 badSetComparesAvg = 11;     //!< average delay of requests set in the past. init to observed value.
-volatile UINT64 badSetComparesMax = 0;      //!< observed worst-case.
+volatile UINT64 badSetComparesCount = 0;       //!< number of requests set in the past.
+volatile UINT64 badSetComparesAvg = 0;         //!< average delay of requests set in the past.
+volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
+volatile UINT64 badCounterCorrectionCount = 0; //!< number of bad corrections (checks for values >0 in rework).
 #endif
+
 // Set compare happens in two stages, the first stage involves setting the msb on tim2
 // the second stage involves lsb on tim1
-//TODO: AnanthAtSamraksh -- check if INT64 compareValue is right
-DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType)
+DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
-	UINT32 newCompareValue;
-
-	if(counterCorrection == 0)
-	{
-		newCompareValue = compareValue;
-	}
-	else
-	{
-		//TODO: AnanthAtSamraksh -- check if INT64 is right
-		newCompareValue = (UINT32) (counterCorrection + compareValue);
-		//newCompareValue = counterCorrection + compareValue;
-	}
-	if(compareValue >> 16)
-	{
-		if (scType == SET_COMPARE_TIMER){
-			TIM_SetCompare1(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-		} else {
-			TIM_SetCompare2(TIM2, newCompareValue >> 16);
-			TIM_ITConfig(TIM2, TIM_IT_CC2, ENABLE);
-		}
-	}
-	else
-	{
-		if (scType == SET_COMPARE_TIMER){
 #if defined(DEBUG_EMOTE_ADVTIME)
-			volatile UINT64 Now = g_STM32F10x_AdvancedTimer.Get64Counter();
-			if(Now > (counterCorrection + compareValue)) {
-				UINT64 delta = Now - counterCorrection + compareValue;
-				++badSetComparesCount;
-				if(badSetComparesMax < delta) {
-					badSetComparesMax = delta;
-				}
-				badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
-			}
-#else
-			if(compareValue < 100) {
-				newCompareValue += 100;
-			}
-#endif
-				TIM_SetCompare3(TIM1, newCompareValue & 0xffff);
-				TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		} else {
-				TIM_SetCompare2(TIM1, newCompareValue & 0xffff);
-				TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
+	GLOBAL_LOCK(irq);
+	volatile UINT64 NowTicks = g_STM32F10x_AdvancedTimer.Get64Counter();
+	if(NowTicks > (compareValue)) {
+		UINT64 delta = NowTicks - (compareValue);
+		++badSetComparesCount;
+		if(badSetComparesMax < delta) {
+			badSetComparesMax = delta;
 		}
+		badSetComparesAvg = (badSetComparesAvg * (badSetComparesCount - 1) + (delta)) / badSetComparesCount;
+	}
+#endif
+	// explict clear and cancel
+	/*
+	if ( compareValue == 0 ) {
+		cancelCompare();
+		return DS_Success;
 	}
 
-	currentCompareValue = newCompareValue;
+	if ( compareValue >= currentCompareValue || compareValue <= lastTime ) {
+		return DS_Success; // Only care about most recent, all others ignored.
+	}
+	*/
+
+	currentCompareValue = compareValue;
+
+	if ( is_same_epoch() ) { // Otherwise we will catch it on the roll-over
+		waiting_for_epoch = 0;
+		set_compare_upper16( compareValue );
+	}
+	else {
+		waiting_for_epoch = 1;
+	}
 
 	return DS_Success;
 }
@@ -267,7 +380,6 @@ UINT32 STM32F10x_AdvancedTimer::GetMaxTicks()
 
 void ISR_TIM2(void* Param)
 {
-//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 	if(TIM_GetITStatus(TIM2, TIM_IT_CC1))
 	{
 		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
@@ -276,52 +388,12 @@ void ISR_TIM2(void* Param)
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-		// Small values on the lsb are sometimes missed
-
-		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
-
-		//If only 10 ticks remain, might as well trigger the event. Else, set the compare
-		//value for interrupt to go off at scheduled time.
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)	
-		{
-			// Fire now we already missed the counter value
-			// Create a software trigger
-			////TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-
-		}
-		else
-		{
-			TIM_SetCompare3(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
+		// Make sure we are in the right epoch
+		if ( !waiting_for_epoch ) {
+			set_compare_lower16( g_STM32F10x_AdvancedTimer.currentCompareValue );
 		}
 	}
-	if(TIM_GetITStatus(TIM2, TIM_IT_CC2))
-	{
-		TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
-		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-
-		// Small values on the lsb are sometimes missed
-
-		UINT16 lsbValue = g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff;
-
-		if(TIM1->CNT > lsbValue || (lsbValue - TIM1->CNT) < 10)
-		//if(TIM1->CNT > lsbValue)
-		{
-			// Fire now we already missed the counter value
-			// Create a software trigger
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-
-		}
-		else
-		{
-			TIM_SetCompare2(TIM1, (g_STM32F10x_AdvancedTimer.currentCompareValue & 0xffff));
-			TIM_ITConfig(TIM1, TIM_IT_CC2, ENABLE);
-		}
-	}
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
 	{
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
@@ -330,7 +402,13 @@ void ISR_TIM2(void* Param)
 		// This is needed because microsoft's timers are polling based and
 		// poll this 64 bit number
 
-		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE;
+		currentEpoch += (0x1ull << 32);
+		g_STM32F10x_AdvancedTimer.timerOverflowFlag = TRUE; // TODO: Remove
+
+		if ( waiting_for_epoch && is_same_epoch() ) {
+			waiting_for_epoch = 0;
+			set_compare_upper16( g_STM32F10x_AdvancedTimer.currentCompareValue );
+		}
 	}
 }
 
@@ -340,19 +418,10 @@ void ISR_TIM1( void* Param )
 	{
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
-		//NVIC->ICPR[STM32_AITC::c_IRQ_INDEX_TIM1_CC >> 0x05] = (UINT32)0x01 << (STM32_AITC::c_IRQ_INDEX_TIM1_CC & (UINT8)0x1F);
 
-		//TIM_SetCompare2(TIM1, 500 + (g_STM32F10x_AdvancedTimer.currentCounterValue & 0xffff));
+		g_STM32F10x_AdvancedTimer.currentCompareValue = 0xFFFFFFFFFFFFFFFFull;
 
-
+		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
-
 	}
-	if(TIM_GetITStatus(TIM1, TIM_IT_CC2))
-	{
-		TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-		HAL_COMPLETION::DequeueAndExec();
-	}
-//CPU_GPIO_SetPinState((GPIO_PIN) 2, FALSE);
 }
