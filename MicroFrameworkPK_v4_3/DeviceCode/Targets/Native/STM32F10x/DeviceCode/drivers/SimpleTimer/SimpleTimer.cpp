@@ -138,6 +138,10 @@ UINT32 CPU_MicrosecondsToTicks(unsigned int uSec, unsigned short timer) {
 	return uSec;
 }
 
+UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer ) {
+    return uSec;
+}
+
 UINT64 CPU_MillisecondsToTicks(unsigned int ms, unsigned short timer) {
 	return ms*1000;
 }
