@@ -10,7 +10,6 @@
 #include "hal_dac_driver.h"
 
 DAC_InitTypeDef            DAC_InitStructure;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 
 void DAC_GPIO_Configuration(void)

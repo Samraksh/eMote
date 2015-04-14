@@ -214,9 +214,9 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStart(I2C_HAL_XACTION* xAction, bool r
 
 DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 {
-	if (I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->SR2 & I2C_SR2_BUSY && !(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 & I2C_CR1_STOP)) {
+	if ((I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->SR2 & I2C_SR2_BUSY) && !(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 & I2C_CR1_STOP)) {
 		I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 |= I2C_CR1_STOP; // send stop
-	    }
+	}
 		I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR2 &= ~(I2C_CR2_ITBUFEN | I2C_CR2_ITEVTEN | I2C_CR2_ITERREN); // disable interrupts
 	    currentI2CXAction = NULL;
 	    currentI2CUnit = NULL;
@@ -257,8 +257,8 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 
 
 		// Enable the pins in alternate mode configuration
-		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
-		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
+		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
+		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
 
 		I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
 		I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
@@ -362,8 +362,8 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 		{
 
 			// Enable the pins in alternate mode configuration
-			CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
-			CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, STM32F10x_GPIO_Driver::c_DirectionOut , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
+			CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
 
 		}
 	}

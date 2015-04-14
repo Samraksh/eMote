@@ -24,7 +24,7 @@
 #define __STM32_EVAL_SDIO_SD_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -33,12 +33,20 @@
 
 #define SD_DETECT_PIN                    GPIO_Pin_7                 /* PC.7 */
 #define SD_DETECT_GPIO_PORT              GPIOC                       /* GPIOC */
+#define SD_PIN_D0                        GPIO_Pin_8                 /* PC.08 */
+#define SD_PIN_D1                        GPIO_Pin_9                 /* PC.09 */
+#define SD_PIN_D2                        GPIO_Pin_10                /* PC.10 */
+#define SD_PIN_D3                        GPIO_Pin_11                /* PC.11 */
+#define SD_PIN_CLK                       GPIO_Pin_12                /* PC.12 */
+
+#define SD_CMD_GPIO_PORT                 GPIOD                      /* GPIOD */
+#define SD_PIN_CMD                       GPIO_Pin_2                 /* PD.02 */
 #define SD_DETECT_GPIO_CLK               RCC_APB2Periph_GPIOC
 
 
 #define SDIO_FIFO_ADDRESS                ((uint32_t)0x40018080)
 /**
-  * @brief  SDIO Intialization Frequency (400KHz max)
+  * @brief  SDIO Initialization Frequency (400KHz max)
   */
 #define SDIO_INIT_CLK_DIV                ((uint8_t)0xB2)
 /**

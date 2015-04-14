@@ -11,7 +11,6 @@
 
 
 SDIO_Driver g_SDIODriver;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 void SDIO_Driver::GPIOClockEnable()
 {
