@@ -83,6 +83,12 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::CreateDataStore___I4__BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetMaxAllocationSize___I4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetTotalSpace___I4,
@@ -95,12 +101,12 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::DataStoreGC___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetReadWriteStatus___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLastDatastoreStatus___I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U4__I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
-    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U4__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4,
     NULL,
     NULL,
     NULL,
@@ -123,7 +129,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x997D6505,
+    0xC1DDD642,
     method_lookup
 };
 

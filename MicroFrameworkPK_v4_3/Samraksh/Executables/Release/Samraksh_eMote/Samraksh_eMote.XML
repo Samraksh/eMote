@@ -20,7 +20,7 @@
             Default data class constructor. Possible to create max of 256 active data objects.
             </summary>
             <param name="dStore">DataStore object</param>
-            <param name="m_Size">Size of the data object to be stored in DataStore. 
+            <param name="refSize">Size of the data object to be stored in DataStore. 
             Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
             <param name="referenceDataType">Type of data to be stored in DataStore</param>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -301,6 +301,7 @@
             Initializes DataStore with specified storage type.
             </summary>
             <param name="storageType">Storage type</param>
+            <param name="eraseDataStore">Should datastore be erased?</param>
         </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.ReadAllDataReferences(Samraksh.eMote.NonVolatileMemory.DataReference[],System.Int32)">
             <summary>
@@ -347,7 +348,29 @@
             <param name="dataType">Data type to be written</param>
             <returns>True if success</returns>
         </member>
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.WriteRaw(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte)">
+            <summary>
+            Write data array to DataStore starting from specified address
+            </summary>
+            <param name="address">Address to write to</param>
+            <param name="data">Data to be written to DataStore</param>
+            <param name="offset">Offset from start of DataStore allocationto write.</param>
+            <param name="numBytes">Count of bytes to be written</param>
+            <param name="dataType">Data type to be written</param>
+            <returns>True if success</returns>
+        </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.Read(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte)">
+            <summary>
+            Read data array from DataStore starting from specified address.
+            </summary>
+            <param name="address">Address to read from</param>
+            <param name="data">Byte array to be filled up with data from DataStore</param>
+            <param name="offset">Offset from start of DataStore allocationto read.</param>
+            <param name="numBytes">Number of bytes to be read</param>
+            <param name="dataType">Data type of the data to be read</param>
+            <returns>True if success</returns>
+        </member>
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.ReadRaw(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte)">
             <summary>
             Read data array from DataStore starting from specified address.
             </summary>
@@ -438,7 +461,7 @@
             </summary>
             <returns>DataStore error status</returns>
         </member>
-        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.Write(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte,System.Int32)">
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.WriteRaw(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte,System.Int32)">
             <summary>
             Write data present in buffer starting from address and amount equal to numBytes. 
             </summary>
@@ -450,7 +473,7 @@
             <param name="storageType">Block storage type</param>
             <returns>True if success</returns>
         </member>
-        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.Read(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte,System.Int32)">
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataStore.ReadRaw(System.UInt32,System.Byte[],System.UInt32,System.UInt32,System.Byte,System.Int32)">
             <summary>
             Read from data into the buffer starting from address.
             </summary>

@@ -62,6 +62,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// Initializes DataStore with specified storage type.
         /// </summary>
         /// <param name="storageType">Storage type</param>
+        /// <param name="eraseDataStore">Should datastore be erased?</param>
         private int InitDataStore(StorageType storageType, bool eraseDataStore)
         {
             this.storageType = storageType;
@@ -233,19 +234,47 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <param name="numBytes">Count of bytes to be written</param>
         /// <param name="dataType">Data type to be written</param>
         /// <returns>True if success</returns>
+        [Obsolete("Deprecated. Use WriteRaw instead.")]
         public int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
         {
-            return Write(address, data, offset, numBytes, dataType, (int)storageType);
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        [Obsolete("Deprecated. Use WriteRaw instead.")]
         public int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
-            return Write(address, data, offset, numBytes, dataType, (int)storageType);
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        [Obsolete("Deprecated. Use WriteRaw instead.")]
         public int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
-            return Write(address, data, offset, numBytes, dataType, (int)storageType);
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+
+        /// <summary>
+        /// Write data array to DataStore starting from specified address
+        /// </summary>
+        /// <param name="address">Address to write to</param>
+        /// <param name="data">Data to be written to DataStore</param>
+        /// <param name="offset">Offset from start of DataStore allocationto write.</param>
+        /// <param name="numBytes">Count of bytes to be written</param>
+        /// <param name="dataType">Data type to be written</param>
+        /// <returns>True if success</returns>
+        public int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
+        {
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+        public int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
+        {
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+        public int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
+        {
+            return WriteRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
         /// <summary>
@@ -257,19 +286,47 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <param name="numBytes">Number of bytes to be read</param>
         /// <param name="dataType">Data type of the data to be read</param>
         /// <returns>True if success</returns>
+        [Obsolete("Deprecated. Use ReadRaw instead.")]
         public int Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
         {
-            return Read(address, data, offset, numBytes, dataType, (int)storageType);
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        [Obsolete("Deprecated. Use ReadRaw instead.")]
         public int Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
         {
-            return Read(address, data, offset, numBytes, dataType, (int)storageType);
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
+        [Obsolete("Deprecated. Use ReadRaw instead.")]
         public int Read(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
         {
-            return Read(address, data, offset, numBytes, dataType, (int)storageType);
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+
+        /// <summary>
+        /// Read data array from DataStore starting from specified address.
+        /// </summary>
+        /// <param name="address">Address to read from</param>
+        /// <param name="data">Byte array to be filled up with data from DataStore</param>
+        /// <param name="offset">Offset from start of DataStore allocationto read.</param>
+        /// <param name="numBytes">Number of bytes to be read</param>
+        /// <param name="dataType">Data type of the data to be read</param>
+        /// <returns>True if success</returns>
+        public int ReadRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType)
+        {
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+        public int ReadRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType)
+        {
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
+        }
+
+        public int ReadRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType)
+        {
+            return ReadRaw(address, data, offset, numBytes, dataType, (int)storageType);
         }
 
         /// <summary>
@@ -384,13 +441,13 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <param name="storageType">Block storage type</param>
         /// <returns>True if success</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
+        extern private int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
+        extern private int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Write(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
+        extern private int WriteRaw(UInt32 address, byte[] data, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
 
 
         /// <summary>
@@ -404,13 +461,13 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <param name="storageType">Block storage type</param>
         /// <returns>Number of bytes read; -1 if operation fails</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
+        extern private int ReadRaw(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, byte dataType, int storageType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
+        extern private int ReadRaw(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt16 dataType, int storageType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern private int Read(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
+        extern private int ReadRaw(UInt32 address, byte[] buffer, UInt32 offset, UInt32 numBytes, UInt32 dataType, int storageType);
 
 
         // native call that destroys data created on the flash

@@ -38,12 +38,12 @@ namespace Samraksh
                 static INT8 DataStoreGC( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 GetReadWriteStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 GetLastDatastoreStatus( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
-                static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
-                static INT32 Write( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
-                static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
-                static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
-                static INT32 Read( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
+                static INT32 WriteRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
+                static INT32 WriteRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
+                static INT32 WriteRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
+                static INT32 ReadRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT8 param4, INT32 param5, HRESULT &hr );
+                static INT32 ReadRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT16 param4, INT32 param5, HRESULT &hr );
+                static INT32 ReadRaw( CLR_RT_HeapBlock* pMngObj, UINT32 param0, CLR_RT_TypedArray_UINT8 param1, UINT32 param2, UINT32 param3, UINT32 param4, INT32 param5, HRESULT &hr );
             };
         }
     }

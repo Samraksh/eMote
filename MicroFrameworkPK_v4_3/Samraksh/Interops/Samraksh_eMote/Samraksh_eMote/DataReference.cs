@@ -141,7 +141,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// Default data class constructor. Possible to create max of 256 active data objects.
         /// </summary>
         /// <param name="dStore">DataStore object</param>
-        /// <param name="m_Size">Size of the data object to be stored in DataStore. 
+        /// <param name="refSize">Size of the data object to be stored in DataStore. 
         /// Max size is (2^32 - 1) if type is bytes; (2^31 - 1) if type is uint16; (2^30 - 1) if type is uint32</param>
         /// <param name="referenceDataType">Type of data to be stored in DataStore</param>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -305,7 +305,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Offset should not be odd for byte dataType");
             }
 
-            retVal = dStore.Write((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -371,7 +371,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -439,7 +439,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -489,7 +489,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw ex;
             }
 
-            retVal = dStore.Write((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -548,7 +548,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -609,7 +609,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -653,7 +653,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw ex;
             }
 
-            retVal = dStore.Write((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -705,7 +705,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -759,7 +759,7 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.Write((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
             /*if (retVal == 0)
                 return DataStoreReturnStatus.Success;
@@ -820,7 +820,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -890,7 +890,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -961,7 +961,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
@@ -1028,7 +1028,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -1091,7 +1091,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -1155,7 +1155,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
@@ -1215,7 +1215,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -1271,7 +1271,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -1328,7 +1328,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.Read((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
