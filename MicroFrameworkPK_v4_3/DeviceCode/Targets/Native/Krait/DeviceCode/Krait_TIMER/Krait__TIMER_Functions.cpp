@@ -33,7 +33,7 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 }
 
 #define TICKS_PROXIMITY_FORCE 10
-BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue)
+BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 {
 	UINT32 diff;
 	UINT32 now, setCompareValue;

@@ -16,6 +16,10 @@
 
 #include "..\Krait_PMIC\pmic_decl.h"
 
+// Stub
+BOOL CPU_JTAG_Attached(){
+	return 0;
+}
 
 void HAL_AssertEx() {
     // cause an abort and let the abort handler take over
