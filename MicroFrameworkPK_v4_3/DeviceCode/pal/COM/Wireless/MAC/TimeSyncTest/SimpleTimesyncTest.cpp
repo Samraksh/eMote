@@ -141,8 +141,18 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
 			INT64 y = HAL_Time_CurrentTime();
 			UINT32 start_delay = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
-			//start_delay = 3200;
-
+			if (start_delay >3200) {
+				start_delay = 3200;
+			}
+			else if(start_delay<100){
+				start_delay = 100;
+			}
+			if (NeighborsPeriodLength > (1.5*NBCLOCKMONITORPERIOD)) {
+				start_delay =  (1.5*NBCLOCKMONITORPERIOD) ;
+			}
+			else if(NeighborsPeriodLength <  (0.5*NBCLOCKMONITORPERIOD) ){
+				start_delay =  (0.5*NBCLOCKMONITORPERIOD);
+			}
 			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, TRUE);
 
 			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
