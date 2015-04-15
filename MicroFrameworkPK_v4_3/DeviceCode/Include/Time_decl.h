@@ -145,7 +145,6 @@ BOOL    HAL_Time_Uninitialize    (     );
 INT64   HAL_Time_TicksToTime     ( UINT64 Ticks        );
 INT64   HAL_Time_CurrentTime     (     );
 void    HAL_Time_SetCompare      ( UINT64 CompareValue );
-void HAL_Time_Stop_Completion_timer();
 void    HAL_Time_GetDriftParameters( INT32* a, INT32* b, INT64* c ); /// correct-time = (raw-time * b + c) / a. b is multiplication factor, a is the divisor and c is offset (if any).
 
 extern "C" 
@@ -201,7 +200,7 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 
 //TODO: AnanthAtSamraksh -- check if UINT64 is right
 ////BOOL CPU_TIMER_SetCompare(UINT64 CompareValue);
-BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT32 CompareValue);
+BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue);
 
 UINT16 CPU_Timer_GetCounter(UINT16 Timer);
 UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);

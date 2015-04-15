@@ -13,11 +13,6 @@ enum TimerClockRate
 	OneMHz
 };
 
-enum SetCompareType {
-	SET_COMPARE_TIMER,
-	SET_COMPARE_COMPLETION
-};	
-
 struct STM32F10x_Timer_Configuration
 {
 	UINT32 systemClockHz;
@@ -52,15 +47,13 @@ public:
 class STM32F10x_AdvancedTimer
 {
 	// Stores the last read value of the counter
-	UINT64 m_lastRead;
 	UINT16 m_clockRate;
 	UINT16 m_prescalar;
 	//LOCK timerLock;
 
 public:
-
+	UINT64 m_systemTime;
 	static BOOL initialized;
-	BOOL timerOverflowFlag;
 	UINT32 currentCounterValue;
 
 	// Stores the current active compare value in the system
@@ -73,8 +66,7 @@ public:
 	// The advanced timer combination will always be TIM1 -> TIM2.
 	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param);
 
-	//TODO: AnanthAtSamraksh -- is INT64 for compareValue right?
-	DeviceStatus SetCompare(UINT64 counterCorrection, UINT32 compareValue, SetCompareType scType);
+	DeviceStatus SetCompare(UINT64 compareValue);
 
 	UINT32 GetCompare();
 	UINT32 GetCounter();
