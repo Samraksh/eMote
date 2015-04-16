@@ -12,16 +12,21 @@
 #define DEBUG_TSYNC 1
 
 //#define ACTIVITYPIN 24
+
+
+
 #define TIMESYNCSENDPIN 2
 #define TIMESYNCRECEIVEPIN 23
-#define NBRCLOCKMONITORPIN 31
-#define NBCLOCKMONITORPERIOD 100000
-#define LOCALCLOCKMONITORPIN 29
+#define NBRCLOCKMONITORPIN 29
+#define LOCALCLOCKMONITORPIN 24
 #define LocalClockMonitor_TIMER 32
 #define NbrClockMonitor_TIMER 33
 #define SimpleTimesyncTest_Send_TIMER 34
 #define NbrClockMonitorStart_TIMER 35
+#define USEONESHOTTIMER TRUE
 
+#define NBCLOCKMONITORPERIOD 10000
+#define INITIALDELAY 100000
 
 //extern HALTimerManager gHalTimerManagerObject;
 //extern VirtualTimer gVirtualTimerObject;
@@ -137,23 +142,32 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 		if (RcvCount>=2  ){
 
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
-			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
+			float relfreq = 1.5;
+			//float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
+			if (relfreq > 1.3){
+				relfreq = 1;
+			}
+			else if (relfreq < 0.7){
+				relfreq = 1;
+			}
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
 			INT64 y = HAL_Time_CurrentTime();
-			UINT32 start_delay = (UINT32)(y - (INT64) EventTime); // Attempt to compansate for the difference
-			if (start_delay >3200) {
-				start_delay = 3200;
+			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
+			start_delay = start_delay + (INT64) (((float) INITIALDELAY)/relfreq);
+			if (start_delay > (1.5*INITIALDELAY)) {
+				start_delay = (1.5*INITIALDELAY);
 			}
-			else if(start_delay<100){
-				start_delay = 100;
+			else if(start_delay<(0.5*INITIALDELAY)){
+				start_delay = (0.5*INITIALDELAY);
 			}
+
 			if (NeighborsPeriodLength > (1.5*NBCLOCKMONITORPERIOD)) {
 				start_delay =  (1.5*NBCLOCKMONITORPERIOD) ;
 			}
 			else if(NeighborsPeriodLength <  (0.5*NBCLOCKMONITORPERIOD) ){
 				start_delay =  (0.5*NBCLOCKMONITORPERIOD);
 			}
-			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, TRUE);
+			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, USEONESHOTTIMER);
 
 			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
 		}
@@ -181,7 +195,7 @@ BOOL SimpleTimesyncTest::Send(){
 		m_timeSyncMsg->testnumber03 = 4;
 		m_timeSyncMsg->testnumberlong = 323;
 
-		m_timeSyncMsg->localTime0 = (UINT32)(y & 0x0000FFFF);
+		m_timeSyncMsg->localTime0 = (UINT32)(y & 0x00000000FFFFFFFF);
 		m_timeSyncMsg->localTime1 = (UINT32) (y>>32);
 
 		m_timeSyncMsg->testnumber10 = 5;
@@ -239,9 +253,9 @@ BOOL SimpleTimesyncTest::Initialize(){
 	//gVirtualTimerObject.CreateTimer(SimpleTimesyncTest_Send_TIMER, 0, 10000000, FALSE, FALSE, SimpleTimesyncTest_Send_Timer_Handler); //10 sec Timer in micro seconds
 	VirtTimer_SetTimer(SimpleTimesyncTest_Send_TIMER, 0, 10000000, FALSE, FALSE, SimpleTimesyncTest_Send_Timer_Handler);
 	//gVirtualTimerObject.CreateTimer(LocalClockMonitor_TIMER, 0,(UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
-	VirtTimer_SetTimer(LocalClockMonitor_TIMER, 0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
+	VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, SimpleLocalClockMonitorTimerHandler);
 	//gVirtualTimerObject.CreateTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
-	VirtTimer_SetTimer(NbrClockMonitor_TIMER, 0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	VirtTimer_SetTimer(NbrClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, SimpleNeighborClockMonitorTimerHandler);
 	//gVirtualTimerObject.CreateTimer(NbrClockMonitorStart_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, StartNeighborClockMonitoyTimerHandler);
 
 	return TRUE;
