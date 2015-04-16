@@ -12,7 +12,7 @@ const uint8_t LCD_NUM[65] = { 0x00, 0xee, 0xef, 0x8d, 0xed, 0x8f, 0x8e, 0xcd, 0x
 
 
 LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
+
 static bool LCD_Initialized = false;
 static bool LCD_WriteInProgress = false;
 

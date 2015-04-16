@@ -14,7 +14,6 @@
 #define CHECK_BIT(var, pos)	((var) & (1<<(pos)))
 
 P30BF65NOR_Driver gNORDriver;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 // Initializes the FSMC, the address and data lines and enables the clocks, also turns on FLASH_RESET pin  for the emoteDotNow
 // Returns DS_Fail in the event we are unable to read the manufacture id at the end of the initialization else returns success

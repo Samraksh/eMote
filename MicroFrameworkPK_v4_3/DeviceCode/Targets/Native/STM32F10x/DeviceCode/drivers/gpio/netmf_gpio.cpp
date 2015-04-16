@@ -8,10 +8,22 @@
 
 //--//
 
-#define NUMBER_OF_EXTI_LINES 16
+const char* c_strGpioBadCallback = "No GPIO callback defined";
+const char* c_strGpioBadPin = "Pin Number greater than max allowable pins";
+const char* c_strGpioBadSize = "size greater than max allowable pins";
+
+#define DEBUG_GPIO_VERBOSE 1
+
+#if defined(DEBUG_GPIO_VERBOSE)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \n", ##__VA_ARGS__, __LINE__, __FILE__)
+#elif defined(DEBUG_GPIO)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format "\n", ##__VA_ARGS__)
+#else
+#define GPIO_DEBUG_PRINT(format, ...)
+#endif
 
 
-STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
+
 
 
 // Not truly static, but passed by function pointers
@@ -22,18 +34,17 @@ static void EXTI3_IRQ_HANDLER(void *args);
 static void EXTI4_IRQ_HANDLER(void *args);
 static void EXTI9_5_IRQ_HANDLER(void *args);
 static void EXTI15_10_IRQ_Handler(void *args);
-//static void Default_EXTI_Handler(void *data);
-//static void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param );
 
 
 static int GPIO_GetExtrCR(unsigned int line);
 GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin);
 uint16_t GPIO_GetPin(GPIO_PIN Pin);
 
+#define NUMBER_OF_EXTI_LINES 16
 
-const uint GPIO_PORTS = STM32F10x_GPIO_Driver::c_MaxPorts;
-const uint GPIO_PPP = STM32F10x_GPIO_Driver::c_PinsPerPort;
-const uint GPIO_PINS = STM32F10x_GPIO_Driver::c_MaxPins;
+const uint GPIO_PORTS = 7;
+const uint GPIO_PPP = 16;
+const uint GPIO_PINS = 112;
 
 
 GPIO_TypeDef* GPIO_PORT_ARRAY[GPIO_PORTS] = {GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG};
@@ -58,7 +69,7 @@ static void handle_exti(unsigned int exti)
 		UINT32 pin = line + port * GPIO_PPP;
 		void *parm;
 
-		// Shouldn't this be a HAL_CONTINUATION??? TODO --NPS
+		// Shouldn't this be a HAL_CONTINUATION??? TODO --NPS  // The C# GPIO ISR will already treat this like a continuation, and we would need a better latency profiling before using continuations with native drivers? --MAM
 		my_isr = gpio_isr[pin];
 		parm = gpio_parm[pin];
 		if(my_isr != NULL)
@@ -67,7 +78,7 @@ static void handle_exti(unsigned int exti)
 		}
 		else
 		{
-		    GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] No GPIO callback defined at %s, %s \n", __LINE__, __FILE__);
+		    GPIO_DEBUG_PRINT("%s",c_strGpioBadCallback);
 		    ASSERT(my_isr != NULL);
 		}
 	}
@@ -115,18 +126,6 @@ static BOOL IsOutputPin(GPIO_PIN Pin)
 		isOutput = TRUE;
 	}
 	return isOutput;
-}
-
-static inline bool CheckGPIO_PortSource_Pin(GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin)
-{
-	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
-
-	if(Pin > GPIO_PINS)
-	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins per port at %s, %s \n", __LINE__, __FILE__);
-		return FALSE;
-	}
-	return TRUE;
 }
 
 uint16_t GPIO_GetPin(GPIO_PIN Pin) {
@@ -277,53 +276,37 @@ BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
-	bool pinState = CPU_GPIO_GetPinState(Pin);
-
-	if(pinState == FALSE) {
-		CPU_GPIO_SetPinState(Pin, TRUE);
-	} else {
-		CPU_GPIO_SetPinState(Pin, FALSE);
-	}
+	BOOL pinState = CPU_GPIO_GetPinState(Pin);
+	pinState = !pinState;
+	CPU_GPIO_SetPinState(Pin, pinState);
+	return pinState;
 }
 
+/**
+ * Note: Microsoft.SPOT>Hardware.Port uses CPU_GPIO_Attributes to do basic verification that C# may touch a port.
+ */
 UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return 0;
 	}
 	return (GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT);
-
-	/*if(Pin < GPIO_PINS)
-	{
-		return g_STM32F10x_Gpio_Driver.c_Gpio_Attributes[Pin];
-	}
-	
-	return GPIO_ATTRIBUTE_NONE;*/
 }
 
-
-void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, GPIO_PIN Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
-{
-	if(!CheckGPIO_PortSource_Pin(GPIO_PortSource, Pin))
-		return;
-
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_GetPin(Pin);
-	GPIO_InitStructure.GPIO_Mode = mode; // output mode
-	GPIO_InitStructure.GPIO_Speed = speed;
-	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
+//TODO: just call DisablePin...
+void GPIO_ConfigurePinC( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed) {
+    GPIO_ConfigurePin( GPIO_PortSource, Pin, mode, speed);
 }
 
+//TODO: keep track of resources.  Otherwise this function is pointless and clients should use the MSFT CPU_GPIO API.
 void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_TypeDef mode, GPIOSpeed_TypeDef speed)
 {
-	assert_param(IS_GPIO_ALL_PERIPH(GPIO_PortSource));
-
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = Pin;
 	GPIO_InitStructure.GPIO_Mode = mode; // output mode
@@ -336,7 +319,7 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -356,7 +339,7 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 	// Check if the input pin is less than max pins
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -370,7 +353,7 @@ BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERR
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -381,7 +364,7 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -394,7 +377,7 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 	} else if(ResistorState == RESISTOR_PULLUP) {
 		mode = GPIO_Mode_IPU;
 	} else {
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Invalid resistor configuration at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("Invalid resistor configuration");
 		return FALSE;
 	}
 
@@ -409,7 +392,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -428,7 +411,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 	uint16_t pinInHex = GPIO_GetPin(Pin);
 	GPIO_ConfigurePin(port, pinInHex, mode);
 
-	// Nived.Sivadas - adding interrupt support to the gpio pins
+	// Interrupt support for the gpio pins
 	GPIO_EXTILineConfig(GPIO_GetPort(Pin), (Pin % GPIO_PPP));
 
 	if(PIN_ISR)
@@ -472,7 +455,7 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -489,7 +472,7 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -512,7 +495,7 @@ BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -531,7 +514,7 @@ BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] Pin Number greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -569,7 +552,7 @@ void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 {
 	if(size > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT2("[Native] [GPIO Driver] size greater than max allowable pins at %s, %s \n", __LINE__, __FILE__);
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadSize);
 		return;
 	}
     UINT8 i;
@@ -580,13 +563,11 @@ void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 
 UINT8 CPU_GPIO_GetSupportedResistorModes( GPIO_PIN Pin )
 {
-	//return g_STM32F10x_Gpio_Driver.c_GPIO_ResistorMode;
 	return ((1<<RESISTOR_DISABLED) | (1<<RESISTOR_PULLUP) | (1 << RESISTOR_PULLDOWN));
 }
 
 UINT8 CPU_GPIO_GetSupportedInterruptModes( GPIO_PIN pin )
 {
-    //return g_STM32F10x_Gpio_Driver.c_GPIO_InterruptMode;
     return ((1<<GPIO_INT_EDGE_LOW) | (1<<GPIO_INT_EDGE_HIGH ) | (1<<GPIO_INT_EDGE_BOTH));
 }
 
@@ -636,18 +617,3 @@ void EXTI15_10_IRQ_Handler(void *args)
 	handle_exti(EXTI_Line14);
 	handle_exti(EXTI_Line15);
 }
-
-
-
-
-/*
-void STUB_GPIOISRVector( GPIO_PIN Pin, BOOL PinState, void* Param )
-{
-}
-
-void Default_EXTI_Handler(void *data)
-{
-}
-*/
-
-

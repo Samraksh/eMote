@@ -46,7 +46,6 @@ TODO -
 /*--------- Global Variables ----------- */
 SPI_InitTypeDef SPI_InitStructure;
 SPI_TypeDef* SPI_mod;
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
 
 //indicates the SPI peripheral initialized
 int SPI_Initialized[] = {0};
@@ -74,7 +73,7 @@ BOOL CPU_SPI_Initialize ()
 	NVIC_Config();
 		
 	//TODO Make sure the GPIO pins are available and if they are put them in safe state	
-	//Loop through all the spi peripherals and put there pin in knwon state and set the value
+	//Loop through all the spi peripherals and put there pin in known state and set the value
 	//initialized array to 1
 	SPI_Initialized[0]= 1; //SPIx
 	SPI_Initialized[1]= 1; //SPIy

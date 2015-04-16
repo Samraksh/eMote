@@ -45,6 +45,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_eval_sdio_sd.h"
+#include <gpio\netmf_gpio.h>
 
 /** @addtogroup Utilities
   * @{
@@ -194,8 +195,12 @@ static SD_Error IsCardProgramming(uint8_t *pstatus);
 static SD_Error FindSCR(uint16_t rca, uint32_t *pscr);
 static uint8_t convert_from_bytes_to_power_of_two(uint16_t NumberOfBytes);
 
+/*********************************/
+void SD_LowLevel_DeInit(void);
 void SD_LowLevel_Init(void);
-  
+void SD_LowLevel_DMA_TxConfig(uint32_t *BufferSRC, uint32_t BufferSize);
+void SD_LowLevel_DMA_RxConfig(uint32_t *BufferDST, uint32_t BufferSize);
+uint32_t SD_DMAEndOfTransferStatus(void);
 /**
   * @}
   */ 
@@ -341,7 +346,46 @@ uint32_t SD_DMAEndOfTransferStatus(void)
   return (uint32_t)DMA_GetFlagStatus(DMA2_FLAG_TC4);
 }
 
+/****************************************************************************/
+/**
+  * @brief  DeInitializes the SDIO interface.
+  * @param  None
+  * @retval None
+  */
+void SD_LowLevel_DeInit(void)
+{
+  GPIO_InitTypeDef  GPIO_InitStructure;
 
+  /*!< Disable SDIO Clock */
+  SDIO_ClockCmd(DISABLE);
+
+  /*!< Set Power State to OFF */
+  SDIO_SetPowerState(SDIO_PowerState_OFF);
+
+  /*!< DeInitializes the SDIO peripheral */
+  SDIO_DeInit();
+
+  /*!< Disable the SDIO AHB Clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_SDIO, DISABLE);
+
+  /*!< Configure PC.08, PC.09, PC.10, PC.11, PC.12 pin: D0, D1, D2, D3, CLK pin */
+  GPIO_ConfigurePinC(SD_DETECT_GPIO_PORT,
+          SD_PIN_D0 |
+          SD_PIN_D1 |
+          SD_PIN_D2 |
+          SD_PIN_D3 |
+          SD_PIN_CLK, GPIO_Mode_IN_FLOATING, GPIO_Speed_2MHz);
+
+  /*!< Configure PD.02 CMD line */
+  GPIO_ConfigurePinC(SD_CMD_GPIO_PORT, SD_PIN_CMD, GPIO_Mode_IN_FLOATING, GPIO_Speed_2MHz);
+}
+
+/**
+  * @brief  Initializes the SD Card and put it into StandBy State (Ready for
+  *         data transfer).
+  * @param  None
+  * @retval None
+  */
 void SD_LowLevel_Init(void)
 {
   GPIO_InitTypeDef  GPIO_InitStructure;
@@ -350,22 +394,19 @@ void SD_LowLevel_Init(void)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | SD_DETECT_GPIO_CLK, ENABLE);
 
   /*!< Configure PC.08, PC.09, PC.10, PC.11, PC.12 pin: D0, D1, D2, D3, CLK pin */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+  GPIO_ConfigurePinC(SD_DETECT_GPIO_PORT,
+          SD_PIN_D0 |
+          SD_PIN_D1 |
+          SD_PIN_D2 |
+          SD_PIN_D3 |
+          SD_PIN_CLK,
+          GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
   /*!< Configure PD.02 CMD line */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOD, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
+  GPIO_ConfigurePinC(SD_CMD_GPIO_PORT, SD_PIN_CMD, GPIO_Mode_AF_PP, GPIO_Speed_50MHz);
 
-  /*!< Configure SD_SPI_DETECT_PIN pin: SD Card detect pin */
-  GPIO_InitStructure.GPIO_Pin = SD_DETECT_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  GPIO_Init(SD_DETECT_GPIO_PORT, &GPIO_InitStructure);
-  //CPU_GPIO_ConfigurePin(GPIO_PortSourceGPIOC, SD_DETECT_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
+  /*!< Configure PC.7 SD_SPI_DETECT_PIN pin: SD Card detect pin */
+  GPIO_ConfigurePinC(SD_DETECT_GPIO_PORT, SD_DETECT_PIN, GPIO_Mode_IPU, GPIO_Speed_50MHz);
 
   /*!< Enable the SDIO AHB Clock */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_SDIO, ENABLE);

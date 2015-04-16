@@ -99,16 +99,6 @@ void HAL_Time_SetCompare(UINT64 CompareValue)
 	SetCompare(CompareValue);
 }
 
-void HAL_Time_SetCompare_Completion(UINT64 CompareValue)
-{
-	SetCompare(CompareValue);
-}
-
-void HAL_Time_Stop_Completion_timer()
-{
-	//g_Time_Driver.StopTimer();
-}
-
 void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
 {
 	*a = 1;
@@ -136,6 +126,10 @@ UINT32 CPU_TicksPerSecond(UINT16 t) {
 
 UINT32 CPU_MicrosecondsToTicks(unsigned int uSec, unsigned short timer) {
 	return uSec;
+}
+
+UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer ) {
+    return uSec;
 }
 
 UINT64 CPU_MillisecondsToTicks(unsigned int ms, unsigned short timer) {

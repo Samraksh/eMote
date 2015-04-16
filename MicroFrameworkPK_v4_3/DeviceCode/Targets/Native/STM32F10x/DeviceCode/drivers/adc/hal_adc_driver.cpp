@@ -27,8 +27,6 @@ void ADC_GPIO_Configuration(void);
 BOOL ADC_NVIC_Configuration(void);
 void ADC_RCC_Configuration(void);
 
-extern STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
-
 HAL_CALLBACK_FPN g_callback = NULL;
 static UINT64 g_timeStamp = 0;
 

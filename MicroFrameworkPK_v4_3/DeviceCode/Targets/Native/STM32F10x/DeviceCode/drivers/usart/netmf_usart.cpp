@@ -8,8 +8,6 @@
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
-//extern STM32F10x_GPIO_Driver g_STM32F10x_Gpio_Driver;
-
 void USART2_Handler(void *args);
 
 /*TODO 

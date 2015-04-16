@@ -515,7 +515,7 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 #define SELN_PIN_LR		89
 #define RSTN_PIN_LR		90
 #define SLP_TR_PIN_LR   27
-#define AMP_LR			26
+#define AMP_PIN_LR		26
 #define INTERRUPT_PIN_LR 55
 
 #define	 RF230_TRX_CTRL_0_VALUE		 0x0
