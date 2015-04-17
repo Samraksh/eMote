@@ -23,7 +23,7 @@
 #define NbrClockMonitor_TIMER 33
 #define SimpleTimesyncTest_Send_TIMER 34
 #define NbrClockMonitorStart_TIMER 35
-#define USEONESHOTTIMER TRUE
+#define USEONESHOTTIMER FALSE
 
 #define NBCLOCKMONITORPERIOD 10000
 #define INITIALDELAY 100000
