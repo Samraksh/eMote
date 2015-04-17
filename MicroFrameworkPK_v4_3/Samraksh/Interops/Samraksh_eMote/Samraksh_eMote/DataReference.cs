@@ -13,9 +13,12 @@ namespace Samraksh.eMote.NonVolatileMemory
     {
         private DataStore dStore;
         // Data Id unique to a pointer
-        private UInt32 dataId;
+        private UInt32 dataId = 0;
         private UInt32 referenceSize = 0;
-        private UInt32 dataReference;
+        //Reference to data created on the storage device (not actual location. Similar to malloc returning a user space address)
+        private UInt32 dataReference = 0;
+        //Actual location of data on storage device
+        private UInt32 dataLocationOnStorage = 0;
         private ReferenceDataType referenceDataType;
         /// <summary>
         /// DataType of reference
@@ -71,20 +74,28 @@ namespace Samraksh.eMote.NonVolatileMemory
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
-            if (this.dataReference == 0x0)
-                throw new DataStoreException("Reference to data is null");
+            /*if (this.dataReference == 0x0)
+                throw new DataStoreException("Reference to data is null");*/
 
-            //Amount of data to be written should not be greater than size of input array
-            if (numData > data.Length)
-                throw new DataStoreException("Amount of data to be written is greater than array size");
+            if (this.dataLocationOnStorage == 0x0)
+                throw new DataStoreException("Data location is null");
 
             //DataType to be written should be the same as that created during allocation
             if (this.referenceDataType != ReferenceDataType.BYTE)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
-            //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.referenceSize)
-                throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            //Amount of data to be written should not be greater than size of input array
+            if (numData > 0 && numData > data.Length)
+            {
+                throw new DataStoreException("Amount of data to be written is greater than array size");
+            }
+
+            if(numData == 0)
+            {
+                //Amount of data to be written should not be greater than allocation size
+                if (data.Length > this.referenceSize)
+                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            }
         }
 
         /// <summary>
@@ -97,20 +108,28 @@ namespace Samraksh.eMote.NonVolatileMemory
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
-            if (this.dataReference == 0x0)
-                throw new DataStoreException("Reference to data is null");
+            /*if (this.dataReference == 0x0)
+                throw new DataStoreException("Reference to data is null");*/
 
-            //Amount of data to be written should not be greater than size of input array
-            if (numData > data.Length)
-                throw new DataStoreException("Amount of data to be written is greater than array size");
+            if (this.dataLocationOnStorage == 0x0)
+                throw new DataStoreException("Data location is null");
 
             //DataType to be written should be the same as that created during allocation
             if (this.referenceDataType != ReferenceDataType.UINT16)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
-            //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.referenceSize)
-                throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            //Amount of data to be written should not be greater than size of input array
+            if (numData > 0 && numData > data.Length)
+            {
+                throw new DataStoreException("Amount of data to be written is greater than array size");
+            }
+
+            if (numData == 0)
+            {
+                //Amount of data to be written should not be greater than allocation size
+                if (data.Length > this.referenceSize)
+                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            }
         }
 
         /// <summary>
@@ -123,20 +142,28 @@ namespace Samraksh.eMote.NonVolatileMemory
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
-            if (this.dataReference == 0x0)
-                throw new DataStoreException("Reference to data is null");
+            /*if (this.dataReference == 0x0)
+                throw new DataStoreException("Reference to data is null");*/
 
-            //Amount of data to be written should not be greater than size of input array
-            if (numData > data.Length)
-                throw new DataStoreException("Amount of data to be written is greater than array size");
+            if (this.dataLocationOnStorage == 0x0)
+                throw new DataStoreException("Data location is null");
 
             //DataType to be written should be the same as that created during allocation
             if (this.referenceDataType != ReferenceDataType.UINT32)
                 throw new DataStoreException("DataType is not the same as the one during creation");
 
-            //Amount of data to be written should not be greater than allocation size
-            if (data.Length > this.referenceSize)
-                throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            //Amount of data to be written should not be greater than size of input array
+            if (numData > 0 && numData > data.Length)
+            {
+                throw new DataStoreException("Amount of data to be written is greater than array size");
+            }
+
+            if (numData == 0)
+            {
+                //Amount of data to be written should not be greater than allocation size
+                if (data.Length > this.referenceSize)
+                    throw new DataStoreException("Amount of data to be written is greater than size of data allocated");
+            }
         }
 
         /// <summary>
@@ -193,19 +220,22 @@ namespace Samraksh.eMote.NonVolatileMemory
             if (referenceDataType == ReferenceDataType.BYTE)
             {
                 refSize = sizeof(byte) * refSize;
-                this.dataReference = (UInt32)CreateData((UInt32)refSize, 0);
+                //this.dataReference = (UInt32)CreateData((UInt32)refSize, 0);
+                this.dataLocationOnStorage = (UInt32)CreateData((UInt32)refSize, 0);
                 this.dataType = typeof(byte);
             }
             else if (referenceDataType == ReferenceDataType.UINT16)
             {
                 refSize = sizeof(UInt16) * refSize;
-                this.dataReference = (UInt32)CreateData((UInt32)refSize, 1);
+                //this.dataReference = (UInt32)CreateData((UInt32)refSize, 1);
+                this.dataLocationOnStorage = (UInt32)CreateData((UInt32)refSize, 1);
                 this.dataType = typeof(UInt16);
             }
             else if (referenceDataType == ReferenceDataType.UINT32)
             {
                 refSize = sizeof(UInt32) * refSize;
-                this.dataReference = (UInt32)CreateData((UInt32)refSize, 2);
+                //this.dataReference = (UInt32)CreateData((UInt32)refSize, 2);
+                this.dataLocationOnStorage = (UInt32)CreateData((UInt32)refSize, 2);
                 this.dataType = typeof(UInt32);
             }
             else
@@ -213,8 +243,11 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new ArgumentException("Invalid dataType", "dataType");
             }
 
-            if (this.dataReference == 0)
-                throw new DataStoreException("DataPointer is NULL. Data could not be created.");
+            /*if (this.dataReference == 0)
+                throw new DataStoreException("DataPointer is NULL. Data could not be created.");*/
+
+            if (this.dataLocationOnStorage == 0)
+                throw new DataStoreException("Data location is NULL. Data could not be created.");
 
             int datastoreStatus = GetLastDatastoreStatus();
             if (datastoreStatus == (int)DataStoreReturnStatus.Failure)
@@ -238,9 +271,9 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <summary>
         /// Returns a data object corresponding to the input parameter data ID.
         /// Possible to create max of 256 active data objects.
-        /// </summary>Rea
+        /// </summary>
         /// <param name="dStore">DataStore object</param>
-        /// <param name="dataId">ID of data for which the user wants a reference/handle</param>
+        /// <param name="dataId">ID of data for which user wants a reference/handle</param>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
         /// <exception caption="Argument Exception" cref="System.ArgumentException">Method invocation has an invalid argument</exception>
         public DataReference(DataStore dStore, int dataId)
@@ -254,9 +287,13 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             this.dStore = dStore;
             this.dataId = (UInt32)dataId;
-            this.dataReference = (UInt32)GetDataReference((UInt32)dataId);
+            /*this.dataReference = (UInt32)GetDataReference((UInt32)dataId);
             if (this.dataReference == 0)
-                throw new DataStoreException("Reference to data is NULL. Data was not created.");
+                throw new DataStoreException("Reference to data is NULL. Data was not created.");*/
+
+            this.dataLocationOnStorage = (UInt32)GetDataLocation((UInt32)dataId);
+            if (this.dataLocationOnStorage == 0)
+                throw new DataStoreException("No location for given dataID. Data was not created.");
 
             this.referenceSize = (UInt32)LookupDataSize((UInt32)dataId);
             if (this.referenceSize == 0)
@@ -308,7 +345,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new DataStoreException("Offset should not be odd for byte dataType");
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
 
@@ -341,7 +379,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
 
@@ -376,7 +415,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
 
@@ -400,7 +440,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw ex;
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
 
@@ -433,7 +474,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
 
@@ -468,7 +510,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
 
@@ -493,7 +536,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw ex;
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, offset, (UInt32)data.Length, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
 
@@ -526,7 +570,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt16) + 1] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
 
@@ -561,7 +606,8 @@ namespace Samraksh.eMote.NonVolatileMemory
                 byteArray[objIndex * sizeof(UInt32) + 3] = (byte)(data[objIndex]);
             }
 
-            retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
 
@@ -589,7 +635,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeByte);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -628,7 +675,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -668,7 +716,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
@@ -711,7 +760,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -750,7 +800,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -790,7 +841,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)numData;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
@@ -833,7 +885,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(byte) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
             {
@@ -872,7 +925,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt16) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
             {
@@ -912,7 +966,8 @@ namespace Samraksh.eMote.NonVolatileMemory
             UInt32 numBytes = sizeof(UInt32) * (UInt32)data.Length;
             byte[] byteArray = new byte[numBytes];
 
-            retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
             {
@@ -1008,6 +1063,14 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// <returns>Address reference to the dataID</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern private int GetDataReference(UInt32 dataId);
+
+        /// <summary>
+        /// Get actual data location for specified data ID from DataStore
+        /// </summary>
+        /// <param name="dataId">ID of the data to be looked up</param>
+        /// <returns>Address of data</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern private int GetDataLocation(UInt32 dataId);
 
         /// <summary>
         /// Get the data type of dataID

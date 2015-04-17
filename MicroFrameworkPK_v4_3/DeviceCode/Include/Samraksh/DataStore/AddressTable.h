@@ -77,6 +77,7 @@ public:
     LPVOID           getCurrentLoc(RECORD_ID recordID);
     LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr);
     LPVOID           getGivenAddress(RECORD_ID recordID);
+    LPVOID           getCurrentLocation(RECORD_ID recordID);
     LPVOID			 getGivenPointer(LPVOID currentPtr);
     RECORD_ID        getRecordID(LPVOID givenAddr);
     uint32           getAllocationSize(RECORD_ID recordID);

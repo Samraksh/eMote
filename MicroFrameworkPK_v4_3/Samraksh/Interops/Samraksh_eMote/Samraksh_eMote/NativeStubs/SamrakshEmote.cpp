@@ -55,6 +55,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetDataReference___I4__U4,
+    Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::GetDataLocation___I4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::LookupDataType___I4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::LookupDataSize___I4__U4,
     Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::DeleteData___BOOLEAN__U4,
@@ -129,7 +130,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0xC1DDD642,
+    0x4E38CBB9,
     method_lookup
 };
 

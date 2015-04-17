@@ -31,6 +31,8 @@ namespace Samraksh
 
                 static UINT32& Get_dataReference( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__dataReference ); }
 
+                static UINT32& Get_dataLocationOnStorage( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__dataLocationOnStorage ); }
+
                 static INT32& Get_referenceDataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__referenceDataType ); }
 
                 static UNSUPPORTED_TYPE& Get_dataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__dataType ); }
@@ -43,6 +45,7 @@ namespace Samraksh
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 GetDataReference( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
+                static INT32 GetDataLocation( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT32 LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT32 LookupDataSize( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );
                 static INT8 DeleteData( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr );

@@ -72,9 +72,9 @@
             <summary>
             Returns a data object corresponding to the input parameter data ID.
             Possible to create max of 256 active data objects.
-            </summary>Rea
+            </summary>
             <param name="dStore">DataStore object</param>
-            <param name="dataId">ID of data for which the user wants a reference/handle</param>
+            <param name="dataId">ID of data for which user wants a reference/handle</param>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
             <exception caption="Argument Exception" cref="T:System.ArgumentException">Method invocation has an invalid argument</exception>
         </member>
@@ -216,6 +216,13 @@
             </summary>
             <param name="dataId">ID of the data to be looked up</param>
             <returns>Address reference to the dataID</returns>
+        </member>
+        <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.GetDataLocation(System.UInt32)">
+            <summary>
+            Get actual data location for specified data ID from DataStore
+            </summary>
+            <param name="dataId">ID of the data to be looked up</param>
+            <returns>Address of data</returns>
         </member>
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.LookupDataType(System.UInt32)">
             <summary>

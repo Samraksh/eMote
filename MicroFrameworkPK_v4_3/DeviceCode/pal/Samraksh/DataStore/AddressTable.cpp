@@ -35,15 +35,25 @@ DATASTORE_STATUS DATASTORE_AddrTable::copyEntry(myVector *ltable)
 /* Chethan :: Move this somewhere later */
 __inline int comparePtrRange(DATASTORE_ADDR_TBL_ENTRY *entry, LPVOID addr){
     int retVal = -1;
-    if(entry->givenPtr > addr){
-        /* Given address is less than this address range */
+    /*if(entry->givenPtr > addr){
+        // Given address is less than this address range
         retVal = -1;
     }else if(((char*)entry->givenPtr + entry->allocationSize - 1 ) < addr ){
-        /* Given address is greater than this address range */
+        // Given address is greater than this address range
         retVal = +1;
     }else{
         retVal = 0;
-    }
+    }*/
+
+    if(entry->currentLoc > addr){
+		/* Given address is less than this address range */
+		retVal = -1;
+	}else if(((char*)entry->currentLoc + entry->allocationSize - 1 ) < addr ){
+		/* Given address is greater than this address range */
+		retVal = +1;
+	}else{
+		retVal = 0;
+	}
     return retVal;
 }
 
@@ -51,7 +61,7 @@ __inline int comparePtrRange(DATASTORE_ADDR_TBL_ENTRY *entry, LPVOID addr){
 
 /****************************************************************************
 *
-*  Function Name : ~DATASTORE_AddrTable
+*  Function Name : search
 *
 ******************************************************************************/
 /*!
@@ -79,12 +89,16 @@ DATASTORE_STATUS DATASTORE_AddrTable::search( LPVOID givenAddr,
         }
 
         low = 0; high = table.size()-1;
-        middle = (low+high)/2;
+        if(high == 1)
+        	middle = 1;
+        else
+        	middle = (low+high)/2;
         while(low <= high){
-            if(comparePtrRange( &table[middle], givenAddr) == +1){
+        	int comparePtrRangeResult = comparePtrRange( &table[middle], givenAddr);
+            if(comparePtrRangeResult == +1){
                 low = middle + 1;
                 middle = (low+high)/2;
-            }else if(comparePtrRange( &table[middle], givenAddr) == -1){
+            }else if(comparePtrRangeResult == -1){
                 high = middle - 1;
                 middle = (low+high)/2;
             }else{
@@ -169,7 +183,7 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
 
 /****************************************************************************
 *
-*  Function Name : addEntry
+*  Function Name : getCurrentLoc
 *
 ******************************************************************************/
 /*!
@@ -195,7 +209,7 @@ LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID)
 
 /****************************************************************************
 *
-*  Function Name : addEntry
+*  Function Name : getCurrentLoc
 *
 ******************************************************************************/
 /*!
@@ -214,9 +228,8 @@ LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVO
     do{
         if( DATASTORE_STATUS_OK == search( givenPtr, &tblEntry ) ){
             retVal = tblEntry.currentLoc;
-            // Nived : Consult change here
-            //retVal = (char*)retVal + ((char*)givenPtr - tblEntry.givenPtr);
-            retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.givenPtr);
+            //retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.givenPtr);
+            retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.currentLoc);
         }
     }while(0);
     if((char*)retVal > (char*)endPtr){
@@ -231,7 +244,7 @@ LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVO
 
 /****************************************************************************
 *
-*  Function Name : addEntry
+*  Function Name : getGivenAddress
 *
 ******************************************************************************/
 /*!
@@ -253,6 +266,7 @@ LPVOID DATASTORE_AddrTable::getGivenAddress(RECORD_ID recordID)
     }
     return retVal;
 }
+
 
 /****************************************************************************
 *
@@ -340,9 +354,8 @@ uint32 DATASTORE_AddrTable::getMaxWriteSize(LPVOID givenAddr)
             break;
         }
 
-        // Nived Need to consult
-        // retVal = entry.allocationSize - (uint32)((char*)givenAddr - entry.givenPtr);
-        retVal = entry.allocationSize - (uint32)((char*)givenAddr - (char *) entry.givenPtr);
+        //retVal = entry.allocationSize - (uint32)((char*)givenAddr - (char *) entry.givenPtr);
+        retVal = entry.allocationSize - (uint32)((char*)givenAddr - (char *) entry.currentLoc);
     }while(0);
 	return retVal;
 }
