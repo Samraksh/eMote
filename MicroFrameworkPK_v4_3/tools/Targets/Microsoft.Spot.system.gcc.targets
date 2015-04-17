@@ -77,7 +77,7 @@
     <CC_CPP_COMMON_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_COMMON_FLAGS) -ffunction-sections -fdollars-in-identifiers -fno-exceptions -march=armv7-a -funsigned-char -mfpu=neon-vfpv4 </CC_CPP_COMMON_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='RTM'"          >$(CC_CPP_TARGETTYPE_FLAGS) -Os</CC_CPP_TARGETTYPE_FLAGS>
     <!--<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0 -femit-class-debug-always</CC_CPP_TARGETTYPE_FLAGS>-->
-    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -O2 -DSAM_FORCE_GCC_CMDLINE_OPTS</CC_CPP_TARGETTYPE_FLAGS>
+    <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Debug'"        >$(CC_CPP_TARGETTYPE_FLAGS) -g -DSAM_FORCE_GCC_CMDLINE_OPTS</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Instrumented'" >$(CC_CPP_TARGETTYPE_FLAGS) -g -O0</CC_CPP_TARGETTYPE_FLAGS>
     <CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-M3'">$(CC_CPP_TARGETTYPE_FLAGS) -O3 -fno-strict-aliasing </CC_CPP_TARGETTYPE_FLAGS>
 	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
