@@ -151,9 +151,10 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 				relfreq = 1;
 			}
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
-			INT64 y = HAL_Time_CurrentTime();
+			INT64 y = HAL_Time_CurrentTicks();
 			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
-			start_delay = start_delay + (INT64) (((float) INITIALDELAY)/relfreq);
+			start_delay = HAL_Time_TicksToTime(start_delay);
+			start_delay = (INT64) (((float) INITIALDELAY)/relfreq) - start_delay - 1920;
 			if (start_delay > (1.5*INITIALDELAY)) {
 				start_delay = (1.5*INITIALDELAY);
 			}
@@ -188,7 +189,7 @@ BOOL SimpleTimesyncTest::Send(){
 	SimpleTimeSyncMsg* m_timeSyncMsg = (SimpleTimeSyncMsg *) msg_15_4_ptr->GetPayload();
 
 	INT64 y,d;
-		y = HAL_Time_CurrentTime();
+		y = HAL_Time_CurrentTicks();
 		m_timeSyncMsg->testnumber00 = 1;
 		m_timeSyncMsg->testnumber01 = 2;
 		m_timeSyncMsg->testnumber02 = 3;
