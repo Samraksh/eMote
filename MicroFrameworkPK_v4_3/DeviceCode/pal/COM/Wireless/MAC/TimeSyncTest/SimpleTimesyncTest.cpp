@@ -25,8 +25,12 @@
 #define NbrClockMonitorStart_TIMER 35
 #define USEONESHOTTIMER FALSE
 
-#define NBCLOCKMONITORPERIOD 10000
+#define NBCLOCKMONITORPERIOD 100000
 #define INITIALDELAY 100000
+//TXRX offset in microsec
+#define TXRXOFFSET 2130
+//ClockFreq in MHz
+#define ClockFreq 8
 
 //extern HALTimerManager gHalTimerManagerObject;
 //extern VirtualTimer gVirtualTimerObject;
@@ -128,12 +132,13 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 	bool TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 #endif
 
+	//EventTime = EventTime + TXRXOFFSET * ClockFreq;
 	UINT64 rcv_ltime;
 	INT64 l_offset;
 	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
 	l_offset = rcv_ltime - EventTime;
 
-	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset, (INT64) EventTime);
+	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 
 #ifdef DEBUG_TSYNC
 	if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
@@ -142,19 +147,19 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 		if (RcvCount>=2  ){
 
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
-			float relfreq = 1.5;
-			//float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
+			//float relfreq = 1.0;
+			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
 			if (relfreq > 1.3){
-				relfreq = 1;
+				relfreq = 1.3;
 			}
 			else if (relfreq < 0.7){
-				relfreq = 1;
+				relfreq = 0.7;
 			}
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
 			INT64 y = HAL_Time_CurrentTicks();
 			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
 			start_delay = HAL_Time_TicksToTime(start_delay);
-			start_delay = (INT64) (((float) INITIALDELAY)/relfreq) - start_delay - 1920;
+			start_delay = (INT64) (((float) INITIALDELAY)/relfreq) - start_delay - TXRXOFFSET;
 			if (start_delay > (1.5*INITIALDELAY)) {
 				start_delay = (1.5*INITIALDELAY);
 			}
