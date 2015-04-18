@@ -128,7 +128,7 @@ private:
 						if(nbrLocalTimes[i] < nbrLocalTimes[j] ) {
 							simpleCurrentLocalTimeDiff = nbrLocalTimes[(i+1) % MAX_SAMPLES] - nbrLocalTimes[i];
 							simpleCurrentOffsetDiff = nbrOffset[(i+1) % MAX_SAMPLES] - nbrOffset[i];
-							samples[nbrIndex].relativeFreq += (float) simpleCurrentLocalTimeDiff/((float) (simpleCurrentLocalTimeDiff - simpleCurrentOffsetDiff));
+							samples[nbrIndex].relativeFreq += (float) simpleCurrentLocalTimeDiff/((float) (simpleCurrentLocalTimeDiff + simpleCurrentOffsetDiff));
 						}
 						break;
 					}
@@ -206,7 +206,7 @@ public:
 	/*void SetAdjustTime(INT64 localtime,UINT8 nbrIndex){
 		samples[nbrIndex].Last_Adjust_localtime = localtime;
 	}*/
-	void Insert(UINT16 nbr,INT64 nbr_ltime, INT64 nbr_loffset, INT64 localtime){
+	void Insert(UINT16 nbr,UINT64 nbr_ltime, INT64 nbr_loffset){
 		UINT16 nbrIndex = FindNbr(nbr);
 		//Add new neighbor if not found
 		if (nbrIndex ==255){
