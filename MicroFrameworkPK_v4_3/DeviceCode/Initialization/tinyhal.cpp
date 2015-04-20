@@ -532,7 +532,7 @@ mipi_dsi_shutdown();
     {
         int  marker;
         int* ptr = &marker - 1; // This will point to the current top of the stack.
-        int* end = &StackBottom;
+        int* end = (int*)SAM_STACK_BOTTOM;
 
         while(ptr >= end)
         {
@@ -567,9 +567,8 @@ mipi_dsi_shutdown();
 
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
 
-#if !defined(BUILD_RTM) && defined(DEBUG)
-    g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
-
+#if !defined(BUILD_RTM)
+    //g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
 #endif
 
     // FIXME: Why does Samraksh initialize the interrupt controller here (nonstandard) instead of inside CPU_Initialize() (standard)?
@@ -638,6 +637,10 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 

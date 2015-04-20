@@ -192,9 +192,6 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 {
 	UINT64 currentTicks;
 	UINT64 tickElapsed;
-#ifdef DEBUG_VT
-	CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
-#endif
 	UINT16 i;
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0) {
@@ -366,6 +363,7 @@ void VirtualTimerCallback(void *arg)
 	// if there is a timer in the timerqueue still we will set the advanced timer to interrupt at the correct time
 	if(timerInQueue)
 	{
+		
 		// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
 		// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
 		if (gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < HAL_Time_CurrentTicks() ){
