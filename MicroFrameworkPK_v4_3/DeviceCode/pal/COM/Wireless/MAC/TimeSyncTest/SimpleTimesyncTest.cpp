@@ -155,11 +155,11 @@ void SimpleTimesyncTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, S
 			else if (relfreq < 0.7){
 				relfreq = 0.7;
 			}
-			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)/relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
+			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)*relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
 			INT64 y = HAL_Time_CurrentTicks();
 			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
 			start_delay = HAL_Time_TicksToTime(start_delay);
-			start_delay = (INT64) (((float) INITIALDELAY)/relfreq) - start_delay - TXRXOFFSET;
+			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay - TXRXOFFSET;
 			if (start_delay > (1.5*INITIALDELAY)) {
 				start_delay = (1.5*INITIALDELAY);
 			}
