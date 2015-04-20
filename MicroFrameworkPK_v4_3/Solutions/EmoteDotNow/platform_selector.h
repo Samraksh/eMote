@@ -30,12 +30,17 @@
 // constants
 //
 
-#define SYSTEM_CLOCK_HZ                 48000000
-#define SYSTEM_CYCLE_CLOCK_HZ           SYSTEM_CLOCK_HZ
-#define CLOCK_COMMON_FACTOR             1000000
-#define SLOW_CLOCKS_PER_SECOND          48000000
-#define SLOW_CLOCKS_TEN_MHZ_GCD         2000000
-#define SLOW_CLOCKS_MILLISECOND_GCD     1000
+#define SYSTEM_CLOCK_HZ                48000000  // Specifies the system clock speed, in ticks per second. For example, a 16-MHz clock is specifed as 16000000.
+#define SYSTEM_CYCLE_CLOCK_HZ   SYSTEM_CLOCK_HZ  // Specifies the base system clock speed, in Hertz. Implementations often set the value of this constant to the same value as the SYSTEM_CLOCK_HZ constant.
+#define CLOCK_COMMON_FACTOR             1000000  // GCD(SYSTEM_CLOCK_HZ, 1M);  Sets the greatest common factor for the system clock, in units of 1 MHz.
+#define SLOW_CLOCKS_PER_SECOND         48000000  // Specifies the "slow clock" speed. Many implementations of the Microsoft® .NET Micro Framework support both a system clock and a real time clock, which is also referred to as the slow clock. If your system supports only one clock, set this constant to the same value as for the SYSTEM_CLOCK_HZ constant.
+#define SLOW_CLOCKS_TEN_MHZ_GCD         2000000  // GCD(SLOW_CLOCKS_PER_SECOND, 10M); Sets the greatest common factor for the system clock, in units of 10 MHz.  // MAM: PK documentation seems to conflate system clock with slow clock.
+#define SLOW_CLOCKS_MILLISECOND_GCD        1000  // GCD(SLOW_CLOCKS_PER_SECOND, 1k); Sets the greatest common factor for the system clock, in units of 1 millisecond (ms).  // MAM: PK documentaiton seems to conflate system clock with slow clock.
+
+// FIXME: Samraksh external HCLK work-around for SimpleTimer using SYSTICK fed by external reference clock STCLK.
+#define SYSTEM_TIMER_HZ            SYSTEM_CLOCK_HZ / 8
+#define SYSTEM_TIMER_TEN_MHZ_GCD               1000000
+#define SYSTEM_TIMER_MILLISECOND_GCD              1000
 
 #define SRAM1_MEMORY_Base   0x20000000
 #define SRAM1_MEMORY_Size   0x00018000

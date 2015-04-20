@@ -13,6 +13,7 @@
 #define SYSTICK_RESET_COMPENSATE_INT 0
 #define SYSTICK_RESET_COMPENSATE_OTHER 0
 
+
 static volatile UINT64 bigCounter;
 
 extern "C" {
@@ -36,8 +37,9 @@ BOOL HAL_Time_Initialize()
 	//SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);
 	SysTick->LOAD = MAX_RELOAD;
 	SysTick->VAL = 0;
-	//SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
-	SysTick->CTRL  = SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
+	//SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;  // SysTick 48MHz
+	SysTick->CTRL  = SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;  // SysTick 48 / 8 = 6MHz STCLK.
+	return TRUE;
 }
 
 // Must catch every interrupt before next roll-over, so should be 1st or 2nd highest priority
@@ -53,15 +55,24 @@ void SysTick_Handler(void) {
 BOOL HAL_Time_Uninitialize()
 {
 	SysTick->CTRL = 0;
+	return TRUE;
 }
 
-// Convert to 100ns ticks
+/**
+ * Retrieves the current real-time clock tick value in common language runtime (CLR) base time, in 100-nanosecond (ns) increments.
+ */
 INT64 HAL_Time_CurrentTime()
 {
-	// HAL_Time_CurrentTicks() is 1 MHz timebase, need 10 MHz (100ns)
-	return HAL_Time_CurrentTicks()*TIME_BASE_FACTOR;
+    INT64 retVal = 0;
+    // HAL_Time_CurrentTicks() is 6 MHz timebase, need 10 MHz (100ns)
+    retVal = (HAL_Time_CurrentTicks() * 10);
+    retVal = retVal / 6;
+    return retVal;
 }
 
+/**
+ * Retrieves the current real-time clock tick value.
+ */
 UINT64 Time_CurrentTicks()
 {
 	return HAL_Time_CurrentTicks();
@@ -113,25 +124,47 @@ void HAL_Time_Sleep_MicroSeconds( UINT32 uSec )
 	HAL_Time_Sleep_MicroSeconds_InterruptEnabled(uSec);
 }
 
-// Happily, 1 MHz == 1 microsecond, so we can count ticks
+// At 8MHz Low Power,  1 MHz == 1 microsecond, so we can count ticks
 void HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec )
 {
-	UINT64 target = bigCounter + (SysTick->LOAD - SysTick->VAL) + uSec;
+
+	UINT64 target = bigCounter + (SysTick->LOAD - SysTick->VAL) + (uSec * SYSTEM_TIMER_HZ / ONE_MHZ);
 	while(bigCounter + (SysTick->LOAD - SysTick->VAL) < target); // spin
 }
 
-UINT32 CPU_TicksPerSecond(UINT16 t) {
-	return 1000000;
+UINT32 CPU_TicksPerSecond(UINT16 t)
+{
+	return SYSTEM_TIMER_HZ;
 }
 
-UINT32 CPU_MicrosecondsToTicks(unsigned int uSec, unsigned short timer) {
-	return uSec;
+//TODO: support variable HCLK.
+UINT32 CPU_MicrosecondsToTicks(unsigned int uSec, unsigned short timer)
+{
+    UINT32 retVal = 0;
+#if ONE_MHZ <= SYSTEM_TIMER_HZ
+    retVal = uSec * (SYSTEM_TIMER_HZ / ONE_MHZ);
+#else
+    retVal = uSec / (ONE_MHZ / SYSTEM_TIMER_HZ);
+#endif
+    return retVal;
 }
 
-UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer ) {
-    return uSec;
+//TODO: support variable HCLK.
+UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
+{
+    UINT32 retVal = 0;
+#if ONE_MHZ <= SYSTEM_TIMER_HZ
+    retVal = uSec * (SYSTEM_TIMER_HZ / ONE_MHZ);
+#else
+    retVal = uSec / (ONE_MHZ / SYSTEM_TIMER_HZ);
+#endif
+    return retVal;
 }
 
+//TODO: support variable HCLK.
 UINT64 CPU_MillisecondsToTicks(unsigned int ms, unsigned short timer) {
-	return ms*1000;
+    unsigned int Ticks = 0;
+    Ticks = ms * (SYSTEM_TIMER_HZ/SYSTEM_TIMER_MILLISECOND_GCD);
+    Ticks /= (1000                  /SYSTEM_TIMER_MILLISECOND_GCD);
+    return Ticks;
 }
