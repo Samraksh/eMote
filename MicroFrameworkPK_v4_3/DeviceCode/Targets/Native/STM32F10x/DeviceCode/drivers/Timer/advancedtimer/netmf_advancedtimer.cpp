@@ -262,6 +262,8 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		compareValue += TIME_CUSHION;
 	}
 
+	currentCompareValue = compareValue;
+
 	tar_upper = (compareValue >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
 
@@ -272,7 +274,6 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 
 	// Check for miss
 	if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
-		currentCompareValue = compareValue;
 		// Didn't miss, done for now
 		return DS_Success;
 	}
