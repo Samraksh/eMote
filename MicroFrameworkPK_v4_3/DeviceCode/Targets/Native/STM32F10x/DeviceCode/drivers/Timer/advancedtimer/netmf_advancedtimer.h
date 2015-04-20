@@ -56,8 +56,7 @@ public:
 	static BOOL initialized;
 	UINT32 currentCounterValue;
 
-	// Stores the current active compare value in the system
-	UINT32 currentCompareValue;
+	UINT16 tar_lower;
 
 	HAL_CALLBACK_FPN callBackISR;
 	void* callBackISR_Param;

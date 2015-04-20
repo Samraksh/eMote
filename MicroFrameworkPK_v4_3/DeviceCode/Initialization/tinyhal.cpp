@@ -519,7 +519,7 @@ mipi_dsi_shutdown();
     {
         int  marker;
         int* ptr = &marker - 1; // This will point to the current top of the stack.
-        int* end = &StackBottom;
+        int* end = (int*)SAM_STACK_BOTTOM;
 
         while(ptr >= end)
         {
@@ -548,12 +548,11 @@ mipi_dsi_shutdown();
 
     LOAD_IMAGE_Length += (UINT32)&IMAGE_RAM_RO_LENGTH + (UINT32)&Image$$ER_RAM_RW$$Length;
 
-#if !defined(BUILD_RTM) && defined(DEBUG)
-    g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
-
+#if !defined(BUILD_RTM)
+    //g_Boot_RAMConstants_CRC = Checksum_RAMConstants();
 #endif
-
-    // But for reasons unknown, Samraksh initializes the interrupt controller here instead of inside CPU_Initialize().
+    // Nived.Sivadas@samraksh.com : Do not comment this function out here even if it is being called else where afterwards.
+    // What may seem redundant can cause problems with the nested interrupt working.
     CPU_INTC_Initialize();
 
     CPU_Initialize();
@@ -620,6 +619,10 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
