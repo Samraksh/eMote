@@ -212,15 +212,11 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	now_lower = now & 0xFFFF;
 
 	if ( tar_lower >= now_lower){
-		//CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
-		//CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 		if ( (tar_lower - now_lower) < MISSED_TIMER_DELAY){
 			tar_lower = now_lower + MISSED_TIMER_DELAY;
 		}
 	} else {		
 		//hal_printf("%d %d %d\r\n", tar_lower, now_lower, MISSED_TIMER_DELAY);
-		CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 		if ( ( (0xffff - now_lower) + tar_lower) < MISSED_TIMER_DELAY) {
 			tar_lower = now_lower + MISSED_TIMER_DELAY;
 			
@@ -260,11 +256,7 @@ void ISR_TIM2(void* Param)
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-			CPU_GPIO_SetPinState((GPIO_PIN) 25, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 		if ( (TIM1->CNT > g_STM32F10x_AdvancedTimer.tar_lower) || ((g_STM32F10x_AdvancedTimer.tar_lower - TIM1->CNT)<750) ){
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 		} else {
 			TIM_SetCompare3(TIM1, g_STM32F10x_AdvancedTimer.tar_lower);
