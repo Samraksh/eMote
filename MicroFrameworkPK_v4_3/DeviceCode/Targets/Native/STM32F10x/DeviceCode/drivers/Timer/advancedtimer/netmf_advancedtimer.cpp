@@ -81,7 +81,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 	// Maintains the last recorded 32 bit counter value
 	currentCounterValue = 0;
-
+	currentCompareValue = 0xFFFFFFFFFFFFFFFFull;
 
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
@@ -221,6 +221,13 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 #endif
 	GLOBAL_LOCK(irq);
 	now = g_STM32F10x_AdvancedTimer.Get64Counter();
+
+	// Ignore bogus requests. There are several types. More to be added.
+	// 1. Ignore requests for times that not before the current open request.
+	if ( compareValue >= currentCompareValue ) {
+		return DS_Success;
+	}
+
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	// TODO: change the 800 to something that is not hardcoded as this could break at other frequencies
 	if (compareValue < (now + TIME_CUSHION)){
@@ -286,6 +293,7 @@ void ISR_TIM1( void* Param )
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
 		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
+		g_STM32F10x_AdvancedTimer.currentCompareValue = 0xFFFFFFFFFFFFFFFFull; // Reset
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 	}
 }
