@@ -128,7 +128,7 @@ private:
 						if(nbrLocalTimes[i] < nbrLocalTimes[j] ) {
 							simpleCurrentLocalTimeDiff = nbrLocalTimes[(i+1) % MAX_SAMPLES] - nbrLocalTimes[i];
 							simpleCurrentOffsetDiff = nbrOffset[(i+1) % MAX_SAMPLES] - nbrOffset[i];
-							samples[nbrIndex].relativeFreq += (float) simpleCurrentLocalTimeDiff/((float) (simpleCurrentLocalTimeDiff + simpleCurrentOffsetDiff));
+							samples[nbrIndex].relativeFreq += ((float) (simpleCurrentLocalTimeDiff - simpleCurrentOffsetDiff)) /(float) simpleCurrentLocalTimeDiff;
 						}
 						break;
 					}
