@@ -126,7 +126,7 @@ void ApplicationEntryPoint()
 		curTicks = prevTicks;
 
         //
-        // Wait for somebody to press a button; if no button press comes in, lauch the image
+        // Wait for somebody to press a button; if no button press comes in, launch the image
         //
         do
         {
@@ -166,10 +166,20 @@ void ApplicationEntryPoint()
                 TinyBooter_OnStateChange( State_ValidCommunication, (void*)&timeout );
 
                 prevTicks = curTicks;
-				curTicks = HAL_Time_CurrentTicks();
+                curTicks = HAL_Time_CurrentTicks();
             }
-            else if((timeout != -1) && (timeoutTicks > CPU_MillisecondsToTicks((UINT32)timeout)) )
-			{
+            else if((timeout != -1) && (timeoutTicks > 160000000 /*CPU_MillisecondsToTicks((UINT32)timeout)*/) )
+            {
+                const GPIO_PIN TEST_PIN = (GPIO_PIN)24;  // GPIOB GPIO_Pin_8, TestSystem Saleae Logic Channel 0 Black
+                UINT64 startTicks = 0;
+                CPU_GPIO_EnableOutputPin(TEST_PIN, FALSE);
+                while(true) {
+                    CPU_GPIO_SetPinState(TEST_PIN, !CPU_GPIO_GetPinState(TEST_PIN));
+                    startTicks = HAL_Time_CurrentTicks();
+                    do{
+                        __asm volatile("nop");
+                    } while( HAL_Time_CurrentTicks() < (startTicks + CPU_TicksPerSecond()) );
+                }
                 TinyBooter_OnStateChange( State_Timeout, NULL );
                 g_eng.EnumerateAndLaunch();
             }
