@@ -169,6 +169,29 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 }
 
+// Assumes IRQs locked
+static inline void clear_tim2(void) {
+	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	__DSB(); __ISB();
+}
+
+// Assumes IRQs locked
+static inline void clear_tim1(void) {
+	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	__DSB(); __ISB();
+}
+
+// Assumes IRQs locked
+static inline void clear_timers(void) {
+	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	__DSB(); __ISB();
+}
+
 // Assumes ONLY lower 16-bit need to be aligned.
 // There will be hiccups when lower 16-bits is small, e.g. 0
 static void set_compare_lower_16(UINT64 target) {
@@ -228,6 +251,11 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		return DS_Success;
 	}
 
+	// Clear old timers if already an active request
+	if (currentCompareValue != 0xFFFFFFFFFFFFFFFF) {
+		clear_timers();
+	}
+
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	// TODO: change the 800 to something that is not hardcoded as this could break at other frequencies
 	if (compareValue < (now + TIME_CUSHION)){
@@ -249,9 +277,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		return DS_Success;
 	}
 	else { // We missed. Back-off.
-		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-		__DSB(); __ISB();
+		clear_tim2();
 	}
 
 	set_compare_lower_16(compareValue);
