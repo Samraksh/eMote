@@ -633,10 +633,6 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
-	
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
