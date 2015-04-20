@@ -237,22 +237,22 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	tar_upper = (compareValue >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
 
-		// This is either a bad input or a 32-bit roll-over.
-		// Assume the latter, doesn't hurt us... I think --NPS
-		TIM_SetCompare1(TIM2, tar_upper);
-		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+	// This is either a bad input or a 32-bit roll-over.
+	// Assume the latter, doesn't hurt us... I think --NPS
+	TIM_SetCompare1(TIM2, tar_upper);
+	TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
 
-		// Check for miss
-		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
-			currentCompareValue = compareValue;
-			// Didn't miss, done for now
-			return DS_Success;
-		}
-		else { // We missed. Back-off.
-			TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-			TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-			__DSB(); __ISB();
-		}
+	// Check for miss
+	if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
+		currentCompareValue = compareValue;
+		// Didn't miss, done for now
+		return DS_Success;
+	}
+	else { // We missed. Back-off.
+		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+		__DSB(); __ISB();
+	}
 
 	set_compare_lower_16(compareValue);
 	return DS_Success;
