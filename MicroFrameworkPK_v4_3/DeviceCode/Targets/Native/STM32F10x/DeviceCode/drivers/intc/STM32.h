@@ -40,6 +40,17 @@ void CPU_CPWAIT();
 
 void BOOT_CPWAIT();
 void BOOT_FlushCaches();
+
+#if defined(DEBUG)
+extern volatile NVIC_Type*          pNVIC;
+extern volatile SCB_Type*           pSCB;
+extern volatile SysTick_Type*       pSysTick;
+extern volatile ITM_Type*           pITM;
+extern volatile InterruptType_Type* pInterruptType;
+extern volatile MPU_Type*           pMPU;
+extern volatile CoreDebug_Type*     pCoreDebug;
+#endif
+
 }
 
 //
