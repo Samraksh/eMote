@@ -230,7 +230,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
 	uint16_t tar_upper;
 	uint16_t now_upper;
-	uint32_t now;
+	uint64_t now;
 #if defined(DEBUG_EMOTE_ADVTIME)
 	volatile UINT64 NowTicks = g_STM32F10x_AdvancedTimer.Get64Counter();
 	if(NowTicks > compareValue) {
