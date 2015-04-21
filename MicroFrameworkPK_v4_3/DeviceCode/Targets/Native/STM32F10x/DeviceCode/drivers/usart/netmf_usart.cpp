@@ -71,8 +71,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Configure USART Tx as alternate function push-pull
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
-	// Configure USART Rx as input floating
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
+	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
+	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
 
 	USART_Init(USART1, &USART_InitStructure);
 	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
@@ -110,8 +110,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Configure USART Tx as alternate function push-pull
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
-	// Configure USART Rx as input floating
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz);
+	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
+	GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IPU, GPIO_Speed_10MHz);
 
 	USART_Init(USART2, &USART_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
