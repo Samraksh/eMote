@@ -451,7 +451,7 @@ LPVOID Data_Store::getAddress(RECORD_ID id)
     /*if( NULL == (retVal = addressTable.getGivenAddress(id)) ){
         lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
     }*/
-    if( NULL == (retVal = addressTable.getCurrentLoc(id)) ){
+    if( NULL == ( retVal = ( addressTable.getCurrentLoc(id) - sizeof(RECORD_HEADER) ) ) ){
 		lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
 	}
     return retVal;
@@ -1354,6 +1354,7 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
 
     //src = src + sizeof(RECORD_HEADER);
     LPVOID readAddress = src + sizeof(RECORD_HEADER);
+    //LPVOID readAddress = src;
 
     // AnanthAtSamraksh. The STM Driver accepts half words as inputs so all writes are in half word sizes
     numBytes = numBytes + numBytes % 2;
@@ -1499,11 +1500,11 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* dataToBeWritten, uint32 offse
             cyclicDataRead( &recHeader, (char*)fromRecBaseAddr, sizeof(RECORD_HEADER) );
 
             newRecBaseStartAddr = createAllocation( recordID, lGivenPtr, recordSize, recHeader.dataType );
-            LPVOID tempCurLoc = addressTable.table[0].currentLoc;
+            /****LPVOID tempCurLoc = addressTable.table[0].currentLoc;
             if(tempCurLoc != (newRecBaseStartAddr + sizeof(recHeader)))
             {
             	hal_printf("somebody gonna get hurt real bad!!\r\n");
-            }
+            }****/
 
             //debug_printf("Data_Store::writeRawData. Overwrite detected. After createAllocation\n");
             if( NULL == newRecBaseStartAddr ){
