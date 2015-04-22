@@ -195,10 +195,20 @@ BOOL STM32_AITC_Driver::DeactivateInterrupt( UINT32 Irq_Index )
 
 		}
 
-#if defined(__GNUC__) && defined(DEBUG)
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
-#endif
+
+		#if defined(DEBUG)
+		// help GDB inspect CMSIS register definitions in core_cm3.h
+		volatile NVIC_Type*          pNVIC      = NVIC;
+		volatile SCB_Type*           pSCB       = SCB;
+		volatile SysTick_Type*       pSysTick   = SysTick;
+		volatile ITM_Type*           pITM       = ITM;
+		volatile InterruptType_Type* pInterruptType = InterruptType;
+		volatile MPU_Type*           pMPU       = MPU;
+		volatile CoreDebug_Type*     pCoreDebug = CoreDebug;
+		#endif
+
+
+__attribute__((optimize("O0")))
 void HardFault_HandlerC(unsigned long *hardfault_args)
 {
   	volatile unsigned long stacked_r0 ;
@@ -249,6 +259,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
   	// Bus Fault Address Register
   	_BFAR = (*((volatile unsigned long *)(0xE000ED38))) ;
 
+#if defined(DEBUG)
 	                                       // Possible Causes of Fault Status Registers (Yiu, The definitive guide to the ARM Cortex-M3, 2010)
 	bool MMARVALID = (_MMAR & (1<<7)) > 0; // Indicates the Memory Manage Address register (MMAR) contains a valid fault addressing value.
 	bool MSTKERR   = (_MMAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
@@ -298,6 +309,15 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	bool BKPT      = (_DFSR & (1<<1)) > 0;
 	bool HALTED    = (_DFSR & (1<<0)) > 0;
 
+    pNVIC      = NVIC;
+    pSCB       = SCB;
+    pSysTick   = SysTick;
+    pITM       = ITM;
+    pInterruptType = InterruptType;
+    pMPU       = MPU;
+    pCoreDebug = CoreDebug;
+#endif // defined(DEBUG)
+
  	// at this point you can read data from the variables with 
 	// "p/x stacked_pc"
 	// "info symbol <address>" should list the code line
@@ -311,9 +331,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 #endif
 	
 }
-#if defined(__GNUC__) && defined(DEBUG)
-#pragma GCC pop_options
-#endif
+
 
 	void __irq HardFault_Handler()
 	{

@@ -9,8 +9,12 @@ STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 
+#ifdef NDEBUG
 //const uint16_t MISSED_TIMER_DELAY = (uint16_t)(0.000005 * g_HardwareTimerFrequency[0]); // 5us @ 8 MHz 
 const uint16_t MISSED_TIMER_DELAY = 40;
+#else
+const uint16_t MISSED_TIMER_DELAY = 120;
+#endif
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
 const uint16_t TIME_CUSHION = 120;
 
@@ -80,8 +84,7 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 
 	// Maintains the last recorded 32 bit counter value
-	currentCounterValue = 0;
-
+	setCompareRunning = false;
 
 	callBackISR = ISR;
 	callBackISR_Param = ISR_Param;
@@ -169,6 +172,28 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 
 }
 
+// Assumes IRQs locked
+static inline void clear_tim2(void) {
+	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	__DSB(); __ISB();
+}
+
+// Assumes IRQs locked
+static inline void clear_tim1(void) {
+	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	__DSB(); __ISB();
+}
+
+// Assumes IRQs locked
+static inline void clear_timers(void) {
+	TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+	TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
+	TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
+	__DSB(); __ISB();
+}
 #if defined(DEBUG_EMOTE_ADVTIME)
 volatile UINT64 badSetComparesCount = 0;       //!< number of requests set in the past.
 volatile UINT64 badSetComparesAvg = 0;         //!< average delay of requests set in the past.
@@ -195,16 +220,21 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 #endif
 	GLOBAL_LOCK(irq);
 	now = g_STM32F10x_AdvancedTimer.Get64Counter();
+
+	// Clear old timers if already an active request
+	if (setCompareRunning == true) {
+		clear_timers();
+	}
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	if (compareValue < (now + TIME_CUSHION)){
 		compareValue += TIME_CUSHION;
 	}
 
+	setCompareRunning = true;
+
 	tar_upper = (compareValue >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
 
-	// This is either a bad input or a 32-bit roll-over.
-	// Assume the latter, doesn't hurt us... I think --NPS
 	TIM_SetCompare1(TIM2, tar_upper);
 	TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
 
@@ -216,24 +246,21 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 			tar_lower = now_lower + MISSED_TIMER_DELAY;
 		}
 	} else {		
-		//hal_printf("%d %d %d\r\n", tar_lower, now_lower, MISSED_TIMER_DELAY);
 		if ( ( (0xffff - now_lower) + tar_lower) < MISSED_TIMER_DELAY) {
 			tar_lower = now_lower + MISSED_TIMER_DELAY;
-			
 		} 
+	}
+
 	}
 
 	// Check for miss
 	if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
-		//currentCompareValue = compareValue;
 		
 		// Didn't miss, done for now
 		return DS_Success;
-		}
+	}
 	else { // We missed. Back-off.
-		TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
-		__DSB(); __ISB();
+		clear_tim2();
 	}
 
 	TIM_SetCompare3(TIM1, tar_lower);
@@ -257,6 +284,7 @@ void ISR_TIM2(void* Param)
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
 		if ( (TIM1->CNT > g_STM32F10x_AdvancedTimer.tar_lower) || ((g_STM32F10x_AdvancedTimer.tar_lower - TIM1->CNT)<750) ){
+			g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
 			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 		} else {
 			TIM_SetCompare3(TIM1, g_STM32F10x_AdvancedTimer.tar_lower);
@@ -281,6 +309,7 @@ void ISR_TIM1( void* Param )
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
 		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
+		g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
 		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
 	}
 }

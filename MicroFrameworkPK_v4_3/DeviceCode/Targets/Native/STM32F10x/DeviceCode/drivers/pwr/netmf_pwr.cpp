@@ -96,7 +96,8 @@ void PowerInit() {
 #endif
 
 #if defined(SAM_APP_TINYBOOTER)
-	High_Power();
+	//High_Power();
+	Low_Power();
 	return;
 	// Its important that we return before doing HSI calibration.
 	// For some reason if we do it here and TinyCLR it freezes.
