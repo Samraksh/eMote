@@ -9,8 +9,12 @@ STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 
+#ifdef NDEBUG
 //const uint16_t MISSED_TIMER_DELAY = (uint16_t)(0.000005 * g_HardwareTimerFrequency[0]); // 5us @ 8 MHz 
 const uint16_t MISSED_TIMER_DELAY = 40;
+#else
+const uint16_t MISSED_TIMER_DELAY = 120;
+#endif
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
 const uint16_t TIME_CUSHION = 120;
 
