@@ -55,9 +55,10 @@ public:
 	UINT64 m_systemTime;
 	static BOOL initialized;
 	UINT32 currentCounterValue;
+	UINT16 tar_lower;
 
 	// Stores the current active compare value in the system
-	UINT32 currentCompareValue;
+	bool setCompareRunning;
 
 	HAL_CALLBACK_FPN callBackISR;
 	void* callBackISR_Param;
