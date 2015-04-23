@@ -92,7 +92,8 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 	}
 	else if(Timer == ADVTIMER_32BIT )
 	{
-
+	    if(g_STM32F10x_AdvancedTimer.UnInitialize() != DS_Success)
+	        return FALSE;
 	}
 
 	return TRUE;
