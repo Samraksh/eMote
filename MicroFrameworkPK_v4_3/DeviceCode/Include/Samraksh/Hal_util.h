@@ -16,7 +16,7 @@
 enum DeviceStatus{
 DS_Success,
 DS_Fail,
-DS_Already,
+DS_Ready,
 DS_Busy,
 DS_Timeout,
 };

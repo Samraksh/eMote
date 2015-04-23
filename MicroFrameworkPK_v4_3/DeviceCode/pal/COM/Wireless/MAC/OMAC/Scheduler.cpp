@@ -157,7 +157,7 @@ bool OMACScheduler::RadioTask(){
 		return FALSE;
 	}
 
-	if(e == DS_Already) {
+	if(e == DS_Ready) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING :
 				m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
