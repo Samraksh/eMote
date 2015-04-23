@@ -194,6 +194,18 @@ static inline void clear_timers(void) {
 	TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 	__DSB(); __ISB();
 }
+
+DeviceStatus STM32F10x_AdvancedTimer::UnInitialize()
+{
+    CPU_INTC_DeactivateInterrupt( TIM1_CC_IRQn );
+    CPU_INTC_DeactivateInterrupt( TIM2_IRQn );
+    callBackISR = NULL;
+    TIM_DeInit(TIM1);
+    TIM_DeInit(TIM2);
+
+    return DS_Success;
+}
+
 #if defined(DEBUG_EMOTE_ADVTIME)
 volatile UINT64 badSetComparesCount = 0;       //!< number of requests set in the past.
 volatile UINT64 badSetComparesAvg = 0;         //!< average delay of requests set in the past.
