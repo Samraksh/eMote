@@ -14,9 +14,6 @@ Timer16Bit_Driver g_Timer16Bit_Driver;
 
 HAL_CALLBACK_FPN HALTimerHandlerFPN = NULL;
 
-
-void HALTimerHardwareHandler(void *args);
-
 //#define HALTIMERDEBUG
 
 
@@ -40,7 +37,7 @@ BOOL Timer16Bit_Driver::Initialize( UINT32 Timer, BOOL IsOneShot, UINT32 Prescal
 	UINT16 PrescalerValue = Prescaler;
 	UINT16 CCR1_Val = Timer16Bit_Driver :: c_MaxTimerValue;
 
-	ASSERT(Timer < MAX_TIMER);
+	ASSERT(Timer < c_MaxTimers);
 
 	GLOBAL_LOCK(irq);
 

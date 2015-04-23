@@ -94,29 +94,24 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		Initialized=TRUE;
 		m_recovery = 1;
 
-		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success)
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
+			SOFT_BREAKPOINT();
 			return status;
+		}
 
-		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success)
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
+			SOFT_BREAKPOINT();
 			return status;
+		}
 
-		// This is the one-shot resend timer that will be activated if we need to resend a packet
-		/*if(!gHalTimerManagerObject.CreateTimer(1, 0, 30000, TRUE, FALSE, SendFirstPacketToRadio)){
+		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio) != TimerSupported){ //50 milli sec Timer in micro seconds
+			ASSERT(FALSE);
 			return DS_Fail;
 		}
 
-		// This is the beacon timer that will send a beacon every time it goes off
-		if(!gHalTimerManagerObject.CreateTimer(2, 0, 5000000, FALSE, FALSE, beaconScheduler)){*/
-
-		//gHalTimerManagerObject.Initialize();
-		//if(!gHalTimerManagerObject.CreateTimer(1, 0, 10000, FALSE, FALSE, SendFirstPacketToRadio)){ //50 milli sec Timer in micro seconds
-		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio) != TimerSupported){ //50 milli sec Timer in micro seconds
-			SOFT_BREAKPOINT();
-			return DS_Fail;
-		}
-
-		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler) != TimerSupported){
-			SOFT_BREAKPOINT();
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_BEACON, 0, 5000000, FALSE, TRUE, beaconScheduler) != TimerSupported){
+			ASSERT(FALSE);
 			return DS_Fail;
 		}
 		//gHalTimerManagerObject.StartTimer(2);
@@ -124,19 +119,17 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
 		flushTimerRunning = false;
-		if(VirtTimer_SetTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio) != TimerSupported){
-			SOFT_BREAKPOINT();
+		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_FLUSHBUFFER, 0, 50000, FALSE, TRUE, SendFirstPacketToRadio) != TimerSupported){
+			ASSERT(FALSE);
 			return DS_Fail;
 		}
 	}
 
 	// Stop the timer
-	//gHalTimerManagerObject.StopTimer(1);
-	//VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);
-	//gHalTimerManagerObject.StopTimer(2);
+	//VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);  // Why?
 
 	//Initialize upperlayer callbacks
-	if(routingAppID >=MAX_APPS) {
+	if(routingAppID >= MAX_APPS) {
 		SOFT_BREAKPOINT();
 		return DS_Fail;
 	}
@@ -147,8 +140,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 }
 
 BOOL csmaMAC::SetRadioAddress(UINT16 address){
-	CPU_Radio_SetAddress(this->radioName, address);
-	return true;
+	BOOL ret = CPU_Radio_SetAddress(this->radioName, address);
+	return ret;
 }
 
 UINT16 csmaMAC::GetRadioAddress(){
@@ -158,25 +151,16 @@ UINT16 csmaMAC::GetRadioAddress(){
 
 BOOL csmaMAC::UnInitialize()
 {
-	BOOL ret = TRUE;
+	BOOL retVal = TRUE;
 	if(this->Initialized) {
-		if( VirtTimer_Stop(VIRT_TIMER_MAC_BEACON) != TimerSupported ) {
-			SOFT_BREAKPOINT();
-			ret = FALSE;
-		}
-		if( VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT) != TimerSupported ) {
-			SOFT_BREAKPOINT();
-			ret = FALSE;
-		}
-		if( VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER) != TimerSupported ) {
-			SOFT_BREAKPOINT();
-			ret = FALSE;
-		}
-
-		ret &= CPU_Radio_UnInitialize(this->radioName);
+		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_BEACON) == TimerSupported );
+		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT) == TimerSupported );
+		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER) == TimerSupported );
+		retVal = retVal && CPU_Radio_UnInitialize(this->radioName);
 	}
+	ASSERT(retVal);
 	this->Initialized = FALSE;
-	return ret;
+	return retVal;
 }
 
 UINT8 test = 0;

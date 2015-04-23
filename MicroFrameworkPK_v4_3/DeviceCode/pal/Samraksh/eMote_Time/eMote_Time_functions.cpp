@@ -41,6 +41,9 @@ UINT64 HAL_Time_CurrentTicks()
 	//return g_Time_Driver.TimeNow();
 }
 
+/**
+ * Microsoft: Converts a specified number of real-time clock ticks to common language runtime (CLR) base time, in 100-nanosecond (ns) increments.
+ */
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
 	return g_Time_Driver.TicksToTime(Ticks);
