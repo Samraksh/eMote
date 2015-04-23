@@ -23,21 +23,22 @@ bool Time_Driver::bigCounterUpdated = false;
 bool Time_Driver::overflowCondition = false;
 
 
-void TimeCallback(void *arg);
 void TimeHandler(void *arg);
 
 
 BOOL Time_Driver::Initialize()
 {
+	BOOL retVal = TRUE;
+
 	maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_TIME);
 
-	if(VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler) != TimerSupported)
-		return FALSE;
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler) == TimerSupported);
+	ASSERT(retVal);
 
-	if(VirtTimer_Start( VIRT_TIMER_TIME ) != TimerSupported)
-		return FALSE;
+	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
+	ASSERT(retVal);
 
-	return TRUE;
+	return retVal;
 }
 
 
@@ -60,16 +61,18 @@ void TimeHandler(void *arg)
 
 BOOL Time_Driver::Uninitialize()
 {
-	if(VirtTimer_Stop( VIRT_TIMER_EVENTS ) != TimerSupported)
-		return FALSE;
+	BOOL retVal = TRUE;
 
-	if(VirtTimer_Stop( VIRT_TIMER_TIME ) != TimerSupported)
-		return FALSE;
+	retVal = retVal && (VirtTimer_Stop( VIRT_TIMER_EVENTS ) == TimerSupported);
+	ASSERT(retVal);
 
-	if(!VirtTimer_UnInitialize())
-		return FALSE;
+	retVal = retVal && (VirtTimer_Stop( VIRT_TIMER_TIME ) == TimerSupported);
+	ASSERT(retVal);
 
-	return TRUE;
+	retVal = retVal && (!VirtTimer_UnInitialize());
+	ASSERT(retVal);
+
+	return retVal;
 }
 
 UINT64 Time_Driver::CurrentTicks()
@@ -92,14 +95,15 @@ void SetCompareHandler(void *arg)
 
 void Time_Driver::StopTimer()
 {
-	VirtTimer_Stop( VIRT_TIMER_EVENTS );
+	BOOL success = ( VirtTimer_Stop( VIRT_TIMER_EVENTS ) == TimerSupported );
+	ASSERT(success);
 }
 
 void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
 	UINT32 compareTimeInMicroSecs = 0;
 
-	if(compareTicks < 0xFFFFFFFF)
+	if(compareTicks <= 0xFFFFFFFF)
 	{
 		compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
 	}
@@ -108,9 +112,12 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 		compareTimeInMicroSecs = 0xFFFFFFFF;
 	}
 
-	if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, 0, compareTimeInMicroSecs, TRUE, TRUE, SetCompareHandler) == TimerReserved)
+	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE) != TimerSupported)
 	{
-		VirtTimer_Change(VIRT_TIMER_EVENTS, 0, compareTimeInMicroSecs, TRUE);
+		if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, TRUE, SetCompareHandler) != TimerSupported)
+		{
+			ASSERT(FALSE);
+		}
 	}
 
 	VirtTimer_Start( VIRT_TIMER_EVENTS );

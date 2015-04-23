@@ -200,8 +200,8 @@ DeviceStatus STM32F10x_AdvancedTimer::UnInitialize()
     CPU_INTC_DeactivateInterrupt( TIM1_CC_IRQn );
     CPU_INTC_DeactivateInterrupt( TIM2_IRQn );
     callBackISR = NULL;
-    TIM_DeInit(TIM1);
-    TIM_DeInit(TIM2);
+    TIM_DeInit( TIM1 );
+    TIM_DeInit( TIM2 );
 
     return DS_Success;
 }

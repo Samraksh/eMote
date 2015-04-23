@@ -23,7 +23,7 @@ struct Timer16Bit_Driver
 	static const UINT32 c_SystemTimer   = 2;
 	static const UINT32 c_ADCTimer = 4;
     static const UINT16 c_MaxTimerValue = 0xFFFF;
-	static const UINT32 c_MaxTimers = 10;
+	static const UINT32 c_MaxTimers = 10;  //FIXME: clearly wrong.
 
 	static BOOL m_timeOverFlowFlag;
 
@@ -337,7 +337,7 @@ struct Timer16Bit_Driver
 		TIM_OCInitTypeDef timer_oc;    //The Output compare function
 		NVIC_InitTypeDef interrupt;    //Interrupt details
     };
-    Descriptors m_descriptors[MAX_TIMER];
+    Descriptors m_descriptors[c_MaxTimers];
     static void RCC_Init( UINT32 Timer, UINT32 Clock_Prescaler );
     static void RCC_DeInit(UINT32 Timer);
 };
