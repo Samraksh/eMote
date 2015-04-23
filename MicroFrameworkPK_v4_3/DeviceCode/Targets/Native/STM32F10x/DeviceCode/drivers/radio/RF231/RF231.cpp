@@ -933,7 +933,7 @@ DeviceStatus RF231Radio::UnInitialize()
         }
         else if(this->GetRadioName() == RF231RADIOLR){
             CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
-            CPU_GPIO_DisablePin((GPIO_PIN) AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);  //FIXME: check this.
+            CPU_GPIO_DisablePin((GPIO_PIN) AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }
         SetInitialized(FALSE);
     }
