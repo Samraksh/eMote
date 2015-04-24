@@ -32,6 +32,41 @@ NO_BadPacket,
 NO_Collision,
 };
 
+enum InteropNetOpStatus{
+/// <summary>
+        /// Radio initialization failed
+        /// </summary>
+        E_RadioInit,
+        /// <summary>
+        /// 
+        /// </summary>
+        E_RadioSync,
+        /// <summary>
+        /// Radio configuration failed
+        /// </summary>
+        E_RadioConfig,
+        /// <summary>
+        /// Mac layer initialization failed
+        /// </summary>
+        E_MacInit,
+        /// <summary>
+        /// Mac configuration failed
+        /// </summary>
+        E_MacConfig,
+        /// <summary>
+        /// Mac layer send failed
+        /// </summary>
+        E_MacSendError,
+        /// <summary>
+        /// Mac layer bufferis full
+        /// </summary>
+        E_MacBufferFull,
+        /// <summary>
+        /// Success
+        /// </summary>
+        S_Success
+};
+
 
 
 #if defined(SAM_USE_ATOMIC_LOCK)

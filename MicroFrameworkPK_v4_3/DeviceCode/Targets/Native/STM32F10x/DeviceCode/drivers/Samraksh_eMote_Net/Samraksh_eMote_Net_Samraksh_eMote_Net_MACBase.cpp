@@ -73,6 +73,7 @@ UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
+	InteropNetOpStatus retVal;
     UINT16 address, offset, length;
     UINT8* payload =param1.GetBuffer();
     address=param0;
@@ -80,8 +81,12 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray
     length=param3;
     memcpy (CSMAInteropBuffer, payload,  length);
 
-    return Mac_Send(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length);
+    if (Mac_Send(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length) == DS_Success)
+		retVal = S_Success;
+	else
+		retVal = E_MacSendError;
 
+	return retVal;
 }
 
 INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -162,6 +167,7 @@ void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 
 INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
+	InteropNetOpStatus retVal;
 	UINT16 address, offset, length;
 	UINT8* payload =param1.GetBuffer();
 	address=param0;
@@ -169,7 +175,12 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	length=param3;
 	memcpy (CSMAInteropBuffer, payload,  length);
 
-	return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks());
+	if (Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+		retVal = S_Success;
+	else
+		retVal = E_MacSendError;
+
+	return retVal;
 }
 
 void ReceiveDoneCallbackFn(UINT16 numberOfPackets)
@@ -179,14 +190,21 @@ void ReceiveDoneCallbackFn(UINT16 numberOfPackets)
 
 INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
 {
+	InteropNetOpStatus retVal;
 	UINT16 address, offset, length;
-		UINT8* payload =param1.GetBuffer();
-		address=param0;
-		offset=param2;
-		length=param3;
-		memcpy (CSMAInteropBuffer, payload,  length);
+	UINT8* payload =param1.GetBuffer();
+	
+	address=param0;
+	offset=param2;
+	length=param3;
+	memcpy (CSMAInteropBuffer, payload,  length);
 
-		return Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4);
+	if (Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4) == DS_Success)
+		retVal = S_Success;
+	else
+		retVal = E_MacSendError;
+
+	return retVal;
 }
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors)
