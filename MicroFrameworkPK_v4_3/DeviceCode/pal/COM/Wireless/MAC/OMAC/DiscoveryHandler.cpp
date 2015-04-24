@@ -165,11 +165,12 @@ void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
 		//HALTimer()
 		if(delay==0){
 			//start default time
-			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+
 
 		}else {
 			//Change next slot time with delay
-			gHalTimerManagerObject.CreateTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 		}
 }
 
@@ -184,7 +185,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 		m_busy = FALSE;
 		ExecuteSlotDone();
 	}
-	//gHalTimerManagerObject.StopTimer(7);
+	//VirtTimer_Stop(7);
 }
 
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){

@@ -1,8 +1,8 @@
 /*
  * Copyright: The Samraksh Company
- * Author: Mukundan.Sridharan, Nived.Sivadas
- * Description :  OMAC Implementation, v 1.0
- * Created on: Aug 30, 2012
+ * Author: Mukundan.Sridharan, Nived.Sivadas, Bora Karaoglu
+ * Description :  OMAC Implementation, v 2.0
+ * Created on: April, 2015
  */
 
 
@@ -27,7 +27,6 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
   private:
 	//Underlying radio variables
 	static const UINT8 NumberRadios =1;
-	UINT8 RadioIDs[NumberRadios];
 
 
 	//Protocol variables

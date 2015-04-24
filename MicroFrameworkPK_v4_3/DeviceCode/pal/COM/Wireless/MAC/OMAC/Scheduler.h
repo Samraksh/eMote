@@ -9,7 +9,8 @@
 #define SCHEDULER_H_
 
 #include <Samraksh/Hal_util.h>
-#include <Samraksh/HALTimer.h>
+//#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
 #include "RadioControl.h"
@@ -20,7 +21,7 @@
 #include "CMaxTimeSync.h"
 #include "SeedGenerator.h"
 
-extern HALTimerManager gHalTimerManagerObject;
+//extern HALTimerManager gHalTimerManagerObject;
 
 typedef class State{
   private:
