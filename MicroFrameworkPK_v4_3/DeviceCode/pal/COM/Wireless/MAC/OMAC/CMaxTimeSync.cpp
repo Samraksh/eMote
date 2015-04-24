@@ -12,7 +12,6 @@ extern RadioControl_t g_omac_RadioControl;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
-Regression GlobalTime::regress;
 UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
@@ -39,7 +38,9 @@ void CMaxTimeSync::PostExecuteSlot(){
 
 }
 
-void CMaxTimeSync::Initialize(){
+void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
+	RadioID = radioID;
+	MacID = macID;
 	m_skew = 0;
 	//m_leader=TRUE;
 	m_localAverage = 0;
@@ -74,7 +75,7 @@ DeviceStatus CMaxTimeSync::Send(){
 	m_timeSyncMsg->globalTime1 = (UINT32) (x>>32);
 
 	m_timeSyncMsg->skew = m_globalTime.GetSkew();
-	m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(this->radioName);
+	m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(RadioID);
 	m_timeSyncMsg->seqNo = m_seqNo++;
 
 	header->dest= RADIO_BROADCAST_ADDRESS;
@@ -125,7 +126,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 			rcv_msg->seqNo, my_ltime, rcv_ltime, my_nbrEst, nbr_loffset);
 
 	//local pair-wise skew logic: Do skew between your nbr localtime and your localtime
-	m_globalTime.regress.Insert(msg_src, rcv_ltime,l_offset, senderEventTime);
+	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime,l_offset);
 	//hal_printf("RCV: %d, My LTime: %lld, Sender Ltime : %lld, My Est snder: %llu, diff: %lld \n\n", \
 				rcv_msg->seqNo, my_ltime, rcv_ltime, my_nbrEst, nbr_loffset);
 

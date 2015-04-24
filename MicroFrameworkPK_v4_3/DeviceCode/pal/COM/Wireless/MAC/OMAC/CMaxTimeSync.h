@@ -22,6 +22,8 @@ enum CMaxTSyncState{
 
 //typedef class CMaxTimeSync : public TimeSyncMessage_15_4  {
 typedef class CMaxTimeSync : public SlotHandler{
+	UINT8 RadioID;
+	UINT8 MacID;
 	Message_15_4_t m_timeSyncMsgBuffer;
 	Message_15_4_t *m_timeSyncBufferPtr;
 	TimeSyncMsg *m_timeSyncMsg;
@@ -40,7 +42,7 @@ public:
 	//UINT16 m_leader;
 
 
-	void Initialize();
+	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT32 NextSlot(UINT32 currSlot);
 	void ExecuteSlot(UINT32 slotNum);
 	void PostExecuteSlot();

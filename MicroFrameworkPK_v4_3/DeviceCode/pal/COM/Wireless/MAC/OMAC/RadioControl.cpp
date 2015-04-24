@@ -35,7 +35,7 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->src = CPU_Radio_GetAddress(RadioID);
 
 	msg = (Message_15_4_t *) CPU_Radio_Preload(RadioID, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
 	return DS_Success;
@@ -52,7 +52,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		header->destpan = (34 << 8);
 		header->destpan |= 0;
 		header->dest =address;
-		header->src = CPU_Radio_GetAddress(this->radioName);
+		header->src = CPU_Radio_GetAddress(RadioID);
 		header->mac_id = MacID;
 		//header->network = MyConfig.Network;
 
@@ -65,7 +65,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 	#endif
 		tmsg->localTime0 = (UINT32) y;
 		tmsg->localTime1 = (UINT32) (y>>32);
-		header->SetTimestamped(TRUE);
+		header->SetFlags(MFM_DATA | MFM_TIMESYNC);
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
 		hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
@@ -91,7 +91,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->src = CPU_Radio_GetAddress(RadioID);
 	//header->network = MyConfig.Network;
 	header->mac_id = MacID;
 #ifdef DEBUG_TIMESYNC

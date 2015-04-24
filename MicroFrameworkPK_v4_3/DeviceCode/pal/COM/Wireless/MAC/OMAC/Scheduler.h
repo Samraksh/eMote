@@ -8,7 +8,7 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include <Samraksh/Hal_util.h>
+//#include <Samraksh/Hal_util.h>
 //#include <Samraksh/HALTimer.h>
 #include <Samraksh/VirtualTimer.h>
 #include "OMACConstants.h"
@@ -102,7 +102,7 @@ public:
 	CMaxTimeSync_t m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
-	void Initialize();
+	void Initialize(UINT8 radioID, UINT8 macID);
 	void UnInitialize();
 	void StartSlotAlarm(UINT64 Delay);	//CounterAlarm.Start from TinyOS
 	void SlotAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS

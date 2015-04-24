@@ -3,7 +3,7 @@
  *
  * Author: Mukundan.Sridharan, Nived.Sivadas
  *
- * Description :  OMAC Implementation, v 1.0
+ * Description :  OMACTypeBora Implementation, v 1.0
  *
  *  Created on: Aug 30, 2012
  */
@@ -20,7 +20,7 @@ extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;
 
 
-OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 RadioControl_t g_omac_RadioControl;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){
@@ -61,10 +61,10 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 }
 
 
-DeviceStatus SetConfig(MacConfig *config);
-BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
+//DeviceStatus SetConfig(MacConfig *config);
+//BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 
-DeviceStatus OMAC::SetConfig(MacConfig *config){
+DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->BufferSize;
 	MyConfig.CCASenseTime = config->CCASenseTime;
@@ -72,28 +72,28 @@ DeviceStatus OMAC::SetConfig(MacConfig *config){
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
-	MyConfig.NeighborLivelinessDelay = config->NeighborLivelinessDelay;
+	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 	return DS_Success;
 }
 
 
 
-DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config) {
-//DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config) {
+//DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
-		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("OMACTypeBora Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 	}
 	else {
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
-		OMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
+		OMACTypeBora::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 #ifdef DEBUG_OMAC
-		hal_printf("Initializing OMAC: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("Initializing OMACTypeBora: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 		CPU_GPIO_EnableOutputPin(OMACDEBUGPIN, FALSE);
 #endif
 
@@ -115,7 +115,7 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT
 			return status;
 
 		g_omac_RadioControl.Initialize(this->radioName, macName);
-		m_omac_scheduler.Initialize();
+		m_omac_scheduler.Initialize(this->radioName, macName);
 		Initialized=TRUE;
 	}
 
@@ -131,7 +131,7 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT
 	return DS_Success;
 }
 
-BOOL OMAC::UnInitialize()
+BOOL OMACTypeBora::UnInitialize()
 {
 	BOOL ret = TRUE;
 	Initialized=FALSE;
@@ -139,7 +139,7 @@ BOOL OMAC::UnInitialize()
 	return ret;
 }
 
-Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
+Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
 	//Message_15_4_t *Next;
 #ifdef DEBUG_OMAC
@@ -147,7 +147,7 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
-	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMAC::GetMaxPayload()){
+	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMACTypeBora::GetMaxPayload()){
 			hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 			return msg;
 	}
@@ -155,7 +155,7 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	//Any message might have timestamping attached to it. Check for it and process
-	if(msg->GetHeader()->timestamped && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
+	if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
 		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 		Size -= tmsgSize;
@@ -195,14 +195,14 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 }
 
 //Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
-BOOL OMAC::Send(UINT16 address, UINT8 dataType, void* msg, int size)
+BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull())
 		return FALSE;
 
 	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size >  OMAC::GetMaxPayload()){
-		hal_printf("OMAC Send Error: Packet is too big: %d ", size);
+	if(size >  OMACTypeBora::GetMaxPayload()){
+		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
@@ -215,7 +215,7 @@ BOOL OMAC::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	header->dest =address;
 	header->src = CPU_Radio_GetAddress(this->radioName);;
 	header->network = MyConfig.Network;
-	header->mac_id = MacId;
+	header->mac_id = macName;
 	header->type = dataType;
 
 	UINT8* lmsg = (UINT8 *) msg;
@@ -227,16 +227,16 @@ BOOL OMAC::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	return true;
 }
 
-Message_15_4_t* OMAC::FindFirstSyncedNbrMessage(){
+Message_15_4_t* OMACTypeBora::FindFirstSyncedNbrMessage(){
 	return NULL;
 }
 
-void OMAC::UpdateNeighborTable(){
-	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivelinessDelay);
+void OMACTypeBora::UpdateNeighborTable(){
+	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 	//g_NeighborTable.DegradeLinks();
 }
 
-/*BOOL OMAC::SetAddress(UINT16 address){
+/*BOOL OMACTypeBora::SetAddress(UINT16 address){
 	MyAddress = address;
 	return TRUE;
 }

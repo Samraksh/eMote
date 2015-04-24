@@ -9,13 +9,13 @@
 #include "OMAC.h"
 
 extern RadioControl_t g_omac_RadioControl;
-extern OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 
 void PublicSlotAlarmHanlder(void * param){
 	g_OMAC.m_omac_scheduler.SlotAlarmHandler(param);
 }
 
-void OMACScheduler::Initialize(){
+void OMACScheduler::Initialize(UINT8 radioID, UINT8 macID){
 	//Initialize variables
 	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
 	dutyCycleReset = 0;
@@ -48,10 +48,10 @@ void OMACScheduler::Initialize(){
 
 	//Initialize Handlers
 	 m_DiscoveryHandler.SetParentSchedulerPtr(this);
-	 m_DiscoveryHandler.Initialize();
-	 m_DataReceptionHandler.Initialize();
+	 m_DiscoveryHandler.Initialize(radioID, macID);
+	 m_DataReceptionHandler.Initialize(radioID, macID);
 	 m_DataTransmissionHandler.Initialize();
-	 m_TimeSyncHandler.Initialize();
+	 m_TimeSyncHandler.Initialize(radioID, macID);
 }
 void OMACScheduler::UnInitialize(){
 
