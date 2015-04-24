@@ -57,6 +57,8 @@ volatile UINT64 badComparesMax = 0;      //!< observed worst-case.
 
 void HAL_Time_SetCompare( UINT64 CompareTicks )
 {
+	// here we change a 64-bit time from the MF to a 32-bit time
+	// we need to move to 64-bit absolute time and clean this portion of code up
 	if (CompareTicks == HAL_Completion_IdleValue){
 		g_Time_Driver.StopTimer();
 	} else {
