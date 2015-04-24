@@ -103,14 +103,11 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
 	UINT32 compareTimeInMicroSecs = 0;
 
-	if(compareTicks <= 0xFFFFFFFF)
+	if(compareTicks > 0xFFFFFFFF)
 	{
-		compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
+		compareTicks = 0xFFFFFFFF;
 	}
-	else
-	{
-		compareTimeInMicroSecs = 0xFFFFFFFF;
-	}
+	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
 
 	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE) != TimerSupported)
 	{

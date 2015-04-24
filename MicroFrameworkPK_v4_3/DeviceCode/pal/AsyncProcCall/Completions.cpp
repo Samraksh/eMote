@@ -199,7 +199,9 @@ void HAL_COMPLETION::WaitForInterrupts( UINT64 Expire, UINT32 sleepLevel, UINT64
 #ifndef DISABLE_SLEEP
     if(state & c_SetCompare) HAL_Time_SetCompare( Expire );
 
+    CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
     CPU_Sleep( (SLEEP_LEVEL)sleepLevel, wakeEvents );
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 #endif
 
     if(state & (c_ResetCompare | c_NilCompare))

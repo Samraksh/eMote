@@ -215,11 +215,16 @@ volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
 // the second stage involves lsb on tim1
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	uint16_t tar_upper;
 	uint16_t now_upper;
 	uint16_t now_lower;
-	uint32_t now;
+	UINT64 now;
 #if defined(DEBUG_EMOTE_ADVTIME)
+	// if two timers need to fire at (or very close to) the same time, then the second timer will be passed to this function with a compare value of the current (at the time of setting it) time
+	// So by the time we get to this portion of code NowTicks will be greater than compareValue. 
+	// we then add on a TIME_CUSHION below and the second timer will fire at the current time plus the TIME_CUSHION
 	volatile UINT64 NowTicks = g_STM32F10x_AdvancedTimer.Get64Counter();
 	if(NowTicks > compareValue) {
 		UINT64 delta = NowTicks - compareValue;
@@ -239,7 +244,14 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	}
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	if (compareValue < (now + TIME_CUSHION)){
-		compareValue += TIME_CUSHION;
+		compareValue = (now + TIME_CUSHION);
+	}
+
+	if ( (compareValue - now) > (GetMaxTicks() - TIME_CUSHION) ){
+		// we are to trigger at a value greater than our 32-bit timer can hold so the best we can do
+		// is to take the current counter time and use that (by the time we actually get to setting the timer compare
+		// we would have passed it and we end up triggering almost the maximum amount 32-bit timer can do)
+		compareValue = GetCounter()-0x00010000; 
 	}
 
 	setCompareRunning = true;
@@ -253,6 +265,8 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	tar_lower = compareValue & 0xFFFF;
 	now_lower = now & 0xFFFF;
 
+	// we need at least MISSED_TIMER_DELAY number of ticks to set the lower timer and exit our calling functions and re-enable our interrupts
+	// so here we make sure there is at least that MISSED_TIMER_DELAY tick cushion
 	if ( tar_lower >= now_lower){
 		if ( (tar_lower - now_lower) < MISSED_TIMER_DELAY){
 			tar_lower = now_lower + MISSED_TIMER_DELAY;
@@ -264,6 +278,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	}
 
 	// Check for miss
+	// This catches cases where upper 16 were set to be for example, 0x0005 at a time of 0x0004 (lower 0xffff). We roll-over and catch that here
 	if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
 		// Didn't miss, done for now
 		return DS_Success;
