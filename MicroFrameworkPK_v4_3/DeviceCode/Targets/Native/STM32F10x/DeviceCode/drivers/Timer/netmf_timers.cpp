@@ -29,7 +29,6 @@ extern const UINT8 TIMER2_16BIT;
 extern Timer16Bit_Driver g_Timer16Bit_Driver;
 extern STM32F10x_AdvancedTimer g_STM32F10x_AdvancedTimer;
 
-static void ISR( void* Param );
 
 ////HAL_CALLBACK_FPN VirtualTimerHandlerFPN = NULL;
 
@@ -92,7 +91,8 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer)
 	}
 	else if(Timer == ADVTIMER_32BIT )
 	{
-
+		if(g_STM32F10x_AdvancedTimer.UnInitialize() != DS_Success)
+			return FALSE;
 	}
 
 	return TRUE;
@@ -338,49 +338,72 @@ void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
     *c = 0;
 }
 
+/**
+ * Microsoft: Retrieves the speed of the system clock, in Hertz (Hz).
+ */
 UINT32 CPU_SystemClock(UINT16 Timer)
 {
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	UINT32 retVal = 0;
+	switch( Timer )
 	{
-		return g_HardwareTimerFrequency[1];
+	case ADVTIMER_32BIT:
+		retVal = g_HardwareTimerFrequency[0];
+		break;
+	case TIMER1_16BIT:
+	case TIMER2_16BIT:
+		retVal = g_HardwareTimerFrequency[1];
+		break;
+	default:
+		ASSERT(0);
+		retVal = SYSTEM_CLOCK_HZ;
+		break;
 	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		return g_HardwareTimerFrequency[0];
-	}
-	//return SystemTimerClock;
+	return retVal;
 }
 
+/**
+ * Microsoft: Retrieves the number of real-time clock ticks per second.
+ */
 UINT32 CPU_TicksPerSecond(UINT16 Timer)
 {
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
+	UINT32 retVal = 0;
+	switch( Timer )
 	{
-		return SLOW_CLOCKS_PER_SECOND;
+	case ADVTIMER_32BIT:
+		retVal = g_HardwareTimerFrequency[0];
+		break;
+	case TIMER1_16BIT:
+	case TIMER2_16BIT:
+		retVal = SLOW_CLOCKS_PER_SECOND;
+		break;
+	default:
+		ASSERT(0);
+		retVal = SLOW_CLOCKS_PER_SECOND;
+		break;
 	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		return g_HardwareTimerFrequency[0];
-	}
-
-	//return SystemTimerClock;
+	return retVal;
 }
 
 // OK, so the DriftParameters *should* correct this in the PAL layer
 // But that begs the question of what this function is really for...
 UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 {
+
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 		Ticks *= (TEN_MHZ               /SLOW_CLOCKS_TEN_MHZ_GCD);
 		Ticks /= (SLOW_CLOCKS_PER_SECOND/SLOW_CLOCKS_TEN_MHZ_GCD);
-		return Ticks;
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
 		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
 		Ticks /= (g_HardwareTimerFrequency[0]/CLOCK_COMMON_FACTOR);
-		return Ticks;
 	}
+	else {
+		ASSERT(0);
+	}
+	ASSERT(Ticks != 0);
+	return Ticks;
 }
 
 // OK, so the DriftParameters *should* correct this in the PAL layer
@@ -440,7 +463,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 	//return mSec * (SystemTimerClock/1000);
 }
 
-
+//TODO: profile minimum value
 UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 {
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -463,27 +486,27 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 
 UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
 {
-    UINT32 ret;
-    switch(Timer)
-    {
-    case ADVTIMER_32BIT:
+	UINT32 ret;
+	switch(Timer)
+	{
+	case ADVTIMER_32BIT:
 		if (g_HardwareTimerFrequency[0] == 8000000)
 		{
-        	ret = ticks >> 3;
+			ret = ticks >> 3;
 		} else {
 			ret = ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
 		}
-        break;
-    case TIMER1_16BIT:
-        // fall through to TIMER2_16BIT
-    case TIMER2_16BIT:
+		break;
+	case TIMER1_16BIT:
+		// fall through to TIMER2_16BIT
+	case TIMER2_16BIT:
 		ret = ticks / 48;  // ticks * ONE_MHZ / SLOW_CLOCKS_PER_SECOND; //TODO: ensure compiler emits division (single-cycle on STM32F103xG)
 		break;
-    default:
-        ASSERT(FALSE);
-        ret = 0;
-    }
-    return ret;
+	default:
+		ASSERT(FALSE);
+		ret = 0;
+	}
+	return ret;
 }
 
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
@@ -498,7 +521,7 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	value = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 	debug_printf("Return Value is, %lld\n", value);
 #endif
-    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
+	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #else
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT64/#else), Ticks %u\n", uSec);
@@ -528,12 +551,12 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	value32 = uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 	debug_printf("Return Value is, %u\n", value32);
 #endif
-    return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
+	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #else
 #ifdef DEBUG_PRINT
 	debug_printf("In CPU_MicrosecondsToTicks(UINT32/#else), Ticks %u\n", uSec);
 #endif
-    //return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
+	//return uSec / (ONE_MHZ / SLOW_CLOCKS_PER_SECOND);
 	return uSec * 48;
 #endif
 	}

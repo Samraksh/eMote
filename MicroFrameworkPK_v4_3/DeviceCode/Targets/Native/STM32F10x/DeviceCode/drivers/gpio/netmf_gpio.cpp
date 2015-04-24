@@ -144,6 +144,29 @@ GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin) {
 	return GPIO_PORT_ARRAY[GPIO_GetPort(Pin)];
 }
 
+/**
+ * stupid.
+ * TODO: make this a giant macro.
+ */
+GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
+    int itr_port;
+    for(itr_port=0; itr_port < GPIO_PORTS; ++itr_port) {
+        if(GPIO_PORT_ARRAY[itr_port] == Port) {
+            break;
+        }
+    }
+    ASSERT(itr_port < GPIO_PORTS);
+    ASSERT(Pin < (1 << GPIO_PPP));
+    int itr_pin;
+    for(itr_pin=0; itr_pin < GPIO_PPP; ++itr_pin) {
+        if((Pin >> itr_pin) == 0x1) {
+            break;
+        }
+    }
+    ASSERT(itr_pin < GPIO_PPP);
+    return ((itr_port * GPIO_PPP) + itr_pin);
+}
+
 UINT32 GPIO_GetIRQNumber(GPIO_PIN Pin)
 {
 	UINT32 line = Pin % GPIO_PPP;
@@ -309,7 +332,7 @@ void GPIO_ConfigurePin( GPIO_TypeDef* GPIO_PortSource, uint16_t Pin, GPIOMode_Ty
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = Pin;
-	GPIO_InitStructure.GPIO_Mode = mode; // output mode
+	GPIO_InitStructure.GPIO_Mode = mode;
 	GPIO_InitStructure.GPIO_Speed = speed;
 	GPIO_Init(GPIO_PortSource, &GPIO_InitStructure);
 }

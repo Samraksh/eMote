@@ -8,8 +8,10 @@
  Or use TIM1/TIM2 CC (already in use as main system timers).
 
  But all kinds of timing problems.
- Lots of cleanup could be done here after Nived's dual mode / continious mode addition.
+ Lots of cleanup could be done here after Nived's dual mode / continuous mode addition.
  --Nathan
+
+
 
  */
 
@@ -18,15 +20,15 @@
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
-//#include <Timer/Timer16Bit/stm32f10x_tim.h>
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
-uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
+ADC_TypeDef* ADC_MODULE[3]   = {ADC1          , ADC2          , ADC3};
 
-void ADC_GPIO_Configuration(void);
-BOOL ADC_NVIC_Configuration(void);
-void ADC_RCC_Configuration(void);
+void ADC_GPIO_Configuration(BOOL enable);
+BOOL ADC_NVIC_Configuration(BOOL enable);
+void ADC_RCC_Configuration(BOOL enable);
 
+//TODO: Why do we use g_* when the variables are not extern?
 HAL_CALLBACK_FPN g_callback = NULL;
 static UINT64 g_timeStamp = 0;
 
@@ -34,12 +36,13 @@ UINT16 *g_adcUserBufferChannel1Ptr = NULL;
 UINT16 *g_adcUserBufferChannel2Ptr = NULL;
 
 UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
-UINT16* g_adcDriverBufferChannel2Ptr = NULL;
+//UINT16* g_adcDriverBufferChannel2Ptr = NULL; // TODO: Remove. Obsolete.
 
 UINT32 *g_adcDriverBufferDualModePtr = NULL;
 
 UINT32 adcNumSamples = 0;
 
+// TODO: consolidate state machine into one variable.
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
 BOOL dualADCMode = FALSE;
@@ -56,6 +59,9 @@ void DMA_HAL_HANDLER(void *param);
 void TIM_HAL_HANDLER(void *param);
 }
 
+/**
+ * interface for Microsoft.SPOT.Hardware.AnalogInput
+ */
 BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
 
@@ -64,19 +70,35 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
+	int idx_channel = 0;
+	switch (channel) {
+	case ANALOG_CHANNEL_1:
+	    idx_channel = 0;
+	    break;
+	case ANALOG_CHANNEL_2:
+	    idx_channel = 1;
+	    break;
+	case ANALOG_CHANNEL_3:
+	    idx_channel = 2;
+	    break;
+	default:
+	    ASSERT(0);
+	    return false;
+	}
+
 	// Turn on the clocks for all the peripherals required
-	ADC_RCC_Configuration();
+	ADC_RCC_Configuration(TRUE);
 
 	// Enable the appropriate gpio pins
-	ADC_GPIO_Configuration();
+	ADC_GPIO_Configuration(TRUE);
 
 	// Enable interrupts for dma/adc and tim
 	// Note that adc and tim enables are for debugging purposes
 	// The production code should only have dma
-	if(!ADC_NVIC_Configuration())
+	if(!ADC_NVIC_Configuration(TRUE))
 		return FALSE;
 
-	    /* ADC1 configuration ------------------------------------------------------*/
+	/* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
@@ -84,63 +106,29 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 
-	if(channel == 0)
-		ADC_Init(ADC1, &ADC_InitStructure);
-	else if(channel == 1)
-		ADC_Init(ADC2, &ADC_InitStructure);
-	else
-		ADC_Init(ADC3, &ADC_InitStructure);
+	ADC_Init(ADC_MODULE[idx_channel], &ADC_InitStructure);
 
-	  /* ADC1 regular channel10 configuration */
-	if(channel == 0)
-		ADC_RegularChannelConfig(ADC1, EMOTE_ADC_CHANNEL[0], 1, 0x04);
-	else if(channel == 1)
-		ADC_RegularChannelConfig(ADC2, EMOTE_ADC_CHANNEL[1], 1, 0x04);
-	else
-		ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, 0x04);
+	ADC_RegularChannelConfig(ADC_MODULE[idx_channel], EMOTE_ADC_CHANNEL[idx_channel], 1, ADC_SampleTime_41Cycles5);
+
 
 	  /* Enable ADC1 DMA */
 	  //ADC_DMACmd(ADC1, ENABLE);
 
-	  /* Enable ADC1 */
-	if(channel == 0)
-		ADC_Cmd(ADC1, ENABLE);
-	else if(channel == 1)
-		ADC_Cmd(ADC2, ENABLE);
-	else
-		ADC_Cmd(ADC3, ENABLE);
+	/* Enable ADC */
+	ADC_Cmd(ADC_MODULE[idx_channel], ENABLE);
 
-	  /* Enable ADC1 reset calibaration register */
-	if(channel == 0)
-		ADC_ResetCalibration(ADC1);
-	else if(channel == 1)
-		ADC_ResetCalibration(ADC2);
-	else
-		ADC_ResetCalibration(ADC3);
+	/* Enable ADC reset calibration register */
+	ADC_ResetCalibration(ADC_MODULE[idx_channel]);
 
-	  /* Check the end of ADC1 reset calibration register */
-	if(channel == 0)
-		while(ADC_GetResetCalibrationStatus(ADC1));
-	else if(channel == 1)
-		while(ADC_GetResetCalibrationStatus(ADC2));
-	else
-		while(ADC_GetResetCalibrationStatus(ADC3));
+	/* Check the end of ADC reset calibration register */
+	while(ADC_GetResetCalibrationStatus(ADC_MODULE[idx_channel]));  // FIXME: use timeout.
 
-	  /* Start ADC1 calibaration */
-	if(channel == 0)
-		ADC_StartCalibration(ADC1);
-	else if(channel == 1)
-		ADC_StartCalibration(ADC2);
-	else
-		ADC_StartCalibration(ADC3);
+	/* Start ADC calibration */
+	ADC_StartCalibration(ADC_MODULE[idx_channel]);
 
-	  /* Check the end of ADC1 calibration */
-	if(channel == 0)
-		while(ADC_GetCalibrationStatus(ADC1));
-	else if(channel == 1)
-		while(ADC_GetCalibrationStatus(ADC2));
-	else
-		while(ADC_GetCalibrationStatus(ADC3));
+	/* Check the end of ADC calibration */
+	while(ADC_GetCalibrationStatus(ADC_MODULE[idx_channel]));   // FIXME: use timeout.
+
     return TRUE;
 }
 
@@ -180,121 +168,164 @@ BOOL AD_GetAvailablePrecisionsForChannel( ANALOG_CHANNEL channel, INT32* precisi
 }
 
 
-// Turn on adc/dma and tim4 clocks
-void ADC_RCC_Configuration(void)
+/**
+ *  Turn on adc/dma and tim4 clocks
+ *  @TODO: check for resource sharing before disable.
+ */
+void ADC_RCC_Configuration(BOOL enable)
 {
 	/* Enable peripheral clocks ------------------------------------------------*/
 	/* Enable DMA1 clock */
-	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, (FunctionalState)enable);
 
-	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, (FunctionalState)enable);
 
-		  /* Enable GPIOA, GPIOC, ADC1 and TIM1 clock */
-	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB |
-		                    RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2, ENABLE);
+	/* Enable all possibly needed clocks */
+	 RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
+	                        RCC_APB2Periph_GPIOB |
+	                        RCC_APB2Periph_GPIOC |
+	                        RCC_APB2Periph_ADC1  |
+	                        RCC_APB2Periph_ADC2,   (FunctionalState)enable);
 
 }
 
-BOOL ADC_NVIC_Configuration(void)
+BOOL ADC_NVIC_Configuration(BOOL enable)
 {
-
-	if( !CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER, NULL) )
-		 		return FALSE;
-
-	if( !CPU_INTC_ActivateInterrupt(ADC1_2_IRQn, ADC_HAL_HANDLER, NULL) )
-	 		return FALSE;
-
-	if( !CPU_INTC_ActivateInterrupt(TIM4_IRQn, TIM_HAL_HANDLER, NULL) )
-		 	return FALSE;
-
-	return TRUE;
+	BOOL retInit = TRUE;
+	BOOL retCleanup = TRUE;
+	if(enable == TRUE) {
+		if((retInit &= CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER, NULL)) != TRUE) {
+			goto adc_nvic_cleanup_1;
+		}
+		if((retInit &= CPU_INTC_ActivateInterrupt(ADC1_2_IRQn,        ADC_HAL_HANDLER, NULL)) != TRUE) {
+			goto adc_nvic_cleanup_2;
+		}
+		if((retInit &= CPU_INTC_ActivateInterrupt(TIM4_IRQn,          TIM_HAL_HANDLER, NULL)) != TRUE) {
+			goto adc_nvic_cleanup_3;
+		}
+	}
+	else { /* enable == FALSE */
+adc_nvic_cleanup_3:
+		retCleanup &= CPU_INTC_DeactivateInterrupt(TIM4_IRQn);
+adc_nvic_cleanup_2:
+		retCleanup &= CPU_INTC_DeactivateInterrupt(ADC1_2_IRQn);
+adc_nvic_cleanup_1:
+		retCleanup &= CPU_INTC_DeactivateInterrupt(DMA1_Channel1_IRQn);
+	}
+	BOOL retFinal = (retCleanup && retInit);
+	return retFinal;
 }
 
-void ADC_RCC_DUALMODE_Configuration(void)
-{
-	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_GPIOC, ENABLE);
-}
+// TODO: Remove. Obsolete.
+//void ADC_RCC_DUALMODE_Configuration(void)
+//{
+//	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+//	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+//	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_GPIOC, ENABLE);
+//}
 
-void ADC_GPIO_DUALMODE_Configuration(void)
-{
-	GPIO_InitTypeDef GPIO_InitStructure;
+// TODO: Remove. Obsolete.
+//void ADC_GPIO_DUALMODE_Configuration(void)
+//{
+//	GPIO_InitTypeDef GPIO_InitStructure;
+//
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+//	GPIO_Init(GPIOC, &GPIO_InitStructure);
+//
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+//	GPIO_Init(GPIOC, &GPIO_InitStructure);
+//
+//}
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-}
-
-void ADC_GPIO_Configuration(void)
+void ADC_GPIO_Configuration(BOOL enable)
 {
 
 // Note from Nathan: I don't think you actually have to toggle the pin...
 // TODO cleanup, maybe use TIM3 instead (can use ADC_ExternalTrigConv_T3_TRGO) instead of CC
 
 	GPIO_InitTypeDef GPIO_InitStructure;
+	if(enable == TRUE)
+	{
+		// Output of TIM4 CH4 will trigger the adc conversion
+		/* Configure TIM4_CH4 (PB9) as alternate function push-pull */
+		// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		// GPIO_Init(GPIOB, &GPIO_InitStructure); // Disabling to allow for GPIO output
 
-	// Output of TIM4 CH4 will trigger the adc conversion
-	/* Configure TIM4_CH4 (PB9) as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	// GPIO_Init(GPIOB, &GPIO_InitStructure); // Disabling to allow for GPIO output
+		/* Configure PC.06 as output push-pull */
+		// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+		// GPIO_Init(GPIOC, &GPIO_InitStructure); // Disabling to allow for GPIO output
 
-	/* Configure PC.06 as output push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	// GPIO_Init(GPIOC, &GPIO_InitStructure); // Disabling to allow for GPIO output
-
-	/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-	//GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_ConfigurePin(GPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_InitStructure.GPIO_Mode);
+		/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
+		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+		//GPIO_Init(GPIOC, &GPIO_InitStructure);
+		GPIO_ConfigurePin(GPIOC, GPIO_InitStructure.GPIO_Pin, GPIO_InitStructure.GPIO_Mode);
+	}
+	else /* enable == FALSE */
+	{
+		CPU_GPIO_DisablePin(GPIO_GetNumber(GPIOC, GPIO_Pin_0), RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+		CPU_GPIO_DisablePin(GPIO_GetNumber(GPIOC, GPIO_Pin_1), RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+		CPU_GPIO_DisablePin(GPIO_GetNumber(GPIOC, GPIO_Pin_4), RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+	}
 }
 
 DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
 {
-
+	DeviceStatus retVal = DS_Success;
 	UINT32 period;
 	UINT32 prescaler = 1;
 
+	// check if already initialized.
 	if(dmaModeInitialized)
 	{
 		TIM_Cmd(TIM4, ENABLE);
-		return DS_Success;
+		retVal = DS_Success;
+		goto ad_ccm_out;
 	}
 
 	// Can not do anything with a null sample buffer
 	if(!sampleBuff1)
-		return DS_Fail;
+	{
+		retVal = DS_Fail;
+	}
 
 	// If number of samples is 0 there is nothing to do
 	if(numSamples == 0)
-		return DS_Fail;
+	{
+		retVal = DS_Fail;
+	}
 
 	// If the callback is null there is no point initializing the drivers and
 	// running the adc as the users will never to get see the data
 	if(!userCallback)
-		return DS_Fail;
+	{
+		retVal = DS_Fail;
+	}
+
+	if(retVal == DS_Fail)
+	{
+		goto ad_ccm_out;
+	}
 
 	ADC_InitTypeDef           ADC_InitStructure;
 	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
-	 ADC_RCC_Configuration();
+	ADC_RCC_Configuration(TRUE);
 
-	 ADC_GPIO_Configuration();
+	ADC_GPIO_Configuration(TRUE);
 
-	 if(!ADC_NVIC_Configuration())
-		 return DS_Fail;
-
+	if(!ADC_NVIC_Configuration(TRUE))
+	{
+		retVal = DS_Fail;
+		goto ad_ccm_out_config;
+	}
 
 	g_callback = userCallback;
 
@@ -358,7 +389,18 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 #ifdef NATIVE_TEST
     g_adcDriverBufferChannel1Ptr = g_adcDriverBufferChannel1;
 #else
-    g_adcDriverBufferChannel1Ptr = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+	if(g_adcDriverBufferChannel1Ptr != NULL)
+	{
+		SOFT_BREAKPOINT();
+		private_free(g_adcDriverBufferChannel1Ptr);
+	}
+	g_adcDriverBufferChannel1Ptr = (UINT16 *) private_malloc(sizeof(UINT16) * numSamples);
+	if(g_adcDriverBufferChannel1Ptr == NULL)
+	{
+		ASSERT(0);
+		retVal = DS_Fail;
+		goto ad_ccm_out;
+	}
 #endif
 
 
@@ -385,7 +427,7 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 
     // Set up adc
     /* ADC1 configuration ------------------------------------------------------*/
-  	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+    ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
     ADC_InitStructure.ADC_ScanConvMode = DISABLE;
     ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
     ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T4_CC4;
@@ -394,42 +436,57 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
     ADC_Init(ADC1, &ADC_InitStructure);
 
     /* ADC1 regular channel14 configuration */
- 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
 
-   	  /* Enable ADC1 DMA */
-   	ADC_DMACmd(ADC1, ENABLE);
+    /* Enable ADC1 DMA */
+    ADC_DMACmd(ADC1, ENABLE);
 
-  	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+    ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 
-    	  /* Enable ADC1 */
-    	  //ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+    /* Enable ADC1 */
+    //ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
 
-   	ADC_Cmd(ADC1, ENABLE);
+    ADC_Cmd(ADC1, ENABLE);
 
-    	  /* Enable ADC1 reset calibration register */
-  	ADC_ResetCalibration(ADC1);
-    	  /* Check the end of ADC1 reset calibration register */
-   	while(ADC_GetResetCalibrationStatus(ADC1));
+    /* Enable ADC1 reset calibration register */
+    ADC_ResetCalibration(ADC1);
+    /* Check the end of ADC1 reset calibration register */
+    while(ADC_GetResetCalibrationStatus(ADC1));	// FIXME: add timeout
 
-    	  /* Start ADC1 calibration */
-   	ADC_StartCalibration(ADC1);
-    	  /* Check the end of ADC1 calibration */
-   	while(ADC_GetCalibrationStatus(ADC1));
+    /* Start ADC1 calibration */
+    ADC_StartCalibration(ADC1);
+    /* Check the end of ADC1 calibration */
+    while(ADC_GetCalibrationStatus(ADC1));	//FIXME: add timeout
 
-    	  /* Start ADC1 Software Conversion */
-   	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
+    /* Start ADC1 Software Conversion */
+    ADC_SoftwareStartConvCmd(ADC1, ENABLE);	//FIXME: add timeout
 
 
     TIM_Cmd(TIM4, ENABLE);
 
    	adcNumSamples = numSamples;
 
-   	// Set DMA mode initialized to true
-   	// This is useful in batch mode scenarious where there is a lot of starting and stopping
-   	dmaModeInitialized = TRUE;
+	// Set DMA mode initialized to true
+	// This is useful in batch mode scenarios where there is a lot of starting and stopping
+	dmaModeInitialized = TRUE;
 
-   	return DS_Success;
-
+ad_ccm_out_config:
+    if(retVal == DS_Fail)
+    {
+        ADC_NVIC_Configuration(FALSE);
+        ADC_GPIO_Configuration(FALSE);
+        ADC_RCC_Configuration(FALSE);
+    }
+ad_ccm_out:
+	if(dmaModeInitialized && retVal == DS_Fail)
+	{
+		TIM_Cmd(TIM4, DISABLE);
+	}
+	if(g_adcDriverBufferChannel1Ptr != NULL && retVal == DS_Fail)
+	{
+		private_free(g_adcDriverBufferChannel1Ptr);
+	}
+	return retVal;
 }
 
 void AD_StopSampling()
@@ -442,7 +499,6 @@ DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT3
 	batchModeADC = TRUE;
 
 	return AD_ConfigureContinuousMode(sampleBuff1, numSamples, samplingTime, userCallback, Param);
-
 }
 
 
@@ -463,11 +519,11 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	UINT32 period;
 	UINT32 prescaler;
 
-	ADC_RCC_Configuration();
+	ADC_RCC_Configuration(TRUE);
 
-	ADC_GPIO_Configuration();
+	ADC_GPIO_Configuration(TRUE);
 
-	if(!ADC_NVIC_Configuration())
+	if(!ADC_NVIC_Configuration(TRUE))
 		return DS_Fail;
 
 	g_callback = userCallback;
@@ -535,7 +591,15 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 #ifdef NATIVE_TEST
     g_adcDriverBufferDualModePtr = g_adcDriverBufferDualMode;
 #else
-    g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
+	if(g_adcDriverBufferDualModePtr != NULL) {
+		ASSERT(0);
+		private_free(g_adcDriverBufferDualModePtr);
+	}
+	g_adcDriverBufferDualModePtr = (UINT32 *) private_malloc(sizeof(UINT32) * numSamples);
+	if(g_adcDriverBufferDualModePtr == NULL) {
+		ASSERT(0);
+		return DS_Fail;
+	}
 #endif
 
 	 /* DMA1 channel1 configuration ----------------------------------------------*/
@@ -619,18 +683,21 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	dualADCMode = TRUE;
 
-
 	TIM_Cmd(TIM4, ENABLE);
 
 	return DS_Success;
 
 }
 
+/**
+ * Not used? Obsolete?
+ * TODO: Deprecate ADC_Configuration?
+ */
 void ADC_Configuration ( uint8_t sampTime )
 {
   ADC_InitTypeDef ADC_InitStructure;
 
-    /* ADC1 configuration ------------------------------------------------------*/
+  /* ADC configuration ------------------------------------------------------*/
   ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
   ADC_InitStructure.ADC_ScanConvMode = ENABLE;
   ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
@@ -641,45 +708,49 @@ void ADC_Configuration ( uint8_t sampTime )
   ADC_Init(ADC2, &ADC_InitStructure);
   ADC_Init(ADC3, &ADC_InitStructure);
 
-  /* ADC1 regular channel10 configuration */
+  /* ADC regular channel configuration */
   ADC_RegularChannelConfig(ADC1, EMOTE_ADC_CHANNEL[0], 1, sampTime);
   ADC_RegularChannelConfig(ADC2, EMOTE_ADC_CHANNEL[1], 1, sampTime);
   ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, sampTime);
 
-  /* Enable ADC1 DMA */
+  /* Enable ADC DMA */
   //ADC_DMACmd(ADC1, ENABLE);
 
-  /* Enable ADC1 */
+  /* Enable ADC */
   ADC_Cmd(ADC1, ENABLE);
   ADC_Cmd(ADC2, ENABLE);
   ADC_Cmd(ADC3, ENABLE);
 
-  /* Enable ADC1 reset calibaration register */
+  /* Enable ADC reset calibration register */
   ADC_ResetCalibration(ADC1);
   ADC_ResetCalibration(ADC2);
   ADC_ResetCalibration(ADC3);
 
-  /* Check the end of ADC1 reset calibration register */
+  /* Check the end of ADC reset calibration register */
   while(ADC_GetResetCalibrationStatus(ADC1));
   while(ADC_GetResetCalibrationStatus(ADC2));
   while(ADC_GetResetCalibrationStatus(ADC3));
 
-  /* Start ADC1 calibaration */
+  /* Start ADC calibration */
   ADC_StartCalibration(ADC1);
   ADC_StartCalibration(ADC2);
   ADC_StartCalibration(ADC3);
 
-  /* Check the end of ADC1 calibration */
+  /* Check the end of ADC calibration */
   while(ADC_GetCalibrationStatus(ADC1));
   while(ADC_GetCalibrationStatus(ADC2));
   while(ADC_GetCalibrationStatus(ADC3));
 }
 
+/**
+ * Not used?  Obsolete?
+ * TODO: Deprecate hal_adc_init?
+ */
 void hal_adc_init(uint8_t sampTime)
 {
-	ADC_RCC_Configuration();
-	ADC_NVIC_Configuration();
-	ADC_GPIO_Configuration();
+	ADC_RCC_Configuration(TRUE);
+	ADC_NVIC_Configuration(TRUE);
+	ADC_GPIO_Configuration(TRUE);
 	ADC_Configuration(sampTime);
 }
 
@@ -688,7 +759,10 @@ uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChan
 	uint8_t i,j;
 
 	if (startChannel > 2 || (startChannel + numChannels > 3))
+	{
+		ASSERT(0);
 		return 0;
+	}
 
 	for (j=startChannel; j < startChannel+numChannels; j++)
 	{
@@ -761,5 +835,6 @@ extern "C"
 		{
 			TIM_ClearITPendingBit(TIM4, TIM_IT_CC4);
 		}
+		//TODO: check for double overflow and warn user?  user receives time stamp...
 	}
 }

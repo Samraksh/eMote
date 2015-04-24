@@ -197,14 +197,13 @@ private:
 
 public:
 
-	UINT16 m_current_timer_cnt_;
-	UINT16 m_current_timer_running_;
+	UINT16 m_current_timer_cnt_;     //<! TODO: description goes here. please.
+	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
 
-	UINT16 VTM_hardwareTimerId;
-	UINT16 VTM_countOfVirtualTimers;
+	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
+	UINT16 VTM_countOfVirtualTimers; //<! TODO: description goes here. please.
 	VirtualTimerInfo g_VirtualTimerInfo[TimerInfoSize];
 
-	//BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 	BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 
 	BOOL SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
@@ -214,7 +213,6 @@ public:
 	BOOL StopTimer(UINT8 timer_id);
 
 	BOOL ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
-
 
 	BOOL UnInitialize(UINT16);
 
@@ -235,7 +233,7 @@ private:
 
 public:
 	UINT16 VT_hardwareTimerId;
-	UINT16 VT_countOfVirtualTimers;
+	UINT16 VT_countOfVirtualTimers;  //<! TODO: description goes here. please.
 
 	//For additional virtual timer support, adjust values here as well as in VirtualTimer.cpp, platform_selector.h
 #ifdef PLATFORM_ARM_EmoteDotNow
@@ -249,10 +247,9 @@ public:
 };
 
 	//PAL interface for VirtualTimers
-	//BOOL VirtTimer_Initialize(UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 	BOOL VirtTimer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
 	BOOL VirtTimer_UnInitialize();
-	//VirtualTimerReturnMessage VirtTimer_IsValid(UINT8 timer_id);
+	VirtualTimerReturnMessage VirtTimer_SetOrChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);

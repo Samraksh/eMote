@@ -41,11 +41,12 @@ static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext 
 
 BOOL InitializeTimer ()
 {
-	VirtualTimerReturnMessage retVal = VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER);
-
-	// if timer is already reserved we just change it to new value
-	if(retVal == TimerReserved){
-		VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, false);
+	if(VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
+	{
+		if(VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER) != TimerSupported)
+		{
+			ASSERT(FALSE);
+		}
 	}
 
 	VirtTimer_Start( VIRT_TIMER_REALTIME );

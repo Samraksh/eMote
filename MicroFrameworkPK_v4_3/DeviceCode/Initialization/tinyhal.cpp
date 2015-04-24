@@ -393,12 +393,13 @@ void HAL_Initialize()
 
     FileSystemVolumeList::InitializeVolumes();
 
+    LCD_Initialize();
 
 //#if !defined(HAL_REDUCESIZE)
     CPU_InitializeCommunication();
 //#endif
 
-    //I2C_Initialize();
+    //I2C_Initialize(); // FIXME: Is commenting this out a Samraksh policy decision? if so, need soft reboot handler for I2C re-init
 
     Buttons_Initialize();
 
@@ -419,6 +420,7 @@ void HAL_Initialize()
 #if defined(ENABLE_NATIVE_PROFILER)
     Native_Profiler_Init();
 #endif
+
 }
 
 void HAL_UnReserveAllGpios()
@@ -447,7 +449,7 @@ void HAL_Uninitialize()
         {
             break;
         }
-    }    
+    }
 
     LCD_Uninitialize();
 
@@ -469,6 +471,8 @@ void HAL_Uninitialize()
     PalEvent_Uninitialize();
 
     SOCKETS_CloseConnections();
+
+    MacLayer_UnInitialize();
 
 #if !defined(HAL_REDUCESIZE)
     CPU_UninitializeCommunication();
@@ -553,21 +557,18 @@ mipi_dsi_shutdown();
 
 #endif
 
-    // But for reasons unknown, Samraksh initializes the interrupt controller here instead of inside CPU_Initialize().
+    // FIXME: Why does Samraksh initialize the interrupt controller here (nonstandard) instead of inside CPU_Initialize() (standard)?
     CPU_INTC_Initialize();
 
     CPU_Initialize();
 
-    HAL_Initialize();
-
-#ifndef SAM_APP_TINYBOOTER // TinyBooter uses SimpleTimer
+#if defined(SAM_APP_TINYCLR) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
     VirtTimer_Initialize();
 #endif
-
     HAL_Time_Initialize();
 
+    HAL_Initialize();
 
-    LCD_Initialize();
 #if !defined(BUILD_RTM) 
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 1 , "0.12.B1");
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);

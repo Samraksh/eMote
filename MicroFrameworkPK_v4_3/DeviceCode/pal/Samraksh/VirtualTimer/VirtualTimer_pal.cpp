@@ -79,73 +79,83 @@ BOOL VirtTimer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 	return TRUE;
 }
 
+VirtualTimerReturnMessage VirtTimer_SetOrChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
+{
+	VirtualTimerReturnMessage retVal = TimerSupported;;
+
+	// try
+	retVal = VirtTimer_SetTimer(timer_id, start_delay, period, is_one_shot, _isreserved, callback);
+
+	// catch
+	if(retVal != TimerSupported) {
+		retVal = VirtTimer_Change(timer_id, start_delay, period, is_one_shot);
+	}
+
+	ASSERT(retVal == TimerSupported);
+
+	return retVal;
+}
+
 
 VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
+	VirtualTimerReturnMessage retVal = TimerSupported;
+
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(mapperId == 0)
-	{
-		if(!gVirtualTimerObject.virtualTimerMapper_0.SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback))
-			return TimerReserved;
-		else
-			return TimerSupported;
+	if(!gVirtualTimerObject.virtualTimerMapper_0.SetTimer(mapperTimerId, start_delay, period, is_one_shot, _isreserved, callback)) {
+		retVal = TimerReserved;
 	}
-	else if(mapperId == 1)
-	{
-
+	else {
+		retVal = TimerSupported;
 	}
+	return retVal;
 }
 
 
 VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id)
 {
+	VirtualTimerReturnMessage retVal = TimerSupported;
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(mapperId == 0)
-	{
-		if(!gVirtualTimerObject.virtualTimerMapper_0.StartTimer(mapperTimerId))
-			return TimerNotSupported;
-		else
-			return TimerSupported;
+	if(!gVirtualTimerObject.virtualTimerMapper_0.StartTimer(mapperTimerId)) {
+		retVal = TimerNotSupported;
 	}
-	else if(mapperId == 1)
-	{
-
+	else {
+		retVal = TimerSupported;
 	}
+	return retVal;
 }
 
 
 //AnanthAtSamraksh - when the virtual timer is stopped, it is not released by default. User has to explicitly release it by setting _isreserved to FALSE
 VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id)
 {
+	VirtualTimerReturnMessage retVal = TimerSupported;
 	UINT8 mapperTimerId = timer_id;
 	UINT8 mapperId = 0;
 
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	if(mapperId == 0)
-	{
-		if(gVirtualTimerObject.virtualTimerMapper_0.StopTimer(mapperTimerId) == TimerNotSupported)
-			return TimerNotSupported;
-		else
-			return TimerSupported;
+	if(gVirtualTimerObject.virtualTimerMapper_0.StopTimer(mapperTimerId) == TimerNotSupported) {
+		retVal = TimerNotSupported;
 	}
-	else if(mapperId == 1)
-	{
-
+	else {
+		retVal = TimerSupported;
 	}
+	return retVal;
 }
 
 
 VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
 {
+	VirtualTimerReturnMessage retVal = TimerSupported;
 	UINT8 mapperTimerId = 0;
 	UINT8 mapperId = 0;
 
@@ -154,14 +164,11 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 	if(mapperId == 0)
 	{
 		if(!gVirtualTimerObject.virtualTimerMapper_0.ChangeTimer(mapperTimerId, start_delay, period, is_one_shot))
-			return TimerNotSupported;
+			retVal = TimerNotSupported;
 		else
-			return TimerSupported;
+			retVal = TimerSupported;
 	}
-	else if(mapperId == 1)
-	{
-
-	}
+	return retVal;
 }
 
 
@@ -171,8 +178,7 @@ UINT64 VirtTimer_TicksToTime(UINT8 timer_id, UINT64 Ticks)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	//return CPU_TicksToTime(Ticks, g_HardwareTimerIDs[mapperId]);
-	return CPU_TicksToMicroseconds(Ticks, g_HardwareTimerIDs[mapperId]);
+	return CPU_TicksToTime(Ticks, (UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
 
@@ -182,7 +188,7 @@ UINT64 VirtTimer_GetTicks(UINT8 timer_id)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	return CPU_Timer_CurrentTicks(g_HardwareTimerIDs[mapperId]);
+	return CPU_Timer_CurrentTicks((UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
 UINT32 VirtTimer_GetCounter(UINT8 timer_id)
@@ -191,7 +197,7 @@ UINT32 VirtTimer_GetCounter(UINT8 timer_id)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	return CPU_Timer_GetCounter(g_HardwareTimerIDs[mapperId]);
+	return CPU_Timer_GetCounter((UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
 UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count)
@@ -200,7 +206,7 @@ UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	return CPU_Timer_SetCounter(g_HardwareTimerIDs[mapperId], Count);
+	return CPU_Timer_SetCounter((UINT16)g_HardwareTimerIDs[mapperId], Count);
 }
 
 BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue)
@@ -209,7 +215,7 @@ BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	return CPU_Timer_SetCompare(g_HardwareTimerIDs[mapperId], CompareValue );
+	return CPU_Timer_SetCompare((UINT16)g_HardwareTimerIDs[mapperId], CompareValue );
 }
 
 
@@ -219,7 +225,7 @@ void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec)
 	UINT8 mapperId = 0;
 	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
 
-	CPU_Timer_Sleep_MicroSeconds(uSec, g_HardwareTimerIDs[mapperId]);
+	CPU_Timer_Sleep_MicroSeconds(uSec, (UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
 BOOL VirtTimer_DidTimerOverflow(UINT8 timer_id)
@@ -252,7 +258,7 @@ UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 
 BOOL VirtTimer_UnInitialize()
 {
-    BOOL ret = true;
+	BOOL ret = TRUE;
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
 			ret &= gVirtualTimerObject.virtualTimerMapper_0.UnInitialize(g_HardwareTimerIDs[i]);

@@ -41,6 +41,9 @@ UINT64 HAL_Time_CurrentTicks()
 	//return g_Time_Driver.TimeNow();
 }
 
+/**
+ * Microsoft: Converts a specified number of real-time clock ticks to common language runtime (CLR) base time, in 100-nanosecond (ns) increments.
+ */
 INT64 HAL_Time_TicksToTime( UINT64 Ticks )
 {
 	return g_Time_Driver.TicksToTime(Ticks);
@@ -54,6 +57,8 @@ volatile UINT64 badComparesMax = 0;      //!< observed worst-case.
 
 void HAL_Time_SetCompare( UINT64 CompareTicks )
 {
+	// here we change a 64-bit time from the MF to a 32-bit time
+	// we need to move to 64-bit absolute time and clean this portion of code up
 	if (CompareTicks == HAL_Completion_IdleValue){
 		g_Time_Driver.StopTimer();
 	} else {
@@ -67,7 +72,7 @@ void HAL_Time_SetCompare( UINT64 CompareTicks )
 			if(badComparesMax < (NowTicks - CompareTicks)) { badComparesMax = NowTicks - CompareTicks; }
 			badComparesAvg = (badComparesAvg * (badComparesCount - 1) + (NowTicks - CompareTicks)) / badComparesCount;
 #endif
-			g_Time_Driver.SetCompareValue( 100 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
+			g_Time_Driver.SetCompareValue( 300 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
 		}
 	}
 }

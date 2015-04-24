@@ -17,7 +17,7 @@
  accessed via MFDeploy's DeviceInfo and other places.
  */
 
-#include <ID_decl.h>
+#include <Samraksh/ID_decl.h>
 
 
 unsigned int ID_GetSerialNumbers(struct OEM_SERIAL_NUMBERS& OemSerialNumbers)

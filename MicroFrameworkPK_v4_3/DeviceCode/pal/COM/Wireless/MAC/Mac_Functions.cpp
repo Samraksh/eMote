@@ -124,7 +124,9 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 }
 
 DeviceStatus Mac_UnInitialize(UINT8 macID){
-	return DS_Fail;
+	BOOL ret;
+	ret = gcsmaMacObject.UnInitialize();
+	return ((ret == TRUE) ? DS_Success : DS_Fail);
 }
 
 UINT8 Mac_GetID(){
@@ -267,7 +269,9 @@ BOOL MacLayer_Initialize(){
 }
 
 BOOL MacLayer_UnInitialize(){
-	return FALSE;
+	BOOL ret = TRUE;
+	ret &= gcsmaMacObject.UnInitialize();
+	return ret;
 }
 
 UINT8 MacLayer_NumberMacsSupported(){
