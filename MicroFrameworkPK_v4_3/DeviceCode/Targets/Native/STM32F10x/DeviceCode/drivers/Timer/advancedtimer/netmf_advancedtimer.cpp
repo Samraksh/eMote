@@ -215,8 +215,6 @@ volatile UINT64 badSetComparesMax = 0;         //!< observed worst-case.
 // the second stage involves lsb on tim1
 DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
-	CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	uint16_t tar_upper;
 	uint16_t now_upper;
 	uint16_t now_lower;
@@ -247,10 +245,10 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		compareValue = (now + TIME_CUSHION);
 	}
 
-	if ( (compareValue - now) > (GetMaxTicks() - TIME_CUSHION) ){
-		// we are to trigger at a value greater than our 32-bit timer can hold so the best we can do
-		// is to take the current counter time and use that (by the time we actually get to setting the timer compare
-		// we would have passed it and we end up triggering almost the maximum amount 32-bit timer can do)
+	// checking to see if our wait time maxes out our upper 16-bit timer
+	if ( ((compareValue - now) & 0xffff0000) == 0xffff0000){
+		// we are to trigger at a value that maxes out our upper 16-bit timer so in order to wait as long as possible and not
+		// incorrectly trigger the miss condition below we set the timer for the longest possible value that won't trigger the miss condition
 		compareValue = GetCounter()-0x00010000; 
 	}
 
@@ -258,9 +256,6 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 
 	tar_upper = (compareValue >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
-
-	TIM_SetCompare1(TIM2, tar_upper);
-	TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
 
 	tar_lower = compareValue & 0xFFFF;
 	now_lower = now & 0xFFFF;
@@ -277,7 +272,10 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		} 
 	}
 
-	}
+	// if the upper 16-bit counter already matches we don't bother setting it and just set the lower 16-bit below
+	if (tar_upper != now_upper){
+		TIM_SetCompare1(TIM2, tar_upper);
+		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
 
 	// Check for miss
 	// This catches cases where upper 16 were set to be for example, 0x0005 at a time of 0x0004 (lower 0xffff). We roll-over and catch that here
@@ -288,6 +286,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	}
 	else { // We missed. Back-off.
 		clear_tim2();
+	}
 	}
 
 	TIM_SetCompare3(TIM1, tar_lower);

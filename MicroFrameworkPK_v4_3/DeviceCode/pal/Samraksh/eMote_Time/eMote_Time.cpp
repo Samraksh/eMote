@@ -103,6 +103,7 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 {
 	UINT32 compareTimeInMicroSecs = 0;
 
+	// for now we are capping compares to a 32-bit max value, but we need to move to 64-bit times and clean this up
 	if(compareTicks > 0xFFFFFFFF)
 	{
 		compareTicks = 0xFFFFFFFF;
