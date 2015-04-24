@@ -12,14 +12,16 @@
 #include "OMACConstants.h"
 
 #define LOCALSKEW 1
+#define DEBUG_TIMESYNCPIN_OLD (GPIO_PIN)31
 //#define DEBUG_TIMESYNC 1
 
 DeviceStatus RadioControl::Initialize(UINT8 radioID, UINT8 macID){
 	RadioID = radioID;
 	MacID = macID;
 #ifdef DEBUG_TIMESYNC
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 31, FALSE);
+	CPU_GPIO_EnableOutputPin(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
+
 	return DS_Success;
 }
 
@@ -67,8 +69,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
 		hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
-		CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
+		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
 	}else {
@@ -93,8 +95,8 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	//header->network = MyConfig.Network;
 	header->mac_id = MacID;
 #ifdef DEBUG_TIMESYNC
-		CPU_GPIO_SetPinState((GPIO_PIN) 31, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 31, FALSE);
+		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
+		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
 	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
 	return DS_Success;

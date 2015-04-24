@@ -40,7 +40,7 @@ void OMACScheduler::Initialize(){
 	m_busy = FALSE;
 
 	//Initialize the HAL vitual timer layer
-	gHalTimerManagerObject.Initialize();
+	VirtTimer_Initialize();
 
 	//Initialize various processes
 	this->StartSlotAlarm(SLOT_PERIOD);
@@ -191,10 +191,11 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 	//HALTimer()
 	if(Delay==0){
 		//start alarm in default periodic mode
-		gHalTimerManagerObject.CreateTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
+		VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+
 	}else {
 		//Change next slot time with delay
-		gHalTimerManagerObject.CreateTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder); //1 sec Timer in micro seconds
+		VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
 	}
 
 }

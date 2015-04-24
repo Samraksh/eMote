@@ -9,7 +9,8 @@
 #define DISCOVERYTIMESYNCHANDLER_H_
 
 #include <Samraksh/Message.h>
-#include <Samraksh/HALTimer.h>
+//#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
 //#include "FTSPTimeSync.h"

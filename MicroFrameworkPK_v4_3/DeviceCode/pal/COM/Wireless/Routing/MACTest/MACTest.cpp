@@ -6,13 +6,14 @@
  *      A simple Common test for all MACs
  */
 #include <tinyhal.h>
-#include <Samraksh/HALTimer.h>
+//#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
 #include "MACTest.h"
 #include <Samraksh\Message.h>
 
 //#define DEBUG_MACTEST 1
 
-extern HALTimerManager gHalTimerManagerObject;
+//extern HALTimerManager gHalTimerManagerObject;
 extern MACTest gMacTest;
 extern UINT16 MF_NODE_ID;
 
@@ -42,7 +43,8 @@ BOOL MACTest::Initialize(){
 	myEventHandler.SetRecieveHandler(&ReceiveHandler);
 	myEventHandler.SetSendAckHandler(&SendAckHandler);
 
-	gHalTimerManagerObject.Initialize();
+	//gHalTimerManagerObject.Initialize();
+	VirtTimer_Initialize();
 #ifdef DEBUG_MACTEST
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, FALSE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
@@ -58,7 +60,7 @@ BOOL MACTest::StartTest(){
 	msg.MSGID=0;
 	SendCount=0;
 	RcvCount=0;
-	gHalTimerManagerObject.CreateTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
+	VirtTimer_SetTimer(1, 0, 1000000, FALSE, FALSE, Timer_1_Handler); //1 sec Timer in micro seconds
 	/*while(TRUE){
 		HAL_Time_Sleep_MicroSeconds(5000000);
         MACTest::Send();

@@ -12,7 +12,8 @@
 #include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
-#define DEBUG_OMAC 1
+#define DEBUG_OMAC 0
+#define OMACDEBUGPIN (GPIO_PIN)1
 
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
@@ -24,15 +25,17 @@ RadioControl_t g_omac_RadioControl;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){
 #ifdef DEBUG_OMAC
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
+	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
 	return (void*) g_OMAC.ReceiveHandler((Message_15_4_t*) msg, size);
 }
-BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 
+BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
+	return TRUE;
 }
+
 void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
 
@@ -73,17 +76,26 @@ DeviceStatus OMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-//Initialize
-DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config)
-{
-	//Initialize yourself first (you being the MAC)
-	if(!this->Initialized){
-		MacId = OMAC::GetUniqueMacID();
 
+
+DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config) {
+//DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+	DeviceStatus status;
+	//Initialize yourself first (you being the MAC)
+	if(this->Initialized){
+		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+	}
+	else {
+		this->macName = macName;
+		this->radioName = radioID;
 		SetConfig(config);
 		AppCount=0; //number of upperlayers connected to you
 		OMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
+#ifdef DEBUG_OMAC
+		hal_printf("Initializing OMAC: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		CPU_GPIO_EnableOutputPin(OMACDEBUGPIN, FALSE);
+#endif
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
@@ -95,37 +107,30 @@ DeviceStatus OMAC::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8
 
 		g_NeighborTable.ClearTable();
 
+		RadioAckPending=FALSE;
 		Initialized=TRUE;
+		m_recovery = 1;
 
-		CPU_Radio_Initialize(&Radio_Event_Handler, RadioIDs, NumberRadios, MacId);
-		g_omac_RadioControl.Initialize(RadioIDs[0], MacId);
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success)
+			return status;
 
-#ifdef DEBUG_OMAC
-		hal_printf("Initializing OMAC: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
-		CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
-#endif
-
-		//MAC <Message_15_4_t>::Initialize();
+		g_omac_RadioControl.Initialize(this->radioName, macName);
 		m_omac_scheduler.Initialize();
-	}else {
-		hal_printf("OMAC Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		Initialized=TRUE;
 	}
 
 	//Initialize upper layer call backs
-	if(routingAppID >=MAX_APPS) {
+	if(routingAppID >= MAX_APPS) {
 		return DS_Fail;
 	}
 	AppHandlers[routingAppID]=eventHandler;
 	CurrentActiveApp=routingAppID;
-	*macID=MacId;
+	//*macID=MacId;
 
 	//Initialize radio layer
 	return DS_Success;
 }
 
-
-
-//UnInitialize
 BOOL OMAC::UnInitialize()
 {
 	BOOL ret = TRUE;
@@ -134,14 +139,12 @@ BOOL OMAC::UnInitialize()
 	return ret;
 }
 
-
-
 Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
 	//Message_15_4_t *Next;
 #ifdef DEBUG_OMAC
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
+	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMAC::GetMaxPayload()){
@@ -175,7 +178,7 @@ Message_15_4_t * OMAC::ReceiveHandler(Message_15_4_t * msg, int Size)
 			g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload(), Size);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
-			hal_printf("Got a data beacon packet");
+			hal_printf("Got a data beacon packet\n");
 
 		default:
 			break;
