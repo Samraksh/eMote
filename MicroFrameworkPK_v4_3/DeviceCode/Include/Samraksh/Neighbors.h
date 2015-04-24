@@ -87,7 +87,7 @@ public:
 	DeviceStatus UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index);
 	DeviceStatus UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength, UINT8* index);
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
-	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
+	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	void DegradeLinks();
@@ -299,7 +299,17 @@ DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UIN
 	return retValue;
 }
 
-//DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index){
+DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index){
+	Neighbor[*index].MacAddress = address;
+	Neighbor[*index].Status = status;
+	Neighbor[*index].LastHeardTime = currTime;
+	Neighbor[*index].lastSeed = seed;
+	Neighbor[*index].dataInterval = dataInterval;
+	Neighbor[*index].radioStartDelay = radioStartDelay;
+	Neighbor[*index].counterOffset = counterOffset;
+	return DS_Success;
+}
+
 DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi){
 	 UINT8 index;
 	 DeviceStatus retValue = FindIndex(address, &index);

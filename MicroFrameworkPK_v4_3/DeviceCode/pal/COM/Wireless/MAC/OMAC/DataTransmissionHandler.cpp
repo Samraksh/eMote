@@ -5,11 +5,11 @@
  *      Author: Mukundan Sridharan
  */
 
-#include <Samraksh/Neighbors.h>
+//#include <Samraksh/Neighbors.h>
 #include "DataTransmissionHandler.h"
 #include "OMAC.h"
 
-extern OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;

@@ -22,12 +22,15 @@
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
-class OMAC: public MAC <Message_15_4_t, MacConfig>{
+class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 
   private:
 	//Underlying radio variables
 	static const UINT8 NumberRadios =1;
 
+	BOOL RadioAckPending;
+	UINT8 m_recovery;
+	BOOL flushTimerRunning;
 
 	//Protocol variables
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
@@ -47,7 +50,7 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 
 	//Override base class methods here, implement them later in cpp file
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8* macIDs, UINT8 routingAppID, MacConfig *config);
+	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config);
 	DeviceStatus SetConfig(MacConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size);
@@ -61,6 +64,6 @@ class OMAC: public MAC <Message_15_4_t, MacConfig>{
 	void UpdateNeighborTable();
 };
 
-extern OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 
 #endif /* OMAC_H_ */

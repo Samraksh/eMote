@@ -15,7 +15,7 @@
 OMACScheduler *g_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
-extern OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 
 void PublicBeaconNCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
@@ -26,7 +26,9 @@ void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
   		g_scheduler = (OMACScheduler*)scheduler;
   	}
 
-void DiscoveryHandler::Initialize(){
+void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
+	RadioID = radioID;
+	MacID = macID;
 	m_receivedPiggybackBeacon = FALSE;
 	m_idxForComputation = INVALID_INDEX;
 	counterOffsetAvg = 0;
@@ -39,8 +41,8 @@ void DiscoveryHandler::Initialize(){
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
 
-	m_p1 = CONTROL_P1[CPU_Radio_GetAddress(this->radioName) % 7];
-	m_p2 = CONTROL_P2[CPU_Radio_GetAddress(this->radioName) % 7];
+	m_p1 = CONTROL_P1[CPU_Radio_GetAddress(RadioID) % 7];
+	m_p2 = CONTROL_P2[CPU_Radio_GetAddress(MacID) % 7];
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_p1, m_p2);
 
 	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root

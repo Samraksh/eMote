@@ -15,6 +15,9 @@
 
 
 class DataReceptionHandler: public SlotHandler {
+	UINT8 RadioID;
+	UINT8 MacID;
+
 	BOOL m_busy, m_shldWakeup;
 	UINT32 m_dataInterval;
 	/* the source node we're expecting during dwell time, to filter out messages, accidentally sent
@@ -40,7 +43,7 @@ class DataReceptionHandler: public SlotHandler {
 	//SeedGenerator m_seedGenerator;
 
 public:
-	void Initialize();
+	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT16 NextSlot(UINT32 slotNum);
 	void ExecuteSlot(UINT32 slotNum);
 	UINT8 ExecuteSlotDone();

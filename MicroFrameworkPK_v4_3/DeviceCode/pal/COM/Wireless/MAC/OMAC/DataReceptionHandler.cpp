@@ -8,7 +8,7 @@
 #include "DataReceptionHandler.h"
 #include "OMAC.h"
 
-extern OMAC g_OMAC;
+extern OMACTypeBora g_OMAC;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
@@ -22,7 +22,10 @@ void PublicReceiveCallback(void * param){
 */
 
 
-void DataReceptionHandler::Initialize(){
+void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
+	RadioID = radioID;
+	MacID = macID;
+
 	UINT16 lastSeed;
 	m_busy, m_shldWakeup = TRUE;
 	UINT8 m_dwellCnt = 0;
@@ -45,8 +48,8 @@ void DataReceptionHandler::Initialize(){
 		m_dataInterval = 10;
 	}
 
-	lastSeed = m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(this->radioName) + 1);
-	m_mask = 137 * 29 * (CPU_Radio_GetAddress(this->radioName) + 1);
+	lastSeed = m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1);
+	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	//m_nextSeed is updated with its passed pointer. It will be the next seed to use
 	//after 8 frames pass
 	m_nextWakeupSlot =
@@ -81,7 +84,7 @@ bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
 	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
-	sndMsg->nodeID = CPU_Radio_GetAddress(this->radioName);
+	sndMsg->nodeID = CPU_Radio_GetAddress(RadioID);
 	dataBeaconBufferPtr->GetHeader()->type = OMAC_DATA_BEACON_TYPE;
 
 	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
