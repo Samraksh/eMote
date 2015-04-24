@@ -368,8 +368,8 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);
-	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_Out_PP);
 	CPU_GPIO_SetPinState(Pin, InitialState);
+	GPIO_ConfigurePin(port, pinInHex, GPIO_Mode_Out_PP);
 }
 
 BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
