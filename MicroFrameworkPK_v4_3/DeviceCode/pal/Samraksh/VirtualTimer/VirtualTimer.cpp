@@ -136,12 +136,12 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 		return FALSE;
 	}
 
-	if(period == cTimerMax32Value)
+	if(period >= cTimerMax32Value)
 		ticksPeriod =  cTimerMax32Value;
 	else
 		ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
 
-	if(start_delay == cTimerMax32Value)
+	if(start_delay >= cTimerMax32Value)
 		ticksStartDelay =  cTimerMax32Value;
 	else
 		ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);

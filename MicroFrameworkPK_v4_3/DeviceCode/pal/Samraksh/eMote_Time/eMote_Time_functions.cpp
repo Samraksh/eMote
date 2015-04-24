@@ -70,7 +70,7 @@ void HAL_Time_SetCompare( UINT64 CompareTicks )
 			if(badComparesMax < (NowTicks - CompareTicks)) { badComparesMax = NowTicks - CompareTicks; }
 			badComparesAvg = (badComparesAvg * (badComparesCount - 1) + (NowTicks - CompareTicks)) / badComparesCount;
 #endif
-			g_Time_Driver.SetCompareValue( 100 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
+			g_Time_Driver.SetCompareValue( 300 );  // assume g_Time_Driver uses virtual timer so compare value cannot miss and therefore any small compare value suffices.
 		}
 	}
 }
