@@ -267,6 +267,10 @@
     <DriverLibs Include="Crypto_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Crypto\stubs\dotNetMF.proj" />
   </ItemGroup>
+  <!-- ItemGroup>
+    <DriverLibs Include="Crypto.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Crypto\dotNetMF.proj />
+  </ItemGroup -->
   <ItemGroup>
     <PlatformIndependentLibs Include="Debugger_full.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Debugger\dotnetmf_full.proj" />
