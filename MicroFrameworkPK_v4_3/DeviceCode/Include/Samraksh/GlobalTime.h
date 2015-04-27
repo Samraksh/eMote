@@ -158,6 +158,10 @@ public:
 		}
 		return 255;
 	}
+	UINT8 NumberOfRecordedElements(UINT16 nbr){
+		return(samples[FindNbr(nbr)].numSamples);
+
+	};
 
 
 	//Mean algorithm. My global value is just the mean of all  global values
@@ -261,6 +265,8 @@ public:
 		}
 		return(samples[nbrIndex].relativeFreq);
 	};
+
+
 };
 
 
