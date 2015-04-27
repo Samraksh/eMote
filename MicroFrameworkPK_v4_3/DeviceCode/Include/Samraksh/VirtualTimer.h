@@ -9,7 +9,8 @@
 #ifndef _VIRTUAL_TIMER_H_
 #define _VIRTUAL_TIMER_H_
 
-#ifdef _RUN_ON_WINDOWS_
+#if defined( WIN32 )
+#error "Do you really want to include the virtual timer in a windows build?"
 #include "WindowsUtil.h"
 #else
 #include <tinyhal.h>

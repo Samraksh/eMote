@@ -47,8 +47,5 @@
 #include <Blockstorage_decl.h>
 #include <SD_decl.h>
 
-#include <Samraksh/ID_decl.h>
-#include <Samraksh/Mac_decl.h>
-
 #endif // _TINYPAL_H_
 

@@ -52,17 +52,32 @@ void HAL_Time_GetDriftParameters  ( INT32* a, INT32* b, INT64* c )
     *c = 0;
 }
 
+#if defined( WIN32 )
 UINT32 CPU_SystemClock()
 {
     return 0;
 }
+#else
+UINT32 CPU_SystemClock( UINT16 Timer )
+{
+    return 0;
+}
+#endif
 
 
+#if defined( WIN32 )
 UINT32 CPU_TicksPerSecond()
 {
     return 0;
 }
+#else
+UINT32 CPU_TicksPerSecond( UINT16 Timer )
+{
+    return 0;
+}
+#endif
 
+#if defined( WIN32 )
 UINT64 CPU_MillisecondsToTicks( UINT64 Ticks )
 {
     return 0;
@@ -72,7 +87,19 @@ UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32 )
 {
     return 0;
 }
+#else
+UINT64 CPU_MillisecondsToTicks( UINT64 Ticks, UINT16 Timer )
+{
+    return 0;
+}
 
+UINT64 CPU_MillisecondsToTicks( UINT32 Ticks32, UINT16 Timer )
+{
+    return 0;
+}
+#endif
+
+#if defined( WIN32 )
 UINT64 CPU_MicrosecondsToTicks( UINT64 uSec )
 {
     return 0;
@@ -82,6 +109,17 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec )
 {
     return 0;
 }
+#else
+UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
+{
+    return 0;
+}
+
+UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
+{
+    return 0;
+}
+#endif
 
 UINT32 CPU_MicrosecondsToSystemClocks( UINT32 uSec )
 {

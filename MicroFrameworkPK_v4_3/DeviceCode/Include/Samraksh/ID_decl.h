@@ -1,8 +1,6 @@
 #ifndef _DRIVERS_ID_DECL_H_
 #define _DRIVERS_ID_DECL_H_ 1
 
-#include <tinyhal.h>
-#include <tinyhal_releaseinfo.h>
 
 /**
  * @file: ID_decl.h
