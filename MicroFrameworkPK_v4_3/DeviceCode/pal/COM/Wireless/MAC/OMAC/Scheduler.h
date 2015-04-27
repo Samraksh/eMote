@@ -63,7 +63,7 @@ typedef class State{
 }State_t;
 
 
-class OMACScheduler{
+class OMACSchedulerBora{
 	//static bool startMeasuringDutyCycle;
 	//static  UINT32 dutyCycleReset;
 	bool startMeasuringDutyCycle;

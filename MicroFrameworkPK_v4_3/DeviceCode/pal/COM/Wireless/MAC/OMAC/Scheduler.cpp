@@ -15,7 +15,7 @@ void PublicSlotAlarmHanlder(void * param){
 	g_OMAC.m_omac_scheduler.SlotAlarmHandler(param);
 }
 
-void OMACScheduler::Initialize(UINT8 radioID, UINT8 macID){
+void OMACSchedulerBora::Initialize(UINT8 radioID, UINT8 macID){
 	//Initialize variables
 	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
 	dutyCycleReset = 0;
@@ -53,11 +53,11 @@ void OMACScheduler::Initialize(UINT8 radioID, UINT8 macID){
 	 m_DataTransmissionHandler.Initialize();
 	 m_TimeSyncHandler.Initialize(radioID, macID);
 }
-void OMACScheduler::UnInitialize(){
+void OMACSchedulerBora::UnInitialize(){
 
 }
 
-bool OMACScheduler::RunSlotTask(){
+bool OMACSchedulerBora::RunSlotTask(){
 	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0, timeSyncSlotOffset=0;
 
 #ifdef PROFILING
@@ -143,7 +143,7 @@ bool OMACScheduler::RunSlotTask(){
 }
 
 //This turns on the radio and sends a message
-bool OMACScheduler::RadioTask(){
+bool OMACSchedulerBora::RadioTask(){
 	DeviceStatus e = DS_Fail;
 	//radioTiming = call GlobalTime.getLocalTime();
 	radioTiming = HAL_Time_CurrentTime();
@@ -153,7 +153,7 @@ bool OMACScheduler::RadioTask(){
 		e = g_omac_RadioControl.Start();
 	}
 	else {
-		hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
+		hal_printf("OMACSchedulerBora::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		return FALSE;
 	}
 
@@ -186,7 +186,7 @@ bool OMACScheduler::RadioTask(){
 
 
 //////Slot Alarm APIs
-void OMACScheduler::StartSlotAlarm(UINT64 Delay){
+void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
@@ -200,7 +200,7 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 
 }
 
-void OMACScheduler::SlotAlarmHandler(void* Param){
+void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 #ifdef OMAC_DEBUG
 	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
 #endif
@@ -248,7 +248,7 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 }
 
 //////Discovery Timer APIs
-void OMACScheduler::StartDiscoveryTimer(UINT64 Delay){
+void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
@@ -261,11 +261,11 @@ void OMACScheduler::StartDiscoveryTimer(UINT64 Delay){
 
 }
 
-void OMACScheduler::DiscoveryTimerHandler(void* Param){
+void OMACSchedulerBora::DiscoveryTimerHandler(void* Param){
 
 }
 //////Data Alarm APIs
-void OMACScheduler::StartDataAlarm(UINT64 Delay){
+void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
@@ -278,7 +278,7 @@ void OMACScheduler::StartDataAlarm(UINT64 Delay){
 
 }
 
-void OMACScheduler::DataAlarmHandler(void* Param){
+void OMACSchedulerBora::DataAlarmHandler(void* Param){
 	UINT64 localTime, nextWakeup, oldSlotNo;
 	localTime = HAL_Time_CurrentTime();
 	//localTicks = HAL_Time_CurrentTicks();
@@ -319,7 +319,7 @@ void OMACScheduler::DataAlarmHandler(void* Param){
 #endif
 }
 
-bool OMACScheduler::IsRunningDataAlarm(){
+bool OMACSchedulerBora::IsRunningDataAlarm(){
 
 }
 
@@ -327,12 +327,12 @@ bool OMACScheduler::IsRunningDataAlarm(){
 
 ///////////////////////////////////////Private Functions///////////////////
 
-void OMACScheduler::Sleep(){
+void OMACSchedulerBora::Sleep(){
 	ProtoState.ToIdle();
 	InputState.ToIdle();
 }
 
-void OMACScheduler::Stop(){
+void OMACSchedulerBora::Stop(){
 	bool e =FALSE;
 #ifdef FULL_DUTY_CYCLE
 #warning "USING FULL_DUTY_CYCLE"
@@ -366,7 +366,7 @@ void OMACScheduler::Stop(){
 
 }
 
-bool OMACScheduler::IsNeighborGoingToReceive(){
+bool OMACSchedulerBora::IsNeighborGoingToReceive(){
 	/*UINT8 nbrIndex;
 	TableItem * nbrEntry;
 	for(nbrIndex = 0; nbrIndex < MAX_NBR_SIZE; nbrIndex++) {
@@ -391,7 +391,7 @@ bool OMACScheduler::IsNeighborGoingToReceive(){
 	return FALSE;
 }
 
-void OMACScheduler::PostExecution(){
+void OMACSchedulerBora::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
 			m_DiscoveryHandler.PostExecuteSlot();
@@ -424,6 +424,6 @@ void OMACScheduler::PostExecution(){
 
 }
 
-void OMACScheduler::PrintDutyCycle(){
+void OMACSchedulerBora::PrintDutyCycle(){
 
 }

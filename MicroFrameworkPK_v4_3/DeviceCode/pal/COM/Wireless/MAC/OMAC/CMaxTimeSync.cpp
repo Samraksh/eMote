@@ -15,18 +15,31 @@ float GlobalTime::skew =0;
 UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
+#define TIMESYNCSENDPIN 2
+#define TIMESYNCRECEIVEPIN 23
+#define NBRCLOCKMONITORPIN 29
+#define LOCALCLOCKMONITORPIN 24
+#define LocalClockMonitor_TIMER 32
+#define NbrClockMonitor_TIMER 33
+#define SimpleTimesyncTest_Send_TIMER 34
+#define NbrClockMonitorStart_TIMER 35
+#define USEONESHOTTIMER FALSE
 
+#define NBCLOCKMONITORPERIOD 100000
+#define INITIALDELAY 100000
+//TXRX offset in microsec
+#define TXRXOFFSET 2400
 
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 
-	return 1000; //Dont sent separate timesync
+	//return 1000; //Dont sent separate timesync
 	//rollover
-	/*if(currSlot< m_lastSlotExecuted){
+	if(currSlot< m_lastSlotExecuted){
 		return m_messagePeriod - (0xFFFFFFFF + -  m_lastSlotExecuted + currSlot);
 	}else {
 		return m_messagePeriod - (currSlot -  m_lastSlotExecuted);
-	}*/
+	}
 }
 
 void CMaxTimeSync::ExecuteSlot(UINT32 slotNum){
@@ -39,6 +52,7 @@ void CMaxTimeSync::PostExecuteSlot(){
 }
 
 void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
+	Nbr2beFollowed = 0;
 	RadioID = radioID;
 	MacID = macID;
 	m_skew = 0;
@@ -71,14 +85,14 @@ DeviceStatus CMaxTimeSync::Send(){
 #endif
 	m_timeSyncMsg->localTime0 = (UINT32) y;
 	m_timeSyncMsg->localTime1 = (UINT32) (y>>32);
-	m_timeSyncMsg->globalTime0 = (UINT32) x;
-	m_timeSyncMsg->globalTime1 = (UINT32) (x>>32);
+	//m_timeSyncMsg->globalTime0 = (UINT32) x;
+	//m_timeSyncMsg->globalTime1 = (UINT32) (x>>32);
 
-	m_timeSyncMsg->skew = m_globalTime.GetSkew();
-	m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(RadioID);
-	m_timeSyncMsg->seqNo = m_seqNo++;
+	//m_timeSyncMsg->skew = m_globalTime.GetSkew();
+	//m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(RadioID);
+	//m_timeSyncMsg->seqNo = m_seqNo++;
 
-	header->dest= RADIO_BROADCAST_ADDRESS;
+	//header->dest= RADIO_BROADCAST_ADDRESS;
 	header->type=MFM_TIMESYNC;
 
 	//d= x-y;
@@ -96,96 +110,61 @@ DeviceStatus CMaxTimeSync::Send(){
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+	bool TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 #endif
 
-	INT64 senderEventTime = PacketTimeSync_15_4::EventTime(msg,len);
-
+	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	TimeSyncMsg* rcv_msg  = (TimeSyncMsg *) msg->GetPayload();
 	UINT16 msg_src =  msg->GetHeader()->src;
-#ifdef LOCALSKEW
-	INT64 my_nbrEst= m_globalTime.Local2NbrTime(msg_src,senderEventTime);
-#else
-	INT64 my_gtime= m_globalTime.Local2Global(senderEventTime);
-#endif
 
-	INT64 my_ltime= senderEventTime;
-	UINT64 rcv_ltime, rcv_gtime;
-	INT64 g_offset, my_goffset;
-	INT64 l_offset, nbr_loffset;
-	rcv_gtime=  (((UINT64)rcv_msg->globalTime1) <<32) + rcv_msg->globalTime0;
+	UINT64 rcv_ltime;
+	INT64 l_offset;
 	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
+	l_offset = rcv_ltime - EventTime - ( TXRXOFFSET * (CPU_TicksPerSecond() / 10^6));
 
-	nbr_loffset = rcv_ltime - my_nbrEst;
-	l_offset = rcv_ltime - my_ltime;
-
-#ifdef LOCALSKEW
-
-	//hal_printf("RCV: %d, My LTime: %lld, Sender Ltime : %lld, My Est snder: %llu, diff: %lld \n", \
-			rcv_msg->seqNo, my_ltime, rcv_ltime, my_nbrEst, nbr_loffset);
-
-	//local pair-wise skew logic: Do skew between your nbr localtime and your localtime
-	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime,l_offset);
-	//hal_printf("RCV: %d, My LTime: %lld, Sender Ltime : %lld, My Est snder: %llu, diff: %lld \n\n", \
-				rcv_msg->seqNo, my_ltime, rcv_ltime, my_nbrEst, nbr_loffset);
-
-#else
-	g_offset = rcv_gtime - my_gtime;
-	//hal_printf("RCV: %d, My Gtime: %llu , My LTime: %lld, Sender Gtime : %lld, LTime: %llu, diff: %lld \n",rcv_msg->seqNo, my_gtime, my_ltime, rcv_gtime, rcv_ltime, g_offset);
-	//global skew logic: Do skew between your localtime and network globaltime
-
-	if(g_offset - FUDGEFACTOR > 0){
-		m_globalTime.Adjust(g_offset,my_ltime,TRUE);
-		if(g_offset - FUDGEFACTOR > 0xFFFFFF){
-		}else {
-			m_globalTime.regress.Insert(msg_src, my_ltime, g_offset, senderEventTime);
-		}
-	}
-	else {
-		m_globalTime.regress.Insert(msg_src, my_ltime, 0, senderEventTime);
-	}
-
-
-	/*if(g_offset > 0 ){
-		m_globalTime.leader = msg_src;
-		m_state = E_Follower;
-	}else {
-		if (m_globalTime.leader == msg_src) {
-			m_state = E_Leader;
-			m_globalTime.leader = CPU_Radio_GetAddress(this->radioName);
-		}
-
-	}*/
-
-	//Regress on global max clock
-	/*if(g_offset > 0){
-		m_globalTime.regress.Insert(msg_src, my_ltime,g_offset, senderEventTime);
-	}else {
-		m_globalTime.regress.Insert(msg_src, my_ltime,0, senderEventTime);
-	}
-	//}
-	if((rcv1 > myg1) || (rcv1==myg1 && rcv0 > myg0)){
-		m_globalTime.Adjust(g_offset, my_ltime, TRUE);
-		m_globalTime.synced=TRUE;
-		m_globalTime.leader = msg_src;
-		m_isLeader = FALSE;
-		hal_printf("Timesync: Syncing with leader, Adjusting global offset, old: %llu, new: %llu \n", my_gtime, rcv_gtime);
-
-		if(m_globalTime.synced && g_offset > 0xFFFFFFFF) {
-				hal_printf("What happened?? Fell out of sync\n");
-				m_globalTime.synced=FALSE;
-				m_globalTime.regress.Clean(m_globalTime.leader);
-		}
-	}
-	*/
-#endif
+	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+	if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
+	if (msg_src == Nbr2beFollowed ){
+		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
+
+			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
+			//float relfreq = 1.0;
+			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
+			if (relfreq > 1.3){
+				relfreq = 1.3;
+			}
+			else if (relfreq < 0.7){
+				relfreq = 0.7;
+			}
+			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)*relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
+			INT64 y = HAL_Time_CurrentTicks();
+			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
+			start_delay = HAL_Time_TicksToTime(start_delay);
+			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay;
+			if (start_delay > (1.5*INITIALDELAY)) {
+				start_delay = (1.5*INITIALDELAY);
+			}
+			else if(start_delay<(0.5*INITIALDELAY)){
+				start_delay = (0.5*INITIALDELAY);
+			}
+
+			if (NeighborsPeriodLength > (1.5*NBCLOCKMONITORPERIOD)) {
+				start_delay =  (1.5*NBCLOCKMONITORPERIOD) ;
+			}
+			else if(NeighborsPeriodLength <  (0.5*NBCLOCKMONITORPERIOD) ){
+				start_delay =  (0.5*NBCLOCKMONITORPERIOD);
+			}
+			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, USEONESHOTTIMER);
+
+			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
+		}
+	}
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 #endif
-	//hal_printf("receive 3");
+
 	return DS_Success;
 }
 

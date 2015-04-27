@@ -9,13 +9,12 @@
 #define RADIOCONTROL_H_
 
 #include <Samraksh/Message.h>
+#include "OMAC.h"
 
 //Radio Wrapper Class
 typedef class RadioControl{
-	UINT8 RadioID;
-	UINT8 MacID;
   public:
-	DeviceStatus Initialize(UINT8 RadioID, UINT8 MacID);
+	DeviceStatus Initialize();
 	DeviceStatus Start();
 	DeviceStatus Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);
 	DeviceStatus Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);
