@@ -4,7 +4,8 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-#include <Samraksh\..\..\PAL\COM\Wireless\MAC\TimesyncTest\SimpleTimesyncTest.cpp>
+//#include <Samraksh\..\..\PAL\COM\Wireless\MAC\TimesyncTest\SimpleTimesyncTest.cpp>
+#include <Samraksh\..\..\PAL\COM\Wireless\MAC\TimesyncTest\OMACTest.cpp>
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -18,7 +19,8 @@ void ApplicationEntryPoint()
 
     ClrStartup( clrSettings );
 
-    SimpleTimesyncTest_Initialize();
+    //SimpleTimesyncTest_Initialize();
+    OMACTest_Initialize();
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );

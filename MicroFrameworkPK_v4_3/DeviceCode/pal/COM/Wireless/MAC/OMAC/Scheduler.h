@@ -64,6 +64,8 @@ typedef class State{
 
 
 class OMACSchedulerBora{
+	UINT8 radioID;
+	UINT8 macID;
 	//static bool startMeasuringDutyCycle;
 	//static  UINT32 dutyCycleReset;
 	bool startMeasuringDutyCycle;

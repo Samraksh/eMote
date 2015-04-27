@@ -10,12 +10,15 @@
 
 extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
+extern OMACSchedulerBora g_omac_scheduler;
 
 void PublicSlotAlarmHanlder(void * param){
-	g_OMAC.m_omac_scheduler.SlotAlarmHandler(param);
+	g_omac_scheduler.SlotAlarmHandler(param);
 }
 
-void OMACSchedulerBora::Initialize(UINT8 radioID, UINT8 macID){
+void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
+	radioID = _radioID;
+	macID = _macID;
 	//Initialize variables
 	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
 	dutyCycleReset = 0;

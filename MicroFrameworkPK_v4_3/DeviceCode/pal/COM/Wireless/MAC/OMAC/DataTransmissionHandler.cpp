@@ -8,8 +8,10 @@
 //#include <Samraksh/Neighbors.h>
 #include "DataTransmissionHandler.h"
 #include "OMAC.h"
+#include "Scheduler.h"
 
 extern OMACTypeBora g_OMAC;
+extern OMACSchedulerBora g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;
@@ -140,7 +142,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		Neighbor_t* nbrEntry;
 
 		// Don't reschedule another tx for packets that are being sent
-		if (g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)) {
+		if (g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)) {
 			return;
 		}
 
@@ -171,7 +173,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				hal_printf("incorrect neighbor returned\n");
 			}
 			// 1st,  compute the current localTime of the neighbor
-			nbrGlobalTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(dest,HAL_Time_CurrentTime());
+			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(dest,HAL_Time_CurrentTime());
 			// 2nd, compute neighbor's current counter value. The start of the counter
 			// is later than the start of the clock. So, a counter offset should be used
 			counter = (nbrGlobalTime - nbrEntry->counterOffset) >> SLOT_PERIOD_BITS;
@@ -196,7 +198,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// must have been updated by the neighbor itself
 			if (counter <= nextFrameAfterSeedUpdate) {
 				tmpSeed = lastSeed;
-				tmpRand = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
+				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
 				tmpSeed = tmpRand;
 				nextWakeup = nextFrameAfterSeedUpdate - p + tmpRand % p;
 				if (counter < nextWakeup) {
@@ -211,11 +213,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				seedUpdates = (counter + p - nextFrameAfterSeedUpdate) / seedUpdateInterval;
 
 				for (i = 0; i < seedUpdates; i++) {
-					lastSeed=g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&lastSeed, mask);
+					lastSeed= g_omac_scheduler.m_seedGenerator.RandWithMask(&lastSeed, mask);
 				}
 
 				tmpSeed = lastSeed;
-				tmpRand = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
+				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
 				nextWakeup = nextFrameAfterSeedUpdate + framesPassed * p + tmpRand % p;
 				if (counter < nextWakeup) {
 					counter = nextWakeup;
@@ -226,7 +228,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 						lastSeed = tmpSeed;
 						seedUpdates++;
 						framesPassed++;
-						tmpRand = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
+						tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
 						counter = nextFrameAfterSeedUpdate + framesPassed * p + tmpRand % p;
 					} else {
 						counter = nextWakeup + p;
@@ -237,14 +239,14 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				nbrGlobalTime = m_nextTXTicks;
 
 				// 5th, compute my local time of the neighbor's listen slot
-				m_nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(dest, m_nextTXTicks);
+				m_nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(dest, m_nextTXTicks);
 
 				nbrEntry->nextFrameAfterSeedUpdate = nextFrameAfterSeedUpdate + seedUpdates * seedUpdateInterval;
 				nbrEntry->lastSeed = lastSeed;
 			}
 			  //hal_printf("receiver wakes up at %lu, %lu\n", m_nextTXTicks, globalTime);
 
-			  m_nextTXCounter = (m_nextTXTicks - g_OMAC.m_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
+			  m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
 			  //hal_printf("sslot %lu time %lu\n", counter, globalTime);
 		}
