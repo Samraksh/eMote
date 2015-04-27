@@ -113,6 +113,6 @@ DeviceStatus RadioControl::Stop(){
 }
 
 DeviceStatus RadioControl::Start(){
-	CPU_Radio_TurnOn(RadioID);
+	CPU_Radio_TurnOnRx(RadioID);
 	return DS_Ready;
 }
