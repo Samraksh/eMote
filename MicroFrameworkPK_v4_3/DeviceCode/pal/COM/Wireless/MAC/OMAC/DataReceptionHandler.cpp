@@ -9,6 +9,7 @@
 #include "OMAC.h"
 
 extern OMACTypeBora g_OMAC;
+extern OMACSchedulerBora g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
@@ -53,9 +54,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//m_nextSeed is updated with its passed pointer. It will be the next seed to use
 	//after 8 frames pass
 	m_nextWakeupSlot =
-	g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
+	g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
 	//seed is updated every 8 frames. return the seed to its initial value
-	g_OMAC.m_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, m_dataInterval);
+	g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, m_dataInterval);
 	m_seedUpdateInterval = (m_dataInterval << 3);
 
 	m_receivedDataPacket = FALSE;
@@ -80,7 +81,7 @@ void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
 }
 
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
-	g_OMAC.m_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
+	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
 	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
@@ -132,12 +133,12 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 			UINT16 lastSeed = m_nextSeed;
 			//hal_printf("using seed %u\n", lastSeed);
 			//update next seed. we wont use it until 8 frames later
-			randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
+			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
 			m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
 
 			//we have computed the wakeup slot for the frame denoted by nextFrame
 			//seed info contains the frame that we next need to compute the wakeup slot for
-			g_OMAC.m_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, nextFrame + m_dataInterval);
+			g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, nextFrame + m_dataInterval);
 		}
 
 		// If we are less than 8 frame since the last seed update, simply compute

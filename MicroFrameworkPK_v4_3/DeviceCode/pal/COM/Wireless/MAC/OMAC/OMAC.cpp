@@ -9,7 +9,7 @@
  */
 
 #include "OMAC.h"
-#include "RadioControl.h"
+//#include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
 #define DEBUG_OMAC 0
@@ -19,9 +19,9 @@ extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;
 
-
-extern OMACTypeBora g_OMAC;
+OMACTypeBora g_OMAC;
 RadioControl_t g_omac_RadioControl;
+OMACSchedulerBora g_omac_scheduler;
 
 void* OMACReceiveHandler(void* msg, UINT16 size){
 #ifdef DEBUG_OMAC
@@ -42,7 +42,7 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 		//Demutiplex packets received based on type
 		switch(rcv_msg->GetHeader()->GetType()){
 			case MFM_DISCOVERY:
-				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+				g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
 				break;
 			case MFM_DATA:
 
@@ -115,7 +115,9 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 			return status;
 
 		g_omac_RadioControl.Initialize();
-		m_omac_scheduler.Initialize(this->radioName, macName);
+		//SetAddress(MF_NODE_ID);
+		//MyAddress = MF_NODE_ID;
+		g_omac_scheduler.Initialize(radioName, macName);
 		Initialized=TRUE;
 	}
 
@@ -157,14 +159,14 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 	//Any message might have timestamping attached to it. Check for it and process
 	if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
 		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
-		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
+		g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 		Size -= tmsgSize;
 	}
 
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			this->m_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
+			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
 			break;
 		case MFM_DATA:
 			hal_printf("Successfully got a data packet");
@@ -175,7 +177,7 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 		case MFM_NEIGHBORHOOD:
 			break;
 		case MFM_TIMESYNC:
-			g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload(), Size);
+			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload(), Size);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("Got a data beacon packet\n");

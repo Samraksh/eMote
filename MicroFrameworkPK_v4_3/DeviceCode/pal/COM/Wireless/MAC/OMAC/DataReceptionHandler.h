@@ -9,6 +9,7 @@
 //#include <Samraksh/HALTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
+#include "Scheduler.h"
 
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_

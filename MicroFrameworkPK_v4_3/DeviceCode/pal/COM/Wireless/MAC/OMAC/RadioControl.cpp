@@ -36,9 +36,9 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName, g_OMAC.macName);
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
 
-	msg = (Message_15_4_t *) CPU_Radio_Preload(RadioID, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
+	msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
 	return DS_Success;
 }
 
