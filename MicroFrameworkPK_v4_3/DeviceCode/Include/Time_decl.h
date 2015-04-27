@@ -170,9 +170,13 @@ void    HAL_Time_Sleep_MicroSeconds_InterruptEnabled( UINT32 uSec );
 // --//
 
 
-//TODO: AnanthAtSamraksh - defaulting to the advanced timer (#1)
+#if defined( WIN32 )
+UINT32  CPU_SystemClock        (             );
+UINT32  CPU_TicksPerSecond     (             );
+#else
 UINT32  CPU_SystemClock        (   UINT16 Timer = 1        );
 UINT32  CPU_TicksPerSecond     (   UINT16 Timer = 1        );
+#endif
 
 UINT64  CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer = 1 );
 UINT64  CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer = 1 );
@@ -180,8 +184,13 @@ UINT64  CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer = 1 );
 // -- //
 // the following function are used in flash operations that they have to be located in the RAM. 
 // It has been included in the scatterfile_ram_functions.xml
+#if defined( WIN32 )
+UINT32  CPU_MicrosecondsToTicks       ( UINT32 uSec );
+UINT64  CPU_MicrosecondsToTicks       ( UINT64 uSec );
+#else
 UINT32  CPU_MicrosecondsToTicks       ( UINT32 uSec, UINT16 Timer = 1  );
 UINT64  CPU_MicrosecondsToTicks       ( UINT64 uSec, UINT16 Timer = 1  );
+#endif
 UINT32  CPU_TicksToMicroseconds		  ( UINT32 ticks, UINT16 Timer = 1 );
 UINT64  CPU_TicksToMicroseconds		  ( UINT64 ticks, UINT16 Timer = 1 );
 

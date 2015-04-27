@@ -366,10 +366,14 @@ bool CLR_DBG_Debugger::Monitor_Ping( WP_Message* msg, void* owner )
     //
     CLR_EE_DBG_SET( Enabled );
 
+#if defined( WIN32 )
+#pragma message( "warning: Windows Monitor_Ping protocol behavior may differ from target! [ Samraksh ]" )
+#else
 	if (currentPingTime < previousPingTime + CPU_MicrosecondsToTicks((UINT64)250000,ADVTIMER_32BIT))
 	{
 		msg->m_header.m_seq++;
 	}
+#endif
     if((msg->m_header.m_flags & WP_Flags::c_Reply      ) == 0)
     {
         CLR_DBG_Commands::Monitor_Ping::Reply cmdReply;

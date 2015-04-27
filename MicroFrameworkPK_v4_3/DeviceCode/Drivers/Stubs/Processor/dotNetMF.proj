@@ -16,7 +16,8 @@
     <SubDirectories Include="stubs_dma"/>    
     <SubDirectories Include="stubs_ebiu"/>    
     <SubDirectories Include="stubs_gpio"/>
-    <SubDirectories Include="stubs_i2c"/>    
+    <SubDirectories Include="stubs_i2c"/>
+    <SubDirectories Include="stubs_id"/>
     <SubDirectories Include="stubs_intc"/>
     <SubDirectories Include="stubs_LCD"/>
     <SubDirectories Include="stubs_mmu"/>    

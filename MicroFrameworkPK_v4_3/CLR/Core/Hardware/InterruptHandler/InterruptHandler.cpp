@@ -93,7 +93,6 @@ HRESULT CLR_HW_Hardware::SpawnDispatcher()
     // if reboot is in progress, just bail out
     if(CLR_EE_DBG_IS( RebootPending ))
     {
-        SOFT_BREAKPOINT();
         return S_OK;
     }
 

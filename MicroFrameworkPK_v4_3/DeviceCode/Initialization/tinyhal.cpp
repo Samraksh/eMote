@@ -4,7 +4,10 @@
 
 #include <tinyhal.h>
 
+#if defined( SAM_APP_TINYCLR )
 #include <Samraksh/VirtualTimer.h>
+#include <Samraksh/MAC_decl.h>
+#endif
 #if defined(PLATFORM_ARM_SOC_ADAPT)
 #include "..\Targets\Native\Krait\DeviceCode\Krait_TIMER\Krait__TIMER.h"
 extern Krait_Timer g_Krait_Timer;
@@ -472,7 +475,9 @@ void HAL_Uninitialize()
 
     SOCKETS_CloseConnections();
 
+#if defined( SAM_APP_TINYCLR )
     MacLayer_UnInitialize();
+#endif
 
 #if !defined(HAL_REDUCESIZE)
     CPU_UninitializeCommunication();
@@ -561,7 +566,7 @@ mipi_dsi_shutdown();
 
     CPU_Initialize();
 
-#if defined(SAM_APP_TINYCLR) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
+#if defined( SAM_APP_TINYCLR ) // TinyBooter, (and future MicroBooter) use SimpleTimer. SimpleTimer needs HAL_Time_Initialize().
     VirtTimer_Initialize();
 #endif
     HAL_Time_Initialize();
@@ -609,7 +614,7 @@ mipi_dsi_shutdown();
     Watchdog_GetSetBehavior( WATCHDOG_BEHAVIOR, TRUE );
     Watchdog_GetSetEnabled ( WATCHDOG_ENABLE, TRUE );
 
-#ifndef SAM_APP_TINYBOOTER
+#if defined( SAM_APP_TINYCLR )
 	// if we have the JTAG attached we will wait two seconds to allow us to attach a debugger or openOCD
 	if(CPU_JTAG_Attached() > 0)
 	{

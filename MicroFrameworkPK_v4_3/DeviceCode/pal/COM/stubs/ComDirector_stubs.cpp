@@ -9,7 +9,7 @@
 BOOL DebuggerPort_Initialize( COM_HANDLE ComPortNum )
 {
     NATIVE_PROFILE_PAL_COM();
-    return true;
+    return TRUE;
 }
 
 BOOL DebuggerPort_Uninitialize( COM_HANDLE ComPortNum )
