@@ -132,17 +132,17 @@ struct TimeSyncMsg
    * timestamp. The receiving timestamp thus represents the time on the
    * receiving clock when the remote globalTime was taken.
    */
-  UINT32 globalTime0;
-  UINT32 globalTime1;
+//  UINT32 globalTime0;
+//  UINT32 globalTime1;
 
   //the time to startup the radio could be different for different nodes.
   //use this neighbor info along with local info to compute this difference
   //UINT16 radioStartDelay;
-  float skew;
+//  float skew;
   UINT32 localTime0;
   UINT32 localTime1;
-  UINT16 nodeID;
-  UINT32 seqNo;
+ // UINT16 nodeID;
+  //UINT32 seqNo;
 };
 
 typedef struct DataBeacon {

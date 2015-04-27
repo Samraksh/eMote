@@ -10,14 +10,15 @@
 #include <Samraksh/Message.h>
 #include "RadioControl.h"
 #include "OMACConstants.h"
+#include "OMAC.h"
+
+extern OMACTypeBora g_OMAC;
 
 #define LOCALSKEW 1
 #define DEBUG_TIMESYNCPIN_OLD (GPIO_PIN)31
 //#define DEBUG_TIMESYNC 1
 
-DeviceStatus RadioControl::Initialize(UINT8 radioID, UINT8 macID){
-	RadioID = radioID;
-	MacID = macID;
+DeviceStatus RadioControl::Initialize(){
 #ifdef DEBUG_TIMESYNC
 	CPU_GPIO_EnableOutputPin(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
@@ -35,7 +36,7 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
 	header->dest =address;
-	header->src = CPU_Radio_GetAddress(RadioID);
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName, g_OMAC.macName);
 
 	msg = (Message_15_4_t *) CPU_Radio_Preload(RadioID, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
 	return DS_Success;
@@ -52,8 +53,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		header->destpan = (34 << 8);
 		header->destpan |= 0;
 		header->dest =address;
-		header->src = CPU_Radio_GetAddress(RadioID);
-		header->mac_id = MacID;
+		header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+		header->mac_id = g_OMAC.macName;
 		//header->network = MyConfig.Network;
 
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
@@ -72,10 +73,10 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
-		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
+		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
 	}else {
 	//Radio implements the 'bag exchange' protocol, so store the pointer back to message
-		msg = (Message_15_4_t *) CPU_Radio_Send(RadioID, msg, size+sizeof(IEEE802_15_4_Header_t));
+		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
 	}
 	return DS_Success;
 }
@@ -90,15 +91,18 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
-	header->dest =address;
-	header->src = CPU_Radio_GetAddress(RadioID);
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	header->network = g_OMAC.MyConfig.Network;
+	header->mac_id = g_OMAC.macName;
+
+	header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
 	//header->network = MyConfig.Network;
-	header->mac_id = MacID;
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
-	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(RadioID, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
+	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
 	return DS_Success;
 }
 
@@ -108,11 +112,11 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 //}
 
 DeviceStatus RadioControl::Stop(){
-	DeviceStatus returnVal = CPU_Radio_Sleep(RadioID,0);
+	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 	return returnVal;
 }
 
 DeviceStatus RadioControl::Start(){
-	CPU_Radio_TurnOnRx(RadioID);
+	CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	return DS_Ready;
 }

@@ -39,7 +39,7 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	UINT8 CurrentActiveApp;
 	//Neighbors
 	//NeighborTable m_NeighborTable;
-	OMACScheduler m_omac_scheduler;
+	OMACSchedulerBora m_omac_scheduler;
 	//Buffer variables
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;

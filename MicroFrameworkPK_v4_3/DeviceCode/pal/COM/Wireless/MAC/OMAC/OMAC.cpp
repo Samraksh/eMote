@@ -114,7 +114,7 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success)
 			return status;
 
-		g_omac_RadioControl.Initialize(this->radioName, macName);
+		g_omac_RadioControl.Initialize();
 		m_omac_scheduler.Initialize(this->radioName, macName);
 		Initialized=TRUE;
 	}

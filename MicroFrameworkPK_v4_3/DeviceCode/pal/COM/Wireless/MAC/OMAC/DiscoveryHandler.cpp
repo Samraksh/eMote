@@ -12,7 +12,7 @@
 #include "OMAC.h"
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
 
-OMACScheduler *g_scheduler;
+OMACSchedulerBora *g_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
@@ -23,7 +23,7 @@ void PublicBeaconNCallback(void * param){
 
 void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
   		m_parentScheduler = scheduler;
-  		g_scheduler = (OMACScheduler*)scheduler;
+  		g_scheduler = (OMACSchedulerBora*)scheduler;
   	}
 
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
@@ -108,10 +108,10 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr
 		}
 
 	if (m_busy == FALSE) {
-		m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
+		m_discoveryMsg->radioStartDelay = ((OMACSchedulerBora *)m_parentScheduler)->GetRadioDelay();
 		//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
-		m_discoveryMsg->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
-		//m_discoveryMsg->seed = ((OMACScheduler *)m_parentScheduler)->GetSeed();
+		m_discoveryMsg->counterOffset = ((OMACSchedulerBora *)m_parentScheduler)->GetCounterOffset();
+		//m_discoveryMsg->seed = ((OMACSchedulerBora *)m_parentScheduler)->GetSeed();
 		m_discoveryMsg->nodeID = g_OMAC.GetAddress();
 		m_busy = TRUE;
 		Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
@@ -140,7 +140,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 }
 
 void DiscoveryHandler::Beacon1(){
-	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
+	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
 	StartBeaconNTimer(TRUE,SLOT_PERIOD_MILLI * 2);
 	if (ShouldBeacon()) {
 		Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
@@ -149,7 +149,7 @@ void DiscoveryHandler::Beacon1(){
 }
 
 void DiscoveryHandler::BeaconN(){
-	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
+	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
 
 	if (Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer) != DS_Success) {
 		if (m_busy == TRUE) {
