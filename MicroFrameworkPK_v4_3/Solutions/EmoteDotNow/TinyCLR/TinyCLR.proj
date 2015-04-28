@@ -634,10 +634,11 @@
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\TimeSyncTest\dotNetMF.proj" />
     <DriverLibs Include="simpletimesync_pal.$(LIB_EXT)" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />

@@ -15,9 +15,9 @@
 #define DEBUG_OMAC 0
 #define OMACDEBUGPIN (GPIO_PIN)1
 
-extern Buffer_15_4_t g_send_buffer;
-extern Buffer_15_4_t g_receive_buffer;
-extern NeighborTable g_NeighborTable;
+Buffer_15_4_t g_send_buffer;
+Buffer_15_4_t g_receive_buffer;
+NeighborTable g_NeighborTable;
 
 OMACTypeBora g_OMAC;
 RadioControl_t g_omac_RadioControl;

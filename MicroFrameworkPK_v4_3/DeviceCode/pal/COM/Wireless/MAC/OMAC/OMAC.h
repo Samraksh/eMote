@@ -47,6 +47,17 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	UINT16 GetAddress(){return MyAddress;}
 	UINT16 GetMaxPayload(){return MaxPayload;	}
 	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
+
+	BOOL SetRadioAddress(UINT16 address){
+		BOOL ret = CPU_Radio_SetAddress(this->radioName, address);
+		return ret;
+	}
+
+	UINT16 GetRadioAddress(){
+		UINT16 temp = CPU_Radio_GetAddress(this->radioName);
+		return temp;
+	}
+
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 
 	//Override base class methods here, implement them later in cpp file
