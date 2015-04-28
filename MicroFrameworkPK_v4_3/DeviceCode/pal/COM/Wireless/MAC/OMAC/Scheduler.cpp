@@ -45,9 +45,9 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
 
-	//Initialize various processes
-	this->StartSlotAlarm(SLOT_PERIOD);
-	this->StartDiscoveryTimer(1000*TICKS_PER_MILLI);
+	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+
+
 
 	//Initialize Handlers
 	 m_DiscoveryHandler.SetParentSchedulerPtr(this);
@@ -55,6 +55,12 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	 m_DataReceptionHandler.Initialize(radioID, macID);
 	 m_DataTransmissionHandler.Initialize();
 	 m_TimeSyncHandler.Initialize(radioID, macID);
+
+	//Initialize various processes
+	this->StartSlotAlarm((UINT64) SLOT_PERIOD);
+	this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
+
+
 }
 void OMACSchedulerBora::UnInitialize(){
 
@@ -194,11 +200,15 @@ void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 	//HALTimer()
 	if(Delay==0){
 		//start alarm in default periodic mode
-		VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER);
 
 	}else {
 		//Change next slot time with delay
-		VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		VirtTimer_Change(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER);
 	}
 
 }
