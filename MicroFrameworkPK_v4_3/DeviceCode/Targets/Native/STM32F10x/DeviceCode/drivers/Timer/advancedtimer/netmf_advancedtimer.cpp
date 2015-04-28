@@ -16,7 +16,8 @@ const uint16_t MISSED_TIMER_DELAY = 40;
 const uint16_t MISSED_TIMER_DELAY = 120;
 #endif
 //const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
-const uint16_t TIME_CUSHION = 120;
+const UINT64 TIME_CUSHION = 120;
+const UINT64 MAX_ALLOWABLE_WAIT = 0xFFFEFFFF;
 
 // Returns the current 32 bit value of the hardware counter
 UINT32 STM32F10x_AdvancedTimer::GetCounter()
@@ -46,6 +47,14 @@ UINT32 STM32F10x_AdvancedTimer::SetCounter(UINT32 counterValue)
 UINT64 STM32F10x_AdvancedTimer::Get64Counter()
 {
 	UINT32 currentValue = GetCounter();
+
+	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
+	{
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+
+		// An overflow just happened, updating variable that holds system time
+		g_STM32F10x_AdvancedTimer.m_systemTime += (0x1ull <<32);
+	}
 
 	m_systemTime &= (0xFFFFFFFF00000000ull);
 	m_systemTime |= currentValue;
@@ -234,7 +243,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	}
 #endif
 	GLOBAL_LOCK(irq);
-	now = g_STM32F10x_AdvancedTimer.Get64Counter();
+	now = Get64Counter();
 
 	// Clear old timers if already an active request
 	if (setCompareRunning == true) {
@@ -243,14 +252,11 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	if (compareValue < (now + TIME_CUSHION)){
 		compareValue = (now + TIME_CUSHION);
-	}
-
-	// checking to see if our wait time maxes out our upper 16-bit timer
-	if ( ((compareValue - now) & 0xffff0000) == 0xffff0000){
+	} else if ( (compareValue - now) > MAX_ALLOWABLE_WAIT ){ // checking to see if our wait time maxes out our upper 16-bit timer		
 		// we are to trigger at a value that maxes out our upper 16-bit timer so in order to wait as long as possible and not
 		// incorrectly trigger the miss condition below we set the timer for the longest possible value that won't trigger the miss condition
-		compareValue = GetCounter()-0x00010000; 
-	}
+		compareValue = (UINT64)(GetCounter() - 0x00010000); 
+	} 
 
 	setCompareRunning = true;
 
@@ -278,7 +284,7 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
 
 		// Check for miss
-		// This catches cases where upper 16 were set to be for example, 0x0005 at a time of 0x0004 (lower 0xffff). We roll-over and catch that here
+		// This catches cases where upper 16 were set to be for example, 0x0005xxxx at a time of 0x0004 ffff. We roll-over and catch that here
 		if (TIM2->CNT != tar_upper || TIM_GetITStatus(TIM2,TIM_IT_CC1) == SET ) {
 			// Didn't miss, done for now
 			return DS_Success;
