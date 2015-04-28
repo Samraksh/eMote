@@ -6,11 +6,12 @@
  */
 
 #include ".\CSMAMAC\csmaMAC.h"
+#include ".\OMAC\OMAC.h"
 #include <Samraksh\Mac_decl.h>
 #include <Samraksh\PacketTimeSync_15_4.h>
 
 extern csmaMAC gcsmaMacObject;
-
+extern OMACTypeBora g_OMAC;
 
 Buffer_15_4_t m_send_buffer;
 Buffer_15_4_t m_receive_buffer;
@@ -34,11 +35,14 @@ NeighborTable m_NeighborTable;
 
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 routingAppID, UINT8 radioName, void* config){
 
-	if(macID == CSMAMAC)
+	if(macID == CSMAMAC){
 		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
-	else if(macID == OMAC)
-		//return g_OMAC.Initialize(eventHandler, macID, routingAppID, (MacConfig *) config);
-		return DS_Fail;
+		//return DS_Fail;
+	}
+	else if(macID == OMAC) {
+		return g_OMAC.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig *) config);
+		//return DS_Fail;
+	}
 	else
 		return DS_Fail;
 
