@@ -1053,7 +1053,7 @@ bool Loader_Engine::EnumerateAndLaunch()
 
             if(*pWord == Tinybooter_ProgramWordCheck())
             {
-                hal_printf("*** nXIP Program found at 0x%08x\r\n", addr );
+                hal_printf("Program found at 0x%08x\r\n", addr );
                 programs[ programCount++ ] = addr;
             }
 
