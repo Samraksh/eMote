@@ -47,6 +47,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root
 	hal_printf("discoInterval: %d\r\n", discoInterval);
+
+	VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
 void DiscoveryHandler::ExecuteSlot(UINT32 slotNum){
@@ -167,12 +169,15 @@ void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
 		//HALTimer()
 		if(delay==0){
 			//start default time
-			VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
-
+			//VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			VirtTimer_Change(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot); //1 sec Timer in micro seconds
+			VirtTimer_Start(HAL_DISCOVERY_TIMER);
 
 		}else {
 			//Change next slot time with delay
-			VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			//VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+			VirtTimer_Change(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot); //1 sec Timer in micro seconds
+			VirtTimer_Start(HAL_DISCOVERY_TIMER);
 		}
 }
 
