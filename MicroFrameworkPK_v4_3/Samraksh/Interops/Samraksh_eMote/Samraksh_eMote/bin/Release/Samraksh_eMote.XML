@@ -81,7 +81,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Write(System.Byte[],System.Int32,System.Int32)">
             <summary>Write a byte array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
             <param name="data">Array to write</param>
-            <param name="offset">Offset from start of DataStore allocationto write. Even value recommended for byte data type</param>
+            <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array. Even value recommended for byte data type.</param>
             <param name="numData">Count of data to be written to DataStore</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -89,7 +89,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Write(System.UInt16[],System.Int32,System.Int32)">
             <summary>Write a ushsort (UInt16) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
             <param name="data">Array to write</param>
-            <param name="offset">Offset from start of DataStore allocationto write.</param>
+            <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array.</param>
             <param name="numData">Count of data to be written to DataStore</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -97,7 +97,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Write(System.UInt32[],System.Int32,System.Int32)">
             <summary>Write a uint (UInt32) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
             <param name="data">Array to write</param>
-            <param name="offset">Offset from start of DataStore allocationto write.</param>
+            <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array.</param>
             <param name="numData">Count of data to be written to DataStore</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -144,7 +144,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Read(System.Byte[],System.Int32,System.Int32)">
             <summary>Read a byte array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
             <param name="data">Array to receive data read</param>
-            <param name="offset">Offset from start of DataStore allocationto read.</param>
+            <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
             <param name="numData">Count of data to be read</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -152,7 +152,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Read(System.UInt16[],System.Int32,System.Int32)">
             <summary>Read a ushort (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
             <param name="data">Array to receive data read</param>
-            <param name="offset">Offset from start of DataStore allocationto read.</param>
+            <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
             <param name="numData">Count of data to be read</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>
@@ -160,7 +160,7 @@
         <member name="M:Samraksh.eMote.NonVolatileMemory.DataReference.Read(System.UInt32[],System.Int32,System.Int32)">
             <summary>Read a uint (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
             <param name="data">Array to receive data read</param>
-            <param name="offset">Offset from start of DataStore allocationto read.</param>
+            <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
             <param name="numData">Count of data to be read</param>
             <returns>Success / failure status</returns>
             <exception caption="DataStore Exception" cref="T:Samraksh.eMote.NonVolatileMemory.DataStoreException">Method invocation has an invalid argument</exception>

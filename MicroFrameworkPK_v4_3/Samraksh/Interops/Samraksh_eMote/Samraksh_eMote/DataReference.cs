@@ -320,7 +320,7 @@ namespace Samraksh.eMote.NonVolatileMemory
 
         /// <summary>Write a byte array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
         /// <param name="data">Array to write</param>
-        /// <param name="offset">Offset from start of DataStore allocationto write. Even value recommended for byte data type</param>
+        /// <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array. Even value recommended for byte data type.</param>
         /// <param name="numData">Count of data to be written to DataStore</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -346,13 +346,14 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, (UInt32)offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
 
         /// <summary>Write a ushsort (UInt16) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
         /// <param name="data">Array to write</param>
-        /// <param name="offset">Offset from start of DataStore allocationto write.</param>
+        /// <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array.</param>
         /// <param name="numData">Count of data to be written to DataStore</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -380,13 +381,14 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
 
         /// <summary>Write a uint (UInt32) array into DataStore, specifying the amount to write and the offset from the start of the record.</summary>
         /// <param name="data">Array to write</param>
-        /// <param name="offset">Offset from start of DataStore allocationto write.</param>
+        /// <param name="offset">Offset from start of DataStore allocation to write to, and not an offset from start of data array.</param>
         /// <param name="numData">Count of data to be written to DataStore</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -416,6 +418,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
@@ -441,6 +444,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)numData, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, offset, (UInt32)numData, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
@@ -475,6 +479,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
@@ -511,6 +516,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
@@ -537,6 +543,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, data, offset, (UInt32)data.Length, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, data, offset, (UInt32)data.Length, dataTypeByte);
             return CheckWriteStatus(retVal);
         }
@@ -571,6 +578,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt16);
             return CheckWriteStatus(retVal);
         }
@@ -607,6 +615,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             }
 
             //retVal = dStore.WriteRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.WriteRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeUInt32);
             return CheckWriteStatus(retVal);
         }
@@ -614,7 +623,7 @@ namespace Samraksh.eMote.NonVolatileMemory
 
         /// <summary>Read a byte array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
         /// <param name="data">Array to receive data read</param>
-        /// <param name="offset">Offset from start of DataStore allocationto read.</param>
+        /// <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
         /// <param name="numData">Count of data to be read</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -636,6 +645,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
@@ -654,7 +664,7 @@ namespace Samraksh.eMote.NonVolatileMemory
 
         /// <summary>Read a ushort (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
         /// <param name="data">Array to receive data read</param>
-        /// <param name="offset">Offset from start of DataStore allocationto read.</param>
+        /// <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
         /// <param name="numData">Count of data to be read</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -676,6 +686,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
@@ -695,7 +706,7 @@ namespace Samraksh.eMote.NonVolatileMemory
 
         /// <summary>Read a uint (UInt16) array from DataStore, specifying the amount to read and the offset from start of allocation.</summary>
         /// <param name="data">Array to receive data read</param>
-        /// <param name="offset">Offset from start of DataStore allocationto read.</param>
+        /// <param name="offset">Offset from start of DataStore allocation to read from, and not an offset from start of data array.</param>
         /// <param name="numData">Count of data to be read</param>
         /// <returns>Success / failure status</returns>
         /// <exception caption="DataStore Exception" cref="DataStoreException">Method invocation has an invalid argument</exception>
@@ -717,6 +728,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
@@ -761,6 +773,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
@@ -801,6 +814,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
@@ -842,6 +856,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
@@ -886,6 +901,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, offset, numBytes, dataTypeByte);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, offset, numBytes, dataTypeByte);
 
             if (retVal == 0)
@@ -926,6 +942,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt16);
 
             if (retVal == 0)
@@ -967,6 +984,7 @@ namespace Samraksh.eMote.NonVolatileMemory
             byte[] byteArray = new byte[numBytes];
 
             //retVal = dStore.ReadRaw((uint)this.dataReference, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
+            this.dataLocationOnStorage = (uint)this.GetDataLocation(this.dataId);
             retVal = dStore.ReadRaw((uint)this.dataLocationOnStorage, byteArray, (UInt32)offset, numBytes, dataTypeUInt32);
 
             if (retVal == 0)
