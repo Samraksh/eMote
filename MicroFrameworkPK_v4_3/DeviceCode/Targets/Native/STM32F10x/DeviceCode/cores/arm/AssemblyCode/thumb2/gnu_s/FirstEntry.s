@@ -64,7 +64,7 @@ CustomHeapEnd:
 EntryPoint:
 	@Set stack pointer
 	@bl SystemInit_ExtMemCtl
-    LDR r0, =StackTop   @ new SYS stack pointer for a full decrementing stack
+    LDR r0, =StackTop   @ new SYS stack pointer for a full decrementing stack. must explicitly set msp because first word of image is the magic word (NOT msp) in Samraksh builds
     MSR msp, r0         @ stack top
 	bl VectorRelocate
     bl BootstrapCode

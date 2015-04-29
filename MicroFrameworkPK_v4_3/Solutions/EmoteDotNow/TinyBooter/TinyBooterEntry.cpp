@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 UINT32 Tinybooter_ProgramWordCheck()
 {
-    return SAM_STACK_TOP;
+    return 0x2000C000;  // for backward compatibility, hard-code 0x2000C000 as the magic word.  Should match first word of ARM_Vectors in VectorsTrampolines.s.
 }
 
 
