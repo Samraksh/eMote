@@ -2,7 +2,7 @@
 #include <Samraksh/Message.h>
 #include "RadioControl.h"
 #include "CMaxTimeSync.h"
-#include <Samraksh\PacketTimeSync_15_4.h>
+
 
 #define DEBUG_TSYNC 1
 #define FUDGEFACTOR 10000		//in 100ns, a value of 1000 =100 microseconds
@@ -27,9 +27,32 @@ BOOL GlobalTime::synced=FALSE;
 
 #define NBCLOCKMONITORPERIOD 100000
 #define INITIALDELAY 100000
-//TXRX offset in microsec
-#define TXRXOFFSET 2400
 
+
+void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
+	//Toggle Pin State for monitoring with Logic Analyzer
+	if(CPU_GPIO_GetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN)){
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
+	}
+	else {
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, true);
+	}
+
+
+}
+
+void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
+	//Toggle Pin State for monitoring with Logic Analyzer
+	if(CPU_GPIO_GetPinState((GPIO_PIN) NBRCLOCKMONITORPIN)){
+	//if(gSimpleTimesyncTest.NeighClkMonitorPinState) {
+	//	gSimpleTimesyncTest.NeighClkMonitorPinState = false;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
+	}
+	else {
+	//	gSimpleTimesyncTest.NeighClkMonitorPinState = true;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
+	}
+}
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 
@@ -52,6 +75,15 @@ void CMaxTimeSync::PostExecuteSlot(){
 }
 
 void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
+	VirtualTimerReturnMessage rm;
+
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) NBRCLOCKMONITORPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) LOCALCLOCKMONITORPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
+
+	CPU_GPIO_SetPinState((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
+
 	Nbr2beFollowed = 0;
 	RadioID = radioID;
 	MacID = macID;
@@ -64,15 +96,23 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	m_globalTime.Init();
 	m_state = E_Leader;
 
+#ifdef DEBUG_TSYNC
+	Nbr2beFollowed = 0;
+
+	rm = VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSLocalClockMonitorTimerHandler);
+	rm = VirtTimer_SetTimer(NbrClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSNeighborClockMonitorTimerHandler);
+#endif
+
+
 }
 
 
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 DeviceStatus CMaxTimeSync::Send(){
-
+	DeviceStatus rs;
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+	VirtTimer_Stop(LocalClockMonitor_TIMER);
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
 #endif
 
 	IEEE802_15_4_Header_t * header = m_timeSyncBufferPtr->GetHeader();
@@ -97,13 +137,14 @@ DeviceStatus CMaxTimeSync::Send(){
 
 	//d= x-y;
 
-	g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg),(UINT32) HAL_Time_CurrentTime());
+	rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg),(UINT32) HAL_Time_CurrentTime());
 	//hal_printf("TS Send: %d,  Gtime: %lld, LTime: %lld, diff: %lld \n",m_seqNo, x, y, d);
-	hal_printf("TS Send: %d, LTime: %lld \n",m_seqNo, y);
+	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 1, FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
+	VirtTimer_Start(LocalClockMonitor_TIMER);
 #endif
+	return rs;
 
 }
 
@@ -121,7 +162,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	UINT64 rcv_ltime;
 	INT64 l_offset;
 	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
-	l_offset = rcv_ltime - EventTime - ( TXRXOFFSET * (CPU_TicksPerSecond() / 10^6));
+	l_offset = rcv_ltime - EventTime;
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 
