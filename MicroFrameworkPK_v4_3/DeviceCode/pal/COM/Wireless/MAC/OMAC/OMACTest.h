@@ -77,9 +77,6 @@ public:
 
 	BOOL Initialize();
 	BOOL StartTest();
-	void ReceiveSyncMessage( UINT16 src, UINT64 EventTime, SimpleTimeSyncMsg* SimpleTimeSyncMsg);
-	BOOL Send();
-	void SendAck(void *msg, UINT16 size, NetOpStatus status);
 };
 
 OMACTest gOMACTest;
