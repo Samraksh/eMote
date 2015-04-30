@@ -16,6 +16,8 @@
 #define TIMESTAMP_ERROR 0x80000000
 //A combined base class for timesync, analogous to TimeSyncMessageC in TinyOS
 
+
+#define TXRXOFFSET 2420
 //Provides Packet level timesync: Similar to TinyOS TEP 133
 //http://www.tinyos.net/tinyos-2.1.0/doc/html/tep133.html
 
@@ -30,7 +32,7 @@ class PacketTimeSync_15_4{
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
 
                 UINT32 sender_delay = *senderEventTime;
-                rcv_ts -=sender_delay;
+                rcv_ts = rcv_ts - (UINT64) sender_delay - (UINT64)TXRXOFFSET * (CPU_TicksPerSecond()/1000000) ;
                 return rcv_ts;
         }
 
