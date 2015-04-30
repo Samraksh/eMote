@@ -8,6 +8,7 @@
 #ifndef CMAXTIMESYNC_H_
 #define CMAXTIMESYNC_H_
 
+#include <Samraksh\PacketTimeSync_15_4.h>
 //#include "PacketTimeSync_15_4.h"
 #include <Samraksh/Message.h>
 #include <Samraksh/Hal_util.h>
