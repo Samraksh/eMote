@@ -2,7 +2,7 @@
 #include <Samraksh/Message.h>
 #include "RadioControl.h"
 #include "CMaxTimeSync.h"
-#include "PacketTimeSync_15_4.h"
+#include <Samraksh\PacketTimeSync_15_4.h>
 
 #define DEBUG_TSYNC 1
 #define FUDGEFACTOR 10000		//in 100ns, a value of 1000 =100 microseconds
