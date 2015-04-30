@@ -889,7 +889,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 		else if(this->GetRadioName() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_PIN_LR, FALSE);
+			//CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_PIN_LR, FALSE);
+			GPIO_ConfigurePin(GPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
 
 		SlptrSet();
@@ -922,7 +923,7 @@ DeviceStatus RF231Radio::UnInitialize()
     if(IsInitialized())
     {
         RstnClear();
-        ASSERT((active_mac_index & 0xFF00) == 0)
+        ASSERT((active_mac_index & 0xFF00) == 0);
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
         }
