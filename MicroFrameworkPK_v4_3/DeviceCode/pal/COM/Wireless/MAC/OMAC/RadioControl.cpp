@@ -22,7 +22,7 @@ DeviceStatus RadioControl::Initialize(){
 #ifdef DEBUG_TIMESYNC
 	CPU_GPIO_EnableOutputPin(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
-
+	MyID = CPU_Radio_GetAddress(Config.RadioID) ;
 	return DS_Success;
 }
 

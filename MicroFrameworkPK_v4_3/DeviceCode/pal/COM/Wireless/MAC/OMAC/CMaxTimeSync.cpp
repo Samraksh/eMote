@@ -28,6 +28,10 @@ BOOL GlobalTime::synced=FALSE;
 #define NBCLOCKMONITORPERIOD 100000
 #define INITIALDELAY 100000
 
+#define TXNODEID 30906
+#define RXNODEID 4028
+
+
 
 void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
 	//Toggle Pin State for monitoring with Logic Analyzer
@@ -84,7 +88,6 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 	CPU_GPIO_SetPinState((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
 
-	Nbr2beFollowed = 0;
 	RadioID = radioID;
 	MacID = macID;
 	m_skew = 0;
@@ -97,6 +100,14 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	m_state = E_Leader;
 
 #ifdef DEBUG_TSYNC
+
+	if(g_omac_RadioControl.MyID == RXNODEID) {
+		Nbr2beFollowed = TXNODEID;
+	}
+	else {
+		Nbr2beFollowed = RXNODEID;
+	}
+
 	Nbr2beFollowed = 0;
 
 	rm = VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSLocalClockMonitorTimerHandler);
@@ -167,7 +178,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 
 #ifdef DEBUG_TSYNC
-	if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
+	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Nbr2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
 

@@ -14,6 +14,7 @@
 //Radio Wrapper Class
 typedef class RadioControl{
   public:
+	UINT16 MyID;
 	DeviceStatus Initialize();
 	DeviceStatus Start();
 	DeviceStatus Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);
