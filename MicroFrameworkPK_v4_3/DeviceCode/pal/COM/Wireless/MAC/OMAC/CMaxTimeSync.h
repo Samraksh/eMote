@@ -60,7 +60,7 @@ public:
 	}
 	void InsertBeacon(Message_15_4_t *ptr);
 	bool IsProccessingBeacon();
-	INT64 GetGlobalTime(){
+	UINT64 GetGlobalTime(){
 		return 	m_globalTime.Read();
 	}
 
