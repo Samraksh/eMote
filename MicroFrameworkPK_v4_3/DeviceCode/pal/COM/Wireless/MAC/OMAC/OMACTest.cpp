@@ -1,0 +1,293 @@
+/*
+ * TimesyncTest.cpp
+ */
+#include <tinyhal.h>
+//#include <Samraksh/HALTimer.h>
+#include <Samraksh/VirtualTimer.h>
+#include "OMACTest.h"
+
+
+
+#define DEBUG_TIMESYNCTEST 1
+#define DEBUG_TSYNC 1
+
+//#define ACTIVITYPIN 24
+
+
+
+#define TIMESYNCSENDPIN 2
+#define TIMESYNCRECEIVEPIN 23
+#define NBRCLOCKMONITORPIN 29
+#define LOCALCLOCKMONITORPIN 24
+#define LocalClockMonitor_TIMER 32
+#define NbrClockMonitor_TIMER 33
+#define OMACTest_Send_TIMER 34
+#define NbrClockMonitorStart_TIMER 35
+#define USEONESHOTTIMER FALSE
+
+#define NBCLOCKMONITORPERIOD 100000
+#define INITIALDELAY 100000
+//TXRX offset in microsec
+#define TXRXOFFSET 2130
+//ClockFreq in MHz
+#define ClockFreq 8
+
+//extern HALTimerManager gHalTimerManagerObject;
+//extern VirtualTimer gVirtualTimerObject;
+//extern VirtualTimerMapper gVirtualTimerMapperObject;
+extern OMACTest gOMACTest;
+extern UINT16 MF_NODE_ID;
+//extern Buffer_15_4_t m_receive_buffer;
+
+void OMACTest_Send_Timer_Handler(void * arg){
+	gOMACTest.Send();
+}
+
+void OMACTest_ReceiveHandler (UINT16 NumOfPendingPackets){
+	//Message_15_4_t** temp = m_receive_buffer.GetOldestPtr();
+
+	UINT8* ptr_msg = &(gOMACTest.msg_in_buffer[0]);
+	UINT8** ptr_ptr_msg = &(ptr_msg);
+
+	Mac_GetNextPacket(ptr_ptr_msg);
+
+	SimpleTimeSyncMsg* temp = (SimpleTimeSyncMsg*) (&(gOMACTest.msg_in_buffer[16]));
+
+	UINT16 Size = ((*ptr_ptr_msg)[1]<<8) + ((*ptr_ptr_msg)[0]);
+
+	//Message_15_4_t * msg_15_4_ptr = &(gOMACTest.msg_15_4);
+	//IEEE802_15_4_Header_t * header = msg_15_4_ptr->GetHeader();
+	//SimpleTimeSyncMsg* m_timeSyncMsg = (SimpleTimeSyncMsg *) msg_15_4_ptr->GetPayload();
+	//memcpy(m_timeSyncMsg, &((*ptr_ptr_msg)[2]), Size);
+
+	UINT16 src = ((*ptr_ptr_msg)[5 + Size]<<8) + ((*ptr_ptr_msg)[4 + Size]);
+	if (gOMACTest.Nbr2beFollowed==0){ gOMACTest.Nbr2beFollowed = src; }
+	if (src == gOMACTest.Nbr2beFollowed ){
+
+	UINT64 EventTime;
+	UINT8 a,b,c,d,e,f,g,h;
+	a	= ((*ptr_ptr_msg)[8 + Size] );
+	b  =	 ((*ptr_ptr_msg)[9 + Size]);
+	c  = 	((*ptr_ptr_msg)[10 + Size] );
+	d		  = ((*ptr_ptr_msg)[11 + Size]);
+	e		  = ((*ptr_ptr_msg)[12 + Size] );
+	f		  = ((*ptr_ptr_msg)[13 + Size] );
+	g		  = ((*ptr_ptr_msg)[14 + Size] );
+	h		  = ((*ptr_ptr_msg)[15 + Size] );
+	EventTime = a;
+	EventTime = EventTime	+ (((UINT64)b) << 8);
+	EventTime = EventTime 	+ (((UINT64)c) << 16);
+	EventTime = EventTime	+ (((UINT64)d) << 24);
+	EventTime = EventTime	+ (((UINT64)e) << 32);
+	EventTime = EventTime	+ (((UINT64)f) << 40);
+	EventTime = EventTime	+ (((UINT64)g) << 48);
+	EventTime = EventTime	+ (((UINT64)h) << 56);
+
+
+	//return gOMACTest.Receive(msg_ptr,Size);
+
+	gOMACTest.ReceiveSyncMessage(src,EventTime, temp);
+	}
+}
+
+void OMACTest_SendAckHandler (void* msg, UINT16 size, NetOpStatus status){
+	gOMACTest.SendAck(msg,size,status);
+}
+
+void SimpleLocalClockMonitorTimerHandler(void * arg) {
+	//Toggle Pin State for monitoring with Logic Analyzer
+
+	if(gOMACTest.LocalClkMonitorPinState) {
+		gOMACTest.LocalClkMonitorPinState = false;
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
+	}
+	else {
+		gOMACTest.LocalClkMonitorPinState = true;
+		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, true);
+	}
+	//g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ISLocalCLKScheduled = FALSE;
+	//LocalClockMonitorTimerScheduler();
+
+}
+
+void SimpleNeighborClockMonitorTimerHandler(void * arg) {
+	//Toggle Pin State for monitoring with Logic Analyzer
+	if(gOMACTest.NeighClkMonitorPinState) {
+		gOMACTest.NeighClkMonitorPinState = false;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
+	}
+	else {
+		gOMACTest.NeighClkMonitorPinState = true;
+		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
+	}
+}
+
+
+// TIMESYNCTEST
+
+void OMACTest::ReceiveSyncMessage( UINT16 msg_src, UINT64 EventTime, SimpleTimeSyncMsg* rcv_msg){
+
+#ifdef DEBUG_TSYNC
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+	bool TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
+#endif
+
+	//EventTime = EventTime + TXRXOFFSET * ClockFreq;
+	UINT64 rcv_ltime;
+	INT64 l_offset;
+	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
+	l_offset = rcv_ltime - EventTime;
+
+	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
+
+#ifdef DEBUG_TSYNC
+	if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
+	if (msg_src == Nbr2beFollowed ){
+		++RcvCount;
+		if (RcvCount>=2  ){
+
+			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
+			//float relfreq = 1.0;
+			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
+			if (relfreq > 1.3){
+				relfreq = 1.3;
+			}
+			else if (relfreq < 0.7){
+				relfreq = 0.7;
+			}
+			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)*relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
+			INT64 y = HAL_Time_CurrentTicks();
+			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
+			start_delay = HAL_Time_TicksToTime(start_delay);
+			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay - TXRXOFFSET;
+			if (start_delay > (1.5*INITIALDELAY)) {
+				start_delay = (1.5*INITIALDELAY);
+			}
+			else if(start_delay<(0.5*INITIALDELAY)){
+				start_delay = (0.5*INITIALDELAY);
+			}
+
+			if (NeighborsPeriodLength > (1.5*NBCLOCKMONITORPERIOD)) {
+				start_delay =  (1.5*NBCLOCKMONITORPERIOD) ;
+			}
+			else if(NeighborsPeriodLength <  (0.5*NBCLOCKMONITORPERIOD) ){
+				start_delay =  (0.5*NBCLOCKMONITORPERIOD);
+			}
+			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, USEONESHOTTIMER);
+
+			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
+		}
+	}
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
+#endif
+
+}
+
+BOOL OMACTest::Send(){
+
+#ifdef DEBUG_TSYNC
+	VirtTimer_Stop(LocalClockMonitor_TIMER);
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
+#endif
+	Message_15_4_t * msg_15_4_ptr = &msg_15_4; //Create a new message
+	IEEE802_15_4_Header_t * header = msg_15_4_ptr->GetHeader();
+	SimpleTimeSyncMsg* m_timeSyncMsg = (SimpleTimeSyncMsg *) msg_15_4_ptr->GetPayload();
+
+	INT64 y,d;
+		y = HAL_Time_CurrentTicks();
+		m_timeSyncMsg->testnumber00 = 1;
+		m_timeSyncMsg->testnumber01 = 2;
+		m_timeSyncMsg->testnumber02 = 3;
+		m_timeSyncMsg->testnumber03 = 4;
+		m_timeSyncMsg->testnumberlong = 323;
+
+		m_timeSyncMsg->localTime0 = (UINT32)(y & 0x00000000FFFFFFFF);
+		m_timeSyncMsg->localTime1 = (UINT32) (y>>32);
+
+		m_timeSyncMsg->testnumber10 = 5;
+		m_timeSyncMsg->testnumber11 = 6;
+		m_timeSyncMsg->testnumber12 = 7;
+		m_timeSyncMsg->testnumber13 = 8;
+
+		m_timeSyncMsg->nodeID = 0;//BK: WILDHACK
+		m_timeSyncMsg->seqNo = ++SendCount;
+		m_timeSyncMsg->testnumber20 = 9;
+		m_timeSyncMsg->testnumber21 = 10;
+		m_timeSyncMsg->testnumber22 = 11;
+		m_timeSyncMsg->testnumber23 = 12;
+		header->dest = RADIO_BROADCAST_ADDRESS;
+		header->type = MFM_TIMESYNC;
+		Mac_SendTimeStamped(MacId, MAC_BROADCAST_ADDRESS, MFM_TIMESYNC, (void*) msg_15_4_ptr, sizeof(SimpleTimeSyncMsg), y );
+
+#ifdef DEBUG_TSYNC
+		CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
+		VirtTimer_Start(LocalClockMonitor_TIMER);
+#endif
+		return TRUE;
+}
+
+void OMACTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
+}
+
+
+BOOL OMACTest::Initialize(){
+	MyAppID = 3; //pick a number less than MAX_APPS currently 4.
+	Config.Network = 138;
+	myEventHandler.SetRecieveHandler(OMACTest_ReceiveHandler);
+	myEventHandler.SetSendAckHandler(OMACTest_SendAckHandler);
+	VirtTimer_Initialize();
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) ACTIVITYPIN, FALSE);
+#ifdef DEBUG_TIMESYNCTEST
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, FALSE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) NBRCLOCKMONITORPIN, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) LOCALCLOCKMONITORPIN, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
+#endif
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
+
+	LocalClkMonitorPinState = false;
+	NeighClkMonitorPinState = false;
+
+	MacId = CSMAMAC;
+	Mac_Initialize(&myEventHandler,MacId, MyAppID, Config.RadioID, (void*) &Config);
+
+	Nbr2beFollowed=0;
+
+	//gVirtualTimerObject.CreateTimer(OMACTest_Send_TIMER, 0, 10000000, FALSE, FALSE, OMACTest_Send_Timer_Handler); //10 sec Timer in micro seconds
+	VirtTimer_SetTimer(OMACTest_Send_TIMER, 0, 10000000, FALSE, FALSE, OMACTest_Send_Timer_Handler);
+	//gVirtualTimerObject.CreateTimer(LocalClockMonitor_TIMER, 0,(UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleLocalClockMonitorTimerHandler);
+	VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, SimpleLocalClockMonitorTimerHandler);
+	//gVirtualTimerObject.CreateTimer(NbrClockMonitor_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	VirtTimer_SetTimer(NbrClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, SimpleNeighborClockMonitorTimerHandler);
+	//gVirtualTimerObject.CreateTimer(NbrClockMonitorStart_TIMER,0, (UINT32) NBCLOCKMONITORPERIOD, TRUE, FALSE, StartNeighborClockMonitoyTimerHandler);
+
+	return TRUE;
+}
+
+BOOL OMACTest::StartTest(){
+	SendCount=0;
+	RcvCount=0;
+	int a;
+	VirtTimer_Start(OMACTest_Send_TIMER);
+	while(1){
+//		if(CPU_GPIO_GetPinState((GPIO_PIN) ACTIVITYPIN)) {
+//			CPU_GPIO_SetPinState((GPIO_PIN) ACTIVITYPIN, FALSE);
+//		}
+//		else {
+//			CPU_GPIO_SetPinState((GPIO_PIN) ACTIVITYPIN, TRUE);
+//		}
+//		//HAL_Time_Sleep_MicroSeconds(5000000);
+	}
+	return TRUE;
+}
+
+void OMACTest_Initialize(){
+	BOOL ret;
+	ret = gOMACTest.Initialize();
+	ret = gOMACTest.StartTest();
+}
+
+
