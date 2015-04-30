@@ -173,7 +173,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				hal_printf("incorrect neighbor returned\n");
 			}
 			// 1st,  compute the current localTime of the neighbor
-			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(dest,HAL_Time_CurrentTime());
+			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(dest, HAL_Time_CurrentTime());
 			// 2nd, compute neighbor's current counter value. The start of the counter
 			// is later than the start of the clock. So, a counter offset should be used
 			counter = (nbrGlobalTime - nbrEntry->counterOffset) >> SLOT_PERIOD_BITS;

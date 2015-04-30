@@ -1,8 +1,8 @@
 /*
  * GlobalTime.h
  *
- *  Created on: April 05, 2013
- *      Author: Mukundan Sridharan
+ *  Created on: April 30, 2015
+ *      Author: Bora Karaoglu
  */
 
 
@@ -14,16 +14,16 @@
 #define MAX_SAMPLES 8
 #define MAX_NBR 6
 #define INVALID_TIMESTAMP 0x7FFFFFFFFFFFFFFF
+#define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
 #define UnknownRelativeFreq 255
 
 struct TSSamples {
 	UINT16 nbrID;
-	INT64 localTime[MAX_SAMPLES];
+	UINT64 recordedTime[MAX_SAMPLES];
 	INT64 offsetBtwNodes[MAX_SAMPLES];
-	INT64 lastLocalTime;
-	UINT8 localTimeIndex;
+	UINT8 lastTimeIndex;
 	UINT8 numSamples;
-	INT64 localTimeAvg;
+	INT64 recordedTimeAvg;
 	INT64 offsetAvg;
 	float avgSkew;
 	float relativeFreq;
@@ -48,7 +48,7 @@ private:
 		if(nbrIndex==255){
 			return;
 		}
-		INT64 *nbrLocalTimes = samples[nbrIndex].localTime;
+		UINT64 *nbrLocalTimes = samples[nbrIndex].recordedTime;
 		INT64 *nbrOffset = samples[nbrIndex].offsetBtwNodes;
 		UINT8 numSamples = samples[nbrIndex].numSamples;
 
@@ -137,7 +137,7 @@ private:
 		}
 		samples[nbrIndex].relativeFreq = samples[nbrIndex].relativeFreq / (numSamples-1);
 
-		samples[nbrIndex].localTimeAvg = newLocalAverage;
+		samples[nbrIndex].recordedTimeAvg = newLocalAverage;
 		samples[nbrIndex].offsetAvg = newOffsetAverage;
 		//hal_printf("GlobalTime: Avg Drift: %lu, Avg Skew: %f \n",samples[nbrIndex].offsetAvg, samples[nbrIndex].avgSkew);
 	}
@@ -163,50 +163,18 @@ public:
 
 	};
 
-
-	//Mean algorithm. My global value is just the mean of all  global values
-	INT64 Local2Global(INT64 time){
-		INT64 sum;
-		INT64 globalSum = 0;
-		INT64 globalAverageRest = 0;
-		for (int i=0; i< MAX_NBR; i++){
-
-			if(samples[i].nbrID!=0xFFFF){
-				INT64 x = NbrTime(samples[i].nbrID, time);
-				//INT64 x = samples[i].lastLocalTime + (INT64) (samples[i].avgSkew * (time - samples[i].localTimeAvg));
-				globalSum += (INT64) x/(nbrCount+1);
-				globalAverageRest += x % (nbrCount+1);
-			}
-
-		}
-		//add your value
-		globalSum += (INT64) time/(nbrCount+1);
-		globalAverageRest += time % (nbrCount+1);
-		globalSum += globalAverageRest /(nbrCount+1);
-		return globalSum;
-	}
-
 	INT64 NbrTime(UINT16 nbr, INT64 time){
 		INT64 retTime=time;
 		INT64 adjskew =0;
 		UINT16 nbrIndex = FindNbr(nbr);
-
 		if(nbrIndex != 255){
-			//implementing ftsp logic
-			//Look at http://docs.tinyos.net/tinywiki/index.php/FTSP
-			adjskew = (INT64) (samples[nbrIndex].avgSkew * (time - samples[nbrIndex].localTimeAvg));
+			adjskew = (INT64) (samples[nbrIndex].avgSkew * (time - samples[nbrIndex].recordedTimeAvg));
 			retTime += samples[nbrIndex].offsetAvg + adjskew ;
 		}
 		//hal_printf("Local: %lld, AvgOffset: %lld, AdjSkew: %lld, Nbr: %lld \n", time, samples[nbrIndex].offsetAvg, adjskew, retTime);
 		return retTime;
 	}
-	INT64 SkewAdjustment(UINT16 nbr, INT64 curTime){
-		INT64 ret;
-		UINT8 nbrIndex = FindNbr(nbr);
-		ret = (INT64) (samples[nbrIndex].avgSkew * (curTime - samples[nbrIndex].localTimeAvg));
-		ret = (INT64) (samples[nbrIndex].avgSkew * (curTime - Last_Adjust_localtime));
-		return ret ;
-	}
+
 	/*void SetAdjustTime(INT64 localtime,UINT8 nbrIndex){
 		samples[nbrIndex].Last_Adjust_localtime = localtime;
 	}*/
@@ -221,20 +189,15 @@ public:
 				return;
 			}
 		}
-		if (samples[nbrIndex].lastLocalTime == nbr_ltime) { //BK:If receiving the same message again don't insert
-			return;
-		}
-		else{
-			samples[nbrIndex].nbrID = nbr;
-			samples[nbrIndex].lastLocalTime = nbr_ltime;
-			samples[nbrIndex].localTime[samples[nbrIndex].localTimeIndex] = nbr_ltime;
-			samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].localTimeIndex] = nbr_loffset;
-			samples[nbrIndex].localTimeIndex++;
-			samples[nbrIndex].localTimeIndex =samples[nbrIndex].localTimeIndex % MAX_SAMPLES;
-			if(samples[nbrIndex].numSamples < MAX_SAMPLES){
-				samples[nbrIndex].numSamples++;
-			}
-			Compute(nbr);
+		samples[nbrIndex].nbrID = nbr;
+		samples[nbrIndex].lastTimeIndex++;
+		samples[nbrIndex].lastTimeIndex =samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
+		samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] = nbr_ltime;
+		samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].lastTimeIndex] = nbr_loffset;
+		if(samples[nbrIndex].numSamples < MAX_SAMPLES){
+			samples[nbrIndex].numSamples++;
+
+		Compute(nbr);
 		}
 
 	}
@@ -242,17 +205,20 @@ public:
 		UINT16 nbrIndex = FindNbr(nbr);
 		samples[nbrIndex].nbrID=0xFFFF;
 		for(int i=0; i< MAX_SAMPLES; i++){
-			samples[nbrIndex].localTime[i] =INVALID_TIMESTAMP;
+			samples[nbrIndex].recordedTime[i] =INVALID_TIMESTAMP;
 		}
-		//memset(samples[nbrIndex].localTime,INVALID_TIMESTAMP,MAX_SAMPLES);
+		//memset(samples[nbrIndex].recordedTime,INVALID_TIMESTAMP,MAX_SAMPLES);
 		samples[nbrIndex].numSamples=0;
 	}
 	void Init(){
 		nbrCount=0;
 		for (int ii=0; ii< MAX_NBR; ii++){
 			samples[ii].nbrID=0xFFFF;
+			samples[ii].lastTimeIndex = MAX_SAMPLES;
+			samples[ii].numSamples = 0;
 			for(int i=0; i< MAX_SAMPLES; i++){
-				samples[ii].localTime[i] =INVALID_TIMESTAMP;
+				samples[ii].recordedTime[i] =INVALID_TIMESTAMP;
+				samples[ii].offsetBtwNodes[i] = 0;
 			}
 		}
 	}
@@ -297,15 +263,13 @@ public:
 	BOOL Adjust(UINT64 value, INT64 localtime, BOOL add);
 	//INT64 Local2Global(INT64 local);
 	//INT64 Global2Local(INT64 global);
-	INT64 Local2NbrTime(UINT16 nbr, INT64 localtime);
-	INT64 Nbr2LocalTime(UINT16 nbr, INT64 nbrtime);
+	UINT64 Local2NbrTime(UINT16 nbr, UINT64 curtime);
+	UINT64 Nbr2LocalTime(UINT16 nbr, UINT64 nbrtime);
 };
 
 
 
-INT64 GlobalTime::Local2NbrTime(UINT16 nbr, INT64 time){
-	return regressgt2.NbrTime(nbr,time);
-}
+
 
 void GlobalTime::Init(){
 	regressgt2.Init();
@@ -315,24 +279,67 @@ void GlobalTime::Init(){
 float GlobalTime::GetSkew(){
 	return skew;
 }
-BOOL GlobalTime::Adjust(UINT64 value, INT64 localtime, BOOL add){
-	regressgt2.Last_Adjust_localtime = localtime;
-	if(add){
-		offset+=value;
-	}else{
-		offset = offset - value;
+
+
+UINT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, UINT64 nbrTime){
+	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
+	UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
+	UINT64 periodlength;
+	bool negativeperiod = FALSE;
+	//Check roll over
+	if(nbrTime < lastrecordedTime) {
+		if( lastrecordedTime - nbrTime > ((MAXRangeUINT64)/2)) { //Roll Over
+			periodlength = (MAXRangeUINT64 - lastrecordedTime) + nbrTime;
+		}
+		else{ // Negative Interval
+			periodlength = lastrecordedTime - nbrTime;
+			negativeperiod = TRUE;
+		}
 	}
-	return TRUE;
+	else { // No rollover no negative
+		periodlength = nbrTime - lastrecordedTime;
+	}
+
+	// Calculate the time
+	lastrecordedTime = lastrecordedTime - regressgt2.samples[nbrIndex].offsetBtwNodes[regressgt2.samples[nbrIndex].lastTimeIndex];
+	if (negativeperiod) lastrecordedTime = lastrecordedTime - (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
+	else lastrecordedTime = lastrecordedTime + (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
+	return (lastrecordedTime);
 }
 
-/*
-INT64 GlobalTime::Local2Global(INT64 local){
+UINT64 GlobalTime::Local2NbrTime(UINT16 nbr, UINT64 curtime){
+	//UINT64 curtime = HAL_Time_CurrentTime();
+	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
+	UINT64 periodlength;
+	bool negativeperiod = FALSE;
+	UINT64 lastlocalTime;
 
-	return regressgt.Local2Global(local);
-}
-*/
-INT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, INT64 nbrTime){
-	return nbrTime - offset;
-}
+	// Get last sample
+	if (regressgt2.samples[nbrIndex].offsetBtwNodes[regressgt2.samples[nbrIndex].lastTimeIndex] > 0) {
+		lastlocalTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex] - (UINT64) regressgt2.samples[nbrIndex].offsetBtwNodes[regressgt2.samples[nbrIndex].lastTimeIndex];
+	}
+	else {
+		lastlocalTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex] + (UINT64)((regressgt2.samples[nbrIndex].offsetBtwNodes[regressgt2.samples[nbrIndex].lastTimeIndex])*-1);
+	}
 
+	//Check roll over
+	if(curtime < lastlocalTime) {
+		if( lastlocalTime - curtime > ((MAXRangeUINT64)/2)) { //Roll Over
+			periodlength = (MAXRangeUINT64 - lastlocalTime) + curtime;
+		}
+		else{ // Negative Interval
+			periodlength = lastlocalTime - curtime;
+			negativeperiod = TRUE;
+		}
+	}
+	else { // No rollover no negative
+		periodlength = curtime - lastlocalTime;
+	}
+
+	// Calculate the time
+	lastlocalTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
+	if (negativeperiod) lastlocalTime = lastlocalTime - (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
+	else lastlocalTime = lastlocalTime + (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
+	return (lastlocalTime);
+}
 #endif //GLOBALTIME_H_
