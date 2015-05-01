@@ -197,7 +197,8 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
-	RadioAddress_t source = disMsg->nodeID;
+	RadioAddress_t source = msg->GetHeader()->src;
+	//RadioAddress_t source = disMsg->nodeID;
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
 
@@ -209,7 +210,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
 		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
 	} else {
-		g_NeighborTable.InsertNeighbor(disMsg->nodeID, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
+		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
 	}
 
 	return DS_Success;

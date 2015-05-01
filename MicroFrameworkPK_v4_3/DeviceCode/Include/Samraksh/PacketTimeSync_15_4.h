@@ -32,7 +32,8 @@ class PacketTimeSync_15_4{
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
 
                 UINT32 sender_delay = *senderEventTime;
-                rcv_ts = rcv_ts - (UINT64) sender_delay - (UINT64)TXRXOFFSET * (CPU_TicksPerSecond()/1000000) ;
+                //BK: I don't understand why sender delay is added but it works better. Check whether it is negated somewehere
+                rcv_ts = rcv_ts + (UINT64) sender_delay - (UINT64)TXRXOFFSET * (CPU_TicksPerSecond()/1000000) ;
                 return rcv_ts;
         }
 

@@ -131,7 +131,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        UINT32 eventOffset;
 	        UINT8 * timeStampPtr = (UINT8 *) &eventOffset;
 	        //AnanthAtSamraksh: defaulting to the AdvancedTimer
-	        UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
+	        UINT32 timestamp = HAL_Time_CurrentTime() & (~(UINT32) 0);
 	        eventOffset = timestamp - eventTime;
 
 	#ifdef DEBUG_TIMESYNC
