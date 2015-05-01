@@ -37,6 +37,7 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 
   public:
 	UINT8 CurrentActiveApp;
+	UINT16 MyID;
 	//Neighbors
 	//NeighborTable m_NeighborTable;
 
