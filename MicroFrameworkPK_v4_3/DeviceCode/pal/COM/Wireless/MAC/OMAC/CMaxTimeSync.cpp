@@ -26,7 +26,7 @@ BOOL GlobalTime::synced=FALSE;
 #define USEONESHOTTIMER FALSE
 
 #define NBCLOCKMONITORPERIOD 100000
-#define INITIALDELAY 100000
+#define INITIALDELAY 1000000
 
 #define TXNODEID 30906
 #define RXNODEID 4028
@@ -199,6 +199,15 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 			UINT64 y = HAL_Time_CurrentTicks();
 			//INT64 start_delay = (y - EventTime); // Attempt to compansate for the difference
 			INT64 start_delay = HAL_Time_TicksToTime((y - EventTime));
+			//
+//			UINT8 size = len;
+//            UINT8 * rcv_msg2 =  msg->GetPayload();
+//            UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg2 + size + TIMESTAMP_OFFSET);
+//
+//            UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
+//
+//            UINT32 sender_delay = *senderEventTime;
+//			//
 			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay;
 			if (start_delay > (1.5*INITIALDELAY)) {
 				start_delay = (1.5*INITIALDELAY);
