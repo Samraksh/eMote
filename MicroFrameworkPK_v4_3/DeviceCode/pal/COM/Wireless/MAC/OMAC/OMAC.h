@@ -45,7 +45,7 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
 
-	UINT16 GetAddress(){return MyAddress;}
+	UINT16 GetAddress(){return MyID;}
 	UINT16 GetMaxPayload(){return MaxPayload;	}
 	BOOL SetAddress(UINT16 address){MyAddress=address; return TRUE;}
 

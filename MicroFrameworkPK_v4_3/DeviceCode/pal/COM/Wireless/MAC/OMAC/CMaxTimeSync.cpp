@@ -114,8 +114,6 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 		Nbr2beFollowed = RXNODEID;
 	}
 
-	Nbr2beFollowed = 0;
-
 	rm = VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSLocalClockMonitorTimerHandler);
 	rm = VirtTimer_SetTimer(NbrClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSNeighborClockMonitorTimerHandler);
 #endif
