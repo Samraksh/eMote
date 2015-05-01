@@ -219,8 +219,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * ms
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	//UINT8 * payload = msg->GetPayload();
-	header->dest= address;
-	header->type=MFM_DISCOVERY;
+	header->dest = address;
+	header->type = MFM_DISCOVERY;
 
 	retValue = g_omac_RadioControl.Send(address,msg,size);
 
