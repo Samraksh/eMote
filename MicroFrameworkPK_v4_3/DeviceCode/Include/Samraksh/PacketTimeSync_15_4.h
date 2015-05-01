@@ -17,7 +17,8 @@
 //A combined base class for timesync, analogous to TimeSyncMessageC in TinyOS
 
 
-#define TXRXOFFSET 2420
+#define TXRXOFFSET 716
+//2420
 //Provides Packet level timesync: Similar to TinyOS TEP 133
 //http://www.tinyos.net/tinyos-2.1.0/doc/html/tep133.html
 
@@ -27,13 +28,10 @@ class PacketTimeSync_15_4{
 		// Size here refers to the size of the whole packet including header
         static UINT64 EventTime(Message_15_4_t *msg, UINT8 size){
                 UINT8 * rcv_msg =  msg->GetPayload();
-                UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + size - sizeof(IEEE802_15_4_Header_t) + TIMESTAMP_OFFSET);
-
+                UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + size + TIMESTAMP_OFFSET);
                 UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
-
                 UINT32 sender_delay = *senderEventTime;
-                //BK: I don't understand why sender delay is added but it works better. Check whether it is negated somewehere
-                rcv_ts = rcv_ts + (UINT64) sender_delay - (UINT64)TXRXOFFSET * (CPU_TicksPerSecond()/1000000) ;
+                rcv_ts = rcv_ts - (UINT64) sender_delay - (UINT64)TXRXOFFSET * (CPU_TicksPerSecond()/1000000) ;
                 return rcv_ts;
         }
 
