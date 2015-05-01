@@ -19,10 +19,10 @@ BOOL GlobalTime::synced=FALSE;
 #define TIMESYNCRECEIVEPIN 23
 #define NBRCLOCKMONITORPIN 29
 #define LOCALCLOCKMONITORPIN 24
+
 #define LocalClockMonitor_TIMER 32
 #define NbrClockMonitor_TIMER 33
-#define SimpleTimesyncTest_Send_TIMER 34
-#define NbrClockMonitorStart_TIMER 35
+
 #define USEONESHOTTIMER FALSE
 
 #define NBCLOCKMONITORPERIOD 100000
@@ -60,12 +60,18 @@ void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 
-	//return 1000; //Dont sent separate timesync
-	//rollover
-	if(currSlot< m_lastSlotExecuted){
-		return m_messagePeriod - (0xFFFFFFFF + -  m_lastSlotExecuted + currSlot);
-	}else {
-		return m_messagePeriod - (currSlot -  m_lastSlotExecuted);
+	//BK: Return periods until next timesync
+	if( (currSlot > m_lastSlotExecuted)  ) {
+		if ( (currSlot-m_lastSlotExecuted) >= m_messagePeriod  )
+			return(0); //This is the case for triggerting
+		else
+			return (  m_messagePeriod - (currSlot-m_lastSlotExecuted) );
+	}
+	else{
+		if( ( (0xFFFFFFFF -  m_lastSlotExecuted) + currSlot ) >= m_messagePeriod)
+			return(0);
+		else
+			return(m_messagePeriod-( (0xFFFFFFFF -  m_lastSlotExecuted) + currSlot ));
 	}
 }
 
@@ -101,7 +107,7 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 #ifdef DEBUG_TSYNC
 
-	if(g_omac_RadioControl.MyID == RXNODEID) {
+	if(g_OMAC.MyID == RXNODEID) {
 		Nbr2beFollowed = TXNODEID;
 	}
 	else {
@@ -122,8 +128,8 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 DeviceStatus CMaxTimeSync::Send(){
 	DeviceStatus rs;
 #ifdef DEBUG_TSYNC
-	VirtTimer_Stop(LocalClockMonitor_TIMER);
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
+	VirtTimer_Stop(LocalClockMonitor_TIMER);
 #endif
 
 	IEEE802_15_4_Header_t * header = m_timeSyncBufferPtr->GetHeader();
@@ -160,10 +166,9 @@ DeviceStatus CMaxTimeSync::Send(){
 }
 
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-
+	bool TimerReturn;
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
-	bool TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 #endif
 
 	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
@@ -182,6 +187,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	if (msg_src == Nbr2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
 
+			TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
 			//float relfreq = 1.0;
 			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
