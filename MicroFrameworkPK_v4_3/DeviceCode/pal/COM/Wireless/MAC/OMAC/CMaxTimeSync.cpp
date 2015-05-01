@@ -26,7 +26,7 @@ BOOL GlobalTime::synced=FALSE;
 #define USEONESHOTTIMER FALSE
 
 #define NBCLOCKMONITORPERIOD 100000
-#define INITIALDELAY 1000000
+#define INITIALDELAY 100000
 
 #define TXNODEID 30906
 #define RXNODEID 4028
@@ -165,13 +165,20 @@ DeviceStatus CMaxTimeSync::Send(){
 
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	bool TimerReturn;
+	UINT16 msg_src =  msg->GetHeader()->src;
+
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+	if (msg_src == Nbr2beFollowed ){
+		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
+
+			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+		}
+	}
 #endif
 
 	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	TimeSyncMsg* rcv_msg  = (TimeSyncMsg *) msg->GetPayload();
-	UINT16 msg_src =  msg->GetHeader()->src;
+
 
 	UINT64 rcv_ltime;
 	INT64 l_offset;
@@ -184,6 +191,8 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Nbr2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
+
+			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
 
 			TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
 			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
