@@ -134,7 +134,7 @@ DeviceStatus CMaxTimeSync::Send(){
 	m_timeSyncMsg = (TimeSyncMsg *) m_timeSyncBufferPtr->GetPayload();
 	INT64 x,y,d;
 	x= 85899345921;
-	y = HAL_Time_CurrentTime();
+	y = HAL_Time_CurrentTicks();
 #ifndef LOCALSKEW
 	x = m_globalTime.Local2Global(y);
 #endif
@@ -152,7 +152,7 @@ DeviceStatus CMaxTimeSync::Send(){
 
 	//d= x-y;
 
-	rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg),(UINT32) HAL_Time_CurrentTime());
+	rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
 	//hal_printf("TS Send: %d,  Gtime: %lld, LTime: %lld, diff: %lld \n",m_seqNo, x, y, d);
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
@@ -196,9 +196,9 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 				relfreq = 0.7;
 			}
 			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)*relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
-			INT64 y = HAL_Time_CurrentTicks();
-			INT64 start_delay = (y - (INT64) EventTime); // Attempt to compansate for the difference
-			start_delay = HAL_Time_TicksToTime(start_delay);
+			UINT64 y = HAL_Time_CurrentTicks();
+			//INT64 start_delay = (y - EventTime); // Attempt to compansate for the difference
+			INT64 start_delay = HAL_Time_TicksToTime((y - EventTime));
 			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay;
 			if (start_delay > (1.5*INITIALDELAY)) {
 				start_delay = (1.5*INITIALDELAY);
