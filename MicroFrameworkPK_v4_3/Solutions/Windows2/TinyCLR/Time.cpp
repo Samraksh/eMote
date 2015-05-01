@@ -27,7 +27,7 @@ INT64 HAL_Time_TicksToTime( UINT64 Ticks )
     
     //No need to go to managed code just to return Time.  
 
-    return Ticks;
+    return (Ticks / (CPU_TicksPerSecond() / 1000000));
 }
        
 INT64 HAL_Time_CurrentTime()
