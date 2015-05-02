@@ -11,10 +11,10 @@
 #include <stm32f10x.h>
 #include <gpio\netmf_gpio.h>
 
-void hal_adc_init(uint8_t sampTime);
-uint8_t hal_adc_config();
-uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChannels);
-uint8_t hal_adc_getNow();
+void hal_adc_init(uint8_t sampTime) __attribute__ ((deprecated));
+uint8_t hal_adc_config() __attribute__ ((deprecated));
+BOOL hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChannels);
+uint8_t hal_adc_getNow() __attribute__ ((deprecated));
 
 
 //#define NATIVE_TEST 1

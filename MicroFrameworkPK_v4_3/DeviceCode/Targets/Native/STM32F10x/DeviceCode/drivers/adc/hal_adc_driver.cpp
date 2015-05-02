@@ -36,7 +36,6 @@ UINT16 *g_adcUserBufferChannel1Ptr = NULL;
 UINT16 *g_adcUserBufferChannel2Ptr = NULL;
 
 UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
-//UINT16* g_adcDriverBufferChannel2Ptr = NULL; // TODO: Remove. Obsolete.
 
 UINT32 *g_adcDriverBufferDualModePtr = NULL;
 
@@ -248,6 +247,7 @@ adc_nvic_cleanup_1:
 //
 //}
 
+// TODO: reserve pins and return BOOL.
 void ADC_GPIO_Configuration(BOOL enable)
 {
 
@@ -753,7 +753,6 @@ void ADC_Configuration ( uint8_t sampTime )
 
 /**
  * Not used?  Obsolete?
- * TODO: Deprecate hal_adc_init?
  */
 void hal_adc_init(uint8_t sampTime)
 {
@@ -763,14 +762,14 @@ void hal_adc_init(uint8_t sampTime)
 	ADC_Configuration(sampTime);
 }
 
-uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChannels)
+BOOL hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChannels)
 {
 	uint8_t i,j;
 
 	if (startChannel > 2 || (startChannel + numChannels > 3))
 	{
 		ASSERT(0);
-		return 0;
+		return FALSE;
 	}
 
 	for (j=startChannel; j < startChannel+numChannels; j++)
@@ -785,7 +784,7 @@ uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChan
 		dataBuf[j] = ADC_GetConversionValue((ADC_TypeDef *) ADC_MODULE[j+startChannel]);
 	}
 
-	return 1;
+	return TRUE;
 }
 
 extern "C"

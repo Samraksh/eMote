@@ -24,6 +24,24 @@ CLR_RT_HeapBlock_NativeEventDispatcher *g_adcContext = NULL;
 static UINT64 g_adcUserData = 0;
 static BOOL g_adcInterruptEnabled = TRUE;
 
+inline HRESULT CONVERT_TO_HR(BOOL x)
+{
+    if(x == FALSE)
+    {
+        return S_FALSE;
+    }
+    return S_OK;
+}
+
+inline HRESULT CONVERT_TO_HR(DeviceStatus x)
+{
+    if(x == DS_Success)
+    {
+        return S_OK;
+    }
+    return S_FALSE;
+}
+
 extern "C"
 {
 	void ADCInteropCallback(void *param)
@@ -39,8 +57,10 @@ extern "C"
 INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
 {
 
-	return AD_Initialize((ANALOG_CHANNEL) param0, 0);
-
+	BOOL res = 0;
+	res = AD_Initialize((ANALOG_CHANNEL) param0, 0);
+	hr = CONVERT_TO_HR(res);
+	return (INT32)res;
 }
 
 double ADCInternal::Read( INT32 param0, HRESULT &hr )
@@ -50,29 +70,42 @@ double ADCInternal::Read( INT32 param0, HRESULT &hr )
 
 INT32 ADCInternal::ConfigureBatchMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureBatchMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    DeviceStatus res = DS_Success;
+    res = AD_ConfigureBatchMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    hr = CONVERT_TO_HR(res);
+    return (INT32) res;
 }
 
 INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 sampleBuff, INT32 channel, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    DeviceStatus res = DS_Success;
+    res = AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    hr = CONVERT_TO_HR(res);
+    return (INT32) res;
 }
 
 INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    DeviceStatus res = DS_Success;
+    res = AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    hr = CONVERT_TO_HR(res);
+    return (INT32) res;
 }
 
 INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
 {
-    return AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    DeviceStatus res = DS_Success;
+    res = AD_ConfigureBatchModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    hr = CONVERT_TO_HR(res);
+    return (INT32) res;
 }
 
 // The functions are deprecated, this was added to help with the india effort
 // but this breaks abstraction and is a really poor design
 INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+    INT32 retVal = 0;
+    hr = S_FALSE;
     return retVal;
 }
 
@@ -81,13 +114,16 @@ INT32 ADCInternal::ConfigureContinuousModeWithThresholding( CLR_RT_TypedArray_UI
 INT32 ADCInternal::ConfigureBatchModeWithThresholding( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, UINT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 
+    hr = S_FALSE;
     return retVal;
 }
 
 INT8 ADCInternal::DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
 {
-	return hal_adc_getData(param0.GetBuffer(), 0 , 2);
-
+	BOOL res = TRUE;
+	res = hal_adc_getData(param0.GetBuffer(), 0 , 2);
+	CONVERT_TO_HR(res);
+	return (INT8) res;
 }
 
 INT32 ADCInternal::StopSampling( HRESULT &hr )
