@@ -22,7 +22,7 @@
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
-uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
+ADC_TypeDef* ADC_MODULE[3]   = {ADC1          , ADC2          , ADC3};
 
 void ADC_GPIO_Configuration(BOOL enable);
 BOOL ADC_NVIC_Configuration(BOOL enable);
@@ -59,6 +59,15 @@ void DMA_HAL_HANDLER(void *param);
 void TIM_HAL_HANDLER(void *param);
 }
 
+inline void FIX_UNAVAILABLE_CHANNELS(ANALOG_CHANNEL& channel)
+{
+	ASSERT(AD_ADChannels() == 3);
+	if( channel >= ANALOG_CHANNEL_3 )
+	{
+		channel = ANALOG_CHANNEL_2;
+	}
+}
+
 /**
  * interface for Microsoft.SPOT.Hardware.AnalogInput
  */
@@ -69,6 +78,14 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
+
+	if( channel <= ANALOG_CHANNEL_NONE )
+	{
+		ASSERT(0);
+		return FALSE;
+	}
+
+	FIX_UNAVAILABLE_CHANNELS(channel);
 
 	// Turn on the clocks for all the peripherals required
 	ADC_RCC_Configuration(TRUE);
@@ -90,74 +107,48 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_NbrOfChannel = 1;
 
-	if(channel == 0)
-		ADC_Init(ADC1, &ADC_InitStructure);
-	else if(channel == 1)
-		ADC_Init(ADC2, &ADC_InitStructure);
-	else
-		ADC_Init(ADC3, &ADC_InitStructure);
+	ADC_Init(ADC_MODULE[channel], &ADC_InitStructure);
 
-	  /* ADC1 regular channel10 configuration */
-	if(channel == 0)
-		ADC_RegularChannelConfig(ADC1, EMOTE_ADC_CHANNEL[0], 1, 0x04);
-	else if(channel == 1)
-		ADC_RegularChannelConfig(ADC2, EMOTE_ADC_CHANNEL[1], 1, 0x04);
-	else
-		ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, 0x04);
+	ADC_RegularChannelConfig(ADC_MODULE[channel], EMOTE_ADC_CHANNEL[channel], 1, ADC_SampleTime_41Cycles5);
+
 
 	  /* Enable ADC1 DMA */
 	  //ADC_DMACmd(ADC1, ENABLE);
 
-	  /* Enable ADC1 */
-	if(channel == 0)
-		ADC_Cmd(ADC1, ENABLE);
-	else if(channel == 1)
-		ADC_Cmd(ADC2, ENABLE);
-	else
-		ADC_Cmd(ADC3, ENABLE);
+	/* Enable ADC */
+	ADC_Cmd(ADC_MODULE[channel], ENABLE);
 
-	  /* Enable ADC1 reset calibaration register */
-	if(channel == 0)
-		ADC_ResetCalibration(ADC1);
-	else if(channel == 1)
-		ADC_ResetCalibration(ADC2);
-	else
-		ADC_ResetCalibration(ADC3);
+	/* Enable ADC reset calibration register */
+	ADC_ResetCalibration(ADC_MODULE[channel]);
 
-	  /* Check the end of ADC1 reset calibration register */
-	if(channel == 0)
-		while(ADC_GetResetCalibrationStatus(ADC1));
-	else if(channel == 1)
-		while(ADC_GetResetCalibrationStatus(ADC2));
-	else
-		while(ADC_GetResetCalibrationStatus(ADC3));
+	/* Check the end of ADC reset calibration register */
+	while(ADC_GetResetCalibrationStatus(ADC_MODULE[channel]));  // FIXME: use timeout.
 
-	  /* Start ADC1 calibaration */
-	if(channel == 0)
-		ADC_StartCalibration(ADC1);
-	else if(channel == 1)
-		ADC_StartCalibration(ADC2);
-	else
-		ADC_StartCalibration(ADC3);
+	/* Start ADC calibration */
+	ADC_StartCalibration(ADC_MODULE[channel]);
 
-	  /* Check the end of ADC1 calibration */
-	if(channel == 0)
-		while(ADC_GetCalibrationStatus(ADC1));
-	else if(channel == 1)
-		while(ADC_GetCalibrationStatus(ADC2));
-	else
-		while(ADC_GetCalibrationStatus(ADC3));
-    return TRUE;
+	/* Check the end of ADC calibration */
+	while(ADC_GetCalibrationStatus(ADC_MODULE[channel]));   // FIXME: use timeout.
+
+	return TRUE;
 }
 
 void AD_Uninitialize( ANALOG_CHANNEL channel )
 {
-	if(channel == 0)
-		ADC_Cmd(ADC1, DISABLE);
-	else if(channel == 1)
-		ADC_Cmd(ADC2, DISABLE);
-	else
-		ADC_Cmd(ADC3, DISABLE);
+	if( channel <= ANALOG_CHANNEL_NONE )
+	{
+		ASSERT(0);
+		return;
+	}
+
+	FIX_UNAVAILABLE_CHANNELS(channel);
+
+	ADC_Cmd( ADC_MODULE[channel], DISABLE );
+
+	// TODO: test against changing the CpuAnalogChannel
+	// ADC_NVIC_Configuration(FALSE);
+	// ADC_GPIO_Configuration(FALSE);
+	// ADC_RCC_Configuration(FALSE);
 }
 
 INT32 AD_Read( ANALOG_CHANNEL channel )
