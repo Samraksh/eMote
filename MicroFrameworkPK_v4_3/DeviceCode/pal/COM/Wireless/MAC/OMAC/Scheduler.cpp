@@ -107,8 +107,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 		}
 	}
 	/* we are not going to send any beacons if neighbor is going to receive*/
-	else if(TRUE)
-	{//!isNeighborGoingToReceive()) {
+	else if(TRUE){//!isNeighborGoingToReceive()) {
 		if(startMeasuringDutyCycle && rxSlotOffset == 0) {
 			if(InputState.RequestState(I_DATA_RCV_PENDING) == DS_Success) {
 				//call OMacSignal.yield();
