@@ -17,7 +17,7 @@
 //A combined base class for timesync, analogous to TimeSyncMessageC in TinyOS
 
 
-#define TXRXOFFSET 716
+#define TXRXOFFSET 1320
 //2420
 //Provides Packet level timesync: Similar to TinyOS TEP 133
 //http://www.tinyos.net/tinyos-2.1.0/doc/html/tep133.html
