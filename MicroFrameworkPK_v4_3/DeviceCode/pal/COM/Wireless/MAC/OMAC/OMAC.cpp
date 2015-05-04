@@ -113,14 +113,13 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success)
 			return status;
+		MyID = CPU_Radio_GetAddress(radioName);
 
 		g_omac_RadioControl.Initialize();
 		//SetAddress(MF_NODE_ID);
 		//MyAddress = MF_NODE_ID;
 		g_omac_scheduler.Initialize(radioName, macName);
 		Initialized=TRUE;
-
-		MyID = CPU_Radio_GetAddress(radioName);
 	}
 
 	//Initialize upper layer call backs
