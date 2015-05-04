@@ -83,11 +83,12 @@ BOOL OMACTest::Initialize(){
 }
 
 BOOL OMACTest::StartTest(){
+	VirtualTimerReturnMessage rm;
 	ScheduleNextLocalCLK();
-	VirtTimer_Start(LocalClockMonitor_TIMER);
+	rm = VirtTimer_Start(LocalClockMonitor_TIMER);
 	while(!ScheduleNextNBRCLK()){
 	}
-	VirtTimer_Start(NbrClockMonitor_TIMER);
+	rm = VirtTimer_Start(NbrClockMonitor_TIMER);
 	while(1){
 	}
 	return TRUE;
@@ -95,6 +96,8 @@ BOOL OMACTest::StartTest(){
 
 BOOL OMACTest::ScheduleNextNBRCLK(){
 	UINT16 Nbr2beFollowed = g_omac_scheduler.m_TimeSyncHandler.Nbr2beFollowed;
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Stop(NbrClockMonitor_TIMER);
 	if ( g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(Nbr2beFollowed) >= 5 ){
 		UINT64 y = HAL_Time_CurrentTicks();
 		// TODO: Check if neighbor was registered(at least 2 packets were received)
@@ -103,23 +106,22 @@ BOOL OMACTest::ScheduleNextNBRCLK(){
 		UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(Nbr2beFollowed, NextEventTime - nbrTime);
 		UINT32 MicSTillNextEvent = (UINT32) (HAL_Time_TicksToTime(TicksTillNextEvent) - HAL_Time_TicksToTime(HAL_Time_CurrentTicks() - y)) ;
 
-		VirtTimer_Stop(NbrClockMonitor_TIMER);
-		VirtTimer_Change(NbrClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
+		rm = VirtTimer_Change(NbrClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
 		return TRUE;
 	}
 	else {
-		VirtTimer_Stop(NbrClockMonitor_TIMER);
 		return FALSE;
 	}
 }
 
 BOOL OMACTest::ScheduleNextLocalCLK(){
-		VirtTimer_Stop(NbrClockMonitor_TIMER);
+		VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Stop(LocalClockMonitor_TIMER);
 		UINT64 y = HAL_Time_CurrentTicks();
 		UINT64 NextEventTime = ( y/ ((UINT64) NBCLOCKMONITORPERIOD)  + 1) * ((UINT64)NBCLOCKMONITORPERIOD);
 		UINT64 TicksTillNextEvent = NextEventTime - y;
 		UINT32 MicSTillNextEvent = (UINT32) (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
-		VirtTimer_Change(LocalClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
+		rm = VirtTimer_Change(LocalClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
 
 		return TRUE;
 }
