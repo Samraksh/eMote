@@ -115,14 +115,15 @@ UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
 		INT32 remainingSlots = m_nextTXCounter - slotNum;
 		if (remainingSlots >= 0 && remainingSlots > (0xffff >> SLOT_PERIOD_BITS)) {
 			return 0xffff;
-		} else {
+		}
+		else {
 			//in case the task delay is large and we are already pass
 			//tx time, tx immediately
 			INT32 remainingTicks = m_nextTXTicks - HAL_Time_CurrentTime();
 			if (remainingTicks < 0) {
 				return 0xffff;
 			}
-		return (UINT16)(remainingTicks);
+			return (UINT16)(remainingTicks);
 		}
 	} else {
 		return 0xffff;
@@ -146,6 +147,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			return;
 		}
 
+//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented
 		if (m_outgoingEntryPtr == NULL) {
 			m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
 			if (m_outgoingEntryPtr == NULL) {

@@ -158,9 +158,11 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 	if (remainingSlots == 0) {
 			wakeupSlot = slotNum;
 			return 0;
-		} else if (remainingSlots >= 0xffff) {
+		}
+	else if (remainingSlots >= 0xffff) {
 			return 0xffff;
-		} else {
+		}
+	else {
 			return remainingSlots;
 	}
 
