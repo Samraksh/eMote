@@ -18,6 +18,8 @@ public:
 	MacEventHandler myEventHandler;
 	MacConfig Config;
 	UINT8 MacId;
+	BOOL LocalClkPINState;
+	BOOL NeighborClkPINState;
 
 
 	BOOL Initialize();
