@@ -159,8 +159,9 @@ public:
 		return 255;
 	}
 	UINT8 NumberOfRecordedElements(UINT16 nbr){
-		return(samples[FindNbr(nbr)].numSamples);
-
+		UINT16 nbrIndex = FindNbr(nbr);
+		if (nbrIndex >= MAX_NBR) return 0;
+		return(samples[nbrIndex].numSamples);
 	};
 	void Insert(UINT16 nbr,UINT64 nbr_ltime, INT64 nbr_loffset){
 		UINT16 nbrIndex = FindNbr(nbr);
@@ -200,6 +201,10 @@ public:
 			samples[ii].nbrID = INVALID_NBR_ID;
 			samples[ii].lastTimeIndex = MAX_SAMPLES;
 			samples[ii].numSamples = 0;
+			samples[ii].recordedTimeAvg = 0;
+			samples[ii].offsetAvg = 0;
+			samples[ii].avgSkew = 1;
+			samples[ii].relativeFreq = 1;
 			for(int i=0; i< MAX_SAMPLES; i++){
 				samples[ii].recordedTime[i] = INVALID_TIMESTAMP;
 				samples[ii].offsetBtwNodes[i] = 0;
@@ -216,7 +221,11 @@ public:
 		return(samples[nbrIndex].relativeFreq);
 	};
 
-
+	UINT64 LastRecordedTime(UINT16 nbr){
+		UINT16 nbrIndex = FindNbr(nbr);
+		if (nbrIndex == 255) return (0);
+		return (samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex]);
+	};
 };
 
 
