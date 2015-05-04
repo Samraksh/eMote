@@ -20,6 +20,8 @@ public:
 	UINT8 MacId;
 	BOOL LocalClkPINState;
 	BOOL NeighborClkPINState;
+	BOOL IsLocalCLKScheduled;
+	BOOL IsNeighborCLKScheduled;
 
 
 	BOOL Initialize();

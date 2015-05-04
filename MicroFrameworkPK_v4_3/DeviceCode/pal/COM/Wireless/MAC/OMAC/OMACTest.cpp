@@ -34,6 +34,7 @@ void OMACTest_SendAckHandler (void* msg, UINT16 size, NetOpStatus status){
 
 void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
 
+	gOMACTest.IsLocalCLKScheduled = false;
 	//Toggle Pin State for monitoring with Logic Analyzer
 	if(gOMACTest.LocalClkPINState){
 		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
@@ -44,13 +45,14 @@ void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
 		gOMACTest.LocalClkPINState = true;
 	}
 
-	BOOL rv = gOMACTest.ScheduleNextLocalCLK();
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_Start(LocalClockMonitor_TIMER);
+	//BOOL rv = gOMACTest.ScheduleNextLocalCLK();
+	//VirtualTimerReturnMessage rm;
+	//rm = VirtTimer_Start(LocalClockMonitor_TIMER);
 }
 
 void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
 	//Toggle Pin State for monitoring with Logic Analyzer
+	gOMACTest.IsNeighborCLKScheduled = false;
 	if(gOMACTest.NeighborClkPINState){
 		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
 		gOMACTest.NeighborClkPINState = false;
@@ -59,15 +61,23 @@ void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
 		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
 		gOMACTest.NeighborClkPINState = true;
 	}
-	BOOL rv = gOMACTest.ScheduleNextNBRCLK();
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_Start(NbrClockMonitor_TIMER);
+	//BOOL rv = gOMACTest.ScheduleNextNBRCLK();
+	//VirtualTimerReturnMessage rm;
+	//rm = VirtTimer_Start(NbrClockMonitor_TIMER);
 }
 
 
 // TIMESYNCTEST
 
 BOOL OMACTest::Initialize(){
+
+	CPU_GPIO_EnableOutputPin(NBRCLOCKMONITORPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(LOCALCLOCKMONITORPIN, TRUE);
+	LocalClkPINState = true;
+	NeighborClkPINState = true;
+
+	IsLocalCLKScheduled = false;
+	IsNeighborCLKScheduled = false;
 
 	MyAppID = 3; //pick a number less than MAX_APPS currently 4.
 	Config.Network = 138;
@@ -88,15 +98,14 @@ BOOL OMACTest::Initialize(){
 
 BOOL OMACTest::StartTest(){
 	VirtualTimerReturnMessage rm;
-	ScheduleNextLocalCLK();
-	rm = VirtTimer_Start(LocalClockMonitor_TIMER);
-	while(!ScheduleNextNBRCLK()){
-		rm = VirtTimer_Start(LocalClockMonitor_TIMER);
-	}
-	rm = VirtTimer_Start(NbrClockMonitor_TIMER);
+
 	while(1){
-		rm = VirtTimer_Start(LocalClockMonitor_TIMER);
-		rm = VirtTimer_Start(NbrClockMonitor_TIMER);
+		if(!IsLocalCLKScheduled) {
+			ScheduleNextLocalCLK();
+		}
+		if(!IsNeighborCLKScheduled) {
+			ScheduleNextNBRCLK();
+		}
 	}
 	return TRUE;
 }
@@ -105,15 +114,17 @@ BOOL OMACTest::ScheduleNextNBRCLK(){
 	UINT16 Nbr2beFollowed = g_omac_scheduler.m_TimeSyncHandler.Nbr2beFollowed;
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(NbrClockMonitor_TIMER);
-	if ( g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(Nbr2beFollowed) >= 5 ){
+	if (g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(Nbr2beFollowed) > 2 ) {//if ( g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(Nbr2beFollowed) >= 5 ){
 		UINT64 y = HAL_Time_CurrentTicks();
 		// TODO: Check if neighbor was registered(at least 2 packets were received)
 		UINT64 nbrTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(Nbr2beFollowed, HAL_Time_CurrentTicks());
 		UINT64 NextEventTime = ( ( nbrTime/((UINT64) NBCLOCKMONITORPERIOD) ) + 1) * ((UINT64)NBCLOCKMONITORPERIOD);
-		UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(Nbr2beFollowed, NextEventTime - nbrTime);
-		UINT32 MicSTillNextEvent = (UINT32) (HAL_Time_TicksToTime(TicksTillNextEvent) - HAL_Time_TicksToTime(HAL_Time_CurrentTicks() - y)) ;
-
-		rm = VirtTimer_Change(NbrClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
+		UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(Nbr2beFollowed, NextEventTime) - y;
+		UINT32 MicSTillNextEvent = (UINT32) (HAL_Time_TicksToTime(TicksTillNextEvent));
+		UINT32 ProcessingLatency = (UINT32) (HAL_Time_TicksToTime( HAL_Time_CurrentTicks() - y));
+		rm = VirtTimer_Change(NbrClockMonitor_TIMER, 0, MicSTillNextEvent + ProcessingLatency, USEONESHOTTIMER);
+		rm = VirtTimer_Start(NbrClockMonitor_TIMER);
+		IsNeighborCLKScheduled = true;
 		return TRUE;
 	}
 	else {
@@ -129,7 +140,8 @@ BOOL OMACTest::ScheduleNextLocalCLK(){
 		UINT64 TicksTillNextEvent = NextEventTime - y;
 		UINT32 MicSTillNextEvent = (UINT32) (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 		rm = VirtTimer_Change(LocalClockMonitor_TIMER, 0, MicSTillNextEvent, USEONESHOTTIMER);
-
+		rm = VirtTimer_Start(LocalClockMonitor_TIMER);
+		IsLocalCLKScheduled = true;
 		return TRUE;
 }
 
