@@ -100,7 +100,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
-		if( !IsRunningDataAlarm()) {
+		if( !IsRunningDataAlarm()) { //TODO: BK: This is not working now.
 			StartDataAlarm(txSlotOffset);
 		} else {
 			//debug_printf("DataAlarm already running with remaining %lu\n", call DataAlarm.getAlarm() - call DataAlarm.getNow());
