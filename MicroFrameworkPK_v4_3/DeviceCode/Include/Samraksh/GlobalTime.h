@@ -167,7 +167,7 @@ public:
 		UINT16 nbrIndex = FindNbr(nbr);
 		//Add new neighbor if not found
 		if (nbrIndex ==255){
-			nbrIndex=nbrCount;
+			nbrIndex = nbrCount;
 			nbrCount++;
 			//No space in regression table
 			if(nbrCount > MAX_NBR){
@@ -264,6 +264,7 @@ void GlobalTime::Init(){
 
 
 UINT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, UINT64 nbrTime){
+	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
 	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
 	UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
 	UINT64 periodlength;
@@ -290,6 +291,7 @@ UINT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, UINT64 nbrTime){
 }
 
 UINT64 GlobalTime::Local2NbrTime(UINT16 nbr, UINT64 curtime){
+	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(curtime);
 	//UINT64 curtime = HAL_Time_CurrentTime();
 	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
 	UINT64 periodlength;
