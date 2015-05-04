@@ -17,46 +17,10 @@ BOOL GlobalTime::synced=FALSE;
 
 #define TIMESYNCSENDPIN 2
 #define TIMESYNCRECEIVEPIN 23
-#define NBRCLOCKMONITORPIN 29
-#define LOCALCLOCKMONITORPIN 24
-
-#define LocalClockMonitor_TIMER 32
-#define NbrClockMonitor_TIMER 33
-
-#define USEONESHOTTIMER FALSE
-
-#define NBCLOCKMONITORPERIOD 100000
-#define INITIALDELAY 100000
 
 #define TXNODEID 30906
 #define RXNODEID 4028
 
-
-
-void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
-	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN)){
-		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
-	}
-	else {
-		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, true);
-	}
-
-
-}
-
-void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
-	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) NBRCLOCKMONITORPIN)){
-	//if(gSimpleTimesyncTest.NeighClkMonitorPinState) {
-	//	gSimpleTimesyncTest.NeighClkMonitorPinState = false;
-		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
-	}
-	else {
-	//	gSimpleTimesyncTest.NeighClkMonitorPinState = true;
-		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
-	}
-}
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 
@@ -85,10 +49,6 @@ void CMaxTimeSync::PostExecuteSlot(){
 }
 
 void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
-	VirtualTimerReturnMessage rm;
-
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) NBRCLOCKMONITORPIN, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) LOCALCLOCKMONITORPIN, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
 
@@ -113,9 +73,6 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	else {
 		Nbr2beFollowed = RXNODEID;
 	}
-
-	rm = VirtTimer_SetTimer(LocalClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSLocalClockMonitorTimerHandler);
-	rm = VirtTimer_SetTimer(NbrClockMonitor_TIMER, INITIALDELAY, (UINT32) NBCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSNeighborClockMonitorTimerHandler);
 #endif
 
 
@@ -127,7 +84,6 @@ DeviceStatus CMaxTimeSync::Send(){
 	DeviceStatus rs;
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
-	VirtTimer_Stop(LocalClockMonitor_TIMER);
 #endif
 
 	IEEE802_15_4_Header_t * header = m_timeSyncBufferPtr->GetHeader();
@@ -157,7 +113,6 @@ DeviceStatus CMaxTimeSync::Send(){
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
-	VirtTimer_Start(LocalClockMonitor_TIMER);
 #endif
 	return rs;
 
@@ -170,7 +125,6 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 #ifdef DEBUG_TSYNC
 	if (msg_src == Nbr2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-
 			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
 		}
 	}
@@ -191,54 +145,10 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Nbr2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-
-			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
-
-			TimerReturn = VirtTimer_Stop(NbrClockMonitor_TIMER);
-			// RcvCount = 30; //This is to ensure preventing overflow on the RcvCount
-			//float relfreq = 1.0;
-			float relfreq = m_globalTime.regressgt2.FindRelativeFreq(msg_src);
-			if (relfreq > 1.3){
-				relfreq = 1.3;
-			}
-			else if (relfreq < 0.7){
-				relfreq = 0.7;
-			}
-			UINT32 NeighborsPeriodLength = (UINT32) (((float) NBCLOCKMONITORPERIOD)*relfreq); ///m_globalTime.regressgt.samples[nbrIndex].relativeFreq;
-			UINT64 y = HAL_Time_CurrentTicks();
-			//INT64 start_delay = (y - EventTime); // Attempt to compansate for the difference
-			INT64 start_delay = HAL_Time_TicksToTime((y - EventTime));
-			//
-//			UINT8 size = len;
-//            UINT8 * rcv_msg2 =  msg->GetPayload();
-//            UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg2 + size + TIMESTAMP_OFFSET);
-//
-//            UINT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
-//
-//            UINT32 sender_delay = *senderEventTime;
-//			//
-			start_delay = (INT64) (((float) INITIALDELAY)*relfreq) - start_delay;
-			if (start_delay > (1.5*INITIALDELAY)) {
-				start_delay = (1.5*INITIALDELAY);
-			}
-			else if(start_delay<(0.5*INITIALDELAY)){
-				start_delay = (0.5*INITIALDELAY);
-			}
-
-			if (NeighborsPeriodLength > (1.5*NBCLOCKMONITORPERIOD)) {
-				start_delay =  (1.5*NBCLOCKMONITORPERIOD) ;
-			}
-			else if(NeighborsPeriodLength <  (0.5*NBCLOCKMONITORPERIOD) ){
-				start_delay =  (0.5*NBCLOCKMONITORPERIOD);
-			}
-			VirtTimer_Change(NbrClockMonitor_TIMER, start_delay, NeighborsPeriodLength, USEONESHOTTIMER);
-
-			TimerReturn = VirtTimer_Start(NbrClockMonitor_TIMER);
+			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 		}
 	}
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 #endif
-
 	return DS_Success;
 }
 

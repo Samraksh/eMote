@@ -19,8 +19,12 @@ public:
 	MacConfig Config;
 	UINT8 MacId;
 
+
 	BOOL Initialize();
 	BOOL StartTest();
+
+	BOOL ScheduleNextNBRCLK();
+	BOOL ScheduleNextLocalCLK();
 };
 
 OMACTest gOMACTest;

@@ -36,9 +36,10 @@ typedef class CMaxTimeSync : public SlotHandler{
 	CMaxTSyncState m_state;
 	UINT32 m_messagePeriod;
 	UINT32 m_lastSlotExecuted;
-	UINT16 Nbr2beFollowed;
+
 
 public:
+	UINT16 Nbr2beFollowed;
 	GlobalTime m_globalTime;
 	BOOL m_isLeader;
 	//UINT16 m_leader;
