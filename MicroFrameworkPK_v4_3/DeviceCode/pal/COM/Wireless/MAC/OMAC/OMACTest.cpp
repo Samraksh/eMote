@@ -33,31 +33,35 @@ void OMACTest_SendAckHandler (void* msg, UINT16 size, NetOpStatus status){
 }
 
 void CMaxTSLocalClockMonitorTimerHandler(void * arg) {
+
 	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN)){
+	if(gOMACTest.LocalClkPINState){
 		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, false);
+		gOMACTest.LocalClkPINState = false;
 	}
 	else {
 		CPU_GPIO_SetPinState((GPIO_PIN) LOCALCLOCKMONITORPIN, true);
+		gOMACTest.LocalClkPINState = true;
 	}
 
 	BOOL rv = gOMACTest.ScheduleNextLocalCLK();
-	VirtTimer_Start(LocalClockMonitor_TIMER);
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(LocalClockMonitor_TIMER);
 }
 
 void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
 	//Toggle Pin State for monitoring with Logic Analyzer
-	if(CPU_GPIO_GetPinState((GPIO_PIN) NBRCLOCKMONITORPIN)){
-	//if(gSimpleTimesyncTest.NeighClkMonitorPinState) {
-	//	gSimpleTimesyncTest.NeighClkMonitorPinState = false;
+	if(gOMACTest.NeighborClkPINState){
 		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, false);
+		gOMACTest.NeighborClkPINState = false;
 	}
 	else {
-	//	gSimpleTimesyncTest.NeighClkMonitorPinState = true;
 		CPU_GPIO_SetPinState((GPIO_PIN) NBRCLOCKMONITORPIN, true);
+		gOMACTest.NeighborClkPINState = true;
 	}
 	BOOL rv = gOMACTest.ScheduleNextNBRCLK();
-	VirtTimer_Start(NbrClockMonitor_TIMER);
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(NbrClockMonitor_TIMER);
 }
 
 
@@ -87,9 +91,12 @@ BOOL OMACTest::StartTest(){
 	ScheduleNextLocalCLK();
 	rm = VirtTimer_Start(LocalClockMonitor_TIMER);
 	while(!ScheduleNextNBRCLK()){
+		rm = VirtTimer_Start(LocalClockMonitor_TIMER);
 	}
 	rm = VirtTimer_Start(NbrClockMonitor_TIMER);
 	while(1){
+		rm = VirtTimer_Start(LocalClockMonitor_TIMER);
+		rm = VirtTimer_Start(NbrClockMonitor_TIMER);
 	}
 	return TRUE;
 }
