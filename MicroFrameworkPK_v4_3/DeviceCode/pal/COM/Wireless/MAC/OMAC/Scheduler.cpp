@@ -16,6 +16,10 @@ void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
 }
 
+void PublicDataAlarmHandlder(void * param){
+	g_omac_scheduler.DataAlarmHandler( param);
+}
+
 void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	radioID = _radioID;
 	macID = _macID;
@@ -45,8 +49,8 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
 
-	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
-
+	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
+	VirtTimer_SetTimer(HAL_DATAALARM_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC , TRUE, FALSE, PublicSlotAlarmHanlder);
 
 
 	//Initialize Handlers
@@ -100,10 +104,9 @@ bool OMACSchedulerBora::RunSlotTask(){
 
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
-		if( !IsRunningDataAlarm()) { //TODO: BK: This is not working now.
+		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
 			StartDataAlarm(txSlotOffset);
-		} else {
-			//debug_printf("DataAlarm already running with remaining %lu\n", call DataAlarm.getAlarm() - call DataAlarm.getNow());
+			return TRUE;
 		}
 	}
 	/* we are not going to send any beacons if neighbor is going to receive*/
@@ -282,11 +285,12 @@ void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
-		//start alarm in default periodic mode
-		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+		void* param;
+		this->DataAlarmHandler(param);
 	}else {
-		//Change next slot time with delay
-		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, (Delay-4)*1000, FALSE);
+		VirtTimer_Start(HAL_DATAALARM_TIMER);
+
 	}
 
 }
