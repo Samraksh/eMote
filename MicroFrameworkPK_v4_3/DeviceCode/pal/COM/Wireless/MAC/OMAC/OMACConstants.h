@@ -117,6 +117,10 @@ typedef struct DiscoveryMsg
 	UINT16 dataInterval;
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
+
+	UINT32 localTime0;
+	UINT32 localTime1;
+
 } DiscoveryMsg_t;
 
 
