@@ -153,6 +153,7 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 	//Should never happen
 	if (m_nextWakeupSlot < slotNum) {
 		hal_printf("ERROR: nxtSlot %lu curSlot %lu\n", m_nextWakeupSlot, slotNum);
+		m_nextWakeupSlot = m_dataInterval;
 	}
 
 	if (remainingSlots == 0) {

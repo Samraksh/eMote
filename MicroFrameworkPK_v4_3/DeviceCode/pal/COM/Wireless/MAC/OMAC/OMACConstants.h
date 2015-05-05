@@ -159,6 +159,7 @@ typedef struct OMacHeader {
 } OMacHeader;
 
 #define MICSECINMILISEC 1000
+#define GUARDTIME_MICRO 1000
 enum {
   TICKS_PER_MILLI     = 8000,
 

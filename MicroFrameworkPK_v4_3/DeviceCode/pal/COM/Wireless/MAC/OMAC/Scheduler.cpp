@@ -105,7 +105,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
 		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
-			StartDataAlarm(txSlotOffset);
+			StartDataAlarm(txSlotOffset+GUARDTIME_MICRO);
 			return TRUE;
 		}
 	}
