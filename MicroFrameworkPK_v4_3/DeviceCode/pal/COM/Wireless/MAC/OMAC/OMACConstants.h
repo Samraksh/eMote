@@ -37,6 +37,7 @@
 #define TIMESTAMP_FOOTER_OFFSET -4
 
 #define HAL_SLOT_TIMER 3
+#define HAL_DATAALARM_TIMER 3
 #define HAL_DISCOVERY_TIMER 4
 
 
@@ -157,8 +158,9 @@ typedef struct OMacHeader {
   UINT8 flag;
 } OMacHeader;
 
+#define MICSECINMILISEC 1000
 enum {
-  TICKS_PER_MILLI     = 32,
+  TICKS_PER_MILLI     = 8000,
 
 #ifdef SHORT_SLOT
 #warning *** USING 8ms SLOT ***

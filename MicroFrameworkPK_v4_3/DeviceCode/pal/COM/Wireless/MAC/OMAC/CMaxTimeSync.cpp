@@ -1,6 +1,6 @@
 #include "DiscoveryHandler.h"
 #include <Samraksh/Message.h>
-#include "RadioControl.h"
+#include "OMAC.h"
 #include "CMaxTimeSync.h"
 
 
@@ -8,7 +8,9 @@
 #define FUDGEFACTOR 10000		//in 100ns, a value of 1000 =100 microseconds
 
 #define LOCALSKEW 1
-extern RadioControl_t g_omac_RadioControl;
+//extern RadioControl_t g_omac_RadioControl;
+extern OMACTypeBora g_OMAC;
+extern NeighborTable g_NeighborTable;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
@@ -23,10 +25,20 @@ BOOL GlobalTime::synced=FALSE;
 
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
+	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
+	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
+		Send(sn ->MacAddress);
+	}
+	else {
+		UINT64 remslots = (m_messagePeriod - (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) ) / SLOT_PERIOD;
+		if ( remslots <2 ) return 0;
+		else return remslots;
+	}
 
-	return ((UINT32) 0xFFFFFFFF);
+
 	//BK: Return periods until next timesync
-	if( (currSlot > m_lastSlotExecuted)  ) {
+/*	if( (currSlot > m_lastSlotExecuted)  ) {
 		if ( (currSlot-m_lastSlotExecuted) >= m_messagePeriod  )
 			return(0); //This is the case for triggerting
 		else
@@ -37,12 +49,13 @@ UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 			return(0);
 		else
 			return(m_messagePeriod-( (0xFFFFFFFF -  m_lastSlotExecuted) + currSlot ));
-	}
+	}*/
 }
 
 void CMaxTimeSync::ExecuteSlot(UINT32 slotNum){
 	m_lastSlotExecuted=slotNum;
-	Send();
+	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+	Send(sn -> MacAddress);
 }
 
 void CMaxTimeSync::PostExecuteSlot(){
@@ -61,7 +74,8 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	//m_leader=TRUE;
 	m_localAverage = 0;
 	m_offsetAverage = 0;
-	m_messagePeriod = 10000/SLOT_PERIOD; //Time period in milliseconds
+	//m_messagePeriod = 10000/SLOT_PERIOD; //Time period in milliseconds
+	m_messagePeriod = 10000 * TICKS_PER_MILLI;//Time period in ticks
 	m_timeSyncBufferPtr = &m_timeSyncMsgBuffer;
 	m_globalTime.Init();
 	m_state = E_Leader;
@@ -81,16 +95,16 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
-DeviceStatus CMaxTimeSync::Send(){
-	DeviceStatus rs;
+BOOL CMaxTimeSync::Send(RadioAddress_t address){
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
 #endif
 
 	IEEE802_15_4_Header_t * header = m_timeSyncBufferPtr->GetHeader();
 	m_timeSyncMsg = (TimeSyncMsg *) m_timeSyncBufferPtr->GetPayload();
-	INT64 x,y,d;
-	x= 85899345921;
+	//INT64 x,y,d;
+	//x= 85899345921;
+	UINT64 y;
 	y = HAL_Time_CurrentTicks();
 #ifndef LOCALSKEW
 	x = m_globalTime.Local2Global(y);
@@ -105,11 +119,13 @@ DeviceStatus CMaxTimeSync::Send(){
 	//m_timeSyncMsg->seqNo = m_seqNo++;
 
 	//header->dest= RADIO_BROADCAST_ADDRESS;
-	header->type=MFM_TIMESYNC;
+	header->type = MFM_TIMESYNC;
 
 	//d= x-y;
 
-	rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
+	//DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
+	BOOL rs = g_OMAC.SendTimeStamped(address,MFM_TIMESYNC, m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
+	g_NeighborTable.RecordTimeSyncSent(address,(UINT32) (y & (~(UINT32) 0)));
 	//hal_printf("TS Send: %d,  Gtime: %lld, LTime: %lld, diff: %lld \n",m_seqNo, x, y, d);
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
