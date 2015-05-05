@@ -55,6 +55,7 @@ public:
 	BOOL UnInitialize(void);
 	DeviceStatus SetConfig (ConfigT* config);
 	BOOL Send(UINT16 address, void* msg, int Size);
+//	BOOL SendTimeStamped(UINT16 address, void* msg, int Size, UINT32 eventTime);
 
 	void* ReceiveHandler(void* msg, UINT16 Size);
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
