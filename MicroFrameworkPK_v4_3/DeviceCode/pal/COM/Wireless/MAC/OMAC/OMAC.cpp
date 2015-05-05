@@ -221,6 +221,43 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	header->mac_id = macName;
 	header->type = dataType;
 
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+
+	UINT8* lmsg = (UINT8 *) msg;
+	UINT8* payload =  msg_carrier->GetPayload();
+
+	for(UINT8 i = 0 ; i < size; i++)
+		payload[i] = lmsg[i];
+
+	return true;
+}
+
+//Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
+BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
+{
+	if(g_send_buffer.IsFull())
+		return FALSE;
+
+	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	if(size >  OMACTypeBora::GetMaxPayload()){
+		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
+		return FALSE;
+	}
+	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
+	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest =address;
+	header->src = CPU_Radio_GetAddress(this->radioName);;
+	header->network = MyConfig.Network;
+	header->mac_id = macName;
+	header->type = dataType;
+
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
+
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier->GetPayload();
 

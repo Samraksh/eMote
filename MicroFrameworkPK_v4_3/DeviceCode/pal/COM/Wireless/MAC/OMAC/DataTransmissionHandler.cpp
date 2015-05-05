@@ -9,12 +9,16 @@
 #include "DataTransmissionHandler.h"
 #include "OMAC.h"
 #include "Scheduler.h"
+#include "RadioControl.h"
 
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
-extern Buffer_15_4_t g_receive_buffer;
+//extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;
+extern RadioControl_t g_omac_RadioControl;
+
+
 
 void DataTransmissionHandler::Initialize(){
 	m_dsn = 0;
@@ -97,11 +101,22 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 }
 
 void DataTransmissionHandler::ExecuteSlot(UINT32 slotNum){
-
+	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
+	bool rv = Send();
 }
 
 UINT8 DataTransmissionHandler::ExecuteSlotDone(){
 
+}
+
+bool DataTransmissionHandler::Send(){
+	ASSERT(m_outgoingEntryPtr != NULL);
+	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
+		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize()  );
+	}
+	else {
+		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+	}
 }
 
 UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
@@ -119,11 +134,8 @@ UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
 		else {
 			//in case the task delay is large and we are already pass
 			//tx time, tx immediately
-			INT32 remainingTicks = m_nextTXTicks - HAL_Time_CurrentTime();
-			if (remainingTicks < 0) {
-				return 0xffff;
-			}
-			return (UINT16)(remainingTicks);
+			if(m_nextTXTicks < HAL_Time_CurrentTicks()) return 0xffff;
+			else return (UINT16)(m_nextTXTicks - HAL_Time_CurrentTicks());
 		}
 	} else {
 		return 0xffff;
@@ -138,7 +150,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 	// 2) we have nothing to send
 	//3) when the radio is idle.
 
-	if ((m_nextTXTicks + SLOT_PERIOD_MILLI * TICKS_PER_MILLI < HAL_Time_CurrentTime()) && g_send_buffer.Size() > 0){
+	if ((m_nextTXTicks + SLOT_PERIOD_MILLI * TICKS_PER_MILLI < HAL_Time_CurrentTicks()) && g_send_buffer.Size() > 0){
 		UINT16 dest;
 		Neighbor_t* nbrEntry;
 
@@ -147,9 +159,10 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			return;
 		}
 
-//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented
+//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
-			m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
+			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
+			m_outgoingEntryPtr =  g_send_buffer.GetOldest();
 			if (m_outgoingEntryPtr == NULL) {
 				return;
 			}

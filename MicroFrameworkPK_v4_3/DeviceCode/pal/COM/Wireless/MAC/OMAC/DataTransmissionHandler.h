@@ -45,5 +45,6 @@ public:
 	bool IsSynced(UINT16 nbr);
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
 	void ScheduleDataPacket();
+	bool Send();
 };
 #endif /* DATATRANSMISSIONHANDLER_H_ */
