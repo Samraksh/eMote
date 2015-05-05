@@ -24,6 +24,7 @@ BOOL GlobalTime::synced=FALSE;
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 
+	return ((UINT32) 0xFFFFFFFF);
 	//BK: Return periods until next timesync
 	if( (currSlot > m_lastSlotExecuted)  ) {
 		if ( (currSlot-m_lastSlotExecuted) >= m_messagePeriod  )
