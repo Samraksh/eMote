@@ -5,6 +5,7 @@
 //#define DEBUG_RF231 1
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
+#define RADIO_STATEPIN2 30
 
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
@@ -171,6 +172,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 	        state = STATE_BUSY_TX;
+	        CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 	        // exchange bags
 	        Message_15_4_t* temp = tx_msg_ptr;
@@ -286,7 +288,7 @@ DeviceStatus RF231Radio::Reset()
 	#endif
 			// set software state machine state to sleep
 	state = STATE_SLEEP;
-
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 	// Introducing radio sleep
 	//TurnOn();
 
@@ -425,6 +427,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 	{
 		// Setting Slptr moves the radio to sleep state
 		SlptrSet();
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 	}
 	// If radio is in RX_ON or PLL_ON move the radio to TRX_OFF before pulling slptr high
 	else if(regState == RF230_RX_ON || regState == RF230_PLL_ON)
@@ -437,8 +440,8 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 		// Setting Slptr moves the radio to sleep state
 		SlptrSet();
-
 		state = STATE_SLEEP;
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 	}
 	// The radio is busy doing something, we are not in a position to handle this request
 	else
@@ -573,6 +576,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
 	state = STATE_BUSY_TX;
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 	// exchange bags
 	Message_15_4_t* temp = tx_msg_ptr;
@@ -701,7 +705,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
-
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_STATEPIN2, FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
@@ -901,7 +907,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 #endif
 		// set software state machine state to sleep
 		state = STATE_SLEEP;
-
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 		// Initialize default radio handlers
 
 		// Added here until the state issues are resolved
@@ -1107,6 +1113,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 
 	// Change the state to RX_ON
 	state = STATE_RX_ON;
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 	return DS_Success;
 
@@ -1155,6 +1162,7 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	state = STATE_PLL_ON;
 	cmd = CMD_NONE;
 
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 	return DS_Success;
 
 }
@@ -1203,6 +1211,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 
 		sleep_pending = TRUE;
 		state = STATE_RX_ON;
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 	}
 
 	GLOBAL_LOCK(irq);
@@ -1232,6 +1241,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		if(Sleep(0) == DS_Success)
 		{
 			state = STATE_SLEEP;
+			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 			sleep_pending = FALSE;
 		}
 		else
@@ -1288,6 +1298,7 @@ void RF231Radio::HandleInterrupt()
 		//if(gRadioObject.GetCommand() == CMD_TRANSMIT)
 		//{
 			state = STATE_PLL_ON;
+			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 		//}
 	}
 	if(irq_cause & TRX_IRQ_RX_START)
@@ -1419,6 +1430,7 @@ void RF231Radio::HandleInterrupt()
 							SlptrSet();
 
 							state = STATE_SLEEP;
+							CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 
 						}
 
@@ -1428,6 +1440,7 @@ void RF231Radio::HandleInterrupt()
 					else
 					{
 						state = STATE_PLL_ON;
+						CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 						cmd = CMD_NONE;
 						//SlptrClear();
@@ -1443,6 +1456,7 @@ void RF231Radio::HandleInterrupt()
 						DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 
 						state = STATE_RX_ON;
+						CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 					}
 				}
 
@@ -1488,6 +1502,7 @@ void RF231Radio::HandleInterrupt()
 					SlptrSet();
 
 					state = STATE_SLEEP;
+					CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 				}
 
 				sleep_pending = FALSE;
@@ -1569,6 +1584,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	SelnSet();
 
 	state = STATE_RX_ON;
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 	cmd = CMD_NONE;
 
