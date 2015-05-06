@@ -48,8 +48,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
 
-	m_p1 = CONTROL_P1[CPU_Radio_GetAddress(RadioID) % 7];
-	m_p2 = CONTROL_P2[CPU_Radio_GetAddress(MacID) % 7];
+	m_p1 = CONTROL_P1[g_OMAC.MyID % 7];
+	m_p2 = CONTROL_P2[g_OMAC.MyID  % 7];
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_p1, m_p2);
 
 	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root
@@ -131,7 +131,11 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr
 		UINT64 localTime = HAL_Time_CurrentTicks();
 		m_discoveryMsg->localTime0 = (UINT32) localTime ;
 		m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
-		Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
+		e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
+		if (e != DS_Success) {
+			localTime = 2;
+		}
+
 	}
 	else {
 		// Why busy? Timing issue?
