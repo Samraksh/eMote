@@ -14,8 +14,8 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-#define TIMESYNCSENDPIN 2
-#define TIMESYNCRECEIVEPIN 23
+#define DISCOSYNCSENDPIN 2
+#define DISCOSYNCRECEIVEPIN 25
 #endif
 
 OMACSchedulerBora *g_scheduler;
@@ -33,7 +33,8 @@ void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
   	}
 
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
-
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) DISCOSYNCSENDPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) DISCOSYNCRECEIVEPIN, TRUE);
 	RadioID = radioID;
 	MacID = macID;
 	m_receivedPiggybackBeacon = FALSE;
@@ -106,7 +107,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCSENDPIN, TRUE );
 #endif
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
@@ -229,7 +230,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Nbr2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+			CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCRECEIVEPIN, TRUE );
 		}
 	}
 #endif
@@ -253,7 +254,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Nbr2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
+			CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCRECEIVEPIN, FALSE );
 		}
 	}
 #endif
@@ -272,7 +273,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * ms
 	retValue = g_omac_RadioControl.Send_TimeStamped(address,msg,size, event_time);
 
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCSENDPIN, FALSE );
 #endif
 
 	return retValue;

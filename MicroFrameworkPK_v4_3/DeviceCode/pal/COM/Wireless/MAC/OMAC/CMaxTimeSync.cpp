@@ -17,7 +17,7 @@ float GlobalTime::skew =0;
 UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
-#define TIMESYNCSENDPIN 2
+#define TIMESYNCSENDPIN 3
 #define TIMESYNCRECEIVEPIN 23
 
 #define TXNODEID 30906
