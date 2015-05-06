@@ -19,7 +19,7 @@
 //TODO: BK: TXRXOFFSET SHOULD ADJUST DEPENDING ON THE LENGTH OF A MESSAGE and the rate
 //#define TXRXOFFSET 1320 //Used with seperated test with OMAC
 //#define TXRXOFFSET 1820 //Used with seperated tests piggybacked discovery
-#define TXRXOFFSET 720
+#define TXRXOFFSET 820
 //2420
 //Provides Packet level timesync: Similar to TinyOS TEP 133
 //http://www.tinyos.net/tinyos-2.1.0/doc/html/tep133.html
