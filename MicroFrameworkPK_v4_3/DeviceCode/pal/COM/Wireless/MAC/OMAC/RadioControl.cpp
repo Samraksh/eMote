@@ -16,9 +16,16 @@ extern OMACTypeBora g_OMAC;
 
 #define LOCALSKEW 1
 #define DEBUG_TIMESYNCPIN_OLD (GPIO_PIN)31
+
+#define RADIO_STATEPIN 4
+
+#define DEBUG_RADIO_STATE 1
 //#define DEBUG_TIMESYNC 1
 
 DeviceStatus RadioControl::Initialize(){
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_STATEPIN, FALSE);
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, FALSE );
 #ifdef DEBUG_TIMESYNC
 	CPU_GPIO_EnableOutputPin(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
@@ -59,7 +66,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	if(size < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
-		UINT64 y = HAL_Time_CurrentTime();
+		UINT64 y = HAL_Time_CurrentTicks();
 	#ifndef LOCALSKEW
 		x = m_globalTime.Local2Global(y);
 	#endif
@@ -113,10 +120,14 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 DeviceStatus RadioControl::Stop(){
 	//DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, FALSE );
+
 	return returnVal;
 }
 
 DeviceStatus RadioControl::Start(){
 	CPU_Radio_TurnOnRx(g_OMAC.radioName);
+
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
 	return DS_Ready;
 }
