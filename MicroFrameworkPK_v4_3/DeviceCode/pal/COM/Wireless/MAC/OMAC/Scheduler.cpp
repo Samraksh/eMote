@@ -82,11 +82,12 @@ bool OMACSchedulerBora::RunSlotTask(){
 	// operations in it
 	rxSlotOffset = m_DataReceptionHandler.NextSlot(m_slotNo);
 
-	if(InputState.IsState(I_DATA_SEND_PENDING) || !(ProtoState.IsIdle())) {
+	//BK:This is disabled since should not happen anyways
+	// if(InputState.IsState(I_DATA_SEND_PENDING) || !(ProtoState.IsIdle())) {
 		//printf("[S %u I %u\n] incorrect state\n", call State.getState(),
 		//Input.GetState());
-		return FALSE;
-	}
+		//return FALSE;
+	//}
 
 
 	/* notice that the transmission handler returns the ticks (1/32 of a milli sec) for the
@@ -105,7 +106,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
 		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
-			StartDataAlarm(txSlotOffset+GUARDTIME_MICRO);
+			StartDataAlarm(txSlotOffset);
 			return TRUE;
 		}
 	}
@@ -288,7 +289,7 @@ void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 		void* param;
 		this->DataAlarmHandler(param);
 	}else {
-		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, (Delay-4)*1000, FALSE);
+		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay*1000, FALSE);
 		VirtTimer_Start(HAL_DATAALARM_TIMER);
 
 	}
