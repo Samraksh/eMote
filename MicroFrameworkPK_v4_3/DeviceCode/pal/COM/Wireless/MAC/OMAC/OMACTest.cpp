@@ -71,8 +71,8 @@ void CMaxTSNeighborClockMonitorTimerHandler(void * arg) {
 
 BOOL OMACTest::Initialize(){
 
-	CPU_GPIO_EnableOutputPin(NBRCLOCKMONITORPIN, TRUE);
-	CPU_GPIO_EnableOutputPin(LOCALCLOCKMONITORPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) NBRCLOCKMONITORPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) LOCALCLOCKMONITORPIN, TRUE);
 	LocalClkPINState = true;
 	NeighborClkPINState = true;
 
