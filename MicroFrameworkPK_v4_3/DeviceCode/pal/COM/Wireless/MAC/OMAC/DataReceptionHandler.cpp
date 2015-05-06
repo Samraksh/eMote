@@ -78,6 +78,7 @@ void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	m_wakeupCnt++;
+	DeviceStatus rs = g_omac_RadioControl.Start();
 }
 
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
@@ -153,7 +154,7 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 	//Should never happen
 	if (m_nextWakeupSlot < slotNum) {
 		hal_printf("ERROR: nxtSlot %lu curSlot %lu\n", m_nextWakeupSlot, slotNum);
-		m_nextWakeupSlot = m_dataInterval;
+		m_nextWakeupSlot += m_dataInterval;
 	}
 
 	if (remainingSlots == 0) {
