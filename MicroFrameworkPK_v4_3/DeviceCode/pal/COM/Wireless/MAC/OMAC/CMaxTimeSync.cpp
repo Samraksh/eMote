@@ -25,6 +25,7 @@ BOOL GlobalTime::synced=FALSE;
 
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
+	return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
 	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
