@@ -351,6 +351,7 @@ void OMACSchedulerBora::Sleep(){
 }
 
 void OMACSchedulerBora::Stop(){
+	DeviceStatus  ds = DS_Success;
 	bool e =FALSE;
 #ifdef FULL_DUTY_CYCLE
 #warning "USING FULL_DUTY_CYCLE"
@@ -369,18 +370,19 @@ void OMACSchedulerBora::Stop(){
 			return;
 		default :
 			ProtoState.ForceState(S_STOPPING);
-			e= g_omac_RadioControl.Stop();
+			ds = g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG
 	//call SlotScheduler.printState();
 	//printf("stop result e=%u\n", e);
 #endif
-	switch(e) {
+	/* switch(e) {
 		case  TRUE: // Ignore.  AMControl.stopDone will provide continuation.
 			break;
 		default : // Already shut down and we just don't know it.  Sleep.
 			Sleep();
-	}
+	} */
+	if (ds == DS_Success) Sleep();
 
 }
 
