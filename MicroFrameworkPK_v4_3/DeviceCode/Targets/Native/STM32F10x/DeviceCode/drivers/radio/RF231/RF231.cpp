@@ -1437,10 +1437,8 @@ void RF231Radio::HandleInterrupt()
 
 							state = STATE_SLEEP;
 							CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
-
+							sleep_pending = FALSE;
 						}
-
-						sleep_pending = FALSE;
 
 					}
 					else
@@ -1464,6 +1462,29 @@ void RF231Radio::HandleInterrupt()
 						state = STATE_RX_ON;
 						CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 					}
+				}
+
+				if(sleep_pending) //BK: Ensure sleep is issued
+				{
+					state = STATE_PLL_ON;
+					cmd = CMD_NONE;
+					//Sleep(0);
+					UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+
+					if(regState == RF230_P_ON|| regState == RF230_PLL_ON) //BK: wild hack
+					{
+						WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+
+						DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+
+						SlptrSet();
+
+						state = STATE_SLEEP;
+						cmd = CMD_NONE;
+						CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+						sleep_pending = FALSE;
+					}
+
 				}
 
 		}
@@ -1509,9 +1530,8 @@ void RF231Radio::HandleInterrupt()
 
 					state = STATE_SLEEP;
 					CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+					sleep_pending = FALSE;
 				}
-
-				sleep_pending = FALSE;
 			}
 		}
 	}
