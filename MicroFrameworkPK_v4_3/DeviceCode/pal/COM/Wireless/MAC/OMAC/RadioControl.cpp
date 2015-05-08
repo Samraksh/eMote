@@ -121,13 +121,11 @@ DeviceStatus RadioControl::Stop(){
 	//DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, FALSE );
-
 	return returnVal;
 }
 
 DeviceStatus RadioControl::Start(){
-	CPU_Radio_TurnOnRx(g_OMAC.radioName);
-
+	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
 	return DS_Ready;
 }

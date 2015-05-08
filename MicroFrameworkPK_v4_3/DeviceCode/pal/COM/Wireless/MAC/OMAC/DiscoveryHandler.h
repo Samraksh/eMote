@@ -70,7 +70,7 @@ class DiscoveryHandler: public SlotHandler {
 	DeviceStatus Beacon(RadioAddress_t, Message_15_4_t *);
   public:
 	void Initialize(UINT8 radioID, UINT8 macID);
-	void StartBeaconNTimer(BOOL oneshot, UINT64 delay);	//Start BeaconN Timer
+	void StartBeaconNTimer(BOOL oneshot);	//Start BeaconN Timer
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
   	UINT32 NextSlot(UINT32 slotNum);

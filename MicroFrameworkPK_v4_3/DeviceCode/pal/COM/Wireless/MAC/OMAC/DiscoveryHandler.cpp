@@ -163,7 +163,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 
 void DiscoveryHandler::Beacon1(){
 	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
-	StartBeaconNTimer(TRUE,SLOT_PERIOD_MILLI * 2);
+	StartBeaconNTimer(TRUE);
 	if (ShouldBeacon()) {
 		Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
@@ -184,22 +184,9 @@ void DiscoveryHandler::BeaconN(){
 	}
 }
 
-void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot, UINT64 delay){
+void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot){
 	VirtualTimerReturnMessage rm;
-	//Start the BeaconTimer
-		//HALTimer()
-		if(delay==0){
-			//start default time
-			//VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
-			rm = VirtTimer_Change(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
-
-		}else {
-			//Change next slot time with delay
-			//VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
-			rm = VirtTimer_Change(HAL_DISCOVERY_TIMER, 0, delay*1000, oneShot); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
-		}
+	rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
 }
 
 void DiscoveryHandler::BeaconNTimerHandler(void* Param){
