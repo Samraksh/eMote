@@ -217,9 +217,6 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 }
 
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-
-
-
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	RadioAddress_t source = msg->GetHeader()->src;
 	//RadioAddress_t source = disMsg->nodeID;

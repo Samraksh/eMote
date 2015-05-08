@@ -81,6 +81,7 @@ BOOL OMACTest::Initialize(){
 
 	MyAppID = 3; //pick a number less than MAX_APPS currently 4.
 	Config.Network = 138;
+	Config.NeighborLivenessDelay = 20000;
 	myEventHandler.SetRecieveHandler(OMACTest_ReceiveHandler);
 	myEventHandler.SetSendAckHandler(OMACTest_SendAckHandler);
 	VirtTimer_Initialize();
