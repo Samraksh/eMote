@@ -4,6 +4,66 @@
         <name>Samraksh_eMote</name>
     </assembly>
     <members>
+        <member name="T:Samraksh.eMote.Algorithm.RadarDetection">
+            <summary>
+            Radar Detection class  
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.UInt16[],System.Int32,System.Int16[])">
+            <summary>
+            Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.Int32,System.Int16[])">
+            <summary>
+            Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(System.Int32,System.Int32)">
+            <summary>
+            Sets detection parameters.
+            </summary>
+            <returns>Returns true if sucessful, false if failed.</returns>
+        </member>
+        <member name="T:Samraksh.eMote.Algorithm.AcousticDetection">
+            <summary>
+            Acoustic Detection class  
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.Finalize">
+            <summary>
+            Destroys the data in the data store
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.DetectionCalculation(System.UInt16[],System.Int32,System.Double[],System.Boolean)">
+            <summary>
+            Acoustic data is given to the detection algorithm which looks for detections.
+            </summary>
+            <returns>Returns true if a detection was found, false if no detection was found.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.SetDetectionParameters(System.Int32,System.Int32)">
+            <summary>
+            Sets detection parameters.
+            </summary>
+            <returns>Returns true if sucessful, false if failed.</returns>
+        </member>
         <member name="T:Samraksh.eMote.NonVolatileMemory.StorageType">
             <summary>
             Block device type
