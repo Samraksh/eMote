@@ -42,6 +42,7 @@ UINT32 *g_adcDriverBufferDualModePtr = NULL;
 
 UINT32 adcNumSamples = 0;
 
+static UINT32 adDebugMode = 0;
 // TODO: consolidate state machine into one variable.
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
@@ -64,6 +65,9 @@ void TIM_HAL_HANDLER(void *param);
  */
 BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
+hal_printf("AD_Initialize\r\n");
 
 	ADC_InitTypeDef           ADC_InitStructure;
 	DMA_InitTypeDef           DMA_InitStructure;
@@ -524,10 +528,10 @@ DeviceStatus AD_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampl
 {
 	batchModeADC = TRUE;
 
-	return AD_ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, numSamples, samplingTime,userCallback, Param );
+	return AD_ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, numSamples, samplingTime, 0, userCallback, Param);
 }
 
-DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
+DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, UINT32 debugMode, HAL_CALLBACK_FPN userCallback, void* Param)
 {
 	ADC_InitTypeDef           ADC_InitStructure;
 	DMA_InitTypeDef           DMA_InitStructure;
@@ -536,6 +540,8 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	UINT32 period;
 	UINT32 prescaler;
+
+	adDebugMode = debugMode;
 
 	ADC_RCC_Configuration(TRUE);
 
@@ -553,6 +559,11 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
+
+	if (debugMode == 1)
+		hal_printf("ADC debug mode\r\n");
+	else 
+		hal_printf("ADC debug mode OFF\r\n");
 
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
@@ -637,7 +648,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
 	/* Enable DMA1 Channel1 */
-	DMA_Cmd(DMA1_Channel1, ENABLE);
+		DMA_Cmd(DMA1_Channel1, ENABLE);
 
 	 /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -652,7 +663,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	   /* Enable ADC1 DMA */
-	ADC_DMACmd(ADC1, ENABLE);
+		ADC_DMACmd(ADC1, ENABLE);
 
 	 /* ADC2 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -801,12 +812,16 @@ extern "C"
 {
 	void ADC_HAL_HANDLER(void *param)
 	{
+		CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 		  /* Clear ADC1 JEOC pending interrupt bit */
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
-	}
+			}
 
 	void DMA_HAL_HANDLER(void *param)
 	{
+		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 		// Record the time as close to the completion of sampling as possible
 		//AnanthAtSamraksh: using AdTim
 		g_timeStamp = HAL_Time_CurrentTicks();
@@ -848,6 +863,8 @@ extern "C"
 
 	void TIM_HAL_HANDLER(void *param)
 	{
+		CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 		//if(TIM_GetFlagStatus(TIM4, TIM_IT_CC4))
 		if(TIM_GetITStatus(TIM4, TIM_IT_CC4))
 		{

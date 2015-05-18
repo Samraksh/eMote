@@ -58,9 +58,9 @@ INT32 ADCInternal::ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 sampleBuff,
     return AD_ConfigureContinuousMode(sampleBuff.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
 }
 
-INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )
+INT32 ADCInternal::ConfigureContinuousModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, UINT32 debugMode, HRESULT &hr )
 {
-    return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, ADCInteropCallback, NULL);
+    return AD_ConfigureContinuousModeDualChannel(sampleBuff1.GetBuffer(), sampleBuff2.GetBuffer(), numSamples, samplingTime, debugMode, ADCInteropCallback, NULL);
 }
 
 INT32 ADCInternal::ConfigureBatchModeDualChannel( CLR_RT_TypedArray_UINT16 sampleBuff1, CLR_RT_TypedArray_UINT16 sampleBuff2, UINT32 numSamples, UINT32 samplingTime, HRESULT &hr )

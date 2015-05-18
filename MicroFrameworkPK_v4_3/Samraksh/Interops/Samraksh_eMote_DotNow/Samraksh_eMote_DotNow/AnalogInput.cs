@@ -145,14 +145,15 @@ namespace Samraksh.eMote.DotNow
         /// <param name="numSamples">Number of samples to read before callback</param>
         /// <param name="samplingTime">Sampling time interval in microseconds</param>
         /// <param name="callback">Method to call when numSamples collected</param>
+        /// <param name="debugMode">0 for normal operation, 1 for sending data to COM2 directly</param>
         /// <returns>True iff operation success</returns>
-        static public bool ConfigureContinuousModeDualChannel(ushort[] sampleBuff1, ushort[] sampleBuff2, uint numSamples, uint samplingTime, AdcCallBack callback)
+        static public bool ConfigureContinuousModeDualChannel(ushort[] sampleBuff1, ushort[] sampleBuff2, uint numSamples, uint samplingTime, AdcCallBack callback, uint debugMode)
         {
             _myCallback = callback;
             var eventHandler = new NativeEventHandler(InternalCallback);
             _adcInternal.OnInterrupt += eventHandler;
 
-            if (ADCInternal.ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, numSamples, samplingTime) != DeviceStatus.Success)
+            if (ADCInternal.ConfigureContinuousModeDualChannel(sampleBuff1, sampleBuff2, numSamples, samplingTime, debugMode) != DeviceStatus.Success)
             {
                 return false;
             }
@@ -297,7 +298,7 @@ namespace Samraksh.eMote.DotNow
         extern static public DeviceStatus ConfigureContinuousMode(ushort[] SampleBuff, int channel, uint NumSamples, uint SamplingTime);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public DeviceStatus ConfigureContinuousModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);
+        extern static public DeviceStatus ConfigureContinuousModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime, uint debugMode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public DeviceStatus ConfigureBatchModeDualChannel(ushort[] SampleBuff1, ushort[] SampleBuff2, uint NumSamples, uint SamplingTime);

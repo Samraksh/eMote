@@ -87,7 +87,7 @@
             <param name="callback">Method to call when numSamples collected</param>
             <returns>True if operation success</returns>
         </member>
-        <member name="M:Samraksh.eMote.DotNow.AnalogInput.ConfigureContinuousModeDualChannel(System.UInt16[],System.UInt16[],System.UInt32,System.UInt32,Samraksh.eMote.DotNow.AdcCallBack)">
+        <member name="M:Samraksh.eMote.DotNow.AnalogInput.ConfigureContinuousModeDualChannel(System.UInt16[],System.UInt16[],System.UInt32,System.UInt32,Samraksh.eMote.DotNow.AdcCallBack,System.UInt32)">
             <summary>
             Configure ADC to read channels 1 and 2 in continuous mode
             </summary>
@@ -96,6 +96,7 @@
             <param name="numSamples">Number of samples to read before callback</param>
             <param name="samplingTime">Sampling time interval in microseconds</param>
             <param name="callback">Method to call when numSamples collected</param>
+            <param name="debugMode">0 for normal operation, 1 for sending data to COM2 directly</param>
             <returns>True iff operation success</returns>
         </member>
         <member name="M:Samraksh.eMote.DotNow.AnalogInput.ConfigureBatchMode(System.UInt16[],Microsoft.SPOT.Hardware.Cpu.AnalogChannel,System.UInt32,System.UInt32,Samraksh.eMote.DotNow.AdcCallBack)">
