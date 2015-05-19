@@ -539,9 +539,6 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	UINT32 period;
 	UINT32 prescaler;
 
-	CPU_GPIO_EnableOutputPin(29, TRUE);
-	CPU_GPIO_EnableOutputPin(30, TRUE);
-
 	adDebugMode = debugMode;
 
 	ADC_RCC_Configuration(TRUE);
@@ -828,14 +825,11 @@ extern "C"
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 		
 		if (adDebugMode == 1){
-			CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
-		
 			g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
 			g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
 		
-			USART_Write( 1, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-			USART_Write( 1, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
+			USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
+			USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
 	
 			count++;
 			if (count == adcNumSamplesRadar) {
@@ -848,8 +842,6 @@ extern "C"
 
 	void DMA_HAL_HANDLER(void *param)
 	{
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
 
