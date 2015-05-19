@@ -297,14 +297,14 @@ namespace Samraksh.AppNote.DataCollector.Radar
             bool radarDetection = false;
 
             //timeMeasure.Write(true);
-            if (iqa.IBuff[0] > 1500 && iqa.IBuff[0] < 2500 && iqa.QBuff[0] > 1500 && iqa.QBuff[0] < 2500)
+            /*if (iqa.IBuff[0] > 1500 && iqa.IBuff[0] < 2500 && iqa.QBuff[0] > 1500 && iqa.QBuff[0] < 2500)
             {
                 lcd.Write(LCD.CHAR_A, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             }
             else
             {
                 lcd.Write(LCD.CHAR_UNDERSCORE, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
-            }
+            }*/
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
             var iBuff = iqa.IBuff;

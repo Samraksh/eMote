@@ -459,7 +459,7 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
     ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
 
     /* Enable ADC1 DMA */
-    //ADC_DMACmd(ADC1, ENABLE);
+    ADC_DMACmd(ADC1, ENABLE);
 
     ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 
@@ -561,12 +561,14 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	g_adcUserBufferChannel1Ptr = sampleBuff1;
 	g_adcUserBufferChannel2Ptr = sampleBuff2;
 
-	adcNumSamplesRadar = numSamples;
+	
 
-	if (adDebugMode == 1)
+	if (adDebugMode == 1){
+		adcNumSamplesRadar = numSamples;
 		hal_printf("ADC debug mode\r\n");
-	else 
+	} else {
 		hal_printf("ADC debug mode OFF\r\n");
+	}
 
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
@@ -651,7 +653,9 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
 	/* Enable DMA1 Channel1 */
-		//DMA_Cmd(DMA1_Channel1, ENABLE);
+	if (adDebugMode == 0){
+		DMA_Cmd(DMA1_Channel1, ENABLE);
+	}
 
 	 /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -666,8 +670,11 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 	   /* Enable ADC1 DMA */
-		//ADC_DMACmd(ADC1, ENABLE);
+	if (adDebugMode == 0){
+		ADC_DMACmd(ADC1, ENABLE);
+	} else {
 		ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
+	}
 
 	 /* ADC2 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -820,20 +827,22 @@ extern "C"
 		/* Clear ADC1 JEOC pending interrupt bit */
 		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 		
-		CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-		CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+		if (adDebugMode == 1){
+			CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 		
-		g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
-		g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
+			g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
+			g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
 		
-		USART_Write( 1, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-		USART_Write( 1, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
+			USART_Write( 1, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
+			USART_Write( 1, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
 	
-		count++;
-		if (count == adcNumSamplesRadar) {
-			g_timeStamp = HAL_Time_CurrentTicks();
-			g_callback(&g_timeStamp);
-			count=0;
+			count++;
+			if (count == adcNumSamplesRadar) {
+				g_timeStamp = HAL_Time_CurrentTicks();
+				g_callback(&g_timeStamp);
+				count=0;
+			}
 		}
 	}
 
@@ -841,7 +850,6 @@ extern "C"
 	{
 		CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 		CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-		
 		// Record the time as close to the completion of sampling as possible
 		g_timeStamp = HAL_Time_CurrentTicks();
 

@@ -24,8 +24,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// Main program
     /// </summary>
     public partial class Program {
-        public static LCD codeVersion = LCD.CHAR_7;
-        public static EmoteLCD lcd = new EmoteLCD();
+        //public static LCD codeVersion = LCD.CHAR_7;
+        //public static EmoteLCD lcd = new EmoteLCD();
         public static SerialPort serialPort2;
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
@@ -37,7 +37,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private const int DataStoreNumBlocks = 125;
         private const int AudioBufferSize = 2000;
         private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 4000;
+        private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;
@@ -90,8 +90,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         public static void Main() {
             var finalMsg = string.Empty;
 
-            lcd.Initialize();
-            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+            //lcd.Initialize();
+            //lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             Thread.Sleep(60000);
             try {
                 Debug.EnableGCMessages(false);
@@ -155,11 +155,11 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                     throw new IOException("Buffer queue is full");
                 }
 
-                finalMsg = "Finished";
+                //finalMsg = "Finished";
                 //EnhancedLcd.Display(LCDMessages.Done);
             }
             catch (Exception ex) {
-                finalMsg = ex.Message;
+                //finalMsg = ex.Message;
                 //EnhancedLcd.Display(LCDMessages.Error);
             }
             finally {
