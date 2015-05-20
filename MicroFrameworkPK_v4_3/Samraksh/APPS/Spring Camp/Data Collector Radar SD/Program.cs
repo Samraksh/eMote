@@ -26,7 +26,6 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     public partial class Program {
         //public static LCD codeVersion = LCD.CHAR_7;
         //public static EmoteLCD lcd = new EmoteLCD();
-        public static SerialPort serialPort1;
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
@@ -128,14 +127,6 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
-
-                serialPort1 = new SerialPort("COM1");
-                serialPort1.BaudRate = 57600;
-                serialPort1.Parity = Parity.None;
-                serialPort1.StopBits = StopBits.One;
-                serialPort1.DataBits = 8;
-                serialPort1.Handshake = Handshake.None;
-                serialPort1.Open();
 
                 Debug.Print("Attempting to initialize ADC in C#");
                 if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback, 1))
