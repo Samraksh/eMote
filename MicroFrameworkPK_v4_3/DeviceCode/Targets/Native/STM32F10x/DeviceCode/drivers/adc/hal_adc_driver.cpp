@@ -68,7 +68,6 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
 
 	ADC_InitTypeDef           ADC_InitStructure;
-	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
@@ -107,8 +106,6 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 	else
 		ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, 0x04);
 
-	  /* Enable ADC1 DMA */
-	  //ADC_DMACmd(ADC1, ENABLE);
 
 	  /* Enable ADC1 */
 	if(channel == 0)
@@ -195,8 +192,6 @@ BOOL AD_GetAvailablePrecisionsForChannel( ANALOG_CHANNEL channel, INT32* precisi
 void ADC_RCC_Configuration(BOOL enable)
 {
 	/* Enable peripheral clocks ------------------------------------------------*/
-	/* Enable DMA1 clock */
-	 RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, (FunctionalState)enable);
 
 	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, (FunctionalState)enable);
 
@@ -214,9 +209,6 @@ BOOL ADC_NVIC_Configuration(BOOL enable)
 	BOOL retInit = TRUE;
 	BOOL retCleanup = TRUE;
 	if(enable == TRUE) {
-		if((retInit &= CPU_INTC_ActivateInterrupt(DMA1_Channel1_IRQn, DMA_HAL_HANDLER, NULL)) != TRUE) {
-			goto adc_nvic_cleanup_1;
-		}
 		if((retInit &= CPU_INTC_ActivateInterrupt(ADC1_2_IRQn,        ADC_HAL_HANDLER, NULL)) != TRUE) {
 			goto adc_nvic_cleanup_2;
 		}
@@ -229,8 +221,6 @@ adc_nvic_cleanup_3:
 		retCleanup &= CPU_INTC_DeactivateInterrupt(TIM4_IRQn);
 adc_nvic_cleanup_2:
 		retCleanup &= CPU_INTC_DeactivateInterrupt(ADC1_2_IRQn);
-adc_nvic_cleanup_1:
-		retCleanup &= CPU_INTC_DeactivateInterrupt(DMA1_Channel1_IRQn);
 	}
 	BOOL retFinal = (retCleanup && retInit);
 	return retFinal;
@@ -333,7 +323,6 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	}
 
 	ADC_InitTypeDef           ADC_InitStructure;
-	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
@@ -424,27 +413,6 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 #endif
 
 
-    // Set up dma
-    /* DMA1 channel1 configuration ----------------------------------------------*/
-    DMA_DeInit(DMA1_Channel1);
-    DMA_InitStructure.DMA_PeripheralBaseAddr = ADC1_DR_Address;
-    DMA_InitStructure.DMA_MemoryBaseAddr = (UINT32)g_adcDriverBufferChannel1Ptr;
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-    DMA_InitStructure.DMA_BufferSize = numSamples;
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-    DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-    DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-
-    DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
-
-    /* Enable DMA1 channel1 */
-    DMA_Cmd(DMA1_Channel1, ENABLE);
-
     // Set up adc
     /* ADC1 configuration ------------------------------------------------------*/
     ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
@@ -457,9 +425,6 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 
     /* ADC1 regular channel14 configuration */
     ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
-
-    /* Enable ADC1 DMA */
-    ADC_DMACmd(ADC1, ENABLE);
 
     ADC_ExternalTrigConvCmd(ADC1, ENABLE);
 
@@ -485,10 +450,6 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
     TIM_Cmd(TIM4, ENABLE);
 
    	adcNumSamples = numSamples;
-
-	// Set DMA mode initialized to true
-	// This is useful in batch mode scenarios where there is a lot of starting and stopping
-	dmaModeInitialized = TRUE;
 
 ad_ccm_out_config:
     if(retVal == DS_Fail)
@@ -532,7 +493,6 @@ DeviceStatus AD_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampl
 DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, UINT32 debugMode, HAL_CALLBACK_FPN userCallback, void* Param)
 {
 	ADC_InitTypeDef           ADC_InitStructure;
-	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
 	TIM_OCInitTypeDef         TIM_OCInitStructure;
 
@@ -633,27 +593,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	}
 #endif
 
-	 /* DMA1 channel1 configuration ----------------------------------------------*/
-	DMA_DeInit(DMA1_Channel1);
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)g_adcDriverBufferDualModePtr;
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = numSamples;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-
-	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);
-	/* Enable DMA1 Channel1 */
-	if (adDebugMode == 0){
-		DMA_Cmd(DMA1_Channel1, ENABLE);
-	}
-
+	 
 	 /* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
@@ -666,12 +606,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_55Cycles5);
 
 	ADC_ExternalTrigConvCmd(ADC1, ENABLE);
-	   /* Enable ADC1 DMA */
-	if (adDebugMode == 0){
-		ADC_DMACmd(ADC1, ENABLE);
-	} else {
 		ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);
-	}
 
 	 /* ADC2 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -749,9 +684,6 @@ void ADC_Configuration ( uint8_t sampTime )
   ADC_RegularChannelConfig(ADC1, EMOTE_ADC_CHANNEL[0], 1, sampTime);
   ADC_RegularChannelConfig(ADC2, EMOTE_ADC_CHANNEL[1], 1, sampTime);
   ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, sampTime);
-
-  /* Enable ADC DMA */
-  //ADC_DMACmd(ADC1, ENABLE);
 
   /* Enable ADC */
   ADC_Cmd(ADC1, ENABLE);
@@ -837,46 +769,6 @@ extern "C"
 				g_callback(&g_timeStamp);
 				count=0;
 			}
-		}
-	}
-
-	void DMA_HAL_HANDLER(void *param)
-	{
-		// Record the time as close to the completion of sampling as possible
-		g_timeStamp = HAL_Time_CurrentTicks();
-
-		if(DMA_GetFlagStatus(DMA1_FLAG_TC1) != RESET)
-		{
-			DMA_ClearITPendingBit(DMA1_IT_TC1);
-
-			if(!dualADCMode)
-			{
-				memcpy(g_adcUserBufferChannel1Ptr, g_adcDriverBufferChannel1Ptr, adcNumSamples * sizeof(UINT16));
-			}
-			else
-			{
-				// Possible memory corruption if adcNumSamples != length of g_adcDriverBufferDualModePtr
-				// Possible only while conducting native tests as C# programs use dynamic memory
-				// allocated from the heap
-				// BTW this is because the hardware in dual mode stores in the most significant bits of
-				// ADC1_DR the result of ADC2 and the least significant bits of ADC1_DR the result
-				// of ADC1. Pretty cool  !!!
-				for(UINT16 i = 0; i < adcNumSamples; i++)
-				{
-					g_adcUserBufferChannel1Ptr[i] = (g_adcDriverBufferDualModePtr[i] & 0xffff);
-					g_adcUserBufferChannel2Ptr[i] = (g_adcDriverBufferDualModePtr[i] >> 16);
-				}
-			}
-
-			// Call the user with the current value of ticks
-			g_callback(&g_timeStamp);
-
-			if(batchModeADC)
-			{
-				// Disable the trigger if the batch mode is true
-				TIM_Cmd(TIM4, DISABLE);
-			}
-
 		}
 	}
 
