@@ -34,7 +34,6 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private const int DataStoreBlockSize = 250 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
-        private const int AudioBufferSize = 2000;
         private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
         private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer
         
@@ -128,7 +127,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
 
-                Debug.Print("Attempting to initialize ADC in C#");
+                //Debug.Print("Attempting to initialize ADC in C#");
                 if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback, 1))
                 //if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, AudioBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {

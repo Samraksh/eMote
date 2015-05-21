@@ -522,9 +522,6 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	if (adDebugMode == 1){
 		adcNumSamplesRadar = numSamples;
-		hal_printf("ADC debug mode\r\n");
-	} else {
-		hal_printf("ADC debug mode OFF\r\n");
 	}
 
 	RCC_ClocksTypeDef RCC_Clocks;
@@ -760,8 +757,8 @@ extern "C"
 			g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
 			g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
 		
-			USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-			USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
+			//USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
+			//USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
 	
 			count++;
 			if (count == adcNumSamplesRadar) {

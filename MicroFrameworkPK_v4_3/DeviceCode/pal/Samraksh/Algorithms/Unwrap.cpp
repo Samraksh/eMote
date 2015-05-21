@@ -71,15 +71,25 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	int i;
 	int unwrappedPhase;
 	int minPhase, maxPhase;
-	BOOL detection = false, threshholdMet = false;
+	static BOOL detection = false;
+	BOOL threshholdMet = false;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
+	UINT16 dTrue = 1;
+	UINT16 dFalse = 0;
 
 	for (i=0; i<length; i++){
+		USART_Write( 0, (char *)&bufferI[i], 2 );
+		USART_Write( 0, (char *)&bufferQ[i], 2 );
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
 		unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], arcTan, noiseRejection) >> 12);	// divide by 4096
 		bufferUnwrap[i] = (UINT16)unwrappedPhase;
+		USART_Write( 0, (char *)&bufferUnwrap[i], 2 );
+		if (detection == true)
+			USART_Write( 0, (char *)&dTrue, 2 );
+		else
+			USART_Write( 0, (char *)&dFalse, 2 );
 
 		if (i == 0) {minPhase = maxPhase = unwrappedPhase;}
 
