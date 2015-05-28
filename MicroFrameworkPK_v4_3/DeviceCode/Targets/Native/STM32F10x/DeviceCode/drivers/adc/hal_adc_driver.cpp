@@ -54,12 +54,7 @@ UINT16 g_adcDriverBufferChannel1[1000];
 UINT32 g_adcDriverBufferDualMode[1000];
 #endif
 
-extern "C"
-{
 void ADC_HAL_HANDLER(void *param);
-void DMA_HAL_HANDLER(void *param);
-void TIM_HAL_HANDLER(void *param);
-}
 
 /**
  * interface for Microsoft.SPOT.Hardware.AnalogInput
@@ -212,9 +207,6 @@ BOOL ADC_NVIC_Configuration(BOOL enable)
 		if((retInit &= CPU_INTC_ActivateInterrupt(ADC1_2_IRQn,        ADC_HAL_HANDLER, NULL)) != TRUE) {
 			goto adc_nvic_cleanup_2;
 		}
-		if((retInit &= CPU_INTC_ActivateInterrupt(TIM4_IRQn,          TIM_HAL_HANDLER, NULL)) != TRUE) {
-			goto adc_nvic_cleanup_3;
-		}
 	}
 	else { /* enable == FALSE */
 adc_nvic_cleanup_3:
@@ -226,29 +218,6 @@ adc_nvic_cleanup_2:
 	return retFinal;
 }
 
-// TODO: Remove. Obsolete.
-//void ADC_RCC_DUALMODE_Configuration(void)
-//{
-//	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-//	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-//	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_GPIOC, ENABLE);
-//}
-
-// TODO: Remove. Obsolete.
-//void ADC_GPIO_DUALMODE_Configuration(void)
-//{
-//	GPIO_InitTypeDef GPIO_InitStructure;
-//
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-//	GPIO_Init(GPIOC, &GPIO_InitStructure);
-//
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-//	GPIO_Init(GPIOC, &GPIO_InitStructure);
-//
-//}
-
 void ADC_GPIO_Configuration(BOOL enable)
 {
 
@@ -258,18 +227,6 @@ void ADC_GPIO_Configuration(BOOL enable)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	if(enable == TRUE)
 	{
-		// Output of TIM4 CH4 will trigger the adc conversion
-		/* Configure TIM4_CH4 (PB9) as alternate function push-pull */
-		// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		// GPIO_Init(GPIOB, &GPIO_InitStructure); // Disabling to allow for GPIO output
-
-		/* Configure PC.06 as output push-pull */
-		// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-		// GPIO_Init(GPIOC, &GPIO_InitStructure); // Disabling to allow for GPIO output
-
 		/* Configure PC.01 and PC.04 (ADC Channel11 and Channel14) as analog input */
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
@@ -658,68 +615,48 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 }
 
-/**
- * Not used? Obsolete?
- * TODO: Deprecate ADC_Configuration?
- */
-void ADC_Configuration ( uint8_t sampTime )
+void ADC_HAL_HANDLER(void *param)
 {
-  ADC_InitTypeDef ADC_InitStructure;
+	static uint32_t count=0;
+	
+	if (adDebugMode == 1){
+		g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
+		g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
+	
+		USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
+		USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
 
-  /* ADC configuration ------------------------------------------------------*/
-  ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfChannel = 1;
-  ADC_Init(ADC1, &ADC_InitStructure);
-  ADC_Init(ADC2, &ADC_InitStructure);
-  ADC_Init(ADC3, &ADC_InitStructure);
-
-  /* ADC regular channel configuration */
-  ADC_RegularChannelConfig(ADC1, EMOTE_ADC_CHANNEL[0], 1, sampTime);
-  ADC_RegularChannelConfig(ADC2, EMOTE_ADC_CHANNEL[1], 1, sampTime);
-  ADC_RegularChannelConfig(ADC3, EMOTE_ADC_CHANNEL[2], 1, sampTime);
-
-  /* Enable ADC */
-  ADC_Cmd(ADC1, ENABLE);
-  ADC_Cmd(ADC2, ENABLE);
-  ADC_Cmd(ADC3, ENABLE);
-
-  /* Enable ADC reset calibration register */
-  ADC_ResetCalibration(ADC1);
-  ADC_ResetCalibration(ADC2);
-  ADC_ResetCalibration(ADC3);
-
-  /* Check the end of ADC reset calibration register */
-  while(ADC_GetResetCalibrationStatus(ADC1));
-  while(ADC_GetResetCalibrationStatus(ADC2));
-  while(ADC_GetResetCalibrationStatus(ADC3));
-
-  /* Start ADC calibration */
-  ADC_StartCalibration(ADC1);
-  ADC_StartCalibration(ADC2);
-  ADC_StartCalibration(ADC3);
-
-  /* Check the end of ADC calibration */
-  while(ADC_GetCalibrationStatus(ADC1));
-  while(ADC_GetCalibrationStatus(ADC2));
-  while(ADC_GetCalibrationStatus(ADC3));
+		count++;
+		if (count == adcNumSamplesRadar) {
+			
+			{ // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
+				GPIO_InitTypeDef GPIO_InitStruct;
+				GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
+				GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
+				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
+				GPIO_Init(GPIOB, &GPIO_InitStruct);
+				
+				unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+				
+				// This will bring us to STM hardware bootloader.
+				if (ret) { NVIC_SystemReset(); }
+				
+				// Put the pin back to output.
+				// Zero it first so we don't get another edge.
+				// Probably will happen anyway.
+				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
+				GPIO_ResetBits(GPIOB, GPIO_Pin_14);
+				GPIO_Init(GPIOB, &GPIO_InitStruct);
+			}
+			
+			g_timeStamp = HAL_Time_CurrentTicks();
+			g_callback(&g_timeStamp);
+			count=0;
+		}
+	}
 }
 
-/**
- * Not used?  Obsolete?
- * TODO: Deprecate hal_adc_init?
- */
-void hal_adc_init(uint8_t sampTime)
-{
-	ADC_RCC_Configuration(TRUE);
-	ADC_NVIC_Configuration(TRUE);
-	ADC_GPIO_Configuration(TRUE);
-	ADC_Configuration(sampTime);
-}
-
+// This is in Samraksh C# ADC API. What the hell is this for?
 uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChannels)
 {
 	uint8_t i,j;
@@ -743,39 +680,4 @@ uint8_t hal_adc_getData(uint16_t *dataBuf, uint8_t startChannel, uint8_t numChan
 	}
 
 	return 1;
-}
-
-extern "C"
-{
-	void ADC_HAL_HANDLER(void *param)
-	{
-		static uint32_t count=0;
-		/* Clear ADC1 JEOC pending interrupt bit */
-		ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
-		
-		if (adDebugMode == 1){
-			g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
-			g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
-		
-			//USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-			//USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
-	
-			count++;
-			if (count == adcNumSamplesRadar) {
-				g_timeStamp = HAL_Time_CurrentTicks();
-				g_callback(&g_timeStamp);
-				count=0;
-			}
-		}
-	}
-
-	void TIM_HAL_HANDLER(void *param)
-	{
-		//if(TIM_GetFlagStatus(TIM4, TIM_IT_CC4))
-		if(TIM_GetITStatus(TIM4, TIM_IT_CC4))
-		{
-			TIM_ClearITPendingBit(TIM4, TIM_IT_CC4);
-		}
-		//TODO: check for double overflow and warn user?  user receives time stamp...
-	}
 }
