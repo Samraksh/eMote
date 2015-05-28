@@ -72,30 +72,63 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	int unwrappedPhase;
 	int minPhase, maxPhase;
 	static BOOL detection = false;
+	static UINT16 markerPrimary = 0xa5a5;
+	static UINT16 markerRepeat = 0xf0f0;
+	static UINT16 countPrimary = 0;
+	static UINT16 countRepeat = 0;
+	static UINT16 checksumPrimary = 0;
+	static UINT16 checksumRepeat = 0;
+	static UINT16 prevBufferI[250];
+	static UINT16 prevBufferQ[250];
+	static UINT8 uartPort = 1;
 	BOOL threshholdMet = false;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
 	UINT16 dTrue = 1;
 	UINT16 dFalse = 0;
 
+	USART_Write( uartPort, (char *)&markerPrimary, 2 );
+	checksumPrimary = markerPrimary;
+	USART_Write( uartPort, (char *)&countPrimary, 2 );
+	checksumPrimary += countPrimary;
+	countPrimary++;
 	for (i=0; i<length; i++){
-		USART_Write( 0, (char *)&bufferI[i], 2 );
-		USART_Write( 0, (char *)&bufferQ[i], 2 );
+		USART_Write( uartPort, (char *)&bufferI[i], 2 );
+		checksumPrimary += bufferI[i];
+		USART_Write( uartPort, (char *)&bufferQ[i], 2 );
+		checksumPrimary += bufferQ[i];
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
 		unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], arcTan, noiseRejection) >> 12);	// divide by 4096
 		bufferUnwrap[i] = (UINT16)unwrappedPhase;
-		USART_Write( 0, (char *)&bufferUnwrap[i], 2 );
+		/*USART_Write( uartPort, (char *)&bufferUnwrap[i], 2 );
 		if (detection == true)
-			USART_Write( 0, (char *)&dTrue, 2 );
+			USART_Write( uartPort, (char *)&dTrue, 2 );
 		else
-			USART_Write( 0, (char *)&dFalse, 2 );
+			USART_Write( uartPort, (char *)&dFalse, 2 );*/
 
 		if (i == 0) {minPhase = maxPhase = unwrappedPhase;}
 
     	if (unwrappedPhase < minPhase) minPhase = unwrappedPhase;
     	else if (unwrappedPhase > maxPhase) maxPhase = unwrappedPhase;
 	}
+	USART_Write( uartPort, (char *)&checksumPrimary, 2 );
+
+	USART_Write( uartPort, (char *)&markerRepeat, 2 );
+	checksumRepeat = markerRepeat;
+	USART_Write( uartPort, (char *)&countRepeat, 2 );
+	checksumRepeat += countRepeat;
+	countRepeat++;
+	for (i=0; i<length; i++){
+		USART_Write( uartPort, (char *)&prevBufferI[i], 2 );
+		checksumRepeat += prevBufferI[i];
+		USART_Write( uartPort, (char *)&prevBufferQ[i], 2 );
+		checksumRepeat += prevBufferQ[i];
+	}
+	USART_Write( uartPort, (char *)&checksumRepeat, 2 );
+
+	memcpy(prevBufferI, bufferI, 500);
+	memcpy(prevBufferQ, bufferQ, 500);
 
 	if (maxPhase - minPhase > threshold)
     {

@@ -455,6 +455,9 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	UINT32 period;
 	UINT32 prescaler;
+CPU_GPIO_EnableOutputPin(29, TRUE);
+	CPU_GPIO_EnableOutputPin(30, TRUE);
+	
 
 	adDebugMode = debugMode;
 
@@ -618,18 +621,21 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 void ADC_HAL_HANDLER(void *param)
 {
 	static uint32_t count=0;
+CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	
-	if (adDebugMode == 1){
-		g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
-		g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
+	g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
+	g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
 	
+	/*if (adDebugMode == 1){
 		USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
 		USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
+	}*/
 
 		count++;
 		if (count == adcNumSamplesRadar) {
 			
-			{ // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
+		/*	{ // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
 				GPIO_InitTypeDef GPIO_InitStruct;
 				GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
 				GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
@@ -647,13 +653,12 @@ void ADC_HAL_HANDLER(void *param)
 				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
 				GPIO_ResetBits(GPIOB, GPIO_Pin_14);
 				GPIO_Init(GPIOB, &GPIO_InitStruct);
-			}
+			}*/
 			
 			g_timeStamp = HAL_Time_CurrentTicks();
 			g_callback(&g_timeStamp);
 			count=0;
 		}
-	}
 }
 
 // This is in Samraksh C# ADC API. What the hell is this for?
