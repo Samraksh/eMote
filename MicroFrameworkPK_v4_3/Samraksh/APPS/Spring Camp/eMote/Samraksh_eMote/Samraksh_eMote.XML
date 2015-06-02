@@ -31,7 +31,7 @@
             </summary>
             <returns>Returns true if a detection was found, false if no detection was found.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(System.Int32,System.Int32)">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(System.Double,System.Int32,System.UInt16)">
             <summary>
             Sets detection parameters.
             </summary>

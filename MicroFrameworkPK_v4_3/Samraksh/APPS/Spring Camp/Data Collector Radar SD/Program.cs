@@ -129,7 +129,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
 
                 serialPort2 = new SerialPort("COM2");
-                serialPort2.BaudRate = 57600;
+                serialPort2.BaudRate = 115200;
                 serialPort2.Parity = Parity.None;
                 serialPort2.StopBits = StopBits.One;
                 serialPort2.DataBits = 8;

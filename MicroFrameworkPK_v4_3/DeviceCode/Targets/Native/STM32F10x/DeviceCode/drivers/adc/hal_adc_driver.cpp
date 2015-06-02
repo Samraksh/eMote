@@ -455,8 +455,8 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	UINT32 period;
 	UINT32 prescaler;
-CPU_GPIO_EnableOutputPin(29, TRUE);
-	CPU_GPIO_EnableOutputPin(30, TRUE);
+//CPU_GPIO_EnableOutputPin(29, TRUE);
+//	CPU_GPIO_EnableOutputPin(30, TRUE);
 	
 
 	adDebugMode = debugMode;
@@ -480,9 +480,7 @@ CPU_GPIO_EnableOutputPin(29, TRUE);
 
 	
 
-	if (adDebugMode == 1){
 		adcNumSamplesRadar = numSamples;
-	}
 
 	RCC_ClocksTypeDef RCC_Clocks;
 	RCC_GetClocksFreq(&RCC_Clocks);
@@ -621,8 +619,8 @@ CPU_GPIO_EnableOutputPin(29, TRUE);
 void ADC_HAL_HANDLER(void *param)
 {
 	static uint32_t count=0;
-CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
+//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
+//			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	
 	g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
 	g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
@@ -658,6 +656,8 @@ CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
 			g_timeStamp = HAL_Time_CurrentTicks();
 			g_callback(&g_timeStamp);
 			count=0;
+			//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
+			//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 		}
 }
 

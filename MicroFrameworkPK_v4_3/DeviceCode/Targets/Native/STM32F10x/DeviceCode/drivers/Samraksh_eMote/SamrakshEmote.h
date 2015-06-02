@@ -24,7 +24,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
 {
     TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
     TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
-    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__I4__I4);
+    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__R8__I4__U2);
 
     //--//
 
