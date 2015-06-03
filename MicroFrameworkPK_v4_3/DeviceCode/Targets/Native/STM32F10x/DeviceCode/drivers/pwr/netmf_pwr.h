@@ -12,6 +12,8 @@
 #define PWR_HSI_TRIM_MIN_OR_MAX(x) (x == 0 || x == 31)
 #define PWR_HSI_TRIM_VALID(x) (x<=31)
 
+volatile int go_back_to_sleep;
+
 enum stm_power_modes {
 	POWER_STATE_DEFAULT,
 	POWER_STATE_LOW,

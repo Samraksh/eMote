@@ -15,11 +15,16 @@
 
  */
 
+#define USE_4X_OVERSAMPLE
+#define USE_IQ_ENCODING
+
 #include <tinyhal.h>
 #include <stm32f10x.h>
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
+
+extern volatile int go_back_to_sleep; // Spring camp hack
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
@@ -489,11 +494,20 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	if (RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK1_Frequency) {
 		// No prescaler, so TIM clock == PCLK1
+#		ifdef USE_4X_OVERSAMPLE
+		period = samplingTime/4 * (RCC_Clocks.PCLK1_Frequency/1000000); // SPRING CAMP. Sample 4x faster.
+#		else
 		period = samplingTime * (RCC_Clocks.PCLK1_Frequency/1000000);
+#		endif
+
 	}
 	else {
 		// Prescaler, so TIM clock = PCLK1 x 2
+#		ifdef USE_4X_OVERSAMPLE
+		period = samplingTime/4 * (RCC_Clocks.PCLK1_Frequency*2/1000000); // SPRING CAMP. Sample 4x faster.
+#		else
 		period = samplingTime * (RCC_Clocks.PCLK1_Frequency*2/1000000);
+#		endif
 	}
 
 	prescaler = 1;
@@ -618,44 +632,92 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 }
 
+// 6-bit payload per byte. Bit 6 is MSB/LSB flag, Bit 7 is Q/I flag
+// input is upper 16-bit I and lower 16-bit Q;
+// Output is encoded
+// Parameter is point to uint16_t array size 2. Encoded in place.
+static uint32_t IQ_encode(uint16_t *x) {
+	unsigned temp;
+	
+	// I--> 0 sequence flag.
+	temp = x[0] & 0xFC0; // top 6 bits;
+	x[0] -= temp; // remove top b bits;
+	x[0] += temp << 2; // re-add them, shifted left.
+	x[0] += 0x4000; // Add sequence flags. Just one in this case
+
+	// Q --> 1 sequence flag.
+	temp = x[1] & 0xFC0; // top 6 bits;
+	x[1] -= temp; // remove top b bits;
+	x[1] += temp << 2; // re-add them, shifted left.
+	x[1] += 0xC080; // Add sequence flag. Rest are 0s in this case.
+
+}
+
+// Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
+static void soft_reset_check() {
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
+	GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
+	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+
+	// This will bring us to STM hardware bootloader.
+	if (ret) { USART_DeInit(USART1); RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE); NVIC_SystemReset(); }
+
+	// Put the pin back to output.
+	// Zero it first so we don't get another edge.
+	// Probably will happen anyway.
+	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
+	GPIO_ResetBits(GPIOB, GPIO_Pin_14);
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
 void ADC_HAL_HANDLER(void *param)
 {
 	static uint32_t count=0;
-	
-	if (adDebugMode == 1){
-		g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
-		g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
-	
-		USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-		USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
+	uint16_t I, Q;
 
-		count++;
-		if (count == adcNumSamplesRadar) {
-			
-			{ // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
-				GPIO_InitTypeDef GPIO_InitStruct;
-				GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
-				GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
-				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
-				GPIO_Init(GPIOB, &GPIO_InitStruct);
-				
-				unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-				
-				// This will bring us to STM hardware bootloader.
-				if (ret) { NVIC_SystemReset(); }
-				
-				// Put the pin back to output.
-				// Zero it first so we don't get another edge.
-				// Probably will happen anyway.
-				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
-				GPIO_ResetBits(GPIOB, GPIO_Pin_14);
-				GPIO_Init(GPIOB, &GPIO_InitStruct);
-			}
-			
-			g_timeStamp = HAL_Time_CurrentTicks();
-			g_callback(&g_timeStamp);
-			count=0;
-		}
+#ifdef USE_4X_OVERSAMPLE
+	static unsigned int samp4=0, I0=0, Q0=0;
+	I0 += ADC_GetConversionValue(ADC1);
+	Q0 += ADC_GetConversionValue(ADC2);
+
+	if ( (samp4++ & 0x3) == 0) {
+		I = I0 >> 2; // Averaging over 4 samples, so divide by 4
+		Q = Q0 >> 2;
+		Q0=0;
+		I0=0;
+	}
+	else { // Only something to do every 4 samples.
+		go_back_to_sleep = 1; // tells the power driver we woke up for a mini-event and not to re-hit the task queue
+		return;
+	}
+#else
+	I = ADC_GetConversionValue(ADC1);
+	Q = ADC_GetConversionValue(ADC2);
+#endif
+
+	g_adcUserBufferChannel1Ptr[count] = I;
+	g_adcUserBufferChannel2Ptr[count] = Q;
+	count++;
+
+	if (count == adcNumSamplesRadar) {
+		soft_reset_check();
+		g_timeStamp = HAL_Time_CurrentTicks();
+		g_callback(&g_timeStamp);
+		count=0;
+	}
+
+	if (adDebugMode == 1){
+		uint16_t uart_out[2];
+		uart_out[0] = I;
+		uart_out[1] = Q;
+#ifdef USE_IQ_ENCODING
+		IQ_encode(uart_out);
+#endif
+		USART_Write( 0, (char *)&uart_out, 4 );
 	}
 }
 

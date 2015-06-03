@@ -224,7 +224,8 @@ void CalibrateHSI() {
 
 	TIM_Cmd(TIM6, ENABLE);
 
-	trim = BKP_ReadBackupRegister(BKP_DR1); // backup register 1 contains last good TRIM value
+	//trim = BKP_ReadBackupRegister(BKP_DR1); // backup register 1 contains last good TRIM value
+	trim = PWR_HSI_DEFAULT_TRIM; // temp. Was getting crazy values stuck
 	if ( !PWR_HSI_TRIM_VALID(trim) ) {
 		trim = PWR_HSI_DEFAULT_TRIM;
 	}
@@ -386,17 +387,21 @@ void Sleep() {
 	__DSB();
 	__WFI();
 #else
-	switch(stm_power_state) {
-		case POWER_STATE_LOW:
-			//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
-			__DSB();
-			__WFI();
-			break;
-		default:
-			__DSB();
-			__WFI();
-			break;
-	}
+	go_back_to_sleep = 0;
+	do {
+		go_back_to_sleep = 0; // Interrupt handler will set this if appropriate. Have to be VERY careful.
+		switch(stm_power_state) {
+			case POWER_STATE_LOW:
+				//PWR_EnterSTOPMode(PWR_Regulator_ON, PWR_STOPEntry_WFI);
+				__DSB();
+				__WFI();
+				break;
+			default:
+				__DSB();
+				__WFI();
+				break;
+		}
+	} while(go_back_to_sleep == 1);
 #endif
 }
 
