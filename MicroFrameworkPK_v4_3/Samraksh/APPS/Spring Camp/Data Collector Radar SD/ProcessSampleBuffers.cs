@@ -88,7 +88,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
 
-            radarDetect.SetDetectionParameters(8, 15, 1);
+            // threshold is 10 rotations a second, IQ rejection is 15, and debug mode gives us protected data
+            radarDetect.SetDetectionParameters(8, 15, 2);
             acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(1, 1); // m / n
