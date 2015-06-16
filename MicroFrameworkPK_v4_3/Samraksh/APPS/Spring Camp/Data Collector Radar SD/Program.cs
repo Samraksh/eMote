@@ -24,7 +24,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// Main program
     /// </summary>
     public partial class Program {
+        
+        // if you are using COM2 as your raw data output port then uncomment serialPort2 initialization below
         //public static SerialPort serialPort2;
+
         //public static LCD codeVersion = LCD.CHAR_7;
         //public static EmoteLCD lcd = new EmoteLCD();
         // Set up parameters for collection and for DataStore
@@ -36,7 +39,8 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
         private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer
+        //private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer (1 second windows of 250 raw data bytes)
+        private const int SampleIntervalMicroSec = 2001;    // 2001 gives 3.999ms using logic analyzer (0.5 second windows of 250 raw data bytes)
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;

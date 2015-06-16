@@ -66,7 +66,7 @@ INT16 findMedian(UINT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, double threshold, INT32 noiseRejection, UINT16 debugVal)
+BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, double threshold, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber)
 {
 	int i;
 	int unwrappedPhase;
@@ -74,6 +74,7 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static BOOL detection = false;
 	static UINT16 markerPrimary = 0xa5a5;
 	static UINT16 markerRepeat = 0xf0f0;
+	static UINT16 versionNumber = 1;
 	static UINT16 countPrimary = 1;
 	static UINT16 countRepeat = 0;
 	static UINT16 checksumPrimary = 0;
@@ -96,6 +97,10 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 		USART_Write( uartPort, (char *)&countPrimary, 2 );
 		checksumPrimary += countPrimary;
 		countPrimary++;
+		USART_Write( uartPort, (char *)&IDNumber, 2 );
+		checksumPrimary += IDNumber;
+		USART_Write( uartPort, (char *)&versionNumber, 2 );
+		checksumPrimary += versionNumber;
 	}
 
 	for (i=0; i<length; i++){
@@ -133,6 +138,10 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 		USART_Write( uartPort, (char *)&countRepeat, 2 );
 		checksumRepeat += countRepeat;
 		countRepeat++;
+		USART_Write( uartPort, (char *)&IDNumber, 2 );
+		checksumRepeat += IDNumber;
+		USART_Write( uartPort, (char *)&versionNumber, 2 );
+		checksumRepeat += versionNumber;
 		for (i=0; i<length; i++){
 			USART_Write( uartPort, (char *)&prevBufferI[i], 2 );
 			checksumRepeat += prevBufferI[i];
