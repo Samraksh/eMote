@@ -74,7 +74,7 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static BOOL detection = false;
 	static UINT16 markerPrimary = 0xa5a5;
 	static UINT16 markerRepeat = 0xf0f0;
-	static UINT16 versionNumber = 1;
+	static UINT16 versionNumber = 3;
 	static UINT16 countPrimary = 1;
 	static UINT16 countRepeat = 0;
 	static UINT16 checksumPrimary = 0;

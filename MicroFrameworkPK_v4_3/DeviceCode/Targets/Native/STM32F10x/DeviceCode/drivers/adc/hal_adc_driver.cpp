@@ -21,6 +21,8 @@
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
 
+extern volatile int go_back_to_sleep; // Spring camp hack
+
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
 
@@ -455,9 +457,6 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	UINT32 period;
 	UINT32 prescaler;
-//CPU_GPIO_EnableOutputPin(29, TRUE);
-//	CPU_GPIO_EnableOutputPin(30, TRUE);
-	
 
 	adDebugMode = debugMode;
 
@@ -616,48 +615,40 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 }
 
+// Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
+static void soft_reset_check() {
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
+	GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
+	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+
+	// This will bring us to STM hardware bootloader.
+	if (ret) { USART_DeInit(USART1); RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE); NVIC_SystemReset(); }
+
+	// Put the pin back to output.
+	// Zero it first so we don't get another edge.
+	// Probably will happen anyway.
+	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
+	GPIO_ResetBits(GPIOB, GPIO_Pin_14);
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+}
+
 void ADC_HAL_HANDLER(void *param)
 {
 	static uint32_t count=0;
-//CPU_GPIO_SetPinState((GPIO_PIN) 29, TRUE);
-//			CPU_GPIO_SetPinState((GPIO_PIN) 29, FALSE);
 	
 	g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
 	g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
-	
-	/*if (adDebugMode == 1){
-		USART_Write( 0, (char *)&g_adcUserBufferChannel1Ptr[count], 2 );
-		USART_Write( 0, (char *)&g_adcUserBufferChannel2Ptr[count], 2 );
-	}*/
 
 		count++;
 		if (count == adcNumSamplesRadar) {
-			
-		/*	{ // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
-				GPIO_InitTypeDef GPIO_InitStruct;
-				GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
-				GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
-				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
-				GPIO_Init(GPIOB, &GPIO_InitStruct);
-				
-				unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
-				
-				// This will bring us to STM hardware bootloader.
-				if (ret) { NVIC_SystemReset(); }
-				
-				// Put the pin back to output.
-				// Zero it first so we don't get another edge.
-				// Probably will happen anyway.
-				GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
-				GPIO_ResetBits(GPIOB, GPIO_Pin_14);
-				GPIO_Init(GPIOB, &GPIO_InitStruct);
-			}*/
-			
+			soft_reset_check();			
 			g_timeStamp = HAL_Time_CurrentTicks();
 			g_callback(&g_timeStamp);
 			count=0;
-			//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-			//CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
 		}
 }
 

@@ -152,7 +152,7 @@
 
 //#define DISABLE_SLEEP
 //#define EMOTE_WAKELOCKS // in power driver
-//#define DOTNOW_HSI_CALIB
+#define DOTNOW_HSI_CALIB
 
 //Comment below line to below the regular CLR
 #define SAMRAKSH_RTOS_EXT 1 //Samraksh RT extension
