@@ -21,6 +21,7 @@ static INT32 noiseRejection;
 static INT16 medianI = 2040, medianQ = 2040;
 static UINT16 debugVal = 0;
 static UINT16 IDNumber=0;
+static UINT16 codeVersion=0;
 
 INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, CLR_RT_TypedArray_INT16 param4, HRESULT &hr )
 {
@@ -33,7 +34,7 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
 	medianQ = findMedian(param1.GetBuffer(), param3);
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	retVal = calculatePhase(param0.GetBuffer(), param1.GetBuffer(), param2.GetBuffer(), param3, medianI, medianQ, param4.GetBuffer(), threshold, noiseRejection, debugVal, IDNumber);
+	retVal = calculatePhase(param0.GetBuffer(), param1.GetBuffer(), param2.GetBuffer(), param3, medianI, medianQ, param4.GetBuffer(), threshold, noiseRejection, debugVal, IDNumber, codeVersion);
 
     return retVal;
 }
@@ -50,18 +51,19 @@ INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, 
 	medianQ = findMedian(param1.GetBuffer(), param2);
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	retVal = calculatePhase(param0.GetBuffer(), param1.GetBuffer(), tempUnwrap, param2, medianI, medianQ, param3.GetBuffer(), threshold, noiseRejection, debugVal, IDNumber);
+	retVal = calculatePhase(param0.GetBuffer(), param1.GetBuffer(), tempUnwrap, param2, medianI, medianQ, param3.GetBuffer(), threshold, noiseRejection, debugVal, IDNumber, codeVersion);
 
     return retVal;
 }
 
-INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, double param0, INT32 param1, UINT16 param2, HRESULT &hr )
+INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, double param0, INT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
 {
     INT8 retVal = 0; 
 
 	threshold = param0;
 	noiseRejection = param1;
 	debugVal = param2;
+	codeVersion =  param3;
 
 	UINT8 cpuserial[12];
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;

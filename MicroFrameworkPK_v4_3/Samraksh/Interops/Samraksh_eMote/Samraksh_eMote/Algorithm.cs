@@ -15,7 +15,7 @@ namespace Samraksh.eMote
             /// 
             /// </summary>
             public RadarDetection() {
-                SetDetectionParameters(10.35, 20, 0);
+                SetDetectionParameters(7, 30, 2, 1);
             }
             
             //////////////////////////public properties and methods/////////////////////
@@ -48,7 +48,7 @@ namespace Samraksh.eMote
             /// </summary>
             /// <returns>Returns true if sucessful, false if failed.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern public bool SetDetectionParameters(double thresholdSet, Int32 noiseRejection, UInt16 debugVal);
+            extern public bool SetDetectionParameters(double thresholdSet, Int32 noiseRejection, UInt16 debugVal,  UInt16 version);
         }
 
         /// <summary>

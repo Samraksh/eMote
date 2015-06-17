@@ -35,12 +35,11 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
         //  LargeDataStore lets multiple buffers be stored in one data reference
         //  For efficiency, ADCBufferSize should divide LargeDataStoreReferenceSize
-        private const int DataStoreBlockSize = 250 * 1024; // 128k bytes/block
+        private const int DataStoreBlockSize = 125 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
-        private const int ADCBufferSize = 250; // Number of ushorts per ADC buffer
-        //private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer (1 second windows of 250 raw data bytes)
-        private const int SampleIntervalMicroSec = 2001;    // 2001 gives 3.999ms using logic analyzer (0.5 second windows of 250 raw data bytes)
+        private const int ADCBufferSize = 125; // Number of ushorts per ADC buffer
+        private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer (1 second windows of 250 raw data bytes)        
         
         //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
         //private const int SampleIntervalMicroSec = 3906;

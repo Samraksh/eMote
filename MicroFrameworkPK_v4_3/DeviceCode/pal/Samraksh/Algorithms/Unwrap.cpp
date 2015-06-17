@@ -66,7 +66,7 @@ INT16 findMedian(UINT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, double threshold, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber)
+BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, double threshold, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber)
 {
 	int i;
 	int unwrappedPhase;
@@ -74,7 +74,6 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static BOOL detection = false;
 	static UINT16 markerPrimary = 0xa5a5;
 	static UINT16 markerRepeat = 0xf0f0;
-	static UINT16 versionNumber = 3;
 	static UINT16 countPrimary = 1;
 	static UINT16 countRepeat = 0;
 	static UINT16 checksumPrimary = 0;
