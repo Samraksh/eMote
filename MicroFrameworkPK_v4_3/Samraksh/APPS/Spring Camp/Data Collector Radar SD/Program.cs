@@ -26,7 +26,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     public partial class Program {
         
         // if you are using COM2 as your raw data output port then uncomment serialPort2 initialization below
-        //public static SerialPort serialPort2;
+        public static SerialPort serialPort2;
 
         //public static LCD codeVersion = LCD.CHAR_7;
         //public static EmoteLCD lcd = new EmoteLCD();
@@ -131,13 +131,13 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 //  ADCCallback is called when ADCBufferSize number of samples has been collected
                 //  On callback, ADCBufferI and ADCBufferQ contain the data
 
-                /*serialPort2 = new SerialPort("COM2");
+                serialPort2 = new SerialPort("COM2");
                 serialPort2.BaudRate = 115200;
                 serialPort2.Parity = Parity.None;
                 serialPort2.StopBits = StopBits.One;
                 serialPort2.DataBits = 8;
                 serialPort2.Handshake = Handshake.None;
-                serialPort2.Open();*/
+                serialPort2.Open();
 
                 //Debug.Print("Attempting to initialize ADC in C#");
                 if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback, 0))

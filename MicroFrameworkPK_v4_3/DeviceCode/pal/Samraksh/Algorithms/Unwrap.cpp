@@ -80,7 +80,7 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static UINT16 checksumRepeat = 0;
 	static UINT16 prevBufferI[250];
 	static UINT16 prevBufferQ[250];
-	static UINT8 uartPort = 0;
+	static UINT8 uartPort = 1;
 	BOOL threshholdMet = false;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
