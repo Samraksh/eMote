@@ -645,7 +645,7 @@ void ADC_HAL_HANDLER(void *param)
 
 		count++;
 		if (count == adcNumSamplesRadar) {
-			soft_reset_check();			
+			//soft_reset_check();			
 			g_timeStamp = HAL_Time_CurrentTicks();
 			g_callback(&g_timeStamp);
 			count=0;

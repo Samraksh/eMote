@@ -64,7 +64,6 @@ namespace Samraksh.AppNote.DataCollector.Radar
         private static bool buzzerState = false;
 
         public static Samraksh.eMote.Algorithm.RadarDetection radarDetect = new Samraksh.eMote.Algorithm.RadarDetection();
-        public static Samraksh.eMote.Algorithm.AcousticDetection acousticDetect = new Samraksh.eMote.Algorithm.AcousticDetection();
 
         private static bool historyUpdateCtrl = false;
 
@@ -88,9 +87,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
             }
             _adcCopyBuffersPtr = 0;
 
-            // threshold is 10 rotations a second, IQ rejection is 15, and debug mode gives us protected data
+            // threshold is 10 rotations a second, IQ rejection is 15, and debug mode gives us raw radar data for debugging, software version number is 4
             radarDetect.SetDetectionParameters(7, 30, 2, 4);
-            acousticDetect.SetDetectionParameters(1, 1);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 3); // m / n
         }
@@ -102,11 +100,6 @@ namespace Samraksh.AppNote.DataCollector.Radar
         /// <param name="threshhold"></param>
         private static void ADCCallback(long threshhold)
         {
-            //Debug.Print(" I " + ADCBufferI[0].ToString() + " Q " + ADCBufferQ[0].ToString() + " Audio " + ADCBufferAudio[0].ToString() + "\n");
-            //Debug.Print(" I " + ADCBufferI[0].ToString() + " Q " + ADCBufferQ[0].ToString() + "\n");
-            // Track the number of queues used
-            //  Note that BufferQueue.Count can become smaller after this statement
-            //      if WriteSampleBufferQueue dequeues a buffer but it cannot become larger
             var bqCnt = BufferQueue.Count;
             _maxBuffersEnqueued = System.Math.Max(_maxBuffersEnqueued, bqCnt + 1);  // Add 1 because we're about to enqueue
 
@@ -292,15 +285,14 @@ namespace Samraksh.AppNote.DataCollector.Radar
         {
             bool radarDetection = false;
 
-            //timeMeasure.Write(true);
-            /*if (iqa.IBuff[0] > 1500 && iqa.IBuff[0] < 2500 && iqa.QBuff[0] > 1500 && iqa.QBuff[0] < 2500)
+            if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
             {
                 lcd.Write(LCD.CHAR_A, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             }
             else
             {
                 lcd.Write(LCD.CHAR_UNDERSCORE, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
-            }*/
+            }
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
             var iBuff = iq.IBuff;
@@ -339,7 +331,6 @@ namespace Samraksh.AppNote.DataCollector.Radar
             //Debug.Print(radarDetection.ToString());
 
             // This code makes the Kiwi speaker sound
-            // *** Comment out if needed for time ****  
             /*for (i = 0; i < 600 && (radarDetection == true); i++)
             {
                     buzzerGPIO.Write(buzzerState);
@@ -349,31 +340,9 @@ namespace Samraksh.AppNote.DataCollector.Radar
                         buzzerState = true;
             }
             buzzerGPIO.Write(false);*/
-            // *** Comment out above speaker code if needed for time **** 
 
-            /*double[] acousticDetectOutput = new double[6];
-            bool acousticDetection = false;
-
-            // we have 2000 bytes of data but will only process 500 bytes (1/4 second)
-            bool unusedReturnBool = acousticDetect.DetectionCalculation(aBuff, 500, acousticDetectOutput, historyUpdateCtrl);
-
-            //// decision processing
-            for (i = 0; i < 6; i++)
-            {
-                //Debug.Print(acousticDetectOutput[i].ToString());
-            }
-            if (historyUpdateCtrl == true)
-                historyUpdateCtrl = false;
-            else
-                historyUpdateCtrl = true;
-            acousticDetection = historyUpdateCtrl;*/
-            //// end of decision processing
 
             radarInterrupt.Write(radarDetection);
-            //audioInterrupt.Write(acousticDetection);
-
-
-            //timeMeasure.Write(false);       
         }
 
         // Counter fpr storing shared state

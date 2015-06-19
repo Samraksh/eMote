@@ -25,11 +25,10 @@ namespace Samraksh.AppNote.DataCollector.Radar {
     /// </summary>
     public partial class Program {
         
-        // if you are using COM2 as your raw data output port then uncomment serialPort2 initialization below
         public static SerialPort serialPort2;
 
-        //public static LCD codeVersion = LCD.CHAR_7;
-        //public static EmoteLCD lcd = new EmoteLCD();
+        public static LCD codeVersion = LCD.CHAR_7;
+        public static EmoteLCD lcd = new EmoteLCD();
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
@@ -38,38 +37,22 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         private const int DataStoreBlockSize = 125 * 1024; // 128k bytes/block
         // ReSharper disable once UnusedMember.Local
         private const int DataStoreNumBlocks = 125;
+
+        // sampling 125 radar I and 125 radar Q samples every 0.5 seconds
         private const int ADCBufferSize = 125; // Number of ushorts per ADC buffer
         private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer (1 second windows of 250 raw data bytes)        
-        
-        //private const int ADCBufferSize = 256; // Number of ushorts per ADC buffer
-        //private const int SampleIntervalMicroSec = 3906;
-
-        //private const int LargeDataStoreReferenceSize = (DataStoreBlockSize / 4) / sizeof(ushort);
 
         // End of file value
         //  This must be the same value across all Data Collector programs 
         private const byte Eof = 0xF0;  // A ushort of F0F0 (2 bytes of Eof) is larger than a 12-bit sample (max 0FFF)
 
         // Misc definitions
-        //private static readonly DataStore DataStore = DataStore.Instance(StorageType.NOR, true);
-        //private static readonly LargeDataReference LargeDataRef = new LargeDataReference(DataStore, LargeDataStoreReferenceSize);
-        //private static DataStoreReturnStatus _retVal;
         private static bool _debuggerIsAttached;
 
-        // The sampling interval in micro seconds. Sample rate per sec = 1,000,000 / SampleIntervalMicroSec
 
         public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
-        //public static OutputPort radarEnableGPIO = new OutputPort((Cpu.Pin)25, true);
-        private static InputPort testPort = new InputPort((Cpu.Pin)25, false, Port.ResistorMode.Disabled);
-        //public static OutputPort timeMeasure = new OutputPort((Cpu.Pin)29, true);
 
         public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
-        //public static OutputPort audioInterrupt = new OutputPort((Cpu.Pin)31, true);
-
-        // Define the GPIO pins used
-        //private static class GpioPins {
-        //    public static readonly InterruptPort EndCollect = new InterruptPort(Pins.GPIO_J11_PIN5, false, Port.ResistorMode.PullUp, Port.InterruptMode.InterruptEdgeBoth);
-        //}
 
         // Flag that's set when the user enables the EndCollect GPIO pin
         //  This stops the data collection after the current buffer is processed
@@ -92,22 +75,18 @@ namespace Samraksh.AppNote.DataCollector.Radar {
         public static void Main() {
             var finalMsg = string.Empty;
 
-            //lcd.Initialize();
-            //lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+            lcd.Initialize();
+            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             Thread.Sleep(60000);
             try {
                 Debug.EnableGCMessages(false);
 
-                // Print the version and build info
-                //VersionInfo.Init(Assembly.GetExecutingAssembly());
 
                 // Note whether the debugger is attached
                 //  Used to suppress print messages during buffer processing if not debugging
                 //  Otherwise, print statements can create and discard strings and trigger a garbage collection
                 _debuggerIsAttached = System.Diagnostics.Debugger.IsAttached;
 
-                // Start sampling
-                //EnhancedLcd.Display(LCDMessages.Collecting);
 
                 // Start the ADC buffer processing thread
                 //  This is done first since the ADC sampling below starts right away, so better to start WriteSampleBufferQueue thread first
@@ -121,16 +100,7 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 // Initialize the ADC and the channels
                 AnalogInput.InitializeADC();
 
-                /* This overlaps the init in ConfigureScanModeThreeChannels
-                AnalogInput.InitChannel(ADCChannel.ADC_Channel1);
-                AnalogInput.InitChannel(ADCChannel.ADC_Channel2);
-                */
-
-                // Start the continuous mode dual channel sampling
-                //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
-                //  ADCCallback is called when ADCBufferSize number of samples has been collected
-                //  On callback, ADCBufferI and ADCBufferQ contain the data
-
+                // initializing the COM2 port. radar data will be streamed out COM2 for debugging purposes
                 serialPort2 = new SerialPort("COM2");
                 serialPort2.BaudRate = 115200;
                 serialPort2.Parity = Parity.None;
@@ -139,9 +109,13 @@ namespace Samraksh.AppNote.DataCollector.Radar {
                 serialPort2.Handshake = Handshake.None;
                 serialPort2.Open();
 
+                // Start the continuous mode dual channel sampling
+                //  SampleIntervalMicroSec gives the interval between samples, in micro seconds
+                //  ADCCallback is called when ADCBufferSize number of samples has been collected
+                //  On callback, ADCBufferI and ADCBufferQ contain the data
+
                 //Debug.Print("Attempting to initialize ADC in C#");
                 if (!AnalogInput.ConfigureContinuousModeDualChannel(ADCBufferI, ADCBufferQ, ADCBufferSize, SampleIntervalMicroSec, ADCCallback, 0))
-                //if (!AnalogInput.ConfigureScanModeThreeChannels(ADCBufferI, ADCBufferQ, ADCBufferAudio, AudioBufferSize, SampleIntervalMicroSec, ADCCallback))
                 {
                     //EnhancedLcd.Display(LCDMessages.Error);
                     throw new InvalidOperationException("Could not initialize ADC");
