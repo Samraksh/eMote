@@ -69,8 +69,10 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// </summary>
         /// <param name="data"></param>
         /// <param name="numData"></param>
-        private void VerifyDataReferenceParams(byte[] data, int numData)
+        private void VerifyDataReferenceParams(byte[] data, int offset, int numData)
         {
+            VerifyDataReferenceParams(offset, numData);
+
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
@@ -103,8 +105,10 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// </summary>
         /// <param name="data"></param>
         /// <param name="numData"></param>
-        private void VerifyDataReferenceParams(UInt16[] data, int numData)
+        private void VerifyDataReferenceParams(UInt16[] data, int offset, int numData)
         {
+            VerifyDataReferenceParams(offset, numData);
+
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
@@ -137,8 +141,10 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// </summary>
         /// <param name="data"></param>
         /// <param name="numData"></param>
-        private void VerifyDataReferenceParams(UInt32[] data, int numData)
+        private void VerifyDataReferenceParams(UInt32[] data, int offset, int numData)
         {
+            VerifyDataReferenceParams(offset, numData);
+
             if (data.Length == 0)
                 throw new DataStoreException("data array cannot be of zero length");
 
@@ -330,8 +336,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -363,8 +369,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -398,8 +404,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -435,8 +441,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -461,8 +467,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -496,8 +502,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -534,8 +540,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -560,8 +566,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -595,8 +601,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -633,8 +639,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -674,8 +680,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -716,8 +722,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams(offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams(offset, numData);
             }
             catch (Exception ex)
             {
@@ -761,8 +767,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -802,8 +808,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -844,8 +850,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -889,8 +895,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -930,8 +936,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
@@ -972,8 +978,8 @@ namespace Samraksh.eMote.NonVolatileMemory
 
             try
             {
-                VerifyDataReferenceParams(data, numData);
-                VerifyDataReferenceParams((int)offset, numData);
+                VerifyDataReferenceParams(data, (int)offset, numData);
+                //VerifyDataReferenceParams((int)offset, numData);
             }
             catch (Exception ex)
             {
