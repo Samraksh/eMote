@@ -45,7 +45,8 @@ BOOL USART_Uninitialize( int ComPortNum )
 
 int USART_Write( int ComPortNum, const char* Data, size_t size )
 {
-    return USART_Driver::Write( ComPortNum, Data, size );
+    //return USART_Driver::Write( ComPortNum, Data, size );
+	return size;
 }
 
 int USART_Read( int ComPortNum, char* Data, size_t size )

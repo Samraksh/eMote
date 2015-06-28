@@ -10,6 +10,8 @@
 
 void USART2_Handler(void *args);
 
+static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param );
+
 /*TODO 
 	Add error handling
 	Define the APIs completely
@@ -38,6 +40,11 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 				return FALSE;
 		}
 	}
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
+	//CPU_GPIO_EnableInputPin2( (GPIO_PIN) 24, FALSE, my_exti10, NULL, GPIO_INT_EDGE_BOTH, RESISTOR_DISABLED );
+	CPU_GPIO_EnableInputPin2( (GPIO_PIN) 10, FALSE, my_exti10, NULL, GPIO_INT_EDGE_BOTH, RESISTOR_DISABLED );
+	return TRUE;
 
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -50,14 +57,16 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
 
 	NVIC_InitTypeDef NVIC_InitStructure;
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	//NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
+	//RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
+	
 	USART_DeInit(USART1);
 	USART_StructInit(&USART_InitStructure);
 
@@ -66,25 +75,63 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_InitStructure.USART_StopBits 				= USART_StopBits_1;
 	USART_InitStructure.USART_Parity 				= USART_Parity_No;
 	USART_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
+	USART_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx; // SPRING CAMP RADAR OFF HACK --NPS
 
 	// Configure USART Tx as alternate function push-pull
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
+	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
+	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz); // SPRING CAMP RADAR OFF HACK --NPS
+	GPIO_ConfigurePin(GPIOB, GPIO_Pin_8, GPIO_Mode_IN_FLOATING, GPIO_Speed_10MHz); // SPRING CAMP RADAR OFF HACK --NPS
 
 	USART_Init(USART1, &USART_InitStructure);
 	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	USART_Cmd(USART1, ENABLE);
-	return TRUE;
+	
+	// SPRING CAMP RADAR OFF HACK
+	/*
+	{
+		EXTI_InitTypeDef EXTI_InitStructure;
+		//GPIO_PIN Pin = (GPIO_PIN)10;
+		GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource10);
+
+		NVIC_InitTypeDef NVIC_InitStructure2;
+		NVIC_InitStructure2.NVIC_IRQChannel = EXTI15_10_IRQn;
+		NVIC_InitStructure2.NVIC_IRQChannelPreemptionPriority = 2;
+		NVIC_InitStructure2.NVIC_IRQChannelSubPriority = 0;
+		NVIC_InitStructure2.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure2);
+
+		EXTI_InitStructure.EXTI_Line = EXTI_Line10;
+		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+		EXTI_Init(&EXTI_InitStructure);
+
+		//CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
+		//ISER[EXTI15_10_IRQn >> 0x05] = (UINT32)0x01 << (EXTI15_10_IRQn & (UINT8)0x1F);
+		
+		GPIO_InitTypeDef GPIO_InitStruct2;
+		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_3;
+		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
+		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
+		GPIO_Init(GPIOA, &GPIO_InitStruct2);
+		
+		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+	}
+	*/
+	// END SPRING CAMP RADAR OFF HACK
+
   }
   else { // COM2
+	/*
 	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
 	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
 
+	USART_InitTypeDef USART_InitStructure;
 	UINT32 interruptIndex = 0;
 	HAL_CALLBACK_FPN callback = NULL;
 
@@ -111,13 +158,14 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
 
 	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
-	GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IPU, GPIO_Speed_10MHz);
+	//GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IPU, GPIO_Speed_10MHz);
 
 	USART_Init(USART2, &USART_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
 	USART_Cmd(USART2, ENABLE);
+	*/
 	return TRUE;
   }
 }
@@ -332,7 +380,33 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 
 #define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
 
+static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
+	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	
+	if (ret) {
+		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
+	}
+	else {
+		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+	}
+}
+
 extern "C" {
+
+/*
+void __irq EXTI15_10_IRQHandler() {
+	EXTI_ClearITPendingBit(EXTI_Line10);
+	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	
+	if (ret) {
+		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
+	}
+	else {
+		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+	}
+}
+*/
+	
 void __irq USART1_IRQHandler() {
 	static char buf[RX_HAL_BUF_SIZE];
 	static int idx;
