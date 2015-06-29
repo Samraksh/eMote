@@ -70,12 +70,12 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		//ISER[EXTI15_10_IRQn >> 0x05] = (UINT32)0x01 << (EXTI15_10_IRQn & (UINT8)0x1F);
 		
 		GPIO_InitTypeDef GPIO_InitStruct2;
-		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_3;
+		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_12;
 		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
 		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
-		GPIO_Init(GPIOA, &GPIO_InitStruct2);
+		GPIO_Init(GPIOB, &GPIO_InitStruct2);
 		
-		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
 		return TRUE;
 	}
 	// END SPRING CAMP RADAR OFF HACK
@@ -389,10 +389,10 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
-		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
+		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
 	}
 	else {
-		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
 	}
 }
 
@@ -404,10 +404,10 @@ void __irq EXTI15_10_IRQHandler() {
 	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
-		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
+		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
 	}
 	else {
-		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
 	}
 }
 
