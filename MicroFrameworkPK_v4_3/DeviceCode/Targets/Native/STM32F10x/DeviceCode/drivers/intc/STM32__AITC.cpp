@@ -1374,7 +1374,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
-		
+		/*
 		void __irq EXTI15_10_IRQHandler()
 		{
 
@@ -1399,6 +1399,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 			SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 			SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 		}
+		*/
 
 		void __irq RTCAlarm_IRQHandler()
 		{

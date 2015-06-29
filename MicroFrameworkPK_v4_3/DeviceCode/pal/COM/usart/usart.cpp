@@ -61,7 +61,8 @@ int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
 
 BOOL USART_Flush( int ComPortNum )
 {
-    return USART_Driver::Flush( ComPortNum );
+    //return USART_Driver::Flush( ComPortNum );
+	return TRUE;
 }
 
 BOOL USART_AddCharToRxBuffer( int ComPortNum, char c )

@@ -22,6 +22,7 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param );
 
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
+	/*
 	if (ComPortNum == 0) {
 		// Fix added to protect long range radio against usart power - ask Nathan.Stohs for reasons
 		CPU_GPIO_EnableInputPin3((GPIO_PIN) 9, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
@@ -40,8 +41,46 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 				return FALSE;
 		}
 	}
+	*/
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_USART1 | RCC_APB2Periph_AFIO, ENABLE);
+	USART_DeInit(USART1);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
+	
+	// SPRING CAMP RADAR OFF HACK
+	{
+		EXTI_InitTypeDef EXTI_InitStructure;
+		//GPIO_PIN Pin = (GPIO_PIN)10;
+		GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource10);
+
+		NVIC_InitTypeDef NVIC_InitStructure2;
+		NVIC_InitStructure2.NVIC_IRQChannel = EXTI15_10_IRQn;
+		NVIC_InitStructure2.NVIC_IRQChannelPreemptionPriority = 2;
+		NVIC_InitStructure2.NVIC_IRQChannelSubPriority = 0;
+		NVIC_InitStructure2.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure2);
+
+		EXTI_InitStructure.EXTI_Line = EXTI_Line10;
+		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+		EXTI_Init(&EXTI_InitStructure);
+
+		//CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
+		//ISER[EXTI15_10_IRQn >> 0x05] = (UINT32)0x01 << (EXTI15_10_IRQn & (UINT8)0x1F);
+		
+		GPIO_InitTypeDef GPIO_InitStruct2;
+		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_3;
+		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
+		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
+		GPIO_Init(GPIOA, &GPIO_InitStruct2);
+		
+		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
+		return TRUE;
+	}
+	// END SPRING CAMP RADAR OFF HACK
+	
+	
 	//CPU_GPIO_EnableInputPin2( (GPIO_PIN) 24, FALSE, my_exti10, NULL, GPIO_INT_EDGE_BOTH, RESISTOR_DISABLED );
 	CPU_GPIO_EnableInputPin2( (GPIO_PIN) 10, FALSE, my_exti10, NULL, GPIO_INT_EDGE_BOTH, RESISTOR_DISABLED );
 	return TRUE;
@@ -90,40 +129,6 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	USART_Cmd(USART1, ENABLE);
-	
-	// SPRING CAMP RADAR OFF HACK
-	/*
-	{
-		EXTI_InitTypeDef EXTI_InitStructure;
-		//GPIO_PIN Pin = (GPIO_PIN)10;
-		GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,GPIO_PinSource10);
-
-		NVIC_InitTypeDef NVIC_InitStructure2;
-		NVIC_InitStructure2.NVIC_IRQChannel = EXTI15_10_IRQn;
-		NVIC_InitStructure2.NVIC_IRQChannelPreemptionPriority = 2;
-		NVIC_InitStructure2.NVIC_IRQChannelSubPriority = 0;
-		NVIC_InitStructure2.NVIC_IRQChannelCmd = ENABLE;
-		NVIC_Init(&NVIC_InitStructure2);
-
-		EXTI_InitStructure.EXTI_Line = EXTI_Line10;
-		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-		EXTI_Init(&EXTI_InitStructure);
-
-		//CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
-		//ISER[EXTI15_10_IRQn >> 0x05] = (UINT32)0x01 << (EXTI15_10_IRQn & (UINT8)0x1F);
-		
-		GPIO_InitTypeDef GPIO_InitStruct2;
-		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_3;
-		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
-		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
-		GPIO_Init(GPIOA, &GPIO_InitStruct2);
-		
-		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
-	}
-	*/
-	// END SPRING CAMP RADAR OFF HACK
 
   }
   else { // COM2
@@ -381,7 +386,7 @@ BOOL CPU_USART_IsBaudrateSupported( int ComPortNum, UINT32& BaudrateHz )
 #define RX_HAL_BUF_SIZE 8  // Input buffer will flush after this size or IDLE interrupt
 
 static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
-	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
 		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
@@ -393,10 +398,10 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 
 extern "C" {
 
-/*
+
 void __irq EXTI15_10_IRQHandler() {
 	EXTI_ClearITPendingBit(EXTI_Line10);
-	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
 		GPIO_ResetBits(GPIOA, GPIO_Pin_3); // Turn off Radar
@@ -405,7 +410,7 @@ void __irq EXTI15_10_IRQHandler() {
 		GPIO_SetBits(GPIOA, GPIO_Pin_3); // Turn on Radar
 	}
 }
-*/
+
 	
 void __irq USART1_IRQHandler() {
 	static char buf[RX_HAL_BUF_SIZE];
