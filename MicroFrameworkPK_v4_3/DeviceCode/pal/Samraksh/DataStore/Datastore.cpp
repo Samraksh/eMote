@@ -392,18 +392,73 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 	return retVal;
 }
 
+
+/*
+ * Helper function to get record id from flash (if present)
+ */
+LPVOID Data_Store::searchForID(RECORD_ID id)
+{
+	LPVOID retValTemp = NULL;
+	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
+	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
+	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
+	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
+	int numOfEntries = 0;
+	bool readDone = false;
+	uint32 deleteIndex = 0;
+	DATASTORE_STATUS status;
+
+	//Go through entire flash looking for id.
+	for(int index = firstBlock;index <= lastBlock; index++) {
+		//Erase existing entries in addressTable
+		while(addressTable.table[deleteIndex].givenPtr != 0) {
+			status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+			if(status != DATASTORE_STATUS_OK) {
+				break;
+			}
+		}
+
+		//Fetch new set of entries into addressTable and search again
+		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0, &readDone);
+		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+		if(lastErrorVal != DATASTORE_ERROR_NONE )
+			return NULL;
+		//if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
+			//break;
+
+		retValTemp = addressTable.getCurrentLoc(id);
+		if(retValTemp != NULL) {
+			//Found id
+			break;
+		}
+	}
+	return retValTemp;
+}
+
 /*
  * Get base address for given Record_id
  */
 LPVOID Data_Store::getAddress(RECORD_ID id)
 {
     LPVOID retVal = NULL;
+    LPVOID retValTemp = NULL;
     lastErrorVal = DATASTORE_ERROR_NONE;
 
-    if( NULL == ( retVal = ( addressTable.getCurrentLoc(id) - sizeof(RECORD_HEADER) ) ) ){
-		lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
-	}
-    return retVal;
+	retValTemp = addressTable.getCurrentLoc(id);
+
+    if(retValTemp == NULL) {
+    	retValTemp = searchForID(id);
+    }
+
+    if(retValTemp == NULL) {
+    	return retValTemp;
+    }
+    else {
+		if( NULL == ( retVal = ( retValTemp - sizeof(RECORD_HEADER) ) ) ){
+			lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+		}
+		return retVal;
+    }
 }
 
 /*
@@ -1188,9 +1243,12 @@ DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
     lastErrorVal = DATASTORE_ERROR_NONE;
     do{
         LPVOID currLoc = addressTable.getCurrentLoc(id);
-        if(currLoc == NULL){
-            lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
-            break;
+        if(currLoc == NULL) {
+        	currLoc = searchForID(id);
+        	if(currLoc == NULL) {
+				lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+				break;
+			}
         }
 
         cyclicDataRead( (void*)&header,
