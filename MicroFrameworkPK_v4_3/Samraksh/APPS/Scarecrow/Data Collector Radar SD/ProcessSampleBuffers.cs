@@ -67,6 +67,8 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
         private static bool historyUpdateCtrl = false;
 
+        public static LCD detectionDisplay = LCD.CHAR_d;
+
 
         /// <summary>
         /// Populate the circular queue of ADC buffers
@@ -287,11 +289,11 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
             {
-                lcd.Write(LCD.CHAR_A, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+                lcd.Write(LCD.CHAR_A, detectionDisplay, LCD.CHAR_NULL, codeVersion);
             }
             else
             {
-                lcd.Write(LCD.CHAR_UNDERSCORE, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+                lcd.Write(LCD.CHAR_UNDERSCORE, detectionDisplay, LCD.CHAR_NULL, codeVersion);
             }
 
             // Pull the members out. Re ferencing this way seems to be more efficient.
@@ -319,10 +321,12 @@ namespace Samraksh.AppNote.DataCollector.Radar
             {
                 radarDetection = true;
                 //Debug.Print("Detection");
+                detectionDisplay = LCD.CHAR_d;
             }
             else
             {
                 radarDetection = false;
+                detectionDisplay = LCD.CHAR_UNDERSCORE;
             }
 
             // If you just want to use the thresholdMet as the detection then use the following
