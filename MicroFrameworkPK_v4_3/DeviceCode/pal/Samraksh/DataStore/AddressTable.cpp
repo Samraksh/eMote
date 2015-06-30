@@ -194,6 +194,32 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
 *  \return
 *
 ******************************************************************************/
+LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID, int &index)
+{/* Need to do a linear search, so O(n) */
+    LPVOID retVal = NULL;
+    for(index = 0; index < table.size(); index++){
+		if(table[index].recordID == recordID){
+			retVal = table[index].currentLoc;
+			break;
+		}
+    }
+    return retVal;
+}
+
+
+/****************************************************************************
+*
+*  Function Name : getCurrentLoc
+*
+******************************************************************************/
+/*!
+*  \brief
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
 LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID)
 {/* Need to do a linear search, so O(n) */
     LPVOID retVal = NULL;
@@ -460,13 +486,36 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 DATASTORE_STATUS DATASTORE_AddrTable::updateCurrentLocation(RECORD_ID recordID, LPVOID newLoc)
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
-    for(int index = 0; index < table.size(); index++){
+    int currentIndex = 0, indexTemp = 0;
+
+    //First find current location of recordID in table.
+    //Store last recordID's index.
+    //Move all records after current location of recordID to index starting from current location.
+    //Store current record to last index.
+    LPVOID retVal = getCurrentLoc(recordID, currentIndex);
+    DATASTORE_ADDR_TBL_ENTRY currentEntry = table[currentIndex];
+    int lastRecIndex = table.size() - 1;
+
+	for(indexTemp = currentIndex; indexTemp < lastRecIndex; indexTemp++){
+		table[indexTemp] = table[indexTemp+1];
+		/*if(table[index].currentLoc < newLoc){
+			// Insert here
+			table[index].currentLoc = newLoc;
+			//table.insert(table.begin()+index+1, *entry);
+			break;  // Break is pretty important :)
+		}*/
+	}
+	table[lastRecIndex] = currentEntry;
+	table[lastRecIndex].currentLoc = newLoc;
+	status = DATASTORE_STATUS_OK;
+
+    /*for(int index = 0; index < table.size(); index++){
         if(table[index].recordID == recordID){
             table[index].currentLoc = newLoc;
             status = DATASTORE_STATUS_OK;
             break;
         }
-    }
+    }*/
     return status;
 }
 

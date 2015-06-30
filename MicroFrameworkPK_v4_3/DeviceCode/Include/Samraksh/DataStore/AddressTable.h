@@ -74,6 +74,7 @@ public:
     ////myVector table;
     DATASTORE_AddrTable();
     DATASTORE_STATUS addEntry(DATASTORE_ADDR_TBL_ENTRY *entry);
+    LPVOID			 getCurrentLoc(RECORD_ID recordID, int &index);
     LPVOID           getCurrentLoc(RECORD_ID recordID);
     LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr);
     LPVOID           getGivenAddress(RECORD_ID recordID);
