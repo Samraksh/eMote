@@ -45,7 +45,8 @@ BOOL USART_Uninitialize( int ComPortNum )
 
 int USART_Write( int ComPortNum, const char* Data, size_t size )
 {
-    return USART_Driver::Write( ComPortNum, Data, size );
+    //return USART_Driver::Write( ComPortNum, Data, size );
+	return size;
 }
 
 int USART_Read( int ComPortNum, char* Data, size_t size )
@@ -60,7 +61,8 @@ int USART_Managed_Read( int ComPortNum, char* Data, size_t size )
 
 BOOL USART_Flush( int ComPortNum )
 {
-    return USART_Driver::Flush( ComPortNum );
+    //return USART_Driver::Flush( ComPortNum );
+	return TRUE;
 }
 
 BOOL USART_AddCharToRxBuffer( int ComPortNum, char c )
