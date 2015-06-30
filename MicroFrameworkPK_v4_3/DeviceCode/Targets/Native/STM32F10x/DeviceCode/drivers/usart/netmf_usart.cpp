@@ -62,7 +62,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 
 		EXTI_InitStructure.EXTI_Line = EXTI_Line10;
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+		//EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 		EXTI_Init(&EXTI_InitStructure);
 
@@ -406,7 +407,22 @@ void __irq EXTI15_10_IRQHandler() {
 	}
 	else {
 		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
+		return;
 	}
+	
+	do {
+		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
+		
+		for(volatile int i=0; i<20; i++) { __NOP(); }
+		
+		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
+		
+		for(volatile int i=0; i<25; i++) { __NOP(); }
+		
+	} while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10));
+	
+	GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
+	return;
 }
 
 	
