@@ -51,8 +51,8 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
 		TIM_DeInit(TIM7);
-		TIM_TimeBaseInitStruct.TIM_Period = 15000-1; // 20ms
-		TIM_TimeBaseInitStruct.TIM_Prescaler = 63;
+		TIM_TimeBaseInitStruct.TIM_Period = 11250-1; // 30ms
+		TIM_TimeBaseInitStruct.TIM_Prescaler = 127;
 		TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 		TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
