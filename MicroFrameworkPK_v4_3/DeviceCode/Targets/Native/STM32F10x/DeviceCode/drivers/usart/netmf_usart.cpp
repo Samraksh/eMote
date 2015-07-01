@@ -52,11 +52,21 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
 		TIM_DeInit(TIM7);
 		TIM_TimeBaseInitStruct.TIM_Period = 11250-1; // 30ms
+		//TIM_TimeBaseInitStruct.TIM_Period = 1875-1; // 5ms
 		TIM_TimeBaseInitStruct.TIM_Prescaler = 127;
 		TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 		TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
 		TIM_TimeBaseInit(TIM7, &TIM_TimeBaseInitStruct);
+
+		TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE);
+
+		NVIC_InitTypeDef NVIC_InitStructure2;
+		NVIC_InitStructure2.NVIC_IRQChannel = TIM7_IRQn;
+		NVIC_InitStructure2.NVIC_IRQChannelPreemptionPriority = 1;
+		NVIC_InitStructure2.NVIC_IRQChannelSubPriority = 0;
+		NVIC_InitStructure2.NVIC_IRQChannelCmd = ENABLE;
+		NVIC_Init(&NVIC_InitStructure2);
 	}
 
 	// SPRING CAMP RADAR OFF HACK
@@ -416,12 +426,12 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 	}
 }
 
-static void wait_3_ms() {
-	TIM_ClearFlag(TIM7, TIM_FLAG_Update);
+static void start_guard_time() {
+	//TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 	TIM7->CNT=0;
 	TIM_Cmd(TIM7, ENABLE);
-	while( TIM_GetFlagStatus(TIM7, TIM_FLAG_Update) == RESET ) { ; } //spin
-	TIM_Cmd(TIM3, DISABLE); // done
+	//while( TIM_GetFlagStatus(TIM7, TIM_FLAG_Update) == RESET ) { ; } //spin
+	//TIM_Cmd(TIM7, DISABLE); // done
 }
 
 extern "C" {
@@ -429,19 +439,33 @@ extern "C" {
 
 void __irq EXTI15_10_IRQHandler() {
 	EXTI_ClearITPendingBit(EXTI_Line10);
+	__disable_irq();
 	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
 		GPIO_SetBits(GPIOC, GPIO_Pin_11); // Turn off mux
 		__NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
+		TIM_Cmd(TIM7, DISABLE);
+		TIM_ClearITPendingBit(TIM7, TIM_IT_Update);
 	}
 	else {
 		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
-		wait_3_ms();
+		start_guard_time();
+		//GPIO_ResetBits(GPIOC, GPIO_Pin_11); // Turn on mux
+	}
+	__enable_irq();
+}
+
+void __irq TIM7_IRQHandler() {
+	TIM_ClearITPendingBit(TIM7, TIM_IT_Update);
+	__disable_irq();
+	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
+	if (!ret) {
 		GPIO_ResetBits(GPIOC, GPIO_Pin_11); // Turn on mux
 	}
-	return;
+	TIM_Cmd(TIM7, DISABLE);
+	__enable_irq();
 }
 
 	
