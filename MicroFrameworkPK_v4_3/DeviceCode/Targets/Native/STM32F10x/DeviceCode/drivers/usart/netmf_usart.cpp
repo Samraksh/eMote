@@ -43,10 +43,22 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	}
 	*/
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_USART1 | RCC_APB2Periph_AFIO, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_USART1 | RCC_APB2Periph_AFIO, ENABLE);
 	USART_DeInit(USART1);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE);
 	
+	{ // SETUP TIM7
+		TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
+		TIM_DeInit(TIM7);
+		TIM_TimeBaseInitStruct.TIM_Period = 15000-1; // 20ms
+		TIM_TimeBaseInitStruct.TIM_Prescaler = 63;
+		TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+		TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+		TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0x0000;
+		TIM_TimeBaseInit(TIM7, &TIM_TimeBaseInitStruct);
+	}
+
 	// SPRING CAMP RADAR OFF HACK
 	{
 		EXTI_InitTypeDef EXTI_InitStructure;
@@ -62,21 +74,28 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 
 		EXTI_InitStructure.EXTI_Line = EXTI_Line10;
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-		//EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
 		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 		EXTI_Init(&EXTI_InitStructure);
 
 		//CPU_INTC_ActivateInterrupt(GPIO_GetIRQNumber(Pin), (HAL_CALLBACK_FPN) GPIO_GetCallBack(Pin), NULL);
 		//ISER[EXTI15_10_IRQn >> 0x05] = (UINT32)0x01 << (EXTI15_10_IRQn & (UINT8)0x1F);
 		
+		// RADAR PULSE PIN
 		GPIO_InitTypeDef GPIO_InitStruct2;
 		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_12;
 		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
 		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
 		GPIO_Init(GPIOB, &GPIO_InitStruct2);
-		
 		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
+
+		// MUX PULSE PIN
+		GPIO_InitStruct2.GPIO_Pin  	= GPIO_Pin_11;
+		GPIO_InitStruct2.GPIO_Speed 	= GPIO_Speed_10MHz;
+		GPIO_InitStruct2.GPIO_Mode 	= GPIO_Mode_Out_PP;
+		GPIO_Init(GPIOC, &GPIO_InitStruct2);
+		GPIO_ResetBits(GPIOC, GPIO_Pin_11); // Turn on Mux (enabled low)
+
 		return TRUE;
 	}
 	// END SPRING CAMP RADAR OFF HACK
@@ -397,6 +416,14 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 	}
 }
 
+static void wait_3_ms() {
+	TIM_ClearFlag(TIM7, TIM_FLAG_Update);
+	TIM7->CNT=0;
+	TIM_Cmd(TIM7, ENABLE);
+	while( TIM_GetFlagStatus(TIM7, TIM_FLAG_Update) == RESET ) { ; } //spin
+	TIM_Cmd(TIM3, DISABLE); // done
+}
+
 extern "C" {
 
 
@@ -405,25 +432,15 @@ void __irq EXTI15_10_IRQHandler() {
 	unsigned ret = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10);
 	
 	if (ret) {
+		GPIO_SetBits(GPIOC, GPIO_Pin_11); // Turn off mux
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
 	}
 	else {
 		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
-		return;
+		wait_3_ms();
+		GPIO_ResetBits(GPIOC, GPIO_Pin_11); // Turn on mux
 	}
-	
-	do {
-		GPIO_ResetBits(GPIOB, GPIO_Pin_12); // Turn off Radar
-		
-		for(volatile int i=0; i<20; i++) { __NOP(); }
-		
-		GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
-		
-		for(volatile int i=0; i<25; i++) { __NOP(); }
-		
-	} while (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_10));
-	
-	GPIO_SetBits(GPIOB, GPIO_Pin_12); // Turn on Radar
 	return;
 }
 
