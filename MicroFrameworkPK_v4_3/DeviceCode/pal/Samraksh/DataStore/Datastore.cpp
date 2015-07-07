@@ -231,10 +231,8 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 	currBlockEndAddr   = currBlockStartAddr + blockDeviceInformation->Regions->BytesPerBlock - 1;
 	byteLeftInBlock = (UINT32)currBlockEndAddr - logPtr + 1;
 
-
     LPVOID retVal = NULL;
     uint32 allocationSize = numBytes + sizeof(RECORD_HEADER);
-
 
     RECORD_HEADER header = { 0 };
 
@@ -293,11 +291,18 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
         	DATASTORE_STATUS status;
         	while(addressTable.table[deleteIndex].givenPtr != 0)
 			{
-        		status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-				if(status != DATASTORE_STATUS_OK)
-				{
-					break;
-				}
+        		//Don't remove a record which has to be updated with a new location.
+        		RECORD_ID recID = addressTable.table[deleteIndex].recordID;
+        		if(recID == recordID) {
+        			deleteIndex++;
+        		}
+        		else {
+					status = addressTable.removeEntry(recID);
+					if(status != DATASTORE_STATUS_OK)
+					{
+						break;
+					}
+        		}
 			}
 		}
 
@@ -392,6 +397,29 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 	return retVal;
 }
 
+/* Helper function to get count of objects in a block */
+int Data_Store::objectCountInBlock(int blockID)
+{
+	RECORD_HEADER header;
+	DATASTORE_ADDR_TBL_ENTRY entry;
+	char *addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
+	char *endAddr = addr + blockDeviceInformation->Regions->BytesPerBlock;
+	int objectCount = 0;
+
+	while(*addr != (char)0xFF && addr < (endAddr))
+	{
+		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
+		if(*((unsigned char*)&header) == SKIP_TO_NEXT_SECTOR_FLAG) {
+			break;
+		}
+		if(FLAG_RECORD_ACTIVE == header.activeFlag ) {
+			objectCount++;
+		}
+		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
+		header = {0}; entry = {0};
+	}
+	return objectCount;
+}
 
 /*
  * Helper function to get record id from flash (if present)
@@ -403,33 +431,49 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
 	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
 	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
-	int numOfEntries = 0;
+
+	int objectCountInBlk = 0, recordOffset = 0;
+	int totalNumOfObjectsRead = 0, objectsReadFromBlock = 0;
 	bool readDone = false;
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
 
-	//Go through entire flash looking for id.
-	for(int index = firstBlock;index <= lastBlock; index++) {
-		//Erase existing entries in addressTable
-		while(addressTable.table[deleteIndex].givenPtr != 0) {
-			status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-			if(status != DATASTORE_STATUS_OK) {
-				break;
+	retValTemp = addressTable.getCurrentLoc(id);
+	if(retValTemp != NULL) {
+		//Found id
+		return retValTemp;
+	}
+	else {
+		//Go through entire flash looking for id.
+		for(int index = firstBlock;index <= lastBlock; index++) {
+			//Erase existing entries in addressTable
+			while(addressTable.table[deleteIndex].givenPtr != 0) {
+				status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
+				if(status != DATASTORE_STATUS_OK) {
+					return retValTemp;
+				}
 			}
-		}
 
-		//Fetch new set of entries into addressTable and search again
-		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0, &readDone);
-		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
-		if(lastErrorVal != DATASTORE_ERROR_NONE )
-			return NULL;
-		//if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
-			//break;
+			objectCountInBlk = objectCountInBlock(index);
+			objectsReadFromBlock = 0;
+			recordOffset = 0;
+			//Fetch new set of entries into addressTable and search again
+			while(objectsReadFromBlock < objectCountInBlk) {
+				objectsReadFromBlock += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, recordOffset, &readDone);
+				recordOffset = objectsReadFromBlock;
+				totalNumOfObjectsRead += objectsReadFromBlock;
+				//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+				if(lastErrorVal != DATASTORE_ERROR_NONE )
+					return NULL;
+				//if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
+					//break;
 
-		retValTemp = addressTable.getCurrentLoc(id);
-		if(retValTemp != NULL) {
-			//Found id
-			break;
+				retValTemp = addressTable.getCurrentLoc(id);
+				if(retValTemp != NULL) {
+					//Found id
+					return retValTemp;
+				}
+			}
 		}
 	}
 	return retValTemp;
@@ -1022,7 +1066,7 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 	{
 		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
 		if(*((unsigned char*)&header) == SKIP_TO_NEXT_SECTOR_FLAG){
-					break;
+			break;
 		}
 
 		if(FLAG_RECORD_ACTIVE == header.activeFlag )

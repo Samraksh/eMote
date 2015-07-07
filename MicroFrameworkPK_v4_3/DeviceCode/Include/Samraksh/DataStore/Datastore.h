@@ -267,6 +267,9 @@ private:
     /* Helper function to increment pointers so that it doesn't run out of circular buffer */
     LPVOID incrementPointer(LPVOID inputPtr, int amount);
 
+    /* Helper function to get count of objects in a block */
+    int objectCountInBlock(int blockID);
+
     /* Helper function to get record id from flash (if present) */
     LPVOID searchForID(RECORD_ID id);
 

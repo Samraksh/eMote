@@ -472,6 +472,42 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 
 /****************************************************************************
 *
+*  Function Name : sortAddressTable
+*
+******************************************************************************/
+/*!
+*  \brief: 	Implements insertion sort as I believe that the address table should
+*		already be well sorted with only one entry being out of order.
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+BOOL DATASTORE_AddrTable::sortAddressTable()
+{
+	//DATASTORE_AddrTable addrTable;
+	BOOL retVal = false;
+	int lastRecIndex = table.size() - 1;
+	int i = 0, j = 0;
+	LPVOID addrValue;
+	DATASTORE_ADDR_TBL_ENTRY currentEntry;
+	for(i = 1; i <= lastRecIndex; i++) {
+		addrValue = table[i].currentLoc;
+		currentEntry = table[i];
+		j = i-1;
+		while(j >= 0 && table[j].currentLoc > addrValue) {
+			table[j+1] = table[j];
+			j = j-1;
+		}
+		table[j+1] = currentEntry;
+		retVal = true;
+	}
+
+	return retVal;
+}
+
+/****************************************************************************
+*
 *  Function Name :
 *
 ******************************************************************************/
@@ -487,35 +523,50 @@ DATASTORE_STATUS DATASTORE_AddrTable::updateCurrentLocation(RECORD_ID recordID, 
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
     int currentIndex = 0, indexTemp = 0;
+    BOOL retStatus = false;
 
-    //First find current location of recordID in table.
+    //Find current location of recordID in table.
     //Store last recordID's index.
-    //Move all records after current location of recordID to index starting from current location.
+    //Move all records after current recordID to index starting from current location.
     //Store current record to last index.
     LPVOID retVal = getCurrentLoc(recordID, currentIndex);
-    DATASTORE_ADDR_TBL_ENTRY currentEntry = table[currentIndex];
-    int lastRecIndex = table.size() - 1;
+    if(retVal != NULL) {
+		DATASTORE_ADDR_TBL_ENTRY currentEntry = table[currentIndex];
+		int lastRecIndex = table.size() - 1;
 
-	for(indexTemp = currentIndex; indexTemp < lastRecIndex; indexTemp++){
-		table[indexTemp] = table[indexTemp+1];
-		/*if(table[index].currentLoc < newLoc){
-			// Insert here
-			table[index].currentLoc = newLoc;
-			//table.insert(table.begin()+index+1, *entry);
-			break;  // Break is pretty important :)
+		for(indexTemp = currentIndex; indexTemp < lastRecIndex; indexTemp++){
+			table[indexTemp] = table[indexTemp+1];
+			/*if(table[index].currentLoc < newLoc){
+				// Insert here
+				table[index].currentLoc = newLoc;
+				//table.insert(table.begin()+index+1, *entry);
+				break;  // Break is pretty important :)
+			}*/
+		}
+		table[lastRecIndex] = currentEntry;
+		table[lastRecIndex].currentLoc = newLoc;
+		if(table.size() > 1) {
+			retStatus = sortAddressTable();
+		}
+		if(retStatus) {
+			status = DATASTORE_STATUS_OK;
+		} else {
+			//this should never happen
+			status = DATASTORE_STATUS_NOT_OK;
+		}
+
+		/*for(int index = 0; index < table.size(); index++){
+			if(table[index].recordID == recordID){
+				table[index].currentLoc = newLoc;
+				status = DATASTORE_STATUS_OK;
+				break;
+			}
 		}*/
 	}
-	table[lastRecIndex] = currentEntry;
-	table[lastRecIndex].currentLoc = newLoc;
-	status = DATASTORE_STATUS_OK;
-
-    /*for(int index = 0; index < table.size(); index++){
-        if(table[index].recordID == recordID){
-            table[index].currentLoc = newLoc;
-            status = DATASTORE_STATUS_OK;
-            break;
-        }
-    }*/
+    else {
+    	//this should never happen
+    	status = DATASTORE_STATUS_NOT_OK;
+    }
     return status;
 }
 
