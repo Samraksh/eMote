@@ -70,6 +70,8 @@ private:
 	myVector table;
     /* Add anything required later */
     DATASTORE_STATUS search(LPVOID givenAddr, DATASTORE_ADDR_TBL_ENTRY *entry);
+    BOOL 			 sortAddressTable();
+    BOOL			 eraseAddressTable();
 public:
     ////myVector table;
     DATASTORE_AddrTable();
@@ -83,7 +85,6 @@ public:
     RECORD_ID        getRecordID(LPVOID givenAddr);
     uint32           getAllocationSize(RECORD_ID recordID);
     uint32           getMaxWriteSize(LPVOID givenAddr);      /* Tells number of bytes that can be written from the given point */
-    BOOL 			 sortAddressTable();
     DATASTORE_STATUS updateCurrentLocation(RECORD_ID recordID, LPVOID newLoc);
     DATASTORE_STATUS removeEntry(RECORD_ID recordID);
     DATASTORE_STATUS removeEntry(LPVOID givenPtr);

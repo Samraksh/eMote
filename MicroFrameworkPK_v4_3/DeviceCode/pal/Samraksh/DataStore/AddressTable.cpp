@@ -472,6 +472,34 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 
 /****************************************************************************
 *
+*  Function Name : eraseAddressTable
+*
+******************************************************************************/
+/*!
+*  \brief: 	Implements insertion sort as I believe that the address table should
+*		already be well sorted with only one entry being out of order.
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+BOOL DATASTORE_AddrTable::eraseAddressTable()
+{
+	uint32 deleteIndex = 0;
+	DATASTORE_STATUS status;
+	//Erase existing entries in addressTable
+	while(table[deleteIndex].givenPtr != 0) {
+		status = removeEntry(table[deleteIndex].recordID);
+		if(status != DATASTORE_STATUS_OK) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
+/****************************************************************************
+*
 *  Function Name : sortAddressTable
 *
 ******************************************************************************/

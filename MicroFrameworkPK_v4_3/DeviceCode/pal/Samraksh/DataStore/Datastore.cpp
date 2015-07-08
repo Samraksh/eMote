@@ -432,6 +432,7 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
 	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 
+	static int prevBlockSearched = firstBlock;
 	int objectCountInBlk = 0, recordOffset = 0;
 	int totalNumOfObjectsRead = 0, objectsReadFromBlock = 0;
 	bool readDone = false;
@@ -445,13 +446,10 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 	}
 	else {
 		//Go through entire flash looking for id.
-		for(int index = firstBlock;index <= lastBlock; index++) {
+		for(int index = prevBlockSearched;index <= lastBlock; index++) {
 			//Erase existing entries in addressTable
-			while(addressTable.table[deleteIndex].givenPtr != 0) {
-				status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-				if(status != DATASTORE_STATUS_OK) {
-					return retValTemp;
-				}
+			if(! addressTable.eraseAddressTable()) {
+				return NULL;
 			}
 
 			objectCountInBlk = objectCountInBlock(index);
@@ -465,16 +463,55 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 				//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
 				if(lastErrorVal != DATASTORE_ERROR_NONE )
 					return NULL;
-				//if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
-					//break;
 
 				retValTemp = addressTable.getCurrentLoc(id);
 				if(retValTemp != NULL) {
 					//Found id
+					prevBlockSearched = index;
 					return retValTemp;
+				}
+				if(objectCountInBlk > MAX_NUM_TABLE_ENTRIES) {
+					//Erase existing entries in addressTable
+					if(! addressTable.eraseAddressTable()) {
+						return NULL;
+					}
 				}
 			}
 		}
+
+		for(int index = firstBlock;index <= prevBlockSearched; index++) {
+			//Erase existing entries in addressTable
+			if(! addressTable.eraseAddressTable()) {
+				return NULL;
+			}
+
+			objectCountInBlk = objectCountInBlock(index);
+			objectsReadFromBlock = 0;
+			recordOffset = 0;
+			//Fetch new set of entries into addressTable and search again
+			while(objectsReadFromBlock < objectCountInBlk) {
+				objectsReadFromBlock += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, recordOffset, &readDone);
+				recordOffset = objectsReadFromBlock;
+				totalNumOfObjectsRead += objectsReadFromBlock;
+				//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+				if(lastErrorVal != DATASTORE_ERROR_NONE )
+					return NULL;
+
+				retValTemp = addressTable.getCurrentLoc(id);
+				if(retValTemp != NULL) {
+					//Found id
+					prevBlockSearched = index;
+					return retValTemp;
+				}
+				if(objectCountInBlk > MAX_NUM_TABLE_ENTRIES) {
+					//Erase existing entries in addressTable
+					if(! addressTable.eraseAddressTable()) {
+						return NULL;
+					}
+				}
+			}
+		}
+
 	}
 	return retValTemp;
 }
@@ -1222,16 +1259,9 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 	int blockID = firstBlock;
 
-	uint32 deleteIndex = 0;
-	DATASTORE_STATUS status;
-	while(addressTable.table[deleteIndex].givenPtr != 0)
-	{
-		status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-		if(status != DATASTORE_STATUS_OK)
-		{
-			lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
-			break;
-		}
+	if(! addressTable.eraseAddressTable()) {
+		//Should never happen
+		lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
 	}
 
 	/* AnanthAtSamraksh - values before entering loop should be same as the ones while leaving */
