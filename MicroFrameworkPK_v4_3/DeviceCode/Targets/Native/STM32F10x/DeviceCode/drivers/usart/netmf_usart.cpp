@@ -429,7 +429,7 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 
 // 12-bit
 static unsigned get_rand() {
-    static uint16_t lfsr = 0xACE1u;
+    static uint16_t lfsr = 3665;
 	
 	unsigned lsb = lfsr & 1;
 	lfsr >>= 1;
@@ -441,7 +441,7 @@ static unsigned get_rand() {
 static void start_guard_time() {
 	//TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 	TIM7->CNT=0;
-	TIM7->ARR = 11250 - get_rand(); // will set counter between 19.08ms and 30ms.
+	TIM7->ARR = 11250 - get_rand() + 375 - 1; // will set counter between 20.08ms and 31ms.
 	TIM_Cmd(TIM7, ENABLE);
 	//while( TIM_GetFlagStatus(TIM7, TIM_FLAG_Update) == RESET ) { ; } //spin
 	//TIM_Cmd(TIM7, DISABLE); // done
