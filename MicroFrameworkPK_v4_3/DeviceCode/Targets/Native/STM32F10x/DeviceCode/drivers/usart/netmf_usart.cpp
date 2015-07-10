@@ -52,6 +52,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
 		TIM_DeInit(TIM7);
 		TIM_TimeBaseInitStruct.TIM_Period = 11250-1; // 30ms
+		//TIM_TimeBaseInitStruct.TIM_Period = 7500-1;  // 20ms Diff is 3750
 		//TIM_TimeBaseInitStruct.TIM_Period = 1875-1; // 5ms
 		TIM_TimeBaseInitStruct.TIM_Prescaler = 127;
 		TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -426,9 +427,21 @@ static void my_exti10( GPIO_PIN Pin, BOOL PinState, void* Param ) {
 	}
 }
 
+// 12-bit
+static unsigned get_rand() {
+    static uint16_t lfsr = 0xACE1u;
+	
+	unsigned lsb = lfsr & 1;
+	lfsr >>= 1;
+	lfsr ^= (-lsb) & 0x0E08u;
+
+    return lfsr;
+}
+
 static void start_guard_time() {
 	//TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 	TIM7->CNT=0;
+	TIM7->ARR = 11250 - get_rand(); // will set counter between 19.08ms and 30ms.
 	TIM_Cmd(TIM7, ENABLE);
 	//while( TIM_GetFlagStatus(TIM7, TIM_FLAG_Update) == RESET ) { ; } //spin
 	//TIM_Cmd(TIM7, DISABLE); // done
