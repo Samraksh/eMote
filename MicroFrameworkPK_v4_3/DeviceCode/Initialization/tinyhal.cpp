@@ -503,6 +503,83 @@ void HAL_Uninitialize()
     HAL_CONTINUATION::Uninitialize();
     HAL_COMPLETION  ::Uninitialize();
 }
+BlockStorageDevice* test_deploymentStorageDevice = NULL;
+	BlockStorageStream stream;
+
+int writeFLASH(UINT32 location, UINT32 lengthInBytes, BYTE* buf )
+{
+	UINT32 iRegion, iRange;
+	BYTE*         bufPtr;
+        BOOL          success          = TRUE;
+        INT32         accessLenInBytes;
+        INT32         blockOffset;
+		UINT32 RangeBaseAddress;
+            UINT32 blockIndex;
+            UINT32 accessMaxLength;
+			UINT32 NumOfBytes;
+
+    if (test_deploymentStorageDevice->FindRegionFromAddress( location, iRegion, iRange ))
+    {
+		hal_printf("attempting to write %d %d\r\n", iRegion, iRange);
+		
+        const BlockDeviceInfo* deviceInfo = test_deploymentStorageDevice->GetDeviceInfo() ;
+
+        // start from the block where the sector sits.
+        ByteAddress   accessAddress = location;
+
+        bufPtr           = buf;
+        accessLenInBytes = lengthInBytes;
+        blockOffset      = deviceInfo->Regions[ iRegion ].OffsetFromBlock( accessAddress );
+
+        for(;iRegion < deviceInfo->NumRegions; iRegion++)
+        {
+            const BlockRegionInfo *pRegion = &deviceInfo->Regions[ iRegion ];
+            RangeBaseAddress = pRegion->BlockAddress( pRegion->BlockRanges[ iRange ].StartBlock );
+            blockIndex       = pRegion->BlockIndexFromAddress( accessAddress );
+            accessMaxLength  = pRegion->BytesPerBlock - blockOffset;
+hal_printf("size: %d\r\n",pRegion->BytesPerBlock);
+            blockOffset = 0;
+
+            for(;blockIndex < pRegion->NumBlocks; blockIndex++)
+            {
+                //accessMaxLength =the current largest number of bytes can be read from the block from the address to its block boundary.
+                NumOfBytes = __min(accessMaxLength, (UINT32)accessLenInBytes);
+
+                accessMaxLength = pRegion->BytesPerBlock;
+
+                if(blockIndex > pRegion->BlockRanges[ iRange ].EndBlock)
+                {
+                    iRange++;
+
+                    if(iRange >= pRegion->NumBlockRanges)
+                    {
+                        ASSERT(FALSE);
+                        break;
+                    }
+                }
+
+                
+                success = test_deploymentStorageDevice->Write( accessAddress , NumOfBytes, (BYTE *)bufPtr, FALSE );
+                hal_printf("success = %d\r\n", success); 
+
+                if(!success)  break;
+
+                accessLenInBytes -= NumOfBytes;
+
+                if (accessLenInBytes <= 0) break;
+
+                bufPtr        += NumOfBytes;
+                accessAddress += NumOfBytes;
+            }
+			
+            blockIndex = 0;
+            iRange     = 0;
+
+           if ((accessLenInBytes <= 0) || (!success)) break;
+        }
+    }
+	return success;
+}
 
 extern "C"
 {
@@ -626,6 +703,34 @@ mipi_dsi_shutdown();
 		}
 	}
 #endif
+	hal_printf("Start of FLASH write test\r\n");
+	
+
+    if (stream.Initialize( BlockUsage::STORAGE_A ))
+    {
+        test_deploymentStorageDevice = stream.Device;
+		hal_printf("storage initialized\r\n");
+    }
+    else
+    {
+        test_deploymentStorageDevice = NULL;
+		hal_printf("storage NOT initialized\r\n");
+    }
+	UINT32 location = stream.CurrentAddress();
+	UINT32 lengthInBytes = 4096;
+	BYTE testData[4096];
+	int tdindex;
+	for (tdindex = 0; tdindex < 4096; tdindex++){
+		testData[tdindex] = tdindex*2;
+	}
+	BYTE* buf = &testData[0]; 
+	
+
+	hal_printf("attempting to write to location = 0x%08x\r\n", location);
+	writeFLASH(location, 4096, buf);
+
+	
+	while(1) {}
     // HAL initialization completed.  Interrupts are enabled.  Jump to the Application routine
     ApplicationEntryPoint();
 
