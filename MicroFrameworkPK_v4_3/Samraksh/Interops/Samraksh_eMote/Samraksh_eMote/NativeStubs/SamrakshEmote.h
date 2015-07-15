@@ -35,13 +35,12 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
     static const int FIELD__dStore = 1;
     static const int FIELD__dataId = 2;
     static const int FIELD__referenceSize = 3;
-    static const int FIELD__dataReference = 4;
-    static const int FIELD__dataLocationOnStorage = 5;
-    static const int FIELD__referenceDataType = 6;
-    static const int FIELD__dataType = 7;
-    static const int FIELD__dataTypeByte = 8;
-    static const int FIELD__dataTypeUInt16 = 9;
-    static const int FIELD__dataTypeUInt32 = 10;
+    static const int FIELD__dataLocationOnStorage = 4;
+    static const int FIELD__referenceDataType = 5;
+    static const int FIELD__dataType = 6;
+    static const int FIELD__dataTypeByte = 7;
+    static const int FIELD__dataTypeUInt16 = 8;
+    static const int FIELD__dataTypeUInt32 = 9;
 
     TINYCLR_NATIVE_DECLARE(GetDataReference___I4__U4);
     TINYCLR_NATIVE_DECLARE(GetDataLocation___I4__U4);

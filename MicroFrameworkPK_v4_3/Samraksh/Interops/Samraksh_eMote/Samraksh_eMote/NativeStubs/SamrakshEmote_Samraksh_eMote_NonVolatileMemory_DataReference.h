@@ -29,8 +29,6 @@ namespace Samraksh
 
                 static UINT32& Get_referenceSize( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__referenceSize ); }
 
-                static UINT32& Get_dataReference( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__dataReference ); }
-
                 static UINT32& Get_dataLocationOnStorage( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UINT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__dataLocationOnStorage ); }
 
                 static INT32& Get_referenceDataType( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference::FIELD__referenceDataType ); }
