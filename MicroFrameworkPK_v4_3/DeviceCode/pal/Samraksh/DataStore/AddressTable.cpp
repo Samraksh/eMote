@@ -104,7 +104,7 @@ DATASTORE_STATUS DATASTORE_AddrTable::search( LPVOID givenAddr,
             }else{
                 entry->allocationSize = table[middle].allocationSize;
                 entry->currentLoc     = table[middle].currentLoc;
-                entry->givenPtr       = table[middle].givenPtr;
+                //entry->givenPtr       = table[middle].givenPtr;
                 entry->recordID       = table[middle].recordID;
 
                 status = DATASTORE_STATUS_OK;
@@ -147,15 +147,15 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
             break;
         }
         /* Also search for the address the given_address value to ensure no duplication property */
-        if(NULL != getCurrentLoc(entry->givenPtr, (LPVOID)0x01, (LPVOID)(~0u))){
+        if(NULL != getCurrentLoc(entry->currentLoc, (LPVOID)0x01, (LPVOID)(~0u))){
             status = DATASTORE_STATUS_RECORD_ALREADY_EXISTS;
             break;
         }
-        /* Now we can create an enty in the address table */
+        /* Now we can create an entry in the address table */
         /* Since, we know that the givenAddr is usually an monotonically increasing value, its efficient
            to search for place to insert by searching from the last element */
 		for(index = table.size() - 1; index >= 0; index--){
-			if(table[index].givenPtr < entry->givenPtr){
+			if(table[index].currentLoc < entry->currentLoc){
 				/* Insert here */
 				table.insert(table.begin()+index+1, *entry);
 				break;  /* Break is pretty important :) */
@@ -245,16 +245,16 @@ LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID, int &index)
 *  \return
 *
 ******************************************************************************/
-LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr)
+LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID currentLoc, LPVOID startPtr, LPVOID endPtr)
 {/* Table is sorted in ascending order on givenPtr field, hence can do a binary search
     As, this is the API that is most extensively called, this optimization is justified */
     LPVOID retVal = NULL;
     DATASTORE_ADDR_TBL_ENTRY tblEntry;
     do{
-        if( DATASTORE_STATUS_OK == search( givenPtr, &tblEntry ) ){
+        if( DATASTORE_STATUS_OK == search( currentLoc, &tblEntry ) ){
             retVal = tblEntry.currentLoc;
             //retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.givenPtr);
-            retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.currentLoc);
+            retVal = (char*)retVal + ((char*)currentLoc - (char *)tblEntry.currentLoc);
         }
     }while(0);
     if((char*)retVal > (char*)endPtr){
@@ -280,16 +280,16 @@ LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVO
 *  \return
 *
 ******************************************************************************/
-LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr, DATASTORE_ADDR_TBL_ENTRY &tblEntry)
+LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID currentLoc, LPVOID startPtr, LPVOID endPtr, DATASTORE_ADDR_TBL_ENTRY &tblEntry)
 {/* Table is sorted in ascending order on givenPtr field, hence can do a binary search
     As, this is the API that is most extensively called, this optimization is justified */
     LPVOID retVal = NULL;
     //DATASTORE_ADDR_TBL_ENTRY tblEntry;
     do{
-        if( DATASTORE_STATUS_OK == search( givenPtr, &tblEntry ) ){
+        if( DATASTORE_STATUS_OK == search( currentLoc, &tblEntry ) ){
             retVal = tblEntry.currentLoc;
             //retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.givenPtr);
-            retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.currentLoc);
+            retVal = (char*)retVal + ((char*)currentLoc - (char *)tblEntry.currentLoc);
         }
     }while(0);
     if((char*)retVal > (char*)endPtr){
@@ -315,8 +315,8 @@ LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVO
 *  \return
 *
 ******************************************************************************/
-LPVOID DATASTORE_AddrTable::getGivenAddress(RECORD_ID recordID)
-{/* Linear search */
+/*LPVOID DATASTORE_AddrTable::getGivenAddress(RECORD_ID recordID)
+{// Linear search
     LPVOID retVal = NULL;
     for(int index = 0; index < table.size(); index++){
 		if(table[index].recordID == recordID){
@@ -325,7 +325,7 @@ LPVOID DATASTORE_AddrTable::getGivenAddress(RECORD_ID recordID)
 		}
     }
     return retVal;
-}
+}*/
 
 
 /****************************************************************************
@@ -341,7 +341,7 @@ LPVOID DATASTORE_AddrTable::getGivenAddress(RECORD_ID recordID)
 *  \return
 *
 ******************************************************************************/
-LPVOID DATASTORE_AddrTable::getGivenPointer(LPVOID currentPtr)
+/*LPVOID DATASTORE_AddrTable::getGivenPointer(LPVOID currentPtr)
 {
 	LPVOID retVal = NULL;
     for(int index = 0; index < table.size(); index++){
@@ -351,7 +351,7 @@ LPVOID DATASTORE_AddrTable::getGivenPointer(LPVOID currentPtr)
 		}
 	}
 	return retVal;
-}
+}*/
 
 
 /****************************************************************************
@@ -487,7 +487,7 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(RECORD_ID recordID)
 *  \return
 *
 ******************************************************************************/
-DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
+/*DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 {
 	DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
 	for(int index = 0; index < table.size(); index++){
@@ -501,7 +501,7 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 		}
 	}
 	return status;
-}
+}*/
 
 
 /****************************************************************************
@@ -521,7 +521,7 @@ BOOL DATASTORE_AddrTable::eraseAddressTable()
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
 	//Erase existing entries in addressTable
-	while(table[deleteIndex].givenPtr != 0) {
+	while(table[deleteIndex].currentLoc != 0) {
 		status = removeEntry(table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK) {
 			return false;

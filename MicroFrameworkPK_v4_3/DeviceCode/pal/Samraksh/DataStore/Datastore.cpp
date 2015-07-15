@@ -289,7 +289,7 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 			/* If this is the case, user wants to keep writing to flash. So erase previous entries in addressTable */
         	uint32 deleteIndex = 0;
         	DATASTORE_STATUS status;
-        	while(addressTable.table[deleteIndex].givenPtr != 0)
+        	while(addressTable.table[deleteIndex].currentLoc != 0)
 			{
         		//Don't remove a record which has to be updated with a new location.
         		RECORD_ID recID = addressTable.table[deleteIndex].recordID;
@@ -343,7 +343,7 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             //entry.allocationSize = numBytes;
             entry.allocationSize = allocationSize - sizeof(RECORD_HEADER);
             entry.currentLoc     = (char*)incrementPointer(retVal , sizeof(RECORD_HEADER));
-            entry.givenPtr       = givenPtr;
+            //entry.givenPtr       = givenPtr;
             entry.recordID       = recordID;
 
             header.activeFlag = FLAG_RECORD_ACTIVE;
@@ -1127,7 +1127,7 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 		{
 			entry.allocationSize = header.size;
 			entry.currentLoc     = addr+sizeof(RECORD_HEADER);
-			entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
+			//entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
 			entry.recordID       = header.recordID;
 
 			/* Start adding entries from startOffset and keep adding until length is reached */
@@ -1393,14 +1393,15 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
     numBytes = numBytes + numBytes % 2;
 
     do{
-        if(NULL != addressTable.getGivenAddress(recordID)){
+        //if(NULL != addressTable.getGivenAddress(recordID)){
+    	if(NULL != addressTable.getCurrentLoc(recordID)){
             /* This record id is already present in the flash. So, can't proceed */
             lastErrorVal = DATASTORE_ERROR_RECORD_ID_ALREADY_EXISTS;
             break;
         }
 
         /* Generate an unique pointer and register it with the address_table */
-        lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
+        //lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
         allocLoc  = createAllocation( recordID, lGivenPtr, numBytes, dataType );
         if( NULL == allocLoc ){
             break;
@@ -1663,7 +1664,7 @@ void Data_Store::DeleteAll()
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
 
-	while(addressTable.table[deleteIndex].givenPtr != 0)
+	while(addressTable.table[deleteIndex].currentLoc != 0)
 	{
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK)
