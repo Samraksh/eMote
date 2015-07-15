@@ -79,6 +79,7 @@ public:
     LPVOID			 getCurrentLoc(RECORD_ID recordID, int &index);
     LPVOID           getCurrentLoc(RECORD_ID recordID);
     LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr);
+    LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr, DATASTORE_ADDR_TBL_ENTRY &tblEntry);
     LPVOID           getGivenAddress(RECORD_ID recordID);
     LPVOID           getCurrentLocation(RECORD_ID recordID);
     LPVOID			 getGivenPointer(LPVOID currentPtr);

@@ -384,7 +384,6 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 
     *conflictStartLoc = dataLen;
 
-    ////AnanthAtSamraksh - changing below line on 12/31/2013
     for(int index = 0; index < dataLen; ++index){
 		if(flashData[index] != 0xFF)
 		{
@@ -433,7 +432,8 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 
 	static int prevBlockSearched = firstBlock;
-	int objectCountInBlk = 0, recordOffset = 0;
+	static int recordOffset = 0;
+	int objectCountInBlk = 0;
 	int totalNumOfObjectsRead = 0, objectsReadFromBlock = 0;
 	bool readDone = false;
 	uint32 deleteIndex = 0;
@@ -445,6 +445,10 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 		return retValTemp;
 	}
 	else {
+		/* An optimization to speed-up search for ID. Since data is written in a log-like manner,
+		 * it is assumed that data will also be read and accessed in log-like manner. Hence, the
+		 * previous block that was searched is stored and the next search starts from that block. */
+
 		//Go through entire flash looking for id.
 		for(int index = prevBlockSearched;index <= lastBlock; index++) {
 			//Erase existing entries in addressTable
@@ -454,7 +458,10 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 
 			objectCountInBlk = objectCountInBlock(index);
 			objectsReadFromBlock = 0;
-			recordOffset = 0;
+			//Reset recordOffset for new block, else retain value as next record could be in the same block.
+			if(index != prevBlockSearched) {
+				recordOffset = 0;
+			}
 			//Fetch new set of entries into addressTable and search again
 			while(objectsReadFromBlock < objectCountInBlk) {
 				objectsReadFromBlock += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, recordOffset, &readDone);
@@ -468,6 +475,13 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 				if(retValTemp != NULL) {
 					//Found id
 					prevBlockSearched = index;
+					//Even if addressTable gets erased, to make next search faster,
+					//adjust recordOffset so that it starts searching from previous recordID (worst case)
+					if((recordOffset - MAX_NUM_TABLE_ENTRIES - 1) < 0) {
+						recordOffset = 0;
+					} else {
+						recordOffset = (recordOffset - MAX_NUM_TABLE_ENTRIES - 1);
+					}
 					return retValTemp;
 				}
 				if(objectCountInBlk > MAX_NUM_TABLE_ENTRIES) {
@@ -514,7 +528,7 @@ LPVOID Data_Store::searchForID(RECORD_ID id)
 
 	}
 	return retValTemp;
-}
+} //searchForID
 
 /*
  * Get base address for given Record_id
@@ -566,7 +580,10 @@ uint32 Data_Store::getDataType(RECORD_ID id)
  */
 uint32 Data_Store::getAllocationSize(RECORD_ID id)
 {
-    LPVOID dataCurLoc = NULL;
+	uint32 size = addressTable.getAllocationSize(id);
+	return size;
+
+	/*LPVOID dataCurLoc = NULL;
     RECORD_HEADER recHeader = { 0 };
 
     lastErrorVal = DATASTORE_ERROR_NONE;
@@ -576,7 +593,7 @@ uint32 Data_Store::getAllocationSize(RECORD_ID id)
     }
     cyclicDataRead( &recHeader, (char*)dataCurLoc - sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
 
-    return recHeader.size;
+    return recHeader.size;*/
 }
 
 /*
@@ -1175,6 +1192,11 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 			if(status != DATASTORE_STATUS_OK)
 				break;*/
 			//lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+
+			/* AnanthAtSamraksh - ensure that values are reset before leaving. */
+			startCount = 0;
+			endCount = 0;
+			*readDone = true;
 			break;
 		}
 
@@ -1270,21 +1292,30 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	/* Keep reading until count of records in addressTable is equal to offset */
 	while(readDone == false)
 	{
-		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+		if(blockID > lastBlock) {
+			break;
+		}
+		int objectCount = objectCountInBlock(blockID);
+		if(dataIdOffset < objectCount) {
+			numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+		}
+		else {
+			dataIdOffset -= objectCount;
+		}
 		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
 		if(lastErrorVal != DATASTORE_ERROR_NONE )
 		{
 			readDone = true; startCount = 0; endCount = 0;
 			break;
 		}
-		++blockID;
-		if(numOfEntries == 0 && lastBlock == (blockID-1))
+		if(numOfEntries == 0 && lastBlock == blockID)
 		{
 			readDone = true;
 			/* AnanthAtSamraksh - To ensure that these values are reset when this loop is exited.
 			 * Otherwise, repeated calls will retain old values leading to bugs. */
 			startCount = 0; endCount = 0;
 		}
+		++blockID;
 	}
 
 	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
@@ -1354,6 +1385,9 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
     LPVOID lGivenPtr = NULL;
     LPVOID allocLoc  = NULL;
     lastErrorVal = DATASTORE_ERROR_NONE;
+    //if(recordID >= 15600) {
+    	//hal_printf("%d\n", recordID);
+    //}
 
     // The STM Driver accepts half words as inputs so all writes are in half word sizes
     numBytes = numBytes + numBytes % 2;
@@ -1385,6 +1419,7 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
 	uint32 lNumBytes = 0;
     LPVOID curLoc = NULL;
 
+    DATASTORE_ADDR_TBL_ENTRY tblEntry;
     LPVOID readAddress = src + sizeof(RECORD_HEADER);
 
     // AnanthAtSamraksh. The STM Driver accepts half words as inputs so all writes are in half word sizes
@@ -1402,13 +1437,16 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
         }
         //curLoc updation is important when src address and givenAddr are different. If src address is
         //greater than given address, the numBytes is modified accordingly. But if curLoc is not updated, numBytes are read from starting address and not from src
-        if( NULL == (curLoc = addressTable.getCurrentLoc(readAddress, lDataStoreStartByteAddr, lDataStoreEndByteAddr))){
+        if( NULL == (curLoc = addressTable.getCurrentLoc(readAddress, lDataStoreStartByteAddr, lDataStoreEndByteAddr, tblEntry))){
             lastErrorVal = DATASTORE_ERROR_INVALID_GIVEN_ADDR;
             lNumBytes = numBytes = 0;
             break;
         }
 
-        lNumBytes = addressTable.getMaxWriteSize(readAddress);
+        //lNumBytes = addressTable.getMaxWriteSize(readAddress);
+        UINT32 temp = (UINT32*)readAddress - (UINT32*)tblEntry.currentLoc;
+        lNumBytes = tblEntry.allocationSize - temp;
+
         if(lNumBytes < numBytes)
         {
         	hal_printf("Lets stop here for now\n\r");

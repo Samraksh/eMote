@@ -180,6 +180,31 @@ DATASTORE_STATUS DATASTORE_AddrTable::addEntry(DATASTORE_ADDR_TBL_ENTRY *entry)
 #endif
 }
 
+/****************************************************************************
+*
+*  Function Name : getCurrentLoc
+*
+******************************************************************************/
+/*!
+*  \brief
+*
+*  \param
+*  \param
+*  \return
+*
+******************************************************************************/
+LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID)
+{/* Need to do a linear search, so O(n) */
+    LPVOID retVal = NULL;
+    for(int index = 0; index < table.size(); index++){
+		if(table[index].recordID == recordID){
+			retVal = table[index].currentLoc;
+			break;
+		}
+    }
+    return retVal;
+}
+
 
 /****************************************************************************
 *
@@ -220,14 +245,23 @@ LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID, int &index)
 *  \return
 *
 ******************************************************************************/
-LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID)
-{/* Need to do a linear search, so O(n) */
+LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr)
+{/* Table is sorted in ascending order on givenPtr field, hence can do a binary search
+    As, this is the API that is most extensively called, this optimization is justified */
     LPVOID retVal = NULL;
-    for(int index = 0; index < table.size(); index++){
-		if(table[index].recordID == recordID){
-			retVal = table[index].currentLoc;
-			break;
-		}
+    DATASTORE_ADDR_TBL_ENTRY tblEntry;
+    do{
+        if( DATASTORE_STATUS_OK == search( givenPtr, &tblEntry ) ){
+            retVal = tblEntry.currentLoc;
+            //retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.givenPtr);
+            retVal = (char*)retVal + ((char*)givenPtr - (char *)tblEntry.currentLoc);
+        }
+    }while(0);
+    if((char*)retVal > (char*)endPtr){
+        /* Need to wrap it to the beginning */
+    	// Nived : Consult change here
+    	retVal = (char*)startPtr + (((char*)retVal - (char*)endPtr) - 1);
+        //retVal = (char*)startPtr + (((char*)retVal - (char*)endPtr) - 1);
     }
     return retVal;
 }
@@ -246,11 +280,11 @@ LPVOID  DATASTORE_AddrTable::getCurrentLoc(RECORD_ID recordID)
 *  \return
 *
 ******************************************************************************/
-LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr)
+LPVOID DATASTORE_AddrTable::getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr, DATASTORE_ADDR_TBL_ENTRY &tblEntry)
 {/* Table is sorted in ascending order on givenPtr field, hence can do a binary search
     As, this is the API that is most extensively called, this optimization is justified */
     LPVOID retVal = NULL;
-    DATASTORE_ADDR_TBL_ENTRY tblEntry;
+    //DATASTORE_ADDR_TBL_ENTRY tblEntry;
     do{
         if( DATASTORE_STATUS_OK == search( givenPtr, &tblEntry ) ){
             retVal = tblEntry.currentLoc;
@@ -476,8 +510,7 @@ DATASTORE_STATUS DATASTORE_AddrTable::removeEntry(LPVOID givenPtr)
 *
 ******************************************************************************/
 /*!
-*  \brief: 	Implements insertion sort as I believe that the address table should
-*		already be well sorted with only one entry being out of order.
+*  \brief: 	Erases entire address table.
 *  \param
 *  \param
 *  \return
@@ -505,7 +538,8 @@ BOOL DATASTORE_AddrTable::eraseAddressTable()
 ******************************************************************************/
 /*!
 *  \brief: 	Implements insertion sort as I believe that the address table should
-*		already be well sorted with only one entry being out of order.
+*		already be well sorted (current location being the criteria for sorting)
+*		with only one entry being out of order.
 *  \param
 *  \param
 *  \return
@@ -536,11 +570,14 @@ BOOL DATASTORE_AddrTable::sortAddressTable()
 
 /****************************************************************************
 *
-*  Function Name :
+*  Function Name : updateCurrentLocation
 *
 ******************************************************************************/
 /*!
-*  \brief
+*  \brief: 	1. Find current location of recordID in table.
+*  		   	2. Store index of last recordID in address table.
+*  		   	3. Move all records after current recordID location to index starting from current location.
+*  		   	4. Store current record in last index.
 *
 *  \param
 *  \param
@@ -553,10 +590,6 @@ DATASTORE_STATUS DATASTORE_AddrTable::updateCurrentLocation(RECORD_ID recordID, 
     int currentIndex = 0, indexTemp = 0;
     BOOL retStatus = false;
 
-    //Find current location of recordID in table.
-    //Store last recordID's index.
-    //Move all records after current recordID to index starting from current location.
-    //Store current record to last index.
     LPVOID retVal = getCurrentLoc(recordID, currentIndex);
     if(retVal != NULL) {
 		DATASTORE_ADDR_TBL_ENTRY currentEntry = table[currentIndex];
