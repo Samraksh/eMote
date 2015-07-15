@@ -16,7 +16,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         private UInt32 dataId = 0;
         private UInt32 referenceSize = 0;
         //Reference to data created on the storage device (not actual location. Similar to malloc returning a user space address)
-        private UInt32 dataReference = 0;
+        //private UInt32 dataReference = 0;
         //Actual location of data on storage device
         private UInt32 dataLocationOnStorage = 0;
         private ReferenceDataType referenceDataType;
@@ -68,6 +68,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// 
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="offset"></param>
         /// <param name="numData"></param>
         private void VerifyDataReferenceParams(byte[] data, int offset, int numData)
         {
@@ -104,6 +105,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// 
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="offset"></param>
         /// <param name="numData"></param>
         private void VerifyDataReferenceParams(UInt16[] data, int offset, int numData)
         {
@@ -140,6 +142,7 @@ namespace Samraksh.eMote.NonVolatileMemory
         /// 
         /// </summary>
         /// <param name="data"></param>
+        /// <param name="offset"></param>
         /// <param name="numData"></param>
         private void VerifyDataReferenceParams(UInt32[] data, int offset, int numData)
         {
@@ -249,23 +252,29 @@ namespace Samraksh.eMote.NonVolatileMemory
                 throw new ArgumentException("Invalid dataType", "dataType");
             }
 
+            int datastoreStatus = GetLastDatastoreStatus();
+            if (datastoreStatus == (int)DataStoreReturnStatus.Failure) {
+                throw new DataStoreException("Failure while creating data reference");
+            }
+            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidArgument) {
+                throw new DataStoreInvalidArgumentException("Failure - Invalid argument");
+            }
+            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidReference) {
+                throw new DataStoreInvalidReferenceException("Failure - Invalid reference");
+            }
+            else if (datastoreStatus == (int)DataStoreReturnStatus.DataStoreNotInitialized) {
+                throw new DataStoreNotInitializedException("Failure - datastore not initialized");
+            }
+            else if (datastoreStatus == (int)DataStoreReturnStatus.DataAllocationOutOfMemory) {
+                throw new DataStoreOutOfMemoryException("Failure - out of memory during data allocation");
+            }
+
             /*if (this.dataReference == 0)
                 throw new DataStoreException("DataPointer is NULL. Data could not be created.");*/
 
-            if (this.dataLocationOnStorage == 0)
-                throw new DataStoreException("Data location is NULL. Data could not be created.");
-
-            int datastoreStatus = GetLastDatastoreStatus();
-            if (datastoreStatus == (int)DataStoreReturnStatus.Failure)
-                throw new DataStoreException("Failure while creating data reference");
-            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidArgument)
-                throw new DataStoreInvalidArgumentException("Failure - Invalid argument");
-            else if (datastoreStatus == (int)DataStoreReturnStatus.InvalidReference)
-                throw new DataStoreInvalidReferenceException("Failure - Invalid reference");
-            else if (datastoreStatus == (int)DataStoreReturnStatus.DataStoreNotInitialized)
-                throw new DataStoreNotInitializedException("Failure - datastore not initialized");
-            else if (datastoreStatus == (int)DataStoreReturnStatus.DataAllocationOutOfMemory)
-                throw new DataStoreOutOfMemoryException("Failure - out of memory during data allocation");
+            if (this.dataLocationOnStorage == 0) {
+                throw new DataStoreException("Data location is NULL and I don't know what the datastoreStatus is. Data could not be created.");
+            }
 
             this.referenceSize = (UInt32)refSize;
             this.dataId = GetDataID();
