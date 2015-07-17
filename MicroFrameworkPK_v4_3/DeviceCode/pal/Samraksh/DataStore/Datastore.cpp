@@ -1298,23 +1298,43 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 		int objectCount = objectCountInBlock(blockID);
 		if(dataIdOffset < objectCount) {
 			numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+			if(readDone == false) {
+				startCount = 0; endCount = 0;
+				dataIdOffset = 0;
+				arrayLength -= numOfEntries;
+				DATASTORE_ASSERT(arrayLength < 0, "Something went wrong while reading from a block");
+			}
+			/*if(numOfEntries < arrayLength && numOfEntries != objectCount) {
+				//Every object that could be read in a block has been read
+				dataIdOffset = 0;
+				arrayLength -= numOfEntries;
+			}
+
+			if(numOfEntries < arrayLength && numOfEntries == objectCount && readDone == false) {
+				//Every object that could be read in a block has been read
+				dataIdOffset = 0;
+				arrayLength -= numOfEntries;
+			}*/
 		}
 		else {
 			dataIdOffset -= objectCount;
 		}
 		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
-		if(lastErrorVal != DATASTORE_ERROR_NONE )
-		{
+		if(lastErrorVal != DATASTORE_ERROR_NONE ) {
 			readDone = true; startCount = 0; endCount = 0;
 			break;
 		}
-		if(numOfEntries == 0 && lastBlock == blockID)
-		{
+		if(numOfEntries == 0 && lastBlock == blockID) {
 			readDone = true;
 			/* AnanthAtSamraksh - To ensure that these values are reset when this loop is exited.
 			 * Otherwise, repeated calls will retain old values leading to bugs. */
 			startCount = 0; endCount = 0;
+			break;
 		}
+		/*if(numOfEntries == objectCount && objectCount != 0 && readDone == true) {
+			break;
+		}*/
+
 		++blockID;
 	}
 
@@ -1428,6 +1448,13 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
 
     LPVOID lDataStoreStartByteAddr = (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
     LPVOID lDataStoreEndByteAddr   = (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
+
+    /*hal_printf("%x\n", src);
+    int temp = 0x6405fbe0;
+    if(src >= (void*)temp)
+    {
+    	hal_printf("you got to be kidding me\n");
+    }*/
 
     lastErrorVal = DATASTORE_ERROR_NONE;
     do{
