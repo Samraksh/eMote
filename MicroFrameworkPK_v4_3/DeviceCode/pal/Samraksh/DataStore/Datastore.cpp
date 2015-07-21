@@ -230,6 +230,7 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 	currBlockStartAddr = (char*)blockDeviceInformation->Regions->BlockAddress(currBlockID);
 	currBlockEndAddr   = currBlockStartAddr + blockDeviceInformation->Regions->BytesPerBlock - 1;
 	byteLeftInBlock = (UINT32)currBlockEndAddr - logPtr + 1;
+	static int blockIdCounter = 1;
 
     LPVOID retVal = NULL;
     uint32 allocationSize = numBytes + sizeof(RECORD_HEADER);
@@ -268,7 +269,15 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
                 currentHeadRoom = calculateLogHeadRoom();   /* Check free space available now */
                 if(currentHeadRoom >= (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
                     /* Come out if we have enough space */
+                	blockIdCounter = 1;
                     break;
+                }
+                blockIdCounter++;
+                if(blockIdCounter >= blockDeviceInformation->Regions->NumBlocks) {
+                	blockIdCounter = 1;
+                	/* If this is the case, its impossible to create more headRoom, as we have gone through entire flash trying to create space */
+                	lastErrorVal = DATASTORE_ERROR_OUT_OF_FLASH_MEMORY;
+                	break;
                 }
             }
         }
