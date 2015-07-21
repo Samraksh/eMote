@@ -615,14 +615,6 @@ DATASTORE_STATUS DATASTORE_AddrTable::updateCurrentLocation(RECORD_ID recordID, 
 			//this should never happen
 			status = DATASTORE_STATUS_NOT_OK;
 		}
-
-		/*for(int index = 0; index < table.size(); index++){
-			if(table[index].recordID == recordID){
-				table[index].currentLoc = newLoc;
-				status = DATASTORE_STATUS_OK;
-				break;
-			}
-		}*/
 	}
     else {
     	//this should never happen
