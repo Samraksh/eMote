@@ -81,10 +81,6 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        // Send gives the CMD_TRANSMIT to the radio
 	        //cmd = CMD_TRANSMIT;
-	#if 0
-	        if(state != STATE_PLL_ON)
-	                return DS_Busy;
-	#endif
 	        //pulse 2
 	#ifdef DEBUG_RF231
 	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
@@ -235,15 +231,6 @@ DeviceStatus RF231Radio::Reset()
 	// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
 	// This fix will return false from initialize and enable the user of the function to exit gracefully
 	// Fix for the hanging in the initialize function
-	#if 0
-			while(true)
-			{
-				//reg = ReadRegister(RF230_TRX_STATE);
-				reg = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
-				if(reg == RF230_TRX_OFF)
-					break;
-			}
-	#endif
 	DID_STATE_CHANGE(RF230_TRX_OFF);
 
 	HAL_Time_Sleep_MicroSeconds(510);
@@ -504,10 +491,6 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	}
 	// Send gives the CMD_TRANSMIT to the radio
 	//cmd = CMD_TRANSMIT;
-#if 0
-	if(state != STATE_PLL_ON)
-		return DS_Busy;
-#endif
 	//pulse 2
 #ifdef DEBUG_RF231
 	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
@@ -836,15 +819,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
 		// This fix will return false from initialize and enable the user of the function to exit gracefully
 		// Fix for the hanging in the initialize function
-#if 0
-		while(true)
-		{
-			//reg = ReadRegister(RF230_TRX_STATE);
-			reg = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
-			if(reg == RF230_TRX_OFF)
-				break;
-		}
-#endif
 		DID_STATE_CHANGE(RF230_TRX_OFF);
 
 #ifdef DEBUG_RF231
@@ -1367,43 +1341,6 @@ void RF231Radio::HandleInterrupt()
 	// The contents of the frame buffer went out
 	if(irq_cause & TRX_IRQ_TRX_END)
 	{
-#if 0
-		if(cmd == CMD_TRANSMIT)
-		{
-#ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-#endif
-			// Call radio send done event handler when the send is complete
-			rf230EventHandlers.RadioSendDoneEvent();
-
-			cmd = CMD_LISTEN;
-
-			// Move radio to RX_ON and keep it in a state of listening
-			ChangeState();
-
-		}
-		else if(cmd == CMD_RECEIVE)
-		{
-			ASSERT_RADIO(STATE_RX_ON == state || STATE_PLL_ON_2_RX_ON == state);
-
-			if(state == STATE_PLL_ON_2_RX_ON)
-			{
-				ASSERT_RADIO((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_PLL_ON);
-
-				cmd = CMD_LISTEN;
-
-				ChangeState();
-
-			}
-			else
-			{
-				rssi_clear += (ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK) - (rssi_clear >> 2);
-			}
-
-			DownloadMessage();
-		}
-#endif
 		if(cmd == CMD_TRANSMIT)
 		{
 				if(state == STATE_BUSY_TX)
