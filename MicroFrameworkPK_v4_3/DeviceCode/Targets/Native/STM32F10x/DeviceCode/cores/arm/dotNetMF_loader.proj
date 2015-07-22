@@ -62,7 +62,7 @@
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\IDelayLoop.s" />
      <!-- <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\BootVectors.s" /> --> <!-- BootVectors.s is obsolete. -->
      <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\VectorsTrampolines.s" />	 
-     <Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\ProtectionArea.s" />
+     <!--Compile Include="AssemblyCode\thumb2\$(AS_SUBDIR)\ProtectionArea.s" /-->
   </ItemGroup>
   <ItemGroup Condition="'$(OS_PLATFORM)'!='true'">
     <LIB_FIRSTENTRY_OBJ Include="$(OBJ_DIR)\FirstEntry.$(OBJ_EXT)"/>

@@ -17,7 +17,7 @@
     .extern  BootstrapCode
     @ .extern  Boot_Vectors         @ Boot_Vectors is obsolete.  Ignore the original warning comment.
 	.extern  ARM_Vectors
-	.extern  Prot_Bytes
+	@ .extern  Prot_Bytes see below
 	.extern  SystemInit_ExtMemCtl
 
 
@@ -58,7 +58,7 @@ CustomHeapEnd:
     @ have to reference them otherwise they dont get linked in
     @ .word   Boot_Vectors @ Boot_Vectors is obsolete.
     .word   ARM_Vectors
-    .word   Prot_Bytes
+    @ .word   Prot_Bytes I don't know what this is supposed to do...
 
     .thumb_func
 EntryPoint:
