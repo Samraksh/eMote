@@ -217,7 +217,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::GetLas
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -243,7 +243,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Write( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::WriteRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -251,7 +251,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -277,7 +277,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Write( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::WriteRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -285,7 +285,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write___I4__U4__SZARRAY_U1__U4__U4__U4__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -311,7 +311,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Write( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::WriteRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -319,7 +319,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Write_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U1__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -345,7 +345,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read__
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Read( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::ReadRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -353,7 +353,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U2__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -379,7 +379,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read__
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Read( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::ReadRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -387,7 +387,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read___I4__U4__SZARRAY_U1__U4__U4__U4__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -413,7 +413,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore::Read__
         INT32 param5;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 6, param5 ) );
 
-        INT32 retVal = DataStore::Read( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
+        INT32 retVal = DataStore::ReadRaw( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

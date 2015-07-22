@@ -32,6 +32,8 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="DataReference.cs" />
+    <Compile Include="DataStore.cs" />
     <Compile Include="NonVolatileMemory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GarbageCollector.cs" />

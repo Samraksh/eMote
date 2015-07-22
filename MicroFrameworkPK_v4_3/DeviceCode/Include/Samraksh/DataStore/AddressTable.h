@@ -18,7 +18,7 @@ using namespace std;
 typedef struct
 {
     RECORD_ID  recordID;           /* Unique allocation identifier */
-    LPVOID     givenPtr;           /* Smart pointer that is given to the user of datastore */
+    //LPVOID     givenPtr;           /* Smart pointer that is given to the user of datastore */
     UINT32     allocationSize;     /* Size of the allocation */
     LPVOID     currentLoc;         /* Current location of the corresponding data on the flash */
 }DATASTORE_ADDR_TBL_ENTRY;
@@ -70,13 +70,18 @@ private:
 	myVector table;
     /* Add anything required later */
     DATASTORE_STATUS search(LPVOID givenAddr, DATASTORE_ADDR_TBL_ENTRY *entry);
+    BOOL 			 sortAddressTable();
+    BOOL			 eraseAddressTable();
 public:
     ////myVector table;
     DATASTORE_AddrTable();
     DATASTORE_STATUS addEntry(DATASTORE_ADDR_TBL_ENTRY *entry);
+    LPVOID			 getCurrentLoc(RECORD_ID recordID, int &index);
     LPVOID           getCurrentLoc(RECORD_ID recordID);
     LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr);
+    LPVOID           getCurrentLoc(LPVOID givenPtr, LPVOID startPtr, LPVOID endPtr, DATASTORE_ADDR_TBL_ENTRY &tblEntry);
     LPVOID           getGivenAddress(RECORD_ID recordID);
+    LPVOID           getCurrentLocation(RECORD_ID recordID);
     LPVOID			 getGivenPointer(LPVOID currentPtr);
     RECORD_ID        getRecordID(LPVOID givenAddr);
     uint32           getAllocationSize(RECORD_ID recordID);

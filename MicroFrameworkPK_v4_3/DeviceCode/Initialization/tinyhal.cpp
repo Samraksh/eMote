@@ -532,7 +532,8 @@ mipi_dsi_shutdown();
 
         while(ptr >= end)
         {
-            *ptr-- = 0xBAADF00D;
+            //*ptr-- = 0xBAADF00D;
+        	*ptr-- = 0x0;
         }
     }
 #endif

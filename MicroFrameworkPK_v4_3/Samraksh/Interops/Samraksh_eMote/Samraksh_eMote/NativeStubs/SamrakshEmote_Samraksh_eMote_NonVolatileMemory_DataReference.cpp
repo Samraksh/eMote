@@ -17,7 +17,7 @@
 
 using namespace Samraksh::eMote::NonVolatileMemory;
 
-typedef enum DATASTORE_RETURN_STATUS
+enum DATASTORE_RETURN_STATUS
 {
 	Success = 0,
 	Failure = -1,
@@ -35,6 +35,11 @@ static UINT32 dataID;
 INT32 DataReference::GetDataReference( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
 {
 	return (INT32)g_dataStoreObject.getAddress(dataId);
+}
+
+INT32 DataReference::GetDataLocation( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )
+{
+    return (INT32)g_dataStoreObject.getAddress(dataId);
 }
 
 INT32 DataReference::LookupDataType( CLR_RT_HeapBlock* pMngObj, UINT32 dataId, HRESULT &hr )

@@ -35,7 +35,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
     static const int FIELD__dStore = 1;
     static const int FIELD__dataId = 2;
     static const int FIELD__referenceSize = 3;
-    static const int FIELD__dataReference = 4;
+    static const int FIELD__dataLocationOnStorage = 4;
     static const int FIELD__referenceDataType = 5;
     static const int FIELD__dataType = 6;
     static const int FIELD__dataTypeByte = 7;
@@ -43,6 +43,7 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
     static const int FIELD__dataTypeUInt32 = 9;
 
     TINYCLR_NATIVE_DECLARE(GetDataReference___I4__U4);
+    TINYCLR_NATIVE_DECLARE(GetDataLocation___I4__U4);
     TINYCLR_NATIVE_DECLARE(LookupDataType___I4__U4);
     TINYCLR_NATIVE_DECLARE(LookupDataSize___I4__U4);
     TINYCLR_NATIVE_DECLARE(DeleteData___BOOLEAN__U4);
@@ -77,12 +78,12 @@ struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataStore
     TINYCLR_NATIVE_DECLARE(DataStoreGC___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetReadWriteStatus___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetLastDatastoreStatus___I4);
-    TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U1__I4);
-    TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U2__I4);
-    TINYCLR_NATIVE_DECLARE(Write___I4__U4__SZARRAY_U1__U4__U4__U4__I4);
-    TINYCLR_NATIVE_DECLARE(Read___I4__U4__SZARRAY_U1__U4__U4__U1__I4);
-    TINYCLR_NATIVE_DECLARE(Read___I4__U4__SZARRAY_U1__U4__U4__U2__I4);
-    TINYCLR_NATIVE_DECLARE(Read___I4__U4__SZARRAY_U1__U4__U4__U4__I4);
+    TINYCLR_NATIVE_DECLARE(WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4);
+    TINYCLR_NATIVE_DECLARE(WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4);
+    TINYCLR_NATIVE_DECLARE(WriteRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4);
+    TINYCLR_NATIVE_DECLARE(ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U1__I4);
+    TINYCLR_NATIVE_DECLARE(ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U2__I4);
+    TINYCLR_NATIVE_DECLARE(ReadRaw___I4__U4__SZARRAY_U1__U4__U4__U4__I4);
 
     //--//
 

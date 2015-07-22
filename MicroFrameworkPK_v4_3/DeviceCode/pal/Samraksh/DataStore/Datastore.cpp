@@ -2,17 +2,16 @@
 
 Data_Store g_dataStoreObject;
 
-/* AnanthAtSamraksh - To get rid of "undefined reference to static member error" */
+/* To get rid of "undefined reference to static member error" */
 int Data_Store::startCount = 0;
 int Data_Store::endCount = 0;
-
-//AnanthAtSamraksh - debugging -- int fromGetRecordIDAfterPersistence = 0;
 
 
 /*
  * Datastore constructor
  */
-Data_Store::Data_Store(char *flashDeviceName, bool eraseDataStore)
+Data_Store::Data_Store(char *flashDeviceName,
+							bool eraseDataStore)
 {
     state = DATASTORE_STATE_UNINIT;
     DATASTORE_STATUS status;
@@ -28,7 +27,8 @@ Data_Store::Data_Store(char *flashDeviceName, bool eraseDataStore)
  * Datastore constructor
  */
 Data_Store::Data_Store( char *flashDeviceName,
-                           DATASTORE_PROPERTIES *property, bool eraseDataStore )
+                           DATASTORE_PROPERTIES *property,
+                           bool eraseDataStore )
 {
     state = DATASTORE_STATE_UNINIT;
     DATASTORE_STATUS status;
@@ -50,7 +50,6 @@ DeviceStatus Data_Store::init(bool eraseDataStore)
 		 return DS_Success;
 
 	 myUniquePtrGen.init();
-	 //flashDevice.init();
 
 	 ByteAddress Address;
 
@@ -58,9 +57,6 @@ DeviceStatus Data_Store::init(bool eraseDataStore)
 	 {
 		return DS_Fail;
 	 }
-
-	 /*if(!blockStorageDevice->InitializeDevice())
-		 return DS_Fail;*/
 
 	 if((blockDeviceInformation = blockStorageDevice->GetDeviceInfo()) == NULL)
 		 return DS_Fail;
@@ -153,9 +149,6 @@ LPVOID Data_Store::incrementPointer(LPVOID inputPtr, int numBytes)
 {
     char *lPtr = (char*)inputPtr;
 
-    //char *lDataStoreEndPtr = (char*)flashDevice.getDeviceBaseAddress() + dataStoreEndByteOffset;
-    //char *lDataStoreStartPtr = (char*)flashDevice.getDeviceBaseAddress() + dataStoreStartByteOffset;
-
     char *lDataStoreEndPtr = (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
     char *lDataStoreStartPtr = (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 
@@ -163,11 +156,9 @@ LPVOID Data_Store::incrementPointer(LPVOID inputPtr, int numBytes)
     if(lPtr > lDataStoreEndPtr){
         lPtr = lDataStoreStartPtr + (lPtr - lDataStoreEndPtr - 1);
     }else if(lPtr < lDataStoreStartPtr){
-    	// AnanthAtSamraksh - Modifying existing pointer logic of data store
+    	// Modifying existing pointer logic of data store
     	// The original piece of code no longer works
         lPtr = lDataStoreEndPtr - (lDataStoreStartPtr - lPtr - 1);
-    	////lPtr = lDataStoreStartPtr + numBytes;
-    	//lPtr = *lDataStoreStartPtr + dataStoreStartByteOffset + lPtr;
     }
     return lPtr;
 }
@@ -195,11 +186,8 @@ int Data_Store::calculateNumBytes(LPVOID fromAddr, LPVOID toAddr)
             // There is no wrapping of pointers - Direct subtraction is enough
             retVal = (int)((char*)toAddr - (char*)fromAddr) + 1;
         }else{
-            /*char *startAddr = (char*)flashDevice.getDeviceBaseAddress() + dataStoreStartByteOffset ;
-            char *endAddr   = (char*)flashDevice.getDeviceBaseAddress() + dataStoreEndByteOffset ;*/
-        	char *startAddr = (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset ;
+            char *startAddr = (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset ;
         	char *endAddr   = (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset ;
-
 
             retVal = (int)((endAddr - (char*)fromAddr + 1) + ((char*)toAddr - startAddr + 1) );
         }
@@ -231,9 +219,11 @@ uint32 Data_Store::calculateLogHeadRoom()
  * 	-	If sufficient space is not available for a record on a block, a dummy allocation is created
  * 			on the current block and the record is created in the adjacent block.
  */
-LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32 numBytes, uint32 dataType )
+LPVOID Data_Store::createAllocation( RECORD_ID recordID,
+										LPVOID givenPtr,
+										uint32 numBytes,
+										uint32 dataType )
 {
-	//debug_printf("Data_Store::createAllocation\n");
 	UINT32 logPtr     = 0;
 	int  currBlockID = 0;
 	char *currBlockStartAddr = NULL;
@@ -244,19 +234,18 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 	currBlockStartAddr = (char*)blockDeviceInformation->Regions->BlockAddress(currBlockID);
 	currBlockEndAddr   = currBlockStartAddr + blockDeviceInformation->Regions->BytesPerBlock - 1;
 	byteLeftInBlock = (UINT32)currBlockEndAddr - logPtr + 1;
-
+	static int blockIdCounter = 1;
 
     LPVOID retVal = NULL;
     uint32 allocationSize = numBytes + sizeof(RECORD_HEADER);
-
 
     RECORD_HEADER header = { 0 };
 
     lastErrorVal = DATASTORE_ERROR_NONE;
     do{
     	/* Create a dummy/Skip allocation if required to make sure that this allocation
-    	           doesn't fall in sectors -  return value tells if an allocation was done or not
-    	           We don't care to know the status here */
+		   doesn't fall in sectors -  return value tells if an allocation was done or not
+		   We don't care to know the status here */
     	if(byteLeftInBlock >= sizeof(RECORD_HEADER) && byteLeftInBlock < allocationSize)
     	{
     		createDummyAllocation(byteLeftInBlock);
@@ -270,14 +259,6 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 				allocationSize = allocationSize + byteLeftInBlockAfterAllocation;
     		}
     	}
-    	/*else if(byteLeftInBlock == allocationSize)
-    	{
-    		// Nothing to be done. Continue.
-    	}
-    	else
-    	{
-    		createDummyAllocation(numBytes);
-    	}*/
 
         if(calculateLogHeadRoom() < (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
             /* Free memory is below the minimum threshold, try creating some free
@@ -292,7 +273,15 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
                 currentHeadRoom = calculateLogHeadRoom();   /* Check free space available now */
                 if(currentHeadRoom >= (MIN_SPACE_REQUIRED_FOR_COMPACTION + allocationSize)){
                     /* Come out if we have enough space */
+                	blockIdCounter = 1;
                     break;
+                }
+                blockIdCounter++;
+                if(blockIdCounter >= blockDeviceInformation->Regions->NumBlocks){
+                	blockIdCounter = 1;
+                	/* If this is the case, its impossible to create more headRoom, as we have gone through entire flash trying to create space */
+                	lastErrorVal = DATASTORE_ERROR_OUT_OF_FLASH_MEMORY;
+                	break;
                 }
             }
         }
@@ -310,26 +299,26 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 		}
 
         if(addressTable.table.size() >= MAX_NUM_TABLE_ENTRIES){
-			/* If this is the case, user has to delete some records in order to use flash */
-			/*lastErrorVal = DATASTORE_ERROR_OUT_OF_MEMORY;
-			break;*/
-
-        	/* If this is the case, user wants to keep writing to flash. So erase previous entries in addressTable */
+			/* If this is the case, user wants to keep writing to flash. So erase previous entries in addressTable */
         	uint32 deleteIndex = 0;
         	DATASTORE_STATUS status;
-        	while(addressTable.table[deleteIndex].givenPtr != 0)
+        	while(addressTable.table[deleteIndex].currentLoc != 0)
 			{
-        		status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-				if(status != DATASTORE_STATUS_OK)
-				{
-					break;
-				}
+        		//Don't remove a record which has to be updated with a new location.
+        		RECORD_ID recID = addressTable.table[deleteIndex].recordID;
+        		if(recID == recordID){
+        			deleteIndex++;
+        		}
+        		else {
+					status = addressTable.removeEntry(recID);
+					if(status != DATASTORE_STATUS_OK){
+						break;
+					}
+        		}
 			}
 		}
 
         /* Now that we have created enough free space, continue with the allocation */
-        //// AnanthAtSamraksh - commenting out the code, since persistence is not yet implemented.
-        //// AnanthAtSamraksh - uncommenting the code, as address to which data is written is 0. Address has to be incremented to point to start of data store region
         retVal = incrementPointer((char*)blockDeviceInformation->Regions->Start, logPointByteOffset);
         incrementLogPointer(allocationSize);
 
@@ -341,17 +330,12 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
         LPVOID oldRecAddr = addressTable.getCurrentLoc(recordID);         /* O(n) :( */
         if( NULL != oldRecAddr ){
             /* There is an old record already, mark it inactive */
-        	//debug_printf("Data_Store::createAllocation. Marking old record inactive.\n");
-            oldRecAddr = incrementPointer( oldRecAddr, -1*sizeof(RECORD_HEADER));
+        	oldRecAddr = incrementPointer( oldRecAddr, -1*sizeof(RECORD_HEADER));
             cyclicDataRead( &header,
                             oldRecAddr,
                             sizeof(RECORD_HEADER) );
 
             header.activeFlag = FLAG_RECORD_INACTIVE;
-
-            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
-            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
-            //header.nextLink = incrementPointer(retVal, sizeof(RECORD_HEADER));
 
             cyclicDataWrite( &header,
                              oldRecAddr,
@@ -359,9 +343,6 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 
             /* Now, update the header struct and write it back */
             header.activeFlag = FLAG_RECORD_ACTIVE;
-            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
-            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
-            ////header.nextLink   = (LPVOID)~0;
             header.version++;                 /* Move to next value */
             header.zero       = 0;
 
@@ -374,7 +355,7 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             //entry.allocationSize = numBytes;
             entry.allocationSize = allocationSize - sizeof(RECORD_HEADER);
             entry.currentLoc     = (char*)incrementPointer(retVal , sizeof(RECORD_HEADER));
-            entry.givenPtr       = givenPtr;
+            //entry.givenPtr       = givenPtr;
             entry.recordID       = recordID;
 
             header.activeFlag = FLAG_RECORD_ACTIVE;
@@ -386,9 +367,6 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
 			else if(2 == dataType)
 				header.dataType = DATATYPE_INT32;
 
-            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
-            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
-            ////header.nextLink   = (LPVOID)~0;
             header.recordID   = recordID;
             //header.size       = numBytes;
             header.size       = allocationSize - sizeof(RECORD_HEADER);
@@ -398,13 +376,13 @@ LPVOID Data_Store::createAllocation( RECORD_ID recordID, LPVOID givenPtr, uint32
             addressTable.addEntry(&entry);
         }
         /* Now, write the header to flash  */
-        //debug_printf("Data_Store::createAllocation. Writing record. retVal is %x\n", retVal);
         cyclicDataWrite( &header,
                          retVal,
                          sizeof(RECORD_HEADER) );
     }while(0);
     return retVal;
 }
+//Data_Store::createAllocation
 
 
 /*
@@ -418,7 +396,6 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 
     *conflictStartLoc = dataLen;
 
-    ////AnanthAtSamraksh - changing below line on 12/31/2013
     for(int index = 0; index < dataLen; ++index){
 		if(flashData[index] != 0xFF)
 		{
@@ -428,16 +405,142 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 		}
     }
 
-	/*for(int index = 0; index < dataLen; index++){
-		if((flashData[index] & givenData[index]) != givenData[index]){
-			// Overwrite detected
-			retVal = true;
-			*conflictStartLoc = index;
+	return retVal;
+}
+
+/* Helper function to get count of objects in a block */
+int Data_Store::objectCountInBlock(int blockID)
+{
+	RECORD_HEADER header;
+	DATASTORE_ADDR_TBL_ENTRY entry;
+	char *addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
+	char *endAddr = addr + blockDeviceInformation->Regions->BytesPerBlock;
+	int objectCount = 0;
+
+	while(*addr != (char)0xFF && addr < (endAddr))
+	{
+		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
+		if(*((unsigned char*)&header) == SKIP_TO_NEXT_SECTOR_FLAG) {
 			break;
 		}
-	}*/
-    return retVal;
+		if(FLAG_RECORD_ACTIVE == header.activeFlag ) {
+			objectCount++;
+		}
+		addr = (char*)incrementPointer(addr, sizeof(RECORD_HEADER)+header.size);
+		header = {0}; entry = {0};
+	}
+	return objectCount;
 }
+
+/*
+ * Helper function to get record id from flash (if present)
+ */
+LPVOID Data_Store::searchForID(RECORD_ID id)
+{
+	LPVOID retValTemp = NULL;
+	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
+	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
+	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
+	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
+
+	static int prevBlockSearched = firstBlock;
+	static int recordOffset = 0;
+	int objectCountInBlk = 0;
+	int totalNumOfObjectsRead = 0, objectsReadFromBlock = 0;
+	bool readDone = false;
+	uint32 deleteIndex = 0;
+	DATASTORE_STATUS status;
+
+	retValTemp = addressTable.getCurrentLoc(id);
+	if(retValTemp != NULL) {
+		//Found id
+		return retValTemp;
+	}
+	else {
+		/* An optimization to speed-up search for ID. Since data is written in a log-like manner,
+		 * it is assumed that data will also be read and accessed in log-like manner. Hence, the
+		 * previous block that was searched is stored and the next search starts from that block. */
+
+		//Go through entire flash looking for id.
+		for(int index = prevBlockSearched;index <= lastBlock; index++) {
+			//Erase existing entries in addressTable
+			if(! addressTable.eraseAddressTable()) {
+				return NULL;
+			}
+
+			objectCountInBlk = objectCountInBlock(index);
+			objectsReadFromBlock = 0;
+			//Reset recordOffset for new block, else retain value as next record could be in the same block.
+			if(index != prevBlockSearched) {
+				recordOffset = 0;
+			}
+			//Fetch new set of entries into addressTable and search again
+			while(objectsReadFromBlock < objectCountInBlk) {
+				objectsReadFromBlock += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, recordOffset, &readDone);
+				recordOffset = objectsReadFromBlock;
+				totalNumOfObjectsRead += objectsReadFromBlock;
+				//Make sure that there are no corrupt regions in flash
+				if(lastErrorVal != DATASTORE_ERROR_NONE )
+					return NULL;
+
+				retValTemp = addressTable.getCurrentLoc(id);
+				if(retValTemp != NULL) {
+					//Found id
+					prevBlockSearched = index;
+					//Even if addressTable gets erased, to make next search faster,
+					//adjust recordOffset so that it starts searching from previous recordID (worst case)
+					if((recordOffset - MAX_NUM_TABLE_ENTRIES - 1) < 0) {
+						recordOffset = 0;
+					} else {
+						recordOffset = (recordOffset - MAX_NUM_TABLE_ENTRIES - 1);
+					}
+					return retValTemp;
+				}
+				if(objectCountInBlk > MAX_NUM_TABLE_ENTRIES) {
+					//Erase existing entries in addressTable
+					if(! addressTable.eraseAddressTable()) {
+						return NULL;
+					}
+				}
+			}
+		}
+
+		for(int index = firstBlock;index <= prevBlockSearched; index++) {
+			//Erase existing entries in addressTable
+			if(! addressTable.eraseAddressTable()) {
+				return NULL;
+			}
+
+			objectCountInBlk = objectCountInBlock(index);
+			objectsReadFromBlock = 0;
+			recordOffset = 0;
+			//Fetch new set of entries into addressTable and search again
+			while(objectsReadFromBlock < objectCountInBlk) {
+				objectsReadFromBlock += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, recordOffset, &readDone);
+				recordOffset = objectsReadFromBlock;
+				totalNumOfObjectsRead += objectsReadFromBlock;
+				//Make sure that there are no corrupt regions in flash
+				if(lastErrorVal != DATASTORE_ERROR_NONE )
+					return NULL;
+
+				retValTemp = addressTable.getCurrentLoc(id);
+				if(retValTemp != NULL) {
+					//Found id
+					prevBlockSearched = index;
+					return retValTemp;
+				}
+				if(objectCountInBlk > MAX_NUM_TABLE_ENTRIES) {
+					//Erase existing entries in addressTable
+					if(! addressTable.eraseAddressTable()) {
+						return NULL;
+					}
+				}
+			}
+		}
+
+	}
+	return retValTemp;
+} //searchForID
 
 /*
  * Get base address for given Record_id
@@ -445,12 +548,24 @@ bool Data_Store::detectOverWrite( void *addr, void *data, int dataLen, uint32 *c
 LPVOID Data_Store::getAddress(RECORD_ID id)
 {
     LPVOID retVal = NULL;
+    LPVOID retValTemp = NULL;
     lastErrorVal = DATASTORE_ERROR_NONE;
 
-    if( NULL == (retVal = addressTable.getGivenAddress(id)) ){
-        lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+	retValTemp = addressTable.getCurrentLoc(id);
+
+    if(retValTemp == NULL) {
+    	retValTemp = searchForID(id);
     }
-    return retVal;
+
+    if(retValTemp == NULL) {
+    	return retValTemp;
+    }
+    else {
+		if( NULL == ( retVal = ( retValTemp - sizeof(RECORD_HEADER) ) ) ){
+			lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+		}
+		return retVal;
+    }
 }
 
 /*
@@ -477,7 +592,10 @@ uint32 Data_Store::getDataType(RECORD_ID id)
  */
 uint32 Data_Store::getAllocationSize(RECORD_ID id)
 {
-    LPVOID dataCurLoc = NULL;
+	uint32 size = addressTable.getAllocationSize(id);
+	return size;
+
+	/*LPVOID dataCurLoc = NULL;
     RECORD_HEADER recHeader = { 0 };
 
     lastErrorVal = DATASTORE_ERROR_NONE;
@@ -487,7 +605,7 @@ uint32 Data_Store::getAllocationSize(RECORD_ID id)
     }
     cyclicDataRead( &recHeader, (char*)dataCurLoc - sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
 
-    return recHeader.size;
+    return recHeader.size;*/
 }
 
 /*
@@ -524,7 +642,9 @@ RECORD_ID Data_Store::getRecentRecordID()
  * 	-	if "eraseDataStore" is true, then datastore is erased
  * 	-	invokes "scanFlashDevice()" that rebuilds the address table by scanning through records in the NOR flash.
  */
-DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPERTIES *property, bool eraseDataStore )
+DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName,
+												DATASTORE_PROPERTIES *property,
+												bool eraseDataStore )
 {
     DATASTORE_STATUS status = DATASTORE_STATUS_INVALID_PARAM;
 
@@ -535,15 +655,10 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
             break;
         }
 
-        ////DATASTORE_ASSERT( flashDevice.getDeviceState()== EMULATOR_STATE_READY, "Created flash device not in ready state!" );
-        ////// AnanthAtSamraksh - TODO - Add flash status to datastore.h and change initialize to add the status
-        ////// AnanthAtSamraksh - TODO - Add initialization for the 3 block storage variables so they are pointing to what they need to be pointing to
-
         /* Initialize the internal variables */
         int lDataStoreStartBlockID = 0;      /* Will calculate BlockID of first block of datastore */
         LPVOID lDataStoreStartPtr = NULL;
         /* This represents the block where the given offset starts */
-        //lDataStoreStartBlockID = flashDevice.getBlockIDFromAddress( (char*)blockRegionInfo.Start + DATA_STORE_OFFSET );
         lDataStoreStartBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress( blockDeviceInformation->Regions->Start + DATA_STORE_OFFSET );
         /* Datastore should start at the beginning of next block */
         lDataStoreStartBlockID = lDataStoreStartBlockID + 1;
@@ -554,30 +669,11 @@ DATASTORE_STATUS Data_Store::initDataStore( char *datastoreName, DATASTORE_PROPE
 
         dataStoreDeviceSize = blockDeviceInformation->Regions->NumBlocks * blockDeviceInformation->Regions->BytesPerBlock;
         dataStoreStartByteOffset = (uint32)((char*)lDataStoreStartPtr - (char*)blockDeviceInformation->Regions->Start);
-        //dataStoreEndByteOffset   = flashDevice.getDeviceSize() - 1;
         dataStoreEndByteOffset   = dataStoreDeviceSize - 1;
 
-        //AnanthAtSamraksh -- erase flash if flag is set by user
+        //Erase flash if flag is set by user
         if(eraseDataStore)
         	EraseAllBlocks();
-
-        /* Now, that the datastore is ready, we need to register it with the global
-           registration table which is used for address translations later */
-#if 0
-        DATASTORE_REG_ENTRY regEntry;
-        regEntry.addrRangeStart  = (LPVOID)property->addressRangeStart;
-        regEntry.addrRangeEnd    = (LPVOID)property->addressRangeEnd;
-        regEntry.dataStoreHandle = (LPVOID)this;
-
-        status = DATASTORE_REG_CreateEntry(&regEntry);
-        DATASTORE_ASSERT( DATASTORE_STATUS_OK == status,
-                          "Registration Failed!" );
-        if(DATASTORE_STATUS_OK != status){
-            lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
-            status       = DATASTORE_STATUS_INT_ERROR;
-            break;
-        }
-#endif
 
         /* Now, scan the device for previously stored records and this should update
            my logPtr, erasePtr, cleanPtr */
@@ -614,7 +710,6 @@ bool Data_Store::createDummyAllocation(int nextAllocationSize)
     /* Add the record header as this is the actual size of the allocation */
     nextAllocationSize = nextAllocationSize + sizeof(RECORD_HEADER);
 
-
     logPtr = blockDeviceInformation->Regions->Start + logPointByteOffset;
 
     currBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress(logPtr);
@@ -631,7 +726,6 @@ bool Data_Store::createDummyAllocation(int nextAllocationSize)
            need to fill this by a filler allocation using SKIP_TO_NEXT_SECTOR_FLAG */
 		unsigned char lflag = SKIP_TO_NEXT_SECTOR_FLAG;
 
-		//flashDevice.writeRawData( &lflag, 1, logPtr);
 		UINT32 address = (UINT32) logPtr;
 		//AnanthAtSamraksh - numBytes should be 2, because the NOR driver divides this by 2 to get the halfWords. If it is 1, NOR get 0 half words, which is a bug.
 		int numBytes = 2;
@@ -707,6 +801,7 @@ uint32 Data_Store::cyclicDataRead( LPVOID buff,
                     numBytes - byteTillEnd );
         }
     }while(0);
+
     return retVal;
 }
 
@@ -722,7 +817,6 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 
     if(numBytes == 0)
     	return 0;
-    //LPVOID targetLoc = (char*)flashDevice.getDeviceBaseAddress()+4156;
 
     if( NULL == currentLoc ||
         NULL == buff ||
@@ -756,7 +850,6 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
-            //flashDevice.writeRawData( buff, numBytes, currentLoc );
         }else{
             /* Need to read in pieces */
             int byteTillEnd = dataStoreEndByteOffset - offset + 1;
@@ -770,7 +863,6 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
-            //flashDevice.writeRawData( buff, byteTillEnd, currentLoc );
             /* Copy second piece */
 			address = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 			rawDataIn = (char*)buff + byteTillEnd;
@@ -780,7 +872,6 @@ uint32 Data_Store::cyclicDataWrite( LPVOID buff,
 				lastErrorVal =  DATASTORE_ERROR_WRITE_TO_FLASH_MEMORY_FAILED;
 				break;
 			}
-            //flashDevice.writeRawData( (char*)buff+byteTillEnd, numBytes - byteTillEnd, (char*)blockRegionInfo.Start+dataStoreStartByteOffset );
         }
     }while(0);
     return retVal;
@@ -815,7 +906,6 @@ DATASTORE_STATUS Data_Store::compactLog()
     DATASTORE_STATUS status = DATASTORE_STATUS_NOT_OK;
     RECORD_HEADER recHeader = { 0 };
     char *clearPtr = NULL;
-    //UINT32* clearPtr = NULL;
 
     clearPtr = (char*)blockDeviceInformation->Regions->Start + clearLogPointByOffset;
 
@@ -843,25 +933,17 @@ DATASTORE_STATUS Data_Store::compactLog()
                end of log - Can't use write method directly because current call
                could be coming from there :) */
 
-        	  /* Create a dummy/skip allocation if required */
+        	/* Create a dummy/skip allocation if required */
         	createDummyAllocation(recHeader.size);
 
 
         	//debug_printf("Data_Store::compactLog. Migrating record\n");
             /* First mark the current location as inactive */
             recHeader.activeFlag = FLAG_RECORD_INACTIVE;
-            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
-            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
-            ////recHeader.nextLink   = (char*)blockDeviceInformation->Regions->Start + \
-                                        logPointByteOffset + \
-                                        sizeof(RECORD_HEADER);
             cyclicDataWrite( (LPVOID)&recHeader, clearPtr, sizeof(RECORD_HEADER) );
 
             /* Old record is marked inactive, now migrate the record to the end of log */
             recHeader.activeFlag = FLAG_RECORD_ACTIVE;
-            ////AnanthAtSamraksh - commenting out below line(dec 24, 2013) as it serves no purpose. There is no need to maintain a link
-            ////to the next record (whether it is like 1->2->3->4->5 or a link between (inactive 1)->(inactive 1)->(active 1)
-            ////recHeader.nextLink   = (LPVOID)~0u;
 
             cyclicDataWrite( &recHeader,
                              ((char*)blockDeviceInformation->Regions->Start) + logPointByteOffset,
@@ -893,26 +975,23 @@ DATASTORE_STATUS Data_Store::compactLog()
     }
 
     /* Now check if there is a complete block of inactive records that can be cleared */
-    /*uint32 logPtrBlockID   = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);
-    uint32 clearPtrBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress((UINT32)clearPtr);*/
     uint32 logPtrBlockID   = blockDeviceInformation->Regions->BlockIndexFromAddress(blockDeviceInformation->Regions->Start + logPointByteOffset);
     uint32 clearPtrBlockID = blockDeviceInformation->Regions->BlockIndexFromAddress(blockDeviceInformation->Regions->Start + clearLogPointByOffset);
 
     if(datastore_abs((int)clearPtrBlockID - (int)logPtrBlockID ) >= 1){
         /* There is a gap of atleast 1 block and initialClearPtrBlockID could be safely
            erased */
-    	   /* Before erase, update the hidden sector with the new clearPtrOffset, which can be used while
-    	           scanning the device on the reboot */
+    	/* Before erase, update the hidden sector with the new clearPtrOffset, which can be used while
+    	   scanning the device on the reboot */
 
-        //flashDevice.eraseBlock(initialClearPtrBlockID);
-    	ByteAddress eraseBlockAddress = blockDeviceInformation->Regions->BlockAddress(initialClearPtrBlockID);
+        ByteAddress eraseBlockAddress = blockDeviceInformation->Regions->BlockAddress(initialClearPtrBlockID);
         blockStorageDevice->EraseBlock(eraseBlockAddress);
-        //incrementErasePoint(flashDevice.getBlockSize(initialClearPtrBlockID));
         incrementErasePoint(blockDeviceInformation->Regions->BytesPerBlock);
     }
 
     return status;
 }
+//Data_Store::compactLog
 
 
 
@@ -925,8 +1004,6 @@ LPVOID Data_Store::traversePointer(PERSISTENCE_DIRECTION per_dir, char* address)
 	int blockID;
 	LPVOID givenPtr;
 	RECORD_HEADER header = { 0 };
-	/*LPVOID dataStoreStartAddr = (char*)blockRegionInfo.Start + dataStoreStartByteOffset;
-	LPVOID dataStoreEndAddr = (char*)blockRegionInfo.Start + dataStoreEndByteOffset;*/
 	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
 
@@ -990,8 +1067,6 @@ LPVOID Data_Store::readPointers()
 	PERSISTENCE_DIRECTION per_dir;
 	RECORD_HEADER header;
 
-	/*LPVOID dataStoreStartAddr = (char*)blockRegionInfo.Start + dataStoreStartByteOffset;
-	LPVOID dataStoreEndAddr = (char*)blockRegionInfo.Start + dataStoreEndByteOffset;*/
 	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
 	int firstBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreStartAddr);
@@ -1021,15 +1096,13 @@ LPVOID Data_Store::readPointers()
 /*
  * Keep going through the flash until the FF regions are reached. Store all records encountered into the address table.
  */
-int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset, bool *readDone)
+int Data_Store::readRecordinBlock(int blockID,
+									int arrayLength,
+									int startOffset,
+									bool *readDone)
 {
 	char* addr = (char *)blockDeviceInformation->Regions->BlockAddress(blockID);
-	//char *endAddr = addr + flashDevice.getBlockSize(blockID);
 	char *endAddr = addr + blockDeviceInformation->Regions->BytesPerBlock;
-	//static int startCount = 0;
-	//static int endCount = 0;
-
-	//PRINT_DEBUG("Check Point 1.1 : In Function Read In Block");
 
 	DATASTORE_ADDR_TBL_ENTRY entry;
 	DATASTORE_STATUS status = DATASTORE_STATUS_OK;
@@ -1038,18 +1111,16 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 	RECORD_HEADER header;
 	while(*addr != (char)0xFF && addr < (endAddr))
 	{
-		//hal_printf("Count Number %d\n", tempCount);
-
 		cyclicDataRead(&header, addr, sizeof(RECORD_HEADER));
 		if(*((unsigned char*)&header) == SKIP_TO_NEXT_SECTOR_FLAG){
-					break;
+			break;
 		}
 
 		if(FLAG_RECORD_ACTIVE == header.activeFlag )
 		{
 			entry.allocationSize = header.size;
 			entry.currentLoc     = addr+sizeof(RECORD_HEADER);
-			entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
+			//entry.givenPtr       = myUniquePtrGen.getUniquePtr(header.size);
 			entry.recordID       = header.recordID;
 
 			/* Start adding entries from startOffset and keep adding until length is reached */
@@ -1081,7 +1152,6 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 				RECORD_HEADER tempHeader;
 
 				//Mukundan: Removed Flash_memory
-				//temp = (Flash_Memory<char> *)addressTable.getCurrentLoc(header.recordID);
 				temp = addressTable.getCurrentLoc(header.recordID);
 				memcpy( &tempHeader,
 						(char*)temp-sizeof(RECORD_HEADER),
@@ -1114,7 +1184,12 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 			status = addressTable.removeEntry(addressTable.table[0].recordID);
 			if(status != DATASTORE_STATUS_OK)
 				break;*/
-			lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+			//lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
+
+			/* AnanthAtSamraksh - ensure that values are reset before leaving. */
+			startCount = 0;
+			endCount = 0;
+			*readDone = true;
 			break;
 		}
 
@@ -1122,18 +1197,12 @@ int Data_Store::readRecordinBlock(int blockID, int arrayLength, int startOffset,
 		/* AnanthAtSamraksh -- check if addr has gone beyond legitimate dataStore end address.
 		 * If yes, then set an error, so that use may take appropriate action such as erasing the dataStore while initializing.
 		 * */
-		//AnanthAtSamraksh - debugging
-		/*if(fromGetRecordIDAfterPersistence == 1)
-			addr = (char*)DATASTORE_END_ADDRESS + 0x10;*/
-
 		if(addr >= (char*)DATASTORE_END_ADDRESS || addr < (char*)DATASTORE_START_ADDRESS)
 		{
 			lastErrorVal = DATASTORE_ERROR_OUT_OF_BOUND_ACCESS;
 			break;
 		}
 	}
-	//PRINT_DEBUG("Check Point 1.2 : Exiting Function Read In Block");
-	//startCount = 0; endCount = 0;
 	return count;
 }
 
@@ -1150,8 +1219,6 @@ uint32 Data_Store::decideWhichOneisRecent(RECORD_HEADER tempHeader, RECORD_HEADE
  */
 LPVOID Data_Store::scanFlashDevice()
 {
-	/*LPVOID dataStoreStartAddr = (char*)blockRegionInfo.Start + dataStoreStartByteOffset;
-	LPVOID dataStoreEndAddr = (char*)blockRegionInfo.Start + dataStoreEndByteOffset;*/
 	UINT32 dataStoreStartAddr = blockDeviceInformation->Regions->Start + dataStoreStartByteOffset;
 	UINT32 dataStoreEndAddr = blockDeviceInformation->Regions->Start + dataStoreEndByteOffset;
 
@@ -1163,7 +1230,7 @@ LPVOID Data_Store::scanFlashDevice()
 
 	for(int index = firstBlock;index <= lastBlock; index++){
 		numOfEntries += readRecordinBlock(index, MAX_NUM_TABLE_ENTRIES, 0, &readDone);
-		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
+		//Make sure that there are no corrupt regions in flash
 		if(lastErrorVal != DATASTORE_ERROR_NONE )
 			return NULL;
 		if(addressTable.table.size() == MAX_NUM_TABLE_ENTRIES)
@@ -1207,13 +1274,9 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	int lastBlock = blockDeviceInformation->Regions->BlockIndexFromAddress(dataStoreEndAddr);
 	int blockID = firstBlock;
 
-	uint32 deleteIndex = 0;
-	DATASTORE_STATUS status;
-	while(addressTable.table[deleteIndex].givenPtr != 0)
-	{
-		status = addressTable.removeEntry(addressTable.table[deleteIndex].recordID);
-		if(status != DATASTORE_STATUS_OK)
-			break;
+	if(! addressTable.eraseAddressTable()) {
+		//Should never happen
+		lastErrorVal = DATASTORE_ERROR_UNEXPECTED_ERROR;
 	}
 
 	/* AnanthAtSamraksh - values before entering loop should be same as the ones while leaving */
@@ -1222,31 +1285,37 @@ void Data_Store::getRecordIDAfterPersistence(uint32* recordID_array, ushort arra
 	/* Keep reading until count of records in addressTable is equal to offset */
 	while(readDone == false)
 	{
-		//AnanthAtSamraksh - debugging -- fromGetRecordIDAfterPersistence = 1;
-		numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+		if(blockID > lastBlock) {
+			break;
+		}
+		int objectCount = objectCountInBlock(blockID);
+		if(dataIdOffset < objectCount) {
+			numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset, &readDone);
+			if(readDone == false) {
+				startCount = 0; endCount = 0;
+				dataIdOffset = 0;
+				arrayLength -= numOfEntries;
+				DATASTORE_ASSERT(arrayLength < 0, "Error while reading from a block");
+			}
+		}
+		else {
+			dataIdOffset -= objectCount;
+		}
 		//AnanthAtSamraksh -- make sure that there are no corrupt regions in flash
-		if(lastErrorVal != DATASTORE_ERROR_NONE )
-		{
+		if(lastErrorVal != DATASTORE_ERROR_NONE ) {
 			readDone = true; startCount = 0; endCount = 0;
 			break;
 		}
-		++blockID;
-		if(numOfEntries == 0 && lastBlock == (blockID-1))
-		{
+		if(numOfEntries == 0 && lastBlock == blockID) {
 			readDone = true;
 			/* AnanthAtSamraksh - To ensure that these values are reset when this loop is exited.
 			 * Otherwise, repeated calls will retain old values leading to bugs. */
 			startCount = 0; endCount = 0;
+			break;
 		}
-	}
-	/*numOfEntries = readRecordinBlock(blockID, arrayLength, dataIdOffset);
-	while(numOfEntries < arrayLength)
-	{
+
 		++blockID;
-		arrayLength = arrayLength - numOfEntries;
-		dataIdOffset = 0;
-		numOfEntries += readRecordinBlock(blockID, arrayLength, dataIdOffset);
-	}*/
+	}
 
 	/* Copy existing entries (recordID) from addressTable (from offset) into array passed by user. */
 	if(lastErrorVal == DATASTORE_ERROR_NONE)
@@ -1278,9 +1347,12 @@ DATASTORE_STATUS Data_Store::deleteRecord(RECORD_ID id)
     lastErrorVal = DATASTORE_ERROR_NONE;
     do{
         LPVOID currLoc = addressTable.getCurrentLoc(id);
-        if(currLoc == NULL){
-            lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
-            break;
+        if(currLoc == NULL) {
+        	currLoc = searchForID(id);
+        	if(currLoc == NULL) {
+				lastErrorVal = DATASTORE_ERROR_INVALID_RECORD_ID;
+				break;
+			}
         }
 
         cyclicDataRead( (void*)&header,
@@ -1317,21 +1389,22 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
     numBytes = numBytes + numBytes % 2;
 
     do{
-        if(NULL != addressTable.getGivenAddress(recordID)){
+        if(NULL != addressTable.getCurrentLoc(recordID)){
             /* This record id is already present in the flash. So, can't proceed */
             lastErrorVal = DATASTORE_ERROR_RECORD_ID_ALREADY_EXISTS;
             break;
         }
 
         /* Generate an unique pointer and register it with the address_table */
-        lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
+        //lGivenPtr = myUniquePtrGen.getUniquePtr(numBytes);
         allocLoc  = createAllocation( recordID, lGivenPtr, numBytes, dataType );
         if( NULL == allocLoc ){
             break;
         }
         /* Address table will be updated by createAllocation, so need not to bother here */
     }while(0);
-    return lGivenPtr;
+
+    return allocLoc;
 }
 
 /*
@@ -1339,9 +1412,11 @@ LPVOID Data_Store::createRecord( RECORD_ID recordID, uint32 numBytes, uint32 dat
  */
 uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 numBytes)
 {
-	//debug_printf("Data_Store::readRawData\n");
-    uint32 lNumBytes = 0;
+	uint32 lNumBytes = 0;
     LPVOID curLoc = NULL;
+
+    DATASTORE_ADDR_TBL_ENTRY tblEntry;
+    LPVOID readAddress = src + sizeof(RECORD_HEADER);
 
     // AnanthAtSamraksh. The STM Driver accepts half words as inputs so all writes are in half word sizes
     numBytes = numBytes + numBytes % 2;
@@ -1358,17 +1433,28 @@ uint32 Data_Store::readRawData(LPVOID src, void *data, uint32 offset, uint32 num
         }
         //curLoc updation is important when src address and givenAddr are different. If src address is
         //greater than given address, the numBytes is modified accordingly. But if curLoc is not updated, numBytes are read from starting address and not from src
-        if( NULL == (curLoc = addressTable.getCurrentLoc(src, lDataStoreStartByteAddr, lDataStoreEndByteAddr))){
+        if( NULL == (curLoc = addressTable.getCurrentLoc(readAddress, lDataStoreStartByteAddr, lDataStoreEndByteAddr, tblEntry))){
             lastErrorVal = DATASTORE_ERROR_INVALID_GIVEN_ADDR;
             lNumBytes = numBytes = 0;
             break;
         }
-        //debug_printf("Data_Store::readRawData. curLoc is %x \n", curLoc);
 
-        lNumBytes = addressTable.getMaxWriteSize(src);
+        /*UINT32 temp = (UINT32*)readAddress - (UINT32*)tblEntry.currentLoc;
+        lNumBytes = tblEntry.allocationSize - temp;
+
+        if(lNumBytes < numBytes)
+        {
+        	hal_printf("Lets stop here for now\n\r");
+        	LPVOID tempCurLoc = addressTable.table[0].currentLoc;
+        	lNumBytes = addressTable.getMaxWriteSize(readAddress);
+        }*/
+
+        lNumBytes = addressTable.getMaxWriteSize(readAddress);
         lNumBytes = (numBytes < lNumBytes)?numBytes:lNumBytes;
 
+        memset(data, 0, lNumBytes);
         cyclicDataRead( data, (char*)curLoc + offset, lNumBytes);
+
     }while(0);
     return lNumBytes;
 }
@@ -1386,11 +1472,9 @@ uint32 Data_Store::writeData( LPVOID dest, uint32* data, uint32 offset, uint32 c
 /*
  * Function that writes data stored in buffer into the mentioned flash address
  */
-uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 numBytes)
+uint32 Data_Store::writeRawData(LPVOID dest, void* dataToBeWritten, uint32 offset, uint32 numBytes)
 {
-	//debug_printf("Data_Store::writeRawData\n");
-
-    LPVOID recBaseAddr       = NULL;    /* Base address of the current allocation */
+	LPVOID fromRecBaseAddr       = NULL;    /* Base address of the current allocation */
     LPVOID recWriteStartAddr = NULL;    /* Address that correspond to the address where give data needs to be written */
     LPVOID recWriteEndAddr   = NULL;    /* Address of corresponding location in flash where last byte of data needs to be written */
     LPVOID recEndAddr        = NULL;    /* Address of the last byte of the current allocation */
@@ -1398,6 +1482,7 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
     RECORD_ID recordID     = 0;         /* Record ID of the record where we are trying to write */
     uint32    recordSize   = 0;         /* Allocation size of this record */
     uint32 numBytesWritten = 0;         /* Actual number of bytes that can be written */
+    uint32 numBytesToBeWritten = 0;
 
     uint32 overWriteStartOffset = 0;    /* Doesn't matter much in new implementation */
     bool   isOverWriteDetected  = false;
@@ -1406,49 +1491,53 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
 
     lastErrorVal = DATASTORE_ERROR_NONE;
 
+    recWriteStartAddr = dest + sizeof(recHeader);
+
     // AnanthAtSamraksh. The STM Driver accepts half words as inputs so all writes are in half word sizes
 	numBytes = numBytes + numBytes % 2;
 
     do{
-        DATASTORE_ASSERT( dest != NULL && data != NULL, "Invalid parameters being passed" );
-        if(dest == NULL || data == NULL){
+        DATASTORE_ASSERT( dest != NULL && dataToBeWritten != NULL, "Invalid parameters being passed" );
+        if(dest == NULL || dataToBeWritten == NULL){
             lastErrorVal = DATASTORE_ERROR_INVALID_PARAM;
-            numBytesWritten = 0;
+            numBytesToBeWritten = 0;
             break;
         }
 
         /* Initialize all the pointers */
-        recBaseAddr = addressTable.getCurrentLoc((recordID = addressTable.getRecordID(dest)));
-        if(NULL == recBaseAddr){
+        fromRecBaseAddr = dest;
+        if(NULL == fromRecBaseAddr){
             lastErrorVal = DATASTORE_ERROR_INVALID_GIVEN_ADDR;
-            DATASTORE_ASSERT( NULL != recBaseAddr,
+            DATASTORE_ASSERT( NULL != fromRecBaseAddr,
                               "Invalid address being passed for write" );
             break;
         }
 
-        recordSize        = addressTable.getMaxWriteSize(addressTable.getGivenAddress(addressTable.getRecordID(dest)));
+        //recordSize        = addressTable.getMaxWriteSize(addressTable.getGivenAddress(addressTable.getRecordID(dest)));
+        recordSize        = addressTable.getMaxWriteSize(recWriteStartAddr);
 
-        recWriteStartAddr = addressTable.getCurrentLoc( dest,
+        /*recWriteStartAddr = addressTable.getCurrentLoc( dest,
                                                         (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset,
-                                                        (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset );
-        numBytesWritten   = addressTable.getMaxWriteSize(dest);    /* Number of bytes till the end of record */
-        /* Minimum of these two sizes */
-        numBytesWritten   = (numBytes < numBytesWritten)?numBytes:numBytesWritten;
+                                                        (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset );*/
 
-        recWriteEndAddr   = incrementPointer((char*) recWriteStartAddr + offset, numBytesWritten - 1);              /* corresponding End address on flash */
-        recEndAddr        = incrementPointer(recBaseAddr , recordSize - 1);     /* Last byte address of the record on flash */
+        numBytesToBeWritten   = recordSize;    /* Number of bytes till the end of record */
+        /* Minimum of these two sizes */
+        numBytesToBeWritten   = (numBytes < numBytesToBeWritten)?numBytes:numBytesToBeWritten;
+
+        recWriteEndAddr   = incrementPointer((char*) recWriteStartAddr + offset, numBytesToBeWritten - 1);              /* corresponding End address on flash */
+        recEndAddr        = incrementPointer(recWriteStartAddr , recordSize - 1);     /* Last byte address of the record on flash */
 
         /* Now check if there is a overwrite possibility */
         isOverWriteDetected = detectOverWrite( (char*) recWriteStartAddr + offset,
-                                               data,
-                                               numBytesWritten,
+                                               dataToBeWritten,
+                                               numBytesToBeWritten,
                                                &overWriteStartOffset );
+
         if(false == isOverWriteDetected){
             /* No overwrites are detected, so its safe to just write data */
-        	//debug_printf("Data_Store::writeRawData. No overwrite detected\n");
-            numBytesWritten = cyclicDataWrite( data,
+        	numBytesWritten = cyclicDataWrite( dataToBeWritten,
                                                (char*) recWriteStartAddr + offset,
-                                               numBytesWritten );
+                                               numBytesToBeWritten );
         }else{
             /* Possibility for Overwrite is detected.
                We need to create a new allocation and move the data.
@@ -1457,81 +1546,62 @@ uint32 Data_Store::writeRawData(LPVOID dest, void* data, uint32 offset, uint32 n
                2. Overwrite region
                3. Region after overwrite */
 
-            /* Get the given pointer base value from the destination */
-            LPVOID lGivenPtr = addressTable.getGivenAddress(addressTable.getRecordID(dest));
+        	/* Get the given pointer base value from the destination */
+            LPVOID lGivenPtr = (void*)0x1;
 
-            LPVOID newRecBaseAddr       = NULL;
+            LPVOID newRecBaseStartAddr  = NULL;
             LPVOID newRecWriteStartAddr = NULL;
 
-            //debug_printf("Data_Store::writeRawData. Overwrite detected\n");
-
             ////AnanthAtSamraksh -- adding below line to get the data type from record header
-            cyclicDataRead( &recHeader, (char*)recBaseAddr-sizeof(RECORD_HEADER), sizeof(RECORD_HEADER) );
+            cyclicDataRead( &recHeader, (char*)fromRecBaseAddr, sizeof(RECORD_HEADER) );
 
-            newRecBaseAddr = createAllocation( recordID, lGivenPtr, recordSize, recHeader.dataType );
+            newRecBaseStartAddr = createAllocation( recHeader.recordID, lGivenPtr, recordSize, recHeader.dataType );
 
-            //debug_printf("Data_Store::writeRawData. Overwrite detected. After createAllocation\n");
-            if( NULL == newRecBaseAddr ){
+            if( NULL == newRecBaseStartAddr ){
                 /* Allocation failed! */
                 lastErrorVal = DATASTORE_ERROR_OUT_OF_FLASH_MEMORY;
-                numBytesWritten = 0;
+                numBytesToBeWritten = 0;
                 break;
             }
 
             /* createAllocation returns the pointer to the header location */
-            newRecBaseAddr = incrementPointer( newRecBaseAddr , sizeof(RECORD_HEADER));
-
-            newRecWriteStartAddr = addressTable.getCurrentLoc(dest,
-                                                              (char*)blockDeviceInformation->Regions->Start + dataStoreStartByteOffset,
-                                                              (char*)blockDeviceInformation->Regions->Start + dataStoreEndByteOffset );
+            newRecBaseStartAddr = incrementPointer( newRecBaseStartAddr , sizeof(RECORD_HEADER));
 
             /* Temporary pointers that point to the write location and length at each step below */
-            LPVOID lCurrentWriteLoc = newRecBaseAddr;
+            LPVOID tempCurrentRecWriteLoc = newRecBaseStartAddr;
 
-            ////AnanthAtSamraksh - changing below line on 12/31/2013
-            //uint32 lCurrentWriteLen = calculateNumBytes(newRecBaseAddr, newRecWriteStartAddr) - 1;
-            ////uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, recWriteStartAddr + offset + overWriteStartOffset) - 1;
-            uint32 lCurrentWriteLen = calculateNumBytes(recBaseAddr, (char*)recWriteStartAddr + offset) - 1;
+            uint32 tempCurrentRecWriteLen = calculateNumBytes(recWriteStartAddr, (char*)recWriteStartAddr + offset) - 1;
 
             /* Write region-1 */
-            cyclicDataWrite( recBaseAddr,
-                             lCurrentWriteLoc,
-                             lCurrentWriteLen );
+            numBytesWritten = cyclicDataWrite( recWriteStartAddr,
+                             	 	 	 	 	 tempCurrentRecWriteLoc,
+                             	 	 	 	 	 tempCurrentRecWriteLen );
 
             /* Move the current location pointer */
-            lCurrentWriteLoc = incrementPointer(lCurrentWriteLoc, lCurrentWriteLen);
-            lCurrentWriteLen = numBytesWritten;
+            tempCurrentRecWriteLoc = incrementPointer(tempCurrentRecWriteLoc, tempCurrentRecWriteLen);
+            tempCurrentRecWriteLen = numBytesToBeWritten;
 
-            ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-2 */
-            /*cyclicDataWrite( data,
-                             lCurrentWriteLoc + offset,
-                             lCurrentWriteLen );*/
-            cyclicDataWrite( data,
-							 lCurrentWriteLoc,
-							 lCurrentWriteLen );
+            numBytesWritten += cyclicDataWrite( dataToBeWritten,
+							 	 	 	 	 	 tempCurrentRecWriteLoc,
+							 	 	 	 	 	 tempCurrentRecWriteLen );
 
             /* Move the current location pointer */
-            lCurrentWriteLoc = incrementPointer(lCurrentWriteLoc , lCurrentWriteLen);
+            tempCurrentRecWriteLoc = incrementPointer(tempCurrentRecWriteLoc , tempCurrentRecWriteLen);
 
-            ////AnanthAtSamraksh - changing below line on 12/31/2013
-            //lCurrentWriteLen = calculateNumBytes(recWriteEndAddr, recEndAddr) - 1;
-            lCurrentWriteLen = calculateNumBytes((char*)recWriteStartAddr + offset + numBytesWritten - 1, recEndAddr) - 1;
+            tempCurrentRecWriteLen = calculateNumBytes((char*)recWriteStartAddr + offset + numBytesToBeWritten - 1, recEndAddr) - 1;
 
-            ////AnanthAtSamraksh - changing below line on 12/31/2013
             /* Write region-3 */
-            /*cyclicDataWrite( incrementPointer(recWriteEndAddr, 1),
-                             lCurrentWriteLoc,
-                             lCurrentWriteLen );*/
-            cyclicDataWrite( (char*)recWriteStartAddr + offset + numBytesWritten,
-							 lCurrentWriteLoc,
-							 lCurrentWriteLen );
+            numBytesWritten += cyclicDataWrite( (char*)recWriteStartAddr + offset + numBytesToBeWritten,
+							 	 	 	 	 	 tempCurrentRecWriteLoc,
+							 	 	 	 	 	 tempCurrentRecWriteLen );
 
             /* Congrats, thats all you had to do, write completed successfully :) */
         }
     }while(0);
     return numBytesWritten;
 }
+//Data_Store::writeRawData
 
 DATASTORE_ERROR Data_Store::getLastError()
 {
@@ -1549,7 +1619,7 @@ void Data_Store::DeleteAll()
 	uint32 deleteIndex = 0;
 	DATASTORE_STATUS status;
 
-	while(addressTable.table[deleteIndex].givenPtr != 0)
+	while(addressTable.table[deleteIndex].currentLoc != 0)
 	{
 		status = deleteRecord(addressTable.table[deleteIndex].recordID);
 		if(status != DATASTORE_STATUS_OK)
