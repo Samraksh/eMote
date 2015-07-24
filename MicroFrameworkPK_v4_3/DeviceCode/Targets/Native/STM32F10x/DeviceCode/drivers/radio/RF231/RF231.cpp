@@ -3,7 +3,8 @@
 #include <tinyhal.h>
 
 //#define DEBUG_RF231 1
-
+RF231Radio grf231Radio;
+RF231Radio grf231RadioLR;
 
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
@@ -1574,22 +1575,16 @@ DeviceStatus RF231Radio::DownloadMessage()
 	return retStatus;
 }
 
-
-extern RF231Radio grf231Radio;
-extern RF231Radio grf231RadioLR;
-
-extern "C"
+//void  __attribute__((optimize("O0"))) Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
+void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
 {
+	grf231RadioLR.HandleInterrupt();
+}
 
-	void  __attribute__((optimize("O0"))) Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
-	{
-		grf231RadioLR.HandleInterrupt();
-	}
-
-	// Call radio_irq_handler from here
-	void  __attribute__((optimize("O0"))) Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
-	{
-		grf231Radio.HandleInterrupt();
-	}
+// Call radio_irq_handler from here
+//void  __attribute__((optimize("O0"))) Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
+void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
+{
+	grf231Radio.HandleInterrupt();
 }
 

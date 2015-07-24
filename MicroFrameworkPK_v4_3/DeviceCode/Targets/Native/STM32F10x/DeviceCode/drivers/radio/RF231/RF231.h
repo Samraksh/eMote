@@ -46,18 +46,15 @@ enum RadioID : UINT8
 	RF231RADIOLR,
 };
 
+
 //Interrupts
-void radio_irq_init(void (*irq_handler)());
+//void radio_irq_init(void (*irq_handler)());
 
-
-//For C linkage
-extern "C" {
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
-void radio_irq_handler();
+//void radio_irq_handler();
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
 void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
-void (*irq_handler)();
-}
+//void (*irq_handler)();
 
 #define RF230_CHANNEL_OFFSET 11
 
@@ -297,10 +294,9 @@ public:
 	void HandleInterrupt();
 };
 
-RF231Radio grf231Radio;
-
-RF231Radio grf231RadioLR;
-
+// In RF231.cpp
+extern RF231Radio grf231Radio;
+extern RF231Radio grf231RadioLR;
 
 #endif /* RADIO_H */
 
