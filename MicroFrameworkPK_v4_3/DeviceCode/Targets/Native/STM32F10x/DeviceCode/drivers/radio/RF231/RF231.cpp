@@ -7,6 +7,9 @@ RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 #define RADIO_STATEPIN2 30
 
+RF231Radio grf231Radio;
+RF231Radio grf231RadioLR;
+
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
