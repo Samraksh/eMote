@@ -12,6 +12,8 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;
 
+#define NATHAN_RADIO_START_STOP_PIN 23
+
 void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
 }
@@ -27,6 +29,8 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
 	dutyCycleReset = 0;
 	totalRadioUp = 0;
+	
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, FALSE);
 
 
 #ifdef PROFILING
@@ -163,6 +167,7 @@ bool OMACSchedulerBora::RadioTask(){
 	//radioTiming = m_timeSync.GlobalTime();
 
 	if(ProtoState.RequestState(S_STARTING)) {
+		CPU_GPIO_SetPinState( (GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, TRUE );
 		e = g_omac_RadioControl.Start();
 	}
 	else {
@@ -370,6 +375,7 @@ void OMACSchedulerBora::Stop(){
 			return;
 		default :
 			ProtoState.ForceState(S_STOPPING);
+			CPU_GPIO_SetPinState( (GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, FALSE );
 			ds = g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG
