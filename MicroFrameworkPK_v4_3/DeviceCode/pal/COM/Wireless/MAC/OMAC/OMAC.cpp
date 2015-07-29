@@ -13,7 +13,7 @@
 #include <Samraksh/Radio_decl.h>
 
 #define DEBUG_OMAC 0
-#define OMACDEBUGPIN (GPIO_PIN)1
+#define OMACDEBUGPIN 120 //(GPIO_PIN)1
 
 Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
