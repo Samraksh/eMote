@@ -359,6 +359,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 			ENABLE_LRR(FALSE);
 			SlptrSet();
 			state = STATE_SLEEP;
+			sleep_pending = FALSE;
 #			ifdef DEBUG_RF231
 			hal_printf("RF231: SLEEP.\n");
 #			endif
@@ -417,9 +418,6 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	{
 		sleep_pending = TRUE;
 	}
-	// Send gives the CMD_TRANSMIT to the radio
-	//cmd = CMD_TRANSMIT;
-	//pulse 2
 
 	// Push radio to pll on state
 	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
@@ -905,6 +903,8 @@ DeviceStatus RF231Radio::TurnOnRx()
 {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
+
+	sleep_pending = FALSE;
 
 	// The radio is not sleeping or is already on
 	if(state == STATE_RX_ON || state == STATE_BUSY_RX)
