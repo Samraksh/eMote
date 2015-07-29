@@ -37,6 +37,12 @@
 
 /* AnanthAtSamraksh */
 
+#define ENABLE_LRR(X) if(RF231RADIOLR == this->GetRadioName()) \
+			{	\
+				this->Amp(X); \
+				this->PARXTX(X); \
+				this->AntDiversity(X); \
+			}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,8 +102,8 @@ class RF231Radio : public Radio<Message_15_4_t>
 	SPI_CONFIGURATION config;
 
 	// Variables to control the software state machine
-	RadioCommandType cmd;
-	RadioStateType state;
+	volatile RadioCommandType cmd;
+	volatile RadioStateType state;
 
 	// Control transmission power and channel of transmission
 	UINT8 tx_power;
@@ -108,8 +114,8 @@ class RF231Radio : public Radio<Message_15_4_t>
 	UINT16 captured_time;
 
 	// Record rssi values
-	UINT8 rssi_clear;
-	UINT8 rssi_busy;
+	volatile UINT8 rssi_clear;
+	volatile UINT8 rssi_busy;
 
 	// Contains the length of the message that will be transmitted
 	UINT8 length;
@@ -129,7 +135,9 @@ class RF231Radio : public Radio<Message_15_4_t>
 	// Pointer to the incoming message
 	Message_15_4_t* rx_msg_ptr;
 
-	UINT8 tx_length;
+	volatile BOOL sleep_pending;
+
+	volatile UINT8 tx_length;
 
 	// Recieve Message Buffer
 	UINT8 rx_msg[sizeof(Message_15_4_t)];
@@ -186,11 +194,9 @@ public:
     	return rx_msg;
     }
 
-    BOOL sleep_pending;
-
     DeviceStatus ChangeState();
     // Indicates whether the message has been loaded into the frame buffer or not
-    BOOL message_status;
+    volatile BOOL message_status;
 
     UINT32 GetChannel();
 
