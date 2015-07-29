@@ -12,7 +12,7 @@ const char* c_strGpioBadCallback = "No GPIO callback defined";
 const char* c_strGpioBadPin = "Pin Number greater than max allowable pins";
 const char* c_strGpioBadSize = "size greater than max allowable pins";
 
-#define DEBUG_GPIO_VERBOSE 1
+//#define DEBUG_GPIO_VERBOSE 1
 
 #if defined(DEBUG_GPIO_VERBOSE)
 #define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \n", ##__VA_ARGS__, __LINE__, __FILE__)
