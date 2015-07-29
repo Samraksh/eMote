@@ -17,11 +17,11 @@ float GlobalTime::skew =0;
 UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
-#define TIMESYNCSENDPIN 3
-#define TIMESYNCRECEIVEPIN 23
+#define TIMESYNCSENDPIN 120 // 3 // PA3 J11-6
+#define TIMESYNCRECEIVEPIN 120 // 23 //PB7 J11-10
 
-#define TXNODEID 30906
-#define RXNODEID 4028
+#define TXNODEID 2703
+#define RXNODEID 2491
 
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
@@ -97,6 +97,9 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL CMaxTimeSync::Send(RadioAddress_t address){
+
+	return TRUE;
+
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
 #endif
