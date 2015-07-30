@@ -25,8 +25,8 @@ BOOL GlobalTime::synced=FALSE;
 
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
-	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
-	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+	return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
+	/*Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
 	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		Send(sn ->MacAddress);
@@ -35,7 +35,7 @@ UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 		UINT64 remslots = (m_messagePeriod - (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) ) / SLOT_PERIOD;
 		if ( remslots <2 ) return 0;
 		else return remslots;
-	}
+	}*/
 
 
 	//BK: Return periods until next timesync
