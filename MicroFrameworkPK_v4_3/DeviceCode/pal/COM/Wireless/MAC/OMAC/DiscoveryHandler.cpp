@@ -14,8 +14,8 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-#define DISCOSYNCSENDPIN 2
-#define DISCOSYNCRECEIVEPIN 25
+#define DISCOSYNCSENDPIN 120 //2
+#define DISCOSYNCRECEIVEPIN 120 //25
 #endif
 
 OMACSchedulerBora *g_scheduler;
