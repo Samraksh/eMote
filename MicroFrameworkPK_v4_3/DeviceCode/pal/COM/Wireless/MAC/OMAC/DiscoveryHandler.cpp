@@ -57,7 +57,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * 1000, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
 void DiscoveryHandler::ExecuteSlot(UINT32 slotNum){
