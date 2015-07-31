@@ -170,7 +170,7 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
 			break;
 		case MFM_DATA:
-			hal_printf("Successfully got a data packet\n");
+			hal_printf("Successfully got a data packet");
 
 			break;
 		case MFM_ROUTING:
