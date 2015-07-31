@@ -12,7 +12,7 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;
 
-#define NATHAN_RADIO_START_STOP_PIN 120 //23
+#define RADIO_START_STOP_PIN 4
 
 void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
@@ -30,7 +30,7 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	dutyCycleReset = 0;
 	totalRadioUp = 0;
 	
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_START_STOP_PIN, FALSE);
 
 
 #ifdef PROFILING
@@ -167,15 +167,16 @@ bool OMACSchedulerBora::RadioTask(){
 	//radioTiming = m_timeSync.GlobalTime();
 
 	if(ProtoState.RequestState(S_STARTING)) {
-		CPU_GPIO_SetPinState( (GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, TRUE );
-		e = g_omac_RadioControl.Start();
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
+		hal_printf("Starting PLL\n");
+		e = g_omac_RadioControl.StartPLL();
 	}
 	else {
 		hal_printf("OMACSchedulerBora::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		return FALSE;
 	}
 
-	if(e == DS_Ready) {
+	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING :
 				m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
@@ -195,6 +196,13 @@ bool OMACSchedulerBora::RadioTask(){
 				break;
 		}
 	}
+	else {
+		hal_printf("StartPLL failed\n");
+		return false;
+	}
+
+	hal_printf("Starting rx\n");
+	g_omac_RadioControl.StartRx();
 
 	PostExecution();
 	return TRUE;
@@ -207,7 +215,7 @@ bool OMACSchedulerBora::RadioTask(){
 void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
-	if(Delay==0){
+	/*if(Delay==0){
 		//start alarm in default periodic mode
 		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
 		VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
@@ -218,7 +226,10 @@ void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
 		VirtTimer_Change(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE); //1 sec Timer in micro seconds
 		VirtTimer_Start(HAL_SLOT_TIMER);
-	}
+	}*/
+
+	VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
+	VirtTimer_Start(HAL_SLOT_TIMER);
 
 }
 
@@ -375,7 +386,8 @@ void OMACSchedulerBora::Stop(){
 			return;
 		default :
 			ProtoState.ForceState(S_STOPPING);
-			CPU_GPIO_SetPinState( (GPIO_PIN) NATHAN_RADIO_START_STOP_PIN, FALSE );
+			//InputState.ForceState(S_STOPPING);
+			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, FALSE );
 			ds = g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG

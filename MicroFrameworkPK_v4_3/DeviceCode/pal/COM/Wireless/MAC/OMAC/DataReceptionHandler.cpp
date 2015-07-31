@@ -78,7 +78,7 @@ void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	m_wakeupCnt++;
-	DeviceStatus rs = g_omac_RadioControl.Start();
+	DeviceStatus rs = g_omac_RadioControl.StartRx();
 }
 
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){

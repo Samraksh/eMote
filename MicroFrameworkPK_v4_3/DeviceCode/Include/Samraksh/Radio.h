@@ -8,9 +8,9 @@
 
 //////////////////////////// Radio Errors/////////////////////////////////////////
 
-#define RADIOERROR01  "Frame Buffer Overrun"
-#define RADIOERROR02  "Battery Low"
-#define RADIOERROR03  "State Change Failed"
+#define RADIOERROR01  "Frame Buffer Overrun\n"
+#define RADIOERROR02  "Battery Low\n"
+#define RADIOERROR03  "State Change Failed\n"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
