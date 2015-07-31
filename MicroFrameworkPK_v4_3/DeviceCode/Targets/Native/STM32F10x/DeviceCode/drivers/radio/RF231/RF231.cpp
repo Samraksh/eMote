@@ -92,15 +92,32 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        if( reg == RF230_RX_ON || reg == RF230_TRX_OFF )
 	        {
 	                WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	                // Wait for radio to go into pll on and return efail if the radio fails to transition
-	                DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+
+					// Have to do this state change carefully.
+					// If we were in RF230_RX_ON, we could transition to RF230_BUSY_RX at any moment.
+					poll_counter = 0;
+					do{
+						trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+						if(poll_counter == 0xfff || (trx_status != reg && trx_status != RF230_PLL_ON))
+							{
+								if (trx_status == RF230_BUSY_RX) { state = STATE_BUSY_RX; } // ideally would update from any state.
+								SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+								(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+								return msg;
+							}
+						poll_counter++;
+					}while(trx_status != RF230_PLL_ON);
 					state = STATE_PLL_ON;
+
+	                // Wait for radio to go into pll on and return efail if the radio fails to transition
+	                //DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+					//state = STATE_PLL_ON;
 	        }
-			else {
-#				ifdef DEBUG_RF231
-				hal_printf("radio state change error. Line: %d in %s\r\n", __LINE__, __FILE__);
-#				endif
-				ASSERT_RADIO(0);
+			else { // RF231 is busy, e.g. went to RF230_BUSY_RX and we haven't caught the update in 'state' yet.
+				if (reg == RF230_BUSY_RX) { state = STATE_BUSY_RX; } // ideally would update from any state.
+				SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+				(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+				return msg;
 			}
 
 			// Check for pending IRQ from the radio that we haven't serviced (due to interrupt, too much locking, etc.)
