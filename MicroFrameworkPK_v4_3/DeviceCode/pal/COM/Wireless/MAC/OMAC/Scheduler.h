@@ -29,20 +29,31 @@ typedef class State{
   public:
 	//Changed state if in Idle
 	bool RequestState(UINT8 reqState){
-		if(CurrentState==S_IDLE){
+		//GLOBAL_LOCK(irq);
+
+		if(CurrentState == S_IDLE){
 			CurrentState=reqState;
 			return TRUE;
 		}
+		else if(CurrentState == S_STARTING && reqState == S_STARTING) {
+			return TRUE;
+		}
+		//else if(CurrentState == S_BEACON_N) {
+			//hal_printf("2. Asta lavista baby\n");
+		//}
 		else return FALSE;
 	}
 
 	//Force the state machine
 	void ForceState(UINT8 reqState){
+		//GLOBAL_LOCK(irq);
+		//hal_printf("ForceState: currentState: %d; reqState: %d\n", CurrentState, reqState);
 		CurrentState=reqState;
 	}
 
 	//Set the current state back to S_IDLE
 	void ToIdle(){
+		//GLOBAL_LOCK(irq);
 		CurrentState=S_IDLE;
 	}
 
@@ -54,6 +65,7 @@ typedef class State{
 
 	//@return TRUE if the state machine is in the given state
 	bool IsState(UINT8 compState){
+		//GLOBAL_LOCK(irq);
 		if(CurrentState==compState) return TRUE;
 		else return FALSE;
 	}
