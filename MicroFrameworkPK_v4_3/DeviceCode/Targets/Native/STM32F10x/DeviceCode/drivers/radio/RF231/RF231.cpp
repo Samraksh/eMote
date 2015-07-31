@@ -1178,11 +1178,17 @@ void RF231Radio::HandleInterrupt()
 		temp = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
 
 		// Keeps track of average rssi, why ?? may be useful someday :)
+		// How is this an average??? --NPS
 		rssi_busy += temp - (rssi_busy >> 2);
 
 		// Add the rssi to the message
 		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 		metadata->SetRssi(temp);
+
+		// Do the time stamp here instead of after done, I think.
+		// Note there is potential to use a capture time here, for better accuracy.
+		// Currently, this will depend on interrupt latency.
+		receive_timestamp = HAL_Time_CurrentTicks();
 
 		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
@@ -1194,7 +1200,7 @@ void RF231Radio::HandleInterrupt()
 
 		// Initiate cmd receive
 		cmd = CMD_RECEIVE;
-		HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
+		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
@@ -1246,8 +1252,6 @@ void RF231Radio::HandleInterrupt()
 			state = STATE_PLL_ON;
 			NATHAN_SET_DEBUG_GPIO(0);
 
-			//AnanthAtSamraksh: defaulting to the AdvancedTimer
-			// receive_timestamp = HAL_Time_CurrentTicks(); // Doesn't seem to be used??? --NPS
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
