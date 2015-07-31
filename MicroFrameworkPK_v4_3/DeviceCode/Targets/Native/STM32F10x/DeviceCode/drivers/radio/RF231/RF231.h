@@ -125,7 +125,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 	// Receive length and data, could have used the same as above, but trying to avoid unnecessary confusion
 	volatile UINT8 rx_length;
 	UINT8* rx_data;
-	INT64 receive_timestamp;
+	volatile INT64 receive_timestamp;
 
 	UINT16 active_mac_index;
 
