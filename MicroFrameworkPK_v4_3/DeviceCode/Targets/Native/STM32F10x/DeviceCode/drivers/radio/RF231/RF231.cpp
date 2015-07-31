@@ -1287,6 +1287,65 @@ void RF231Radio::HandleInterrupt()
 	}
 }
 
+// Re-writing this crap
+DeviceStatus RF231Radio::DownloadMessage()
+{
+	DeviceStatus retStatus = DS_Success;
+	UINT8 phy_rssi = ReadRegister(RF230_PHY_RSSI) & 0x80;
+	UINT8 phy_status;
+	UINT8 len;
+	UINT8 lqi;
+	UINT32 cnt = 0;
+	UINT8* temp_rx_msg_ptr;
+
+	// Auto-CRC is enabled. This checks the status bit.
+	if ( !phy_rssi ) { retStatus = DS_Fail; }
+
+	GLOBAL_LOCK(irq);
+
+	temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
+	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH);
+
+	NATHAN_SET_DEBUG_GPIO(1);
+	RF231_240NS_DELAY();
+	SelnClear();
+	RF231_240NS_DELAY();
+
+	// phy_status could contain meta data depending on settings.
+	// At the moment it does not.
+	phy_status = CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
+	RF231_240NS_DELAY();
+
+	// next byte is legnth to read including CRC
+	len = length = CPU_SPI_WriteReadByte(config, 0);
+	RF231_240NS_DELAY();
+
+	// We don't want to read the two CRC bytes into the packet
+	rx_length = len - 2;
+
+	while ( ((len--) -2) > 0) {
+		temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
+		RF231_240NS_DELAY();
+	}
+
+	// Two dummy reads for the CRC bytes
+	CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
+	CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
+
+	// last, the LQI
+	lqi = CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
+
+	SelnSet();
+	NATHAN_SET_DEBUG_GPIO(0);
+
+	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+	metadata->SetLqi(lqi);
+	metadata->SetReceiveTimeStamp(receive_timestamp);
+
+	return retStatus;
+}
+
+/*
 //template<class T>
 DeviceStatus RF231Radio::DownloadMessage()
 {
@@ -1317,7 +1376,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	
 		CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
 		length = CPU_SPI_WriteReadByte(config, 0);
-		
+
 		if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
 #		ifdef DEBUG_RF231
 			hal_printf("Radio Receive Error: Packet too big: %d\r\n",length);
@@ -1363,6 +1422,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	return retStatus;
 }
+*/
 
 //void  __attribute__((optimize("O0"))) Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
 void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
