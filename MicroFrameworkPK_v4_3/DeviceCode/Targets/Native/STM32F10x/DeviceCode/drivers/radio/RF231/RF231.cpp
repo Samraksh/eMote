@@ -10,8 +10,6 @@ RF231Radio grf231RadioLR;
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
-uint8_t temptemp;
-
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -1245,7 +1243,6 @@ void RF231Radio::HandleInterrupt()
 			}
 			else //
 			{
-				//temptemp = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK); // DELETE ME
 				WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 				state = STATE_RX_ON;
