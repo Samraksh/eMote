@@ -39,7 +39,6 @@ BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 
 }
 
-
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
 	// Adding 2 for crc and 4 bytes for timestamp
@@ -134,26 +133,6 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 				return msg;
 			}
 
-			tx_length = size;
-			reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-
-			// Push radio to PLL ON state
-			if( reg == RF230_RX_ON || reg == RF230_TRX_OFF || reg == RF230_BUSY_RX)
-			{
-				WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-				// Wait for radio to go into pll on and return efail if the radio fails to transition
-				DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-				state = STATE_PLL_ON;
-			}
-			else if(reg == RF230_PLL_ON) {
-				//Nothing to be done for now.
-			}
-			else {
-#				ifdef DEBUG_RF231
-				hal_printf("radio state change error. Line: %d in %s\r\n", __LINE__, __FILE__);
-#				endif
-				ASSERT_RADIO(0);
-			}
 
 			// END PLATFORM SPECIFIC CODE. --NPS
 
@@ -200,8 +179,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        SelnSet();
 			state = STATE_BUSY_TX;
-			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
-			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
+			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
+			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
 			NATHAN_SET_DEBUG_GPIO(0);
 
 	        //reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK; // doesn't seem to do anything??? --NPS
@@ -216,8 +195,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 #			endif
 
 	        return temp;
-}	//RF231Radio::Send_TimeStamped
-
+}
 
 DeviceStatus RF231Radio::Reset()
 {
@@ -313,7 +291,7 @@ DeviceStatus RF231Radio::Reset()
 
 	cmd = CMD_NONE;
 	return DS_Success;
-}	//RF231Radio::Reset()
+}
 
 
 UINT32 RF231Radio::GetChannel()
@@ -454,7 +432,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 	////hal_printf("RF231Radio::Sleep: after state:%d\n", state);
 	return DS_Success;
-}	//RF231Radio::Sleep
+}
 
 
 void* RF231Radio::Send(void* msg, UINT16 size)
@@ -566,7 +544,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//pulse 6
 	//__ASM volatile("cpsie i");
 	return temp;
-}	//RF231Radio::Send
+}
 
 
 DeviceStatus RF231Radio::AntDiversity(BOOL enable)
@@ -844,7 +822,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	}
 
 	return DS_Success;
-}	//RF231Radio::Initialize
+}
 
 
 DeviceStatus RF231Radio::UnInitialize()
@@ -1036,8 +1014,8 @@ DeviceStatus RF231Radio::TurnOnRx()
 	DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 	state = STATE_RX_ON;
 
-	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
-	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
+	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
+	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
 	NATHAN_SET_DEBUG_GPIO(0);
 
 #	ifdef DEBUG_RF231
