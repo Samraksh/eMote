@@ -12,7 +12,7 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;
 
-#define NATHAN_RADIO_START_STOP_PIN 23
+#define NATHAN_RADIO_START_STOP_PIN 120 //23
 
 void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
