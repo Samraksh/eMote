@@ -3,6 +3,7 @@
  * 	File Name   :		RF231.h
  *
  *  Author Name :   	Nived.Sivadas@samraksh.com
+						Nathan.Stohs@samraksh.com
  *
  *  Description :    	Contains the core class implementation of the rf231 radio derived from the radio base class
  *
@@ -17,14 +18,94 @@
 /* === INCLUDES ============================================================ */
 #include <Tinyhal_types.h>
 #include <tinyhal.h>
-#include "RF231RegDef.h"
 #include <Samraksh\Message.h>
 #include <Samraksh\Radio.h>
-#include <spi\netmf_spi.h>
-#include <gpio\netmf_gpio.h>
+#include <spi\netmf_spi.h> // TODO: Should not need this.
+//#include <gpio\netmf_gpio.h>
+
+/* === VARS ================================================================ */
+
+class RF231Radio;
+// Declared in RF231.cpp
+extern RF231Radio grf231Radio;
+extern RF231Radio grf231RadioLR;
+
+/* === FUNCS =============================================================== */
+
+BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
+void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
+void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
+
+/* === MACROS ============================================================== */
+
+#define  SELN_PIN      102 // Rev 1 :  26
+#define	 RSTN_PIN      66  // Rev 1 :  27
+#define  SLP_TR_PIN    104 // Rev 1 :  18
+#define  INTERRUPT_PIN 65  // Rev 1 :  17
+
+#define SELN_PIN_LR		89
+#define RSTN_PIN_LR		90
+#define SLP_TR_PIN_LR   27
+#define AMP_PIN_LR		26
+#define INTERRUPT_PIN_LR 55
+
+#define	 RF230_TRX_CTRL_0_VALUE		 0x0
+#define  RF230_CCA_THRES_VALUE 	 	 0xC7
+#define	 RF230_CCA_MODE_VALUE  		 (3 << 5)
+
+#define RF230_DEF_CHANNEL 26
+
+#define NODE_ID 0x1
+#define WRITE_ACCESS_COMMAND            (0xC0)//Write access command to the tranceiver
+#define READ_ACCESS_COMMAND             (0x80)//Read access command to the tranceiver
+
+#define INIT_STATE_CHECK()				UINT16 poll_counter, trx_status;
+
+// Simple assert function that prints a message and infinite whiles
+#if !defined(NDEBUG)
+#define ASSERT_RADIO(x)  if(!(x)){ hal_printf("ASSERT FROM RADIO"); HARD_BREAKPOINT(); }
+#else
+#define ASSERT_RADIO(x)
+#endif
+
+#define DID_STATE_CHANGE(x)				poll_counter = 0;               \
+										do{ 							\
+											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											if(poll_counter == 0xfff)    \
+											{  								\
+												hal_printf(RADIOERROR03);  \
+												return DS_Fail; 				\
+											} 								\
+											poll_counter++; 				\
+										  }while(trx_status != x);							\
 
 
-/* AnanthAtSamraksh - adding below change to fix receive on LR radio extension board - 2/11/2014 */
+#define DID_STATE_CHANGE_NULL(x)		poll_counter = 0;               \
+										do{ 							\
+											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											if(poll_counter == 0xfff)    \
+											{  								\
+												hal_printf(RADIOERROR03);  \
+												return NULL; 				\
+											} 								\
+											poll_counter++; 				\
+										  }while(trx_status != x);							\
+
+
+#define DID_STATE_CHANGE_ASSERT(x)		poll_counter = 0;               \
+										do{ 							\
+											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											if(poll_counter == 0xfff)    \
+											{  								\
+												hal_printf(RADIOERROR03);  \
+												HARD_BREAKPOINT();          \
+												break;                      \
+											} 								\
+											poll_counter++; 				\
+										  }while(trx_status != x);
+
+#define RF231_REG_TX_CTRL_1		0x04
+#define RF231_REG_ANT_DIV		0x0D
 
 //for PA_BRD
 #define RF231_REG_TX_CTRL_1		0x04
@@ -35,14 +116,190 @@
 #define RF231_SLP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET); }
 #define RF231_AMP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_RESET); }
 
-/* AnanthAtSamraksh */
-
 #define ENABLE_LRR(X) if(RF231RADIOLR == this->GetRadioName()) \
 			{	\
 				this->Amp(X); \
 				this->PARXTX(X); \
 				this->AntDiversity(X); \
 			}
+
+typedef UINT8 RadioStateType;
+typedef UINT8 RadioCommandType;
+
+/** Transceiver interrupt reasons */
+typedef enum radio_irq_reason
+{
+    TRX_NO_IRQ                      = (0x00),
+    TRX_IRQ_4                       = (0x10),
+    TRX_IRQ_5                       = (0x20),
+    TRX_IRQ_BAT_LOW                 = (0x80),
+    TRX_IRQ_PLL_LOCK                = (0x01),
+    TRX_IRQ_PLL_UNLOCK              = (0x02),
+    TRX_IRQ_RX_START                = (0x04),
+    TRX_IRQ_TRX_END                 = (0x08),
+    TRX_IRQ_TRX_UR                  = (0x40)
+} radio_irq_reason_t;
+
+
+/** Transceiver states */
+typedef enum radio_hal_trx_status
+{
+    P_ON                            = 0,
+    BUSY_RX                         = 1,
+    BUSY_TX                         = 2,
+    RX_ON                           = 6,
+    TRX_OFF                         = 8,
+    PLL_ON                          = 9,
+    TRX_SLEEP                       = 15,
+    BUSY_RX_AACK                    = 17,
+    BUSY_TX_ARET                    = 18,
+    RX_AACK_ON                      = 22,
+    TX_ARET_ON                      = 25,
+    RX_ON_NOCLK                     = 28,
+    RX_AACK_ON_NOCLK                = 29,
+    BUSY_RX_AACK_NOCLK              = 30,
+    STATE_TRANSITION_IN_PROGRESS    = 31
+} radio_hal_trx_status_t;
+
+/*****************************************************************************/
+
+enum RadioStateEnum
+{
+	STATE_P_ON = 0,
+	STATE_SLEEP = 1,
+	STATE_SLEEP_2_TRX_OFF = 2,
+	STATE_TRX_OFF = 3,
+	STATE_TRX_OFF_2_RX_ON = 4,
+	STATE_RX_ON = 5,
+	STATE_BUSY_TX_2_RX_ON = 6,
+	STATE_PLL_ON_2_RX_ON = 7,
+	STATE_BUSY_TX = 8,
+	STATE_PLL_ON = 9,
+	STATE_SLEEP_PENDING = 10,
+	STATE_BUSY_RX = 11,
+};
+
+enum RadioCommandEnum
+{
+	CMD_NONE = 0,
+	CMD_TURNOFF = 1,
+	CMD_STANDBY = 2,
+	CMD_TURNON = 3,
+	CMD_TRANSMIT = 4,
+	CMD_RECEIVE = 5,
+	CMD_CCA = 6,
+	CMD_CHANNEL = 7,
+	CMD_SIGNAL_DONE = 8,
+	CMD_DOWNLOAD = 9,
+	CMD_LISTEN = 10,
+};
+
+enum Rf230RegistersEnum {
+
+  RF230_TRX_STATUS = 0x01,
+  RF230_TRX_STATE = 0x02,
+  RF230_TRX_CTRL_0 = 0x03,
+  RF230_PHY_TX_PWR = 0x05,
+  RF230_PHY_RSSI = 0x06,
+  RF230_PHY_ED_LEVEL = 0x07,
+  RF230_PHY_CC_CCA = 0x08,
+  RF230_CCA_THRES = 0x09,
+  RF230_IRQ_MASK = 0x0E,
+  RF230_IRQ_STATUS = 0x0F,
+  RF230_VREG_CTRL = 0x10,
+  RF230_BATMON = 0x11,
+  RF230_XOSC_CTRL = 0x12,
+  RF230_PLL_CF = 0x1A,
+  RF230_PLL_DCU = 0x1B,
+  RF230_PART_NUM = 0x1C,
+  RF230_VERSION_NUM = 0x1D,
+  RF230_MAN_ID_0 = 0x1E,
+  RF230_MAN_ID_1 = 0x1F,
+  RF230_SHORT_ADDR_0 = 0x20,
+  RF230_SHORT_ADDR_1 = 0x21,
+  RF230_PAN_ID_0 = 0x22,
+  RF230_PAN_ID_1 = 0x23,
+  RF230_IEEE_ADDR_0 = 0x24,
+  RF230_IEEE_ADDR_1 = 0x25,
+  RF230_IEEE_ADDR_2 = 0x26,
+  RF230_IEEE_ADDR_3 = 0x27,
+  RF230_IEEE_ADDR_4 = 0x28,
+  RF230_IEEE_ADDR_5 = 0x29,
+  RF230_IEEE_ADDR_6 = 0x2A,
+  RF230_IEEE_ADDR_7 = 0x2B,
+  RF230_XAH_CTRL = 0x2C,
+  RF230_CSMA_SEED_0 = 0x2D,
+  RF230_CSMA_SEED_1 = 0x2E
+};
+
+
+enum Rf230TrxRegisterEnum {
+
+  RF230_CCA_DONE = 1 << 7,
+  RF230_CCA_STATUS = 1 << 6,
+  RF230_TRX_STATUS_MASK = 0x1F,
+  RF230_P_ON = 0,
+  RF230_BUSY_RX = 1,
+  RF230_BUSY_TX = 2,
+  RF230_RX_ON = 6,
+  RF230_TRX_OFF = 8,
+  RF230_PLL_ON = 9,
+  RF230_SLEEP = 15,
+  RF230_BUSY_RX_AACK = 16,
+  RF230_BUSR_TX_ARET = 17,
+  RF230_RX_AACK_ON = 22,
+  RF230_TX_ARET_ON = 25,
+  RF230_RX_ON_NOCLK = 28,
+  RF230_AACK_ON_NOCLK = 29,
+  RF230_BUSY_RX_AACK_NOCLK = 30,
+  RF230_STATE_TRANSITION_IN_PROGRESS = 31,
+  RF230_TRAC_STATUS_MASK = 0xE0,
+  RF230_TRAC_SUCCESS = 0,
+  RF230_TRAC_CHANNEL_ACCESS_FAILURE = 3 << 5,
+  RF230_TRAC_NO_ACK = 5 << 5,
+  RF230_TRX_CMD_MASK = 0x1F,
+  RF230_NOP = 0,
+  RF230_TX_START = 2,
+  RF230_FORCE_TRX_OFF = 3
+};
+
+enum Rf230IrqRegisterEnum {
+
+  RF230_IRQ_BAT_LOW = 1 << 7,
+  RF230_IRQ_TRX_UR = 1 << 6,
+  RF230_IRQ_TRX_END = 1 << 3,
+  RF230_IRQ_RX_START = 1 << 2,
+  RF230_IRQ_PLL_UNLOCK = 1 << 1,
+  RF230_IRQ_PLL_LOCK = 1 << 0
+};
+
+enum Rf230PhyRegisterEnum {
+
+  RF230_TX_AUTO_CRC_ON = 1 << 7,
+  RF230_TX_PWR_MASK = 0x0F,
+  RF230_RSSI_MASK = 0x1F,
+  RF230_CCA_REQUEST = 1 << 7,
+  RF230_CCA_MODE_0 = 0 << 5,
+  RF230_CCA_MODE_1 = 1 << 5,
+  RF230_CCA_MODE_2 = 2 << 5,
+  RF230_CCA_MODE_3 = 3 << 5,
+  RF230_CHANNEL_DEFAULT = 11,
+  RF230_CHANNEL_MASK = 0x1F,
+  RF230_CCA_CS_THRES_SHIFT = 4,
+  RF230_CCA_ED_THRES_SHIFT = 0
+};
+
+enum Rf230SpiCommandEnums {
+
+  RF230_CMD_REGISTER_READ = 0x80,
+  RF230_CMD_REGISTER_WRITE = 0xC0,
+  RF230_CMD_REGISTER_MASK = 0x3F,
+  RF230_CMD_FRAME_READ = 0x20,
+  RF230_CMD_FRAME_WRITE = 0x60,
+  RF230_CMD_SRAM_READ = 0x00,
+  RF230_CMD_SRAM_WRITE = 0x40
+};
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,16 +308,6 @@ enum RadioID : UINT8
 	RF231RADIO,
 	RF231RADIOLR,
 };
-
-
-//Interrupts
-//void radio_irq_init(void (*irq_handler)());
-
-BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes);
-//void radio_irq_handler();
-void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param);
-void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
-//void (*irq_handler)();
 
 #define RF230_CHANNEL_OFFSET 11
 
@@ -186,8 +433,6 @@ class RF231Radio : public Radio<Message_15_4_t>
     	CPU_GPIO_SetPinState(kslpTr, TRUE);
     }
 
-
-
 public:
     UINT8* GetRxMsgBuffer()
     {
@@ -252,14 +497,11 @@ public:
 
 	UINT8 ReadRegister(UINT8 reg);
 
-
 	// May have to toggle slp_tr, check this during testing of this interface
 	void setChannel(UINT8 channel)
 	{
 		WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 	}
-
-
 
 	RadioCommandType GetCommand()
 	{
@@ -299,11 +541,6 @@ public:
 
 	void HandleInterrupt();
 };
-
-// In RF231.cpp
-extern RF231Radio grf231Radio;
-extern RF231Radio grf231RadioLR;
-
 #endif /* RADIO_H */
 
 

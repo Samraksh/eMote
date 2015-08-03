@@ -1,6 +1,6 @@
 #include "RF231.h"
-#include "RF231RegDef.h"
 #include <tinyhal.h>
+#include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
 
 //#define DEBUG_RF231 1
 RF231Radio grf231Radio;
