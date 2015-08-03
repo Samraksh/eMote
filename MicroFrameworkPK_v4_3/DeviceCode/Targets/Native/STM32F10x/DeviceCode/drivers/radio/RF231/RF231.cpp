@@ -939,11 +939,11 @@ BOOL RF231Radio::SpiInitialize()
 	config.Clock_RateKHz          = 16; // THIS IS IGNORED.
 	if(this->GetRadioName() == RF231RADIO)
 	{
-		config.SPI_mod                = SPIBUS1;
+		config.SPI_mod                = RF231_SPI_BUS;
 	}
 	else if(this->GetRadioName() == RF231RADIOLR)
 	{
-		config.SPI_mod 				  = SPIBUS2;
+		config.SPI_mod 				  = RF231_LR_SPI_BUS;
 	}
 
 	config.MD_16bits = FALSE;
