@@ -17,8 +17,8 @@ REVISION LOG
 
 enum SPIBUS
 {
-	SPIBUS1,
-	SPIBUS2,
+	SPIBUS1=1,
+	SPIBUS2=2,
 };
 
 void GPIO_Config(const SPI_CONFIGURATION& Configuration);
