@@ -89,8 +89,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             }
             _adcCopyBuffersPtr = 0;
 
-            // threshold is 7 rotations a second, IQ rejection is 30, and debug mode gives us raw radar data for debugging, software version number is 4
-            radarDetect.SetDetectionParameters(7, 30, 2, 4);
+            // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
+            radarDetect.SetDetectionParameters(7, 30, 0, 4);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 3); // m / n
         }
@@ -322,31 +322,19 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 radarDetection = true;
                 //Debug.Print("Detection");
                 detectionDisplay = LCD.CHAR_d;
+                buzzerGPIO.Write(true);
             }
             else
             {
                 radarDetection = false;
                 detectionDisplay = LCD.CHAR_UNDERSCORE;
+                buzzerGPIO.Write(false);
             }
 
             // If you just want to use the thresholdMet as the detection then use the following
             //radarDetection = threshholdMet;
 
-            //Debug.Print(radarDetection.ToString());
-
-            // This code makes the Kiwi speaker sound
-            /*for (i = 0; i < 600 && (radarDetection == true); i++)
-            {
-                    buzzerGPIO.Write(buzzerState);
-                    if (buzzerState == true)
-                        buzzerState = false;
-                    else
-                        buzzerState = true;
-            }
-            buzzerGPIO.Write(false);*/
-
-
-            radarInterrupt.Write(radarDetection);
+            Debug.Print(radarDetection.ToString());            
         }
 
         // Counter fpr storing shared state

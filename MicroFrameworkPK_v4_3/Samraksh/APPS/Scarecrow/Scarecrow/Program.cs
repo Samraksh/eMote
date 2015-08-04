@@ -51,9 +51,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static bool _debuggerIsAttached;
 
 
-        public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, true);
-
-        public static OutputPort radarInterrupt = new OutputPort((Cpu.Pin)30, true);
+        public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, false);
 
         // Flag that's set when the user enables the EndCollect GPIO pin
         //  This stops the data collection after the current buffer is processed
