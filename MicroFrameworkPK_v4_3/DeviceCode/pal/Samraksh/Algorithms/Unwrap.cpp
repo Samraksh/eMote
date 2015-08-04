@@ -80,12 +80,14 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static UINT16 checksumRepeat = 0;
 	static UINT16 prevBufferI[250];
 	static UINT16 prevBufferQ[250];
-	static UINT8 uartPort = 1;
+	static UINT8 uartPort = 0;
+	//UINT8 char1, char2, cr, lf;
 	BOOL threshholdMet = false;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
 	UINT16 dTrue = 1;
 	UINT16 dFalse = 0;
+	float temp;
 
 	// threshold passed is given in rotations, converting to radians here
 	double thresholdRadians = threshold * 2 * 3.14159;
@@ -103,7 +105,7 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	}
 
 	for (i=0; i<length; i++){
-		if (debugVal != 0){
+		if ((debugVal == 1) || (debugVal==2)){
 			USART_Write( uartPort, (char *)&bufferI[i], 2 );
 			checksumPrimary += bufferI[i];
 			USART_Write( uartPort, (char *)&bufferQ[i], 2 );
@@ -153,6 +155,18 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 		memcpy(prevBufferQ, bufferQ, 500);
 	}
 
+	//temp = (float)(maxPhase - minPhase);
+	if (debugVal == 5){
+		/*char1 = ((UINT8)((temp/10)))&0xff + 0x30;
+		char2 = ((UINT8)(((maxPhase - minPhase)%10)))&0xff + 0x30;
+		USART_Write( uartPort, (char *)&char1, 1 );
+		USART_Write( uartPort, (char *)&char2, 1 );
+		cr = 0x0D;
+		USART_Write( uartPort, (char *)&cr, 1 );
+		lf = 0x0A;
+		USART_Write( uartPort, (char *)&lf, 1 );*/
+		hal_printf("%d\r\n", (maxPhase - minPhase));
+	}
 	if (maxPhase - minPhase > thresholdRadians)
     {
         threshholdMet = 1;

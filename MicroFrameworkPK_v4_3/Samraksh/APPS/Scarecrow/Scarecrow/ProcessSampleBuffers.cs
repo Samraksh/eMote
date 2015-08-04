@@ -90,7 +90,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             _adcCopyBuffersPtr = 0;
 
             // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
-            radarDetect.SetDetectionParameters(7, 30, 0, 4);
+            radarDetect.SetDetectionParameters(7, 30, 5, 15);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 3); // m / n
         }
@@ -320,7 +320,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             if (MoutOfNDetector.state == 1 && MoutOfNDetector.prevstate == 0)
             {
                 radarDetection = true;
-                //Debug.Print("Detection");
+                Debug.Print("Detection");
                 detectionDisplay = LCD.CHAR_d;
                 buzzerGPIO.Write(true);
             }
@@ -334,7 +334,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             // If you just want to use the thresholdMet as the detection then use the following
             //radarDetection = threshholdMet;
 
-            Debug.Print(radarDetection.ToString());            
+            //Debug.Print(radarDetection.ToString());            
         }
 
         // Counter fpr storing shared state
