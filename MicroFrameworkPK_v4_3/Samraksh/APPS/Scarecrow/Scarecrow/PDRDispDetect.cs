@@ -1,177 +1,61 @@
-using System.Collections;
-using System.Threading;
+// PDR Displacement Detection
+// Author - Sandip Bapat (sandip.bapat@samraksh.com)
+
+using System;
 using Microsoft.SPOT;
-using Samraksh.eMote.DotNow;
+using Microsoft.SPOT.Hardware;
+using Crossbow.platform.imote2;
 
-namespace Samraksh.AppNote.DataCollector.Radar
+enum PI
 {
-    public struct Comp
+    HALF = 6434,
+    FULL = 12868,
+    NEG = -12868,
+    TWO = 25736,
+}
+
+enum DETECTOR
+{
+    M = 2,
+    N = 8,
+    THRESH = 100,
+    DC_EST_SECS = 10,
+}
+
+namespace PDRDispDetect
+{
+    public class PDRDispDetect
     {
-        public int I, Q;
-
-        public Comp(int p1, int p2)
+        public struct Comp
         {
-            I = p1;
-            Q = p2;
-        }
-    }
+            public int I, Q;
 
-    public partial class Program
-    {
-
-        // ---------------------------------------------
-        // Handle ADC callback and write sample buffers
-        // ---------------------------------------------
-
-        /// <summary>
-        /// ADC buffer
-        /// </summary>
-        /// <remarks>Lets a pair of buffers be handled together as a single object</remarks>
-        private class IQ
-        {
-            // ReSharper disable once InconsistentNaming
-            public readonly ushort[] IBuff;
-            public readonly ushort[] QBuff;
-            public IQ(ushort[] iBuff, ushort[] qBuff)
+            public Comp(int p1, int p2)
             {
-                IBuff = iBuff;
-                QBuff = qBuff;
+                I = p1;
+                Q = p2;
             }
         }
 
-        // A semaphore used by the ADC callback to signal WriteSampleBufferQueue that data is ready for processing
-        private static readonly AutoResetEvent SampleBufferSemaphore = new AutoResetEvent(false);
-
-        // The ADC buffers that are populated by the ADC driver
-        private static readonly ushort[] ADCBufferI = new ushort[ADCBufferSize];
-        private static readonly ushort[] ADCBufferQ = new ushort[ADCBufferSize];
-
-        //public static ushort[] unwrapBuffer = new ushort[ADCBufferSize*50];  
-
-        // The buffer queue and it's maximum length
-        private static readonly Queue BufferQueue = new Queue();
-        private const int MaxBufferQueueLen = 2;
-
-        // A circular array of pre-allocated buffers that receive the contents of the ADC buffers
-        private static readonly ArrayList ADCCopyBuffers = new ArrayList();
-        private const int ADCCopyBuffersCnt = MaxBufferQueueLen;
-        private static int _adcCopyBuffersPtr;
-
-
-        public static bool threshholdMet = false;
-        public static int j = 0;
-
-        private static bool buzzerState = false;
-
-        public static Samraksh.eMote.Algorithm.RadarDetection radarDetect = new Samraksh.eMote.Algorithm.RadarDetection();
-
-        private static bool historyUpdateCtrl = false;
-
-        public static LCD detectionDisplay = LCD.CHAR_d;
-
-
-        /// <summary>
-        /// Populate the circular queue of ADC buffers
-        /// </summary>
-        /// <remarks>
-        /// Since the buffers are pre-allocated and the references are stored in a static object,
-        ///     they won't be de-referenced over the lifetime of the program.
-        /// This ensures that allocating and de-referencing buffers won't cause the garbage collector to run
-        /// </remarks>
-        private static void SetupBuffers()
+        // Class for phase unwrapping
+        // arcTan array stores the inverse tangents for [0..1] in program memory for easy lookup via findArcTan
+        public static class Phase
         {
-            for (var i = 0; i < ADCCopyBuffersCnt; i++)
+            public static int wPhase;
+            public static int uwPhase;
+            public static int wPhase_prev;
+            public static int uwPhase_prev;
+
+            public static int[] arcTan;
+
+            public static void init()
             {
-                var iBuff = new ushort[ADCBufferSize];
-                var qBuff = new ushort[ADCBufferSize];
-                var iqBuff = new IQ(iBuff, qBuff);
-                ADCCopyBuffers.Add(iqBuff);
-            }
-            _adcCopyBuffersPtr = 0;
+                wPhase = 0;
+                uwPhase = 0;
+                wPhase_prev = 0;
+                uwPhase_prev = 0;
 
-            // threshold is 7 rotations a second, IQ rejection is 30, and debug mode gives us raw radar data for debugging, software version number is 4
-            radarDetect.SetDetectionParameters(7, 30, 2, 4);
-            Counter.count = 0;
-            MoutOfNDetector.Init(2, 3); // m / n
-        }
-
-        /// <summary>
-        /// ADC callback
-        /// </summary>
-        /// <remarks>Called when the ADC driver has collected a buffer's worth of data</remarks>
-        /// <param name="threshhold"></param>
-        private static void ADCCallback(long threshhold)
-        {
-            var bqCnt = BufferQueue.Count;
-            _maxBuffersEnqueued = System.Math.Max(_maxBuffersEnqueued, bqCnt + 1);  // Add 1 because we're about to enqueue
-
-            // If queue is full, we can't add another entry
-            //  Exit with the _bufferQueueIsFull and _collectIsDone flags set
-            if (!_bufferQueueIsFull && bqCnt > MaxBufferQueueLen - 1)
-            {
-                _bufferQueueIsFull = true;
-                _collectIsDone = true;
-                AnalogInput.StopSampling();
-                return;
-            }
-
-            // There's space in the queue: copy the buffers and enqueue them
-            //      We need to copy to avoid a race condition. 
-            //      Whenever ADC is ready to call back, the new set of samples is stored in the specified buffer.
-            //      Hence if we're processing one buffer when the next callback occurs, the values in the current buffer can change.
-
-            // Get an I-Q buffer pair that will receive the ADC buffer data
-            //  Note that we're using pre-allocated buffers rather than creating new
-            //  This protects against the garbage collector
-            var iq = (IQ)ADCCopyBuffers[_adcCopyBuffersPtr];
-            // Copy to the pair
-            ADCBufferI.CopyTo(iq.IBuff, 0);
-            ADCBufferQ.CopyTo(iq.QBuff, 0);
-            // Update the circular buffer pointer
-            _adcCopyBuffersPtr = (_adcCopyBuffersPtr + 1) % ADCCopyBuffersCnt;
-
-            // Enqueue the pair for processing
-            BufferQueue.Enqueue(iq);
-            // Signal the processing thread
-            SampleBufferSemaphore.Set();
-        }
-
-        /// <summary>
-        /// Process the sample buffer in a separate thread
-        /// </summary>
-        /// <remarks>
-        /// We do this so that the ADC callback will return quickly.
-        /// The main program blocks until this thread ends
-        /// </remarks>
-        private static void SampleBufferQueue()
-        {
-            // Run until user indicates end or there is a queue-full error
-            while (true)
-            {
-                // Wait for signal that a buffer is ready for processing
-                SampleBufferSemaphore.WaitOne();
-                // Process as many buffers as are available
-                while (BufferQueue.Count > 0)
-                {
-                    // Get a buffer to process
-                    var iq = (IQ)BufferQueue.Dequeue();
-                    ProcessBuffers(iq);
-                }
-                // Check if the end-sampling flag is set. If so, we're done
-                if (!_collectIsDone)
-                {
-                    continue;
-                }
-                //Debug.Print("Finished sampling");
-                AnalogInput.StopSampling();
-                // Terminate the thread and join with the main program
-                return;
-            }
-        }
-
-        // arcTan table is made here and then sent to radar detection because the 4097 size array pushes us over memory in MF code
-        public static readonly short[] arcTan = new short[4097] {
-                    #region arcTan values
+                arcTan = new int[4097] {
                      0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
                      39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78,
                      79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
@@ -275,78 +159,98 @@ namespace Samraksh.AppNote.DataCollector.Radar
                      3168, 3168, 3169, 3169, 3170, 3170, 3171, 3172, 3172, 3173, 3173, 3174, 3174, 3175, 3175, 3176, 3176, 3177, 3177, 3178, 3178, 3179, 3179, 3180, 3180, 3181, 3181, 3182, 3182, 3183, 3183, 3184, 3184, 3185, 3185, 3186, 3186, 3187, 3187, 3188,
                      3188, 3189, 3189, 3190, 3190, 3191, 3191, 3192, 3192, 3193, 3193, 3194, 3194, 3195, 3195, 3196, 3196, 3197, 3197, 3198, 3198, 3199, 3199, 3200, 3200, 3201, 3201, 3202, 3202, 3203, 3203, 3204, 3204, 3205, 3205, 3206, 3206, 3207, 3207, 3208,
                      3208, 3209, 3209, 3210, 3210, 3211, 3211, 3212, 3212, 3213, 3213, 3214, 3214, 3215, 3215, 3216, 3216
-                    #endregion
                     };
+            }
+        }
 
-        /// <summary>
-        /// Process AD data
-        /// </summary>
-        /// <param name="iq">The I-Q-A</param>
-        /// <returns>True iff we're done sampling</returns>
-        private static void ProcessBuffers(IQ iq)
+        public static int findArcTan(int small, int big)
         {
-            bool radarDetection = false;
+            int temp;
+            temp = small * 4096 / big;
+            return Phase.arcTan[temp];
+        }
 
-            if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
-            {
-                lcd.Write(LCD.CHAR_A, detectionDisplay, LCD.CHAR_NULL, codeVersion);
-            }
-            else
-            {
-                lcd.Write(LCD.CHAR_UNDERSCORE, detectionDisplay, LCD.CHAR_NULL, codeVersion);
-            }
+        public static int unwrapPhase(Comp a)
+        {
+            int phase_diff;
+            int newPhase = 0;
 
-            // Pull the members out. Re ferencing this way seems to be more efficient.
-            var iBuff = iq.IBuff;
-            var qBuff = iq.QBuff;
-            int i;
-
-            threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
-
-            // The following code is for m detections in n seconds and can be enabled by uncommenting the following
-            // M and N can be set in SetupBuffers() above
-            // if you use m hits over n seconds below, then you need to comment out the "radarDetection = threshholdMet;" line that follows
-
-            Counter.count += 1;
-            if (threshholdMet)
-            {
-                MoutOfNDetector.Update(Counter.count, 1);
-            }
-            else
-            {
-                MoutOfNDetector.Update(Counter.count, 0);
+            if (a.I > 0 && a.Q >= 0)
+            {			//1st Quadrant: arg = atan(imag/real)
+                if (a.Q <= a.I) 					// Q/I is in {0,1}
+                    newPhase = findArcTan(a.Q, a.I);
+                else
+                    newPhase = (int)PI.HALF - findArcTan(a.I, a.Q);	// atan(x) = pi/2 - atan(1/x) for x > 0		
             }
 
-            if (MoutOfNDetector.state == 1 && MoutOfNDetector.prevstate == 0)
-            {
-                radarDetection = true;
-                //Debug.Print("Detection");
-                detectionDisplay = LCD.CHAR_d;
-            }
-            else
-            {
-                radarDetection = false;
-                detectionDisplay = LCD.CHAR_UNDERSCORE;
+            else if (a.I < 0 && a.Q >= 0)
+            {		//2nd quadrant: arg = pi - atan(abs(imag/real)
+                if (a.Q <= System.Math.Abs(a.I))
+                    newPhase = (int)PI.FULL - findArcTan(a.Q, System.Math.Abs(a.I));
+                else
+                    newPhase = (int)PI.HALF + findArcTan(System.Math.Abs(a.I), a.Q);  // pi - (pi/2 - atan(1/x))
             }
 
-            // If you just want to use the thresholdMet as the detection then use the following
-            //radarDetection = threshholdMet;
-
-            //Debug.Print(radarDetection.ToString());
-
-            // This code makes the Kiwi speaker sound
-            /*for (i = 0; i < 600 && (radarDetection == true); i++)
-            {
-                    buzzerGPIO.Write(buzzerState);
-                    if (buzzerState == true)
-                        buzzerState = false;
-                    else
-                        buzzerState = true;
+            else if (a.I < 0 && a.Q < 0)
+            {			// 3rd quadrant: arg = -pi + atan(b/a)
+                if (System.Math.Abs(a.Q) <= System.Math.Abs(a.I))
+                    newPhase = 0 - (int)PI.FULL + findArcTan(System.Math.Abs(a.Q), System.Math.Abs(a.I));
+                else
+                    newPhase = 0 - (int)PI.HALF - findArcTan(System.Math.Abs(a.I), System.Math.Abs(a.Q));	// -pi + pi/2 - atan(1/x)
             }
-            buzzerGPIO.Write(false);*/
 
+            else if (a.I > 0 && a.Q < 0)
+            {							//4th quadrant: arg = - atan(b/a)
+                if (System.Math.Abs(a.Q) <= a.I)
+                    newPhase = 0 - findArcTan(System.Math.Abs(a.Q), a.I);
+                else
+                    newPhase = 0 - (int)PI.HALF + findArcTan(a.I, System.Math.Abs(a.Q));
+            }
 
-            radarInterrupt.Write(radarDetection);
+            Phase.wPhase = newPhase;
+
+            phase_diff = Phase.wPhase - Phase.wPhase_prev;
+            if (phase_diff < (int)PI.NEG)
+                phase_diff += (int)PI.TWO;
+            else if (phase_diff > (int)PI.FULL)
+                phase_diff -= (int)PI.TWO;
+            Phase.uwPhase = Phase.uwPhase_prev + phase_diff;
+
+            Phase.wPhase_prev = Phase.wPhase;
+            Phase.uwPhase_prev = Phase.uwPhase;
+
+            return Phase.uwPhase;
+        }
+
+        // Main function - initialize DC estimator, phase estimator and start sensor over I2C
+        public static void Main()
+        {
+            DCEstimation.Init();
+            Phase.init();
+            MoutOfNDetector.Init((int)DETECTOR.M, (int)DETECTOR.N);
+            Counter.count = 0;
+
+            I2CDevice i2ctest = new I2CDevice(new I2CDevice.Configuration(0x63, 100));
+            byte[] wrByte = new byte[1];
+            int y;
+
+            wrByte[0] = 0xaa;
+
+            I2CDevice.I2CWriteTransaction command = i2ctest.CreateWriteTransaction(wrByte);
+            I2CDevice.I2CTransaction[] xAction = { command };
+
+            InterruptPort testGPIO = new InterruptPort((Cpu.Pin)93, false, Port.ResistorMode.Disabled, Port.InterruptMode.InterruptEdgeHigh);
+            testGPIO.OnInterrupt += new GPIOInterruptEventHandler(testGPIO_OnInterrupt);
+
+            Debug.Print("Starting");
+            y = i2ctest.Execute(xAction, 100);
+            i2ctest.Dispose();
+          
+            for (; ; )
+            {
+                Debug.Print("Main thread");
+                System.Threading.Thread.Sleep(1000);
+            }
         }
 
         // Counter fpr storing shared state
@@ -354,6 +258,7 @@ namespace Samraksh.AppNote.DataCollector.Radar
         {
             public static int count;
         }
+
         // M-out-of-N detector to detect Displacement Detection
         // state is the current state of the detector
         // state = 1 iff there are M hits in the last N seconds
@@ -379,19 +284,136 @@ namespace Samraksh.AppNote.DataCollector.Radar
 
             public static void Update(int index, int detect)
             {
-                prevstate = state;
+               prevstate = state;
+
+               if (index - Buff[End] < N)
+                    state = 1;
+                else
+                    state = 0;
 
                 if (detect == 1)
                 {
                     Buff[End] = index;
-                    End = (End + 1) % M;
+                    End = (End + 1 ) % M;
                 }
+            }
 
-                if (index - Buff[End] < N)
-                    state = 1;
-                else
-                    state = 0;
+        }
+
+        // Estimate the DC level of the sensor for a fixed inital time
+        public static class DCEstimation
+        {
+            public static Comp mean, sum;
+            public static int count;
+
+            public static void Init()
+            {
+                sum.I = sum.Q = 0;
+                mean.I = mean.Q = 0;
+                count = 0;
+            }
+
+            public static void Update(Comp curravg)
+            {
+                count++;
+                sum.I += curravg.I;
+                sum.Q += curravg.Q;
+                mean.I = sum.I / count;
+                mean.Q = sum.Q / count;
             }
         }
+
+        // Interrupt handler activated when Tmote finishes sampling one snippet (1 second data)
+        // Read snippet data over I2C
+        // If initial data, estimate DC
+        // Otherwise, unwrap phase and test whether displacement > threshold
+        // If Detect, send message to Tmote
+        static void testGPIO_OnInterrupt(Cpu.Pin port, bool state, TimeSpan time)
+        {
+            I2CDevice i2ctest = new I2CDevice(new I2CDevice.Configuration(0x63,100));
+            byte[] readByte = new byte[1332];
+            byte[] wrByte = new byte[1];
+            int i, x, y;
+            Comp temp;
+            int count=0;
+            Comp sum, mean;
+            int sumPhase = 0;
+            
+            int avgPhase;
+            int minPhase = 0;
+            int maxPhase = 0;
+            int tempPhase;
+
+            sum.I = sum.Q = 0;
+            mean.I = mean.Q = 0;
+            Counter.count += 1;
+
+            // detect change in state to start/stop size estimation
+            // At start/.stop event, send message to Tmote over I2C
+            if (MoutOfNDetector.state == 1 && MoutOfNDetector.prevstate == 0)
+            {
+                wrByte[0] = 0xbb;
+            }
+            else if (MoutOfNDetector.state == 0 && MoutOfNDetector.prevstate == 1)
+            {
+                wrByte[0] = 0xcc;
+            }
+            else wrByte[0] = 0xdd;
+
+            I2CDevice.I2CReadTransaction readcommand = i2ctest.CreateReadTransaction(readByte);
+            I2CDevice.I2CTransaction[] yAction = { readcommand };
+
+            I2CDevice.I2CWriteTransaction command = i2ctest.CreateWriteTransaction(wrByte);
+            I2CDevice.I2CTransaction[] xAction = { command };
+
+            y = i2ctest.Execute(yAction, 500);
+            x = i2ctest.Execute(xAction, 500);
+            i2ctest.Dispose();
+
+            // read sensor snippet received from Tmote over I2C
+            for (i = 0; i < 1332; i = i + 4)
+            {
+                temp.I = readByte[i] * 256 + readByte[i + 1];
+                temp.Q = readByte[i + 2] * 256 + readByte[i + 3];
+
+                // for first DC_EST_SECS seconds, estimate DC
+                if (DCEstimation.count < (int)DETECTOR.DC_EST_SECS)
+                {
+                    sum.I += temp.I;
+                    sum.Q += temp.Q;
+
+                    if (i == 1328)
+                    {
+                        mean.I = sum.I / 333;
+                        mean.Q = sum.Q / 333;
+                        
+                        DCEstimation.Update(mean);
+                    }
+                }
+                // then unwrap phase and do size estimation
+                else
+                {
+                    temp.I = temp.I - DCEstimation.mean.I;
+                    temp.Q = temp.Q - DCEstimation.mean.Q;
+
+                    tempPhase = unwrapPhase(temp) / 4096;
+                    sumPhase += tempPhase;
+                    count++;
+                    if (count == 1) minPhase = maxPhase = tempPhase;
+                    else if (tempPhase < minPhase) minPhase = tempPhase;
+                    else if (tempPhase > maxPhase) maxPhase = tempPhase;
+                }
+            }
+             
+            if (count == 0) avgPhase = 0;
+            else avgPhase = sumPhase/count;
+
+            // if phase change > thresh, update M-out-of-N with 1, else 0
+            if (maxPhase - minPhase > (int)DETECTOR.THRESH)
+                MoutOfNDetector.Update(Counter.count, 1);
+            else
+                MoutOfNDetector.Update(Counter.count, 0);
+        }
+
     }
 }

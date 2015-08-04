@@ -3,7 +3,7 @@ using System.Threading;
 using Microsoft.SPOT;
 using Samraksh.eMote.DotNow;
 
-namespace Samraksh.AppNote.DataCollector.Radar
+namespace Samraksh.AppNote.Scarecrow.Radar
 {
     public struct Comp
     {
