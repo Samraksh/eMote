@@ -63,6 +63,7 @@ typedef struct {
 	UINT16  radioStartDelay;
 	UINT16  counterOffset;
 	UINT64  LastTimeSyncTime;
+	UINT64  LastTimeSyncRequestTime;
 	//UINT8   numErrors;
 	//UINT8   size;
 	//BOOL    isInTransition;
@@ -91,7 +92,7 @@ public:
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
-	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
+	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncRecv(UINT16 address, UINT64 _lastTimeSyncRecv);
 	void RecordTimeSyncBroadcast(UINT64 _LastTimeSyncTime);
 	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr();
@@ -181,6 +182,8 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 		Neighbor[tableIndex].localAvg = 0;
 		Neighbor[tableIndex].offsetAvg = 0;
 		Neighbor[tableIndex].skew = 0;*/
+		Neighbor[tableIndex].LastTimeSyncTime = 0;
+		Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
 
 		NumberValidNeighbor--;
 		return DS_Success;
@@ -218,6 +221,8 @@ void NeighborTable::ClearTable(){
 		Neighbor[tableIndex].localAvg = 0;
 		Neighbor[tableIndex].offsetAvg = 0;
 		Neighbor[tableIndex].skew = 0;*/
+		Neighbor[tableIndex].LastTimeSyncTime = 0;
+		Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
 	}
 	NumberValidNeighbor = 0;
 }
@@ -337,9 +342,31 @@ DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status
 	return retValue;
 }
 
-DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime){
-	return RecordTimeSyncRecv(address, _LastTimeSyncTime);
+DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime){
+	 UINT8 index;
+	 DeviceStatus retValue = FindIndex(address, &index);
+
+	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+		Neighbor[index].LastTimeSyncTime = _LastTimeSyncTime;
+		return DS_Success;
+	}
+	else {
+		return DS_Fail;
+	}
 }
+
+/*UINT64 NeighborTable::GetLastTimeSyncRequestTime(UINT16 address){ //TODO BK: We should eventually use a class for Neighbor rather than a struct, this would enable protecting variables.
+	 UINT8 index;
+	 DeviceStatus retValue = FindIndex(address, &index);
+
+	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+		return(Neighbor[index].LastTimeSyncRequestTime);
+	}
+	else {
+		//Bk: Maybe we should abort or define an uninitialized TimeValue here.
+		return 0;
+	}
+}*/
 
 DeviceStatus NeighborTable::RecordTimeSyncRecv(UINT16 address, UINT64 _LastTimeSyncTime){
 	 UINT8 index;

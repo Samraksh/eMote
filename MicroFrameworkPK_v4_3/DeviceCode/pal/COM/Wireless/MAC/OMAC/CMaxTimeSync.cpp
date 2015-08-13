@@ -17,25 +17,34 @@ float GlobalTime::skew =0;
 UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
+#define MIN_TICKS_DIFF_BTW_TSM 8000000
 #define TIMESYNCSENDPIN 120 // 3 // PA3 J11-6
 #define TIMESYNCRECEIVEPIN 120 // 23 //PB7 J11-10
 
 #define TXNODEID 2703
 #define RXNODEID 2491
 
+inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
+	if(X>Y) return (X-Y);
+	else return( (0xFFFFFFFFFFFFFFFF - Y) + X);
+}
 
 UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
-	return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
-	/*Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
+	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
-	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
-		Send(sn ->MacAddress);
+	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
+		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
+			return 0;
+		}
+		else {
+			return ((UINT32) 0xFFFFFFFF);
+		}
 	}
 	else {
-		UINT64 remslots = (m_messagePeriod - (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) ) / SLOT_PERIOD;
-		if ( remslots <2 ) return 0;
-		else return remslots;
-	}*/
+		UINT64 remslots = (m_messagePeriod - DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) ) / SLOT_PERIOD;
+		return remslots;
+	}
 
 
 	//BK: Return periods until next timesync
@@ -56,7 +65,7 @@ UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 void CMaxTimeSync::ExecuteSlot(UINT32 slotNum){
 	m_lastSlotExecuted=slotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	Send(sn -> MacAddress);
+	Send(sn -> MacAddress,true);
 }
 
 void CMaxTimeSync::PostExecuteSlot(){
@@ -96,7 +105,7 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
-BOOL CMaxTimeSync::Send(RadioAddress_t address){
+BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
 #endif
@@ -112,6 +121,8 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address){
 #endif
 	m_timeSyncMsg->localTime0 = (UINT32) y;
 	m_timeSyncMsg->localTime1 = (UINT32) (y>>32);
+	m_timeSyncMsg->request_TimeSync = request_TimeSync;
+
 	//m_timeSyncMsg->globalTime0 = (UINT32) x;
 	//m_timeSyncMsg->globalTime1 = (UINT32) (x>>32);
 
@@ -126,7 +137,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address){
 
 	//DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
 	BOOL rs = g_OMAC.SendTimeStamped(address,MFM_TIMESYNC, m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
-	g_NeighborTable.RecordTimeSyncSent(address,(UINT32) (y & (~(UINT32) 0)));
+	g_NeighborTable.RecordTimeSyncRequestSent(address,(UINT32) (y & (~(UINT32) 0)));
 	//hal_printf("TS Send: %d,  Gtime: %lld, LTime: %lld, diff: %lld \n",m_seqNo, x, y, d);
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
@@ -138,7 +149,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address){
 
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	bool TimerReturn;
-	UINT16 msg_src =  msg->GetHeader()->src;
+	RadioAddress_t msg_src =  msg->GetHeader()->src;
 
 #ifdef DEBUG_TSYNC
 	if (msg_src == Nbr2beFollowed ){
@@ -158,7 +169,13 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	l_offset = rcv_ltime - EventTime;
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
+	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
 
+
+	//Determine if timesync is requested, schedule sending a message back to the source
+	if(rcv_msg->request_TimeSync){
+		this->Send(msg_src,false);
+	}
 #ifdef DEBUG_TSYNC
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Nbr2beFollowed ){

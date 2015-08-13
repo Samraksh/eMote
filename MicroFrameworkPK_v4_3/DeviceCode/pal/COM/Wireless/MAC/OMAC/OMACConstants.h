@@ -146,6 +146,7 @@ struct TimeSyncMsg
 //  float skew;
   UINT32 localTime0;
   UINT32 localTime1;
+  bool request_TimeSync;
  // UINT16 nodeID;
   //UINT32 seqNo;
 };
