@@ -375,6 +375,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	void __irq PendSV_Handler()
 	{
+		SCB->ICSR |= SCB_ICSR_PENDSVCLR;
 
 		STM32_AITC& AITC = STM32::AITC();
 
