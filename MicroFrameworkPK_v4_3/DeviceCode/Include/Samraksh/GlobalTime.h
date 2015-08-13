@@ -181,9 +181,8 @@ public:
 		samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].lastTimeIndex] = nbr_loffset;
 		if(samples[nbrIndex].numSamples < MAX_SAMPLES){
 			samples[nbrIndex].numSamples++;
-
-		Compute(nbr);
 		}
+		Compute(nbr);
 
 	}
 	void Clean(UINT16 nbr){
