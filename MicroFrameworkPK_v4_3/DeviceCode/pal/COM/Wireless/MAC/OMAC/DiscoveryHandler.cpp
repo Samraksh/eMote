@@ -5,11 +5,11 @@
  *      Author: Mukundan Sridharan
  */
 
-#include "DiscoveryHandler.h"
 #include <Samraksh/Radio_decl.h>
-#include "OMACConstants.h"
-#include "Scheduler.h"
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/DiscoveryHandler.h>
+#include <Samraksh/MAC/OMAC/OMACConstants.h>
+#include <Samraksh/MAC/OMAC/Scheduler.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
 
 #ifndef DEBUG_TSYNC

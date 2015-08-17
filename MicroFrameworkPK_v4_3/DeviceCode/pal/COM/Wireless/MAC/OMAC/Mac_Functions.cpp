@@ -5,7 +5,7 @@
  *      Author: Mukundan
  */
 
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/Mac_decl.h>
 
 //Basic functions

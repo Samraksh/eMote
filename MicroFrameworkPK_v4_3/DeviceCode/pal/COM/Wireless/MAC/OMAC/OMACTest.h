@@ -6,7 +6,7 @@
 #define OMACTest_H_
 
 #include <tinyhal.h>
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/PacketTimeSync_15_4.h>
 #include <Samraksh/GlobalTime.h>
 

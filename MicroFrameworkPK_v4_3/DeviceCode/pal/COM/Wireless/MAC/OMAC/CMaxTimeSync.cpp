@@ -1,7 +1,9 @@
-#include "DiscoveryHandler.h"
+
+
 #include <Samraksh/Message.h>
-#include "OMAC.h"
-#include "CMaxTimeSync.h"
+#include <Samraksh/MAC/OMAC/DiscoveryHandler.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
+#include <Samraksh/MAC/OMAC/CMaxTimeSync.h>
 
 
 #define DEBUG_TSYNC 1
