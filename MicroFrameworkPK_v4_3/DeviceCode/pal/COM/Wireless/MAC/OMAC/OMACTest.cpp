@@ -15,8 +15,8 @@ extern OMACSchedulerBora g_omac_scheduler;
 extern OMACTypeBora g_OMAC;
 extern UINT16 MF_NODE_ID;
 //extern Buffer_15_4_t m_receive_buffer;
-#define NBRCLOCKMONITORPIN 120 //29
-#define LOCALCLOCKMONITORPIN 120 //24
+#define NBRCLOCKMONITORPIN 2 //29
+#define LOCALCLOCKMONITORPIN 25 //24
 #define LocalClockMonitor_TIMER 32
 #define NbrClockMonitor_TIMER 33
 

@@ -134,8 +134,13 @@ UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
 		else {
 			//in case the task delay is large and we are already pass
 			//tx time, tx immediately
-			if(m_nextTXTicks < HAL_Time_CurrentTicks()) return 0xffff;
-			else return (UINT16)(m_nextTXTicks - HAL_Time_CurrentTicks());
+			if(m_nextTXTicks < HAL_Time_CurrentTicks()) {
+				return 0xffff;
+			}
+			else {
+				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(m_nextTXTicks - HAL_Time_CurrentTicks());
+				return (UINT16)(ticksInMicroSecs/1000);
+			}
 		}
 	} else {
 		return 0xffff;
@@ -198,7 +203,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// we need to have mutual exclusions during the whole update process. This may
 			// prevent the insertion of a newly received seed, which is fine because
 			// new seeds are pseudo-random and can be locally generated
-			GLOBAL_LOCK(irq);
+			////GLOBAL_LOCK(irq);
 			lastSeed = nbrEntry->lastSeed;
 			nextFrameAfterSeedUpdate = nbrEntry->nextFrameAfterSeedUpdate;
 

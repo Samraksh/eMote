@@ -183,7 +183,6 @@ public:
 			samples[nbrIndex].numSamples++;
 		}
 		Compute(nbr);
-
 	}
 	void Clean(UINT16 nbr){
 		UINT16 nbrIndex = FindNbr(nbr);

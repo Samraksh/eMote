@@ -49,8 +49,6 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 }
 
 DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
-
-
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 		header->length = size + sizeof(IEEE802_15_4_Header_t);
 		header->fcf = (65 << 8);
@@ -72,7 +70,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 	#endif
 		tmsg->localTime0 = (UINT32) y;
 		tmsg->localTime1 = (UINT32) (y>>32);
-		header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+		////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+		header->SetFlags(header->GetFlags());
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
 		hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
@@ -102,7 +101,8 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->network = g_OMAC.MyConfig.Network;
 	header->mac_id = g_OMAC.macName;
 
-	header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
+	////header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
+	header->SetFlags(header->GetFlags());
 	//header->network = MyConfig.Network;
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
