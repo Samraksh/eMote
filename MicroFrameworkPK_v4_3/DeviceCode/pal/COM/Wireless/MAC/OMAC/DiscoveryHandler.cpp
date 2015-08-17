@@ -14,8 +14,8 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-#define DISCOSYNCSENDPIN 120 //2
-#define DISCOSYNCRECEIVEPIN 120 //25
+#define DISCOSYNCSENDPIN 24 //2
+#define DISCOSYNCRECEIVEPIN 29 //25
 #endif
 
 OMACSchedulerBora *g_scheduler;
@@ -44,7 +44,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//dataAlarmDuration = 0;
 
 
-	m_discoveryMsg= (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
+	m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 	//m_discoveryMsg->globalTime = 0;
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
@@ -89,7 +89,8 @@ UINT32 DiscoveryHandler::NextSlot(UINT32 slotNum){
 
 
 void DiscoveryHandler::PostExecuteSlot(){
-	m_busy = FALSE;
+	////hal_printf("m_busy DiscoveryHandler::PostExecuteSlot\n");
+	////m_busy = FALSE;
 }
 
 
@@ -106,52 +107,57 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 
 
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
+	////hal_printf("start DiscoveryHandler::Beacon\n");
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCSENDPIN, TRUE );
 #endif
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
 
-	m_discoveryMsg= (DiscoveryMsg_t*)msgPtr->GetPayload();
+	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
 	m_discoveryMsg->seed = m_seed;
 	m_discoveryMsg->nextFrame = m_nextFrame;
 	//m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
 	m_discoveryMsg->dataInterval = WAKEUP_INTERVAL / SLOT_PERIOD_MILLI;
 	if (m_discoveryMsg->dataInterval < 1) {
-			m_discoveryMsg->dataInterval = 1;
-		}
+		m_discoveryMsg->dataInterval = 1;
+	}
+	m_discoveryMsg->radioStartDelay = ((OMACSchedulerBora *)m_parentScheduler)->GetRadioDelay();
+	//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
+	m_discoveryMsg->counterOffset = ((OMACSchedulerBora *)m_parentScheduler)->GetCounterOffset();
+	//m_discoveryMsg->seed = ((OMACSchedulerBora *)m_parentScheduler)->GetSeed();
+	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
+
+	localTime = HAL_Time_CurrentTicks();
+	m_discoveryMsg->localTime0 = (UINT32) localTime ;
+	m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
 	if (m_busy == FALSE) {
-		m_discoveryMsg->radioStartDelay = ((OMACSchedulerBora *)m_parentScheduler)->GetRadioDelay();
-		//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
-		m_discoveryMsg->counterOffset = ((OMACSchedulerBora *)m_parentScheduler)->GetCounterOffset();
-		//m_discoveryMsg->seed = ((OMACSchedulerBora *)m_parentScheduler)->GetSeed();
-		m_discoveryMsg->nodeID = g_OMAC.GetAddress();
 		m_busy = TRUE;
-
-		UINT64 localTime = HAL_Time_CurrentTicks();
-		m_discoveryMsg->localTime0 = (UINT32) localTime ;
-		m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 		e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
-		if (e != DS_Success) {
-			localTime = 2;
-		}
-
+		m_busy = FALSE;
+		//if (e != DS_Success) {
+			//localTime = 2;
+		//}
 	}
 	else {
 		// Why busy? Timing issue?
+		hal_printf("DiscoveryHandler::Beacon m_busy\n");
 		e = DS_Busy;
 	}
+	////hal_printf("end DiscoveryHandler::Beacon\n");
 	return e;
 }
 
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
 	if (msg != &m_discoveryMsgBuffer) {
-		m_busy = FALSE;
+		////hal_printf("if m_busy DiscoveryHandler::BeaconAckHandler\n");
+		////m_busy = FALSE;
 		//signal AMSend.sendDone(ptr, error);
 		return;
 	}
 
+	////hal_printf("m_busy DiscoveryHandler::BeaconAckHandler\n");
 	m_busy = FALSE;
 	#ifndef DISABLE_SIGNAL
 			//call SlotScheduler.printState();
@@ -162,26 +168,42 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 }
 
 void DiscoveryHandler::Beacon1(){
+	////hal_printf("start Beacon1\n");
 	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
 	StartBeaconNTimer(TRUE);
 	if (ShouldBeacon()) {
-		Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
+		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
+		if(ds != DS_Success) {
+			hal_printf("Beacon1 failed. ds = %d\n", ds);
+		}
+		else {
+			//hal_printf("Beacon1 succeeded\n");
+		}
 	}
 	//if beacon fails, the radio automatically changes to RX state
+	////hal_printf("end Beacon1\n");
 }
 
 void DiscoveryHandler::BeaconN(){
+	////hal_printf("start BeaconN\n");
 	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
 
-	if (Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer) != DS_Success) {
+	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
+	if (ds != DS_Success) {
 		if (m_busy == TRUE) {
+			hal_printf("BeaconN failed. m_busy\n");
 			// Ignore it, AMSend.sendDone will provide continuation.
 		}
 		else {
 			// HACK: for now, just turn off radio.
+			hal_printf("BeaconN failed\n");
 			this->ExecuteSlotDone();
 		}
 	}
+	else {
+		//hal_printf("BeaconN succeeded\n");
+	}
+	////hal_printf("end BeaconN\n");
 }
 
 void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot){
@@ -197,6 +219,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	if (ShouldBeacon()) {
 		BeaconN();
 	} else {
+		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
 		ExecuteSlotDone();
 	}
@@ -204,6 +227,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 }
 
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
+	////hal_printf("start DiscoveryHandler::Receive\n");
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	RadioAddress_t source = msg->GetHeader()->src;
 	//RadioAddress_t source = disMsg->nodeID;
@@ -243,22 +267,25 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	}
 #endif
 
+	////hal_printf("end DiscoveryHandler::Receive\n");
 	return DS_Success;
 }
 
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
-
+	////hal_printf("start DiscoveryHandler::Send\n");
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	//UINT8 * payload = msg->GetPayload();
 	header->dest = address;
 	header->type = MFM_DISCOVERY;
+	//header->type = MFM_TIMESYNC;
 
-	retValue = g_omac_RadioControl.Send_TimeStamped(address,msg,size, event_time);
+	retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, event_time);
 
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCSENDPIN, FALSE );
 #endif
 
+	////hal_printf("end DiscoveryHandler::Send\n");
 	return retValue;
 }

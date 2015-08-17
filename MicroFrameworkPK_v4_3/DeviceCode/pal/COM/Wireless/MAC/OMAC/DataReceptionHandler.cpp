@@ -82,6 +82,7 @@ void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
 }
 
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
+	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
 	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
@@ -91,6 +92,7 @@ bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 
 	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
 	//call DataReceptionTimer.startOneShot(WAIT_TIME_AFTER_DATA_BEACON);
+	hal_printf("end DataReceptionHandler::SendDataBeacon\n");
 }
 
 UINT8 DataReceptionHandler::ExecuteSlotDone(){
@@ -158,14 +160,14 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 	}
 
 	if (remainingSlots == 0) {
-			wakeupSlot = slotNum;
-			return 0;
-		}
+		wakeupSlot = slotNum;
+		return 0;
+	}
 	else if (remainingSlots >= 0xffff) {
-			return 0xffff;
-		}
+		return 0xffff;
+	}
 	else {
-			return remainingSlots;
+		return remainingSlots;
 	}
 
 	/* Returns value in ticks left to wake up, we might do this latter,

@@ -2,7 +2,9 @@
  * Scheduler.cpp
  *
  *  Created on: Aug 30, 2012
- *      Author: Mukundan
+ *      Author: Mukundan Sridharan;
+ *  Modifications:
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
  */
 
 #include "Scheduler.h"
@@ -12,7 +14,9 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;
 
-#define RADIO_START_STOP_PIN 4
+#define RADIO_START_STOP_PIN 120 //4
+
+bool flag = true;
 
 void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
@@ -66,7 +70,7 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	//Initialize various processes
 	this->StartSlotAlarm((UINT64) SLOT_PERIOD);
-	this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
+	//this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
 
 
 }
@@ -75,6 +79,7 @@ void OMACSchedulerBora::UnInitialize(){
 }
 
 bool OMACSchedulerBora::RunSlotTask(){
+	////hal_printf("start OMACSchedulerBora::RunSlotTask\n");
 	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0, timeSyncSlotOffset=0;
 
 #ifdef PROFILING
@@ -115,7 +120,18 @@ bool OMACSchedulerBora::RunSlotTask(){
 		}
 	}
 	/* we are not going to send any beacons if neighbor is going to receive*/
-	else if(TRUE){//!isNeighborGoingToReceive()) {
+	else if(TRUE){ //!isNeighborGoingToReceive()) {
+		//Keep polling until the timesync flag is reset
+		////hal_printf("status CMaxTimeSync::timeSyncSendFlag %d\n", CMaxTimeSync::timeSyncSendFlag);
+		/*if(CMaxTimeSync::timeSyncSendFlag) {
+			VirtTimer_Stop(HAL_SLOT_TIMER);
+		}
+		while(CMaxTimeSync::timeSyncSendFlag){
+			hal_printf("sleeping\n");
+			HAL_Time_Sleep_MicroSeconds(5000);
+		}
+		VirtTimer_Start(HAL_SLOT_TIMER);*/
+
 		if(startMeasuringDutyCycle && rxSlotOffset == 0) {
 			if(InputState.RequestState(I_DATA_RCV_PENDING) == DS_Success) {
 				//call OMacSignal.yield();
@@ -141,39 +157,46 @@ bool OMACSchedulerBora::RunSlotTask(){
 		}
 		// do not send Discovery message, if  i'm going to receive or send packets in 2 slots
 		else if((beaconSlotOffset == 0) && (rxSlotOffset > 2) && (txSlotOffset > 2))  {
-					//if (startMeasuringDutyCycle) {
-					//	return TRUE;
-					//}
-					InputState.ToIdle();
+			//if (startMeasuringDutyCycle) {
+			//	return TRUE;
+			//}
+			InputState.ToIdle();
 
-					if(!RadioTask()) {
-						debug_printf("RadioTask failed\n");
-						return FALSE;
-					}
+			if(!RadioTask()) {
+				debug_printf("RadioTask failed\n");
+				return FALSE;
+			}
 		}
 
 	}
 	else {
 		debug_printf("neighbor is receiving\n");
 	}
+	////hal_printf("end OMACSchedulerBora::RunSlotTask\n");
 	return TRUE;
 }
 
 //This turns on the radio and sends a message
 bool OMACSchedulerBora::RadioTask(){
+	////hal_printf("start OMACSchedulerBora::RadioTask\n");
 	DeviceStatus e = DS_Fail;
 	//radioTiming = call GlobalTime.getLocalTime();
 	radioTiming = HAL_Time_CurrentTime();
 	//radioTiming = m_timeSync.GlobalTime();
 
-	if(ProtoState.RequestState(S_STARTING)) {
+	bool reqStateRet = ProtoState.RequestState(S_STARTING);
+
+	if(reqStateRet) {
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
-		hal_printf("Starting PLL\n");
-		e = g_omac_RadioControl.StartPLL();
+		//hal_printf("Starting PLL\n");
+		e = g_omac_RadioControl.StartRx();
 	}
 	else {
-		hal_printf("OMACSchedulerBora::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
-		return FALSE;
+		ProtoState.ForceState(S_STARTING);
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
+		e = g_omac_RadioControl.StartRx();
+		//hal_printf("OMACSchedulerBora::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
+		//return FALSE;
 	}
 
 	if(e == DS_Success) {
@@ -197,14 +220,15 @@ bool OMACSchedulerBora::RadioTask(){
 		}
 	}
 	else {
-		hal_printf("StartPLL failed\n");
+		//hal_printf("StartPLL failed\n");
 		return false;
 	}
 
-	hal_printf("Starting rx\n");
-	g_omac_RadioControl.StartRx();
+	//hal_printf("Starting rx\n");
+	//g_omac_RadioControl.StartRx();
 
 	PostExecution();
+	////hal_printf("end OMACSchedulerBora::RadioTask\n");
 	return TRUE;
 }
 
@@ -228,12 +252,13 @@ void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 		VirtTimer_Start(HAL_SLOT_TIMER);
 	}*/
 
-	VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
+	////VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
 	VirtTimer_Start(HAL_SLOT_TIMER);
 
 }
 
 void OMACSchedulerBora::SlotAlarmHandler(void* Param){
+	////hal_printf("start OMACSchedulerBora::SlotAlarmHandler\n");
 #ifdef OMAC_DEBUG
 	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
 #endif
@@ -271,6 +296,7 @@ void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 	//just run the task directly
 	//We will revisit the whole task architecture later.
 	this->RunSlotTask();
+	////hal_printf("end OMACSchedulerBora::SlotAlarmHandler\n");
 
 #ifdef OMAC_DEBUG
 	if(m_slotNo % 1000 == 0) {
@@ -313,6 +339,7 @@ void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 }
 
 void OMACSchedulerBora::DataAlarmHandler(void* Param){
+	////hal_printf("start OMACSchedulerBora::DataAlarmHandler\n");
 	UINT64 localTime, nextWakeup, oldSlotNo;
 	localTime = HAL_Time_CurrentTime();
 	//localTicks = HAL_Time_CurrentTicks();
@@ -323,7 +350,7 @@ void OMACSchedulerBora::DataAlarmHandler(void* Param){
 #endif
 
 	/*
-	 * Compenstation for alarm drift: See Wenjies notes
+	 * Compensation for alarm drift: See Wenjies notes
 	 * if (m_slotNo == 0) {
 		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
 		m_slotNo = 1;
@@ -344,7 +371,10 @@ void OMACSchedulerBora::DataAlarmHandler(void* Param){
 	//Mukundan: At this point, instead of posting a task as in TinyOS,
 	//just run the task directly
 	//We will revisit the whole task architecture later.
-	this->RunSlotTask();
+	////this->RunSlotTask();
+	m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
+
+	////hal_printf("end OMACSchedulerBora::DataAlarmHandler\n");
 
 #ifdef OMAC_DEBUG
 	//if(m_slotNo % 1000 == 0) {
@@ -368,7 +398,7 @@ void OMACSchedulerBora::Sleep(){
 
 void OMACSchedulerBora::Stop(){
 	DeviceStatus  ds = DS_Success;
-	bool e =FALSE;
+	bool e = FALSE;
 #ifdef FULL_DUTY_CYCLE
 #warning "USING FULL_DUTY_CYCLE"
 	Sleep();

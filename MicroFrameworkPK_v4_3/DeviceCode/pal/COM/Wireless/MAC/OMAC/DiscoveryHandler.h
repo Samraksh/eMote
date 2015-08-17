@@ -33,7 +33,8 @@ class DiscoveryHandler: public SlotHandler {
 	UINT8		m_transitionFromDone = 0;
 #endif
 	void * m_parentScheduler;
-	BOOL 		m_busy, m_receivedPiggybackBeacon, m_lockSeed;
+	volatile BOOL m_busy;
+	BOOL m_receivedPiggybackBeacon, m_lockSeed;
 	// Wenjie: worst case interval between two consecutive received beacons
 	// Declare oneself as root if heartBeat >= discoInterval * ROOT_TIMEOUT
 	UINT32	discoInterval;

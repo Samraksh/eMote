@@ -137,7 +137,7 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 BOOL OMACTypeBora::UnInitialize()
 {
 	BOOL ret = TRUE;
-	Initialized=FALSE;
+	Initialized = FALSE;
 	ret &= CPU_Radio_UnInitialize(this->radioName);
 	return ret;
 }
@@ -145,49 +145,59 @@ BOOL OMACTypeBora::UnInitialize()
 Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
 	//Message_15_4_t *Next;
+	////hal_printf("start OMACTypeBora::ReceiveHandler\n");
 #ifdef DEBUG_OMAC
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMACTypeBora::GetMaxPayload()){
-			hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
-			return msg;
+		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+		return msg;
 	}
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	//Any message might have timestamping attached to it. Check for it and process
-	if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
+	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
 		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 		g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 		Size -= tmsgSize;
-	}
+	}*/
 
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
+			////hal_printf("OMACTypeBora::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
 			break;
 		case MFM_DATA:
+			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet");
-
 			break;
 		case MFM_ROUTING:
+			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
 			break;
 		case MFM_NEIGHBORHOOD:
+			hal_printf("OMACTypeBora::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNC:
-			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload(), Size);
+			hal_printf("OMACTypeBora::ReceiveHandler MFM_TIMESYNC\n");
+			g_omac_scheduler.m_TimeSyncHandler.Receive(msg, msg->GetPayload(), Size);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
+			hal_printf("OMACTypeBora::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 			hal_printf("Got a data beacon packet\n");
 
 		default:
+			hal_printf("OMACTypeBora::ReceiveHandler default\n");
+			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
+			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
+			Size -= tmsgSize;*/
 			break;
 	};
 
-
+	////hal_printf("end OMACTypeBora::ReceiveHandler\n");
 	return msg;
 }
 
@@ -233,10 +243,13 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 }
 
 //Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
-BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
+BOOL OMACTypeBora::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 {
-	if(g_send_buffer.IsFull())
+	////hal_printf("start OMACTypeBora::SendTimeStamped\n");
+	if(g_send_buffer.IsFull()) {
+		hal_printf("OMACTypeBora::SendTimeStamped buffer full\n");
 		return FALSE;
+	}
 
 	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACTypeBora::GetMaxPayload()){
@@ -250,8 +263,8 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
-	header->dest =address;
-	header->src = CPU_Radio_GetAddress(this->radioName);;
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(this->radioName);
 	header->network = MyConfig.Network;
 	header->mac_id = macName;
 	header->type = dataType;
@@ -264,6 +277,14 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	for(UINT8 i = 0 ; i < size; i++)
 		payload[i] = lmsg[i];
 
+	/*if(msg->GetHeader()->type == (1 << 1)) {
+		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
+	}
+	else {
+		hal_printf("OMACTypeBora::SendTimeStamped msg header type %d\n", msg->GetHeader()->type);
+	}
+	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, eventTime);*/
+	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
 	return true;
 }
 

@@ -108,8 +108,8 @@ private:
 
 	//Define public methods
 public:
-	State_t ProtoState;
-	State_t InputState;
+	State_t ProtoState;		//stores state of the protocol
+	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
