@@ -243,7 +243,8 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 }
 
 //Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
-BOOL OMACTypeBora::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
+////BOOL OMACTypeBora::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
+BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
 	////hal_printf("start OMACTypeBora::SendTimeStamped\n");
 	if(g_send_buffer.IsFull()) {

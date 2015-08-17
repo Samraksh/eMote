@@ -164,7 +164,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	//m_timeSyncMsg->seqNo = m_seqNo++;
 
 	//header->dest= RADIO_BROADCAST_ADDRESS;
-	////header->type = MFM_TIMESYNC;
+	header->type = MFM_TIMESYNC;
 
 	/**/
 	/*//IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
