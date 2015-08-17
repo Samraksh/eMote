@@ -6,10 +6,10 @@
  */
 
 //#include <Samraksh/Neighbors.h>
-#include "DataTransmissionHandler.h"
-#include "OMAC.h"
-#include "Scheduler.h"
-#include "RadioControl.h"
+#include <Samraksh/MAC/OMAC/DataTransmissionHandler.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
+#include <Samraksh/MAC/OMAC/Scheduler.h>
+#include <Samraksh/MAC/OMAC/RadioControl.h>
 
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;

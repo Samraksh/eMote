@@ -8,9 +8,9 @@
 #include <tinyhal.h>
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
-#include "RadioControl.h"
-#include "OMACConstants.h"
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/RadioControl.h>
+#include <Samraksh/MAC/OMAC/OMACConstants.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern OMACTypeBora g_OMAC;
 

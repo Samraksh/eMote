@@ -6,9 +6,9 @@
  */
 
 #include ".\CSMAMAC\csmaMAC.h"
-#include ".\OMAC\OMAC.h"
-#include <Samraksh\Mac_decl.h>
-#include <Samraksh\PacketTimeSync_15_4.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
+#include <Samraksh/Mac_decl.h>
+#include <Samraksh/PacketTimeSync_15_4.h>
 
 extern csmaMAC gcsmaMacObject;
 extern OMACTypeBora g_OMAC;

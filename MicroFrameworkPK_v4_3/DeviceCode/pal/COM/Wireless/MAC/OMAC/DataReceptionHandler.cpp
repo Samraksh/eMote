@@ -5,8 +5,8 @@
  *      Author: Mukundan Sridharan
  */
 
-#include "DataReceptionHandler.h"
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/DataReceptionHandler.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern OMACTypeBora g_OMAC;
 extern OMACSchedulerBora g_omac_scheduler;

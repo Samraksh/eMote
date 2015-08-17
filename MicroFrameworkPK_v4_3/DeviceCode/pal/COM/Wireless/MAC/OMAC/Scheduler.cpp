@@ -7,8 +7,8 @@
  *  	Authors: Bora Karaoglu; Ananth Muralidharan
  */
 
-#include "Scheduler.h"
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/Scheduler.h>
+#include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;

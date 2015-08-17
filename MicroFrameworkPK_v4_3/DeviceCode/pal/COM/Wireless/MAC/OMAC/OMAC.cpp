@@ -8,7 +8,7 @@
  *  Created on: Aug 30, 2012
  */
 
-#include "OMAC.h"
+#include <Samraksh/MAC/OMAC/OMAC.h>
 //#include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
