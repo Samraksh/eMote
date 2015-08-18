@@ -71,9 +71,8 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize various processes
 	this->StartSlotAlarm((UINT64) SLOT_PERIOD);
 	//this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
-
-
 }
+
 void OMACSchedulerBora::UnInitialize(){
 
 }
@@ -113,7 +112,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 	//	}
 
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
-	if(startMeasuringDutyCycle && txSlotOffset < SLOT_PERIOD) {
+	if(startMeasuringDutyCycle && txSlotOffset < (SLOT_PERIOD_MILLI * 1000)) {
 		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
 			StartDataAlarm(txSlotOffset);
 			return TRUE;
@@ -331,7 +330,7 @@ void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 		void* param;
 		this->DataAlarmHandler(param);
 	}else {
-		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay*1000, FALSE);
+		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay, FALSE);
 		VirtTimer_Start(HAL_DATAALARM_TIMER);
 
 	}

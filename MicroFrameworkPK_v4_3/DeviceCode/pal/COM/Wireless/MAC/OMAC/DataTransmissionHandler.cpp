@@ -119,6 +119,7 @@ bool DataTransmissionHandler::Send(){
 	}
 }
 
+/*This function returns the number of ticks until the transmission time*/
 UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
 	m_lastSlot++;
 	if (g_send_buffer.Size() > 0) {
@@ -139,7 +140,8 @@ UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
 			}
 			else {
 				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(m_nextTXTicks - HAL_Time_CurrentTicks());
-				return (UINT16)(ticksInMicroSecs/1000);
+				//return (UINT16)(ticksInMicroSecs/1000);
+				return ticksInMicroSecs;
 			}
 		}
 	} else {
