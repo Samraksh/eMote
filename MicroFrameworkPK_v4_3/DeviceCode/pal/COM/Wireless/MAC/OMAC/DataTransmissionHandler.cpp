@@ -262,6 +262,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 				// 5th, compute my local time of the neighbor's listen slot
 				m_nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(dest, m_nextTXTicks);
+				m_nextTXTicks = m_nextTXTicks + SENDER_MARGIN;
 
 				nbrEntry->nextFrameAfterSeedUpdate = nextFrameAfterSeedUpdate + seedUpdates * seedUpdateInterval;
 				nbrEntry->lastSeed = lastSeed;

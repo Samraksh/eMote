@@ -177,8 +177,9 @@ enum {
   DWELL_TIME        = 10,
   /* sender margin compensates for time sync jitter, packet preload delay
    * and radio startup jitter*/
-  SENDER_MARGIN     = 3 * TICKS_PER_MILLI,
-  TRANSITION_MARGIN   = 3 * TICKS_PER_MILLI,
+  SENDER_MARGIN_IN_MILLI = 3,
+  SENDER_MARGIN     = SENDER_MARGIN_IN_MILLI * TICKS_PER_MILLI,
+  TRANSITION_MARGIN   = SENDER_MARGIN_IN_MILLI * TICKS_PER_MILLI,
   MINIMUM_BACKOFF_WINDOW  = 64, /*in the unit of 1/32 ms*/
   RADIO_BACKOFF_WINDOW  = 64, /*in the unit of 1/32 ms*/
   RANDOM_SCHEDULE_WINDOW  = 0x0,
