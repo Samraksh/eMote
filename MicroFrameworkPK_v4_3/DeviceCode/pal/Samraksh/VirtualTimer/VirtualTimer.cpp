@@ -25,7 +25,6 @@ extern const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers];
 extern VirtualTimer gVirtualTimerObject;
 static const UINT64 cTimerMax64Value = 0x0000FFFFFFFFFFFFull; //TODO: use better name.
 static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better name or use UINT32_MAX.
-static bool inVTCallback = false;
 
 //For additional virtual timer support, adjust values here as well as in platform_selector.h, VirtualTimer.h (VirtualTimer class)
 #ifdef PLATFORM_ARM_EmoteDotNow
@@ -71,7 +70,6 @@ BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_coun
 	VTM_countOfVirtualTimers = temp_countVTimers;
 
 	m_lastQueueAdjustmentTime = 0;
-	inVTCallback = false;
 
 	// Start Up Timer
 	if(!ISR)
@@ -222,8 +220,6 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks()  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 
-	// TODO: checking to see if we are within a timer callback already probably no longer needs to  be done and we can probably delete inVTCallback
-	if (inVTCallback == false) {
 		// looking to see which timer will be called the earliest
 		UINT16 nextTimer = 0;
 		UINT64 smallestTicks = cTimerMax64Value;
@@ -254,7 +250,6 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 			}
 			gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
 		}
-	}
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
 #endif
@@ -303,6 +298,10 @@ namespace VirtTimerHelperFunctions
 	}
 }
 
+
+HAL_CONTINUATION    vtCallbackContinuation;
+
+
 // Algorithm for the callback:
 // All system timers (except C# user timers) will run through the Virtual timer. Each timer keeps track of the time at which it will fire
 // The timer that will fire soonest has its time set in the timer comparator and upon the timer matching, this callback will be called.
@@ -321,15 +320,22 @@ void VirtualTimerCallback(void *arg)
 		return;
 	}
 
-	// keeping track of whether we are in a callback call or not just in case the callback calls for another VT to start
-	inVTCallback = true;
-
 	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_cnt_;
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_];
 
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
-		(runningTimer->get_m_callback())(NULL);
+		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS) || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME) )
+		{
+			(runningTimer->get_m_callback())(NULL);
+		} else {
+			void * userData = NULL;
+			vtCallbackContinuation.InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
+			if(!vtCallbackContinuation.IsLinked())
+	    	{
+	        	vtCallbackContinuation.Enqueue();
+			}
+		}
 	}
 
 	// if the timer is a one shot we don't place it back on the timer Queue
@@ -370,5 +376,4 @@ void VirtualTimerCallback(void *arg)
 		gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
 	}
 
-	inVTCallback = false;
 }
