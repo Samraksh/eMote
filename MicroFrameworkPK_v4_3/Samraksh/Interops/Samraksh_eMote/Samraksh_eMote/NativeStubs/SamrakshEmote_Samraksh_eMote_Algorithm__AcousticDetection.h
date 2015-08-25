@@ -22,7 +22,7 @@ namespace Samraksh
         {
             // Helper Functions to access fields of managed object
             // Declaration of stubs. These functions are implemented by Interop code developers
-            static INT8 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, CLR_RT_TypedArray_double param2, INT8 param3, HRESULT &hr );
+            static UINT16 DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, CLR_RT_TypedArray_double param2, INT8 param3, HRESULT &hr );
             static INT8 SetDetectionParameters( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, HRESULT &hr );
         };
     }

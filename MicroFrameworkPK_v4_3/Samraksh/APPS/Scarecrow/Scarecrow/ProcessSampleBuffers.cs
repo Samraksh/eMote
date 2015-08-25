@@ -2,9 +2,48 @@ using System.Collections;
 using System.Threading;
 using Microsoft.SPOT;
 using Samraksh.eMote.DotNow;
+using Samraksh.eMote.Net;
 
 namespace Samraksh.AppNote.Scarecrow.Radar
 {
+    public class UnwrapMsg
+    {
+        public bool Response;
+        public ushort MsgID;
+        public ushort Src;
+        public ushort dummySrc;
+
+        public UnwrapMsg()
+        {
+        }
+        public static int Size()
+        {
+            return 7;
+        }
+        public UnwrapMsg(byte[] rcv_msg, ushort size)
+        {
+            Response = rcv_msg[0] == 0 ? false : true;
+            MsgID = (ushort)(rcv_msg[1] << 8);
+            MsgID += (ushort)rcv_msg[2];
+            Src = (ushort)(rcv_msg[3] << 8);
+            Src += (ushort)rcv_msg[4];
+            dummySrc = (ushort)(0xefef);
+        }
+
+        public byte[] ToBytes()
+        {
+            byte[] b_msg = new byte[7];
+            b_msg[0] = Response ? (byte)1 : (byte)0;
+            b_msg[1] = (byte)((MsgID >> 8) & 0xFF);
+            b_msg[2] = (byte)(MsgID & 0xFF);
+            b_msg[3] = (byte)((Src >> 8) & 0xFF);
+            b_msg[4] = (byte)(Src & 0xFF);
+            b_msg[5] = (byte)(0xef);
+            b_msg[6] = (byte)(0xef);
+            return b_msg;
+        }
+    }
+
     public struct Comp
     {
         public int I, Q;
@@ -57,7 +96,9 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private const int ADCCopyBuffersCnt = MaxBufferQueueLen;
         private static int _adcCopyBuffersPtr;
 
-
+        public static ushort thresholdRotations = 7;
+        public static ushort IQRejection = 30;
+        public static ushort thresholdRadians = (ushort) (thresholdRotations * 2 * 3.14159);
         public static bool threshholdMet = false;
         public static int j = 0;
 
@@ -69,6 +110,32 @@ namespace Samraksh.AppNote.Scarecrow.Radar
 
         public static LCD detectionDisplay = LCD.CHAR_d;
 
+        private NetOpStatus status;
+        private static ushort myAddress;
+        private static UnwrapMsg sendMsg = new UnwrapMsg();
+        private static Samraksh.eMote.Net.Mac.CSMA myCSMA;
+        private static ReceiveCallBack myReceiveCB;
+        private static NeighborhoodChangeCallBack myNeighborCB;
+        private static Samraksh.eMote.Net.Mac.MacConfiguration macConfig = new Samraksh.eMote.Net.Mac.MacConfiguration();
+
+        private static void SendUnwrap(ushort unwrap)
+        {
+                sendMsg.Response = false;
+                sendMsg.MsgID = unwrap;
+                sendMsg.Src = myAddress;
+
+                byte[] msg = sendMsg.ToBytes();
+                myCSMA.Send((ushort)Samraksh.eMote.Net.Mac.Addresses.BROADCAST, msg, 0, (ushort)msg.Length);
+        }
+
+        static void NeighborChange(ushort noOfNeigbors)
+        {
+
+        }
+
+        static void Receive(ushort noOfPackets)
+        {
+        }
 
         /// <summary>
         /// Populate the circular queue of ADC buffers
@@ -90,9 +157,20 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             _adcCopyBuffersPtr = 0;
 
             // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
-            radarDetect.SetDetectionParameters(7, 30, 5, 15);
+            radarDetect.SetDetectionParameters(thresholdRotations, IQRejection, 5, 15);
             Counter.count = 0;
             MoutOfNDetector.Init(2, 3); // m / n
+
+            // setup radio
+            macConfig.NeighborLivenessDelay = 180;
+            macConfig.CCASenseTime = 140; //Carries sensing time in micro seconds
+            myReceiveCB = Receive;
+            myNeighborCB = NeighborChange;
+            Samraksh.eMote.Net.Mac.CSMA.Configure(macConfig, myReceiveCB, myNeighborCB);
+            myCSMA = Samraksh.eMote.Net.Mac.CSMA.Instance;
+            Debug.Print("CSMA Init done.");
+            myAddress = myCSMA.GetAddress();
+            Debug.Print("My default address is :  " + myAddress.ToString());
         }
 
         /// <summary>
@@ -300,9 +378,13 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             var iBuff = iq.IBuff;
             var qBuff = iq.QBuff;
             int i;
+            ushort unwrap = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
+            if (unwrap > thresholdRadians)
+                threshholdMet = true;
+            else 
+                threshholdMet = false;
 
-            threshholdMet = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize, arcTan);
-
+            SendUnwrap(unwrap);
             // The following code is for m detections in n seconds and can be enabled by uncommenting the following
             // M and N can be set in SetupBuffers() above
             // if you use m hits over n seconds below, then you need to comment out the "radarDetection = threshholdMet;" line that follows

@@ -178,7 +178,8 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 
 	detection = threshholdMet;
 
-	return detection;
+	//return detection;
+	return (UINT16)(maxPhase - minPhase);
 }
 
 int findArcTan(int small, int big, INT16* arcTan)

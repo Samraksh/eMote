@@ -16,9 +16,9 @@
 
 using namespace Samraksh::eMote;
 
-INT8 Algorithm_AcousticDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, CLR_RT_TypedArray_double param2, INT8 param3, HRESULT &hr )
+UINT16 Algorithm_AcousticDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, INT32 param1, CLR_RT_TypedArray_double param2, INT8 param3, HRESULT &hr )
 {
-    INT8 retVal = 0; 
+    UINT16 retVal = 0; 
     return retVal;
 }
 

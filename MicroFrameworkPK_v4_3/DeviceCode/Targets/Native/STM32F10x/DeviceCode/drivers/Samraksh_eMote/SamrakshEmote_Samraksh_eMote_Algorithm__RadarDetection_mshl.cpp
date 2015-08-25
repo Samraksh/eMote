@@ -13,7 +13,7 @@
 using namespace Samraksh::eMote;
 
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___U2__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -36,15 +36,15 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Detectio
         CLR_RT_TypedArray_INT16 param4;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 5, param4 ) );
 
-        INT8 retVal = Algorithm_RadarDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, param4, hr );
+        UINT16 retVal = Algorithm_RadarDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, param4, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -64,9 +64,9 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Detectio
         CLR_RT_TypedArray_INT16 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT16_ARRAY( stack, 4, param3 ) );
 
-        INT8 retVal = Algorithm_RadarDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, hr );
+        UINT16 retVal = Algorithm_RadarDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

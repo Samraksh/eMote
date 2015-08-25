@@ -13,7 +13,7 @@
 using namespace Samraksh::eMote;
 
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__I4__SZARRAY_R8__BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::DetectionCalculation___U2__SZARRAY_U2__I4__SZARRAY_R8__BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -33,9 +33,9 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::Detec
         INT8 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_INT8( stack, 4, param3 ) );
 
-        INT8 retVal = Algorithm_AcousticDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, hr );
+        UINT16 retVal = Algorithm_AcousticDetection::DetectionCalculation( pMngObj,  param0, param1, param2, param3, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_UINT16( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
