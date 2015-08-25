@@ -58,7 +58,7 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	VirtTimer_Initialize();
 
 	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
-	VirtTimer_SetTimer(HAL_DATAALARM_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC , TRUE, FALSE, DataAlarmHandler);
+	VirtTimer_SetTimer(HAL_DATAALARM_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC , TRUE, FALSE, PublicDataAlarmHandlder);
 
 
 	//Initialize Handlers
