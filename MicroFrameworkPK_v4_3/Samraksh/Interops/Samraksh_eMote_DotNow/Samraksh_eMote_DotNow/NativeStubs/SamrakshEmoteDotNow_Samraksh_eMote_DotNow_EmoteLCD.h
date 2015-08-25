@@ -39,15 +39,15 @@ namespace Samraksh
 
                 static INT8& Get_DP4( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT8( pMngObj, Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::FIELD__DP4 ); }
 
-                // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT8 Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT8 Uninitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                static INT8 Write( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr );
-                static INT8 SetDP( CLR_RT_HeapBlock* pMngObj, INT8 param0, INT8 param1, INT8 param2, INT8 param3, HRESULT &hr );
-                static INT8 WriteN( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, HRESULT &hr );
-                static INT8 WriteRawBytes( CLR_RT_HeapBlock* pMngObj, INT32 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr );
-                static INT8 Blink( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
-                static INT8 Clear( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    // Declaration of stubs. These functions are implemented by Interop code developers
+                    static INT8 Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static INT8 Uninitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static INT8 Write( CLR_RT_HeapBlock* pMngObj, INT32 data4, INT32 data3, INT32 data2, INT32 data1, HRESULT &hr );
+                    static INT8 SetDP( CLR_RT_HeapBlock* pMngObj, INT8 dp4, INT8 dp3, INT8 dp2, INT8 dp1, HRESULT &hr );
+                    static INT8 WriteN( CLR_RT_HeapBlock* pMngObj, INT32 column, INT32 data, HRESULT &hr );
+                    static INT8 WriteRawBytes( CLR_RT_HeapBlock* pMngObj, INT32 data4, INT32 data3, INT32 data2, INT32 data1, HRESULT &hr );
+                    static INT8 Blink( CLR_RT_HeapBlock* pMngObj, INT32 blinkType, HRESULT &hr );
+                    static INT8 Clear( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             };
         }
     }

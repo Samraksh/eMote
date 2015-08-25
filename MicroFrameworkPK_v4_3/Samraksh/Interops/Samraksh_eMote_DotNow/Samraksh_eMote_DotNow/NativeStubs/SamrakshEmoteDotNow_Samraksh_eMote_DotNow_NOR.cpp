@@ -14,18 +14,22 @@
 #include "SamrakshEmoteDotNow.h"
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR.h"
 
+#include "..\fsmc\P30BF65NOR\P30BF65NOR.h"
+
+extern P30BF65NOR_Driver gNORDriver;
 using namespace Samraksh::eMote::DotNow;
 
 INT8 NOR::InternalInitialize( HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+   return gNORDriver.Initialize();
 }
 
 INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	if(gNORDriver.ReadHalfWord(param1) != 0xffff)
+		gNORDriver.EraseBlock(param1);
+
+    return gNORDriver.WriteBuffer(param0.GetBuffer(), param1, param2);
 }
 
 INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
@@ -36,7 +40,6 @@ INT32 NOR::InternalWrite( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16
 
 INT32 NOR::InternalRead( CLR_RT_TypedArray_UINT16 param0, UINT32 param1, UINT16 param2, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	return gNORDriver.ReadBuffer(param0.GetBuffer(), param1, param2);
 }
 

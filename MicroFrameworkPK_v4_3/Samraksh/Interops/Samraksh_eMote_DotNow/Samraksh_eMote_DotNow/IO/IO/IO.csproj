@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>System.IO</AssemblyName>
+    <OutputType>Library</OutputType>
+    <RootNamespace>System.IO</RootNamespace>
+    <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{293F92CE-4A32-4C5F-A08A-29B0F4E51FA6}</ProjectGuid>
+    <TargetFrameworkVersion>v4.3</TargetFrameworkVersion>
+    <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="Directory.cs" />
+    <Compile Include="DirectoryInfo.cs" />
+    <Compile Include="File.cs" />
+    <Compile Include="FileAccess.cs" />
+    <Compile Include="FileAttributes.cs" />
+    <Compile Include="FileEnum.cs" />
+    <Compile Include="FileInfo.cs" />
+    <Compile Include="FileMode.cs" />
+    <Compile Include="FileShare.cs" />
+    <Compile Include="FileStream.cs" />
+    <Compile Include="FileSystemInfo.cs" />
+    <Compile Include="MemoryStream.cs" />
+    <Compile Include="Path.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StreamReader.cs" />
+    <Compile Include="StreamWriter.cs" />
+    <Compile Include="TextReader.cs" />
+    <Compile Include="TextWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.SPOT.Native" />
+    <Reference Include="Samraksh_eMote_DotNow">
+      <HintPath>..\..\bin\Release\Samraksh_eMote_DotNow.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

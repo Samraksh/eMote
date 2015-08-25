@@ -123,4 +123,7 @@ namespace Samraksh.eMote.DotNow
         public static extern DeviceStatus InternalRead(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 readAddressPtr);
     }
     // ReSharper restore InconsistentNaming
+
+    //--//
+
 }

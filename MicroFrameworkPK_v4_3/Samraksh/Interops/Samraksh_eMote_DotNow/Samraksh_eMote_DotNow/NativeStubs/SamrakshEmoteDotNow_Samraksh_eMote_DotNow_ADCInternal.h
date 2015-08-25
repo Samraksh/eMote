@@ -38,4 +38,5 @@ namespace Samraksh
         }
     }
 }
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_ADC;
 #endif  //_SAMRAKSHEMOTEDOTNOW_SAMRAKSH_EMOTE_DOTNOW_ADCINTERNAL_H_
