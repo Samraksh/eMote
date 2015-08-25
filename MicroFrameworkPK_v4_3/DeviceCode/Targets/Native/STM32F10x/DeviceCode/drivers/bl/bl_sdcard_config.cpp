@@ -24,8 +24,8 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_SDCARD[1] =
 
 	0x40018080,		// ByteAddress     Address;            // Start address
 #ifdef PLATFORM_ARM_EmoteDotNow
-    126,
-    0x20000,
+    0x1000,
+    0x1000000,
 #else
     128,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x200,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
@@ -51,7 +51,7 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_SDCARD =
 
     // The PLATFORM_ARM_EmoteDotNow has a 16MB Flash and the dev board has a 128 Mb Flash
 #ifdef PLATFORM_ARM_EmoteDotNow
-    0xFC0000,
+    0x1000000000,
 #else
     0x1000000,									// UINT32 Size;
 #endif

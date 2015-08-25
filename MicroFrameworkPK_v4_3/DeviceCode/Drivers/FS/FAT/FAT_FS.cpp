@@ -9,6 +9,10 @@
 
 //--//
 
+FileSystemVolumeList g_FileSystemVolumeList;
+FAT_LogicDisk g_FAT_LogicDisk;
+FAT_FS_Driver g_FAT_FS_Driver;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // FAT_MBR member function

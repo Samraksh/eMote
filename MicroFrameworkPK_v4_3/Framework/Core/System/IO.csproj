@@ -33,8 +33,9 @@
     <Compile Include="IO\Path.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.SPOT.IO">
-      <HintPath>$(BUILD_TREE_DLL)\Microsoft.SPOT.IO.dll</HintPath>
+    <Reference Include="Microsoft.SPOT.IO, Version=4.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\BuildOutput\public\Debug\Client\dll\Microsoft.SPOT.IO.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

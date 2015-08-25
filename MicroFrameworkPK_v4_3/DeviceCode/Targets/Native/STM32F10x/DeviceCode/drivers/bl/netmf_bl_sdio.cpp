@@ -167,13 +167,14 @@ BOOL STM32F10x_blDriver_SDIO::Memset(void* context, ByteAddress address, UINT8 D
 	SD_CardInfo *cardinfo;
 	status = SD_GetCardInfo(cardinfo);
 
-	uint8_t *buffer;
+	//TODO: to be modified
+	//uint8_t *buffer = (uint8_t*)private_malloc(numBytes);
 
-	for(int i = 0; i < numBytes; i++) {
+	/*for(int i = 0; i < numBytes; i++) {
 		buffer[i] = Data;
-	}
+	}*/
 
-	status = SD_WriteBlock(buffer, address, cardinfo->CardBlockSize);
+	//status = SD_WriteBlock(buffer, address, cardinfo->CardBlockSize);
 }
 
 BOOL STM32F10x_blDriver_SDIO::GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata)

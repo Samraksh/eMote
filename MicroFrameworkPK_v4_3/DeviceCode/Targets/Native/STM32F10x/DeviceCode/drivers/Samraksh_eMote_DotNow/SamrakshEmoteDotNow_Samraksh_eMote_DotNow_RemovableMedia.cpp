@@ -23,6 +23,9 @@ extern STREAM_DRIVER_INTERFACE g_FAT32_STREAM_DriverInterface;
 extern BlockStorageDevice STM32F10x_BlockStorageDevice_SDCARD;
 FileSystemVolume g_STM32F10x_FS;
 
+extern FileSystemVolumeList g_FileSystemVolumeList;
+extern FAT_LogicDisk g_FAT_LogicDisk;
+
 //extern struct SD_BL_CONFIGURATION g_SD_BL_Config;
 
 void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
@@ -35,18 +38,18 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	FileSystemVolume* pFSVolume;
 	FAT_LogicDisk* pLogicDisk;
 
-	FileSystemVolumeList::AddVolume( &g_STM32F10x_FS, "ROOT", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
+	g_FileSystemVolumeList.AddVolume( &g_STM32F10x_FS, "ROOT", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
 
-	pFSVolume = FileSystemVolumeList::FindVolume("ROOT", 4);
+	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
 	if (pFSVolume)
 	{
-	   FAT_FS_Driver::Initialize();
-	   FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
-	   FAT_FS_Driver::Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
-	   pLogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+	   //FAT_FS_Driver::Initialize();
+	   //FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	   //FAT_FS_Driver::Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
+	   pLogicDisk = g_FAT_LogicDisk.Initialize(&(pFSVolume->m_volumeId));
 	   if (pLogicDisk== NULL)
 	   {
-		   pFSVolume->Format("", 0x2);
+		   pFSVolume->Format("", FORMAT_PARAMETER_FORCE_FAT32);
 	   }
 	   else
 	   {
