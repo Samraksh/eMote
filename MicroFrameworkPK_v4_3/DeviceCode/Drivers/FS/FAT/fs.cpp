@@ -145,6 +145,7 @@ HRESULT FAT_FS_Driver::Read( UINT32 handle, BYTE* buffer, int size, int* bytesRe
 
 HRESULT FAT_FS_Driver::Write( UINT32 handle, BYTE* buffer, int size, int* bytesWritten )
 {
+	hal_printf("Entering FAT_FS_Driver::Write\n");
     if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 

@@ -4,13 +4,19 @@
 
 #include <tinyhal.h>
 #include "netmf_bl.h"
+#include "netmf_bl_nor.h"
 
 //--//
 #define CR_PER_Reset             ((uint32_t)0x00001FFD)
 
+STM32F10x_blDriver_nor g_STM32F10x_blDriver_nor;
+
 BOOL STM32F10x_blDriver::InitializeDevice( void* context )
 {
-    return TRUE;
+	BOOL retStatus = false;
+	retStatus = g_STM32F10x_blDriver_nor.InitializeDevice(context);
+	return retStatus;
+    //return TRUE;
 }
 
 BOOL STM32F10x_blDriver::UninitializeDevice( void* context )

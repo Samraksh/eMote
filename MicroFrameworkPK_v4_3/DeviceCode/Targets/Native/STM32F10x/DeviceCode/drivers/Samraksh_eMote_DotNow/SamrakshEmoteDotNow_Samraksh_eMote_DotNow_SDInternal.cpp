@@ -15,7 +15,7 @@
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal.h"
 
 #include <Samraksh\Hal_util.h>
-#include "..\sdio\netmf_sdio.h"
+#include "..\bl\netmf_bl_sdio.h"
 
 extern "C"
 {
@@ -31,22 +31,22 @@ static BOOL g_sdInterruptEnabled = FALSE;
 
 using namespace Samraksh::eMote::DotNow;
 
-extern SDIO_Driver g_SDIODriver;
+extern STM32F10x_blDriver_SDIO g_STM32F10x_blDriver_SDIO;
 
 INT32 SDInternal::InternalInitialize( HRESULT &hr )
 {
-    return g_SDIODriver.Initialize(ManagedSDCallback);
+    return g_STM32F10x_blDriver_SDIO.Initialize(ManagedSDCallback);
 }
 
 INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 writeAddressPtr, HRESULT &hr )
 {
 
-	if(offset == 0)
+	/*if(offset == 0)
 	{
 		// Erase and write, we need a better file system than this
-		if(g_SDIODriver.EraseBlock(writeAddressPtr, 512 + writeAddressPtr) == DS_Success)
+		if(g_STM32F10x_blDriver_SDIO.EraseBlock(writeAddressPtr, 512 + writeAddressPtr) == DS_Success)
 		{
-			return g_SDIODriver.WriteBlock(dataArray.GetBuffer(), writeAddressPtr, length );
+			return g_STM32F10x_blDriver_SDIO.WriteBlock(dataArray.GetBuffer(), writeAddressPtr, length );
 		}
 		else
 			return DS_Fail;
@@ -54,13 +54,13 @@ INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offse
 	else
 	{
 		return DS_Fail;
-	}
+	}*/
+	return 0;
 }
 
 INT32 SDInternal::InternalRead( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 readAddressPtr, HRESULT &hr )
 {
-
-	return g_SDIODriver.ReadBlock(dataArray.GetBuffer(), readAddressPtr, length);
+	return g_STM32F10x_blDriver_SDIO.ReadBlock(dataArray.GetBuffer(), readAddressPtr, length);
 }
 
 static HRESULT InitializeSDDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )

@@ -19,9 +19,24 @@
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR_mshl.cpp" />
 <HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR.h" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR.cpp" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream_mshl.cpp" />
+<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream.h" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream.cpp" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFindFile_mshl.cpp" />
+<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFindFile.h" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFindFile.cpp" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeIO_mshl.cpp" />
+<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeIO.h" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeIO.cpp" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_RemovableMedia_mshl.cpp" />
+<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_RemovableMedia.h" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_RemovableMedia.cpp" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal_mshl.cpp" />
 <HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal.h" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal.cpp" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_VolumeInfo_mshl.cpp" />
+<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_VolumeInfo.h" />
+<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_VolumeInfo.cpp" />
 </ItemGroup>
 <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
 </Project>

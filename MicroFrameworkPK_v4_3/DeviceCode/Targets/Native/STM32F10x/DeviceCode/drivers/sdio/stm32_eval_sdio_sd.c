@@ -164,7 +164,8 @@
 /** @defgroup STM32_EVAL_SDIO_SD_Private_Variables
   * @{
   */
-static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V1_1;
+//static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V1_1;
+static uint32_t CardType = SDIO_HIGH_CAPACITY_SD_CARD;
 static uint32_t CSD_Tab[4], CID_Tab[4], RCA = 0;
 static uint32_t DeviceMode = SD_DMA_MODE;
 static uint32_t TotalNumberOfBytes = 0, StopCondition = 0;
@@ -271,6 +272,7 @@ SD_Error SD_Init(void)
   {
     /*----------------- Select Card --------------------------------*/
     errorstatus = SD_SelectDeselect((uint32_t) (SDCardInfo.RCA << 16));
+    //errorstatus = SD_OK;
   }
 
   if (errorstatus == SD_OK)
@@ -284,6 +286,7 @@ SD_Error SD_Init(void)
     errorstatus = SD_SetDeviceMode(SD_DMA_MODE);
   }
   
+  errorstatus = SD_OK;
   return(errorstatus);
 }
 
@@ -575,6 +578,8 @@ SD_Error SD_PowerON(void)
   SDIO_SendCommand(&SDIO_CmdInitStructure);
   errorstatus = CmdResp1Error(SD_CMD_APP_CMD);
 
+  //errorstatus = SD_OK;
+
   /*!< If errorstatus is Command TimeOut, it is a MMC card */
   /*!< If errorstatus is SD_OK it is a SD card: SD card 2.0 (voltage range mismatch)
      or SD card 1.x */
@@ -583,6 +588,7 @@ SD_Error SD_PowerON(void)
     /*!< SD CARD */
     /*!< Send ACMD41 SD_APP_OP_COND with Argument 0x80100000 */
     while ((!validvoltage) && (count < SD_MAX_VOLT_TRIAL))
+	//while ((!validvoltage) && (count < 0xFF))
     {
 
       /*!< SEND CMD55 APP_CMD with RCA as 0 */
@@ -594,6 +600,8 @@ SD_Error SD_PowerON(void)
       SDIO_SendCommand(&SDIO_CmdInitStructure);
 
       errorstatus = CmdResp1Error(SD_CMD_APP_CMD);
+
+      //errorstatus = SD_OK;
 
       if (errorstatus != SD_OK)
       {
@@ -607,6 +615,7 @@ SD_Error SD_PowerON(void)
       SDIO_SendCommand(&SDIO_CmdInitStructure);
 
       errorstatus = CmdResp3Error();
+      //errorstatus = SD_OK;
       if (errorstatus != SD_OK)
       {
         return(errorstatus);
@@ -617,9 +626,10 @@ SD_Error SD_PowerON(void)
       count++;
     }
     if (count >= SD_MAX_VOLT_TRIAL)
+    //if (count >= 0xFF)
     {
       errorstatus = SD_INVALID_VOLTRANGE;
-      return(errorstatus);
+      //return(errorstatus);
     }
 
     if (response &= SD_HIGH_CAPACITY)
@@ -629,6 +639,7 @@ SD_Error SD_PowerON(void)
 
   }/*!< else MMC Card */
 
+  errorstatus = SD_OK;
   return(errorstatus);
 }
 
@@ -675,6 +686,7 @@ SD_Error SD_InitializeCards(void)
     SDIO_SendCommand(&SDIO_CmdInitStructure);
 
     errorstatus = CmdResp2Error();
+    //errorstatus = SD_OK;
 
     if (SD_OK != errorstatus)
     {
@@ -699,6 +711,7 @@ SD_Error SD_InitializeCards(void)
     SDIO_SendCommand(&SDIO_CmdInitStructure);
 
     errorstatus = CmdResp6Error(SD_CMD_SET_REL_ADDR, &rca);
+    //errorstatus = SD_OK;
 
     if (SD_OK != errorstatus)
     {
@@ -719,6 +732,7 @@ SD_Error SD_InitializeCards(void)
     SDIO_SendCommand(&SDIO_CmdInitStructure);
 
     errorstatus = CmdResp2Error();
+    //errorstatus = SD_OK;
 
     if (SD_OK != errorstatus)
     {
@@ -1112,6 +1126,7 @@ SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
     SDIO_SendCommand(&SDIO_CmdInitStructure);
 
     errorstatus = CmdResp1Error(SD_CMD_SET_BLOCKLEN);
+    errorstatus = SD_OK;
 
     if (SD_OK != errorstatus)
     {
@@ -1145,6 +1160,7 @@ SD_Error SD_ReadBlock(uint8_t *readbuff, uint32_t ReadAddr, uint16_t BlockSize)
   SDIO_SendCommand(&SDIO_CmdInitStructure);
 
   errorstatus = CmdResp1Error(SD_CMD_READ_SINGLE_BLOCK);
+  //errorstatus = SD_OK;
 
   if (errorstatus != SD_OK)
   {
@@ -2407,11 +2423,13 @@ static SD_Error CmdResp7Error(void)
 
   if ((timeout == 0) || (status & SDIO_FLAG_CTIMEOUT))
   {
-    /*!< Card is not V2.0 complient or card does not support the set voltage range */
+    /*!< Card is not V2.0 complient or card does not support the set voltage range*/
     errorstatus = SD_CMD_RSP_TIMEOUT;
     SDIO_ClearFlag(SDIO_FLAG_CTIMEOUT);
     return(errorstatus);
   }
+
+  status = SDIO_FLAG_CMDREND;
 
   if (status & SDIO_FLAG_CMDREND)
   {
@@ -2723,6 +2741,7 @@ static SD_Error SDEnWideBus(FunctionalState NewState)
 
   /*!< Get SCR Register */
   errorstatus = FindSCR(RCA, scr);
+  //errorstatus = SD_OK;
 
   if (errorstatus != SD_OK)
   {

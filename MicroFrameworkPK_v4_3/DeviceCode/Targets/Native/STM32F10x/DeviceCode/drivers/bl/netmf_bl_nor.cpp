@@ -8,7 +8,12 @@ BOOL isErased = TRUE;
 //--//
 BOOL STM32F10x_blDriver_nor::InitializeDevice( void* context )
 {
-	gNORDriver.Initialize();
+	DeviceStatus status;
+	status = gNORDriver.Initialize();
+	if(status != DS_Success)
+		return false;
+	else
+		return true;
 
 	/*for(UINT32 i = 0 ; i < 0x80; i = i + 0x10000)
 	{

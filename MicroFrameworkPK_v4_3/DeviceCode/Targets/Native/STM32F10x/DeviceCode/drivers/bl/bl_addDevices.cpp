@@ -12,9 +12,14 @@ extern struct BlockStorageDevice STM32F10x_BlockStorageDevice_ExternalFlash_NOR;
 extern struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_ExternalFlash_NOR;
 extern struct BLOCK_CONFIG        STM32F10x_blConfig_ExternalFlash_NOR;
 
+extern struct BlockStorageDevice STM32F10x_BlockStorageDevice_SDCARD;
+extern struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_SDCARD;
+extern struct BLOCK_CONFIG        STM32F10x_blConfig_SDCARD;
+
 void BlockStorage_AddDevices()
 {
     BlockStorageList::AddDevice( &STM32F10x_BlockStorageDevice_InternalFlash, &STM32F10x_IBlockStorageDevice_InternalFlash, &STM32F10x_blConfig_InternalFlash, FALSE );
     BlockStorageList::AddDevice( &STM32F10x_BlockStorageDevice_ExternalFlash_NOR, &STM32F10x_IBlockStorageDevice_ExternalFlash_NOR, &STM32F10x_blConfig_ExternalFlash_NOR, FALSE );
+    BlockStorageList::AddDevice( &STM32F10x_BlockStorageDevice_SDCARD, &STM32F10x_IBlockStorageDevice_SDCARD, &STM32F10x_blConfig_SDCARD, TRUE );
 }
 

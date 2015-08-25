@@ -623,7 +623,11 @@ public:
     //    No other functions in this interface may be called
     //    until after Init returns.
     //
-    BOOL InitializeDevice() { return this->m_BSD->InitializeDevice( this->m_context ); }
+    BOOL InitializeDevice() {
+    	BOOL retVal = this->m_BSD->InitializeDevice( this->m_context );
+    	return retVal;
+    	//return this->m_BSD->InitializeDevice( this->m_context );
+    }
     
     /////////////////////////////////////////////////////////
     // Description:
@@ -641,7 +645,11 @@ public:
     // Description:
     //    Gets the information describing the device
     //
-    const BlockDeviceInfo* GetDeviceInfo() { return this->m_BSD->GetDeviceInfo( this->m_context ); }    
+    const BlockDeviceInfo* GetDeviceInfo() {
+    	const BlockDeviceInfo* bInfo = this->m_BSD->GetDeviceInfo( this->m_context );
+    	return bInfo;
+    	//return this->m_BSD->GetDeviceInfo( this->m_context );
+    }
 
     /////////////////////////////////////////////////////////
     // Description:
@@ -673,7 +681,9 @@ public:
     //
     BOOL Read(ByteAddress Address, UINT32 NumBytes, BYTE* pSectorBuff) 
     {
-        return this->m_BSD->Read(this->m_context, Address, NumBytes, pSectorBuff);
+    	BOOL retVal = this->m_BSD->Read(this->m_context, Address, NumBytes, pSectorBuff);
+    	return retVal;
+        //return this->m_BSD->Read(this->m_context, Address, NumBytes, pSectorBuff);
     }
 
     /////////////////////////////////////////////////////////

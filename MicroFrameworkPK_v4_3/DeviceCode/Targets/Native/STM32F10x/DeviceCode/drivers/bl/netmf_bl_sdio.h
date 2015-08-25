@@ -13,7 +13,7 @@
 #define _NETMF_SDIO_H_
 
 #include <stm32f10x.h>
-#include "stm32_eval_sdio_sd.h"
+#include "../sdio/stm32_eval_sdio_sd.h"
 #include <Samraksh/Hal_util.h>
 #include <gpio\netmf_gpio.h>
 
@@ -34,31 +34,53 @@ typedef void (*SDIOStatusFuncPtrType) (DeviceStatus status);
 #define SDIO_DEBUG_SETPINSTATE(x,y)
 #endif
 
-class SDIO_Driver
+class STM32F10x_blDriver_SDIO
 {
 public:
-
 	SDIOStatusFuncPtrType sdCallbackFunction;
-
 	DeviceStatus Initialize(SDIOStatusFuncPtrType callback);
+	static BOOL UninitializeDevice( void* context );
 
-	DeviceStatus EraseBlock(UINT32 startaddr, UINT32 endaddr);
+	static BOOL InitializeDevice( void* context );
+	static const BlockDeviceInfo* GetDeviceInfo( void* context);
+	static BOOL Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff );
+	static BOOL Write( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite );
+	static BOOL Memset( void* context, ByteAddress Address, UINT8 Data, UINT32 NumBytes );
+	static BOOL GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata);
+	static BOOL SetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata);
+	static BOOL IsBlockErased( void* context, ByteAddress Sector, UINT32 BlockLength );
+	//static BOOL EraseBlock( void* context, ByteAddress Sector1, ByteAddress Sector2 );
+	static BOOL EraseBlock( void* context, ByteAddress Sector1 );
+	static void SetPowerState( void* context, UINT32 State );
+	static UINT32 MaxSectorWrite_uSec( void* context );
+	static UINT32 MaxBlockErase_uSec( void* context );
 
+	//DeviceStatus EraseBlock(UINT32 startaddr, UINT32 endaddr);
 	DeviceStatus WriteBlock(UINT8 *writeBuff, UINT32 WriteAddr, UINT16 BlockSize);
-
 	DeviceStatus ReadBlock(UINT8 *readBuff, UINT32 WriteAddr, UINT16 BlockSize);
-
 	static void SDIO_HANDLER( void* Param );
-
 	void GPIOClockEnable();
-
 	void GPIOInit();
-
 	void SDIOClockEnable();
-
 	void DMAClockEnable();
-
-
 };
+
+
+/*struct STM32F10x_blDriver_SDIO
+{
+    static BOOL InitializeDevice( void* context );
+    static BOOL UninitializeDevice( void* context );
+    static const BlockDeviceInfo* GetDeviceInfo( void* context);
+    static BOOL Read( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff );
+    static BOOL Write( void* context, ByteAddress Address, UINT32 NumBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite );
+    static BOOL Memset( void* context, ByteAddress Address, UINT8 Data, UINT32 NumBytes );
+    static BOOL GetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata);
+    static BOOL SetSectorMetadata(void* context, ByteAddress SectorStart, SectorMetadata* pSectorMetadata);
+    static BOOL IsBlockErased( void* context, ByteAddress Sector, UINT32 BlockLength );
+    static BOOL EraseBlock( void* context, ByteAddress Sector );
+    static void SetPowerState( void* context, UINT32 State );
+    static UINT32 MaxSectorWrite_uSec( void* context );
+    static UINT32 MaxBlockErase_uSec( void* context );
+};*/
 
 #endif

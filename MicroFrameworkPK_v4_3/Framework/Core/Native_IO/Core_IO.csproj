@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="TinyCLR_Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <AssemblyName>Microsoft.SPOT.IO</AssemblyName>
@@ -7,6 +8,7 @@
     <NoWarn>$(NoWarn),0169</NoWarn>
     <ComponentGuid>{5312e52f-406f-46e7-a414-baba1d6d5766}</ComponentGuid>
     <AssemblyBothEndian>true</AssemblyBothEndian>
+    <ProjectGuid>{541418B3-D262-42FB-B9A6-B2AB63422218}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(SPOCLIENT)\tools\Targets\Microsoft.SPOT.CSharp.Targets" />
   <PropertyGroup>
@@ -29,7 +31,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <MMP_STUB_Load Include="$(BUILD_TREE_PE)\Microsoft.SPOT.IO.pe">
+    <MMP_STUB_Load Include="$(BUILD_TREE_PE)\Microsoft_SPOT_IO.pe">
       <InProject>false</InProject>
     </MMP_STUB_Load>
   </ItemGroup>

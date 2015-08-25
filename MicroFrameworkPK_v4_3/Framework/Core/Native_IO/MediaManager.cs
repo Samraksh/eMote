@@ -184,11 +184,11 @@ namespace Microsoft.SPOT.IO
                 _volumes = new ArrayList();
                 _events = new Queue();
 
-
                 MountRemovableVolumes();
             }
             catch
-            {
+            {
+
             }
         }
 
