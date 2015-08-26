@@ -21,6 +21,7 @@ using namespace Samraksh::eMote::DotNow;
 extern FileSystemVolumeList g_FileSystemVolumeList;
 extern FAT_LogicDisk g_FAT_LogicDisk;
 extern FAT_FS_Driver g_FAT_FS_Driver;
+extern FAT_FILE g_FAT_FILE;
 
 unsigned short stringLength(LPCSTR fileName)
 {
@@ -54,6 +55,10 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
 	hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
 	LPCWSTR path = stringToShort(fileName);
+
+	FAT_LogicDisk* fat_LogicDisk;
+	UINT32 fileNameLen = stringLength(fileName);
+	g_FAT_FILE.Create(fat_LogicDisk, 1, path, fileNameLen, 0x80);
 
 	//g_FAT_LogicDisk.CreateDirectory(path);
 
