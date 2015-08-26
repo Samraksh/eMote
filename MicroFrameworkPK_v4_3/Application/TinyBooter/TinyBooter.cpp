@@ -52,6 +52,27 @@ void ApplicationEntryPoint()
     {
         enterBootMode = WaitForTinyBooterUpload( timeout );
     }
+
+#if defined (ENABLE_TINYOS_HACK) && (TINYOS_BOOT_MAGIC) && (PLATFORM_ARM_EmoteDotNow) && (TINYOS_BOOT_MAGIC_LOC)
+{ // This is basically a condensed version of ::Launch, which is private, and I'm lazy
+	int check_tinyos = *(volatile unsigned int *)TINYOS_BOOT_MAGIC_LOC;
+	if (check_tinyos == TINYOS_BOOT_MAGIC && !enterBootMode) {
+		typedef  void (*pFunction)(void);
+		//g_eng.Launch((ApplicationStartAddress)0x08020000); // private, can't do this.
+		LCD_Clear();
+		//DebuggerPort_Flush( m_port );
+		DISABLE_INTERRUPTS();
+		LCD_Uninitialize();
+		CPU_DisableCaches();
+		HAL_Time_Uninitialize();
+		int ResetVector = *(volatile UINT32 *) (0x08020000 + 4);  // Cortex-M3 vector table is MSP followed by Reset
+		__attribute__((__noreturn__)) pFunction Jump_To_Application = (pFunction) ResetVector; // unconditional jump. never returns.
+		// Contract: MSP is set by target application entry.
+		Jump_To_Application();
+	}
+}
+#endif
+
     if(!enterBootMode)   
     {
         if(!g_eng.EnumerateAndLaunch())

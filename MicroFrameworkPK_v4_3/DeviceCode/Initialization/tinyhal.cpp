@@ -575,7 +575,8 @@ mipi_dsi_shutdown();
 
     HAL_Initialize();
 
-#if !defined(BUILD_RTM) 
+#if !defined(BUILD_RTM)
+#ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
     DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 0 , "0");
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);
 #if defined(__GNUC__)
@@ -583,6 +584,7 @@ mipi_dsi_shutdown();
 
 #else
     DEBUG_TRACE1(TRACE_ALWAYS, "ARM Compiler version %d\r\n", __ARMCC_VERSION);
+#endif //TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
 #endif
 
     UINT8* BaseAddress;
