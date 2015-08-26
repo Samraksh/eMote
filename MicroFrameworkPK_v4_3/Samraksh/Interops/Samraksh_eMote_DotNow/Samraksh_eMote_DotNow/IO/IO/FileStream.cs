@@ -310,17 +310,21 @@ namespace System.IO
             Debug.Print("Entering FileStream Write");
             if (_disposed) throw new ObjectDisposedException();
             if (!_canWrite) throw new NotSupportedException();
-
+            
             // argument validation in interop layer
             int bytesWritten;
 
+            Debug.Print("FileStream Write step 2");
             lock (_nativeFileStream)
             {
+                Debug.Print("FileStream Write step 3");
                 // we check for count being != 0 because we want to handle negative cases
                 // as well in the interop layer
                 while (count != 0)
                 {
+                    Debug.Print("FileStream Write step 4");
                     bytesWritten = _nativeFileStream.Write(buffer, offset, count, NativeFileStream.TimeoutDefault);
+                    Debug.Print("FileStream Write step 5");
 
                     if (bytesWritten == 0) throw new IOException();
 

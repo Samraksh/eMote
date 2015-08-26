@@ -53,23 +53,20 @@ void STM32F10x_blDriver_SDIO::DMAClockEnable()
 }
 
 
-DeviceStatus STM32F10x_blDriver_SDIO::Initialize(SDIOStatusFuncPtrType sdCallbackFunction)
+//DeviceStatus STM32F10x_blDriver_SDIO::Initialize(SDIOStatusFuncPtrType sdCallbackFunction)
+DeviceStatus STM32F10x_blDriver_SDIO::Initialize()
 {
 	GPIOClockEnable();
-
 	GPIOInit();
-
 	SDIOClockEnable();
-
 	DMAClockEnable();
 
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) 37, FALSE);
-
-	CPU_GPIO_SetPinState((GPIO_PIN) 37, TRUE);
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 37, FALSE);
+	//CPU_GPIO_SetPinState((GPIO_PIN) 37, TRUE);
 
 	HAL_Time_Sleep_MicroSeconds(500);
 
-	this->sdCallbackFunction = sdCallbackFunction;
+	//this->sdCallbackFunction = sdCallbackFunction;
 
 	if( !CPU_INTC_ActivateInterrupt(STM32_AITC::c_IRQ_INDEX_SDIO, STM32F10x_blDriver_SDIO::SDIO_HANDLER, NULL) )
 	{
@@ -83,13 +80,13 @@ DeviceStatus STM32F10x_blDriver_SDIO::Initialize(SDIOStatusFuncPtrType sdCallbac
 	   	 return DS_Fail;
 	}
 
-	if(SD_Init() != SD_OK)
-		return DS_Fail;
+	//if(SD_Init() != SD_OK)
+		//return DS_Fail;
 
 	return DS_Success;
 }
 
-//--//
+//------------------------------------------------------//
 
 BOOL STM32F10x_blDriver_SDIO::InitializeDevice( void* context )
 {
@@ -114,6 +111,7 @@ BOOL STM32F10x_blDriver_SDIO::InitializeDevice( void* context )
 	   	 return FALSE;
 	}*/
 
+	Initialize();
 	if(SD_Init() != SD_OK)
 		return FALSE;
 
@@ -221,7 +219,7 @@ UINT32 STM32F10x_blDriver_SDIO::MaxBlockErase_uSec( void* context )
 	return config->BlockDeviceInformation->MaxBlockErase_uSec;
 }
 
-//--//
+//------------------------------------------------------//
 
 /*DeviceStatus STM32F10x_blDriver_SDIO::EraseBlock(UINT32 startaddr, UINT32 endaddr)
 {

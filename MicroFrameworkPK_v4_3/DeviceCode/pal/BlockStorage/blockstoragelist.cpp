@@ -118,7 +118,6 @@ BOOL BlockStorageList::AddDevice( BlockStorageDevice* pBSD, IBlockStorageDevice*
     if(init)
     {
         success = pBSD->InitializeDevice();
-        success = TRUE;
     }
 
     // only add teh device if initialization was successful, when requested at all

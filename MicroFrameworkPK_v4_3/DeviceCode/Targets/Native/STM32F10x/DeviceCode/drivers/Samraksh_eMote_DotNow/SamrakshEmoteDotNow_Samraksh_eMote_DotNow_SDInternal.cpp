@@ -35,7 +35,8 @@ extern STM32F10x_blDriver_SDIO g_STM32F10x_blDriver_SDIO;
 
 INT32 SDInternal::InternalInitialize( HRESULT &hr )
 {
-    return g_STM32F10x_blDriver_SDIO.Initialize(ManagedSDCallback);
+    //return g_STM32F10x_blDriver_SDIO.Initialize(ManagedSDCallback);
+	return g_STM32F10x_blDriver_SDIO.Initialize();
 }
 
 INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 writeAddressPtr, HRESULT &hr )

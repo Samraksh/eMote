@@ -25,6 +25,7 @@ FileSystemVolume g_STM32F10x_FS;
 
 extern FileSystemVolumeList g_FileSystemVolumeList;
 extern FAT_LogicDisk g_FAT_LogicDisk;
+extern FAT_FS_Driver g_FAT_FS_Driver;
 
 //extern struct SD_BL_CONFIGURATION g_SD_BL_Config;
 
@@ -43,18 +44,18 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
 	if (pFSVolume)
 	{
-	   //FAT_FS_Driver::Initialize();
-	   //FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
-	   //FAT_FS_Driver::Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
-	   pLogicDisk = g_FAT_LogicDisk.Initialize(&(pFSVolume->m_volumeId));
-	   if (pLogicDisk== NULL)
-	   {
-		   pFSVolume->Format("", FORMAT_PARAMETER_FORCE_FAT32);
-	   }
-	   else
-	   {
+		g_FAT_FS_Driver.Initialize();
+		g_FAT_FS_Driver.InitializeVolume(&(pFSVolume->m_volumeId));
+		//g_FAT_FS_Driver.Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
+		pLogicDisk = g_FAT_LogicDisk.Initialize(&(pFSVolume->m_volumeId));
+		if (pLogicDisk== NULL)
+		{
+			pFSVolume->Format("", FORMAT_PARAMETER_FORCE_FAT32);
+		}
+		else
+		{
 			pLogicDisk->Uninitialize();
-	   }
+		}
 	}
 }
 

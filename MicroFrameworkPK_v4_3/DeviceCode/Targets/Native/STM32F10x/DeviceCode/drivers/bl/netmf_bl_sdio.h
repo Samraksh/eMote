@@ -38,7 +38,8 @@ class STM32F10x_blDriver_SDIO
 {
 public:
 	SDIOStatusFuncPtrType sdCallbackFunction;
-	DeviceStatus Initialize(SDIOStatusFuncPtrType callback);
+	//DeviceStatus Initialize(SDIOStatusFuncPtrType callback);
+	static DeviceStatus Initialize(void);
 	static BOOL UninitializeDevice( void* context );
 
 	static BOOL InitializeDevice( void* context );
@@ -59,10 +60,10 @@ public:
 	DeviceStatus WriteBlock(UINT8 *writeBuff, UINT32 WriteAddr, UINT16 BlockSize);
 	DeviceStatus ReadBlock(UINT8 *readBuff, UINT32 WriteAddr, UINT16 BlockSize);
 	static void SDIO_HANDLER( void* Param );
-	void GPIOClockEnable();
-	void GPIOInit();
-	void SDIOClockEnable();
-	void DMAClockEnable();
+	static void GPIOClockEnable();
+	static void GPIOInit();
+	static void SDIOClockEnable();
+	static void DMAClockEnable();
 };
 
 

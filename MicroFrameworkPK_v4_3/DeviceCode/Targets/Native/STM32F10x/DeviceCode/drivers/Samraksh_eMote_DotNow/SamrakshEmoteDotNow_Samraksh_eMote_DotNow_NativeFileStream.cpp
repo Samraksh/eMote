@@ -14,6 +14,7 @@
 #include "SamrakshEmoteDotNow.h"
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream.h"
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
+#include "../bl/netmf_bl_sdio.h"
 
 using namespace Samraksh::eMote::DotNow;
 
@@ -53,15 +54,16 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
 	hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
 	LPCWSTR path = stringToShort(fileName);
+
 	//g_FAT_LogicDisk.CreateDirectory(path);
 
-	g_FAT_FS_Driver.Initialize();
-	FileSystemVolume* pFSVolume;
+	//g_FAT_FS_Driver.Initialize();
+	/*FileSystemVolume* pFSVolume;
 	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
 	if (pFSVolume){
 		//g_FAT_FS_Driver.InitializeVolume(&(pFSVolume->m_volumeId));
 		g_FAT_FS_Driver.CreateDirectory(&(pFSVolume->m_volumeId), path);
-	}
+	}*/
 }
 
 INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
@@ -73,7 +75,7 @@ INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8
 
 INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 buffer, INT32 offset, INT32 count, INT32 timeout, HRESULT &hr )
 {
-	hal_printf("Inside NativeFileStream::Write\n");
+	/*hal_printf("Inside NativeFileStream::Write\n");
 	int bytesReadWrite = 0;
 	UINT32 handle;
 	bool result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), count, &bytesReadWrite );
@@ -86,36 +88,58 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 
 	FAT_FS_Driver::Close(handle);
 	hal_printf("NativeFileStream - Write SUCCESS\r\n");
-	return TRUE;
+	return TRUE;*/
+
+	hal_printf("Inside NativeFileStream::Write\n");
+	SD_Error status;
+	SD_CardInfo SDCardInfo;
+	status = SD_GetCardInfo(&SDCardInfo);
+	status = SD_WriteBlock(buffer.GetBuffer(), 0x0, SDCardInfo.CardBlockSize);
+
+	if(status == SD_OK )
+	{
+		hal_printf("NativeFileStream - Write SUCCESS\r\n");
+		return TRUE;
+	}
+	else {
+		hal_printf("NativeFileStream - Write FAILED\r\n");
+		return FALSE;
+	}
     //INT32 retVal = 0;
     //return retVal;
 }
 
 INT64 NativeFileStream::Seek( CLR_RT_HeapBlock* pMngObj, INT64 param0, UINT32 param1, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::Seek\n");
     INT64 retVal = 0; 
     return retVal;
 }
 
 void NativeFileStream::Flush( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::Flush\n");
 }
 
 INT64 NativeFileStream::GetLength( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::GetLength\n");
     INT64 retVal = 0; 
     return retVal;
 }
 
 void NativeFileStream::SetLength( CLR_RT_HeapBlock* pMngObj, INT64 param0, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::SetLength\n");
 }
 
 void NativeFileStream::GetStreamProperties( CLR_RT_HeapBlock* pMngObj, INT8 * param0, INT8 * param1, INT8 * param2, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::GetStreamProperties\n");
 }
 
 void NativeFileStream::Close( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
+	hal_printf("Inside NativeFileStream::Close\n");
 }
 
