@@ -323,6 +323,12 @@ namespace System.IO
                 while (count != 0)
                 {
                     Debug.Print("FileStream Write step 4");
+                    int i = 0;
+                    while (i < 1)
+                    {
+                        System.Threading.Thread.Sleep(1);
+                        i++;
+                    }
                     bytesWritten = _nativeFileStream.Write(buffer, offset, count, NativeFileStream.TimeoutDefault);
                     Debug.Print("FileStream Write step 5");
 

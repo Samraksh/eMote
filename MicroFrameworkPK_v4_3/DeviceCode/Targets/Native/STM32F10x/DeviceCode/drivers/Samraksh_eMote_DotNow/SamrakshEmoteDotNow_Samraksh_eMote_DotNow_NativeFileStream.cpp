@@ -119,10 +119,15 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	if(!fat_LogicDisk)
 	{
 		fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
-		fat_LogicDisk->Open( (LPCWSTR)path, &handle );
+		//fat_LogicDisk->Open( (LPCWSTR)path, &handle );
 	}
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
-
+	if(!handle)
+	{
+		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
+		FAT_FS_Driver::Close(handle);
+	}
+	FAT_FS_Driver::Close(handle);
 
 	//g_FAT_LogicDisk.CreateDirectory(path);
 
@@ -160,7 +165,33 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	return TRUE;*/
 
 	hal_printf("Inside NativeFileStream::Write\n");
-	SD_Error status;
+
+	UINT32 handle = 0;
+	const WCHAR* file = (const WCHAR*)"\\hello.txt";
+	FileSystemVolume* pFSVolume;
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
+	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	if(!handle)
+	{
+		hal_printf("NativeFileStream::Write: Cannot open\\create file\r\n");
+	}
+
+	int bytesReadWrite = 0;
+	BOOL result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), 21, &bytesReadWrite );
+	if(bytesReadWrite != 21)
+	{
+		hal_printf("NativeFileStream::Write: - Write File Test: FAILED\r\n");
+		FAT_FS_Driver::Close(handle);
+		return FALSE;
+	}
+
+	FAT_FS_Driver::Close(handle);
+	hal_printf("NativeFileStream::Write: - Write File Test: SUCCESS\r\n");
+	return bytesReadWrite;
+
+
+	/*SD_Error status;
 	SD_CardInfo SDCardInfo;
 	status = SD_GetCardInfo(&SDCardInfo);
 	status = SD_WriteBlock(buffer.GetBuffer(), 0x0, SDCardInfo.CardBlockSize);
@@ -173,7 +204,7 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	else {
 		hal_printf("NativeFileStream - Write FAILED\r\n");
 		return FALSE;
-	}
+	}*/
     //INT32 retVal = 0;
     //return retVal;
 }
