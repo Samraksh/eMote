@@ -14,14 +14,18 @@
 #include "SamrakshEmoteDotNow.h"
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream.h"
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
+#include "../DeviceCode/Drivers/FS/FAT/FAT_FS_Utility.h"
 #include "../bl/netmf_bl_sdio.h"
+#include <tinyhal.h>
 
 using namespace Samraksh::eMote::DotNow;
 
-extern FileSystemVolumeList g_FileSystemVolumeList;
+/*extern FileSystemVolumeList g_FileSystemVolumeList;
 extern FAT_LogicDisk g_FAT_LogicDisk;
 extern FAT_FS_Driver g_FAT_FS_Driver;
-extern FAT_FILE g_FAT_FILE;
+extern FAT_SectorCache g_FAT_SectorCache;
+extern FAT_MemoryManager g_FAT_MemoryManager;
+extern FAT_FILE g_FAT_FILE;*/
 
 unsigned short stringLength(LPCSTR fileName)
 {
@@ -32,7 +36,7 @@ unsigned short stringLength(LPCSTR fileName)
 	return i;
 }
 
-LPCWSTR stringToShort(LPCSTR fileName)
+WCHAR* stringToShort(LPCSTR fileName)
 {
 	unsigned short strLength = stringLength(fileName);
 	WCHAR* retVal = (WCHAR*)private_malloc(strLength);
@@ -47,6 +51,38 @@ LPCWSTR stringToShort(LPCSTR fileName)
 	return retVal;
 }
 
+WCHAR* getFileFromPath(WCHAR* fileName, int fileLength, UINT32* newFileLen)
+{
+	int i = 0, static_i = 0;
+	int j = 0, static_j = 0;
+
+	while(i < fileLength)
+	{
+		if(fileName[i] == '\\'){
+			i++;
+			static_i = i;
+			static_j = 0;
+			continue;
+		}
+		else if(fileName[i] == '.' || fileName[i] == '\0') {
+			break;
+		}
+
+		i++; static_j++;
+	}
+
+	WCHAR* file = (WCHAR*)private_malloc(static_j + 3 + 1);
+	while(static_i < fileLength)
+	{
+		file[j] = fileName[static_i];
+		j++; static_i++;
+	}
+
+	*newFileLen = j;
+	file[j] = '\0';
+	return file;
+}
+
 
 
 void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 bufferSize, HRESULT &hr )
@@ -54,11 +90,39 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	hal_printf("Inside NativeFileStream::_ctor\n");
 	hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
 	hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
-	LPCWSTR path = stringToShort(fileName);
 
-	FAT_LogicDisk* fat_LogicDisk;
+	//--------//
+	/*WCHAR* path = stringToShort(fileName);
+	FileSystemVolume* pFSVolume;
+	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
+	FAT_LogicDisk* fat_LogicDisk = g_FAT_MemoryManager.GetLogicDisk( &(pFSVolume->m_volumeId) );
+	if(!fat_LogicDisk)
+	{
+		fat_LogicDisk = g_FAT_MemoryManager.AllocateLogicDisk( &(pFSVolume->m_volumeId) );
+	}
 	UINT32 fileNameLen = stringLength(fileName);
-	g_FAT_FILE.Create(fat_LogicDisk, 1, path, fileNameLen, 0x80);
+	UINT32 newFileLen;
+	const WCHAR* file = getFileFromPath(path, fileNameLen, &newFileLen);
+	g_FAT_FILE.Create(fat_LogicDisk, 1, file, newFileLen, 0x80);*/
+
+	//--------//
+
+	//Open/Create file
+	WCHAR* path = stringToShort(fileName);
+	UINT32 fileNameLen = stringLength(fileName);
+	UINT32 newFileLen;
+	const WCHAR* file = getFileFromPath(path, fileNameLen, &newFileLen);
+	UINT32 handle = 0;
+	FileSystemVolume* pFSVolume;
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
+	if(!fat_LogicDisk)
+	{
+		fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
+		fat_LogicDisk->Open( (LPCWSTR)path, &handle );
+	}
+	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+
 
 	//g_FAT_LogicDisk.CreateDirectory(path);
 

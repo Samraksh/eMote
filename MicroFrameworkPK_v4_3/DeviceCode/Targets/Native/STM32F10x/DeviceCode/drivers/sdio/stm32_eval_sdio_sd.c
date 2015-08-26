@@ -164,8 +164,8 @@
 /** @defgroup STM32_EVAL_SDIO_SD_Private_Variables
   * @{
   */
-//static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V1_1;
-static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V2_0;
+static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V1_1;
+//static uint32_t CardType =  SDIO_STD_CAPACITY_SD_CARD_V2_0;
 static uint32_t CSD_Tab[4], CID_Tab[4], RCA = 0;
 static uint32_t DeviceMode = SD_DMA_MODE;
 static uint32_t TotalNumberOfBytes = 0, StopCondition = 0;

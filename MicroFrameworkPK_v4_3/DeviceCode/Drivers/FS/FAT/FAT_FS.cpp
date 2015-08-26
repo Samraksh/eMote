@@ -9,10 +9,12 @@
 
 //--//
 
-FileSystemVolumeList g_FileSystemVolumeList;
+/*FileSystemVolumeList g_FileSystemVolumeList;
 FAT_LogicDisk g_FAT_LogicDisk;
 FAT_FS_Driver g_FAT_FS_Driver;
-FAT_FILE g_FAT_FILE;
+FAT_SectorCache g_FAT_SectorCache;
+FAT_MemoryManager g_FAT_MemoryManager;
+FAT_FILE g_FAT_FILE;*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
