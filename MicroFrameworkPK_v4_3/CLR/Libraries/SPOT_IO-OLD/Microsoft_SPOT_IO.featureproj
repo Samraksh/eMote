@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FeatureName>Microsoft_SPOT_IO</FeatureName>
+    <Guid>{d6d927b6-e60d-4141-9e4a-c7daed7e0127}</Guid>
+    <Description>&lt;Add Feature Description Here&gt;</Description>
+    <Groups />
+    <MICROSOFT_SPOT_IO_FEATUREPROJ>True</MICROSOFT_SPOT_IO_FEATUREPROJ>
+  </PropertyGroup>
+  <ItemGroup>
+    <DriverLibs Include="Microsoft_SPOT_IO.$(LIB_EXT)" />
+    <InteropFeature Include="Microsoft_SPOT_IO" />
+    <!--MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Microsoft_SPOT_IO.pe" /-->
+    <RequiredProjects Include="D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\CLR\Libraries\SPOT_IO\dotnetmf.proj" />
+  </ItemGroup>
+</Project>
