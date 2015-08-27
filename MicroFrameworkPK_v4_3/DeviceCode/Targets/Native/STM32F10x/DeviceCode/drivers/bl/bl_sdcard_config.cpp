@@ -22,7 +22,7 @@ const BlockRange STM32F10x_BlockRange_SDCARD[] =
 const BlockRegionInfo  STM32F10x_BlockRegionInfo_SDCARD[1] =
 {
 
-	0x40018080,		// ByteAddress     Address;            // Start address
+	0x0,		// ByteAddress     Address;            // Start address
 #ifdef PLATFORM_ARM_EmoteDotNow
     0x1000,
     0x1000000,

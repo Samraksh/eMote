@@ -115,7 +115,19 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	UINT32 handle = 0;
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
+	//FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	if(!handle)
+	{
+		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
+		FAT_FS_Driver::Close(handle);
+	}
+	FAT_FS_Driver::Close(handle);
+
+
+	/*FAT_MemoryManager::Initialize();
+	FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+	fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
 	if(!fat_LogicDisk)
 	{
 		fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
@@ -127,7 +139,9 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
 		FAT_FS_Driver::Close(handle);
 	}
-	FAT_FS_Driver::Close(handle);
+	FAT_FS_Driver::Close(handle);*/
+
+
 
 	//g_FAT_LogicDisk.CreateDirectory(path);
 
@@ -170,7 +184,10 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	const WCHAR* file = (const WCHAR*)"\\hello.txt";
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
+	//FAT_MemoryManager::Initialize();
+	////FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+	//fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
+	//FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
 	{
@@ -179,6 +196,7 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 
 	int bytesReadWrite = 0;
 	BOOL result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), 21, &bytesReadWrite );
+	FAT_FS_Driver::Flush(handle);
 	if(bytesReadWrite != 21)
 	{
 		hal_printf("NativeFileStream::Write: - Write File Test: FAILED\r\n");

@@ -46,9 +46,14 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	if (pFSVolume)
 	{
 		FAT_FS_Driver::Initialize();
+		FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+
+		////FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+
+		//FAT_FS_Driver::Initialize();
 		//g_FAT_FS_Driver.InitializeVolume(&(pFSVolume->m_volumeId));
 		//g_FAT_FS_Driver.Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
-		pLogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+		/*pLogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 		if (pLogicDisk == NULL)
 		{
 			pFSVolume->Format("", FORMAT_PARAMETER_FORCE_FAT32);
@@ -57,7 +62,7 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 		{
 			//pLogicDisk->Open( (LPCWSTR)path, &handle );
 			//pLogicDisk->Uninitialize();
-		}
+		}*/
 	}
 
 	/*//Open/Create file (from MF/MicroFrameworkPK_v4_3/Solutions/SH7264_M3A_HS64/NativeSample/NativeSample.cpp)
