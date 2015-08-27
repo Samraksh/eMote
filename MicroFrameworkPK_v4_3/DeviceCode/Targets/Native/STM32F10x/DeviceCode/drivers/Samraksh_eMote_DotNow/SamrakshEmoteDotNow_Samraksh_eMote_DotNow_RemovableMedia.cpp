@@ -55,11 +55,12 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	FileSystemVolumeList::AddVolume( &g_STM32F10x_FS, "U", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
 	////FileSystemVolumeList::InitializeVolumes();
 
-	////pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	////if (pFSVolume)
-	////{
-		////FAT_FS_Driver::Initialize();
-		////FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	if (pFSVolume)
+	{
+		FAT_FS_Driver::Initialize();
+		FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+		//pFSVolume->Format("U", FORMAT_PARAMETER_FORCE_FAT32);
 
 		/*pLogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 		if (pLogicDisk == NULL)
@@ -71,7 +72,7 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 			//pLogicDisk->Open( (LPCWSTR)path, &handle );
 			//pLogicDisk->Uninitialize();
 		}*/
-	////}
+	}
 
 
 

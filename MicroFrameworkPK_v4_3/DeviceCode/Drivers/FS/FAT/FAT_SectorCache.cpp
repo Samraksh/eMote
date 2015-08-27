@@ -141,8 +141,8 @@ BYTE* FAT_SectorCache::GetSector( UINT32 sectorIndex, BOOL useLRU, BOOL forWrite
         cacheLine->SetLRUCOunter( m_LRUCounter );
     }
 
-    //return cacheLine->m_buffer + (sectorIndex - cacheLine->m_begin) * m_bytesPerSector;
-    return cacheLine->m_buffer;
+    return cacheLine->m_buffer + (sectorIndex - cacheLine->m_begin) * m_bytesPerSector;
+    //return cacheLine->m_buffer;
 }
 
 

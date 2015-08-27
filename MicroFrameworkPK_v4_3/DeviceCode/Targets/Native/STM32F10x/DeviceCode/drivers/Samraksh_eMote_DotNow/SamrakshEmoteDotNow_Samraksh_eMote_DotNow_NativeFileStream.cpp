@@ -20,6 +20,11 @@
 
 using namespace Samraksh::eMote::DotNow;
 
+
+UINT32 handle = 0;
+WCHAR* path;
+const WCHAR* file;
+
 /*extern FileSystemVolumeList g_FileSystemVolumeList;
 extern FAT_LogicDisk g_FAT_LogicDisk;
 extern FAT_FS_Driver g_FAT_FS_Driver;
@@ -107,12 +112,11 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 
 	//--------//
 
-	/*//Open/Create file
-	WCHAR* path = stringToShort(fileName);
+	//Open/Create file
+	path = stringToShort(fileName);
 	UINT32 fileNameLen = stringLength(fileName);
 	UINT32 newFileLen;
-	const WCHAR* file = getFileFromPath(path, fileNameLen, &newFileLen);
-	UINT32 handle = 0;
+	file = getFileFromPath(path, fileNameLen, &newFileLen);
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	//FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
@@ -122,7 +126,7 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
 		FAT_FS_Driver::Close(handle);
 	}
-	FAT_FS_Driver::Close(handle);*/
+	FAT_FS_Driver::Close(handle);
 
 }
 
@@ -152,12 +156,11 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 
 	hal_printf("Inside NativeFileStream::Write\n");
 
-	UINT32 handle = 0;
-	const WCHAR* file = (const WCHAR*)"\\hello.txt";
+	//const WCHAR* file = (const WCHAR*)"\\hello.txt";
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	FAT_FS_Driver::Initialize();
-	FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	////FAT_FS_Driver::Initialize();
+	////FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
 	//FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
@@ -167,7 +170,7 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 
 	int bytesReadWrite = 0;
 	BOOL result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), 21, &bytesReadWrite );
-	FAT_FS_Driver::Flush(handle);
+	//FAT_FS_Driver::Flush(handle);
 	if(bytesReadWrite != 21)
 	{
 		hal_printf("NativeFileStream::Write: - Write File Test: FAILED\r\n");
