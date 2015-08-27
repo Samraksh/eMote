@@ -68,6 +68,22 @@ BLOCK_CONFIG STM32F10x_blConfig_SDCARD =
 };
 
 
+//--//
+
+//struct BlockStorageDevice STM32F10x_BlockStorageDevice_SDCARD;
+
+#if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
+#pragma arm section rodata = "STM32F10x_BlockStorageDevice_SDCARD"
+#endif
+
 struct BlockStorageDevice STM32F10x_BlockStorageDevice_SDCARD;
+
+#if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
+#pragma arm section rodata
+#endif
+
+//--//
+
+
 //#pragma arm section code
 //struct IBlockStorageDevice STM32F10x_IBlockStorageDevice_SDCARD;

@@ -14,7 +14,6 @@
 #include "SamrakshEmoteDotNow.h"
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_RemovableMedia.h"
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
-#include <tinyhal.h>
 //#include "../DeviceCode/Include/BlockStorage_decl.h"
 
 using namespace Samraksh::eMote::DotNow;
@@ -34,25 +33,18 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 {
 	hal_printf("Inside RemovableMedia::MountRemovableVolumes...\n");
 
-	//FS_MountVolume("SD1", 0, 0, g_SD_BL_Config.Device);
-
 	//From MicroFrameworkPK_v4_3\Solutions\SAM9RL64_EK\DeviceCode\config\FS_config_SAM9RL64_EK.cpp (FS_AddVolumes())
 	FileSystemVolume* pFSVolume;
 	FAT_LogicDisk* pLogicDisk;
 
 	FileSystemVolumeList::AddVolume( &g_STM32F10x_FS, "U", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
 
-	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	if (pFSVolume)
-	{
-		FAT_FS_Driver::Initialize();
-		FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	////pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	////if (pFSVolume)
+	////{
+		////FAT_FS_Driver::Initialize();
+		////FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
 
-		////FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-
-		//FAT_FS_Driver::Initialize();
-		//g_FAT_FS_Driver.InitializeVolume(&(pFSVolume->m_volumeId));
-		//g_FAT_FS_Driver.Format(&(pFSVolume->m_volumeId), "TEST", FORMAT_PARAMETER_FORCE_FAT32);
 		/*pLogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 		if (pLogicDisk == NULL)
 		{
@@ -63,7 +55,9 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 			//pLogicDisk->Open( (LPCWSTR)path, &handle );
 			//pLogicDisk->Uninitialize();
 		}*/
-	}
+	////}
+
+
 
 	/*//Open/Create file (from MF/MicroFrameworkPK_v4_3/Solutions/SH7264_M3A_HS64/NativeSample/NativeSample.cpp)
 	const WCHAR* path = (const WCHAR*)"test1.txt";

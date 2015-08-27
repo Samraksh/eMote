@@ -16,7 +16,7 @@
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS_Utility.h"
 #include "../bl/netmf_bl_sdio.h"
-#include <tinyhal.h>
+
 
 using namespace Samraksh::eMote::DotNow;
 
@@ -107,7 +107,7 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 
 	//--------//
 
-	//Open/Create file
+	/*//Open/Create file
 	WCHAR* path = stringToShort(fileName);
 	UINT32 fileNameLen = stringLength(fileName);
 	UINT32 newFileLen;
@@ -122,36 +122,8 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
 		FAT_FS_Driver::Close(handle);
 	}
-	FAT_FS_Driver::Close(handle);
-
-
-	/*FAT_MemoryManager::Initialize();
-	FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
-	if(!fat_LogicDisk)
-	{
-		fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
-		//fat_LogicDisk->Open( (LPCWSTR)path, &handle );
-	}
-	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
-	if(!handle)
-	{
-		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
-		FAT_FS_Driver::Close(handle);
-	}
 	FAT_FS_Driver::Close(handle);*/
 
-
-
-	//g_FAT_LogicDisk.CreateDirectory(path);
-
-	//g_FAT_FS_Driver.Initialize();
-	/*FileSystemVolume* pFSVolume;
-	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
-	if (pFSVolume){
-		//g_FAT_FS_Driver.InitializeVolume(&(pFSVolume->m_volumeId));
-		g_FAT_FS_Driver.CreateDirectory(&(pFSVolume->m_volumeId), path);
-	}*/
 }
 
 INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
@@ -184,10 +156,9 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	const WCHAR* file = (const WCHAR*)"\\hello.txt";
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	//FAT_MemoryManager::Initialize();
-	////FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	//fat_LogicDisk = FAT_MemoryManager::AllocateLogicDisk( &(pFSVolume->m_volumeId) );
-	//FAT_LogicDisk* fat_LogicDisk = FAT_MemoryManager::GetLogicDisk( &(pFSVolume->m_volumeId) );
+	//FAT_FS_Driver::Initialize();
+	//FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
 	{

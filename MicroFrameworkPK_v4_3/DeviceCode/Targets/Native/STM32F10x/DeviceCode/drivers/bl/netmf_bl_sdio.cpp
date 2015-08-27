@@ -80,8 +80,8 @@ DeviceStatus STM32F10x_blDriver_SDIO::Initialize()
 	   	 return DS_Fail;
 	}
 
-	//if(SD_Init() != SD_OK)
-		//return DS_Fail;
+	if(SD_Init() != SD_OK)
+		return DS_Fail;
 
 	return DS_Success;
 }
@@ -111,9 +111,11 @@ BOOL STM32F10x_blDriver_SDIO::InitializeDevice( void* context )
 	   	 return FALSE;
 	}*/
 
-	Initialize();
-	if(SD_Init() != SD_OK)
+	bool retVal = Initialize();
+	if(retVal != DS_Success)
 		return FALSE;
+	//if(SD_Init() != SD_OK)
+		//return FALSE;
 
 	return TRUE;
 }
