@@ -156,9 +156,9 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	const WCHAR* file = (const WCHAR*)"\\hello.txt";
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	//FAT_FS_Driver::Initialize();
-	//FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
-	FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
+	FAT_FS_Driver::Initialize();
+	FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
+	//FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
 	{

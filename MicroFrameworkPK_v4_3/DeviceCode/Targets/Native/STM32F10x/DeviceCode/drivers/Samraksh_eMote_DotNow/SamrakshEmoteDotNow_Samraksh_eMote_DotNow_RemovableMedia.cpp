@@ -16,6 +16,12 @@
 #include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
 //#include "../DeviceCode/Include/BlockStorage_decl.h"
 
+
+#if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
+#pragma arm section rwdata = "g_AvailableFSInterfaces"
+#endif
+
+
 using namespace Samraksh::eMote::DotNow;
 
 extern FILESYSTEM_DRIVER_INTERFACE g_FAT32_FILE_SYSTEM_DriverInterface;
@@ -29,6 +35,11 @@ extern FAT_FS_Driver g_FAT_FS_Driver;*/
 
 //extern struct SD_BL_CONFIGURATION g_SD_BL_Config;
 
+void FS_AddVolumes()
+{
+	FileSystemVolumeList::AddVolume( &g_STM32F10x_FS, "U", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
+}
+
 void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 {
 	hal_printf("Inside RemovableMedia::MountRemovableVolumes...\n");
@@ -37,7 +48,12 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	FileSystemVolume* pFSVolume;
 	FAT_LogicDisk* pLogicDisk;
 
+	//From -- MicroFrameworkPK_v4_3\DeviceCode\Targets\Native\sh7264\DeviceCode\BlockStorage\USB\USB_BL_Driver.cpp
+	////FS_Initialize();
+	////FileSystemVolumeList::Initialize();
+	////FS_AddVolumes();
 	FileSystemVolumeList::AddVolume( &g_STM32F10x_FS, "U", 0, 0, &g_FAT32_STREAM_DriverInterface, &g_FAT32_FILE_SYSTEM_DriverInterface, &STM32F10x_BlockStorageDevice_SDCARD, 0, FALSE );
+	////FileSystemVolumeList::InitializeVolumes();
 
 	////pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	////if (pFSVolume)
@@ -79,4 +95,17 @@ void RemovableMedia::MountRemovableVolumes( HRESULT &hr )
 	}
 	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)path, &handle);*/
 }
+
+
+FILESYSTEM_INTERFACES g_AvailableFSInterfaces[] =
+{
+    { &g_FAT32_FILE_SYSTEM_DriverInterface, &g_FAT32_STREAM_DriverInterface },
+};
+
+const size_t g_InstalledFSCount = ARRAYSIZE(g_AvailableFSInterfaces);
+
+#if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
+#pragma arm section rwdata
+#endif
+
 
