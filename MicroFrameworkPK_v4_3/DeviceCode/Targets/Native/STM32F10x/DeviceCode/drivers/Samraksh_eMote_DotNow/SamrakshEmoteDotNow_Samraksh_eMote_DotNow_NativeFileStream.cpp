@@ -24,6 +24,7 @@ using namespace Samraksh::eMote::DotNow;
 UINT32 handle = 0;
 WCHAR* path;
 const WCHAR* file;
+LPCSTR globalFileName;
 
 /*extern FileSystemVolumeList g_FileSystemVolumeList;
 extern FAT_LogicDisk g_FAT_LogicDisk;
@@ -56,7 +57,7 @@ WCHAR* stringToShort(LPCSTR fileName)
 	return retVal;
 }
 
-WCHAR* getFileFromPath(WCHAR* fileName, int fileLength, UINT32* newFileLen)
+WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen)
 {
 	int i = 0, static_i = 0;
 	int j = 0, static_j = 0;
@@ -76,7 +77,7 @@ WCHAR* getFileFromPath(WCHAR* fileName, int fileLength, UINT32* newFileLen)
 		i++; static_j++;
 	}
 
-	WCHAR* file = (WCHAR*)private_malloc(static_j + 3 + 1);
+	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1);
 	while(static_i < fileLength)
 	{
 		file[j] = fileName[static_i];
@@ -113,9 +114,10 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	//--------//
 
 	//Open/Create file
+	UINT32 newFileLen;
+	globalFileName = fileName;
 	path = stringToShort(fileName);
 	UINT32 fileNameLen = stringLength(fileName);
-	UINT32 newFileLen;
 	file = getFileFromPath(path, fileNameLen, &newFileLen);
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
