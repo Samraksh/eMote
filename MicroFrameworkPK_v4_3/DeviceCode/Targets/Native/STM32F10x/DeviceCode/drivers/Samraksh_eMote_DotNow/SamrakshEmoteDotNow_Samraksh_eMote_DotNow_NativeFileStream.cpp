@@ -77,7 +77,9 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 		i++; static_j++;
 	}
 
-	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1);
+	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1 + 1);
+	file[j] = '\\';
+	j++;
 	while(static_i < fileLength)
 	{
 		file[j] = fileName[static_i];
