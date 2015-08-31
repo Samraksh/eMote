@@ -77,9 +77,9 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 		i++; static_j++;
 	}
 
-	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1 + 1);
-	file[j] = '\\';
-	j++;
+	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1);
+	//file[j] = '\\';
+	//j++;
 	while(static_i < fileLength)
 	{
 		file[j] = fileName[static_i];
@@ -124,7 +124,7 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	FileSystemVolume* pFSVolume;
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	//FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
@@ -166,7 +166,7 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	////FAT_FS_Driver::Initialize();
 	////FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
 	//FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::Write: Cannot open\\create file\r\n");
