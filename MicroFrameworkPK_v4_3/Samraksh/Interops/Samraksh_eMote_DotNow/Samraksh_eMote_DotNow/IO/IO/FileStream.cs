@@ -44,10 +44,10 @@ namespace System.IO
 
         public FileStream(String path, FileMode mode, FileAccess access, FileShare share, int bufferSize)
         {
-            Debug.Print("Entering FileStream constructor");
+            //Debug.Print("Entering FileStream constructor");
             // This will perform validation on path
             _fileName = Path.GetFullPath(path);
-            Debug.Print("FileStream constructor - step 1");
+            //Debug.Print("FileStream constructor - step 1");
 
             // make sure mode, access, and share are within range
             if (mode < FileMode.CreateNew || mode > FileMode.Append ||
@@ -57,14 +57,14 @@ namespace System.IO
                 throw new ArgumentOutOfRangeException();
             }
 
-            Debug.Print("FileStream constructor - step 2");
+            //Debug.Print("FileStream constructor - step 2");
 
             // Get wantsRead and wantsWrite from access, note that they cannot both be false
             bool wantsRead = (access & FileAccess.Read) == FileAccess.Read;
             bool wantsWrite = (access & FileAccess.Write) == FileAccess.Write;
 
-            Debug.Print("FileStream constructor - wantsRead " + wantsRead.ToString());
-            Debug.Print("FileStream constructor - wantsWrite " + wantsWrite.ToString());
+            //Debug.Print("FileStream constructor - wantsRead " + wantsRead.ToString());
+            //Debug.Print("FileStream constructor - wantsWrite " + wantsWrite.ToString());
 
             // You can't open for readonly access (wantsWrite == false) when
             // mode is CreateNew, Create, Truncate or Append (when it's not Open or OpenOrCreate)
@@ -73,70 +73,71 @@ namespace System.IO
                 throw new ArgumentException();
             }
 
-            Debug.Print("FileStream constructor - step 3");
+            //Debug.Print("FileStream constructor - step 3");
 
             // We need to register the share information prior to the actual file open call (the NativeFileStream ctor)
             // so subsequent file operation on the same file will behave correctly
             _fileRecord = FileSystemManager.AddToOpenList(_fileName, (int)access, (int)share);
 
-            Debug.Print("FileStream constructor - step 4a");
+            //Debug.Print("FileStream constructor - step 4a");
 
             try
             {
-                Debug.Print("FileStream constructor - step 4b");
+                //Debug.Print("FileStream constructor - step 4b");
                 uint attributes = NativeIO.GetAttributes(_fileName);
-                Debug.Print("FileStream constructor - step 4c");
+                //Debug.Print("FileStream constructor - step 4c");
                 bool exists = (attributes != 0xFFFFFFFF);
-                Debug.Print("FileStream constructor - step 4d");
+                //Debug.Print("FileStream constructor - step 4d");
                 bool isReadOnly = (exists) ? (((FileAttributes)attributes) & FileAttributes.ReadOnly) == FileAttributes.ReadOnly : false;
-                Debug.Print("FileStream constructor - step 4e exists : " + exists.ToString());
+                /*Debug.Print("FileStream constructor - step 4e exists : " + exists.ToString());
                 Debug.Print("FileStream constructor - step 4e attributes : " + attributes.ToString());
-                Debug.Print("FileStream constructor - step 4e isReadOnly : " + isReadOnly.ToString());
+                Debug.Print("FileStream constructor - step 4e isReadOnly : " + isReadOnly.ToString());*/
+                //Removing below debug statement causes a crash. Not sure what the reason is, as crash happens even when I add a sleep(1) surrounded by while for a total looping time of 10 ms.
                 Debug.Print("FileStream constructor - step 4e (FileAttributes)attributes : " + (((FileAttributes)attributes) & FileAttributes.Directory).ToString());
                 
                 
                 // If the path specified is an existing directory, fail
                 if (exists && ((((FileAttributes)attributes) & FileAttributes.Directory) == FileAttributes.Directory))
                 {
-                    Debug.Print("FileStream constructor - step 4f");
+                    //Debug.Print("FileStream constructor - step 4f");
                     throw new IOException("", (int)IOException.IOExceptionErrorCode.UnauthorizedAccess);
                 }
 
-                Debug.Print("FileStream constructor - step 4g");
+                //Debug.Print("FileStream constructor - step 4g");
 
                 // The seek limit is 0 (the beginning of the file) for all modes except Append
                 _seekLimit = 0;
 
-                Debug.Print("FileStream constructor - step 4h");
+                //Debug.Print("FileStream constructor - step 4h");
 
                 switch (mode)
                 {
                     case FileMode.CreateNew: // if the file exists, IOException is thrown
-                        Debug.Print("FileStream constructor - step 5a");
+                        //Debug.Print("FileStream constructor - step 5a");
                         if (exists) throw new IOException("", (int)IOException.IOExceptionErrorCode.PathAlreadyExists);
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
                         break;
 
                     case FileMode.Create: // if the file exists, it should be overwritten
-                        Debug.Print("FileStream constructor - step 5b");
+                        //Debug.Print("FileStream constructor - step 5b");
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
                         if (exists) _nativeFileStream.SetLength(0);
                         break;
 
                     case FileMode.Open: // if the file does not exist, IOException/FileNotFound is thrown
-                        Debug.Print("FileStream constructor - step 5c");
+                        //Debug.Print("FileStream constructor - step 5c");
                         if (!exists) throw new IOException("", (int)IOException.IOExceptionErrorCode.FileNotFound);
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
                         break;
 
                     case FileMode.OpenOrCreate: // if the file does not exist, it is created
-                        Debug.Print("FileStream constructor - step 5d - enter");
+                        //Debug.Print("FileStream constructor - step 5d - enter");
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
-                        Debug.Print("FileStream constructor - step 5d - exit");
+                        //Debug.Print("FileStream constructor - step 5d - exit");
                         break;
 
                     case FileMode.Truncate: // the file would be overwritten. if the file does not exist, IOException/FileNotFound is thrown
-                        Debug.Print("FileStream constructor - step 5e");
+                        //Debug.Print("FileStream constructor - step 5e");
                         if (!exists) throw new IOException("", (int)IOException.IOExceptionErrorCode.FileNotFound);
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
                         _nativeFileStream.SetLength(0);
@@ -144,7 +145,7 @@ namespace System.IO
 
                     case FileMode.Append: // Opens the file if it exists and seeks to the end of the file. Append can only be used in conjunction with FileAccess.Write
                         // Attempting to seek to a position before the end of the file will throw an IOException and any attempt to read fails and throws an NotSupportedException
-                        Debug.Print("FileStream constructor - step 5f");
+                        //Debug.Print("FileStream constructor - step 5f");
                         if (access != FileAccess.Write) throw new ArgumentException();
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
                         _seekLimit = _nativeFileStream.Seek(0, (uint)SeekOrigin.End);
@@ -157,10 +158,10 @@ namespace System.IO
 
                 // Now that we have a valid NativeFileStream, we add it to the FileRecord, so it could gets clean up
                 // in case an eject or force format
-                Debug.Print("FileStream constructor - step 5g");
+                //Debug.Print("FileStream constructor - step 5g");
                 _fileRecord.NativeFileStream = _nativeFileStream;
 
-                Debug.Print("FileStream constructor - step 6");
+                //Debug.Print("FileStream constructor - step 6");
 
                 // Retrive the filesystem capabilities
                 _nativeFileStream.GetStreamProperties(out _canRead, out _canWrite, out _canSeek);
@@ -168,19 +169,19 @@ namespace System.IO
                 _canWrite = true;
                 _canSeek = true;
 
-                Debug.Print("FileStream constructor - step 7");
+                //Debug.Print("FileStream constructor - step 7");
 
                 // If the file is readonly, regardless of the filesystem capability, we'll turn off write
                 if (isReadOnly)
                 {
-                    Debug.Print("FileStream constructor - step 8");
+                    //Debug.Print("FileStream constructor - step 8");
                     _canWrite = false;
                 }
 
                 // Make sure the requests (wantsRead / wantsWrite) matches the filesystem capabilities (canRead / canWrite)
                 if ((wantsRead && !_canRead) || (wantsWrite && !_canWrite))
                 {
-                    Debug.Print("FileStream constructor - step 9");
+                    //Debug.Print("FileStream constructor - step 9");
                     Debug.Print("FileStream constructor - _canRead " + _canRead.ToString());
                     Debug.Print("FileStream constructor - _canWrite " + _canWrite.ToString());
                     throw new IOException("", (int)IOException.IOExceptionErrorCode.UnauthorizedAccess);
@@ -189,18 +190,18 @@ namespace System.IO
                 // finally, adjust the _canRead / _canWrite to match the requests
                 if (!wantsWrite)
                 {
-                    Debug.Print("FileStream constructor - step 10");
+                    //Debug.Print("FileStream constructor - step 10");
                     _canWrite = false;
                 }
                 else if (!wantsRead)
                 {
-                    Debug.Print("FileStream constructor - step 11");
+                    //Debug.Print("FileStream constructor - step 11");
                     _canRead = false;
                 }
             }
             catch
             {
-                Debug.Print("Catching exception in FileStream constructor");
+                //Debug.Print("Catching exception in FileStream constructor");
                 // something went wrong, clean up and re-throw the exception
                 if (_nativeFileStream != null)
                 {
@@ -211,7 +212,7 @@ namespace System.IO
 
                 throw;
             }
-            Debug.Print("Exiting FileStream constructor");
+            //Debug.Print("Exiting FileStream constructor");
         }
 
         protected override void Dispose(bool disposing)
@@ -307,22 +308,22 @@ namespace System.IO
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            Debug.Print("Entering FileStream Write");
+            //Debug.Print("Entering FileStream Write");
             if (_disposed) throw new ObjectDisposedException();
             if (!_canWrite) throw new NotSupportedException();
             
             // argument validation in interop layer
             int bytesWritten;
 
-            Debug.Print("FileStream Write step 2");
+            //Debug.Print("FileStream Write step 2");
             lock (_nativeFileStream)
             {
-                Debug.Print("FileStream Write step 3");
+                //Debug.Print("FileStream Write step 3");
                 // we check for count being != 0 because we want to handle negative cases
                 // as well in the interop layer
                 while (count != 0)
                 {
-                    Debug.Print("FileStream Write step 4");
+                    //Debug.Print("FileStream Write step 4");
                     int i = 0;
                     while (i < 1)
                     {
@@ -330,7 +331,7 @@ namespace System.IO
                         i++;
                     }
                     bytesWritten = _nativeFileStream.Write(buffer, offset, count, NativeFileStream.TimeoutDefault);
-                    Debug.Print("FileStream Write step 5");
+                    //Debug.Print("FileStream Write step 5");
 
                     if (bytesWritten == 0) throw new IOException();
 
@@ -338,7 +339,7 @@ namespace System.IO
                     count -= bytesWritten;
                 }
             }
-            Debug.Print("Exiting FileStream Write");
+            //Debug.Print("Exiting FileStream Write");
         }
 
         public override bool CanRead

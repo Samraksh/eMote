@@ -33,7 +33,8 @@ extern FAT_SectorCache g_FAT_SectorCache;
 extern FAT_MemoryManager g_FAT_MemoryManager;
 extern FAT_FILE g_FAT_FILE;*/
 
-unsigned short stringLength(LPCSTR fileName)
+template<class T1>
+unsigned short stringLength(T1 fileName)
 {
 	unsigned short i = 0;
 	while(fileName[i] != '\0') {
@@ -88,6 +89,8 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 
 	*newFileLen = j;
 	file[j] = '\0';
+	//LPCWSTR newFile = file;
+	//return newFile;
 	return file;
 }
 
@@ -95,43 +98,33 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 
 void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 bufferSize, HRESULT &hr )
 {
-	hal_printf("Inside NativeFileStream::_ctor\n");
-	hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
-	hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
-
-	//--------//
-	/*WCHAR* path = stringToShort(fileName);
-	FileSystemVolume* pFSVolume;
-	pFSVolume = g_FileSystemVolumeList.FindVolume("ROOT", 4);
-	FAT_LogicDisk* fat_LogicDisk = g_FAT_MemoryManager.GetLogicDisk( &(pFSVolume->m_volumeId) );
-	if(!fat_LogicDisk)
-	{
-		fat_LogicDisk = g_FAT_MemoryManager.AllocateLogicDisk( &(pFSVolume->m_volumeId) );
-	}
-	UINT32 fileNameLen = stringLength(fileName);
-	UINT32 newFileLen;
-	const WCHAR* file = getFileFromPath(path, fileNameLen, &newFileLen);
-	g_FAT_FILE.Create(fat_LogicDisk, 1, file, newFileLen, 0x80);*/
-
-	//--------//
+	//hal_printf("Inside NativeFileStream::_ctor\n");
+	//hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
+	//hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
 
 	//Open/Create file
-	UINT32 newFileLen;
-	globalFileName = fileName;
-	path = stringToShort(fileName);
-	UINT32 fileNameLen = stringLength(fileName);
-	file = getFileFromPath(path, fileNameLen, &newFileLen);
 	FileSystemVolume* pFSVolume;
+	UINT32 newFileLen;
+	UINT32 fileNameLen;
+
+	globalFileName = fileName;
+	fileNameLen = stringLength(fileName);
+	path = stringToShort(fileName);
+	//file = getFileFromPath(path, fileNameLen, &newFileLen);
+
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	//FAT_LogicDisk* fat_LogicDisk = FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
+
+	HRESULT retValCreateDir = FAT_FS_Driver::CreateDirectory(&pFSVolume->m_volumeId, path);
+
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
 		FAT_FS_Driver::Close(handle);
 	}
 	FAT_FS_Driver::Close(handle);
-
 }
 
 INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
@@ -143,39 +136,30 @@ INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8
 
 INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 buffer, INT32 offset, INT32 count, INT32 timeout, HRESULT &hr )
 {
-	/*hal_printf("Inside NativeFileStream::Write\n");
-	int bytesReadWrite = 0;
-	UINT32 handle;
-	bool result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), count, &bytesReadWrite );
-	if(bytesReadWrite != count)
+	//hal_printf("Inside NativeFileStream::Write\n");
+
+	/*int i = 0;
+	while (i < 1)
 	{
-		hal_printf("NativeFileStream - Write FAILED\r\n");
-		FAT_FS_Driver::Close(handle);
-		return FALSE;
-	}
+		HAL_Time_Sleep_MicroSeconds(1000);
+		i++;
+	}*/
 
-	FAT_FS_Driver::Close(handle);
-	hal_printf("NativeFileStream - Write SUCCESS\r\n");
-	return TRUE;*/
-
-	hal_printf("Inside NativeFileStream::Write\n");
-
-	//const WCHAR* file = (const WCHAR*)"\\hello.txt";
 	FileSystemVolume* pFSVolume;
+
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	////FAT_FS_Driver::Initialize();
-	////FAT_FS_Driver::InitializeVolume(&(pFSVolume->m_volumeId));
-	//FAT_LogicDisk::Initialize(&(pFSVolume->m_volumeId));
-	FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::Write: Cannot open\\create file\r\n");
 	}
 
 	int bytesReadWrite = 0;
-	BOOL result = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), 21, &bytesReadWrite );
+	HRESULT retValWrite = FAT_FS_Driver::Write( handle, buffer.GetBuffer(), (int)buffer.GetSize(), &bytesReadWrite );
 	//FAT_FS_Driver::Flush(handle);
-	if(bytesReadWrite != 21)
+	if(bytesReadWrite != buffer.GetSize())
 	{
 		hal_printf("NativeFileStream::Write: - Write File Test: FAILED\r\n");
 		FAT_FS_Driver::Close(handle);
@@ -183,26 +167,9 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	}
 
 	FAT_FS_Driver::Close(handle);
+	HAL_Time_Sleep_MicroSeconds(1000);
 	hal_printf("NativeFileStream::Write: - Write File Test: SUCCESS\r\n");
 	return bytesReadWrite;
-
-
-	/*SD_Error status;
-	SD_CardInfo SDCardInfo;
-	status = SD_GetCardInfo(&SDCardInfo);
-	status = SD_WriteBlock(buffer.GetBuffer(), 0x0, SDCardInfo.CardBlockSize);
-
-	if(status == SD_OK )
-	{
-		hal_printf("NativeFileStream - Write SUCCESS\r\n");
-		return TRUE;
-	}
-	else {
-		hal_printf("NativeFileStream - Write FAILED\r\n");
-		return FALSE;
-	}*/
-    //INT32 retVal = 0;
-    //return retVal;
 }
 
 INT64 NativeFileStream::Seek( CLR_RT_HeapBlock* pMngObj, INT64 param0, UINT32 param1, HRESULT &hr )
@@ -229,7 +196,7 @@ void NativeFileStream::SetLength( CLR_RT_HeapBlock* pMngObj, INT64 param0, HRESU
 	hal_printf("Inside NativeFileStream::SetLength\n");
 }
 
-void NativeFileStream::GetStreamProperties( CLR_RT_HeapBlock* pMngObj, INT8 * param0, INT8 * param1, INT8 * param2, HRESULT &hr )
+void NativeFileStream::GetStreamProperties( CLR_RT_HeapBlock* pMngObj, INT8 * canRead, INT8 * canWrite, INT8 * canSeek, HRESULT &hr )
 {
 	hal_printf("Inside NativeFileStream::GetStreamProperties\n");
 }

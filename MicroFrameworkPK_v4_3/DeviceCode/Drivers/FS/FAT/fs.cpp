@@ -113,12 +113,12 @@ HRESULT FAT_FS_Driver::GetVolumeLabel( const VOLUME_ID* volume, LPSTR volumeLabe
 
 HRESULT FAT_FS_Driver::Open( const VOLUME_ID *volume, LPCWSTR path, UINT32 *handle )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)
     {
-    	GLOBAL_LOCK(irq);
-        return logicDisk->Open( path, handle );
+    	return logicDisk->Open( path, handle );
     }
 
     return CLR_E_INVALID_DRIVER;
@@ -126,10 +126,10 @@ HRESULT FAT_FS_Driver::Open( const VOLUME_ID *volume, LPCWSTR path, UINT32 *hand
 
 HRESULT FAT_FS_Driver::Close( UINT32 handle )
 {
-    if(handle == 0)
+	GLOBAL_LOCK(irq);
+	if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 
-    GLOBAL_LOCK(irq);
     FAT_FileHandle* fileHandle = (FAT_FileHandle*)handle;
 
     return fileHandle->Close();
@@ -147,11 +147,11 @@ HRESULT FAT_FS_Driver::Read( UINT32 handle, BYTE* buffer, int size, int* bytesRe
 
 HRESULT FAT_FS_Driver::Write( UINT32 handle, BYTE* buffer, int size, int* bytesWritten )
 {
+	GLOBAL_LOCK(irq);
 	hal_printf("Entering FAT_FS_Driver::Write\n");
-    if(handle == 0)
+	if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 
-    //GLOBAL_LOCK(irq);
     FAT_FileHandle* fileHandle = (FAT_FileHandle*)handle;
 
     return fileHandle->Write( buffer, size, bytesWritten );
@@ -159,10 +159,10 @@ HRESULT FAT_FS_Driver::Write( UINT32 handle, BYTE* buffer, int size, int* bytesW
 
 HRESULT FAT_FS_Driver::Flush(UINT32 handle)
 {
-    if(handle == 0)
+	GLOBAL_LOCK(irq);
+	if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 
-    GLOBAL_LOCK(irq);
     FAT_FileHandle* fileHandle = (FAT_FileHandle*)handle;
 
     return fileHandle->Flush();

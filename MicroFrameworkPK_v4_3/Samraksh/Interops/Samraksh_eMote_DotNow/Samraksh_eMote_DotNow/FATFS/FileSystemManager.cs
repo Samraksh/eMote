@@ -102,9 +102,9 @@ namespace Samraksh.eMote.DotNow
                 m_openFiles.Add(record);
             }
 
-            Debug.Print("Exiting AddToOpenList");
-            Debug.Print("record.FullName " + record.FullName);
-            Debug.Print("record.Share " + record.Share.ToString());
+            //Debug.Print("Exiting AddToOpenList");
+            //Debug.Print("record.FullName " + record.FullName);
+            //Debug.Print("record.Share " + record.Share.ToString());
             return record;
         }
 
