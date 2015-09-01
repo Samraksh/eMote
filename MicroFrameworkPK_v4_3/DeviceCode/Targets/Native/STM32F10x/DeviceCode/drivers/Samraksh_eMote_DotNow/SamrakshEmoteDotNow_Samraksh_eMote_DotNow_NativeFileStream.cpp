@@ -199,6 +199,24 @@ void NativeFileStream::SetLength( CLR_RT_HeapBlock* pMngObj, INT64 param0, HRESU
 void NativeFileStream::GetStreamProperties( CLR_RT_HeapBlock* pMngObj, INT8 * canRead, INT8 * canWrite, INT8 * canSeek, HRESULT &hr )
 {
 	hal_printf("Inside NativeFileStream::GetStreamProperties\n");
+	/*FileSystemVolume* pFSVolume;
+	UINT32 attributes;
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	HRESULT retValAttrs = FAT_FS_Driver::GetAttributes(&pFSVolume->m_volumeId, path, &attributes);
+
+	FS_FILEINFO* fileInfo;
+	BOOL * found;
+	UINT32 newFileLen;
+	UINT32 fileNameLen;
+	//fileNameLen = stringLength(globalFileName);
+	//file = getFileFromPath(path, fileNameLen, &newFileLen);
+	//HRESULT retValFileInfo = FAT_FS_Driver::GetFileInfo(&pFSVolume->m_volumeId, path, fileInfo, found);
+
+	//BlockDeviceInfo* bInfo = STM32F10x_blDriver_SDIO::GetDeviceInfo(this->context);
+
+	SD_Error status;
+	SD_CardInfo SDCardInfo;
+	status = SD_GetCardInfo(&SDCardInfo);*/
 }
 
 void NativeFileStream::Close( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
