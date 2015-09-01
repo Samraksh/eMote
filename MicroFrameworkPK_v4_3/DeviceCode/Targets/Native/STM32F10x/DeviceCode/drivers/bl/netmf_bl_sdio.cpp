@@ -146,7 +146,7 @@ BOOL STM32F10x_blDriver_SDIO::Read( void* context, ByteAddress Address, UINT32 N
 
 BOOL STM32F10x_blDriver_SDIO::Write( void* context, ByteAddress address, UINT32 numBytes, BYTE * pSectorBuff, BOOL ReadModifyWrite )
 {
-	GLOBAL_LOCK(irq);
+	//GLOBAL_LOCK(irq);
 	SD_Error status;
 
 	SD_CardInfo SDCardInfo;

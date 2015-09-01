@@ -51,7 +51,7 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_SDCARD =
     34,										    // UINT32 Duration_Max_WordWrite_uSec;
 
     14800,										// UINT32 Duration_Max_SectorErase_uSec;
-    0x200,										// BytesPerSector;
+    0x2,										// BytesPerSector;
 
     // The PLATFORM_ARM_EmoteDotNow has a 16MB Flash and the dev board has a 128 Mb Flash
 #ifdef PLATFORM_ARM_EmoteDotNow
