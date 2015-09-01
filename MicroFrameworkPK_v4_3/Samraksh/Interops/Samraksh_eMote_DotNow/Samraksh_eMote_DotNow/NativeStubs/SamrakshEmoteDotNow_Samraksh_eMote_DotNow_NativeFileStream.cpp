@@ -28,7 +28,6 @@ INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8
 
 INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
 {
-	hal_printf("Inside NativeFileStream::Write\n");
     INT32 retVal = 0; 
     return retVal;
 }

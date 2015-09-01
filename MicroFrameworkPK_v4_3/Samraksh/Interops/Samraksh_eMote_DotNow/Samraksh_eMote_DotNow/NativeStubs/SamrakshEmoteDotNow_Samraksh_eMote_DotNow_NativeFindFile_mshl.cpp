@@ -43,7 +43,7 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFindFile::GetNex
 
         UNSUPPORTED_TYPE retVal = NativeFindFile::GetNext( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        //SetResult_UNSUPPORTED_TYPE( stack, retVal );
+        SetResult_UNSUPPORTED_TYPE( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
@@ -72,7 +72,7 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFindFile::GetFil
 
         UNSUPPORTED_TYPE retVal = NativeFindFile::GetFileInfo( param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        //SetResult_UNSUPPORTED_TYPE( stack, retVal );
+        SetResult_UNSUPPORTED_TYPE( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
