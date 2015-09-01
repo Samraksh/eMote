@@ -159,9 +159,9 @@
 //#define RT_HARDWARE_TIMER 3
 
 // Rudimentary TinyOS support for TinyBooter
-//#define ENABLE_TINYOS_HACK
-//#define TINYOS_BOOT_MAGIC 0xb16b00b5 // What, boorish and crass, me?
-//#define TINYOS_BOOT_MAGIC_LOC 0x080200EC // Location in flash memory where TinyOS identifier key is located
+#define ENABLE_TINYOS_HACK
+#define TINYOS_BOOT_MAGIC 0xb16b00b5 // What, boorish and crass, me?
+#define TINYOS_BOOT_MAGIC_LOC 0x080200EC // Location in flash memory where TinyOS identifier key is located
 
 //#define TINYHAL_BOOTUP_DISPLAY_BUILD_INFO // Seems redundant
 
