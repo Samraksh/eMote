@@ -36,7 +36,7 @@ void VolumeInfo::FlushAll( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 LPCSTR VolumeInfo::GetName( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	hal_printf("Inside VolumeInfo::GetName\n");
+	//hal_printf("Inside VolumeInfo::GetName\n");
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	return pFSVolume->m_nameSpace;
     //LPCSTR retVal = 0;

@@ -12,7 +12,7 @@
 const BlockRange STM32F10x_BlockRange_SDCARD[] =
 {
 #ifdef PLATFORM_ARM_EmoteDotNow
-    { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,0x1CDAB8 }
+    { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,0x1FFFFF }	//RangeType, StartBlock, EndBlock
 #else
     { BlockRange::BLOCKTYPE_FILESYSTEM          ,0,127 }
 #endif
@@ -26,9 +26,10 @@ const BlockRegionInfo  STM32F10x_BlockRegionInfo_SDCARD[1] =
 #ifdef PLATFORM_ARM_EmoteDotNow
     //0x1000,
     //0x1000000,
-	0x1CDAB8,		// UINT32          NumBlocks;          // total number of blocks in this region
-	0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
+	0x1FFFFF,		// UINT32          NumBlocks;          // total number of blocks in this region
+	0x1000,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
 					//Don't use 0x200 for BytesPerBlock
+					//Size of sdcard is : (NumBlocks * BytesPerBlock) - (Size of one block)
 #else
 	0x400000,			// UINT32          NumBlocks;          // total number of blocks in this region
     0x800,			// UINT32          BytesPerBlock;      // Total number of bytes per block (MUST be SectorsPerBlock * DataBytesPerSector)
@@ -54,7 +55,7 @@ BlockDeviceInfo STM32F10x_BlockDeviceInfo_SDCARD =
 
     // The PLATFORM_ARM_EmoteDotNow has a 16MB Flash and the dev board has a 128 Mb Flash
 #ifdef PLATFORM_ARM_EmoteDotNow
-    0x200000000,
+    0x1FFFFF000,
 #else
     0x1000000,									// UINT32 Size;
 #endif

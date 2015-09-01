@@ -204,5 +204,6 @@ void NativeFileStream::GetStreamProperties( CLR_RT_HeapBlock* pMngObj, INT8 * ca
 void NativeFileStream::Close( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	hal_printf("Inside NativeFileStream::Close\n");
+	HAL_Time_Sleep_MicroSeconds(1000);
 }
 

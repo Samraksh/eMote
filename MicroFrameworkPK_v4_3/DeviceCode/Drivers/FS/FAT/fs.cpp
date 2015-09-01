@@ -80,6 +80,7 @@ HRESULT FAT_FS_Driver::GetSizeInfo( const VOLUME_ID* volume, INT64* totalSize, I
 
 HRESULT FAT_FS_Driver::FlushAll( const VOLUME_ID* volume )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)
@@ -94,6 +95,7 @@ HRESULT FAT_FS_Driver::FlushAll( const VOLUME_ID* volume )
 
 HRESULT FAT_FS_Driver::GetVolumeLabel( const VOLUME_ID* volume, LPSTR volumeLabel, INT32 volumeLabelLen )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)
@@ -148,7 +150,7 @@ HRESULT FAT_FS_Driver::Read( UINT32 handle, BYTE* buffer, int size, int* bytesRe
 HRESULT FAT_FS_Driver::Write( UINT32 handle, BYTE* buffer, int size, int* bytesWritten )
 {
 	GLOBAL_LOCK(irq);
-	hal_printf("Entering FAT_FS_Driver::Write\n");
+	//hal_printf("Entering FAT_FS_Driver::Write\n");
 	if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 
@@ -170,6 +172,7 @@ HRESULT FAT_FS_Driver::Flush(UINT32 handle)
 
 HRESULT FAT_FS_Driver::Seek( UINT32 handle, INT64 offset, UINT32 origin, INT64* position )
 {
+	GLOBAL_LOCK(irq);
     if(handle == 0)
         return CLR_E_INVALID_PARAMETER;
 
@@ -236,6 +239,7 @@ HRESULT FAT_FS_Driver::FindClose( UINT32 handle )
 
 HRESULT FAT_FS_Driver::GetFileInfo( const VOLUME_ID* volume, LPCWSTR path, FS_FILEINFO* fileInfo, BOOL * found )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)
@@ -248,6 +252,7 @@ HRESULT FAT_FS_Driver::GetFileInfo( const VOLUME_ID* volume, LPCWSTR path, FS_FI
 
 HRESULT FAT_FS_Driver::GetAttributes( const VOLUME_ID* volume, LPCWSTR path, UINT32* attributes )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)
@@ -272,6 +277,7 @@ HRESULT FAT_FS_Driver::SetAttributes( const VOLUME_ID* volume, LPCWSTR path, UIN
 
 HRESULT FAT_FS_Driver::CreateDirectory( const VOLUME_ID* volume, LPCWSTR path )
 {
+	GLOBAL_LOCK(irq);
     FAT_LogicDisk* logicDisk = FAT_MemoryManager::GetLogicDisk( volume );
 
     if(logicDisk)

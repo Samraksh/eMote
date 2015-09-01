@@ -171,7 +171,8 @@ HRESULT FAT_FileHandle::Read( BYTE* buffer, int size, int* bytesRead )
 
 HRESULT FAT_FileHandle::Write( BYTE* buffer, int size, int* bytesWritten )
 {
-	hal_printf("Entering FAT_FileHandle::Write\n");
+	GLOBAL_LOCK(irq);
+	//hal_printf("Entering FAT_FileHandle::Write\n");
     TINYCLR_HEADER();
 
     FAT_Directory* dirEntry;
