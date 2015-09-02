@@ -203,6 +203,8 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__SamraksheMoteDotNowDeviceStatus);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U1__U2__U2__U4);
     TINYCLR_NATIVE_DECLARE(InternalRead___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U1__U2__U2__U4);
+    TINYCLR_NATIVE_DECLARE(InternalTotalSize___STATIC__U8);
+    TINYCLR_NATIVE_DECLARE(InternalTotalFreeSpace___STATIC__U8);
 
     //--//
 

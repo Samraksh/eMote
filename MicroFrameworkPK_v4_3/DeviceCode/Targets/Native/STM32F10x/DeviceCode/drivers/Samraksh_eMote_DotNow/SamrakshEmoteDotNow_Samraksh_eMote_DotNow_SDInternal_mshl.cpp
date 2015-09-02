@@ -72,3 +72,27 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalRe
     }
     TINYCLR_NOCLEANUP();
 }
+
+HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalTotalSize___STATIC__U8( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        UINT64 retVal = SDInternal::InternalTotalSize( hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT64( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalTotalFreeSpace___STATIC__U8( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        UINT64 retVal = SDInternal::InternalTotalFreeSpace( hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT64( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}

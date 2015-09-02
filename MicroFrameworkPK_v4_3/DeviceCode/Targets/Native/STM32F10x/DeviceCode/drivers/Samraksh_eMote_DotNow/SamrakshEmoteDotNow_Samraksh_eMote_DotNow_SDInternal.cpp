@@ -15,6 +15,7 @@
 #include "SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal.h"
 
 #include <Samraksh\Hal_util.h>
+#include "../DeviceCode/Drivers/FS/FAT/FAT_FS.h"
 #include "..\bl\netmf_bl_sdio.h"
 
 extern "C"
@@ -62,6 +63,24 @@ INT32 SDInternal::InternalWrite( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offse
 INT32 SDInternal::InternalRead( CLR_RT_TypedArray_UINT8 dataArray, UINT16 offset, UINT16 length, UINT32 readAddressPtr, HRESULT &hr )
 {
 	return g_STM32F10x_blDriver_SDIO.ReadBlock(dataArray.GetBuffer(), readAddressPtr, length);
+}
+
+long long int SDInternal::InternalTotalSize( HRESULT &hr )
+{
+	FileSystemVolume* pFSVolume;
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	long long int totalSize = 0, totalFreeSpace = 0;
+	FAT_FS_Driver::GetSizeInfo(&pFSVolume->m_volumeId, &totalSize, &totalFreeSpace);
+	return totalSize;
+}
+
+long long int SDInternal::InternalTotalFreeSpace( HRESULT &hr )
+{
+	FileSystemVolume* pFSVolume;
+	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	long long int totalSize = 0, totalFreeSpace = 0;
+	FAT_FS_Driver::GetSizeInfo(&pFSVolume->m_volumeId, &totalSize, &totalFreeSpace);
+	return totalFreeSpace;
 }
 
 static HRESULT InitializeSDDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )

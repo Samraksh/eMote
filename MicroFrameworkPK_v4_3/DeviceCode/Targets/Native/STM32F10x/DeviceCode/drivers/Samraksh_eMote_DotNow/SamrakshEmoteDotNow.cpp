@@ -36,6 +36,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Init___STATIC__I4__I4,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Read___STATIC__R8__I4,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::ConfigureBatchMode___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4,
@@ -131,6 +133,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalInitialize___STATIC__SamraksheMoteDotNowDeviceStatus,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalWrite___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U1__U2__U2__U4,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalRead___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U1__U2__U2__U4,
+    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalTotalSize___STATIC__U8,
+    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SDInternal::InternalTotalFreeSpace___STATIC__U8,
     NULL,
     NULL,
     NULL,
@@ -160,7 +164,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_DotNow =
 {
     "Samraksh_eMote_DotNow", 
-    0x1268B5BD,
+    0xE706BB05,
     method_lookup
 };
 

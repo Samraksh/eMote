@@ -27,6 +27,8 @@ namespace Samraksh
                 static INT32 InternalInitialize( HRESULT &hr );
                 static INT32 InternalWrite( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr );
                 static INT32 InternalRead( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr );
+                static long long int InternalTotalSize( HRESULT &hr );
+                static long long int InternalTotalFreeSpace( HRESULT &hr );
             };
         }
     }
