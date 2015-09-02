@@ -285,7 +285,13 @@ namespace System.IO
             lock (_nativeFileStream)
             {
                 // argument validation in interop layer
-                return _nativeFileStream.Read(buffer, offset, count, NativeFileStream.TimeoutDefault);
+                int i = 0;
+                while (i < 1)
+                {
+                    System.Threading.Thread.Sleep(1);
+                    i++;
+                }
+                return _nativeFileStream.Read(Name, buffer, offset, count, NativeFileStream.TimeoutDefault);
             }
         }
 
@@ -330,7 +336,7 @@ namespace System.IO
                         System.Threading.Thread.Sleep(1);
                         i++;
                     }
-                    bytesWritten = _nativeFileStream.Write(buffer, offset, count, NativeFileStream.TimeoutDefault);
+                    bytesWritten = _nativeFileStream.Write(Name, buffer, offset, count, NativeFileStream.TimeoutDefault);
                     //Debug.Print("FileStream Write step 5");
 
                     if (bytesWritten == 0) throw new IOException();

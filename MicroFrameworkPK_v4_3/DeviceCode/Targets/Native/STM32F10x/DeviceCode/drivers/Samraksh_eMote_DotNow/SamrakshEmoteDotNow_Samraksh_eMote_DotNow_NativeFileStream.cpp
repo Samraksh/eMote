@@ -21,6 +21,7 @@
 using namespace Samraksh::eMote::DotNow;
 
 
+FileSystemVolume* pFSVolume;
 UINT32 handle = 0;
 WCHAR* path;
 WCHAR* folderPath;
@@ -129,7 +130,6 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	//hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
 
 	//Open/Create file
-	FileSystemVolume* pFSVolume;
 	UINT32 newFileLen;
 	UINT32 fileNameLen;
 
@@ -140,12 +140,11 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	//for some reason, path gets corrupted while extracting its contents. Hence, reassigning
 	path = stringToShort(fileName, fileNameLen);
 	folderPath = getFolderFromPath(path, fileNameLen, &newFileLen);
-	path = stringToShort(fileName, fileNameLen);
+	//path = stringToShort(fileName, fileNameLen);
 
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-
 	HRESULT retValCreateDir = FAT_FS_Driver::CreateDirectory(&pFSVolume->m_volumeId, folderPath);
-
+	path = stringToShort(fileName, fileNameLen);
 	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
@@ -157,28 +156,31 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 	FAT_FS_Driver::Close(handle);
 }
 
-INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
+INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, LPCSTR filePath, CLR_RT_TypedArray_UINT8 buffer, INT32 offset, INT32 size, INT32 timeout, HRESULT &hr )
 {
 	hal_printf("Inside NativeFileStream::Read\n");
-    INT32 retVal = 0; 
-    return retVal;
+
+	//pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)path, &handle);
+	int bytesRead = 0;
+	FAT_FS_Driver::Read(handle, buffer.GetBuffer(), size, &bytesRead);
+	if(bytesRead != size)
+	{
+		hal_printf("NativeFileStream::Read: - read file test: FAILED\r\n");
+		FAT_FS_Driver::Close(handle);
+		return FALSE;
+	}
+	FAT_FS_Driver::Close(handle);
+	hal_printf("NativeFileStream::Read: - read file test: SUCCESS\r\n");
+	return bytesRead;
 }
 
-INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 buffer, INT32 offset, INT32 count, INT32 timeout, HRESULT &hr )
+INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, LPCSTR filePath, CLR_RT_TypedArray_UINT8 buffer, INT32 offset, INT32 count, INT32 timeout, HRESULT &hr )
 {
 	//hal_printf("Inside NativeFileStream::Write\n");
 
-	/*int i = 0;
-	while (i < 1)
-	{
-		HAL_Time_Sleep_MicroSeconds(1000);
-		i++;
-	}*/
-
-	FileSystemVolume* pFSVolume;
-
-	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
+	//pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)path, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
 	if(!handle)
@@ -191,14 +193,14 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	//FAT_FS_Driver::Flush(handle);
 	if(bytesReadWrite != buffer.GetSize())
 	{
-		hal_printf("NativeFileStream::Write: - Write File Test: FAILED\r\n");
+		hal_printf("NativeFileStream::Write: - write file test: FAILED\r\n");
 		FAT_FS_Driver::Close(handle);
 		return FALSE;
 	}
 
 	FAT_FS_Driver::Close(handle);
 	HAL_Time_Sleep_MicroSeconds(1000);
-	hal_printf("NativeFileStream::Write: - Write File Test: SUCCESS\r\n");
+	hal_printf("NativeFileStream::Write: - write file test: SUCCESS\r\n");
 	return bytesReadWrite;
 }
 

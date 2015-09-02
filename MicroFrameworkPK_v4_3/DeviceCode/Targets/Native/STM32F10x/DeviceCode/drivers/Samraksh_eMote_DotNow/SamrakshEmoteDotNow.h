@@ -146,8 +146,8 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream
     static const int FIELD__m_fs = 1;
 
     TINYCLR_NATIVE_DECLARE(_ctor___VOID__STRING__I4);
-    TINYCLR_NATIVE_DECLARE(Read___I4__SZARRAY_U1__I4__I4__I4);
-    TINYCLR_NATIVE_DECLARE(Write___I4__SZARRAY_U1__I4__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Read___I4__STRING__SZARRAY_U1__I4__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Write___I4__STRING__SZARRAY_U1__I4__I4__I4);
     TINYCLR_NATIVE_DECLARE(Seek___I8__I8__U4);
     TINYCLR_NATIVE_DECLARE(Flush___VOID);
     TINYCLR_NATIVE_DECLARE(GetLength___I8);

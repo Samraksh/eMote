@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_DotNow</FeatureName>
-    <Guid>{ba343109-e4b7-4d8f-8b2c-e04721487467}</Guid>
+    <Guid>{6e60271c-7929-4052-8e43-2ccfa7e17fbc}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_DOTNOW_FEATUREPROJ>True</SAMRAKSH_EMOTE_DOTNOW_FEATUREPROJ>

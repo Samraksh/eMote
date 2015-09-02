@@ -21,9 +21,9 @@ namespace Samraksh.eMote.DotNow
         public extern NativeFileStream(string path, int bufferSize);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public extern int Read(byte[] buf, int offset, int count, int timeout);
+        public extern int Read(string path, byte[] buf, int offset, int count, int timeout);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public extern int Write(byte[] buf, int offset, int count, int timeout);
+        public extern int Write(string path, byte[] buf, int offset, int count, int timeout);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern long Seek(long offset, uint origin);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

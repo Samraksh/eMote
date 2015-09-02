@@ -100,8 +100,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::_ctor___VOID__STRING__I4,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Read___I4__SZARRAY_U1__I4__I4__I4,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Write___I4__SZARRAY_U1__I4__I4__I4,
+    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Read___I4__STRING__SZARRAY_U1__I4__I4__I4,
+    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Write___I4__STRING__SZARRAY_U1__I4__I4__I4,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Seek___I8__I8__U4,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::Flush___VOID,
     Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NativeFileStream::GetLength___I8,
@@ -160,7 +160,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_DotNow =
 {
     "Samraksh_eMote_DotNow", 
-    0x4E998AA3,
+    0x1268B5BD,
     method_lookup
 };
 
