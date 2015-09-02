@@ -23,6 +23,7 @@ using namespace Samraksh::eMote::DotNow;
 
 UINT32 handle = 0;
 WCHAR* path;
+WCHAR* folderPath;
 const WCHAR* file;
 LPCSTR globalFileName;
 
@@ -43,19 +44,47 @@ unsigned short stringLength(T1 fileName)
 	return i;
 }
 
-WCHAR* stringToShort(LPCSTR fileName)
+WCHAR* stringToShort(LPCSTR fileName, unsigned short strLength)
 {
-	unsigned short strLength = stringLength(fileName);
+	//unsigned short strLength = stringLength(fileName);
 	WCHAR* retVal = (WCHAR*)private_malloc(strLength);
 	unsigned short i = 0;
 	while(fileName[i] != '\0') {
 		retVal[i] = fileName[i];
-		//retVal[i] = fileName[i] << 8 | fileName[i+1];
-		//i+=2;
 		i++;
 	}
 	retVal[i] = '\0';
 	return retVal;
+}
+
+WCHAR* getFolderFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen)
+{
+	int i = 0, static_i = 0;
+	int k = 0;
+
+	while(i < fileLength)
+	{
+		if(fileName[i] == '\\'){
+			i++;
+			static_i = i;
+			continue;
+		}
+		else if(fileName[i] == '.' || fileName[i] == '\0') {
+			break;
+		}
+
+		i++;
+	}
+
+	WCHAR* folderPathTemp = (WCHAR*)private_malloc(static_i + 1);
+	while(k < static_i){
+		folderPathTemp[k] = fileName[k];
+		k++;
+	}
+	*newFileLen = k;
+	folderPathTemp[k] = '\0';
+
+	return folderPathTemp;
 }
 
 WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen)
@@ -79,8 +108,7 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 	}
 
 	WCHAR* file = (WCHAR*)private_malloc(static_j + 4 + 1);
-	//file[j] = '\\';
-	//j++;
+
 	while(static_i < fileLength)
 	{
 		file[j] = fileName[static_i];
@@ -89,8 +117,6 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 
 	*newFileLen = j;
 	file[j] = '\0';
-	//LPCWSTR newFile = file;
-	//return newFile;
 	return file;
 }
 
@@ -109,16 +135,20 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 
 
 	globalFileName = fileName;
 	fileNameLen = stringLength(fileName);
-	path = stringToShort(fileName);
-	//file = getFileFromPath(path, fileNameLen, &newFileLen);
+	path = stringToShort(fileName, fileNameLen);
+	file = getFileFromPath(path, fileNameLen, &newFileLen);
+	//for some reason, path gets corrupted while extracting its contents. Hence, reassigning
+	path = stringToShort(fileName, fileNameLen);
+	folderPath = getFolderFromPath(path, fileNameLen, &newFileLen);
+	path = stringToShort(fileName, fileNameLen);
 
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 
-	HRESULT retValCreateDir = FAT_FS_Driver::CreateDirectory(&pFSVolume->m_volumeId, path);
+	HRESULT retValCreateDir = FAT_FS_Driver::CreateDirectory(&pFSVolume->m_volumeId, folderPath);
 
 	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
@@ -150,7 +180,7 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
 	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)file, &handle);
+	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::Write: Cannot open\\create file\r\n");
