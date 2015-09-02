@@ -98,10 +98,27 @@ namespace Samraksh.eMote.DotNow
                 return true;
             else
                 return false;
-
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static UInt64 TotalSize()
+        {
+            UInt64 totalSize = SDInternal.InternalTotalSize();
+            return totalSize;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public static UInt64 TotalFreeSpace()
+        {
+            UInt64 totalFreeSpace = SDInternal.InternalTotalFreeSpace();
+            return totalFreeSpace;
+        }
 
     }
 
@@ -121,6 +138,12 @@ namespace Samraksh.eMote.DotNow
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public static extern DeviceStatus InternalRead(byte[] dataArray, UInt16 offset, UInt16 length, UInt32 readAddressPtr);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public static extern UInt64 InternalTotalSize();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public static extern UInt64 InternalTotalFreeSpace();
     }
     // ReSharper restore InconsistentNaming
 
