@@ -122,32 +122,45 @@ WCHAR* getFileFromPath(const WCHAR* fileName, int fileLength, UINT32* newFileLen
 }
 
 
+void setPath(LPCSTR filePathTemp)
+{
+	UINT32 filePathLen = stringLength(filePathTemp);
+	path = stringToShort(filePathTemp, filePathLen);
+}
 
-void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR fileName, INT32 bufferSize, HRESULT &hr )
+WCHAR* getPath()
+{
+	return path;
+}
+
+
+
+void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR filePath, INT32 bufferSize, HRESULT &hr )
 {
 	//hal_printf("Inside NativeFileStream::_ctor\n");
 	//hal_printf("Inside NativeFileStream::fileName: %s\n", fileName);
 	//hal_printf("Inside NativeFileStream::bufferSize: %d\n", bufferSize);
 
 	//Open/Create file
-	UINT32 newFileLen;
-	UINT32 fileNameLen;
+	UINT32 newFilePathLen;
+	UINT32 filePathLen;
 
-	globalFileName = fileName;
-	fileNameLen = stringLength(fileName);
-	path = stringToShort(fileName, fileNameLen);
-	file = getFileFromPath(path, fileNameLen, &newFileLen);
+	////globalFileName = filePath;
+	filePathLen = stringLength(filePath);
+	////path = stringToShort(filePath, filePathLen);
+	////file = getFileFromPath(path, filePathLen, &newFilePathLen);
 	//for some reason, path gets corrupted while extracting its contents. Hence, reassigning
-	path = stringToShort(fileName, fileNameLen);
-	folderPath = getFolderFromPath(path, fileNameLen, &newFileLen);
-	//path = stringToShort(fileName, fileNameLen);
+	////path = stringToShort(filePath, filePathLen);
+
+	setPath(filePath);
+	WCHAR* pathTemp = getPath();
+	folderPath = getFolderFromPath(pathTemp, filePathLen, &newFilePathLen);
+	////path = stringToShort(filePath, filePathLen);
 
 	pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
 	HRESULT retValCreateDir = FAT_FS_Driver::CreateDirectory(&pFSVolume->m_volumeId, folderPath);
-	path = stringToShort(fileName, fileNameLen);
-	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, path, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)pathTemp, &handle);
+
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::_ctor: Cannot open\\create file\r\n");
@@ -161,7 +174,14 @@ INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, LPCSTR filePath, CLR_RT
 	hal_printf("Inside NativeFileStream::Read\n");
 
 	//pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)path, &handle);
+	////setPath(filePath);
+	WCHAR* pathTemp = getPath();
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)pathTemp, &handle);
+	if(!handle)
+	{
+		hal_printf("NativeFileStream::read: Cannot open\\create file\r\n");
+	}
+
 	int bytesRead = 0;
 	FAT_FS_Driver::Read(handle, buffer.GetBuffer(), size, &bytesRead);
 	if(bytesRead != size)
@@ -180,9 +200,9 @@ INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, LPCSTR filePath, CLR_R
 	//hal_printf("Inside NativeFileStream::Write\n");
 
 	//pFSVolume = FileSystemVolumeList::FindVolume("U", 1);
-	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)path, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)globalFileName, &handle);
-	//FAT_FS_Driver::Open(&pFSVolume->m_volumeId, file, &handle);
+	////setPath(filePath);
+	WCHAR* pathTemp = getPath();
+	HRESULT retValOpen = FAT_FS_Driver::Open(&pFSVolume->m_volumeId, (LPCWSTR)pathTemp, &handle);
 	if(!handle)
 	{
 		hal_printf("NativeFileStream::Write: Cannot open\\create file\r\n");
