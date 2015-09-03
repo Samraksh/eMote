@@ -20,13 +20,13 @@ void NativeFileStream::_ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, INT32 pa
 {
 }
 
-INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
+INT32 NativeFileStream::Read( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, INT32 param3, INT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr )
+INT32 NativeFileStream::Write( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, INT32 param3, INT32 param4, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

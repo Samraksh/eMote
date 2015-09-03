@@ -27,8 +27,11 @@ namespace Samraksh
                 static INT32 InternalInitialize( HRESULT &hr );
                 static INT32 InternalWrite( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr );
                 static INT32 InternalRead( CLR_RT_TypedArray_UINT8 param0, UINT16 param1, UINT16 param2, UINT32 param3, HRESULT &hr );
+                static UINT64 InternalTotalSize( HRESULT &hr );
+                static UINT64 InternalTotalFreeSpace( HRESULT &hr );
             };
         }
     }
 }
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_SD;
 #endif  //_SAMRAKSHEMOTEDOTNOW_SAMRAKSH_EMOTE_DOTNOW_SDINTERNAL_H_

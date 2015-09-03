@@ -656,6 +656,18 @@
             <param name="length">Amount to write</param>
             <returns>True iff success</returns>
         </member>
+        <member name="M:Samraksh.eMote.DotNow.SD.TotalSize">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.DotNow.SD.TotalFreeSpace">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Samraksh.eMote.DotNow.SD.SDCallBackType">
             <summary>
             Callback delegate

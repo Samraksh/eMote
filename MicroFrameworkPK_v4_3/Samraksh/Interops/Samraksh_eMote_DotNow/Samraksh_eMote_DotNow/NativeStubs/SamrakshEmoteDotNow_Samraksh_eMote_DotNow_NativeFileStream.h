@@ -27,8 +27,8 @@ namespace Samraksh
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static void _ctor( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, INT32 param1, HRESULT &hr );
-                static INT32 Read( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr );
-                static INT32 Write( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, INT32 param1, INT32 param2, INT32 param3, HRESULT &hr );
+                static INT32 Read( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, INT32 param3, INT32 param4, HRESULT &hr );
+                static INT32 Write( CLR_RT_HeapBlock* pMngObj, LPCSTR param0, CLR_RT_TypedArray_UINT8 param1, INT32 param2, INT32 param3, INT32 param4, HRESULT &hr );
                 static INT64 Seek( CLR_RT_HeapBlock* pMngObj, INT64 param0, UINT32 param1, HRESULT &hr );
                 static void Flush( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT64 GetLength( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
