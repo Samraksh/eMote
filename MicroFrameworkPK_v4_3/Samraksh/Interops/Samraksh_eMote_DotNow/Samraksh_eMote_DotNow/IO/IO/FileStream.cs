@@ -44,10 +44,10 @@ namespace System.IO
 
         public FileStream(String path, FileMode mode, FileAccess access, FileShare share, int bufferSize)
         {
-            Debug.Print("Entering FileStream constructor");
+            //Debug.Print("Entering FileStream constructor");
             // This will perform validation on path
             _fileName = Path.GetFullPath(path);
-            Debug.Print("FileStream constructor - step 1");
+            //Debug.Print("FileStream constructor - step 1");
 
             // make sure mode, access, and share are within range
             if (mode < FileMode.CreateNew || mode > FileMode.Append ||
@@ -57,7 +57,7 @@ namespace System.IO
                 throw new ArgumentOutOfRangeException();
             }
 
-            Debug.Print("FileStream constructor - step 2");
+            //Debug.Print("FileStream constructor - step 2");
 
             // Get wantsRead and wantsWrite from access, note that they cannot both be false
             bool wantsRead = (access & FileAccess.Read) == FileAccess.Read;
@@ -73,13 +73,13 @@ namespace System.IO
                 throw new ArgumentException();
             }
 
-            Debug.Print("FileStream constructor - step 3");
+            //Debug.Print("FileStream constructor - step 3");
 
             // We need to register the share information prior to the actual file open call (the NativeFileStream ctor)
             // so subsequent file operation on the same file will behave correctly
             _fileRecord = FileSystemManager.AddToOpenList(_fileName, (int)access, (int)share);
 
-            Debug.Print("FileStream constructor - step 4a");
+            //Debug.Print("FileStream constructor - step 4a");
 
             try
             {
@@ -131,9 +131,9 @@ namespace System.IO
                         break;
 
                     case FileMode.OpenOrCreate: // if the file does not exist, it is created
-                        Debug.Print("FileStream constructor - step 5d - enter");
+                        //Debug.Print("FileStream constructor - step 5d - enter");
                         _nativeFileStream = new NativeFileStream(_fileName, bufferSize);
-                        Debug.Print("FileStream constructor - step 5d - exit");
+                        //Debug.Print("FileStream constructor - step 5d - exit");
                         break;
 
                     case FileMode.Truncate: // the file would be overwritten. if the file does not exist, IOException/FileNotFound is thrown
@@ -212,7 +212,7 @@ namespace System.IO
 
                 throw;
             }
-            Debug.Print("Exiting FileStream constructor");
+            //Debug.Print("Exiting FileStream constructor");
         }
 
         protected override void Dispose(bool disposing)

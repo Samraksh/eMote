@@ -44,43 +44,98 @@ namespace SDCardTest
 
         public static void Main()
         {
-            //Debug.Print("----Initializing SD----\n");
-            //SD.Initialize();
-            //Debug.Print("----After initializing SD----\n");
-            Program p = new Program();
-            
-            /*if (!SD.Initialize())
+            try
             {
-                throw new System.InvalidOperationException("SD storage failed to initialize");
-            }*/
-            Debug.Print("----Getting root directory of SD----\n");
-            VolumeInfo vInfo = new VolumeInfo();
-            string rootDirectory = vInfo.RootDirectory;
-            Debug.Print("----rootDirectory is " + rootDirectory + "----\n");
-            //string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-            /*string volumeLabel = vInfo.VolumeLabel;
-            Debug.Print("----volumeLabel is " + volumeLabel + "----\n");*/
+                //Debug.Print("----Initializing SD----\n");
+                //SD.Initialize();
+                //Debug.Print("----After initializing SD----\n");
+                Program p = new Program();
 
-            Debug.Print("----Opening file in SD----\n");
-            
-            FileStream fileHandle = new FileStream(rootDirectory + @"\hello.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write, 50);
-            byte[] data = Encoding.UTF8.GetBytes("This is a test string");
-            Debug.Print("----Writing to SD----\n");
-            fileHandle.Write(data, 0, data.Length);
-            fileHandle.Close();
+                /*if (!SD.Initialize())
+                {
+                    throw new System.InvalidOperationException("SD storage failed to initialize");
+                }*/
 
-            /*FileStream fileHandle1 = new FileStream(rootDirectory + @"\TEST\helloWorld.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write, 50);
-            byte[] data1 = Encoding.UTF8.GetBytes("Hello world. This is a test. 123. Is anyone there?");
-            Debug.Print("----Writing to SD----\n");
-            fileHandle1.Write(data1, 0, data1.Length);
-            fileHandle1.Close();*/
+                /*ulong totalSize = SD.TotalSize();
+                ulong totalFreeSpace = SD.TotalFreeSpace();
+                Debug.Print("total size of SD (bytes) is " + totalSize.ToString());
+                Debug.Print("total free space of SD (bytes) is " + totalFreeSpace.ToString());
+                Debug.Print("total size of SD (GB) is " + ((double)(totalSize/1e9)).ToString());
+                Debug.Print("total free space of SD (GB) is " + ((double)(totalFreeSpace/1e9)).ToString());*/
 
-            Debug.Print("----Closing file handle----\n");
-            /*while (true)
+                Debug.Print("----Getting root directory of SD----\n");
+                VolumeInfo vInfo = new VolumeInfo();
+                string rootDirectory = vInfo.RootDirectory;
+                Debug.Print("----rootDirectory is " + rootDirectory + "----\n");
+                //string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+                /*string volumeLabel = vInfo.VolumeLabel;
+                Debug.Print("----volumeLabel is " + volumeLabel + "----\n");*/
+
+                //------------------------//
+                Debug.Print("----Opening file in SD----\n");
+                FileStream fileHandle = new FileStream(rootDirectory + @"\hello.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 50);
+                Debug.Print("----Writing to SD----\n");
+                byte[] writeData = Encoding.UTF8.GetBytes("This is a test string. ");
+                fileHandle.Write(writeData, 0, writeData.Length);
+
+                Debug.Print("----Reading from SD----\n");
+                byte[] readData = new byte[writeData.Length];
+                fileHandle.Read(readData, 0, readData.Length);
+                char[] readDataStr = Encoding.UTF8.GetChars(readData);
+                for (int i = 0; i < readData.Length; i++)
+                {
+                    Debug.Print(readDataStr[i].ToString());
+                }
+
+
+                writeData = Encoding.UTF8.GetBytes("Writing somemore.");
+                fileHandle.Write(writeData, 0, writeData.Length);
+                readData = new byte[writeData.Length];
+                fileHandle.Read(readData, 0, readData.Length);
+                readDataStr = Encoding.UTF8.GetChars(readData);
+                for (int i = 0; i < readData.Length; i++)
+                {
+                    Debug.Print(readDataStr[i].ToString());
+                }
+
+                Debug.Print("----Closing file handle----\n");
+                fileHandle.Close();
+                //------------------------//
+
+                //------------------------//
+                int j = 0;
+                while (j < 1)
+                {
+                    System.Threading.Thread.Sleep(1);
+                    j++;
+                }
+                Debug.Print("----Opening file in SD----\n");
+                FileStream fileHandle1 = new FileStream(rootDirectory + @"\TEST\helloWorld.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 50);
+                Debug.Print("----Writing to SD----\n");
+                byte[] writeData1 = Encoding.UTF8.GetBytes("Hello world. This is a test. 123. Is anyone there?");
+                fileHandle1.Write(writeData1, 0, writeData1.Length);
+
+                Debug.Print("----Reading from SD----\n");
+                byte[] readData1 = new byte[writeData1.Length];
+                fileHandle1.Read(readData1, 0, readData1.Length);
+                char[] readDataStr1 = Encoding.UTF8.GetChars(readData1);
+                for (int i = 0; i < readData1.Length; i++)
+                {
+                    Debug.Print(readDataStr1[i].ToString());
+                }
+                Debug.Print("----Closing file handle----\n");
+                fileHandle1.Close();
+                //------------------------//
+                /*while (true)
+                {
+                    System.Threading.Thread.Sleep(1);
+                }*/
+                //p.writeToSD();
+            }
+            catch (Exception ex)
             {
-                System.Threading.Thread.Sleep(1);
-            }*/
-            //p.writeToSD();
+                Debug.Print(ex.StackTrace);
+            }
         }
 
     }
