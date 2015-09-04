@@ -15,13 +15,18 @@
 #include <Samraksh/GlobalTime.h>
 
 
-
+/*
+ *
+ */
 enum CMaxTSyncState{
 	E_Follower,
 	E_Transition,
 	E_Leader,
 };
 
+/*
+ *
+ */
 //typedef class CMaxTimeSync : public TimeSyncMessage_15_4  {
 typedef class CMaxTimeSync : public EventHandler{
 	UINT8 RadioID;
@@ -41,15 +46,15 @@ typedef class CMaxTimeSync : public EventHandler{
 	BOOL IsPacketScheduled;
 
 public:
-	UINT16 Nbr2beFollowed;
+	UINT16 Neighbor2beFollowed;
 	GlobalTime m_globalTime;
 	BOOL m_isLeader;
 	//UINT16 m_leader;
 
-
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT16 NextEvent(UINT32 currSlot);
-	void ExecuteEvent(UINT32 slotNum);
+	UINT16 NextEvent(UINT32 currentSlotNum);
+	//UINT64 NextEvent(UINT64 currentTicks);
+	void ExecuteEvent(UINT32 currentSlotNum);
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 	void SetWakeup(bool shldWakeup);

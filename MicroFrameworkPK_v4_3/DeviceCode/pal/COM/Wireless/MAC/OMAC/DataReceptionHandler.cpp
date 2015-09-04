@@ -55,8 +55,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	//m_nextSeed is updated with its passed pointer. It will be the next seed to use
 	//after 8 frames pass
-	m_nextWakeupSlot =
-	g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
+	m_nextWakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
 	//seed is updated every 8 frames. return the seed to its initial value
 	g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, m_dataInterval);
 	m_seedUpdateInterval = (m_dataInterval << 3);
@@ -71,9 +70,11 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 /*
- *
+ * Takes current ticks as input and returns ticks in future when event is supposed to happen
+ * Input value:		64 bit current tick value
+ * Return value:	64 bit tick value of event in future
  */
-UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
+UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT16 remainingSlots, randVal;
 
 	//Sanity check: I am executing when I am not supposed to.
@@ -81,9 +82,9 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
 		return 0xffff;
 	}
 
-	// If we havent woken up yet in the current frame, skip this if-block and
+	// If we haven't woken up yet in the current frame, skip this if-block and
 	// simply update the remainingSlot .
-	if (m_nextWakeupSlot < slotNum) {
+	if (m_nextWakeupSlot < currentSlotNum) {
 
 		// first, find the slot denoting the start of the frame immediately after the current one.
 		// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
@@ -110,16 +111,16 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
 	}
 
 	//then compute the remaining slots before our next wakeup based on the computed schedule
-	remainingSlots = m_nextWakeupSlot - slotNum;
+	remainingSlots = m_nextWakeupSlot - currentSlotNum;
 	//Should never happen
-	if (m_nextWakeupSlot < slotNum) {
-		hal_printf("ERROR: nxtSlot %lu curSlot %lu\n", m_nextWakeupSlot, slotNum);
+	if (m_nextWakeupSlot < currentSlotNum) {
+		hal_printf("ERROR: nxtSlot %lu curSlot %lu\n", m_nextWakeupSlot, currentSlotNum);
 		m_nextWakeupSlot += m_dataInterval;
 	}
 
 	if (remainingSlots == 0) {
-		wakeupSlot = slotNum;
-		return 0;
+		wakeupSlot = currentSlotNum;
+		return remainingSlots;
 	}
 	else if (remainingSlots >= 0xffff) {
 		return 0xffff;

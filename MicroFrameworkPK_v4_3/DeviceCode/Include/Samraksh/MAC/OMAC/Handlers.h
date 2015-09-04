@@ -22,10 +22,11 @@ class EventHandler {
 	// @param slotNum the current slot number
 	//  @return the handler's offset (in jitters) in the slot that the radio should be started.
 	// a return value of 0 is to start the radio immediately
-	UINT16 NextEvent(UINT32 slotNum);
+	UINT16 NextEvent(UINT32 currentSlotNum);
+	//UINT64 NextEvent(UINT32 currentSlotNum);
 	// the scheduler calls this command at the slot winner
 	// @param slotNum the current slot number
-	void ExecuteEvent(UINT32 slotNum);
+	void ExecuteEvent(UINT32 currentSlotNum);
 	// the handler signals this event once its access to the radio is finished
 	UINT8 ExecuteEventDone();
 	// the scheduler calls this command after the radio is stopped

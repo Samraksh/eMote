@@ -27,7 +27,7 @@ public:
 	BOOL Initialize();
 	BOOL StartTest();
 
-	BOOL ScheduleNextNBRCLK();
+	BOOL ScheduleNextNeighborCLK();
 	BOOL ScheduleNextLocalCLK();
 };
 
