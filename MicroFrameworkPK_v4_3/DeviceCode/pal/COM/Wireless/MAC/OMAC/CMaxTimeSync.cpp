@@ -29,13 +29,17 @@ BOOL GlobalTime::synced=FALSE;
 #define TXNODEID 3505
 #define RXNODEID 6846
 
-
+/*
+ *
+ */
 inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
 	if(X>Y) return (X-Y);
 	else return( (0xFFFFFFFFFFFFFFFF - Y) + X);
 }
 
-
+/*
+ *
+ */
 void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
@@ -65,7 +69,9 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 }
 
-
+/*
+ *
+ */
 UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
 	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
@@ -123,6 +129,9 @@ UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
 	}
 }*/
 
+/*
+ *
+ */
 void CMaxTimeSync::ExecuteEvent(UINT32 slotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
 	m_lastSlotExecuted=slotNum;
@@ -131,20 +140,32 @@ void CMaxTimeSync::ExecuteEvent(UINT32 slotNum){
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
 }
 
+/*
+ *
+ */
 UINT8 CMaxTimeSync::ExecuteEventDone()
 {
 	return 0;
 }
 
+/*
+ *
+ */
 void CMaxTimeSync::PostExecuteEvent(){
 	hal_printf("CMaxTimeSync::PostExecuteEvent\n");
 }
 
+/*
+ *
+ */
 void CMaxTimeSync::SetWakeup(bool shldWakeup)
 {
 	hal_printf("CMaxTimeSync::SetWakeup\n");
 }
 
+/*
+ *
+ */
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	////GLOBAL_LOCK(irq);
@@ -219,9 +240,11 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 #endif
 	////hal_printf("end CMaxTimeSync::Send\n");
 	return rs;
-
 }
 
+/*
+ *
+ */
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	////GLOBAL_LOCK(irq);
 	bool TimerReturn;
@@ -268,7 +291,9 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	return DS_Success;
 }
 
-
+/*
+ *
+ */
 bool CMaxTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
 	if(m_state == E_Transition){
 		return TRUE;
@@ -286,6 +311,9 @@ bool CMaxTimeSync::IsInTransitionPeriod(RadioAddress_t nodeID){
 		*/
 }
 
+/*
+ *
+ */
 void CMaxTimeSync::SetCounterOffset(UINT16 counterOffset){
 	//m_timeSyncBeacon->counterOffset = counterOffset;
 }
@@ -300,13 +328,16 @@ bool CMaxTimeSync::IsSynced(RadioAddress_t nodeID) {
 }
 */
 
-
-
+/*
+ *
+ */
 void SendAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
 
 }
 
-
+/*
+ *
+ */
 bool CMaxTimeSync::IsProccessingBeacon(){
 	/*bool retVal;
 	retVal = (m_processedMsg != NULL);
@@ -314,7 +345,9 @@ bool CMaxTimeSync::IsProccessingBeacon(){
 	return FALSE;
 }
 
-
+/*
+ *
+ */
 void CMaxTimeSync::InsertBeacon(Message_15_4_t *ptr){
 	/*Message_15_4_t *bufPtr;
 

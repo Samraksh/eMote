@@ -16,7 +16,9 @@
 //#include "FTSPTimeSync.h"
 //#include "CMaxTimeSync.h"
 
-
+/*
+ *
+ */
 typedef struct MessageCacheEntry {
 	Message_15_4_t*  msgPtr;
 	UINT8   length;
@@ -25,6 +27,9 @@ typedef struct MessageCacheEntry {
 #endif
 } MessageCacheEntry_t;
 
+/*
+ *
+ */
 class DiscoveryHandler: public EventHandler {
   private:
 	UINT8 RadioID;
@@ -40,19 +45,19 @@ class DiscoveryHandler: public EventHandler {
 	UINT32	discoInterval;
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
-	// the number of entries after clock wrap
+	// Count of entries after clock wrap
 	UINT32		m_tableEntriesUnderTransition[MAX_NBR_SIZE];
 	UINT32 	m_idxForComputation;
 	BOOL		m_inTransition;
 
 	/*
-		 We do linear regression from localTime to timeOffset (globalTime - localTime).
-		 This way we can keep the slope close to zero (ideally) and represent it
-		 as a float with high precision.
-
-		 timeOffset - offsetAverage = skew * (localTime - localAverage)
-		 timeOffset = offsetAverage + skew * (localTime - localAverage)
-		 globalTime = localTime + offsetAverage + skew * (localTime - localAverage)
+	 * We do linear regression from localTime to timeOffset (globalTime - localTime).
+	 * This way we can keep the slope close to zero (ideally) and represent it
+	 * as a float with high precision.
+	 *
+	 * timeOffset - offsetAverage = skew * (localTime - localAverage)
+	 * timeOffset = offsetAverage + skew * (localTime - localAverage)
+	 * globalTime = localTime + offsetAverage + skew * (localTime - localAverage)
 	 */
 	float   m_skew;
 	UINT32  m_localAverage, counterOffsetAvg, radioTiming;

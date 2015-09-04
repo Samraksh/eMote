@@ -40,7 +40,9 @@
 #define HAL_DATAALARM_TIMER 3
 #define HAL_DISCOVERY_TIMER 4
 
-
+/*
+ *
+ */
 typedef enum {
   //after RadioControl.stopDone();
   E_TO_IDLE,
@@ -59,6 +61,9 @@ typedef enum {
   E_TO_BEACON_N,
 } OMacEvent_t;
 
+/*
+ *
+ */
 typedef enum {
   //after RadioControl.stopDone();
   S_IDLE,
@@ -79,6 +84,9 @@ typedef enum {
   S_TIMESYNC
 } OMacState_t;
 
+/*
+ *
+ */
 typedef enum {
   I_IDLE,
   I_DATA_RCV_PENDING, //waiting to receive
@@ -87,6 +95,9 @@ typedef enum {
   I_DWELL_SEND
 } OMacInput_t;
 
+/*
+ *
+ */
 typedef enum {
   NULL_HANDLER,
   CONTROL_BEACON_HANDLER,
@@ -95,12 +106,18 @@ typedef enum {
   TIMESYNC_HANDLER
 } HandlerType_t;
 
+/*
+ *
+ */
 typedef enum {
   OMAC_NORMAL_SEND,
   OMAC_SEND_PRELOAD,
   OMAC_FIRST_SEND
 } OMacAction_t;
 
+/*
+ *
+ */
 typedef struct DiscoveryMsg
 {
 	// offset between the start of the counter to global time 0
@@ -124,19 +141,19 @@ typedef struct DiscoveryMsg
 
 } DiscoveryMsg_t;
 
-
+/*
+ * After TEP 133, the message timestamp contains the difference between
+ * event time and the time the message was actually sent out. TimeSyncP
+ * sends the local time associated with this globalTime to the
+ * TimeStamping mechanism, which then calculates the difference.
+ *
+ * On the receiving side, the difference is applied to the local
+ * timestamp. The receiving timestamp thus represents the time on the
+ * receiving clock when the remote globalTime was taken.
+ */
 struct TimeSyncMsg
 {
-  /*
-   * After TEP 133, the message timestamp contains the difference between
-   * event time and the time the message was actually sent out. TimeSyncP
-   * sends the local time associated with this globalTime to the
-   * TimeStamping mechanism, which then calculates the difference.
-   *
-   * On the receiving side, the difference is applied to the local
-   * timestamp. The receiving timestamp thus represents the time on the
-   * receiving clock when the remote globalTime was taken.
-   */
+
 //  UINT32 globalTime0;
 //  UINT32 globalTime1;
 
@@ -151,10 +168,16 @@ struct TimeSyncMsg
   //UINT32 seqNo;
 };
 
+/*
+ *
+ */
 typedef struct DataBeacon {
   UINT16 nodeID;
 } DataBeacon_t;
 
+/*
+ *
+ */
 typedef struct OMacHeader {
   UINT8 flag;
 } OMacHeader;
@@ -231,9 +254,11 @@ enum {
 
 UINT16  CONTROL_BEACON_INTERVAL_SLOT = 7500;
 
-
 UINT32 ArbiterP_Timing;
 
+/*
+ * Prime numbers used in determining DISCO period of a node
+ */
 UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
 UINT16 CONTROL_P2[] = {227, 181, 197, 191, 193, 211, 199};
 

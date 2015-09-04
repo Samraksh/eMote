@@ -18,14 +18,23 @@ extern OMACSchedulerBora g_omac_scheduler;
 
 bool flag = true;
 
+/*
+ *
+ */
 void PublicSlotAlarmHanlder(void * param){
 	g_omac_scheduler.SlotAlarmHandler(param);
 }
 
+/*
+ *
+ */
 void PublicDataAlarmHandlder(void * param){
 	g_omac_scheduler.DataAlarmHandler( param);
 }
 
+/*
+ *
+ */
 void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	radioID = _radioID;
 	macID = _macID;
@@ -35,7 +44,6 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	totalRadioUp = 0;
 	
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_START_STOP_PIN, FALSE);
-
 
 #ifdef PROFILING
 	minStartDelay = 300; maxStartDelay = 10;
@@ -56,10 +64,8 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
-
 	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
 	VirtTimer_SetTimer(HAL_DATAALARM_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC , TRUE, FALSE, PublicDataAlarmHandlder);
-
 
 	//Initialize Handlers
 	 m_DiscoveryHandler.SetParentSchedulerPtr(this);
@@ -73,10 +79,192 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 	//this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
 }
 
+/*
+ *
+ */
 void OMACSchedulerBora::UnInitialize(){
 
 }
 
+/**********************************************************************
+ * Slot alarm APIs
+ *********************************************************************/
+/*
+ *
+ */
+void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
+	//Start the SlotAlarm
+	//HALTimer()
+	/*if(Delay==0){
+		//start alarm in default periodic mode
+		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER);
+
+	}else {
+		//Change next slot time with delay
+		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
+		VirtTimer_Change(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER);
+	}*/
+
+	////VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
+	VirtTimer_Start(HAL_SLOT_TIMER);
+}
+
+/*
+ *
+ */
+void OMACSchedulerBora::SlotAlarmHandler(void* Param){
+	////hal_printf("start OMACSchedulerBora::SlotAlarmHandler\n");
+#ifdef OMAC_DEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
+#endif
+	UINT64 localTime, nextWakeup, oldSlotNo;
+	localTime = HAL_Time_CurrentTime();
+	//increment counter
+#ifdef PROFILING
+	taskDelay1 = localTime;
+#endif
+
+	//Compensation for alarm drift becuase of cpu doing other things:
+	//m_slotNoOffset: is the offset it fires the first time
+	//Doublecheck logic: the logic is not working now
+	/*if (m_slotNo == 0) {
+		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
+		m_slotNo = 1;
+	}
+	else {
+		oldSlotNo = m_slotNo;
+		//have to compensate for numerical errors
+		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
+		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
+		if (m_slotNo <= oldSlotNo) {
+			m_slotNo = oldSlotNo + 1;
+		}
+	}*/
+	//Using a simple increament for the timebeing
+	m_slotNo++;
+
+	//nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
+	//this->StartSlotAlarm(nextWakeup);
+
+
+	//Mukundan: At this point, instead of posting a task as in TinyOS,
+	//just run the task directly
+	//We will revisit the whole task architecture later.
+	this->RunEventTask();
+	////hal_printf("end OMACSchedulerBora::SlotAlarmHandler\n");
+
+#ifdef OMAC_DEBUG
+	if(m_slotNo % 1000 == 0) {
+		hal_printf("curSlot %lu time %llu\n", m_slotNo, localTime);
+	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+#endif
+}
+
+/**********************************************************************
+ * Data alarm APIs
+ *********************************************************************/
+/*
+ *
+ */
+void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
+	//Start the SlotAlarm
+	//HALTimer()
+	if(Delay==0){
+		void* param;
+		this->DataAlarmHandler(param);
+	}else {
+		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay, FALSE);
+		VirtTimer_Start(HAL_DATAALARM_TIMER);
+	}
+}
+
+/*
+ *
+ */
+void OMACSchedulerBora::DataAlarmHandler(void* Param){
+	////hal_printf("start OMACSchedulerBora::DataAlarmHandler\n");
+	UINT64 localTime, nextWakeup, oldSlotNo;
+	localTime = HAL_Time_CurrentTime();
+	//localTicks = HAL_Time_CurrentTicks();
+
+	//increment counter
+#ifdef PROFILING
+	taskDelay1 = localTime;
+#endif
+
+	/*
+	 * Compensation for alarm drift: See Wenjies notes
+	 * if (m_slotNo == 0) {
+		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
+		m_slotNo = 1;
+	}
+	else {
+		oldSlotNo = m_slotNo;
+		//have to compensate for numerical errors
+		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
+		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
+		if (m_slotNo <= oldSlotNo) {
+			m_slotNo = oldSlotNo + 1;
+		}
+	}
+	nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
+	this->StartSlotAlarm(nextWakeup);
+	*/
+
+	//Mukundan: At this point, instead of posting a task as in TinyOS,
+	//just run the task directly
+	//We will revisit the whole task architecture later.
+	////this->RunSlotTask();
+	m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
+
+	////hal_printf("end OMACSchedulerBora::DataAlarmHandler\n");
+
+#ifdef OMAC_DEBUG
+	//if(m_slotNo % 1000 == 0) {
+	//	debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
+	//}
+#endif
+}
+
+/*
+ *
+ */
+bool OMACSchedulerBora::IsRunningDataAlarm(){
+	return TRUE; //BK, Something should be returned
+}
+
+/**********************************************************************
+ * Discovery timer APIs
+ *********************************************************************/
+/*
+ *
+ */
+void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
+	//Start the SlotAlarm
+	//HALTimer()
+	if(Delay==0){
+		//start alarm in default periodic mode
+		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+	}else {
+		//Change next slot time with delay
+		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
+	}
+}
+
+/*
+ *
+ */
+void OMACSchedulerBora::DiscoveryTimerHandler(void* Param){
+
+}
+
+/*
+ *
+ */
 bool OMACSchedulerBora::RunEventTask(){
 	////hal_printf("start OMACSchedulerBora::RunEventTask\n");
 	UINT32 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
@@ -175,7 +363,9 @@ bool OMACSchedulerBora::RunEventTask(){
 	return TRUE;
 }
 
-//This turns on the radio and sends a message
+/*
+ * This turns on the radio and sends a message
+ */
 bool OMACSchedulerBora::RadioTask(){
 	////hal_printf("start OMACSchedulerBora::RadioTask\n");
 	DeviceStatus e = DS_Fail;
@@ -231,170 +421,9 @@ bool OMACSchedulerBora::RadioTask(){
 	return TRUE;
 }
 
-
-
-
-//////Slot Alarm APIs
-void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
-	//Start the SlotAlarm
-	//HALTimer()
-	/*if(Delay==0){
-		//start alarm in default periodic mode
-		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE, FALSE, PublicSlotAlarmHanlder);
-		VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
-		VirtTimer_Start(HAL_SLOT_TIMER);
-
-	}else {
-		//Change next slot time with delay
-		//VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE, FALSE, PublicSlotAlarmHanlder);
-		VirtTimer_Change(HAL_SLOT_TIMER, 0, (Delay-4)*1000, FALSE); //1 sec Timer in micro seconds
-		VirtTimer_Start(HAL_SLOT_TIMER);
-	}*/
-
-	////VirtTimer_Change(HAL_SLOT_TIMER, 0, SLOT_PERIOD * 1000, FALSE); //1 sec Timer in micro seconds
-	VirtTimer_Start(HAL_SLOT_TIMER);
-
-}
-
-void OMACSchedulerBora::SlotAlarmHandler(void* Param){
-	////hal_printf("start OMACSchedulerBora::SlotAlarmHandler\n");
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
-#endif
-	UINT64 localTime, nextWakeup, oldSlotNo;
-	localTime = HAL_Time_CurrentTime();
-	//increment counter
-#ifdef PROFILING
-	taskDelay1 = localTime;
-#endif
-
-	//Compensation for alarm drift becuase of cpu doing other things:
-	//m_slotNoOffset: is the offset it fires the first time
-	//Doublecheck logic: the logic is not working now
-	/*if (m_slotNo == 0) {
-		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
-		m_slotNo = 1;
-	}
-	else {
-		oldSlotNo = m_slotNo;
-		//have to compensate for numerical errors
-		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
-		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
-		if (m_slotNo <= oldSlotNo) {
-			m_slotNo = oldSlotNo + 1;
-		}
-	}*/
-	//Using a simple increament for the timebeing
-	m_slotNo++;
-
-	//nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
-	//this->StartSlotAlarm(nextWakeup);
-
-
-	//Mukundan: At this point, instead of posting a task as in TinyOS,
-	//just run the task directly
-	//We will revisit the whole task architecture later.
-	this->RunEventTask();
-	////hal_printf("end OMACSchedulerBora::SlotAlarmHandler\n");
-
-#ifdef OMAC_DEBUG
-	if(m_slotNo % 1000 == 0) {
-		hal_printf("curSlot %lu time %llu\n", m_slotNo, localTime);
-	}
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
-#endif
-}
-
-//////Discovery Timer APIs
-void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
-	//Start the SlotAlarm
-	//HALTimer()
-	if(Delay==0){
-		//start alarm in default periodic mode
-		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
-	}else {
-		//Change next slot time with delay
-		//HALDriver :: Initialize (, TRUE, 0, 0, m_OMACScheduler.SlotAlarm, NULL)
-	}
-
-}
-
-void OMACSchedulerBora::DiscoveryTimerHandler(void* Param){
-
-}
-//////Data Alarm APIs
-void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
-	//Start the SlotAlarm
-	//HALTimer()
-	if(Delay==0){
-		void* param;
-		this->DataAlarmHandler(param);
-	}else {
-		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay, FALSE);
-		VirtTimer_Start(HAL_DATAALARM_TIMER);
-
-	}
-
-}
-
-void OMACSchedulerBora::DataAlarmHandler(void* Param){
-	////hal_printf("start OMACSchedulerBora::DataAlarmHandler\n");
-	UINT64 localTime, nextWakeup, oldSlotNo;
-	localTime = HAL_Time_CurrentTime();
-	//localTicks = HAL_Time_CurrentTicks();
-
-	//increment counter
-#ifdef PROFILING
-	taskDelay1 = localTime;
-#endif
-
-	/*
-	 * Compensation for alarm drift: See Wenjies notes
-	 * if (m_slotNo == 0) {
-		m_slotNoOffset = localTime - (1 << SLOT_PERIOD_BITS);
-		m_slotNo = 1;
-	}
-	else {
-		oldSlotNo = m_slotNo;
-		//have to compensate for numerical errors
-		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
-		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
-		if (m_slotNo <= oldSlotNo) {
-			m_slotNo = oldSlotNo + 1;
-		}
-	}
-	nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
-	this->StartSlotAlarm(nextWakeup);
-	*/
-
-	//Mukundan: At this point, instead of posting a task as in TinyOS,
-	//just run the task directly
-	//We will revisit the whole task architecture later.
-	////this->RunSlotTask();
-	m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
-
-	////hal_printf("end OMACSchedulerBora::DataAlarmHandler\n");
-
-#ifdef OMAC_DEBUG
-	//if(m_slotNo % 1000 == 0) {
-	//	debug_printf("curSlot %lu time %lu\n", m_slotNo, localTime);
-	//}
-#endif
-}
-
-bool OMACSchedulerBora::IsRunningDataAlarm(){
-	return TRUE; //BK, Something should be returned
-}
-
-
-
-///////////////////////////////////////Private Functions///////////////////
-
-void OMACSchedulerBora::Sleep(){
-	ProtoState.ToIdle();
-	InputState.ToIdle();
-}
-
+/*
+ *
+ */
 void OMACSchedulerBora::Stop(){
 	DeviceStatus  ds = DS_Success;
 	bool e = FALSE;
@@ -430,9 +459,22 @@ void OMACSchedulerBora::Stop(){
 			Sleep();
 	} */
 	if (ds == DS_Success) Sleep();
-
 }
 
+/**********************************************************************
+ * Private functions
+ *********************************************************************/
+/*
+ *
+ */
+void OMACSchedulerBora::Sleep(){
+	ProtoState.ToIdle();
+	InputState.ToIdle();
+}
+
+/*
+ *
+ */
 bool OMACSchedulerBora::IsNeighborGoingToReceive(){
 	/*UINT8 nbrIndex;
 	TableItem * nbrEntry;
@@ -458,6 +500,9 @@ bool OMACSchedulerBora::IsNeighborGoingToReceive(){
 	return FALSE;
 }
 
+/*
+ *
+ */
 void OMACSchedulerBora::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
@@ -488,9 +533,11 @@ void OMACSchedulerBora::PostExecution(){
 	debug_printf("powerDelay=%lu, oscDelay=%lu, taskDelay=%lu\n", RadioDutyCycle.dbg1(), RadioDutyCycle.dbg2(), RadioDutyCycle.dbg3());
 #endif
 	//call OMacSignal.resume();
-
 }
 
+/*
+ *
+ */
 void OMACSchedulerBora::PrintDutyCycle(){
 
 }

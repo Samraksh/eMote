@@ -15,16 +15,19 @@
 #include "Handlers.h"
 //#include "Scheduler.h"
 
-
+/*
+ *
+ */
 class DataTransmissionHandler: public EventHandler {
 	UINT8   m_dsn;
 	UINT8   m_retryCnt, m_dwellCnt;
 	UINT16  randVal;
 	UINT16 m_nextDestination;
 	bool m_receivedDataBeacon;
-	bool   m_busy;   //indicates if radio is busy.
+	//indicates if radio is busy
+	bool   m_busy;
 
-	  //the # of times the current packet has been sent
+	//Count of times current packet has been sent
 	UINT8   m_dataHeartBeats;
 	UINT32  m_nextTXCounter;
 	UINT64  m_nextTXTicks;

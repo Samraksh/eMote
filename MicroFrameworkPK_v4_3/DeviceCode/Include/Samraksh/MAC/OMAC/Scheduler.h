@@ -23,6 +23,9 @@
 
 //extern HALTimerManager gHalTimerManagerObject;
 
+/*
+ *
+ */
 typedef class State{
   private:
 	UINT8 CurrentState;
@@ -38,9 +41,6 @@ typedef class State{
 		else if(CurrentState == S_STARTING && reqState == S_STARTING) {
 			return TRUE;
 		}
-		//else if(CurrentState == S_BEACON_N) {
-			//hal_printf("2. Asta lavista baby\n");
-		//}
 		else return FALSE;
 	}
 
@@ -48,25 +48,25 @@ typedef class State{
 	void ForceState(UINT8 reqState){
 		//GLOBAL_LOCK(irq);
 		//hal_printf("ForceState: currentState: %d; reqState: %d\n", CurrentState, reqState);
-		CurrentState=reqState;
+		CurrentState = reqState;
 	}
 
 	//Set the current state back to S_IDLE
 	void ToIdle(){
 		//GLOBAL_LOCK(irq);
-		CurrentState=S_IDLE;
+		CurrentState = S_IDLE;
 	}
 
 	//@return TRUE if the state machine is in S_IDLE
 	bool IsIdle(){
-		if(CurrentState==S_IDLE) return TRUE;
+		if(CurrentState == S_IDLE) return TRUE;
 		else return FALSE;
 	}
 
 	//@return TRUE if the state machine is in the given state
 	bool IsState(UINT8 compState){
 		//GLOBAL_LOCK(irq);
-		if(CurrentState==compState) return TRUE;
+		if(CurrentState == compState) return TRUE;
 		else return FALSE;
 	}
 
@@ -74,8 +74,11 @@ typedef class State{
 	UINT8 GetState(){return CurrentState;}
 }State_t;
 
-
+/*
+ *
+ */
 class OMACSchedulerBora{
+private:
 	UINT8 radioID;
 	UINT8 macID;
 	//static bool startMeasuringDutyCycle;
@@ -98,15 +101,12 @@ class OMACSchedulerBora{
 	bool m_busy;	//indicates if radio is busy.
 	UINT32 m_slotNo, m_slotNoOffset;
 
-
 	//Define private methods
-private:
 	void Sleep();
 	bool IsNeighborGoingToReceive();
 	void PostExecution();
 	void PrintDutyCycle();
 
-	//Define public methods
 public:
 	State_t ProtoState;		//stores state of the protocol
 	State_t InputState;		//stores data needed by protocol for processing
@@ -116,6 +116,7 @@ public:
 	CMaxTimeSync_t m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
+	//Define public methods
 	void Initialize(UINT8 radioID, UINT8 macID);
 	void UnInitialize();
 	void StartSlotAlarm(UINT64 Delay);	//CounterAlarm.Start from TinyOS

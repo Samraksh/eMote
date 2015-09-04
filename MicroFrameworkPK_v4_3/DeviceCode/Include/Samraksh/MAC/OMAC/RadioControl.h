@@ -11,7 +11,9 @@
 #include <Samraksh/Message.h>
 #include "OMAC.h"
 
-//Radio Wrapper Class
+/*
+ * Radio Wrapper Class
+ */
 typedef class RadioControl{
   public:
 	DeviceStatus Initialize();

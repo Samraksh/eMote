@@ -23,6 +23,9 @@ OMACTypeBora g_OMAC;
 RadioControl_t g_omac_RadioControl;
 OMACSchedulerBora g_omac_scheduler;
 
+/*
+ *
+ */
 void* OMACReceiveHandler(void* msg, UINT16 size){
 #ifdef DEBUG_OMAC
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
@@ -32,10 +35,16 @@ void* OMACReceiveHandler(void* msg, UINT16 size){
 	return (void*) g_OMAC.ReceiveHandler((Message_15_4_t*) msg, size);
 }
 
+/*
+ *
+ */
 BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 	return TRUE;
 }
 
+/*
+ *
+ */
 void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
 
@@ -64,6 +73,9 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 //DeviceStatus SetConfig(MacConfig *config);
 //BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 
+/*
+ *
+ */
 DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->BufferSize;
@@ -76,8 +88,9 @@ DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-
-
+/*
+ *
+ */
 DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config) {
 //DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	DeviceStatus status;
@@ -134,6 +147,9 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 	return DS_Success;
 }
 
+/*
+ *
+ */
 BOOL OMACTypeBora::UnInitialize()
 {
 	BOOL ret = TRUE;
@@ -142,6 +158,9 @@ BOOL OMACTypeBora::UnInitialize()
 	return ret;
 }
 
+/*
+ *
+ */
 Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 {
 	//Message_15_4_t *Next;
@@ -201,13 +220,17 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 	return msg;
 }
 
-
+/*
+ *
+ */
 void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 {
 
 }
 
-//Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
+/*
+ * Store packet in the send buffer and return; Scheduler will pick it up later and send it
+ */
 BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull())
@@ -242,7 +265,9 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	return true;
 }
 
-//Store packet in the send buffer and return; Scheduler will pick it up latter and will send it
+/*
+ * Store packet in the send buffer and return; Scheduler will pick it up later and send it
+ */
 ////BOOL OMACTypeBora::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
@@ -289,10 +314,16 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	return true;
 }
 
+/*
+ *
+ */
 Message_15_4_t* OMACTypeBora::FindFirstSyncedNbrMessage(){
 	return NULL;
 }
 
+/*
+ *
+ */
 void OMACTypeBora::UpdateNeighborTable(){
 	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 	//g_NeighborTable.DegradeLinks();
