@@ -14,7 +14,9 @@
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_
 
-
+/*
+ *
+ */
 class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;

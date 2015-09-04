@@ -22,6 +22,9 @@ extern OMACTypeBora g_OMAC;
 #define DEBUG_RADIO_STATE 1
 //#define DEBUG_TIMESYNC 1
 
+/*
+ *
+ */
 DeviceStatus RadioControl::Initialize(){
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_STATEPIN, FALSE);
 	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
@@ -32,7 +35,9 @@ DeviceStatus RadioControl::Initialize(){
 	return DS_Success;
 }
 
-
+/*
+ *
+ */
 DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
@@ -48,6 +53,9 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	return DS_Success;
 }
 
+/*
+ *
+ */
 DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 		header->length = size + sizeof(IEEE802_15_4_Header_t);
@@ -86,9 +94,10 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 	return DS_Success;
 }
 
+/*
+ * Radio implements the 'bag exchange' protocol, so store the pointer back to message
+ */
 DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4_t * msg, UINT16 size, UINT32 eventTime){
-	//Radio implements the 'bag exchange' protocol, so store the pointer back to message
-
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -117,6 +126,9 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 //		return DS_Success;
 //}
 
+/*
+ *
+ */
 DeviceStatus RadioControl::Stop(){
 	//DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
@@ -124,6 +136,9 @@ DeviceStatus RadioControl::Stop(){
 	return returnVal;
 }
 
+/*
+ *
+ */
 DeviceStatus RadioControl::StartPLL(){
 	//DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
@@ -132,7 +147,9 @@ DeviceStatus RadioControl::StartPLL(){
 	return returnVal;
 }
 
-
+/*
+ *
+ */
 DeviceStatus RadioControl::StartRx(){
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );

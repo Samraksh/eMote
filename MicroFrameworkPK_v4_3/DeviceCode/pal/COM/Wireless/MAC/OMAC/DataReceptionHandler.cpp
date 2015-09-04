@@ -22,7 +22,9 @@ void PublicReceiveCallback(void * param){
 }
 */
 
-
+/*
+ *
+ */
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	RadioID = radioID;
 	MacID = macID;
@@ -68,7 +70,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	}
 }
 
-
+/*
+ *
+ */
 UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
 	UINT16 remainingSlots, randVal;
 
@@ -136,7 +140,9 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
 	}*/
 }
 
-
+/*
+ *
+ */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 #ifdef OMAC_DEBUG
 	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
@@ -148,10 +154,16 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
 }
 
+/*
+ *
+ */
 UINT8 DataReceptionHandler::ExecuteEventDone(){
 	return 0;
 }
 
+/*
+ *
+ */
 void DataReceptionHandler::PostExecuteEvent(){
 	/* Two types of symptons if collision occurs:
 	 * 1. Cannot receive packet, but there is energy in the channel
@@ -168,10 +180,16 @@ void DataReceptionHandler::PostExecuteEvent(){
 	}
 }
 
+/*
+ *
+ */
 void DataReceptionHandler::SetWakeup(bool shldWakeup){
 	m_shldWakeup = shldWakeup;
 }
 
+/*
+ *
+ */
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
 	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);

@@ -19,7 +19,9 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 
 
-
+/*
+ *
+ */
 void DataTransmissionHandler::Initialize(){
 	m_dsn = 0;
 	m_retryCnt = m_dwellCnt=0;
@@ -36,8 +38,9 @@ void DataTransmissionHandler::Initialize(){
 	m_collisionCnt = 0;
 }
 
-
-/*This function returns the number of ticks until the transmission time*/
+/*
+ * This function returns the number of ticks until the transmission time
+ */
 UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
 	m_lastSlot++;
 	if (g_send_buffer.Size() > 0) {
@@ -67,25 +70,38 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
 	}
 }
 
+/*
+ *
+ */
 void DataTransmissionHandler::ExecuteEvent(UINT32 slotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	bool rv = Send();
 }
 
+/*
+ *
+ */
 UINT8 DataTransmissionHandler::ExecuteEventDone(){
 	return 0;
 }
 
-
+/*
+ *
+ */
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
 }
 
+/*
+ *
+ */
 void DataTransmissionHandler::SetWakeup(bool shldWakeup){
 	hal_printf("DataTransmissionHandler::SetWakeup\n");
 }
 
-
+/*
+ *
+ */
 void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size){
 	/*
 	IEEE802_15_4_Header_t * headerPtr = msg->GetHeader();
@@ -148,7 +164,9 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 */
 }
 
-
+/*
+ *
+ */
 bool DataTransmissionHandler::Send(){
 	ASSERT(m_outgoingEntryPtr != NULL);
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
@@ -160,8 +178,9 @@ bool DataTransmissionHandler::Send(){
 	return true;
 }
 
-
-
+/*
+ *
+ */
 void DataTransmissionHandler::ScheduleDataPacket()
 {
 	// do not schedule a new tx if

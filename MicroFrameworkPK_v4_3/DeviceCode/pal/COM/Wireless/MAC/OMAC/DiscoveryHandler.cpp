@@ -23,15 +23,24 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 extern OMACTypeBora g_OMAC;
 
+/*
+ *
+ */
 void PublicBeaconNCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
 	m_parentScheduler = scheduler;
 	g_scheduler = (OMACSchedulerBora*)scheduler;
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) DISCOSYNCSENDPIN, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) DISCOSYNCRECEIVEPIN, TRUE);
@@ -60,7 +69,9 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * 1000, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
-
+/*
+ *
+ */
 UINT16 DiscoveryHandler::NextEvent(UINT32 slotNum){
 	UINT32 p1Remaining, p2Remaining;
 	p1Remaining = slotNum % m_p1;
@@ -80,35 +91,48 @@ UINT16 DiscoveryHandler::NextEvent(UINT32 slotNum){
 	}
 }
 
-
+/*
+ *
+ */
 void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
 	Beacon1();
 }
 
+/*
+ *
+ */
 UINT8 DiscoveryHandler::ExecuteEventDone(){
 	g_scheduler->Stop();
 	return 0;
 }
 
-
+/*
+ *
+ */
 void DiscoveryHandler::PostExecuteEvent(){
 	hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
 }
 
-
+/*
+ *
+ */
 void DiscoveryHandler::SetWakeup(bool shldWakeup){
 	hal_printf("DiscoveryHandler::SetWakeup\n");
 }
 
 ////////////////////Private Functions////////////////////////////
-
+/*
+ *
+ */
 //Mukundan: Can add conditions to suppress beaconing, will keep this true for now
 BOOL DiscoveryHandler::ShouldBeacon(){
 	return TRUE;
 }
 
-
+/*
+ *
+ */
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
 	////hal_printf("start DiscoveryHandler::Beacon\n");
 #ifdef DEBUG_TSYNC
@@ -152,6 +176,9 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr
 	return e;
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
 	if (msg != &m_discoveryMsgBuffer) {
 		////hal_printf("if m_busy DiscoveryHandler::BeaconAckHandler\n");
@@ -170,6 +197,9 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	this->ExecuteEventDone();
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::Beacon1(){
 	////hal_printf("start Beacon1\n");
 	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
@@ -187,6 +217,9 @@ void DiscoveryHandler::Beacon1(){
 	////hal_printf("end Beacon1\n");
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::BeaconN(){
 	////hal_printf("start BeaconN\n");
 	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
@@ -209,11 +242,17 @@ void DiscoveryHandler::BeaconN(){
 	////hal_printf("end BeaconN\n");
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::StartBeaconNTimer(BOOL oneShot){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
 }
 
+/*
+ *
+ */
 void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 #ifdef TESTBED
 #warning ** USING TESTBED CONFIG
@@ -229,6 +268,9 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	//VirtTimer_Stop(7);
 }
 
+/*
+ *
+ */
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	////hal_printf("start DiscoveryHandler::Receive\n");
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
@@ -274,6 +316,9 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	return DS_Success;
 }
 
+/*
+ *
+ */
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 	////hal_printf("start DiscoveryHandler::Send\n");
 	DeviceStatus retValue;
