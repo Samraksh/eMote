@@ -28,9 +28,9 @@ void PublicBeaconNCallback(void * param){
 }
 
 void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
-  		m_parentScheduler = scheduler;
-  		g_scheduler = (OMACSchedulerBora*)scheduler;
-  	}
+	m_parentScheduler = scheduler;
+	g_scheduler = (OMACSchedulerBora*)scheduler;
+}
 
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) DISCOSYNCSENDPIN, TRUE);
@@ -60,15 +60,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * 1000, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
-void DiscoveryHandler::ExecuteSlot(UINT32 slotNum){
-	Beacon1();
-}
 
-UINT8 DiscoveryHandler::ExecuteSlotDone(){
-	g_scheduler->Stop();
-}
-
-UINT32 DiscoveryHandler::NextSlot(UINT32 slotNum){
+UINT16 DiscoveryHandler::NextEvent(UINT32 slotNum){
 	UINT32 p1Remaining, p2Remaining;
 	p1Remaining = slotNum % m_p1;
 	p2Remaining = slotNum % m_p2;
@@ -88,14 +81,24 @@ UINT32 DiscoveryHandler::NextSlot(UINT32 slotNum){
 }
 
 
-void DiscoveryHandler::PostExecuteSlot(){
-	////hal_printf("m_busy DiscoveryHandler::PostExecuteSlot\n");
+void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
+	Beacon1();
+}
+
+UINT8 DiscoveryHandler::ExecuteEventDone(){
+	g_scheduler->Stop();
+	return 0;
+}
+
+
+void DiscoveryHandler::PostExecuteEvent(){
+	hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
 }
 
 
-void DiscoveryHandler::SetWakeup(BOOL shldWakeup){
-
+void DiscoveryHandler::SetWakeup(bool shldWakeup){
+	hal_printf("DiscoveryHandler::SetWakeup\n");
 }
 
 ////////////////////Private Functions////////////////////////////
@@ -164,7 +167,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 			//signalBeaconDone(error, call GlobalTime.getLocalTime());
 	#endif
 
-	this->ExecuteSlotDone();
+	this->ExecuteEventDone();
 }
 
 void DiscoveryHandler::Beacon1(){
@@ -197,7 +200,7 @@ void DiscoveryHandler::BeaconN(){
 		else {
 			// HACK: for now, just turn off radio.
 			hal_printf("BeaconN failed\n");
-			this->ExecuteSlotDone();
+			this->ExecuteEventDone();
 		}
 	}
 	else {
@@ -221,7 +224,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	} else {
 		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
-		ExecuteSlotDone();
+		ExecuteEventDone();
 	}
 	//VirtTimer_Stop(7);
 }

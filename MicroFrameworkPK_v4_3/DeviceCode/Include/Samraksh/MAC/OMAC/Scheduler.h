@@ -129,7 +129,7 @@ public:
 	void DiscoveryTimerHandler(void* Param);
 
 	//Main Tasks
-	bool RunSlotTask();
+	bool RunEventTask();
 	bool RadioTask();
 	void Stop();
 

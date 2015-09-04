@@ -15,7 +15,7 @@
 #define DATARECEPTIONHANDLER_H_
 
 
-class DataReceptionHandler: public SlotHandler {
+class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
 
@@ -45,11 +45,12 @@ class DataReceptionHandler: public SlotHandler {
 
 public:
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT16 NextSlot(UINT32 slotNum);
-	void ExecuteSlot(UINT32 slotNum);
-	UINT8 ExecuteSlotDone();
-	void PostExecuteSlot();
+	UINT16 NextEvent(UINT32 slotNum);
+	void ExecuteEvent(UINT32 slotNum);
+	UINT8 ExecuteEventDone();
+	void PostExecuteEvent();
 	void SetWakeup(bool shldWakeup);
+
 	bool SendDataBeacon(bool sendPiggyback);
 };
 

@@ -23,7 +23,7 @@ enum CMaxTSyncState{
 };
 
 //typedef class CMaxTimeSync : public TimeSyncMessage_15_4  {
-typedef class CMaxTimeSync : public SlotHandler{
+typedef class CMaxTimeSync : public EventHandler{
 	UINT8 RadioID;
 	UINT8 MacID;
 	Message_15_4_t m_timeSyncMsgBuffer;
@@ -48,9 +48,11 @@ public:
 
 
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT32 NextSlot(UINT32 currSlot);
-	void ExecuteSlot(UINT32 slotNum);
-	void PostExecuteSlot();
+	UINT16 NextEvent(UINT32 currSlot);
+	void ExecuteEvent(UINT32 slotNum);
+	UINT8 ExecuteEventDone();
+	void PostExecuteEvent();
+	void SetWakeup(bool shldWakeup);
 
 	//UINT32 GetSyncPoint();
 	DeviceStatus Receive(Message_15_4_t* msg, void* payload, UINT8 len);

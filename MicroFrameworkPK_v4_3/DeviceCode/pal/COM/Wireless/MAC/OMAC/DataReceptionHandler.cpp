@@ -66,56 +66,10 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	if (m_dataInterval <= 1) {
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
-
 }
 
 
-void DataReceptionHandler::ExecuteSlot(UINT32 slotNum){
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, TRUE);
-#endif
-	//call ChannelMonitor.monitorChannel();
-	//SendDataBeacon(FALSE);
-	m_wakeupCnt++;
-	DeviceStatus rs = g_omac_RadioControl.StartRx();
-}
-
-bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
-	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
-	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
-	m_receivedDataPacket = FALSE;
-	m_efdDetected = FALSE;
-	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
-	sndMsg->nodeID = CPU_Radio_GetAddress(RadioID);
-	dataBeaconBufferPtr->GetHeader()->type = OMAC_DATA_BEACON_TYPE;
-
-	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
-	//call DataReceptionTimer.startOneShot(WAIT_TIME_AFTER_DATA_BEACON);
-	hal_printf("end DataReceptionHandler::SendDataBeacon\n");
-}
-
-UINT8 DataReceptionHandler::ExecuteSlotDone(){
-
-}
-
-void DataReceptionHandler::PostExecuteSlot(){
-	/* Two types of symptons if collision occurs:
-	 * 1. Cannot receive packet, but there is energy in the channel
-	 * 2. Received packet but with incorrect CRC
-	 */
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
-	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
-#endif
-	if (m_wakeupCnt % m_reportPeriod == 0) {
-		hal_printf("wkCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
-			m_wakeupCnt, m_receivedSlotCnt,
-			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
-	}
-}
-
-UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
+UINT16 DataReceptionHandler::NextEvent(UINT32 slotNum){
 	UINT16 remainingSlots, randVal;
 
 	//Sanity check: I am executing when I am not supposed to.
@@ -183,7 +137,53 @@ UINT16 DataReceptionHandler::NextSlot(UINT32 slotNum){
 }
 
 
+void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
+#ifdef OMAC_DEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
+	CPU_GPIO_SetPinState((GPIO_PIN) 23, TRUE);
+#endif
+	//call ChannelMonitor.monitorChannel();
+	//SendDataBeacon(FALSE);
+	m_wakeupCnt++;
+	DeviceStatus rs = g_omac_RadioControl.StartRx();
+}
+
+UINT8 DataReceptionHandler::ExecuteEventDone(){
+	return 0;
+}
+
+void DataReceptionHandler::PostExecuteEvent(){
+	/* Two types of symptons if collision occurs:
+	 * 1. Cannot receive packet, but there is energy in the channel
+	 * 2. Received packet but with incorrect CRC
+	 */
+#ifdef OMAC_DEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
+	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
+#endif
+	if (m_wakeupCnt % m_reportPeriod == 0) {
+		hal_printf("wkCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
+			m_wakeupCnt, m_receivedSlotCnt,
+			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
+	}
+}
 
 void DataReceptionHandler::SetWakeup(bool shldWakeup){
 	m_shldWakeup = shldWakeup;
 }
+
+bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
+	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
+	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
+	m_receivedDataPacket = FALSE;
+	m_efdDetected = FALSE;
+	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
+	sndMsg->nodeID = CPU_Radio_GetAddress(RadioID);
+	dataBeaconBufferPtr->GetHeader()->type = OMAC_DATA_BEACON_TYPE;
+
+	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
+	//call DataReceptionTimer.startOneShot(WAIT_TIME_AFTER_DATA_BEACON);
+	hal_printf("end DataReceptionHandler::SendDataBeacon\n");
+	return true;
+}
+
