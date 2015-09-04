@@ -35,7 +35,38 @@ inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
 	else return( (0xFFFFFFFFFFFFFFFF - Y) + X);
 }
 
-UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
+
+void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
+
+	CPU_GPIO_SetPinState((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
+
+	RadioID = radioID;
+	MacID = macID;
+	m_skew = 0;
+	//m_leader=TRUE;
+	m_localAverage = 0;
+	m_offsetAverage = 0;
+	//m_messagePeriod = 10000/SLOT_PERIOD; //Time period in milliseconds
+	m_messagePeriod = 10000 * TICKS_PER_MILLI;//Time period in ticks
+	m_timeSyncBufferPtr = &m_timeSyncMsgBuffer;
+	m_globalTime.Init();
+	m_state = E_Leader;
+
+#ifdef DEBUG_TSYNC
+
+	if(g_OMAC.MyID == RXNODEID) {
+		Nbr2beFollowed = TXNODEID;
+	}
+	else {
+		Nbr2beFollowed = RXNODEID;
+	}
+#endif
+}
+
+
+UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
 	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
@@ -92,7 +123,7 @@ UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 	}
 }*/
 
-void CMaxTimeSync::ExecuteSlot(UINT32 slotNum){
+void CMaxTimeSync::ExecuteEvent(UINT32 slotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
 	m_lastSlotExecuted=slotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
@@ -100,41 +131,19 @@ void CMaxTimeSync::ExecuteSlot(UINT32 slotNum){
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
 }
 
-void CMaxTimeSync::PostExecuteSlot(){
-
+UINT8 CMaxTimeSync::ExecuteEventDone()
+{
+	return 0;
 }
 
-void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
-
-	CPU_GPIO_SetPinState((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
-
-	RadioID = radioID;
-	MacID = macID;
-	m_skew = 0;
-	//m_leader=TRUE;
-	m_localAverage = 0;
-	m_offsetAverage = 0;
-	//m_messagePeriod = 10000/SLOT_PERIOD; //Time period in milliseconds
-	m_messagePeriod = 10000 * TICKS_PER_MILLI;//Time period in ticks
-	m_timeSyncBufferPtr = &m_timeSyncMsgBuffer;
-	m_globalTime.Init();
-	m_state = E_Leader;
-
-#ifdef DEBUG_TSYNC
-
-	if(g_OMAC.MyID == RXNODEID) {
-		Nbr2beFollowed = TXNODEID;
-	}
-	else {
-		Nbr2beFollowed = RXNODEID;
-	}
-#endif
-
-
+void CMaxTimeSync::PostExecuteEvent(){
+	hal_printf("CMaxTimeSync::PostExecuteEvent\n");
 }
 
+void CMaxTimeSync::SetWakeup(bool shldWakeup)
+{
+	hal_printf("CMaxTimeSync::SetWakeup\n");
+}
 
 //DeviceStatus CMaxTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){

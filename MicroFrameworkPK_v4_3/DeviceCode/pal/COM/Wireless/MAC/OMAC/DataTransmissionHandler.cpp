@@ -34,8 +34,57 @@ void DataTransmissionHandler::Initialize(){
 	m_nextTXTicks=0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
-
 }
+
+
+/*This function returns the number of ticks until the transmission time*/
+UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
+	m_lastSlot++;
+	if (g_send_buffer.Size() > 0) {
+	  this->ScheduleDataPacket();
+	}
+
+	//m_nextTXCounter is initialized to 0
+	if (m_nextTXCounter != 0) {
+		INT32 remainingSlots = m_nextTXCounter - slotNum;
+		if (remainingSlots >= 0 && remainingSlots > (0xffff >> SLOT_PERIOD_BITS)) {
+			return 0xffff;
+		}
+		else {
+			//in case the task delay is large and we are already pass
+			//tx time, tx immediately
+			if(m_nextTXTicks < HAL_Time_CurrentTicks()) {
+				return 0xffff;
+			}
+			else {
+				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(m_nextTXTicks - HAL_Time_CurrentTicks());
+				//return (UINT16)(ticksInMicroSecs/1000);
+				return ticksInMicroSecs;
+			}
+		}
+	} else {
+		return 0xffff;
+	}
+}
+
+void DataTransmissionHandler::ExecuteEvent(UINT32 slotNum){
+	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
+	bool rv = Send();
+}
+
+UINT8 DataTransmissionHandler::ExecuteEventDone(){
+	return 0;
+}
+
+
+void DataTransmissionHandler::PostExecuteEvent(){
+	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
+}
+
+void DataTransmissionHandler::SetWakeup(bool shldWakeup){
+	hal_printf("DataTransmissionHandler::SetWakeup\n");
+}
+
 
 void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size){
 	/*
@@ -97,17 +146,8 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 		//for receiver: we are waiting for data packet after our beacon
 	}
 */
-
 }
 
-void DataTransmissionHandler::ExecuteSlot(UINT32 slotNum){
-	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
-	bool rv = Send();
-}
-
-UINT8 DataTransmissionHandler::ExecuteSlotDone(){
-
-}
 
 bool DataTransmissionHandler::Send(){
 	ASSERT(m_outgoingEntryPtr != NULL);
@@ -117,37 +157,9 @@ bool DataTransmissionHandler::Send(){
 	else {
 		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
+	return true;
 }
 
-/*This function returns the number of ticks until the transmission time*/
-UINT16 DataTransmissionHandler::NextSlot(UINT32 slotNum){
-	m_lastSlot++;
-	if (g_send_buffer.Size() > 0) {
-	  this->ScheduleDataPacket();
-	}
-
-	//m_nextTXCounter is initialized to 0
-	if (m_nextTXCounter != 0) {
-		INT32 remainingSlots = m_nextTXCounter - slotNum;
-		if (remainingSlots >= 0 && remainingSlots > (0xffff >> SLOT_PERIOD_BITS)) {
-			return 0xffff;
-		}
-		else {
-			//in case the task delay is large and we are already pass
-			//tx time, tx immediately
-			if(m_nextTXTicks < HAL_Time_CurrentTicks()) {
-				return 0xffff;
-			}
-			else {
-				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(m_nextTXTicks - HAL_Time_CurrentTicks());
-				//return (UINT16)(ticksInMicroSecs/1000);
-				return ticksInMicroSecs;
-			}
-		}
-	} else {
-		return 0xffff;
-	}
-}
 
 
 void DataTransmissionHandler::ScheduleDataPacket()
@@ -279,12 +291,3 @@ void DataTransmissionHandler::ScheduleDataPacket()
 	}
 }
 
-
-void DataTransmissionHandler::PostExecuteSlot(){
-
-}
-
-
-void DataTransmissionHandler::SetWakeup(bool shldWakeup){
-
-}

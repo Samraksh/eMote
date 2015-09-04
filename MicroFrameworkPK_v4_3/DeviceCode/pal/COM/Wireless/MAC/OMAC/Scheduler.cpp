@@ -77,9 +77,9 @@ void OMACSchedulerBora::UnInitialize(){
 
 }
 
-bool OMACSchedulerBora::RunSlotTask(){
-	////hal_printf("start OMACSchedulerBora::RunSlotTask\n");
-	UINT32 rxSlotOffset = 0, txSlotOffset = 0, beaconSlotOffset = 0, timeSyncSlotOffset=0;
+bool OMACSchedulerBora::RunEventTask(){
+	////hal_printf("start OMACSchedulerBora::RunEventTask\n");
+	UINT32 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 
 #ifdef PROFILING
 	taskDelay1 = call SubLocalTime.get() - taskDelay1;
@@ -88,7 +88,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 	g_OMAC.UpdateNeighborTable();
 	// the NextSlot() for receiver must be called every slot as there are state update
 	// operations in it
-	rxSlotOffset = m_DataReceptionHandler.NextSlot(m_slotNo);
+	rxEventOffset = m_DataReceptionHandler.NextEvent(m_slotNo);
 
 	//BK:This is disabled since should not happen anyways
 	// if(InputState.IsState(I_DATA_SEND_PENDING) || !(ProtoState.IsIdle())) {
@@ -101,9 +101,9 @@ bool OMACSchedulerBora::RunSlotTask(){
 	/* notice that the transmission handler returns the ticks (1/32 of a milli sec) for the
 	 * next scheduled transmission, whereas the reception handler returns the number of slots
 	 * before the next scheduled reception*/
-	txSlotOffset = m_DataTransmissionHandler.NextSlot(m_slotNo);
-	beaconSlotOffset = m_DiscoveryHandler.NextSlot(m_slotNo);
-	timeSyncSlotOffset = m_TimeSyncHandler.NextSlot(m_slotNo);
+	txEventOffset = m_DataTransmissionHandler.NextEvent(m_slotNo);
+	beaconEventOffset = m_DiscoveryHandler.NextEvent(m_slotNo);
+	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(m_slotNo);
 	//	if (rxSlotOffset < 2 * SLOT_PERIOD_32KHZ
 	//		|| beaconSlotOffset < 2 * SLOT_PERIOD_32KHZ || txSlotOffset < 2 * SLOT_PERIOD_32KHZ ) {
 	//		call OMacSignal.yield();
@@ -112,9 +112,9 @@ bool OMACSchedulerBora::RunSlotTask(){
 	//	}
 
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
-	if(startMeasuringDutyCycle && txSlotOffset < (SLOT_PERIOD_MILLI * 1000)) {
+	if(startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000)) {
 		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
-			StartDataAlarm(txSlotOffset);
+			StartDataAlarm(txEventOffset);
 			return TRUE;
 		}
 	}
@@ -131,7 +131,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 		}
 		VirtTimer_Start(HAL_SLOT_TIMER);*/
 
-		if(startMeasuringDutyCycle && rxSlotOffset == 0) {
+		if(startMeasuringDutyCycle && rxEventOffset == 0) {
 			if(InputState.RequestState(I_DATA_RCV_PENDING) == DS_Success) {
 				//call OMacSignal.yield();
 				//Mukundan:Instead of posting RadioTask just run it directly
@@ -145,7 +145,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 			}
 		}
 		// do not send Time Sync message, if  i'm going to receive or send packets in 2 slots
-		else if((timeSyncSlotOffset == 0) && (rxSlotOffset > 2) && (txSlotOffset > 2))  {
+		else if((timeSyncEventOffset == 0) && (rxEventOffset > 2) && (txEventOffset > 2))  {
 
 			InputState.ForceState(I_TIMESYNC_PENDING);
 
@@ -155,7 +155,7 @@ bool OMACSchedulerBora::RunSlotTask(){
 			}
 		}
 		// do not send Discovery message, if  i'm going to receive or send packets in 2 slots
-		else if((beaconSlotOffset == 0) && (rxSlotOffset > 2) && (txSlotOffset > 2))  {
+		else if((beaconEventOffset == 0) && (rxEventOffset > 2) && (txEventOffset > 2))  {
 			//if (startMeasuringDutyCycle) {
 			//	return TRUE;
 			//}
@@ -201,19 +201,19 @@ bool OMACSchedulerBora::RadioTask(){
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING :
-				m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
+				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
 			case I_DATA_RCV_PENDING :
-				m_DataReceptionHandler.ExecuteSlot(m_slotNo);
+				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
 			case I_TIMESYNC_PENDING :
-				m_TimeSyncHandler.ExecuteSlot(m_slotNo);
+				m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = TIMESYNC_HANDLER;
 				break;
 			default :
-				m_DiscoveryHandler.ExecuteSlot(m_slotNo);
+				m_DiscoveryHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
 				break;
 		}
@@ -294,7 +294,7 @@ void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 	//Mukundan: At this point, instead of posting a task as in TinyOS,
 	//just run the task directly
 	//We will revisit the whole task architecture later.
-	this->RunSlotTask();
+	this->RunEventTask();
 	////hal_printf("end OMACSchedulerBora::SlotAlarmHandler\n");
 
 #ifdef OMAC_DEBUG
@@ -371,7 +371,7 @@ void OMACSchedulerBora::DataAlarmHandler(void* Param){
 	//just run the task directly
 	//We will revisit the whole task architecture later.
 	////this->RunSlotTask();
-	m_DataTransmissionHandler.ExecuteSlot(m_slotNo);
+	m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 
 	////hal_printf("end OMACSchedulerBora::DataAlarmHandler\n");
 
@@ -461,20 +461,20 @@ bool OMACSchedulerBora::IsNeighborGoingToReceive(){
 void OMACSchedulerBora::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
-			m_DiscoveryHandler.PostExecuteSlot();
+			m_DiscoveryHandler.PostExecuteEvent();
 			break;
 		case TIMESYNC_HANDLER :
-			m_TimeSyncHandler.PostExecuteSlot();
+			m_TimeSyncHandler.PostExecuteEvent();
 			break;
 		case DATA_TX_HANDLER :
 			//also notify the DiscoveryHandler in case
 			//there is piggyback beacon received
-			m_DataTransmissionHandler.PostExecuteSlot();
-			m_DiscoveryHandler.PostExecuteSlot();
+			m_DataTransmissionHandler.PostExecuteEvent();
+			m_DiscoveryHandler.PostExecuteEvent();
 			break;
 		case DATA_RX_HANDLER :
-			m_DataReceptionHandler.PostExecuteSlot();
-			m_DiscoveryHandler.PostExecuteSlot();
+			m_DataReceptionHandler.PostExecuteEvent();
+			m_DiscoveryHandler.PostExecuteEvent();
 			break;
 		default :
 			break;

@@ -25,7 +25,7 @@ typedef struct MessageCacheEntry {
 #endif
 } MessageCacheEntry_t;
 
-class DiscoveryHandler: public SlotHandler {
+class DiscoveryHandler: public EventHandler {
   private:
 	UINT8 RadioID;
 	UINT8 MacID;
@@ -74,11 +74,13 @@ class DiscoveryHandler: public SlotHandler {
 	void StartBeaconNTimer(BOOL oneshot);	//Start BeaconN Timer
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
-  	UINT32 NextSlot(UINT32 slotNum);
-  	void ExecuteSlot(UINT32 slotNum);
-  	UINT8 ExecuteSlotDone();
-  	void PostExecuteSlot();
-  	void SetWakeup(BOOL shldWakeup);
+
+  	UINT16 NextEvent(UINT32 slotNum);
+  	void ExecuteEvent(UINT32 slotNum);
+  	UINT8 ExecuteEventDone();
+  	void PostExecuteEvent();
+  	void SetWakeup(bool shldWakeup);
+
   	void SetParentSchedulerPtr(void * scheduler);
   	DeviceStatus Receive(Message_15_4_t* msg, void* payload, UINT8 len);
   	DeviceStatus Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time);
@@ -86,6 +88,8 @@ class DiscoveryHandler: public SlotHandler {
   		m_seed = seed;
   		m_nextFrame = nextFrame;
   	}
+
+  	~DiscoveryHandler();
 };
 
 
