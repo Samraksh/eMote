@@ -42,13 +42,13 @@ class DiscoveryHandler: public EventHandler {
 	BOOL m_receivedPiggybackBeacon, m_lockSeed;
 	// Wenjie: worst case interval between two consecutive received beacons
 	// Declare oneself as root if heartBeat >= discoInterval * ROOT_TIMEOUT
-	UINT32	discoInterval;
+	UINT32 discoInterval;
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
 	// Count of entries after clock wrap
-	UINT32		m_tableEntriesUnderTransition[MAX_NBR_SIZE];
+	UINT32	m_tableEntriesUnderTransition[MAX_NBR_SIZE];
 	UINT32 	m_idxForComputation;
-	BOOL		m_inTransition;
+	BOOL	m_inTransition;
 
 	/*
 	 * We do linear regression from localTime to timeOffset (globalTime - localTime).
@@ -67,7 +67,7 @@ class DiscoveryHandler: public EventHandler {
 	Message_15_4_t *m_processedMsg;
 	DiscoveryMsg_t *m_discoveryMsg;
 
-	UINT16	m_p1, m_p2;
+	UINT16	m_period1, m_period2;
 
     //private methods
 	BOOL ShouldBeacon();
@@ -80,8 +80,9 @@ class DiscoveryHandler: public EventHandler {
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
 
-  	UINT16 NextEvent(UINT32 slotNum);
-  	void ExecuteEvent(UINT32 slotNum);
+  	UINT16 NextEvent(UINT32 currentSlotNum);
+	//UINT64 NextEvent(UINT64 currentTicks);
+  	void ExecuteEvent(UINT32 currentSlotNum);
   	UINT8 ExecuteEventDone();
   	void PostExecuteEvent();
   	void SetWakeup(bool shldWakeup);

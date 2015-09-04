@@ -40,8 +40,9 @@ class DataTransmissionHandler: public EventHandler {
 
 public:
 	void Initialize();
-	UINT16 NextEvent(UINT32 slotNum);
-	void ExecuteEvent(UINT32 slotNum);
+	UINT16 NextEvent(UINT32 currentSlotNum);
+	//UINT64 NextEvent(UINT64 currentTicks);
+	void ExecuteEvent(UINT32 currentSlotNum);
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 	void SetWakeup(bool shldWakeup);

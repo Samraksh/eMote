@@ -34,7 +34,7 @@ BOOL GlobalTime::synced=FALSE;
  */
 inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
 	if(X>Y) return (X-Y);
-	else return( (0xFFFFFFFFFFFFFFFF - Y) + X);
+	else return( (MAX_UINT64 - Y) + X);
 }
 
 /*
@@ -61,10 +61,10 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef DEBUG_TSYNC
 
 	if(g_OMAC.MyID == RXNODEID) {
-		Nbr2beFollowed = TXNODEID;
+		Neighbor2beFollowed = TXNODEID;
 	}
 	else {
-		Nbr2beFollowed = RXNODEID;
+		Neighbor2beFollowed = RXNODEID;
 	}
 #endif
 }
@@ -72,16 +72,16 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 /*
  *
  */
-UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
-	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
+UINT16 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
+	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
+	if ( sn == NULL ) return ((UINT32) MAX_UINT32);
 	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
 			return 0;
 		}
 		else {
-			return ((UINT32) 0xFFFFFFFF);
+			return ((UINT32) MAX_UINT32);
 		}
 	}
 	else {
@@ -92,9 +92,9 @@ UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
 
 /*UINT32 CMaxTimeSync::NextSlot(UINT32 currSlot){
 	////hal_printf("start CMaxTimeSync::NextSlot\n");
-	//return 0xFFFFFFFF; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
+	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	if ( sn == NULL ) return ((UINT32) 0xFFFFFFFF);
+	if ( sn == NULL ) return ((UINT32) MAX_UINT32);
 	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		Send(sn ->MacAddress);
 		////hal_printf("end send CMaxTimeSync::NextSlot\n");
@@ -122,21 +122,21 @@ UINT16 CMaxTimeSync::NextEvent(UINT32 currSlot){
 			return (  m_messagePeriod - (currSlot-m_lastSlotExecuted) );
 	}
 	else{
-		if( ( (0xFFFFFFFF -  m_lastSlotExecuted) + currSlot ) >= m_messagePeriod)
+		if( ( (MAX_UINT32 -  m_lastSlotExecuted) + currSlot ) >= m_messagePeriod)
 			return(0);
 		else
-			return(m_messagePeriod-( (0xFFFFFFFF -  m_lastSlotExecuted) + currSlot ));
+			return(m_messagePeriod-( (MAX_UINT32 -  m_lastSlotExecuted) + currSlot ));
 	}
 }*/
 
 /*
  *
  */
-void CMaxTimeSync::ExecuteEvent(UINT32 slotNum){
+void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
-	m_lastSlotExecuted=slotNum;
+	m_lastSlotExecuted = currentSlotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	Send(sn -> MacAddress,true);
+	Send(sn->MacAddress,true);
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
 }
 
@@ -248,13 +248,13 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	////GLOBAL_LOCK(irq);
 	bool TimerReturn;
-	RadioAddress_t msg_src =  msg->GetHeader()->src;
+	RadioAddress_t msg_src = msg->GetHeader()->src;
 
 	////UINT16 msg_src =  msg->GetHeader()->src;
 	////CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
 
 #ifdef DEBUG_TSYNC
-	if (msg_src == Nbr2beFollowed ){
+	if (msg_src == Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
 			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
 		}
@@ -262,7 +262,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 #endif
 
 	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
-	TimeSyncMsg* rcv_msg  = (TimeSyncMsg *) msg->GetPayload();
+	TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
 
 
 	UINT64 rcv_ltime;
@@ -280,7 +280,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	}
 #ifdef DEBUG_TSYNC
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
-	if (msg_src == Nbr2beFollowed ){
+	if (msg_src == Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
 			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 		}

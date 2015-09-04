@@ -58,11 +58,11 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
 
-	m_p1 = CONTROL_P1[g_OMAC.MyID % 7];
-	m_p2 = CONTROL_P2[g_OMAC.MyID  % 7];
-	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_p1, m_p2);
+	m_period1 = CONTROL_P1[g_OMAC.MyID % 7];
+	m_period2 = CONTROL_P2[g_OMAC.MyID  % 7];
+	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 
-	discoInterval = m_p1 * m_p2;	// Initially set to 1 to accelerate self-declaration as root
+	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
 	VirtualTimerReturnMessage rm;
@@ -72,21 +72,21 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 /*
  *
  */
-UINT16 DiscoveryHandler::NextEvent(UINT32 slotNum){
-	UINT32 p1Remaining, p2Remaining;
-	p1Remaining = slotNum % m_p1;
-	p2Remaining = slotNum % m_p2;
+UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
+	UINT32 period1Remaining, period2Remaining;
+	period1Remaining = currentSlotNum % m_period1;
+	period2Remaining = currentSlotNum % m_period2;
 
-	if (p1Remaining == 0 || p2Remaining == 0) {
+	if (period1Remaining == 0 || period2Remaining == 0) {
 		return 0;
 	}
 	else  {
-		p1Remaining = m_p1 - p1Remaining;
-		p2Remaining = m_p2 - p2Remaining;
-		if (p1Remaining >= 0xffff >> SLOT_PERIOD_BITS && p2Remaining >= 0xffff >> SLOT_PERIOD_BITS) {
+		period1Remaining = m_period1 - period1Remaining;
+		period2Remaining = m_period2 - period2Remaining;
+		if (period1Remaining >= 0xffff >> SLOT_PERIOD_BITS && period2Remaining >= 0xffff >> SLOT_PERIOD_BITS) {
 			return 0xffff;
 		} else {
-			return p1Remaining < p2Remaining ? p1Remaining << SLOT_PERIOD_BITS : p2Remaining << SLOT_PERIOD_BITS;
+			return ((period1Remaining < period2Remaining) ? (period1Remaining << SLOT_PERIOD_BITS) : (period2Remaining << SLOT_PERIOD_BITS));
 		}
 	}
 }
@@ -281,7 +281,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	UINT64 localTime = HAL_Time_CurrentTicks();
 
 #ifdef DEBUG_TSYNC
-	if (source == g_scheduler->m_TimeSyncHandler.Nbr2beFollowed ){
+	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
 			CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCRECEIVEPIN, TRUE );
 		}
@@ -305,7 +305,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	}
 
 #ifdef DEBUG_TSYNC
-	if (source == g_scheduler->m_TimeSyncHandler.Nbr2beFollowed ){
+	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
 			CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCRECEIVEPIN, FALSE );
 		}

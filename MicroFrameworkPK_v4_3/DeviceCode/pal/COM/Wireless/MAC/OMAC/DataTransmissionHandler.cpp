@@ -41,7 +41,7 @@ void DataTransmissionHandler::Initialize(){
 /*
  * This function returns the number of ticks until the transmission time
  */
-UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
+UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
 	if (g_send_buffer.Size() > 0) {
 	  this->ScheduleDataPacket();
@@ -49,7 +49,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
 
 	//m_nextTXCounter is initialized to 0
 	if (m_nextTXCounter != 0) {
-		INT32 remainingSlots = m_nextTXCounter - slotNum;
+		INT32 remainingSlots = m_nextTXCounter - currentSlotNum;
 		if (remainingSlots >= 0 && remainingSlots > (0xffff >> SLOT_PERIOD_BITS)) {
 			return 0xffff;
 		}
@@ -73,7 +73,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 slotNum){
 /*
  *
  */
-void DataTransmissionHandler::ExecuteEvent(UINT32 slotNum){
+void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	bool rv = Send();
 }
