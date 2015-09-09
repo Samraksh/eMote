@@ -298,7 +298,6 @@ namespace VirtTimerHelperFunctions
 	}
 }
 
-
 HAL_CONTINUATION    vtCallbackContinuation;
 
 
@@ -325,15 +324,18 @@ void VirtualTimerCallback(void *arg)
 
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
+		//(runningTimer->get_m_callback())(NULL);
 		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS) || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME) )
 		{
 			(runningTimer->get_m_callback())(NULL);
-		} else {
+		}
+		else {
 			void * userData = NULL;
-			vtCallbackContinuation.InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
+			vtCallbackContinuation.InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);
 			if(!vtCallbackContinuation.IsLinked())
-	    	{
-	        	vtCallbackContinuation.Enqueue();
+			{
+				vtCallbackContinuation.Enqueue();
+				HAL_CONTINUATION::Dequeue_And_Execute();
 			}
 		}
 	}

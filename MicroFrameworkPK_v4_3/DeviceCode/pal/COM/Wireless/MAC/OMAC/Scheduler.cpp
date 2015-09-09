@@ -88,7 +88,17 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
  */
 void OMACSchedulerBora::UnInitialize(){
 	OMAC_scheduler_TimerCompletion.Abort();
+	OMAC_scheduler_TimerCompletion.Uninitialize();
 }
+
+/*
+ *
+ */
+void RadioTaskCallback(void* arg)
+{
+	g_omac_scheduler.RadioTask();
+}
+
 
 /**********************************************************************
  * Slot alarm APIs
@@ -264,14 +274,6 @@ void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
  */
 void OMACSchedulerBora::DiscoveryTimerHandler(void* Param){
 
-}
-
-/*
- *
- */
-static void RadioTaskCallback(void* arg)
-{
-	bool retVal = g_omac_scheduler.RadioTask();
 }
 
 /*
@@ -500,7 +502,7 @@ void OMACSchedulerBora::Stop(){
 		default :
 			ProtoState.ForceState(S_STOPPING);
 			//InputState.ForceState(S_STOPPING);
-			CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, FALSE );
+			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, FALSE );
 			ds = g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG
