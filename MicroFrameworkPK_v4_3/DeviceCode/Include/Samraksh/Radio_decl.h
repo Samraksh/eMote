@@ -84,7 +84,7 @@ typedef  class RadioEventHandler{
 
 public:
 	UINT32 RadioInterruptMask;
-	ReceiveFuncPtrType RecieveHandler;
+	ReceiveFuncPtrType ReceiveHandler;
 	SendAckFuncPtrType SendAckHandler;
 	RadioInterruptFuncPtrType RadioInterruptHandler;
 
@@ -96,9 +96,9 @@ public:
 		this->RadioInterruptMask = radio_interrupt_mask;
 	}*/
 
-	void SetRecieveHandler(ReceiveFuncPtrType recieve_handler)
+	void SetReceiveHandler(ReceiveFuncPtrType receive_handler)
 	{
-		this->RecieveHandler = recieve_handler;
+		this->ReceiveHandler = receive_handler;
 	}
 
 	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
@@ -111,9 +111,9 @@ public:
 		this->RadioInterruptHandler = radio_interrupt_handler;
 	}
 
-	ReceiveFuncPtrType GetRecieveHandler()
+	ReceiveFuncPtrType GetReceiveHandler()
 	{
-		return this->RecieveHandler;
+		return this->ReceiveHandler;
 	}
 
 	SendAckFuncPtrType GetSendAckHandler()

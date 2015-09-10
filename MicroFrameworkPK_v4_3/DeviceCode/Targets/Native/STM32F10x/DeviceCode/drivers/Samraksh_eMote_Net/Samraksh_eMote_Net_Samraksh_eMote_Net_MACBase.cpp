@@ -129,7 +129,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.NeighborLivenessDelay |= configParams[7] << 16;
 	config.NeighborLivenessDelay |= configParams[8] << 24;
 
-	Event_Handler.SetRecieveHandler(&ReceiveDoneCallbackFn);
+	Event_Handler.SetReceiveHandler(&ReceiveDoneCallbackFn);
 	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);
 	Event_Handler.SetSendAckHandler(&ManagedSendAckCallback);
 

@@ -10,7 +10,7 @@ volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio dur
 UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
 
-void* csmaRecieveHandler(void *msg, UINT16 Size)
+void* csmaReceiveHandler(void *msg, UINT16 Size)
 {
 	return (void*) gcsmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
@@ -82,7 +82,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
-		Radio_Event_Handler.SetRecieveHandler(csmaRecieveHandler);
+		Radio_Event_Handler.SetReceiveHandler(csmaReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
 
 		m_send_buffer.Initialize();
@@ -239,8 +239,9 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
-	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-			return FALSE;
+	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+		return FALSE;
+	}
 
 	// Try to  send the packet out immediately if possible
 	SendFirstPacketToRadio(NULL);
@@ -439,7 +440,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	//Call routing/app receive callback
-	MacReceiveFuncPtrType appHandler = AppHandlers[3]->RecieveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
+	MacReceiveFuncPtrType appHandler = AppHandlers[3]->ReceiveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
 
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)

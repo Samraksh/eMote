@@ -40,7 +40,7 @@ BOOL MACTest::Initialize(){
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 	//MF_NODE_ID=10;	//Set you address
 	Config.Network = 138;
-	myEventHandler.SetRecieveHandler(&ReceiveHandler);
+	myEventHandler.SetReceiveHandler(&ReceiveHandler);
 	myEventHandler.SetSendAckHandler(&SendAckHandler);
 
 	//gHalTimerManagerObject.Initialize();

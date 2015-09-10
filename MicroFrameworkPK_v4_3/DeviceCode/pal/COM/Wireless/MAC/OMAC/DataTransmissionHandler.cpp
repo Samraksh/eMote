@@ -169,11 +169,18 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
  */
 bool DataTransmissionHandler::Send(){
 	ASSERT(m_outgoingEntryPtr != NULL);
+
+	//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+	//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
+	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
+	header->type = MFM_DATA;
+
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
 		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize()  );
 	}
 	else {
-		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(),
+																												m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
 	return true;
 }
@@ -188,9 +195,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 	// 2) we have nothing to send
 	//3) when the radio is idle.
 
+	static bool allNeighborFlag = false;
+
 	if ((m_nextTXTicks + SLOT_PERIOD_MILLI * TICKS_PER_MILLI < HAL_Time_CurrentTicks()) && g_send_buffer.Size() > 0){
 		UINT16 dest;
-		Neighbor_t* nbrEntry;
+		Neighbor_t* neighborEntry;
 
 		// Don't reschedule another tx for packets that are being sent
 		if (g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)) {
@@ -206,15 +215,18 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			}
 		}
 
+		Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+		m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
-		nbrEntry =  g_NeighborTable.GetNeighborPtr(dest);
+		//hal_printf("DataTransmissionHandler::ScheduleDataPacket dest is: %d\n", dest);
+		neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 
-		if (nbrEntry != NULL) {
+		if (neighborEntry != NULL) {
 			//next wake up slot determined neighbor's dataInterval
 			UINT32 counter, nextFrameAfterSeedUpdate;
 			INT64 nbrGlobalTime;
 
-			UINT32 p = nbrEntry->dataInterval, seedUpdateInterval = (p << 3);
+			UINT32 p = neighborEntry->dataInterval, seedUpdateInterval = (p << 3);
 			INT16 delayDiff;
 			//UINT16 myRadioDelay = call SlotScheduler.getRadioDelay();
 			UINT16 myRadioDelay = 0;
@@ -222,14 +234,14 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			UINT32 nextWakeup;
 			UINT8 i;
 
-			if (nbrEntry->MacAddress != dest) {
+			if (neighborEntry->MacAddress != dest) {
 				hal_printf("incorrect neighbor returned\n");
 			}
 			// 1st,  compute the current localTime of the neighbor
-			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NbrTime(dest, HAL_Time_CurrentTicks());
+			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			// 2nd, compute neighbor's current counter value. The start of the counter
 			// is later than the start of the clock. So, a counter offset should be used
-			counter = (nbrGlobalTime - nbrEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			counter = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
 			mask = 137 * 29 * (dest + 1);
 			// seed consistency is critical. Because the following operations involve
 			// changing the seed based on separate blocks of read and write,
@@ -237,8 +249,8 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// prevent the insertion of a newly received seed, which is fine because
 			// new seeds are pseudo-random and can be locally generated
 			////GLOBAL_LOCK(irq);
-			lastSeed = nbrEntry->lastSeed;
-			nextFrameAfterSeedUpdate = nbrEntry->nextFrameAfterSeedUpdate;
+			lastSeed = neighborEntry->lastSeed;
+			nextFrameAfterSeedUpdate = neighborEntry->nextFrameAfterSeedUpdate;
 
 			// A new frame-seed, generated from the last frame-seed, is used to generate the wakeup
 			// slot to wakeup for every 8 frames. Frame length is defined by dataInterval.
@@ -276,8 +288,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 					counter = nextWakeup;
 				} else {
 					  //printf("now=%u\n", (UINT16)counter);
-					if (nextWakeup + p -(nextFrameAfterSeedUpdate - p + seedUpdateInterval * seedUpdates)
-							>= seedUpdateInterval) {
+					if (nextWakeup + p -(nextFrameAfterSeedUpdate - p + seedUpdateInterval * seedUpdates) >= seedUpdateInterval) {
 						lastSeed = tmpSeed;
 						seedUpdates++;
 						framesPassed++;
@@ -288,21 +299,27 @@ void DataTransmissionHandler::ScheduleDataPacket()
 					}
 				}
 				//hal_printf("using seed %u\n", lastSeed);
-				m_nextTXTicks = (counter << SLOT_PERIOD_BITS) + nbrEntry->counterOffset;
+				m_nextTXTicks = (counter << SLOT_PERIOD_BITS) + neighborEntry->counterOffset;
 				nbrGlobalTime = m_nextTXTicks;
 
 				// 5th, compute my local time of the neighbor's listen slot
-				m_nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Nbr2LocalTime(dest, m_nextTXTicks);
+				m_nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, m_nextTXTicks);
 				m_nextTXTicks = m_nextTXTicks + SENDER_MARGIN;
 
-				nbrEntry->nextFrameAfterSeedUpdate = nextFrameAfterSeedUpdate + seedUpdates * seedUpdateInterval;
-				nbrEntry->lastSeed = lastSeed;
+				neighborEntry->nextFrameAfterSeedUpdate = nextFrameAfterSeedUpdate + seedUpdates * seedUpdateInterval;
+				neighborEntry->lastSeed = lastSeed;
 			}
 			  //hal_printf("receiver wakes up at %lu, %lu\n", m_nextTXTicks, globalTime);
 
 			  m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
 			  //hal_printf("sslot %lu time %lu\n", counter, globalTime);
+		}
+		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): why does c000 not being found? where does c000 come from?
+			if(!allNeighborFlag){
+				hal_printf("Cannot find nbr %u\n", dest);
+				allNeighborFlag = true;
+			}
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);

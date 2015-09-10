@@ -41,13 +41,13 @@ typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
 typedef  class MacEventHandler{
 
 public:
-	MacReceiveFuncPtrType RecieveHandler;
+	MacReceiveFuncPtrType ReceiveHandler;
 	SendAckFuncPtrType SendAckHandler;
 	NeighborChangeFuncPtrType neighborHandler;
 
-	void SetRecieveHandler(MacReceiveFuncPtrType recieve_handler)
+	void SetReceiveHandler(MacReceiveFuncPtrType receive_handler)
 	{
-		this->RecieveHandler = recieve_handler;
+		this->ReceiveHandler = receive_handler;
 	}
 
 	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)

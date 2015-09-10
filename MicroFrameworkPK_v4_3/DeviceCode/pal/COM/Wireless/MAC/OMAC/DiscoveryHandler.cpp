@@ -110,7 +110,7 @@ UINT8 DiscoveryHandler::ExecuteEventDone(){
  *
  */
 void DiscoveryHandler::PostExecuteEvent(){
-	hal_printf("DiscoveryHandler::PostExecuteEvent\n");
+	////hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
 }
 
@@ -295,7 +295,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(source,EventTime);
 
-	MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.CurrentActiveApp]->RecieveHandler;
+	MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.CurrentActiveApp]->ReceiveHandler;
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
 		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
