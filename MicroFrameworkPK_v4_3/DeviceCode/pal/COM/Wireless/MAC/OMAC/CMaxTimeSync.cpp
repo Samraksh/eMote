@@ -153,7 +153,7 @@ UINT8 CMaxTimeSync::ExecuteEventDone()
  *
  */
 void CMaxTimeSync::PostExecuteEvent(){
-	hal_printf("CMaxTimeSync::PostExecuteEvent\n");
+	////hal_printf("CMaxTimeSync::PostExecuteEvent\n");
 }
 
 /*
@@ -194,7 +194,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 
 	//m_timeSyncMsg->skew = m_globalTime.GetSkew();
 	//m_timeSyncMsg->nodeID = CPU_Radio_GetAddress(RadioID);
-	//m_timeSyncMsg->seqNo = m_seqNo++;
+	m_timeSyncMsg->seqNo = m_seqNo++;
 
 	//header->dest= RADIO_BROADCAST_ADDRESS;
 	header->type = MFM_TIMESYNC;

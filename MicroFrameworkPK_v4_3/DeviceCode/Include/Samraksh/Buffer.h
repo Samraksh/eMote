@@ -63,8 +63,7 @@ public:
 		return rtn;
 	}
 
-	MessageT** GetFirstFullBufferPtr()
-	{
+	MessageT** GetFirstFullBufferPtr(){
 		MessageT** rtn = &msgPtr[firstFullBuffer++];
 		if(firstFullBuffer >= BufferSizeT)
 			firstFullBuffer = 0;
@@ -74,12 +73,12 @@ public:
 	}
 
 	MessageT* GetLastFullBuffer(){
-			UINT8 lastFullBuffer = nextCleanBuffer-- % BufferSizeT;
-			MessageT* rtn = msgPtr[lastFullBuffer];
-			nextCleanBuffer = lastFullBuffer;
-			numElements--;
-			return rtn;
-		}
+		UINT8 lastFullBuffer = nextCleanBuffer-- % BufferSizeT;
+		MessageT* rtn = msgPtr[lastFullBuffer];
+		nextCleanBuffer = lastFullBuffer;
+		numElements--;
+		return rtn;
+	}
 
 
 	BOOL IsFull(){
@@ -158,11 +157,11 @@ public:
 	}
 
 	Message_15_4_t* GetNewest(){
-			if(this->IsEmpty())
-				return (Message_15_4_t *)(NULL);
+		if(this->IsEmpty())
+			return (Message_15_4_t *)(NULL);
 
-			return this->GetLastFullBuffer();
-		}
+		return this->GetLastFullBuffer();
+	}
 
 	void DropOldest(UINT8 numMessages){
 		for (int i=0; i<numMessages; i++ ){

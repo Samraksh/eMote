@@ -333,6 +333,7 @@ bool OMACSchedulerBora::RunEventTask(){
 	////if( startMeasuringDutyCycle && txEventOffset < (currentTicks | (SLOT_PERIOD_MILLI * 1000)) ) {
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
 		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
+			hal_printf("OMACSchedulerBora::RunEventTask I_DATA_SEND_PENDING\n");
 			StartDataAlarm(txEventOffset);
 			return TRUE;
 		}
@@ -355,6 +356,7 @@ bool OMACSchedulerBora::RunEventTask(){
 				//call OMacSignal.yield();
 				//Mukundan:Instead of posting RadioTask just run it directly
 
+				hal_printf("OMACSchedulerBora::RunEventTask I_DATA_RCV_PENDING\n");
 				BOOL* completionFlag = (BOOL*)false;
 				// we assume only 1 can be active, abort previous just in case
 				OMAC_scheduler_TimerCompletion.Abort();
@@ -373,7 +375,7 @@ bool OMACSchedulerBora::RunEventTask(){
 			}
 		}
 		// do not send Time Sync message, if i'm going to receive or send packets in 2 slots
-		else if( (timeSyncEventOffset == 0) && (rxEventOffset > (2 * SLOT_PERIOD_MILLI * 1000)) && (txEventOffset > (2 * SLOT_PERIOD_MILLI * 1000)) )  {
+		else if( (timeSyncEventOffset == 0) && (rxEventOffset > 2) && (txEventOffset > 2) )  {
 
 			InputState.ForceState(I_TIMESYNC_PENDING);
 
@@ -391,7 +393,7 @@ bool OMACSchedulerBora::RunEventTask(){
 			}*/
 		}
 		// do not send Discovery message, if i'm going to receive or send packets in 2 slots
-		else if( (beaconEventOffset == 0) && (rxEventOffset > (2 * SLOT_PERIOD_MILLI * 1000)) && (txEventOffset > (2 * SLOT_PERIOD_MILLI * 1000)) )  {
+		else if( (beaconEventOffset == 0) && (rxEventOffset > 2) && (txEventOffset > 2) )  {
 			//if (startMeasuringDutyCycle) {
 			//	return TRUE;
 			//}
@@ -447,10 +449,12 @@ bool OMACSchedulerBora::RadioTask(){
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING :
+				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
 			case I_DATA_RCV_PENDING :
+				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
 				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
