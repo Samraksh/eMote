@@ -168,44 +168,44 @@ UINT8 test = 0;
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
 {
 	Message_15_4_t msg_carrier;
-		if(Size >  csmaMAC::GetMaxPayload()){
-			hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
-			return FALSE;
-		}
-		IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
+	if(Size >  csmaMAC::GetMaxPayload()){
+		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
+		return FALSE;
+	}
+	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
 
-		header->length = Size + sizeof(IEEE802_15_4_Header_t);
-		header->fcf = (65 << 8);
-		header->fcf |= 136;
-		header->dsn = 97;
-		header->destpan = (34 << 8);
-		header->destpan |= 0;
-		header->dest =dest;
-		header->src = CPU_Radio_GetAddress(this->radioName);
-		header->network = MyConfig.Network;
-		header->mac_id = this->macName;
-		header->type = dataType;
-		header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+	header->length = Size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest =dest;
+	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->network = MyConfig.Network;
+	header->mac_id = this->macName;
+	header->type = dataType;
+	header->SetFlags(MFM_DATA | MFM_TIMESYNC);
 
-		UINT8* lmsg = (UINT8 *) msg;
-		UINT8* payload =  msg_carrier.GetPayload();
+	UINT8* lmsg = (UINT8 *) msg;
+	UINT8* payload =  msg_carrier.GetPayload();
 
-		IEEE802_15_4_Metadata_t *metaData =  msg_carrier.GetMetaData();
-		metaData->SetReceiveTimeStamp(eventTime);
+	IEEE802_15_4_Metadata_t *metaData =  msg_carrier.GetMetaData();
+	metaData->SetReceiveTimeStamp(eventTime);
 
-		for(UINT8 i = 0 ; i < Size; i++)
-			payload[i] = lmsg[i];
+	for(UINT8 i = 0 ; i < Size; i++)
+		payload[i] = lmsg[i];
 
-		DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
+	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
-		// Check if the circular buffer is full
-		if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-			return FALSE;
+	// Check if the circular buffer is full
+	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+		return FALSE;
 
-		// Try to  send the packet out immediately if possible
-		SendFirstPacketToRadio(NULL);
+	// Try to  send the packet out immediately if possible
+	SendFirstPacketToRadio(NULL);
 
-		return TRUE;
+	return TRUE;
 }
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)

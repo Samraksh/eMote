@@ -111,14 +111,15 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
 	header->network = g_OMAC.MyConfig.Network;
 	header->mac_id = g_OMAC.macName;
-
 	////header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
 	header->SetFlags(header->GetFlags());
 	//header->network = MyConfig.Network;
+
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
+
 	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
 
 

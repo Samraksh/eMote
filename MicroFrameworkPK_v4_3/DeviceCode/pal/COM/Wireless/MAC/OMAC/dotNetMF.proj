@@ -52,24 +52,23 @@
     <HFiles Include="SeedGenerator.h" />
 	    
    
-    <HFiles Include="Scheduler.h" />
+    <!--HFiles Include="Scheduler.h" /-->
     <Compile Include="Scheduler.cpp" />
-    <HFiles Include="RadioControl.h" />    
+    <!--HFiles Include="RadioControl.h" /-->    
     <Compile Include="RadioControl.cpp" />
-    <HFiles Include="DiscoveryHandler.h" />
+    <!--HFiles Include="DiscoveryHandler.h" /-->
     <Compile Include="DiscoveryHandler.cpp" />
-    <HFiles Include="DataTransmissionHandler.h" />
+    <!--HFiles Include="DataTransmissionHandler.h" /-->
     <Compile Include="DataTransmissionHandler.cpp" />
-    <HFiles Include="DataReceptionHandler.h" />
+    <!--HFiles Include="DataReceptionHandler.h" /-->
     <Compile Include="DataReceptionHandler.cpp" />
-    <HFiles Include="PacketTimeSync_15_4.h" />
-    <HFiles Include="CMaxTimeSync.h" />    
+    <!--HFiles Include="PacketTimeSync_15_4.h" /-->
+    <!--HFiles Include="CMaxTimeSync.h" /-->    
     <Compile Include="CMaxTimeSync.cpp" />
     
-    
     <!--<HFiles Include="FTSPTimeSync.h" />    
-    <Compile Include="FTSPTimeSync.cpp" />
-    -->
+    <Compile Include="FTSPTimeSync.cpp" /-->
+    
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

@@ -20,7 +20,7 @@ void ApplicationEntryPoint()
     ClrStartup( clrSettings );
 
     //SimpleTimesyncTest_Initialize();
-    OMACTest_Initialize();
+    //OMACTest_Initialize();
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );

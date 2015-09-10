@@ -206,7 +206,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			return;
 		}
 
-//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
+		//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
 			m_outgoingEntryPtr =  g_send_buffer.GetOldest();

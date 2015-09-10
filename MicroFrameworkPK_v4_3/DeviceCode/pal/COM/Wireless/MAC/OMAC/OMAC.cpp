@@ -120,12 +120,13 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 
 		g_NeighborTable.ClearTable();
 
-		RadioAckPending=FALSE;
-		Initialized=TRUE;
+		RadioAckPending = FALSE;
+		Initialized = TRUE;
 		m_recovery = 1;
 
-		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success)
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
 			return status;
+		}
 		MyID = CPU_Radio_GetAddress(radioName);
 
 		g_omac_RadioControl.Initialize();
@@ -139,8 +140,8 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 	if(routingAppID >= MAX_APPS) {
 		return DS_Fail;
 	}
-	AppHandlers[routingAppID]=eventHandler;
-	CurrentActiveApp=routingAppID;
+	AppHandlers[routingAppID] = eventHandler;
+	CurrentActiveApp = routingAppID;
 	//*macID=MacId;
 
 	//Initialize radio layer
@@ -170,7 +171,7 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
-	if(Size- sizeof(IEEE802_15_4_Header_t) >  OMACTypeBora::GetMaxPayload()){
+	if(Size - sizeof(IEEE802_15_4_Header_t) >  OMACTypeBora::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
@@ -300,16 +301,23 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier->GetPayload();
 
-	for(UINT8 i = 0 ; i < size; i++)
+	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
+	}
 
-	/*if(msg->GetHeader()->type == (1 << 1)) {
+
+	/*// Check if the circular buffer is full
+	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+		return FALSE;
+
+	if(msg->GetHeader()->type == (1 << 1)) {
 		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
 	}
 	else {
 		hal_printf("OMACTypeBora::SendTimeStamped msg header type %d\n", msg->GetHeader()->type);
 	}
 	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, eventTime);*/
+
 	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
 	return true;
 }

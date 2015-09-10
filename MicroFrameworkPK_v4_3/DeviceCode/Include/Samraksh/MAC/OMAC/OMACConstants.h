@@ -168,7 +168,7 @@ struct TimeSyncMsg
   UINT32 localTime1;
   bool request_TimeSync;
  // UINT16 nodeID;
-  //UINT32 seqNo;
+  UINT32 seqNo;
 };
 
 /*
