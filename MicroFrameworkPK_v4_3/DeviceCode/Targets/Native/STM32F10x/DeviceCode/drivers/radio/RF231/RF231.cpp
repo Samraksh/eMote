@@ -1327,7 +1327,7 @@ void RF231Radio::HandleInterrupt()
 
 				// This looks awful... --NPS
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRecieveHandler())(rx_msg_ptr, rx_length);
+				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 			}
 			else {
 #				ifdef DEBUG_RF231

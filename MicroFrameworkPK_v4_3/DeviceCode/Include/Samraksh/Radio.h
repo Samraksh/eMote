@@ -98,7 +98,7 @@ public:
 
 	BOOL SetDefaultHandlers()
 	{
-		defaultHandler.SetRecieveHandler(DefaultRecieveHandler);
+		defaultHandler.SetReceiveHandler(DefaultRecieveHandler);
 		defaultHandler.SetSendAckHandler(DefaultSendAckHandler);
 		defaultHandler.SetRadioInterruptHandler(DefaultRadioInterruptHandler);
 		MacHandlers[MacIDIndex] = &defaultHandler;

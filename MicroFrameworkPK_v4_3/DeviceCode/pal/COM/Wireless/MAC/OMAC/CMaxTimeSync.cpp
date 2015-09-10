@@ -136,7 +136,8 @@ void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
 	m_lastSlotExecuted = currentSlotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	Send(sn->MacAddress,true);
+	hal_printf("CMaxTimeSync::ExecuteEvent\n");
+	Send(sn->MacAddress, true);
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
 }
 
@@ -225,8 +226,8 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	//d= x-y;
 
 	//DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(RADIO_BROADCAST_ADDRESS,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
-	BOOL rs = g_OMAC.SendTimeStamped(address,MFM_TIMESYNC, m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
-	g_NeighborTable.RecordTimeSyncRequestSent(address,(UINT32) (y & (~(UINT32) 0)));
+	BOOL rs = g_OMAC.SendTimeStamped(address, MFM_TIMESYNC, m_timeSyncBufferPtr, sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
+	g_NeighborTable.RecordTimeSyncRequestSent(address, (UINT32) (y & (~(UINT32) 0)));
 
 	/*////DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(address,m_timeSyncBufferPtr,sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
 	timeSyncSendFlag = TRUE;
@@ -267,7 +268,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 
 	UINT64 rcv_ltime;
 	INT64 l_offset;
-	rcv_ltime=  (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
+	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
 	l_offset = rcv_ltime - EventTime;
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
@@ -276,12 +277,13 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
-		this->Send(msg_src,false);
+		hal_printf("CMaxTimeSync::Receive\n");
+		this->Send(msg_src, false);
 	}
 #ifdef DEBUG_TSYNC
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Neighbor2beFollowed ){
-		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
+		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >= 2  ){
 			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
 		}
 	}

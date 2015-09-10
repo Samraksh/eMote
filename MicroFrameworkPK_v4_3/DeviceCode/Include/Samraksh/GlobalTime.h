@@ -45,7 +45,7 @@ private:
 		INT64 latestLocalTime, earliestLocalTime;
 		INT64 simpleOffsetChangeSum, simpleCurrentOffsetDiff , simpleCurrentLocalTimeDiff;
 
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		if(nbrIndex==255){
 			return;
 		}
@@ -150,7 +150,7 @@ public:
 		Init();
 	};
 
-	UINT8 FindNbr(UINT16 nbr){
+	UINT8 FindNeighbor(UINT16 nbr){
 		for(int i=0; i < MAX_NBR; i++){
 			if (samples[i].nbrID == nbr){
 				return i;
@@ -159,12 +159,12 @@ public:
 		return 255;
 	}
 	UINT8 NumberOfRecordedElements(UINT16 nbr){
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		if (nbrIndex >= MAX_NBR) return 0;
 		return(samples[nbrIndex].numSamples);
 	};
 	void Insert(UINT16 nbr,UINT64 nbr_ltime, INT64 nbr_loffset){
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		//Add new neighbor if not found
 		if (nbrIndex ==255){
 			nbrIndex = nbrCount;
@@ -185,7 +185,7 @@ public:
 		Compute(nbr);
 	}
 	void Clean(UINT16 nbr){
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		samples[nbrIndex].nbrID=0xFFFF;
 		for(int i=0; i< MAX_SAMPLES; i++){
 			samples[nbrIndex].recordedTime[i] =INVALID_TIMESTAMP;
@@ -212,7 +212,7 @@ public:
 
 	float FindRelativeFreq(UINT16 nbr) {
 		float rv = UnknownRelativeFreq;
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		if(nbrIndex==255){
 			return rv;
 		}
@@ -220,7 +220,7 @@ public:
 	};
 
 	UINT64 LastRecordedTime(UINT16 nbr){
-		UINT16 nbrIndex = FindNbr(nbr);
+		UINT16 nbrIndex = FindNeighbor(nbr);
 		if (nbrIndex == 255) return (0);
 		return (samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex]);
 	};
@@ -239,15 +239,15 @@ public:
 	GlobalTime(){};
 	void Init();
 
-	UINT64 Local2NbrTime(UINT16 nbr, UINT64 curtime);
-	UINT64 Nbr2LocalTime(UINT16 nbr, UINT64 nbrtime);
+	UINT64 Local2NeighborTime(UINT16 nbr, UINT64 curtime);
+	UINT64 Neighbor2LocalTime(UINT16 nbr, UINT64 nbrtime);
 
 	// OBSOLETE AND UNTESTED
 	UINT64 Read(){
 		UINT64 rtn;
 		rtn = HAL_Time_CurrentTime();
 		if(leader!=0x0000 || leader!=0xFFFF){ //Bk: if(leader!=MF_NODE_ID || leader!=0xFFFF){
-			return Local2NbrTime(leader,rtn);
+			return Local2NeighborTime(leader,rtn);
 		}
 		return  rtn;
 	};
@@ -261,9 +261,9 @@ void GlobalTime::Init(){
 }
 
 
-UINT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, UINT64 nbrTime){
+UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
-	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
+	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
 	UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
 	UINT64 periodlength;
 	bool negativeperiod = FALSE;
@@ -288,10 +288,10 @@ UINT64 GlobalTime::Nbr2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	return (lastrecordedTime);
 }
 
-UINT64 GlobalTime::Local2NbrTime(UINT16 nbr, UINT64 curtime){
+UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(curtime);
 	//UINT64 curtime = HAL_Time_CurrentTime();
-	UINT8 nbrIndex = regressgt2.FindNbr(nbr);
+	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
 	UINT64 periodlength;
 	bool negativeperiod = FALSE;
 	UINT64 lastlocalTime;

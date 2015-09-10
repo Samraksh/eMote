@@ -207,7 +207,7 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACTypeBora::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 			hal_printf("Got a data beacon packet\n");
-
+			break;
 		default:
 			hal_printf("OMACTypeBora::ReceiveHandler default\n");
 			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
