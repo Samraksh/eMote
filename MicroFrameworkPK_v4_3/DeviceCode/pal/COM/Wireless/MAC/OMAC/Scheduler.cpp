@@ -187,7 +187,7 @@ void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
-	if(Delay==0){
+	if(Delay == 0){
 		void* param;
 		this->DataAlarmHandler(param);
 	}else {
@@ -332,13 +332,23 @@ bool OMACSchedulerBora::RunEventTask(){
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	////if( startMeasuringDutyCycle && txEventOffset < (currentTicks | (SLOT_PERIOD_MILLI * 1000)) ) {
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
-		if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
-			hal_printf("OMACSchedulerBora::RunEventTask I_DATA_SEND_PENDING\n");
-			StartDataAlarm(txEventOffset);
+		if(InputState.GetState() == I_DATA_SEND_PENDING){
+			hal_printf("OMACSchedulerBora::RunEventTask state is already I_DATA_SEND_PENDING\n");
 			return TRUE;
 		}
+		else {
+			if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
+				hal_printf("OMACSchedulerBora::RunEventTask setting state to I_DATA_SEND_PENDING\n");
+				//Instead of setting an alarm to go off for DataSend, send data immediately. No other task should interrupt this activity.
+				////StartDataAlarm(txEventOffset);
+
+				////GLOBAL_LOCK(irq);
+				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
+				return TRUE;
+			}
+		}
 	}
-	/* we are not going to send any beacons if neighbor is going to receive*/
+	/* we are not going to send any beacons if neighbor is not going to receive*/
 	else if(TRUE){ //!isNeighborGoingToReceive()) {
 		//Keep polling until the timesync flag is reset
 		////hal_printf("status CMaxTimeSync::timeSyncSendFlag %d\n", CMaxTimeSync::timeSyncSendFlag);
@@ -449,7 +459,8 @@ bool OMACSchedulerBora::RadioTask(){
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING :
-				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
+				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING (should not be called)\n");
+				////Not needed, as StartDataAlarm does the same thing
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
