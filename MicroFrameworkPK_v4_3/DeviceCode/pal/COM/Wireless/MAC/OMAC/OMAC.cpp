@@ -112,7 +112,7 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
-		Radio_Event_Handler.SetRecieveHandler(OMACReceiveHandler);
+		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
 
 		g_send_buffer.Initialize();
@@ -193,7 +193,7 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 			break;
 		case MFM_DATA:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
-			hal_printf("Successfully got a data packet");
+			hal_printf("Successfully got a data packet\n");
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
@@ -306,17 +306,19 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	}
 
 
-	/*// Check if the circular buffer is full
+	Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
+
+	// Check if the circular buffer is full
 	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 		return FALSE;
 
-	if(msg->GetHeader()->type == (1 << 1)) {
+	if((msgTmp->GetHeader())->type == (1 << 1)) {
 		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
 	}
 	else {
-		hal_printf("OMACTypeBora::SendTimeStamped msg header type %d\n", msg->GetHeader()->type);
+		hal_printf("OMACTypeBora::SendTimeStamped msg header type %d\n", (msgTmp->GetHeader())->type);
 	}
-	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, eventTime);*/
+	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msgTmp, size, eventTime);
 
 	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
 	return true;

@@ -203,6 +203,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 		// Don't reschedule another tx for packets that are being sent
 		if (g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)) {
+			//hal_printf("DataTransmissionHandler::ScheduleDataPacket input state is I_DATA_SEND_PENDING. returning...\n");
 			return;
 		}
 
