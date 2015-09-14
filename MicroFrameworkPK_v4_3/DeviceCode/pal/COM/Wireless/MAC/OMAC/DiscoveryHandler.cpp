@@ -272,7 +272,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
  *
  */
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-	////hal_printf("start DiscoveryHandler::Receive\n");
+	hal_printf("start DiscoveryHandler::Receive\n");
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	RadioAddress_t source = msg->GetHeader()->src;
 	//RadioAddress_t source = disMsg->nodeID;
@@ -293,7 +293,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	rcv_ltime=  (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
 	l_offset = rcv_ltime - EventTime;
 	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
-	g_NeighborTable.RecordTimeSyncRecv(source,EventTime);
+	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
 
 	MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.CurrentActiveApp]->ReceiveHandler;
 
