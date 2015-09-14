@@ -249,19 +249,35 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
-	header->dest =address;
-	header->src = CPU_Radio_GetAddress(this->radioName);;
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(this->radioName);
 	header->network = MyConfig.Network;
 	header->mac_id = macName;
 	header->type = dataType;
 
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier->GetPayload();
 
-	for(UINT8 i = 0 ; i < size; i++)
+	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
+	}
+
+	Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
+
+	// Check if the circular buffer is full
+	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+		return FALSE;
+
+	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
+		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
+	}
+	else {
+		hal_printf("OMACTypeBora::Send msg header type %u\n", (msgTmp->GetHeader())->type);
+	}*/
+	bool retValue = g_omac_RadioControl.Send(address, msgTmp, size);
 
 	return true;
 }
@@ -274,7 +290,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 {
 	////hal_printf("start OMACTypeBora::SendTimeStamped\n");
 	if(g_send_buffer.IsFull()) {
-		hal_printf("OMACTypeBora::SendTimeStamped buffer full\n");
+		hal_printf("OMACTypeBora::SendTimeStamped g_send_buffer full\n");
 		return FALSE;
 	}
 
@@ -312,12 +328,12 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
 		return FALSE;
 
-	if((msgTmp->GetHeader())->type == (1 << 1)) {
+	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
 		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
 	}
 	else {
-		hal_printf("OMACTypeBora::SendTimeStamped msg header type %d\n", (msgTmp->GetHeader())->type);
-	}
+		hal_printf("OMACTypeBora::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
+	}*/
 	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msgTmp, size, eventTime);
 
 	////hal_printf("end OMACTypeBora::SendTimeStamped\n");

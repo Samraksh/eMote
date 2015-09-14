@@ -58,18 +58,18 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 /*
  *
  */
-DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
+DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
-		header->length = size + sizeof(IEEE802_15_4_Header_t);
-		header->fcf = (65 << 8);
-		header->fcf |= 136;
-		header->dsn = 97;
-		header->destpan = (34 << 8);
-		header->destpan |= 0;
-		header->dest =address;
-		header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-		header->mac_id = g_OMAC.macName;
-		//header->network = MyConfig.Network;
+	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	header->mac_id = g_OMAC.macName;
+	//header->network = MyConfig.Network;
 
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	if(size < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
@@ -88,9 +88,11 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t * msg, UI
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, TRUE);
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
+		hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
 	}else {
-	//Radio implements the 'bag exchange' protocol, so store the pointer back to message
+		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
+		hal_printf("RadioControl::Send CPU_Radio_Send\n");
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
 	}
 	return DS_Success;
@@ -120,6 +122,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 		CPU_GPIO_SetPinState(DEBUG_TIMESYNCPIN_OLD, FALSE);
 #endif
 
+	////hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
 	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
 
 

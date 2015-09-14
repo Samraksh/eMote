@@ -136,7 +136,7 @@ void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
 	m_lastSlotExecuted = currentSlotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	hal_printf("CMaxTimeSync::ExecuteEvent\n");
+	////hal_printf("CMaxTimeSync::ExecuteEvent\n");
 	Send(sn->MacAddress, true);
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
 }
@@ -248,6 +248,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
  */
 DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
 	////GLOBAL_LOCK(irq);
+	hal_printf("CMaxTimeSync::Receive\n");
 	bool TimerReturn;
 	RadioAddress_t msg_src = msg->GetHeader()->src;
 
