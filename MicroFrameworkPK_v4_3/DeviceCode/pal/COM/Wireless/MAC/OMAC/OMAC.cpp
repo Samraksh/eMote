@@ -80,7 +80,7 @@ DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->BufferSize;
 	MyConfig.CCASenseTime = config->CCASenseTime;
-	MyConfig.RadioID  = config->RadioID;
+	MyConfig.RadioID = config->RadioID;
 	MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
 	MyConfig.Network = config->Network;
@@ -162,7 +162,7 @@ BOOL OMACTypeBora::UnInitialize()
 /*
  *
  */
-Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
+Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
 	//Message_15_4_t *Next;
 	////hal_printf("start OMACTypeBora::ReceiveHandler\n");
@@ -171,12 +171,14 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
-	if(Size - sizeof(IEEE802_15_4_Header_t) >  OMACTypeBora::GetMaxPayload()){
+	if(Size - sizeof(IEEE802_15_4_Header_t) > OMACTypeBora::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
+
+	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
 	//Any message might have timestamping attached to it. Check for it and process
 	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
@@ -194,6 +196,8 @@ Message_15_4_t * OMACTypeBora::ReceiveHandler(Message_15_4_t * msg, int Size)
 		case MFM_DATA:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
+			//g_omac_scheduler.RadioTask();
+			g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
@@ -234,15 +238,17 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
  */
 BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
-	if(g_send_buffer.IsFull())
+	if(g_send_buffer.IsFull()){
+		hal_printf("OMACTypeBora::Send g_send_buffer full\n");
 		return FALSE;
+	}
 
 	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACTypeBora::GetMaxPayload()){
 		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
-	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
+	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
@@ -258,18 +264,18 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
 
-	UINT8* lmsg = (UINT8 *) msg;
-	UINT8* payload =  msg_carrier->GetPayload();
+	UINT8* lmsg = (UINT8*) msg;
+	UINT8* payload = msg_carrier->GetPayload();
 
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
 
-	Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
+	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
 
 	// Check if the circular buffer is full
 	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-		return FALSE;
+		return FALSE;*/
 
 	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
 		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
@@ -277,7 +283,7 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	else {
 		hal_printf("OMACTypeBora::Send msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	bool retValue = g_omac_RadioControl.Send(address, msgTmp, size);
+	////bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
 
 	return true;
 }
@@ -294,7 +300,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 		return FALSE;
 	}
 
-	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACTypeBora::GetMaxPayload()){
 		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
 		return FALSE;
@@ -314,19 +320,18 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
 
-	UINT8* lmsg = (UINT8 *) msg;
-	UINT8* payload =  msg_carrier->GetPayload();
+	UINT8* lmsg = (UINT8*) msg;
+	UINT8* payload = msg_carrier->GetPayload();
 
-	for(UINT8 i = 0 ; i < size; i++){
+	for(UINT8 i = 0; i < size; i++){
 		payload[i] = lmsg[i];
 	}
 
-
-	Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
+	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
 
 	// Check if the circular buffer is full
 	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-		return FALSE;
+		return FALSE;*/
 
 	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
 		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
@@ -334,7 +339,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	else {
 		hal_printf("OMACTypeBora::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, msgTmp, size, eventTime);
+	////bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
 
 	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
 	return true;

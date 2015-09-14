@@ -156,8 +156,27 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	m_wakeupCnt++;
-	hal_printf("DataReceptionHandler::ExecuteEvent\n");
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
+
+	if(rs != DS_Success){
+		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
+	}
+	else{
+		hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
+	}
+
+	Message_15_4_t txMsg;
+	Message_15_4_t* txMsgPtr = &txMsg;
+	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+	Message_15_4_t* msgPtr = *tempPtr;
+	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+	UINT8* snd_payload = txMsgPtr->GetPayload();
+
+	for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
+		hal_printf("snd_payload[i]: %u ", snd_payload[i]);
+	}
+	hal_printf("\n");
 }
 
 /*

@@ -44,7 +44,7 @@ void DataTransmissionHandler::Initialize(){
 UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
 	if (g_send_buffer.Size() > 0) {
-	  this->ScheduleDataPacket();
+		this->ScheduleDataPacket();
 	}
 
 	//m_nextTXCounter is initialized to 0
@@ -212,7 +212,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
-			m_outgoingEntryPtr =  g_send_buffer.GetOldest();
+			m_outgoingEntryPtr = g_send_buffer.GetOldest();
 			if (m_outgoingEntryPtr == NULL) {
 				hal_printf("m_outgoingEntryPtr is null\n");
 				return;
