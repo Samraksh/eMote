@@ -334,6 +334,21 @@ bool OMACSchedulerBora::RunEventTask(){
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
 		if(InputState.GetState() == I_DATA_SEND_PENDING){
 			hal_printf("OMACSchedulerBora::RunEventTask state is already I_DATA_SEND_PENDING\n");
+
+			/*GLOBAL_LOCK(irq);
+			VirtTimer_Stop(HAL_SLOT_TIMER);
+			m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
+			VirtTimer_Start(HAL_SLOT_TIMER);
+			InputState.ToIdle();*/
+
+			BOOL* completionFlag = (BOOL*)false;
+			// we assume only 1 can be active, abort previous just in case
+			OMAC_scheduler_TimerCompletion.Abort();
+			OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
+			//Enqueue a task to listen for messages 100 usec from now (almost immediately)
+			//TODO (Ananth): to check what the right enqueue value should be
+			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
+
 			return TRUE;
 		}
 		else {
@@ -342,8 +357,20 @@ bool OMACSchedulerBora::RunEventTask(){
 				//Instead of setting an alarm to go off for DataSend, send data immediately. No other task should interrupt this activity.
 				////StartDataAlarm(txEventOffset);
 
-				////GLOBAL_LOCK(irq);
+				/*GLOBAL_LOCK(irq);
+				VirtTimer_Stop(HAL_SLOT_TIMER);
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
+				VirtTimer_Start(HAL_SLOT_TIMER);
+				InputState.ToIdle();*/
+
+				BOOL* completionFlag = (BOOL*)false;
+				// we assume only 1 can be active, abort previous just in case
+				OMAC_scheduler_TimerCompletion.Abort();
+				OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
+				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
+				//TODO (Ananth): to check what the right enqueue value should be
+				OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
+
 				return TRUE;
 			}
 		}
@@ -465,7 +492,7 @@ bool OMACSchedulerBora::RadioTask(){
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
 			case I_DATA_RCV_PENDING :
-				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
+				hal_printf("OMACSchedulerBora::RadioTask I_DATA_RCV_PENDING\n");
 				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;

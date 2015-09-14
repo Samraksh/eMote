@@ -176,10 +176,12 @@ bool DataTransmissionHandler::Send(){
 	header->type = MFM_DATA;
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
-		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest,m_outgoingEntryPtr,m_outgoingEntryPtr->GetMessageSize()  );
+		hal_printf("DataTransmissionHandler::Send calling Send\n");
+		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize()  );
 	}
 	else {
-		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(),
+		hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
+		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(), \
 																												m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
 	return true;
@@ -212,6 +214,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
 			m_outgoingEntryPtr =  g_send_buffer.GetOldest();
 			if (m_outgoingEntryPtr == NULL) {
+				hal_printf("m_outgoingEntryPtr is null\n");
 				return;
 			}
 		}

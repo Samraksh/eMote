@@ -86,6 +86,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	// simply update the remainingSlot .
 	if (m_nextWakeupSlot < currentSlotNum) {
 
+		////hal_printf("DataReceptionHandler::NextEvent - step 1\n");
 		// first, find the slot denoting the start of the frame immediately after the current one.
 		// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
 		UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	m_nextWakeupSlot % m_dataInterval;
@@ -119,13 +120,16 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	}
 
 	if (remainingSlots == 0) {
+		////hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", remainingSlots);
 		wakeupSlot = currentSlotNum;
 		return remainingSlots;
 	}
 	else if (remainingSlots >= 0xffff) {
+		hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", 0xffff);
 		return 0xffff;
 	}
 	else {
+		////hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", remainingSlots);
 		return remainingSlots;
 	}
 
@@ -152,6 +156,7 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	m_wakeupCnt++;
+	hal_printf("DataReceptionHandler::ExecuteEvent\n");
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
 }
 
@@ -175,7 +180,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
 #endif
 	if (m_wakeupCnt % m_reportPeriod == 0) {
-		hal_printf("wkCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
+		hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
 			m_wakeupCnt, m_receivedSlotCnt,
 			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	}
