@@ -119,16 +119,12 @@ public:
 	//virtual DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 mac_id)
 	DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 mac_id)
 	{
-
 		Radio<T>::MacIDs[MacIDIndex] = mac_id;
-		if(!event_handler)
-		{
+		if(!event_handler){
 			SetDefaultHandlers();
 		}
-		else
-		{
+		else{
 			MacHandlers[MacIDIndex] = event_handler;
-
 		}
 
 		// Increment the mac id index

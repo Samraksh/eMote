@@ -34,12 +34,14 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	UINT8 m_recovery;
 	BOOL flushTimerRunning;
 
+	UINT8 CurrentActiveApp;
+	UINT16 MyID;
+
 	//Protocol variables
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 
   public:
-	UINT8 CurrentActiveApp;
-	UINT16 MyID;
+
 	//Neighbors
 	//NeighborTable m_NeighborTable;
 
@@ -62,6 +64,22 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	}
 
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
+
+	void SetCurrentActiveApp(UINT8 CurrentActiveApp){
+		this->CurrentActiveApp = CurrentActiveApp;
+	}
+
+	UINT8 GetCurrentActiveApp(){
+		return this->CurrentActiveApp;
+	}
+
+	void SetMyID(UINT16 MyID){
+		this->MyID = MyID;
+	}
+
+	UINT16 GetMyID(){
+		return this->MyID;
+	}
 
 	//Override base class methods here, implement them later in cpp file
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config);

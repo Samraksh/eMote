@@ -60,7 +60,7 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 #ifdef DEBUG_TSYNC
 
-	if(g_OMAC.MyID == RXNODEID) {
+	if(g_OMAC.GetAddress() == RXNODEID) {
 		Neighbor2beFollowed = TXNODEID;
 	}
 	else {

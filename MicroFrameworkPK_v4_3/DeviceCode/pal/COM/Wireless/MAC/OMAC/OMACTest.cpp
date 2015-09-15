@@ -89,7 +89,7 @@ BOOL OMACTest::Initialize(){
 	VirtTimer_Initialize();
 
 	MacId = OMAC;
-	Mac_Initialize(&myEventHandler,MacId, MyAppID, Config.RadioID, (void*) &Config);
+	Mac_Initialize(&myEventHandler, MacId, MyAppID, Config.RadioID, (void*) &Config);
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(LocalClockMonitor_TIMER, 0, NEIGHBORCLOCKMONITORPERIOD, USEONESHOTTIMER, FALSE, CMaxTSLocalClockMonitorTimerHandler);

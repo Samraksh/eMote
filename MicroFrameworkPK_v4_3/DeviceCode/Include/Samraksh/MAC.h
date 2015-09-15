@@ -32,22 +32,24 @@ public:
 	}
 };
 
-UINT8 MAC_ID::Unique_Mac_ID=0;
+UINT8 MAC_ID::Unique_Mac_ID = 0;
 
 template <class MessageT, class ConfigT>
 class MAC : public MAC_ID
 {
+private:
+	static MacEventHandler_t* AppHandlers[MAX_APPS];
+	static UINT8 AppIDIndex;
 
 public:
-    UINT8 macName;
-    UINT8 radioName;
-    UINT16 MyAddress;
-    BOOL Initialized;
-    UINT8 AppCount;
-    MacEventHandler_t* AppHandlers[MAX_APPS];
+	UINT16 MaxPayload;
+	UINT16 MyAddress;
+	UINT8 macName;
+	UINT8 radioName;
+	BOOL Initialized;
+	UINT8 AppCount;
 
-    ConfigT MyConfig;
-    UINT16 MaxPayload;
+	ConfigT MyConfig;
 
 	RadioEventHandler_t Radio_Event_Handler;
 	UINT32 Radio_Interrupt_Mask;
@@ -63,16 +65,74 @@ public:
 	UINT16 GetSendPending();
 	UINT16 GetReceivePending();
 
+	/*BOOL SetAddress(UINT16 address)
+	{
+		this->MyAddress = address;
+	}
+
+	void SetMaxPayload(UINT16 payload)
+	{
+		this->MaxPayload = payload;
+	}
+
 	//UINT16 GetAddress();
-	UINT16 GetMaxPayload();
-	BOOL SetAddress(UINT16 address);
-	void SetMaxPayload(UINT16 payload);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routintAppID, UINT8 radioName, ConfigT* config);
+	UINT16 GetMaxPayload()
+	{
+		return this->MaxPayload;
+	}*/
 
 	NeighborTable* GetNeighborTable();
 	Neighbor_t* GetNeighbor(UINT16 macAddress);
+
+	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, ConfigT* config)
+	{
+		/*if(routingAppID > MAX_APPS){
+			return DS_Fail;
+		}
+		AppIDIndex = routingAppID;
+		AppHandlers[AppIDIndex] = eventHandler;
+		this->macName = macName;
+		this->radioName = radioName;
+		//this->SetConfig(config);
+
+		return DS_Success;*/
+	}
+
+	BOOL SetAppHandlers(MacEventHandler* handler)
+	{
+		if(handler == NULL){
+			return FALSE;
+		}
+
+		if(AppIDIndex > MAX_APPS){
+			return FALSE;
+		}
+
+		AppHandlers[AppIDIndex] = handler;
+		return TRUE;
+	}
+
+	MacEventHandler* GetAppHandler(UINT8 MacIndex)
+	{
+		return AppHandlers[MacIndex];
+	}
+
+	void SetAppIdIndex(UINT8 AppIDIndex)
+	{
+		this->AppIDIndex = AppIDIndex;
+	}
+
+	UINT8 GetAppIdIndex()
+	{
+		return AppIDIndex;
+	}
 };
 
 
+template<class MessageT, class ConfigT>
+UINT8 MAC<MessageT, ConfigT>::AppIDIndex = 0;
+
+template<class MessageT, class ConfigT>
+MacEventHandler_t* MAC<MessageT, ConfigT>::AppHandlers[MAX_APPS] = {NULL,NULL,NULL};
 
 #endif
