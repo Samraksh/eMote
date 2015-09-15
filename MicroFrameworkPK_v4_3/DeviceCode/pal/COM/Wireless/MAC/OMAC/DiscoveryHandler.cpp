@@ -58,8 +58,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//m_discoveryMsg->flag = 0x0;
 	//m_discoveryMsg->localTime = 0;
 
-	m_period1 = CONTROL_P1[g_OMAC.MyID % 7];
-	m_period2 = CONTROL_P2[g_OMAC.MyID  % 7];
+	m_period1 = CONTROL_P1[g_OMAC.GetAddress() % 7];
+	m_period2 = CONTROL_P2[g_OMAC.GetAddress() % 7];
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 
 	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
@@ -290,12 +290,14 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	UINT64 rcv_ltime;
 	INT64 l_offset;
-	rcv_ltime=  (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
+	rcv_ltime = (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
 	l_offset = rcv_ltime - EventTime;
 	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
 
-	MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.CurrentActiveApp]->ReceiveHandler;
+	////MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.GetCurrentActiveApp()]->ReceiveHandler;
+	MacReceiveFuncPtrType appHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
+	//(*appHandler);
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
 		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);

@@ -162,7 +162,7 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
 	}
 	else{
-		hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
+		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
 	}
 
 	Message_15_4_t txMsg;
@@ -173,10 +173,10 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
 	UINT8* snd_payload = txMsgPtr->GetPayload();
 
-	for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
+	/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
 		hal_printf("snd_payload[i]: %u ", snd_payload[i]);
 	}
-	hal_printf("\n");
+	hal_printf("\n");*/
 }
 
 /*

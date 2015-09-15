@@ -10,6 +10,8 @@
 #include <tinyhal.h>
 #include "Message.h"
 
+//#define _DEBUG_BUFFER_
+
 template< class MessageT, UINT8 BufferSizeT>
 class CircularBuffer  {
 
@@ -41,7 +43,9 @@ public:
 			nextCleanBuffer = 0;
 		}
 		numElements++;
+#ifdef _DEBUG_BUFFER_
 		hal_printf("GetNextFreeBufferPtr numElements: %u\n", numElements);
+#endif
 		return rtn;
 
 	}
@@ -58,7 +62,9 @@ public:
 		}
 		//nextCleanBuffer= (nextCleanBuffer++) % 16;
 		numElements++;
+#ifdef _DEBUG_BUFFER_
 		hal_printf("GetNextFreeBuffer numElements: %u\n", numElements);
+#endif
 		return rtn;
 	}
 
@@ -70,7 +76,9 @@ public:
 		}
 		//firstFullBuffer= (firstFullBuffer++) % BufferSizeT;
 		numElements--;
+#ifdef _DEBUG_BUFFER_
 		hal_printf("GetFirstFullBuffer numElements: %u\n", numElements);
+#endif
 		return rtn;
 	}
 
@@ -82,7 +90,9 @@ public:
 		}
 		//firstFullBuffer= (firstFullBuffer++) % BufferSizeT;
 		numElements--;
+#ifdef _DEBUG_BUFFER_
 		hal_printf("GetFirstFullBufferPtr numElements: %u\n", numElements);
+#endif
 		return rtn;
 	}
 
@@ -92,25 +102,35 @@ public:
 		MessageT* rtn = msgPtr[lastFullBuffer];
 		nextCleanBuffer = lastFullBuffer;
 		numElements--;
+#ifdef _DEBUG_BUFFER_
 		hal_printf("GetLastFullBuffer numElements: %u\n", numElements);
+#endif
 		return rtn;
 	}
 
 
 	BOOL IsFull(){
+#ifdef _DEBUG_BUFFER_
 		hal_printf("IsFull numElements: %u\n", numElements);
-		if(numElements == BufferSizeT)
+#endif
+		if(numElements == BufferSizeT){
 			return TRUE;
-		else
+		}
+		else{
 			return FALSE;
+		}
 	}
 
 	BOOL IsEmpty(){
+#ifdef _DEBUG_BUFFER_
 		hal_printf("IsFull numElements: %u\n", numElements);
-		if(numElements == 0)
+#endif
+		if(numElements == 0){
 			return TRUE;
-		else
+		}
+		else{
 			return FALSE;
+		}
 	}
 
 	UINT8 GetNumberMessagesInBuffer(){

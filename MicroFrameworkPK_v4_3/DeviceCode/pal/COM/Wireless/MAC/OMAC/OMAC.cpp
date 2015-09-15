@@ -54,7 +54,7 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 				g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
 				break;
 			case MFM_DATA:
-
+				g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
 				break;
 			case MFM_ROUTING:
 				break;
@@ -91,7 +91,7 @@ DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 /*
  *
  */
-DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config) {
+DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
 //DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
@@ -99,10 +99,19 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		hal_printf("OMACTypeBora Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 	}
 	else {
+		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
+		if(routingAppID >= MAX_APPS) {
+			return DS_Fail;
+		}
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
-		AppCount=0; //number of upperlayers connected to you
+		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
+		g_OMAC.SetAppIdIndex(routingAppID);
+		//Initialize upper layer call backs
+		g_OMAC.SetAppHandlers(eventHandler);
+
+		AppCount = 0; //number of upperlayers connected to you
 		OMACTypeBora::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 #ifdef DEBUG_OMAC
@@ -127,20 +136,17 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
 			return status;
 		}
-		MyID = CPU_Radio_GetAddress(radioName);
+		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		g_omac_RadioControl.Initialize();
 		//SetAddress(MF_NODE_ID);
 		//MyAddress = MF_NODE_ID;
 		g_omac_scheduler.Initialize(radioName, macName);
-		Initialized=TRUE;
+		Initialized = TRUE;
 	}
 
 	//Initialize upper layer call backs
-	if(routingAppID >= MAX_APPS) {
-		return DS_Fail;
-	}
-	AppHandlers[routingAppID] = eventHandler;
+	////AppHandlers[routingAppID] = eventHandler;
 	CurrentActiveApp = routingAppID;
 	//*macID=MacId;
 
@@ -191,13 +197,13 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
 			////hal_printf("OMACTypeBora::ReceiveHandler MFM_DISCOVERY\n");
-			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(),Size);
+			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
 			break;
 		case MFM_DATA:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
-			//g_omac_scheduler.RadioTask();
-			g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
+			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
+			g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");

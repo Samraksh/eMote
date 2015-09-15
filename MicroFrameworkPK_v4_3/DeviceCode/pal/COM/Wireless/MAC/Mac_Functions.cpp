@@ -53,6 +53,7 @@ UINT16 Mac_GetRadioAddress(){
 	UINT16 temp = gcsmaMacObject.GetRadioAddress();
 	return temp;
 }
+
 BOOL Mac_SetRadioAddress(UINT16 address){
 	gcsmaMacObject.SetRadioAddress(address);
 	return true;

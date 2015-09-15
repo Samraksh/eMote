@@ -60,6 +60,21 @@ public:
 		this->neighborHandler = neighbor_change_handler;
 	}
 
+	MacReceiveFuncPtrType GetReceiveHandler()
+	{
+		return this->ReceiveHandler;
+	}
+
+	SendAckFuncPtrType GetSendAckHandler()
+	{
+		return this->SendAckHandler;
+	}
+
+	NeighborChangeFuncPtrType GetNeighborChangeHandler()
+	{
+		return this->neighborHandler;
+	}
+
 }MacEventHandler_t;
 
 

@@ -678,8 +678,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
-	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
-			return DS_Fail;
+	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success){
+		return DS_Fail;
+	}
 
 	//If the radio hardware is not already initialized, initialize it
 	if(!IsInitialized())

@@ -69,16 +69,27 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config)
+DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config)
 {
 	DeviceStatus status;
 
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
+		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
+		if(routingAppID >= MAX_APPS) {
+			SOFT_BREAKPOINT();
+			return DS_Fail;
+		}
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
-		AppCount=0; //number of upperlayers connected to you
+		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
+		gcsmaMacObject.SetAppIdIndex(routingAppID);
+		//Initialize upperlayer callbacks
+		gcsmaMacObject.SetAppHandlers(eventHandler);
+
+
+		AppCount = 0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 		Radio_Event_Handler.SetRadioInterruptHandler(csmaRadioInterruptHandler);
@@ -90,8 +101,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		m_NeighborTable.ClearTable();
 
 		UINT8 numberOfRadios = 1;
-		RadioAckPending=FALSE;
-		Initialized=TRUE;
+		RadioAckPending = FALSE;
+		Initialized = TRUE;
 		m_recovery = 1;
 
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, numberOfRadios, macName)) != DS_Success) {
@@ -129,12 +140,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 	//VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT);  // Why?
 
 	//Initialize upperlayer callbacks
-	if(routingAppID >= MAX_APPS) {
-		SOFT_BREAKPOINT();
-		return DS_Fail;
-	}
-	AppHandlers[routingAppID]=eventHandler;
-	CurrentActiveApp=routingAppID;
+	////AppHandlers[routingAppID] = eventHandler;
+	CurrentActiveApp = routingAppID;
 
 	return DS_Success;
 }
@@ -168,11 +175,11 @@ UINT8 test = 0;
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
 {
 	Message_15_4_t msg_carrier;
-	if(Size >  csmaMAC::GetMaxPayload()){
+	if(Size > csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 		return FALSE;
 	}
-	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
+	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -190,17 +197,19 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
 
-	IEEE802_15_4_Metadata_t *metaData =  msg_carrier.GetMetaData();
+	IEEE802_15_4_Metadata_t* metaData =  msg_carrier.GetMetaData();
 	metaData->SetReceiveTimeStamp(eventTime);
 
-	for(UINT8 i = 0 ; i < Size; i++)
+	for(UINT8 i = 0 ; i < Size; i++){
 		payload[i] = lmsg[i];
+	}
 
 	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
 	// Check if the circular buffer is full
-	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
+	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
 		return FALSE;
+	}
 
 	// Try to  send the packet out immediately if possible
 	SendFirstPacketToRadio(NULL);
@@ -255,11 +264,11 @@ void csmaMAC::UpdateNeighborTable(){
 
 	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 
-
 	if(numberOfDeadNeighbors > 0)
 	{
 		DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
-		NeighborChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighborHandler;
+		////NeighborChangeFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
+		NeighborChangeFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
 		if(appHandler != NULL)
@@ -349,7 +358,7 @@ void csmaMAC::SendToRadio(){
 		// Check to see if there are any messages in the buffer
 		if(txMsgPtr != NULL){
 			DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
-			RadioAckPending=TRUE;
+			RadioAckPending = TRUE;
 			if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
@@ -393,7 +402,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 				// Insert into the table if a new node was discovered
 				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
-					NeighborChangeFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->neighborHandler;
+					////NeighborChangeFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
+					NeighborChangeFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
@@ -440,13 +450,14 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	//Call routing/app receive callback
-	MacReceiveFuncPtrType appHandler = AppHandlers[3]->ReceiveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
+	////MacReceiveFuncPtrType appHandler = AppHandlers[3]->ReceiveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
+	MacReceiveFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
 
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)
 	{
 		SOFT_BREAKPOINT();
-		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\r\n");
+		hal_printf("[NATIVE] Error from csma mac receive handler :  Handler not registered\r\n");
 		return temp;
 	}
 
@@ -494,7 +505,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				//gHalTimerManagerObject.StopTimer(3);
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
+				////SendAckFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->SendAckHandler;
+				SendAckFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 				// Attempt to send the next packet out since we have no scheduler
 				if(!m_send_buffer.IsBufferEmpty())

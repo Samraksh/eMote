@@ -333,7 +333,7 @@ bool OMACSchedulerBora::RunEventTask(){
 	////if( startMeasuringDutyCycle && txEventOffset < (currentTicks | (SLOT_PERIOD_MILLI * 1000)) ) {
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
 		if(InputState.GetState() == I_DATA_SEND_PENDING){
-			hal_printf("OMACSchedulerBora::RunEventTask state is already I_DATA_SEND_PENDING\n");
+			////hal_printf("OMACSchedulerBora::RunEventTask state is already I_DATA_SEND_PENDING\n");
 
 			/*GLOBAL_LOCK(irq);
 			VirtTimer_Stop(HAL_SLOT_TIMER);
@@ -341,13 +341,13 @@ bool OMACSchedulerBora::RunEventTask(){
 			VirtTimer_Start(HAL_SLOT_TIMER);
 			InputState.ToIdle();*/
 
-			BOOL* completionFlag = (BOOL*)false;
+			/*BOOL* completionFlag = (BOOL*)false;
 			// we assume only 1 can be active, abort previous just in case
 			OMAC_scheduler_TimerCompletion.Abort();
 			OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
 			//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 			//TODO (Ananth): to check what the right enqueue value should be
-			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
+			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);*/
 
 			return TRUE;
 		}
@@ -485,22 +485,23 @@ bool OMACSchedulerBora::RadioTask(){
 
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
-			case I_DATA_SEND_PENDING :
-				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING (should not be called)\n");
+			case I_DATA_SEND_PENDING:
+				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
 				////Not needed, as StartDataAlarm does the same thing
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
-			case I_DATA_RCV_PENDING :
+			case I_DATA_RCV_PENDING:
 				hal_printf("OMACSchedulerBora::RadioTask I_DATA_RCV_PENDING\n");
 				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
-			case I_TIMESYNC_PENDING :
+			case I_TIMESYNC_PENDING:
+				hal_printf("OMACSchedulerBora::RadioTask I_TIMESYNC_PENDING\n");
 				m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = TIMESYNC_HANDLER;
 				break;
-			default :
+			default:
 				m_DiscoveryHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
 				break;
