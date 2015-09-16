@@ -37,6 +37,8 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	UINT8 CurrentActiveApp;
 	UINT16 MyID;
 
+
+
 	//Protocol variables
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 
@@ -48,6 +50,14 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	//Buffer variables
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
+
+
+	// Pointer to the outgoing message
+	Message_15_4_t* tx_msg_ptr;
+	// Pointer to the incoming message
+	Message_15_4_t* rx_msg_ptr;
+	volatile UINT16 tx_length;
+	volatile UINT16 rx_length;
 
 	UINT16 GetAddress(){return MyID;}
 	UINT16 GetMaxPayload(){return MaxPayload;	}
