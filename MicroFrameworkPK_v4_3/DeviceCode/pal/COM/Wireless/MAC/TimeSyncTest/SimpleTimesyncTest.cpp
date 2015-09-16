@@ -233,7 +233,7 @@ void SimpleTimesyncTest::SendAck(void *msg, UINT16 size, NetOpStatus status){
 BOOL SimpleTimesyncTest::Initialize(){
 	MyAppID = 3; //pick a number less than MAX_APPS currently 4.
 	Config.Network = 138;
-	myEventHandler.SetRecieveHandler(SimpleTimesyncTest_ReceiveHandler);
+	myEventHandler.SetReceiveHandler(SimpleTimesyncTest_ReceiveHandler);
 	myEventHandler.SetSendAckHandler(SimpleTimesyncTest_SendAckHandler);
 	VirtTimer_Initialize();
 	//CPU_GPIO_EnableOutputPin((GPIO_PIN) ACTIVITYPIN, FALSE);

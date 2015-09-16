@@ -48,25 +48,30 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
 
-		//Demutiplex packets received based on type
-		switch(rcv_msg->GetHeader()->GetType()){
-			case MFM_DISCOVERY:
-				g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
-				break;
-			case MFM_DATA:
-				g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
-				break;
-			case MFM_ROUTING:
-				break;
-			case MFM_NEIGHBORHOOD:
-				break;
-			case MFM_TIMESYNC:
-				break;
-			default:
-				break;
-		};
+	SendAckFuncPtrType AckHandler;
+	//Demutiplex packets received based on type
+	switch(rcv_msg->GetHeader()->GetType()){
+		case MFM_DISCOVERY:
+			g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
+			//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
+			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
+			break;
+		case MFM_DATA:
+			//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
+			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
+			break;
+		case MFM_ROUTING:
+			break;
+		case MFM_NEIGHBORHOOD:
+			break;
+		case MFM_TIMESYNC:
+			break;
+		default:
+			break;
+	};
 
-		//return msg;
+	//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
+	//return msg;
 }
 
 
@@ -193,17 +198,21 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 		Size -= tmsgSize;
 	}*/
 
+	MacReceiveFuncPtrType rxAckHandler;
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
 			////hal_printf("OMACTypeBora::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
+			//rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
+			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
 			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
-			g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
+			rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
+			(*rxAckHandler)(rx_length);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
@@ -227,6 +236,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 	};
 
+	////(*rxAckHandler)(rx_length);
 	////hal_printf("end OMACTypeBora::ReceiveHandler\n");
 	return msg;
 }
@@ -289,7 +299,7 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	else {
 		hal_printf("OMACTypeBora::Send msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	////bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
+	bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
 
 	return true;
 }
@@ -345,7 +355,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 	else {
 		hal_printf("OMACTypeBora::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	////bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
+	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
 
 	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
 	return true;
