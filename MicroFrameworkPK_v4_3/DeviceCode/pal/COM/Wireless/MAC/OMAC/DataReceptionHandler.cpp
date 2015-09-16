@@ -166,13 +166,17 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
 	}
 
-	Message_15_4_t txMsg;
+	/*Message_15_4_t txMsg;
 	Message_15_4_t* txMsgPtr = &txMsg;
 	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 	Message_15_4_t* msgPtr = *tempPtr;
 	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
 	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-	UINT8* snd_payload = txMsgPtr->GetPayload();
+	UINT8* snd_payload = txMsgPtr->GetPayload();*/
+
+	volatile UINT16 rx_length;
+	MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
+	(*rxAckHandler)(rx_length);
 
 	/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
 		hal_printf("snd_payload[i]: %u ", snd_payload[i]);

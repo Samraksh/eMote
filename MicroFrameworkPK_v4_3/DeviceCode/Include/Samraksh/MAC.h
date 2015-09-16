@@ -104,16 +104,21 @@ public:
 			return FALSE;
 		}
 
-		if(AppIDIndex > MAX_APPS){
+		UINT8 TempAppIdIndex = GetAppIdIndex();
+		hal_printf("SetAppHandlers %u\n", TempAppIdIndex);
+		if(TempAppIdIndex >= MAX_APPS){
 			return FALSE;
 		}
 
-		AppHandlers[AppIDIndex] = handler;
+		AppHandlers[TempAppIdIndex] = handler;
 		return TRUE;
 	}
 
 	MacEventHandler* GetAppHandler(UINT8 MacIndex)
 	{
+		if(MacIndex >= MAX_APPS){
+			return (MacEventHandler*)NULL;
+		}
 		return AppHandlers[MacIndex];
 	}
 

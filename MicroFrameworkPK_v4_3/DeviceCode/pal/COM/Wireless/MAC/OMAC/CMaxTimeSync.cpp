@@ -277,7 +277,7 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
-		hal_printf("CMaxTimeSync::Receive\n");
+		hal_printf("CMaxTimeSync::Receive. Sending\n");
 		this->Send(msg_src, false);
 	}
 #ifdef DEBUG_TSYNC

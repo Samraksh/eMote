@@ -115,6 +115,7 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		g_OMAC.SetAppIdIndex(routingAppID);
 		//Initialize upper layer call backs
 		g_OMAC.SetAppHandlers(eventHandler);
+		//MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(routingAppID);
 
 		AppCount = 0; //number of upperlayers connected to you
 		OMACTypeBora::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
@@ -210,9 +211,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 		case MFM_DATA:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
-			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
-			rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
-			(*rxAckHandler)(rx_length);
+			g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
