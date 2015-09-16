@@ -212,9 +212,10 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
-			m_outgoingEntryPtr = g_send_buffer.GetOldest();
+			//m_outgoingEntryPtr = g_send_buffer.GetOldest();
+			m_outgoingEntryPtr = g_send_buffer.GetNextFreeBuffer();
 			if (m_outgoingEntryPtr == NULL) {
-				hal_printf("m_outgoingEntryPtr is null\n");
+				//hal_printf("m_outgoingEntryPtr is null\n");
 				return;
 			}
 		}
@@ -319,7 +320,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
 			  //hal_printf("sslot %lu time %lu\n", counter, globalTime);
 		}
-		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): why does c000 not being found? where does c000 come from?
+		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?
 			if(!allNeighborFlag){
 				hal_printf("Cannot find nbr %u\n", dest);
 				allNeighborFlag = true;

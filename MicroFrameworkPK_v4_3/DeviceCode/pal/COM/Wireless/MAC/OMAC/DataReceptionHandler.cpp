@@ -155,6 +155,7 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 #endif
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
+	hal_printf("DataReceptionHandler::ExecuteEvent\n");
 	m_wakeupCnt++;
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
 

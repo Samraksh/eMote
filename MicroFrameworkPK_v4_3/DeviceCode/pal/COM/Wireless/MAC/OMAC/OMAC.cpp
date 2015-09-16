@@ -189,7 +189,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
 	//Any message might have timestamping attached to it. Check for it and process
 	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
@@ -229,7 +229,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			hal_printf("OMACTypeBora::ReceiveHandler default\n");
+			hal_printf("OMACTypeBora::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
 			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 			Size -= tmsgSize;*/
@@ -259,7 +259,7 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 		return FALSE;
 	}
 
-	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	/*Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACTypeBora::GetMaxPayload()){
 		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
 		return FALSE;
@@ -285,7 +285,7 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
-	}
+	}*/
 
 	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
 
@@ -316,7 +316,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 		return FALSE;
 	}
 
-	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	/*Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACTypeBora::GetMaxPayload()){
 		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
 		return FALSE;
@@ -341,7 +341,7 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 
 	for(UINT8 i = 0; i < size; i++){
 		payload[i] = lmsg[i];
-	}
+	}*/
 
 	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
 

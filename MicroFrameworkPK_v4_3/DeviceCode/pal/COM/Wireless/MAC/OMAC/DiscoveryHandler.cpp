@@ -272,7 +272,7 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
  *
  */
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-	hal_printf("start DiscoveryHandler::Receive\n");
+	//hal_printf("start DiscoveryHandler::Receive\n");
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	RadioAddress_t source = msg->GetHeader()->src;
 	//RadioAddress_t source = disMsg->nodeID;
