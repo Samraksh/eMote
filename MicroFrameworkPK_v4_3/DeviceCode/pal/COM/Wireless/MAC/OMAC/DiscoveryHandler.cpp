@@ -133,7 +133,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 /*
  *
  */
-DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t *msgPtr){
+DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
 	////hal_printf("start DiscoveryHandler::Beacon\n");
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState( (GPIO_PIN) DISCOSYNCSENDPIN, TRUE );
@@ -321,7 +321,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 /*
  *
  */
-DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
+DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
 	////hal_printf("start DiscoveryHandler::Send\n");
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
