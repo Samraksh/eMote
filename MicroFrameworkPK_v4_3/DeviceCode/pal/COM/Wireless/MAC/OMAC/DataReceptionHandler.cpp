@@ -15,6 +15,11 @@ extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
 
 
+static BOOL varCounter;
+MacReceiveFuncPtrType g_rxAckHandler;
+MacEventHandler_t* g_appHandler;
+
+
 //extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
 /*
 void PublicReceiveCallback(void * param){
@@ -26,6 +31,7 @@ void PublicReceiveCallback(void * param){
  *
  */
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
+	varCounter = FALSE;
 	RadioID = radioID;
 	MacID = macID;
 
@@ -67,6 +73,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	if (m_dataInterval <= 1) {
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
+
 }
 
 /*
@@ -75,6 +82,11 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
  * Return value:	64 bit tick value of event in future
  */
 UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+	if(!varCounter){
+		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
+		varCounter = TRUE;
+	}
 	UINT16 remainingSlots, randVal;
 
 	//Sanity check: I am executing when I am not supposed to.
@@ -175,8 +187,11 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	UINT8* snd_payload = txMsgPtr->GetPayload();*/
 
 	volatile UINT16 rx_length;
-	MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
-	(*rxAckHandler)(rx_length);
+	/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+	MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
+	(*g_rxAckHandler)(rx_length);
+	//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
+
 
 	/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
 		hal_printf("snd_payload[i]: %u ", snd_payload[i]);

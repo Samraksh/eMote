@@ -212,8 +212,8 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
-			//m_outgoingEntryPtr = g_send_buffer.GetOldest();
-			m_outgoingEntryPtr = g_send_buffer.GetNextFreeBuffer();
+			m_outgoingEntryPtr = g_send_buffer.GetOldest();
+			//m_outgoingEntryPtr = g_send_buffer.GetNextFreeBuffer();
 			if (m_outgoingEntryPtr == NULL) {
 				//hal_printf("m_outgoingEntryPtr is null\n");
 				return;

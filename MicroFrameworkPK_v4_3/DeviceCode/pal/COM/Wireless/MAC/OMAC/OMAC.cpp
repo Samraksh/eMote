@@ -112,10 +112,13 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		this->radioName = radioID;
 		SetConfig(config);
 		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
-		g_OMAC.SetAppIdIndex(routingAppID);
+		/*g_OMAC.SetAppIdIndex(routingAppID);
 		//Initialize upper layer call backs
-		g_OMAC.SetAppHandlers(eventHandler);
-		//MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(routingAppID);
+		g_OMAC.SetAppHandlers(eventHandler);*/
+		//MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
+		MAC<Message_15_4_t, MacConfig>::SetAppIdIndex(routingAppID);
+		MAC<Message_15_4_t, MacConfig>::SetAppHandlers(eventHandler);
+		MacEventHandler_t* appHandler = MAC<Message_15_4_t, MacConfig>::GetAppHandler(MAC<Message_15_4_t, MacConfig>::GetAppIdIndex());
 
 		AppCount = 0; //number of upperlayers connected to you
 		OMACTypeBora::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
