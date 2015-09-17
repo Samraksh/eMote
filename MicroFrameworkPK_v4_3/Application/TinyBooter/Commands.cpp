@@ -1127,7 +1127,7 @@ void Loader_Engine::Launch( ApplicationStartAddress startAddress )
 #ifdef PLATFORM_ARM_EmoteDotNow
     HAL_Time_Uninitialize();
 
-    int ResetVector = *(__IO UINT32 *) (startAddress + 4);  // Cortex-M3 vector table is MSP followed by Reset
+    int ResetVector = (*(__IO UINT32 *) (startAddress)) + 4;  // Cortex-M3 vector table is MSP followed by Reset
     pFunction Jump_To_Application = (pFunction) ResetVector;
     // Contract: MSP is set by target application entry.
     Jump_To_Application();
