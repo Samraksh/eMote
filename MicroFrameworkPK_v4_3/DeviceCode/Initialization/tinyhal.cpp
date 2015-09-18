@@ -532,8 +532,13 @@ mipi_dsi_shutdown();
 
         while(ptr >= end)
         {
-            //*ptr-- = 0xBAADF00D;
-        	*ptr-- = 0x0;
+            // I know what you're thinking.
+            // DO NOT REPLACE THIS SECTION OF CODE.
+            // Instead, please consider reading the compiler's warnings about your code.
+            // Fix your code's object initialization.  If you're here, you need to properly initialize your variables.
+            // This stack initialization is for everyone's debugging benefit, and it only runs in the DEBUG flavor,
+            // SO DEBUG YOUR CODE INSTEAD OF CHANGING THIS.
+            *ptr-- = 0xBAADF00D;
         }
     }
 #endif
