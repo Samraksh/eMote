@@ -139,6 +139,7 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Configure
     TINYCLR_NOCLEANUP();
 }
 
+//TODO: verify interop DLL deprecates this.
 HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::ConfigureContinuousModeWithThresholding___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
