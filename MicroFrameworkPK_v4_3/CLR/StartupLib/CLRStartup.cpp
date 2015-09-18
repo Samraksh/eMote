@@ -665,7 +665,7 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_Debug::Printf( "Optimization: %s, %s\r\n", SPEED_OPTIMIZE , SIZE_OPTIMIZE );
 #endif  //defined(__GNUC__)
 
-        CLR_Debug::Printf( "TinyCLR (Build %d.%d.%d.%d)\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, 13 );
+        CLR_Debug::Printf( "TinyCLR (Build %d.%d.%d.%d)\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION );
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
         CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.

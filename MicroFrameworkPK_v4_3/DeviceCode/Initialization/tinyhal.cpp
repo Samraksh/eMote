@@ -582,7 +582,7 @@ mipi_dsi_shutdown();
 
 #if !defined(BUILD_RTM)
 #ifdef TINYHAL_BOOTUP_DISPLAY_BUILD_INFO
-    DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%s\r\n", VERSION_MAJOR, VERSION_MINOR, 0 , "0");
+    DEBUG_TRACE4( STREAM_LCD, ".NetMF v%d.%d_%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD , SAM_VERSION_REVISION);
     DEBUG_TRACE3(TRACE_ALWAYS, "%s, Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__);
 #if defined(__GNUC__)
     DEBUG_TRACE3(TRACE_ALWAYS, "GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__ );

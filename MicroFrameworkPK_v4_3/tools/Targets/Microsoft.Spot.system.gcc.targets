@@ -127,6 +127,7 @@
     <AS_FLAGS>$(AS_FLAGS) --defsym PLATFORM_ARM_$(TARGETPLATFORM)=1</AS_FLAGS>
 
     <AS_FLAGS Condition="'$(SamAppName)'!=''"      >$(AS_FLAGS) --defsym SAM_APP_$(SamAppName)=1 </AS_FLAGS>
+    <AS_FLAGS Condition="'$(SamRevisionNumber)'!=''"    >$(AS_FLAGS) --defsym SAM_VERSION_REVISION=$(SamRevisionNumber) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''"     >$(AS_FLAGS) --defsym SAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"        >$(AS_FLAGS) --defsym SAM_STACK_TOP=$(SAM_STACK_TOP) </AS_FLAGS>
     <AS_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"       >$(AS_FLAGS) --defsym SAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </AS_FLAGS>
@@ -192,6 +193,7 @@
 
     <CC_CPP_COMMON_FLAGS>$(CC_CPP_COMMON_FLAGS) @(CC_CPP_Defines->'-D%(filename)',' ')</CC_CPP_COMMON_FLAGS>
 
+    <CC_CPP_COMMON_FLAGS Condition="'$(SamRevisionNumber)'!=''"    >$(CC_CPP_COMMON_FLAGS) -DSAM_VERSION_REVISION=$(SamRevisionNumber) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_BOTTOM)'!=''"     >$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_BOTTOM=$(SAM_STACK_BOTTOM) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_STACK_TOP)'!=''"        >$(CC_CPP_COMMON_FLAGS) -DSAM_STACK_TOP=$(SAM_STACK_TOP) </CC_CPP_COMMON_FLAGS>
     <CC_CPP_COMMON_FLAGS Condition="'$(SAM_HEAP_BEGIN)'!=''"       >$(CC_CPP_COMMON_FLAGS) -DSAM_HEAP_BEGIN=$(SAM_HEAP_BEGIN) </CC_CPP_COMMON_FLAGS>

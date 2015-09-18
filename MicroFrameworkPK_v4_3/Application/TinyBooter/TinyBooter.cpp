@@ -92,7 +92,7 @@ void ApplicationEntryPoint()
     {
         LCD_Clear();
         
-        hal_fprintf( STREAM_LCD, "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, 12);
+        hal_fprintf( STREAM_LCD, "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION);
         hal_fprintf( STREAM_LCD, "%s Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__ );
 
         DebuggerPort_Initialize( HalSystemConfig.DebuggerPorts[ 0 ] );
@@ -100,7 +100,7 @@ void ApplicationEntryPoint()
         TinyBooter_OnStateChange( State_EnterBooterMode, NULL );
 
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort  );
-        hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, 12);
+        hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION);
         hal_printf( "%s Build Date: %s %s\r\n", HalName, __DATE__, __TIME__ );
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
