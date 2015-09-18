@@ -650,8 +650,16 @@ void ClrStartup( CLR_SETTINGS params )
 
 #if !defined(BUILD_RTM)
 
-        // Print generic optimization status after compiler version, but only once.
+        CLR_Debug::Printf( "TinyCLR v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+        CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
+        CLR_Debug::Printf( "Platform %s\r\n", HalName );
+        CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );
+#include <Samraksh\githash.h>
+#include <Samraksh\teamid.h>
+        CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
+
 #if defined(__GNUC__)
+        CLR_Debug::Printf( "GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__ );
 #if defined(__OPTIMIZE__)
 #define SPEED_OPTIMIZE "speed-optimized"
 #else
@@ -665,10 +673,6 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_Debug::Printf( "Optimization: %s, %s\r\n", SPEED_OPTIMIZE , SIZE_OPTIMIZE );
 #endif  //defined(__GNUC__)
 
-        CLR_Debug::Printf( "TinyCLR (Build %d.%d.%d.%d)\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION );
-#include <Samraksh\githash.h>
-#include <Samraksh\teamid.h>
-        CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
 #ifdef DOTNOW_HSI_CALIB
 		CLR_Debug::Printf("Clock nominal         :  %d Hz\r\n", pwr_get_hsi(2) );
 		CLR_Debug::Printf("Clock pre-calibration :  %d Hz\r\n", pwr_get_hsi(0) );

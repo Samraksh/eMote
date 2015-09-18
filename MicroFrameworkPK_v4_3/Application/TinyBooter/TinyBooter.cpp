@@ -92,7 +92,7 @@ void ApplicationEntryPoint()
     {
         LCD_Clear();
         
-        hal_fprintf( STREAM_LCD, "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION);
+        hal_fprintf( STREAM_LCD, "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
         hal_fprintf( STREAM_LCD, "%s Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__ );
 
         DebuggerPort_Initialize( HalSystemConfig.DebuggerPorts[ 0 ] );
@@ -100,8 +100,10 @@ void ApplicationEntryPoint()
         TinyBooter_OnStateChange( State_EnterBooterMode, NULL );
 
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort  );
-        hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, SAM_VERSION_REVISION);
-        hal_printf( "%s Build Date: %s %s\r\n", HalName, __DATE__, __TIME__ );
+        hal_printf( "TinyBooter v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+        hal_printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
+        hal_printf( "Platform %s\r\n", HalName );
+        hal_printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
         hal_printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
