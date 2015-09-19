@@ -57,6 +57,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <MiscFlags Condition="'$(SamRevisionNumber)'!=''" >$(MiscFlags) /D SAM_VERSION_REVISION=$(SamRevisionNumber) </MiscFlags>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <MiscFlags >$(MiscFlags) @(TinyCLR_Defines->'/D %(filename)',' ')</MiscFlags>
     <MiscFlags >$(MiscFlags) @(CC_CPP_Defines->'/D %(filename)',' ')</MiscFlags>
   </PropertyGroup>
