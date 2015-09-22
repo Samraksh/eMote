@@ -10,7 +10,7 @@ nathan.stohs@samraksh.com
 
 #include "netmf_pwr.h"
 #include "netmf_pwr_wakelock.h"
-
+#include "../usart/sam_usart.h"
 
 static int pwr_hsi_clock_measure;
 static int pwr_hsi_clock_measure_orig;
@@ -316,6 +316,8 @@ void Low_Power() {
 	FLASH_SetLatency(FLASH_Latency_0);
 
 	stm_power_state = POWER_STATE_LOW;
+
+	USART_reinit(); // Clock sensitive. Must redo.
 }
 
 void High_Power() {
@@ -359,6 +361,8 @@ void High_Power() {
 	while ( RCC_GetSYSCLKSource() != 0x08 ) { ; }
 	
 	stm_power_state = POWER_STATE_HIGH;
+
+	USART_reinit(); // Clock sensitive. Must redo.
 }
 
 // Exit in the same power state as we entered.

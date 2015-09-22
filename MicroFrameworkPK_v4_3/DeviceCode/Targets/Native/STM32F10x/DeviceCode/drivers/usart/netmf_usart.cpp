@@ -5,10 +5,15 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 #include <netmf_usart.h>
+#include "sam_usart.h"
 
 //ComHandle != ComPort.  COM1 is a handle with port=0. COM1=0x101 means port 0 on USART transport.  See platform_selector.h and tinyhal.h.
 
 void USART2_Handler(void *args);
+
+static USART_InitTypeDef USART1_InitStructure;
+static USART_InitTypeDef USART2_InitStructure;
+static int PORTS_IN_USE_MASK = 0;
 
 /*TODO 
 	Add error handling
@@ -17,6 +22,25 @@ void USART2_Handler(void *args);
 	Check how physical ports are mapped to logical ports
 	Send data is non-blocking, skips data if continuously transmitted
 */
+
+void USART_reinit(void) {
+	if (PORTS_IN_USE_MASK & 0x1) {
+		USART_DeInit(USART1);
+		USART_Init(USART1, &USART1_InitStructure);
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+		USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+		USART_Cmd(USART1, ENABLE);
+	}
+
+	if (PORTS_IN_USE_MASK & 0x2) {
+		USART_DeInit(USART2);
+		USART_Init(USART2, &USART2_InitStructure);
+		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+		USART_Cmd(USART2, ENABLE);
+	}
+}
 
 BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
 {
@@ -39,11 +63,11 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 		}
 	}
 
-  USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
 
   // Init UART1
   if (ComPortNum == 0) { // COM1
+	PORTS_IN_USE_MASK |= 1;
 	// Reserve the two ports the TX/RX ports of usart 1/ COM1
 	// Not that the user can do anything with them anyway
 	if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
@@ -59,14 +83,14 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO | RCC_APB2Periph_USART1, ENABLE);
 	USART_DeInit(USART1);
-	USART_StructInit(&USART_InitStructure);
+	USART_StructInit(&USART1_InitStructure);
 
-	USART_InitStructure.USART_BaudRate 				= 115200;
-	USART_InitStructure.USART_WordLength 			= USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits 				= USART_StopBits_1;
-	USART_InitStructure.USART_Parity 				= USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
+	USART1_InitStructure.USART_BaudRate 			= 115200;
+	USART1_InitStructure.USART_WordLength 			= USART_WordLength_8b;
+	USART1_InitStructure.USART_StopBits 			= USART_StopBits_1;
+	USART1_InitStructure.USART_Parity 				= USART_Parity_No;
+	USART1_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
+	USART1_InitStructure.USART_Mode				 	= USART_Mode_Rx | USART_Mode_Tx;
 
 	// Configure USART Tx as alternate function push-pull
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_9, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
@@ -74,7 +98,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_10, GPIO_Mode_IPU, GPIO_Speed_10MHz);
 
-	USART_Init(USART1, &USART_InitStructure);
+	USART_Init(USART1, &USART1_InitStructure);
 	USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
@@ -82,6 +106,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	return TRUE;
   }
   else { // COM2
+	PORTS_IN_USE_MASK |= 2;
 	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
 	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
 
@@ -98,14 +123,14 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE); // Assume this is already on from COM1
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 	USART_DeInit(USART2);
-	USART_StructInit(&USART_InitStructure);
+	USART_StructInit(&USART2_InitStructure);
 
-	USART_InitStructure.USART_BaudRate 				= my_baudrate;
-	USART_InitStructure.USART_WordLength 			= USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits 				= USART_StopBits_1;
-	USART_InitStructure.USART_Parity 				= USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode 					= USART_Mode_Rx | USART_Mode_Tx;
+	USART2_InitStructure.USART_BaudRate 			= my_baudrate;
+	USART2_InitStructure.USART_WordLength 			= USART_WordLength_8b;
+	USART2_InitStructure.USART_StopBits 			= USART_StopBits_1;
+	USART2_InitStructure.USART_Parity 				= USART_Parity_No;
+	USART2_InitStructure.USART_HardwareFlowControl 	= USART_HardwareFlowControl_None;
+	USART2_InitStructure.USART_Mode 				= USART_Mode_Rx | USART_Mode_Tx;
 
 	// Configure USART Tx as alternate function push-pull
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_2, GPIO_Mode_AF_PP, GPIO_Speed_10MHz);
@@ -113,7 +138,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	// Configure USART Rx as input floating // Actually make it a pull-up for noise immunity. See #250.
 	GPIO_ConfigurePin(GPIOA, GPIO_Pin_3, GPIO_Mode_IPU, GPIO_Speed_10MHz);
 
-	USART_Init(USART2, &USART_InitStructure);
+	USART_Init(USART2, &USART2_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 
@@ -135,12 +160,14 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 		CPU_GPIO_ReservePin(89, FALSE);
 		CPU_GPIO_ReservePin(27, FALSE);
 		CPU_GPIO_ReservePin(90, FALSE);
+		PORTS_IN_USE_MASK &= ~(0x1);
 		break;
 	case 1:
 	default:
 		activeUsart = USART2;
 		CPU_GPIO_ReservePin(2, FALSE);
 		CPU_GPIO_ReservePin(3, FALSE);
+		PORTS_IN_USE_MASK &= ~(0x2);
 		break;
 	}
 	
