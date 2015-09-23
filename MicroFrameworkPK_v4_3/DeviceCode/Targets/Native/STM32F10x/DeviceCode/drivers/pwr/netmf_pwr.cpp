@@ -283,6 +283,12 @@ void CalibrateHSI() {
 	RCC_APB1PeriphClockCmd(/*RCC_APB1Periph_PWR |*/ RCC_APB1Periph_BKP, DISABLE);
 }
 
+// Block and pause until clock-sensitive peripherals are ready.
+// Add to this list as needed.
+static void pause_peripherals(void) {
+	USART_pause();
+}
+
 void Low_Power() {
 
 	// Make sure actually changing
@@ -291,6 +297,8 @@ void Low_Power() {
 	}
 
 	GLOBAL_LOCK(irq);
+	
+	pause_peripherals();
 
 	// Set HSI (instead of PLL) as SYSCLK source
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
@@ -328,6 +336,8 @@ void High_Power() {
 	}
 
 	GLOBAL_LOCK(irq);
+	
+	pause_peripherals();
 
 	// Setup PLL for 8/2*12 = 48 MHz
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);

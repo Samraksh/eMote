@@ -23,13 +23,30 @@ static int PORTS_IN_USE_MASK = 0;
 	Send data is non-blocking, skips data if continuously transmitted
 */
 
+void USART_pause(void) {
+	if (PORTS_IN_USE_MASK & 0x1) {
+		CPU_USART_TxBufferEmptyInterruptEnable(0, false);
+		while( CPU_USART_TxShiftRegisterEmpty(0) == FALSE );
+	}
+	
+	if (PORTS_IN_USE_MASK & 0x2) {
+		CPU_USART_TxBufferEmptyInterruptEnable(1, false);
+		while( CPU_USART_TxShiftRegisterEmpty(1) == FALSE );
+	}
+}
+
+// Re-init the UART.
+// Necessary when changing power levels, for example.
 void USART_reinit(void) {
 	if (PORTS_IN_USE_MASK & 0x1) {
+		
+		// Do the reset
 		USART_DeInit(USART1);
 		USART_Init(USART1, &USART1_InitStructure);
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 		USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
 		USART_Cmd(USART1, ENABLE);
 	}
 
@@ -38,6 +55,7 @@ void USART_reinit(void) {
 		USART_Init(USART2, &USART2_InitStructure);
 		USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); // Will cause bytes to start moving again.
 		USART_Cmd(USART2, ENABLE);
 	}
 }
