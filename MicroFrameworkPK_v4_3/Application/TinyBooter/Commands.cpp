@@ -1221,6 +1221,13 @@ void Loader_Engine::ReplyToCommand( WP_Message* msg, bool fSuccess, bool fCritic
 
 bool Loader_Engine::Monitor_Ping( WP_Message* msg )
 {
+	static UINT64 previousPingTime = 0;
+	UINT64 currentPingTime = HAL_Time_CurrentTicks();
+	
+	if (currentPingTime < previousPingTime + CPU_MicrosecondsToTicks((UINT32)250000))
+	{
+		msg->m_header.m_seq++;
+	}
     //
     // There's someone on the other side!!
     //
@@ -1236,8 +1243,10 @@ bool Loader_Engine::Monitor_Ping( WP_Message* msg )
 
         ReplyToCommand( msg, true, false, &cmdReply, sizeof(cmdReply) );
     }
-
-    return true;
+	
+	previousPingTime = currentPingTime;
+    
+	return true;
 }
 
 void MfReleaseInfo::Init(MfReleaseInfo& mfReleaseInfo, UINT16 major, UINT16 minor, UINT16 build, UINT16 revision, const char *info, size_t infoLen)
