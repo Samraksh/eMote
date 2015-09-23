@@ -16,7 +16,7 @@
 static volatile UINT64 bigCounter;
 
 extern "C" {
-void SysTick_Handler(void);
+void __irq SysTick_Handler(void);
 }
 
 BOOL HAL_Time_Initialize()
@@ -42,7 +42,7 @@ BOOL HAL_Time_Initialize()
 
 // Must catch every interrupt before next roll-over, so should be 1st or 2nd highest priority
 extern "C" {
-void SysTick_Handler(void) {
+void __irq SysTick_Handler(void) {
 	bigCounter += SysTick->LOAD + (SysTick->LOAD - SysTick->VAL) + SYSTICK_RESET_COMPENSATE_INT;
 	SysTick->LOAD = MAX_RELOAD;
 	SysTick->VAL = 0;
