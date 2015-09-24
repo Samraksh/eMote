@@ -60,36 +60,12 @@ void USART_reinit(void) {
 	}
 }
 
-BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
-{
-	if (ComPortNum == 0) {
-		// Fix added to protect long range radio against usart power - ask Nathan.Stohs for reasons
-		CPU_GPIO_EnableInputPin3((GPIO_PIN) 9, FALSE, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-		if(CPU_GPIO_GetPinState((GPIO_PIN) 9) == TRUE) // TODO: remove or cleanup this lockout
-		{
-			// Lock the external radio seln pin
-			if(!CPU_GPIO_ReservePin(89, TRUE))
-				return FALSE;
+// Note that once this goes up, it stays up.
+static void init_com0(void) {
+	if(!CPU_GPIO_ReservePin(9, TRUE))  { return; }
+	if(!CPU_GPIO_ReservePin(10, TRUE)) { return; }
 
-			// Lock the external radio slptr pin
-			if(!CPU_GPIO_ReservePin(27, TRUE))
-				return FALSE;
-
-			// Lock the external radio rstn pin
-			if(!CPU_GPIO_ReservePin(90, TRUE))
-				return FALSE;
-		}
-	}
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  // Init UART1
-  if (ComPortNum == 0) { // COM1
 	PORTS_IN_USE_MASK |= 1;
-	// Reserve the two ports the TX/RX ports of usart 1/ COM1
-	// Not that the user can do anything with them anyway
-	if(!CPU_GPIO_ReservePin(9, TRUE))  { return FALSE; }
-	if(!CPU_GPIO_ReservePin(10, TRUE)) { return FALSE; }
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
@@ -103,7 +79,7 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_DeInit(USART1);
 	USART_StructInit(&USART1_InitStructure);
 
-	USART1_InitStructure.USART_BaudRate 			= 115200;
+	USART1_InitStructure.USART_BaudRate 			= 115200; // Default baud for MFDeploy and Visual Studio
 	USART1_InitStructure.USART_WordLength 			= USART_WordLength_8b;
 	USART1_InitStructure.USART_StopBits 			= USART_StopBits_1;
 	USART1_InitStructure.USART_Parity 				= USART_Parity_No;
@@ -121,12 +97,13 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	USART_Cmd(USART1, ENABLE);
-	return TRUE;
-  }
-  else { // COM2
-	PORTS_IN_USE_MASK |= 2;
+}
+
+static BOOL init_com1(int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue) {
 	if(!CPU_GPIO_ReservePin(2, TRUE)) { return FALSE; }
 	if(!CPU_GPIO_ReservePin(3, TRUE)) { return FALSE; }
+
+	PORTS_IN_USE_MASK |= 2;
 
 	UINT32 interruptIndex = 0;
 	HAL_CALLBACK_FPN callback = NULL;
@@ -159,10 +136,38 @@ BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBit
 	USART_Init(USART2, &USART2_InitStructure);
 	USART_ClearITPendingBit(USART2, USART_IT_RXNE);
 	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-
 	USART_Cmd(USART2, ENABLE);
 	return TRUE;
-  }
+}
+
+static void do_com0_attached(GPIO_PIN Pin, BOOL PinState, void* Param) {
+	CPU_GPIO_DisablePin( (GPIO_PIN) 10, (GPIO_RESISTOR)0, 0, (GPIO_ALT_MODE)0 ); // Only first arg used, rest dummy.
+	init_com0();
+}
+
+BOOL CPU_USART_Initialize( int ComPortNum, int BaudRate, int Parity, int DataBits, int StopBits, int FlowValue )
+{
+	// Check to make sure not already up.
+	if (ComPortNum == 0 && (PORTS_IN_USE_MASK&1)) return TRUE;
+	if (ComPortNum == 1 && (PORTS_IN_USE_MASK&2)) return TRUE;
+
+	// If COM0, don't initialize until we see something connected (i.e. usb-serial attached)
+	if (ComPortNum == 0) {
+
+		if (CPU_GPIO_GetPinState((GPIO_PIN)10) == TRUE) {
+			do_com0_attached(0, FALSE, NULL);
+			return TRUE;
+		}
+
+		CPU_GPIO_EnableInputPin( (GPIO_PIN) 10, FALSE, do_com0_attached, GPIO_INT_EDGE_HIGH, RESISTOR_PULLDOWN );
+		return TRUE;
+	}
+
+	if (ComPortNum == 1) {
+		return init_com1(BaudRate, Parity, DataBits, StopBits, FlowValue);
+	}
+
+	return FALSE;
 }
 
 // Not sure of a scenario where this fails
@@ -175,9 +180,6 @@ BOOL CPU_USART_Uninitialize( int ComPortNum )
 		activeUsart = USART1;
 		CPU_GPIO_ReservePin(9, FALSE);
 		CPU_GPIO_ReservePin(10, FALSE);
-		CPU_GPIO_ReservePin(89, FALSE);
-		CPU_GPIO_ReservePin(27, FALSE);
-		CPU_GPIO_ReservePin(90, FALSE);
 		PORTS_IN_USE_MASK &= ~(0x1);
 		break;
 	case 1:
