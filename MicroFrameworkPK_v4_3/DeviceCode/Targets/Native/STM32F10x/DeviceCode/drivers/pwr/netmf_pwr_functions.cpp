@@ -34,6 +34,8 @@ void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
 			Shutdown();
 			break;
 		case SLEEP_LEVEL__DEEP_SLEEP:
+		case SLEEP_LEVEL__SELECTIVE_OFF:
+		case SLEEP_LEVEL__AWAKE:
 		case SLEEP_LEVEL__SLEEP:
 		default:
 			Sleep();
