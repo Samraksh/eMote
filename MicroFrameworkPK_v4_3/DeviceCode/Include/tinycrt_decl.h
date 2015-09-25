@@ -7,52 +7,72 @@
 
 //--//
 
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
-#endif
+#ifdef GCC
+int hal_printf( const char* format, ... )
+	__attribute__ ((format (printf, 1, 2)));
+
+int hal_vprintf( const char* format, va_list arg )
+	__attribute__ ((format (printf, 1, 0)));
+
+int hal_fprintf( COM_HANDLE stream, const char* format, ... )
+	__attribute__ ((format (printf, 2, 3)));
+
+int hal_vfprintf( COM_HANDLE stream, const char* format, va_list arg )
+	__attribute__ ((format (printf, 2, 0)));
+
+int hal_snprintf( char* buffer, size_t len, const char* format, ... )
+	__attribute__ ((format (printf, 3, 4)));
+
+#else // #ifdef GCC
+
 int hal_printf( const char* format, ... );
-
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
-#endif
 int hal_vprintf( const char* format, va_list arg );
-
-
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
-#endif
 int hal_fprintf( COM_HANDLE stream, const char* format, ... );
-
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
-#endif
 int hal_vfprintf( COM_HANDLE stream, const char* format, va_list arg );
-
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
-#endif
 int hal_snprintf( char* buffer, size_t len, const char* format, ... );
+#endif //#ifdef GCC
 
-#if defined(PLATFORM_ARM)
-#pragma check_printf_formats   /* hint to the compiler to check f/s/printf format */
+#ifdef GCC
+#if !defined(PLATFORM_EMULATED_FLOATINGPOINT)
+int hal_snprintf_float( char* buffer, size_t len, const char* format, float f )
+	__attribute__ ((format (printf, 3, 0)));
+int hal_snprintf_double( char* buffer, size_t len, const char* format, double d )
+	__attribute__ ((format (printf, 3, 0)));
+
+#else
+
+int hal_snprintf_float( char* buffer, size_t len, const char* format, INT32 f )
+	__attribute__ ((format (printf, 3, 0)));
+int hal_snprintf_double( char* buffer, size_t len, const char* format, INT64& d )
+	__attribute__ ((format (printf, 3, 0)));
 #endif
 
+#else // #ifdef GCC
 
 #if !defined(PLATFORM_EMULATED_FLOATINGPOINT)
 int hal_snprintf_float( char* buffer, size_t len, const char* format, float f );
 int hal_snprintf_double( char* buffer, size_t len, const char* format, double d );
+
 #else
+
 int hal_snprintf_float( char* buffer, size_t len, const char* format, INT32 f );
 int hal_snprintf_double( char* buffer, size_t len, const char* format, INT64& d );
 #endif
+#endif  //#ifdef GCC
 
 
 #if defined(GCC_OLD_VA_LIST)
 int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg ); 
+!ERROR
 // We need to force the symbol name of the next function to match RVDS one. This is needed for proper linking to the RVDS precompiled libraries
 int hal_vsnprintf( char* buffer, size_t len, const char* format, int* args ) asm("_Z13hal_vsnprintfPcjPKcSt9__va_list");
 #else
+#ifdef GCC
+int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg )
+	__attribute__ ((format (printf, 3, 0)));
+#else // #ifdef GCC
 int hal_vsnprintf( char* buffer, size_t len, const char* format, va_list arg );
+#endif // #ifdef GCC
 #endif
 
 #if defined(PLATFORM_ARM) || defined(PLATFORM_SH)
