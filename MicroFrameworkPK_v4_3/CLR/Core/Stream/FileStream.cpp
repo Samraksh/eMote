@@ -90,7 +90,7 @@ HRESULT CLR_RT_FileStream::CreateInstance( CLR_RT_HeapBlock& ref, LPCSTR path, i
             TINYCLR_CHECK_HRESULT(fs->AssignStorage( sdd->inputBuffer,  sdd->inputBufferSize, 
                                                      sdd->outputBuffer, sdd->outputBufferSize ));
             break;
-		default: // Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
+		default: ;// Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
     }
 
     TINYCLR_CHECK_HRESULT(pathW.Assign( relativePath ));

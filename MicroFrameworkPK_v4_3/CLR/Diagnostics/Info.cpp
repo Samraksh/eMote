@@ -686,7 +686,7 @@ void CLR_RT_DUMP::OBJECT( CLR_RT_HeapBlock* ptr, LPCSTR text )
     PELEMENT_TO_STRING(FINALIZER_HEAD        );
     PELEMENT_TO_STRING(MEMORY_STREAM_HEAD    );
     PELEMENT_TO_STRING(MEMORY_STREAM_DATA    );
-	default: // Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
+	default: ;// Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
     }
 
     CLR_Debug::Printf( "\r\n" );

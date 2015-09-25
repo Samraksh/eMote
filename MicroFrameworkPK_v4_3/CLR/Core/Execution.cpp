@@ -2456,7 +2456,7 @@ CLR_RT_HeapBlock_Lock* CLR_RT_ExecutionEngine::FindLockObject( CLR_RT_HeapBlock&
                 case DATATYPE_VALUETYPE:
                 case DATATYPE_CLASS    :
                     return ptr->ObjectLock();
-				default: // Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
+				default: ;// Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
             }
         }
     }
