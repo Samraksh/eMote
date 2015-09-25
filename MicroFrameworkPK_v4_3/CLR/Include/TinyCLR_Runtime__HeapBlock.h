@@ -465,7 +465,7 @@ private:
                     double ret_val;
 
 #if !defined(BIG_ENDIAN)
-#if defined(__GNUC__)
+#if defined(__GNUC__IGNORE_ME__)
 ///
 /// This code fixes an optimization problem with the gcc compiler.
 /// When the optimization level is greater than zero, the gcc compiler
@@ -490,9 +490,9 @@ private:
                     CLR_UINT32 *tmp = (CLR_UINT32*)&ret_val;
                     tmp[0]=_L;
                     tmp[1]=_H;
-#endif // defined(__GNUC__)
+#endif // defined(__GNUC__IGNORE_ME__)
 #else
-#if defined(__GNUC__)
+#if defined(__GNUC__IGNORE_ME__)
 ///
 /// This code fixes an optimization problem with the gcc compiler.
 /// When the optimization level is greater than zero, the gcc compiler
@@ -517,7 +517,7 @@ private:
                     CLR_UINT32 *tmp = (CLR_UINT32*)&ret_val;
                     tmp[0]=_H;
                     tmp[1]=_L;
-#endif // defined(__GNUC__)
+#endif // defined(__GNUC__IGNORE_ME__)
 #endif                    
 
                     return ret_val; 
@@ -526,7 +526,7 @@ private:
                 R8& operator=( const double num )
                 {
 #if !defined(BIG_ENDIAN)
-#if defined(__GNUC__)
+#if defined(__GNUC__IGNORE_ME__)
 ///
 /// This code fixes an optimization problem with the gcc compiler.
 /// When the optimization level is greater than zero, the gcc compiler
@@ -553,7 +553,7 @@ private:
                     _H = (CLR_UINT32)tmp[1];
 #endif                    
 #else
-#if defined(__GNUC__)
+#if defined(__GNUC__IGNORE_ME__)
 ///
 /// This code fixes an optimization problem with the gcc compiler.
 /// When the optimization level is greater than zero, the gcc compiler
