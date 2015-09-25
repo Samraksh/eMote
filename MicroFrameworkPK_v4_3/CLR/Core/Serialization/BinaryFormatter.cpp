@@ -1280,6 +1280,7 @@ HRESULT CLR_RT_BinaryFormatter::State::AssignAndFixBoxing( CLR_RT_HeapBlock& dst
                 case REFLECTION_CONSTRUCTOR : cls = &g_CLR_RT_WellKnownTypes.m_ConstructorInfo; break;
                 case REFLECTION_METHOD      : cls = &g_CLR_RT_WellKnownTypes.m_MethodInfo     ; break;
                 case REFLECTION_FIELD       : cls = &g_CLR_RT_WellKnownTypes.m_FieldInfo      ; break;
+				default						: cls = NULL; // Should not happen.
                 }
 
                 // 
