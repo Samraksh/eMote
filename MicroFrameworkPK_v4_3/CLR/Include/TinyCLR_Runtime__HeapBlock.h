@@ -5,7 +5,7 @@
 #ifndef _TINYCLR_RUNTIME__HEAPBLOCK_H_
 #define _TINYCLR_RUNTIME__HEAPBLOCK_H_
 
-#ifdef __arm__
+#if defined (__arm__) && !defined(GCC)
 // ARM compiler does not allow anonymous structs by default
 #pragma anon_unions
 #endif
