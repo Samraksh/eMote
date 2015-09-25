@@ -169,6 +169,7 @@ void Watchdog_Driver::WatchdogCallback( void* context )
             Watchdog_Disable();
             while(true);
             break;
+		default: // Other cases are possible. Unknown what to do, so for now assume doing nothing is correct.
     }
 
     Watchdog_ResetCounter();
