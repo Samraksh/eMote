@@ -11,10 +11,10 @@
 //-----------------------------------------------------------------------------
 
 
-#include "Samraksh_SPOT.h"
-#include "Samraksh_SPOT_Samraksh_SPOT_GC.h"
+#include "SamrakshEmote.h"
+#include "SamrakshEmote_Samraksh_eMote_GC.h"
 
-using namespace Samraksh::SPOT;
+using namespace Samraksh::eMote;
 
 float GC::GetUsedKBytes( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
