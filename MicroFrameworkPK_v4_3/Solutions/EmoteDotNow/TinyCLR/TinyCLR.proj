@@ -640,6 +640,11 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_dirver_control.$(LIB_EXT)" />
+  </ItemGroup>
   
   <!--                      	    Wireless Networking Stack ::End                      -->
   

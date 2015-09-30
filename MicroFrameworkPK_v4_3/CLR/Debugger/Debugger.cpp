@@ -5,6 +5,7 @@
 #include "..\core\Core.h"
 #include <TinyCLR_Debugging.h>
 #include <MFUpdate_decl.h>
+#include <Samraksh/Shutdown.h>
 
 #if defined(PLATFORM_WINDOWS)
 #pragma comment(lib,"crypto")
@@ -839,6 +840,8 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
     fRet = dbg->AccessMemory( cmd->m_address, cmd->m_length, NULL, AccessMemory_Erase );
 	::Watchdog_ResetCounter();
 	//ENABLE_INTERRUPTS();
+	
+	ShutdownDrivers();
 
 	// performing garbage collection and compaction here can be used to force hard faults that occur during
 	// deployment after the Flash has been erased.
