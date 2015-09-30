@@ -13,9 +13,6 @@ RF231Radio grf231RadioLR;
 //#define RADIO_TX_SEND_4 4
 //#define RADIO_TX_SENDTS_30 30
 
-RF231Radio grf231Radio;
-RF231Radio grf231RadioLR;
-
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -285,7 +282,7 @@ DeviceStatus RF231Radio::Reset()
 
 	// set software state machine state to sleep
 	state = STATE_SLEEP;
-	NATHAN_SET_DEBUG_GPIO(0);
+	//NATHAN_SET_DEBUG_GPIO(0);
 #	ifdef DEBUG_RF231
 	hal_printf("RF231: RESET\r\n");
 #	endif
@@ -432,7 +429,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 			sleep_pending = TRUE; // Only sleep from known states, otherwise just try later. Redundant.
 	}
 
-	NATHAN_SET_DEBUG_GPIO(0);
+	//NATHAN_SET_DEBUG_GPIO(0);
 
 	////hal_printf("RF231Radio::Sleep: after state:%d\n", state);
 	return DS_Success;
@@ -537,7 +534,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	state = STATE_BUSY_TX;
 	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
 	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
-	NATHAN_SET_DEBUG_GPIO(0);
+	//NATHAN_SET_DEBUG_GPIO(0);
 	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 
 	// exchange bags
@@ -816,7 +813,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		sleep_pending = TRUE;
 		// set software state machine state to sleep
 		state = STATE_SLEEP;
-		NATHAN_SET_DEBUG_GPIO(0);
+		//NATHAN_SET_DEBUG_GPIO(0);
 #		ifdef DEBUG_RF231
 		hal_printf("RF231: INIT. Default sleep\r\n");
 #		endif
@@ -1088,7 +1085,7 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	state = STATE_PLL_ON;
 	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
 	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
-	NATHAN_SET_DEBUG_GPIO(0);
+	//NATHAN_SET_DEBUG_GPIO(0);
 	cmd = CMD_NONE;
 
 	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
@@ -1141,7 +1138,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 
 		sleep_pending = TRUE;
 		state = STATE_RX_ON;
-		NATHAN_SET_DEBUG_GPIO(0);
+		//NATHAN_SET_DEBUG_GPIO(0);
 		//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 	}
 
@@ -1172,7 +1169,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		if(Sleep(0) == DS_Success)
 		{
 			state = STATE_SLEEP;
-			NATHAN_SET_DEBUG_GPIO(0);
+			//NATHAN_SET_DEBUG_GPIO(0);
 			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 			sleep_pending = FALSE;
 		}
@@ -1234,7 +1231,7 @@ void RF231Radio::HandleInterrupt()
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
 		state = STATE_BUSY_RX; // Seems like we should change state, so I made one up...
-		NATHAN_SET_DEBUG_GPIO(0);
+		//NATHAN_SET_DEBUG_GPIO(0);
 #		ifdef DEBUG_RF231
 		hal_printf("RF231: TRX_IRQ_RX_START\r\n");
 #		endif
@@ -1280,7 +1277,7 @@ void RF231Radio::HandleInterrupt()
 #			endif
 
 			state = STATE_PLL_ON;
-			NATHAN_SET_DEBUG_GPIO(0);
+			//NATHAN_SET_DEBUG_GPIO(0);
 			// Call radio send done event handler when the send is complete
 			SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			(*AckHandler)(tx_msg_ptr, tx_length,NO_Success);
@@ -1297,7 +1294,7 @@ void RF231Radio::HandleInterrupt()
 				WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 				state = STATE_RX_ON;
-				NATHAN_SET_DEBUG_GPIO(0);
+				//NATHAN_SET_DEBUG_GPIO(0);
 			}
 		}
 		else if(cmd == CMD_RECEIVE)
@@ -1309,13 +1306,13 @@ void RF231Radio::HandleInterrupt()
 
 			cmd = CMD_NONE;
 			state = STATE_RX_ON; // Right out of BUSY_RX
-			NATHAN_SET_DEBUG_GPIO(0);
+			//NATHAN_SET_DEBUG_GPIO(0);
 
 			// Go to PLL_ON at least until the frame buffer is empty
 			WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
 			state = STATE_PLL_ON;
-			NATHAN_SET_DEBUG_GPIO(0);
+			//NATHAN_SET_DEBUG_GPIO(0);
 
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
@@ -1345,7 +1342,7 @@ void RF231Radio::HandleInterrupt()
 				WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 				state = STATE_RX_ON;
-				NATHAN_SET_DEBUG_GPIO(0);
+				//NATHAN_SET_DEBUG_GPIO(0);
 			}
 		}
 	}
@@ -1376,37 +1373,37 @@ DeviceStatus RF231Radio::DownloadMessage()
 	temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
 	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH);
 
-	NATHAN_SET_DEBUG_GPIO(1);
-	RF231_240NS_DELAY();
+	//NATHAN_SET_DEBUG_GPIO(1);
+	//RF231_240NS_DELAY();
 	SelnClear();
-	RF231_240NS_DELAY();
+	//RF231_240NS_DELAY();
 
 	// phy_status could contain meta data depending on settings.
 	// At the moment it does not.
 	phy_status = CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
-	RF231_240NS_DELAY();
+	//RF231_240NS_DELAY();
 
 	// next byte is legnth to read including CRC
 	len = length = CPU_SPI_WriteReadByte(config, 0);
-	RF231_240NS_DELAY();
+	//RF231_240NS_DELAY();
 
 	// We don't want to read the two CRC bytes into the packet
 	rx_length = len - 2;
 
 	while ( ((len--) -2) > 0) {
 		temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
-		RF231_240NS_DELAY();
+		//RF231_240NS_DELAY();
 	}
 
 	// Two dummy reads for the CRC bytes
-	CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
-	CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
+	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
+	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 
 	// last, the LQI
-	lqi = CPU_SPI_WriteReadByte(config, 0); RF231_240NS_DELAY();
+	lqi = CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 
 	SelnSet();
-	NATHAN_SET_DEBUG_GPIO(0);
+	//NATHAN_SET_DEBUG_GPIO(0);
 
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 	metadata->SetLqi(lqi);

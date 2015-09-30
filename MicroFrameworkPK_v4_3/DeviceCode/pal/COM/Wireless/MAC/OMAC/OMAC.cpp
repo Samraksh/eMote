@@ -231,7 +231,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			hal_printf("OMACTypeBora::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
+			//hal_printf("OMACTypeBora::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
 			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 			Size -= tmsgSize;*/
