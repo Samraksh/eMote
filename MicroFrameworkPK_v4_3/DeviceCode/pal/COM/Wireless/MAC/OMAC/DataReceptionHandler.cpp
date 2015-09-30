@@ -8,8 +8,8 @@
 #include <Samraksh/MAC/OMAC/DataReceptionHandler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
-extern OMACTypeBora g_OMAC;
-extern OMACSchedulerBora g_omac_scheduler;
+extern OMACType g_OMAC;
+extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
@@ -84,9 +84,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 /*
- * Takes current ticks as input and returns ticks in future when event is supposed to happen
- * Input value:		64 bit current tick value
- * Return value:	64 bit tick value of event in future
+ * Takes current slot number as input and returns slot number in future when event is supposed to happen
+ * Input value:		32 bit current slot number
+ * Return value:	16 bit slot value of event in future
  */
 UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT16 remainingSlots, randVal;

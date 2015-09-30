@@ -11,7 +11,7 @@
 #include <Samraksh/PacketTimeSync_15_4.h>
 
 extern csmaMAC gcsmaMacObject;
-extern OMACTypeBora g_OMAC;
+extern OMACType g_OMAC;
 
 Buffer_15_4_t m_send_buffer;
 Buffer_15_4_t m_receive_buffer;

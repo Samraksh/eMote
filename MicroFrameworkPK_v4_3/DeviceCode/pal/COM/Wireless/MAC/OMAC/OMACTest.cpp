@@ -11,8 +11,8 @@
 //extern VirtualTimer gVirtualTimerObject;
 //extern VirtualTimerMapper gVirtualTimerMapperObject;
 extern OMACTest gOMACTest;
-extern OMACSchedulerBora g_omac_scheduler;
-extern OMACTypeBora g_OMAC;
+extern OMACScheduler g_omac_scheduler;
+extern OMAC g_OMAC;
 extern UINT16 MF_NODE_ID;
 //extern Buffer_15_4_t m_receive_buffer;
 

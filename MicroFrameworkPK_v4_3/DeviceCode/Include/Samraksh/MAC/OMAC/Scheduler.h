@@ -77,7 +77,7 @@ typedef class State{
 /*
  *
  */
-class OMACSchedulerBora{
+class OMACScheduler{
 private:
 	UINT8 radioID;
 	UINT8 macID;

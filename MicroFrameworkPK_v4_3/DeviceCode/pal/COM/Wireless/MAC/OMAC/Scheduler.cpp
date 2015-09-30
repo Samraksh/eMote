@@ -11,8 +11,8 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern RadioControl_t g_omac_RadioControl;
-extern OMACTypeBora g_OMAC;
-extern OMACSchedulerBora g_omac_scheduler;
+extern OMACType g_OMAC;
+extern OMACScheduler g_omac_scheduler;
 
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
@@ -37,7 +37,7 @@ void PublicDataAlarmHandlder(void * param){
 /*
  *
  */
-void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
+void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	radioID = _radioID;
 	macID = _macID;
 	//Initialize variables
@@ -86,7 +86,7 @@ void OMACSchedulerBora::Initialize(UINT8 _radioID, UINT8 _macID){
 /*
  *
  */
-void OMACSchedulerBora::UnInitialize(){
+void OMACScheduler::UnInitialize(){
 	OMAC_scheduler_TimerCompletion.Abort();
 	OMAC_scheduler_TimerCompletion.Uninitialize();
 }
@@ -106,7 +106,7 @@ void RadioTaskCallback(void* arg)
 /*
  *
  */
-void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
+void OMACScheduler::StartSlotAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	/*if(Delay==0){
@@ -129,8 +129,8 @@ void OMACSchedulerBora::StartSlotAlarm(UINT64 Delay){
 /*
  *
  */
-void OMACSchedulerBora::SlotAlarmHandler(void* Param){
-	////hal_printf("start OMACSchedulerBora::SlotAlarmHandler\n");
+void OMACScheduler::SlotAlarmHandler(void* Param){
+	////hal_printf("start OMACScheduler::SlotAlarmHandler\n");
 #ifdef OMAC_DEBUG
 	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
 #endif
@@ -168,7 +168,7 @@ void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 	//just run the task directly
 	//We will revisit the whole task architecture later.
 	this->RunEventTask();
-	////hal_printf("end OMACSchedulerBora::SlotAlarmHandler\n");
+	////hal_printf("end OMACScheduler::SlotAlarmHandler\n");
 
 #ifdef OMAC_DEBUG
 	if(m_slotNo % 1000 == 0) {
@@ -184,7 +184,7 @@ void OMACSchedulerBora::SlotAlarmHandler(void* Param){
 /*
  *
  */
-void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
+void OMACScheduler::StartDataAlarm(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay == 0){
@@ -199,8 +199,8 @@ void OMACSchedulerBora::StartDataAlarm(UINT64 Delay){
 /*
  *
  */
-void OMACSchedulerBora::DataAlarmHandler(void* Param){
-	////hal_printf("start OMACSchedulerBora::DataAlarmHandler\n");
+void OMACScheduler::DataAlarmHandler(void* Param){
+	////hal_printf("start OMACScheduler::DataAlarmHandler\n");
 	UINT64 localTime, nextWakeup, oldSlotNo;
 	////localTime = HAL_Time_CurrentTime();
 	//localTicks = HAL_Time_CurrentTicks();
@@ -235,7 +235,7 @@ void OMACSchedulerBora::DataAlarmHandler(void* Param){
 	////this->RunSlotTask();
 	m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 
-	////hal_printf("end OMACSchedulerBora::DataAlarmHandler\n");
+	////hal_printf("end OMACScheduler::DataAlarmHandler\n");
 
 #ifdef OMAC_DEBUG
 	//if(m_slotNo % 1000 == 0) {
@@ -247,7 +247,7 @@ void OMACSchedulerBora::DataAlarmHandler(void* Param){
 /*
  *
  */
-bool OMACSchedulerBora::IsRunningDataAlarm(){
+bool OMACScheduler::IsRunningDataAlarm(){
 	return TRUE; //BK, Something should be returned
 }
 
@@ -257,7 +257,7 @@ bool OMACSchedulerBora::IsRunningDataAlarm(){
 /*
  *
  */
-void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
+void OMACScheduler::StartDiscoveryTimer(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay==0){
@@ -272,15 +272,15 @@ void OMACSchedulerBora::StartDiscoveryTimer(UINT64 Delay){
 /*
  *
  */
-void OMACSchedulerBora::DiscoveryTimerHandler(void* Param){
+void OMACScheduler::DiscoveryTimerHandler(void* Param){
 
 }
 
 /*
  *
  */
-bool OMACSchedulerBora::RunEventTask(){
-	////hal_printf("start OMACSchedulerBora::RunEventTask\n");
+bool OMACScheduler::RunEventTask(){
+	////hal_printf("start OMACScheduler::RunEventTask\n");
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	////UINT64 currentTicks = 0;
 
@@ -333,7 +333,7 @@ bool OMACSchedulerBora::RunEventTask(){
 	////if( startMeasuringDutyCycle && txEventOffset < (currentTicks | (SLOT_PERIOD_MILLI * 1000)) ) {
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
 		if(InputState.GetState() == I_DATA_SEND_PENDING){
-			////hal_printf("OMACSchedulerBora::RunEventTask state is already I_DATA_SEND_PENDING\n");
+			////hal_printf("OMACScheduler::RunEventTask state is already I_DATA_SEND_PENDING\n");
 
 			/*GLOBAL_LOCK(irq);
 			VirtTimer_Stop(HAL_SLOT_TIMER);
@@ -353,7 +353,7 @@ bool OMACSchedulerBora::RunEventTask(){
 		}
 		else {
 			if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
-				hal_printf("OMACSchedulerBora::RunEventTask setting state to I_DATA_SEND_PENDING\n");
+				hal_printf("OMACScheduler::RunEventTask setting state to I_DATA_SEND_PENDING\n");
 				//Instead of setting an alarm to go off for DataSend, send data immediately. No other task should interrupt this activity.
 				////StartDataAlarm(txEventOffset);
 
@@ -393,7 +393,7 @@ bool OMACSchedulerBora::RunEventTask(){
 				//call OMacSignal.yield();
 				//Mukundan:Instead of posting RadioTask just run it directly
 
-				hal_printf("OMACSchedulerBora::RunEventTask I_DATA_RCV_PENDING\n");
+				hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
 				BOOL* completionFlag = (BOOL*)false;
 				// we assume only 1 can be active, abort previous just in case
 				OMAC_scheduler_TimerCompletion.Abort();
@@ -454,15 +454,15 @@ bool OMACSchedulerBora::RunEventTask(){
 	else {
 		debug_printf("neighbor is receiving\n");
 	}
-	////hal_printf("end OMACSchedulerBora::RunSlotTask\n");
+	////hal_printf("end OMACScheduler::RunSlotTask\n");
 	return TRUE;
 }
 
 /*
  * This turns on the radio and sends a message
  */
-bool OMACSchedulerBora::RadioTask(){
-	////hal_printf("start OMACSchedulerBora::RadioTask\n");
+bool OMACScheduler::RadioTask(){
+	////hal_printf("start OMACScheduler::RadioTask\n");
 	DeviceStatus e = DS_Fail;
 	//radioTiming = call GlobalTime.getLocalTime();
 	radioTiming = HAL_Time_CurrentTime();
@@ -479,25 +479,25 @@ bool OMACSchedulerBora::RadioTask(){
 		ProtoState.ForceState(S_STARTING);
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
 		e = g_omac_RadioControl.StartRx();
-		//hal_printf("OMACSchedulerBora::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
+		//hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		//return FALSE;
 	}
 
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING:
-				hal_printf("OMACSchedulerBora::RadioTask I_DATA_SEND_PENDING\n");
+				hal_printf("OMACScheduler::RadioTask I_DATA_SEND_PENDING\n");
 				////Not needed, as StartDataAlarm does the same thing
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
 				break;
 			case I_DATA_RCV_PENDING:
-				hal_printf("OMACSchedulerBora::RadioTask I_DATA_RCV_PENDING\n");
+				hal_printf("OMACScheduler::RadioTask I_DATA_RCV_PENDING\n");
 				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
 				break;
 			case I_TIMESYNC_PENDING:
-				hal_printf("OMACSchedulerBora::RadioTask I_TIMESYNC_PENDING\n");
+				hal_printf("OMACScheduler::RadioTask I_TIMESYNC_PENDING\n");
 				m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = TIMESYNC_HANDLER;
 				break;
@@ -517,14 +517,14 @@ bool OMACSchedulerBora::RadioTask(){
 	//g_omac_RadioControl.StartRx();
 
 	PostExecution();
-	////hal_printf("end OMACSchedulerBora::RadioTask\n");
+	////hal_printf("end OMACScheduler::RadioTask\n");
 	return TRUE;
 }
 
 /*
  *
  */
-void OMACSchedulerBora::Stop(){
+void OMACScheduler::Stop(){
 	DeviceStatus  ds = DS_Success;
 	bool e = FALSE;
 #ifdef FULL_DUTY_CYCLE
@@ -567,7 +567,7 @@ void OMACSchedulerBora::Stop(){
 /*
  *
  */
-void OMACSchedulerBora::Sleep(){
+void OMACScheduler::Sleep(){
 	ProtoState.ToIdle();
 	InputState.ToIdle();
 }
@@ -575,7 +575,7 @@ void OMACSchedulerBora::Sleep(){
 /*
  *
  */
-bool OMACSchedulerBora::IsNeighborGoingToReceive(){
+bool OMACScheduler::IsNeighborGoingToReceive(){
 	/*UINT8 nbrIndex;
 	TableItem * nbrEntry;
 	for(nbrIndex = 0; nbrIndex < MAX_NBR_SIZE; nbrIndex++) {
@@ -603,7 +603,7 @@ bool OMACSchedulerBora::IsNeighborGoingToReceive(){
 /*
  *
  */
-void OMACSchedulerBora::PostExecution(){
+void OMACScheduler::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
 			m_DiscoveryHandler.PostExecuteEvent();
@@ -638,6 +638,6 @@ void OMACSchedulerBora::PostExecution(){
 /*
  *
  */
-void OMACSchedulerBora::PrintDutyCycle(){
+void OMACScheduler::PrintDutyCycle(){
 
 }

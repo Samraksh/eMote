@@ -25,7 +25,7 @@ typedef Buffer_15_4<8> Buffer_15_4_t;
 /*
  *
  */
-class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
+class OMACType: public MAC<Message_15_4_t, MacConfig>{
   private:
 	//Underlying radio variables
 	static const UINT8 NumberRadios =1;
@@ -108,6 +108,6 @@ class OMACTypeBora: public MAC<Message_15_4_t, MacConfig>{
 	void UpdateNeighborTable();
 };
 
-extern OMACTypeBora g_OMAC;
+extern OMACType g_OMAC;
 
 #endif /* OMAC_H_ */
