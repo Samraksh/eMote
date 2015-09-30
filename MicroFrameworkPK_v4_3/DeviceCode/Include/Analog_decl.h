@@ -33,6 +33,7 @@ enum ANALOG_CHANNEL
 // a valua of - 1 for the precision in bits indicates maximum available precision
 BOOL     AD_Initialize                      ( ANALOG_CHANNEL channel, INT32 precisionInBits );
 void     AD_Uninitialize                    ( ANALOG_CHANNEL channel );
+BOOL     AD_Uninitialize                    (  );
 INT32    AD_Read                            ( ANALOG_CHANNEL channel );
 UINT32   AD_ADChannels                      ( );
 GPIO_PIN AD_GetPinForChannel                ( ANALOG_CHANNEL channel );

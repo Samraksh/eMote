@@ -25,6 +25,7 @@ namespace Samraksh
                 // Helper Functions to access fields of managed object
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 Init( INT32 param0, HRESULT &hr );
+                static INT8 Uninit( HRESULT &hr );
                 static double Read( INT32 param0, HRESULT &hr );
                 static INT32 ConfigureBatchMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );
                 static INT32 ConfigureContinuousMode( CLR_RT_TypedArray_UINT16 param0, INT32 param1, UINT32 param2, UINT32 param3, HRESULT &hr );

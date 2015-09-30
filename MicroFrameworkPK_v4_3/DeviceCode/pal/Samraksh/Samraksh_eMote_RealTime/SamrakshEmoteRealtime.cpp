@@ -54,17 +54,9 @@ BOOL InitializeTimer ()
 	return TRUE;
 }
 
-BOOL UnInitializeTimer ()
-{
-	if(!VirtTimer_UnInitialize())
-		return FALSE;
-
-	return TRUE;
-}
 
 BOOL RT_Dispose ()
 {
-	//UnInitializeTimer();
 	VirtTimer_Stop( VIRT_TIMER_REALTIME );
 #ifdef PLATFORM_ARM_EmoteDotNow
 	CPU_INTC_DeactivateInterrupt(PEND_SV_INTERRUPT);

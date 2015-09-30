@@ -64,7 +64,6 @@ void TIM_HAL_HANDLER(void *param);
  */
 BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 {
-
 	ADC_InitTypeDef           ADC_InitStructure;
 	DMA_InitTypeDef           DMA_InitStructure;
 	TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
@@ -160,6 +159,44 @@ void AD_Uninitialize( ANALOG_CHANNEL channel )
 		ADC_Cmd(ADC3, DISABLE);
 }
 
+BOOL AD_Uninitialize(void)
+{
+	GLOBAL_LOCK(irq);
+
+	TIM_Cmd(TIM4, DISABLE);
+
+	ADC_DeInit(ADC1);
+
+	dmaModeInitialized = FALSE;
+
+	if(g_adcDriverBufferChannel1Ptr != NULL )
+	{
+		private_free(g_adcDriverBufferChannel1Ptr);
+		g_adcDriverBufferChannel1Ptr = NULL;
+	}
+
+	ADC_GPIO_Configuration(FALSE);
+	ADC_NVIC_Configuration(FALSE);
+	ADC_RCC_Configuration(FALSE);
+
+	DMA_DeInit(DMA1_Channel1);
+
+	ADC_DMACmd(ADC1, DISABLE);
+	ADC_DMACmd(ADC2, DISABLE);
+	ADC_DMACmd(ADC3, DISABLE);
+
+    ADC_ExternalTrigConvCmd(ADC1, DISABLE);
+    ADC_ExternalTrigConvCmd(ADC2, DISABLE);
+    ADC_ExternalTrigConvCmd(ADC3, DISABLE);
+
+	ADC_Cmd(ADC1, DISABLE);
+	ADC_Cmd(ADC2, DISABLE);
+	ADC_Cmd(ADC3, DISABLE);
+	
+
+	return TRUE;
+}
+
 INT32 AD_Read( ANALOG_CHANNEL channel )
 {
 
@@ -233,29 +270,6 @@ adc_nvic_cleanup_1:
 	BOOL retFinal = (retCleanup && retInit);
 	return retFinal;
 }
-
-// TODO: Remove. Obsolete.
-//void ADC_RCC_DUALMODE_Configuration(void)
-//{
-//	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-//	  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-//	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | RCC_APB2Periph_GPIOC, ENABLE);
-//}
-
-// TODO: Remove. Obsolete.
-//void ADC_GPIO_DUALMODE_Configuration(void)
-//{
-//	GPIO_InitTypeDef GPIO_InitStructure;
-//
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-//	GPIO_Init(GPIOC, &GPIO_InitStructure);
-//
-//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-//	GPIO_Init(GPIOC, &GPIO_InitStructure);
-//
-//}
 
 void ADC_GPIO_Configuration(BOOL enable)
 {
@@ -807,6 +821,13 @@ extern "C"
 
 	void DMA_HAL_HANDLER(void *param)
 	{
+		if (dmaModeInitialized == FALSE)
+		{
+			DMA_GetFlagStatus(DMA1_FLAG_TC1);
+			DMA_ClearITPendingBit(DMA1_IT_TC1);
+			// we have been uninitialized
+			return;
+		}
 		// Record the time as close to the completion of sampling as possible
 		//AnanthAtSamraksh: using AdTim
 		g_timeStamp = HAL_Time_CurrentTicks();
@@ -856,3 +877,4 @@ extern "C"
 		//TODO: check for double overflow and warn user?  user receives time stamp...
 	}
 }
+

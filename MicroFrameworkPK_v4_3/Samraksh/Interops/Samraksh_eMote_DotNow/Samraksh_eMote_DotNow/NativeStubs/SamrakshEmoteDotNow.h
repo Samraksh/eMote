@@ -26,6 +26,7 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_SD
 struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal
 {
     TINYCLR_NATIVE_DECLARE(Init___STATIC__I4__I4);
+    TINYCLR_NATIVE_DECLARE(Uninit___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(Read___STATIC__R8__I4);
     TINYCLR_NATIVE_DECLARE(ConfigureBatchMode___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4);
     TINYCLR_NATIVE_DECLARE(ConfigureContinuousMode___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4);

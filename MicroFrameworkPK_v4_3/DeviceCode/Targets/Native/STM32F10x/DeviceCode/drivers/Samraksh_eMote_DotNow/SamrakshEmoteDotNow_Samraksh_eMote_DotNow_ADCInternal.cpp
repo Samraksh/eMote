@@ -23,6 +23,7 @@ using namespace Samraksh::eMote::DotNow;
 CLR_RT_HeapBlock_NativeEventDispatcher *g_adcContext = NULL;
 static UINT64 g_adcUserData = 0;
 static BOOL g_adcInterruptEnabled = TRUE;
+static BOOL g_ADC_Driver_Initialized = FALSE;
 
 extern "C"
 {
@@ -38,9 +39,16 @@ extern "C"
 
 INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
 {
+	INT32 ret = AD_Initialize((ANALOG_CHANNEL) param0, 0);
+	g_ADC_Driver_Initialized = TRUE;
+	return ret;
+}
 
-	return AD_Initialize((ANALOG_CHANNEL) param0, 0);
-
+INT8 ADCInternal::Uninit( HRESULT &hr )
+{
+    INT8 retVal = 0; 
+	g_ADC_Driver_Initialized = FALSE;
+    return AD_Uninitialize();
 }
 
 double ADCInternal::Read( INT32 param0, HRESULT &hr )
@@ -92,7 +100,6 @@ INT8 ADCInternal::DualChannelRead( CLR_RT_TypedArray_UINT16 param0, HRESULT &hr 
 
 INT32 ADCInternal::StopSampling( HRESULT &hr )
 {
-
 	AD_StopSampling();
 
     return DS_Success;
@@ -113,9 +120,12 @@ static HRESULT EnableDisableADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *p
 
 static HRESULT CleanupADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
-    g_adcContext = NULL;
-    g_adcUserData = 0;
-    CleanupNativeEventsFromHALQueue( pContext );
+	if (g_ADC_Driver_Initialized == FALSE){
+    	g_adcContext = NULL;
+    	g_adcUserData = 0;
+		AD_Uninitialize();
+    	CleanupNativeEventsFromHALQueue( pContext );
+	}
     return S_OK;
 }
 

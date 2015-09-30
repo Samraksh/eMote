@@ -28,6 +28,18 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Init___ST
     TINYCLR_NOCLEANUP();
 }
 
+HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Uninit___STATIC__BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        INT8 retVal = ADCInternal::Uninit( hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::Read___STATIC__R8__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;

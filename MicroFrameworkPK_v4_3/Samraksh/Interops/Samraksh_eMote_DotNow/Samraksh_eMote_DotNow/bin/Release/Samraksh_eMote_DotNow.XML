@@ -31,6 +31,12 @@
             </summary>
             
         </member>
+        <member name="M:Samraksh.eMote.DotNow.AnalogInput.UninitializeADC">
+            <summary>
+            Uninitialize ADC
+            </summary>
+            
+        </member>
         <member name="M:Samraksh.eMote.DotNow.AnalogInput.InitChannel(Microsoft.SPOT.Hardware.Cpu.AnalogChannel)">
             <summary>
             Initialize ADC for specified channel
@@ -158,6 +164,12 @@
             </summary>
             <param name="channel">Specify the channel to be sampled</param>
             <returns>Returns the result of the init function</returns>
+        </member>
+        <member name="M:Samraksh.eMote.DotNow.ADCInternal.Uninit">
+            <summary>
+            Uninitialize the ADC native driver
+            </summary>
+            <returns>Returns the result of the uninit function</returns>
         </member>
         <member name="M:Samraksh.eMote.DotNow.ADCInternal.Read(System.Int32)">
             <summary>

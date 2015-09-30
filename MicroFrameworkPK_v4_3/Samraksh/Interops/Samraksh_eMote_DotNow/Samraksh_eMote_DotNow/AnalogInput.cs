@@ -35,6 +35,16 @@ namespace Samraksh.eMote.DotNow
             return true;
         }
 
+        /// <summary>
+        /// Uninitialize ADC
+        /// </summary>
+        /// 
+        static public bool UninitializeADC()
+        {
+            _adcInternal = null;
+            return ADCInternal.Uninit();
+        }
+
         private AnalogInput()
         {
             //AdcInternal = new ADCInternal("ADCCallback", 1234, 0);
@@ -265,6 +275,13 @@ namespace Samraksh.eMote.DotNow
         /// <returns>Returns the result of the init function</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public int Init(int channel);
+
+        /// <summary>
+        /// Uninitialize the ADC native driver
+        /// </summary>
+        /// <returns>Returns the result of the uninit function</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public bool Uninit();
 
         /// <summary>
         /// Read the channel

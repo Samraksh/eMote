@@ -22,6 +22,12 @@ INT32 ADCInternal::Init( INT32 param0, HRESULT &hr )
     return retVal;
 }
 
+INT8 ADCInternal::Uninit( HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
 double ADCInternal::Read( INT32 param0, HRESULT &hr )
 {
     double retVal = 0; 
