@@ -10,6 +10,9 @@
 <ItemGroup>
 <HFile Include="SamrakshEmote.h" />
 <Compile Include="SamrakshEmote.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_GC_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_GC.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_GC.cpp" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference.cpp" />
