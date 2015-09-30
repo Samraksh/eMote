@@ -10,7 +10,8 @@ char DigitalToHex(BYTE x)
 
 char* ByteArrayToHex(BYTE* pInput, int index, int length)
 {
-	char* pOutput = new char[length * 3];
+	//char* pOutput = new char[length * 3];
+	char* pOutput = (char*)private_malloc(length * 3);
 	char* p = pOutput;
 
 	pInput += index;
@@ -421,7 +422,8 @@ HRESULT Library_corlib_native_System_BitConverter::ToString___STATIC__STRING__SZ
 		BYTE* p = pArray->GetFirstElement();
 		char* pOutput = ByteArrayToHex(p, 0, pArray->m_numOfElements);
 		TINYCLR_CHECK_HRESULT(stack.SetResult_String(pOutput));
-		delete[] pOutput;
+		//delete[] pOutput;
+		private_free(pOutput);
 	}
 
 	TINYCLR_NOCLEANUP();
@@ -447,7 +449,8 @@ HRESULT Library_corlib_native_System_BitConverter::ToString___STATIC__STRING__SZ
 		BYTE* p = pArray->GetFirstElement();
 		char* pOutput = ByteArrayToHex(p, index, pArray->m_numOfElements - index);
 		TINYCLR_CHECK_HRESULT(stack.SetResult_String(pOutput));
-		delete[] pOutput;
+		//delete[] pOutput;
+		private_free(pOutput);
 	}
 
 	TINYCLR_NOCLEANUP();
@@ -476,7 +479,8 @@ HRESULT Library_corlib_native_System_BitConverter::ToString___STATIC__STRING__SZ
 		BYTE* p = pArray->GetFirstElement();
 		char* pOutput = ByteArrayToHex(p, index, length);
 		TINYCLR_CHECK_HRESULT(stack.SetResult_String(pOutput));
-		delete[] pOutput;
+		//delete[] pOutput;
+		private_free(pOutput);
 	}
 
 	TINYCLR_NOCLEANUP();
