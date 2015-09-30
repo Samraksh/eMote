@@ -18,10 +18,10 @@
 #define DISCOSYNCRECEIVEPIN 29 //25
 #endif
 
-OMACSchedulerBora *g_scheduler;
+OMACScheduler *g_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
-extern OMACTypeBora g_OMAC;
+extern OMACType g_OMAC;
 
 /*
  *
@@ -35,7 +35,7 @@ void PublicBeaconNCallback(void * param){
  */
 void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
 	m_parentScheduler = scheduler;
-	g_scheduler = (OMACSchedulerBora*)scheduler;
+	g_scheduler = (OMACScheduler*)scheduler;
 }
 
 /*
@@ -149,10 +149,10 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	if (m_discoveryMsg->dataInterval < 1) {
 		m_discoveryMsg->dataInterval = 1;
 	}
-	m_discoveryMsg->radioStartDelay = ((OMACSchedulerBora *)m_parentScheduler)->GetRadioDelay();
+	m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
 	//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
-	m_discoveryMsg->counterOffset = ((OMACSchedulerBora *)m_parentScheduler)->GetCounterOffset();
-	//m_discoveryMsg->seed = ((OMACSchedulerBora *)m_parentScheduler)->GetSeed();
+	m_discoveryMsg->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
+	//m_discoveryMsg->seed = ((OMACScheduler *)m_parentScheduler)->GetSeed();
 	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
 
 	localTime = HAL_Time_CurrentTicks();
@@ -202,7 +202,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
  */
 void DiscoveryHandler::Beacon1(){
 	////hal_printf("start Beacon1\n");
-	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
+	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
 	StartBeaconNTimer(TRUE);
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
@@ -222,7 +222,7 @@ void DiscoveryHandler::Beacon1(){
  */
 void DiscoveryHandler::BeaconN(){
 	////hal_printf("start BeaconN\n");
-	((OMACSchedulerBora *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
+	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
 
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {

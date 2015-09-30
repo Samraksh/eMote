@@ -11,7 +11,7 @@
 
 #define LOCALSKEW 1
 extern RadioControl_t g_omac_RadioControl;
-extern OMACTypeBora g_OMAC;
+extern OMACType g_OMAC;
 extern NeighborTable g_NeighborTable;
 
 INT64 GlobalTime::offset =0;

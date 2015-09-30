@@ -11,8 +11,8 @@
 #include <Samraksh/MAC/OMAC/Scheduler.h>
 #include <Samraksh/MAC/OMAC/RadioControl.h>
 
-extern OMACTypeBora g_OMAC;
-extern OMACSchedulerBora g_omac_scheduler;
+extern OMACType g_OMAC;
+extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 //extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;

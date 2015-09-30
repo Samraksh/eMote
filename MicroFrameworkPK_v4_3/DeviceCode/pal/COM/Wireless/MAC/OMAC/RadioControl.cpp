@@ -12,7 +12,7 @@
 #include <Samraksh/MAC/OMAC/OMACConstants.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
-extern OMACTypeBora g_OMAC;
+extern OMACType g_OMAC;
 
 #define LOCALSKEW 1
 #define DEBUG_TIMESYNCPIN_OLD 120 //(GPIO_PIN)31

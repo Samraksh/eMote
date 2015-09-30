@@ -3,7 +3,7 @@
  *
  * Author: Mukundan.Sridharan, Nived.Sivadas
  *
- * Description :  OMACTypeBora Implementation, v 1.0
+ * Description :  OMAC Implementation, v 1.0
  *
  *  Created on: Aug 30, 2012
  */
@@ -19,9 +19,9 @@ Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
 NeighborTable g_NeighborTable;
 
-OMACTypeBora g_OMAC;
+OMACType g_OMAC;
 RadioControl_t g_omac_RadioControl;
-OMACSchedulerBora g_omac_scheduler;
+OMACScheduler g_omac_scheduler;
 
 /*
  *
@@ -81,7 +81,7 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 /*
  *
  */
-DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
+DeviceStatus OMACType::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->BufferSize;
 	MyConfig.CCASenseTime = config->CCASenseTime;
@@ -96,12 +96,12 @@ DeviceStatus OMACTypeBora::SetConfig(MacConfig *config){
 /*
  *
  */
-DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-//DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
+//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
-		hal_printf("OMACTypeBora Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("OMACType Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 	}
 	else {
 		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
@@ -121,10 +121,10 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 		MacEventHandler_t* appHandler = MAC<Message_15_4_t, MacConfig>::GetAppHandler(MAC<Message_15_4_t, MacConfig>::GetAppIdIndex());
 
 		AppCount = 0; //number of upperlayers connected to you
-		OMACTypeBora::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
+		OMACType::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
 #ifdef DEBUG_OMAC
-		hal_printf("Initializing OMACTypeBora: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 		CPU_GPIO_EnableOutputPin(OMACDEBUGPIN, FALSE);
 #endif
 
@@ -166,7 +166,7 @@ DeviceStatus OMACTypeBora::Initialize(MacEventHandler* eventHandler, UINT8 macNa
 /*
  *
  */
-BOOL OMACTypeBora::UnInitialize()
+BOOL OMACType::UnInitialize()
 {
 	BOOL ret = TRUE;
 	Initialized = FALSE;
@@ -177,16 +177,16 @@ BOOL OMACTypeBora::UnInitialize()
 /*
  *
  */
-Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
+Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
 	//Message_15_4_t *Next;
-	////hal_printf("start OMACTypeBora::ReceiveHandler\n");
+	////hal_printf("start OMACType::ReceiveHandler\n");
 #ifdef DEBUG_OMAC
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
 	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
 #endif
 
-	if(Size - sizeof(IEEE802_15_4_Header_t) > OMACTypeBora::GetMaxPayload()){
+	if(Size - sizeof(IEEE802_15_4_Header_t) > OMACType::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
 		return msg;
 	}
@@ -206,32 +206,32 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			////hal_printf("OMACTypeBora::ReceiveHandler MFM_DISCOVERY\n");
+			////hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
 			//rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
-			hal_printf("OMACTypeBora::ReceiveHandler MFM_DATA\n");
+			hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
 			g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
 			break;
 		case MFM_ROUTING:
-			hal_printf("OMACTypeBora::ReceiveHandler MFM_ROUTING\n");
+			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
 			break;
 		case MFM_NEIGHBORHOOD:
-			hal_printf("OMACTypeBora::ReceiveHandler MFM_NEIGHBORHOOD\n");
+			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNC:
-			hal_printf("OMACTypeBora::ReceiveHandler MFM_TIMESYNC\n");
+			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 			g_omac_scheduler.m_TimeSyncHandler.Receive(msg, msg->GetPayload(), Size);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
-			hal_printf("OMACTypeBora::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
+			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			//hal_printf("OMACTypeBora::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
+			//hal_printf("OMACType::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
 			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 			Size -= tmsgSize;*/
@@ -239,7 +239,7 @@ Message_15_4_t* OMACTypeBora::ReceiveHandler(Message_15_4_t* msg, int Size)
 	};
 
 	////(*rxAckHandler)(rx_length);
-	////hal_printf("end OMACTypeBora::ReceiveHandler\n");
+	////hal_printf("end OMACType::ReceiveHandler\n");
 	return msg;
 }
 
@@ -254,16 +254,16 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
+BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull()){
-		hal_printf("OMACTypeBora::Send g_send_buffer full\n");
+		hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
 	/*Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size >  OMACTypeBora::GetMaxPayload()){
-		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
+	if(size >  OMACType::GetMaxPayload()){
+		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -296,10 +296,10 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 		return FALSE;*/
 
 	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
-		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
+		////hal_printf("OMACType::SendTimeStamped header type is MFM_TIMESYNC\n");
 	}
 	else {
-		hal_printf("OMACTypeBora::Send msg header type %u\n", (msgTmp->GetHeader())->type);
+		hal_printf("OMACType::Send msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
 	bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
 
@@ -309,18 +309,18 @@ BOOL OMACTypeBora::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-////BOOL OMACTypeBora::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
-BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
+////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
+BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
-	////hal_printf("start OMACTypeBora::SendTimeStamped\n");
+	////hal_printf("start OMACType::SendTimeStamped\n");
 	if(g_send_buffer.IsFull()) {
-		hal_printf("OMACTypeBora::SendTimeStamped g_send_buffer full\n");
+		hal_printf("OMACType::SendTimeStamped g_send_buffer full\n");
 		return FALSE;
 	}
 
 	/*Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size >  OMACTypeBora::GetMaxPayload()){
-		hal_printf("OMACTypeBora Send Error: Packet is too big: %d ", size);
+	if(size >  OMACType::GetMaxPayload()){
+		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
@@ -352,33 +352,33 @@ BOOL OMACTypeBora::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, in
 		return FALSE;*/
 
 	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
-		////hal_printf("OMACTypeBora::SendTimeStamped header type is MFM_TIMESYNC\n");
+		////hal_printf("OMACType::SendTimeStamped header type is MFM_TIMESYNC\n");
 	}
 	else {
-		hal_printf("OMACTypeBora::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
+		hal_printf("OMACType::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
 	bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
 
-	////hal_printf("end OMACTypeBora::SendTimeStamped\n");
+	////hal_printf("end OMACType::SendTimeStamped\n");
 	return true;
 }
 
 /*
  *
  */
-Message_15_4_t* OMACTypeBora::FindFirstSyncedNbrMessage(){
+Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
 	return NULL;
 }
 
 /*
  *
  */
-void OMACTypeBora::UpdateNeighborTable(){
+void OMACType::UpdateNeighborTable(){
 	g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 	//g_NeighborTable.DegradeLinks();
 }
 
-/*BOOL OMACTypeBora::SetAddress(UINT16 address){
+/*BOOL OMACType::SetAddress(UINT16 address){
 	MyAddress = address;
 	return TRUE;
 }
