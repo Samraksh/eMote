@@ -52,6 +52,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	wakeupSlot = wakeupTime = scheduledWakeupTime = 0;
 
 	dataBeaconBufferPtr = &dataBeaconBuffer;
+	//m_dataInterval determines the duty-cycle. WAKEUP_INTERVAL determines how long radio is awake and
+	//m_dataInterval is the number of slots within that period.
 	m_dataInterval = WAKEUP_INTERVAL / SLOT_PERIOD_MILLI;
 	if (m_dataInterval < 1) {
 		m_dataInterval = 10;
@@ -74,6 +76,11 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
 
+	if(!varCounter){
+		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
+		varCounter = TRUE;
+	}
 }
 
 /*
@@ -82,11 +89,6 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
  * Return value:	64 bit tick value of event in future
  */
 UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
-	if(!varCounter){
-		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
-		varCounter = TRUE;
-	}
 	UINT16 remainingSlots, randVal;
 
 	//Sanity check: I am executing when I am not supposed to.
@@ -109,6 +111,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 			//hal_printf("using seed %u\n", lastSeed);
 			//update next seed. we wont use it until 8 frames later
 			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
+			hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
 			m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
 
 			//we have computed the wakeup slot for the frame denoted by nextFrame
