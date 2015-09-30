@@ -40,8 +40,8 @@
 #define HAL_DATAALARM_TIMER 4
 #define HAL_DISCOVERY_TIMER 5
 
-#define MAX_UINT32 	((0x1 << 32) - 1)
-#define MAX_UINT64 	((0x1 << 64) - 1)
+#define MAX_UINT32 	(0xFFFFFFFF)
+#define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
 
 /*
  *

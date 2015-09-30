@@ -75,13 +75,13 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 UINT16 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
 	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	if ( sn == NULL ) return ((UINT32) MAX_UINT32);
+	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
 	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
 			return 0;
 		}
 		else {
-			return ((UINT32) MAX_UINT32);
+			return ((UINT16) MAX_UINT32);
 		}
 	}
 	else {
