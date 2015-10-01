@@ -269,7 +269,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			if (counter <= nextFrameAfterSeedUpdate) {
 				tmpSeed = lastSeed;
 				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				hal_printf("DataTransmissionHandler::ScheduleDataPacket1 -- tmpRand is %u\n", tmpRand);
+				////hal_printf("DataTransmissionHandler::ScheduleDataPacket1 -- tmpRand is %u\n", tmpRand);
 				tmpSeed = tmpRand;
 				nextWakeup = nextFrameAfterSeedUpdate - p + tmpRand % p;
 				if (counter < nextWakeup) {
@@ -289,7 +289,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 				tmpSeed = lastSeed;
 				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				hal_printf("DataTransmissionHandler::ScheduleDataPacket2 -- tmpRand is %u\n", tmpRand);
+				////hal_printf("DataTransmissionHandler::ScheduleDataPacket2 -- tmpRand is %u\n", tmpRand);
 				nextWakeup = nextFrameAfterSeedUpdate + framesPassed * p + tmpRand % p;
 				if (counter < nextWakeup) {
 					counter = nextWakeup;
