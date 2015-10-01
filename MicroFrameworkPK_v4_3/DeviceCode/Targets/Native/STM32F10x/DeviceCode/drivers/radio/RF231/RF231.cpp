@@ -701,8 +701,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
-
-
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
@@ -924,6 +922,7 @@ DeviceStatus RF231Radio::UnInitialize()
     if(IsInitialized())
     {
         RstnClear();
+        SetInitialized(FALSE);
         ASSERT((active_mac_index & 0xFF00) == 0);
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
@@ -937,7 +936,6 @@ DeviceStatus RF231Radio::UnInitialize()
             CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
             CPU_GPIO_DisablePin((GPIO_PIN) AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }
-        SetInitialized(FALSE);
     }
     return ret;
 }
@@ -1282,6 +1280,12 @@ void RF231Radio::HandleInterrupt()
 
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS);
+
+	if(IsInitialized() == false)
+	{
+		// we were unintialized
+		return;
+	}
 
 	if(irq_cause & TRX_IRQ_PLL_LOCK)
 	{

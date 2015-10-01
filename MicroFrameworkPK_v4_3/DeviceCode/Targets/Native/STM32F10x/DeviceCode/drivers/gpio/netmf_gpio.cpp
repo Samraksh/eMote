@@ -76,11 +76,15 @@ static void handle_exti(unsigned int exti)
 		{
 		    my_isr(pin, GPIO_ReadInputDataBit(GPIO_GetPortPtr(pin),GPIO_GetPin(pin)), parm);
 		}
-		else
-		{
-		    GPIO_DEBUG_PRINT("%s",c_strGpioBadCallback);
-		    ASSERT(my_isr != NULL);
-		}
+		// the code below was being triggered when a radio app was being deployed. During the app erase, the radio driver is uninitialized (including the GPIO interrupt line to the radio). The erase routine is
+		// global locked and at some point the radio could request an interrupt which is not able to be serviced until after the erase is over. At that point the interupt fires but the GPIO interrupt line
+		// has already been disabled and the callback function is now null. 
+		// If problems occur from this code being commented out we can instead just clear the radio interrupt that is pending instead.
+		//else
+		//{
+		    //GPIO_DEBUG_PRINT("%s",c_strGpioBadCallback);
+		    //ASSERT(my_isr != NULL);
+		//}
 	}
 }
 
