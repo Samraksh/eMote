@@ -199,7 +199,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 	static bool allNeighborFlag = false;
 
-	if ((m_nextTXTicks + SLOT_PERIOD_MILLI * TICKS_PER_MILLI < HAL_Time_CurrentTicks()) && g_send_buffer.Size() > 0){
+	if ( ( (m_nextTXTicks + (SLOT_PERIOD_MILLI * TICKS_PER_MILLI)) < HAL_Time_CurrentTicks() ) && g_send_buffer.Size() > 0){
 		UINT16 dest;
 		Neighbor_t* neighborEntry;
 
@@ -228,10 +228,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 		if (neighborEntry != NULL) {
 			//next wake up slot determined neighbor's dataInterval
-			UINT32 counter, nextFrameAfterSeedUpdate;
+			UINT32 slotNumber, nextFrameAfterSeedUpdate;
 			INT64 nbrGlobalTime;
 
-			UINT32 p = neighborEntry->dataInterval, seedUpdateInterval = (p << 3);
+			UINT32 dataInterval = neighborEntry->dataInterval;
+			UINT32 seedUpdateInterval = (dataInterval << 3);
 			INT16 delayDiff;
 			//UINT16 myRadioDelay = call SlotScheduler.getRadioDelay();
 			UINT16 myRadioDelay = 0;
@@ -244,16 +245,16 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			}
 			// 1st,  compute the current localTime of the neighbor
 			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
-			// 2nd, compute neighbor's current counter value. The start of the counter
-			// is later than the start of the clock. So, a counter offset should be used
-			counter = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
+			// is later than the start of the clock. So, a slotNumber offset should be used
+			slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
 			mask = 137 * 29 * (dest + 1);
 			// seed consistency is critical. Because the following operations involve
 			// changing the seed based on separate blocks of read and write,
 			// we need to have mutual exclusions during the whole update process. This may
 			// prevent the insertion of a newly received seed, which is fine because
 			// new seeds are pseudo-random and can be locally generated
-			////GLOBAL_LOCK(irq);
+			GLOBAL_LOCK(irq);
 			lastSeed = neighborEntry->lastSeed;
 			nextFrameAfterSeedUpdate = neighborEntry->nextFrameAfterSeedUpdate;
 
@@ -264,24 +265,23 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// last 8 frames, then we simply use this frame-seed to generate the wakeup slot.
 			// Although a node periodically updates its <seed, nextFrameAfterSeedUpdate>, it never
 			// updates it beyond the current time. In other words, nextFrameAfterSeedUpdate will not be
-			// updated beyond counter. THis shows that the nextFrameAfterSeedUpdate in this case
+			// updated beyond slotNumber. THis shows that the nextFrameAfterSeedUpdate in this case
 			// must have been updated by the neighbor itself
-			if (counter <= nextFrameAfterSeedUpdate) {
+			if (slotNumber <= nextFrameAfterSeedUpdate) {
 				tmpSeed = lastSeed;
 				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				////hal_printf("DataTransmissionHandler::ScheduleDataPacket1 -- tmpRand is %u\n", tmpRand);
 				tmpSeed = tmpRand;
-				nextWakeup = nextFrameAfterSeedUpdate - p + tmpRand % p;
-				if (counter < nextWakeup) {
-					counter = nextWakeup;
+				nextWakeup = nextFrameAfterSeedUpdate - dataInterval + (tmpRand % dataInterval);
+				if (slotNumber < nextWakeup) {
+					slotNumber = nextWakeup;
 				} else {
-					counter = nextWakeup + p;
-					//printf("1 cannot use slot %u, using counter=%u\n"
-					//  , (UINT16)nextWakeup, (UINT16)counter);
+					slotNumber = nextWakeup + dataInterval;
+					//printf("1 cannot use slot %u, using slotNumber=%u\n"
+					//  , (UINT16)nextWakeup, (UINT16)slotNumber);
 				}
 			}else {
-				framesPassed = (counter - nextFrameAfterSeedUpdate) / p;
-				seedUpdates = (counter + p - nextFrameAfterSeedUpdate) / seedUpdateInterval;
+				framesPassed = (slotNumber - nextFrameAfterSeedUpdate) / dataInterval;
+				seedUpdates = (slotNumber + dataInterval - nextFrameAfterSeedUpdate) / seedUpdateInterval;
 
 				for (i = 0; i < seedUpdates; i++) {
 					lastSeed= g_omac_scheduler.m_seedGenerator.RandWithMask(&lastSeed, mask);
@@ -289,24 +289,24 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 				tmpSeed = lastSeed;
 				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				////hal_printf("DataTransmissionHandler::ScheduleDataPacket2 -- tmpRand is %u\n", tmpRand);
-				nextWakeup = nextFrameAfterSeedUpdate + framesPassed * p + tmpRand % p;
-				if (counter < nextWakeup) {
-					counter = nextWakeup;
+				nextWakeup = nextFrameAfterSeedUpdate + (framesPassed * dataInterval) + (tmpRand % dataInterval);
+				if (slotNumber < nextWakeup) {
+					slotNumber = nextWakeup;
 				} else {
-					  //printf("now=%u\n", (UINT16)counter);
-					if (nextWakeup + p -(nextFrameAfterSeedUpdate - p + seedUpdateInterval * seedUpdates) >= seedUpdateInterval) {
+					  //printf("now=%u\n", (UINT16)slotNumber);
+					if (nextWakeup + dataInterval -(nextFrameAfterSeedUpdate - dataInterval + seedUpdateInterval * seedUpdates) >= seedUpdateInterval) {
 						lastSeed = tmpSeed;
 						seedUpdates++;
 						framesPassed++;
 						tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-						counter = nextFrameAfterSeedUpdate + framesPassed * p + tmpRand % p;
+						slotNumber = nextFrameAfterSeedUpdate + (framesPassed * dataInterval) + (tmpRand % dataInterval);
 					} else {
-						counter = nextWakeup + p;
+						slotNumber = nextWakeup + dataInterval;
 					}
 				}
-				//hal_printf("using seed %u\n", lastSeed);
-				m_nextTXTicks = (counter << SLOT_PERIOD_BITS) + neighborEntry->counterOffset;
+				////hal_printf("DataTransmissionHandler::ScheduleDataPacket -- lastSeed is %u\n", lastSeed);
+				////hal_printf("DataTransmissionHandler::ScheduleDataPacket -- tmpRand is %u\n", tmpRand);
+				m_nextTXTicks = (slotNumber << SLOT_PERIOD_BITS) + neighborEntry->counterOffset;
 				nbrGlobalTime = m_nextTXTicks;
 
 				// 5th, compute my local time of the neighbor's listen slot
@@ -320,7 +320,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 			  m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
-			  //hal_printf("sslot %lu time %lu\n", counter, globalTime);
+			  //hal_printf("sslot %lu time %lu\n", slotNumber, globalTime);
 		}
 		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?
 			if(!allNeighborFlag){

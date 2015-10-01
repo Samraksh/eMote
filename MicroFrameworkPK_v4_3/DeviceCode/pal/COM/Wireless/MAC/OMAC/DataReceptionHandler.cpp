@@ -103,7 +103,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 		////hal_printf("DataReceptionHandler::NextEvent - step 1\n");
 		// first, find the slot denoting the start of the frame immediately after the current one.
 		// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
-		UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	m_nextWakeupSlot % m_dataInterval;
+		UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	(m_nextWakeupSlot % m_dataInterval);
 		//update the seed every 8 frames to reduce computation overhead
 		if (nextFrame % m_seedUpdateInterval == 0 ) {
 			//use the new/next seed for the next 8 frames
@@ -111,6 +111,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 			//hal_printf("using seed %u\n", lastSeed);
 			//update next seed. we wont use it until 8 frames later
 			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
+			////hal_printf("DataReceptionHandler::NextEvent -- m_nextSeed is %u\n", m_nextSeed);
 			////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
 			m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
 
@@ -170,7 +171,7 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 #endif
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
-	hal_printf("DataReceptionHandler::ExecuteEvent\n");
+	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
 	m_wakeupCnt++;
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
 
