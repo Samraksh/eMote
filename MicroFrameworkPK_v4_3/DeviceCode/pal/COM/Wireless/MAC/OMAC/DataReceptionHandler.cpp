@@ -111,7 +111,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 			//hal_printf("using seed %u\n", lastSeed);
 			//update next seed. we wont use it until 8 frames later
 			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
-			hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
+			////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
 			m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
 
 			//we have computed the wakeup slot for the frame denoted by nextFrame
