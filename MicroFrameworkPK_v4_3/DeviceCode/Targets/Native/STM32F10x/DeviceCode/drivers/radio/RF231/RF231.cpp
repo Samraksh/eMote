@@ -1026,7 +1026,7 @@ BOOL RF231Radio::SpiInitialize()
 	config.CS_Hold_uSecs          = 0;
 	config.MSK_IDLE               = false;
 	config.MSK_SampleEdge         = false;
-	config.Clock_RateKHz          = 2;
+	config.Clock_RateKHz          = 16;
 	if(this->GetRadioName() == RF231RADIO)
 	{
 		config.SPI_mod                = SPIBUS1;

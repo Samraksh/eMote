@@ -166,7 +166,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 	if(config.SPI_mod == SPIBUS1)
 	{
 
-		RCC_PCLK2Config(RCC_HCLK_Div2);
+		//RCC_PCLK2Config(RCC_HCLK_Div2);
 		RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIx_CLK, ENABLE);
 
 		GPIO_InitTypeDef GPIO_InitStructure;
@@ -183,7 +183,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_InitStructure.SPI_CPOL = 0;
 		SPI_InitStructure.SPI_CPHA = 0;
 		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 		SPI_InitStructure.SPI_CRCPolynomial = 7;
 
@@ -194,8 +194,8 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 	else if(config.SPI_mod == SPIBUS2)
 	{
 
-		RCC_PCLK1Config(RCC_HCLK_Div2);
-		RCC_PCLK2Config(RCC_HCLK_Div2);
+		//RCC_PCLK1Config(RCC_HCLK_Div2);
+		//RCC_PCLK2Config(RCC_HCLK_Div2);
 		RCC_APB2PeriphClockCmd(SPIy_GPIO_CLK, ENABLE);
 		RCC_APB1PeriphClockCmd(SPIy_CLK, ENABLE);
 
@@ -216,7 +216,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_InitStructure.SPI_CPOL = 0;
 		SPI_InitStructure.SPI_CPHA = 0;
 		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 		SPI_InitStructure.SPI_CRCPolynomial = 7;
 
@@ -837,7 +837,7 @@ void GPIO_Config(const SPI_CONFIGURATION& Configuration)
 void RCC_Config()
 {
   /* PCLK2 = HCLK/2 */
-  RCC_PCLK2Config(RCC_HCLK_Div2);
+  //RCC_PCLK2Config(RCC_HCLK_Div2);
   
   /* Enable SPIx clock and GPIO clock for SPIx and SPIy */
   RCC_APB2PeriphClockCmd(SPIx_GPIO_CLK | SPIy_GPIO_CLK | SPIx_CLK, ENABLE);
