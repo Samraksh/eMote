@@ -16,8 +16,10 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
         case POWER_LEVEL__HIGH_POWER:
 			High_Power();
 			break;
-		case POWER_LEVEL__LOW_POWER:
 		case POWER_LEVEL__MID_POWER:
+			Mid_Power();
+			break;
+		case POWER_LEVEL__LOW_POWER:
         default:
 			Low_Power();
             break;
