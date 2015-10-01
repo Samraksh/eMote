@@ -38,6 +38,22 @@ namespace Benchmark
             return Debug.GC(true);
         }
 
+        private static void POST_TEST(string desc01, PowerLevel pl, uint freeMem, uint usedMem, int size, long diffms)
+        {
+            string desc02 = "\t" + power_to_string(pl);
+            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
+            string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
+            string result = "\tresult: " + diffms + " ms";
+            Debug.Print(TEST_SEP);
+            Debug.Print(desc01);
+            Debug.Print(desc02);
+            Debug.Print(desc03);
+            Debug.Print(desc04);
+            Debug.Print(memory_used);
+            Debug.Print(result);
+        }
+
         private static string power_to_string(PowerLevel pl)
         {
             if (pl.Equals(PowerLevel.High))
@@ -68,19 +84,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 001: 4 Busy wait loops";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t"+freeMem+" bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 001: 4 Busy wait loops";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         private static void TEST_002(PowerLevel pl = PowerLevel.High, int size = TEST_002_SIZE)
@@ -111,19 +116,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 002: ArrayList and strings";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 002: ArrayList and strings";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         private static void TEST_003(PowerLevel pl = PowerLevel.High, int size = TEST_003_SIZE)
@@ -146,19 +140,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 003: Giant String (StringBuilder)";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 003: Giant String (StringBuilder)";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         private static void TEST_004(PowerLevel pl = PowerLevel.High, int size = 0)
@@ -176,19 +159,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 004: NYI: RegEx";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 004: NYI: RegEx";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         private static void TEST_005(PowerLevel pl = PowerLevel.High, int size = 0)
@@ -206,19 +178,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 005: NYI: Heap Workout";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 005: NYI: Heap Workout";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         private static void TEST_006(PowerLevel pl = PowerLevel.High, int size = TEST_006_SIZE)
@@ -244,19 +205,8 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc01 = "Test 006: Random() and ArrayList()";
-            string desc02 = "\t" + power_to_string(pl);
-            string desc03 = "\t" + freeMem + " bytes free memory pre-test";
-            string desc04 = "\tsize = " + size;
-            string memory_used = "\tused memory (bytes): " + usedMem;
-            string result = "\tresult: " + diffms + " ms";
-            Debug.Print(TEST_SEP);
-            Debug.Print(desc01);
-            Debug.Print(desc02);
-            Debug.Print(desc03);
-            Debug.Print(desc04);
-            Debug.Print(memory_used);
-            Debug.Print(result);
+            string desc = "Test 006: Random() and ArrayList()";
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
         public static void Main()
