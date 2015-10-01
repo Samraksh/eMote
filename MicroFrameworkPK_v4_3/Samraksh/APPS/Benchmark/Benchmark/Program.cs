@@ -27,7 +27,7 @@ namespace Benchmark
         const int TEST_001_SIZE = 10000;
         const int TEST_002_SIZE = 120;
         const int TEST_003_SIZE = 1000;
-        const int TEST_006_SIZE = 250;
+        const int TEST_006_SIZE = 400;
         const int TEST_006_SEED = 5980;
 
         private static uint PRE_TEST(PowerLevel pl)
@@ -64,18 +64,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 001: 4 Busy wait loops";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t"+freeMem+" bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
@@ -103,18 +107,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 002: ArrayList and strings";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t" + freeMem + " bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
@@ -134,18 +142,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 003: Giant String (StringBuilder)";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t" + freeMem + " bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
@@ -160,18 +172,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 004: NYI: RegEx";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t" + freeMem + " bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
@@ -186,18 +202,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 005: NYI: Heap Workout";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t" + freeMem + " bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
@@ -220,18 +240,22 @@ namespace Benchmark
             // END TEST CODE
             long diff = DateTime.Now.Ticks - start;
             long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
             string desc01 = "Test 006: Random() and ArrayList()";
             string desc02 = "\t" + power_to_string(pl);
             string desc03 = "\t" + freeMem + " bytes free memory pre-test";
             string desc04 = "\tsize = " + size;
+            string memory_used = "\tused memory (bytes): " + usedMem;
             string result = "\tresult: " + diffms + " ms";
             Debug.Print(TEST_SEP);
             Debug.Print(desc01);
             Debug.Print(desc02);
             Debug.Print(desc03);
             Debug.Print(desc04);
+            Debug.Print(memory_used);
             Debug.Print(result);
         }
 
