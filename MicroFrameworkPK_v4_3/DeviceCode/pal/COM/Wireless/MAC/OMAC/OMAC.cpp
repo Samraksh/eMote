@@ -257,11 +257,11 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull()){
-		hal_printf("OMACType::Send g_send_buffer full\n");
+		////hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
-	/*Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(size >  OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
@@ -287,7 +287,7 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
-	}*/
+	}
 
 	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
 
