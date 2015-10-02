@@ -293,7 +293,7 @@ bool OMACScheduler::RunEventTask(){
 	// operations in it
 	////DISABLE_INTERRUPTS();
 	rxEventOffset = m_DataReceptionHandler.NextEvent(m_slotNo);
-	hal_printf("CurTicks: %llu m_slotNo: %d rxEventOffset: %d \n",HAL_Time_CurrentTicks(), m_slotNo, rxEventOffset);
+	hal_printf("\nOMACScheduler::RunEventTask() CurTicks: %llu m_slotNo: %d rxEventOffset: %d \n",HAL_Time_CurrentTicks(), m_slotNo, rxEventOffset);
 	////rxEventOffset |= HAL_Time_CurrentTicks();
 	////ENABLE_INTERRUPTS();
 
@@ -367,10 +367,10 @@ bool OMACScheduler::RunEventTask(){
 				BOOL* completionFlag = (BOOL*)false;
 				// we assume only 1 can be active, abort previous just in case
 				OMAC_scheduler_TimerCompletion.Abort();
-				OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
+				OMAC_scheduler_TimerCompletion.InitializeForISR(PublicDataAlarmHandlder, completionFlag);
 				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 				//TODO (Ananth): to check what the right enqueue value should be
-				OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
+				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset + 100);
 
 				return TRUE;
 			}
@@ -478,14 +478,14 @@ bool OMACScheduler::RadioTask(){
 		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 	}
-	else {
+	/*else {
 		ProtoState.ForceState(S_STARTING);
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
 		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 		//hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		//return FALSE;
-	}
+	}*/
 
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
