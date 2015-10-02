@@ -134,7 +134,9 @@ DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_
 	}
 	else {
 	// Prescaler, so TIM clock = PCLK2 x 2
-		TIM_TimeBaseStructure.TIM_Prescaler = 5; // TODO make this more general
+	// Accounts for default High Speed (64 MHz).
+	// TODO: Make this smarter
+		TIM_TimeBaseStructure.TIM_Prescaler = 7; // TODO make this more general
 	}
 
 	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
