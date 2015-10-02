@@ -112,6 +112,8 @@ UINT8 DiscoveryHandler::ExecuteEventDone(){
 void DiscoveryHandler::PostExecuteEvent(){
 	////hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
+	//stop the radio
+	g_scheduler->Stop();
 }
 
 /*
