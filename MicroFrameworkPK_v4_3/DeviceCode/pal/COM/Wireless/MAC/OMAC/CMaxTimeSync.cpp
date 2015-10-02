@@ -144,10 +144,10 @@ void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
 /*
  *
  */
-UINT8 CMaxTimeSync::ExecuteEventDone()
+/*UINT8 CMaxTimeSync::ExecuteEventDone()
 {
 	return 0;
-}
+}*/
 
 /*
  *
