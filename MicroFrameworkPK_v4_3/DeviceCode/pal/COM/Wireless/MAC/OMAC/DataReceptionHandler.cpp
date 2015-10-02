@@ -96,6 +96,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 		return 0xffff;
 	}
 
+
 	// If we haven't woken up yet in the current frame, skip this if-block and
 	// simply update the remainingSlot .
 	if (m_nextWakeupSlot < currentSlotNum) {
@@ -125,6 +126,7 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 		else {
 			m_nextWakeupSlot += m_dataInterval;
 		}
+		hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
 	}
 
 	//then compute the remaining slots before our next wakeup based on the computed schedule
@@ -171,7 +173,9 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 #endif
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
-	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+	hal_printf("DataReceptionHandler::ExecuteEvent\n");
+	hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
+
 	m_wakeupCnt++;
 	DeviceStatus rs = g_omac_RadioControl.StartRx();
 

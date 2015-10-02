@@ -257,7 +257,7 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull()){
-		////hal_printf("OMACType::Send g_send_buffer full\n");
+		hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
