@@ -24,6 +24,11 @@ namespace {
 #define mb()            do { dsb(); outer_sync(); } while (0)
 #define wmb()           mb()
 
+bool ShutdownDrivers(void) {
+#warning "STUB: ShutdownDrivers() Not implemented on SOC_ADAPT"
+	return FALSE;
+}
+
 void Krait_POWER_Driver::Init() {
 	///L2 SPM initialization
 	__raw_writel(      0x01, 0x02012020);				//L2SCU_SAW2_SPM_CTL ...01=L2 retention. 0x61 =GDHS. 141=L2 Off.  use 5 at the end to inhibit start address reset on program end.

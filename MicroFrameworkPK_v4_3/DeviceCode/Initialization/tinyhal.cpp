@@ -475,8 +475,12 @@ void HAL_Uninitialize()
 
     SOCKETS_CloseConnections();
 
-#if defined( SAM_APP_TINYCLR )
+#if defined(SAM_APP_TINYCLR)
+#	if defined(PLATFORM_ARM_SOC_ADAPT)
+#	warning "STUB: MacLayer_UnInitialize() was not defined on SOC_ADAPT"
+#	else
     MacLayer_UnInitialize();
+#	endif
 #endif
 
 #if !defined(HAL_REDUCESIZE)

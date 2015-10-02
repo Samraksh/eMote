@@ -18,6 +18,10 @@
 
 #define __ALIGNED(x) __attribute__((aligned(x)))
 
+typedef int status_t;
+typedef uintptr_t addr_t;
+
+/* This is not valid. --NPS
 #if !defined(uint32_t)
 typedef UINT32 uint32_t;
 #endif
@@ -44,6 +48,7 @@ typedef int status_t;
 typedef unsigned long uintptr_t;
 #endif
 typedef uintptr_t addr_t;
+*/
 
 //#define ASSERT(x) if(!x){ while(1); }
 //#define ASSERT(x)
