@@ -82,9 +82,9 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 /*
  *
  */
-UINT8 DataTransmissionHandler::ExecuteEventDone(){
+/*UINT8 DataTransmissionHandler::ExecuteEventDone(){
 	return 0;
-}
+}*/
 
 /*
  *

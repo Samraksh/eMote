@@ -211,9 +211,9 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 /*
  *
  */
-UINT8 DataReceptionHandler::ExecuteEventDone(){
+/*UINT8 DataReceptionHandler::ExecuteEventDone(){
 	return 0;
-}
+}*/
 
 /*
  *
