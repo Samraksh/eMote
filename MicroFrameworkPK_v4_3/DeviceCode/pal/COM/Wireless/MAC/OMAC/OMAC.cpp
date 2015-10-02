@@ -234,8 +234,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		case MFM_DATA:
 			hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
-			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
-			(*g_rxAckHandler)(Size);
+			 if ( msg->GetHeader()->src == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
+				 hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
+			 }
+			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0); //BK: DataReception Handler has nothing to do in here. It only controls reception
+			(*rxAckHandler)(rx_length);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
