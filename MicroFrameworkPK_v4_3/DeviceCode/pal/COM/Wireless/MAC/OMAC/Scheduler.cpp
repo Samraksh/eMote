@@ -468,16 +468,19 @@ bool OMACScheduler::RadioTask(){
 	radioTiming = HAL_Time_CurrentTime();
 	//radioTiming = m_timeSync.GlobalTime();
 
+	//commenting out radio's rx here, as there are other events such as tx and timesync that also happen here. Rx should be started only in DataRxHandler
+	//or in OMAC's receiveHandler
 	bool reqStateRet = ProtoState.RequestState(S_STARTING);
-
 	if(reqStateRet) {
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
 		//hal_printf("Starting PLL\n");
+		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 	}
 	else {
 		ProtoState.ForceState(S_STARTING);
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
+		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 		//hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		//return FALSE;

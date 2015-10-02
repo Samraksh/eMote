@@ -90,6 +90,8 @@ UINT8 DataTransmissionHandler::ExecuteEventDone(){
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
+	//stop the radio
+	g_omac_scheduler.Stop();
 }
 
 /*

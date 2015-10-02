@@ -173,14 +173,15 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	//SendDataBeacon(FALSE);
 	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
 	m_wakeupCnt++;
-	DeviceStatus rs = g_omac_RadioControl.StartRx();
 
+	//Commenting out radio's start rx here, as rx is already started in OMAC's ReceiveHandler and in scheduler's RadioTask
+	/*DeviceStatus rs = g_omac_RadioControl.StartRx();
 	if(rs != DS_Success){
 		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
 	}
 	else{
 		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-	}
+	}*/
 
 	/*Message_15_4_t txMsg;
 	Message_15_4_t* txMsgPtr = &txMsg;
@@ -227,6 +228,8 @@ void DataReceptionHandler::PostExecuteEvent(){
 			m_wakeupCnt, m_receivedSlotCnt,
 			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	}
+	//Stop the radio
+	g_omac_scheduler.Stop();
 }
 
 /*
