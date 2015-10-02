@@ -370,7 +370,7 @@ bool OMACScheduler::RunEventTask(){
 				OMAC_scheduler_TimerCompletion.InitializeForISR(PublicDataAlarmHandlder, completionFlag);
 				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 				//TODO (Ananth): to check what the right enqueue value should be
-				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset + 100);
+				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset+100);
 
 				return TRUE;
 			}
