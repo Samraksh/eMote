@@ -65,6 +65,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 				return ticksInMicroSecs;
 			}
 		}
+
 	} else {
 		return 0xffff;
 	}
@@ -220,8 +221,8 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			}
 		}
 
-		Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-		m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
+		//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+		//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
 		//hal_printf("DataTransmissionHandler::ScheduleDataPacket dest is: %d\n", dest);
 		neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
