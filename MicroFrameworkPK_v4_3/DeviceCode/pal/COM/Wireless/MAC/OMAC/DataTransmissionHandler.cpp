@@ -43,7 +43,7 @@ void DataTransmissionHandler::Initialize(){
  */
 UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
-	if (g_send_buffer.Size() > 0) {
+	if (g_send_buffer.Size() > 0 && m_nextTXCounter == 0) {
 		this->ScheduleDataPacket();
 	}
 
@@ -77,6 +77,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	bool rv = Send();
+	m_nextTXCounter = 0;
 }
 
 /*
@@ -200,7 +201,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 	static bool allNeighborFlag = false;
 
-	if ( ( (m_nextTXTicks + (SLOT_PERIOD_MILLI * TICKS_PER_MILLI)) < HAL_Time_CurrentTicks() ) && g_send_buffer.Size() > 0){
+	if ( ( (m_nextTXTicks + (SLOT_PERIOD_MILLI * TICKS_PER_MILLI)) < HAL_Time_CurrentTicks() ) && g_send_buffer.GetNumberMessagesInBuffer() > 0){
 		UINT16 dest;
 		Neighbor_t* neighborEntry;
 
