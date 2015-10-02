@@ -194,10 +194,10 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
 	UINT8* snd_payload = txMsgPtr->GetPayload();*/
 
-	volatile UINT16 rx_length;
+	//volatile UINT16 rx_length;
 	/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 	MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
-	(*g_rxAckHandler)(rx_length);
+	//(*g_rxAckHandler)(rx_length);
 	//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
 
 
@@ -231,6 +231,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 			m_wakeupCnt, m_receivedSlotCnt,
 			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	}
+	DeviceStatus rs = g_omac_RadioControl.Stop();
 }
 
 /*
