@@ -142,7 +142,8 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	UINT64 localTime = 0;
 
 	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
-	m_discoveryMsg->seed = m_seed;
+	//m_discoveryMsg->seed = m_seed;
+	m_discoveryMsg->seed = g_scheduler->m_DiscoveryHandler.GetSeed();
 	m_discoveryMsg->nextFrame = m_nextFrame;
 	//m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
 	m_discoveryMsg->dataInterval = WAKEUP_INTERVAL / SLOT_PERIOD_MILLI;

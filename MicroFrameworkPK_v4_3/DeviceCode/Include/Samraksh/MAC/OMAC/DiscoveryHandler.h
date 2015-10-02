@@ -95,6 +95,11 @@ class DiscoveryHandler: public EventHandler {
   		m_nextFrame = nextFrame;
   	}
 
+  	UINT16 GetSeed()
+  	{
+  		return m_seed;
+  	}
+
   	~DiscoveryHandler();
 };
 
