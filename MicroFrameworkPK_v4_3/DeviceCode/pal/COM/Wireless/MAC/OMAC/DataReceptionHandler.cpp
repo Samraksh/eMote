@@ -232,8 +232,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 			m_wakeupCnt, m_receivedSlotCnt,
 			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	}
-	//Stop the radio
-	g_omac_scheduler.Stop();
+	DeviceStatus rs = g_omac_RadioControl.Stop();
 }
 
 /*
