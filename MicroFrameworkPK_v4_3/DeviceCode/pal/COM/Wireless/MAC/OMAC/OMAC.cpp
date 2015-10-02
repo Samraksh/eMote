@@ -266,7 +266,7 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull()){
-		////hal_printf("OMACType::Send g_send_buffer full\n");
+		hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
@@ -310,7 +310,7 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	else {
 		hal_printf("OMACType::Send msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	////bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
+	//bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
 
 	return true;
 }
@@ -366,7 +366,7 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	else {
 		hal_printf("OMACType::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
 	}*/
-	////bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
+	//bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
 
 	////hal_printf("end OMACType::SendTimeStamped\n");
 	return true;

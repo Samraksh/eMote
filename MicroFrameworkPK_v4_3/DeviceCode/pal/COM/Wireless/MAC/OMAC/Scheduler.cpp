@@ -293,6 +293,7 @@ bool OMACScheduler::RunEventTask(){
 	// operations in it
 	////DISABLE_INTERRUPTS();
 	rxEventOffset = m_DataReceptionHandler.NextEvent(m_slotNo);
+	hal_printf("CurTicks: %llu m_slotNo: %d rxEventOffset: %d \n",HAL_Time_CurrentTicks(), m_slotNo, rxEventOffset);
 	////rxEventOffset |= HAL_Time_CurrentTicks();
 	////ENABLE_INTERRUPTS();
 

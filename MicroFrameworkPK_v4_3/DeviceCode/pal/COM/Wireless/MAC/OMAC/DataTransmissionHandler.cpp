@@ -65,6 +65,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 				return ticksInMicroSecs;
 			}
 		}
+
 	} else {
 		return 0xffff;
 	}
@@ -323,6 +324,8 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			  m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
 			  //hal_printf("sslot %lu time %lu\n", slotNumber, globalTime);
+			  hal_printf("ScheduleDataPacket CurTicks: %llu slotNumber: %d neighborEntry->counterOffset: %d m_nextTXCounter: %d \n",HAL_Time_CurrentTicks(), slotNumber, neighborEntry->counterOffset, m_nextTXCounter);
+
 		}
 		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?
 			if(!allNeighborFlag){
