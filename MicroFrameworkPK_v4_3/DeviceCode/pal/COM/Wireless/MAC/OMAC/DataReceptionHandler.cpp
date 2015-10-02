@@ -76,11 +76,11 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
 
-	if(!varCounter){
+	/*if(!varCounter){
 		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		varCounter = TRUE;
-	}
+	}*/
 }
 
 /*
@@ -179,13 +179,13 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	m_wakeupCnt++;
 
 	//Commenting out radio's start rx here, as rx is already started in OMAC's ReceiveHandler and in scheduler's RadioTask
-	/*DeviceStatus rs = g_omac_RadioControl.StartRx();
+	DeviceStatus rs = g_omac_RadioControl.StartRx();
 	if(rs != DS_Success){
 		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
 	}
 	else{
 		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-	}*/
+	}
 
 	/*Message_15_4_t txMsg;
 	Message_15_4_t* txMsgPtr = &txMsg;
@@ -195,10 +195,10 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
 	UINT8* snd_payload = txMsgPtr->GetPayload();*/
 
-	volatile UINT16 rx_length;
+	//volatile UINT16 rx_length;
 	/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 	MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
-	(*g_rxAckHandler)(rx_length);
+	//(*g_rxAckHandler)(rx_length);
 	//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
 
 
