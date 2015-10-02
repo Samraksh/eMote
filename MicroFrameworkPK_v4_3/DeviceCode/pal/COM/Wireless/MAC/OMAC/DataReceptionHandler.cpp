@@ -76,11 +76,11 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
 
-	if(!varCounter){
+	/*if(!varCounter){
 		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		varCounter = TRUE;
-	}
+	}*/
 }
 
 /*
@@ -177,8 +177,9 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
 	m_wakeupCnt++;
-	DeviceStatus rs = g_omac_RadioControl.StartRx();
 
+	//Commenting out radio's start rx here, as rx is already started in OMAC's ReceiveHandler and in scheduler's RadioTask
+	DeviceStatus rs = g_omac_RadioControl.StartRx();
 	if(rs != DS_Success){
 		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
 	}
@@ -210,9 +211,9 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 /*
  *
  */
-UINT8 DataReceptionHandler::ExecuteEventDone(){
+/*UINT8 DataReceptionHandler::ExecuteEventDone(){
 	return 0;
-}
+}*/
 
 /*
  *
@@ -231,7 +232,8 @@ void DataReceptionHandler::PostExecuteEvent(){
 			m_wakeupCnt, m_receivedSlotCnt,
 			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	}
-	DeviceStatus rs = g_omac_RadioControl.Stop();
+	//Stop the radio
+	g_omac_scheduler.Stop();
 }
 
 /*

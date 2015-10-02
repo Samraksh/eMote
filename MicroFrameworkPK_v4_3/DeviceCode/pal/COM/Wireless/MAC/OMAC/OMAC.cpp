@@ -23,6 +23,10 @@ OMACType g_OMAC;
 RadioControl_t g_omac_RadioControl;
 OMACScheduler g_omac_scheduler;
 
+static BOOL varCounter;
+MacReceiveFuncPtrType g_rxAckHandler;
+MacEventHandler_t* g_appHandler;
+
 /*
  *
  */
@@ -98,6 +102,7 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
 //DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+	varCounter = FALSE;
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
@@ -159,6 +164,12 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CurrentActiveApp = routingAppID;
 	//*macID=MacId;
 
+	if(!varCounter){
+		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
+		varCounter = TRUE;
+	}
+
 	//Initialize radio layer
 	return DS_Success;
 }
@@ -193,6 +204,15 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
+	//Starting radio's rx here
+	DeviceStatus e = g_omac_RadioControl.StartRx();
+	if(e != DS_Success){
+		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
+	}
+	else{
+		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
+	}
+
 	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
 	//Any message might have timestamping attached to it. Check for it and process
@@ -216,9 +236,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("Successfully got a data packet\n");
 			 if ( msg->GetHeader()->src == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
 				 hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
-			 }
-			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0); //BK: DataReception Handler has nothing to do in here. It only controls reception
-			(*rxAckHandler)(rx_length);
+			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
+			(*g_rxAckHandler)(Size);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");

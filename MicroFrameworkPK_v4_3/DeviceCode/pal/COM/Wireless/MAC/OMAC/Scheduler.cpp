@@ -370,7 +370,7 @@ bool OMACScheduler::RunEventTask(){
 				OMAC_scheduler_TimerCompletion.InitializeForISR(PublicDataAlarmHandlder, completionFlag);
 				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 				//TODO (Ananth): to check what the right enqueue value should be
-				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset+100);
+				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset + 100);
 
 				return TRUE;
 			}
@@ -469,16 +469,19 @@ bool OMACScheduler::RadioTask(){
 	radioTiming = HAL_Time_CurrentTime();
 	//radioTiming = m_timeSync.GlobalTime();
 
+	//commenting out radio's rx here, as there are other events such as tx and timesync that also happen here. Rx should be started only in DataRxHandler
+	//or in OMAC's receiveHandler
 	bool reqStateRet = ProtoState.RequestState(S_STARTING);
-
 	if(reqStateRet) {
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
 		//hal_printf("Starting PLL\n");
+		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 	}
 	/*else {
 		ProtoState.ForceState(S_STARTING);
 		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
+		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 		//hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
 		//return FALSE;

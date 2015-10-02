@@ -101,10 +101,10 @@ void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
 /*
  *
  */
-UINT8 DiscoveryHandler::ExecuteEventDone(){
+/*UINT8 DiscoveryHandler::ExecuteEventDone(){
 	g_scheduler->Stop();
 	return 0;
-}
+}*/
 
 /*
  *
@@ -112,6 +112,8 @@ UINT8 DiscoveryHandler::ExecuteEventDone(){
 void DiscoveryHandler::PostExecuteEvent(){
 	////hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
+	//stop the radio
+	g_scheduler->Stop();
 }
 
 /*
@@ -195,7 +197,8 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 			//signalBeaconDone(error, call GlobalTime.getLocalTime());
 	#endif
 
-	this->ExecuteEventDone();
+	//this->ExecuteEventDone();
+	this->PostExecuteEvent();
 }
 
 /*
@@ -234,7 +237,8 @@ void DiscoveryHandler::BeaconN(){
 		else {
 			// HACK: for now, just turn off radio.
 			hal_printf("BeaconN failed\n");
-			this->ExecuteEventDone();
+			//this->ExecuteEventDone();
+			this->PostExecuteEvent();
 		}
 	}
 	else {
@@ -264,7 +268,8 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	} else {
 		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
-		ExecuteEventDone();
+		//this->ExecuteEventDone();
+		this->PostExecuteEvent();
 	}
 	//VirtTimer_Stop(7);
 }

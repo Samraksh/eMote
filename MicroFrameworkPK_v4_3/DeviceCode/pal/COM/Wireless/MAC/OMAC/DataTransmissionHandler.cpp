@@ -83,15 +83,17 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 /*
  *
  */
-UINT8 DataTransmissionHandler::ExecuteEventDone(){
+/*UINT8 DataTransmissionHandler::ExecuteEventDone(){
 	return 0;
-}
+}*/
 
 /*
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
+	//stop the radio
+	g_omac_scheduler.Stop();
 }
 
 /*
