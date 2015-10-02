@@ -690,52 +690,5 @@
             
             </summary>
         </member>
-        <member name="T:Samraksh.eMote.GC">
-            <summary>Garbage Collector class.</summary>
-        </member>
-        <member name="M:Samraksh.eMote.GC.GetUsedKBytes">
-            <summary>Get amount of used heap space in kilo bytes.</summary>
-            <returns>Amount of used heap in kilo bytes.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.GetFreeKBytes">
-            <summary>Get amount of free heap space in kilo bytes.</summary>
-            <returns>Amount of free heap space in kilo bytes.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.IsGCSamExtensionsEnabled">
-            <summary>Check if Samraksh's Garbage Collection extensions are enabled or not.</summary>
-            <returns>True iff Samraksh GC extensions enabled.</returns>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:Samraksh.eMote.GC.EnableIncrementalCleaning" -->
-        <member name="M:Samraksh.eMote.GC.EnableIncrementalCompaction">
-            <summary>Enable incremental compaction of heap in GC.</summary>
-            <returns>True iff operation succeeds.</returns>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:Samraksh.eMote.GC.DisableIncrementalCleaning" -->
-        <member name="M:Samraksh.eMote.GC.DisableIncrementalCompaction">
-            <summary>Disable incremental compaction of heap in GC.</summary>
-            <returns>True iff operation succeeds.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.CleanBeforeSleep(System.UInt32)">
-            <summary>Instruct GC to clean the heap and create the amount of space specified, then puts CPU to sleep.</summary>
-            <param name="KBytesToFree">Amount of free space to be created.</param>
-            <returns>True iff operation succeeds.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.CleanNow(System.UInt32)">
-            <summary>Instruct GC to clean the heap now (suspending managed code execution) and create the amount of space specified.</summary>
-            <param name="KBytesToFree">Amount of free space to be created.</param>
-            <returns>True iff operation succeeds.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.CleanNow">
-            <summary>Instruct GC to clean the heap now and create as much space as possible, without compaction.</summary>
-            <returns>True iff operation succeeds.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.AvgTimeForCleaning">
-            <summary>Average time for the Mark and Sweep operation. Implements weighted (0.5 weight) moving average.</summary>
-            <returns>Average Mark and Sweep time in microseconds.</returns>
-        </member>
-        <member name="M:Samraksh.eMote.GC.AvgTimeForCompaction">
-            <summary>Average time for the compaction operation. Implements weighted (0.5 weight) moving average.</summary>
-            <returns>Average Mark and Sweep time as microseconds.</returns>
-        </member>
     </members>
 </doc>

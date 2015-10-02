@@ -3,7 +3,7 @@
  * Date: Feb 2013
  * Function: Provides access to Samraksh Garbage Collector Extensions functions
  */
-
+/*
 using System;
 using System.Runtime.CompilerServices;
 
@@ -77,3 +77,4 @@ namespace Samraksh.eMote
         extern public UInt32 AvgTimeForCompaction();
     }
 }
+*/
