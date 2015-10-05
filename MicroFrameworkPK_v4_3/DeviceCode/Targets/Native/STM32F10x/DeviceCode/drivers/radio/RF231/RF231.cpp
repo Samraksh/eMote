@@ -431,6 +431,8 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 	//NATHAN_SET_DEBUG_GPIO(0);
 
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+
 	////hal_printf("RF231Radio::Sleep: after state:%d\n", state);
 	return DS_Success;
 }
@@ -657,9 +659,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 {
 	INIT_STATE_CHECK();
 
-	//CPU_GPIO_EnableOutputPin(RADIO_STATEPIN2, FALSE);
-	//CPU_GPIO_SetPinState(RADIO_STATEPIN2, TRUE );
-	//CPU_GPIO_SetPinState( RADIO_STATEPIN2, FALSE );
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_STATEPIN2, TRUE);
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
 
 	CPU_GPIO_EnableOutputPin(DEBUG_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(DEBUG_TX, FALSE);
@@ -1028,6 +1030,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 	hal_printf("RF231: RX_ON\r\n");
 #	endif
 
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 	////hal_printf("RF231Radio::TurnOnRx: after state:%d\n", state);
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
@@ -1088,7 +1091,7 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	//NATHAN_SET_DEBUG_GPIO(0);
 	cmd = CMD_NONE;
 
-	//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, TRUE );
+	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
 	////hal_printf("RF231Radio::TurnOnPLL: after state:%d\n", state);
 	return DS_Success;
 }	//RF231Radio::TurnOnPLL()
