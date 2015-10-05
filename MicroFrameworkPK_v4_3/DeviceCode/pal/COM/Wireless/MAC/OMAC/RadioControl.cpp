@@ -17,7 +17,7 @@ extern OMACType g_OMAC;
 #define LOCALSKEW 1
 #define DEBUG_TIMESYNCPIN_OLD 120 //(GPIO_PIN)31
 
-#define RADIO_STATEPIN 120 //4
+#define RADIO_STATEPIN 4 // 120 //4
 
 #define DEBUG_RADIO_STATE 1
 //#define DEBUG_TIMESYNC 1
@@ -151,7 +151,10 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 DeviceStatus RadioControl::Stop(){
 	//DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
-	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, FALSE );
+
+	if(returnVal == DS_Success){
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, FALSE );
+	}
 	return returnVal;
 }
 
@@ -161,7 +164,9 @@ DeviceStatus RadioControl::Stop(){
 DeviceStatus RadioControl::StartPLL(){
 	//DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
-	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	if(returnVal == DS_Success){
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	}
 	//return DS_Ready;
 	return returnVal;
 }
@@ -170,10 +175,11 @@ DeviceStatus RadioControl::StartPLL(){
  *
  */
 DeviceStatus RadioControl::StartRx(){
-	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
-	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	return StartPLL();
+	//DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
+	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
 	//return DS_Ready;
-	return returnVal;
+	//return returnVal;
 }
 
 

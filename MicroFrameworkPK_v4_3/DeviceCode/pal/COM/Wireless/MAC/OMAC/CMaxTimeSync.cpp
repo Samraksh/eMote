@@ -4,7 +4,7 @@
 #include <Samraksh/MAC/OMAC/DiscoveryHandler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/MAC/OMAC/CMaxTimeSync.h>
-
+#include "NeighNodeIDDef.h"
 
 #define DEBUG_TSYNC 1
 #define FUDGEFACTOR 10000		//in 100ns, a value of 1000 =100 microseconds
@@ -26,8 +26,8 @@ BOOL GlobalTime::synced=FALSE;
 //#define TXNODEID 2703
 //#define RXNODEID 2491
 
-#define TXNODEID 3505
-#define RXNODEID 6846
+
+
 
 /*
  *

@@ -14,6 +14,8 @@
 
 #define DEBUG_OMAC 0
 #define OMACDEBUGPIN 120 //(GPIO_PIN)1
+#define DATARXPIN 31 //2
+#define OMACRXPIN 2
 
 Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
@@ -31,11 +33,6 @@ MacEventHandler_t* g_appHandler;
  *
  */
 void* OMACReceiveHandler(void* msg, UINT16 size){
-#ifdef DEBUG_OMAC
-	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
-	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
-#endif
-
 	return (void*) g_OMAC.ReceiveHandler((Message_15_4_t*) msg, size);
 }
 
@@ -102,6 +99,9 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
 //DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) DATARXPIN, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) OMACRXPIN, TRUE);
+
 	varCounter = FALSE;
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
@@ -130,7 +130,6 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 #ifdef DEBUG_OMAC
 		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
-		CPU_GPIO_EnableOutputPin(OMACDEBUGPIN, FALSE);
 #endif
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
@@ -170,6 +169,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		varCounter = TRUE;
 	}
 
+	CPU_GPIO_SetPinState(DATARXPIN, FALSE);
+	CPU_GPIO_SetPinState(OMACRXPIN, FALSE);
+
 	//Initialize radio layer
 	return DS_Success;
 }
@@ -190,12 +192,8 @@ BOOL OMACType::UnInitialize()
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-	//Message_15_4_t *Next;
-	////hal_printf("start OMACType::ReceiveHandler\n");
-#ifdef DEBUG_OMAC
-	CPU_GPIO_SetPinState(OMACDEBUGPIN, TRUE);
-	CPU_GPIO_SetPinState(OMACDEBUGPIN, FALSE);
-#endif
+
+	CPU_GPIO_SetPinState(OMACRXPIN, TRUE);
 
 	if(Size - sizeof(IEEE802_15_4_Header_t) > OMACType::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
@@ -232,6 +230,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
+			CPU_GPIO_SetPinState(DATARXPIN, TRUE);
 			hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 			hal_printf("Successfully got a data packet\n");
 			 if ( msg->GetHeader()->src == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
@@ -239,6 +238,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			 }
 			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
 			(*g_rxAckHandler)(Size);
+			CPU_GPIO_SetPinState(DATARXPIN, FALSE);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
@@ -261,7 +261,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			Size -= tmsgSize;*/
 			break;
 	};
-
+	CPU_GPIO_SetPinState(OMACRXPIN, FALSE);
 	////(*rxAckHandler)(rx_length);
 	////hal_printf("end OMACType::ReceiveHandler\n");
 	return msg;

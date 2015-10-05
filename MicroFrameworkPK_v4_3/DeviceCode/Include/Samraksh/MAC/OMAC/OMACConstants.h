@@ -37,7 +37,7 @@
 #define TIMESTAMP_FOOTER_OFFSET -4
 
 #define HAL_SLOT_TIMER 3
-#define HAL_DATAALARM_TIMER 4
+#define HAL_POSTEXECUTE_TIMER 4
 #define HAL_DISCOVERY_TIMER 5
 
 #define MAX_UINT32 	(0xFFFFFFFF)
@@ -199,7 +199,7 @@ enum {
   SLOT_PERIOD_MILLI     = 16,     /*modify this along with SLOT_PERIOD_BITS*/
   SLOT_PERIOD_BITS    = 4 + 13,  /*13 = # of bits of TICKS_PER_MILLI, assuming its a 10Mhz clock, 4 = # of bits in SLOT_PERIOD_MILLI*/
 #endif
-  //SLOT_PERIOD   = SLOT_PERIOD_MILLI * TICKS_PER_MILLI,
+  SLOT_PERIOD_TICKS   = SLOT_PERIOD_MILLI * TICKS_PER_MILLI,
   SLOT_PERIOD   = SLOT_PERIOD_MILLI,
   DWELL_TIME        = 10,
   /* sender margin compensates for time sync jitter, packet preload delay

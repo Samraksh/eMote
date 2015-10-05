@@ -30,8 +30,8 @@ void PublicSlotAlarmHanlder(void * param){
 /*
  *
  */
-void PublicDataAlarmHandlder(void * param){
-	g_omac_scheduler.DataAlarmHandler( param);
+void PublicPostExecuteTaskTimer(void * param){
+	g_omac_scheduler.PostExecution();
 }
 
 /*
@@ -67,7 +67,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
 	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
-	VirtTimer_SetTimer(HAL_DATAALARM_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC , TRUE, FALSE, PublicDataAlarmHandlder);
+	VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTimer);
 
 	//Initialize Handlers
 	m_DiscoveryHandler.SetParentSchedulerPtr(this);
@@ -100,6 +100,16 @@ void RadioTaskCallback(void* arg)
 }
 
 
+UINT32 OMACScheduler::GetSlotNumber(){
+	return ( HAL_Time_CurrentTicks() / SLOT_PERIOD_TICKS);
+}
+
+UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
+	UINT64 cur_ticks = HAL_Time_CurrentTicks();
+	UINT64 ticks_till_end = SLOT_PERIOD_TICKS - ( (cur_ticks + SLOT_PERIOD_TICKS) % SLOT_PERIOD_TICKS);
+	UINT32 ms_till_end = ((UINT32) ticks_till_end) / TICKS_PER_MILLI;
+	return ms_till_end;
+}
 /**********************************************************************
  * Slot alarm APIs
  *********************************************************************/
@@ -130,10 +140,6 @@ void OMACScheduler::StartSlotAlarm(UINT64 Delay){
  *
  */
 void OMACScheduler::SlotAlarmHandler(void* Param){
-	////hal_printf("start OMACScheduler::SlotAlarmHandler\n");
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, TRUE);
-#endif
 	UINT64 localTime, nextWakeup, oldSlotNo;
 	localTime = HAL_Time_CurrentTime();
 	//increment counter
@@ -158,11 +164,19 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 		}
 	}*/
 	//Using a simple increment for the time-being
-	m_slotNo++;
-
+	UINT32 last_slotNo = m_slotNo;
+	m_slotNo = GetSlotNumber();
+	if(m_slotNo > last_slotNo &&  m_slotNo - last_slotNo >= 2 ){
+		hal_printf("Slot(s) were missed");
+	}
 	//nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
 	//this->StartSlotAlarm(nextWakeup);
-
+#ifdef OMAC_DEBUG
+	if(m_slotNo % 1000 == 0) {
+		hal_printf("curSlot %lu time %llu\n", m_slotNo, localTime);
+	}
+	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
+#endif
 
 	//Mukundan: At this point, instead of posting a task as in TinyOS,
 	//just run the task directly
@@ -170,12 +184,7 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 	this->RunEventTask();
 	////hal_printf("end OMACScheduler::SlotAlarmHandler\n");
 
-#ifdef OMAC_DEBUG
-	if(m_slotNo % 1000 == 0) {
-		hal_printf("curSlot %lu time %llu\n", m_slotNo, localTime);
-	}
-	CPU_GPIO_SetPinState((GPIO_PIN) 1, FALSE);
-#endif
+
 }
 
 /**********************************************************************
@@ -184,15 +193,15 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 /*
  *
  */
-void OMACScheduler::StartDataAlarm(UINT64 Delay){
+void OMACScheduler::StartPostExecuteTaskTimer(UINT64 Delay){
 	//Start the SlotAlarm
 	//HALTimer()
 	if(Delay == 0){
-		void* param;
-		this->DataAlarmHandler(param);
-	}else {
-		VirtTimer_Change(HAL_DATAALARM_TIMER, 0, Delay, FALSE);
-		VirtTimer_Start(HAL_DATAALARM_TIMER);
+		PostExecution();
+	}
+	else {
+		VirtTimer_Change(HAL_POSTEXECUTE_TIMER, 0, Delay, FALSE);
+		VirtTimer_Start(HAL_POSTEXECUTE_TIMER);
 	}
 }
 
@@ -297,13 +306,6 @@ bool OMACScheduler::RunEventTask(){
 	////rxEventOffset |= HAL_Time_CurrentTicks();
 	////ENABLE_INTERRUPTS();
 
-	//BK:This is disabled since should not happen anyways
-	// if(InputState.IsState(I_DATA_SEND_PENDING) || !(ProtoState.IsIdle())) {
-		//printf("[S %u I %u\n] incorrect state\n", call State.getState(),
-		//Input.GetState());
-		//return FALSE;
-	//}
-
 
 	/* notice that the transmission handler returns the ticks (1/32 of a milli sec) for the
 	 * next scheduled transmission, whereas the reception handler returns the number of slots
@@ -335,39 +337,16 @@ bool OMACScheduler::RunEventTask(){
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
 		if(InputState.GetState() == I_DATA_SEND_PENDING){
 			////hal_printf("OMACScheduler::RunEventTask state is already I_DATA_SEND_PENDING\n");
-
-			/*GLOBAL_LOCK(irq);
-			VirtTimer_Stop(HAL_SLOT_TIMER);
-			m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
-			VirtTimer_Start(HAL_SLOT_TIMER);
-			InputState.ToIdle();*/
-
-			/*BOOL* completionFlag = (BOOL*)false;
-			// we assume only 1 can be active, abort previous just in case
-			OMAC_scheduler_TimerCompletion.Abort();
-			OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
-			//Enqueue a task to listen for messages 100 usec from now (almost immediately)
-			//TODO (Ananth): to check what the right enqueue value should be
-			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);*/
-
 			return TRUE;
 		}
 		else {
-			if(InputState.RequestState(I_DATA_SEND_PENDING) == DS_Success) {
+			if(InputState.RequestState(I_DATA_SEND_PENDING)) {
+			//if(ProtoState.RequestState(S_SENDING_DATA) == DS_Success) {
 				hal_printf("OMACScheduler::RunEventTask setting state to I_DATA_SEND_PENDING\n");
-				//Instead of setting an alarm to go off for DataSend, send data immediately. No other task should interrupt this activity.
-				////StartDataAlarm(txEventOffset);
-
-				/*GLOBAL_LOCK(irq);
-				VirtTimer_Stop(HAL_SLOT_TIMER);
-				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
-				VirtTimer_Start(HAL_SLOT_TIMER);
-				InputState.ToIdle();*/
-
 				BOOL* completionFlag = (BOOL*)false;
 				// we assume only 1 can be active, abort previous just in case
 				OMAC_scheduler_TimerCompletion.Abort();
-				OMAC_scheduler_TimerCompletion.InitializeForISR(PublicDataAlarmHandlder, completionFlag);
+				OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
 				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 				//TODO (Ananth): to check what the right enqueue value should be
 				OMAC_scheduler_TimerCompletion.EnqueueDelta(txEventOffset+100);
@@ -390,7 +369,7 @@ bool OMACScheduler::RunEventTask(){
 		VirtTimer_Start(HAL_SLOT_TIMER);*/
 
 		if(startMeasuringDutyCycle && rxEventOffset == 0) {
-			if(InputState.RequestState(I_DATA_RCV_PENDING) == DS_Success) {
+			if(InputState.RequestState(I_DATA_RCV_PENDING)) {
 				//call OMacSignal.yield();
 				//Mukundan:Instead of posting RadioTask just run it directly
 
@@ -478,36 +457,34 @@ bool OMACScheduler::RadioTask(){
 		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
 	}
-	/*else {
-		ProtoState.ForceState(S_STARTING);
-		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
-		//Commenting out this line causes discovery receive to stop working
-		e = g_omac_RadioControl.StartRx();
-		//hal_printf("OMACScheduler::RadioTask radio start failed. state=%u\r\n", ProtoState.GetState());
-		//return FALSE;
-	}*/
+	else {
+		return FALSE;
+	}
 
 	if(e == DS_Success) {
 		switch(InputState.GetState()) {
 			case I_DATA_SEND_PENDING:
 				hal_printf("OMACScheduler::RadioTask I_DATA_SEND_PENDING\n");
-				////Not needed, as StartDataAlarm does the same thing
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
+				StartPostExecuteTaskTimer(0);
 				break;
 			case I_DATA_RCV_PENDING:
 				hal_printf("OMACScheduler::RadioTask I_DATA_RCV_PENDING\n");
 				m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_RX_HANDLER;
+				StartPostExecuteTaskTimer( GetTimeTillTheEndofSlot() );
 				break;
 			case I_TIMESYNC_PENDING:
 				hal_printf("OMACScheduler::RadioTask I_TIMESYNC_PENDING\n");
 				m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = TIMESYNC_HANDLER;
+				StartPostExecuteTaskTimer(0);
 				break;
 			default:
 				m_DiscoveryHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
+				StartPostExecuteTaskTimer(0);
 				break;
 		}
 	}
@@ -520,7 +497,7 @@ bool OMACScheduler::RadioTask(){
 	//hal_printf("Starting rx\n");
 	//g_omac_RadioControl.StartRx();
 
-	PostExecution();
+
 	////hal_printf("end OMACScheduler::RadioTask\n");
 	return TRUE;
 }
@@ -619,17 +596,17 @@ void OMACScheduler::PostExecution(){
 			//also notify the DiscoveryHandler in case
 			//there is piggyback beacon received
 			m_DataTransmissionHandler.PostExecuteEvent();
-			m_DiscoveryHandler.PostExecuteEvent();
+			//m_DiscoveryHandler.PostExecuteEvent(); //BK: For now I am cancelling these since this does nothing more than turning off the radio
 			break;
 		case DATA_RX_HANDLER :
 			m_DataReceptionHandler.PostExecuteEvent();
-			m_DiscoveryHandler.PostExecuteEvent();
+			//m_DiscoveryHandler.PostExecuteEvent();//BK: For now I am cancelling these since this does nothing more than turning off the radio
 			break;
 		default :
 			break;
 	}
-	InputState.ToIdle();
-	ProtoState.ToIdle();
+	//InputState.ToIdle();
+	//ProtoState.ToIdle();
 #ifdef PROFILING
 	debug_printf("delay1=%lu,startDelay=%lu,stopDelay=%lu\n", taskDelay1, startDelay, stopDelay);
 	//printf("minStart=%lu,maxStart=%lu,minStop=%lu,maxStop=%lu\n", minStartDelay,

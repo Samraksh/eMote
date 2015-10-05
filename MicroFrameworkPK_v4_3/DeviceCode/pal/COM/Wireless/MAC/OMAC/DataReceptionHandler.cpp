@@ -8,6 +8,8 @@
 #include <Samraksh/MAC/OMAC/DataReceptionHandler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
+#define DATARECSLOTPIN 30 //2
+
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
@@ -31,6 +33,7 @@ void PublicReceiveCallback(void * param){
  *
  */
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) DATARECSLOTPIN, TRUE);
 	varCounter = FALSE;
 	RadioID = radioID;
 	MacID = macID;
@@ -81,6 +84,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		varCounter = TRUE;
 	}*/
+	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, FALSE );
 }
 
 /*
@@ -100,42 +104,39 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	// If we haven't woken up yet in the current frame, skip this if-block and
 	// simply update the remainingSlot .
 	if (m_nextWakeupSlot < currentSlotNum) {
+		while (m_nextWakeupSlot < currentSlotNum) {
+			////hal_printf("DataReceptionHandler::NextEvent - step 1\n");
+			// first, find the slot denoting the start of the frame immediately after the current one.
+			// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
+			UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	(m_nextWakeupSlot % m_dataInterval);
+			//update the seed every 8 frames to reduce computation overhead
+			if (nextFrame % m_seedUpdateInterval == 0 ) {
+				//use the new/next seed for the next 8 frames
+				UINT16 lastSeed = m_nextSeed;
+				//hal_printf("using seed %u\n", lastSeed);
+				//update next seed. we wont use it until 8 frames later
+				randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
+				////hal_printf("DataReceptionHandler::NextEvent -- m_nextSeed is %u\n", m_nextSeed);
+				////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
+				m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
 
-		////hal_printf("DataReceptionHandler::NextEvent - step 1\n");
-		// first, find the slot denoting the start of the frame immediately after the current one.
-		// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
-		UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	(m_nextWakeupSlot % m_dataInterval);
-		//update the seed every 8 frames to reduce computation overhead
-		if (nextFrame % m_seedUpdateInterval == 0 ) {
-			//use the new/next seed for the next 8 frames
-			UINT16 lastSeed = m_nextSeed;
-			//hal_printf("using seed %u\n", lastSeed);
-			//update next seed. we wont use it until 8 frames later
-			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
-			////hal_printf("DataReceptionHandler::NextEvent -- m_nextSeed is %u\n", m_nextSeed);
-			////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
-			m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
+				//we have computed the wakeup slot for the frame denoted by nextFrame
+				//seed info contains the frame that we next need to compute the wakeup slot for
+				g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, nextFrame + m_dataInterval);
+			}
 
-			//we have computed the wakeup slot for the frame denoted by nextFrame
-			//seed info contains the frame that we next need to compute the wakeup slot for
-			g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, nextFrame + m_dataInterval);
+			// If we are less than 8 frame since the last seed update, simply compute
+			// the next wakeup by advancing one frame from the last wakeup slot
+			else {
+				m_nextWakeupSlot += m_dataInterval;
+			}
+			hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
 		}
-
-		// If we are less than 8 frame since the last seed update, simply compute
-		// the next wakeup by advancing one frame from the last wakeup slot
-		else {
-			m_nextWakeupSlot += m_dataInterval;
-		}
-		hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
 	}
 
 	//then compute the remaining slots before our next wakeup based on the computed schedule
 	remainingSlots = m_nextWakeupSlot - currentSlotNum;
-	//Should never happen
-	if (m_nextWakeupSlot < currentSlotNum) {
-		hal_printf("ERROR: nxtSlot %lu curSlot %lu\n", m_nextWakeupSlot, currentSlotNum);
-		m_nextWakeupSlot += m_dataInterval;
-	}
+
 
 	if (remainingSlots == 0) {
 		////hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", remainingSlots);
@@ -167,21 +168,14 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
+	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, TRUE );
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	hal_printf("DataReceptionHandler::ExecuteEvent\n");
 	hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
 	m_wakeupCnt++;
-
-	//Commenting out radio's start rx here, as rx is already started in OMAC's ReceiveHandler and in scheduler's RadioTask
-	DeviceStatus rs = g_omac_RadioControl.StartRx();
-	if(rs != DS_Success){
-		hal_printf("DataReceptionHandler::ExecuteEvent radio did not start Rx\n");
-	}
-	else{
-		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-	}
+	//BK: Schedule post execute event
 
 	/*Message_15_4_t txMsg;
 	Message_15_4_t* txMsgPtr = &txMsg;
@@ -219,12 +213,23 @@ void DataReceptionHandler::PostExecuteEvent(){
 	 * 1. Cannot receive packet, but there is energy in the channel
 	 * 2. Received packet but with incorrect CRC
 	 */
-	if (m_wakeupCnt % m_reportPeriod == 0) {
-		hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
-			m_wakeupCnt, m_receivedSlotCnt,
-			m_collisionCnt, m_idleListenCnt, m_overhearCnt);
+#ifdef OMAC_DEBUG
+	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
+	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
+#endif
+	//if (m_wakeupCnt % m_reportPeriod == 0) {
+	//	hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
+	//		m_wakeupCnt, m_receivedSlotCnt,
+	//		m_collisionCnt, m_idleListenCnt, m_overhearCnt);
+	//}
+	if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
+		//Stop the radio
+		g_omac_scheduler.Stop();
 	}
-	DeviceStatus rs = g_omac_RadioControl.Stop();
+	else {
+		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
+	}
+	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, FALSE );
 }
 
 /*
