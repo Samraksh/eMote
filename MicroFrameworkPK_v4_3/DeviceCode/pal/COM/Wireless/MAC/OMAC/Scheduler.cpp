@@ -30,7 +30,7 @@ void PublicSlotAlarmHanlder(void * param){
 /*
  *
  */
-void PublicPostExecuteTaskTimer(void * param){
+void PublicPostExecuteTaskTCallback(void * param){
 	g_omac_scheduler.PostExecution();
 }
 
@@ -66,8 +66,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
-	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
-	VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTimer);
+	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSlotAlarmHanlder);
+	VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 
 	//Initialize Handlers
 	m_DiscoveryHandler.SetParentSchedulerPtr(this);
@@ -107,7 +107,7 @@ UINT32 OMACScheduler::GetSlotNumber(){
 UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
 	UINT64 cur_ticks = HAL_Time_CurrentTicks();
 	UINT64 ticks_till_end = SLOT_PERIOD_TICKS - ( (cur_ticks + SLOT_PERIOD_TICKS) % SLOT_PERIOD_TICKS);
-	UINT32 ms_till_end = ((UINT32) ticks_till_end) / TICKS_PER_MILLI;
+	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
 	return ms_till_end;
 }
 /**********************************************************************
@@ -200,8 +200,8 @@ void OMACScheduler::StartPostExecuteTaskTimer(UINT64 Delay){
 		PostExecution();
 	}
 	else {
-		VirtTimer_Change(HAL_POSTEXECUTE_TIMER, 0, Delay, FALSE);
-		VirtTimer_Start(HAL_POSTEXECUTE_TIMER);
+		VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Start(HAL_POSTEXECUTE_TIMER);
 	}
 }
 
@@ -335,7 +335,7 @@ bool OMACScheduler::RunEventTask(){
 	///I am already scheduled to send a message this frame, let me play it safe and not do anything now
 	////if( startMeasuringDutyCycle && txEventOffset < (currentTicks | (SLOT_PERIOD_MILLI * 1000)) ) {
 	if( startMeasuringDutyCycle && txEventOffset < (SLOT_PERIOD_MILLI * 1000) ) {
-		if(InputState.GetState() == I_DATA_SEND_PENDING){
+		if(InputState.IsState(I_DATA_SEND_PENDING)){
 			////hal_printf("OMACScheduler::RunEventTask state is already I_DATA_SEND_PENDING\n");
 			return TRUE;
 		}
@@ -370,22 +370,10 @@ bool OMACScheduler::RunEventTask(){
 
 		if(startMeasuringDutyCycle && rxEventOffset == 0) {
 			if(InputState.RequestState(I_DATA_RCV_PENDING)) {
-				//call OMacSignal.yield();
-				//Mukundan:Instead of posting RadioTask just run it directly
-
-				hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
-				BOOL* completionFlag = (BOOL*)false;
-				// we assume only 1 can be active, abort previous just in case
-				OMAC_scheduler_TimerCompletion.Abort();
-				OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
-				//Enqueue a task to listen for messages 100 usec from now (almost immediately)
-				//TODO (Ananth): to check what the right enqueue value should be
-				OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
-
-				/*if(!RadioTask()){
-					debug_printf("RadioTask failed for sending data\n");
+				if(!RadioTask()) {
+					debug_printf("RadioTask failed\n");
 					return FALSE;
-				}*/
+				}
 			}
 			else {
 				//debug_printf("request to I_DATA_RCV_PENDING failed\n");
@@ -396,18 +384,11 @@ bool OMACScheduler::RunEventTask(){
 
 			InputState.ForceState(I_TIMESYNC_PENDING);
 
-			BOOL* completionFlag = (BOOL*)false;
-			// we assume only 1 can be active, abort previous just in case
-			OMAC_scheduler_TimerCompletion.Abort();
-			OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
-			//Enqueue a task to listen for messages 100 usec from now
-			//TODO (Ananth): to check what the right enqueue value should be
-			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
-
-			/*if(!RadioTask()) {
-				debug_printf("RadioTask failed for timesync\n");
+			if(!RadioTask()) {
+				debug_printf("RadioTask failed\n");
 				return FALSE;
-			}*/
+			}
+
 		}
 		// do not send Discovery message, if i'm going to receive or send packets in 2 slots
 		else if( (beaconEventOffset == 0) && (rxEventOffset > 2) && (txEventOffset > 2) )  {
@@ -416,18 +397,10 @@ bool OMACScheduler::RunEventTask(){
 			//}
 			InputState.ToIdle();
 
-			BOOL* completionFlag = (BOOL*)false;
-			// we assume only 1 can be active, abort previous just in case
-			OMAC_scheduler_TimerCompletion.Abort();
-			OMAC_scheduler_TimerCompletion.InitializeForISR(RadioTaskCallback, completionFlag);
-			//Enqueue a task to listen for messages 100 usec from now
-			//TODO (Ananth): to check what the right enqueue value should be
-			OMAC_scheduler_TimerCompletion.EnqueueDelta(100);
-
-			/*if(!RadioTask()) {
+			if(!RadioTask()) {
 				debug_printf("RadioTask failed\n");
 				return FALSE;
-			}*/
+			}
 		}
 
 	}
