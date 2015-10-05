@@ -14,10 +14,8 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-#define DISCOSYNCSENDPIN (GPIO_PIN)24 
-//#define DISCOSYNCRECEIVEPIN 2
-#define DISCOSYNCRECEIVEPIN (GPIO_PIN)29 
-//#define DISCOSYNCRECEIVEPIN 25
+#define DISCOSYNCSENDPIN 24 //2
+#define DISCOSYNCRECEIVEPIN 25 //25
 #endif
 
 OMACScheduler *g_scheduler;
@@ -30,6 +28,7 @@ extern OMACType g_OMAC;
  */
 void PublicBeaconNCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
+	g_scheduler->PostExecution();
 }
 
 /*
@@ -235,6 +234,7 @@ void DiscoveryHandler::BeaconN(){
 		if (m_busy == TRUE) {
 			hal_printf("BeaconN failed. m_busy\n");
 			// Ignore it, AMSend.sendDone will provide continuation.
+			this->PostExecuteEvent();
 		}
 		else {
 			// HACK: for now, just turn off radio.

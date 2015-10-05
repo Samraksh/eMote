@@ -7,12 +7,9 @@ RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 #define RADIO_STATEPIN2 23
 
-#define DEBUG_RX (GPIO_PIN)23
-//24
-#define FRAME_BUFF_ACTIVE (GPIO_PIN)120
-//30
-#define DEBUG_TX (GPIO_PIN)23
-//29
+#define DEBUG_RX 1	//24
+#define FRAME_BUFF_ACTIVE 120 //30
+#define DEBUG_TX 30	//29
 //#define RADIO_TX_SEND_4 4
 //#define RADIO_TX_SENDTS_30 30
 
