@@ -183,7 +183,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_InitStructure.SPI_CPOL = 0;
 		SPI_InitStructure.SPI_CPHA = 0;
 		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
 		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 		SPI_InitStructure.SPI_CRCPolynomial = 7;
 
@@ -216,7 +216,7 @@ void CPU_SPI_Enable(SPI_CONFIGURATION config)
 		SPI_InitStructure.SPI_CPOL = 0;
 		SPI_InitStructure.SPI_CPHA = 0;
 		SPI_InitStructure.SPI_NSS = SPI_NSS_Hard;
-		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+		SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
 		SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 		SPI_InitStructure.SPI_CRCPolynomial = 7;
 
@@ -764,6 +764,8 @@ void SPI_StructInit(const SPI_CONFIGURATION& Configuration)
   
   /* Initialize the SPI_BaudRatePrescaler member */
   //FIXME: Right now we are pre-scaling map it to configuration clock
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
+  /*
   switch (Configuration.Clock_RateKHz)
   {
   case 2:
@@ -793,7 +795,8 @@ void SPI_StructInit(const SPI_CONFIGURATION& Configuration)
   default:
 	  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
 	  break;
-  }   
+  }
+  */
   /* Initialize the SPI_FirstBit member */
 #if defined(FIRST_BIT_LSB)
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_LSB;
