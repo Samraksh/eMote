@@ -162,24 +162,24 @@ DeviceStatus RadioControl::Stop(){
  *
  */
 DeviceStatus RadioControl::StartPLL(){
-	//DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
-	DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
-	if(returnVal == DS_Success){
-		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
-	}
-	//return DS_Ready;
-	return returnVal;
+	return StartRx();
+	//DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
+	//if(returnVal == DS_Success){
+	//	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	//}
+	//return returnVal;
 }
 
 /*
  *
  */
 DeviceStatus RadioControl::StartRx(){
-	return StartPLL();
-	//DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
-	//return DS_Ready;
-	//return returnVal;
+	//return StartPLL();
+	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
+	if(returnVal == DS_Success){
+		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
+	}
+	return returnVal;
 }
 
 
