@@ -715,6 +715,10 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	dualADCMode = TRUE;
 
+	// Set DMA mode initialized to true
+	// This is useful in batch mode scenarios where there is a lot of starting and stopping
+	dmaModeInitialized = TRUE;
+
 	TIM_Cmd(TIM4, ENABLE);
 
 	return DS_Success;
