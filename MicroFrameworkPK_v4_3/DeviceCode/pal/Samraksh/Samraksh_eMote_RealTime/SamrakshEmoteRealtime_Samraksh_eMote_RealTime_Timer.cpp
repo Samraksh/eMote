@@ -18,6 +18,7 @@ using namespace Samraksh::eMote::RealTime;
 
 extern void RT_Dispose();
 extern BOOL RT_Change(UINT32 dueTime, UINT32 period);
+extern void GenerateSoftwareInterrupt(void);
 
 void Timer::Dispose( HRESULT &hr )
 {
@@ -31,5 +32,6 @@ INT8 Timer::Change( UINT32 param0, UINT32 param1, HRESULT &hr )
 
 void Timer::GenerateInterrupt( HRESULT &hr )
 {
+	GenerateSoftwareInterrupt();
 }
 
