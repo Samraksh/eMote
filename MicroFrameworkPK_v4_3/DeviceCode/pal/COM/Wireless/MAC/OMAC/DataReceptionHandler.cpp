@@ -167,10 +167,6 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, TRUE);
-#endif
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
 	hal_printf("DataReceptionHandler::ExecuteEvent\n");
@@ -223,10 +219,6 @@ void DataReceptionHandler::PostExecuteEvent(){
 	 * 1. Cannot receive packet, but there is energy in the channel
 	 * 2. Received packet but with incorrect CRC
 	 */
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
-	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
-#endif
 	if (m_wakeupCnt % m_reportPeriod == 0) {
 		hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
 			m_wakeupCnt, m_receivedSlotCnt,
