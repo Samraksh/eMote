@@ -283,32 +283,6 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 	}
 }
 
-BOOL CPU_Timer_DidTimerOverflow(UINT8 Timer)
-{
-	BOOL retVal = FALSE;
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
-	{
-		retVal = g_Timer16Bit_Driver.DidTimerOverFlow(g_Timer16Bit_Driver.c_SystemTimer);
-	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		retVal = g_STM32F10x_AdvancedTimer.DidTimerOverflow();
-	}
-	return retVal;
-}
-
-void CPU_Timer_ClearTimerOverflow(UINT8 Timer)
-{
-	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
-	{
-		g_Timer16Bit_Driver.ClearTimerOverFlow(g_Timer16Bit_Driver.c_SystemTimer);
-	}
-	else if(Timer == ADVTIMER_32BIT)
-	{
-		g_STM32F10x_AdvancedTimer.ClearTimerOverflow();
-	}
-}
-
 UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer)
 {
 	UINT32 maxTicks = 0;

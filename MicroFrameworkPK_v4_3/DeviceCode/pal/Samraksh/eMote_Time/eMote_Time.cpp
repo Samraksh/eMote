@@ -18,9 +18,6 @@
 Time_Driver g_Time_Driver;
 UINT32 Time_Driver::maxTicks = 0;
 UINT32 Time_Driver::prevTicks = 0;
-UINT64 Time_Driver::bigCounter = 0;
-bool Time_Driver::bigCounterUpdated = false;
-bool Time_Driver::overflowCondition = false;
 
 
 void TimeHandler(void *arg);
@@ -32,6 +29,8 @@ BOOL Time_Driver::Initialize()
 
 	maxTicks = VirtTimer_GetMaxTicks(VIRT_TIMER_TIME);
 
+	// this timer keeps our timer constantly running so we can keep track of our system time
+	// overflows are kept track of in the timer driver itself
 	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler) == TimerSupported);
 	ASSERT(retVal);
 
@@ -46,16 +45,7 @@ void TimeHandler(void *arg)
 {
 	static int  timeHandlerCount = 0;
 
-	GLOBAL_LOCK(irq);
-
-	if(timeHandlerCount > 0)
-	{
-		g_Time_Driver.bigCounter += g_Time_Driver.maxTicks;
-		g_Time_Driver.bigCounterUpdated = true;
-	}
-
-	if(timeHandlerCount == 0)
-		timeHandlerCount++;
+	timeHandlerCount++;
 }
 
 

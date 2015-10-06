@@ -263,9 +263,6 @@ public:
 	BOOL VirtTimer_SetCompare(UINT8 timer_id, UINT64 CompareValue);
 	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
 
-	BOOL VirtTimer_DidTimerOverflow(UINT8 timer_id);
-	void VirtTimer_ClearTimerOverflow(UINT8 timer_id);
-
 	UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id);
 
 

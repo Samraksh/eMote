@@ -19,10 +19,7 @@
 struct Time_Driver
 {
     static UINT32 maxTicks;
-	static UINT64 bigCounter;
 	static UINT32 prevTicks;
-	static bool bigCounterUpdated;
-	static bool overflowCondition;
 
     //AnanthAtSamraksh - changing all functions to non-static
     BOOL Initialize  ();

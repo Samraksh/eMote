@@ -228,24 +228,6 @@ void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec)
 	CPU_Timer_Sleep_MicroSeconds(uSec, (UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
-BOOL VirtTimer_DidTimerOverflow(UINT8 timer_id)
-{
-	UINT8 mapperTimerId = 0;
-	UINT8 mapperId = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	return CPU_Timer_DidTimerOverflow(g_HardwareTimerIDs[mapperId]);
-}
-
-void VirtTimer_ClearTimerOverflow(UINT8 timer_id)
-{
-	UINT8 mapperTimerId = 0;
-	UINT8 mapperId = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, mapperTimerId, mapperId);
-
-	CPU_Timer_ClearTimerOverflow(g_HardwareTimerIDs[mapperId]);
-}
-
 UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id)
 {
 	UINT8 mapperTimerId = 0;
