@@ -5,11 +5,14 @@
 //#define DEBUG_RF231 1
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
-#define RADIO_STATEPIN2 30
+#define RADIO_STATEPIN2 23
 
-#define DEBUG_RX 1	//24
-#define FRAME_BUFF_ACTIVE 120 //30
-#define DEBUG_TX 30	//29
+#define DEBUG_RX (GPIO_PIN)23
+//24
+#define FRAME_BUFF_ACTIVE (GPIO_PIN)120
+//30
+#define DEBUG_TX (GPIO_PIN)23
+//29
 //#define RADIO_TX_SEND_4 4
 //#define RADIO_TX_SENDTS_30 30
 
@@ -180,8 +183,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	SelnSet();
 	state = STATE_BUSY_TX;
-	CPU_GPIO_SetPinState( (GPIO_PIN) DEBUG_TX, TRUE );
-	CPU_GPIO_SetPinState( (GPIO_PIN) DEBUG_TX, FALSE );
+	CPU_GPIO_SetPinState( DEBUG_TX, TRUE );
+	CPU_GPIO_SetPinState( DEBUG_TX, FALSE );
 	////NATHAN_SET_DEBUG_GPIO(0);
 
 	//reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK; // doesn't seem to do anything??? --NPS
@@ -286,7 +289,7 @@ DeviceStatus RF231Radio::Reset()
 #	ifdef DEBUG_RF231
 	hal_printf("RF231: RESET\r\n");
 #	endif
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+	//CPU_GPIO_SetPinState( RADIO_STATEPIN2, FALSE );
 	// Introducing radio sleep
 	//TurnOn();
 
@@ -532,10 +535,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	//reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
 	state = STATE_BUSY_TX;
-	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
-	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
+	////CPU_GPIO_SetPinState( RADIO_TX_SENDTS_30, TRUE );
+	////CPU_GPIO_SetPinState( RADIO_TX_SENDTS_30, FALSE );
 	//NATHAN_SET_DEBUG_GPIO(0);
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+	//CPU_GPIO_SetPinState( RADIO_STATEPIN2, TRUE );
 
 	// exchange bags
 	Message_15_4_t* temp = tx_msg_ptr;
@@ -606,7 +609,7 @@ void RF231Radio::Amp(BOOL TurnOn)
 		return;
 	}
 
-	CPU_GPIO_SetPinState((GPIO_PIN) AMP_PIN_LR, TurnOn);
+	CPU_GPIO_SetPinState(AMP_PIN_LR, TurnOn);
 }
 
 
@@ -657,13 +660,13 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 {
 	INIT_STATE_CHECK();
 
-	//CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_STATEPIN2, FALSE);
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+	//CPU_GPIO_EnableOutputPin(RADIO_STATEPIN2, FALSE);
+	//CPU_GPIO_SetPinState(RADIO_STATEPIN2, TRUE );
+	//CPU_GPIO_SetPinState( RADIO_STATEPIN2, FALSE );
 
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) DEBUG_RX, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) DEBUG_TX, FALSE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) FRAME_BUFF_ACTIVE, FALSE);
+	CPU_GPIO_EnableOutputPin(DEBUG_RX, FALSE);
+	CPU_GPIO_EnableOutputPin(DEBUG_TX, FALSE);
+	CPU_GPIO_EnableOutputPin(FRAME_BUFF_ACTIVE, FALSE);
 
 #	ifdef NATHAN_RF231_DEBUG_DELETE_ME
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) NATHAN_DEBUG_RX, FALSE);
@@ -702,7 +705,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			kinterrupt	= 	 INTERRUPT_PIN_LR;
 
 			// Enable the amp pin
-			CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_PIN_LR, FALSE);
+			CPU_GPIO_EnableOutputPin(AMP_PIN_LR, FALSE);
 		}
 
 		//Get cpu serial and hash it to use as node id
@@ -805,7 +808,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 		else if(this->GetRadioName() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-			//CPU_GPIO_EnableOutputPin((GPIO_PIN) AMP_PIN_LR, FALSE);
+			//CPU_GPIO_EnableOutputPin(AMP_PIN_LR, FALSE);
 			GPIO_ConfigurePin(GPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
 
@@ -817,7 +820,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 #		ifdef DEBUG_RF231
 		hal_printf("RF231: INIT. Default sleep\r\n");
 #		endif
-		//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+		//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, FALSE );
 		// Initialize default radio handlers
 
 		// Added here until the state issues are resolved
@@ -848,7 +851,7 @@ DeviceStatus RF231Radio::UnInitialize()
         }
         else if(this->GetRadioName() == RF231RADIOLR){
             CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
-            CPU_GPIO_DisablePin((GPIO_PIN) AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
+            CPU_GPIO_DisablePin(AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }
         SetInitialized(FALSE);
     }
@@ -1020,8 +1023,8 @@ DeviceStatus RF231Radio::TurnOnRx()
 	DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 	state = STATE_RX_ON;
 
-	CPU_GPIO_SetPinState( (GPIO_PIN) DEBUG_RX, TRUE );
-	CPU_GPIO_SetPinState( (GPIO_PIN) DEBUG_RX, FALSE );
+	CPU_GPIO_SetPinState( DEBUG_RX, TRUE );
+	CPU_GPIO_SetPinState( DEBUG_RX, FALSE );
 	//NATHAN_SET_DEBUG_GPIO(0);
 
 #	ifdef DEBUG_RF231
@@ -1083,12 +1086,12 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	}
 
 	state = STATE_PLL_ON;
-	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, TRUE );
-	////CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_TX_SENDTS_30, FALSE );
+	////CPU_GPIO_SetPinState(   RADIO_TX_SENDTS_30, TRUE );
+	////CPU_GPIO_SetPinState(   RADIO_TX_SENDTS_30, FALSE );
 	//NATHAN_SET_DEBUG_GPIO(0);
 	cmd = CMD_NONE;
 
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+	//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, TRUE );
 	////hal_printf("RF231Radio::TurnOnPLL: after state:%d\n", state);
 	return DS_Success;
 }	//RF231Radio::TurnOnPLL()
@@ -1139,7 +1142,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		sleep_pending = TRUE;
 		state = STATE_RX_ON;
 		//NATHAN_SET_DEBUG_GPIO(0);
-		//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+		//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, TRUE );
 	}
 
 	GLOBAL_LOCK(irq);
@@ -1170,7 +1173,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		{
 			state = STATE_SLEEP;
 			//NATHAN_SET_DEBUG_GPIO(0);
-			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, FALSE );
+			//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, FALSE );
 			sleep_pending = FALSE;
 		}
 		else
@@ -1484,7 +1487,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	NATHAN_SET_DEBUG_GPIO(0);
 
 	//state = STATE_RX_ON;
-	//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN2, TRUE );
+	//CPU_GPIO_SetPinState(   RADIO_STATEPIN2, TRUE );
 	//cmd = CMD_NONE;
 
 	return retStatus;
