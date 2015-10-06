@@ -236,6 +236,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("Successfully got a data packet\n");
 			 if ( msg->GetHeader()->src == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
 				 hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
+			 }
 			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
 			(*g_rxAckHandler)(Size);
 			break;
