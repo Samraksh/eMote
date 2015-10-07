@@ -8,7 +8,7 @@
 #include <Samraksh/MAC/OMAC/DataReceptionHandler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
-#define DATARECSLOTPIN 30 //2
+//#define DATARECSLOTPIN 30 //2
 
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
@@ -33,7 +33,7 @@ void PublicReceiveCallback(void * param){
  *
  */
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) DATARECSLOTPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATARECEPTION_SLOTPIN, TRUE);
 	varCounter = FALSE;
 	RadioID = radioID;
 	MacID = macID;
@@ -84,7 +84,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		varCounter = TRUE;
 	}*/
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, FALSE );
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
 /*
@@ -168,11 +168,11 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, TRUE );
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 	//call ChannelMonitor.monitorChannel();
 	//SendDataBeacon(FALSE);
-	hal_printf("DataReceptionHandler::ExecuteEvent\n");
-	hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
+	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+	//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
 	m_wakeupCnt++;
 	//BK: Schedule post execute event
@@ -229,7 +229,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	else {
 		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
 	}
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATARECSLOTPIN, FALSE );
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
 /*

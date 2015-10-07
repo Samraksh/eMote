@@ -16,7 +16,7 @@ extern OMACScheduler g_omac_scheduler;
 
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
-#define RADIO_START_STOP_PIN 120 //4
+//#define SCHED_START_STOP_PIN 120 //4
 
 bool flag = true;
 
@@ -45,7 +45,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	dutyCycleReset = 0;
 	totalRadioUp = 0;
 	
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) RADIO_START_STOP_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN) SCHED_START_STOP_PIN, FALSE);
 
 #ifdef PROFILING
 	minStartDelay = 300; maxStartDelay = 10;
@@ -302,7 +302,7 @@ bool OMACScheduler::RunEventTask(){
 	// operations in it
 	////DISABLE_INTERRUPTS();
 	rxEventOffset = m_DataReceptionHandler.NextEvent(m_slotNo);
-	hal_printf("\nOMACScheduler::RunEventTask() CurTicks: %llu m_slotNo: %d rxEventOffset: %d \n",HAL_Time_CurrentTicks(), m_slotNo, rxEventOffset);
+	//hal_printf("\nOMACScheduler::RunEventTask() CurTicks: %llu m_slotNo: %d rxEventOffset: %d \n",HAL_Time_CurrentTicks(), m_slotNo, rxEventOffset);
 	////rxEventOffset |= HAL_Time_CurrentTicks();
 	////ENABLE_INTERRUPTS();
 
@@ -425,7 +425,7 @@ bool OMACScheduler::RadioTask(){
 	//or in OMAC's receiveHandler
 	bool reqStateRet = ProtoState.RequestState(S_STARTING);
 	if(reqStateRet) {
-		CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, TRUE );
+		CPU_GPIO_SetPinState( (GPIO_PIN) SCHED_START_STOP_PIN, TRUE );
 		//hal_printf("Starting PLL\n");
 		//Commenting out this line causes discovery receive to stop working
 		e = g_omac_RadioControl.StartRx();
@@ -499,7 +499,7 @@ void OMACScheduler::Stop(){
 		default :
 			ProtoState.ForceState(S_STOPPING);
 			//InputState.ForceState(S_STOPPING);
-			//CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_START_STOP_PIN, FALSE );
+			//CPU_GPIO_SetPinState( (GPIO_PIN) SCHED_START_STOP_PIN, FALSE );
 			ds = g_omac_RadioControl.Stop();
 	}
 #ifdef OMAC_DEBUG

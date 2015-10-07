@@ -4,7 +4,7 @@
 #include <Samraksh/MAC/OMAC/DiscoveryHandler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <Samraksh/MAC/OMAC/CMaxTimeSync.h>
-#include "NeighNodeIDDef.h"
+//#include "NeighNodeIDDef.h"
 
 #define DEBUG_TSYNC 1
 #define FUDGEFACTOR 10000		//in 100ns, a value of 1000 =100 microseconds
@@ -20,11 +20,11 @@ UINT16 GlobalTime::leader = 0xFFFF;
 BOOL GlobalTime::synced=FALSE;
 
 #define MIN_TICKS_DIFF_BTW_TSM 8000000
-#define TIMESYNCSENDPIN 0 // 3 // PA3 J11-6
-#define TIMESYNCRECEIVEPIN 31 // 23 //PB7 J11-10
+//#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
+//#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
 
-//#define TXNODEID 2703
-//#define RXNODEID 2491
+#define TXNODEID 3505
+#define RXNODEID 6846
 
 
 
@@ -41,10 +41,10 @@ inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
  *
  */
 void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCSENDPIN, TRUE);
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(TIMESYNC_SENDPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, TRUE);
 
-	CPU_GPIO_SetPinState((GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE);
+	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
 
 	RadioID = radioID;
 	MacID = macID;
@@ -173,7 +173,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	////VirtTimer_Stop(HAL_SLOT_TIMER);
 	////hal_printf("start CMaxTimeSync::Send\n");
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, TRUE );
+	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, TRUE );
 #endif
 
 	IEEE802_15_4_Header_t * header = m_timeSyncBufferPtr->GetHeader();
@@ -237,7 +237,7 @@ BOOL CMaxTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	//hal_printf("TS Send: %d,  Gtime: %lld, LTime: %lld, diff: %lld \n",m_seqNo, x, y, d);
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCSENDPIN, FALSE );
+	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
 #endif
 	////hal_printf("end CMaxTimeSync::Send\n");
 	return rs;
@@ -253,12 +253,12 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	RadioAddress_t msg_src = msg->GetHeader()->src;
 
 	////UINT16 msg_src =  msg->GetHeader()->src;
-	////CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+	////CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
 
 #ifdef DEBUG_TSYNC
 	if (msg_src == Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, TRUE );
+			CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
 		}
 	}
 #endif
@@ -284,11 +284,11 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	//if (Nbr2beFollowed==0){ Nbr2beFollowed = msg_src; }
 	if (msg_src == Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >= 2  ){
-			CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
+			CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, FALSE );
 		}
 	}
 #endif
-	////CPU_GPIO_SetPinState( (GPIO_PIN) TIMESYNCRECEIVEPIN, FALSE );
+	////CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, FALSE );
 	////VirtTimer_Start(HAL_SLOT_TIMER);
 	return DS_Success;
 }
