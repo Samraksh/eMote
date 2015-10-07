@@ -23,9 +23,10 @@ BOOL GlobalTime::synced=FALSE;
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
 //#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
 
-#define TXNODEID 3505
-#define RXNODEID 6846
-
+//#define TXNODEID 3505
+//#define RXNODEID 6846
+#define TXNODEID 30906
+#define RXNODEID 4028
 
 
 
