@@ -522,8 +522,12 @@ namespace Samraksh.eMote.Net
 					return DeviceStatus.Busy;
 			}
 			else {
-				// Return busy if the mac configuration is busy
-				return DeviceStatus.Busy;
+                Callbacks.SetReceiveCallback(receiveCallback);
+                Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
+
+                // Configure the radio 
+                if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
+                    return DeviceStatus.Busy;
 			}
 			return DeviceStatus.Success;
 		}

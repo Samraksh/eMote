@@ -93,8 +93,8 @@ namespace Samraksh.eMote.Net
             if (_receiveCallBack == null)
                 throw new CallbackNotConfiguredException();
 
-            if (_neighborChangeCallBack == null)
-                Debug.Print("The Neighbor Callback has not been configured \n");
+            /*if (_neighborChangeCallBack == null)
+                Debug.Print("The Neighbor Callback has not been configured \n");*/
 
             if ((data1 == (uint)CallbackTypes.Received) && (_receiveCallBack != null))
                 _receiveCallBack((UInt16)data2);
