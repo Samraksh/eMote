@@ -15,12 +15,12 @@
 extern OMACType g_OMAC;
 
 #define LOCALSKEW 1
-//#define RADIOCONTROL_DEBUG_PIN 120 //(GPIO_PIN)31
+//#define RADIOCONTROL_SEND_PIN 120 //(GPIO_PIN)31
 
 //#define RADIO_STATEPIN 4 // 120 //4
 
 //#define DEBUG_RADIO_STATE 1
-//#define DEBUG_TIMESYNC 1
+#define DEBUG_TIMESYNC 1
 
 extern Buffer_15_4_t g_send_buffer;
 
@@ -28,11 +28,12 @@ extern Buffer_15_4_t g_send_buffer;
  *
  */
 DeviceStatus RadioControl::Initialize(){
-	CPU_GPIO_EnableOutputPin(RADIOCONTROL_DEBUG_PIN, FALSE);
-	CPU_GPIO_SetPinState( RADIOCONTROL_DEBUG_PIN, TRUE );
-	CPU_GPIO_SetPinState( RADIOCONTROL_DEBUG_PIN, FALSE );
+	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
+	CPU_GPIO_SetPinState( RADIOCONTROL_SEND_PIN, TRUE );
+	CPU_GPIO_SetPinState( RADIOCONTROL_SEND_PIN, FALSE );
 #ifdef DEBUG_TIMESYNC
-	CPU_GPIO_EnableOutputPin(RADIOCONTROL_DEBUG_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
 #endif
 	return DS_Success;
 }
@@ -85,8 +86,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
 		hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
-		CPU_GPIO_SetPinState(RADIOCONTROL_DEBUG_PIN, TRUE);
-		CPU_GPIO_SetPinState(RADIOCONTROL_DEBUG_PIN, FALSE);
+		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);
+		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
 		hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
 #endif
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
@@ -120,8 +121,8 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	//header->network = MyConfig.Network;
 
 #ifdef DEBUG_TIMESYNC
-		CPU_GPIO_SetPinState(RADIOCONTROL_DEBUG_PIN, TRUE);
-		CPU_GPIO_SetPinState(RADIOCONTROL_DEBUG_PIN, FALSE);
+		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);
+		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, FALSE);
 		hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
 #endif
 
