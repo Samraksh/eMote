@@ -206,6 +206,52 @@ const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 #include <processor_selector.h>
 
 
+// For debugging OMAC - START
+
+/*
+J11_PIN1 = Vin
+public const Cpu.Pin GPIO_J11_PIN3 = 0; (PA0)
+public const Cpu.Pin GPIO_J11_PIN4 = 1; (PA1)
+public const Cpu.Pin GPIO_J11_PIN5 = 2; (PA2)
+public const Cpu.Pin GPIO_J11_PIN6 = 3; (PA3)
+public const Cpu.Pin GPIO_J11_PIN7 = 4; (PA4)
+public const Cpu.Pin GPIO_J11_PIN8 = 8; (PA8)
+public const Cpu.Pin GPIO_J11_PIN9 = 22; (PB6)
+public const Cpu.Pin GPIO_J11_PIN10 = 23; (PB7)
+public const Cpu.Pin GPIO_J12_PIN1 = 24; (PB8)
+public const Cpu.Pin GPIO_J12_PIN2 = 25; (PB9)
+public const Cpu.Pin GPIO_J12_PIN3 = 29; (PB13)
+public const Cpu.Pin GPIO_J12_PIN4 = 30; (PB14). This is the speaker output.
+public const Cpu.Pin GPIO_J12_PIN5 = 31; (PB15)
+J12_PIN10 = GND
+ */
+
+#define RF231_RADIO_STATEPIN2 (GPIO_PIN)120		//J11_PIN10
+#define RF231_DEBUG_RX (GPIO_PIN)120			//J11_PIN10
+#define RF231_FRAME_BUFF_ACTIVE (GPIO_PIN)120
+#define RF231_DEBUG_TX (GPIO_PIN)120			//J11_PIN10
+
+#define TIMESYNC_SENDPIN (GPIO_PIN)0 // 3 // PA3 J11-6
+#define TIMESYNC_RECEIVEPIN (GPIO_PIN)31 // 23 //PB7 J11-10
+
+#define DATARECEPTION_SLOTPIN (GPIO_PIN)30 //2	//J12_PIN4
+
+#define DATATX_PIN (GPIO_PIN)29 //2						//J12_PIN3
+
+#define DISCO_SYNCSENDPIN (GPIO_PIN)24			//J12_PIN1
+#define DISCO_SYNCRECEIVEPIN (GPIO_PIN)29		//J12_PIN3
+
+#define OMAC_DEBUG_PIN (GPIO_PIN)120			 	//J11_PIN5
+#define OMAC_DATARXPIN (GPIO_PIN)31 //2
+#define OMAC_RXPIN (GPIO_PIN)2
+
+#define RADIOCONTROL_DEBUG_PIN (GPIO_PIN)120 //(GPIO_PIN)31
+#define RADIOCONTROL_STATEPIN (GPIO_PIN)120 //4
+
+#define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
+
+// For debugging OMAC - END
+
 #endif // PLATFORM_ARM_EmoteDotNow
 
 #endif // _PLATFORM_EmoteDotNow_SELECTOR_H_

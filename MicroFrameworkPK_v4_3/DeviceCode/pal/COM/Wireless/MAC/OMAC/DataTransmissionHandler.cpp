@@ -12,7 +12,7 @@
 #include <Samraksh/MAC/OMAC/RadioControl.h>
 
 
-#define DATATXPIN 29 //2
+//#define DATATXPIN 29 //2
 
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
@@ -26,7 +26,7 @@ extern RadioControl_t g_omac_RadioControl;
  *
  */
 void DataTransmissionHandler::Initialize(){
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) DATATXPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
 	m_dsn = 0;
 	m_retryCnt = m_dwellCnt=0;
 	randVal = 0;
@@ -40,7 +40,7 @@ void DataTransmissionHandler::Initialize(){
 	m_nextTXTicks=0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATATXPIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 }
 
 /*
@@ -184,7 +184,7 @@ bool DataTransmissionHandler::Send(){
 	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
 	header->type = MFM_DATA;
 
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATATXPIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
 		hal_printf("DataTransmissionHandler::Send calling Send\n");
@@ -194,7 +194,7 @@ bool DataTransmissionHandler::Send(){
 		hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
 		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
-	CPU_GPIO_SetPinState( (GPIO_PIN) DATATXPIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	return true;
 }
 
@@ -332,7 +332,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			  m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
 			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
 			  //hal_printf("sslot %lu time %lu\n", slotNumber, globalTime);
-			  hal_printf("\n ScheduleDataPacket CurTicks: %llu slotNumber: %d neighborEntry->counterOffset: %d m_nextTXCounter: %d \n",HAL_Time_CurrentTicks(), slotNumber, neighborEntry->counterOffset, m_nextTXCounter);
+			  //hal_printf("\n ScheduleDataPacket CurTicks: %llu slotNumber: %d neighborEntry->counterOffset: %d m_nextTXCounter: %d \n",HAL_Time_CurrentTicks(), slotNumber, neighborEntry->counterOffset, m_nextTXCounter);
 
 		}
 		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?

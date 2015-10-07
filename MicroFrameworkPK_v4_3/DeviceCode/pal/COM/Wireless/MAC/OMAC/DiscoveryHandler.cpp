@@ -14,8 +14,8 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-#define DISCOSYNCSENDPIN 24 //2
-#define DISCOSYNCRECEIVEPIN 25 //25
+//#define DISCOSYNCSENDPIN 24 //2
+//#define DISCOSYNCRECEIVEPIN 25 //25
 #endif
 
 OMACScheduler *g_scheduler;
@@ -43,8 +43,8 @@ void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
  *
  */
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
-	CPU_GPIO_EnableOutputPin( DISCOSYNCSENDPIN, TRUE);
-	CPU_GPIO_EnableOutputPin( DISCOSYNCRECEIVEPIN, TRUE);
+	CPU_GPIO_EnableOutputPin( DISCO_SYNCSENDPIN, TRUE);
+	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
 	RadioID = radioID;
 	MacID = macID;
 	m_receivedPiggybackBeacon = FALSE;
@@ -139,7 +139,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
 	////hal_printf("start DiscoveryHandler::Beacon\n");
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState(  DISCOSYNCSENDPIN, TRUE );
+	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
 #endif
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
@@ -291,7 +291,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-			CPU_GPIO_SetPinState(  DISCOSYNCRECEIVEPIN, TRUE );
+			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
 		}
 	}
 #endif
@@ -317,7 +317,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-			CPU_GPIO_SetPinState(  DISCOSYNCRECEIVEPIN, FALSE );
+			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 		}
 	}
 #endif
@@ -341,7 +341,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, event_time);
 
 #ifdef DEBUG_TSYNC
-	CPU_GPIO_SetPinState(  DISCOSYNCSENDPIN, FALSE );
+	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 #endif
 
 	////hal_printf("end DiscoveryHandler::Send\n");
