@@ -203,13 +203,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	//Starting radio's rx here
-	DeviceStatus e = g_omac_RadioControl.StartRx();
-	if(e != DS_Success){
-		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
-	}
-	else{
-		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-	}
+	//DeviceStatus e = g_omac_RadioControl.StartRx(); //BK: You have already received. Yous hould
+//	if(e != DS_Success){
+//		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
+//	}
+//	else{
+//		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
+//	}
 
 	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
