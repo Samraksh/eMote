@@ -428,7 +428,7 @@ bool OMACScheduler::RadioTask(){
 		CPU_GPIO_SetPinState( (GPIO_PIN) SCHED_START_STOP_PIN, TRUE );
 		//hal_printf("Starting PLL\n");
 		//Commenting out this line causes discovery receive to stop working
-		e = g_omac_RadioControl.StartRx();
+		e = g_omac_RadioControl.StartPLL();
 	}
 	else {
 		return FALSE;
@@ -440,7 +440,7 @@ bool OMACScheduler::RadioTask(){
 				hal_printf("OMACScheduler::RadioTask I_DATA_SEND_PENDING\n");
 				m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = DATA_TX_HANDLER;
-				StartPostExecuteTaskTimer(0);
+				//StartPostExecuteTaskTimer(0);
 				break;
 			case I_DATA_RCV_PENDING:
 				hal_printf("OMACScheduler::RadioTask I_DATA_RCV_PENDING\n");
@@ -452,26 +452,20 @@ bool OMACScheduler::RadioTask(){
 				hal_printf("OMACScheduler::RadioTask I_TIMESYNC_PENDING\n");
 				m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = TIMESYNC_HANDLER;
-				StartPostExecuteTaskTimer(0);
+				//StartPostExecuteTaskTimer(0);
 				break;
 			default:
 				m_DiscoveryHandler.ExecuteEvent(m_slotNo);
 				m_lastHandler = CONTROL_BEACON_HANDLER;
-				StartPostExecuteTaskTimer(0);
+				//StartPostExecuteTaskTimer(0);
 				break;
 		}
 	}
 	else {
-		//hal_printf("StartPLL failed\n");
 		debug_printf("RadioTask failed\n");
 		return false;
 	}
 
-	//hal_printf("Starting rx\n");
-	//g_omac_RadioControl.StartRx();
-
-
-	////hal_printf("end OMACScheduler::RadioTask\n");
 	return TRUE;
 }
 
@@ -560,15 +554,15 @@ bool OMACScheduler::IsNeighborGoingToReceive(){
 void OMACScheduler::PostExecution(){
 	switch(m_lastHandler) {
 		case CONTROL_BEACON_HANDLER :
-			m_DiscoveryHandler.PostExecuteEvent();
+			//m_DiscoveryHandler.PostExecuteEvent();
 			break;
 		case TIMESYNC_HANDLER :
-			m_TimeSyncHandler.PostExecuteEvent();
+			//m_TimeSyncHandler.PostExecuteEvent();
 			break;
 		case DATA_TX_HANDLER :
 			//also notify the DiscoveryHandler in case
 			//there is piggyback beacon received
-			m_DataTransmissionHandler.PostExecuteEvent();
+			//m_DataTransmissionHandler.PostExecuteEvent();
 			//m_DiscoveryHandler.PostExecuteEvent(); //BK: For now I am cancelling these since this does nothing more than turning off the radio
 			break;
 		case DATA_RX_HANDLER :

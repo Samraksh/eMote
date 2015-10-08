@@ -96,7 +96,11 @@ UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
-	Beacon1();
+	DeviceStatus e = DS_Fail;
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		Beacon1();
+	}
 }
 
 /*
@@ -270,7 +274,6 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	} else {
 		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
-		//this->ExecuteEventDone();
 		this->PostExecuteEvent();
 	}
 	//VirtTimer_Stop(7);
