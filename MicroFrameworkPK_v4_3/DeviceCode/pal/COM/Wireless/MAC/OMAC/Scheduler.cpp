@@ -96,29 +96,43 @@ void OMACScheduler::ScheduleNextEvent(){
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 
-	rxEventOffset = m_DataReceptionHandler.NextEvent(m_slotNo);
+	rxEventOffset = m_DataReceptionHandler.NextEvent(GetSlotNumber());
 
 	txEventOffset = m_DataTransmissionHandler.NextEvent(m_slotNo);
-
+	//txEventOffset = txEventOffset-1;
 	beaconEventOffset = m_DiscoveryHandler.NextEvent(m_slotNo);
-
+	//beaconEventOffset = beaconEventOffset-1;
 	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(m_slotNo);
+	//timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
-		InputState.RequestState(I_DATA_RCV_PENDING);
 	}
 	if(txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
-		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	if(beaconEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
-		InputState.RequestState(I_DISCO_PENDING);
 	}
 	if(timeSyncEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = timeSyncEventOffset;
+	}
+
+	if(rxEventOffset == nextWakeupTimeInMicSec) {
+
+		InputState.RequestState(I_DATA_RCV_PENDING);
+	}
+	else if(txEventOffset == nextWakeupTimeInMicSec) {
+		InputState.RequestState(I_DATA_SEND_PENDING);
+	}
+	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
+		InputState.RequestState(I_DISCO_PENDING);
+	}
+	else if(timeSyncEventOffset == nextWakeupTimeInMicSec) {
 		InputState.RequestState(I_TIMESYNC_PENDING);
+	}
+	else{
+		InputState.RequestState(I_IDLE);
 	}
 
 	if(!timer1INuse){
@@ -172,49 +186,20 @@ bool OMACScheduler::RunEventTask(){
 
 void OMACScheduler::PostExecution(){
 	EnsureStopRadio();
+	InputState.ForceState(I_IDLE);
+	ProtoState.ToIdle();
 	ScheduleNextEvent();
 }
 
 bool OMACScheduler::EnsureStopRadio(){
 	DeviceStatus  ds = DS_Success;
 	bool e = FALSE;
-#ifdef FULL_DUTY_CYCLE
-#warning "USING FULL_DUTY_CYCLE"
-	Sleep();
-	PrintDutyCycle();
-	PostExecution();
-	//printfflush();
-	return;
-#endif
-
-	switch(ProtoState.GetState()) {
-		case S_IDLE :
-			InputState.ToIdle();
-			return TRUE;
-		case S_BEACON_1://State will soon change to S_BEACON_N
-			assert(1==0);
-		default :
-			ProtoState.ForceState(S_STOPPING);
-			//InputState.ForceState(S_STOPPING);
-			//CPU_GPIO_SetPinState( (GPIO_PIN) SCHED_START_STOP_PIN, FALSE );
-			ds = g_omac_RadioControl.Stop();
-	}
-#ifdef OMAC_DEBUG
-	//call SlotScheduler.printState();
-	//printf("stop result e=%u\n", e);
-#endif
-	/* switch(e) {
-		case  TRUE: // Ignore.  AMControl.stopDone will provide continuation.
-			break;
-		default : // Already shut down and we just don't know it.  Sleep.
-			Sleep();
-	} */
+	ds = g_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
-		ProtoState.ToIdle();
-		InputState.ToIdle();
 		return TRUE;
 	}
 	else {//TODO: BK : This should be implemented in the case of radio not stopping
+		assert(1==0);
 		return FALSE;
 	}
 }
