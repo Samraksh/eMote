@@ -71,16 +71,19 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
-	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
-	UINT64 nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_scheduler->GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
 /*
  *
  */
-UINT16 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
-	UINT32 period1Remaining, period2Remaining;
+UINT64 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
+	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
 
@@ -88,13 +91,7 @@ UINT16 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
 		return 0;
 	}
 	else  {
-		period1Remaining = m_period1 - period1Remaining;
-		period2Remaining = m_period2 - period2Remaining;
-		if (period1Remaining >= 0xffff >> SLOT_PERIOD_BITS && period2Remaining >= 0xffff >> SLOT_PERIOD_BITS) {
-			return 0xffff;
-		} else {
-			return ((period1Remaining < period2Remaining) ? (period1Remaining << SLOT_PERIOD_BITS) : (period2Remaining << SLOT_PERIOD_BITS));
-		}
+		return ((period1Remaining < period2Remaining) ? (period1Remaining ) : (period2Remaining ));
 	}
 }
 
@@ -209,7 +206,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	#endif
 
 	//this->ExecuteEventDone();
-	this->PostExecuteEvent();
+	//this->PostExecuteEvent();
 }
 
 /*
