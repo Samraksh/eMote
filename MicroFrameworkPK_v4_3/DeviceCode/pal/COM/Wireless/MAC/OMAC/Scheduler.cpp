@@ -163,12 +163,19 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 			m_slotNo = oldSlotNo + 1;
 		}
 	}*/
+	UINT64 slotDelay =  GetTimeTillTheEndofSlot();
+	slotDelay = SLOT_PERIOD*MICSECINMILISEC - slotDelay ;
+	hal_printf("\n[%lu - %llu] SlotAlarmHandler SlotDelay = %llu \n", m_slotNo, localTime, slotDelay);
+
 	//Using a simple increment for the time-being
 	UINT32 last_slotNo = m_slotNo;
 	m_slotNo = GetSlotNumber();
 	if(m_slotNo > last_slotNo &&  m_slotNo - last_slotNo >= 2 ){
-		hal_printf("Slot(s) were missed");
+		hal_printf("Slot(s) were missed\n");
 	}
+
+
+
 	//nextWakeup = ((m_slotNo + 1) << SLOT_PERIOD_BITS) + m_slotNoOffset - localTime;
 	//this->StartSlotAlarm(nextWakeup);
 #ifdef OMAC_DEBUG
