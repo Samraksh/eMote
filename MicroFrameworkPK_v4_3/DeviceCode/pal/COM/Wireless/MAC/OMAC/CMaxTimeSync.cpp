@@ -13,6 +13,7 @@
 extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 extern NeighborTable g_NeighborTable;
+extern OMACScheduler g_omac_scheduler;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
@@ -69,11 +70,14 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	}
 #endif
 }
-
+UINT64 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
+	return(g_omac_scheduler.GetTimeTillTheEndofSlot() + (nextEventsSlot - currentSlotNum - 1) * SLOT_PERIOD_MILLI * MICSECINMILISEC);
+}
 /*
  *
  */
-UINT16 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
+UINT16 CMaxTimeSync::NextEventinSlots(UINT32 currentSlotNum){
 	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
@@ -140,6 +144,7 @@ void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
 	////hal_printf("CMaxTimeSync::ExecuteEvent\n");
 	Send(sn->MacAddress, true);
 	////hal_printf("end CMaxTimeSync::ExecuteSlot\n");
+	PostExecuteEvent();
 }
 
 /*
@@ -155,6 +160,7 @@ void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
  */
 void CMaxTimeSync::PostExecuteEvent(){
 	////hal_printf("CMaxTimeSync::PostExecuteEvent\n");
+	g_omac_scheduler.PostExecution();
 }
 
 /*

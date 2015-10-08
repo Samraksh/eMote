@@ -80,7 +80,8 @@ class DiscoveryHandler: public EventHandler {
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
 
-  	UINT16 NextEvent(UINT32 currentSlotNum);
+	UINT64 NextEvent(UINT32 currentSlotNum);
+  	UINT16 NextEventinSlots(UINT32 currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);
   	void ExecuteEvent(UINT32 currentSlotNum);
   	UINT8 ExecuteEventDone();

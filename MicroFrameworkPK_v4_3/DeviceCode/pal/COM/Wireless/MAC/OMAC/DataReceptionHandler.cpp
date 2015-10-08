@@ -87,12 +87,16 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
+UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
+	return(g_omac_scheduler.GetTimeTillTheEndofSlot() + (nextEventsSlot - currentSlotNum - 1) * SLOT_PERIOD_MILLI * MICSECINMILISEC);
+}
 /*
  * Takes current slot number as input and returns slot number in future when event is supposed to happen
  * Input value:		32 bit current slot number
  * Return value:	16 bit slot value of event in future
  */
-UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 	UINT16 remainingSlots, randVal;
 
 	//Sanity check: I am executing when I am not supposed to.
@@ -199,7 +203,10 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 			hal_printf("snd_payload[i]: %u ", snd_payload[i]);
 		}
 		hal_printf("\n");*/
+		PostExecuteEvent(); //TODO: This must be scheduled via a timer and not indirectly called.
 	}
+
+
 }
 
 /*
@@ -228,12 +235,14 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//}
 	if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
 		//Stop the radio
-		g_omac_scheduler.Stop();
+		g_omac_RadioControl.Stop();
 	}
 	else {
 		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
+		g_omac_RadioControl.Stop();
 	}
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	g_omac_scheduler.PostExecution();
 }
 
 /*

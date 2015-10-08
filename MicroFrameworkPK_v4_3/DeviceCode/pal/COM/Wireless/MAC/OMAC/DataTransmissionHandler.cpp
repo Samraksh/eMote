@@ -83,6 +83,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	bool rv = Send();
 	m_nextTXCounter = 0;
+	PostExecuteEvent();
 }
 
 /*
@@ -98,7 +99,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
 	//stop the radio
-	g_omac_scheduler.Stop();
+	g_omac_scheduler.PostExecution();
 }
 
 /*
