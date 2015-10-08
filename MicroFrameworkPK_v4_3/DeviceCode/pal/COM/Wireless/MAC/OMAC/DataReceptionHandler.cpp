@@ -15,7 +15,7 @@ extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
-
+DataReceptionHandler g_DataReceptionHandler;
 
 static BOOL varCounter;
 MacReceiveFuncPtrType g_rxAckHandler;
@@ -28,6 +28,18 @@ void PublicReceiveCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
 }
 */
+
+
+UINT32 DataReceptionHandler::GetWakeupSlot()
+{
+	return m_nextWakeupSlot;
+}
+
+void DataReceptionHandler::SetWakeupSlot(UINT32 tmp_nextWakeupSlot)
+{
+	m_nextWakeupSlot = tmp_nextWakeupSlot;
+}
+
 
 /*
  *
@@ -50,7 +62,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_reportPeriod = 10000 / WAKEUP_INTERVAL;
 
 	m_lastBeaconRequestSlot = 0;
-	m_nextWakeupSlot = 0;
+	//m_nextWakeupSlot = 0;
 
 	wakeupSlot = wakeupTime = scheduledWakeupTime = 0;
 
@@ -66,7 +78,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	//m_nextSeed is updated with its passed pointer. It will be the next seed to use
 	//after 8 frames pass
-	m_nextWakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
+	UINT64 tmp_nextWakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_dataInterval;
+	SetWakeupSlot(tmp_nextWakeupSlot);
 	//seed is updated every 8 frames. return the seed to its initial value
 	g_omac_scheduler.m_DiscoveryHandler.SetSeed(lastSeed, m_dataInterval);
 	m_seedUpdateInterval = (m_dataInterval << 3);
@@ -87,6 +100,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
+
 /*
  * Takes current slot number as input and returns slot number in future when event is supposed to happen
  * Input value:		32 bit current slot number
@@ -94,21 +108,22 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
  */
 UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT16 remainingSlots, randVal;
+	//hal_printf("DataReceptionHandler::NextEvent currentSlotNum: %u\n", currentSlotNum);
 
 	//Sanity check: I am executing when I am not supposed to.
 	if (!m_shldWakeup) {
 		return 0xffff;
 	}
 
-
+	UINT32 tmp_nextWakeupSlot = GetWakeupSlot();
 	// If we haven't woken up yet in the current frame, skip this if-block and
 	// simply update the remainingSlot .
-	if (m_nextWakeupSlot < currentSlotNum) {
-		while (m_nextWakeupSlot < currentSlotNum) {
+	if (tmp_nextWakeupSlot < currentSlotNum) {
+		while (tmp_nextWakeupSlot < currentSlotNum) {
 			////hal_printf("DataReceptionHandler::NextEvent - step 1\n");
 			// first, find the slot denoting the start of the frame immediately after the current one.
 			// we have woken up already in the current frame b/c m_nextWakeupSlot < slotNum < nextFrame.
-			UINT32 nextFrame = m_nextWakeupSlot + m_dataInterval -	(m_nextWakeupSlot % m_dataInterval);
+			UINT32 nextFrame = tmp_nextWakeupSlot + m_dataInterval - (tmp_nextWakeupSlot % m_dataInterval);
 			//update the seed every 8 frames to reduce computation overhead
 			if (nextFrame % m_seedUpdateInterval == 0 ) {
 				//use the new/next seed for the next 8 frames
@@ -118,7 +133,8 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 				randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
 				////hal_printf("DataReceptionHandler::NextEvent -- m_nextSeed is %u\n", m_nextSeed);
 				////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
-				m_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
+				tmp_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
+				SetWakeupSlot(tmp_nextWakeupSlot);
 
 				//we have computed the wakeup slot for the frame denoted by nextFrame
 				//seed info contains the frame that we next need to compute the wakeup slot for
@@ -128,14 +144,16 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 			// If we are less than 8 frame since the last seed update, simply compute
 			// the next wakeup by advancing one frame from the last wakeup slot
 			else {
-				m_nextWakeupSlot += m_dataInterval;
+				tmp_nextWakeupSlot += m_dataInterval;
+				SetWakeupSlot(tmp_nextWakeupSlot);
 			}
-			hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
+			//hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
+			//hal_printf("DataReceptionHandler::NextEvent m_nextWakeupSlot: %d\n", tmp_nextWakeupSlot);
 		}
 	}
 
 	//then compute the remaining slots before our next wakeup based on the computed schedule
-	remainingSlots = m_nextWakeupSlot - currentSlotNum;
+	remainingSlots = tmp_nextWakeupSlot - currentSlotNum;
 
 
 	if (remainingSlots == 0) {

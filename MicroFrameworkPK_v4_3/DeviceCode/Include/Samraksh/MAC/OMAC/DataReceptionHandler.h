@@ -39,7 +39,8 @@ class DataReceptionHandler: public EventHandler {
 	UINT16 	m_receivedSlotCnt, m_reportPeriod;
 
 	UINT32	m_lastBeaconRequestSlot;
-	UINT32	m_nextWakeupSlot, m_seedUpdateInterval;
+	static UINT32	m_nextWakeupSlot;
+	UINT32 m_seedUpdateInterval;
 	UINT16	m_nextSeed, m_mask;
 
 	UINT32	wakeupSlot, wakeupTime, scheduledWakeupTime;
@@ -53,9 +54,12 @@ public:
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 	void SetWakeup(bool shldWakeup);
+	UINT32 GetWakeupSlot();
+	void SetWakeupSlot(UINT32);
 
 	bool SendDataBeacon(bool sendPiggyback);
 };
 
+UINT32 DataReceptionHandler::m_nextWakeupSlot = 0;
 
 #endif /* DATARECEPTIONHANDLER_H_ */

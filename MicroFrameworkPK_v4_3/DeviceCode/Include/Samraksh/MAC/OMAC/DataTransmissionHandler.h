@@ -29,8 +29,10 @@ class DataTransmissionHandler: public EventHandler {
 
 	//Count of times current packet has been sent
 	UINT8   m_dataHeartBeats;
-	UINT32  m_nextTXCounter;
-	UINT64  m_nextTXTicks;
+	static UINT32  m_nextTXCounter;
+	static UINT64  m_nextTXTicks;
+	static INT64 m_nbrGlobalTime;
+	static UINT32 m_nbrWakeupSlot;
 	UINT32  m_lastSlot;
 	Message_15_4_t m_piggybackBeaconCopy;
 	Message_15_4_t* m_outgoingEntryPtr;
@@ -51,5 +53,21 @@ public:
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
 	void ScheduleDataPacket();
 	bool Send();
+
+	UINT64 GetTxTicks();
+	UINT32 GetTxCounter();
+	void SetTxTicks(UINT64);
+	void SetTxCounter(UINT32);
+
+	INT64 GetNbrGlobalTime();
+	UINT32 GetNbrWakeupSlot();
+	void SetNbrGlobalTime(INT64);
+	void SetNbrWakeupSlot(UINT32);
 };
+
+UINT32 DataTransmissionHandler::m_nextTXCounter = 0;
+UINT64 DataTransmissionHandler::m_nextTXTicks = 0;
+INT64 DataTransmissionHandler::m_nbrGlobalTime = 0;
+UINT32 DataTransmissionHandler::m_nbrWakeupSlot = 0;
+
 #endif /* DATATRANSMISSIONHANDLER_H_ */
