@@ -258,7 +258,10 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
 			// is later than the start of the clock. So, a slotNumber offset should be used
-			slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			//slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
+			slotNumber = (UINT32)(nbrGlobalTime / SLOT_PERIOD_TICKS);
+
 			mask = 137 * 29 * (dest + 1);
 			// seed consistency is critical. Because the following operations involve
 			// changing the seed based on separate blocks of read and write,
