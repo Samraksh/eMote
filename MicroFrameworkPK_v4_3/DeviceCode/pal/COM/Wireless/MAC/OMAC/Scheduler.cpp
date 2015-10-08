@@ -18,11 +18,17 @@ HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
 bool flag = true; //BK: I don't know what this is used for
 
-void PublicSchedulerTaskHandler(void * param){
+void PublicSchedulerTaskHandler1(void * param){
 	g_omac_scheduler.RunEventTask();
+	g_omac_scheduler.timer1INuse=false;
 }
-
+void PublicSchedulerTaskHandler2(void * param){
+	g_omac_scheduler.RunEventTask();
+	g_omac_scheduler.timer2INuse=false;
+}
 void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
+	timer1INuse = false;
+	timer2INuse =false;
 	radioID = _radioID;
 	macID = _macID;
 	//Initialize variables
@@ -51,7 +57,9 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
-	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler);
+	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
+	VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
+
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 	OMAC_scheduler_TimerCompletion.Initialize();
 
@@ -113,13 +121,27 @@ void OMACScheduler::ScheduleNextEvent(){
 		InputState.RequestState(I_TIMESYNC_PENDING);
 	}
 
-	BOOL* completionFlag = (BOOL*)false;
-	// we assume only 1 can be active, abort previous just in case
-	OMAC_scheduler_TimerCompletion.Abort();
-	OMAC_scheduler_TimerCompletion.InitializeForISR(PublicSchedulerTaskHandler, completionFlag);
-	//Enqueue a task to listen for messages 100 usec from now (almost immediately)
-	//TODO (Ananth): to check what the right enqueue value should be
-	OMAC_scheduler_TimerCompletion.EnqueueDelta(nextWakeupTimeInMicSec);
+	if(!timer1INuse){
+		timer1INuse = true;
+		VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER);
+	}
+	else if(!timer2INuse){
+		timer2INuse = true;
+		VirtTimer_Change(HAL_SLOT_TIMER2, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
+		VirtTimer_Start(HAL_SLOT_TIMER2);
+	}
+	else{
+		assert(1==0);
+	}
+//
+//	BOOL* completionFlag = (BOOL*)false;
+//	// we assume only 1 can be active, abort previous just in case
+//	OMAC_scheduler_TimerCompletion.Abort();
+//	OMAC_scheduler_TimerCompletion.InitializeForISR(PublicSchedulerTaskHandler, completionFlag);
+//	//Enqueue a task to listen for messages 100 usec from now (almost immediately)
+//	//TODO (Ananth): to check what the right enqueue value should be
+//	OMAC_scheduler_TimerCompletion.EnqueueDelta(nextWakeupTimeInMicSec);
 }
 
 bool OMACScheduler::RunEventTask(){
