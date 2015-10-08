@@ -72,8 +72,11 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
-	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
-	UINT64 nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
