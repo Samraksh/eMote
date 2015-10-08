@@ -159,7 +159,8 @@ DeviceStatus RadioControl::Stop(){
  *
  */
 DeviceStatus RadioControl::StartPLL(){
-	return StartRx();
+	return DS_Success;
+	//return StartRx();
 	//DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
 	//if(returnVal == DS_Success){
 	//	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
