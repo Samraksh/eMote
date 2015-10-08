@@ -146,7 +146,7 @@ void OMACScheduler::SlotAlarmHandler(void* Param){
 #ifdef PROFILING
 	taskDelay1 = localTime;
 #endif
-
+	m_slotNoOffset = 0;
 	//Compensation for alarm drift becuase of cpu doing other things:
 	//m_slotNoOffset: is the offset it fires the first time
 	//Doublecheck logic: the logic is not working now
