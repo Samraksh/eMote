@@ -168,34 +168,38 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
-	//call ChannelMonitor.monitorChannel();
-	//SendDataBeacon(FALSE);
-	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
-	//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
+	DeviceStatus e = DS_Fail;
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+		//call ChannelMonitor.monitorChannel();
+		//SendDataBeacon(FALSE);
+		hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+		//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
-	m_wakeupCnt++;
-	//BK: Schedule post execute event
+		m_wakeupCnt++;
+		//BK: Schedule post execute event
 
-	/*Message_15_4_t txMsg;
-	Message_15_4_t* txMsgPtr = &txMsg;
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
-	Message_15_4_t* msgPtr = *tempPtr;
-	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
-	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-	UINT8* snd_payload = txMsgPtr->GetPayload();*/
+		/*Message_15_4_t txMsg;
+		Message_15_4_t* txMsgPtr = &txMsg;
+		Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+		Message_15_4_t* msgPtr = *tempPtr;
+		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+		memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+		UINT8* snd_payload = txMsgPtr->GetPayload();*/
 
-	//volatile UINT16 rx_length;
-	/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-	MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
-	//(*g_rxAckHandler)(rx_length);
-	//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
+		//volatile UINT16 rx_length;
+		/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
+		//(*g_rxAckHandler)(rx_length);
+		//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
 
 
-	/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
-		hal_printf("snd_payload[i]: %u ", snd_payload[i]);
+		/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
+			hal_printf("snd_payload[i]: %u ", snd_payload[i]);
+		}
+		hal_printf("\n");*/
 	}
-	hal_printf("\n");*/
 }
 
 /*
