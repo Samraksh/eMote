@@ -23,11 +23,11 @@ MacEventHandler_t* g_appHandler;
 
 
 //extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
-/*
-void PublicReceiveCallback(void * param){
-	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
+
+void PublicReceiveHCallback(void * param){
+	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
-*/
+
 
 
 UINT32 DataReceptionHandler::GetWakeupSlot()
@@ -92,6 +92,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
 
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+
 	/*if(!varCounter){
 		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
@@ -100,6 +103,15 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
+UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+	return(nextEventsMicroSec);
+}
 /*
  * Takes current slot number as input and returns slot number in future when event is supposed to happen
  * Input value:		32 bit current slot number
@@ -218,8 +230,8 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 		hal_printf("\n");*/
 
 	}
-	PostExecuteEvent(); //TODO: This must be scheduled via a timer and not indirectly called.
-
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 }
 
 /*
