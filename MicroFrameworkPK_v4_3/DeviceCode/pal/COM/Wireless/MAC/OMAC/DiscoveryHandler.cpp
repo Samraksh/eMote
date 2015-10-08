@@ -72,7 +72,9 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
 	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
-	return(g_scheduler->GetTimeTillTheEndofSlot() + (nextEventsSlot - currentSlotNum - 1) * SLOT_PERIOD_MILLI * MICSECINMILISEC);
+	UINT64 nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_scheduler->GetTimeTillTheEndofSlot();
+	return(nextEventsMicroSec);
 }
 /*
  *

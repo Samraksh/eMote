@@ -70,9 +70,12 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	}
 #endif
 }
+
 UINT64 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
 	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
-	return(g_omac_scheduler.GetTimeTillTheEndofSlot() + (nextEventsSlot - currentSlotNum - 1) * SLOT_PERIOD_MILLI * MICSECINMILISEC);
+	UINT64 nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+	return(nextEventsMicroSec);
 }
 /*
  *
