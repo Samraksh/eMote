@@ -70,10 +70,14 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
+UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = NextEventinSlots(currentSlotNum);
+	return(g_scheduler->GetTimeTillTheEndofSlot() + (nextEventsSlot - currentSlotNum - 1) * SLOT_PERIOD_MILLI * MICSECINMILISEC);
+}
 /*
  *
  */
-UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
+UINT16 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
 	UINT32 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
@@ -118,7 +122,7 @@ void DiscoveryHandler::PostExecuteEvent(){
 	////hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
 	//stop the radio
-	g_scheduler->Stop();
+	g_scheduler->PostExecution();
 }
 
 /*

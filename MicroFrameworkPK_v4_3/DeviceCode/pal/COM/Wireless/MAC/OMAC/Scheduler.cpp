@@ -53,6 +53,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	VirtTimer_Initialize();
 	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler);
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
+	OMAC_scheduler_TimerCompletion.Initialize();
 
 	//Initialize Handlers
 	m_DiscoveryHandler.SetParentSchedulerPtr(this);
@@ -61,11 +62,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	m_DataTransmissionHandler.Initialize();
 	m_TimeSyncHandler.Initialize(radioID, macID);
 
-	//Initialize various processes
-	this->StartSlotAlarm((UINT64) SLOT_PERIOD);
-	//this->StartDiscoveryTimer(1000*(UINT64)TICKS_PER_MILLI);
-
-	OMAC_scheduler_TimerCompletion.Initialize();
+	ScheduleNextEvent();
 }
 
 void OMACScheduler::UnInitialize(){
@@ -119,7 +116,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	BOOL* completionFlag = (BOOL*)false;
 	// we assume only 1 can be active, abort previous just in case
 	OMAC_scheduler_TimerCompletion.Abort();
-	OMAC_scheduler_TimerCompletion.InitializeForISR(RunEventTask, completionFlag);
+	OMAC_scheduler_TimerCompletion.InitializeForISR(PublicSchedulerTaskHandler, completionFlag);
 	//Enqueue a task to listen for messages 100 usec from now (almost immediately)
 	//TODO (Ananth): to check what the right enqueue value should be
 	OMAC_scheduler_TimerCompletion.EnqueueDelta(nextWakeupTimeInMicSec);
@@ -171,9 +168,9 @@ bool OMACScheduler::EnsureStopRadio(){
 	switch(ProtoState.GetState()) {
 		case S_IDLE :
 			InputState.ToIdle();
-			return;
+			return TRUE;
 		case S_BEACON_1://State will soon change to S_BEACON_N
-			return;
+			assert(1==0);
 		default :
 			ProtoState.ForceState(S_STOPPING);
 			//InputState.ForceState(S_STOPPING);

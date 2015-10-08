@@ -52,7 +52,8 @@ public:
 	//UINT16 m_leader;
 
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT16 NextEvent(UINT32 currentSlotNum);
+	UINT64 NextEvent(UINT32 currentSlotNum);
+  	UINT16 NextEventinSlots(UINT32 currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);
 	void ExecuteEvent(UINT32 currentSlotNum);
 	UINT8 ExecuteEventDone();
