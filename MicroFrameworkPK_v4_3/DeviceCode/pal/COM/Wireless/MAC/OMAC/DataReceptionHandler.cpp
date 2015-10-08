@@ -203,9 +203,9 @@ void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 			hal_printf("snd_payload[i]: %u ", snd_payload[i]);
 		}
 		hal_printf("\n");*/
-		PostExecuteEvent(); //TODO: This must be scheduled via a timer and not indirectly called.
-	}
 
+	}
+	PostExecuteEvent(); //TODO: This must be scheduled via a timer and not indirectly called.
 
 }
 

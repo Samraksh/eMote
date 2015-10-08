@@ -46,7 +46,7 @@ void DataTransmissionHandler::Initialize(){
 /*
  * This function returns the number of ticks until the transmission time
  */
-UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
+UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
 	if (g_send_buffer.Size() > 0 && m_nextTXCounter == 0) {
 		this->ScheduleDataPacket();
@@ -72,7 +72,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 		}
 
 	} else {
-		return 0xffff;
+		return 0xffffffffffffffff;
 	}
 }
 
