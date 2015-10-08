@@ -95,15 +95,15 @@ UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
 void OMACScheduler::ScheduleNextEvent(){
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
-
+	m_slotNo = GetSlotNumber();
 	rxEventOffset = m_DataReceptionHandler.NextEvent(GetSlotNumber());
-
-	txEventOffset = m_DataTransmissionHandler.NextEvent(m_slotNo);
+	//rxEventOffset = rxEventOffset-1;
+	txEventOffset = m_DataTransmissionHandler.NextEvent(GetSlotNumber());
 	//txEventOffset = txEventOffset-1;
-	beaconEventOffset = m_DiscoveryHandler.NextEvent(m_slotNo);
-	//beaconEventOffset = beaconEventOffset-1;
-	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(m_slotNo);
-	//timeSyncEventOffset = timeSyncEventOffset-1;
+	beaconEventOffset = m_DiscoveryHandler.NextEvent(GetSlotNumber());
+	//beaconEventOffset = beaconEventOffset -1;
+	//timeSyncEventOffset = m_TimeSyncHandler.NextEvent(GetSlotNumber());
+	timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
@@ -205,13 +205,11 @@ void OMACScheduler::PostExecution(){
 
 bool OMACScheduler::EnsureStopRadio(){
 	DeviceStatus  ds = DS_Success;
-	bool e = FALSE;
 	ds = g_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		return TRUE;
 	}
 	else {//TODO: BK : This should be implemented in the case of radio not stopping
-		assert(1==0);
 		return FALSE;
 	}
 }
