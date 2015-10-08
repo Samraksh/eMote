@@ -119,7 +119,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, FALSE);
-		hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
+		//hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
 #endif
 
 	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);

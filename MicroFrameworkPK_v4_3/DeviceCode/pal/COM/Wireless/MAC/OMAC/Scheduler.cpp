@@ -108,8 +108,20 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
 	}
-	if(txEventOffset < nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec  = txEventOffset;
+	else {
+		oldSlotNo = m_slotNo;
+		//have to compensate for numerical errors
+		m_slotNo = (localTime - m_slotNoOffset) >> SLOT_PERIOD_BITS;
+		//INVARIANT: localTime = m_slotNo << SLOT_PERIOD_BITS + m_slotNoOffset
+		if (m_slotNo <= oldSlotNo) {
+			m_slotNo = oldSlotNo + 1;
+		}
+	}
+	//Using a simple increment for the time-being
+	UINT32 last_slotNo = m_slotNo;
+	m_slotNo = GetSlotNumber();
+	if(m_slotNo > last_slotNo &&  m_slotNo - last_slotNo >= 2 ){
+		//hal_printf("Slot(s) were missed\n");
 	}
 	if(beaconEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
