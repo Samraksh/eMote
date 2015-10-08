@@ -95,6 +95,7 @@ typedef enum {
   I_DATA_RCV_PENDING, //waiting to receive
   I_DATA_SEND_PENDING, //pending to send
   I_TIMESYNC_PENDING,
+  I_DISCO_PENDING,
   I_DWELL_SEND
 } OMacInput_t;
 
