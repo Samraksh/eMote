@@ -79,6 +79,7 @@ typedef class State{
  */
 class OMACScheduler{
 private:
+
 	UINT8 radioID;
 	UINT8 macID;
 	//static bool startMeasuringDutyCycle;
@@ -108,6 +109,7 @@ private:
 	void PrintDutyCycle();
 
 public:
+	bool timer1INuse, timer2INuse;
 	State_t ProtoState;		//stores state of the protocol
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
