@@ -32,6 +32,7 @@ namespace Benchmark
         const int TEST_006_SIZE = 400;
         const int TEST_006_SEED = 5980;
         const int TEST_007_SIZE = 2500;
+        const int TEST_008_SIZE = 5000;
 
         private static uint PRE_TEST(PowerLevel pl)
         {
@@ -280,6 +281,31 @@ namespace Benchmark
             test.doTest();
         }
 
+        private static void TEST_008(PowerLevel pl = PowerLevel.High, int size = TEST_008_SIZE)
+        {
+            uint freeMem = PRE_TEST(pl);
+            long start = DateTime.Now.Ticks;
+            // START TEST CODE
+
+            double sum = 0;
+
+            // Setup the array
+            for (int i = 1; i < size; i++ )
+            {
+                sum += System.Math.Sqrt(i);
+            }
+
+            // END TEST CODE
+            long diff = DateTime.Now.Ticks - start;
+            long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
+
+            // RESULT STRINGS
+            string desc = "Test 008: Sum sqrt() \r\n\tcalculation: "+sum;
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
+        }
+
         public static void Main()
         {
             Thread.Sleep(ERASE_WINDOW);
@@ -308,6 +334,10 @@ namespace Benchmark
             TEST_007_HELPER(PowerLevel.High);
             TEST_007_HELPER(PowerLevel.Medium);
             TEST_007_HELPER(PowerLevel.Low);
+
+            TEST_008(PowerLevel.High);
+            TEST_008(PowerLevel.Medium);
+            TEST_008(PowerLevel.Low);
 
             PowerState.ChangePowerLevel(PowerLevel.High);
             Debug.Print(TEST_SEP);
