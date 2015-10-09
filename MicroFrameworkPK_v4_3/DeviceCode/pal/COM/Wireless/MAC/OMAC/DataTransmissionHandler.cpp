@@ -120,7 +120,7 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 			else {
 				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(tmp_nextTXTicks - HAL_Time_CurrentTicks());
 				//return (UINT16)(ticksInMicroSecs/1000);
-				hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), ticksInMicroSecs, ticksInMicroSecs +HAL_Time_CurrentTime() );
+				//hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), ticksInMicroSecs, ticksInMicroSecs +HAL_Time_CurrentTime() );
 				return ticksInMicroSecs;
 			}
 		}
