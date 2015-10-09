@@ -89,7 +89,7 @@ void DataTransmissionHandler::Initialize(){
 /*
  * This function returns the number of ticks until the transmission time
  */
-UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
+UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
 	//hal_printf("DataTransmissionHandler::NextEvent currentSlotNum: %u\n", currentSlotNum);
 	UINT32 tmp_nextTXCounter = GetTxCounter();
@@ -125,7 +125,7 @@ UINT16 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 		}
 
 	} else {
-		return 0xffff;
+		return 0xffffffffffffffff;
 	}
 }
 
@@ -136,7 +136,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	bool rv = Send();
 	SetTxCounter(0);
-	//m_nextTXCounter = 0;
+	PostExecuteEvent();
 }
 
 /*
@@ -152,7 +152,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
 	//stop the radio
-	g_omac_scheduler.Stop();
+	g_omac_scheduler.PostExecution();
 }
 
 /*
@@ -318,7 +318,10 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
 			// is later than the start of the clock. So, a slotNumber offset should be used
-			slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			//slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
+			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
+			slotNumber = (UINT32)(nbrGlobalTime / SLOT_PERIOD_TICKS);
+
 			mask = 137 * 29 * (dest + 1);
 			// seed consistency is critical. Because the following operations involve
 			// changing the seed based on separate blocks of read and write,

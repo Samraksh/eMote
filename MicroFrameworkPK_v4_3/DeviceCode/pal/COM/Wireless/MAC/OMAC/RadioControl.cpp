@@ -30,11 +30,7 @@ extern Buffer_15_4_t g_send_buffer;
 DeviceStatus RadioControl::Initialize(){
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
-	CPU_GPIO_SetPinState( RADIOCONTROL_SEND_PIN, TRUE );
-	CPU_GPIO_SetPinState( RADIOCONTROL_SEND_PIN, FALSE );
-#ifdef DEBUG_TIMESYNC
-	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
-#endif
+	CPU_GPIO_EnableOutputPin(RADIOCONTROL_STATEPIN, FALSE);
 	return DS_Success;
 }
 
@@ -163,7 +159,8 @@ DeviceStatus RadioControl::Stop(){
  *
  */
 DeviceStatus RadioControl::StartPLL(){
-	return StartRx();
+	return DS_Success;
+	//return StartRx();
 	//DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
 	//if(returnVal == DS_Success){
 	//	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );

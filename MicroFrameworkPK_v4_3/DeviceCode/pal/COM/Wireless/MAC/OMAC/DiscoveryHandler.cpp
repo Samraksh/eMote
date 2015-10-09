@@ -70,11 +70,20 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
+UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_scheduler->GetTimeTillTheEndofSlot();
+	return(nextEventsMicroSec);
+}
 /*
  *
  */
-UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
-	UINT32 period1Remaining, period2Remaining;
+UINT64 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
+	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
 
@@ -82,13 +91,7 @@ UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
 		return 0;
 	}
 	else  {
-		period1Remaining = m_period1 - period1Remaining;
-		period2Remaining = m_period2 - period2Remaining;
-		if (period1Remaining >= 0xffff >> SLOT_PERIOD_BITS && period2Remaining >= 0xffff >> SLOT_PERIOD_BITS) {
-			return 0xffff;
-		} else {
-			return ((period1Remaining < period2Remaining) ? (period1Remaining << SLOT_PERIOD_BITS) : (period2Remaining << SLOT_PERIOD_BITS));
-		}
+		return ((period1Remaining < period2Remaining) ? (period1Remaining ) : (period2Remaining ));
 	}
 }
 
@@ -96,7 +99,11 @@ UINT16 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
-	Beacon1();
+	DeviceStatus e = DS_Fail;
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		Beacon1();
+	}
 }
 
 /*
@@ -114,7 +121,7 @@ void DiscoveryHandler::PostExecuteEvent(){
 	////hal_printf("DiscoveryHandler::PostExecuteEvent\n");
 	////m_busy = FALSE;
 	//stop the radio
-	g_scheduler->Stop();
+	g_scheduler->PostExecution();
 }
 
 /*
@@ -199,7 +206,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	#endif
 
 	//this->ExecuteEventDone();
-	this->PostExecuteEvent();
+	//this->PostExecuteEvent();
 }
 
 /*
@@ -270,7 +277,6 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	} else {
 		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
-		//this->ExecuteEventDone();
 		this->PostExecuteEvent();
 	}
 	//VirtTimer_Stop(7);
@@ -288,6 +294,13 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
 
+	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
+		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
+		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
+	} else {
+		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
+	}
+
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
@@ -300,19 +313,14 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	INT64 l_offset;
 	rcv_ltime = (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
 	l_offset = rcv_ltime - EventTime;
-	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
+	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 
 	////MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.GetCurrentActiveApp()]->ReceiveHandler;
 	MacReceiveFuncPtrType appHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 	//(*appHandler);
 
-	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
-		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
-	} else {
-		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
-	}
+
 
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed){

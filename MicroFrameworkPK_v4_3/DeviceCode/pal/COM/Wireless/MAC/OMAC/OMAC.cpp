@@ -203,13 +203,17 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	//Starting radio's rx here
-	DeviceStatus e = g_omac_RadioControl.StartRx();
-	if(e != DS_Success){
-		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
-	}
-	else{
-		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-	}
+	//DeviceStatus e = g_omac_RadioControl.StartRx(); //BK: You have already received. Yous hould
+//	if(e != DS_Success){
+//		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
+//	}
+//	else{
+//		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
+//	}
+
+	RadioAddress_t sourceID = msg->GetHeader()->src;
+	RadioAddress_t destID = msg->GetHeader()->dest;
+	RadioAddress_t myID = g_OMAC.GetAddress();
 
 	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
@@ -230,15 +234,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
-			CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-			hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
-			hal_printf("Successfully got a data packet\n");
-			 if ( msg->GetHeader()->src == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
-				 hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
-			 }
-			//g_omac_scheduler.m_DataReceptionHandler.ExecuteEvent(0);
-			(*g_rxAckHandler)(Size);
-			CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+			if(myID == destID) {
+				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
+				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
+				hal_printf("Successfully got a data packet\n");
+				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
+					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
+				}
+				(*g_rxAckHandler)(Size);
+				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+			}
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");

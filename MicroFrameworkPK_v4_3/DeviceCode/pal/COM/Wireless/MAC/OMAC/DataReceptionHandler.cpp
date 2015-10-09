@@ -23,11 +23,11 @@ MacEventHandler_t* g_appHandler;
 
 
 //extern LCD_PCF85162_Driver g_LCD_PCF85162_Driver;
-/*
-void PublicReceiveCallback(void * param){
-	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
+
+void PublicReceiveHCallback(void * param){
+	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
-*/
+
 
 
 UINT32 DataReceptionHandler::GetWakeupSlot()
@@ -92,6 +92,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 		hal_printf("ERROR: data interval is less or equal to 1\n");
 	}
 
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+
 	/*if(!varCounter){
 		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
@@ -100,13 +103,21 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
-
+UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+	return(nextEventsMicroSec);
+}
 /*
  * Takes current slot number as input and returns slot number in future when event is supposed to happen
  * Input value:		32 bit current slot number
  * Return value:	16 bit slot value of event in future
  */
-UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
+UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 	UINT16 remainingSlots, randVal;
 	//hal_printf("DataReceptionHandler::NextEvent currentSlotNum: %u\n", currentSlotNum);
 
@@ -186,34 +197,41 @@ UINT16 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
  *
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
-	//call ChannelMonitor.monitorChannel();
-	//SendDataBeacon(FALSE);
-	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
-	//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
+	DeviceStatus e = DS_Fail;
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+		//call ChannelMonitor.monitorChannel();
+		//SendDataBeacon(FALSE);
+		hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+		//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
-	m_wakeupCnt++;
-	//BK: Schedule post execute event
+		m_wakeupCnt++;
+		//BK: Schedule post execute event
 
-	/*Message_15_4_t txMsg;
-	Message_15_4_t* txMsgPtr = &txMsg;
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
-	Message_15_4_t* msgPtr = *tempPtr;
-	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
-	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-	UINT8* snd_payload = txMsgPtr->GetPayload();*/
+		/*Message_15_4_t txMsg;
+		Message_15_4_t* txMsgPtr = &txMsg;
+		Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+		Message_15_4_t* msgPtr = *tempPtr;
+		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+		memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+		UINT8* snd_payload = txMsgPtr->GetPayload();*/
 
-	//volatile UINT16 rx_length;
-	/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-	MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
-	//(*g_rxAckHandler)(rx_length);
-	//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
+		//volatile UINT16 rx_length;
+		/*MacReceiveFuncPtrType rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());*/
+		//(*g_rxAckHandler)(rx_length);
+		//MacEventHandler_t* appHandler1 = MAC<Message_15_4_t, MacConfig>::GetAppHandler( MAC<Message_15_4_t, MacConfig>::GetAppIdIndex() );
 
 
-	/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
-		hal_printf("snd_payload[i]: %u ", snd_payload[i]);
+		/*for(int i = 0; i < txMsgPtr->GetMessageSize(); i++){
+			hal_printf("snd_payload[i]: %u ", snd_payload[i]);
+		}
+		hal_printf("\n");*/
+
 	}
-	hal_printf("\n");*/
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 }
 
 /*
@@ -242,12 +260,14 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//}
 	if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
 		//Stop the radio
-		g_omac_scheduler.Stop();
+		g_omac_RadioControl.Stop();
 	}
 	else {
 		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
+		g_omac_RadioControl.Stop();
 	}
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	g_omac_scheduler.PostExecution();
 }
 
 /*

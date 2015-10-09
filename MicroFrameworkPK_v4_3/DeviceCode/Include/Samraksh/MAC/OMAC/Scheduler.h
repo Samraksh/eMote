@@ -79,6 +79,7 @@ typedef class State{
  */
 class OMACScheduler{
 private:
+
 	UINT8 radioID;
 	UINT8 macID;
 	//static bool startMeasuringDutyCycle;
@@ -108,6 +109,7 @@ private:
 	void PrintDutyCycle();
 
 public:
+	bool timer1INuse, timer2INuse;
 	State_t ProtoState;		//stores state of the protocol
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
@@ -116,24 +118,6 @@ public:
 	CMaxTimeSync_t m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
-	//Define public methods
-	void Initialize(UINT8 radioID, UINT8 macID);
-	void UnInitialize();
-	void StartSlotAlarm(UINT64 Delay);	//CounterAlarm.Start from TinyOS
-	void SlotAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS
-
-	void StartPostExecuteTaskTimer(UINT64 Delay);	//DataAlarm.Start from TinyOS
-	void DataAlarmHandler(void* Param); //CounterAlarm.Fired from TinyOS
-	bool IsRunningDataAlarm(); //DataAlarm.IsRunning from TinyOS
-
-	void StartDiscoveryTimer(UINT64 Delay);	//HeartBeatTimer.Start from TinyOS
-	void DiscoveryTimerHandler(void* Param);
-
-	//Main Tasks
-	bool RunEventTask(); // BK: This is the main event for the slot. Queries all the modules and executes one if needed
-	bool RadioTask();
-	void Stop();
-	void PostExecution();
 
 	UINT32 GetCounterOffset(){
 		return m_slotNoOffset;
@@ -142,8 +126,24 @@ public:
 		return (UINT16)m_radioDelayAvg;
 	}
 
+	//BK The methods from this point on is in use for sure. The rest can be deleted.
+	//TODO: Clean up the code by removing unused variables and methods
+	//Define public methods
+	void Initialize(UINT8 radioID, UINT8 macID);
+	void UnInitialize();
 	UINT32 GetSlotNumber();
 	UINT32 GetTimeTillTheEndofSlot();
+	void ScheduleNextEvent();
+
+
+	//Main Tasks
+	bool RunEventTask(); // BK: This is the main event for the slot. Queries all the modules and executes one if needed
+	void PostExecution();
+	bool EnsureStopRadio();
+
+
+
+
 
 }OMACScheduler_t;
 
