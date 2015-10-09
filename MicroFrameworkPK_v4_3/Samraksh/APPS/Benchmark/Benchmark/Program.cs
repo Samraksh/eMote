@@ -12,6 +12,8 @@ namespace Benchmark
     public class Program
     {
 
+        const string VERSION = "Benchmark App v0.2 started. Running 7 tests.";
+
         const int TIMEBASE = 8000000; // in all power modes, 8 MHz is the timebase
         const int TIMEBASE_MS = TIMEBASE / 1000; // to get answer in milli-seconds
         const int ERASE_WINDOW = 14000; // ms
@@ -22,13 +24,14 @@ namespace Benchmark
         const string LOW_POWER = "Low Power";
         const string ERROR_POWER = "Unknown Power State, error";
 
-        const string TEST_SEP = "\r\n";
+        const string TEST_SEP = "";
 
         const int TEST_001_SIZE = 10000;
         const int TEST_002_SIZE = 120;
         const int TEST_003_SIZE = 1000;
         const int TEST_006_SIZE = 400;
         const int TEST_006_SEED = 5980;
+        const int TEST_007_SIZE = 2500;
 
         private static uint PRE_TEST(PowerLevel pl)
         {
@@ -84,7 +87,7 @@ namespace Benchmark
             usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
 
             // RESULT STRINGS
-            string desc = "Test 001: 4 Busy wait loops";
+            string desc = "Test 001: Busy wait loops";
             POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
@@ -209,11 +212,79 @@ namespace Benchmark
             POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
+        public class TEST_007
+        {
+            private PowerLevel pl;
+            private int size;
+            private AutoResetEvent ev;
+
+            public TEST_007(PowerLevel pl, int size)
+            {
+                this.pl = pl;
+                this.size = size;
+                ev = new AutoResetEvent(false);
+            }
+
+            public void doTest()
+            {
+                uint freeMem = PRE_TEST(pl);
+                long start = DateTime.Now.Ticks;
+
+                // START TEST CODE
+                OutputPort pinout = new OutputPort(Cpu.Pin.GPIO_Pin0, false);
+                InterruptPort pinint = new InterruptPort(Cpu.Pin.GPIO_Pin1, false, Port.ResistorMode.PullDown, Port.InterruptMode.InterruptEdgeHigh);
+                pinint.OnInterrupt += gpioInt;
+                bool isWired = false;
+
+                // Make sure the GPIO is attached.
+
+                {
+                    pinout.Write(true);
+                    ev.WaitOne(100, true);
+                    isWired = pinint.Read();
+                    pinout.Write(false);
+                }
+
+                if (isWired)
+                {
+                    for (int i = 1; i < size; i++)
+                    {
+                        pinout.Write(true);
+                        ev.WaitOne();
+                        pinout.Write(false);
+                    }
+                }
+                // END TEST CODE
+
+                long diff = DateTime.Now.Ticks - start;
+                long diffms = diff / TIMEBASE_MS;
+                uint usedMem = Debug.GC(false);
+                usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
+
+                // RESULT STRINGS
+                string desc = "Test 007: GPIO + interrupts";
+                if (!isWired) { desc = desc + "\r\n\tTest Invalid, pin 0+1 not wired"; diffms = 0; }
+                POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
+            }
+
+            private void gpioInt(uint data1, uint data2, DateTime time)
+            {
+                ev.Set();
+            }
+
+        }
+
+        private static void TEST_007_HELPER(PowerLevel pl = PowerLevel.High, int size = TEST_007_SIZE)
+        {
+            TEST_007 test = new TEST_007(pl, size);
+            test.doTest();
+        }
+
         public static void Main()
         {
             Thread.Sleep(ERASE_WINDOW);
             //Debug.EnableGCMessages(true);
-            Debug.Print("Benchmark App v0.1 started");
+            Debug.Print(VERSION);
 
             TEST_001(PowerLevel.High);
             TEST_001(PowerLevel.Medium);
@@ -227,12 +298,16 @@ namespace Benchmark
             TEST_003(PowerLevel.Medium);
             TEST_003(PowerLevel.Low);
 
+            //TEST_004();
+            //TEST_005();
+
             TEST_006(PowerLevel.High);
             TEST_006(PowerLevel.Medium);
             TEST_006(PowerLevel.Low);
 
-            TEST_004();
-            TEST_005();
+            TEST_007_HELPER(PowerLevel.High);
+            TEST_007_HELPER(PowerLevel.Medium);
+            TEST_007_HELPER(PowerLevel.Low);
 
             PowerState.ChangePowerLevel(PowerLevel.High);
             Debug.Print(TEST_SEP);
