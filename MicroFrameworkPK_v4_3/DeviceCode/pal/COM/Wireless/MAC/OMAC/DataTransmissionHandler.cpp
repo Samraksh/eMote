@@ -120,7 +120,7 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 			else {
 				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(tmp_nextTXTicks - HAL_Time_CurrentTicks());
 				//return (UINT16)(ticksInMicroSecs/1000);
-				hal_printf("\n[%llu%llu] DataTransmissionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), ticksInMicroSecs, ticksInMicroSecs +HAL_Time_CurrentTime() );
+				hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), ticksInMicroSecs, ticksInMicroSecs +HAL_Time_CurrentTime() );
 				return ticksInMicroSecs;
 			}
 		}
@@ -135,7 +135,7 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
  */
 void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
-	hal_printf("\n[%llu%llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
 	bool rv = Send();
 	SetTxCounter(0);
 	//m_nextTXCounter = 0;
