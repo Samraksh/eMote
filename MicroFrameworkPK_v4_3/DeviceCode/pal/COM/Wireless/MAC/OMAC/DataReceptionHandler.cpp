@@ -111,7 +111,7 @@ UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
 
-	hal_printf("\n[%llu%llu] DataReceptionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu \n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), nextEventsMicroSec, nextEventsMicroSec +HAL_Time_CurrentTime() );
+	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu \n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), nextEventsMicroSec, nextEventsMicroSec +HAL_Time_CurrentTime() );
 	return(nextEventsMicroSec);
 }
 /*
@@ -200,7 +200,7 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	DeviceStatus e = DS_Fail;
-	hal_printf("\n[%llu%llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
