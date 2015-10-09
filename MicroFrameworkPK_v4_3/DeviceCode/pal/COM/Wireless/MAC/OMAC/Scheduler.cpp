@@ -147,6 +147,9 @@ void OMACScheduler::ScheduleNextEvent(){
 		InputState.RequestState(I_IDLE);
 	}
 
+	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
+	hal_printf("\n[LT: %llu NT: %llu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextWakeupTimeInMicSec,curTime+nextWakeupTimeInMicSec );
+
 	if(!timer1INuse){
 		timer1INuse = true;
 		VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
@@ -171,6 +174,9 @@ void OMACScheduler::ScheduleNextEvent(){
 }
 
 bool OMACScheduler::RunEventTask(){
+	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
+	hal_printf("\n[LT: %llu NT: %llu] OMACScheduler::RunEventTask() \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime) );
+
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
