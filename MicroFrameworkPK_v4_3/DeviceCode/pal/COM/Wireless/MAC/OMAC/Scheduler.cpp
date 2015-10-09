@@ -102,8 +102,8 @@ void OMACScheduler::ScheduleNextEvent(){
 	//txEventOffset = txEventOffset-1;
 	beaconEventOffset = m_DiscoveryHandler.NextEvent(GetSlotNumber());
 	//beaconEventOffset = beaconEventOffset -1;
-	//timeSyncEventOffset = m_TimeSyncHandler.NextEvent(GetSlotNumber());
-	timeSyncEventOffset = timeSyncEventOffset-1;
+	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(GetSlotNumber());
+	//timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
