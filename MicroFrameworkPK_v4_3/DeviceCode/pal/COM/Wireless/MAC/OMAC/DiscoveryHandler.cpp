@@ -294,6 +294,13 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
 
+	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
+		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
+		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
+	} else {
+		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
+	}
+
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
@@ -306,19 +313,14 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	INT64 l_offset;
 	rcv_ltime = (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
 	l_offset = rcv_ltime - EventTime;
-	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
+	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 
 	////MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.GetCurrentActiveApp()]->ReceiveHandler;
 	MacReceiveFuncPtrType appHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 	//(*appHandler);
 
-	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
-		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
-	} else {
-		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
-	}
+
 
 #ifdef DEBUG_TSYNC
 	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed){
