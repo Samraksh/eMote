@@ -226,7 +226,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
 			UINT64 NextEventTime = ( ( neighborTime/( (UINT64) WAKEUPPERIODINTICKS) ) + 1 ) * ((UINT64)WAKEUPPERIODINTICKS);
 			UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, NextEventTime) - y;
-			m_nextTXTicks =  TicksTillNextEvent;
+			m_nextTXTicks =  TicksTillNextEvent + HAL_Time_CurrentTicks();
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);
