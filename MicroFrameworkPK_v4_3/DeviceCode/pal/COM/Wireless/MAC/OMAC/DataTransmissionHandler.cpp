@@ -22,7 +22,9 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 DataTransmissionHandler g_DataTransmissionHandler;
 
-
+void PublicTXEndHCallback(void * param){
+	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
+}
 /*
  *
  */
@@ -42,6 +44,10 @@ void DataTransmissionHandler::Initialize(){
 	m_nextTXTicks=0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
+
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(HAL_TX_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
+
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 }
 
@@ -73,6 +79,8 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	DeviceStatus e = DS_Fail;
+	e = g_omac_RadioControl.StartRx();
 	bool rv = Send();
 	m_nextTXTicks = 0;
 	PostExecuteEvent();
@@ -90,6 +98,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
+	g_omac_RadioControl.Stop();
 	g_omac_scheduler.PostExecution();
 }
 
@@ -169,6 +178,7 @@ bool DataTransmissionHandler::Send(){
 	//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
 	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
+	header->dest = m_outgoingEntryPtr->GetHeader()->dest;
 	header->type = MFM_DATA;
 
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );

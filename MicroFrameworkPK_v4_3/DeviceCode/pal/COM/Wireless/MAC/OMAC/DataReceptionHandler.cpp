@@ -285,7 +285,6 @@ void DataReceptionHandler::SetWakeup(bool shldWakeup){
  */
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
-	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
 	DataBeacon_t * sndMsg = (DataBeacon_t *) dataBeaconBufferPtr->GetPayload();
