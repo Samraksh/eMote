@@ -93,6 +93,8 @@ UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
  *
  */
 void OMACScheduler::ScheduleNextEvent(){
+	g_OMAC.UpdateNeighborTable();
+
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	m_slotNo = GetSlotNumber();
@@ -171,6 +173,8 @@ void OMACScheduler::ScheduleNextEvent(){
 bool OMACScheduler::RunEventTask(){
 	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
 	hal_printf("\n[LT: %llu NT: %llu] OMACScheduler::RunEventTask() \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime) );
+
+	g_OMAC.UpdateNeighborTable();
 
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
