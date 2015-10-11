@@ -105,13 +105,13 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT64 y = HAL_Time_CurrentTicks();
-	UINT64 NextEventTime = ( y/ ((UINT64) WAKEUPPERIOD)  + 1) * ((UINT64)WAKEUPPERIOD);
+	UINT64 NextEventTime = (( y/ (UINT64) WAKEUPPERIODINTICKS)  + 1) * ((UINT64)WAKEUPPERIODINTICKS);
 	UINT64 TicksTillNextEvent = NextEventTime - y;
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 
 
 	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextEventsMicroSec,curTime+nextEventsMicroSec );
+	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextEventsMicroSec,curTime+nextEventsMicroSec );
 	return(nextEventsMicroSec);
 }
 /*

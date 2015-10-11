@@ -47,22 +47,11 @@ public:
 	void ExecuteEvent(UINT32 currentSlotNum);
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
-	void SetWakeup(bool shldWakeup);
 
-	bool IsSynced(UINT16 nbr);
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
 	void ScheduleDataPacket();
 	bool Send();
 
-	UINT64 GetTxTicks();
-	UINT32 GetTxCounter();
-	void SetTxTicks(UINT64);
-	void SetTxCounter(UINT32);
-
-	INT64 GetNbrGlobalTime();
-	UINT32 GetNbrWakeupSlot();
-	void SetNbrGlobalTime(INT64);
-	void SetNbrWakeupSlot(UINT32);
 };
 
 UINT32 DataTransmissionHandler::m_nextTXCounter = 0;

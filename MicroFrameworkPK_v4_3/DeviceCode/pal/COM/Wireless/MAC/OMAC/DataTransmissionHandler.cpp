@@ -23,47 +23,6 @@ extern RadioControl_t g_omac_RadioControl;
 DataTransmissionHandler g_DataTransmissionHandler;
 
 
-UINT64 DataTransmissionHandler::GetTxTicks()
-{
-	return m_nextTXTicks;
-}
-
-UINT32 DataTransmissionHandler::GetTxCounter()
-{
-	return m_nextTXCounter;
-}
-
-void DataTransmissionHandler::SetTxTicks(UINT64 tmp_nextTXTicks)
-{
-	m_nextTXTicks = tmp_nextTXTicks;
-}
-
-void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
-{
-	m_nextTXCounter = tmp_nextTXCounter;
-}
-
-INT64 DataTransmissionHandler::GetNbrGlobalTime()
-{
-	return m_nbrGlobalTime;
-}
-
-UINT32 DataTransmissionHandler::GetNbrWakeupSlot()
-{
-	return m_nbrWakeupSlot;
-}
-
-void DataTransmissionHandler::SetNbrGlobalTime(INT64 tmp_nbrGlobalTime)
-{
-	m_nbrGlobalTime = tmp_nbrGlobalTime;
-}
-
-void DataTransmissionHandler::SetNbrWakeupSlot(UINT32 tmp_nbrWakeupSlot)
-{
-	m_nbrWakeupSlot = tmp_nbrWakeupSlot;
-}
-
-
 /*
  *
  */
@@ -76,10 +35,11 @@ void DataTransmissionHandler::Initialize(){
 	m_receivedDataBeacon=0;
 	m_busy =FALSE;   //indicates if radio is busy.
 
+
 	//the # of times the current packet has been sent
 	m_dataHeartBeats=0;
-	//m_nextTXCounter=0;
-	//m_nextTXTicks=0;
+	m_nextTXCounter=0;
+	m_nextTXTicks=0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
@@ -90,30 +50,19 @@ void DataTransmissionHandler::Initialize(){
  * This function returns the number of ticks until the transmission time
  */
 UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
-	m_lastSlot++;
-	//hal_printf("DataTransmissionHandler::NextEvent currentSlotNum: %u\n", currentSlotNum);
-	//UINT32 tmp_nextTXCounter = GetTxCounter();
-	UINT64 tmp_nextTXTicks = GetTxTicks();
-	//if (g_send_buffer.Size() > 0 && tmp_nextTXCounter == 0) {
-	if(m_lastSlot % 500 == 0){
-		hal_printf("----------->g_send_buffer size: %u<--------------\n", g_send_buffer.Size());
-	}
-	if (g_send_buffer.Size() > 0) {
-		if(m_lastSlot % 500 == 0){
-			hal_printf("----------->CALLING ScheduleDataPacket<--------------\n");
-		}
-		this->ScheduleDataPacket();
-	}
 
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
-	if(tmp_nextTXTicks < HAL_Time_CurrentTicks()) {
+	if(m_nextTXTicks < HAL_Time_CurrentTicks()) {
+		ScheduleDataPacket();
+	}
+	if(m_nextTXTicks < HAL_Time_CurrentTicks()) {
 		return 0xffffffffffffffff;
 	}
 	else {
-		UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(tmp_nextTXTicks - HAL_Time_CurrentTicks());
+		UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(m_nextTXTicks - HAL_Time_CurrentTicks());
 		UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-		hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), ticksInMicroSecs,curTime+ticksInMicroSecs );
+		hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTime), ticksInMicroSecs,curTime+ticksInMicroSecs );
 		return ticksInMicroSecs;
 	}
 }
@@ -125,7 +74,7 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
 	bool rv = Send();
-	SetTxCounter(0);
+	m_nextTXTicks = 0;
 	PostExecuteEvent();
 }
 
@@ -141,16 +90,10 @@ void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	hal_printf("DataTransmissionHandler::PostExecuteEvent\n");
-	//stop the radio
 	g_omac_scheduler.PostExecution();
 }
 
-/*
- *
- */
-void DataTransmissionHandler::SetWakeup(bool shldWakeup){
-	hal_printf("DataTransmissionHandler::SetWakeup\n");
-}
+
 
 /*
  *
@@ -252,18 +195,12 @@ void DataTransmissionHandler::ScheduleDataPacket()
 	// 2) we have nothing to send
 	//3) when the radio is idle.
 
-	static bool allNeighborFlag = false;
-	UINT64 tmp_nextTXTicks = GetTxTicks();
-
-	if ( ( (tmp_nextTXTicks + (SLOT_PERIOD_MILLI * TICKS_PER_MILLI)) < HAL_Time_CurrentTicks() ) && g_send_buffer.GetNumberMessagesInBuffer() > 0){
+	if ( ( (m_nextTXTicks + (SLOT_PERIOD_MILLI * TICKS_PER_MILLI)) < HAL_Time_CurrentTicks() )
+			&& g_send_buffer.GetNumberMessagesInBuffer() > 0
+		){
 		UINT16 dest;
 		Neighbor_t* neighborEntry;
 
-		// Don't reschedule another tx for packets that are being sent
-		if (g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)) {
-			//hal_printf("DataTransmissionHandler::ScheduleDataPacket input state is I_DATA_SEND_PENDING. returning...\n");
-			return;
-		}
 
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
@@ -274,50 +211,30 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				return;
 			}
 		}
-
-		//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-		//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
-		//hal_printf("DataTransmissionHandler::ScheduleDataPacket dest is: %d\n", dest);
 		neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
-		hal_printf("-----------------\n");
-		hal_printf("neighborEntry->LastHeardTime %llu\n", neighborEntry->LastHeardTime);
-		hal_printf("neighborEntry->MacAddress %u\n", neighborEntry->MacAddress);
-		hal_printf("-----------------\n");
-
 		if (neighborEntry != NULL) {
 			if (neighborEntry->MacAddress != dest) {
-				hal_printf("incorrect neighbor returned\n");
-				tmp_nextTXTicks = 0;
+				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 			}
-			hal_printf("------------>NEIGHBORENTRY IS NOT NULL<----------------\n");
-
 
 			UINT64 y = HAL_Time_CurrentTicks();
-			// 1st,  compute the current localTime of the neighbor
 			UINT64 neighborTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
 			// is later than the start of the clock. So, a slotNumber offset should be used
 			//slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
 			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
-			UINT64 NextEventTime = ( ( neighborTime/( (UINT64) WAKEUPPERIOD) ) + 1 ) * ((UINT64)WAKEUPPERIOD);
-			UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(Nbr2beFollowed, NextEventTime) - y;
-			UINT64 MicSTillNextEvent = (HAL_Time_TicksToTime(TicksTillNextEvent));
-			UINT64 ProcessingLatency = (HAL_Time_TicksToTime( HAL_Time_CurrentTicks() - y));
-			tmp_nextTXTicks =  MicSTillNextEvent+ProcessingLatency;
-			SetTxTicks(tmp_nextTXTicks);
-		}
-		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?
-			if(!allNeighborFlag){
-				hal_printf("Cannot find nbr %u\n", dest);
-				allNeighborFlag = true;
-			}
-			SetTxTicks(0);
+			UINT64 NextEventTime = ( ( neighborTime/( (UINT64) WAKEUPPERIODINTICKS) ) + 1 ) * ((UINT64)WAKEUPPERIODINTICKS);
+			UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, NextEventTime) - y;
+			m_nextTXTicks =  TicksTillNextEvent;
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);
-			SetTxTicks(0);
+			m_nextTXTicks = 0;
 		}
+	}
+	else{
+		m_nextTXTicks = 0;
 	}
 }
 
