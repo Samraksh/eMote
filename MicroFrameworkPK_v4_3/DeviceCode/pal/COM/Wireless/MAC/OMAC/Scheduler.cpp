@@ -97,12 +97,16 @@ void OMACScheduler::ScheduleNextEvent(){
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	m_slotNo = GetSlotNumber();
 	rxEventOffset = m_DataReceptionHandler.NextEvent(GetSlotNumber());
+	if (rxEventOffset < MINEVENTTIME) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;
 	txEventOffset = m_DataTransmissionHandler.NextEvent(GetSlotNumber());
+	if (txEventOffset < MINEVENTTIME) txEventOffset = 0xffffffffffffffff;
 	//txEventOffset = txEventOffset-1;
 	beaconEventOffset = m_DiscoveryHandler.NextEvent(GetSlotNumber());
+	if (beaconEventOffset < MINEVENTTIME) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
 	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(GetSlotNumber());
+	if (timeSyncEventOffset < MINEVENTTIME) timeSyncEventOffset = 0xffffffffffffffff;
 	//timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < nextWakeupTimeInMicSec) {

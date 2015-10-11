@@ -92,7 +92,7 @@ void DataTransmissionHandler::Initialize(){
 UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 	m_lastSlot++;
 	//hal_printf("DataTransmissionHandler::NextEvent currentSlotNum: %u\n", currentSlotNum);
-	UINT32 tmp_nextTXCounter = GetTxCounter();
+	//UINT32 tmp_nextTXCounter = GetTxCounter();
 	UINT64 tmp_nextTXTicks = GetTxTicks();
 	//if (g_send_buffer.Size() > 0 && tmp_nextTXCounter == 0) {
 	if(m_lastSlot % 500 == 0){
@@ -105,28 +105,16 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 		this->ScheduleDataPacket();
 	}
 
-	//m_nextTXCounter is initialized to 0
-	if (tmp_nextTXCounter != 0) {
-		INT32 remainingSlots = tmp_nextTXCounter - currentSlotNum;
-		if (remainingSlots >= 0 && remainingSlots > (0xffff >> SLOT_PERIOD_BITS)) {
-			return 0xffff;
-		}
-		else {
-			//in case the task delay is large and we are already pass
-			//tx time, tx immediately
-			if(tmp_nextTXTicks < HAL_Time_CurrentTicks()) {
-				return 0xffff;
-			}
-			else {
-				UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(tmp_nextTXTicks - HAL_Time_CurrentTicks());
-				//return (UINT16)(ticksInMicroSecs/1000);
-				//hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), ticksInMicroSecs, ticksInMicroSecs +HAL_Time_CurrentTime() );
-				return ticksInMicroSecs;
-			}
-		}
-
-	} else {
+	//in case the task delay is large and we are already pass
+	//tx time, tx immediately
+	if(tmp_nextTXTicks < HAL_Time_CurrentTicks()) {
 		return 0xffffffffffffffff;
+	}
+	else {
+		UINT64 ticksInMicroSecs = CPU_TicksToMicroseconds(tmp_nextTXTicks - HAL_Time_CurrentTicks());
+		UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
+		hal_printf("\n[LT: %llu NT: %llu] DataTransmissionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), ticksInMicroSecs,curTime+ticksInMicroSecs );
+		return ticksInMicroSecs;
 	}
 }
 
@@ -277,7 +265,6 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			return;
 		}
 
-		//TODO: BK: THis returns m_outgoingEntryPtr is NULL. FindFirstSyncedNbrMessage should be reimplemented //DONE
 		if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
 			m_outgoingEntryPtr = g_send_buffer.GetOldest();
@@ -299,121 +286,37 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		hal_printf("-----------------\n");
 
 		if (neighborEntry != NULL) {
-			hal_printf("------------>NEIGHBORENTRY IS NOT NULL<----------------\n");
-			//next wake up slot determined neighbor's dataInterval
-			UINT32 slotNumber, nextFrameAfterSeedUpdate;
-			INT64 nbrGlobalTime;
-
-			UINT32 dataInterval = neighborEntry->dataInterval;
-			UINT32 seedUpdateInterval = (dataInterval << 3);
-			INT16 delayDiff;
-			//UINT16 myRadioDelay = call SlotScheduler.getRadioDelay();
-			UINT16 myRadioDelay = 0;
-			UINT16 framesPassed = 0, seedUpdates = 0, mask, tmpRand, tmpSeed, lastSeed;
-			UINT32 nextWakeup;
-			UINT8 i;
-
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("incorrect neighbor returned\n");
+				tmp_nextTXTicks = 0;
 			}
+			hal_printf("------------>NEIGHBORENTRY IS NOT NULL<----------------\n");
+
+
+			UINT64 y = HAL_Time_CurrentTicks();
 			// 1st,  compute the current localTime of the neighbor
-			nbrGlobalTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
+			UINT64 neighborTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
 			// is later than the start of the clock. So, a slotNumber offset should be used
 			//slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
 			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
-			slotNumber = (UINT32)(nbrGlobalTime / SLOT_PERIOD_TICKS);
-
-			mask = 137 * 29 * (dest + 1);
-			// seed consistency is critical. Because the following operations involve
-			// changing the seed based on separate blocks of read and write,
-			// we need to have mutual exclusions during the whole update process. This may
-			// prevent the insertion of a newly received seed, which is fine because
-			// new seeds are pseudo-random and can be locally generated
-			GLOBAL_LOCK(irq);
-			lastSeed = neighborEntry->lastSeed;
-			nextFrameAfterSeedUpdate = neighborEntry->nextFrameAfterSeedUpdate;
-
-			// A new frame-seed, generated from the last frame-seed, is used to generate the wakeup
-			// slot to wakeup for every 8 frames. Frame length is defined by dataInterval.
-			//
-			// If the current frame-seed is still valid, i.e. if there has been a seed update within the
-			// last 8 frames, then we simply use this frame-seed to generate the wakeup slot.
-			// Although a node periodically updates its <seed, nextFrameAfterSeedUpdate>, it never
-			// updates it beyond the current time. In other words, nextFrameAfterSeedUpdate will not be
-			// updated beyond slotNumber. THis shows that the nextFrameAfterSeedUpdate in this case
-			// must have been updated by the neighbor itself
-			if (slotNumber <= nextFrameAfterSeedUpdate) {
-				tmpSeed = lastSeed;
-				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				tmpSeed = tmpRand;
-				nextWakeup = nextFrameAfterSeedUpdate - dataInterval + (tmpRand % dataInterval);
-				if (slotNumber < nextWakeup) {
-					slotNumber = nextWakeup;
-				} else {
-					slotNumber = nextWakeup + dataInterval;
-					//printf("1 cannot use slot %u, using slotNumber=%u\n"
-					//  , (UINT16)nextWakeup, (UINT16)slotNumber);
-				}
-			}else {
-				framesPassed = (slotNumber - nextFrameAfterSeedUpdate) / dataInterval;
-				seedUpdates = (slotNumber + dataInterval - nextFrameAfterSeedUpdate) / seedUpdateInterval;
-
-				for (i = 0; i < seedUpdates; i++) {
-					lastSeed= g_omac_scheduler.m_seedGenerator.RandWithMask(&lastSeed, mask);
-				}
-
-				tmpSeed = lastSeed;
-				tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-				nextWakeup = nextFrameAfterSeedUpdate + (framesPassed * dataInterval) + (tmpRand % dataInterval);
-				if (slotNumber < nextWakeup) {
-					slotNumber = nextWakeup;
-				} else {
-					  //printf("now=%u\n", (UINT16)slotNumber);
-					if (nextWakeup + dataInterval -(nextFrameAfterSeedUpdate - dataInterval + seedUpdateInterval * seedUpdates) >= seedUpdateInterval) {
-						lastSeed = tmpSeed;
-						seedUpdates++;
-						framesPassed++;
-						tmpRand = g_omac_scheduler.m_seedGenerator.RandWithMask(&tmpSeed, mask);
-						slotNumber = nextFrameAfterSeedUpdate + (framesPassed * dataInterval) + (tmpRand % dataInterval);
-					} else {
-						slotNumber = nextWakeup + dataInterval;
-					}
-				}
-			}
-				////hal_printf("DataTransmissionHandler::ScheduleDataPacket -- lastSeed is %u\n", lastSeed);
-				////hal_printf("DataTransmissionHandler::ScheduleDataPacket -- tmpRand is %u\n", tmpRand);
-				tmp_nextTXTicks = (slotNumber << SLOT_PERIOD_BITS) + neighborEntry->counterOffset;
-				nbrGlobalTime = tmp_nextTXTicks;
-				SetNbrWakeupSlot(slotNumber);
-				SetNbrGlobalTime(nbrGlobalTime);
-
-				// 5th, compute my local time of the neighbor's listen slot
-				tmp_nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, tmp_nextTXTicks);
-				tmp_nextTXTicks = tmp_nextTXTicks + SENDER_MARGIN;
-				SetTxTicks(tmp_nextTXTicks);
-
-				neighborEntry->nextFrameAfterSeedUpdate = nextFrameAfterSeedUpdate + seedUpdates * seedUpdateInterval;
-				neighborEntry->lastSeed = lastSeed;
-			//}
-			  //hal_printf("receiver wakes up at %lu, %lu\n", m_nextTXTicks, globalTime);
-
-			  //m_nextTXCounter = (m_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
-			  UINT32 tmp_nextTXCounter = (tmp_nextTXTicks - g_omac_scheduler.GetCounterOffset()) >> SLOT_PERIOD_BITS;
-			  SetTxCounter(tmp_nextTXCounter);
-			  //hal_printf("m_nextTick=%lu, glbl=%lu\n", m_nextTXTicks, globalTime);
-			  //hal_printf("sslot %lu time %lu\n", slotNumber, globalTime);
-			  //hal_printf("\n ScheduleDataPacket CurTicks: %llu slotNumber: %d neighborEntry->counterOffset: %d m_nextTXCounter: %d \n",HAL_Time_CurrentTicks(), slotNumber, neighborEntry->counterOffset, m_nextTXCounter);
-
+			UINT64 NextEventTime = ( ( neighborTime/( (UINT64) WAKEUPPERIOD) ) + 1 ) * ((UINT64)WAKEUPPERIOD);
+			UINT64 TicksTillNextEvent = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(Nbr2beFollowed, NextEventTime) - y;
+			UINT64 MicSTillNextEvent = (HAL_Time_TicksToTime(TicksTillNextEvent));
+			UINT64 ProcessingLatency = (HAL_Time_TicksToTime( HAL_Time_CurrentTicks() - y));
+			tmp_nextTXTicks =  MicSTillNextEvent+ProcessingLatency;
+			SetTxTicks(tmp_nextTXTicks);
 		}
 		else if(dest == 0xFFFF || dest == 0xC000){	//TODO (Ananth): where does c000 come from?
 			if(!allNeighborFlag){
 				hal_printf("Cannot find nbr %u\n", dest);
 				allNeighborFlag = true;
 			}
+			SetTxTicks(0);
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);
+			SetTxTicks(0);
 		}
 	}
 }

@@ -104,14 +104,14 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
-	UINT16 nextEventsSlot = 0;
-	UINT64 nextEventsMicroSec = 0;
-	nextEventsSlot = NextEventinSlots(currentSlotNum);
-	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
-	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
-	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+	UINT64 y = HAL_Time_CurrentTicks();
+	UINT64 NextEventTime = ( y/ ((UINT64) WAKEUPPERIOD)  + 1) * ((UINT64)WAKEUPPERIOD);
+	UINT64 TicksTillNextEvent = NextEventTime - y;
+	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 
-	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu \n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), nextEventsMicroSec, nextEventsMicroSec +HAL_Time_CurrentTime() );
+
+	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
+	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextEventsMicroSec,curTime+nextEventsMicroSec );
 	return(nextEventsMicroSec);
 }
 /*

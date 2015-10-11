@@ -190,7 +190,9 @@ typedef struct OMacHeader {
 #define MICSECINMILISEC 1000
 #define GUARDTIME_MICRO 1000
 #define TIMER_EVENT_DELAY_OFFSET 700
+#define MinEventTime 5000
 
+#define WAKEUPPERIOD 8000000
 enum {
   TICKS_PER_MILLI     = 8000,
 
