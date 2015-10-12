@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_Kiwi</FeatureName>
-    <Guid>{5e59e136-381c-465e-9827-3e7d8c5a8ecc}</Guid>
+    <Guid>{5d88a595-317b-4689-a0fe-629675f59534}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_KIWI_FEATUREPROJ>True</SAMRAKSH_EMOTE_KIWI_FEATUREPROJ>

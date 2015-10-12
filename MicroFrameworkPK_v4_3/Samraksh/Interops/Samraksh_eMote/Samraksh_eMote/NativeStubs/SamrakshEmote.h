@@ -11,25 +11,6 @@
 #define _SAMRAKSHEMOTE_H_
 
 #include <TinyCLR_Interop.h>
-struct Library_SamrakshEmote_Samraksh_eMote_GC
-{
-    TINYCLR_NATIVE_DECLARE(GetUsedKBytes___R4);
-    TINYCLR_NATIVE_DECLARE(GetFreeKBytes___R4);
-    TINYCLR_NATIVE_DECLARE(IsGCSamExtensionsEnabled___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(EnableIncrementalCleaning___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(EnableIncrementalCompaction___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(DisableIncrementalCleaning___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(DisableIncrementalCompaction___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(CleanBeforeSleep___BOOLEAN__U4);
-    TINYCLR_NATIVE_DECLARE(CleanNow___BOOLEAN__U4);
-    TINYCLR_NATIVE_DECLARE(CleanNow___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(AvgTimeForCleaning___U4);
-    TINYCLR_NATIVE_DECLARE(AvgTimeForCompaction___U4);
-
-    //--//
-
-};
-
 struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
 {
     static const int FIELD__dStore = 1;
