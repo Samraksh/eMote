@@ -7,11 +7,11 @@
   <PropertyGroup>
     <MajorVersion Condition="'$(MajorVersion)'==''">4</MajorVersion>
     <MinorVersion Condition="'$(MinorVersion)'==''">3</MinorVersion>
-    <BuildNumber Condition="'$(BuildNumber)'==''">2</BuildNumber>
+    <BuildNumber Condition="'$(BuildNumber)'==''">1</BuildNumber>
     <BuildBase>66335</BuildBase>
     <RevisionNumber Condition="'$(RevisionNumber)'==''">0</RevisionNumber>
     <ReleaseName    Condition="'$(ReleaseName)'==''"    >(SDKR2-Beta)</ReleaseName>
-    <BuildNumber>2</BuildNumber>
+    <BuildNumber>1</BuildNumber>
   </PropertyGroup>
   <!-- Other info particular to this release -->
   <PropertyGroup>
