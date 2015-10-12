@@ -38,7 +38,8 @@ class DataTransmissionHandler: public EventHandler {
 	Message_15_4_t* m_outgoingEntryPtr;
 	UINT32  m_collisionCnt;
 
-
+	Message_15_4_t m_TXMsgBuffer;
+	DataMsg_t *m_TXMsg;
 
 public:
 	void Initialize();

@@ -215,6 +215,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
 
+	if (sourceID != 7116) {
+		hal_printf("Something is received");
+	}
 	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
 	//Any message might have timestamping attached to it. Check for it and process
@@ -234,6 +237,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
+			CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
+			if (sourceID != 7116) {
+				hal_printf("Something is received");
+			}
 			if(myID == destID) {
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
@@ -242,8 +249,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
 				}
 				(*g_rxAckHandler)(Size);
-				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+
 			}
+			CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");

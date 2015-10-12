@@ -45,6 +45,7 @@
 #define MAX_UINT32 	(0xFFFFFFFF)
 #define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
 
+#define MAX_DATA_PCKT_SIZE 20
 /*
  *
  */
@@ -146,6 +147,11 @@ typedef struct DiscoveryMsg
 	UINT32 localTime1;
 
 } DiscoveryMsg_t;
+
+typedef struct DataMsg_t
+{
+	UINT8 payload[MAX_DATA_PCKT_SIZE];
+} DataMsg_t;
 
 /*
  * After TEP 133, the message timestamp contains the difference between

@@ -146,9 +146,8 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
  *
  */
 DeviceStatus RadioControl::Stop(){
-	//DeviceStatus returnVal = DS_Success;
+//	DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
-
 	if(returnVal == DS_Success){
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
 	}
@@ -159,8 +158,8 @@ DeviceStatus RadioControl::Stop(){
  *
  */
 DeviceStatus RadioControl::StartPLL(){
-	return DS_Success;
-	//return StartRx();
+	//return DS_Success;
+	return StartRx();
 	//DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
 	//if(returnVal == DS_Success){
 	//	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );

@@ -31,7 +31,7 @@ typedef struct MessageCacheEntry {
  *
  */
 class DiscoveryHandler: public EventHandler {
-  private:
+ public:
 	UINT8 RadioID;
 	UINT8 MacID;
 #ifdef OMAC_DEBUG
@@ -74,7 +74,7 @@ class DiscoveryHandler: public EventHandler {
 	void Beacon1();
 	void BeaconN();
 	DeviceStatus Beacon(RadioAddress_t, Message_15_4_t *);
-  public:
+ // public:
 	void Initialize(UINT8 radioID, UINT8 macID);
 	void StartBeaconNTimer(BOOL oneshot);	//Start BeaconN Timer
 	void BeaconNTimerHandler(void* Param); //Handler BeaconN Timer firing

@@ -37,13 +37,14 @@ void DataTransmissionHandler::Initialize(){
 	m_receivedDataBeacon=0;
 	m_busy =FALSE;   //indicates if radio is busy.
 
-
 	//the # of times the current packet has been sent
 	m_dataHeartBeats=0;
 	m_nextTXCounter=0;
 	m_nextTXTicks=0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
+
+	m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_TX_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
@@ -177,20 +178,23 @@ bool DataTransmissionHandler::Send(){
 
 	//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
+
+	m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
+	Message_15_4_t* msgPtr = m_outgoingEntryPtr;
+
+	UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
+	UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
+	UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
+
 	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
-	header->dest = m_outgoingEntryPtr->GetHeader()->dest;
+	header->dest = dest;
 	header->type = MFM_DATA;
 
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 
-	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
-		hal_printf("DataTransmissionHandler::Send calling Send\n");
-		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize()  );
-	}
-	else {
-		hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
-		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
-	}
+	DeviceStatus ds = g_omac_scheduler.m_DiscoveryHandler.Beacon(dest, &(g_omac_scheduler.m_DiscoveryHandler.m_discoveryMsgBuffer));
+	DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(dest, msgPtr, msgsize,  time_stamp );
+
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	return true;
 }
