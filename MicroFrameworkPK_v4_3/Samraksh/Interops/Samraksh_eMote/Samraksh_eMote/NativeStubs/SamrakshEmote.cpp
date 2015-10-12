@@ -12,19 +12,6 @@
 
 static const CLR_RT_MethodHandler method_lookup[] =
 {
-    Library_SamrakshEmote_Samraksh_eMote_GC::GetUsedKBytes___R4,
-    Library_SamrakshEmote_Samraksh_eMote_GC::GetFreeKBytes___R4,
-    Library_SamrakshEmote_Samraksh_eMote_GC::IsGCSamExtensionsEnabled___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::EnableIncrementalCleaning___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::EnableIncrementalCompaction___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::DisableIncrementalCleaning___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::DisableIncrementalCompaction___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::CleanBeforeSleep___BOOLEAN__U4,
-    Library_SamrakshEmote_Samraksh_eMote_GC::CleanNow___BOOLEAN__U4,
-    Library_SamrakshEmote_Samraksh_eMote_GC::CleanNow___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_GC::AvgTimeForCleaning___U4,
-    Library_SamrakshEmote_Samraksh_eMote_GC::AvgTimeForCompaction___U4,
-    NULL,
     NULL,
     NULL,
     NULL,
@@ -130,7 +117,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x4E38CBB9,
+    0xF3828E2B,
     method_lookup
 };
 
