@@ -22,6 +22,16 @@ namespace Samraksh.eMote.RealTime
 
         /// <summary>Realtime Timer</summary>
         /// <param name="period">Interval between callbacks (microseconds)</param>
+        /// <param name="callbackCount">How many callbacks to make (0 = infinite)</param>
+        [Obsolete("Deprecated. callbackCount no longer used.")]
+        public Timer(ulong period, int callbackCount)
+            : base("RealTimeInteropTimer", period)
+        {
+
+        }
+
+        /// <summary>Realtime Timer</summary>
+        /// <param name="period">Interval between callbacks (microseconds)</param>
         public Timer(ulong period)
             : base("RealTimeInteropTimer", period) {
 

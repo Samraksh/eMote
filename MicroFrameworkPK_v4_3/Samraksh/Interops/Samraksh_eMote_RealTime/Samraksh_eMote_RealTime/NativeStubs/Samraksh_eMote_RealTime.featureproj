@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_RealTime</FeatureName>
-    <Guid>{bf65857e-f5a1-4ad8-8317-b8e226c3c7b6}</Guid>
+    <Guid>{b0f71516-b955-4551-aa2f-f3b27161703e}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_REALTIME_FEATUREPROJ>True</SAMRAKSH_EMOTE_REALTIME_FEATUREPROJ>
