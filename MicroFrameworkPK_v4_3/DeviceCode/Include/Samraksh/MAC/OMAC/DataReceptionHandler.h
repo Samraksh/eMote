@@ -42,6 +42,7 @@ class DataReceptionHandler: public EventHandler {
 	static UINT32	m_nextWakeupSlot;
 	UINT32 m_seedUpdateInterval;
 	UINT16	m_nextSeed, m_mask;
+	static UINT16 currentRandomValue;
 
 	UINT32	wakeupSlot, wakeupTime, scheduledWakeupTime;
 	//SeedGenerator m_seedGenerator;
@@ -59,8 +60,21 @@ public:
 	void SetWakeupSlot(UINT32);
 
 	bool SendDataBeacon(bool sendPiggyback);
+
+	void SetCurrentRandomValue(UINT16 tmp_randVal)
+	{
+		currentRandomValue = tmp_randVal;
+	}
+
+	UINT16 GetCurrentRandomValue()
+	{
+		return currentRandomValue;
+	}
 };
 
 UINT32 DataReceptionHandler::m_nextWakeupSlot = 0;
+UINT16 DataReceptionHandler::currentRandomValue = 0;
 
 #endif /* DATARECEPTIONHANDLER_H_ */
+
+

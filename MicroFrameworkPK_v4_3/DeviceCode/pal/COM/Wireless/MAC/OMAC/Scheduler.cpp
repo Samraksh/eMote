@@ -164,7 +164,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		VirtTimer_Start(HAL_SLOT_TIMER2);
 	}
 	else{
-		assert(1==0);
+		ASSERT(1==0);
 	}
 //
 //	BOOL* completionFlag = (BOOL*)false;
@@ -182,17 +182,17 @@ bool OMACScheduler::RunEventTask(){
 
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
+			////hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent(m_slotNo);
 			break;
 		case I_DATA_RCV_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
+			////hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
 			m_lastHandler = DATA_RX_HANDLER;
 			m_DataReceptionHandler.ExecuteEvent(m_slotNo);
 			break;
 		case I_TIMESYNC_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
+			////hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
 			m_lastHandler = TIMESYNC_HANDLER;
 			m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 			break;

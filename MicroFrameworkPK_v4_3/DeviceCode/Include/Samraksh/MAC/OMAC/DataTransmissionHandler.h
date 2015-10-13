@@ -37,7 +37,8 @@ class DataTransmissionHandler: public EventHandler {
 	Message_15_4_t m_piggybackBeaconCopy;
 	Message_15_4_t* m_outgoingEntryPtr;
 	UINT32  m_collisionCnt;
-
+	static UINT16 currentRandomValue;
+	static UINT32 neighborNextWakeup;
 
 
 public:
@@ -59,15 +60,37 @@ public:
 	void SetTxTicks(UINT64);
 	void SetTxCounter(UINT32);
 
-	INT64 GetNbrGlobalTime();
-	UINT32 GetNbrWakeupSlot();
-	void SetNbrGlobalTime(INT64);
-	void SetNbrWakeupSlot(UINT32);
+	INT64 GetNeighborGlobalTime();
+	UINT32 GetNeighborWakeupSlot();
+	void SetNeighborGlobalTime(INT64);
+	void SetNeighborWakeupSlot(UINT32);
+
+	void SetCurrentRandomValue(UINT16 tmp_randVal)
+	{
+		currentRandomValue = tmp_randVal;
+	}
+
+	UINT16 GetCurrentRandomValue()
+	{
+		return currentRandomValue;
+	}
+
+	void SetNeighborNextWakeup(UINT32 tmp_neighborNextWakeup)
+	{
+		neighborNextWakeup = tmp_neighborNextWakeup;
+	}
+
+	UINT32 GetNeighborNextWakeup()
+	{
+		return neighborNextWakeup;
+	}
 };
 
 UINT32 DataTransmissionHandler::m_nextTXCounter = 0;
 UINT64 DataTransmissionHandler::m_nextTXTicks = 0;
 INT64 DataTransmissionHandler::m_nbrGlobalTime = 0;
 UINT32 DataTransmissionHandler::m_nbrWakeupSlot = 0;
+UINT16 DataTransmissionHandler::currentRandomValue = 0;
+UINT32 DataTransmissionHandler::neighborNextWakeup = 0;
 
 #endif /* DATATRANSMISSIONHANDLER_H_ */

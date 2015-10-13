@@ -111,7 +111,7 @@ UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
 
-	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu \n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), nextEventsMicroSec, nextEventsMicroSec +HAL_Time_CurrentTime() );
+	//hal_printf("\n[%llu%llu] DataReceptionHandler:NextEvent nextEventsMicroSec=%llu nexxEventTime = %llu \n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()), nextEventsMicroSec, nextEventsMicroSec +HAL_Time_CurrentTime() );
 	return(nextEventsMicroSec);
 }
 /*
@@ -145,9 +145,11 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 				//update next seed. we wont use it until 8 frames later
 				randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask);
 				////hal_printf("DataReceptionHandler::NextEvent -- m_nextSeed is %u\n", m_nextSeed);
-				////hal_printf("DataReceptionHandler::NextEvent -- randVal is %u\n", randVal);
+				////hal_printf("DataReceptionHandler::NextEvent -- currentRandomValue is %u\n", randVal);
 				tmp_nextWakeupSlot = nextFrame + randVal % m_dataInterval;
-				SetWakeupSlot(tmp_nextWakeupSlot);
+				SetCurrentRandomValue(randVal);
+				////SetWakeupSlot(tmp_nextWakeupSlot);
+				////hal_printf("DataReceptionHandler::NextEvent -- currentRandomValue is %u\n", GetCurrentRandomValue());
 
 				//we have computed the wakeup slot for the frame denoted by nextFrame
 				//seed info contains the frame that we next need to compute the wakeup slot for
@@ -158,12 +160,14 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 			// the next wakeup by advancing one frame from the last wakeup slot
 			else {
 				tmp_nextWakeupSlot += m_dataInterval;
-				SetWakeupSlot(tmp_nextWakeupSlot);
+				////SetWakeupSlot(tmp_nextWakeupSlot);
 			}
 			//hal_printf("CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), currentSlotNum, m_nextWakeupSlot);
 			//hal_printf("DataReceptionHandler::NextEvent m_nextWakeupSlot: %d\n", tmp_nextWakeupSlot);
 		}
 	}
+
+	SetWakeupSlot(tmp_nextWakeupSlot);
 
 	//then compute the remaining slots before our next wakeup based on the computed schedule
 	remainingSlots = tmp_nextWakeupSlot - currentSlotNum;
@@ -175,7 +179,7 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 		return remainingSlots;
 	}
 	else if (remainingSlots >= 0xffff) {
-		hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", 0xffff);
+		////hal_printf("DataReceptionHandler::NextEvent - remainingSlots: %u\n", 0xffff);
 		return 0xffff;
 	}
 	else {
@@ -200,13 +204,13 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
  */
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	DeviceStatus e = DS_Fail;
-	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	////hal_printf("\n[%llu%llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 		//call ChannelMonitor.monitorChannel();
 		//SendDataBeacon(FALSE);
-		hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+		////hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
 		//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
 
 		m_wakeupCnt++;
@@ -266,7 +270,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 		g_omac_RadioControl.Stop();
 	}
 	else {
-		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
+		////hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
 		g_omac_RadioControl.Stop();
 	}
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
@@ -284,7 +288,7 @@ void DataReceptionHandler::SetWakeup(bool shldWakeup){
  *
  */
 bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
-	hal_printf("start DataReceptionHandler::SendDataBeacon\n");
+	////hal_printf("start DataReceptionHandler::SendDataBeacon\n");
 	g_omac_scheduler.ProtoState.ForceState(S_WAITING_DATA);
 	m_receivedDataPacket = FALSE;
 	m_efdDetected = FALSE;
@@ -294,7 +298,7 @@ bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 
 	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
 	//call DataReceptionTimer.startOneShot(WAIT_TIME_AFTER_DATA_BEACON);
-	hal_printf("end DataReceptionHandler::SendDataBeacon\n");
+	////hal_printf("end DataReceptionHandler::SendDataBeacon\n");
 	return true;
 }
 

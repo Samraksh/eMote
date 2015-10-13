@@ -236,8 +236,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		case MFM_DATA:
 			if(myID == destID) {
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
-				hal_printf("Successfully got a data packet\n");
+				////hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
+				////hal_printf("Successfully got a data packet\n");
 				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
 					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
 				}
@@ -286,7 +286,7 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 {
 	if(g_send_buffer.IsFull()){
-		hal_printf("OMACType::Send g_send_buffer full\n");
+		////hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
@@ -343,7 +343,7 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 {
 	////hal_printf("start OMACType::SendTimeStamped\n");
 	if(g_send_buffer.IsFull()) {
-		hal_printf("OMACType::SendTimeStamped g_send_buffer full\n");
+		////hal_printf("OMACType::SendTimeStamped g_send_buffer full\n");
 		return FALSE;
 	}
 
