@@ -165,7 +165,7 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 			  return DS_Success;
 	}
 	else if(macID == OMAC){
-		BOOL sendStatus = g_OMAC.Send(destAddress, dataType, msg, size);
+		BOOL sendStatus = g_OMAC.Send(destAddress, dataType, msg, size, 0);
 		if(sendStatus)
 			return DS_Success;
 		else

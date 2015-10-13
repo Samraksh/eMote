@@ -23,7 +23,7 @@ UINT8 Mac_GetID(){
 
 DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size){
 	//msg is just the payload,
-	g_OMAC.Send(destAddress, dataType, msg, size);
+	g_OMAC.Send(destAddress, dataType, msg, size, 0);
 	return DS_Fail;
 }
 

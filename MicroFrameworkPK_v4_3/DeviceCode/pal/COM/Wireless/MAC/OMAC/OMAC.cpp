@@ -287,7 +287,7 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
+BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
 	if(g_send_buffer.IsFull()){
 		////hal_printf("OMACType::Send g_send_buffer full\n");
@@ -314,7 +314,12 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	header->type = dataType;
 
 	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
+	if(eventTime > 0){
+		msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
+	}
+	else{
+		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
+	}
 
 	UINT8* lmsg = (UINT8*) msg;
 	UINT8* payload = msg_carrier->GetPayload();
@@ -344,6 +349,8 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	return true;
 }
 
+
+#if 0
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
@@ -404,6 +411,7 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	}*/
 	return true;
 }
+#endif
 
 /*
  *
