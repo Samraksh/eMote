@@ -68,6 +68,27 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 	header->mac_id = g_OMAC.macName;
 	//header->network = MyConfig.Network;
 
+	/*********/
+	/*Message_15_4_t txMsg;
+	Message_15_4_t* txMsgPtr = &txMsg;
+	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+	Message_15_4_t* msgPtr = *tempPtr;
+	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+
+	if(txMsgPtr != NULL){
+		if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
+		{
+			UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
+			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
+		}
+		else
+		{
+			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
+		}
+	}*/
+	/*********/
+
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	if(size < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
@@ -115,6 +136,27 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	////header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
 	header->SetFlags(header->GetFlags());
 	//header->network = MyConfig.Network;
+
+	/*********/
+	/*Message_15_4_t txMsg;
+	Message_15_4_t* txMsgPtr = &txMsg;
+	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
+	Message_15_4_t* msgPtr = *tempPtr;
+	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
+	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
+
+	if(txMsgPtr != NULL){
+		if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
+		{
+			UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
+			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
+		}
+		else
+		{
+			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
+		}
+	}*/
+	/*********/
 
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);

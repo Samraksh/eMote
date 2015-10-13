@@ -195,8 +195,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 
-	if(Size - sizeof(IEEE802_15_4_Header_t) > OMACType::GetMaxPayload()){
-		hal_printf("CSMA Receive Error: Packet is too big: %d ", Size+sizeof(IEEE802_15_4_Header_t));
+	UINT16 maxPayload = OMACType::GetMaxPayload();
+	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
+		hal_printf("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t));
+		return msg;
+	}
+	if(Size < sizeof(IEEE802_15_4_Header_t)){
 		return msg;
 	}
 
@@ -290,8 +294,9 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 		return FALSE;
 	}
 
-	Message_15_4_t *msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size >  OMACType::GetMaxPayload()){
+	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	//Message_15_4_t* msg_carrier;
+	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
@@ -332,6 +337,10 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size)
 	}*/
 	//bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
 
+	/*if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+		return FALSE;
+	}*/
+
 	return true;
 }
 
@@ -348,11 +357,12 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	}
 
 	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size >  OMACType::GetMaxPayload()){
+	//Message_15_4_t* msg_carrier;
+	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
-	IEEE802_15_4_Header_t *header = msg_carrier->GetHeader();
+	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
@@ -389,6 +399,9 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	//bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
 
 	////hal_printf("end OMACType::SendTimeStamped\n");
+	/*if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+		return FALSE;
+	}*/
 	return true;
 }
 

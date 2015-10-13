@@ -166,7 +166,9 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	////hal_printf("\n[%llu%llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	bool rv = Send();
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	SetTxCounter(0);
 	//m_nextTXCounter = 0;
 }
@@ -268,6 +270,8 @@ bool DataTransmissionHandler::Send(){
 		ASSERT(1);
 	}
 
+	DeviceStatus rs;
+
 	if(g_send_buffer.GetNumberMessagesInBuffer() == 0){
 		return false;
 	}
@@ -281,12 +285,14 @@ bool DataTransmissionHandler::Send(){
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
 		////hal_printf("DataTransmissionHandler::Send calling Send\n");
-		DeviceStatus rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize()  );
+		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize()  );
 	}
 	else {
 		////hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
-		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr , m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+		rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
+
+	hal_printf("send status: %d\n", rs);
 	//CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	return true;
 }

@@ -205,9 +205,9 @@ UINT16 DataReceptionHandler::NextEventinSlots(UINT32 currentSlotNum){
 void DataReceptionHandler::ExecuteEvent(UINT32 slotNum){
 	DeviceStatus e = DS_Fail;
 	////hal_printf("\n[%llu%llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 		//call ChannelMonitor.monitorChannel();
 		//SendDataBeacon(FALSE);
 		////hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
