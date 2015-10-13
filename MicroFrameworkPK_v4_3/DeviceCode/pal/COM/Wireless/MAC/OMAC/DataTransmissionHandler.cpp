@@ -285,16 +285,20 @@ bool DataTransmissionHandler::Send(){
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
 		////hal_printf("DataTransmissionHandler::Send calling Send\n");
-		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize()  );
+		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), 0 );
 	}
 	else {
 		////hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
-		rs = g_omac_RadioControl.Send_TimeStamped(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
 
-	hal_printf("send status: %d\n", rs);
+	if(rs != DS_Success)
+		return false;
+	else
+		return true;
+
+	//hal_printf("send status: %d\n", rs);
 	//CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	return true;
 }
 
 /*

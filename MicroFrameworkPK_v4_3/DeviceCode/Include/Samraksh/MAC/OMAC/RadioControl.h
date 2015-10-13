@@ -20,7 +20,7 @@ typedef class RadioControl{
 	DeviceStatus StartPLL();
 	DeviceStatus StartRx();
 	DeviceStatus Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);
-	DeviceStatus Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);
+	DeviceStatus Send(RadioAddress_t address, Message_15_4_t * msg, UINT16 size, UINT32 eventTime);
 	DeviceStatus Send_TimeStamped(RadioAddress_t address, Message_15_4_t * msg, UINT16 size, UINT32 eventTime);
 	DeviceStatus Receive(Message_15_4_t * msg, UINT16 size);
 	DeviceStatus Stop();

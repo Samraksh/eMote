@@ -346,7 +346,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->type = MFM_DISCOVERY;
 	//header->type = MFM_TIMESYNC;
 
-	retValue = g_omac_RadioControl.Send_TimeStamped(address, msg, size, event_time);
+	retValue = g_omac_RadioControl.Send(address, msg, size, event_time);
 
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );

@@ -55,8 +55,8 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 /*
  *
  */
-DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
-	IEEE802_15_4_Header_t *header = msg->GetHeader();
+DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
+	IEEE802_15_4_Header_t* header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
@@ -102,26 +102,27 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		header->SetFlags(header->GetFlags());
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
-		hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
+		//hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
-		hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
+		//hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
 #endif
-		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), tmsg->localTime0);
+		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
 	}else {
 		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
 #ifdef DEBUG_TIMESYNC
-		hal_printf("RadioControl::Send CPU_Radio_Send\n");
+		//hal_printf("RadioControl::Send CPU_Radio_Send\n");
 #endif
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
 	}
 	return DS_Success;
 }
 
+#if 0
 /*
  * Radio implements the 'bag exchange' protocol, so store the pointer back to message
  */
-DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4_t * msg, UINT16 size, UINT32 eventTime){
+DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -178,6 +179,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 
 	return DS_Success;
 }
+#endif
 
 
 //DeviceStatus RadioControl::Receive(Message_15_4_t * msg, UINT16 size){

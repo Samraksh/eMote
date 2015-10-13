@@ -296,7 +296,7 @@ bool DataReceptionHandler::SendDataBeacon(bool sendPiggyBacked){
 	sndMsg->nodeID = CPU_Radio_GetAddress(RadioID);
 	dataBeaconBufferPtr->GetHeader()->type = OMAC_DATA_BEACON_TYPE;
 
-	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t) );
+	g_omac_RadioControl.Send(RADIO_BROADCAST_ADDRESS, dataBeaconBufferPtr, sizeof(DataBeacon_t), 0 );
 	//call DataReceptionTimer.startOneShot(WAIT_TIME_AFTER_DATA_BEACON);
 	////hal_printf("end DataReceptionHandler::SendDataBeacon\n");
 	return true;
