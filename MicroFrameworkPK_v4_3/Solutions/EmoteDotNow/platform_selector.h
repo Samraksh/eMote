@@ -196,6 +196,7 @@ const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 #define VIRT_TIMER_MAC_SENDPKT 		3
 #define VIRT_TIMER_MAC_BEACON 		4
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
+#define VIRT_TIMER_REALTIME_DEBUGGER 6
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

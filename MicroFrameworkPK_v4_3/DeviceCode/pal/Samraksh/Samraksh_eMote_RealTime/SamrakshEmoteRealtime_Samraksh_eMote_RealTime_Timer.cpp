@@ -20,17 +20,17 @@ extern void RT_Dispose();
 extern BOOL RT_Change(UINT32 dueTime, UINT32 period);
 extern void GenerateSoftwareInterrupt(void);
 
-void Timer::Dispose( HRESULT &hr )
+void Timer::Dispose( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	RT_Dispose();
 }
 
-INT8 Timer::Change( UINT32 param0, UINT32 param1, HRESULT &hr )
+INT8 Timer::Change( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
 {
     return RT_Change(param0, param1);
 }
 
-void Timer::GenerateInterrupt( HRESULT &hr )
+void Timer::GenerateInterrupt( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	GenerateSoftwareInterrupt();
 }

@@ -16,17 +16,17 @@
 
 using namespace Samraksh::eMote::RealTime;
 
-void Timer::Dispose( HRESULT &hr )
+void Timer::Dispose( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 }
 
-INT8 Timer::Change( UINT32 param0, UINT32 param1, HRESULT &hr )
+INT8 Timer::Change( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
 }
 
-void Timer::GenerateInterrupt( HRESULT &hr )
+void Timer::GenerateInterrupt( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 }
 

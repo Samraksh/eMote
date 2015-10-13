@@ -22,25 +22,24 @@ namespace Samraksh.eMote.RealTime
 
         /// <summary>Realtime Timer</summary>
         /// <param name="period">Interval between callbacks (microseconds)</param>
-        /// <param name="callbackCount">How many callbacks to make (0 = infinite)</param>
-        public Timer(ulong period, int callbackCount)
+        public Timer(ulong period)
             : base("RealTimeInteropTimer", period) {
 
         }
 
         /// <summary>Dispose realtime timer</summary>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        new extern static public void Dispose();
+        new extern public void Dispose();
 
         /// <summary>Change the timer due time and period</summary>
         /// <param name="dueTime">Delay before first callback (microseconds)</param>
         /// <param name="period">Interval between callbacks (microseconds)</param>
         /// <returns>Success / failure</returns>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public bool Change(uint dueTime, uint period);
+        extern public bool Change(uint dueTime, uint period);
 
         /// <summary>Generate an interrupt</summary>
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        extern static public void GenerateInterrupt(); 
+        extern public void GenerateInterrupt(); 
     }
 }

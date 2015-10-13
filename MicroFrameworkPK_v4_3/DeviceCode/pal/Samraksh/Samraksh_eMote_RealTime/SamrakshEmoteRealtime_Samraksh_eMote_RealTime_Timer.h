@@ -24,9 +24,9 @@ namespace Samraksh
             {
                 // Helper Functions to access fields of managed object
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static void Dispose( HRESULT &hr );
-                static INT8 Change( UINT32 param0, UINT32 param1, HRESULT &hr );
-                static void GenerateInterrupt( HRESULT &hr );
+                static void Dispose( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static INT8 Change( CLR_RT_HeapBlock* pMngObj, UINT32 param0, UINT32 param1, HRESULT &hr );
+                static void GenerateInterrupt( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             };
         }
     }

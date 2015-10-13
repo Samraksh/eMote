@@ -36,20 +36,48 @@ UINT32 maxTicks = 0;
 UINT64 maxMicroseconds = 0;
 
 void ISR_REALTIME_TIMER (void* Param);
+void ISR_RT_Debugger (void* Param);
 void ISR_SoftwareInterrupt_Handler (void* Param);
 static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext );
+static int realTimeID = VIRT_TIMER_REALTIME;
+static bool debuggerAttached = false;
 
 BOOL InitializeTimer ()
 {
-	if(VirtTimer_Change(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
+	hal_printf("RT\r\n");
+	if(CLR_EE_DBG_IS(Enabled))
 	{
-		if(VirtTimer_SetTimer(VIRT_TIMER_REALTIME, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER) != TimerSupported)
+		debuggerAttached = true;
+	} else {
+		debuggerAttached = false;
+	}
+	if (debuggerAttached == true)
+	{
+		realTimeID = VIRT_TIMER_REALTIME_DEBUGGER;
+		hal_printf("DEBUGGER!\r\n");
+		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
 		{
-			ASSERT(FALSE);
+			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_RT_Debugger) != TimerSupported)
+			{
+				ASSERT(FALSE);
+			}
+		}
+	} else {
+		realTimeID = VIRT_TIMER_REALTIME;
+		hal_printf("NOT D!\r\n");
+		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
+		{
+			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER) != TimerSupported)
+			{
+				ASSERT(FALSE);
+			}
 		}
 	}
+		
+	
 
-	VirtTimer_Start( VIRT_TIMER_REALTIME );
+	
+	VirtTimer_Start( realTimeID );
 
 	return TRUE;
 }
@@ -57,19 +85,23 @@ BOOL InitializeTimer ()
 
 BOOL RT_Dispose ()
 {
-	VirtTimer_Stop( VIRT_TIMER_REALTIME );
+	hal_printf("disp\r\n");
+	VirtTimer_Stop( realTimeID );
+	if (debuggerAttached == false){
 #ifdef PLATFORM_ARM_EmoteDotNow
-	CPU_INTC_DeactivateInterrupt(PEND_SV_INTERRUPT);
+		CPU_INTC_DeactivateInterrupt(PEND_SV_INTERRUPT);
 #else
-	//Need something similar to above for Adapt
+		//Need something similar to above for Adapt
 #endif
+	}
 	g_RealTimeTimerEnalbed = false;
+	CleanupNativeEventsFromHALQueue( g_Context );
 }
 
 
 BOOL RT_Change(uint dueTime, uint period)
 {
-	VirtTimer_Change(VIRT_TIMER_REALTIME, dueTime, period, false);
+	VirtTimer_Change(realTimeID, dueTime, period, false);
 
 	return 1;
 }
@@ -85,11 +117,17 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
 #ifdef PLATFORM_ARM_EmoteDotNow
    //Register the software interrupt Handler
    //On eMote .Now, it is pendSV interrupt.
-   if(!CPU_INTC_ActivateInterrupt(PEND_SV_INTERRUPT, ISR_SoftwareInterrupt_Handler, NULL))
-   {
+	if(CLR_EE_DBG_IS(Enabled))
+	{
+		hal_printf("no interrupt\r\n");
+	} else if(!CPU_INTC_ActivateInterrupt(PEND_SV_INTERRUPT, ISR_SoftwareInterrupt_Handler, NULL))
+   	{
+		hal_printf("wth\r\n");
 	   int x;
 	   debug_printf("Error Registering ISR Realtime hardware handler");
-   }
+   	} else {
+		hal_printf("interrupt\r\n");
+	}
 #else
    //Need something similar to above for Adapt
 #endif
@@ -100,6 +138,12 @@ void ISR_SoftwareInterrupt_Handler (void* Param)
 {
 	HRESULT hresult;
 	EnqueueEventToCLR( g_Context );
+}
+
+void ISR_RT_Debugger (void* Param)
+{
+	//Generate a Software Interrupt and Add to HAL Queue
+    SaveNativeEventToHALQueue( g_Context, UINT32(g_UserData >> 16), UINT32(g_UserData & 0xFFFFFFFF) );
 }
 
 
@@ -192,6 +236,7 @@ void ISR_REALTIME_TIMER (void* Param)
 
 static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable )
 {
+	hal_printf("ed\r\n");
 	if(fEnable)
 		g_RealTimeTimerEnalbed = fEnable;
 	else
@@ -202,9 +247,14 @@ static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDis
 
 static HRESULT CleanupRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
-    g_Context = NULL;
-    g_UserData = 0;
-    CleanupNativeEventsFromHALQueue( pContext );
+	if (g_RealTimeTimerEnalbed == false){
+		hal_printf("cu\r\n");
+	    g_Context = NULL;
+	    g_UserData = 0;
+	    CleanupNativeEventsFromHALQueue( pContext );
+	} else {
+		hal_printf("cu ignored\r\n");
+	}
     return S_OK;
 }
 
@@ -219,15 +269,15 @@ static const CLR_RT_MethodHandler method_lookup[] =
 {
     NULL,
     NULL,
-    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::Dispose___STATIC__VOID,
-    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::Change___STATIC__BOOLEAN__U4__U4,
-    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::GenerateInterrupt___STATIC__VOID,
+    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::Dispose___VOID,
+    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::Change___BOOLEAN__U4__U4,
+    Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer::GenerateInterrupt___VOID,
 };
 
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_RealTime =
 {
     "Samraksh_eMote_RealTime", 
-    0x416CBE60,
+    0xA4167F35,
     method_lookup
 };
 

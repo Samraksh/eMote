@@ -16,9 +16,9 @@ void ISR_PendSV_Handler(void* Param);
 
 struct Library_SamrakshEmoteRealtime_Samraksh_eMote_RealTime_Timer
 {
-    TINYCLR_NATIVE_DECLARE(Dispose___STATIC__VOID);
-    TINYCLR_NATIVE_DECLARE(Change___STATIC__BOOLEAN__U4__U4);
-    TINYCLR_NATIVE_DECLARE(GenerateInterrupt___STATIC__VOID);
+    TINYCLR_NATIVE_DECLARE(Dispose___VOID);
+    TINYCLR_NATIVE_DECLARE(Change___BOOLEAN__U4__U4);
+    TINYCLR_NATIVE_DECLARE(GenerateInterrupt___VOID);
 
     //--//
 
