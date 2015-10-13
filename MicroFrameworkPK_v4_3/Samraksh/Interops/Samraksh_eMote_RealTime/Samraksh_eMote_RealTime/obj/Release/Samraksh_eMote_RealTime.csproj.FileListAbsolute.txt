@@ -15,5 +15,4 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTim
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\le\Samraksh_eMote_RealTime.pdbx
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.dll
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.pdb
-D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\Samraksh_eMote_RealTime.csprojResolveAssemblyReference.cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime\obj\Release\TinyCLR_DebugReferences.cache
