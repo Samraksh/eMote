@@ -6,6 +6,10 @@
 //
 //-----------------------------------------------------------------------------
 
+// The real-time timer is unable to be run under Visual Studios in debugger mode. It overrides the debugger messages causing VS to timeout.
+// We look to see if we are running in debugger mode, and if so we print out a warning to the user stating that the real-time timer will
+// have poor jitter and timing accuracy while in debug mode and we change the real-time timer to just a normal timer.
+
 #include <tinyhal.h>
 #include <TinyCLR_Hardware.h>
 #include <TinyCLR_Runtime.h>
@@ -41,20 +45,14 @@ void ISR_SoftwareInterrupt_Handler (void* Param);
 static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext );
 static int realTimeID = VIRT_TIMER_REALTIME;
 static bool debuggerAttached = false;
+#define REALTIME_TIMER_CNT_MAX 1
+static int realtimeTimerCnt = 0;
 
 BOOL InitializeTimer ()
 {
-	hal_printf("RT\r\n");
-	if(CLR_EE_DBG_IS(Enabled))
-	{
-		debuggerAttached = true;
-	} else {
-		debuggerAttached = false;
-	}
 	if (debuggerAttached == true)
 	{
 		realTimeID = VIRT_TIMER_REALTIME_DEBUGGER;
-		hal_printf("DEBUGGER!\r\n");
 		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
 		{
 			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_RT_Debugger) != TimerSupported)
@@ -64,7 +62,6 @@ BOOL InitializeTimer ()
 		}
 	} else {
 		realTimeID = VIRT_TIMER_REALTIME;
-		hal_printf("NOT D!\r\n");
 		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
 		{
 			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER) != TimerSupported)
@@ -74,10 +71,8 @@ BOOL InitializeTimer ()
 		}
 	}
 		
-	
-
-	
 	VirtTimer_Start( realTimeID );
+	realtimeTimerCnt++;
 
 	return TRUE;
 }
@@ -85,7 +80,6 @@ BOOL InitializeTimer ()
 
 BOOL RT_Dispose ()
 {
-	hal_printf("disp\r\n");
 	VirtTimer_Stop( realTimeID );
 	if (debuggerAttached == false){
 #ifdef PLATFORM_ARM_EmoteDotNow
@@ -96,8 +90,10 @@ BOOL RT_Dispose ()
 	}
 	g_RealTimeTimerEnalbed = false;
 	CleanupNativeEventsFromHALQueue( g_Context );
+	if (realtimeTimerCnt > 0){
+		realtimeTimerCnt--;
+	}
 }
-
 
 BOOL RT_Change(uint dueTime, uint period)
 {
@@ -111,22 +107,31 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
    g_Context  = pContext;
    g_UserData = userData;
 
+   if (realtimeTimerCnt >= REALTIME_TIMER_CNT_MAX){
+		CLR_Debug::Printf("The maximum number of real-time timers allowed is: %d. %d real-time timers are currently running\r\n", REALTIME_TIMER_CNT_MAX, realtimeTimerCnt);
+		return S_FALSE;
+   }
+   // We check here to see if we have a debugger attached.
+   if(CLR_EE_DBG_IS(Enabled))
+	{
+		debuggerAttached = true;
+		CLR_Debug::Printf("Notice: the real-time timer is running in debugger mode!\r\n");
+	} else 
+	{
+		debuggerAttached = false;
+	}
    RealTimeTimerMicrosecs = userData;
    InitializeTimer();
 
 #ifdef PLATFORM_ARM_EmoteDotNow
    //Register the software interrupt Handler
    //On eMote .Now, it is pendSV interrupt.
-	if(CLR_EE_DBG_IS(Enabled))
+	if (debuggerAttached == false)
 	{
-		hal_printf("no interrupt\r\n");
-	} else if(!CPU_INTC_ActivateInterrupt(PEND_SV_INTERRUPT, ISR_SoftwareInterrupt_Handler, NULL))
-   	{
-		hal_printf("wth\r\n");
-	   int x;
-	   debug_printf("Error Registering ISR Realtime hardware handler");
-   	} else {
-		hal_printf("interrupt\r\n");
+		if(!CPU_INTC_ActivateInterrupt(PEND_SV_INTERRUPT, ISR_SoftwareInterrupt_Handler, NULL))
+   		{
+	   		debug_printf("Error Registering ISR Realtime hardware handler");
+		}
 	}
 #else
    //Need something similar to above for Adapt
@@ -236,7 +241,6 @@ void ISR_REALTIME_TIMER (void* Param)
 
 static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable )
 {
-	hal_printf("ed\r\n");
 	if(fEnable)
 		g_RealTimeTimerEnalbed = fEnable;
 	else
@@ -247,13 +251,12 @@ static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDis
 
 static HRESULT CleanupRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext )
 {
+	// If a user disposes of a real-time timer, usually this function will get called tens of seconds later to make sure all 
+	// events are cleaned up. If we are currently running a new timer this function will break that timer.
 	if (g_RealTimeTimerEnalbed == false){
-		hal_printf("cu\r\n");
 	    g_Context = NULL;
 	    g_UserData = 0;
 	    CleanupNativeEventsFromHALQueue( pContext );
-	} else {
-		hal_printf("cu ignored\r\n");
 	}
     return S_OK;
 }
