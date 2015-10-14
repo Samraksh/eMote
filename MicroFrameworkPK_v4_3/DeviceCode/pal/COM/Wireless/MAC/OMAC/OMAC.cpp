@@ -192,7 +192,7 @@ BOOL OMACType::UnInitialize()
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-
+	//hal_printf("**********OMACType::ReceiveHandler**************\n");
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
@@ -205,6 +205,19 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	}
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
+
+	IEEE802_15_4_Header_t* header = msg->GetHeader();
+	//hal_printf("OMACType::ReceiveHandler header type is %d\n", header->type);
+	if(header->type == MFM_DATA){
+		hal_printf("OMACType::ReceiveHandler header type is MFM_DATA %d\n", header->type);
+		UINT16 payloadSize = msg->GetPayloadSize();
+		hal_printf("payloadSize %u\n", payloadSize);
+		UINT8* payload = msg->GetPayload();
+		for(int i = 0; i < 5; i++){
+			hal_printf("msg[%d]: %d\n", i, payload[i]);
+		}
+		hal_printf("\n");
+	}
 
 	//Starting radio's rx here
 	//DeviceStatus e = g_omac_RadioControl.StartRx(); //BK: You have already received. Yous hould
@@ -238,9 +251,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
+			hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 			if(myID == destID) {
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-				////hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 				////hal_printf("Successfully got a data packet\n");
 				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
 					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");

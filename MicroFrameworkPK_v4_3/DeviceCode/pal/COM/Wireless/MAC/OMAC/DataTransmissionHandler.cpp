@@ -281,6 +281,9 @@ bool DataTransmissionHandler::Send(){
 	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
 	header->type = MFM_DATA;
 
+	//for(int i = 0; i < 50; i++){
+		//HAL_Time_Sleep_MicroSeconds(500);
+
 	//CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
@@ -291,6 +294,7 @@ bool DataTransmissionHandler::Send(){
 		////hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
 		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
+	//}
 
 	if(rs != DS_Success)
 		return false;

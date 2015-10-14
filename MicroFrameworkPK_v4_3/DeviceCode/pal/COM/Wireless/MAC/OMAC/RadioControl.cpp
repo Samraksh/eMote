@@ -68,6 +68,17 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 	header->mac_id = g_OMAC.macName;
 	//header->network = MyConfig.Network;
 
+	/*if(header->type == MFM_DATA){
+		hal_printf("RadioControl::Send header type is MFM_DATA %d\n", header->type);
+		UINT16 payloadSize = msg->GetPayloadSize();
+		hal_printf("payloadSize %u\n", payloadSize);
+		UINT8* payload = msg->GetPayload();
+		for(int i = 0; i < 5; i++){
+			hal_printf("msg[%d]: %d\n", i, payload[i]);
+		}
+		hal_printf("\n");
+	}*/
+
 	/*********/
 	/*Message_15_4_t txMsg;
 	Message_15_4_t* txMsgPtr = &txMsg;

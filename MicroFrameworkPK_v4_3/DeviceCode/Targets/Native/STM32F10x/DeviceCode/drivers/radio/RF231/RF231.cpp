@@ -42,6 +42,8 @@ BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
+
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
 	// Adding 2 for crc and 4 bytes for timestamp
 	if(size+2+4 > IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
@@ -181,8 +183,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	SelnSet();
 	state = STATE_BUSY_TX;
-	CPU_GPIO_SetPinState( RF231_DEBUG_TX, TRUE );
-	CPU_GPIO_SetPinState( RF231_DEBUG_TX, FALSE );
+
 	////NATHAN_SET_DEBUG_GPIO(0);
 
 	//reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK; // doesn't seem to do anything??? --NPS
@@ -191,6 +192,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
+
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
 #ifdef DEBUG_RF231
 	hal_printf("RF231: Packet setup for xmit\r\n");
@@ -441,6 +444,8 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
+
+	CPU_GPIO_SetPinState( RF231_TX, TRUE );
 	// Adding two bytes for crc
 	if(size+2 > IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
@@ -544,6 +549,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	Message_15_4_t* temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
+
+	CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
 	//pulse 6
 	//__ASM volatile("cpsie i");
@@ -664,8 +671,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
 
-	CPU_GPIO_EnableOutputPin(RF231_DEBUG_RX, FALSE);
-	CPU_GPIO_EnableOutputPin(RF231_DEBUG_TX, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_RX, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_TX_TIMESTAMP, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_TX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_FRAME_BUFF_ACTIVE, FALSE);
 
 #	ifdef NATHAN_RF231_DEBUG_DELETE_ME
@@ -1023,8 +1031,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 	DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 	state = STATE_RX_ON;
 
-	CPU_GPIO_SetPinState( RF231_DEBUG_RX, TRUE );
-	CPU_GPIO_SetPinState( RF231_DEBUG_RX, FALSE );
 	//NATHAN_SET_DEBUG_GPIO(0);
 
 #	ifdef DEBUG_RF231
@@ -1303,7 +1309,7 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
-
+			CPU_GPIO_SetPinState( RF231_RX, TRUE );
 #			ifdef DEBUG_RF231
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
 #			endif
@@ -1327,6 +1333,10 @@ void RF231Radio::HandleInterrupt()
 					return;
 				}
 
+				int type = rx_msg_ptr->GetHeader()->type;
+				if(type == 1){
+					hal_printf("RF231Radio::HandleInterrupt header type is %d\n", type);
+				}
 				// This looks awful... --NPS
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
@@ -1348,6 +1358,7 @@ void RF231Radio::HandleInterrupt()
 				state = STATE_RX_ON;
 				//NATHAN_SET_DEBUG_GPIO(0);
 			}
+			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
 	}
 
