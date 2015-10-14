@@ -131,10 +131,10 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 
 	if(rxEventOffset == nextWakeupTimeInMicSec) {
+
 		InputState.RequestState(I_DATA_RCV_PENDING);
 	}
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO;
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
@@ -146,12 +146,6 @@ void OMACScheduler::ScheduleNextEvent(){
 	else{
 		InputState.RequestState(I_IDLE);
 	}
-
-
-	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu NT: %llu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextWakeupTimeInMicSec,curTime+nextWakeupTimeInMicSec );
-
-	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
 	if(!timer1INuse){
 		timer1INuse = true;
@@ -177,9 +171,6 @@ void OMACScheduler::ScheduleNextEvent(){
 }
 
 bool OMACScheduler::RunEventTask(){
-	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu NT: %llu] OMACScheduler::RunEventTask() \n",curTime, m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime) );
-
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			////hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
