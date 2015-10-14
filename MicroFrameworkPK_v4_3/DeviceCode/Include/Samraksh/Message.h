@@ -169,7 +169,8 @@ typedef class IEEE802_15_4_Metadata{
 	}
 
 }IEEE802_15_4_Metadata_t;
-#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t))
+//#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-2*sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t)-2)
+#define IEEE802_15_4_MAX_PAYLOAD 50
 
 typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
 #define Message_15_4_t IEEE802_15_4_Message_t

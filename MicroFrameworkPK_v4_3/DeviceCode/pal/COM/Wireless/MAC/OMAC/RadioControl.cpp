@@ -124,6 +124,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 #ifdef DEBUG_TIMESYNC
 		//hal_printf("RadioControl::Send CPU_Radio_Send\n");
 #endif
+		hal_printf("RadioControl::Send size is %u\n", size);
+		hal_printf("RadioControl::Send size is %u\n", size+sizeof(IEEE802_15_4_Header_t));
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
 	}
 	return DS_Success;

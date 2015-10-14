@@ -291,7 +291,7 @@ bool DataTransmissionHandler::Send(){
 		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), 0 );
 	}
 	else {
-		////hal_printf("DataTransmissionHandler::Send calling Send_TimeStamped\n");
+		hal_printf("DataTransmissionHandler::Send msg size %u\n", m_outgoingEntryPtr->GetMessageSize());
 		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
 	//}
