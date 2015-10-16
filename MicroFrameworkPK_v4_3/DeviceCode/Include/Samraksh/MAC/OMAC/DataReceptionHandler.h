@@ -20,47 +20,19 @@
 class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
-
-	BOOL m_busy, m_shldWakeup;
-	UINT32 m_dataInterval;
-	/* the source node we're expecting during dwell time, to filter out messages, accidentally sent
-	 * back to back by another sender, that stops our dwell time */
-	UINT16 	m_dwellSource;
-	/*for calculateConversionTask*/
-
-	Message_15_4_t 	dataBeaconBuffer, receiveMsgBuffer;
-	//Message_15_4_t 	debugMsg;
-	Message_15_4_t  *dataBeaconBufferPtr;
-	//UINT8 m_dwellCnt ;
-	bool m_receivedDataPacket, m_efdDetected;
-	UINT16 	m_wakeupCnt, m_idleListenCnt, m_collisionCnt, m_overhearCnt;
-	UINT16	m_sfdCnt;
-	//wakeup slots that receive at least one packet
-	UINT16 	m_receivedSlotCnt, m_reportPeriod;
-
-	UINT32	m_lastBeaconRequestSlot;
-	static UINT32	m_nextWakeupSlot;
-	UINT32 m_seedUpdateInterval;
-	UINT16	m_nextSeed, m_mask;
-
-	UINT32	wakeupSlot, wakeupTime, scheduledWakeupTime;
-	//SeedGenerator m_seedGenerator;
+	Message_15_4_t  dataBeaconBuffer,receiveMsgBuffer;
 
 public:
+	UINT16	m_nextSeed, m_mask; // m_nextSeed stores the next seed to be used in calculating the next wakeup slot and the m_mask is used as a mask in the pseduo random function
+	UINT32 m_nextwakeupSlot;
+	UINT32 m_seedUpdateIntervalinSlots;
+
+
 	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT64 NextEvent(UINT32 currentSlotNum);
-  	UINT16 NextEventinSlots(UINT32 currentSlotNum);
-	//UINT64 NextEvent(UINT64 currentTicks);
-	void ExecuteEvent(UINT32 currentSlotNum);
-	UINT8 ExecuteEventDone();
+	void UpdateSeedandCalculateWakeupSlot(UINT32 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT32 &currentSlotNum );
+ 	void ExecuteEvent(UINT32 currentSlotNum);
+
 	void PostExecuteEvent();
-	void SetWakeup(bool shldWakeup);
-	UINT32 GetWakeupSlot();
-	void SetWakeupSlot(UINT32);
-
-	bool SendDataBeacon(bool sendPiggyback);
 };
-
-UINT32 DataReceptionHandler::m_nextWakeupSlot = 0;
-
 #endif /* DATARECEPTIONHANDLER_H_ */

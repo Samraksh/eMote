@@ -81,6 +81,9 @@ void OMACScheduler::UnInitialize(){
 UINT32 OMACScheduler::GetSlotNumber(){
 	return ( HAL_Time_CurrentTicks() / SLOT_PERIOD_TICKS);
 }
+UINT32 OMACScheduler::GetSlotNumber(const UINT64 &y){
+	return ( y / SLOT_PERIOD_TICKS);
+}
 
 UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
 	UINT64 cur_ticks = HAL_Time_CurrentTicks();

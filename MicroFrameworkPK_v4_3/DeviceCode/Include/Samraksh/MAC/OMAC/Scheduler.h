@@ -132,6 +132,7 @@ public:
 	void Initialize(UINT8 radioID, UINT8 macID);
 	void UnInitialize();
 	UINT32 GetSlotNumber();
+	UINT32 GetSlotNumber(const UINT64 &y);
 	UINT32 GetTimeTillTheEndofSlot();
 	void ScheduleNextEvent();
 
