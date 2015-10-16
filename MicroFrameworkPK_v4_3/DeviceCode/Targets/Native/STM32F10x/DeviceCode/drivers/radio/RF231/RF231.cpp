@@ -3,7 +3,6 @@
 #include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
 
 //#define DEBUG_RF231 1
-//#define DEBUG_RF231_TX_RX 1
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 //#define RF231_RADIO_STATEPIN2 23
@@ -53,9 +52,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	                // Should be bad size
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
-#ifdef DEBUG_RF231_TX_RX
-	                hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped end - 1\n", HAL_Time_CurrentTicks());
-#endif
+	                hal_printf("RF231Radio::Send_TimeStamped end - 1\n");
 	                return msg;
 	 }
 
@@ -74,17 +71,14 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        tx_length = size;
 
-	        //if(cmd != CMD_NONE || state == STATE_BUSY_TX)
-	        if(state == STATE_BUSY_TX)
+	        if(cmd != CMD_NONE || state == STATE_BUSY_TX)
 	        {
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 #ifdef DEBUG_RF231
 	                hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
 #endif
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
-#ifdef DEBUG_RF231_TX_RX
-	                hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped end - 2; cmd - %d; state - %d\n", HAL_Time_CurrentTicks(), cmd, state);
-#endif
+	                hal_printf("RF231Radio::Send_TimeStamped end - 2\n");
 	                return msg;
 	        }
 
@@ -96,9 +90,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	                //TurnOn();
 	        }
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped - 1\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send_TimeStamped - 1\n");
 
 	        // Send gives the CMD_TRANSMIT to the radio
 	        //cmd = CMD_TRANSMIT;
@@ -127,9 +119,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        //radio_frame_write(data, 119);
 	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped - 2\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send_TimeStamped - 2\n");
 
 
 	        //pulse 3
@@ -145,9 +135,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	        // Load buffer before initiating the transmit command
 	        SelnClear();
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped - 3\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send_TimeStamped - 3\n");
 
 	        CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
@@ -197,9 +185,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	        SelnSet();
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send_TimeStamped - 4\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send_TimeStamped - 4\n");
 
 	        //WriteRegister(RF230_TRX_STATE, RF230_TX_START);
 
@@ -484,9 +470,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	                // Should be bad size
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
-#ifdef DEBUG_RF231_TX_RX
-	                hal_printf("[LT: %llu] RF231Radio::Send end - 1\n", HAL_Time_CurrentTicks());
-#endif
+	                hal_printf("RF231Radio::Send end - 1\n");
 	                return msg;
 	 }
 
@@ -505,17 +489,14 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	        tx_length = size;
 
-	        //if(cmd != CMD_NONE || state == STATE_BUSY_TX)
-	        if(state == STATE_BUSY_TX)
+	        if(cmd != CMD_NONE || state == STATE_BUSY_TX)
 	        {
 	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 #ifdef DEBUG_RF231
 	                hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
 #endif
 	                (*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
-#ifdef DEBUG_RF231_TX_RX
-	                hal_printf("[LT: %llu] RF231Radio::Send end - 2; cmd - %d; state - %d<<<<<<<<<<\n", HAL_Time_CurrentTicks(), cmd, state);
-#endif
+	                hal_printf("RF231Radio::Send end - 2\n");
 	                return msg;
 	        }
 
@@ -527,9 +508,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	                //TurnOn();
 	        }
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send - 1\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send - 1\n");
 
 	        // Send gives the CMD_TRANSMIT to the radio
 	        //cmd = CMD_TRANSMIT;
@@ -555,9 +534,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	        UINT8* ldata =(UINT8*) msg;
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send - 2\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send - 2\n");
 	        //radio_frame_write(data, 119);
 	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
@@ -583,9 +560,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	        CPU_SPI_ReadWriteByte(config, size+ 2);
 
 	        UINT8 lLength = size ;
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send - 3\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send - 3\n");
 
 
 	#ifdef DEBUG_TIMESYNC
@@ -618,9 +593,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 	        state = STATE_BUSY_TX;
 
-#ifdef DEBUG_RF231_TX_RX
-	        hal_printf("[LT: %llu] RF231Radio::Send - 4\n", HAL_Time_CurrentTicks());
-#endif
+	        hal_printf("RF231Radio::Send - 4\n");
 	        // exchange bags
 	        Message_15_4_t* temp = tx_msg_ptr;
 	        tx_msg_ptr = (Message_15_4_t*) msg;
@@ -1401,9 +1374,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
-#ifdef DEBUG_RF231_TX_RX
-	hal_printf("[LT: %llu] RF231Radio::TurnOnRx - 1\n", HAL_Time_CurrentTicks());
-#endif
 
 	////hal_printf("RF231Radio::TurnOnRx: before state:%d\n", state);
 	sleep_pending = FALSE;
@@ -1421,10 +1391,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 		state = STATE_PLL_ON;
 	}
 
-#ifdef DEBUG_RF231_TX_RX
-	hal_printf("[LT: %llu] RF231Radio::TurnOnRx - 2\n", HAL_Time_CurrentTicks());
-#endif
-
 	// Wakey wakey
 	if (state == STATE_SLEEP) {
 		SlptrClear();
@@ -1436,11 +1402,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 	}
 
 	if (state == STATE_TRX_OFF || state == STATE_PLL_ON) {
-		//sleep before state change
-		HAL_Time_Sleep_MicroSeconds(380);
 		WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-		//sleep after state change
-		HAL_Time_Sleep_MicroSeconds(380);
 	}
 	else {
 #		ifdef DEBUG_RF231
@@ -1452,10 +1414,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 	DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 	state = STATE_RX_ON;
 
-#ifdef DEBUG_RF231_TX_RX
-	hal_printf("[LT: %llu] RF231Radio::TurnOnRx - 3\n", HAL_Time_CurrentTicks());
-#endif
-
 	//NATHAN_SET_DEBUG_GPIO(0);
 
 #	ifdef DEBUG_RF231
@@ -1463,9 +1421,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 #	endif
 
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
-#ifdef DEBUG_RF231_TX_RX
-	hal_printf("[LT: %llu] RF231Radio::TurnOnRx state:%d\n", HAL_Time_CurrentTicks(), state);
-#endif
+	////hal_printf("RF231Radio::TurnOnRx: after state:%d\n", state);
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
 
@@ -1524,8 +1480,6 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 
-	hal_printf("RF231Radio::TurnOnPLL - 1\n");
-
 	////hal_printf("RF231Radio::TurnOnPLL: before state:%d\n", state);
 	// The radio is not sleeping or is already on
 	if(state == STATE_PLL_ON)
@@ -1544,8 +1498,6 @@ DeviceStatus RF231Radio::TurnOnPLL()
 		// take the amp  out of bypass mode
 		this->Amp(TRUE);
 	}
-
-	hal_printf("RF231Radio::TurnOnPLL - 2\n");
 
 	SlptrClear();
 
@@ -1577,7 +1529,7 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	cmd = CMD_NONE;
 
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
-	hal_printf("RF231Radio::TurnOnPLL: state:%d\n", state);
+	////hal_printf("RF231Radio::TurnOnPLL: after state:%d\n", state);
 	return DS_Success;
 }	//RF231Radio::TurnOnPLL()
 
@@ -1707,9 +1659,6 @@ void RF231Radio::HandleInterrupt()
 	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
-#ifdef DEBUG_RF231_TX_RX
-	hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - 1\n", HAL_Time_CurrentTicks());
-#endif
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS);
 
@@ -1833,9 +1782,6 @@ void RF231Radio::HandleInterrupt()
 					CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
 #endif
 
-#ifdef DEBUG_RF231_TX_RX
-					hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - STATE_BUSY_TX - 2\n", HAL_Time_CurrentTicks());
-#endif
 					// Call radio send done event handler when the send is complete
 					SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 					(*AckHandler)(tx_msg_ptr, tx_length,NO_Success);
@@ -1862,9 +1808,6 @@ void RF231Radio::HandleInterrupt()
 						}
 
 						sleep_pending = FALSE;
-#ifdef DEBUG_RF231_TX_RX
-						hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - sleep_pending false - 3; cmd - %d\n", HAL_Time_CurrentTicks(), cmd);
-#endif
 
 					}
 					else
@@ -1885,9 +1828,6 @@ void RF231Radio::HandleInterrupt()
 						DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 
 						state = STATE_RX_ON;
-#ifdef DEBUG_RF231_TX_RX
-						hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - STATE_RX_ON - 4; cmd - %d\n", HAL_Time_CurrentTicks(), cmd);
-#endif
 					}
 				}
 
@@ -1904,15 +1844,9 @@ void RF231Radio::HandleInterrupt()
 #ifdef DEBUG_RF231
 					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
 #endif
-#ifdef DEBUG_RF231_TX_RX
-					hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - CMD_RECEIVE rx_length gt - 4\n", HAL_Time_CurrentTicks());
-#endif
 					return;
 				}
 
-#ifdef DEBUG_RF231_TX_RX
-				hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - CMD_RECEIVE - 5; cmd - %d\n", HAL_Time_CurrentTicks(), cmd);
-#endif
 				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 			}
@@ -1943,9 +1877,6 @@ void RF231Radio::HandleInterrupt()
 				}
 
 				sleep_pending = FALSE;
-#ifdef DEBUG_RF231_TX_RX
-				hal_printf("[LT: %llu] RF231Radio::HandleInterrupt - CMD_RECEIVE - 6\n", HAL_Time_CurrentTicks());
-#endif
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
