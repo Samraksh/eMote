@@ -234,10 +234,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 
 			UINT64 y = HAL_Time_CurrentTicks();
 			UINT64 neighborTime = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
+			UINT32 neighborSlot = g_omac_scheduler.GetSlotNumber(neighborTime);
 			//TODO: This part needs to be changed to reflect the chnages in wakeup scheduler
-
-
-			g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber(neighborTime) );
+			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
+				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber(neighborTime) );
+			}
 
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber
 			// is later than the start of the clock. So, a slotNumber offset should be used

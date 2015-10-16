@@ -36,7 +36,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	RadioID = radioID;
 	MacID = macID;
 	m_nextwakeupSlot = 0;
-	m_seedUpdateIntervalinSlots = WAKEUPPERIODINTICKS / SLOT_PERIOD_TICKS;
+	m_seedUpdateIntervalinSlots = 250;
 
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
@@ -67,7 +67,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT32 &wakeupSlot, 
 	UINT16 randVal;
 	while ( currentSlotNum >= wakeupSlot ){
 		randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-		wakeupSlot = randVal % seedUpdateIntervalinSlots;
+		wakeupSlot += randVal % seedUpdateIntervalinSlots;
 	}
 	assert(wakeupSlot  > currentSlotNum);
 }
@@ -106,6 +106,7 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//		m_wakeupCnt, m_receivedSlotCnt,
 	//		m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	//}
+	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
 	if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
 		//Stop the radio
 		g_omac_RadioControl.Stop();
