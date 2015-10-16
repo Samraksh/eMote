@@ -57,6 +57,8 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
  */
 DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
 	IEEE802_15_4_Header_t* header = msg->GetHeader();
+	//Commenting out as this detail is added in Discovery handler
+	/*IEEE802_15_4_Header_t* header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
@@ -65,7 +67,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 	header->destpan |= 0;
 	header->dest = address;
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-	header->mac_id = g_OMAC.macName;
+	header->mac_id = g_OMAC.macName;*/
 	//header->network = MyConfig.Network;
 
 	/*if(header->type == MFM_DATA){
@@ -101,7 +103,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 	/*********/
 
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
-	if(size < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
+	//if(size < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
+	if(header->type == MFM_DISCOVERY){
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
 		UINT64 y = HAL_Time_CurrentTicks();
 #ifndef LOCALSKEW
@@ -110,7 +113,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		tmsg->localTime0 = (UINT32) y;
 		tmsg->localTime1 = (UINT32) (y>>32);
 		////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
-		header->SetFlags(header->GetFlags());
+		//header->SetFlags(header->GetFlags());
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
 		//hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
@@ -118,7 +121,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
 		//hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
 #endif
-		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
+		//msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
+		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
 	}else {
 		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
 #ifdef DEBUG_TIMESYNC
@@ -126,7 +130,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 #endif
 		//hal_printf("RadioControl::Send size is %u\n", size);
 		//hal_printf("RadioControl::Send size is %u\n", size+sizeof(IEEE802_15_4_Header_t));
-		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
+		//msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t));
+		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
 	return DS_Success;
 }

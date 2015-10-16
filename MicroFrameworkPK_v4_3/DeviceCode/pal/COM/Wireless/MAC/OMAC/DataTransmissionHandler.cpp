@@ -166,9 +166,12 @@ UINT64 DataTransmissionHandler::NextEvent(UINT32 currentSlotNum){
 void DataTransmissionHandler::ExecuteEvent(UINT32 currentSlotNum){
 	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
 	////hal_printf("\n[%llu%llu] DataTransmissionHandler:ExecuteEvent\n",HAL_Time_CurrentTime(), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTime()));
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	bool rv = Send();
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	for(int i = 0; i < 1; i++){
+		//HAL_Time_Sleep_MicroSeconds(5000);
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		bool rv = Send();
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	}
 	SetTxCounter(0);
 	PostExecuteEvent();
 }
@@ -278,23 +281,23 @@ bool DataTransmissionHandler::Send(){
 
 	//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
-	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
-	header->type = MFM_DATA;
 
-	//for(int i = 0; i < 50; i++){
-		//HAL_Time_Sleep_MicroSeconds(500);
+	/* commenting out as this detail is already added in OMACType::Send
+	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
+	header->type = MFM_DATA;*/
 
 	//CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 
 	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
 		////hal_printf("DataTransmissionHandler::Send calling Send\n");
-		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), 0 );
+		//rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), 0 );
+		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
 	}
 	else {
 		//hal_printf("DataTransmissionHandler::Send msg size %u\n", m_outgoingEntryPtr->GetMessageSize());
-		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+		//rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetMessageSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
+		rs = g_omac_RadioControl.Send(m_outgoingEntryPtr->GetHeader()->dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp()  );
 	}
-	//}
 
 	if(rs != DS_Success)
 		return false;
