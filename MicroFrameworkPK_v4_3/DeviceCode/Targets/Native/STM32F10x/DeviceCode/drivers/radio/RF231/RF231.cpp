@@ -45,166 +45,161 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
 	// Adding 2 for crc and 4 bytes for timestamp
-	 if(size+2+4 > IEEE802_15_4_FRAME_LENGTH){
+	if(size+2+4 > IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
-	                hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
+		 hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
 #endif
-	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-	                // Should be bad size
-	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
-	                hal_printf("RF231Radio::Send_TimeStamped end - 1\n");
-	                return msg;
-	 }
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		// Should be bad size
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
+		return msg;
+	}
 
-	        INIT_STATE_CHECK();
-	        GLOBAL_LOCK(irq);
-	        //__ASM volatile("cpsid i");
-	        //pulse 1
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
+	if ( !IsInitialized() ) {
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_Fail);
+		return msg;
+	}
 
-	        UINT32 channel = 0;
-	        UINT32 reg = 0;
-	        UINT32 read = 0;
+	INIT_STATE_CHECK();
+	GLOBAL_LOCK(irq);
 
-	        tx_length = size;
+	UINT32 channel = 0;
+	UINT32 reg = 0;
+	UINT32 read = 0;
+	UINT32 int_pending=0;
 
-	        if(cmd != CMD_NONE || state == STATE_BUSY_TX)
-	        {
-	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+	// Wakey wakey
+	if (state == STATE_SLEEP) {
+		SlptrClear();
+		// Wait for the radio to come out of sleep
+		HAL_Time_Sleep_MicroSeconds(380);
+		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+		ENABLE_LRR(TRUE);
+		state = STATE_TRX_OFF;
+	}
+
+	if(cmd != CMD_NONE || state == STATE_BUSY_TX || state == STATE_BUSY_RX)
+	{
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 #ifdef DEBUG_RF231
-	                hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
+		//hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
 #endif
-	                (*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
-	                hal_printf("RF231Radio::Send_TimeStamped end - 2\n");
-	                return msg;
-	        }
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+		return msg;
+	}
 
-	        // If the radio is sleeping when the send command is issued, it is still capable of sending
-	        // data out and going back to sleep once this is done
-	        if(state == STATE_SLEEP)
-	        {
-	                sleep_pending = TRUE;
-	                //TurnOn();
-	        }
+	tx_length = size;
+	reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
-	        hal_printf("RF231Radio::Send_TimeStamped - 1\n");
+	// Push radio to pll on state
+	if( reg == RF230_RX_ON || reg == RF230_TRX_OFF )
+	{
+		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 
-	        // Send gives the CMD_TRANSMIT to the radio
-	        //cmd = CMD_TRANSMIT;
-	#if 0
-	        if(state != STATE_PLL_ON)
-	                return DS_Busy;
-	#endif
-	        //pulse 2
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
+		// Have to do this state change carefully.
+		// If we were in RF230_RX_ON, we could transition to RF230_BUSY_RX at any moment.
+		poll_counter = 0;
+		do{
+			trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+			if(poll_counter == 0xfff || (trx_status != reg && trx_status != RF230_PLL_ON))
+			{
+				if (trx_status == RF230_BUSY_RX) { state = STATE_BUSY_RX; } // ideally would update from any state.
+				SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+				(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+				return msg;
+			}
+			poll_counter++;
+		}while(trx_status != RF230_PLL_ON);
+		state = STATE_PLL_ON;
 
-	        // Push radio to pll on state
-	        if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
-	        {
-	                WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	                // Wait for radio to go into pll on and return efail if the radio fails to transition
-	                DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-	                //WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-	                //DID_STATE_CHANGE(RF230_RX_ON);
-	        }
+		// Wait for radio to go into pll on and return efail if the radio fails to transition
+		//DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+		//state = STATE_PLL_ON;
+	}
+	else { // RF231 is busy, e.g. went to RF230_BUSY_RX and we haven't caught the update in 'state' yet.
+		if (reg == RF230_BUSY_RX) { state = STATE_BUSY_RX; } // ideally would update from any state.
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+		return msg;
+	}
 
-	        UINT8* ldata =(UINT8*) msg;
+	// Check for pending IRQ from the radio that we haven't serviced (due to interrupt, too much locking, etc.)
+	// We are now in PLL_ON state so further receptions (and hopefully IRQs) should not be possible.
+	// PLATFORM SPECIFIC CODE. FIX ME.
+	if ( RF231RADIOLR == this->GetRadioName() && EXTI_GetITStatus(INTERRUPT_PIN_LR % 16) == SET ) { int_pending = 1; }
+	else if ( EXTI_GetITStatus(INTERRUPT_PIN % 16) == SET ) { int_pending = 1; }
 
-	        //radio_frame_write(data, 119);
-	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+	if (int_pending) {
+		SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+		(*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
+		return msg;
+	}
 
-	        hal_printf("RF231Radio::Send_TimeStamped - 2\n");
+	// END PLATFORM SPECIFIC CODE. --NPS
 
+	UINT8* ldata =(UINT8*) msg;
 
-	        //pulse 3
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
+	//reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
-	        SlptrSet();
-	        for(UINT8 i =0; i < 10; i++);
-	        SlptrClear();
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
 
-	        // Load buffer before initiating the transmit command
-	        SelnClear();
+	// Load buffer before initiating the transmit command
+	////NATHAN_SET_DEBUG_GPIO(1);
+	SelnClear();
 
-	        hal_printf("RF231Radio::Send_TimeStamped - 3\n");
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
-	        CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+	// Write the size of packet that is sent out
+	// Including FCS which is automatically generated and is two bytes
+	//Plus 4 bytes for timestamp
+	CPU_SPI_ReadWriteByte(config, size+ 2 +4);
 
-	        // Write the size of packet that is sent out
-	        // Including FCS which is automatically generated and is two bytes
-	        //Plus 4 bytes for timestamp
-	        CPU_SPI_ReadWriteByte(config, size+ 2 +4);
+	UINT8 lLength = size ;
+	UINT8 timeStampLength = 4;
+	UINT32 eventOffset;
+	UINT8 * timeStampPtr = (UINT8 *) &eventOffset;
+	//AnanthAtSamraksh: defaulting to the AdvancedTimer
+	////UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
+	UINT32 timestamp = (UINT32)HAL_Time_CurrentTicks();
+	UINT64 timestamp64 = HAL_Time_CurrentTicks();
+	eventOffset = timestamp - eventTime;
 
-	        UINT8 lLength = size ;
-	        UINT8 timeStampLength = 4;
-	        UINT32 eventOffset;
-	        UINT8 * timeStampPtr = (UINT8 *) &eventOffset;
-	        //AnanthAtSamraksh: defaulting to the AdvancedTimer
-	        UINT32 timestamp = HAL_Time_CurrentTicks() & (~(UINT32) 0);
-	        eventOffset = timestamp - eventTime;
+	//Transmit the packet
+	do
+	{
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}while(--lLength != 0);
 
-	#ifdef DEBUG_TIMESYNC
-	        CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	#endif
-	        //Transmit the packet
-	        do
-	        {
-	                CPU_SPI_ReadWriteByte(config, *(ldata++));
-	        }while(--lLength != 0);
-	#ifdef DEBUG_TIMESYNC
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	#endif
-	        //Transmit the event timestamp
-	        do
-	        {
-	                CPU_SPI_ReadWriteByte(config, *(timeStampPtr++));
-	        }while(--timeStampLength != 0);
-	#ifdef DEBUG_TIMESYNC
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	#endif
-	        CPU_SPI_ReadByte(config);
+	//Transmit the event timestamp
+	do
+	{
+		CPU_SPI_ReadWriteByte(config, *(timeStampPtr++));
+	}while(--timeStampLength != 0);
 
-	        //pulse 4
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	        //hal_printf("Radio timestamp: %lu \n", eventOffset);
-	#endif
+	CPU_SPI_ReadByte(config);
 
-	        SelnSet();
+	SelnSet();
+	state = STATE_BUSY_TX;
 
-	        hal_printf("RF231Radio::Send_TimeStamped - 4\n");
+	////NATHAN_SET_DEBUG_GPIO(0);
 
-	        //WriteRegister(RF230_TRX_STATE, RF230_TX_START);
+	//reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK; // doesn't seem to do anything??? --NPS
 
-	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-	        state = STATE_BUSY_TX;
+	// exchange bags
+	Message_15_4_t* temp = tx_msg_ptr;
+	tx_msg_ptr = (Message_15_4_t*) msg;
+	cmd = CMD_TRANSMIT;
 
-	        // exchange bags
-	        Message_15_4_t* temp = tx_msg_ptr;
-	        tx_msg_ptr = (Message_15_4_t*) msg;
-	        cmd = CMD_TRANSMIT;
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
-	        //pulse 5
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
-	        //__ASM volatile("cpsie i");
-	        CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
-	        return temp;
+#ifdef DEBUG_RF231
+	hal_printf("RF231: Packet setup for xmit\r\n");
+#endif
+
+	return temp;
 }
 
 DeviceStatus RF231Radio::Reset()
@@ -398,218 +393,56 @@ DeviceStatus RF231Radio::ChangeChannel(int channel)
 // Nathan's re-write of sleep function
 DeviceStatus RF231Radio::Sleep(int level)
 {
-	// State variable change in this function, possible race condition
-	// Lock
-	GLOBAL_LOCK(irq);
-
 	// Initiailize state change check variables
 	// Primarily used if DID_STATE_CHANGE_ASSERT is used
 	INIT_STATE_CHECK();
+	UINT32 regState;
 
+	GLOBAL_LOCK(irq);
+	sleep_pending = TRUE;
+	irq.Probe();
+
+	////hal_printf("RF231Radio::Sleep: before state:%d\n", state);
 	// If we are already in sleep state do nothing
-	// Unsure if during sleep we can read registers
-	if(state == STATE_SLEEP)
-	{
-		return DS_Success;
-	}
-	else if(state == STATE_BUSY_TX)
-	{
-		sleep_pending = TRUE;
-		return DS_Success;
-	}
+	// Unsure if during sleep we can read registers (No, you can't --NPS).
+	if(state == STATE_SLEEP) { return DS_Success; }
 
-	// Turn of things before going to sleep
-	if(RF231RADIOLR == this->GetRadioName())
-	{
-		this->Amp(FALSE);
-		this->PARXTX(FALSE);
-		this->AntDiversity(FALSE);
-	}
+	// Queue the sleep request if we think we are busy.
+	if(state == STATE_BUSY_TX || state == STATE_BUSY_RX) { return DS_Success; }
 
-	// Read current state of radio
-	UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	// Read current state of radio to be sure.
+	regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 
-	// If radio is in trx off state then acc to the state diagram just pull slptr high
-	if(regState == RF230_TRX_OFF)
-	{
-		// Setting Slptr moves the radio to sleep state
-		SlptrSet();
-	}
-	// If radio is in RX_ON or PLL_ON move the radio to TRX_OFF before pulling slptr high
-	else if(regState == RF230_RX_ON || regState == RF230_PLL_ON)
-	{
-		// First move the radio to TRX_OFF
-		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
-
-		// Check if state change was successful
-		DID_STATE_CHANGE(RF230_TRX_OFF);
-
-		// Setting Slptr moves the radio to sleep state
-		SlptrSet();
-
-		state = STATE_SLEEP;
-	}
-	// The radio is busy doing something, we are not in a position to handle this request
-	else
-	{
-		sleep_pending = TRUE;
+	// Observe that I am trying, perhaps stupidly, to be clever with fall-through here... --NPS
+	switch(regState) {
+		case RF230_RX_ON:
+		case RF230_PLL_ON:
+		case RF230_P_ON:
+			WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+			DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+		case RF230_TRX_OFF:
+			ENABLE_LRR(FALSE);
+			SlptrSet();
+			state = STATE_SLEEP;
+			sleep_pending = TRUE;
+#			ifdef DEBUG_RF231
+			hal_printf("RF231: SLEEP.\r\n");
+#			endif
+			break;
+		default:
+			sleep_pending = TRUE; // Only sleep from known states, otherwise just try later. Redundant.
 	}
 
+	//NATHAN_SET_DEBUG_GPIO(0);
+
+	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
+
+	////hal_printf("RF231Radio::Sleep: after state:%d\n", state);
 	return DS_Success;
 }
 
 
 void* RF231Radio::Send(void* msg, UINT16 size)
-{
-	CPU_GPIO_SetPinState( RF231_TX, TRUE );
-	// Adding 2 for crc and 4 bytes for timestamp
-	 if(size+2 > IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-	                hal_printf("Radio Send Error: Big packet: %d\r\n", size+2);
-#endif
-	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-	                // Should be bad size
-	                (*AckHandler)(tx_msg_ptr, tx_length,NO_BadPacket);
-	                hal_printf("RF231Radio::Send end - 1\n");
-	                return msg;
-	 }
-
-	        INIT_STATE_CHECK();
-	        GLOBAL_LOCK(irq);
-	        //__ASM volatile("cpsid i");
-	        //pulse 1
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
-
-	        UINT32 channel = 0;
-	        UINT32 reg = 0;
-	        UINT32 read = 0;
-
-	        tx_length = size;
-
-	        if(cmd != CMD_NONE || state == STATE_BUSY_TX)
-	        {
-	                SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-#ifdef DEBUG_RF231
-	                hal_printf("I have no command: %d or I am busy: %d\r\n", cmd, state);
-#endif
-	                (*AckHandler)(tx_msg_ptr, tx_length,NO_Busy);
-	                hal_printf("RF231Radio::Send end - 2\n");
-	                return msg;
-	        }
-
-	        // If the radio is sleeping when the send command is issued, it is still capable of sending
-	        // data out and going back to sleep once this is done
-	        if(state == STATE_SLEEP)
-	        {
-	                sleep_pending = TRUE;
-	                //TurnOn();
-	        }
-
-	        hal_printf("RF231Radio::Send - 1\n");
-
-	        // Send gives the CMD_TRANSMIT to the radio
-	        //cmd = CMD_TRANSMIT;
-	#if 0
-	        if(state != STATE_PLL_ON)
-	                return DS_Busy;
-	#endif
-	        //pulse 2
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
-
-	        // Push radio to pll on state
-	        if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
-	        {
-	                WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	                // Wait for radio to go into pll on and return efail if the radio fails to transition
-	                DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-	                //WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-	                //DID_STATE_CHANGE(RF230_RX_ON);
-	        }
-
-	        UINT8* ldata =(UINT8*) msg;
-
-	        hal_printf("RF231Radio::Send - 2\n");
-	        //radio_frame_write(data, 119);
-	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-
-
-	        //pulse 3
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
-
-	        SlptrSet();
-	        for(UINT8 i =0; i < 10; i++);
-	        SlptrClear();
-
-	        // Load buffer before initiating the transmit command
-	        SelnClear();
-
-	        CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
-
-	        // Write the size of packet that is sent out
-	        // Including FCS which is automatically generated and is two bytes
-	        //Plus 4 bytes for timestamp
-	        CPU_SPI_ReadWriteByte(config, size+ 2);
-
-	        UINT8 lLength = size ;
-	        hal_printf("RF231Radio::Send - 3\n");
-
-
-	#ifdef DEBUG_TIMESYNC
-	        CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	#endif
-	        //Transmit the packet
-	        do
-	        {
-	                CPU_SPI_ReadWriteByte(config, *(ldata++));
-	        }while(--lLength != 0);
-	#ifdef DEBUG_TIMESYNC
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
-	                CPU_GPIO_SetPinState((GPIO_PIN) 30, FALSE);
-	#endif
-
-	        CPU_SPI_ReadByte(config);
-
-	        //pulse 4
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	        //hal_printf("Radio timestamp: %lu \n", eventOffset);
-	#endif
-
-	        SelnSet();
-
-	        //WriteRegister(RF230_TRX_STATE, RF230_TX_START);
-
-	        reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-	        state = STATE_BUSY_TX;
-
-	        hal_printf("RF231Radio::Send - 4\n");
-	        // exchange bags
-	        Message_15_4_t* temp = tx_msg_ptr;
-	        tx_msg_ptr = (Message_15_4_t*) msg;
-	        cmd = CMD_TRANSMIT;
-
-	        //pulse 5
-	#ifdef DEBUG_RF231
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	        CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-	#endif
-	        //__ASM volatile("cpsie i");
-	        CPU_GPIO_SetPinState( RF231_TX, FALSE );
-	        return temp;
-}
-
-/*void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	hal_printf("RF231Radio::Send start\n");
 	CPU_GPIO_SetPinState( RF231_TX, TRUE );
@@ -770,7 +603,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 #endif
 
 	return temp;
-}*/
+}
 
 /*void* RF231Radio::Send(void* msg, UINT16 size)
 {
@@ -1316,57 +1149,6 @@ BOOL RF231Radio::SpiUnInitialize()
     return ret;
 }
 
-// This function moves the radio from sleep to RX_ON
-//template<class T>
-/*DeviceStatus RF231Radio::TurnOnRx()
-{
-	INIT_STATE_CHECK();
-	GLOBAL_LOCK(irq);
-
-	// The radio is not sleeping or is already on
-	if(state == STATE_RX_ON)
-	{
-		return DS_Success;
-	}
-
-	if(this->GetRadioName() == RF231RADIOLR)
-	{
-		// Enable antenna diversity mode
-		this->AntDiversity(TRUE);
-
-		// Enable external pa control
-		this->PARXTX(TRUE);
-
-		// take the amp  out of bypass mode
-		this->Amp(TRUE);
-	}
-
-	SlptrClear();
-
-	// Even though an interrupt can never happen here, just for the sake of being in synch with the radio
-	state = STATE_SLEEP_2_TRX_OFF;
-
-	// Sleep for 200us and wait for the radio to come oout of sleep
-	HAL_Time_Sleep_MicroSeconds(200);
-
-	DID_STATE_CHANGE(RF230_TRX_OFF);
-
-	//Mukundan: Oct 11,2012: Commented the below two lines, to stop initialization being interrupted
-	//WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	//DID_STATE_CHANGE(RF230_PLL_ON);
-
-	WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-
-	// OPTIMIZATION_POSSIBLE
-	// Wait till radio is in rx on state
-	DID_STATE_CHANGE(RF230_RX_ON);
-
-	// Change the state to RX_ON
-	state = STATE_RX_ON;
-
-	return DS_Success;
-
-}*/
 
 // This function moves the radio from sleep to RX_ON
 //template<class T>
@@ -1425,53 +1207,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
 
-
-// This function moves the radio from sleep to RX_ON
-//template<class T>
-/*DeviceStatus RF231Radio::TurnOnPLL()
-{
-	INIT_STATE_CHECK();
-	GLOBAL_LOCK(irq);
-
-	// The radio is not sleeping or is already on
-	if(state == STATE_PLL_ON)
-	{
-		return DS_Success;
-	}
-
-	if(this->GetRadioName() == RF231RADIOLR)
-	{
-		// Enable antenna diversity mode
-		this->AntDiversity(TRUE);
-
-		// Enable external pa control
-		this->PARXTX(TRUE);
-
-		// take the amp  out of bypass mode
-		this->Amp(TRUE);
-	}
-
-	SlptrClear();
-
-	// Sleep for 200us and wait for the radio to come oout of sleep
-	HAL_Time_Sleep_MicroSeconds(200);
-
-	DID_STATE_CHANGE(RF230_TRX_OFF);
-
-	// Push radio to pll on state
-	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
-	{
-		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	    // Wait for radio to go into pll on and return efail if the radio fails to transition
-	    DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-	}
-
-	state = STATE_PLL_ON;
-	cmd = CMD_NONE;
-
-	return DS_Success;
-
-}*/
 
 // This function moves the radio from sleep to RX_ON
 //template<class T>
@@ -1652,246 +1387,6 @@ void RF231Radio::HandleInterrupt()
 {
 	UINT8 irq_cause;
 	INT16 temp;
-	INIT_STATE_CHECK();
-	UINT32 time;
-#ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-#endif
-
-
-	irq_cause = ReadRegister(RF230_IRQ_STATUS);
-
-	if(IsInitialized() == false)
-	{
-		// we were unintialized
-		return;
-	}
-
-	if(irq_cause & TRX_IRQ_PLL_LOCK)
-	{
-		//if(gRadioObject.GetCommand() == CMD_TRANSMIT)
-		//{
-			state = STATE_PLL_ON;
-		//}
-	}
-	if(irq_cause & TRX_IRQ_RX_START)
-	{
-		// We got an Recieve frame start when the driver is not doing any thing particular
-		// let us process this interrupt then
-		if(cmd == CMD_NONE)
-		{
-#ifdef DEBUG_RF231
-			hal_printf("+++\r\n");
-#endif
-			// We better be in one of these states, other wise the radio and the software state machine are not in synch and
-			// we are in big trouble.
-			// All bets are off and we may have to reset at this point
-			//ASSERT_RADIO((state == STATE_RX_ON || state == STATE_PLL_ON_2_RX_ON));
-
-			// Indicates start of reception of a packet
-			if(irq_cause == TRX_IRQ_RX_START)
-			{
-				temp = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
-
-				// Keeps track of average rssi, why ?? may be useful someday :)
-				rssi_busy += temp - (rssi_busy >> 2);
-
-				// Add the rssi to the message
-				IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-				metadata->SetRssi(temp);
-			}
-			// Not sure why we are clearing at this point, possible scenario is if two interrupts happened at the same
-			// time, not sure why that would still warrant a clear of the rssi, maybe the value is not believable ??
-			else
-			{
-				//rx_msg.ClearRssi();
-			}
-			// Time stamp the packet that just came in
-			if(irq_cause == RF230_IRQ_RX_START)
-			{
-				// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
-				// Lets stick to 32, the iris implementation uses the timer to measure when the input was
-				// captured giving more accurate timestamping, we are going to rely on this less reliable technique
-				//AnanthAtSamraksh: defaulting to the AdvancedTimer
-				time = (HAL_Time_CurrentTicks() >> 32);
-
-				// Time stamp the packet
-		//		rx_msg.SetTimeStamp(time);
-
-			}
-			// Again, not sure why we are clearing the timestamp here
-			else
-			{
-				//rx_msg.ClearTimeStamp();
-			}
-
-			// Initiate cmd receive
-			cmd = CMD_RECEIVE;
-
-		}
-	}
-
-	// The contents of the frame buffer went out
-	if(irq_cause & TRX_IRQ_TRX_END)
-	{
-#if 0
-		if(cmd == CMD_TRANSMIT)
-		{
-#ifdef DEBUG_RF231
-			CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-			CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-#endif
-			// Call radio send done event handler when the send is complete
-			rf230EventHandlers.RadioSendDoneEvent();
-
-			cmd = CMD_LISTEN;
-
-			// Move radio to RX_ON and keep it in a state of listening
-			ChangeState();
-
-		}
-		else if(cmd == CMD_RECEIVE)
-		{
-			ASSERT_RADIO(STATE_RX_ON == state || STATE_PLL_ON_2_RX_ON == state);
-
-			if(state == STATE_PLL_ON_2_RX_ON)
-			{
-				ASSERT_RADIO((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_PLL_ON);
-
-				cmd = CMD_LISTEN;
-
-				ChangeState();
-
-			}
-			else
-			{
-				rssi_clear += (ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK) - (rssi_clear >> 2);
-			}
-
-			DownloadMessage();
-		}
-#endif
-		if(cmd == CMD_TRANSMIT)
-		{
-				if(state == STATE_BUSY_TX)
-				{
-#ifdef DEBUG_RF231
-					//CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-					//CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-					CPU_GPIO_SetPinState((GPIO_PIN) 4, FALSE);
-#endif
-
-					// Call radio send done event handler when the send is complete
-					SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-					(*AckHandler)(tx_msg_ptr, tx_length,NO_Success);
-
-					if(sleep_pending)
-					{
-						state = STATE_PLL_ON;
-
-						cmd = CMD_NONE;
-
-						//Sleep(0);
-						UINT32 regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
-
-						if(regState == RF230_PLL_ON)
-						{
-							WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
-
-							DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-
-							SlptrSet();
-
-							state = STATE_SLEEP;
-
-						}
-
-						sleep_pending = FALSE;
-
-					}
-					else
-					{
-						state = STATE_PLL_ON;
-
-						cmd = CMD_NONE;
-						//SlptrClear();
-						// Check if radio is in pll state, we shouldn't be here if we are not in this state
-						// Hence die if you are not in RF230_PLL_ON
-						//DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-						// Change the state of the radio to RX_ON
-
-						WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-
-						// OPTIMIZATION_POSSIBLE
-						// Wait till radio is in rx on state or die here, other wise radio and software go out of sync
-						DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
-
-						state = STATE_RX_ON;
-					}
-				}
-
-		}
-		else if(cmd == CMD_RECEIVE)
-		{
-			CPU_GPIO_SetPinState( RF231_RX, TRUE );
-			//AnanthAtSamraksh: defaulting to the AdvancedTimer
-			receive_timestamp = HAL_Time_CurrentTicks();
-			if(DS_Success==DownloadMessage()){
-				//rx_msg_ptr->SetActiveMessageSize(rx_length);
-
-				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
-#endif
-					return;
-				}
-
-				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-			}
-			else {
-#ifdef DEBUG_RF231
-				hal_printf("Radio Receive Error: Problem downloading message\r\n");
-#endif
-			}
-			// Check if mac issued a sleep while i was receiving something
-			if(sleep_pending)
-			{
-
-				// We should be on STATE_RX_ON
-				UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
-				//if(state = STATE_RX_ON)
-				if(reg == RF230_RX_ON)
-				{
-					// First move the radio to TRX_OFF
-					WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
-
-					// Check if state change was successful
-					DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-
-					// Setting Slptr moves the radio to sleep state
-					SlptrSet();
-
-					state = STATE_SLEEP;
-				}
-
-				sleep_pending = FALSE;
-			}
-			CPU_GPIO_SetPinState( RF231_RX, FALSE );
-		}
-	}
-#ifdef DEBUG_RF231
-	CPU_GPIO_SetPinState((GPIO_PIN)24, TRUE);
-	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
-#endif
-}
-
-//template<class T>
-/*void RF231Radio::HandleInterrupt()
-{
-	UINT8 irq_cause;
-	INT16 temp;
 	const UINT8 UNSUPPORTED_INTERRUPTS = TRX_IRQ_4 | TRX_IRQ_5 | TRX_IRQ_BAT_LOW | TRX_IRQ_PLL_UNLOCK | TRX_IRQ_TRX_UR;
 	INIT_STATE_CHECK();
 
@@ -2036,86 +1531,11 @@ void RF231Radio::HandleInterrupt()
 	{
 		Sleep(0);
 	}
-}*/	//RF231Radio::HandleInterrupt()
+}	//RF231Radio::HandleInterrupt()
 
-
-//template<class T>
-DeviceStatus RF231Radio::DownloadMessage()
-{
-	UINT16 crc;
-	INT16 lqi;
-	DeviceStatus retStatus = DS_Success;
-
-	UINT32 phy_rssi = ReadRegister(RF230_PHY_RSSI);
-	if(!(phy_rssi & (1 << 7))){
-		// Auto crc check is failing return false
-#ifdef DEBUG_RF231
-		hal_printf("dm err phy_rssi: 0x%x\r\n",phy_rssi);
-#endif
-		retStatus = DS_Fail;
-		SelnClear();
-		HAL_Time_Sleep_MicroSeconds(50);
-	} else {
-		INIT_STATE_CHECK();
-		UINT8 length;
-		UINT8 counter = 0;
-		SelnClear();
-	
-
-		UINT8* temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
-		//erase the packet clean before writing anything
-		memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH-2);
-	
-		CPU_SPI_WriteReadByte(config, RF230_CMD_FRAME_READ);
-		length = CPU_SPI_WriteReadByte(config, 0);
-		
-		if(length-2 >  IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-			hal_printf("Radio Receive Error: Packet too big: %d\r\n",length);
-#endif
-			retStatus = DS_Fail;
-		}
-		else if(length >= 3)
-		{
-			UINT8 read;
-			CPU_SPI_WriteReadByte(config, 0);
-
-			//rx_msg.SetLength(length);
-
-			// Returns a pointer to the data buffer
-			//data = rx_msg;
-
-			read = length - 2;
-			temp_rx_msg_ptr[counter++] =length;
-			do
-			{
-				temp_rx_msg_ptr[counter++] = CPU_SPI_WriteReadByte(config, 0);
-			}
-			while(--read != 0);
-		
-			// Read the crc byte because we are trying to get to the lqi
-			crc = CPU_SPI_WriteReadByte(config, 0);
-			crc = CPU_SPI_WriteReadByte(config, 0);
-
-			lqi = CPU_SPI_WriteReadByte(config, 0);
-		
-			IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-			metadata->SetLqi(lqi);
-			metadata->SetReceiveTimeStamp(receive_timestamp);
-		}
-		rx_length = length - 2;
-	}
-	SelnSet();
-
-	state = STATE_RX_ON;
-
-	cmd = CMD_NONE;
-
-	return retStatus;
-}
 
 // Re-writing this crap
-/*DeviceStatus RF231Radio::DownloadMessage()
+DeviceStatus RF231Radio::DownloadMessage()
 {
 	DeviceStatus retStatus = DS_Success;
 	UINT8 phy_rssi = ReadRegister(RF230_PHY_RSSI) & 0x80;
@@ -2170,7 +1590,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	metadata->SetReceiveTimeStamp(receive_timestamp);
 
 	return retStatus;
-}*/
+}
 
 /*
 //template<class T>
