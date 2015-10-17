@@ -29,8 +29,8 @@ BOOL GlobalTime::synced=FALSE;
 #define RXNODEID 20181
 
 // Ananth
-#define TXNODEID 3505
-#define RXNODEID 6846
+//#define TXNODEID 3505
+//#define RXNODEID 6846
 
 //#define TXNODEID 30906
 //#define RXNODEID 4028

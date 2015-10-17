@@ -433,6 +433,13 @@ class RF231Radio : public Radio<Message_15_4_t>
     	CPU_GPIO_SetPinState(kslpTr, TRUE);
     }
 
+private:
+	void Wakeup();
+	BOOL Interrupt_Pending();
+	BOOL Careful_State_Change(radio_hal_trx_status_t target);
+	BOOL Careful_State_Change(uint32_t target); // Our register enums are a mess. Until I fix. --NPS
+	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status);
+
 public:
     UINT8* GetRxMsgBuffer()
     {
