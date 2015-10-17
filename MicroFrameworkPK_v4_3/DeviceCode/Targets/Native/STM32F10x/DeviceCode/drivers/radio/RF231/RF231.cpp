@@ -36,12 +36,14 @@ BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 static uint64_t send_ts_times[16];
 static uint64_t send_times[16];
 static volatile uint64_t rx_times[16];
-static volatile uint64_t send_dones[32];
+static volatile uint64_t send_dones[16];
 static volatile uint64_t rx_start_times[16];
 static uint64_t sleep_times[16];
 static volatile uint64_t irq_times[16];
 static volatile uint64_t irq_causes[16];
 static volatile uint32_t size_log[32];
+static volatile uint64_t trx_ur_times[16];
+static volatile uint64_t download_error_times[16];
 
 static void add_size(uint32_t size) {
 	static int index=0;
@@ -89,7 +91,19 @@ static void add_rx_time() {
 static void add_send_done() {
 	static int index=0;
 	send_dones[index] = HAL_Time_CurrentTicks();
-	index = (++index) % 32;
+	index = (++index) % 16;
+}
+
+static void add_trx_ur() {
+	static int index=0;
+	trx_ur_times[index] = HAL_Time_CurrentTicks();
+	index = (++index) % 16;
+}
+
+static void add_download_error() {
+	static int index=0;
+	download_error_times[index] = HAL_Time_CurrentTicks();
+	index = (++index) % 16;
 }
 #else
 static void add_size(uint32_t size) { }
@@ -100,6 +114,8 @@ static void add_send_ts_time() { }
 static void add_send_time() { }
 static void add_rx_time() { }
 static void add_send_done() { }
+static void add_trx_ur() { }
+static void add_download_error() { }
 #endif
 
 void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status) {
@@ -230,6 +246,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	lLength = size;
 	timeStampPtr = (UINT8 *) &eventOffset;
+
+	add_size(size);
 
 	for(int ii=0; ii<lLength; ii++) {
 		CPU_SPI_ReadWriteByte(config, *(ldata++));
@@ -540,7 +558,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	GLOBAL_LOCK(irq);
 
-	add_send_ts_time(); // Debugging. Will remove.
+	add_send_time(); // Debugging. Will remove.
 
 	// Go to PLL_ON
 	if ( Careful_State_Change(RF230_PLL_ON) ) {
@@ -568,6 +586,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	CPU_SPI_ReadWriteByte(config, size + crc_size);
 
 	lLength = size;
+
+	add_size(size);
 
 	for(int ii=0; ii<lLength; ii++) {
 		CPU_SPI_ReadWriteByte(config, *(ldata++));
@@ -1239,11 +1259,12 @@ void RF231Radio::HandleInterrupt()
 	add_irq_time(irq_cause);
 	// DEBUG NATHAN
 
-	if(irq_cause & UNSUPPORTED_INTERRUPTS) {
-#		ifdef DEBUG_RF231
-		hal_printf("RF231: Unsupported IRQ: %d\r\n", irq_cause);
-#		endif
-		ASSERT_RADIO(0);
+	// Only consider CMD_TRANSMIT.
+	// If this came in on CMD_RECEIVE, we had overlapping RX events
+	if( irq_cause & UNSUPPORTED_INTERRUPTS ) {
+		add_trx_ur();
+		if (cmd == CMD_TRANSMIT) { ASSERT_RADIO(0); }
+		// else it was an RX overrun and we live with it.
 	}
 
 	// See datasheet section 9.7.5. We handle both of these manually.
@@ -1327,7 +1348,6 @@ void RF231Radio::HandleInterrupt()
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
 #			endif
 
-			cmd = CMD_NONE;
 			state = STATE_RX_ON; // Right out of BUSY_RX
 
 			// Go to PLL_ON at least until the frame buffer is empty
@@ -1341,21 +1361,30 @@ void RF231Radio::HandleInterrupt()
 #					ifdef DEBUG_RF231
 					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
 #					endif
+					cmd = CMD_NONE;
 					return;
 				}
 
-				int type = rx_msg_ptr->GetHeader()->type;
-				if(type == 1){
-					hal_printf("RF231Radio::HandleInterrupt header type is %d\n", type);
+				// Please note this is kind of a hack.
+				// Manually check our interrupts here (since we are locked).
+				// If we see a new interrupt, just assume it means we had an RX overrun.
+				// In which case we just drop the packet (or packets?) --NPS
+
+				// Un-sure if this is how to drop a packet. --NPS
+
+				if ( !Interrupt_Pending() ) {
+					int type = rx_msg_ptr->GetHeader()->type;
+					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
-				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-				rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 			}
 			else {
-#				ifdef DEBUG_RF231
-				hal_printf("Radio Receive Error: Problem downloading message\r\n");
-#				endif
+				// download error
+				add_download_error();
 			}
+
+			cmd = CMD_NONE;
+
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
 			{
