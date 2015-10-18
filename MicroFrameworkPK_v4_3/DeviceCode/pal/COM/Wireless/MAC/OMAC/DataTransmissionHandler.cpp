@@ -250,6 +250,9 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			m_nextTXTicks =  TicksTillNextEvent + HAL_Time_CurrentTicks();
 
 			//END OF TOD O
+			hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::ScheduleDataPacket() NeighbornextwakeupSlot = %lu \n"
+					,y, g_omac_scheduler.GetSlotNumber(y),neighborTime, neighborSlot, neighborEntry->nextwakeupSlot );
+
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);

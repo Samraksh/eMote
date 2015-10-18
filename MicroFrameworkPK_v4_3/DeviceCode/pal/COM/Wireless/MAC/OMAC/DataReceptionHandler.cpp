@@ -50,8 +50,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT64 y = HAL_Time_CurrentTicks();
-	UINT32 curslot = g_omac_scheduler.GetSlotNumber(y);
-	if ( curslot >= m_nextwakeupSlot ){ //Check for seed update
+	//UINT32 curslot = g_omac_scheduler.GetSlotNumber(y);
+	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
 	}
 	UINT64 NextEventTime = m_nextwakeupSlot * SLOT_PERIOD_TICKS;
@@ -64,10 +64,15 @@ UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 }
 
 void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT32 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT32 &currentSlotNum ){
-	UINT16 randVal;
-	while ( currentSlotNum >= wakeupSlot ){
-		randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-		wakeupSlot += randVal % seedUpdateIntervalinSlots;
+	hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+	if (currentSlotNum >= wakeupSlot){
+		UINT16 randVal;
+		UINT32 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
+		while ( currentSlotNum >= wakeupSlot ){
+			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
+			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
+		}
 	}
 	assert(wakeupSlot  > currentSlotNum);
 }
