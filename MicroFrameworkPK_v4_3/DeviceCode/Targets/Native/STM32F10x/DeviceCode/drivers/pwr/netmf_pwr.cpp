@@ -113,6 +113,7 @@ void PowerInit() {
 #endif
 
 	High_Power();
+	RCC_LSICmd(DISABLE);
 }
 
 static void do_hsi_measure() {
@@ -320,8 +321,9 @@ void Low_Power() {
 	TIM_PrescalerConfig(TIM1, 0, TIM_PSCReloadMode_Immediate);
 
 	// Set flash speeds
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 	FLASH_SetLatency(FLASH_Latency_0);
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
 
 	stm_power_state = POWER_STATE_LOW;
 
@@ -339,19 +341,24 @@ void Mid_Power() {
 
 	pause_peripherals();
 
-	// Setup PLL for 8/2*12 = 48 MHz
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);
+	// Set HSI (instead of PLL) as SYSCLK source
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+	RCC_PLLCmd(DISABLE);
+
+	// Setup PLL for 8/2*6 = 24 MHz
+	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_6);
 
 	// Set timer prescaler for constant 8 MHz
 	// Only TIM1 needed, TIM2 is slave
-	// PCLK @ 24 MHz, TIM runs x2, so /6
-	TIM_PrescalerConfig(TIM1, 5, TIM_PSCReloadMode_Immediate);
+	// PCLK @ 24 MHz, TIM runs x1, so /3
+	TIM_PrescalerConfig(TIM1, 2, TIM_PSCReloadMode_Immediate);
 
 	// Set Bus Speeds
-	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 48 MHz
-	RCC_PCLK1Config(RCC_HCLK_Div2);   // 24 MHz
-	RCC_PCLK2Config(RCC_HCLK_Div2);   // 24 MHz
-	RCC_ADCCLKConfig(RCC_PCLK2_Div6); // 4 MHz
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);  // 24 MHz
+	RCC_PCLK1Config(RCC_HCLK_Div1);   // 24 MHz
+	RCC_PCLK2Config(RCC_HCLK_Div1);   // 24 MHz
+	RCC_ADCCLKConfig(RCC_PCLK2_Div4); // 6 MHz
 
 	// This is confusing, pay attention:
 	// If the PCLK1/2 prescaler != 1
@@ -359,8 +366,9 @@ void Mid_Power() {
 	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
 
 	// Set flash speeds
+	FLASH_SetLatency(FLASH_Latency_0);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-	FLASH_SetLatency(FLASH_Latency_1);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
@@ -386,6 +394,11 @@ void High_Power() {
 
 	pause_peripherals();
 
+	// Set HSI (instead of PLL) as SYSCLK source
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+	while ( RCC_GetSYSCLKSource() != 0x00 ) { ; }
+	RCC_PLLCmd(DISABLE);
+
 	// Setup PLL for 8/2*16 = 64 MHz
 	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);
 
@@ -406,8 +419,9 @@ void High_Power() {
 	// so PCLK @ 48/2 MHz really means TIM @ 48 MHz.
 
 	// Set flash speeds
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 	FLASH_SetLatency(FLASH_Latency_2);
+	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Disable);
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
 	// Enable PLL and spin waiting for PLL ready
 	RCC_PLLCmd(ENABLE);
