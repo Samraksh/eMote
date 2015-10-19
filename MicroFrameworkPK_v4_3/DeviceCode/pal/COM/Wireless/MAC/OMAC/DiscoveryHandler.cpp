@@ -342,11 +342,19 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	//UINT8 * payload = msg->GetPayload();
+	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
 	header->dest = address;
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DISCOVERY;
 	//header->type = MFM_TIMESYNC;
 
-	retValue = g_omac_RadioControl.Send(address, msg, size, event_time);
+	retValue = g_omac_RadioControl.Send(address, msg, size + sizeof(IEEE802_15_4_Header_t), event_time);
 
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
