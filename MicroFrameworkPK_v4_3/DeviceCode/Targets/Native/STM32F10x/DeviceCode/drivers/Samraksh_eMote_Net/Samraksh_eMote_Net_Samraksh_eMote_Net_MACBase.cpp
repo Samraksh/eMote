@@ -36,7 +36,7 @@ void ManagedCallback(UINT16 arg1, UINT16 arg2);
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
-void ReceiveDoneCallbackFn(UINT16 numberOfPackets);
+void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
 
 extern Buffer_15_4_t m_receive_buffer;
 
@@ -183,7 +183,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	return retVal;
 }
 
-void ReceiveDoneCallbackFn(UINT16 numberOfPackets)
+void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets)
 {
 	ManagedCallback(RecievedCallback, numberOfPackets);
 }

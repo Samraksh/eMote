@@ -31,7 +31,7 @@ struct MacConfig {
 
 // Typedef defining the signature of the receive function
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
-typedef void (*MacReceiveFuncPtrType) (UINT16 arg1);
+typedef void (*MacReceiveFuncPtrType) (void *msg, UINT16 arg1);
 
 typedef void (*NeighborChangeFuncPtrType) (INT16 arg2);
 

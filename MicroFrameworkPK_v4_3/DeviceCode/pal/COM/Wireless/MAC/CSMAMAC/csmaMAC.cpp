@@ -462,7 +462,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	}
 
 	GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
-	(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+	(*appHandler)(msg, m_receive_buffer.GetNumberMessagesInBuffer());
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
