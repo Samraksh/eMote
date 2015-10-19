@@ -96,7 +96,7 @@
       </PropertyGroup>
 
       <ItemGroup>
-        <ReferencePath Condition=" '$(AssemblyName)' != 'mscorlib' " Include="$(BUILD_TREE_DLL)\mscorlib.dll" >
+        <ReferencePath Condition=" '$(AssemblyName)' != 'mscorlib' And  '$(AssemblyName)' != 'Microsoft.VisualBasic' " Include="$(BUILD_TREE_DLL)\mscorlib.dll" >
           <InProject>false</InProject>
         </ReferencePath>
       </ItemGroup>

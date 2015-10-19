@@ -73,14 +73,14 @@
   <UsingTask AssemblyFile="$(BUILD_TEST_TREE_SERVER)\dll\MFDpwsTCGen.exe" TaskName="MakeWiXFeature"/>
 
   <Target Name="GenerateTestCase"
-          Inputs="$(MSBuildProjectDirectory)\%(Wsdl.Identity)"
+          Inputs="%(Wsdl.FullPath)"
           Outputs="$(BUILD_TEST_TREE_SERVER)\Dpws\%(Wsdl.FileName)TestFixture\%(Wsdl.FileName)TestFixture.slnproj;$(BUILD_TEST_TREE_SERVER)\Dpws\%(Wsdl.FileName)TestFixture\%(Wsdl.FileName)TestFixture.csproj;$(BUILD_TEST_TREE_SERVER)\Dpws\%(Wsdl.FileName)TestFixture\%(Wsdl.FileName)TestFixture.cs">
     <!--Make a directory for the output-->
     <MakeDir Directories="$(BUILD_TEST_TREE_SERVER)\Dpws\%(Wsdl.FileName)TestFixture" />
 
     <!--Copy .wsdl file to the output directory-->
     <Copy
-      SourceFiles="%(Wsdl.Identity);%(Wsdl.CSharpFiles)"
+      SourceFiles="%(Wsdl.FullPath);%(Wsdl.CSharpFiles)"
       DestinationFolder="$(BUILD_TEST_TREE_SERVER)\Dpws\%(Wsdl.FileName)TestFixture" />
 
     <!--Generate the test case .cs files and .csproj file-->

@@ -11,12 +11,12 @@
 //-----------------------------------------------------------------------------
 
 
-#ifndef _SAMRAKSH_SPOT_SAMRAKSH_SPOT_GC_H_
-#define _SAMRAKSH_SPOT_SAMRAKSH_SPOT_GC_H_
+#ifndef _SAMRAKSHEMOTE_SAMRAKSH_EMOTE_GC_H_
+#define _SAMRAKSHEMOTE_SAMRAKSH_EMOTE_GC_H_
 
 namespace Samraksh
 {
-    namespace SPOT
+    namespace eMote
     {
         struct GC
         {
@@ -37,4 +37,4 @@ namespace Samraksh
         };
     }
 }
-#endif  //_SAMRAKSH_SPOT_SAMRAKSH_SPOT_GC_H_
+#endif  //_SAMRAKSHEMOTE_SAMRAKSH_EMOTE_GC_H_

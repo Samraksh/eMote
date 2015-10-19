@@ -35,6 +35,7 @@
     <Compile Include="corlib_native_System_AppDomain.cpp" />
     <Compile Include="corlib_native_System_Array.cpp" />
     <Compile Include="corlib_native_System_Attribute.cpp" />
+    <Compile Include="corlib_native_System_BitConverter.cpp" />
     <Compile Include="corlib_native_System_Collections_ArrayList.cpp" />
     <Compile Include="corlib_native_System_Collections_Queue.cpp" />
     <Compile Include="corlib_native_System_Collections_Stack.cpp" />

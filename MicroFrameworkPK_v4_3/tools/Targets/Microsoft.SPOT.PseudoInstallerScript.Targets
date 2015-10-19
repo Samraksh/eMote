@@ -9,7 +9,7 @@
         <MFSDKInstallerFile>$(BUILD_TREE_SERVER)\msm\MicroFrameworkSDK.MSI</MFSDKInstallerFile>
         <PseudoInstallerScript Condition="'$(PseudoInstallerScript)'==''">$(SPOCLIENT)\tools\scripts\mfpseudoinstaller.cmd</PseudoInstallerScript>
         <PseudoInstallerExists Condition="Exists('$(PseudoInstallerScript)')">true</PseudoInstallerExists>
-        <VSVER Condition="'$(VSVER)'==''" >11.0</VSVER>
+        <VSVER Condition="'$(VSVER)'==''" >12.0</VSVER>
     </PropertyGroup>
 
     <!-- The ComponentReplacements group are registry settings whose values are WiX -->
@@ -160,7 +160,7 @@
         <IgnoreKeys Include="VB Express registry keys -- requires admin rights to succeed">
             <Prefix>HKLM\SOFTWARE\Microsoft\VBExpress</Prefix>
         </IgnoreKeys>
-        <IgnoreKeys Include="Windows Desktop Express registry keys -- requires admin rights to succeed">
+        <IgnoreKeys Include="Visual Studio Express for Windows Desktop registry keys -- requires admin rights to succeed">
             <Prefix>HKLM\SOFTWARE\Microsoft\WDExpress</Prefix>
         </IgnoreKeys>
         <IgnoreKeys Include="VC Runtime merge modules">

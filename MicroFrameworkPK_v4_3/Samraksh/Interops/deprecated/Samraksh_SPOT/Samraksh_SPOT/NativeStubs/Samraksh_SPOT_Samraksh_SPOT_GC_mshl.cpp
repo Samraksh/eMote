@@ -7,13 +7,13 @@
 //-----------------------------------------------------------------------------
 
 
-#include "Samraksh_SPOT.h"
-#include "Samraksh_SPOT_Samraksh_SPOT_GC.h"
+#include "SamrakshEmote.h"
+#include "SamrakshEmote_Samraksh_eMote_GC.h"
 
-using namespace Samraksh::SPOT;
+using namespace Samraksh::eMote;
 
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::GetUsedKBytes___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::GetUsedKBytes___R4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -29,7 +29,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::GetUsedKBytes___R4( CLR_RT_Stack
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::GetFreeKBytes___R4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::GetFreeKBytes___R4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -45,7 +45,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::GetFreeKBytes___R4( CLR_RT_Stack
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::IsGCSamExtensionsEnabled___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::IsGCSamExtensionsEnabled___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -61,7 +61,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::IsGCSamExtensionsEnabled___BOOLE
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::EnableIncrementalCleaning___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::EnableIncrementalCleaning___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -77,7 +77,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::EnableIncrementalCleaning___BOOL
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::EnableIncrementalCompaction___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::EnableIncrementalCompaction___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -93,7 +93,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::EnableIncrementalCompaction___BO
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::DisableIncrementalCleaning___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::DisableIncrementalCleaning___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -109,7 +109,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::DisableIncrementalCleaning___BOO
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::DisableIncrementalCompaction___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::DisableIncrementalCompaction___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -125,7 +125,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::DisableIncrementalCompaction___B
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanBeforeSleep___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::CleanBeforeSleep___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -144,7 +144,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanBeforeSleep___BOOLEAN__U4( 
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanNow___BOOLEAN__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::CleanNow___BOOLEAN__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -163,7 +163,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanNow___BOOLEAN__U4( CLR_RT_S
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanNow___BOOLEAN( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::CleanNow___BOOLEAN( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -179,7 +179,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::CleanNow___BOOLEAN( CLR_RT_Stack
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::AvgTimeForCleaning___U4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::AvgTimeForCleaning___U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -195,7 +195,7 @@ HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::AvgTimeForCleaning___U4( CLR_RT_
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_SPOT_Samraksh_SPOT_GC::AvgTimeForCompaction___U4( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_GC::AvgTimeForCompaction___U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
