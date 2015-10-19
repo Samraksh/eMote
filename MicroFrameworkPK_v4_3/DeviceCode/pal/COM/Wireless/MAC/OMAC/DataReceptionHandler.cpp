@@ -59,7 +59,7 @@ UINT64 DataReceptionHandler::NextEvent(UINT32 currentSlotNum){
 	UINT64 TicksTillNextEvent = NextEventTime - y;
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTime), nextEventsMicroSec,curTime+nextEventsMicroSec );
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n",curTime, g_omac_scheduler.GetSlotNumber(curTime), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTime), g_omac_scheduler.GetSlotNumber(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTime)), nextEventsMicroSec, curTime+nextEventsMicroSec, (curTime+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
 	return(nextEventsMicroSec);
 }
 
