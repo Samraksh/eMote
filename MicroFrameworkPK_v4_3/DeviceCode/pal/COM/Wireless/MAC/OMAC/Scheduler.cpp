@@ -145,8 +145,8 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 
 
-	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTime, GetSlotNumber(curTime), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), GetSlotNumber(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime)), nextWakeupTimeInMicSec,curTime+nextWakeupTimeInMicSec );
+	UINT64 curTicks = HAL_Time_CurrentTicks();
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu \n",curTicks, GetSlotNumber(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks), GetSlotNumber(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec,curTicks+nextWakeupTimeInMicSec );
 
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
@@ -175,8 +175,8 @@ void OMACScheduler::ScheduleNextEvent(){
 
 bool OMACScheduler::RunEventTask(){
 	g_OMAC.UpdateNeighborTable();
-	UINT64 curTime = HAL_Time_CurrentTicks() / (TICKS_PER_MILLI/MICSECINMILISEC);
-	hal_printf("\n[LT: %llu - %lu NT: %llu -%lu] OMACScheduler::RunEventTask() \n",curTime, GetSlotNumber(curTime), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime), GetSlotNumber(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTime)) );
+	UINT64 curTicks = HAL_Time_CurrentTicks();
+	hal_printf("\n[LT: %llu - %lu NT: %llu -%lu] OMACScheduler::RunEventTask() \n",curTicks, GetSlotNumber(), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks), GetSlotNumber(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)) );
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");

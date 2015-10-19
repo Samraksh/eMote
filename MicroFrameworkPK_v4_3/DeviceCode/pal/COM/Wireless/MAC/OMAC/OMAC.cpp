@@ -231,16 +231,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			////hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
+			hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
 			//rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-			if (sourceID != 7116) {
-				hal_printf("Something is received");
-			}
+			//if (sourceID != 7116) {
+			//	hal_printf("Something is received");
+			//}
 			if(myID == destID) {
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");

@@ -128,7 +128,7 @@ void DiscoveryHandler::PostExecuteEvent(){
  *
  */
 void DiscoveryHandler::SetWakeup(bool shldWakeup){
-	hal_printf("DiscoveryHandler::SetWakeup\n");
+	//hal_printf("DiscoveryHandler::SetWakeup\n");
 }
 
 ////////////////////Private Functions////////////////////////////
