@@ -16,7 +16,11 @@ extern "C"
 
     void PrepareImageRegions();
 
-    void BootEntry();
+#ifdef GCC
+	void BootEntry() __attribute__ ((noreturn));
+#else
+	void BootEntry();
+#endif
 
     // WARNING: implement the PreStackInit method in assembly code because it is called before
     // the stack is initialized
