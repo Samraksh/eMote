@@ -289,7 +289,7 @@ UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 }
 
 UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
-	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(curtime);
+	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(0);
 	//UINT64 curtime = HAL_Time_CurrentTime();
 	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
 	UINT64 periodlength;

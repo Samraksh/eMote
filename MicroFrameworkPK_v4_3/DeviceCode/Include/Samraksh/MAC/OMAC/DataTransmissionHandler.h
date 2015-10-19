@@ -31,11 +31,12 @@ class DataTransmissionHandler: public EventHandler {
 	UINT8   m_dataHeartBeats;
 	static UINT32  m_nextTXCounter;
 	static UINT64  m_nextTXTicks;
+	UINT64 m_neighborNextEventTime;
 	static INT64 m_nbrGlobalTime;
 	static UINT32 m_nbrWakeupSlot;
 	UINT32  m_lastSlot;
 	Message_15_4_t m_piggybackBeaconCopy;
-	Message_15_4_t* m_outgoingEntryPtr;
+	Message_15_4_t* m_outgoingEntryPtr; //Pointer to the packet to be sent next. Set by schedule data packet
 	UINT32  m_collisionCnt;
 
 	Message_15_4_t m_TXMsgBuffer;
