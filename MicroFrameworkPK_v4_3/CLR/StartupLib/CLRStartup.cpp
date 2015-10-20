@@ -58,7 +58,7 @@ struct Settings
 
         TINYCLR_CHECK_HRESULT(CLR_RT_ExecutionEngine::CreateInstance());
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf( "Created EE.\r\n" );
+        //CLR_Debug::Printf( "Created EE.\r\n" );
 #endif
 
 #if !defined(BUILD_RTM)
@@ -158,7 +158,7 @@ struct Settings
 #else     
 
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf( "Create TS.\r\n" );
+        //CLR_Debug::Printf( "Create TS.\r\n" );
 #endif
 
         TINYCLR_CHECK_HRESULT(LoadKnownAssemblies( TinyClr_Dat_Start, TinyClr_Dat_End ));
@@ -650,17 +650,19 @@ void ClrStartup( CLR_SETTINGS params )
 
 #if !defined(BUILD_RTM)
 
-        CLR_Debug::Printf( "TinyCLR v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
-        CLR_Debug::Printf( "Platform %s\r\n", HalName );
-        CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );
+        CLR_Debug::Printf( "Platform: %s\r\n", HalName );
+		// VERSION_BUILD is not reading in correctly, need to get it read in from ReleaseInfo.settings
+        CLR_Debug::Printf( "Based on Micro Framework v4.3.2.0\r\n");
+        //CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+        CLR_Debug::Printf( "Build Date %s\r\n", __DATE__);
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
-        CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
+        //CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
 
 #if defined(__GNUC__)
         CLR_Debug::Printf( "GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__ );
-#if defined(__OPTIMIZE__)
+/*#if defined(__OPTIMIZE__)
 #define SPEED_OPTIMIZE "speed-optimized"
 #else
 #define SPEED_OPTIMIZE "no-speed-optimization"
@@ -671,15 +673,16 @@ void ClrStartup( CLR_SETTINGS params )
 #define SIZE_OPTIMIZE "no-size-optimization"
 #endif
         CLR_Debug::Printf( "Optimization: %s, %s\r\n", SPEED_OPTIMIZE , SIZE_OPTIMIZE );
+		*/
 #endif  //defined(__GNUC__)
 
-#ifdef DOTNOW_HSI_CALIB
+/*#ifdef DOTNOW_HSI_CALIB
 		CLR_Debug::Printf("Clock nominal         :  %d Hz\r\n", pwr_get_hsi(2) );
 		CLR_Debug::Printf("Clock pre-calibration :  %d Hz\r\n", pwr_get_hsi(0) );
 		CLR_Debug::Printf("Clock post-calibration:  %d Hz\r\n", pwr_get_hsi(1) );
 #else //DOTNOW_HSI_CALIB
 		CLR_Debug::Printf("Clock Calibration Not Active\r\n");
-#endif // DOTNOW_HSI_CALIB
+#endif // DOTNOW_HSI_CALIB*/
 #endif  //!defined(BUILD_RTM)
 
         CLR_RT_Memory::Reset         ();
