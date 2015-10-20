@@ -313,10 +313,10 @@ void csmaMAC::SendToRadio(){
 		m_recovery = 1;
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
-		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
+		DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
 		if(ds == DS_Busy) {
 			/*HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress() % 200));
-			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
+			if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success)
 			{
 				gHalTimerManagerObject.StartTimer(1);
 				return;
@@ -324,7 +324,7 @@ void csmaMAC::SendToRadio(){
 			//TODO: AnanthAtSamraksh - check if this is right
 			CPU_Timer_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
 			//CPU_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
-			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	
+			if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
 			}

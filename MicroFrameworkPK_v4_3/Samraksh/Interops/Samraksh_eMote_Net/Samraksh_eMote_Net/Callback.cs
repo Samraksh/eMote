@@ -13,6 +13,7 @@ namespace Samraksh.eMote.Net
         Received,
         /// <summary>Neighborhood has changed</summary>
         NeighborChanged,
+        /// <summary></summary>
 		[Obsolete("Deprecated. Use NeighborChanged instead")]
 		NeighbourChanged = NeighborChanged,
 	}

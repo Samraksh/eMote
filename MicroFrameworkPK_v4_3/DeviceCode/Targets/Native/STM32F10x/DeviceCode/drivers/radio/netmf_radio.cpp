@@ -153,9 +153,9 @@ void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 	return NULL;
 }
 
-void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
+void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
 {
-	void *ptr_temp = NULL;
+	void* ptr_temp = NULL;
 
 	switch(radioID)
 	{
@@ -176,9 +176,9 @@ void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
 
 // This function is used to send a time stamped packet, time stamping is done just before
 // physical send in hardware
-void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 eventTime)
+void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 eventTime)
 {
-	void *ptr_temp = NULL;
+	void* ptr_temp = NULL;
 
 	switch(radioID)
 	{
@@ -197,12 +197,7 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 
 	return ptr_temp;
 }
 
-// This function is used in combination with pre loading and is currently not supported
-DeviceStatus CPU_Radio_Send(UINT8 radioID)
-{
-	ASSERT(0);
-	return DS_Fail;
-}
+
 
 // This function calls the corresponding radio turn on function based on the input radio id
 DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
@@ -339,7 +334,7 @@ DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 }
 
 
-DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroSecond)
+DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSecond)
 {
 	DeviceStatus status  = DS_Fail;
 

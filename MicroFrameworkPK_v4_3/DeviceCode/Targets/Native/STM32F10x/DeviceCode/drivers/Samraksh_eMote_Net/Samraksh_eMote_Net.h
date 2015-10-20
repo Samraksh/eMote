@@ -191,23 +191,22 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     static const int FIELD__marshalBuffer = 8;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
-    TINYCLR_NATIVE_DECLARE(GetID___U1);
-    TINYCLR_NATIVE_DECLARE(GetAddress___U2);
-    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
-    TINYCLR_NATIVE_DECLARE(TurnOn___SamraksheMoteNetDeviceStatus);
-    TINYCLR_NATIVE_DECLARE(Sleep___SamraksheMoteNetDeviceStatus__U1);
+    TINYCLR_NATIVE_DECLARE(GetAddress___U2__U1);
+    TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U1__U2);
+    TINYCLR_NATIVE_DECLARE(TurnOnRx___SamraksheMoteNetDeviceStatus__U1);
+    TINYCLR_NATIVE_DECLARE(Sleep___SamraksheMoteNetDeviceStatus__U1__U1);
     TINYCLR_NATIVE_DECLARE(PreLoad___SamraksheMoteNetNetOpStatus__SZARRAY_U1__U2);
     TINYCLR_NATIVE_DECLARE(SendStrobe___SamraksheMoteNetNetOpStatus);
-    TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__SZARRAY_U1__U2);
-    TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__SZARRAY_U1__U2__U4);
-    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U2);
+    TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2);
+    TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2__U4);
+    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);
+    TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1__U2);
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(SetTxPower___SamraksheMoteNetDeviceStatus__I4);
     TINYCLR_NATIVE_DECLARE(SetChannel___SamraksheMoteNetDeviceStatus__I4);
-    TINYCLR_NATIVE_DECLARE(GetTxPower___I4);
-    TINYCLR_NATIVE_DECLARE(GetChannel___I4);
+    TINYCLR_NATIVE_DECLARE(GetTxPower___I4__U1);
+    TINYCLR_NATIVE_DECLARE(GetChannel___I4__U1);
     TINYCLR_NATIVE_DECLARE(ReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
 
     //--//

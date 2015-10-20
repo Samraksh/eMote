@@ -175,6 +175,7 @@ namespace Samraksh.eMote.Net
         /// <param name="RSSI"></param>
         /// <param name="LQI"></param>
         /// <param name="Size"></param>
+        /// <param name="timeStamped"></param>
         public Message(byte[] message, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
         {
             //Create a message object of default size

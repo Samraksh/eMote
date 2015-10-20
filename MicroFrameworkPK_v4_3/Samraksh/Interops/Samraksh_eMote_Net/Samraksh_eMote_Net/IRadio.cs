@@ -68,6 +68,7 @@ namespace Samraksh.eMote.Net.Radio
         /// </summary>
         /// <param name="power">Transmission power</param>
         /// <param name="channel">Channel</param>
+        /// <param name="name">name</param>
         public RadioConfiguration(TxPowerValue power, Channels channel, RadioName name)
         {
             this.Channel = channel;
@@ -153,37 +154,40 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>Success of operation</returns>
         DeviceStatus ReConfigure(RadioConfiguration config);
 
-        /// <summary>
+        /*/// <summary>
         /// Get radio ID
         /// </summary>
         /// <returns>Radio ID</returns>
-        byte GetID();
+        byte GetID();*/
 
         /// <summary>
         /// Get radio address
         /// </summary>
         /// <returns>Radio address</returns>
-        UInt16 GetAddress();
+        UInt16 GetAddress(byte radioID);
 
         /// <summary>
         /// Set radio address
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <param name="address">Radio address</param>
         /// <returns></returns>
-        bool SetAddress(UInt16 address);
+        bool SetAddress(byte radioID, UInt16 address);
 
         /// <summary>
         /// Turn radio on
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <returns>Success of operation</returns>
-        DeviceStatus TurnOn();
+        DeviceStatus TurnOnRx(byte radioID);
 
         /// <summary>
         /// Put radio to sleep
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <param name="level">Sleep level</param>
         /// <returns>Success of operation</returns>
-        DeviceStatus Sleep(byte level);
+        DeviceStatus Sleep(byte radioID, byte level);
 
         /// <summary>
         /// Preload radio
@@ -202,32 +206,36 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Send message on radio
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <param name="message">Message to send</param>
         /// <param name="size">Size of message</param>
         /// <returns>Success of operation</returns>
-        NetOpStatus Send(byte[] message, UInt16 size);
+        NetOpStatus Send(byte radioID, byte[] message, UInt16 size);
 
         /// <summary>
         /// Sent time-stamped message
         /// </summary>
-        /// <param name="message">Message to send</param>
+        /// <param name="radioID">Radio ID</param>
+        /// <param name="message">Message buffer to send</param>
         /// <param name="size">Size of message</param>
         /// <param name="eventTime">Time stamp of message</param>
         /// <returns>Success of message</returns>
-        NetOpStatus SendTimeStamped(byte[] message, UInt16 size, UInt32 eventTime);
+        NetOpStatus SendTimeStamped(byte radioID, byte[] message, UInt16 size, UInt32 eventTime);
 
         /// <summary>
         /// Check if channel is clear
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <returns>True iff clear</returns>
-        bool ClearChannelAssesment();
+        bool ClearChannelAssesment(byte radioID);
 
         /// <summary>
         /// Check if channel has been clear for the specified interval of time
         /// </summary>
+        /// <param name="radioID">Radio ID</param>
         /// <param name="numberOfMicroSecond">Interval (microseconds)</param>
         /// <returns>True iff clear</returns>
-        bool ClearChannelAssesment(UInt16 numberOfMicroSecond);
+        bool ClearChannelAssesment(byte radioID, UInt16 numberOfMicroSecond);
 
         //UInt32 GetSNR();
         //UInt32 GetRSSI();

@@ -15,9 +15,9 @@ namespace Samraksh.eMote.Net
 
         // There can only be one csma mac object in the system
         /// <summary>
-        /// Returns the instance of the CSMA object
+        /// Returns the instance of the OMAC object
         /// </summary>
-        /// <value>Instance of CSMA object</value>
+        /// <value>Instance of OMAC object</value>
         public static OMAC Instance
         {
             get

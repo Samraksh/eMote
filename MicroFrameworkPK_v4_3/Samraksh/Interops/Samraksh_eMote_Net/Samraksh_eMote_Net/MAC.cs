@@ -19,7 +19,13 @@ namespace Samraksh.eMote.Net
     /// <summary>Kinds of protocol</summary>
     public enum MacID
     {
+        /// <summary>
+        /// 
+        /// </summary>
         CSMA,
+        /// <summary>
+        /// 
+        /// </summary>
         OMAC,
     }
 
@@ -152,6 +158,7 @@ namespace Samraksh.eMote.Net
         /// Initialize the mac after marshalling the config
         /// </summary>
         /// <param name="config"></param>
+        /// <param name="macname"></param>
         /// <returns></returns>
         private DeviceStatus Initialize(MacConfiguration config, MacID macname)
         {
@@ -348,8 +355,8 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// Initialize native MAC, radio and interop drivers.
         /// </summary>
-        /// <param name="config">MAC configuration.</param>
-        /// <param name="receiveMessage">Byte array for received messages.</param>
+        /// <param name="marshalBuffer"></param>
+        /// <param name="macname"></param>
         /// <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus InternalInitialize(byte[] marshalBuffer, byte macname);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.

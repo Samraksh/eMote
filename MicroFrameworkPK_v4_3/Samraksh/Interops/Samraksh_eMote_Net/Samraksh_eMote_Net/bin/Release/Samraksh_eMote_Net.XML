@@ -15,6 +15,9 @@
         <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighborChanged">
             <summary>Neighborhood has changed</summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighbourChanged">
+            <summary></summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.Callbacks">
             <summary>
             Callback class, should only be used internally by the mac and not by any user programs
@@ -158,6 +161,11 @@
             </summary>
             <param name="numberOfChangedNeighbors">Number of neighbors that have changed</param>
         </member>
+        <member name="T:Samraksh.eMote.Net.Mac.CSMA">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.MACBase">
             <summary>Base class for wireless protocols</summary>
             <seealso cref="T:Samraksh.eMote.Net.Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
@@ -277,6 +285,7 @@
             Initialize the mac after marshalling the config
             </summary>
             <param name="config"></param>
+            <param name="macname"></param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.ReConfigure(Samraksh.eMote.Net.Mac.MacConfiguration,Samraksh.eMote.Net.MacID)">
@@ -353,8 +362,8 @@
             <summary>
             Initialize native MAC, radio and interop drivers.
             </summary>
-            <param name="config">MAC configuration.</param>
-            <param name="receiveMessage">Byte array for received messages.</param>
+            <param name="marshalBuffer"></param>
+            <param name="macname"></param>
             <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket(System.Byte[])">
@@ -454,6 +463,70 @@
         <member name="T:Samraksh.eMote.Net.RadioConfigurationMismatchException">
             <summary>
             Exception thrown when the radio is configured incorrectly
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.RadioConfigurationMismatchException.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.RadioNotConfiguredException">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.RadioNotConfiguredException.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.RadioNotConfiguredException.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.RadioBusyException">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.RadioBusyException.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MacNotConfiguredException">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MacNotConfiguredException.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MacNotConfiguredException.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MacNotConfiguredException.#ctor(System.String,System.Exception)">
+            <summary>
+            
+            </summary>
+            <param name="message"></param>
+            <param name="innerException"></param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.CallbackNotConfiguredException">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.CallbackNotConfiguredException.#ctor">
+            <summary>
+            
             </summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Mac.Addresses">
@@ -724,6 +797,7 @@
             </summary>
             <param name="power">Transmission power</param>
             <param name="channel">Channel</param>
+            <param name="name">name</param>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.RadioConfiguration.SetChannel(Samraksh.eMote.Net.Radio.Channels)">
             <summary>
@@ -779,35 +853,32 @@
             <param name="config">New radio configuration</param>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetID">
-            <summary>
-            Get radio ID
-            </summary>
-            <returns>Radio ID</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetAddress">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetAddress(System.Byte)">
             <summary>
             Get radio address
             </summary>
             <returns>Radio address</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SetAddress(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SetAddress(System.Byte,System.UInt16)">
             <summary>
             Set radio address
             </summary>
+            <param name="radioID">Radio ID</param>
             <param name="address">Radio address</param>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.TurnOn">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.TurnOnRx(System.Byte)">
             <summary>
             Turn radio on
             </summary>
+            <param name="radioID">Radio ID</param>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.Sleep(System.Byte)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.Sleep(System.Byte,System.Byte)">
             <summary>
             Put radio to sleep
             </summary>
+            <param name="radioID">Radio ID</param>
             <param name="level">Sleep level</param>
             <returns>Success of operation</returns>
         </member>
@@ -825,38 +896,52 @@
             </summary>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.Send(System.Byte[],System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.Send(System.Byte,System.Byte[],System.UInt16)">
             <summary>
             Send message on radio
             </summary>
+            <param name="radioID">Radio ID</param>
             <param name="message">Message to send</param>
             <param name="size">Size of message</param>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendTimeStamped(System.Byte[],System.UInt16,System.UInt32)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
             <summary>
             Sent time-stamped message
             </summary>
-            <param name="message">Message to send</param>
+            <param name="radioID">Radio ID</param>
+            <param name="message">Message buffer to send</param>
             <param name="size">Size of message</param>
             <param name="eventTime">Time stamp of message</param>
             <returns>Success of message</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment(System.Byte)">
             <summary>
             Check if channel is clear
             </summary>
+            <param name="radioID">Radio ID</param>
             <returns>True iff clear</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment(System.Byte,System.UInt16)">
             <summary>
             Check if channel has been clear for the specified interval of time
             </summary>
+            <param name="radioID">Radio ID</param>
             <param name="numberOfMicroSecond">Interval (microseconds)</param>
             <returns>True iff clear</returns>
         </member>
         <member name="T:Samraksh.eMote.Net.MacID">
             <summary>Kinds of protocol</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MacID.CSMA">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MacID.OMAC">
+            <summary>
+            
+            </summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Message">
             <summary>Message object. Passed to native</summary>
@@ -933,6 +1018,7 @@
             <param name="RSSI"></param>
             <param name="LQI"></param>
             <param name="Size"></param>
+            <param name="timeStamped"></param>
         </member>
         <member name="M:Samraksh.eMote.Net.Message.#ctor(System.Int32)">
             <summary>Configure size of messages</summary>
@@ -951,9 +1037,9 @@
         </member>
         <member name="P:Samraksh.eMote.Net.OMAC.Instance">
             <summary>
-            Returns the instance of the CSMA object
+            Returns the instance of the OMAC object
             </summary>
-            <value>Instance of CSMA object</value>
+            <value>Instance of OMAC object</value>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4">
             <summary>Generic radio object</summary>
@@ -1010,7 +1096,6 @@
             Initialize native radio and interop drivers.
             </summary>
             <param name="config">MAC configuration.</param>
-            <param name="callback">Callback method for received messages.</param>
             <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure(Samraksh.eMote.Net.Radio.RadioConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighborhoodChangeCallBack)">
@@ -1035,24 +1120,28 @@
             <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Int32)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Byte,System.Int32)">
             <summary>Set the transmit power of the radio</summary>
+            <param name="radioID">Radio ID</param>
             <param name="TxPower">Transmission power to use</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(System.Int32)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(System.Byte,System.Int32)">
             <summary>Set the radio channel</summary>
+            <param name="radioID">Radio ID</param>
             <param name="Channel">Channel to use</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetTxPowerValue">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetTxPowerValue(System.Byte)">
             <summary>Return the transmission power value of the radio</summary>
+            <param name="radioID">Radio ID</param>
             <returns>Transmission power value</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetActiveChannel">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetActiveChannel(System.Byte)">
             <summary>
             Return the current active channel of the radio 
             </summary>
+            <param name="radioID">Radio ID</param>
             <returns>Active channel</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ReConfigure(Samraksh.eMote.Net.Radio.RadioConfiguration)">
@@ -1064,30 +1153,30 @@
             <summary>Uninitialize native MAC, radio and interop drivers</summary>
             <returns>Status of operation.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetID">
-            <summary>Get the ID of this 802.15.4 radio instance</summary>
-            <returns>The ID of the instance</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetAddress">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetAddress(System.Byte)">
             <summary>Get the address of the device</summary>
             <remarks>This is the address by which the device is known to the rest of the world.</remarks>
+            <param name="radioID">Radio ID</param>
             <returns>Address of the device</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetAddress(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetAddress(System.Byte,System.UInt16)">
             <summary>Set the address of the device</summary>
+            <param name="radioID">Radio ID</param>
             <param name="address">Address of the device</param>
             <remarks>This is the address by which the device is known to the rest of the world. 
                 A return value of false can occur if another layer locks the address and prevents changes.
             </remarks>
             <returns>Success / failure</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOn">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOnRx(System.Byte)">
             <summary>Turn radio on</summary>
+            <param name="radioID">Radio ID</param>
             <returns>Status of operation</returns>
             <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte,System.Byte)">
             <summary>Put the radio to sleep</summary>
+            <param name="radioID">Radio ID</param>
             <param name="level">Sleep level</param>
             <returns>Status of operation</returns>
             <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOn">TurnOn Method</seealso>
@@ -1104,28 +1193,32 @@
             <summary>Send the message in the transmit buffer</summary>
             <returns>Result of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte[],System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte,System.Byte[],System.UInt16)">
             <summary>Load and send a message</summary>
+            <param name="radioID">Radio ID</param>
             <param name="message">Message to send</param>
             <param name="size">Size of message</param>
             <returns>Result of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte[],System.UInt16,System.UInt32)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
             <summary>Load and send a time-stamped message, with specified time stamp</summary>
+            <param name="radioID">Radio ID</param>
             <param name="message">Message to send</param>
             <param name="size">Size of message</param>
             <param name="eventTime">The time stamp.</param>
             <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte)">
             <summary>Assess channel activity</summary>
             <remarks>Default is 140 microseconds.</remarks>
+            <param name="radioID">Radio ID</param>
             <returns>True iff channel is free</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte,System.UInt16)">
             <summary>Assess channel activity</summary>
-            <param name="numberOfMicroSecond">Number of microsecondsto check</param>
+            <param name="radioID">Radio ID</param>
+            <param name="numberOfMicroSecond">Number of microseconds to check</param>
             <returns>True iff channel is free</returns>
         </member>
         <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.config">
