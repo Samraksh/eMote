@@ -25,12 +25,31 @@ BOOL GlobalTime::synced=FALSE;
 //#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
 
 // Nathan
-#define TXNODEID 18134
-#define RXNODEID 20181
+//#define TXNODEID 18134
+//#define RXNODEID 20181
 
 // Ananth
-//#define TXNODEID 3505
-//#define RXNODEID 6846
+
+//#define TWO_NODES_TX_RX
+
+#if defined(TWO_NODES_TX_RX)
+#define TXNODEID 3505
+#define RXNODEID 6846
+#endif
+
+//#define FAN_OUT
+#define FAN_IN
+
+#if defined(FAN_OUT)
+#define RXNODEID1 3505
+#define RXNODEID2 31436
+#define TXNODEID 6846
+#elif defined(FAN_IN)
+#define TXNODEID1 3505
+#define TXNODEID2 31436
+#define RXNODEID 6846
+#endif
+
 
 //#define TXNODEID 30906
 //#define RXNODEID 4028
@@ -68,12 +87,33 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 #ifdef DEBUG_TSYNC
 
+#if defined(TWO_NODES_TX_RX)
 	if(g_OMAC.GetAddress() == RXNODEID) {
 		Neighbor2beFollowed = TXNODEID;
 	}
 	else {
 		Neighbor2beFollowed = RXNODEID;
 	}
+#endif
+
+#if defined(FAN_OUT)
+	if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+		Neighbor2beFollowed = TXNODEID;
+	}
+	else {
+		Neighbor2beFollowed1 = RXNODEID1;
+		Neighbor2beFollowed2 = RXNODEID2;
+	}
+#elif defined(FAN_IN)
+	if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+		Neighbor2beFollowed = RXNODEID;
+	}
+	else {
+		Neighbor2beFollowed1 = TXNODEID1;
+		Neighbor2beFollowed2 = TXNODEID2;
+	}
+#endif
+
 #endif
 }
 

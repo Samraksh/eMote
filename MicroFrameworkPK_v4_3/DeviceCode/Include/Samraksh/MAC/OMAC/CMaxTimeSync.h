@@ -46,7 +46,7 @@ typedef class CMaxTimeSync : public EventHandler{
 	BOOL IsPacketScheduled;
 
 public:
-	UINT16 Neighbor2beFollowed;
+	UINT16 Neighbor2beFollowed, Neighbor2beFollowed1, Neighbor2beFollowed2;
 	GlobalTime m_globalTime;
 	BOOL m_isLeader;
 	//UINT16 m_leader;
