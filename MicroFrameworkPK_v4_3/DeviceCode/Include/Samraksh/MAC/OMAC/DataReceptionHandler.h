@@ -30,9 +30,9 @@ public:
 
 
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT64 NextEvent(UINT32 currentSlotNum);
+	UINT64 NextEvent();
 	void UpdateSeedandCalculateWakeupSlot(UINT32 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT32 &currentSlotNum );
- 	void ExecuteEvent(UINT32 currentSlotNum);
+ 	void ExecuteEvent();
 
 	void PostExecuteEvent();
 };
