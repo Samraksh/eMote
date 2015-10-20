@@ -27,6 +27,7 @@ OMACScheduler g_omac_scheduler;
 
 static BOOL varCounter;
 MacReceiveFuncPtrType g_rxAckHandler;
+SendAckFuncPtrType g_txAckHandler;
 MacEventHandler_t* g_appHandler;
 
 /*
@@ -46,10 +47,9 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  *
  */
-void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
-	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
+void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
+	Message_15_4_t* rcv_msg = (Message_15_4_t*)msg;
 
-	SendAckFuncPtrType AckHandler;
 	//Demutiplex packets received based on type
 	switch(rcv_msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
@@ -58,9 +58,23 @@ void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
 			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
 			break;
 		case MFM_DATA:
-			//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
-			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
+		{
+			(*g_txAckHandler)(msg, Size, status);
+			/*hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
+			hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
+			hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
+			if(destID == Neighbor2beFollowed)
+			{
+				hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
+				hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
+				hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
+				UINT64 y = HAL_Time_CurrentTicks();
+				g_OMAC.Send(rcv_msg->GetHeader()->src, MFM_DATA, rcv_msg, rcv_msg->GetHeaderSize()+rcv_msg->GetPayloadSize(), (UINT32) (y & (~(UINT32) 0)) );
+				//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
+				//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
+			}*/
 			break;
+		}
 		case MFM_ROUTING:
 			break;
 		case MFM_NEIGHBORHOOD:
@@ -165,6 +179,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 	if(!varCounter){
 		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		g_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
 		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		varCounter = TRUE;
 	}
