@@ -20,6 +20,10 @@
             <param name="period">Interval between callbacks (microseconds)</param>
             <param name="callbackCount">How many callbacks to make (0 = infinite)</param>
         </member>
+        <member name="M:Samraksh.eMote.RealTime.Timer.#ctor(System.UInt64)">
+            <summary>Realtime Timer</summary>
+            <param name="period">Interval between callbacks (microseconds)</param>
+        </member>
         <member name="M:Samraksh.eMote.RealTime.Timer.Dispose">
             <summary>Dispose realtime timer</summary>
         </member>
