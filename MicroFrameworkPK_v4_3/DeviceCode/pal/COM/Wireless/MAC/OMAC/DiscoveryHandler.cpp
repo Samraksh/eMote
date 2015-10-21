@@ -128,7 +128,7 @@ void DiscoveryHandler::PostExecuteEvent(){
  *
  */
 void DiscoveryHandler::SetWakeup(bool shldWakeup){
-	hal_printf("DiscoveryHandler::SetWakeup\n");
+	//hal_printf("DiscoveryHandler::SetWakeup\n");
 }
 
 ////////////////////Private Functions////////////////////////////
@@ -153,19 +153,15 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
 	//m_discoveryMsg->seed = m_seed;
-	m_discoveryMsg->seed = g_scheduler->m_DiscoveryHandler.GetSeed();
-	m_discoveryMsg->nextFrame = m_nextFrame;
-	//m_discoveryMsg->dataInterval = DATA_INTERVAL / SLOT_PERIOD_MILLI;
-	m_discoveryMsg->dataInterval = WAKEUP_INTERVAL / SLOT_PERIOD_MILLI;
-	if (m_discoveryMsg->dataInterval < 1) {
-		m_discoveryMsg->dataInterval = 1;
-	}
+	m_discoveryMsg -> counterOffset = 0;
 	m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
-	//m_discoveryMsg->flag |= FLAG_TIMESTAMP_VALID;
-	m_discoveryMsg->counterOffset = ((OMACScheduler *)m_parentScheduler)->GetCounterOffset();
-	//m_discoveryMsg->seed = ((OMACScheduler *)m_parentScheduler)->GetSeed();
-	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
 
+	m_discoveryMsg->nextSeed = g_scheduler->m_DataReceptionHandler.m_nextSeed;
+	m_discoveryMsg->mask = g_scheduler->m_DataReceptionHandler.m_mask;
+	m_discoveryMsg->nextwakeupSlot =  g_scheduler->m_DataReceptionHandler.m_nextwakeupSlot;
+	m_discoveryMsg->seedUpdateIntervalinSlots = g_scheduler->m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
+
+	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
 	localTime = HAL_Time_CurrentTicks();
 	m_discoveryMsg->localTime0 = (UINT32) localTime ;
 	m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
@@ -296,9 +292,9 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
 		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
-		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);;
+		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, disMsg->nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	} else {
-		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->seed, disMsg->dataInterval, disMsg->radioStartDelay, disMsg->counterOffset, &nbrIdx);
+		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, disMsg->nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
 #ifdef DEBUG_TSYNC

@@ -40,11 +40,12 @@
 #define HAL_SLOT_TIMER2 4
 #define HAL_DISCOVERY_TIMER 5
 #define HAL_RECEPTION_TIMER 6
+#define HAL_TX_TIMER 7
 
-#define MAX_UINT16 	(0xFFFF)
 #define MAX_UINT32 	(0xFFFFFFFF)
 #define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
 
+#define MAX_DATA_PCKT_SIZE 20
 /*
  *
  */
@@ -128,17 +129,18 @@ typedef struct DiscoveryMsg
 {
 	// offset between the start of the counter to global time 0
 	//used by neighbors to calculate the sender's next receive slot
-	UINT16 counterOffset;
+	UINT16 counterOffset; //BK: NOT USED
 	//the time to startup the radio could be different for different nodes.
 	//use this neighbor info along with local info to compute this difference
 	UINT16 radioStartDelay;
 
 	//seed to generate the pseduo-random wakeup schedule
-	UINT16 seed;
+	UINT16 nextSeed;
+	UINT16 mask;
 	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
-	UINT32 nextFrame;
+	UINT32 nextwakeupSlot;
 	//the wakeup interval of the neighbor
-	UINT16 dataInterval;
+	UINT16 seedUpdateIntervalinSlots;
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
 
@@ -146,6 +148,11 @@ typedef struct DiscoveryMsg
 	UINT32 localTime1;
 
 } DiscoveryMsg_t;
+
+typedef struct DataMsg_t
+{
+	UINT8 payload[MAX_DATA_PCKT_SIZE];
+} DataMsg_t;
 
 /*
  * After TEP 133, the message timestamp contains the difference between
@@ -189,8 +196,12 @@ typedef struct OMacHeader {
 } OMacHeader;
 
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 1000
+#define GUARDTIME_MICRO 3000
+#define SWITCHING_DELAY_MICRO 1000
+#define TIMER_EVENT_DELAY_OFFSET 700
+#define MINEVENTTIME 5000
 
+#define WAKEUPPERIODINTICKS 8000000
 enum {
   TICKS_PER_MILLI     = 8000,
 

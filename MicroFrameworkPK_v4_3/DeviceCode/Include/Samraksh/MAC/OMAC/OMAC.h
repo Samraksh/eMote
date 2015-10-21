@@ -94,7 +94,7 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	//Override base class methods here, implement them later in cpp file
 	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config);
 	DeviceStatus SetConfig(MacConfig *config);
-	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size, UINT32 eventTime);
+	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size);
 	////BOOL SendTimeStamped(RadioAddress_t dest, UINT8 dataType, Message_15_4_t* msg, int Size, UINT32 eventTime);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size);
@@ -106,9 +106,6 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	Message_15_4_t* FindFirstSyncedNbrMessage();
 	Message_15_4_t* FindFirstMessageForNbr(UINT16 nbr);
 	void UpdateNeighborTable();
-	UINT8 GetBufferSize();
-	UINT16 GetSendPending();
-	UINT16 GetReceivePending();
 };
 
 extern OMACType g_OMAC;

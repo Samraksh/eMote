@@ -17,9 +17,9 @@
 //#define OMAC_DATARXPIN 31 //2
 //#define OMAC_RXPIN 2
 
-extern Buffer_15_4_t g_send_buffer;
-extern Buffer_15_4_t g_receive_buffer;
-extern NeighborTable g_NeighborTable;
+Buffer_15_4_t g_send_buffer;
+Buffer_15_4_t g_receive_buffer;
+NeighborTable g_NeighborTable;
 
 OMACType g_OMAC;
 RadioControl_t g_omac_RadioControl;
@@ -45,9 +45,10 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  *
  */
-void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
-	Message_15_4_t* rcv_msg = (Message_15_4_t*)msg;
+void OMACSendAckHandler(void *msg, UINT16 Size, NetOpStatus status){
+	Message_15_4_t *rcv_msg = (Message_15_4_t *)msg;
 
+	SendAckFuncPtrType AckHandler;
 	//Demutiplex packets received based on type
 	switch(rcv_msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
@@ -56,23 +57,9 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
 			break;
 		case MFM_DATA:
-		{
-			(*g_txAckHandler)(msg, Size, status);
-			/*hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
-			hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
-			hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
-			if(destID == Neighbor2beFollowed)
-			{
-				hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
-				hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
-				hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
-				UINT64 y = HAL_Time_CurrentTicks();
-				g_OMAC.Send(rcv_msg->GetHeader()->src, MFM_DATA, rcv_msg, rcv_msg->GetHeaderSize()+rcv_msg->GetPayloadSize(), (UINT32) (y & (~(UINT32) 0)) );
-				//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
-				//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
-			}*/
+			//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
+			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
 			break;
-		}
 		case MFM_ROUTING:
 			break;
 		case MFM_NEIGHBORHOOD:
@@ -114,6 +101,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, TRUE);
 
+	varCounter = FALSE;
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
@@ -150,6 +138,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 		g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
+
 		g_NeighborTable.ClearTable();
 
 		RadioAckPending = FALSE;
@@ -179,9 +168,11 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 
-	//Initialize radio layer
-	return DS_Success;
-}
+	if(!varCounter){
+		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
+		varCounter = TRUE;
+	}
 
 /*
  *
@@ -252,22 +243,27 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			////hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
+			hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
 			//rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
 			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
+			CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
+			//if (sourceID != 7116) {
+			//	hal_printf("Something is received");
+			//}
 			if(myID == destID) {
-				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-				////hal_printf("Successfully got a data packet\n");
+				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
+				hal_printf("Successfully got a data packet\n");
 				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
-					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
+					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed\n");
 				}
-				(*g_rxAckHandler)(msg, Size);
-				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+				(*g_rxAckHandler)(Size);
+
 			}
+			CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 			break;
 		case MFM_ROUTING:
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
@@ -310,13 +306,12 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
 	if(g_send_buffer.IsFull()){
-		////hal_printf("OMACType::Send g_send_buffer full\n");
+		hal_printf("OMACType::Send g_send_buffer full\n");
 		return FALSE;
 	}
 
 	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	//Message_15_4_t* msg_carrier;
-	if(size > OMACType::GetMaxPayload()){
+	if(size >  OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
 	}
