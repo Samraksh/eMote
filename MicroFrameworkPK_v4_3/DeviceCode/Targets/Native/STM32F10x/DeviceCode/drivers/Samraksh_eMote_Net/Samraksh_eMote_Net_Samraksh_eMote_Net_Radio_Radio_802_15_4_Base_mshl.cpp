@@ -281,7 +281,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetTxPower___SamraksheMoteNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -303,7 +303,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetChannel___SamraksheMoteNetDeviceStatus__I4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetChannel___SamraksheMoteNetDeviceStatus__U1__I4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {

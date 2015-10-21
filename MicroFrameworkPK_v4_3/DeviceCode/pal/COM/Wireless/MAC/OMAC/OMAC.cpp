@@ -153,7 +153,6 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 		g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
-
 		g_NeighborTable.ClearTable();
 
 		RadioAckPending = FALSE;
@@ -461,3 +460,18 @@ void OMACType::UpdateNeighborTable(){
 	return TRUE;
 }
 */
+
+UINT8 OMACType::GetBufferSize(){
+	return g_send_buffer.Size();
+}
+
+UINT16 OMACType::GetSendPending(){
+	return g_send_buffer.GetNumberMessagesInBuffer();
+}
+
+UINT16 OMACType::GetReceivePending(){
+	return g_send_buffer.GetNumberMessagesInBuffer();
+}
+
+
+

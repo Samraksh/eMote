@@ -59,10 +59,11 @@ UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 address, HRESULT &hr )
 {
-	Mac_SetRadioAddress(param0);
-	return 1;
+	BOOL status = FALSE;
+	status = Mac_SetRadioAddress(address);
+	return status;
 }
 
 UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -81,7 +82,7 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray
     length=param3;
     memcpy (CSMAInteropBuffer, payload,  length);
 
-    if (Mac_Send(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length) == DS_Success)
+    if (Mac_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, length) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -162,6 +163,7 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
 {
    return Mac_GetNeighborStatus(param0, param1.GetBuffer());
 }
+
 void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
 }
 
@@ -175,7 +177,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	length=param3;
 	memcpy (CSMAInteropBuffer, payload,  length);
 
-	if (Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -199,7 +201,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	length=param3;
 	memcpy (CSMAInteropBuffer, payload,  length);
 
-	if (Mac_SendTimeStamped(MacID, address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4) == DS_Success)
+	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
