@@ -3,7 +3,7 @@
 #include <Timer/netmf_timers.cpp>
 
 
-csmaMAC gcsmaMacObject;
+csmaMAC g_csmaMacObject;
 
 volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio during sendToRadio.
 
@@ -12,30 +12,30 @@ UINT16 discoveryCounter = 0;
 
 void* csmaReceiveHandler(void *msg, UINT16 Size)
 {
-	return (void*) gcsmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
+	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
 void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status)
 {
-	gcsmaMacObject.SendAckHandler(msg, Size, status);
+	g_csmaMacObject.SendAckHandler(msg, Size, status);
 }
 
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 {
-	return gcsmaMacObject.RadioInterruptHandler(Interrupt, param);
+	return g_csmaMacObject.RadioInterruptHandler(Interrupt, param);
 }
 
 void SendFirstPacketToRadio(void * arg){
 
-	gcsmaMacObject.SendToRadio();
+	g_csmaMacObject.SendToRadio();
 
 }
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
 	DEBUG_PRINTF_CSMA("bS fire\r\n");
-	gcsmaMacObject.UpdateNeighborTable();
-	gcsmaMacObject.SendHello();
+	g_csmaMacObject.UpdateNeighborTable();
+	g_csmaMacObject.SendHello();
 }
 
 DeviceStatus csmaMAC::SendHello()
@@ -48,7 +48,7 @@ DeviceStatus csmaMAC::SendHello()
 	helloPayload[3] = (UINT8) 'L';
 	helloPayload[4] = (UINT8) 'O';
 
-	if(gcsmaMacObject.Send(0xffff, MFM_DISCOVERY, (void *) helloPayload, 5) == TRUE)
+	if(g_csmaMacObject.Send(0xffff, MFM_DISCOVERY, (void *) helloPayload, 5) == TRUE)
 		return DS_Success;
 
 	return DS_Fail;
@@ -84,9 +84,9 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		this->radioName = radioID;
 		SetConfig(config);
 		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
-		gcsmaMacObject.SetAppIdIndex(routingAppID);
+		g_csmaMacObject.SetAppIdIndex(routingAppID);
 		//Initialize upperlayer callbacks
-		gcsmaMacObject.SetAppHandlers(eventHandler);
+		g_csmaMacObject.SetAppHandlers(eventHandler);
 
 
 		AppCount = 0; //number of upperlayers connected to you
@@ -267,8 +267,8 @@ void csmaMAC::UpdateNeighborTable(){
 	if(numberOfDeadNeighbors > 0)
 	{
 		DEBUG_PRINTF_CSMA("number of dead neighbors: %d\r\n",numberOfDeadNeighbors);
-		////NeighborChangeFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
-		NeighborChangeFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
+		////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
+		NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
 		if(appHandler != NULL)
@@ -402,8 +402,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 				// Insert into the table if a new node was discovered
 				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
-					////NeighborChangeFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
-					NeighborChangeFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
+					////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
+					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 					// Check if  a neighbor change has been registered
 					if(appHandler != NULL)
@@ -451,7 +451,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	//Call routing/app receive callback
 	////MacReceiveFuncPtrType appHandler = AppHandlers[3]->ReceiveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
-	MacReceiveFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
+	MacReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
 
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)
@@ -505,8 +505,8 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				//gHalTimerManagerObject.StopTimer(3);
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				////SendAckFuncPtrType appHandler = gcsmaMacObject.AppHandlers[CurrentActiveApp]->SendAckHandler;
-				SendAckFuncPtrType appHandler = gcsmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler;
+				////SendAckFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->SendAckHandler;
+				SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 				// Attempt to send the next packet out since we have no scheduler
 				if(!m_send_buffer.IsBufferEmpty())

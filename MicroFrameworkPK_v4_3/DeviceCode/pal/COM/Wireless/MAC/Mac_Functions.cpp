@@ -10,7 +10,7 @@
 #include <Samraksh/Mac_decl.h>
 #include <Samraksh/PacketTimeSync_15_4.h>
 
-extern csmaMAC gcsmaMacObject;
+extern csmaMAC g_csmaMacObject;
 extern OMACType g_OMAC;
 
 Buffer_15_4_t m_send_buffer;
@@ -36,7 +36,7 @@ NeighborTable m_NeighborTable;
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 routingAppID, UINT8 radioName, void* config){
 
 	if(macID == CSMAMAC){
-		return gcsmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
+		return g_csmaMacObject.Initialize(eventHandler, macID, routingAppID, radioName, (MacConfig*)config) ;
 		//return DS_Fail;
 	}
 	else if(macID == OMAC) {
@@ -50,12 +50,12 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macID, UINT8 ro
 }
 
 UINT16 Mac_GetRadioAddress(){
-	UINT16 temp = gcsmaMacObject.GetRadioAddress();
+	UINT16 temp = g_csmaMacObject.GetRadioAddress();
 	return temp;
 }
 
 BOOL Mac_SetRadioAddress(UINT16 address){
-	gcsmaMacObject.SetRadioAddress(address);
+	g_csmaMacObject.SetRadioAddress(address);
 	return true;
 }
 
@@ -130,18 +130,18 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 
 DeviceStatus Mac_UnInitialize(UINT8 macID){
 	BOOL ret;
-	ret = gcsmaMacObject.UnInitialize();
+	ret = g_csmaMacObject.UnInitialize();
 	return ((ret == TRUE) ? DS_Success : DS_Fail);
 }
 
 UINT8 Mac_GetID(){
-	return gcsmaMacObject.macName ;
+	return g_csmaMacObject.macName ;
 }
 
 DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 eventTime){
 	if(macID == CSMAMAC)
 	{
-		if(gcsmaMacObject.SendTimeStamped(destAddress, dataType, msg, size, eventTime) != TRUE)
+		if(g_csmaMacObject.SendTimeStamped(destAddress, dataType, msg, size, eventTime) != TRUE)
 		    return DS_Fail;
 		else
 			return DS_Success;
@@ -159,7 +159,7 @@ DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * ms
 
 	if(macID == CSMAMAC)
 	{
-		  if(gcsmaMacObject.Send(destAddress, dataType, msg, size) != TRUE)
+		  if(g_csmaMacObject.Send(destAddress, dataType, msg, size) != TRUE)
 			  return DS_Fail;
 		  else
 			  return DS_Success;
@@ -241,7 +241,7 @@ DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 //Neighbor functions
 NeighborTable* Mac_GetNeighborTable(UINT8 macID){
 	if(MacName == CSMAMAC)
-		return gcsmaMacObject.GetNeighborTable();
+		return g_csmaMacObject.GetNeighborTable();
 	else if(MacName == OMAC)
 		return NULL;
 	//return (NeighborTable *)(NULL);
@@ -257,14 +257,14 @@ Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress){
 //Buffer functions
 UINT8 Mac_GetBufferSize(UINT8 macID){
 	if(macID == CSMAMAC)
-		return  gcsmaMacObject.GetBufferSize();
+		return  g_csmaMacObject.GetBufferSize();
 	else if(macID == OMAC)
 		return 0;
 }
 
 UINT8 Mac_GetNumberPendingPackets(UINT8 macID){
 	if(macID == CSMAMAC)
-		return gcsmaMacObject.GetSendPending();
+		return g_csmaMacObject.GetSendPending();
 	else if(macID == OMAC)
 		return 0;
 }
@@ -280,7 +280,7 @@ BOOL MacLayer_Initialize(){
 
 BOOL MacLayer_UnInitialize(){
 	BOOL ret = TRUE;
-	ret &= gcsmaMacObject.UnInitialize();
+	ret &= g_csmaMacObject.UnInitialize();
 	return ret;
 }
 
