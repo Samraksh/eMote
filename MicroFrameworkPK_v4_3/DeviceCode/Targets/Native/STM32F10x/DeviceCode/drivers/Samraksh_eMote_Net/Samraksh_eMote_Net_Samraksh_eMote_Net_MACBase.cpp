@@ -92,8 +92,9 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray
 
 INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	DeviceStatus status;
+	status = Mac_UnInitialize();
+    return status;
 }
 
 void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
