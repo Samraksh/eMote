@@ -649,12 +649,15 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_RT_Assembly::InitString();
 
 #if !defined(BUILD_RTM)
+		MfReleaseInfo releaseInfo;
+        Solution_GetReleaseInfo( releaseInfo );
 
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
         CLR_Debug::Printf( "Platform: %s\r\n", HalName );
-		// VERSION_BUILD is not reading in correctly, need to get it read in from ReleaseInfo.settings
-        CLR_Debug::Printf( "Based on Micro Framework v4.3.2.0\r\n");
+		// VERSION_BUILD is not set correctly to 2, once it is set then we use MF_VERSION
+        //CLR_Debug::Printf( "Based on Micro Framework v%s\r\n",MF_VERSION );
         //CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
+        CLR_Debug::Printf( "Based on Micro Framework v4.3.2.0\r\n");
         CLR_Debug::Printf( "Build Date %s\r\n", __DATE__);
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
