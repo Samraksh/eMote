@@ -29,7 +29,7 @@ class DataTransmissionHandler: public EventHandler {
 
 	//Count of times current packet has been sent
 	UINT8   m_dataHeartBeats;
-	UINT64 m_neighborNextEventTimeinTicks;
+	//UINT64 m_neighborNextEventTimeinTicks; //BK Don't use this. m_outgoingEntryPtr together with neighbortable solves it.
 	static INT64 m_nbrGlobalTime;
 	static UINT32 m_nbrWakeupSlot;
 	UINT32  m_lastSlot;

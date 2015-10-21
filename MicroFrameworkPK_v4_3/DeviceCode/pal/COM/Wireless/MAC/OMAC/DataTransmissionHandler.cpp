@@ -39,7 +39,7 @@ void DataTransmissionHandler::Initialize(){
 
 	//the # of times the current packet has been sent
 	m_dataHeartBeats=0;
-	m_neighborNextEventTimeinTicks = 0;
+	//m_neighborNextEventTimeinTicks = 0;
 	m_lastSlot=0;
 	m_collisionCnt = 0;
 
@@ -59,21 +59,21 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
-	if( (m_outgoingEntryPtr == NULL)
-	||	(m_neighborNextEventTimeinTicks < g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_outgoingEntryPtr->GetHeader()->dest, HAL_Time_CurrentTicks() ) )
-	   ){
-		ScheduleDataPacket();
-		}
-	if( (m_outgoingEntryPtr == NULL)
-	||	(m_neighborNextEventTimeinTicks < g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_outgoingEntryPtr->GetHeader()->dest, HAL_Time_CurrentTicks() ) )
-	   ){
+	ScheduleDataPacket();
+
+	if( (m_outgoingEntryPtr == NULL) || (g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest) == NULL )
+	   ){ //Either Dont have packet to send or missing timing for the destination
 		return 0xffffffffffffffff;
 	}
 	else {
-		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(m_outgoingEntryPtr->GetHeader()->dest, m_neighborNextEventTimeinTicks);
-		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - HAL_Time_CurrentTicks());
+		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(m_outgoingEntryPtr->GetHeader()->dest, g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+		UINT64 curTicks = HAL_Time_CurrentTicks();
+		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 		//UINT64 curTicks = HAL_Time_CurrentTicks();
-		//hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinTicks = %llu - %lu\n",curTicks, g_omac_scheduler.GetSlotNumber(curTicks), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks), g_omac_scheduler.GetSlotNumber(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)),ticksInMicroSecs,curTicks+ticksInMicroSecs, g_omac_scheduler.GetSlotNumber(m_nextTXTicks),m_neighborNextEventTimeinTicks, g_omac_scheduler.GetSlotNumber(m_neighborNextEventTimeinTicks) );
+		hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
+				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks))
+				, remMicroSecnextTX, HAL_Time_TicksToTime(nextTXTicks), g_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), HAL_Time_TicksToTime(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
+
 		return remMicroSecnextTX;
 	}
 }
@@ -88,7 +88,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 	bool rv = Send();
-	m_neighborNextEventTimeinTicks = 0;
+	//m_neighborNextEventTimeinTicks = 0;
 	PostExecuteEvent();
 }
 
@@ -235,7 +235,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		if (neighborEntry != NULL) {
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
-				m_neighborNextEventTimeinTicks = 0;
+				//m_neighborNextEventTimeinTicks = 0;
 				return;
 			}
 
@@ -243,7 +243,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			UINT64 neighborTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
 			if (neighborTimeinTicks == 0){
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
-				m_neighborNextEventTimeinTicks = 0;
+				//m_neighborNextEventTimeinTicks = 0;
 				return;
 			}
 			UINT32 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
@@ -256,7 +256,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			// is later than the start of the clock. So, a slotNumber offset should be used
 			//slotNumber = (nbrGlobalTime - neighborEntry->counterOffset) >> SLOT_PERIOD_BITS;
 			// BK: The slot number now depends only on the CurrentTicks. This design reduces data exchange and also deals with cases where data slot updates are missed due to some reason.
-			m_neighborNextEventTimeinTicks = neighborEntry->nextwakeupSlot * SLOT_PERIOD_TICKS;
+			//m_neighborNextEventTimeinTicks = g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS;
 
 			//END OF TOD O
 			hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::ScheduleDataPacket() NeighbornextwakeupSlot = %lu \n"
@@ -265,11 +265,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);
-			m_neighborNextEventTimeinTicks = 0;
+			//m_neighborNextEventTimeinTicks = 0;
 		}
 	}
 	else{
-		m_neighborNextEventTimeinTicks = 0;
+		//m_neighborNextEventTimeinTicks = 0;
 	}
 }
 
