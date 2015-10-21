@@ -17,18 +17,16 @@
 //#define OMAC_DATARXPIN 31 //2
 //#define OMAC_RXPIN 2
 
-Buffer_15_4_t g_send_buffer;
-Buffer_15_4_t g_receive_buffer;
-NeighborTable g_NeighborTable;
+extern Buffer_15_4_t g_send_buffer;
+extern Buffer_15_4_t g_receive_buffer;
+extern NeighborTable g_NeighborTable;
 
 OMACType g_OMAC;
 RadioControl_t g_omac_RadioControl;
 OMACScheduler g_omac_scheduler;
 
-static BOOL varCounter;
 MacReceiveFuncPtrType g_rxAckHandler;
 SendAckFuncPtrType g_txAckHandler;
-MacEventHandler_t* g_appHandler;
 
 /*
  *
@@ -116,7 +114,6 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, TRUE);
 
-	varCounter = FALSE;
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
@@ -176,12 +173,8 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CurrentActiveApp = routingAppID;
 	//*macID=MacId;
 
-	if(!varCounter){
-		g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
-		g_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
-		g_appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
-		varCounter = TRUE;
-	}
+	g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
+	g_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
 
 	CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);

@@ -13,9 +13,9 @@
 extern csmaMAC g_csmaMacObject;
 extern OMACType g_OMAC;
 
-Buffer_15_4_t m_send_buffer;
-Buffer_15_4_t m_receive_buffer;
-NeighborTable m_NeighborTable;
+Buffer_15_4_t g_send_buffer;
+Buffer_15_4_t g_receive_buffer;
+NeighborTable g_NeighborTable;
 
 //#define DEBUG_MACFUNCTIONS 1
 
@@ -82,7 +82,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 {
 	GLOBAL_LOCK(irq);
 
-	Message_15_4_t** temp = m_receive_buffer.GetOldestPtr();
+	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
 
 	if((*temp) == NULL)
 		return DS_Fail;
@@ -138,7 +138,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 		(*managedBuffer)[15 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 56) & 0xff);
 	}
 
-	//m_receive_buffer.DropOldest(1);
+	//g_receive_buffer.DropOldest(1);
 
 	return DS_Success;
 }
@@ -199,9 +199,9 @@ DeviceStatus Mac_GetNeighborList(UINT16 *buffer)
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if(m_NeighborTable.Neighbor[i].Status == Alive)
+		if(g_NeighborTable.Neighbor[i].Status == Alive)
 		{
-			buffer[neighborCount++] = m_NeighborTable.Neighbor[i].MacAddress;
+			buffer[neighborCount++] = g_NeighborTable.Neighbor[i].MacAddress;
 		}
 	}
 
@@ -218,30 +218,30 @@ DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 {
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if(m_NeighborTable.Neighbor[i].MacAddress == macAddress)
+		if(g_NeighborTable.Neighbor[i].MacAddress == macAddress)
 		{
-			buffer[0] = m_NeighborTable.Neighbor[i].MacAddress & 0xff;
-			buffer[1] = (m_NeighborTable.Neighbor[i].MacAddress & 0xff00) >> 8;
-			buffer[2] = (m_NeighborTable.Neighbor[i].ForwardLink.AvgRSSI);
-			buffer[3] = (m_NeighborTable.Neighbor[i].ForwardLink.LinkQuality);
-			buffer[4] = (m_NeighborTable.Neighbor[i].ForwardLink.AveDelay);
-			buffer[5] = (m_NeighborTable.Neighbor[i].ReverseLink.AvgRSSI);
-			buffer[6] = (m_NeighborTable.Neighbor[i].ReverseLink.LinkQuality);
-			buffer[7] = (m_NeighborTable.Neighbor[i].ReverseLink.AveDelay);
-			buffer[8] = (m_NeighborTable.Neighbor[i].Status);
-			buffer[9] = (m_NeighborTable.Neighbor[i].PacketsReceived & 0xff);
-			buffer[10] = (m_NeighborTable.Neighbor[i].PacketsReceived & 0xff00) >> 8;
-			buffer[11] = (m_NeighborTable.Neighbor[i].LastHeardTime) & 0xff;
-			buffer[12] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff00) >> 8;
-			buffer[13] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000) >> 16;
-			buffer[14] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff000000) >> 24;
-			buffer[15] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff00000000) >> 32;
-			buffer[16] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000000000) >> 40;
-			buffer[17] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff000000000000) >> 48;
-			buffer[18] = (m_NeighborTable.Neighbor[i].LastHeardTime & 0xff00000000000000) >> 56;
-			buffer[19] = (m_NeighborTable.Neighbor[i].ReceiveDutyCycle);
-			buffer[20] = (m_NeighborTable.Neighbor[i].FrameLength);
-			buffer[21] = (m_NeighborTable.Neighbor[i].FrameLength & 0xff00) >> 8;
+			buffer[0] = g_NeighborTable.Neighbor[i].MacAddress & 0xff;
+			buffer[1] = (g_NeighborTable.Neighbor[i].MacAddress & 0xff00) >> 8;
+			buffer[2] = (g_NeighborTable.Neighbor[i].ForwardLink.AvgRSSI);
+			buffer[3] = (g_NeighborTable.Neighbor[i].ForwardLink.LinkQuality);
+			buffer[4] = (g_NeighborTable.Neighbor[i].ForwardLink.AveDelay);
+			buffer[5] = (g_NeighborTable.Neighbor[i].ReverseLink.AvgRSSI);
+			buffer[6] = (g_NeighborTable.Neighbor[i].ReverseLink.LinkQuality);
+			buffer[7] = (g_NeighborTable.Neighbor[i].ReverseLink.AveDelay);
+			buffer[8] = (g_NeighborTable.Neighbor[i].Status);
+			buffer[9] = (g_NeighborTable.Neighbor[i].PacketsReceived & 0xff);
+			buffer[10] = (g_NeighborTable.Neighbor[i].PacketsReceived & 0xff00) >> 8;
+			buffer[11] = (g_NeighborTable.Neighbor[i].LastHeardTime) & 0xff;
+			buffer[12] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff00) >> 8;
+			buffer[13] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000) >> 16;
+			buffer[14] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff000000) >> 24;
+			buffer[15] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff00000000) >> 32;
+			buffer[16] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000000000) >> 40;
+			buffer[17] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff000000000000) >> 48;
+			buffer[18] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff00000000000000) >> 56;
+			buffer[19] = (g_NeighborTable.Neighbor[i].ReceiveDutyCycle);
+			buffer[20] = (g_NeighborTable.Neighbor[i].FrameLength);
+			buffer[21] = (g_NeighborTable.Neighbor[i].FrameLength & 0xff00) >> 8;
 
 			return DS_Success;
 
@@ -302,12 +302,12 @@ BOOL MacLayer_Initialize(){
 	return FALSE;
 }
 
-BOOL MacLayer_UnInitialize(UINT8 macName){
+BOOL MacLayer_UnInitialize(){
 	BOOL status = FALSE;
-	if(macName == CSMAMAC){
+	if(currentMacName == CSMAMAC){
 		status = g_csmaMacObject.UnInitialize();
 	}
-	else if(macName == OMAC){
+	else if(currentMacName == OMAC){
 		status = g_OMAC.UnInitialize();
 	}
 

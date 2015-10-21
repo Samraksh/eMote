@@ -96,9 +96,9 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		Radio_Event_Handler.SetReceiveHandler(csmaReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(csmaSendAckHandler);
 
-		m_send_buffer.Initialize();
-		m_receive_buffer.Initialize();
-		m_NeighborTable.ClearTable();
+		g_send_buffer.Initialize();
+		g_receive_buffer.Initialize();
+		g_NeighborTable.ClearTable();
 
 		UINT8 numberOfRadios = 1;
 		RadioAckPending = FALSE;
@@ -207,7 +207,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
 	// Check if the circular buffer is full
-	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
 		return FALSE;
 	}
 
@@ -248,7 +248,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
-	if(!m_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
 		return FALSE;
 	}
 
@@ -262,7 +262,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 // callback if the neighbors died
 void csmaMAC::UpdateNeighborTable(){
 
-	UINT8 numberOfDeadNeighbors = m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
+	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 
 	if(numberOfDeadNeighbors > 0)
 	{
@@ -275,17 +275,17 @@ void csmaMAC::UpdateNeighborTable(){
 		{
 			// Make the neighbor changed callback signalling dead neighbors
 			//(*appHandler)((INT16) ((-1) *numberOfDeadNeighbors));
-			(*appHandler)((INT16) (m_NeighborTable.NumberOfNeighbors()));
+			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
 		}
 	}
-	//m_NeighborTable.DegradeLinks();
+	//g_NeighborTable.DegradeLinks();
 }
 
 // Called by the mac for retrying in case of failed packets 
 BOOL csmaMAC::Resend(void* msg, int Size)
 {
 	// Try and push the packet back into the buffer
-	if(!m_send_buffer.Store(msg, Size)) 
+	if(!g_send_buffer.Store(msg, Size))
 		return FALSE;
 		
 	return TRUE;
@@ -293,14 +293,14 @@ BOOL csmaMAC::Resend(void* msg, int Size)
 
 void csmaMAC::SendToRadio(){
 	// if we have more than one packet in the send buffer we will switch on the timer that will be used to flush the packets out
-	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",m_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
-	if ( (m_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
+	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
+	if ( (g_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
 		DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
 		//gHalTimerManagerObject.StartTimer(3);
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = true;
 	}
-	else if ( (m_send_buffer.GetNumberMessagesInBuffer() == 0) && (flushTimerRunning == true) ){
+	else if ( (g_send_buffer.GetNumberMessagesInBuffer() == 0) && (flushTimerRunning == true) ){
 		DEBUG_PRINTF_CSMA("stop FLUSHBUFFER3\r\n");
 		//gHalTimerManagerObject.StopTimer(3);
 		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
@@ -308,7 +308,7 @@ void csmaMAC::SendToRadio(){
 	}
 
 
-	if(!m_send_buffer.IsEmpty() && !RadioAckPending){
+	if(!g_send_buffer.IsEmpty() && !RadioAckPending){
 
 		m_recovery = 1;
 
@@ -340,12 +340,12 @@ void csmaMAC::SendToRadio(){
 			return;
 		}
 
-		//Message_15_4_t** temp = m_send_buffer.GetOldestPtr();
+		//Message_15_4_t** temp = g_send_buffer.GetOldestPtr();
 		//Message_15_4_t* msg = *temp;
 		
 		Message_15_4_t txMsg;
 		Message_15_4_t* txMsgPtr = &txMsg;
-		Message_15_4_t** tempPtr = m_send_buffer.GetOldestPtr();
+		Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 		Message_15_4_t* msgPtr = *tempPtr;
 		memset(txMsgPtr, 0, msgPtr->GetMessageSize());
 		memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
@@ -397,10 +397,10 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
-			if(m_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
+			if(g_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				if(m_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
+				if(g_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
 				{
 					////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
 					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
@@ -416,13 +416,13 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 			else
 			{
-				m_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+				g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
 #if 0
-				m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
-				m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)m_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
-				m_NeighborTable.Neighbor[index].PacketsReceived++;
-				m_NeighborTable.Neighbor[index].LastHeardTime = HAL_Time_CurrentTicks();
-				m_NeighborTable.Neighbor[index].Status = Alive;
+				g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
+				g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
+				g_NeighborTable.Neighbor[index].PacketsReceived++;
+				g_NeighborTable.Neighbor[index].LastHeardTime = HAL_Time_CurrentTicks();
+				g_NeighborTable.Neighbor[index].Status = Alive;
 #endif
 			}
 			return msg;
@@ -435,12 +435,12 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		return msg;
 	}
 	// Implement bag exchange if the packet type is data
-	Message_15_4_t** next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
+	Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
 
 	if(! (next_free_buffer))
 	{
-		m_receive_buffer.DropOldest(1);
-		next_free_buffer = m_receive_buffer.GetNextFreeBufferPtr();
+		g_receive_buffer.DropOldest(1);
+		next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
 	}
 
 	//Implement bag exchange, by actually switching the contents.
@@ -462,19 +462,19 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	}
 
 	GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
-	(*appHandler)(msg, m_receive_buffer.GetNumberMessagesInBuffer());
+	(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
 	if(rcv_msg_hdr->dest == MAC_BROADCAST_ADDRESS){
 
 		// Nived.Sivadas - changing interfaces with new dll design
-		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
 		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,FALSE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
 		//HandleBroadcastMessage(msg);
 	}else if(rcv_msg_hdr->dest == CPU_Radio_GetAddress(this->radioName)){
 		//HandleUnicastMessage(msg);
-		(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+		(*appHandler)(g_receive_buffer.GetNumberMessagesInBuffer());
 		//(*appHandler)(msg->GetPayload(), Size- sizeof(IEEE802_15_4_Header_t), rcv_msg_hdr->src,TRUE,rcv_meta->GetRssi(), rcv_meta->GetLqi());
 	}
 	else {
@@ -509,7 +509,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler;
 				(*appHandler)(msg, Size, status);
 				// Attempt to send the next packet out since we have no scheduler
-				if(!m_send_buffer.IsBufferEmpty())
+				if(!g_send_buffer.IsBufferEmpty())
 					SendFirstPacketToRadio(NULL);
 			}
 			break;
@@ -534,6 +534,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 }
 
 UINT8 csmaMAC::GetBufferSize(){
-	return m_send_buffer.Size();
+	return g_send_buffer.Size();
 }
 

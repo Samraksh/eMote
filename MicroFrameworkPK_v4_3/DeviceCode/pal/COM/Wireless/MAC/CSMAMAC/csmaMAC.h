@@ -25,9 +25,9 @@
 
 #define DISCOVERY_FREQUENCY 200
 
-extern Buffer_15_4_t m_send_buffer;
-extern Buffer_15_4_t m_receive_buffer;
-extern NeighborTable m_NeighborTable;
+extern Buffer_15_4_t g_send_buffer;
+extern Buffer_15_4_t g_receive_buffer;
+extern NeighborTable g_NeighborTable;
 
 //#define DEBUG_CSMAMAC 1
 
@@ -79,13 +79,13 @@ public:
 	void SendToRadio();
 	void UpdateNeighborTable();
 	UINT8 GetBufferSize();
-	UINT16 GetSendPending(){ return m_send_buffer.GetNumberMessagesInBuffer();}
-	UINT16 GetReceivePending(){return m_receive_buffer.GetNumberMessagesInBuffer();}
+	UINT16 GetSendPending(){ return g_send_buffer.GetNumberMessagesInBuffer();}
+	UINT16 GetReceivePending(){return g_receive_buffer.GetNumberMessagesInBuffer();}
 
 	DeviceStatus SendHello();
 
-	NeighborTable* GetNeighborTable(){return &m_NeighborTable;}
-	Neighbor_t* GetNeighbor(UINT16 macAddress){return m_NeighborTable.GetNeighborPtr(macAddress); }
+	NeighborTable* GetNeighborTable(){return &g_NeighborTable;}
+	Neighbor_t* GetNeighbor(UINT16 macAddress){return g_NeighborTable.GetNeighborPtr(macAddress); }
 
 };
 
