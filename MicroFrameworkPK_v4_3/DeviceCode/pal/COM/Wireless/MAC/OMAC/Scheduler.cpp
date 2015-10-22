@@ -165,7 +165,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		VirtTimer_Start(HAL_SLOT_TIMER2);
 	}
 	else{
-		assert(1==0);
+		ASSERT(1==0);
 	}
 //
 //	BOOL* completionFlag = (BOOL*)false;

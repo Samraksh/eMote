@@ -118,6 +118,11 @@ static void add_trx_ur() { }
 static void add_download_error() { }
 #endif
 
+static inline BOOL isInterrupt()
+{
+    return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0);
+}
+
 void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status) {
 	SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(msg, size, status);
@@ -137,10 +142,9 @@ void RF231Radio::Wakeup() {
 	}
 }
 
+// For when interrupts are disabled. Checks radio IRQ pin.
 BOOL RF231Radio::Interrupt_Pending() {
-	if ( RF231RADIOLR == this->GetRadioName() && EXTI_GetITStatus(INTERRUPT_PIN_LR % 16) == SET ) { return TRUE; }
-	else if ( EXTI_GetITStatus(INTERRUPT_PIN % 16) == SET ) { return TRUE; }
-	return FALSE;
+	return (EXTI_GetITStatus(kinterrupt % 16) == SET ) ? TRUE : FALSE;
 }
 
 // Not for use with going to BUSY_TX, etc.
@@ -178,7 +182,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 				switch(trx_status) {
 					case RF230_BUSY_RX: state = STATE_BUSY_RX; break;
 					case RF230_BUSY_TX: state = STATE_BUSY_TX; break;
-					default: ASSERT(0);
+					default: state = STATE_BUSY_RX; ASSERT(0); // Unknown, put in RX state for lack of anything better.
 				}
 				return FALSE;
 			}
@@ -186,7 +190,8 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	} while(trx_status != target);
 
 	// Check one last time for interrupt.
-	if ( Interrupt_Pending() ) { return FALSE; }
+	// Not clear how this could happen, but assume it would be an RX. --NPS
+	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX; return FALSE; }
 
 	// We made it!
 	return TRUE;
@@ -215,6 +220,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	if ( !IsInitialized() ) {
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
+
+	ASSERT ( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
@@ -559,6 +566,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	if ( !IsInitialized() ) {
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
+
+	ASSERT ( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
