@@ -25,6 +25,48 @@ DataTransmissionHandler g_DataTransmissionHandler;
 void PublicTXEndHCallback(void * param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 }
+
+UINT64 DataTransmissionHandler::GetTxTicks()
+{
+	//return m_nextTXTicks;
+}
+
+UINT32 DataTransmissionHandler::GetTxCounter()
+{
+	//return m_nextTXCounter;
+}
+
+void DataTransmissionHandler::SetTxTicks(UINT64 tmp_nextTXTicks)
+{
+	//m_nextTXTicks = tmp_nextTXTicks;
+}
+
+void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
+{
+	//m_nextTXCounter = tmp_nextTXCounter;
+}
+
+INT64 DataTransmissionHandler::GetNeighborGlobalTime()
+{
+	return m_nbrGlobalTime;
+}
+
+UINT32 DataTransmissionHandler::GetNeighborWakeupSlot()
+{
+	return m_nbrWakeupSlot;
+}
+
+void DataTransmissionHandler::SetNeighborGlobalTime(INT64 tmp_nbrGlobalTime)
+{
+	m_nbrGlobalTime = tmp_nbrGlobalTime;
+}
+
+void DataTransmissionHandler::SetNeighborWakeupSlot(UINT32 tmp_nbrWakeupSlot)
+{
+	m_nbrWakeupSlot = tmp_nbrWakeupSlot;
+}
+
+
 /*
  *
  */

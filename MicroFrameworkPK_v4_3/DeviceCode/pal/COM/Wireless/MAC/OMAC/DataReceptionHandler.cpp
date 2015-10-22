@@ -28,6 +28,19 @@ void PublicReceiveHCallback(void * param){
 	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
 
+
+
+UINT32 DataReceptionHandler::GetWakeupSlot()
+{
+	//return m_nextWakeupSlot;
+}
+
+void DataReceptionHandler::SetWakeupSlot(UINT32 tmp_nextWakeupSlot)
+{
+	//m_nextWakeupSlot = tmp_nextWakeupSlot;
+}
+
+
 /*
  *
  */
@@ -77,7 +90,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT32 &wakeupSlot, 
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
 	}
-	assert(wakeupSlot  > currentSlotNum);
+	ASSERT(wakeupSlot  > currentSlotNum);
 }
 /*
  *
