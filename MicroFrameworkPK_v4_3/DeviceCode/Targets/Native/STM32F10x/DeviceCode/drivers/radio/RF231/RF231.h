@@ -538,8 +538,6 @@ public:
 
 	DeviceStatus TurnOnRx();
 
-	DeviceStatus TurnOnPLL();
-
 	DeviceStatus TurnOff();
 
 	DeviceStatus StandBy();
