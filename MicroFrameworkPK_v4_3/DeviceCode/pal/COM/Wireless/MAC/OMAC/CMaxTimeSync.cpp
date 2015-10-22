@@ -30,7 +30,7 @@ BOOL GlobalTime::synced=FALSE;
 
 // Ananth
 
-//#define TWO_NODES_TX_RX
+#define TWO_NODES_TX_RX
 
 #if defined(TWO_NODES_TX_RX)
 #define TXNODEID 3505
@@ -38,7 +38,7 @@ BOOL GlobalTime::synced=FALSE;
 #endif
 
 //#define FAN_OUT
-#define FAN_IN
+//#define FAN_IN
 
 #if defined(FAN_OUT)
 #define RXNODEID1 3505

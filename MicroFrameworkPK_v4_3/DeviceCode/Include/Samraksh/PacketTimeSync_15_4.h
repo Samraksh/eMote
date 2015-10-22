@@ -20,7 +20,7 @@
 //#define TXRXOFFSET 1320 //Used with seperated test with OMAC
 //#define TXRXOFFSET 1820 //Used with seperated tests piggybacked discovery
 //For debug version
-#define TXRXOFFSET 600
+#define TXRXOFFSET -6500
 //For release version
 //#define TXRXOFFSET 820
 //2420

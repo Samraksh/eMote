@@ -194,6 +194,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
 	UINT32 eventOffset;
 	UINT32 timestamp;
 
@@ -270,6 +271,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
+
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
 	return temp;
 }
@@ -536,6 +539,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
+	CPU_GPIO_SetPinState( RF231_TX, TRUE );
 	UINT32 eventOffset;
 	UINT32 timestamp;
 
@@ -602,6 +606,8 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
+
+	CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
 	return temp;
 }
@@ -720,6 +726,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
 
+	CPU_GPIO_EnableOutputPin(RF231_TURN_ON_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_TX_TIMESTAMP, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_TX, FALSE);
@@ -1028,6 +1035,8 @@ DeviceStatus RF231Radio::TurnOnRx()
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 
+	CPU_GPIO_SetPinState( RF231_TURN_ON_RX, TRUE );
+
 	////hal_printf("RF231Radio::TurnOnRx: before state:%d\n", state);
 	sleep_pending = FALSE;
 
@@ -1073,7 +1082,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 	hal_printf("RF231: RX_ON\r\n");
 #	endif
 
-	//CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
+	CPU_GPIO_SetPinState( RF231_TURN_ON_RX, FALSE );
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
 

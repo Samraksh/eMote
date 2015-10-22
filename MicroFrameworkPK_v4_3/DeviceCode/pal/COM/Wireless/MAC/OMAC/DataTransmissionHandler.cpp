@@ -61,12 +61,13 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	//tx time, tx immediately
 	ScheduleDataPacket();
 
-	if( (m_outgoingEntryPtr == NULL) || (g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest) == NULL )
-	   ){ //Either Dont have packet to send or missing timing for the destination
+	if( (m_outgoingEntryPtr == NULL) || (g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest) == NULL ) ) {
+	    //Either Dont have packet to send or missing timing for the destination
 		return 0xffffffffffffffff;
 	}
 	else {
-		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(m_outgoingEntryPtr->GetHeader()->dest, g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
+		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 curTicks = HAL_Time_CurrentTicks();
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 		//UINT64 curTicks = HAL_Time_CurrentTicks();
@@ -86,8 +87,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
 			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
 	DeviceStatus e = DS_Fail;
-	e = g_omac_RadioControl.StartRx();
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	//e = g_omac_RadioControl.StartRx();
 	bool rv = Send();
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	//m_neighborNextEventTimeinTicks = 0;
 	PostExecuteEvent();
 }
@@ -181,6 +184,8 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 bool DataTransmissionHandler::Send(){
 	ASSERT(m_outgoingEntryPtr != NULL);
 
+	DeviceStatus rs;
+
 	//Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	//m_outgoingEntryPtr->GetHeader()->dest = sn->MacAddress;
 
@@ -191,10 +196,9 @@ bool DataTransmissionHandler::Send(){
 	UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
 	UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
 
-	IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
+	/*IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
 	header->dest = dest;
 	header->type = MFM_DATA;
-
 
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	//if(dest == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
@@ -203,7 +207,22 @@ bool DataTransmissionHandler::Send(){
 	DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(dest, msgPtr, msgsize,  time_stamp );
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 
-	return true;
+	return true;*/
+
+	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
+		////hal_printf("DataTransmissionHandler::Send calling Send\n");
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
+	}
+	else {
+		//hal_printf("DataTransmissionHandler::Send msg size %u\n", m_outgoingEntryPtr->GetMessageSize());
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
+	}
+	//}
+
+	if(rs != DS_Success)
+		return false;
+	else
+		return true;
 }
 
 /*
