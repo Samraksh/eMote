@@ -281,8 +281,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		UINT16 dest;
 		Neighbor_t* neighborEntry;
 
-
-		if (m_outgoingEntryPtr == NULL) {
+		/*if (m_outgoingEntryPtr == NULL) {
 			//m_outgoingEntryPtr = g_OMAC.FindFirstSyncedNbrMessage();
 			m_outgoingEntryPtr = g_send_buffer.GetOldest();
 			//m_outgoingEntryPtr = g_send_buffer.GetNextFreeBuffer();
@@ -290,7 +289,15 @@ void DataTransmissionHandler::ScheduleDataPacket()
 				//hal_printf("m_outgoingEntryPtr is null\n");
 				return;
 			}
+		}*/
+
+		//Schedule the oldest packet
+		m_outgoingEntryPtr = g_send_buffer.GetOldest();
+		if (m_outgoingEntryPtr == NULL) {
+			//hal_printf("m_outgoingEntryPtr is null\n");
+			return;
 		}
+
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
 		neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 		if (neighborEntry != NULL) {
