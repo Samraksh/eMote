@@ -92,7 +92,7 @@ void ApplicationEntryPoint()
     {
         LCD_Clear();
         
-        hal_fprintf( STREAM_LCD, "TinyBooter v1.0\r\n");
+        hal_fprintf( STREAM_LCD, "TinyBooter v%d\r\n",TINYBOOTER_REVISION);
         hal_fprintf( STREAM_LCD, "%s Build Date:\r\n\t%s %s\r\n", HalName, __DATE__, __TIME__ );
 
         DebuggerPort_Initialize( HalSystemConfig.DebuggerPorts[ 0 ] );
@@ -100,15 +100,20 @@ void ApplicationEntryPoint()
         TinyBooter_OnStateChange( State_EnterBooterMode, NULL );
 
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort  );
-        hal_printf( "TinyBooter v1.0\r\n");
+#if defined(COMPILE_CUSTOMER_RELEASE)
+        hal_printf( "TinyBooter v%d\r\n",TINYBOOTER_REVISION);
         hal_printf( "Platform: %s\r\n", HalName );
         hal_printf( "Build Date %s\r\n", __DATE__);
+#else
+        hal_printf( "TinyBooter v%d\r\n",TINYBOOTER_REVISION);
+        hal_printf( "Platform %s\r\n", HalName );
+        hal_printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );		
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
-        //hal_printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
+        hal_printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
 #if defined(__GNUC__)
         hal_printf("GNU Compiler version %d.%d.%d\r\n", __GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__);
-        /*hal_printf("Optimization: %s, %s\r\n",
+        hal_printf("Optimization: %s, %s\r\n",
 #if defined(__OPTIMIZE__)
                 "speed-optimized"
 #else
@@ -120,7 +125,7 @@ void ApplicationEntryPoint()
 #else
                 "no-size-optimization"
 #endif
-        );*/
+        );
 #elif defined(_ARC)
         hal_printf("ARC Compiler version %d\r\n", _ARCVER);
 #elif defined(__ADSPBLACKFIN__)
@@ -130,6 +135,7 @@ void ApplicationEntryPoint()
 #else
         hal_printf( "ARM Compiler version %d\r\n", __ARMCC_VERSION );
 #endif
+#endif // COMPILE_CUSTOMER_RELEASE
         DebuggerPort_Flush( HalSystemConfig.DebugTextPort );
 
 		for (int i=0; i<1000; i++){}
