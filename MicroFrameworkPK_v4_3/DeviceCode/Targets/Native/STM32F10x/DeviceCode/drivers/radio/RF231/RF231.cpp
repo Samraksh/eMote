@@ -44,6 +44,7 @@ static volatile uint64_t irq_causes[16];
 static volatile uint32_t size_log[32];
 static volatile uint64_t trx_ur_times[16];
 static volatile uint64_t download_error_times[16];
+static volatile uint64_t int_pend_times[16];
 
 static void add_size(uint32_t size) {
 	static int index=0;
@@ -105,6 +106,11 @@ static void add_download_error() {
 	download_error_times[index] = HAL_Time_CurrentTicks();
 	index = (++index) % 16;
 }
+static void add_int_pend() {
+	static int index=0;
+	int_pend_times[index] = HAL_Time_CurrentTicks();
+	index = (++index) % 16;
+}
 #else
 static void add_size(uint32_t size) { }
 static void add_irq_time(uint32_t cause) { }
@@ -116,6 +122,7 @@ static void add_rx_time() { }
 static void add_send_done() { }
 static void add_trx_ur() { }
 static void add_download_error() { }
+static void add_int_pend() { }
 #endif
 
 static inline BOOL isInterrupt()
@@ -144,7 +151,17 @@ void RF231Radio::Wakeup() {
 
 // For when interrupts are disabled. Checks radio IRQ pin.
 BOOL RF231Radio::Interrupt_Pending() {
+#ifndef NATHAN_DEBUG_JUNK
 	return (EXTI_GetITStatus(kinterrupt % 16) == SET ) ? TRUE : FALSE;
+#else
+	if (EXTI_GetITStatus(kinterrupt % 16) == SET) {
+		add_int_pend();
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+#endif
 }
 
 // Not for use with going to BUSY_TX, etc.
