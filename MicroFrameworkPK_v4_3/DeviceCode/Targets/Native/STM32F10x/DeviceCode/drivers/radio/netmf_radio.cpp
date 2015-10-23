@@ -226,6 +226,8 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
 // This function calls the corresponding radio turn on function based on the input radio id
 DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID)
 {
+	return DS_Success;
+	/* Should not be user exposed. The driver handles this. --NPS
 	DeviceStatus status = DS_Fail;
 
 	switch(radioID)
@@ -244,6 +246,7 @@ DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID)
 
 	ASSERT_NOFAIL(status);
 	return status;
+	*/
 }
 
 

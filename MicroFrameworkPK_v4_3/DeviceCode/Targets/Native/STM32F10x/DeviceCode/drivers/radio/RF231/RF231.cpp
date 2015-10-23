@@ -509,9 +509,17 @@ DeviceStatus RF231Radio::Sleep(int level)
 	if(state == STATE_SLEEP) { return DS_Success; }
 
 	// Queue the sleep request if we think we are busy.
-	if(state == STATE_BUSY_TX || state == STATE_BUSY_RX) { return DS_Success; }
+	//if(state == STATE_BUSY_TX || state == STATE_BUSY_RX) { return DS_Success; } // This is now done in Careful_State_Change()
 
-	// Read current state of radio to be sure.
+	// Go to TRX_OFF
+	if ( Careful_State_Change(RF230_TRX_OFF) ) {
+		state = STATE_TRX_OFF;
+	}
+	else { // If we are busy that's OK, the sleep request is still queued.
+		return DS_Success;
+	}
+
+	// Read current state of radio to be sure. --Update, I'm actually sure now, but we'll leave it. --NPS
 	regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 
 	// Observe that I am trying, perhaps stupidly, to be clever with fall-through here... --NPS
@@ -1098,6 +1106,7 @@ DeviceStatus RF231Radio::TurnOnRx()
 
 // This function moves the radio from sleep to RX_ON
 //template<class T>
+/*
 DeviceStatus RF231Radio::TurnOnPLL()
 {
 	INIT_STATE_CHECK();
@@ -1149,6 +1158,7 @@ DeviceStatus RF231Radio::TurnOnPLL()
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	return DS_Success;
 }	//RF231Radio::TurnOnPLL()
+*/
 
 
 //template<class T>
@@ -1282,6 +1292,7 @@ void RF231Radio::HandleInterrupt()
 	if( irq_cause & UNSUPPORTED_INTERRUPTS ) {
 		add_trx_ur();
 		if (cmd == CMD_TRANSMIT) { ASSERT_RADIO(0); }
+		//cmd = CMD_NONE; // Thinking about this... --NPS
 		// else it was an RX overrun and we live with it.
 	}
 
@@ -1379,7 +1390,6 @@ void RF231Radio::HandleInterrupt()
 #					ifdef DEBUG_RF231
 					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
 #					endif
-					cmd = CMD_NONE;
 					return;
 				}
 
@@ -1416,6 +1426,7 @@ void RF231Radio::HandleInterrupt()
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
+		else { ASSERT(0); } // Unknown CMD
 	}
 
 	if(sleep_pending)
