@@ -97,7 +97,8 @@ void PowerInit() {
 
 #if defined(SAM_APP_TINYBOOTER)
 	//High_Power();
-	Low_Power();
+	Mid_Power();
+	//Low_Power();
 	return;
 	// Its important that we return before doing HSI calibration.
 	// For some reason if we do it here and TinyCLR it freezes.
@@ -322,8 +323,10 @@ void Low_Power() {
 
 	// Set flash speeds
 	FLASH_SetLatency(FLASH_Latency_0);
+#if !defined(SAM_APP_TINYBOOTER) // Can't touch this in TinyBooter, breaks backwards compatibility.
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Disable);
 	FLASH_HalfCycleAccessCmd(FLASH_HalfCycleAccess_Enable);
+#endif
 
 	stm_power_state = POWER_STATE_LOW;
 
