@@ -29,9 +29,9 @@ void CPU_ChangePowerLevel(POWER_LEVEL level) {
 	*/
 }
 
-
+// Don't sleep so we have easy JTAG grab.
 void CPU_Sleep( SLEEP_LEVEL level, UINT64 wakeEvents ) {
-	Sleep();
+
 }
 
 void CPU_Halt() {

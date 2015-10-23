@@ -19,10 +19,7 @@ static const int PWR_HSI_DEFAULT_TRIM = 16;
 
 void PowerInit() {
 
-	if(JTAG_Attached() > 0) // ... when JTAG is attached, artificially raise lowest power mode to support JTAG connection.
-	{
-		DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
-	}
+	//DBGMCU_Config(DBGMCU_SLEEP | DBGMCU_STANDBY | DBGMCU_STOP, ENABLE);
 
 	RCC_AdjustHSICalibrationValue(PWR_HSI_DEFAULT_TRIM); // Load default HSI setting
 	RCC_LSICmd(DISABLE); // I think its already off anyway... --NPS
@@ -188,7 +185,7 @@ void High_Power() {
 	restart_peripherals();
 }
 
-
+// Note: This is never called
 void Sleep() {
 	__DSB();
 	__WFI();
