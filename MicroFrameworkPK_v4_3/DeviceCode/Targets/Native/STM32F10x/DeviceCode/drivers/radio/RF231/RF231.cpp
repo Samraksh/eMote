@@ -182,8 +182,8 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 
 	if (target == trx_status) { return TRUE; } // already there!
 
-	// Make sure we're in a valid state to move.
-	if(cmd != CMD_NONE || state == STATE_BUSY_TX || state == STATE_BUSY_RX || Interrupt_Pending() )
+	// Make sure we're not busy and can move.
+	if ( trx_status == BUSY_RX || trx_status == BUSY_TX || Interrupt_Pending() )
 	{
 		return FALSE;
 	}
@@ -209,6 +209,12 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	// Check one last time for interrupt.
 	// Not clear how this could happen, but assume it would be an RX. --NPS
 	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX; return FALSE; }
+	
+	// Reset cmd here just to be clean.
+	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
+	{
+		cmd = CMD_NONE;
+	}
 
 	// We made it!
 	return TRUE;
