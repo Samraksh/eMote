@@ -69,6 +69,9 @@ public:
 	}
 
 	MessageT* GetFirstFullBuffer(){
+		if(this->IsEmpty()){
+			return (Message_15_4_t*)(NULL);
+		}
 		MessageT* rtn = msgPtr[firstFullBuffer];
 		firstFullBuffer += 1;
 		if(firstFullBuffer >= BufferSizeT){
@@ -83,6 +86,9 @@ public:
 	}
 
 	MessageT** GetFirstFullBufferPtr(){
+		if(this->IsEmpty()){
+			return (Message_15_4_t**)(NULL);
+		}
 		MessageT** rtn = &msgPtr[firstFullBuffer];
 		firstFullBuffer += 1;
 		if(firstFullBuffer >= BufferSizeT){
@@ -97,6 +103,9 @@ public:
 	}
 
 	MessageT* GetLastFullBuffer(){
+		if(this->IsEmpty()){
+			return (Message_15_4_t*)(NULL);
+		}
 		nextCleanBuffer -= 1;
 		UINT8 lastFullBuffer = nextCleanBuffer % BufferSizeT;
 		MessageT* rtn = msgPtr[lastFullBuffer];

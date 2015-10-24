@@ -105,9 +105,12 @@ void DataReceptionHandler::ExecuteEvent(){
 		//SendDataBeacon(FALSE);
 		hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
 		//hal_printf("DataReceptionHandler::ExecuteEvent CurTicks: %llu currentSlotNum: %d m_nextWakeupSlot: %d \n",HAL_Time_CurrentTicks(), slotNum, m_nextWakeupSlot);
+		VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 	}
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+	else{
+		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
+	}
 }
 
 /*
