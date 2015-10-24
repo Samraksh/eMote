@@ -22,6 +22,8 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 DataTransmissionHandler g_DataTransmissionHandler;
 
+static BOOL isDataPacketScheduled = false;
+
 void PublicTXEndHCallback(void * param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 }
@@ -104,7 +106,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	ScheduleDataPacket();
 
 	if( (m_outgoingEntryPtr == NULL) || (g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest) == NULL ) ) {
-	    //Either Dont have packet to send or missing timing for the destination
+		//Either Dont have packet to send or missing timing for the destination
 		return 0xffffffffffffffff;
 	}
 	else {
@@ -220,6 +222,11 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 */
 }
 
+/*typedef struct  {
+	UINT32 MSGID;
+	char* msgContent;
+}Payload_t_ping;*/
+
 /*
  *
  */
@@ -234,43 +241,59 @@ bool DataTransmissionHandler::Send(){
 	m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 	Message_15_4_t* msgPtr = m_outgoingEntryPtr;
 
-	UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
-	UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
-	UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
+	//Send only when packet has been scheduled
+	if(isDataPacketScheduled){
+		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
+		UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
+		UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
 
-	/*IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
-	header->dest = dest;
-	header->type = MFM_DATA;
+		/*IEEE802_15_4_Header_t * header = m_outgoingEntryPtr->GetHeader();
+		header->dest = dest;
+		header->type = MFM_DATA;
 
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	//if(dest == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
-	//	DeviceStatus ds = g_omac_scheduler.m_DiscoveryHandler.Beacon(dest, &(g_omac_scheduler.m_DiscoveryHandler.m_discoveryMsgBuffer));
-	//}
-	DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(dest, msgPtr, msgsize,  time_stamp );
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		//if(dest == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
+		//	DeviceStatus ds = g_omac_scheduler.m_DiscoveryHandler.Beacon(dest, &(g_omac_scheduler.m_DiscoveryHandler.m_discoveryMsgBuffer));
+		//}
+		DeviceStatus rs = g_omac_RadioControl.Send_TimeStamped(dest, msgPtr, msgsize,  time_stamp );
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 
-	return true;*/
+		return true;*/
 
-	if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
-		////hal_printf("DataTransmissionHandler::Send calling Send\n");
-		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
+		////hal_printf("DataTransmissionHandler::Send elements in sendBuffer: %d\n", g_send_buffer.GetNumberMessagesInBuffer());
+		Payload_t_ping* pingPayload = (Payload_t_ping*)m_outgoingEntryPtr->GetPayload();
+		if(pingPayload->MSGID > 29){
+			hal_printf("Reached 75\n");
+			Payload_t_ping* pingPayload = (Payload_t_ping*)m_outgoingEntryPtr->GetPayload();
+		}
+
+		if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
+			hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
+			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
+		}
+		else {
+			hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
+			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
+		}
+		//}
+
+		//set flag to false after packet has been sent
+		isDataPacketScheduled = false;
+
+		if(rs != DS_Success)
+			return false;
+		else
+			return true;
 	}
-	else {
-		//hal_printf("DataTransmissionHandler::Send msg size %u\n", m_outgoingEntryPtr->GetMessageSize());
-		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
-	}
-	//}
-
-	if(rs != DS_Success)
+	else{
 		return false;
-	else
-		return true;
+	}
 }
 
 /*
- *
+ * Schedule a data packet only if a neighbor is found or there are msgs in the buffer
  */
-void DataTransmissionHandler::ScheduleDataPacket()
+BOOL DataTransmissionHandler::ScheduleDataPacket()
 {
 	// do not schedule a new tx if
 	// 1) we've already scheduled an tx task (m_nextTXTicks >= now), or
@@ -292,10 +315,11 @@ void DataTransmissionHandler::ScheduleDataPacket()
 		}*/
 
 		//Schedule the oldest packet
+		hal_printf("Scheduling oldest packet\n");
 		m_outgoingEntryPtr = g_send_buffer.GetOldest();
 		if (m_outgoingEntryPtr == NULL) {
 			//hal_printf("m_outgoingEntryPtr is null\n");
-			return;
+			return FALSE;
 		}
 
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
@@ -304,7 +328,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 				//m_neighborNextEventTimeinTicks = 0;
-				return;
+				return FALSE;
 			}
 
 			UINT64 y = HAL_Time_CurrentTicks();
@@ -312,7 +336,7 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			if (neighborTimeinTicks == 0){
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
 				//m_neighborNextEventTimeinTicks = 0;
-				return;
+				return FALSE;
 			}
 			UINT32 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			//TODO: This part needs to be changed to reflect the chnages in wakeup scheduler
@@ -327,16 +351,21 @@ void DataTransmissionHandler::ScheduleDataPacket()
 			//m_neighborNextEventTimeinTicks = g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS;
 
 			//END OF TOD O
-			hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::ScheduleDataPacket() NeighbornextwakeupSlot = %lu \n"
-					,HAL_Time_TicksToTime(y), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(neighborTimeinTicks), neighborSlot, neighborEntry->nextwakeupSlot );
+			/*hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::ScheduleDataPacket() NeighbornextwakeupSlot = %lu \n"
+					,HAL_Time_TicksToTime(y), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(neighborTimeinTicks), neighborSlot, neighborEntry->nextwakeupSlot );*/
 
+			//set below flag to indicate Send function that a packet has been scheduled
+			isDataPacketScheduled = true;
+			return TRUE;
 		}
 		else {
 			hal_printf("Cannot find nbr %u\n", dest);
+			return FALSE;
 			//m_neighborNextEventTimeinTicks = 0;
 		}
 	}
 	else{
+		return FALSE;
 		//m_neighborNextEventTimeinTicks = 0;
 	}
 }

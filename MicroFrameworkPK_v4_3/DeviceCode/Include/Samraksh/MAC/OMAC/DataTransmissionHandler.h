@@ -50,7 +50,7 @@ public:
 	void PostExecuteEvent();
 
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
-	void ScheduleDataPacket();
+	BOOL ScheduleDataPacket();
 	bool Send();
 
 	UINT64 GetTxTicks();
