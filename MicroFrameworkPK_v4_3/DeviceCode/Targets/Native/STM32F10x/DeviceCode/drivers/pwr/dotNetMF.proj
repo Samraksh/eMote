@@ -42,6 +42,7 @@
     <HFiles Include="netmf_pwr.h" />
 	<HFiles Include="..\usart\sam_usart.h" />
 	<HFiles Include="netmf_pwr_wakelock.h" />
+	<HFiles Include="..\sam_cortexM3.h" />
     <Compile Include="netmf_pwr.cpp" />
 	<Compile Include="netmf_pwr_functions.cpp" />
   </ItemGroup>

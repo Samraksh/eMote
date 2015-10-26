@@ -42,6 +42,7 @@
     <HFiles Include="SimplePower.h" />
     <Compile Include="SimplePower.cpp" />
 	<Compile Include="netmf_pwr_functions.cpp" />
+	<HFiles Include="..\sam_cortexM3.h" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
