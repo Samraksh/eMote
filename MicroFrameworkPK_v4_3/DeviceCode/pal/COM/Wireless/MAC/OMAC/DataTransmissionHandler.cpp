@@ -222,10 +222,10 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 */
 }
 
-/*typedef struct  {
+typedef struct  {
 	UINT32 MSGID;
 	char* msgContent;
-}Payload_t_ping;*/
+}Payload_t_ping;
 
 /*
  *
