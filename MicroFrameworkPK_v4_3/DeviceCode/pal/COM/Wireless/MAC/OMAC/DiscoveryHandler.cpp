@@ -186,7 +186,20 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 /*
  *
  */
-void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success){
+void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
+	if(status == NO_Busy){
+		hal_printf("NO_Busy - What do we do? Just ignore?\n");
+		m_busy = TRUE;
+	}
+	else if(status == NO_Success){
+		//hal_printf("SUCCESS!\n");
+		m_busy = FALSE;
+	}
+	else{
+		hal_printf("Need to investigate. Status: %d\n", status);
+		ASSERT(0);
+	}
+
 	if (msg != &m_discoveryMsgBuffer) {
 		////hal_printf("if m_busy DiscoveryHandler::BeaconAckHandler\n");
 		////m_busy = FALSE;
@@ -195,7 +208,6 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	}
 
 	////hal_printf("m_busy DiscoveryHandler::BeaconAckHandler\n");
-	m_busy = FALSE;
 	#ifndef DISABLE_SIGNAL
 			//call SlotScheduler.printState();
 			//signalBeaconDone(error, call GlobalTime.getLocalTime());

@@ -69,9 +69,6 @@ public:
 	}
 
 	MessageT* GetFirstFullBuffer(){
-		if(this->IsEmpty()){
-			return (Message_15_4_t*)(NULL);
-		}
 		MessageT* rtn = msgPtr[firstFullBuffer];
 		firstFullBuffer += 1;
 		if(firstFullBuffer >= BufferSizeT){
@@ -86,9 +83,6 @@ public:
 	}
 
 	MessageT** GetFirstFullBufferPtr(){
-		if(this->IsEmpty()){
-			return (Message_15_4_t**)(NULL);
-		}
 		MessageT** rtn = &msgPtr[firstFullBuffer];
 		firstFullBuffer += 1;
 		if(firstFullBuffer >= BufferSizeT){
@@ -103,9 +97,6 @@ public:
 	}
 
 	MessageT* GetLastFullBuffer(){
-		if(this->IsEmpty()){
-			return (Message_15_4_t*)(NULL);
-		}
 		nextCleanBuffer -= 1;
 		UINT8 lastFullBuffer = nextCleanBuffer % BufferSizeT;
 		MessageT* rtn = msgPtr[lastFullBuffer];
@@ -117,6 +108,11 @@ public:
 		return rtn;
 	}
 
+	void ClearBuffer(){
+		while(!IsEmpty()){
+			GetFirstFullBuffer();
+		}
+	}
 
 	BOOL IsFull(){
 #ifdef _DEBUG_BUFFER_
@@ -213,6 +209,10 @@ public:
 		}
 
 		return this->GetLastFullBuffer();
+	}
+
+	void Erase(){
+		this->ClearBuffer();
 	}
 
 	void DropOldest(UINT8 numMessages){

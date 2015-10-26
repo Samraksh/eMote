@@ -662,17 +662,17 @@ DeviceStatus RF231Radio::Sleep(int level)
 	return DS_Success;
 }*/
 
-/*typedef struct  {
+typedef struct  {
 	UINT32 MSGID;
 	char* msgContent;
-}Payload_t_ping;*/
+}Payload_t_ping;
 
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
-	/*Message_15_4_t* msgBeingSent = (Message_15_4_t*)msg;
+	Message_15_4_t* msgBeingSent = (Message_15_4_t*)msg;
 	Payload_t_ping* pingPayload = (Payload_t_ping*)msgBeingSent->GetPayload();
 	hal_printf(">>>>RF231Radio::Send pingPayload msgId: %d\n", pingPayload->MSGID);
-	hal_printf(">>>>RF231Radio::Send pingPayload msgContent: %s\n", pingPayload->msgContent);*/
+	hal_printf(">>>>RF231Radio::Send pingPayload msgContent: %s\n", pingPayload->msgContent);
 
 	UINT32 eventOffset;
 	UINT32 timestamp;
@@ -1538,7 +1538,7 @@ void RF231Radio::HandleInterrupt()
 
 			if(state == STATE_PLL_ON || state == STATE_BUSY_TX){
 				hal_printf("About to assert\n");
-				ASSERT(1);
+				ASSERT(0);
 			}
 			state = STATE_RX_ON; // Right out of BUSY_RX
 
@@ -1590,7 +1590,7 @@ void RF231Radio::HandleInterrupt()
 				CPU_GPIO_SetPinState( RF231_RX, FALSE );
 				/*if(state == STATE_PLL_ON || state == STATE_BUSY_TX){
 					hal_printf("About to assert\n");
-					ASSERT(1);
+					ASSERT(0);
 				}*/
 				return;
 			}

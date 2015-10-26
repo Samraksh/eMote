@@ -259,11 +259,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
-				hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
+				//hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 				////hal_printf("Successfully got a data packet\n");
 				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
-					hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
+					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
 				}
 				(*g_rxAckHandler)(msg, Size);
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
@@ -304,15 +304,38 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 
 }
 
+/*typedef struct  {
+	UINT32 MSGID;
+	char* msgContent;
+}Payload_t_ping;*/
+
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
 	if(g_send_buffer.IsFull()){
-		////hal_printf("OMACType::Send g_send_buffer full\n");
+		hal_printf("OMACType::Send g_send_buffer full. Clearing buffer\n");
+		g_send_buffer.Erase();
 		return FALSE;
 	}
+
+	/*Message_15_4_t* oldestMsg = g_send_buffer.GetOldest();
+	if(oldestMsg){
+		//Drop all msgs in the buffer
+		BOOL retVal = g_send_buffer.Erase();
+		if(!retVal)
+			return FALSE;
+
+		//If there is already a msg in the buffer, it means it has not been sent yet. So, just drop it.
+		while(oldestMsg){
+			//keep dropping msgs until buffer is empty
+			oldestMsg = g_send_buffer.GetOldest();
+			if(g_send_buffer.IsBufferEmpty()){
+				break;
+			}
+		}
+	}*/
 
 	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	//Message_15_4_t* msg_carrier;
@@ -340,6 +363,10 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 
 	else{
 		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
 	}
+
+	/*Payload_t_ping* pingPayload = (Payload_t_ping*) msg;
+	hal_printf(">>>>OMACType::Send pingPayload msgId: %d\n", pingPayload->MSGID);
+	hal_printf(">>>>OMACType::Send pingPayload msgContent: %s\n", pingPayload->msgContent);*/
 
 	UINT8* lmsg = (UINT8*) msg;
 	UINT8* payload = msg_carrier->GetPayload();
