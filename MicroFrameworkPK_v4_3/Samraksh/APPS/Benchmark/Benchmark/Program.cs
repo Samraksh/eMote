@@ -5,6 +5,7 @@ using Microsoft.SPOT.Hardware;
 using System.Threading;
 using System.Collections;
 using System.Text;
+using Samraksh.PDRDispDetect;
 //using Samraksh.eMote.DotNow;
 
 namespace Benchmark
@@ -12,7 +13,7 @@ namespace Benchmark
     public class Program
     {
 
-        const string VERSION = "Benchmark App v0.2 started. Running 7 tests.";
+        const string VERSION = "Benchmark App v0.2 started. Running tests.";
 
         const int TIMEBASE = 8000000; // in all power modes, 8 MHz is the timebase
         const int TIMEBASE_MS = TIMEBASE / 1000; // to get answer in milli-seconds
@@ -33,6 +34,8 @@ namespace Benchmark
         const int TEST_006_SEED = 5980;
         const int TEST_007_SIZE = 2500;
         const int TEST_008_SIZE = 5000;
+        const int TEST_009_SIZE = 1000;
+        const int TEST_009_SEED = 5980;
 
         private static uint PRE_TEST(PowerLevel pl)
         {
@@ -306,12 +309,49 @@ namespace Benchmark
             POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
         }
 
+        private static void TEST_009(PowerLevel pl = PowerLevel.High, int size = TEST_009_SIZE)
+        {
+            uint freeMem = PRE_TEST(pl);
+            long start = DateTime.Now.Ticks;
+            // START TEST CODE
+
+            // First, setup the random data.
+            // We probably don't want to measure this, but oh well.
+            Random rand = new Random(TEST_009_SEED);
+            int displacement = 0;
+            int i, q;
+            PDRDispDetect.reset();
+            PDRDispDetect.init(); // init after reset
+
+            // Setup the array
+            for (int j = 0; j < size; j++)
+            {
+                i = rand.Next(4096);
+                q = rand.Next(4096);
+                displacement += PDRDispDetect.unwrapPhase(i, q);
+            }
+            
+
+            // END TEST CODE
+            long diff = DateTime.Now.Ticks - start;
+            long diffms = diff / TIMEBASE_MS;
+            uint usedMem = Debug.GC(false);
+
+            PDRDispDetect.reset(); // Do this AFTER we count memory, so that the arcTan table is counted.
+
+            usedMem = (usedMem <= freeMem) ? freeMem - usedMem : 0;
+
+            // RESULT STRINGS
+            string desc = "Test 009: Radar Displacement Detector Phase Unwrap, Full C#, random data\r\n\tdisplacement: "+displacement;
+            POST_TEST(desc, pl, freeMem, usedMem, size, diffms);
+        }
+
         public static void Main()
         {
             Thread.Sleep(ERASE_WINDOW);
             //Debug.EnableGCMessages(true);
             Debug.Print(VERSION);
-
+            
             TEST_001(PowerLevel.High);
             TEST_001(PowerLevel.Medium);
             TEST_001(PowerLevel.Low);
@@ -338,6 +378,10 @@ namespace Benchmark
             TEST_008(PowerLevel.High);
             TEST_008(PowerLevel.Medium);
             TEST_008(PowerLevel.Low);
+
+            TEST_009(PowerLevel.High);
+            TEST_009(PowerLevel.Medium);
+            TEST_009(PowerLevel.Low);
 
             PowerState.ChangePowerLevel(PowerLevel.High);
             Debug.Print(TEST_SEP);
