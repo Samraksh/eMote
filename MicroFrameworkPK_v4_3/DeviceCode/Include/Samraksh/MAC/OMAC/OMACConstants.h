@@ -45,8 +45,11 @@
 #define MAX_UINT16 	(0xFFFF)
 #define MAX_UINT32 	(0xFFFFFFFF)
 #define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
+#define MID_UINT64  (0x7FFFFFFFFFFFFFFF)
 
 #define MAX_DATA_PCKT_SIZE 20
+
+
 /*
  *
  */
@@ -195,6 +198,56 @@ typedef struct DataBeacon {
 typedef struct OMacHeader {
   UINT8 flag;
 } OMacHeader;
+
+//Overflow provisioned class
+template<class Base_T>
+class OFProv:Base_T{
+public:
+	bool isThereOverflow(const Base_T& rhs){
+		if(rhs>*this){
+			if(rhs - *this <= MID_UINT64) return false;
+			else return true;
+		}
+		else{
+			if(*this - rhs <= MID_UINT64) return false;
+			else return true;
+		}
+	}
+	bool operator<(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs<*this) return true;
+			else false;
+		}
+		else{
+			if (rhs<*this) return true;
+			else return false;
+		}
+	}
+	bool operator>(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs>*this) return true;
+			else false;
+		}
+		else{
+			if (rhs>*this) return true;
+			else return false;
+		}
+	};
+	bool operator<=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this < *rhs);
+	}
+	bool operator>=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this > *rhs);
+	}
+};
+
+typedef OFProv<UINT64> OMACMicroSeconds;
+typedef OFProv<UINT64> OMACTicks;
+
 
 #define MICSECINMILISEC 1000
 #define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
