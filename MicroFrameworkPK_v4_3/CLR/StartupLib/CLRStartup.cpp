@@ -648,10 +648,13 @@ void ClrStartup( CLR_SETTINGS params )
 
         CLR_RT_Assembly::InitString();
 
+#if defined(PLATFORM_WINDOWS)
+#define SAM_VERSION_REVISION 0
+#endif
+
 #if !defined(BUILD_RTM)
 		MfReleaseInfo releaseInfo;
         Solution_GetReleaseInfo( releaseInfo );
-
 #if defined(COMPILE_CUSTOMER_RELEASE)
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
         CLR_Debug::Printf( "Platform: %s\r\n", HalName );
@@ -664,7 +667,7 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
         CLR_Debug::Printf( "Platform %s\r\n", HalName );
 		CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
-        CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );		
+        CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );
 #include <Samraksh\githash.h>
 #include <Samraksh\teamid.h>
         CLR_Debug::Printf( "Software ID: %s-%s by: %s\r\n", GIT_HASH_AT_BUILD, GIT_INDEX_STATUS_AT_BUILD, YOU_ARE_AWESOME );  // Software ID may be integrated into the Config region for RTM build.
