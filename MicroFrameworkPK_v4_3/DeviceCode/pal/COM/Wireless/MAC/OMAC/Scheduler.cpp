@@ -78,12 +78,16 @@ void OMACScheduler::UnInitialize(){
 	OMAC_scheduler_TimerCompletion.Uninitialize();
 }
 
-UINT32 OMACScheduler::GetSlotNumber(){
-	return ( HAL_Time_CurrentTicks() / SLOT_PERIOD_TICKS);
+UINT64 OMACScheduler::GetSlotNumber(){
+	UINT64 currentTicks = HAL_Time_CurrentTicks();
+	UINT64 slotNumber = currentTicks / SLOT_PERIOD_TICKS;
+	return slotNumber;
 }
-UINT32 OMACScheduler::GetSlotNumberfromTicks(const UINT64 &y){
+
+UINT64 OMACScheduler::GetSlotNumberfromTicks(const UINT64 &y){
 	return ( y / SLOT_PERIOD_TICKS);
 }
+
 UINT32 OMACScheduler::GetSlotNumberfromMicroSec(const UINT64 &y){
 	return ( y / MICSECINMILISEC / SLOT_PERIOD_MILLI  );
 }
@@ -153,6 +157,7 @@ void OMACScheduler::ScheduleNextEvent(){
 			, HAL_Time_TicksToTime(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
 
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
+	//hal_printf("OMACScheduler::ScheduleNextEvent nextWakeupTimeInMicSec: %llu\n", nextWakeupTimeInMicSec);
 
 	if(!timer1INuse){
 		timer1INuse = true;
@@ -184,17 +189,17 @@ bool OMACScheduler::RunEventTask(){
 			, HAL_Time_TicksToTime(curTicks), GetSlotNumber(), HAL_Time_TicksToTime(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)) );
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
+			//hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent();
 			break;
 		case I_DATA_RCV_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
+			//hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
 			m_lastHandler = DATA_RX_HANDLER;
 			m_DataReceptionHandler.ExecuteEvent();
 			break;
 		case I_TIMESYNC_PENDING:
-			hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
+			//hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
 			m_lastHandler = TIMESYNC_HANDLER;
 			m_TimeSyncHandler.ExecuteEvent(m_slotNo);
 			break;

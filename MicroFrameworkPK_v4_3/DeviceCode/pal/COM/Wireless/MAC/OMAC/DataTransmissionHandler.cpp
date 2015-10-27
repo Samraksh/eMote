@@ -89,8 +89,8 @@ void DataTransmissionHandler::Initialize(){
 
 	m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_TX_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
+	/*VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(HAL_TX_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds*/
 
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 }
@@ -107,13 +107,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 	if( (m_outgoingEntryPtr == NULL) || (g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest) == NULL ) ) {
 		//Either Dont have packet to send or missing timing for the destination
-		return 0xffffffffffffffff;
+		return MAX_UINT64;
 	}
 	else {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 curTicks = HAL_Time_CurrentTicks();
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
+		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
 		//UINT64 curTicks = HAL_Time_CurrentTicks();
 		hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
 				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks))
@@ -222,10 +223,10 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
 */
 }
 
-/*typedef struct  {
+typedef struct  {
 	UINT32 MSGID;
 	char* msgContent;
-}Payload_t_ping;*/
+}Payload_t_ping;
 
 /*
  *
@@ -261,18 +262,18 @@ bool DataTransmissionHandler::Send(){
 		return true;*/
 
 		////hal_printf("DataTransmissionHandler::Send elements in sendBuffer: %d\n", g_send_buffer.GetNumberMessagesInBuffer());
-		Payload_t_ping* pingPayload = (Payload_t_ping*)m_outgoingEntryPtr->GetPayload();
+		/*Payload_t_ping* pingPayload = (Payload_t_ping*)m_outgoingEntryPtr->GetPayload();
 		if(pingPayload->MSGID > 29){
 			hal_printf("Reached 75\n");
 			Payload_t_ping* pingPayload = (Payload_t_ping*)m_outgoingEntryPtr->GetPayload();
-		}
+		}*/
 
 		if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
-			hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
+			////hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
 			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
 		}
 		else {
-			hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
+			////hal_printf("DataTransmissionHandler::Send payload size %u\n", m_outgoingEntryPtr->GetPayloadSize());
 			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
 		}
 		//}
@@ -315,7 +316,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 		}*/
 
 		//Schedule the oldest packet
-		hal_printf("Scheduling oldest packet\n");
+		////hal_printf("Scheduling oldest packet\n");
 		m_outgoingEntryPtr = g_send_buffer.GetOldest();
 		if (m_outgoingEntryPtr == NULL) {
 			//hal_printf("m_outgoingEntryPtr is null\n");
@@ -341,7 +342,9 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 			UINT32 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			//TODO: This part needs to be changed to reflect the chnages in wakeup scheduler
 			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
-				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
+				UINT64 tmpNextwakeupSlot = neighborEntry->nextwakeupSlot;
+				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(tmpNextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, (UINT32)neighborEntry->seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
+				neighborEntry->nextwakeupSlot = tmpNextwakeupSlot;
 			}
 
 			// 2nd, compute neighbor's current slotNumber value. The start of the slotNumber

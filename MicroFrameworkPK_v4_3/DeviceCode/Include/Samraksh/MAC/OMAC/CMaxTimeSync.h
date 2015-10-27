@@ -41,7 +41,7 @@ typedef class CMaxTimeSync : public EventHandler{
 	UINT32 m_localAverage;
 	CMaxTSyncState m_state;
 	UINT32 m_messagePeriod;
-	UINT32 m_lastSlotExecuted;
+	UINT64 m_lastSlotExecuted;
 
 	BOOL IsPacketScheduled;
 
@@ -52,10 +52,10 @@ public:
 	//UINT16 m_leader;
 
 	void Initialize(UINT8 radioID, UINT8 macID);
-	UINT64 NextEvent(UINT32 currentSlotNum);
-  	UINT16 NextEventinSlots(UINT32 currentSlotNum);
+	UINT64 NextEvent(UINT64 currentSlotNum);
+  	UINT16 NextEventinSlots(UINT64 currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);
-	void ExecuteEvent(UINT32 currentSlotNum);
+	void ExecuteEvent(UINT64 currentSlotNum);
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 	void SetWakeup(bool shldWakeup);

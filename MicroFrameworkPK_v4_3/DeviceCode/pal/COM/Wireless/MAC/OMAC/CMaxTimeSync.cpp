@@ -117,7 +117,7 @@ void CMaxTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 }
 
-UINT64 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
+UINT64 CMaxTimeSync::NextEvent(UINT64 currentSlotNum){
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
@@ -129,7 +129,7 @@ UINT64 CMaxTimeSync::NextEvent(UINT32 currentSlotNum){
 /*
  *
  */
-UINT16 CMaxTimeSync::NextEventinSlots(UINT32 currentSlotNum){
+UINT16 CMaxTimeSync::NextEventinSlots(UINT64 currentSlotNum){
 	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
@@ -189,7 +189,7 @@ UINT16 CMaxTimeSync::NextEventinSlots(UINT32 currentSlotNum){
 /*
  *
  */
-void CMaxTimeSync::ExecuteEvent(UINT32 currentSlotNum){
+void CMaxTimeSync::ExecuteEvent(UINT64 currentSlotNum){
 	////hal_printf("start CMaxTimeSync::ExecuteSlot\n");
 	m_lastSlotExecuted = currentSlotNum;
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();

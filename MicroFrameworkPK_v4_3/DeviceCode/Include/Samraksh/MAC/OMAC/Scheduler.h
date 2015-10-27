@@ -100,7 +100,8 @@ private:
 	UINT8 m_nonSleepStateCnt;
 	HandlerType_t m_lastHandler;
 	bool m_busy;	//indicates if radio is busy.
-	UINT32 m_slotNo, m_slotNoOffset;
+	UINT64 m_slotNo;
+	UINT32 m_slotNoOffset;
 
 	//Define private methods
 	void Sleep();
@@ -131,8 +132,8 @@ public:
 	//Define public methods
 	void Initialize(UINT8 radioID, UINT8 macID);
 	void UnInitialize();
-	UINT32 GetSlotNumber();
-	UINT32 GetSlotNumberfromTicks(const UINT64 &y);
+	UINT64 GetSlotNumber();
+	UINT64 GetSlotNumberfromTicks(const UINT64 &y);
 	UINT32 GetSlotNumberfromMicroSec(const UINT64 &y);
 	UINT32 GetTimeTillTheEndofSlot();
 	void ScheduleNextEvent();

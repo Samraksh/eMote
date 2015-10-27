@@ -70,11 +70,14 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
-UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
+UINT64 DiscoveryHandler::NextEvent(UINT64 currentSlotNum){
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
-	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	if(nextEventsSlot == 0) {
+		//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
+		return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	}
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_scheduler->GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
@@ -82,12 +85,13 @@ UINT64 DiscoveryHandler::NextEvent(UINT32 currentSlotNum){
 /*
  *
  */
-UINT64 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
+UINT64 DiscoveryHandler::NextEventinSlots(UINT64 currentSlotNum){
 	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
 
 	if (period1Remaining == 0 || period2Remaining == 0) {
+		//hal_printf("DiscoveryHandler::NextEventinSlots returning zero\n");
 		return 0;
 	}
 	else  {
@@ -98,7 +102,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(UINT32 currentSlotNum){
 /*
  *
  */
-void DiscoveryHandler::ExecuteEvent(UINT32 slotNum){
+void DiscoveryHandler::ExecuteEvent(UINT64 slotNum){
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
