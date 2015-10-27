@@ -57,7 +57,7 @@ typedef struct {
 
 	UINT16  nextSeed; //the seed we have from in the control message last received
 	UINT16 mask;
-	UINT32  nextwakeupSlot;
+	UINT64  nextwakeupSlot;
 	UINT16  seedUpdateIntervalinSlots;
 
 	UINT64  LastTimeSyncTime;
