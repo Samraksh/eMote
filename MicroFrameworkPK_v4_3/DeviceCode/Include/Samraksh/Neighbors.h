@@ -58,7 +58,7 @@ typedef struct {
 	UINT16  nextSeed; //the seed we have from in the control message last received
 	UINT16 mask;
 	UINT64  nextwakeupSlot;
-	UINT16  seedUpdateIntervalinSlots;
+	UINT32  seedUpdateIntervalinSlots;
 
 	UINT64  LastTimeSyncTime;
 	UINT64  LastTimeSyncRequestTime;
@@ -87,11 +87,11 @@ public:
 	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
 	UINT8 NumberOfNeighbors();
-	DeviceStatus InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT16  seedUpdateIntervalinSlots, UINT8* index);
+	DeviceStatus InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
 	DeviceStatus UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index);
 	DeviceStatus UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength, UINT8* index);
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
-	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT16  seedUpdateIntervalinSlots, UINT8* index);
+	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
@@ -230,7 +230,7 @@ UINT8 NeighborTable::NumberOfNeighbors(){
 	return NumberValidNeighbor;
 }
 
-DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT16  seedUpdateIntervalinSlots, UINT8* index){
+DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
     DeviceStatus retValue = GetFreeIdx(index);
 
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
@@ -279,7 +279,7 @@ DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UIN
 	return retValue;
 }
 
-DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT16  seedUpdateIntervalinSlots, UINT8* index){
+DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
 	Neighbor[*index].MacAddress = address;
 	Neighbor[*index].Status = status;
 	Neighbor[*index].LastHeardTime = currTime;

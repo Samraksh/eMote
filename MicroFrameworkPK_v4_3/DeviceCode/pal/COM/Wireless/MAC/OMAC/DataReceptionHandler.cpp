@@ -49,7 +49,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	RadioID = radioID;
 	MacID = macID;
 	m_nextwakeupSlot = 0;
-	m_seedUpdateIntervalinSlots = 250;
+	m_seedUpdateIntervalinSlots = SEED_UPDATE_INTERVAL_IN_SLOTS;
 
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
@@ -86,7 +86,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
-		UINT32 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
+		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
 			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;

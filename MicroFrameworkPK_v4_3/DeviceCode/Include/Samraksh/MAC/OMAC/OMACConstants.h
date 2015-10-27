@@ -139,9 +139,9 @@ typedef struct DiscoveryMsg
 	UINT16 nextSeed;
 	UINT16 mask;
 	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
-	UINT32 nextwakeupSlot;
+	UINT64 nextwakeupSlot;
 	//the wakeup interval of the neighbor
-	UINT16 seedUpdateIntervalinSlots;
+	UINT32 seedUpdateIntervalinSlots;
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
 
@@ -201,6 +201,7 @@ typedef struct OMacHeader {
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
 #define TIMER_EVENT_DELAY_OFFSET 700
 #define MINEVENTTIME 5000				//minimum time required by scheduler to switch between modules
+#define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
 
 #define WAKEUPPERIODINTICKS 8000000
 enum {
