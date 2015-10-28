@@ -15,10 +15,6 @@
 extern OMACType g_OMAC;
 
 #define LOCALSKEW 1
-//#define RADIOCONTROL_SEND_PIN 120 //(GPIO_PIN)31
-
-//#define RADIO_STATEPIN 4 // 120 //4
-
 //#define DEBUG_RADIO_STATE 1
 #define DEBUG_TIMESYNC 1
 
@@ -52,54 +48,11 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 	return DS_Success;
 }
 
+
 /*
  *
  */
 DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
-	/*IEEE802_15_4_Header_t* header = msg->GetHeader();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-	header->mac_id = g_OMAC.macName;
-	//header->network = MyConfig.Network;*/
-
-	/*if(header->type == MFM_DATA){
-		hal_printf("RadioControl::Send header type is MFM_DATA %d\n", header->type);
-		UINT16 payloadSize = msg->GetPayloadSize();
-		hal_printf("payloadSize %u\n", payloadSize);
-		UINT8* payload = msg->GetPayload();
-		for(int i = 0; i < 5; i++){
-			hal_printf("msg[%d]: %d\n", i, payload[i]);
-		}
-		hal_printf("\n");
-	}*/
-
-	/*********/
-	/*Message_15_4_t txMsg;
-	Message_15_4_t* txMsgPtr = &txMsg;
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
-	Message_15_4_t* msgPtr = *tempPtr;
-	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
-	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-
-	if(txMsgPtr != NULL){
-		if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
-		{
-			UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
-			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
-		}
-		else
-		{
-			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
-		}
-	}*/
-	/*********/
-
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 
 	//Disco and DataTx handlers call this function with size parameter including the IEEE802_15_4_Header size.
@@ -116,10 +69,8 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		//header->SetFlags(header->GetFlags());
 		size += sizeof(TimeSyncMsg);
 #ifdef DEBUG_TIMESYNC
-		//hal_printf("Added timsync to outgoing message: Localtime: %llu \n", y);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
-		//hal_printf("RadioControl::Send CPU_Radio_Send_TimeStamped\n");
 #endif
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
 	}else {
@@ -127,8 +78,6 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 #ifdef DEBUG_TIMESYNC
 		//hal_printf("RadioControl::Send CPU_Radio_Send\n");
 #endif
-		//hal_printf("RadioControl::Send size is %u\n", size);
-		//hal_printf("RadioControl::Send size is %u\n", size+sizeof(IEEE802_15_4_Header_t));
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
 	return DS_Success;
@@ -154,27 +103,6 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->SetFlags(header->GetFlags());
 	//header->network = MyConfig.Network;
 
-	/*********/
-	/*Message_15_4_t txMsg;
-	Message_15_4_t* txMsgPtr = &txMsg;
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
-	Message_15_4_t* msgPtr = *tempPtr;
-	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
-	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-
-	if(txMsgPtr != NULL){
-		if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
-		{
-			UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
-			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
-		}
-		else
-		{
-			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
-		}
-	}*/
-	/*********/
-
 #ifdef DEBUG_TIMESYNC
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, FALSE);
@@ -182,16 +110,6 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 #endif
 
 	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
-
-
-	/*Message_15_4_t txMsg;
-	Message_15_4_t* txMsgPtr = &txMsg;
-	Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
-	Message_15_4_t* msgPtr = *tempPtr;
-	memset(txMsgPtr, 0, msgPtr->GetMessageSize());
-	memcpy(txMsgPtr, msgPtr, msgPtr->GetMessageSize());
-	UINT8* snd_payload = txMsgPtr->GetPayload();
-	txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, txMsgPtr, size+sizeof(IEEE802_15_4_Header_t), eventTime);*/
 
 	return DS_Success;
 }
@@ -206,7 +124,6 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
  *
  */
 DeviceStatus RadioControl::Stop(){
-	//DeviceStatus returnVal = DS_Success;
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 	if(returnVal == DS_Success){
@@ -218,21 +135,7 @@ DeviceStatus RadioControl::Stop(){
 /*
  *
  */
-DeviceStatus RadioControl::StartPLL(){
-	return DS_Success;
-	//return StartRx();
-	//DeviceStatus returnVal = CPU_Radio_TurnOnPLL(g_OMAC.radioName);
-	//if(returnVal == DS_Success){
-	//	CPU_GPIO_SetPinState( (GPIO_PIN) RADIO_STATEPIN, TRUE );
-	//}
-	//return returnVal;
-}
-
-/*
- *
- */
 DeviceStatus RadioControl::StartRx(){
-	//return StartPLL();
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, TRUE );

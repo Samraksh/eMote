@@ -14,8 +14,6 @@
 
 #ifndef DEBUG_TSYNC
 #define DEBUG_TSYNC 1
-//#define DISCOSYNCSENDPIN 24 //2
-//#define DISCOSYNCRECEIVEPIN 25 //25
 #endif
 
 OMACScheduler *g_scheduler;
@@ -92,7 +90,6 @@ UINT64 DiscoveryHandler::NextEventinSlots(){
 	period2Remaining = currentSlotNum % m_period2;
 
 	if (period1Remaining == 0 || period2Remaining == 0) {
-		//hal_printf("DiscoveryHandler::NextEventinSlots returning zero\n");
 		return 0;
 	}
 	else  {
@@ -143,7 +140,6 @@ BOOL DiscoveryHandler::ShouldBeacon(){
  *
  */
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
-	////hal_printf("start DiscoveryHandler::Beacon\n");
 #ifdef DEBUG_TSYNC
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
 #endif
@@ -168,16 +164,12 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 		m_busy = TRUE;
 		e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
 		m_busy = FALSE;
-		//if (e != DS_Success) {
-			//localTime = 2;
-		//}
 	}
 	else {
 		// Why busy? Timing issue?
 		hal_printf("DiscoveryHandler::Beacon m_busy\n");
 		e = DS_Busy;
 	}
-	////hal_printf("end DiscoveryHandler::Beacon\n");
 	return e;
 }
 
@@ -190,7 +182,6 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		m_busy = TRUE;
 	}
 	else if(status == NO_Success){
-		//hal_printf("SUCCESS!\n");
 		m_busy = FALSE;
 	}
 	else{
@@ -201,18 +192,13 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	if (msg != &m_discoveryMsgBuffer) {
 		////hal_printf("if m_busy DiscoveryHandler::BeaconAckHandler\n");
 		////m_busy = FALSE;
-		//signal AMSend.sendDone(ptr, error);
 		return;
 	}
 
-	////hal_printf("m_busy DiscoveryHandler::BeaconAckHandler\n");
-	#ifndef DISABLE_SIGNAL
-			//call SlotScheduler.printState();
-			//signalBeaconDone(error, call GlobalTime.getLocalTime());
-	#endif
-
-	//this->ExecuteEventDone();
-	//this->PostExecuteEvent();
+#ifndef DISABLE_SIGNAL
+		//call SlotScheduler.printState();
+		//signalBeaconDone(error, call GlobalTime.getLocalTime());
+#endif
 }
 
 /*
@@ -230,7 +216,6 @@ void DiscoveryHandler::Beacon1(){
 		}
 	}
 	//if beacon fails, the radio automatically changes to RX state
-	////hal_printf("end Beacon1\n");
 }
 
 /*
@@ -255,7 +240,6 @@ void DiscoveryHandler::BeaconN(){
 	else {
 		//hal_printf("BeaconN succeeded\n");
 	}
-	////hal_printf("end BeaconN\n");
 }
 
 /*
@@ -288,17 +272,14 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
  *
  */
 DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-	//hal_printf("start DiscoveryHandler::Receive\n");
 	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	RadioAddress_t source = msg->GetHeader()->src;
-	//RadioAddress_t source = disMsg->nodeID;
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
 	UINT64 nextwakeupSlot = (((UINT64)disMsg->nextwakeupSlot1) <<32) + disMsg->nextwakeupSlot0;
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
 		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	} else {
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
@@ -322,12 +303,6 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
 	g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
 
-	////MacReceiveFuncPtrType appHandler = g_OMAC.AppHandlers[g_OMAC.GetCurrentActiveApp()]->ReceiveHandler;
-	MacReceiveFuncPtrType appHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
-	//(*appHandler);
-
-
-
 
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
@@ -339,8 +314,6 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	}
 #endif
 
-
-	////hal_printf("end DiscoveryHandler::Receive\n");
 	return DS_Success;
 }
 
@@ -348,7 +321,6 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
  *
  */
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
-	////hal_printf("start DiscoveryHandler::Send\n");
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	//UINT8 * payload = msg->GetPayload();
@@ -370,6 +342,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 #endif
 
-	////hal_printf("end DiscoveryHandler::Send\n");
 	return retValue;
 }
+
+

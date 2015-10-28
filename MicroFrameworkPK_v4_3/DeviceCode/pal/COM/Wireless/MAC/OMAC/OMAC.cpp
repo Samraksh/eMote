@@ -9,13 +9,9 @@
  */
 
 #include <Samraksh/MAC/OMAC/OMAC.h>
-//#include "RadioControl.h"
 #include <Samraksh/Radio_decl.h>
 
 #define DEBUG_OMAC 0
-//#define OMACDEBUGPIN 120 //(GPIO_PIN)1
-//#define OMAC_DATARXPIN 31 //2
-//#define OMAC_RXPIN 2
 
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
@@ -52,25 +48,10 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 	switch(rcv_msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
 			g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
-			//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
-			//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
 			break;
 		case MFM_DATA:
 		{
 			(*g_txAckHandler)(msg, Size, status);
-			/*hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
-			hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
-			hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
-			if(destID == Neighbor2beFollowed)
-			{
-				hal_printf("OMACSendAckHandler MFM_DATA; src: %d\n", sourceID);
-				hal_printf("OMACSendAckHandler MFM_DATA; dest: %d\n", destID);
-				hal_printf("OMACSendAckHandler MFM_DATA; Neighbor2beFollowed: %d\n", Neighbor2beFollowed);
-				UINT64 y = HAL_Time_CurrentTicks();
-				g_OMAC.Send(rcv_msg->GetHeader()->src, MFM_DATA, rcv_msg, rcv_msg->GetHeaderSize()+rcv_msg->GetPayloadSize(), (UINT32) (y & (~(UINT32) 0)) );
-				//AckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetSendAckHandler();
-				//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
-			}*/
 			break;
 		}
 		case MFM_ROUTING:
@@ -82,9 +63,6 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		default:
 			break;
 	};
-
-	//(*AckHandler)(g_OMAC.tx_msg_ptr, g_OMAC.tx_length, NO_BadPacket);
-	//return msg;
 }
 
 
@@ -165,11 +143,8 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
-		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
-		/*g_OMAC.SetAppIdIndex(routingAppID);
+
 		//Initialize upper layer call backs
-		g_OMAC.SetAppHandlers(eventHandler);*/
-		//MacEventHandler_t* appHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex());
 		MAC<Message_15_4_t, MacConfig>::SetAppIdIndex(routingAppID);
 		MAC<Message_15_4_t, MacConfig>::SetAppHandlers(eventHandler);
 		MacEventHandler_t* appHandler = MAC<Message_15_4_t, MacConfig>::GetAppHandler(MAC<Message_15_4_t, MacConfig>::GetAppIdIndex());
@@ -200,16 +175,11 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		g_omac_RadioControl.Initialize();
-		//SetAddress(MF_NODE_ID);
-		//MyAddress = MF_NODE_ID;
 		g_omac_scheduler.Initialize(radioName, macName);
 		Initialized = TRUE;
 	}
 
-	//Initialize upper layer call backs
-	////AppHandlers[routingAppID] = eventHandler;
 	CurrentActiveApp = routingAppID;
-	//*macID=MacId;
 
 	g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 	g_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
@@ -237,7 +207,6 @@ BOOL OMACType::UnInitialize()
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-	//hal_printf("**********OMACType::ReceiveHandler**************\n");
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
@@ -251,33 +220,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
-	/*IEEE802_15_4_Header_t* header = msg->GetHeader();
-	//hal_printf("OMACType::ReceiveHandler header type is %d\n", header->type);
-	if(header->type == MFM_DATA){
-		hal_printf("OMACType::ReceiveHandler header type is MFM_DATA %d\n", header->type);
-		UINT16 payloadSize = msg->GetPayloadSize();
-		hal_printf("payloadSize %u\n", payloadSize);
-		UINT8* payload = msg->GetPayload();
-		for(int i = 0; i < 5; i++){
-			hal_printf("msg[%d]: %d\n", i, payload[i]);
-		}
-		hal_printf("\n");
-	}*/
-
-	//Starting radio's rx here
-	//DeviceStatus e = g_omac_RadioControl.StartRx(); //BK: You have already received. Yous hould
-//	if(e != DS_Success){
-//		hal_printf("OMACType::ReceiveHandler radio did not start Rx\n");
-//	}
-//	else{
-//		//hal_printf("DataReceptionHandler::ExecuteEvent radio started Rx\n");
-//	}
-
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
-
-	////Message_15_4_t** tempPtr = g_send_buffer.GetOldestPtr();
 
 	//Any message might have timestamping attached to it. Check for it and process
 	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
@@ -290,16 +235,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			////hal_printf("OMACType::ReceiveHandler MFM_DISCOVERY\n");
 			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
-			//rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetCurrentActiveApp())->GetReceiveHandler();
-			//(*rxAckHandler)(rx_length);
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
-				//hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-				////hal_printf("Successfully got a data packet\n");
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
@@ -324,15 +264,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			//hal_printf("OMACType::ReceiveHandler default: %u\n", msg->GetHeader()->GetType());
 			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
 			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
 			Size -= tmsgSize;*/
 			break;
 	};
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
-	////(*rxAckHandler)(rx_length);
-	////hal_printf("end OMACType::ReceiveHandler\n");
 	return msg;
 }
 
@@ -343,11 +280,6 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
 {
 
 }
-
-/*typedef struct  {
-	UINT32 MSGID;
-	char* msgContent;
-}Payload_t_ping;*/
 
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
@@ -360,25 +292,7 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 
 		return FALSE;
 	}
 
-	/*Message_15_4_t* oldestMsg = g_send_buffer.GetOldest();
-	if(oldestMsg){
-		//Drop all msgs in the buffer
-		BOOL retVal = g_send_buffer.Erase();
-		if(!retVal)
-			return FALSE;
-
-		//If there is already a msg in the buffer, it means it has not been sent yet. So, just drop it.
-		while(oldestMsg){
-			//keep dropping msgs until buffer is empty
-			oldestMsg = g_send_buffer.GetOldest();
-			if(g_send_buffer.IsBufferEmpty()){
-				break;
-			}
-		}
-	}*/
-
 	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	//Message_15_4_t* msg_carrier;
 	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return FALSE;
@@ -404,34 +318,12 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 
 		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
 	}
 
-	/*Payload_t_ping* pingPayload = (Payload_t_ping*) msg;
-	hal_printf(">>>>OMACType::Send pingPayload msgId: %d\n", pingPayload->MSGID);
-	hal_printf(">>>>OMACType::Send pingPayload msgContent: %s\n", pingPayload->msgContent);*/
-
 	UINT8* lmsg = (UINT8*) msg;
 	UINT8* payload = msg_carrier->GetPayload();
 
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
-
-	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
-
-	// Check if the circular buffer is full
-	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-		return FALSE;*/
-
-	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
-		////hal_printf("OMACType::SendTimeStamped header type is MFM_TIMESYNC\n");
-	}
-	else {
-		hal_printf("OMACType::Send msg header type %u\n", (msgTmp->GetHeader())->type);
-	}*/
-	//bool retValue = g_omac_RadioControl.Send(address, (Message_15_4_t*)msg, size);
-
-	/*if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
-		return FALSE;
-	}*/
 
 	return true;
 }
@@ -478,24 +370,6 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 		payload[i] = lmsg[i];
 	}
 
-	/*Message_15_4_t* msgTmp = (Message_15_4_t*)msg;
-
-	// Check if the circular buffer is full
-	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength()))
-		return FALSE;*/
-
-	/*if((msgTmp->GetHeader())->type == (1 << 1)) {
-		////hal_printf("OMACType::SendTimeStamped header type is MFM_TIMESYNC\n");
-	}
-	else {
-		hal_printf("OMACType::SendTimeStamped msg header type %u\n", (msgTmp->GetHeader())->type);
-	}*/
-	//bool retValue = g_omac_RadioControl.Send_TimeStamped(address, (Message_15_4_t*)msg, size, eventTime);
-
-	////hal_printf("end OMACType::SendTimeStamped\n");
-	/*if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
-		return FALSE;
-	}*/
 	return true;
 }
 #endif
