@@ -228,6 +228,13 @@ static const CLR_RT_DriverInterruptMethods g_CLR_CSMA_MAC_DriverMethods =
   Cleanup_Net_Driver
 };
 
+static const CLR_RT_DriverInterruptMethods g_CLR_OMAC_MAC_DriverMethods =
+{
+  Initialize_Net_Driver,
+  EnableDisable_Net_Driver,
+  Cleanup_Net_Driver
+};
+
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4  =
 {
     "RadioCallback_802_15_4",
@@ -241,5 +248,13 @@ const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback  =
     DRIVER_INTERRUPT_METHODS_CHECKSUM,
     &g_CLR_CSMA_MAC_DriverMethods
 };
+
+const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_OMACCallback  =
+{
+    "OMACCallback",
+    DRIVER_INTERRUPT_METHODS_CHECKSUM,
+    &g_CLR_OMAC_MAC_DriverMethods
+};
+
 
 
