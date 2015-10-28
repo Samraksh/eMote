@@ -135,7 +135,9 @@ typedef struct DiscoveryMsg
 	UINT16 nextSeed;
 	UINT16 mask;
 	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
-	UINT64 nextwakeupSlot;
+	//UINT64 nextwakeupSlot;
+	UINT32 nextwakeupSlot0;
+	UINT32 nextwakeupSlot1;
 	//the wakeup interval of the neighbor
 	UINT32 seedUpdateIntervalinSlots;
 	//fields below are just for convenience. not transmitted over the air

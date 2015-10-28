@@ -154,7 +154,9 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	m_discoveryMsg->nextSeed = g_scheduler->m_DataReceptionHandler.m_nextSeed;
 	m_discoveryMsg->mask = g_scheduler->m_DataReceptionHandler.m_mask;
-	m_discoveryMsg->nextwakeupSlot =  g_scheduler->m_DataReceptionHandler.m_nextwakeupSlot;
+	UINT64 nextwakeupSlot = g_scheduler->m_DataReceptionHandler.m_nextwakeupSlot;;
+	m_discoveryMsg->nextwakeupSlot0 = (UINT32)nextwakeupSlot;
+	m_discoveryMsg->nextwakeupSlot1 = (UINT32)(nextwakeupSlot>>32);
 	m_discoveryMsg->seedUpdateIntervalinSlots = g_scheduler->m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
 
 	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
@@ -293,12 +295,13 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
+	UINT64 nextwakeupSlot = (((UINT64)disMsg->nextwakeupSlot1) <<32) + disMsg->nextwakeupSlot0;
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
 		//hal_printf("DiscoveryHandler::Receive already found neighbor: %d at index: %d\ttime: %lld\r\n", source, nbrIdx, localTime);
-		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, disMsg->nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
+		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	} else {
-		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, disMsg->nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
+		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
 #ifdef def_Neighbor2beFollowed
