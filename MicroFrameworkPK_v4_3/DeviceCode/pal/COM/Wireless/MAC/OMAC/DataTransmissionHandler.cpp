@@ -48,25 +48,7 @@ void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
 	//m_nextTXCounter = tmp_nextTXCounter;
 }
 
-INT64 DataTransmissionHandler::GetNeighborGlobalTime()
-{
-	return m_nbrGlobalTime;
-}
 
-UINT32 DataTransmissionHandler::GetNeighborWakeupSlot()
-{
-	return m_nbrWakeupSlot;
-}
-
-void DataTransmissionHandler::SetNeighborGlobalTime(INT64 tmp_nbrGlobalTime)
-{
-	m_nbrGlobalTime = tmp_nbrGlobalTime;
-}
-
-void DataTransmissionHandler::SetNeighborWakeupSlot(UINT32 tmp_nbrWakeupSlot)
-{
-	m_nbrWakeupSlot = tmp_nbrWakeupSlot;
-}
 
 
 /*
@@ -74,18 +56,6 @@ void DataTransmissionHandler::SetNeighborWakeupSlot(UINT32 tmp_nbrWakeupSlot)
  */
 void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
-	m_dsn = 0;
-	m_retryCnt = m_dwellCnt=0;
-	randVal = 0;
-	m_nextDestination=0;
-	m_receivedDataBeacon=0;
-	m_busy =FALSE;   //indicates if radio is busy.
-
-	//the # of times the current packet has been sent
-	m_dataHeartBeats=0;
-	//m_neighborNextEventTimeinTicks = 0;
-	m_lastSlot=0;
-	m_collisionCnt = 0;
 
 	m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
@@ -109,11 +79,11 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		UINT64 curTicks = HAL_Time_CurrentTicks();
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
-		//UINT64 curTicks = HAL_Time_CurrentTicks();
+#ifdef def_Neighbor2beFollowed
 		hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
-				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks))
+				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
 				, remMicroSecnextTX, HAL_Time_TicksToTime(nextTXTicks), g_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), HAL_Time_TicksToTime(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
-
+#endif
 		return remMicroSecnextTX;
 	}
 	else {
@@ -126,9 +96,10 @@ UINT64 DataTransmissionHandler::NextEvent(){
  *
  */
 void DataTransmissionHandler::ExecuteEvent(){
-	//BK: At this point there should be some message to be sent in the m_outgoingEntryPtr
+#ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
-			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+#endif
 	DeviceStatus e = DS_Fail;
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	//e = g_omac_RadioControl.StartRx();

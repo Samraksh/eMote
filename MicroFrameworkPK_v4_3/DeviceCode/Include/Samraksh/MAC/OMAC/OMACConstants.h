@@ -131,13 +131,6 @@ typedef enum {
  */
 typedef struct DiscoveryMsg
 {
-	// offset between the start of the counter to global time 0
-	//used by neighbors to calculate the sender's next receive slot
-	UINT16 counterOffset; //BK: NOT USED
-	//the time to startup the radio could be different for different nodes.
-	//use this neighbor info along with local info to compute this difference
-	UINT16 radioStartDelay;
-
 	//seed to generate the pseduo-random wakeup schedule
 	UINT16 nextSeed;
 	UINT16 mask;

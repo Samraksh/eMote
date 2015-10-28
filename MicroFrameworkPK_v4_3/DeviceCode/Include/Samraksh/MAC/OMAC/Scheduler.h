@@ -82,36 +82,12 @@ private:
 
 	UINT8 radioID;
 	UINT8 macID;
-	//static bool startMeasuringDutyCycle;
-	//static  UINT32 dutyCycleReset;
-	bool startMeasuringDutyCycle;
-	UINT32 dutyCycleReset;
-	UINT32	sendGT, dutyCycleOffset, syncOffset, totalRadioUp, totalDelay;
-#ifdef PROFILING
-	UINT32 startDelay, stopDelay;
-	UINT32 taskDelay1;
-	UINT32 minStartDelay, maxStartDelay;
-	UINT32 minStopDelay, maxStopDelay;
-#endif
 
-	float m_radioDelayAvg;
-	UINT32 radioTiming, m_lastPiggybackSlot;
-	UINT8 m_discoveryTicks, m_shldPrintDuty;
-	UINT8 m_nonSleepStateCnt;
 	HandlerType_t m_lastHandler;
-	bool m_busy;	//indicates if radio is busy.
-	UINT64 m_slotNo;
-	UINT32 m_slotNoOffset;
 
-	//Define private methods
-	void Sleep();
-	bool IsNeighborGoingToReceive();
-
-	void PrintDutyCycle();
 
 public:
 	bool timer1INuse, timer2INuse;
-	State_t ProtoState;		//stores state of the protocol
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
@@ -120,12 +96,6 @@ public:
 	SeedGenerator m_seedGenerator;
 
 
-	UINT32 GetCounterOffset(){
-		return m_slotNoOffset;
-	}
-	UINT16 GetRadioDelay(){
-		return (UINT16)m_radioDelayAvg;
-	}
 
 	//BK The methods from this point on is in use for sure. The rest can be deleted.
 	//TODO: Clean up the code by removing unused variables and methods
@@ -143,10 +113,6 @@ public:
 	bool RunEventTask(); // BK: This is the main event for the slot. Queries all the modules and executes one if needed
 	void PostExecution();
 	bool EnsureStopRadio();
-
-
-
-
 
 }OMACScheduler_t;
 

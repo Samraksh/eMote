@@ -9,6 +9,8 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
+
+
 #include <Samraksh/MAC.h>
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
@@ -21,6 +23,10 @@
 
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
+
+#ifdef DEBUG_OMAC
+#define def_Neighbor2beFollowed;
+#endif
 
 /*
  *
@@ -44,6 +50,13 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 
   public:
 
+#ifdef def_Neighbor2beFollowed
+	UINT16 Neighbor2beFollowed;
+#endif
+
+#ifdef def_Neighbor2beFollowed2
+	UINT16 Neighbor2beFollowed1, Neighbor2beFollowed2;
+#endif
 	//Neighbors
 	//NeighborTable m_NeighborTable;
 

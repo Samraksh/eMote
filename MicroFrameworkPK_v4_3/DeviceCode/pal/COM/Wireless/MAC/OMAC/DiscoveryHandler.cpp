@@ -70,10 +70,10 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 }
 
-UINT64 DiscoveryHandler::NextEvent(UINT64 currentSlotNum){
+UINT64 DiscoveryHandler::NextEvent(){
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
-	nextEventsSlot = NextEventinSlots(currentSlotNum);
+	nextEventsSlot = NextEventinSlots();
 	if(nextEventsSlot == 0) {
 		//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
 		return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
@@ -85,7 +85,8 @@ UINT64 DiscoveryHandler::NextEvent(UINT64 currentSlotNum){
 /*
  *
  */
-UINT64 DiscoveryHandler::NextEventinSlots(UINT64 currentSlotNum){
+UINT64 DiscoveryHandler::NextEventinSlots(){
+	UINT64 currentSlotNum = g_scheduler->GetSlotNumber();
 	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
@@ -102,7 +103,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(UINT64 currentSlotNum){
 /*
  *
  */
-void DiscoveryHandler::ExecuteEvent(UINT64 slotNum){
+void DiscoveryHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
@@ -128,12 +129,6 @@ void DiscoveryHandler::PostExecuteEvent(){
 	g_scheduler->PostExecution();
 }
 
-/*
- *
- */
-void DiscoveryHandler::SetWakeup(bool shldWakeup){
-	//hal_printf("DiscoveryHandler::SetWakeup\n");
-}
 
 ////////////////////Private Functions////////////////////////////
 /*
@@ -156,9 +151,6 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	UINT64 localTime = 0;
 
 	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
-	//m_discoveryMsg->seed = m_seed;
-	m_discoveryMsg -> counterOffset = 0;
-	m_discoveryMsg->radioStartDelay = ((OMACScheduler *)m_parentScheduler)->GetRadioDelay();
 
 	m_discoveryMsg->nextSeed = g_scheduler->m_DataReceptionHandler.m_nextSeed;
 	m_discoveryMsg->mask = g_scheduler->m_DataReceptionHandler.m_mask;
@@ -225,8 +217,6 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
  *
  */
 void DiscoveryHandler::Beacon1(){
-	////hal_printf("start Beacon1\n");
-	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_1);
 	StartBeaconNTimer(TRUE);
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
@@ -245,8 +235,6 @@ void DiscoveryHandler::Beacon1(){
  *
  */
 void DiscoveryHandler::BeaconN(){
-	////hal_printf("start BeaconN\n");
-	((OMACScheduler *)m_parentScheduler)->ProtoState.ForceState(S_BEACON_N);
 
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
@@ -313,13 +301,16 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, disMsg->nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
-#ifdef DEBUG_TSYNC
-	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed ){
+#ifdef def_Neighbor2beFollowed
+	if (source == g_OMAC.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
+#ifdef DEBUG_TSYNC
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
 		}
+#endif
 	}
 #endif
+
 	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	UINT64 rcv_ltime;
 	INT64 l_offset;
@@ -334,13 +325,17 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 
 
 
-#ifdef DEBUG_TSYNC
-	if (source == g_scheduler->m_TimeSyncHandler.Neighbor2beFollowed){
+
+#ifdef def_Neighbor2beFollowed
+	if (source == g_OMAC.Neighbor2beFollowed){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
+#ifdef DEBUG_TSYNC
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+#endif
 		}
 	}
 #endif
+
 
 	////hal_printf("end DiscoveryHandler::Receive\n");
 	return DS_Success;

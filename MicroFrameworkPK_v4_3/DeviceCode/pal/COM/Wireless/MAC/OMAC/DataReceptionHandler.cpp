@@ -12,8 +12,8 @@
 
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
-extern Buffer_15_4_t g_send_buffer;
-extern Buffer_15_4_t g_receive_buffer;
+//extern Buffer_15_4_t g_send_buffer;
+//extern Buffer_15_4_t g_receive_buffer;
 extern RadioControl_t g_omac_RadioControl;
 DataReceptionHandler g_DataReceptionHandler;
 
@@ -27,19 +27,6 @@ MacEventHandler_t* g_appHandler;
 void PublicReceiveHCallback(void * param){
 	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
-
-
-
-UINT32 DataReceptionHandler::GetWakeupSlot()
-{
-	//return m_nextWakeupSlot;
-}
-
-void DataReceptionHandler::SetWakeupSlot(UINT32 tmp_nextWakeupSlot)
-{
-	//m_nextWakeupSlot = tmp_nextWakeupSlot;
-}
-
 
 /*
  *
@@ -75,15 +62,18 @@ UINT64 DataReceptionHandler::NextEvent(){
 
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 	UINT64 curTicks = HAL_Time_CurrentTicks();
-	////hal_printf("DataReceptionHandler::NextEvent curTicks: %llu; NextEventTimeinTicks: %llu; m_nextwakeupSlot: %lu; TicksTillNextEvent: %llu; nextEventsMicroSec: %llu\n", curTicks, NextEventTimeinTicks, m_nextwakeupSlot, TicksTillNextEvent, nextEventsMicroSec);
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumberfromTicks(curTicks), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec, (HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
+#ifdef def_Neighbor2beFollowed
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumberfromTicks(curTicks), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec, (HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
+#endif
 	return(nextEventsMicroSec);
 }
 
 void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
 	//hal_printf("DataReceptionHandler::ExecuteEvent. I am %u\n", g_OMAC.GetAddress());
+#ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler:UpdateSeedandCalculateWakeupSlot\n"
-			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+#endif
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;

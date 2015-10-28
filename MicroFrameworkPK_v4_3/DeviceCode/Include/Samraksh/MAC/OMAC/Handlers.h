@@ -32,8 +32,6 @@ class EventHandler {
 	// the scheduler calls this command after the radio is stopped
 	void PostExecuteEvent();
 
-	void SetWakeup(bool shldWakeup);
-
 	//Base class destructor should also be virtual or should be protected and non-virtual
 	//virtual ~EventHandler() {};
 
