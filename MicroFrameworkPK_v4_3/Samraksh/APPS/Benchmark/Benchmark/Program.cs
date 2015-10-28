@@ -20,9 +20,9 @@ namespace Benchmark
         const int ERASE_WINDOW = 14000; // ms
         const int SLEEP_BEFORE_POWERSTATE = 100;
 
-        const string HIGH_POWER = "High Power";
-        const string MID_POWER = "Mid Power";
-        const string LOW_POWER = "Low Power";
+        const string HIGH_POWER = "High Power (64 MHz)";
+        const string MID_POWER = "Mid Power (24 MHz)";
+        const string LOW_POWER = "Low Power (8 MHz)";
         const string ERROR_POWER = "Unknown Power State, error";
 
         const string TEST_SEP = "";
