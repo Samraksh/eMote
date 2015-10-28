@@ -166,7 +166,7 @@ struct Settings
 #endif // defined(PLATFORM_WINDOWS) || defined(PLATFORM_WINCE)
 
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf( "Loading Deployment Assemblies.\r\n" );
+        CLR_Debug::Printf( "\r\nLoading Deployment Assemblies.\r\n" );
 #endif
 
         LoadDeploymentAssemblies( BlockUsage::DEPLOYMENT );
@@ -174,7 +174,7 @@ struct Settings
         //--//
 
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf( "Resolving.\r\n" );
+        CLR_Debug::Printf( " Resolving.\r\n" );
 #endif
         TINYCLR_CHECK_HRESULT(g_CLR_RT_TypeSystem.ResolveAll());
 
@@ -237,7 +237,7 @@ struct Settings
 
         TINYCLR_CHECK_HRESULT(CheckKnownAssembliesForNonXIP( &assStart, &assEnd ));
 #if !defined(BUILD_RTM)
-        CLR_Debug::Printf(" Loading start at %x, end %x\r\n", (UINT32)assStart, (UINT32)assEnd);
+        CLR_Debug::Printf("\r\nLoading start at %x, end %x", (UINT32)assStart, (UINT32)assEnd);
 #endif 
 
         g_buildCRC = SUPPORT_ComputeCRC( assStart, (UINT32)assEnd -(UINT32) assStart, 0 );
@@ -318,7 +318,7 @@ struct Settings
 
             CLR_RT_Assembly* assm;
 
-            CLR_Debug::Printf( "Attaching deployed file.\r\n" );
+            CLR_Debug::Printf( "Attaching deployed file." );
 
             // Creates instance of assembly, sets pointer to native functions, links to g_CLR_RT_TypeSystem 
             if (FAILED(LoadAssembly( header, assm ) ))
