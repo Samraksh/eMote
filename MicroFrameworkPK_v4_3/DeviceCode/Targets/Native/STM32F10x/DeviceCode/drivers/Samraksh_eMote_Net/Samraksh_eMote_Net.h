@@ -143,6 +143,16 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighbourTable
 
 };
 
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_OMAC
+{
+    static const int FIELD_STATIC__instance = 8;
+    static const int FIELD_STATIC__syncObject = 9;
+
+
+    //--//
+
+};
+
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
 {
     static const int FIELD__RSSI = 1;
@@ -153,16 +163,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Message
     static const int FIELD__Size = 6;
     static const int FIELD__SenderEventTimeStamp = 7;
     static const int FIELD__timeStamped = 8;
-
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_OMAC
-{
-    static const int FIELD_STATIC__instance = 8;
-    static const int FIELD_STATIC__syncObject = 9;
 
 
     //--//

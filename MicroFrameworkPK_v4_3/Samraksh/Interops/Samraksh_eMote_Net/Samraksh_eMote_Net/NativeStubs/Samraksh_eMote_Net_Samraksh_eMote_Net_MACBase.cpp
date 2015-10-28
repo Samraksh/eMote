@@ -34,7 +34,7 @@ UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 address, HRESULT &hr )
+INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
     INT8 retVal = 0; 
     return retVal;
