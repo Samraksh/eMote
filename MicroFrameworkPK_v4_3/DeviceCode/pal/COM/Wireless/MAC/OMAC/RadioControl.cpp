@@ -62,7 +62,9 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 
 	//Disco and DataTx handlers call this function with size parameter including the IEEE802_15_4_Header size.
 	//So reduce header size from size before deciding if CPU_Radio_Send_TimeStamped or CPU_Radio_Send should be called.
-	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD-(sizeof(TimeSyncMsg)+4)){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	const int timestamp_size = 4;	//used in Radio driver's RF231Radio::Send_TimeStamped
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+crc_size+timestamp_size) ){
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
 		UINT64 y = HAL_Time_CurrentTicks();
 #ifndef LOCALSKEW
@@ -80,7 +82,12 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
 	}else {
 		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
-		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
+		if(eventTime == 0){
+			msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
+		}
+		else{
+			msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
+		}
 	}
 	return DS_Success;
 }

@@ -212,12 +212,14 @@ bool DataTransmissionHandler::Send(){
 		UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
 		UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
 
-		if (m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() == 0) {
+		/*if (time_stamp == 0) {
 			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
 		}
 		else {
 			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
-		}
+		}*/
+
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
 
 		//set flag to false after packet has been sent
 		isDataPacketScheduled = false;
