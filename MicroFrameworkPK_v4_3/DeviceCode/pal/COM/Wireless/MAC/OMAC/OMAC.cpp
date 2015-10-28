@@ -110,7 +110,45 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  *
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+#ifdef def_Neighbor2beFollowed
+	#if defined(TWO_NODES_TX_RX)
+		if(g_OMAC.GetAddress() == RXNODEID) {
+			Neighbor2beFollowed = TXNODEID;
+		}
+		else {
+			Neighbor2beFollowed = RXNODEID;
+		}
+	#endif
+#endif
+
+#if defined(FAN_OUT)
+		if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
+			Neighbor2beFollowed = TXNODEID;
+	#endif
+		}
+		else {
+	#ifdef def_Neighbor2beFollowed2
+			Neighbor2beFollowed1 = RXNODEID1;
+			Neighbor2beFollowed2 = RXNODEID2;
+	#endif
+		}
+#elif defined(FAN_IN)
+		if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
+			Neighbor2beFollowed = RXNODEID;
+	#endif
+		}
+		else {
+	#ifdef def_Neighbor2beFollowed2
+			Neighbor2beFollowed1 = TXNODEID1;
+			Neighbor2beFollowed2 = TXNODEID2;
+	#endif
+		}
+#endif
+
+
+	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, TRUE);
 
@@ -262,9 +300,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				//hal_printf("OMACType::ReceiveHandler MFM_DATA\n");
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 				////hal_printf("Successfully got a data packet\n");
-				if ( sourceID == g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed) {
+#ifdef def_Neighbor2beFollowed
+				if ( sourceID == Neighbor2beFollowed) {
 					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
 				}
+#endif
 				(*g_rxAckHandler)(msg, Size);
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 			}

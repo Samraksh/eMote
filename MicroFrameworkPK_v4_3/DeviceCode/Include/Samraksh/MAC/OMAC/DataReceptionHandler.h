@@ -20,14 +20,10 @@
 class DataReceptionHandler: public EventHandler {
 	UINT8 RadioID;
 	UINT8 MacID;
-	Message_15_4_t  dataBeaconBuffer,receiveMsgBuffer;
-	static UINT16 currentRandomValue;
-
 public:
 	UINT16	m_nextSeed, m_mask; // m_nextSeed stores the next seed to be used in calculating the next wakeup slot and the m_mask is used as a mask in the pseduo random function
 	UINT64 m_nextwakeupSlot;//This variable stores the wakeup time in absolute slot number
-	//UINT64 m_nextwakeupTicks; //This variable stores the absolute tick number to be used in the next
-	UINT32 m_seedUpdateIntervalinSlots;
+	UINT32 m_seedUpdateIntervalinSlots;//Frame Length. One reception slot is selected among this many number of slots
 
 
 	void Initialize(UINT8 radioID, UINT8 macID);
@@ -36,19 +32,7 @@ public:
  	void ExecuteEvent();
 
 	void PostExecuteEvent();
-	UINT32 GetWakeupSlot();
-	void SetWakeupSlot(UINT32);
-	void SetCurrentRandomValue(UINT16 tmp_randVal)
-	{
-		currentRandomValue = tmp_randVal;
-	}
-
-	UINT16 GetCurrentRandomValue()
-	{
-		return currentRandomValue;
-	}
 };
 
-UINT16 DataReceptionHandler::currentRandomValue = 0;
 
 #endif /* DATARECEPTIONHANDLER_H_ */

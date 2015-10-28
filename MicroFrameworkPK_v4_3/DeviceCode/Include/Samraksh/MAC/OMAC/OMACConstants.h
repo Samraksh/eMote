@@ -45,8 +45,11 @@
 #define MAX_UINT16 	(0xFFFF)
 #define MAX_UINT32 	(0xFFFFFFFF)
 #define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
+#define MID_UINT64  (0x7FFFFFFFFFFFFFFF)
 
 #define MAX_DATA_PCKT_SIZE 20
+
+
 /*
  *
  */
@@ -128,20 +131,15 @@ typedef enum {
  */
 typedef struct DiscoveryMsg
 {
-	// offset between the start of the counter to global time 0
-	//used by neighbors to calculate the sender's next receive slot
-	UINT16 counterOffset; //BK: NOT USED
-	//the time to startup the radio could be different for different nodes.
-	//use this neighbor info along with local info to compute this difference
-	UINT16 radioStartDelay;
-
 	//seed to generate the pseduo-random wakeup schedule
 	UINT16 nextSeed;
 	UINT16 mask;
 	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
-	UINT32 nextwakeupSlot;
+	//UINT64 nextwakeupSlot;
+	UINT32 nextwakeupSlot0;
+	UINT32 nextwakeupSlot1;
 	//the wakeup interval of the neighbor
-	UINT16 seedUpdateIntervalinSlots;
+	UINT32 seedUpdateIntervalinSlots;
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
 
@@ -196,11 +194,62 @@ typedef struct OMacHeader {
   UINT8 flag;
 } OMacHeader;
 
+//Overflow provisioned class
+template<class Base_T>
+class OFProv:Base_T{
+public:
+	bool isThereOverflow(const Base_T& rhs){
+		if(rhs>*this){
+			if(rhs - *this <= MID_UINT64) return false;
+			else return true;
+		}
+		else{
+			if(*this - rhs <= MID_UINT64) return false;
+			else return true;
+		}
+	}
+	bool operator<(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs<*this) return true;
+			else false;
+		}
+		else{
+			if (rhs<*this) return true;
+			else return false;
+		}
+	}
+	bool operator>(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs>*this) return true;
+			else false;
+		}
+		else{
+			if (rhs>*this) return true;
+			else return false;
+		}
+	};
+	bool operator<=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this < *rhs);
+	}
+	bool operator>=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this > *rhs);
+	}
+};
+
+typedef OFProv<UINT64> OMACMicroSeconds;
+typedef OFProv<UINT64> OMACTicks;
+
+
 #define MICSECINMILISEC 1000
 #define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
 #define TIMER_EVENT_DELAY_OFFSET 700
 #define MINEVENTTIME 5000				//minimum time required by scheduler to switch between modules
+#define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
 
 #define WAKEUPPERIODINTICKS 8000000
 enum {

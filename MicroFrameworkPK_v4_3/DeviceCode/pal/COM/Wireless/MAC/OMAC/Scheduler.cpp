@@ -31,10 +31,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	timer2INuse =false;
 	radioID = _radioID;
 	macID = _macID;
-	//Initialize variables
-	startMeasuringDutyCycle=TRUE; //Profiling variable, set to true to start sending/receiving
-	dutyCycleReset = 0;
-	totalRadioUp = 0;
+
 	
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) SCHED_START_STOP_PIN, FALSE);
 
@@ -43,17 +40,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	minStopDelay = 300; maxStopDelay = 10;
 #endif
 
-	ProtoState.ToIdle();
 	InputState.ToIdle();
 
-	m_discoveryTicks = 0, m_shldPrintDuty = 0;
-	m_slotNo = 0;
-	m_nonSleepStateCnt = 0;
-	m_lastHandler = NULL_HANDLER;
-	m_lastPiggybackSlot = 0;
-	m_radioDelayAvg = 0;
-	radioTiming = 0;
-	m_busy = FALSE;
 
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
@@ -107,17 +95,16 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
-	m_slotNo = GetSlotNumber();
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
 	if (rxEventOffset < MINEVENTTIME) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;
 	txEventOffset = m_DataTransmissionHandler.NextEvent();
 	if (txEventOffset < MINEVENTTIME) txEventOffset = 0xffffffffffffffff;
 	//txEventOffset = txEventOffset-1;
-	beaconEventOffset = m_DiscoveryHandler.NextEvent(m_slotNo);
+	beaconEventOffset = m_DiscoveryHandler.NextEvent();
 	if (beaconEventOffset < MINEVENTTIME) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
-	timeSyncEventOffset = m_TimeSyncHandler.NextEvent(m_slotNo);
+	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
 	if (timeSyncEventOffset < MINEVENTTIME) timeSyncEventOffset = 0xffffffffffffffff;
 	//timeSyncEventOffset = timeSyncEventOffset-1;
 
@@ -153,9 +140,11 @@ void OMACScheduler::ScheduleNextEvent(){
 
 
 	UINT64 curTicks = HAL_Time_CurrentTicks();
+#ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
-			, HAL_Time_TicksToTime(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
+			, HAL_Time_TicksToTime(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
 
+#endif
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 	//hal_printf("OMACScheduler::ScheduleNextEvent nextWakeupTimeInMicSec: %llu\n", nextWakeupTimeInMicSec);
 
@@ -185,8 +174,10 @@ void OMACScheduler::ScheduleNextEvent(){
 bool OMACScheduler::RunEventTask(){
 	g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = HAL_Time_CurrentTicks();
+#ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask() \n"
-			, HAL_Time_TicksToTime(curTicks), GetSlotNumber(), HAL_Time_TicksToTime(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(m_TimeSyncHandler.Neighbor2beFollowed, curTicks)) );
+			, HAL_Time_TicksToTime(curTicks), GetSlotNumber(), HAL_Time_TicksToTime(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)) );
+#endif
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			//hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
@@ -201,10 +192,10 @@ bool OMACScheduler::RunEventTask(){
 		case I_TIMESYNC_PENDING:
 			//hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
 			m_lastHandler = TIMESYNC_HANDLER;
-			m_TimeSyncHandler.ExecuteEvent(m_slotNo);
+			m_TimeSyncHandler.ExecuteEvent();
 			break;
 		case I_DISCO_PENDING:
-			m_DiscoveryHandler.ExecuteEvent(m_slotNo);
+			m_DiscoveryHandler.ExecuteEvent();
 			m_lastHandler = CONTROL_BEACON_HANDLER;
 			break;
 		default: //Case for
@@ -215,7 +206,6 @@ bool OMACScheduler::RunEventTask(){
 void OMACScheduler::PostExecution(){
 	EnsureStopRadio();
 	InputState.ForceState(I_IDLE);
-	ProtoState.ToIdle();
 	ScheduleNextEvent();
 }
 
