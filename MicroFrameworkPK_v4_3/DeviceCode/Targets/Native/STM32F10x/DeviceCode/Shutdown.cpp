@@ -12,7 +12,7 @@ bool ShutdownDrivers(void)
 	bool returnValue;
 
 	returnValue = AD_Uninitialize();
-	Mac_UnInitialize(Mac_GetID());
+	Mac_UnInitialize();
 
 	return returnValue;
 }
