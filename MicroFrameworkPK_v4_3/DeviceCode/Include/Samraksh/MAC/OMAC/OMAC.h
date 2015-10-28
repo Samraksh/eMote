@@ -10,9 +10,10 @@
 #define OMAC_H_
 
 #define TWO_NODES_TX_RX
+//#define OMAC_DEBUG_GPIO
 
 #if defined(TWO_NODES_TX_RX)
-#define def_Neighbor2beFollowed
+//#define def_Neighbor2beFollowed
 #define TXNODEID 3505
 #define RXNODEID 6846
 #endif

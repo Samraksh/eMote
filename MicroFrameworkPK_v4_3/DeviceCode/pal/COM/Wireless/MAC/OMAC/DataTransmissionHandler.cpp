@@ -3,6 +3,11 @@
  *
  *  Created on: Sep 5, 2012
  *      Author: Mukundan Sridharan
+ *
+ *  Modified on: Oct 30, 2015
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
+ *
+ *  Copyright The Samraksh Company
  */
 
 //#include <Samraksh/Neighbors.h>
@@ -46,20 +51,19 @@ void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
 }
 
 
-
-
 /*
  *
  */
 void DataTransmissionHandler::Initialize(){
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+#endif
 
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	/*VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_TX_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds*/
-
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 }
 
 
@@ -98,10 +102,15 @@ void DataTransmissionHandler::ExecuteEvent(){
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
 			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
 #endif
-	DeviceStatus e = DS_Fail;
+
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+	DeviceStatus e = DS_Fail;
 	bool rv = Send();
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+#endif
 	PostExecuteEvent();
 }
 

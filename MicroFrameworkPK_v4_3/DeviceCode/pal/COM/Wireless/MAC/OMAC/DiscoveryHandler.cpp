@@ -3,6 +3,11 @@
  *
  *  Created on: Aug 30, 2012
  *      Author: Mukundan Sridharan
+ *
+ *  Modified on: Oct 30, 2015
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <Samraksh/Radio_decl.h>
@@ -11,10 +16,6 @@
 #include <Samraksh/MAC/OMAC/Scheduler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
-
-#ifndef DEBUG_TSYNC
-#define DEBUG_TSYNC 1
-#endif
 
 OMACScheduler *g_scheduler;
 extern NeighborTable g_NeighborTable;
@@ -41,8 +42,10 @@ void DiscoveryHandler::SetParentSchedulerPtr(void * scheduler){
  *
  */
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCSENDPIN, TRUE);
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
+#endif
 	RadioID = radioID;
 	MacID = macID;
 	m_receivedPiggybackBeacon = FALSE;
@@ -50,7 +53,6 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	counterOffsetAvg = 0;
 	m_busy = FALSE;
 	//dataAlarmDuration = 0;
-
 
 	m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 	//m_discoveryMsg->globalTime = 0;
@@ -80,6 +82,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 	nextEventsMicroSec = nextEventsMicroSec + g_scheduler->GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
+
 /*
  *
  */
@@ -140,7 +143,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
  *
  */
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
-#ifdef DEBUG_TSYNC
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
 #endif
 	DeviceStatus e = DS_Fail;
@@ -222,7 +225,6 @@ void DiscoveryHandler::Beacon1(){
  *
  */
 void DiscoveryHandler::BeaconN(){
-
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
 		if (m_busy == TRUE) {
@@ -288,7 +290,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed ){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-#ifdef DEBUG_TSYNC
+#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
 		}
 #endif
@@ -307,7 +309,7 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-#ifdef DEBUG_TSYNC
+#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 		}
@@ -338,7 +340,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 
 	retValue = g_omac_RadioControl.Send(address, msg, size + sizeof(IEEE802_15_4_Header_t), event_time);
 
-#ifdef DEBUG_TSYNC
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 #endif
 

@@ -1,11 +1,14 @@
 /*
- * Copyright The Samraksh Company
- *
- * Author: Mukundan.Sridharan, Nived.Sivadas
- *
- * Description :  OMAC Implementation, v 1.0
+ *  OMAC.cpp
  *
  *  Created on: Aug 30, 2012
+ *  	Authors: Mukundan.Sridharan, Nived.Sivadas
+ *  	Description :  OMAC Implementation, v 1.0
+ *
+ *  Modified on: Oct 30, 2015
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <Samraksh/MAC/OMAC/OMAC.h>
@@ -127,8 +130,10 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 
 	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, TRUE);
+#endif
 
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
@@ -184,8 +189,10 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	g_rxAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetReceiveHandler();
 	g_txAckHandler = g_OMAC.GetAppHandler(g_OMAC.GetAppIdIndex())->GetSendAckHandler();
 
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 
 	//Initialize radio layer
 	return DS_Success;
@@ -194,8 +201,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 /*
  *
  */
-BOOL OMACType::UnInitialize()
-{
+BOOL OMACType::UnInitialize(){
 	BOOL ret = TRUE;
 	Initialized = FALSE;
 	ret &= CPU_Radio_UnInitialize(this->radioName);
@@ -207,7 +213,9 @@ BOOL OMACType::UnInitialize()
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+#endif
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
@@ -269,23 +277,23 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			Size -= tmsgSize;*/
 			break;
 	};
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+#endif
 	return msg;
 }
 
 /*
  *
  */
-void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
-{
+void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 
 }
 
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
-{
+BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
 	if(g_send_buffer.IsFull()){
 		hal_printf("OMACType::Send g_send_buffer full. Clearing buffer\n");
 		g_send_buffer.Erase();

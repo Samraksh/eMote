@@ -3,6 +3,8 @@
  *
  *  Created on: Oct 8, 2015
  *      Author: Bora Karaoglu
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <Samraksh/MAC/OMAC/Scheduler.h>

@@ -3,6 +3,11 @@
  *
  *  Created on: Aug 30, 2012
  *      Author: Mukundan Sridharan
+ *
+ *  Modified on: Oct 30, 2015
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <Samraksh/MAC/OMAC/DataReceptionHandler.h>
@@ -14,7 +19,6 @@ extern OMACScheduler g_omac_scheduler;
 extern RadioControl_t g_omac_RadioControl;
 DataReceptionHandler g_DataReceptionHandler;
 
-static BOOL varCounter;
 MacReceiveFuncPtrType g_rxAckHandler;
 MacEventHandler_t* g_appHandler;
 
@@ -27,7 +31,10 @@ void PublicReceiveHCallback(void * param){
  *
  */
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATARECEPTION_SLOTPIN, TRUE);
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+#endif
 	RadioID = radioID;
 	MacID = macID;
 	m_nextwakeupSlot = 0;
@@ -40,8 +47,6 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
-
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
@@ -88,7 +93,9 @@ void DataReceptionHandler::ExecuteEvent(){
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+#endif
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 	}
@@ -105,10 +112,6 @@ void DataReceptionHandler::PostExecuteEvent(){
 	 * 1. Cannot receive packet, but there is energy in the channel
 	 * 2. Received packet but with incorrect CRC
 	 */
-#ifdef OMAC_DEBUG
-	CPU_GPIO_SetPinState((GPIO_PIN) 23, FALSE);
-	//hal_printf("[Lcl %lu] Radio stopped\n", call GlobalTime.getLocalTime());
-#endif
 	//if (m_wakeupCnt % m_reportPeriod == 0) {
 	//	hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
 	//		m_wakeupCnt, m_receivedSlotCnt,
@@ -123,7 +126,9 @@ void DataReceptionHandler::PostExecuteEvent(){
 		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
 		g_omac_RadioControl.Stop();
 	}
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+#endif
 	g_omac_scheduler.PostExecution();
 }
 

@@ -1,8 +1,13 @@
 /*
- * RadioWrapper.cpp
+ * RadioControl.cpp
  *
  *  Created on: Sep 5, 2012
  *      Author: Mukundan
+ *
+ *  Modified on: Oct 30, 2015
+ *  	Authors: Bora Karaoglu; Ananth Muralidharan
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <tinyhal.h>
@@ -16,17 +21,17 @@ extern OMACType g_OMAC;
 
 #define LOCALSKEW 1
 //#define DEBUG_RADIO_STATE 1
-#define DEBUG_TIMESYNC 1
 
-extern Buffer_15_4_t g_send_buffer;
 
 /*
  *
  */
 DeviceStatus RadioControl::Initialize(){
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_STATEPIN, FALSE);
+#endif
 	return DS_Success;
 }
 
@@ -68,16 +73,13 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 		////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
 		//header->SetFlags(header->GetFlags());
 		size += sizeof(TimeSyncMsg);
-#ifdef DEBUG_TIMESYNC
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
 #endif
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
 	}else {
 		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
-#ifdef DEBUG_TIMESYNC
-		//hal_printf("RadioControl::Send CPU_Radio_Send\n");
-#endif
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
 	return DS_Success;
@@ -103,7 +105,7 @@ DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4
 	header->SetFlags(header->GetFlags());
 	//header->network = MyConfig.Network;
 
-#ifdef DEBUG_TIMESYNC
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);
 		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, FALSE);
 		//hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
@@ -127,7 +129,9 @@ DeviceStatus RadioControl::Stop(){
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 	if(returnVal == DS_Success){
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
+#endif
 	}
 	return returnVal;
 }
@@ -138,7 +142,9 @@ DeviceStatus RadioControl::Stop(){
 DeviceStatus RadioControl::StartRx(){
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, TRUE );
+#endif
 	}
 	return returnVal;
 }
