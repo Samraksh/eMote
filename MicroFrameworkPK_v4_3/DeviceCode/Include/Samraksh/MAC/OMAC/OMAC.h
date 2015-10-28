@@ -24,9 +24,41 @@
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
-#ifdef DEBUG_OMAC
-#define def_Neighbor2beFollowed;
+//#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
+//#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
+
+// Nathan
+//#define TXNODEID 18134
+//#define RXNODEID 20181
+
+// Ananth
+
+
+#if defined(TWO_NODES_TX_RX)
+#define def_Neighbor2beFollowed
+#define TXNODEID 3505
+#define RXNODEID 6846
 #endif
+
+
+//#define FAN_OUT
+//#define FAN_IN
+
+#if defined(FAN_OUT)
+#define def_Neighbor2beFollowed2
+#define RXNODEID1 3505
+#define RXNODEID2 31436
+#define TXNODEID 6846
+#elif defined(FAN_IN)
+#define def_Neighbor2beFollowed2
+#define TXNODEID1 3505
+#define TXNODEID2 31436
+#define RXNODEID 6846
+#endif
+
+
+//#define TXNODEID 30906
+//#define RXNODEID 4028
 
 /*
  *

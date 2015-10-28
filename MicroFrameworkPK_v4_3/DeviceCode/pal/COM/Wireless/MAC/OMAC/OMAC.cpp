@@ -110,8 +110,7 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  *
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-	#ifdef DEBUG_OMAC
-
+#ifdef def_Neighbor2beFollowed
 	#if defined(TWO_NODES_TX_RX)
 		if(g_OMAC.GetAddress() == RXNODEID) {
 			Neighbor2beFollowed = TXNODEID;
@@ -120,26 +119,34 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 			Neighbor2beFollowed = RXNODEID;
 		}
 	#endif
+#endif
 
-	#if defined(FAN_OUT)
+#if defined(FAN_OUT)
 		if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
 			Neighbor2beFollowed = TXNODEID;
+	#endif
 		}
 		else {
+	#ifdef def_Neighbor2beFollowed2
 			Neighbor2beFollowed1 = RXNODEID1;
 			Neighbor2beFollowed2 = RXNODEID2;
+	#endif
 		}
-	#elif defined(FAN_IN)
+#elif defined(FAN_IN)
 		if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
 			Neighbor2beFollowed = RXNODEID;
+	#endif
 		}
 		else {
+	#ifdef def_Neighbor2beFollowed2
 			Neighbor2beFollowed1 = TXNODEID1;
 			Neighbor2beFollowed2 = TXNODEID2;
+	#endif
 		}
-	#endif
+#endif
 
-	#endif
 
 	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
