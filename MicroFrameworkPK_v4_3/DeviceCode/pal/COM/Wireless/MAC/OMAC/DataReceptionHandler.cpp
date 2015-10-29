@@ -118,14 +118,15 @@ void DataReceptionHandler::PostExecuteEvent(){
 	//		m_collisionCnt, m_idleListenCnt, m_overhearCnt);
 	//}
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
-	if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
+	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
+	/*if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
 		//Stop the radio
 		g_omac_RadioControl.Stop();
 	}
 	else {
 		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
 		g_omac_RadioControl.Stop();
-	}
+	}*/
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 #endif

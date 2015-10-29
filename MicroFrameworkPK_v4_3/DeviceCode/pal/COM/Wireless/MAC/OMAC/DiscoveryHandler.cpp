@@ -27,7 +27,11 @@ extern OMACType g_OMAC;
  */
 void PublicBeaconNCallback(void * param){
 	g_scheduler->m_DiscoveryHandler.BeaconNTimerHandler(param);
-	g_scheduler->PostExecution();
+	//Commenting this out as this->PostExecuteEvent() is called from BeaconN and BeaconNTimerHandler.
+	//Right now BeaconNTimerHandler will never call this->PostExecuteEvent() as ShouldBeacon() is always true.
+	//BeaconN will call it only when it fails
+	//Therefore placing PostExecuteEvent at the end of BeaconNTimerHandler
+	//g_scheduler->PostExecution();
 }
 
 /*
@@ -211,8 +215,8 @@ void DiscoveryHandler::Beacon1(){
 	StartBeaconNTimer(TRUE);
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
-		if(ds != DS_Success) {
-			hal_printf("Beacon1 failed. ds = %d\n", ds);
+		if(ds != DS_Success || m_busy == TRUE) {
+			hal_printf("Beacon1 failed. ds = %d; m_busy: %d\n", ds, m_busy);
 		}
 		else {
 			//hal_printf("Beacon1 succeeded\n");
@@ -225,22 +229,33 @@ void DiscoveryHandler::Beacon1(){
  *
  */
 void DiscoveryHandler::BeaconN(){
-	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
-	if (ds != DS_Success) {
-		if (m_busy == TRUE) {
-			hal_printf("BeaconN failed. m_busy\n");
-			// Ignore it, AMSend.sendDone will provide continuation.
-			this->PostExecuteEvent();
+	if(m_busy == FALSE){
+		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
+		if (ds != DS_Success || m_busy == TRUE) {
+			//Commenting out below and combining the conditions into one
+			/*if (m_busy == TRUE) {
+				hal_printf("BeaconN failed. m_busy\n");
+				// Ignore it, AMSend.sendDone will provide continuation.
+				this->PostExecuteEvent();
+			}
+			else {
+				// HACK: for now, just turn off radio.
+				hal_printf("BeaconN failed\n");
+				//this->ExecuteEventDone();
+				this->PostExecuteEvent();
+			}*/
+			hal_printf("BeaconN failed. ds = %d; m_busy: %d\n", ds, m_busy);
+			//Setting m_busy to false again as Beacon1 will not proceed otherwise
+			m_busy = FALSE;
+			//this->PostExecuteEvent();
 		}
 		else {
-			// HACK: for now, just turn off radio.
-			hal_printf("BeaconN failed\n");
-			//this->ExecuteEventDone();
-			this->PostExecuteEvent();
+			//hal_printf("BeaconN succeeded\n");
 		}
 	}
-	else {
-		//hal_printf("BeaconN succeeded\n");
+	else{
+		hal_printf("BeaconN failed. m_busy: %d\n", m_busy);
+		m_busy = FALSE;
 	}
 }
 
@@ -265,8 +280,8 @@ void DiscoveryHandler::BeaconNTimerHandler(void* Param){
 	} else {
 		hal_printf("m_busy DiscoveryHandler::BeaconNTimerHandler\n");
 		m_busy = FALSE;
-		this->PostExecuteEvent();
 	}
+	this->PostExecuteEvent();
 	//VirtTimer_Stop(7);
 }
 

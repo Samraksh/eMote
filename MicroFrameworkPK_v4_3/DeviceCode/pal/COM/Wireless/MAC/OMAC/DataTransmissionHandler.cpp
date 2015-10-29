@@ -125,7 +125,8 @@ void DataTransmissionHandler::ExecuteEvent(){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
-	g_omac_RadioControl.Stop();
+	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
+	//g_omac_RadioControl.Stop();
 	g_omac_scheduler.PostExecution();
 }
 
