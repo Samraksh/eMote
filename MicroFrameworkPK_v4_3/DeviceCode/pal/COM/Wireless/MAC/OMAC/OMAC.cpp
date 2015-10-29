@@ -239,7 +239,21 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		Size -= tmsgSize;
 	}*/
 
-	MacReceiveFuncPtrType rxAckHandler;
+	// Implement bag exchange if the packet type is data
+	Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+
+	if(! (next_free_buffer))
+	{
+		g_receive_buffer.DropOldest(1);
+		next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+	}
+
+	//Implement bag exchange, by actually switching the contents.
+	Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
+	(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
+								//finally the temp, which is a ptr to free message will be returned.
+
+
 	//Demutiplex packets received based on type
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
@@ -280,7 +294,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
-	return msg;
+
+	return temp;
 }
 
 /*
