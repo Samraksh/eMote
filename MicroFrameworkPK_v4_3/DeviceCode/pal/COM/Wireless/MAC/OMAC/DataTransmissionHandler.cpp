@@ -24,7 +24,6 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 DataTransmissionHandler g_DataTransmissionHandler;
 
-static BOOL isDataPacketScheduled = false;
 
 void PublicTXEndHCallback(void * param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
@@ -60,6 +59,7 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
 
+	isDataPacketScheduled = false;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	/*VirtualTimerReturnMessage rm;
@@ -86,6 +86,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
 				, remMicroSecnextTX, HAL_Time_TicksToTime(nextTXTicks), g_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), HAL_Time_TicksToTime(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
 #endif
+
+		/*UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks()));
+		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(dest);
+		UINT64 neighborwakeUpSlot = neigh_ptr->nextwakeupSlot;
+		if(neighborwakeUpSlot - neighborSlot < 20 ){
+			neighborwakeUpSlot = neighborwakeUpSlot+1;
+		}*/
+
 		return remMicroSecnextTX;
 	}
 	else {
@@ -208,7 +216,7 @@ bool DataTransmissionHandler::Send(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	//Send only when packet has been scheduled
-	if(isDataPacketScheduled){
+	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
 		UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
@@ -224,7 +232,7 @@ bool DataTransmissionHandler::Send(){
 
 		//set flag to false after packet has been sent
 		isDataPacketScheduled = false;
-
+		m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success)
 			return false;
 		else
@@ -240,44 +248,52 @@ bool DataTransmissionHandler::Send(){
  */
 BOOL DataTransmissionHandler::ScheduleDataPacket()
 {
-	// do not schedule a new tx if
-	// 1) we've already scheduled an tx task (m_nextTXTicks >= now), or
-	// 2) we have nothing to send
-	//3) when the radio is idle.
-
-	if ( g_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-		UINT16 dest;
-		Neighbor_t* neighborEntry;
+	// do not schedule a packet if
+	// 1) Case for no data packets in line
+	// 2) Case : destination does not exist in the neighbor table
+	//	3) Case: No timing info is available for the destination
+	if (m_outgoingEntryPtr == NULL && g_send_buffer.GetNumberMessagesInBuffer() > 0 ) {//If we already have a packet
 		m_outgoingEntryPtr = g_send_buffer.GetOldest();
 		if (m_outgoingEntryPtr == NULL) {
 			return FALSE;
 		}
+	}
+
+	if ( m_outgoingEntryPtr != NULL ){
+		UINT16 dest;
+		Neighbor_t* neighborEntry;
 		dest = m_outgoingEntryPtr->GetHeader()->dest;
 		neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 		if (neighborEntry != NULL) {
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
+				assert(neighborEntry->MacAddress == dest);
+				isDataPacketScheduled = false;
 				return FALSE;
 			}
 			UINT64 y = HAL_Time_CurrentTicks();
 			UINT64 neighborTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
-			if (neighborTimeinTicks == 0){
+			if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
+				//Keep the packet but do not schedule the data packet
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
+				isDataPacketScheduled = false;
 				return FALSE;
 			}
-			UINT32 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
+			UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
 				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
 			}
 			isDataPacketScheduled = true;
 			return TRUE;
 		}
-		else {
+		else { //Case : destination does not exist in the neighbor table
+			//Keep the packet
+			isDataPacketScheduled = false;
 			hal_printf("Cannot find nbr %u\n", dest);
 			return FALSE;
 		}
 	}
-	else{
+	else{ //Case for no data packets in line
 		return FALSE;
 	}
 }

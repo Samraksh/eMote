@@ -25,6 +25,7 @@ class DataTransmissionHandler: public EventHandler {
 
 	Message_15_4_t m_TXMsgBuffer;
 	DataMsg_t *m_TXMsg;
+	BOOL isDataPacketScheduled;
 
 public:
 	void Initialize();

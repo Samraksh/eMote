@@ -249,9 +249,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
-				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
+					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
 				}
 #endif
@@ -271,7 +271,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 											//finally the temp, which is a ptr to free message will be returned.
 
 				(*g_rxAckHandler)(msg, Size);
-				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+#ifdef def_Neighbor2beFollowed
+				if ( sourceID == Neighbor2beFollowed) {
+					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+				}
+#endif
 			}
 			break;
 		case MFM_ROUTING:
