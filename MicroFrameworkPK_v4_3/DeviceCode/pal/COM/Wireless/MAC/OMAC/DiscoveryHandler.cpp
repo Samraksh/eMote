@@ -307,8 +307,8 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 		if (g_scheduler->m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
-		}
 #endif
+		}
 	}
 #endif
 
@@ -334,9 +334,6 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	return DS_Success;
 }
 
-/*
- *
- */
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
 	DeviceStatus retValue;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
@@ -351,7 +348,6 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DISCOVERY;
-	//header->type = MFM_TIMESYNC;
 
 	retValue = g_omac_RadioControl.Send(address, msg, size + sizeof(IEEE802_15_4_Header_t), event_time);
 
