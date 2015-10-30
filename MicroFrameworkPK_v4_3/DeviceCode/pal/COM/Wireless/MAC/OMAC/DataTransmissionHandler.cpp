@@ -267,7 +267,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 		if (neighborEntry != NULL) {
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
-				assert(neighborEntry->MacAddress == dest);
+				ASSERT(neighborEntry->MacAddress == dest);
 				isDataPacketScheduled = false;
 				return FALSE;
 			}
