@@ -1,6 +1,7 @@
 #include "RF231.h"
 #include <tinyhal.h>
 #include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
+#include <Samraksh/MAC/OMAC/DiscoveryHandler.h>
 
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
@@ -557,6 +558,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 	}
 	else if(state == STATE_BUSY_TX)
 	{
+		//hal_printf("state is busy TX. sleep pending to true\n");
 		sleep_pending = TRUE;
 		return DS_Success;
 	}
@@ -595,6 +597,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 	// The radio is busy doing something, we are not in a position to handle this request
 	else
 	{
+		hal_printf("radio is busy doing something. sleep pending to true. state is %d; regState is %lu\n", state, regState);
 		sleep_pending = TRUE;
 	}
 
@@ -1531,6 +1534,8 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RECEIVE)
 		{
+			Message_15_4_t* rx_msg_ptr_temp;
+
 			CPU_GPIO_SetPinState( RF231_RX, TRUE );
 #			ifdef DEBUG_RF231
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
@@ -1570,6 +1575,7 @@ void RF231Radio::HandleInterrupt()
 				if ( !Interrupt_Pending() ) {
 					int type = rx_msg_ptr->GetHeader()->type;
 					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					rx_msg_ptr_temp = rx_msg_ptr;
 					rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
 			}
@@ -1583,8 +1589,16 @@ void RF231Radio::HandleInterrupt()
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
 			{
-				Sleep(0);
 				hal_printf("**********About to sleep in RX. State is %d**********\n", state);
+				Sleep(0);
+				hal_printf("msg contents are: \n");
+				DiscoveryMsg_t* discoPayload = (DiscoveryMsg_t*)rx_msg_ptr_temp->GetPayload();
+				hal_printf("src: %d\n", rx_msg_ptr_temp->GetHeader()->src);
+				hal_printf("dest: %d\n", rx_msg_ptr_temp->GetHeader()->dest);
+				hal_printf("disco nodeID: %u\n", discoPayload->nodeID);
+				hal_printf("disco nextSeed: %u\n", discoPayload->nextSeed);
+				hal_printf("disco seedUpdateIntervalinSlots: %lu\n", discoPayload->seedUpdateIntervalinSlots);
+				hal_printf("*****************************************************\n");
 				CPU_GPIO_SetPinState( RF231_RX, FALSE );
 				CPU_GPIO_SetPinState( RF231_RX, TRUE );
 				CPU_GPIO_SetPinState( RF231_RX, FALSE );
