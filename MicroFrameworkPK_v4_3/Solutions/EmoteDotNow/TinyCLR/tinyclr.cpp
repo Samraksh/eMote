@@ -4,8 +4,6 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
-//#include <Samraksh\..\..\PAL\COM\Wireless\MAC\TimesyncTest\SimpleTimesyncTest.cpp>
-#include <Samraksh\..\..\PAL\COM\Wireless\MAC\OMAC\OMACTest.cpp>
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {

@@ -162,14 +162,12 @@
             <param name="numberOfChangedNeighbors">Number of neighbors that have changed</param>
         </member>
         <member name="T:Samraksh.eMote.Net.Mac.CSMA">
-            <summary>
-            
-            </summary>
+            <summary>CSMA objects</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.MACBase">
             <summary>Base class for wireless protocols</summary>
             <seealso cref="T:Samraksh.eMote.Net.Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
-            <seealso cref="T:Samraksh.eMote.Net.OMAC" cat="Inherited by">OMAC Class</seealso>
+            <seealso cref="T:Samraksh.eMote.Net.Mac.OMAC" cat="Inherited by">OMAC Class</seealso>
         </member>
         <member name="T:Samraksh.eMote.Net.Mac.IMac">
             <summary>
@@ -1032,10 +1030,10 @@
             <summary>The time at which the packet was sent out</summary>
             <value>Time the packet was sent out (microseconds)</value>
         </member>
-        <member name="T:Samraksh.eMote.Net.OMAC">
+        <member name="T:Samraksh.eMote.Net.Mac.OMAC">
             <summary>OMAC objects</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.OMAC.Instance">
+        <member name="P:Samraksh.eMote.Net.Mac.OMAC.Instance">
             <summary>
             Returns the instance of the OMAC object
             </summary>

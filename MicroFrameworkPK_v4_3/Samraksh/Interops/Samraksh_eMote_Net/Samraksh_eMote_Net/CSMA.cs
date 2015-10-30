@@ -5,9 +5,7 @@ using Samraksh.eMote.Net.Mac;
 
 namespace Samraksh.eMote.Net.Mac
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary>CSMA objects</summary>
     public class CSMA : MACBase
     {
         private static CSMA instance;

@@ -10,9 +10,10 @@
 #define OMAC_H_
 
 #define TWO_NODES_TX_RX
+//#define OMAC_DEBUG_GPIO
 
 #if defined(TWO_NODES_TX_RX)
-#define def_Neighbor2beFollowed
+//#define def_Neighbor2beFollowed
 /* // Nathan's nodes
 //#define TXNODEID 18134
 //#define RXNODEID 20181

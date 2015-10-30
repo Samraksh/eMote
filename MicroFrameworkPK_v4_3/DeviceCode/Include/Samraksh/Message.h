@@ -169,8 +169,13 @@ typedef class IEEE802_15_4_Metadata{
 	}
 
 }IEEE802_15_4_Metadata_t;
-//#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-2*sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t)-2)
-#define IEEE802_15_4_MAX_PAYLOAD 50
+
+const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+const int timestamp_size = 4;	//used in Radio driver's RF231Radio::Send_TimeStamped
+//IEEE802_15_4_MAX_PAYLOAD cannot go beyond 106 (14 for IEEE802_15_4_Header_t added with CRC (2 bytes) and timestamp (4 bytes) in radio driver makes it 126 which is IEEE802_15_4_FRAME_LENGTH).
+//IEEE802_15_4_MAX_PAYLOAD below is 101 bytes.
+#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t))
+//#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t)-crc_size-timestamp_size)
 
 typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
 #define Message_15_4_t IEEE802_15_4_Message_t

@@ -3,6 +3,8 @@
  *
  *  Created on: Oct 8, 2015
  *      Author: Bora Karaoglu
+ *
+ *  Copyright The Samraksh Company
  */
 
 #include <Samraksh/MAC/OMAC/Scheduler.h>
@@ -16,22 +18,21 @@ HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
 #define MAXSCHEDULERUPDATE 5000000
 
-bool flag = true; //BK: I don't know what this is used for
-
 void PublicSchedulerTaskHandler1(void * param){
 	g_omac_scheduler.RunEventTask();
 	g_omac_scheduler.timer1INuse=false;
 }
+
 void PublicSchedulerTaskHandler2(void * param){
 	g_omac_scheduler.RunEventTask();
 	g_omac_scheduler.timer2INuse=false;
 }
+
 void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	timer1INuse = false;
 	timer2INuse =false;
 	radioID = _radioID;
 	macID = _macID;
-
 	
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) SCHED_START_STOP_PIN, FALSE);
 
@@ -41,7 +42,6 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 #endif
 
 	InputState.ToIdle();
-
 
 	//Initialize the HAL vitual timer layer
 	VirtTimer_Initialize();
@@ -143,10 +143,8 @@ void OMACScheduler::ScheduleNextEvent(){
 #ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
 			, HAL_Time_TicksToTime(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
-
 #endif
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
-	//hal_printf("OMACScheduler::ScheduleNextEvent nextWakeupTimeInMicSec: %llu\n", nextWakeupTimeInMicSec);
 
 	if(!timer1INuse){
 		timer1INuse = true;
@@ -180,17 +178,14 @@ bool OMACScheduler::RunEventTask(){
 #endif
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
-			//hal_printf("OMACScheduler::RunEventTask I_DATA_SEND_PENDING\n");
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent();
 			break;
 		case I_DATA_RCV_PENDING:
-			//hal_printf("OMACScheduler::RunEventTask I_DATA_RCV_PENDING\n");
 			m_lastHandler = DATA_RX_HANDLER;
 			m_DataReceptionHandler.ExecuteEvent();
 			break;
 		case I_TIMESYNC_PENDING:
-			//hal_printf("OMACScheduler::RunEventTask I_TIMESYNC_PENDING\n");
 			m_lastHandler = TIMESYNC_HANDLER;
 			m_TimeSyncHandler.ExecuteEvent();
 			break;
