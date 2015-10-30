@@ -28,7 +28,7 @@ UINT8 MACBase::MyAppID;
 
 enum CallBackTypes
 {
-	RecievedCallback,
+	ReceivedCallback,
 	NeighborChangedCallback,
 };
 
@@ -188,7 +188,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets)
 {
-	ManagedCallback(RecievedCallback, numberOfPackets);
+	ManagedCallback(ReceivedCallback, numberOfPackets);
 }
 
 INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
