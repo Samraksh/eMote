@@ -13,24 +13,18 @@
 
 #if defined(TWO_NODES_TX_RX)
 #define def_Neighbor2beFollowed
+/* // Nathan's nodes
+//#define TXNODEID 18134
+//#define RXNODEID 20181
+*/
+//Bora's Nodes
+//#define TXNODEID 30906
+#define TXNODEID 4028
+#define RXNODEID 32696
+/*// Ananth's Nodes
 #define TXNODEID 3505
 #define RXNODEID 6846
-#endif
-
-
-//#define FAN_OUT
-//#define FAN_IN
-
-#if defined(FAN_OUT)
-#define def_Neighbor2beFollowed2
-#define RXNODEID1 3505
-#define RXNODEID2 31436
-#define TXNODEID 6846
-#elif defined(FAN_IN)
-#define def_Neighbor2beFollowed2
-#define TXNODEID1 3505
-#define TXNODEID2 31436
-#define RXNODEID 6846
+*/
 #endif
 
 #include <Samraksh/MAC.h>
@@ -49,9 +43,7 @@ typedef Buffer_15_4<8> Buffer_15_4_t;
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
 //#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
 
-// Nathan
-//#define TXNODEID 18134
-//#define RXNODEID 20181
+
 
 // Ananth
 

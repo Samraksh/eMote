@@ -110,42 +110,7 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  *
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-#ifdef def_Neighbor2beFollowed
-	#if defined(TWO_NODES_TX_RX)
-		if(g_OMAC.GetAddress() == RXNODEID) {
-			Neighbor2beFollowed = TXNODEID;
-		}
-		else {
-			Neighbor2beFollowed = RXNODEID;
-		}
-	#endif
-#endif
 
-#if defined(FAN_OUT)
-		if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
-	#ifdef def_Neighbor2beFollowed
-			Neighbor2beFollowed = TXNODEID;
-	#endif
-		}
-		else {
-	#ifdef def_Neighbor2beFollowed2
-			Neighbor2beFollowed1 = RXNODEID1;
-			Neighbor2beFollowed2 = RXNODEID2;
-	#endif
-		}
-#elif defined(FAN_IN)
-		if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
-	#ifdef def_Neighbor2beFollowed
-			Neighbor2beFollowed = RXNODEID;
-	#endif
-		}
-		else {
-	#ifdef def_Neighbor2beFollowed2
-			Neighbor2beFollowed1 = TXNODEID1;
-			Neighbor2beFollowed2 = TXNODEID2;
-	#endif
-		}
-#endif
 
 
 	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
@@ -216,6 +181,44 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 	CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+
+
+#ifdef def_Neighbor2beFollowed
+	#if defined(TWO_NODES_TX_RX)
+		if(g_OMAC.GetAddress() == RXNODEID) {
+			Neighbor2beFollowed = TXNODEID;
+		}
+		else {
+			Neighbor2beFollowed = RXNODEID;
+		}
+	#endif
+#endif
+
+#if defined(FAN_OUT)
+		if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
+			Neighbor2beFollowed = TXNODEID;
+	#endif
+		}
+		else {
+	#ifdef def_Neighbor2beFollowed2
+			Neighbor2beFollowed1 = RXNODEID1;
+			Neighbor2beFollowed2 = RXNODEID2;
+	#endif
+		}
+#elif defined(FAN_IN)
+		if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+	#ifdef def_Neighbor2beFollowed
+			Neighbor2beFollowed = RXNODEID;
+	#endif
+		}
+		else {
+	#ifdef def_Neighbor2beFollowed2
+			Neighbor2beFollowed1 = TXNODEID1;
+			Neighbor2beFollowed2 = TXNODEID2;
+	#endif
+		}
+#endif
 
 	//Initialize radio layer
 	return DS_Success;
