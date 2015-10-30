@@ -14,8 +14,6 @@
 #include <Samraksh/Hal_util.h>
 #include <Samraksh/GlobalTime.h>
 
-#define DEBUG_TSYNC
-
 /*
  *
  */
