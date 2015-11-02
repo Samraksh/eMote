@@ -96,39 +96,24 @@ void DataReceptionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
-		/*VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);*/
+		VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
 	}
-	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+	PostExecuteEvent();
 }
 
 /*
  *
  */
 void DataReceptionHandler::PostExecuteEvent(){
-	/* Two types of symptons if collision occurs:
-	 * 1. Cannot receive packet, but there is energy in the channel
-	 * 2. Received packet but with incorrect CRC
-	 */
-	//if (m_wakeupCnt % m_reportPeriod == 0) {
-	//	hal_printf("wakeupCnt=%u,rxCnt=%u,collision=%u,idle=%u,overhear=%u\n",
-	//		m_wakeupCnt, m_receivedSlotCnt,
-	//		m_collisionCnt, m_idleListenCnt, m_overhearCnt);
-	//}
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
-	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
-	/*if( g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) ) {
-		//Stop the radio
-		g_omac_RadioControl.Stop();
-	}
-	else {
-		hal_printf("DataReceptionHandler::PostExecuteEvent():: Missed the turnoff opportunity");
-		g_omac_RadioControl.Stop();
-	}*/
+	g_omac_RadioControl.Stop();
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 #endif
