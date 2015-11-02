@@ -70,10 +70,10 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 #ifndef LOCALSKEW
 		x = m_globalTime.Local2Global(y);
 #endif
+		y = y - (UINT64) eventTime;
 		tmsg->localTime0 = (UINT32) y;
 		tmsg->localTime1 = (UINT32) (y>>32);
-		////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
-		//header->SetFlags(header->GetFlags());
+		msg->GetHeader()->type = (msg->GetHeader()->type | MFM_TIMESYNC);
 		size += sizeof(TimeSyncMsg);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);

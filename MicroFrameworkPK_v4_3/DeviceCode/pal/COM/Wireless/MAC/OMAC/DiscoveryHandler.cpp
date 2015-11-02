@@ -256,6 +256,7 @@ void DiscoveryHandler::BeaconN(){
 	else{
 		hal_printf("BeaconN failed. m_busy: %d\n", m_busy);
 		m_busy = FALSE;
+		PostExecuteEvent();
 	}
 }
 
