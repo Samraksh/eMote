@@ -96,12 +96,14 @@ void DataReceptionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
-		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+		/*VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);*/
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
 	}
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 }
 
 /*
