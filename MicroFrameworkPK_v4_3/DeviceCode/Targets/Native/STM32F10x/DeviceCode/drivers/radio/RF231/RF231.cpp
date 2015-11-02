@@ -670,6 +670,17 @@ typedef struct  {
 	char* msgContent;
 }Payload_t_ping;
 
+// See RF231 datasheet section 8.3.4
+// Return 0 to 28, 3dB steps, from -91 dBm to 10 dBm
+INT32 RF231Radio::GetRSSI() {
+
+	if (state != STATE_RX_ON) {
+		return 0x7FFFFFFF;
+	}
+
+	return ReadRegister(RF230_PHY_RSSI) & 0x1F;
+}
+
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	Message_15_4_t* msgBeingSent = (Message_15_4_t*)msg;

@@ -414,10 +414,29 @@ UINT32 CPU_Radio_GetSNR(UINT8 radioID)
 	return 0;
 }
 
-
+// Gets the RSSI. Does not use the ED module of the RF231 currently.
+// Must be called when in RX mode. Caller must do this.
+// Return MAX_INT for total fail.
+// Returns 0x7FFFFFFF if not in RX mode.
 UINT32 CPU_Radio_GetRSSI(UINT8 radioID)
 {
-	return 0;
+	UINT32 val;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			val = grf231Radio.GetRSSI();
+			break;
+		case RF231RADIOLR:
+			val = grf231RadioLR.GetRSSI();
+			break;
+		default:
+			val=0xFFFFFFFF; // error condition.
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	return val;
 }
 
 
