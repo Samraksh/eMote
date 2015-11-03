@@ -16,8 +16,7 @@ extern OMACScheduler g_omac_scheduler;
 
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
-#define MAXSCHEDULERUPDATE 5000000
-#define DISCO_SLOT_GUARD 10
+
 
 void PublicSchedulerTaskHandler1(void * param){
 	g_omac_scheduler.RunEventTask();

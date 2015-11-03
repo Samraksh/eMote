@@ -23,6 +23,9 @@
 
 //extern HALTimerManager gHalTimerManagerObject;
 
+#define MAXSCHEDULERUPDATE 5000000
+#define DISCO_SLOT_GUARD 10
+
 /*
  *
  */

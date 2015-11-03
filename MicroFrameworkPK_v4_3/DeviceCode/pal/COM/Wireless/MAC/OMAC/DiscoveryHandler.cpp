@@ -24,8 +24,6 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 extern RF231Radio grf231Radio;
 
-static bool stopBeacon = false;
-
 /*
  *
  */
@@ -58,21 +56,20 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
-	if(!stopBeacon){
-		UINT16 nextEventsSlot = 0;
-		UINT64 nextEventsMicroSec = 0;
-		nextEventsSlot = NextEventinSlots();
-		if(nextEventsSlot == 0) {
-			//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
-			return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
-		}
-		nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
-		nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
-		return(nextEventsMicroSec);
+	UINT16 nextEventsSlot = 0;
+	UINT64 nextEventsMicroSec = 0;
+	nextEventsSlot = NextEventinSlots();
+	if(nextEventsSlot == 0) {
+		//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
+		nextEventsMicroSec = nextEventsMicroSec-1;//BK: Current slot is already too late. Hence return a large number back
 	}
-	else{
-		return MAX_UINT64;
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+
+	if(nextEventsMicroSec > MAXSCHEDULERUPDATE){
+		assert(0);
 	}
+	return(nextEventsMicroSec);
 }
 
 /*
@@ -98,8 +95,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(){
 void DiscoveryHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
-	if(true){//if (e == DS_Success){
-		//StartBeaconNTimer(TRUE);
+	if (e == DS_Success){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
 		if(rm == TimerSupported) {
