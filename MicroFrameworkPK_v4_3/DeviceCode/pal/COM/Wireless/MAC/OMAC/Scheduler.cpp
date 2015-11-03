@@ -16,7 +16,9 @@ extern OMACScheduler g_omac_scheduler;
 
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
-
+void PublicPostExecutionTaskHandler1(void * param){
+	g_omac_scheduler.PostPostExecution();
+}
 
 void PublicSchedulerTaskHandler1(void * param){
 	g_omac_scheduler.RunEventTask();
@@ -47,6 +49,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	VirtTimer_Initialize();
 	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
 	VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
+	VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
 
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 	OMAC_scheduler_TimerCompletion.Initialize();
@@ -108,16 +111,16 @@ void OMACScheduler::ScheduleNextEvent(){
 	timeSyncEventOffset = 0xffffffffffffffff;
 	//timeSyncEventOffset = timeSyncEventOffset-1;
 
-	if(rxEventOffset < nextWakeupTimeInMicSec) {
+	if(rxEventOffset < MAXSCHEDULERUPDATE && rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
 	}
-	if(txEventOffset < nextWakeupTimeInMicSec) {
+	if(txEventOffset < MAXSCHEDULERUPDATE && txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
-	if(beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
+	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}
-	if(timeSyncEventOffset < nextWakeupTimeInMicSec) {
+	if(timeSyncEventOffset < MAXSCHEDULERUPDATE && timeSyncEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = timeSyncEventOffset;
 	}
 
@@ -146,6 +149,9 @@ void OMACScheduler::ScheduleNextEvent(){
 #endif
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
+	if (nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
+		assert(0);
+	}
 	if(!timer1INuse){
 		timer1INuse = true;
 		VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
@@ -199,6 +205,10 @@ bool OMACScheduler::RunEventTask(){
 }
 
 void OMACScheduler::PostExecution(){
+	VirtTimer_Start(HAL_SLOT_TIMER3);
+}
+
+void OMACScheduler::PostPostExecution(){
 	EnsureStopRadio();
 	InputState.ForceState(I_IDLE);
 	ScheduleNextEvent();

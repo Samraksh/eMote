@@ -56,27 +56,25 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
+	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
-	nextEventsSlot = NextEventinSlots();
+	nextEventsSlot = NextEventinSlots(currentSlotNum);
 	if(nextEventsSlot == 0) {
-		//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
-		nextEventsMicroSec = nextEventsMicroSec-1;//BK: Current slot is already too late. Hence return a large number back
+		currentSlotNum = currentSlotNum +1;
+		nextEventsSlot = NextEventinSlots(currentSlotNum);
+		nextEventsSlot = nextEventsSlot + 1;
 	}
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
-
-	if(nextEventsMicroSec > MAXSCHEDULERUPDATE){
-		assert(0);
-	}
 	return(nextEventsMicroSec);
 }
 
 /*
  *
  */
-UINT64 DiscoveryHandler::NextEventinSlots(){
-	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
+UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
+	//UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
@@ -116,11 +114,11 @@ void DiscoveryHandler::ExecuteEvent(){
  */
 void DiscoveryHandler::PostExecuteEvent(){
 	//stop the radio
-	DeviceStatus  ds;
+	/*DeviceStatus  ds;
 	ds = g_omac_RadioControl.Stop();
 	if (ds != DS_Success) {
 		hal_printf("DiscoveryHandler::Cannot stop the radio");
-	}
+	}*/
 	g_omac_scheduler.PostExecution();
 }
 

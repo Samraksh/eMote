@@ -56,7 +56,7 @@ class DiscoveryHandler: public EventHandler {
 	void BeaconNTimerHandler();
 
 	UINT64 NextEvent();
-  	UINT64 NextEventinSlots();
+  	UINT64 NextEventinSlots(const UINT64 &currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);
   	void ExecuteEvent();
   	UINT8 ExecuteEventDone();

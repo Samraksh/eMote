@@ -115,6 +115,7 @@ public:
 	//Main Tasks
 	bool RunEventTask(); // BK: This is the main event for the slot. Queries all the modules and executes one if needed
 	void PostExecution();
+	void PostPostExecution();
 	bool EnsureStopRadio();
 
 }OMACScheduler_t;
