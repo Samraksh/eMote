@@ -181,6 +181,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	radio_hal_trx_status_t orig_status = trx_status;
 
 	if (target == trx_status) { return TRUE; } // already there!
+	if (target == RX_ON && trx_status == BUSY_RX) { return TRUE; } // BUSY_RX and RX_ON are equiv.
 
 	// Make sure we're not busy and can move.
 	if ( trx_status == BUSY_RX || trx_status == BUSY_TX || Interrupt_Pending() )
@@ -1007,54 +1008,13 @@ DeviceStatus RF231Radio::TurnOnRx()
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 
-	//CPU_GPIO_SetPinState( RF231_TURN_ON_RX, TRUE );
+	if (!IsInitialized()) { return DS_Fail; }
 
-	////hal_printf("RF231Radio::TurnOnRx: before state:%d\n", state);
 	sleep_pending = FALSE;
 
-	// The radio is not sleeping or is already on
-	if(state == STATE_RX_ON || state == STATE_BUSY_RX)
-	{
-		return DS_Success;
-	}
+	if ( !Careful_State_Change(RX_ON) ) { return DS_Fail; }
 
-	if (state == STATE_BUSY_TX) {
-		return DS_Fail; // We are busy
-		/* As per my comment, we are BUSY. This is not ok. --NPS
-		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-		DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-		state = STATE_PLL_ON;
-		*/
-	}
-
-	// Wakey wakey
-	if (state == STATE_SLEEP) {
-		SlptrClear();
-		// Wait for the radio to come out of sleep
-		HAL_Time_Sleep_MicroSeconds(380);
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-		ENABLE_LRR(TRUE);
-		state = STATE_TRX_OFF;
-	}
-
-	if (state == STATE_TRX_OFF || state == STATE_PLL_ON) {
-		WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-	}
-	else {
-#		ifdef DEBUG_RF231
-		hal_printf("RF231: ERROR. Radio in funny state. Line %d\r\n", __LINE__);
-#		endif
-		ASSERT_RADIO(0);
-	}
-
-	DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 	state = STATE_RX_ON;
-
-#	ifdef DEBUG_RF231
-	hal_printf("RF231: RX_ON\r\n");
-#	endif
-
-	//CPU_GPIO_SetPinState( RF231_TURN_ON_RX, FALSE );
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
 
