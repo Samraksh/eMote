@@ -150,7 +150,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
 	if (nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
-		assert(0);
+		ASSERT(0);
 	}
 	if(!timer1INuse){
 		timer1INuse = true;
