@@ -17,6 +17,7 @@ extern OMACScheduler g_omac_scheduler;
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
 #define MAXSCHEDULERUPDATE 5000000
+#define DISCO_SLOT_GUARD 10
 
 void PublicSchedulerTaskHandler1(void * param){
 	g_omac_scheduler.RunEventTask();
@@ -103,8 +104,9 @@ void OMACScheduler::ScheduleNextEvent(){
 	beaconEventOffset = m_DiscoveryHandler.NextEvent();
 	if (beaconEventOffset < MINEVENTTIME) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
-	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
-	if (timeSyncEventOffset < MINEVENTTIME) timeSyncEventOffset = 0xffffffffffffffff;
+	//timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
+	//if (timeSyncEventOffset < MINEVENTTIME)
+	timeSyncEventOffset = 0xffffffffffffffff;
 	//timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < nextWakeupTimeInMicSec) {
@@ -113,7 +115,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
-	if(beaconEventOffset < nextWakeupTimeInMicSec) {
+	if(beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}
 	if(timeSyncEventOffset < nextWakeupTimeInMicSec) {
