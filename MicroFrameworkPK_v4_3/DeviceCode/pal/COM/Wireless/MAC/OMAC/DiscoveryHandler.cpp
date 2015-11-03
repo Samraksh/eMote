@@ -16,11 +16,15 @@
 #include <Samraksh/MAC/OMAC/Scheduler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
+#include "..\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\RF231\RF231.h"
 
 extern OMACScheduler g_omac_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
+extern RF231Radio grf231Radio;
+
+static bool stopBeacon = false;
 
 /*
  *
@@ -54,16 +58,21 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
-	UINT16 nextEventsSlot = 0;
-	UINT64 nextEventsMicroSec = 0;
-	nextEventsSlot = NextEventinSlots();
-	if(nextEventsSlot == 0) {
-		//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
-		return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	if(!stopBeacon){
+		UINT16 nextEventsSlot = 0;
+		UINT64 nextEventsMicroSec = 0;
+		nextEventsSlot = NextEventinSlots();
+		if(nextEventsSlot == 0) {
+			//hal_printf("DiscoveryHandler::NextEvent returning nextEventsMicroSec-1 :%llu\n", nextEventsMicroSec-1);
+			return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+		}
+		nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+		nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+		return(nextEventsMicroSec);
 	}
-	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
-	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
-	return(nextEventsMicroSec);
+	else{
+		return MAX_UINT64;
+	}
 }
 
 /*
@@ -154,6 +163,20 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
 	e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
+
+	/*if (m_busy == FALSE) {
+		m_busy = TRUE;
+		if(!stopBeacon){
+			e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
+		}
+		m_busy = FALSE;
+	}
+	else {
+		// Why busy? Timing issue?
+		hal_printf("DiscoveryHandler::Beacon m_busy\n");
+		e = DS_Busy;
+	}*/
+
 	return e;
 }
 
@@ -161,13 +184,21 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
  *
  */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
-	/* Don't use this for now
+	// Don't use this for now
 	if(status == NO_Busy){
 		hal_printf("NO_Busy - What do we do? Just ignore?\n");
-		m_busy = TRUE;
+		HAL_Time_Sleep_MicroSeconds(1000);
+		UINT8 radioState = grf231Radio.GetState();
+		ASSERT(radioState != 8);
+		if(radioState == 8){
+			hal_printf("Asserting as radio is still busy\n");
+			HAL_AssertEx();
+		}
+		//ASSERT(radioState != 8);
+		//m_busy = TRUE;
 	}
 	else if(status == NO_Success){
-		m_busy = FALSE;
+		//m_busy = FALSE;
 	}
 	else{
 		hal_printf("Need to investigate. Status: %d\n", status);
@@ -182,7 +213,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//call SlotScheduler.printState();
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
-*/
+
 }
 
 /*
@@ -233,6 +264,10 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
 		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
+		//stop disco when there are 2 or more neighbors
+		/*if(nbrIdx >= 1){
+			stopBeacon = true;
+		}*/
 	} else {
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
