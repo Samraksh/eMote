@@ -52,7 +52,6 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	OMAC_scheduler_TimerCompletion.Initialize();
 
 	//Initialize Handlers
-	m_DiscoveryHandler.SetParentSchedulerPtr(this);
 	m_DiscoveryHandler.Initialize(radioID, macID);
 	m_DataReceptionHandler.Initialize(radioID, macID);
 	m_DataTransmissionHandler.Initialize();

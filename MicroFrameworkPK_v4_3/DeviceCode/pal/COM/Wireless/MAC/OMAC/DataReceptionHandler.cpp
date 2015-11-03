@@ -104,8 +104,9 @@ void DataReceptionHandler::ExecuteEvent(){
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
+		PostExecuteEvent();
 	}
-	PostExecuteEvent();
+
 }
 
 /*

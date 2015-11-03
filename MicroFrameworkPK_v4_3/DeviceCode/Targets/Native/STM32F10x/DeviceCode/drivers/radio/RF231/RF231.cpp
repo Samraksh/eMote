@@ -418,126 +418,47 @@ UINT32 RF231Radio::GetTxPower()
 	return this->tx_power;
 }
 
-
 // Change the power level of the radio
-DeviceStatus RF231Radio::ChangeTxPower(int power)
-{
-	// Cannot change power level if radio is in the middle of something
-	// There is no reason for this in the manual, but adding this check for sanity sake
-	if(state != STATE_SLEEP && state != STATE_RX_ON && state != STATE_P_ON && state != STATE_TRX_OFF)
-		return DS_Fail;
+// Always ends in TRX_OFF or SLEEP states.
+DeviceStatus RF231Radio::ChangeTxPower(int power) {
+
+	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
+		return DS_Fail; // We were busy.
+	}
+
+	ASSERT ( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
-	INIT_STATE_CHECK();
-
-	if(state == STATE_SLEEP)
-	{
-		/* Why do we need to turn on the PLL? Just need to wakeup. --NPS
-		if(TurnOnPLL() != DS_Success)
-		{
-			return DS_Fail;
-		}
-		*/
-
-		// Wakey wakey
-		SlptrClear();
-		// Wait for the radio to come out of sleep
-		HAL_Time_Sleep_MicroSeconds(380);
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-		ENABLE_LRR(TRUE);
-		state = STATE_TRX_OFF;
-
-		sleep_pending = TRUE;
-	}
-
-	// Make sure we are in TRX_OFF
-	if (state != STATE_TRX_OFF) {
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-	}
 
 	this->tx_power = power  & RF230_TX_PWR_MASK;
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
-
-	/*
-	if(sleep_pending == TRUE)
-	{
-		// If we are unable to go back to sleep for some reason, return a failure and then set
-		// sleep pending to true in a hope it can be put to sleep later on
-		if(Sleep(0) != DS_Success)
-		{
-			sleep_pending = TRUE;
-			return DS_Fail;
-		}
-		sleep_pending = FALSE;
-	}
-	*/
 
 	if (sleep_pending) { Sleep(0); } // I disagree. --NPS
 
 	return DS_Success;
 }
 
+// Change the power level of the radio
+// Always ends in TRX_OFF or SLEEP states.
+DeviceStatus RF231Radio::ChangeChannel(int channel) {
 
-// Change the channel of the radio
-DeviceStatus RF231Radio::ChangeChannel(int channel)
-{
-	// Cannot change power level if radio is in the middle of something
-	// There is no reason for this in the manual, but adding this check for sanity sake
-	if(state != STATE_SLEEP && state != STATE_RX_ON && state != STATE_P_ON && state != STATE_TRX_OFF)
-		return DS_Fail;
+	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
+		return DS_Fail; // We were busy.
+	}
+
+	ASSERT ( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
-	INIT_STATE_CHECK();
-
-	if(state == STATE_SLEEP)
-	{
-		/* Why do we need to turn on the PLL? Just need to wakeup. --NPS
-		if(TurnOnPLL() != DS_Success)
-		{
-			return DS_Fail;
-		}
-		*/
-
-		// Wakey wakey
-		SlptrClear();
-		// Wait for the radio to come out of sleep
-		HAL_Time_Sleep_MicroSeconds(380);
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-		ENABLE_LRR(TRUE);
-		state = STATE_TRX_OFF;
-
-		sleep_pending = TRUE;
-	}
-
-	// Make sure we are in TRX_OFF
-	if (state != STATE_TRX_OFF) {
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-	}
 
 	// The value passed as channel until this point is an enum and needs to be offset by 11 to set the
 	// actual radio channel value
 	this->channel = (channel + RF230_CHANNEL_OFFSET) & RF230_CHANNEL_MASK;
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | this->channel);
 
-	/*
-	if(sleep_pending == TRUE)
-	{
-		// If we are unable to go back to sleep for some reason, return a failure and then set
-		// sleep pending to true in a hope it can be put to sleep later on
-		if(Sleep(0) != DS_Success)
-		{
-			sleep_pending = TRUE;
-			return DS_Fail;
-		}
-		sleep_pending = FALSE;
-	}
-	*/
-
 	if (sleep_pending) { Sleep(0); } // I disagree. --NPS
 
 	return DS_Success;
 }
-
 
 // There is one level of sleeping
 DeviceStatus RF231Radio::Sleep(int level)
