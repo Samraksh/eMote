@@ -46,11 +46,16 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	InputState.ToIdle();
 
 	//Initialize the HAL vitual timer layer
-	VirtTimer_Initialize();
-	VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
-	VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
-	VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
 
+	bool rv = VirtTimer_Initialize();
+	ASSERT(rv);
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
+	ASSERT(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
+	ASSERT(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
+	ASSERT(rm == TimerSupported);
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 	OMAC_scheduler_TimerCompletion.Initialize();
 

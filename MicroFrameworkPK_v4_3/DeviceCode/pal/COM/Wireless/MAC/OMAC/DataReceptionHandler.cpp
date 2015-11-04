@@ -47,6 +47,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	ASSERT(rm == TimerSupported);
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
@@ -89,24 +90,24 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
  *
  */
 void DataReceptionHandler::ExecuteEvent(){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+#endif
+
 	DeviceStatus e = DS_Fail;
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
-#endif
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			//PostExecuteEvent();
+			PostExecuteEvent();
 		}
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
-		//PostExecuteEvent();
+		PostExecuteEvent();
 	}
-	PostExecuteEvent();
 }
 
 /*

@@ -53,6 +53,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+	ASSERT(rm == TimerSupported);
 }
 
 UINT64 DiscoveryHandler::NextEvent(){

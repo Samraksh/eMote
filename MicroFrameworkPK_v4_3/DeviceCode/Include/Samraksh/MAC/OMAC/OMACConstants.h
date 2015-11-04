@@ -40,7 +40,6 @@
 #define HAL_SLOT_TIMER2 4
 #define HAL_DISCOVERY_TIMER 5
 #define HAL_RECEPTION_TIMER 6
-#define HAL_TX_TIMER 8
 #define HAL_SLOT_TIMER3 7
 
 #define MAX_UINT16 	(0xFFFF)
