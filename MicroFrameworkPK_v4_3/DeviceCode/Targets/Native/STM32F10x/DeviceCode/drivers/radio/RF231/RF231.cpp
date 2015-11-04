@@ -198,8 +198,8 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS) )
 			{
 				switch(trx_status) {
-					case RF230_BUSY_RX: state = STATE_BUSY_RX; break;
-					case RF230_BUSY_TX: state = STATE_BUSY_TX; break;
+					case BUSY_RX: state = STATE_BUSY_RX; break;
+					case BUSY_TX: state = STATE_BUSY_TX; break;
 					default: state = STATE_BUSY_RX; ASSERT(0); // Unknown, put in RX state for lack of anything better.
 				}
 				return FALSE;
