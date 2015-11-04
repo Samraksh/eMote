@@ -94,6 +94,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
 
+	static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
@@ -106,6 +107,10 @@ void DataReceptionHandler::ExecuteEvent(){
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
+		failureCount++;
+		if(failureCount > 5){
+			ASSERT(0);
+		}
 		PostExecuteEvent();
 	}
 }
