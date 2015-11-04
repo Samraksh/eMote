@@ -99,14 +99,14 @@ void DataReceptionHandler::ExecuteEvent(){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			PostExecuteEvent();
+			//PostExecuteEvent();
 		}
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
-		PostExecuteEvent();
+		//PostExecuteEvent();
 	}
-
+	PostExecuteEvent();
 }
 
 /*

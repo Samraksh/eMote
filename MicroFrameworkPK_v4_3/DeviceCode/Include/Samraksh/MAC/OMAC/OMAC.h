@@ -9,7 +9,7 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
-#define TWO_NODES_TX_RX
+//#define TWO_NODES_TX_RX
 //#define OMAC_DEBUG_GPIO
 
 #if defined(TWO_NODES_TX_RX)
