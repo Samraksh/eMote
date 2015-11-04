@@ -16,13 +16,12 @@
 #include <Samraksh/MAC/OMAC/Scheduler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
-#include "..\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\RF231\RF231.h"
 
 extern OMACScheduler g_omac_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
-extern RF231Radio grf231Radio;
+
 
 /*
  *
@@ -179,17 +178,9 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
  *
  */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
-	// Don't use this for now
+	/* Don't use this for now
 	if(status == NO_Busy){
 		hal_printf("NO_Busy - What do we do? Just ignore?\n");
-		HAL_Time_Sleep_MicroSeconds(1000);
-		UINT8 radioState = grf231Radio.GetState();
-		ASSERT(radioState != 8);
-		if(radioState == 8){
-			hal_printf("Asserting as radio is still busy\n");
-			HAL_AssertEx();
-		}
-		//ASSERT(radioState != 8);
 		//m_busy = TRUE;
 	}
 	else if(status == NO_Success){
@@ -208,7 +199,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//call SlotScheduler.printState();
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
-
+*/
 }
 
 /*
