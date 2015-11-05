@@ -172,9 +172,9 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	uint32_t poll_counter=0;
 	const uint32_t timeout = 0xFFFF;
 
-	Wakeup();
-
 	GLOBAL_LOCK(irq);
+
+	Wakeup();
 
 	// current status
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
@@ -200,13 +200,13 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 		trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 		if( poll_counter == timeout || (trx_status != orig_status \
 				&& trx_status != target \
-				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS) )
+				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS \
+				&& !(trx_status == PLL_ON && target == RX_ON)) ) // Don't ask me why... but this seems to be a thing. --NPS
 			{
 				switch(trx_status) {
 					case BUSY_RX: state = STATE_BUSY_RX; break;
 					case BUSY_TX: state = STATE_BUSY_TX; break;
-					case PLL_ON:  state = STATE_PLL_ON; ASSERT_RADIO(0); break; // What the heck?
-					default: state = STATE_BUSY_RX; ASSERT_RADIO(0); // Unknown, put in RX state for lack of anything better.
+					default: state = STATE_PLL_ON; ASSERT_RADIO(0); // Unknown. Put here just because.
 				}
 				return FALSE;
 			}
@@ -215,7 +215,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 
 	// Check one last time for interrupt.
 	// Not clear how this could happen, but assume it would be an RX. --NPS
-	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX; return FALSE; }
+	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX; return FALSE; } // Not an error, just odd
 	
 	// Reset cmd here just to be clean.
 	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
@@ -318,7 +318,7 @@ DeviceStatus RF231Radio::Reset()
 {
 	INIT_STATE_CHECK()
 
-	//GLOBAL_LOCK(irq);
+	GLOBAL_LOCK(irq);
 
 	// The radio intialization steps in the following lines are semantically copied from the corresponding tinyos implementation
 	// Specified in the datasheet a sleep of 510us
@@ -404,13 +404,13 @@ UINT32 RF231Radio::GetTxPower()
 // Always ends in TRX_OFF or SLEEP states.
 DeviceStatus RF231Radio::ChangeTxPower(int power) {
 
+	GLOBAL_LOCK(irq);
+
 	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
 
-	ASSERT ( !isInterrupt() );
-
-	GLOBAL_LOCK(irq);
+	//ASSERT_RADIO( !isInterrupt() );
 
 	this->tx_power = power  & RF230_TX_PWR_MASK;
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
@@ -424,13 +424,13 @@ DeviceStatus RF231Radio::ChangeTxPower(int power) {
 // Always ends in TRX_OFF or SLEEP states.
 DeviceStatus RF231Radio::ChangeChannel(int channel) {
 
+	GLOBAL_LOCK(irq);
+
 	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
 
-	ASSERT ( !isInterrupt() );
-
-	GLOBAL_LOCK(irq);
+	//ASSERT_RADIO( !isInterrupt() );
 
 	// The value passed as channel until this point is an enum and needs to be offset by 11 to set the
 	// actual radio channel value
@@ -1021,6 +1021,8 @@ DeviceStatus RF231Radio::TurnOnRx()
 
 	sleep_pending = FALSE;
 
+	add_rx_start_time();
+
 	if ( !Careful_State_Change(RX_ON) ) { return DS_Fail; }
 
 	state = STATE_RX_ON;
@@ -1117,6 +1119,9 @@ UINT8 RF231Radio::ReadRegister(UINT8 reg)
 DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 {
 	UINT8 trx_status;
+
+	GLOBAL_LOCK(irq);
+
 	// The radio takes a minimum of 140 us to do cca, any numbers less than this are not acceptable
 	if(numberMicroSecond < 140)
 		return DS_Fail;
@@ -1130,8 +1135,6 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 		sleep_pending = TRUE;
 		state = STATE_RX_ON;
 	}
-
-	GLOBAL_LOCK(irq);
 
 	if(state != STATE_RX_ON)
 	{
