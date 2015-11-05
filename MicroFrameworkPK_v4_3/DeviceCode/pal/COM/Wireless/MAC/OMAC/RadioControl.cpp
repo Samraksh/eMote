@@ -100,7 +100,7 @@ bool RadioControl::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 	else{ //Otherwise add it
 		additional_overhead += timestamp_size;
-		header->SetFlags((header->GetFlags() | MFM_TIMESYNC));
+		header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
 		event_time = HAL_Time_CurrentTicks();
 		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
 	}
