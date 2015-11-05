@@ -47,7 +47,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
-	ASSERT(rm == TimerSupported);
+	ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
@@ -59,7 +59,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 	UINT64 NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS;
 	//UINT64 NextEventTime = (( y/ (UINT64) WAKEUPPERIODINTICKS)  + 1) * ((UINT64)WAKEUPPERIODINTICKS);
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
-	ASSERT(NextEventTimeinTicks > y);
+	ASSERT_SP(NextEventTimeinTicks > y);
 
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 	UINT64 curTicks = HAL_Time_CurrentTicks();
@@ -84,7 +84,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
 	}
-	ASSERT(wakeupSlot  > currentSlotNum);
+	ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*
  *
@@ -109,7 +109,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
 		failureCount++;
 		if(failureCount > 5){
-			//ASSERT(0);
+			//ASSERT_SP(0);
 		}
 		PostExecuteEvent();
 	}

@@ -275,7 +275,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					g_receive_buffer.DropOldest(1);
 					next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
 				}
-				ASSERT(next_free_buffer);
+				ASSERT_SP(next_free_buffer);
 
 				//Implement bag exchange, by actually switching the contents.
 				Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
@@ -298,7 +298,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 		case MFM_TIMESYNC:
 
-			ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 			//TimeSyncMsg* tsmg = (TimeSyncMsg*)msg->GetPayload()
 			location_in_packet_payload += sizeof(TimeSyncMsg);
@@ -314,7 +314,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
-		ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+		ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 		//TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload), evTime );
 		location_in_packet_payload += sizeof(TimeSyncMsg);

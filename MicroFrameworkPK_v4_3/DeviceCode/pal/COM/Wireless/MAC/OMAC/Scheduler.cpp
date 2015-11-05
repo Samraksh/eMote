@@ -48,14 +48,14 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize the HAL vitual timer layer
 
 	bool rv = VirtTimer_Initialize();
-	ASSERT(rv);
+	ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
-	ASSERT(rm == TimerSupported);
+	ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
-	ASSERT(rm == TimerSupported);
+	ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
-	ASSERT(rm == TimerSupported);
+	ASSERT_SP(rm == TimerSupported);
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 	OMAC_scheduler_TimerCompletion.Initialize();
 
@@ -155,7 +155,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
 	if (nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
-		ASSERT(0);
+		ASSERT_SP(0);
 	}
 	if(!timer1INuse){
 		timer1INuse = true;
@@ -168,7 +168,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		VirtTimer_Start(HAL_SLOT_TIMER2);
 	}
 	else{
-		ASSERT(1==0);
+		ASSERT_SP(0);
 	}
 //
 //	BOOL* completionFlag = (BOOL*)false;

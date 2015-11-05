@@ -20,7 +20,7 @@
 
 #include "RF231\RF231.h"
 
-#define ASSERT_NOFAIL(x) ASSERT((x) != DS_Fail)
+#define ASSERT_NOFAIL(x) {if(x==DS_Fail){ SOFT_BREAKPOINT(); }}
 
 const char * strUfoRadio = "[NATIVE] Error in function %s : Unidentified radio \r\n";
 #define PRINTF_UNIDENTIFIED_RADIO()  hal_printf( strUfoRadio , __func__ );
@@ -46,7 +46,8 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//ASSERT_NOFAIL(status);
+	{if(status==DS_Fail) SOFT_BREAKPOINT();}
 	return status;
 }
 
@@ -91,7 +92,7 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 
 	}
 
-	ASSERT(result == TRUE);
+	ASSERT_SP(result == TRUE);
 	return result;
 }
 
@@ -99,7 +100,7 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 {
 	//*radioIDs=grf231Radio.GetRadioID();
-	ASSERT(0);
+	ASSERT_SP(0);
 	return 1;
 }
 
@@ -120,7 +121,7 @@ UINT16 CPU_Radio_GetAddress(UINT8 radioID)
 		break;
 	}
 
-	ASSERT(address != 0);   // note: 0 is valid address and will pass in Release flavor.
+	ASSERT_SP(address != 0);   // note: 0 is valid address and will pass in Release flavor.
 	return address;
 }
 
@@ -142,14 +143,14 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address)
 			break;
 	}
 
-	ASSERT(status == TRUE);
+	ASSERT_SP(status == TRUE);
 	return status;
 }
 
 // Function is not currently supported
 void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 {
-	ASSERT(0);
+	ASSERT_SP(0);
 	return NULL;
 }
 
@@ -170,7 +171,7 @@ void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
 			break;
 	}
 
-	ASSERT(ptr_temp != NULL);
+	ASSERT_SP(ptr_temp != NULL);
 	return ptr_temp;
 }
 
@@ -193,7 +194,7 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 e
 			break;
 	}
 
-	//ASSERT(ptr_temp != NULL);
+	//ASSERT_SP(ptr_temp != NULL);
 	return ptr_temp;
 }
 

@@ -209,7 +209,7 @@ void DataTransmissionHandler::DataBeaconReceive(UINT8 type, Message_15_4_t *msg,
  *
  */
 bool DataTransmissionHandler::Send(){
-	ASSERT(m_outgoingEntryPtr != NULL);
+	ASSERT_SP(m_outgoingEntryPtr != NULL);
 
 	DeviceStatus rs;
 
@@ -258,7 +258,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 		if (neighborEntry != NULL) {
 			if (neighborEntry->MacAddress != dest) {
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
-				ASSERT(neighborEntry->MacAddress == dest);
+				ASSERT_SP(neighborEntry->MacAddress == dest);
 				isDataPacketScheduled = false;
 				return FALSE;
 			}

@@ -52,7 +52,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
-	ASSERT(rm == TimerSupported);
+	ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
@@ -193,7 +193,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 	}
 	else{
 		hal_printf("Need to investigate. Status: %d\n", status);
-		ASSERT(0);
+		ASSERT_SP(0);
 	}
 
 	if (msg != &m_discoveryMsgBuffer) {
