@@ -193,7 +193,7 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 e
 			break;
 	}
 
-	ASSERT(ptr_temp != NULL);
+	//ASSERT(ptr_temp != NULL);
 	return ptr_temp;
 }
 

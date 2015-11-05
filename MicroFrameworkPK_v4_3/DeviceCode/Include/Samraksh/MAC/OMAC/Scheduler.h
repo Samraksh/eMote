@@ -23,6 +23,9 @@
 
 //extern HALTimerManager gHalTimerManagerObject;
 
+#define MAXSCHEDULERUPDATE 5000000
+#define DISCO_SLOT_GUARD 10
+
 /*
  *
  */
@@ -112,6 +115,7 @@ public:
 	//Main Tasks
 	bool RunEventTask(); // BK: This is the main event for the slot. Queries all the modules and executes one if needed
 	void PostExecution();
+	void PostPostExecution();
 	bool EnsureStopRadio();
 
 }OMACScheduler_t;

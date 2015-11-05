@@ -13,7 +13,7 @@
   <PropertyGroup>
     <!-- Custom overrides for some debug console version printouts. -->
     <!-- SamRevisionNumber: e.g. eMote Release 12. decimal numbers only. determines SAM_VERSION_REVISION debug console printout.  Also see "RevisionNumber" in file ReleaseInfo.settings. -->
-    <SamRevisionNumber>13</SamRevisionNumber>
+    <SamRevisionNumber>14</SamRevisionNumber>
   </PropertyGroup>
   <ItemGroup>
     <IncludePaths Include="Solutions\EmoteDotNow" />

@@ -41,7 +41,7 @@
 #define HAL_SLOT_TIMER2 4
 #define HAL_DISCOVERY_TIMER 5
 #define HAL_RECEPTION_TIMER 6
-#define HAL_TX_TIMER 7
+#define HAL_SLOT_TIMER3 7
 
 #define MAX_UINT16 	(0xFFFF)
 #define MAX_UINT32 	(0xFFFFFFFF)
@@ -249,7 +249,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
 #define TIMER_EVENT_DELAY_OFFSET 700
-#define MINEVENTTIME 5000				//minimum time required by scheduler to switch between modules
+#define MINEVENTTIME 5000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
 
 #define WAKEUPPERIODINTICKS 8000000

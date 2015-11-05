@@ -11,7 +11,6 @@
     <BuildBase>66335</BuildBase>
     <RevisionNumber Condition="'$(RevisionNumber)'==''">0</RevisionNumber>
     <ReleaseName    Condition="'$(ReleaseName)'==''"    >(SDKR2-Beta)</ReleaseName>
-    <BuildNumber>1</BuildNumber>
   </PropertyGroup>
   <!-- Other info particular to this release -->
   <PropertyGroup>
@@ -23,7 +22,7 @@
     <MFLongCompanyName Condition="'$(MFLongCompanyName)'==''">The Samraksh Company</MFLongCompanyName>
     <MFShortCompanyName Condition="'$(MFShortCompanyName)'==''">Emote</MFShortCompanyName>
     <MFTradeMark Condition="'$(MFTradeMark)'==''">.NET is a trademark of Microsoft Corporation.</MFTradeMark>
-    <MFCopyright Condition="'$(MFCopyright)'==''">Copyright (C) 2015 Samraksh and Microsoft.</MFCopyright>
+	<MFCopyright Condition="'$(MFCopyright)'==''">Copyright (C) 2015 Samraksh and Microsoft.</MFCopyright>
   </PropertyGroup>
   <PropertyGroup>
     <OEMSystemInfoString Condition="'$(OEMSystemInfoString)'==''">$(MFCompanyName) $(MFCopyright)</OEMSystemInfoString>

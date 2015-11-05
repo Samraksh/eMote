@@ -341,6 +341,33 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->SetFlags(MFM_DATA);
+	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->network = MyConfig.Network;
+	header->mac_id = macName;
+	header->type = dataType;
+
+	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+	if(eventTime > 0){
+		msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
+	}
+	else{
+		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
+	}
+
+	UINT8* lmsg = (UINT8*) msg;
+	UINT8* payload = msg_carrier->GetPayload();
+
+	for(UINT8 i = 0 ; i < size; i++){
+		payload[i] = lmsg[i];
+	}
+
 	return true;
 }
 

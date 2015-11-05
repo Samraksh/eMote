@@ -13,7 +13,7 @@ void ApplicationEntryPoint()
 
     clrSettings.MaxContextSwitches         = 50;
     clrSettings.WaitForDebugger            = false;
-    clrSettings.EnterDebuggerLoopAfterExit = false;
+    clrSettings.EnterDebuggerLoopAfterExit = true;
 
     ClrStartup( clrSettings );
 
