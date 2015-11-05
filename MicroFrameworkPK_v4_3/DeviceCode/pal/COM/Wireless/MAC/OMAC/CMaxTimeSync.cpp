@@ -133,8 +133,11 @@ UINT16 CMaxTimeSync::NextEventinSlots(){
  *
  */
 void CMaxTimeSync::ExecuteEvent(){
-	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	Send(sn->MacAddress, true);
+	Neighbor_t* sn;
+	while(NextEventinSlots() == 0){
+		sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+		Send(sn->MacAddress, true);
+	}
 	PostExecuteEvent();
 }
 
