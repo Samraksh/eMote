@@ -187,9 +187,9 @@ void CMaxTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
 /*
  *
  */
-DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
+DeviceStatus CMaxTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 EventTime){
 	bool TimerReturn;
-	RadioAddress_t msg_src = msg->GetHeader()->src;
+	//RadioAddress_t msg_src = msg->GetHeader()->src;
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
@@ -201,8 +201,8 @@ DeviceStatus CMaxTimeSync::Receive(Message_15_4_t* msg, void* payload, UINT8 len
 	}
 #endif
 
-	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
-	TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
+	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
+	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
 
 	UINT64 rcv_ltime;
 	INT64 l_offset;

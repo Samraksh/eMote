@@ -216,6 +216,8 @@ BOOL OMACType::UnInitialize(){
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+	UINT64 evTime;
+
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
@@ -229,24 +231,27 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		return msg;
 	}
 
+
+
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
 
+	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
+
+
 	//Any message might have timestamping attached to it. Check for it and process
-	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
-		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
-		g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
-		Size -= tmsgSize;
-	}*/
+	if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
+		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
+	}
 
 
 	//Get the primary packet
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), msg->GetHeader()->length);
+			g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload()));
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
@@ -290,31 +295,32 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNC:
+			ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 			//TimeSyncMsg* tsmg = (TimeSyncMsg*)msg->GetPayload()
-			g_omac_scheduler.m_TimeSyncHandler.Receive(msg, msg->GetPayload(), Size);
+			g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload()), evTime);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
-			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
-			Size -= tmsgSize;*/
 			break;
 	};
 
 	UINT16 location_in_packet_payload = msg->GetHeader()->length;
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
-		TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
-		g_omac_scheduler.m_TimeSyncHandler.Receive(msg, tsmg, sizeof(TimeSyncMsg));
+		//TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
+		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload), evTime );
 		location_in_packet_payload += sizeof(TimeSyncMsg);
 	}
 	if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
-		DiscoveryMsg_t* tsmg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
-		g_omac_scheduler.m_TimeSyncHandler.Receive(msg, tsmg, Size);
+		ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+		//DiscoveryMsg_t* disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
+		g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload) );
 		location_in_packet_payload += sizeof(DiscoveryMsg_t);
+	}
+
 	}
 
 #ifdef OMAC_DEBUG_GPIO

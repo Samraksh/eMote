@@ -39,7 +39,7 @@ public:
 	void CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync = false);
 
 	//UINT32 GetSyncPoint();
-	DeviceStatus Receive(Message_15_4_t* msg, void* payload, UINT8 len);
+	DeviceStatus Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 EventTime);
 
 	BOOL Send(RadioAddress_t address, bool request_TimeSync);
 
