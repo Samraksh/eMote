@@ -97,7 +97,6 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
-												hal_printf(RADIOERROR03);  \
 												SOFT_BREAKPOINT();          \
 												break;                      \
 											} 								\

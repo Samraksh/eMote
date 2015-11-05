@@ -130,6 +130,17 @@ static inline BOOL isInterrupt()
     return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0);
 }
 
+static void interrupt_mode_check() {
+#ifdef NDEBUG
+	return;
+#else
+	if (isInterrupt()) {
+		hal_printf("Warning: RF231 driver called from interrupt context\r\n");
+	}
+	else return;
+#endif
+}
+
 void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status) {
 	SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(msg, size, status);
@@ -180,10 +191,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 	radio_hal_trx_status_t orig_status = trx_status;
 
-	ASSERT_RADIO(trx_status != P_ON);
-#	ifndef NDEBUG
-	if (trx_status == P_ON) { hal_printf("Radio in P_ON state. Something bad happened\r\n"); }
-#	endif
+	ASSERT_RADIO(trx_status != P_ON); // P_ON is 0 and normally impossible to reach after init. So likely SPI died.
 
 	if (target == trx_status) { return TRUE; } // already there!
 	if (target == RX_ON && trx_status == BUSY_RX) { return TRUE; } // BUSY_RX and RX_ON are equiv.
@@ -201,7 +209,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 		if( poll_counter == timeout || (trx_status != orig_status \
 				&& trx_status != target \
 				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS \
-				&& !(trx_status == PLL_ON && target == RX_ON)) ) // Don't ask me why... but this seems to be a thing. --NPS
+				&& !(trx_status == PLL_ON && target == RX_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
 			{
 				switch(trx_status) {
 					case BUSY_RX: state = STATE_BUSY_RX; break;
@@ -251,7 +259,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	ASSERT_RADIO( !isInterrupt() );
+	interrupt_mode_check();
 
 	GLOBAL_LOCK(irq);
 
@@ -317,6 +325,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 DeviceStatus RF231Radio::Reset()
 {
 	INIT_STATE_CHECK()
+
+	interrupt_mode_check();
 
 	GLOBAL_LOCK(irq);
 
@@ -403,15 +413,13 @@ UINT32 RF231Radio::GetTxPower()
 // Change the power level of the radio
 // Always ends in TRX_OFF or SLEEP states.
 DeviceStatus RF231Radio::ChangeTxPower(int power) {
-
+	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
 	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
-
-	ASSERT_RADIO( !isInterrupt() );
-
+	state = STATE_TRX_OFF;
 	this->tx_power = power  & RF230_TX_PWR_MASK;
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
 
@@ -423,15 +431,13 @@ DeviceStatus RF231Radio::ChangeTxPower(int power) {
 // Change the power level of the radio
 // Always ends in TRX_OFF or SLEEP states.
 DeviceStatus RF231Radio::ChangeChannel(int channel) {
-
+	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
 	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
-
-	ASSERT_RADIO( !isInterrupt() );
-
+	state = STATE_TRX_OFF;
 	// The value passed as channel until this point is an enum and needs to be offset by 11 to set the
 	// actual radio channel value
 	this->channel = (channel + RF230_CHANNEL_OFFSET) & RF230_CHANNEL_MASK;
@@ -537,7 +543,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	ASSERT_RADIO( !isInterrupt() );
+	interrupt_mode_check();
 
 	GLOBAL_LOCK(irq);
 
@@ -700,6 +706,8 @@ void rf231_enable_pa_rxtx(void) {
 DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radio, UINT8 mac_id)
 {
 	INIT_STATE_CHECK();
+
+	interrupt_mode_check();
 
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
@@ -867,6 +875,9 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 DeviceStatus RF231Radio::UnInitialize()
 {
     DeviceStatus ret = DS_Success;
+
+	interrupt_mode_check();
+
     if(IsInitialized())
     {
         RstnClear();
@@ -1015,6 +1026,7 @@ BOOL RF231Radio::SpiUnInitialize()
 DeviceStatus RF231Radio::TurnOnRx()
 {
 	INIT_STATE_CHECK();
+	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
 	if (!IsInitialized()) { return DS_Fail; }
@@ -1028,63 +1040,6 @@ DeviceStatus RF231Radio::TurnOnRx()
 	state = STATE_RX_ON;
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
-
-
-// This function moves the radio from sleep to RX_ON
-//template<class T>
-/*
-DeviceStatus RF231Radio::TurnOnPLL()
-{
-	INIT_STATE_CHECK();
-	GLOBAL_LOCK(irq);
-
-	////hal_printf("RF231Radio::TurnOnPLL: before state:%d\n", state);
-	// The radio is not sleeping or is already on
-	if(state == STATE_PLL_ON)
-	{
-		return DS_Success;
-	}
-
-	if(this->GetRadioName() == RF231RADIOLR)
-	{
-		// Enable antenna diversity mode
-		this->AntDiversity(TRUE);
-
-		// Enable external pa control
-		this->PARXTX(TRUE);
-
-		// take the amp  out of bypass mode
-		this->Amp(TRUE);
-	}
-
-	SlptrClear();
-
-	// Sleep for 200us and wait for the radio to come oout of sleep
-	HAL_Time_Sleep_MicroSeconds(200);
-
-	if (state == STATE_RX_ON) {
-		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
-		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-		state = STATE_TRX_OFF;
-	}
-
-	DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-
-	// Push radio to pll on state
-	if(((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK)== RF230_RX_ON) || ((ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK) == RF230_TRX_OFF))
-	{
-		WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-	    // Wait for radio to go into pll on and return efail if the radio fails to transition
-	    DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-	}
-
-	state = STATE_PLL_ON;
-	cmd = CMD_NONE;
-
-	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
-	return DS_Success;
-}	//RF231Radio::TurnOnPLL()
-*/
 
 
 //template<class T>
@@ -1119,6 +1074,8 @@ UINT8 RF231Radio::ReadRegister(UINT8 reg)
 DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 {
 	UINT8 trx_status;
+
+	return DS_Fail; // Not yet supported --NPS
 
 	GLOBAL_LOCK(irq);
 
@@ -1183,6 +1140,8 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 DeviceStatus RF231Radio::ClearChannelAssesment()
 {
 	UINT8 trx_status;
+
+	return DS_Fail;  // Not yet supported --NPS
 
 	GLOBAL_LOCK(irq);
 
@@ -1354,6 +1313,9 @@ void RF231Radio::HandleInterrupt()
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
 		else { // Something happened. unclear what. Try to go to a safe state.
+#			ifndef NDEBUG
+			hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
+#			endif
 			Careful_State_Change(TRX_OFF);
 			state = STATE_TRX_OFF;
 		}
