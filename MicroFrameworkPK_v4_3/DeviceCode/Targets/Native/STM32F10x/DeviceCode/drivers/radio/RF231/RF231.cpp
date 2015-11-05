@@ -220,7 +220,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	// Reset cmd here just to be clean.
 	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
 	{
-		cmd = CMD_NONE;
+		//cmd = CMD_NONE;
 	}
 
 	// We made it!
