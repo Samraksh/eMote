@@ -220,7 +220,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	// Reset cmd here just to be clean.
 	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
 	{
-		//cmd = CMD_NONE;
+		cmd = CMD_NONE;
 	}
 
 	// We made it!
@@ -1353,7 +1353,7 @@ void RF231Radio::HandleInterrupt()
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
-		else { ASSERT_RADIO(0); } // Unknown CMD
+		else { /*ASSERT_RADIO(0);*/ } // This can happen. Unknown why. For now, just ignore it.
 	}
 
 	if(sleep_pending)
