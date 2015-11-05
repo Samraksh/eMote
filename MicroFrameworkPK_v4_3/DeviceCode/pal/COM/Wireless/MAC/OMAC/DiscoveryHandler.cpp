@@ -165,6 +165,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 		e = DS_Busy;
 	}*/
 
+
 	return e;
 }
 
@@ -245,10 +246,8 @@ void DiscoveryHandler::BeaconNTimerHandler(){
  *
  */
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg){  //(Message_15_4_t* msg, void* payload, UINT8 len){
-	//DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
-	//RadioAddress_t source = msg->GetHeader()->src;
 #ifdef def_Neighbor2beFollowed
-	if (source == g_OMAC.Neighbor2beFollowed ){
+	if (source == g_OMAC.Neighbor2beFollowed){
 		if (g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
@@ -257,6 +256,8 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	}
 #endif
 
+	//DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
+	//RadioAddress_t source = msg->GetHeader()->src;
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
@@ -271,17 +272,6 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	} else {
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
-
-
-
-	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
-	//UINT64 rcv_ltime;
-	//INT64 l_offset;
-	//rcv_ltime = (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
-	//l_offset = rcv_ltime - EventTime;
-	//g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
-	//g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
-
 
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){

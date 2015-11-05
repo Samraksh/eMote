@@ -217,7 +217,7 @@ BOOL OMACType::UnInitialize(){
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
 	UINT64 evTime;
-
+	UINT16 location_in_packet_payload = 0;
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
@@ -252,6 +252,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
 			g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload()));
+			location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
@@ -261,7 +262,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
 				}
 #endif
-
+				DataMsg_t* data_msg = (DataMsg_t*) msg->GetPayload();
+				location_in_packet_payload += data_msg->size;
 				/*//BK:I don't understand the following stuff. Hence commenting it out
 				//BK: Why do we need to store the packet pointer in the g_receive_buffer? It seems like reception is a direct function call
 
@@ -280,7 +282,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
 											//finally the temp, which is a ptr to free message will be returned.
 				 */
-				(*g_rxAckHandler)(msg, msg->GetHeader()->length);
+				(*g_rxAckHandler)(msg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
@@ -295,9 +297,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNC:
+
 			ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 			//TimeSyncMsg* tsmg = (TimeSyncMsg*)msg->GetPayload()
+			location_in_packet_payload += sizeof(TimeSyncMsg);
 			g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload()), evTime);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
@@ -308,7 +312,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 	};
 
-	UINT16 location_in_packet_payload = msg->GetHeader()->length;
+
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
 		//TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload), evTime );
@@ -391,8 +395,10 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	header->mac_id = macName;
 	header->type = dataType;
 
+	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
+	data_msg->size = size;
+	UINT8* payload = data_msg->payload;
 	UINT8* lmsg = (UINT8*) msg;
-	UINT8* payload = msg_carrier->GetPayload();
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}

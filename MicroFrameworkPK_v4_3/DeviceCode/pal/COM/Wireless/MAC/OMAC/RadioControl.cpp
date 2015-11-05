@@ -106,7 +106,7 @@ bool RadioControl::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
-		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
+		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		UINT64 y =  HAL_Time_CurrentTicks();
 		y = y - ((UINT32)y - event_time);
 		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
@@ -126,7 +126,7 @@ bool RadioControl::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
-		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+size);
+		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		g_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
 		msg->GetHeader()->SetFlags((UINT8)(msg->GetHeader()->GetFlags() | MFM_DISCOVERY));
 		size += sizeof(DiscoveryMsg_t);
