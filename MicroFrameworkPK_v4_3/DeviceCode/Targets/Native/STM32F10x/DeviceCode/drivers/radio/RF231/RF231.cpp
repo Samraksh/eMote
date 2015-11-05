@@ -180,6 +180,11 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
 	radio_hal_trx_status_t orig_status = trx_status;
 
+	ASSERT_RADIO(trx_status != P_ON);
+#	ifndef NDEBUG
+	if (trx_status == P_ON) { hal_printf("Radio in P_ON state. Something bad happened\r\n"); }
+#	endif
+
 	if (target == trx_status) { return TRUE; } // already there!
 	if (target == RX_ON && trx_status == BUSY_RX) { return TRUE; } // BUSY_RX and RX_ON are equiv.
 
@@ -200,7 +205,8 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 				switch(trx_status) {
 					case BUSY_RX: state = STATE_BUSY_RX; break;
 					case BUSY_TX: state = STATE_BUSY_TX; break;
-					default: state = STATE_BUSY_RX; ASSERT(0); // Unknown, put in RX state for lack of anything better.
+					case PLL_ON:  state = STATE_PLL_ON; ASSERT_RADIO(0); break; // What the heck?
+					default: state = STATE_BUSY_RX; ASSERT_RADIO(0); // Unknown, put in RX state for lack of anything better.
 				}
 				return FALSE;
 			}
@@ -245,7 +251,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	ASSERT ( !isInterrupt() );
+	//ASSERT_RADIO( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
@@ -531,7 +537,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	ASSERT ( !isInterrupt() );
+	//ASSERT_RADIO( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
@@ -865,7 +871,7 @@ DeviceStatus RF231Radio::UnInitialize()
     {
         RstnClear();
         SetInitialized(FALSE);
-        ASSERT((active_mac_index & 0xFF00) == 0);
+        ASSERT_RADIO((active_mac_index & 0xFF00) == 0);
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
         }
@@ -887,6 +893,9 @@ DeviceStatus RF231Radio::UnInitialize()
 void RF231Radio::WriteRegister(UINT8 reg, UINT8 value)
 {
 	GLOBAL_LOCK(irq);
+
+	// FORCE_PLL_ON should never be used.
+	ASSERT_RADIO( reg != RF230_TRX_STATE || (value&0x1F) != FORCE_PLL_ON);
 
 	SelnClear();
 
@@ -1341,7 +1350,7 @@ void RF231Radio::HandleInterrupt()
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
-		else { ASSERT(0); } // Unknown CMD
+		else { ASSERT_RADIO(0); } // Unknown CMD
 	}
 
 	if(sleep_pending)

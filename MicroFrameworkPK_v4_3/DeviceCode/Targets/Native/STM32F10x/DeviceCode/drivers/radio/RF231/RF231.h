@@ -63,7 +63,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 // Simple assert function that prints a message and infinite whiles
 #if !defined(NDEBUG)
-#define ASSERT_RADIO(x)  if(!(x)){ hal_printf("ASSERT FROM RADIO"); HARD_BREAKPOINT(); }
+#define ASSERT_RADIO(x)  if(!(x)){ SOFT_BREAKPOINT(); }
 #else
 #define ASSERT_RADIO(x)
 #endif
@@ -98,7 +98,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 											if(poll_counter == 0xfff)    \
 											{  								\
 												hal_printf(RADIOERROR03);  \
-												HARD_BREAKPOINT();          \
+												SOFT_BREAKPOINT();          \
 												break;                      \
 											} 								\
 											poll_counter++; 				\
@@ -147,6 +147,7 @@ typedef enum radio_hal_trx_status
     P_ON                            = 0,
     BUSY_RX                         = 1,
     BUSY_TX                         = 2,
+	FORCE_PLL_ON					= 4, // should not be used
     RX_ON                           = 6,
     TRX_OFF                         = 8,
     PLL_ON                          = 9,

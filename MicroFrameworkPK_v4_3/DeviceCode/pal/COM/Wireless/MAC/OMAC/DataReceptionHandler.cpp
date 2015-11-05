@@ -109,7 +109,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
 		failureCount++;
 		if(failureCount > 5){
-			ASSERT(0);
+			//ASSERT(0);
 		}
 		PostExecuteEvent();
 	}
