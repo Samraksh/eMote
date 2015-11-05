@@ -216,6 +216,8 @@ BOOL OMACType::UnInitialize(){
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
+	UINT64 evTime;
+	UINT16 location_in_packet_payload = 0;
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
@@ -229,23 +231,28 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		return msg;
 	}
 
+
+
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
 
-	//Any message might have timestamping attached to it. Check for it and process
-	/*if(msg->GetHeader()->flags == TIMESTAMPED_FLAG && msg->GetHeader()->GetType()!=MFM_TIMESYNC){
-		UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
-		g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
-		Size -= tmsgSize;
-	}*/
+	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
-	//Demutiplex packets received based on type
+
+	//Any message might have timestamping attached to it. Check for it and process
+	if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
+		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
+	}
+
+
+	//Get the primary packet
 	switch(msg->GetHeader()->GetType()){
 		case MFM_DISCOVERY:
-			g_omac_scheduler.m_DiscoveryHandler.Receive(msg, msg->GetPayload(), Size);
+			g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload()));
+			location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			break;
 		case MFM_DATA:
 			if(myID == destID) {
@@ -255,6 +262,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
 				}
 #endif
+				DataMsg_t* data_msg = (DataMsg_t*) msg->GetPayload();
+				location_in_packet_payload += data_msg->size;
+				/*//BK:I don't understand the following stuff. Hence commenting it out
+				//BK: Why do we need to store the packet pointer in the g_receive_buffer? It seems like reception is a direct function call
 
 				// Implement bag exchange if the packet type is data
 				Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
@@ -264,13 +275,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					g_receive_buffer.DropOldest(1);
 					next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
 				}
+				ASSERT(next_free_buffer);
 
 				//Implement bag exchange, by actually switching the contents.
 				Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
 				(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
 											//finally the temp, which is a ptr to free message will be returned.
-
-				(*g_rxAckHandler)(msg, Size);
+				 */
+				(*g_rxAckHandler)(msg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
@@ -285,19 +297,36 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNC:
+
+			ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
-			g_omac_scheduler.m_TimeSyncHandler.Receive(msg, msg->GetPayload(), Size);
+			//TimeSyncMsg* tsmg = (TimeSyncMsg*)msg->GetPayload()
+			location_in_packet_payload += sizeof(TimeSyncMsg);
+			g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload()), evTime);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 			hal_printf("Got a data beacon packet\n");
 			break;
 		default:
-			/*UINT8 tmsgSize = sizeof(TimeSyncMsg)+4;
-			g_omac_scheduler.m_TimeSyncHandler.Receive(msg,msg->GetPayload()+Size-tmsgSize, tmsgSize);
-			Size -= tmsgSize;*/
 			break;
 	};
+
+
+	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
+		ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+		//TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
+		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload), evTime );
+		location_in_packet_payload += sizeof(TimeSyncMsg);
+	}
+	if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
+		//DiscoveryMsg_t* disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
+		g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload) );
+		location_in_packet_payload += sizeof(DiscoveryMsg_t);
+	}
+
+	}
+
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
@@ -315,67 +344,44 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
-	if(g_send_buffer.IsFull()){
-		return FALSE;
-	}
-
-	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size > OMACType::GetMaxPayload()){
-		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
-		return FALSE;
+BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
+	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
-	header->src = CPU_Radio_GetAddress(this->radioName);
-	header->network = MyConfig.Network;
-	header->mac_id = macName;
-	header->type = dataType;
-
-	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
-	if(eventTime > 0){
-		msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-	}
-	else{
-		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
-	}
-
-	UINT8* lmsg = (UINT8*) msg;
-	UINT8* payload = msg_carrier->GetPayload();
-
-	for(UINT8 i = 0 ; i < size; i++){
-		payload[i] = lmsg[i];
-	}
-
+	header->SetFlags(0);
 	return true;
 }
 
-
-#if 0
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
-	////hal_printf("start OMACType::SendTimeStamped\n");
-	if(g_send_buffer.IsFull()) {
-		////hal_printf("OMACType::SendTimeStamped g_send_buffer full\n");
-		return FALSE;
+	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		return false;
 	}
+	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
+	header->SetFlags(TIMESTAMPED_FLAG);
+	return true;
+}
 
-	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	//Message_15_4_t* msg_carrier;
+Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
+	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
 	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
-		return FALSE;
+		return msg_carrier;
 	}
+	msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		hal_printf("OMACType::Send g_send_buffer full.\n");
+		return msg_carrier;
+	}
+
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -389,18 +395,16 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	header->mac_id = macName;
 	header->type = dataType;
 
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-
+	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
+	data_msg->size = size;
+	UINT8* payload = data_msg->payload;
 	UINT8* lmsg = (UINT8*) msg;
-	UINT8* payload = msg_carrier->GetPayload();
-
-	for(UINT8 i = 0; i < size; i++){
+	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
-
-	return true;
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 }
-#endif
+
 
 /*
  *

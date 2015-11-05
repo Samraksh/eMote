@@ -144,17 +144,11 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
 
-	m_discoveryMsg->nextSeed = g_omac_scheduler.m_DataReceptionHandler.m_nextSeed;
-	m_discoveryMsg->mask = g_omac_scheduler.m_DataReceptionHandler.m_mask;
-	UINT64 nextwakeupSlot = g_omac_scheduler.m_DataReceptionHandler.m_nextwakeupSlot;;
-	m_discoveryMsg->nextwakeupSlot0 = (UINT32)nextwakeupSlot;
-	m_discoveryMsg->nextwakeupSlot1 = (UINT32)(nextwakeupSlot>>32);
-	m_discoveryMsg->seedUpdateIntervalinSlots = g_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
+	CreateMessage(m_discoveryMsg);
 
-	m_discoveryMsg->nodeID = g_OMAC.GetAddress();
-	localTime = HAL_Time_CurrentTicks();
-	m_discoveryMsg->localTime0 = (UINT32) localTime ;
-	m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
+	//localTime = HAL_Time_CurrentTicks();
+	//m_discoveryMsg->localTime0 = (UINT32) localTime ;
+	//m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
 	e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
 
@@ -171,7 +165,18 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 		e = DS_Busy;
 	}*/
 
+
 	return e;
+}
+
+void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
+	discoveryMsg->nextSeed = g_omac_scheduler.m_DataReceptionHandler.m_nextSeed;
+	discoveryMsg->mask = g_omac_scheduler.m_DataReceptionHandler.m_mask;
+	UINT64 nextwakeupSlot = g_omac_scheduler.m_DataReceptionHandler.m_nextwakeupSlot;
+	discoveryMsg->nextwakeupSlot0 = (UINT32)nextwakeupSlot;
+	discoveryMsg->nextwakeupSlot1 = (UINT32)(nextwakeupSlot>>32);
+	discoveryMsg->seedUpdateIntervalinSlots = g_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
+	discoveryMsg->nodeID = g_OMAC.GetAddress();
 }
 
 /*
@@ -240,9 +245,19 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 /*
  *
  */
-DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8 len){
-	DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
-	RadioAddress_t source = msg->GetHeader()->src;
+DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg){  //(Message_15_4_t* msg, void* payload, UINT8 len){
+#ifdef def_Neighbor2beFollowed
+	if (source == g_OMAC.Neighbor2beFollowed){
+		if (g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
+#endif
+		}
+	}
+#endif
+
+	//DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
+	//RadioAddress_t source = msg->GetHeader()->src;
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
 	UINT64 localTime = HAL_Time_CurrentTicks();
@@ -257,25 +272,6 @@ DeviceStatus DiscoveryHandler::Receive(Message_15_4_t* msg, void* payload, UINT8
 	} else {
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
-
-#ifdef def_Neighbor2beFollowed
-	if (source == g_OMAC.Neighbor2beFollowed ){
-		if (g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.NumberOfRecordedElements(source) >=2  ){
-#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
-#endif
-		}
-	}
-#endif
-
-	UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
-	UINT64 rcv_ltime;
-	INT64 l_offset;
-	rcv_ltime = (((UINT64)disMsg->localTime1) <<32) + disMsg->localTime0;
-	l_offset = rcv_ltime - EventTime;
-	g_NeighborTable.RecordTimeSyncRecv(source, EventTime);
-	g_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Insert(source, rcv_ltime, l_offset);
-
 
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
@@ -305,7 +301,9 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DISCOVERY;
 
-	retValue = g_omac_RadioControl.Send(address, msg, size + sizeof(IEEE802_15_4_Header_t), event_time);
+	msg->GetMetaData()->SetReceiveTimeStamp(event_time);
+
+	retValue = g_omac_RadioControl.Send(address, msg, header->length);
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );

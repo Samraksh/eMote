@@ -18,6 +18,7 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern OMACType g_OMAC;
+extern OMACScheduler g_omac_scheduler;
 
 #define LOCALSKEW 1
 //#define DEBUG_RADIO_STATE 1
@@ -57,72 +58,86 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 /*
  *
  */
-DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
+DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
+	PiggbackMessages( msg, size);
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
-	//Disco and DataTx handlers call this function with size parameter including the IEEE802_15_4_Header size.
-	//So reduce header size from size before deciding if CPU_Radio_Send_TimeStamped or CPU_Radio_Send should be called.
-	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
-	const int timestamp_size = 4;	//used in Radio driver's RF231Radio::Send_TimeStamped
-	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+crc_size+timestamp_size) ){
-		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+size);
-		UINT64 y = HAL_Time_CurrentTicks();
-#ifndef LOCALSKEW
-		x = m_globalTime.Local2Global(y);
-#endif
-		tmsg->localTime0 = (UINT32) y;
-		tmsg->localTime1 = (UINT32) (y>>32);
-		////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
-		//header->SetFlags(header->GetFlags());
-		size += sizeof(TimeSyncMsg);
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, TRUE);
-		CPU_GPIO_SetPinState(RADIOCONTROL_SEND_PIN, FALSE);
-#endif
-		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
-	}else {
-		//Radio implements the 'bag exchange' protocol, so store the pointer back to message
-		if(eventTime == 0){
-			msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
-		}
-		else{
-			msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, eventTime);
-		}
+	header->length = size;
+	if( (header->GetFlags() & TIMESTAMPED_FLAG) ){
+		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
+	}
+	else {
+		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
 	return DS_Success;
 }
 
-#if 0
-/*
- * Radio implements the 'bag exchange' protocol, so store the pointer back to message
- */
-DeviceStatus RadioControl::Send_TimeStamped(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT32 eventTime){
+
+bool RadioControl::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
+	bool rv = false;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-	header->network = g_OMAC.MyConfig.Network;
-	header->mac_id = g_OMAC.macName;
-	////header->SetFlags(header->GetFlags() | MFM_TIMESYNC);
-	header->SetFlags(header->GetFlags());
-	//header->network = MyConfig.Network;
 
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, TRUE);
-		CPU_GPIO_SetPinState(RADIOCONTROL_SENDTS_PIN, FALSE);
-		//hal_printf("RadioControl::Send_TimeStamped CPU_Radio_Send_TimeStamped\n");
-#endif
-
-	msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size+sizeof(IEEE802_15_4_Header_t), eventTime);
-
-	return DS_Success;
+	if(!(header->GetFlags() & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) {
+		rv = rv || PiggbackTimeSyncMessage(msg, size);
+	}
+	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
+		rv = rv || PiggbackDiscoMessage(msg, size);
+	}
+	return rv;
 }
-#endif
+
+bool RadioControl::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
+	int additional_overhead = crc_size;
+
+	UINT64 event_time;
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
+
+	if((header->GetFlags() & MFM_TIMESYNC) || (header->type == MFM_TIMESYNC)){ //Already embedded
+		return false;
+	}
+
+	if( (header->GetFlags() & TIMESTAMPED_FLAG) ){ //Check if already stamped
+		event_time = msg->GetMetaData()->GetReceiveTimeStamp();
+	}
+	else{ //Otherwise add it
+		additional_overhead += timestamp_size;
+		header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
+		event_time = HAL_Time_CurrentTicks();
+		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
+	}
+
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
+		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+		UINT64 y =  HAL_Time_CurrentTicks();
+		y = y - ((UINT32)y - event_time);
+		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
+		msg->GetHeader()->SetFlags((UINT8)(msg->GetHeader()->GetFlags() | MFM_TIMESYNC));
+		size += sizeof(TimeSyncMsg);
+	}
+}
+
+bool RadioControl::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
+	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
+	//const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
+	int additional_overhead = crc_size;
+	IEEE802_15_4_Header_t *header = msg->GetHeader();
+
+	if((header->GetFlags() & MFM_DISCOVERY) || (header->type == MFM_DISCOVERY)){ //Already embedded
+		return false;
+	}
+
+	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
+		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
+		g_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
+		msg->GetHeader()->SetFlags((UINT8)(msg->GetHeader()->GetFlags() | MFM_DISCOVERY));
+		size += sizeof(DiscoveryMsg_t);
+	}
+}
+
+
 
 
 //DeviceStatus RadioControl::Receive(Message_15_4_t * msg, UINT16 size){

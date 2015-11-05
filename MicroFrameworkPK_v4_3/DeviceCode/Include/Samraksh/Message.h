@@ -89,7 +89,8 @@ public:
 
 };
 
-#define TIMESTAMPED_FLAG (1 << 0)
+
+#define OMAC_TYPE_ID 139
 
 ///Well known message types: MFM stands for MicroFramework Message
 #define MFM_DATA (1 << 0)
@@ -97,7 +98,7 @@ public:
 #define MFM_NEIGHBORHOOD (1 << 2)
 #define MFM_ROUTING (1 << 3)
 #define MFM_DISCOVERY (1 << 4)
-
+#define TIMESTAMPED_FLAG (1 << 5)
 
 //IEEE802.15.4 Message structure
 #define IEEE802_15_4_FRAME_LENGTH 126

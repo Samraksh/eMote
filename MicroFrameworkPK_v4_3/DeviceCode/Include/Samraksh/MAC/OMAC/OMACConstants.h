@@ -35,6 +35,7 @@
 #endif
 
 #define TIMESTAMP_FOOTER_OFFSET -4
+#define TIMESTAMP_SIZE 4
 
 #define HAL_SLOT_TIMER 3
 #define HAL_SLOT_TIMER2 4
@@ -47,7 +48,7 @@
 #define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
 #define MID_UINT64  (0x7FFFFFFFFFFFFFFF)
 
-#define MAX_DATA_PCKT_SIZE 20
+#define MAX_DATA_PCKT_SIZE 100
 
 
 /*
@@ -143,13 +144,12 @@ typedef struct DiscoveryMsg
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
 
-	UINT32 localTime0;
-	UINT32 localTime1;
 
 } DiscoveryMsg_t;
 
 typedef struct DataMsg_t
 {
+	UINT8 size;
 	UINT8 payload[MAX_DATA_PCKT_SIZE];
 } DataMsg_t;
 
