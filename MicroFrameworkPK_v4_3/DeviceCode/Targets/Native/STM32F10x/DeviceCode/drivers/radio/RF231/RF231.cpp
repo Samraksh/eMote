@@ -1353,7 +1353,10 @@ void RF231Radio::HandleInterrupt()
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
-		else { /*ASSERT_RADIO(0);*/ } // This can happen. Unknown why. For now, just ignore it.
+		else { // Something happened. unclear what. Try to go to a safe state.
+			Careful_State_Change(TRX_OFF);
+			state = STATE_TRX_OFF;
+		}
 	}
 
 	if(sleep_pending)
