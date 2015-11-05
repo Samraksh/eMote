@@ -152,9 +152,9 @@ void RF231Radio::Wakeup() {
 // For when interrupts are disabled. Checks radio IRQ pin.
 BOOL RF231Radio::Interrupt_Pending() {
 #ifndef NATHAN_DEBUG_JUNK
-	return (EXTI_GetITStatus(kinterrupt % 16) == SET ) ? TRUE : FALSE;
+	return (EXTI_GetITStatus( 1<<(kinterrupt % 16) ) == SET ) ? TRUE : FALSE;
 #else
-	if (EXTI_GetITStatus(kinterrupt % 16) == SET) {
+	if (EXTI_GetITStatus(1<<(kinterrupt % 16)) == SET) {
 		add_int_pend();
 		return TRUE;
 	}
