@@ -78,8 +78,12 @@ bool RadioControl::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
 	bool rv = false;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
-	if(!(header->GetFlags() & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) rv = rv || PiggbackTimeSyncMessage(msg, size);
-	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) rv = rv || PiggbackDiscoMessage(msg, size);
+	if(!(header->GetFlags() & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) {
+		rv = rv || PiggbackTimeSyncMessage(msg, size);
+	}
+	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
+		rv = rv || PiggbackDiscoMessage(msg, size);
+	}
 	return rv;
 }
 

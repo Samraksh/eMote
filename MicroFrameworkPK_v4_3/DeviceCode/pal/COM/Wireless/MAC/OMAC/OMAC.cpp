@@ -314,12 +314,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
+		ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 		//TimeSyncMsg* tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload), evTime );
 		location_in_packet_payload += sizeof(TimeSyncMsg);
 	}
 	if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
-		ASSERT(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 		//DiscoveryMsg_t* disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
 		g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload) );
 		location_in_packet_payload += sizeof(DiscoveryMsg_t);
@@ -350,7 +350,7 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->SetFlags(MFM_DATA);
+	header->SetFlags(0);
 	return true;
 }
 
@@ -366,7 +366,7 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-	header->SetFlags(MFM_DATA | TIMESTAMPED_FLAG);
+	header->SetFlags(TIMESTAMPED_FLAG);
 	return true;
 }
 
