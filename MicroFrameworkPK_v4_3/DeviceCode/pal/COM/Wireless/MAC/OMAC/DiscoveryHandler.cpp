@@ -289,7 +289,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->type = MFM_DISCOVERY;
 
 	msg->GetMetaData()->SetReceiveTimeStamp(event_time);
-	header->SetFlags(MFM_DISCOVERY | TIMESTAMPED_FLAG);
+	header->SetFlags(MFM_DISCOVERY);
 
 	retValue = g_omac_RadioControl.Send(address, msg, header->length);
 
