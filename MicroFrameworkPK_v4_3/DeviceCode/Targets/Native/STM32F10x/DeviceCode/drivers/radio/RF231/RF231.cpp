@@ -251,7 +251,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	//ASSERT_RADIO( !isInterrupt() );
+	ASSERT_RADIO( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
@@ -410,7 +410,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power) {
 		return DS_Fail; // We were busy.
 	}
 
-	//ASSERT_RADIO( !isInterrupt() );
+	ASSERT_RADIO( !isInterrupt() );
 
 	this->tx_power = power  & RF230_TX_PWR_MASK;
 	WriteRegister(RF230_PHY_TX_PWR, RF230_TX_AUTO_CRC_ON | (power & RF230_TX_PWR_MASK));
@@ -430,7 +430,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel) {
 		return DS_Fail; // We were busy.
 	}
 
-	//ASSERT_RADIO( !isInterrupt() );
+	ASSERT_RADIO( !isInterrupt() );
 
 	// The value passed as channel until this point is an enum and needs to be offset by 11 to set the
 	// actual radio channel value
@@ -537,7 +537,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
 	}
 
-	//ASSERT_RADIO( !isInterrupt() );
+	ASSERT_RADIO( !isInterrupt() );
 
 	GLOBAL_LOCK(irq);
 
