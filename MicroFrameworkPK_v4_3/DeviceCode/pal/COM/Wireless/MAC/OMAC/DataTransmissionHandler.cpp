@@ -218,17 +218,8 @@ bool DataTransmissionHandler::Send(){
 	//Send only when packet has been scheduled
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
-		UINT16 msgsize = m_outgoingEntryPtr->GetMessageSize();
-		UINT64 time_stamp = m_outgoingEntryPtr->GetMetaData()->GetReceiveTimeStamp() ;
-
-		/*if (time_stamp == 0) {
-			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), 0 );
-		}
-		else {
-			rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
-		}*/
-
-		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, m_outgoingEntryPtr->GetHeaderSize()+m_outgoingEntryPtr->GetPayloadSize(), time_stamp  );
+		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
 		//set flag to false after packet has been sent
 		isDataPacketScheduled = false;

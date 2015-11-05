@@ -315,69 +315,44 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
-BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
-	if(g_send_buffer.IsFull()){
-		hal_printf("OMACType::Send g_send_buffer full. Clearing buffer\n");
-		g_send_buffer.Erase();
-		return FALSE;
-	}
-
-	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(size > OMACType::GetMaxPayload()){
-		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
-		return FALSE;
+BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
+	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
-	header->src = CPU_Radio_GetAddress(this->radioName);
-	header->network = MyConfig.Network;
-	header->mac_id = macName;
-	header->type = dataType;
-
-	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
-	if(eventTime > 0){
-		msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-	}
-	else{
-		msg_carrier->GetMetaData()->SetReceiveTimeStamp(HAL_Time_CurrentTicks());
-	}
-
-	UINT8* lmsg = (UINT8*) msg;
-	UINT8* payload = msg_carrier->GetPayload();
-
-	for(UINT8 i = 0 ; i < size; i++){
-		payload[i] = lmsg[i];
-	}
-
+	header->SetFlags(MFM_DATA);
 	return true;
 }
 
-
-#if 0
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
 BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
 {
-	////hal_printf("start OMACType::SendTimeStamped\n");
-	if(g_send_buffer.IsFull()) {
-		////hal_printf("OMACType::SendTimeStamped g_send_buffer full\n");
-		return FALSE;
+	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		return false;
 	}
+	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
+	header->SetFlags(MFM_DATA | TIMESTAMPED_FLAG);
+	return true;
+}
 
-	Message_15_4_t* msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	//Message_15_4_t* msg_carrier;
+Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
+	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
 	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
-		return FALSE;
+		return msg_carrier;
 	}
+	msg_carrier = g_send_buffer.GetNextFreeBuffer();
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		hal_printf("OMACType::Send g_send_buffer full.\n");
+		return msg_carrier;
+	}
+
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -391,18 +366,14 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	header->mac_id = macName;
 	header->type = dataType;
 
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-
 	UINT8* lmsg = (UINT8*) msg;
 	UINT8* payload = msg_carrier->GetPayload();
-
-	for(UINT8 i = 0; i < size; i++){
+	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
-
-	return true;
+	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 }
-#endif
+
 
 /*
  *

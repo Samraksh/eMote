@@ -165,7 +165,7 @@ DeviceStatus Mac_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg,
 		status = g_csmaMacObject.SendTimeStamped(destAddress, dataType, msg, size, eventTime);
 	}
 	else if(currentMacName == OMAC){
-		status = g_OMAC.Send(destAddress, dataType, msg, size, eventTime);
+		status = g_OMAC.SendTimeStamped(destAddress, dataType, msg, size, eventTime);
 	}
 
 	if(status != TRUE)
@@ -182,7 +182,7 @@ DeviceStatus Mac_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 		status = g_csmaMacObject.Send(destAddress, dataType, msg, size);
 	}
 	else if(currentMacName == OMAC){
-		status = g_OMAC.Send(destAddress, dataType, msg, size, 0);
+		status = g_OMAC.Send(destAddress, dataType, msg, size);
 	}
 
 	if(status != TRUE)

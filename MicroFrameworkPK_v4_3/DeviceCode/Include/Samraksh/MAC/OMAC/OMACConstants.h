@@ -35,6 +35,7 @@
 #endif
 
 #define TIMESTAMP_FOOTER_OFFSET -4
+#define TIMESTAMP_SIZE 4
 
 #define HAL_SLOT_TIMER 3
 #define HAL_SLOT_TIMER2 4

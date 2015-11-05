@@ -36,6 +36,7 @@ public:
 	void ExecuteEvent();
 	UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
+	void CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync = false);
 
 	//UINT32 GetSyncPoint();
 	DeviceStatus Receive(Message_15_4_t* msg, void* payload, UINT8 len);
