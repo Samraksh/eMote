@@ -122,10 +122,6 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		AppCount = 0; //number of upperlayers connected to you
 		OMACType::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
 
-#ifdef DEBUG_OMAC
-		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
-#endif
-
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
 		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
@@ -142,6 +138,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
 			return status;
 		}
+#ifdef DEBUG_OMAC
+		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+#endif
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		g_omac_RadioControl.Initialize();
