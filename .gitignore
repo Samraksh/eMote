@@ -5,6 +5,9 @@
 # Notepad++ backup files
 *.bak
 
+.autotools
+.cproject*
+
 # build meta data
 MicroFrameworkPK_v4_3/CLR/Tools/BuildHelper/BuildHelper_assemblyinfo.txt
 MicroFrameworkPK_v4_3/CLR/Tools/MetaDataProcessor/MetaDataProcessor_assemblyinfo.txt
