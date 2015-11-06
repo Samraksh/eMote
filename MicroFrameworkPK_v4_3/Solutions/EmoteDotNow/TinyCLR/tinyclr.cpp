@@ -4,6 +4,7 @@
 
 #include <tinyclr_application.h>
 #include <tinyhal.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 void ApplicationEntryPoint()
 {
@@ -16,9 +17,6 @@ void ApplicationEntryPoint()
     clrSettings.EnterDebuggerLoopAfterExit = true;
 
     ClrStartup( clrSettings );
-
-    //SimpleTimesyncTest_Initialize();
-    //OMACTest_Initialize();
 
 #if !defined(BUILD_RTM)
     debug_printf( "Exiting.\r\n" );
