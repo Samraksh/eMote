@@ -118,7 +118,7 @@ public:
 	void PostPostExecution();
 	bool EnsureStopRadio();
 
-}OMACScheduler_t;
+};
 
 
 
