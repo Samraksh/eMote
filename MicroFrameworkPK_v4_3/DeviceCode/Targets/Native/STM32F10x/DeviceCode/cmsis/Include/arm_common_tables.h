@@ -33,6 +33,6 @@ extern const q31_t realCoefAQ31[1024];
 extern const q31_t realCoefBQ31[1024];
 extern const float32_t twiddleCoef[6144];
 extern const q31_t twiddleCoefQ31[6144];
-extern const q15_t twiddleCoefQ15[1];
+extern const q15_t twiddleCoefQ15[6144];
 
 #endif /*  ARM_COMMON_TABLES_H */
