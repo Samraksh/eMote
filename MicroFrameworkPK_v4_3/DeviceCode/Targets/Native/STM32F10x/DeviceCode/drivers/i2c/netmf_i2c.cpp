@@ -84,10 +84,13 @@ void I2C_Event_Handler(void *param)
 	int sr2 = I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->SR2;
 	int cr1 = I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1;
 
+	static int i2cEventTimeout = 0;
+
 	if(unit->IsReadXActionUnit())
 	{
 		if(sr1 & I2C_SR1_SB)
 		{
+			i2cEventTimeout = 0;
 			if(todo == 1)
 			{
 				I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR1 = (cr1 &= ~I2C_CR1_ACK);
@@ -144,6 +147,7 @@ void I2C_Event_Handler(void *param)
 	{
 		if(sr1 & I2C_SR1_SB)
 		{
+			i2cEventTimeout = 0;
 			UINT8 addr = xAction->m_address << 1;
 			I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->DR = addr;
 		}else
@@ -158,8 +162,9 @@ void I2C_Event_Handler(void *param)
 			if (!(sr1 & I2C_SR1_BTF)) todo++; // last byte not yet sent
 		}
 	}
+	i2cEventTimeout++;
 
-	 if (todo == 0) { // all received or all sent
+	 if ((todo == 0) || (i2cEventTimeout>50) ) { // all received or all sent
 	        if (!xAction->ProcessingLastUnit()) { // start next unit
 	        	I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus]->CR2 &= ~I2C_CR2_ITBUFEN; // disable I2C_SR1_RXNE interrupt
 	        	g_STM32F10x_i2c_driver.setCurrentXActionUnit(xAction->m_xActionUnits[ xAction->m_current++ ]);
@@ -177,6 +182,13 @@ void I2C_Error_Handler(void  *param)
 {
 	I2C_HAL_XACTION* xAction = g_STM32F10x_i2c_driver.getCurrentXAction();
 
+	/*if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_SMBALERT )){hal_printf("I2C_FLAG_SMBALERT set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_TIMEOUT )){hal_printf("I2C_FLAG_TIMEOUT set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_PECERR)){hal_printf("I2C_FLAG_PECERR set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_OVR)){hal_printf("I2C_FLAG_OVR set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_AF)){hal_printf("I2C_FLAG_AF set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_ARLO)){hal_printf("I2C_FLAG_ARLO set\r\n");}
+	if (I2C_GetFlagStatus(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_BERR)){hal_printf("I2C_FLAG_BERR set\r\n");}*/
 	I2C_ClearFlag(I2C_BUS_ARRAY[g_STM32F10x_i2c_driver.currentActiveBus], I2C_FLAG_SMBALERT | I2C_FLAG_TIMEOUT | I2C_FLAG_PECERR | I2C_FLAG_OVR | I2C_FLAG_AF | I2C_FLAG_ARLO | I2C_FLAG_BERR);
 
 	xAction->Signal(I2C_HAL_XACTION::c_Status_Aborted);
@@ -225,13 +237,15 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
 
-	GPIO_InitTypeDef GPIO_InitStructure;
+		GPIO_InitTypeDef GPIO_InitStructure;
 		I2C_InitTypeDef I2C_InitStruct;
 
 		GPIO_PinRemapConfig(GPIO_Remap_FSMC_NADV, ENABLE);
 
 		if(bus == I2CBus1)
 		{
+			// we don't have to reserve pins (CPU_GPIO_ReservePin) because MF already reserves the I2C pins for us
+
 			RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
 			RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
 
@@ -241,9 +255,15 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 		    // Release I2C1 from reset state
 			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
 
+			// Enable the pins in alternate mode configuration
+ 			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+  			GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
+
 		}
 		else
 		{
+			// we don't have to reserve pins (CPU_GPIO_ReservePin) because MF already reserves the I2C pins for us
+
 			RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
 			RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOB, ENABLE);
 
@@ -253,12 +273,10 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 			// Release I2C2 from reset state
 			RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
 
+			// Enable the pins in alternate mode configuration
+ 			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+  			GPIO_ConfigurePin(GPIOB, GPIO_InitStructure.GPIO_Pin, GPIO_Mode_AF_OD, GPIO_Speed_50MHz);
 		}
-
-
-		// Enable the pins in alternate mode configuration
-		CPU_GPIO_DisablePin(I2C1_SCL, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
-		CPU_GPIO_DisablePin(I2C1_SDA, RESISTOR_DISABLED, GPIO_DIRECTION_OUT , GPIO_ALT_MODE_1);
 
 		I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
 		I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
