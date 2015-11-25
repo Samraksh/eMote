@@ -600,11 +600,13 @@ DeviceStatus RF231Radio::AntDiversity(BOOL enable)
 
 	if(enable)
 	{
-		data |= 0x0C;
+		//data |= 0x0C;
+		data |= 0x0E; // Same as above but ANT_CTRL set to other antenna
 	}
 	else
 	{
-		data &= ~(3 << 2);
+		//data &= ~(3 << 2);
+		data &= ~(1 << 3); // The above is old but actually wrong. We only want to disable ANT_DIV_EN
 	}
 
 
