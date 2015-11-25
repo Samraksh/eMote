@@ -129,6 +129,7 @@ HRESULT HAL_SOCK_CONFIGURATION_LoadWirelessConfiguration( UINT32 interfaceIndex,
 int SOCK_socket( int family, int type, int protocol ) 
 { 
     NATIVE_PROFILE_PAL_COM();
+    hal_printf("Inside SOCK_socket in sockets_stubs.cpp\n");
     return SOCK_SOCKET_ERROR; 
 }
 
@@ -195,6 +196,7 @@ void SOCK_freeaddrinfo( struct SOCK_addrinfo* ai )
 int SOCK_ioctl( int socket, int cmd, int* data ) 
 { 
     NATIVE_PROFILE_PAL_COM();
+    hal_printf("Inside SOCK_ioctl in sockets_stubs.cpp\n");
     return SOCK_SOCKET_ERROR; 
 }
 

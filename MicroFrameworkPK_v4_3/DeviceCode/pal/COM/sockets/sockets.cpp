@@ -23,6 +23,7 @@ HAL_COMPLETION Sockets_Driver::s_DebuggerTimeoutCompletion;
 SOCK_SOCKET SOCK_socket( INT32 family, INT32 type, INT32 protocol ) 
 { 
     NATIVE_PROFILE_PAL_COM();
+    hal_printf("Inside SOCK_socket in sockets.cpp\n");
     return Sockets_Driver::Socket( family, type, protocol, FALSE );
 }
 INT32 SOCK_bind( SOCK_SOCKET socket, const struct SOCK_sockaddr* address, INT32 addressLen  ) 
@@ -78,6 +79,7 @@ void SOCK_freeaddrinfo( struct SOCK_addrinfo* ai )
 INT32 SOCK_ioctl( SOCK_SOCKET socket, INT32 cmd, INT32* data )
 { 
     NATIVE_PROFILE_PAL_COM();
+    hal_printf("Inside SOCK_ioctl in sockets.cpp\n");
     return HAL_SOCK_ioctl( socket, cmd, data );
 }
 INT32 SOCK_getlasterror()

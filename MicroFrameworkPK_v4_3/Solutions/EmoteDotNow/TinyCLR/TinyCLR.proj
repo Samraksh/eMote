@@ -225,12 +225,20 @@
     <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
-    <DriverLibs Include="COM_pal.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
+    <DriverLibs Include="sockets_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
+  </ItemGroup>
+  <!--ItemGroup>
+    <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\sockets_lwip\dotNetMF.proj" />
+  </ItemGroup-->
+  <ItemGroup>
+    <DriverLibs Include="COM_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
   </ItemGroup>
   <ItemGroup>
     <DriverLibs Include="Analog_DA_HAL_EmoteDotNow.$(LIB_EXT)" />
@@ -560,6 +568,10 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\USB_HAL\dotNetMF.proj" />
   </ItemGroup-->
   <ItemGroup>
+    <DriverLibs Include="Network_config_EmoteDotNow.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Network\dotNetMF.proj" />
+  </ItemGroup>
+  <ItemGroup>
     <DriverLibs Include="native_double_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Double\dotNetMF.proj" />
   </ItemGroup>
@@ -636,6 +648,22 @@
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
+  <!--ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\rtip\SocketsDriver\dotNetMF.proj" />
+    <DriverLibs Include="sockets_rtip_pal.$(LIB_EXT)" />
+  </ItemGroup-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\SocketsDriver\dotNetMF.proj" />
+    <DriverLibs Include="sockets_lwIP_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60\dotNetMF.proj" />
+    <DriverLibs Include="Ethernet_enc28j60.$(LIB_EXT)" />
+  </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\LWIP\src\dotNetMF.proj" />
+    <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
+  </ItemGroup>
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />
