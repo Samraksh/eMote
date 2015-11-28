@@ -153,6 +153,5 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	UINT16 GetReceivePending();
 };
 
-extern OMACType g_OMAC;
 
 #endif /* OMAC_H_ */

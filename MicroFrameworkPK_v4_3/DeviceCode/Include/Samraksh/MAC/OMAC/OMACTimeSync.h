@@ -1,12 +1,5 @@
-/*
- * CMaxTimeSync.h
- *
- *  Created on: Sep 10, 2012
- *      Author: Mukundan
- */
-
-#ifndef CMAXTIMESYNC_H_
-#define CMAXTIMESYNC_H_
+#ifndef OMACTIMESYNC_H_
+#define OMACTIMESYNC_H_
 
 #include <Samraksh\PacketTimeSync_15_4.h>
 //#include "PacketTimeSync_15_4.h"
@@ -18,8 +11,8 @@
 /*
  *
  */
-//typedef class CMaxTimeSync : public TimeSyncMessage_15_4  {
-typedef class CMaxTimeSync : public EventHandler{
+//typedef class OMACTimeSync : public TimeSyncMessage_15_4  {
+class OMACTimeSync : public EventHandler{
 	UINT8 RadioID;
 	UINT8 MacID;
 	Message_15_4_t m_timeSyncMsgBuffer;
@@ -40,11 +33,11 @@ public:
 	void CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync = false);
 
 	//UINT32 GetSyncPoint();
-	DeviceStatus Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 EventTime);
+	DeviceStatus Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, INT64 EventTime);
 
 	BOOL Send(RadioAddress_t address, bool request_TimeSync);
 
-}CMaxTimeSync_t;
+};
 
 
-#endif /* CMAXTIMESYNC_H_ */
+#endif /* OMACTIMESYNC_H_ */

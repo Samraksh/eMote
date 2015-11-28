@@ -64,7 +64,7 @@
     <Compile Include="DataReceptionHandler.cpp" />
     <!--HFiles Include="PacketTimeSync_15_4.h" /-->
     <!--HFiles Include="CMaxTimeSync.h" /-->    
-    <Compile Include="CMaxTimeSync.cpp" />
+    <Compile Include="OMACTimeSync.cpp" />
     
     <!--<HFiles Include="FTSPTimeSync.h" />    
     <Compile Include="FTSPTimeSync.cpp" /-->

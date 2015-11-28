@@ -13,8 +13,7 @@
 #include <Samraksh/VirtualTimer.h>
 #include "OMACConstants.h"
 #include "Handlers.h"
-//#include "FTSPTimeSync.h"
-//#include "CMaxTimeSync.h"
+
 
 /*
  *
@@ -39,9 +38,9 @@ class DiscoveryHandler: public EventHandler {
 	UINT32 m_nextFrame;
 
 
-	Message_15_4_t m_discoveryMsgBuffer;
-	Message_15_4_t *m_processedMsg;
-	DiscoveryMsg_t *m_discoveryMsg;
+	//Message_15_4_t m_discoveryMsgBuffer;
+	//Message_15_4_t *m_processedMsg;
+	//DiscoveryMsg_t *m_discoveryMsg;
 
 	UINT16	m_period1, m_period2;
 

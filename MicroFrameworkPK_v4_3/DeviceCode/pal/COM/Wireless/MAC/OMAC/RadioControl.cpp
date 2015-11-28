@@ -27,7 +27,7 @@ extern OMACScheduler g_omac_scheduler;
 /*
  *
  */
-DeviceStatus RadioControl::Initialize(){
+DeviceStatus RadioControl_t::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
@@ -39,7 +39,7 @@ DeviceStatus RadioControl::Initialize(){
 /*
  *
  */
-DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
+DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
@@ -58,7 +58,7 @@ DeviceStatus RadioControl::Preload(RadioAddress_t address, Message_15_4_t * msg,
 /*
  *
  */
-DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
+DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	PiggbackMessages( msg, size);
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
@@ -74,7 +74,7 @@ DeviceStatus RadioControl::Send(RadioAddress_t address, Message_15_4_t* msg, UIN
 }
 
 
-bool RadioControl::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
 	bool rv = false;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
@@ -87,7 +87,7 @@ bool RadioControl::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
 	return rv;
 }
 
-bool RadioControl::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
 	const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
 	int additional_overhead = crc_size;
@@ -119,7 +119,7 @@ bool RadioControl::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 }
 
-bool RadioControl::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
 	//const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
 	int additional_overhead = crc_size;
@@ -140,14 +140,14 @@ bool RadioControl::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 
 
 
-//DeviceStatus RadioControl::Receive(Message_15_4_t * msg, UINT16 size){
+//DeviceStatus RadioControl_t::Receive(Message_15_4_t * msg, UINT16 size){
 //		return DS_Success;
 //}
 
 /*
  *
  */
-DeviceStatus RadioControl::Stop(){
+DeviceStatus RadioControl_t::Stop(){
 	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 	if(returnVal == DS_Success){
@@ -161,7 +161,7 @@ DeviceStatus RadioControl::Stop(){
 /*
  *
  */
-DeviceStatus RadioControl::StartRx(){
+DeviceStatus RadioControl_t::StartRx(){
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
 #ifdef OMAC_DEBUG_GPIO

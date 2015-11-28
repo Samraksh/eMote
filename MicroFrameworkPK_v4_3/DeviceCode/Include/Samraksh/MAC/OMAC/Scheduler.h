@@ -18,7 +18,7 @@
 #include "DataReceptionHandler.h"
 #include "DataTransmissionHandler.h"
 //#include "GlobalTime.h"
-#include "CMaxTimeSync.h"
+#include "OMACTimeSync.h"
 #include "SeedGenerator.h"
 
 //extern HALTimerManager gHalTimerManagerObject;
@@ -95,7 +95,7 @@ public:
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
-	CMaxTimeSync_t m_TimeSyncHandler;
+	OMACTimeSync m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
 
