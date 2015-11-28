@@ -38,6 +38,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCSENDPIN, TRUE);
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
+	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
+	CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 
 
