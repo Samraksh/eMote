@@ -14,7 +14,7 @@
 /*
  * Radio Wrapper Class
  */
-typedef class RadioControl{
+class RadioControl_t{
 private:
 	bool PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
 	bool PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
@@ -30,7 +30,7 @@ public:
 	bool PiggbackMessages(Message_15_4_t* msg, UINT16 &size);
 
 
-}RadioControl_t;
+};
 
 
 #endif /* RADIOCONTROL_H_ */
