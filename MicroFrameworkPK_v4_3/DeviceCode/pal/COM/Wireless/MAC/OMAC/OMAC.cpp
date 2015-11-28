@@ -216,7 +216,7 @@ BOOL OMACType::UnInitialize(){
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-	UINT64 evTime;
+	INT64 evTime;
 	UINT16 location_in_packet_payload = 0;
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
@@ -238,7 +238,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
-
+	if(sourceID == Neighbor2beFollowed) {
 	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
 
@@ -255,7 +255,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			break;
 		case MFM_DATA:
-			if(myID == destID) {
+			if(true || myID == destID) {
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
@@ -330,7 +330,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
-
+}
 	return msg;
 }
 
