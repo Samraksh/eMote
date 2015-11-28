@@ -41,7 +41,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 
 
-	m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
+	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 
 	m_period1 = CONTROL_P1[g_OMAC.GetAddress() % 7];
 	m_period2 = CONTROL_P2[g_OMAC.GetAddress() % 7];
@@ -142,7 +142,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 	DeviceStatus e = DS_Fail;
 	UINT64 localTime = 0;
 
-	m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
+	DiscoveryMsg_t* m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
 
 	CreateMessage(m_discoveryMsg);
 
@@ -211,6 +211,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
  *
  */
 void DiscoveryHandler::Beacon1(){
+	Message_15_4_t m_discoveryMsgBuffer;
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 		if(ds != DS_Success) {
@@ -225,6 +226,7 @@ void DiscoveryHandler::Beacon1(){
  *
  */
 void DiscoveryHandler::BeaconN(){
+	Message_15_4_t m_discoveryMsgBuffer;
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
 		hal_printf("BeaconN failed. ds = %d; \n", ds);
@@ -300,6 +302,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DISCOVERY;
+	header->flags = 0; //Initialize flags to zero
+
 
 	msg->GetMetaData()->SetReceiveTimeStamp(event_time);
 
