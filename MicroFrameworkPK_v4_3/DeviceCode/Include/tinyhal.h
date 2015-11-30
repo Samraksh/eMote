@@ -437,7 +437,7 @@ void SineCosine_Precise( INT16 Angle, INT16& Sine, INT16& Cosine );
 
 //--//
 
-#define ASSERT_SP(x) {if(!x) {SOFT_BREAKPOINT();}}
+#define ASSERT_SP(x) {if(!(x)) {SOFT_BREAKPOINT();}}
 
 #if !defined(BUILD_RTM) && !defined(NDEBUG)
 
