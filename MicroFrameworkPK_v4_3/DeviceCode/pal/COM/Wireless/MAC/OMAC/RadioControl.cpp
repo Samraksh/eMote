@@ -60,7 +60,7 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
  */
 DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size){
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
-	PiggbackMessages( msg, size);
+	PiggybackMessages( msg, size);
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
 	header->length = size;
@@ -74,20 +74,20 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 }
 
 
-bool RadioControl_t::PiggbackMessages(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	bool rv = false;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
 	if(!(header->GetFlags() & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) {
-		rv = rv || PiggbackTimeSyncMessage(msg, size);
+		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
 	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
-		rv = rv || PiggbackDiscoMessage(msg, size);
+		rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
 }
 
-bool RadioControl_t::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
 	const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
 	int additional_overhead = crc_size;
@@ -119,7 +119,7 @@ bool RadioControl_t::PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size){
 	}
 }
 
-bool RadioControl_t::PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
+bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	const int crc_size = 2;			//used in Radio driver's RF231Radio::Send_TimeStamped
 	//const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
 	int additional_overhead = crc_size;

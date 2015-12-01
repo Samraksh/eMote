@@ -16,8 +16,8 @@
  */
 class RadioControl_t{
 private:
-	bool PiggbackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
-	bool PiggbackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
+	bool PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size);
+	bool PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
 public:
 	DeviceStatus Initialize();
 	DeviceStatus StartPLL();
@@ -27,7 +27,7 @@ public:
 	DeviceStatus Receive(Message_15_4_t * msg, UINT16 &size);
 	DeviceStatus Stop();
 
-	bool PiggbackMessages(Message_15_4_t* msg, UINT16 &size);
+	bool PiggybackMessages(Message_15_4_t* msg, UINT16 &size);
 
 
 };

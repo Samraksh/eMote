@@ -264,8 +264,15 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 				DataMsg_t* data_msg = (DataMsg_t*) msg->GetPayload();
 				location_in_packet_payload += data_msg->size;
-				/*//BK:I don't understand the following stuff. Hence commenting it out
+				//BK:I don't understand the following stuff. Hence commenting it out
 				//BK: Why do we need to store the packet pointer in the g_receive_buffer? It seems like reception is a direct function call
+				//AnanthAtSamraksh: As per current design of the Samraksh_eMote_Net dll, g_receive_buffer is the glue between native and managed code.
+				//					Received msg is stored in g_receive_buffer and is subsequently accessed by managed code using function GetNextPacket in MAC.cs
+				//					GetNextPacket (MAC.cs) passes an internal buffer to MACBase::GetNextPacket and further down to Mac_GetNextPacket (Mac_Functions.cpp)
+				//					which is where msgs are read from g_receive_buffer and stuffed into buffer mentioned above. This buffer is then converted into
+				//					Message type and finally passed onto the user.
+				//					This can be simplified by changing the signature of the user function to receive a msg along with a packet count. But this involves
+				//					lot of changes which affects CSMA as well. Hence, going with the approach taken by CSMA in OMAC as well.
 
 				// Implement bag exchange if the packet type is data
 				Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
@@ -281,7 +288,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
 				(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
 											//finally the temp, which is a ptr to free message will be returned.
-				 */
+
 				(*g_rxAckHandler)(msg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
