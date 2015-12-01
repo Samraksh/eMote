@@ -162,6 +162,8 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
         threshholdMet = 0;
     }	
 
+	hal_printf("%d\r\n",maxPhase - minPhase);
+
 	detection = threshholdMet;
 
 	return detection;
