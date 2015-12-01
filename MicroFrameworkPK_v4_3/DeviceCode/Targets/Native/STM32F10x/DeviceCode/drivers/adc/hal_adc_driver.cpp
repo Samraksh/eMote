@@ -21,6 +21,10 @@
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
 
+#include "..\fsmc\P30BF65NOR\P30BF65NOR.h"
+
+extern P30BF65NOR_Driver gNORDriver;
+
 extern volatile int go_back_to_sleep; // Spring camp hack
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
@@ -609,43 +613,73 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	dualADCMode = TRUE;
 
+	// NOR STUFF
+	gNORDriver.Initialize();
+	gNORDriver.EraseChip();
+	UINT16 nor_stat = gNORDriver.GetStatusRegister();
+
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_8;
+	GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
+	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
+	GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	// END NOR STUFF
+
 	TIM_Cmd(TIM4, ENABLE);
 
 	return DS_Success;
 
 }
-
+static uint32_t nor_count=0;
 // Nathan's hack to peek at the pin to determine if we need to reset to Bootloader. SPRING CAMP ONLY.
 static void soft_reset_check() {
-	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.GPIO_Pin  	= GPIO_Pin_14;
-	GPIO_InitStruct.GPIO_Speed 	= GPIO_Speed_2MHz;
-	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_IPD;
-	GPIO_Init(GPIOB, &GPIO_InitStruct);
+	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8);
 
-	unsigned ret = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_14);
+	if (!ret) return;
 
-	// This will bring us to STM hardware bootloader.
-	if (ret) { USART_DeInit(USART1); RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, DISABLE); NVIC_SystemReset(); }
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART1, 'G');
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART1, 'O');
 
-	// Put the pin back to output.
-	// Zero it first so we don't get another edge.
-	// Probably will happen anyway.
-	GPIO_InitStruct.GPIO_Mode 	= GPIO_Mode_Out_PP;
-	GPIO_ResetBits(GPIOB, GPIO_Pin_14);
-	GPIO_Init(GPIOB, &GPIO_InitStruct);
+	//hal_printf("DATA_START\r\n");
+	for(int i=0; i<nor_count; i+=2) {
+		uint16_t ttt;
+		//char *tttp;
+		ttt = gNORDriver.ReadHalfWord(i);
+		//tttp = (char*)&ttt;
+		//hal_printf("%d\r\n", ttt);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART1, ttt&0x00FF);
+		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
+		USART_SendData(USART1, ttt>>8);
+		//USART_Write( 0, tttp, 2 );
+		//hal_printf("%d\r\n", ttt);
+	}
+	//hal_printf("DATA_STOP\r\n");
+
+	while(1); // loop forever
 }
 
 void ADC_HAL_HANDLER(void *param)
 {
 	static uint32_t count=0;
-	
+
 	g_adcUserBufferChannel1Ptr[count] = ADC_GetConversionValue(ADC1);
 	g_adcUserBufferChannel2Ptr[count] = ADC_GetConversionValue(ADC2);
 
-		count++;
+	if (nor_count<0x7FFFF0) {
+		gNORDriver.WriteHalfWord(nor_count, g_adcUserBufferChannel1Ptr[count]);
+		nor_count += 2;
+		gNORDriver.WriteHalfWord(nor_count, g_adcUserBufferChannel2Ptr[count]);
+		nor_count += 2;
+	}
+
+	count++;
+
 		if (count == adcNumSamplesRadar) {
-			//soft_reset_check();
+			soft_reset_check();
 			g_timeStamp = HAL_Time_CurrentTicks();
 			g_callback(&g_timeStamp);
 			count=0;
