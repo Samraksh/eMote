@@ -638,6 +638,8 @@ static void soft_reset_check() {
 
 	if (!ret) return;
 
+	GLOBAL_LOCK(irq);
+
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
 		USART_SendData(USART1, 'G');
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
@@ -652,6 +654,7 @@ static void soft_reset_check() {
 		//hal_printf("%d\r\n", ttt);
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
 		USART_SendData(USART1, ttt&0x00FF);
+		HAL_Time_Sleep_MicroSeconds(1000); // slow down a bit for Dhurbo's PC
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TXE) == RESET);
 		USART_SendData(USART1, ttt>>8);
 		//USART_Write( 0, tttp, 2 );
