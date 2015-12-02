@@ -284,12 +284,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 				ASSERT_SP(next_free_buffer);
 
-				//Implement bag exchange, by actually switching the contents.
-				Message_15_4_t* temp = *next_free_buffer;	//get the ptr to a msg inside the first free buffer.
-				(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
-											//finally the temp, which is a ptr to free message will be returned.
+				Message_15_4_t* tempMsg = msg;
+				UINT8* payload = data_msg->payload;
+				UINT8* payload_tmp = tempMsg->GetPayload();
+				memcpy(payload_tmp, payload, MAX_DATA_PCKT_SIZE);
 
-				(*g_rxAckHandler)(msg, data_msg->size);
+				(*next_free_buffer) = tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
+
+				(*g_rxAckHandler)(tempMsg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
