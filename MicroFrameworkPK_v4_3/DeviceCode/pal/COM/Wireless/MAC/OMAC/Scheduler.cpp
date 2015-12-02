@@ -16,13 +16,19 @@ extern OMACScheduler g_omac_scheduler;
 
 HAL_COMPLETION OMAC_scheduler_TimerCompletion;
 
+
+
 void PublicPostExecutionTaskHandler1(void * param){
 	g_omac_scheduler.PostPostExecution();
 }
 
 void PublicSchedulerTaskHandler1(void * param){
-	g_omac_scheduler.RunEventTask();
-	g_omac_scheduler.timer1INuse=false;
+	VirtTimer_Change(HAL_SLOT_TIMER, 0, MAXSCHEDULERUPDATE, FALSE); //1 sec Timer in micro seconds
+	if((g_omac_scheduler.SchedulerINUse)){
+		g_omac_scheduler.SchedulerINUse = false;
+		g_omac_scheduler.RunEventTask();
+		g_omac_scheduler.timer1INuse=false;
+	}
 }
 
 void PublicSchedulerTaskHandler2(void * param){
@@ -31,12 +37,17 @@ void PublicSchedulerTaskHandler2(void * param){
 }
 
 void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
+
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_EnableOutputPin(SCHED_START_STOP_PIN, FALSE);
+#endif
+
 	timer1INuse = false;
 	timer2INuse =false;
 	radioID = _radioID;
 	macID = _macID;
 	
-	CPU_GPIO_EnableOutputPin((GPIO_PIN) SCHED_START_STOP_PIN, FALSE);
+
 
 #ifdef PROFILING
 	minStartDelay = 300; maxStartDelay = 10;
@@ -50,10 +61,10 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	bool rv = VirtTimer_Initialize();
 	ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler1);
+	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1);
 	ASSERT_SP(rm == TimerSupported);
-	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
-	ASSERT_SP(rm == TimerSupported);
+//	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
+//	ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
 	ASSERT_SP(rm == TimerSupported);
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
@@ -66,6 +77,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	m_TimeSyncHandler.Initialize(radioID, macID);
 
 	ScheduleNextEvent();
+	VirtTimer_Start(HAL_SLOT_TIMER);
 }
 
 void OMACScheduler::UnInitialize(){
@@ -101,6 +113,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	g_OMAC.UpdateNeighborTable();
 
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
+	VirtTimer_Change(HAL_SLOT_TIMER, 0, MAXSCHEDULERUPDATE, FALSE); //1 sec Timer in micro seconds
 	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
 	if (rxEventOffset < MINEVENTTIME) rxEventOffset = 0xffffffffffffffff;
@@ -154,22 +167,18 @@ void OMACScheduler::ScheduleNextEvent(){
 #endif
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
-	if (nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
-		ASSERT_SP(0);
+	if(nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
+		nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	}
-	if(!timer1INuse){
-		timer1INuse = true;
-		VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
-		VirtTimer_Start(HAL_SLOT_TIMER);
+	if(nextWakeupTimeInMicSec < MINEVENTTIME){
+		nextWakeupTimeInMicSec = MINEVENTTIME;
 	}
-	else if(!timer2INuse){
-		timer2INuse = true;
-		VirtTimer_Change(HAL_SLOT_TIMER2, 0, nextWakeupTimeInMicSec, TRUE); //1 sec Timer in micro seconds
-		VirtTimer_Start(HAL_SLOT_TIMER2);
-	}
-	else{
-		ASSERT_SP(0);
-	}
+
+	SchedulerINUse = true;
+	VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
+
+
+
 //
 //	BOOL* completionFlag = (BOOL*)false;
 //	// we assume only 1 can be active, abort previous just in case
@@ -181,6 +190,9 @@ void OMACScheduler::ScheduleNextEvent(){
 }
 
 bool OMACScheduler::RunEventTask(){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+#endif
 	g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = HAL_Time_CurrentTicks();
 #ifdef def_Neighbor2beFollowed
@@ -217,6 +229,9 @@ void OMACScheduler::PostPostExecution(){
 	EnsureStopRadio();
 	InputState.ForceState(I_IDLE);
 	ScheduleNextEvent();
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+#endif
 }
 
 bool OMACScheduler::EnsureStopRadio(){

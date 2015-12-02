@@ -90,7 +90,7 @@ private:
 
 
 public:
-	bool timer1INuse, timer2INuse;
+	bool timer1INuse, timer2INuse, SchedulerINUse;
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;

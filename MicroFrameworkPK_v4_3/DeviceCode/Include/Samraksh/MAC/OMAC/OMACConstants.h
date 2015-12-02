@@ -247,7 +247,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define MICSECINMILISEC 1000
 #define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
-#define TIMER_EVENT_DELAY_OFFSET 700
+#define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 5000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
 
