@@ -45,8 +45,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 
-	m_period1 = CONTROL_P1[g_OMAC.GetAddress() % 7];
-	m_period2 = CONTROL_P2[g_OMAC.GetAddress() % 7];
+	m_period1 = CONTROL_P1[g_OMAC.GetAddress() % 7] * 10;
+	m_period2 = CONTROL_P2[g_OMAC.GetAddress() % 7] * 10;
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 
 	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
