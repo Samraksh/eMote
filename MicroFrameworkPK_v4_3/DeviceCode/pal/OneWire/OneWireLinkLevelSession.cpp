@@ -63,7 +63,7 @@ SMALLINT owAcquire(int portnum, const char *port_zstr)
   usDelay(500);                              
 
    // checks to make sure the line is idling high.
-  CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_EDGE_HIGH, RESISTOR_PULLUP );
+  CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_NONE, RESISTOR_DISABLED );
   return (CPU_GPIO_GetPinState(pin) ==1 ? TRUE : FALSE);
 }
 

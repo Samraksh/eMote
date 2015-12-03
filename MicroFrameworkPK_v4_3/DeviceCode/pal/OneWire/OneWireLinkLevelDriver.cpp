@@ -39,6 +39,8 @@
 #include "ownet.h"
 #include "CPU_GPIO_decl.h"
 
+//#define NATHAN_DEBUG_1WIRE_DELETE_ME
+
 void usDelay(unsigned int delay);
 
 static SMALLINT USpeed; // current 1-Wire Net communication speed
@@ -61,16 +63,22 @@ SMALLINT owTouchReset(int portnum)
    // Code from appnote 126.
    CPU_GPIO_EnableOutputPin( pin, false );  // impulse start OW_PORT = 0; // drive bus low.
 
+#ifdef NATHAN_DEBUG_1WIRE_DELETE_ME
+   CPU_GPIO_EnableOutputPin( 24, true ); // Generic pin for debugging. Remove.
+#endif
    usDelay(600);  			
 
    // 500-(3% error) ~= 480 us
 
    // OW_PORT = 1; // bus high. 
    // Note that the 1Wire bus will need external pullup to supply the required current
-   CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_EDGE_HIGH, RESISTOR_PULLUP );
+   CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_NONE, RESISTOR_DISABLED );
 
    usDelay(65); 
 
+#ifdef NATHAN_DEBUG_1WIRE_DELETE_ME
+   CPU_GPIO_SetPinState( 24, false );  // impulse start OW_PORT = 0; // drive bus low
+#endif
    result = CPU_GPIO_GetPinState(pin); 	//!OW_PORT; // get presence detect pulse.
 	 
    usDelay(372); 							// 372-(3% error) ~= 360 us
@@ -102,15 +110,22 @@ SMALLINT owTouchBit(int portnum, SMALLINT sendbit)
    // start timeslot.
    CPU_GPIO_EnableOutputPin( pin, false );
 
-   usDelay(5);
+   //usDelay(5);
+   usDelay(3); // 5us put us a bit over. --NPS
 
    if (sendbit == 1)
    {
 	   // send 1 bit out.
 	   // sample result @ 15 us.
-	   CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_EDGE_HIGH, RESISTOR_PULLUP );
+	   CPU_GPIO_EnableInputPin( pin, false, NULL, GPIO_INT_NONE, RESISTOR_DISABLED );
 	   usDelay(5);
-	   result = CPU_GPIO_GetPinState(pin); 	
+#ifdef NATHAN_DEBUG_1WIRE_DELETE_ME
+	   CPU_GPIO_SetPinState( 24, true );
+#endif
+	   result = CPU_GPIO_GetPinState(pin);
+#ifdef NATHAN_DEBUG_1WIRE_DELETE_ME
+	   CPU_GPIO_SetPinState( 24, false );
+#endif
 	   usDelay(55);
    }
    else
