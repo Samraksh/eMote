@@ -98,15 +98,14 @@ namespace Samraksh.eMote.SensorBoard
                 throw new SystemException("Conversion time is 750ms, can not support this sampling rate");
             }
 
-			// This is redundant with OneWire driver. Removed post R14. --NPS
-            // try
-            // {
-                // m_pin = new OutputPort(pin, false);
-            // }
-            // catch (Exception e)
-            // {
-                // Debug.Print("Exception from  One Wire Class "  + e.ToString());
-            // }
+            try
+            {
+                m_pin = new OutputPort(pin, true);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception from  One Wire Class "  + e.ToString());
+            }
 
             try
             {
