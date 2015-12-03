@@ -15,6 +15,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::socket___STATIC
     CLR_INT32 protocol = stack.Arg2().NumericByRef().s4;
     
     CLR_INT32 nonBlocking = 1;
+    hal_printf("invoking SOCK_socket\n");
     CLR_INT32 sock        = SOCK_socket( family, type, protocol );
     
     TINYCLR_CHECK_HRESULT(ThrowOnError( stack, sock ));

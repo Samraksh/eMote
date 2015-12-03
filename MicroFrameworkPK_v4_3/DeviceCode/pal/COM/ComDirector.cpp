@@ -4,6 +4,8 @@
 
 #include <tinyhal.h>
 
+//BOOL  SOCKETS_Initialize( int ComPortNum );
+//BOOL  SOCKETS_Uninitialize( int ComPortNum );
 //////////////////////////////////////////////////////////////////////////////////
 
 BOOL DebuggerPort_Initialize( COM_HANDLE ComPortNum )
@@ -18,7 +20,8 @@ BOOL DebuggerPort_Initialize( COM_HANDLE ComPortNum )
             if(!USB_Initialize( ConvertCOM_UsbController(ComPortNum) ))                          return FALSE;
             return USB_OpenStream( ConvertCOM_UsbStream(ComPortNum), USB_DEBUG_EP_WRITE, USB_DEBUG_EP_READ );
         case SOCKET_TRANSPORT:
-            return SOCKETS_Initialize(ConvertCOM_SockPort(ComPortNum));
+        	hal_printf("SOCKET_TRANSPORT\n");
+            //return SOCKETS_Initialize(ConvertCOM_SockPort(ComPortNum));
     }
 
     return FALSE;
@@ -35,7 +38,8 @@ BOOL DebuggerPort_Uninitialize( COM_HANDLE ComPortNum )
             USB_CloseStream( ConvertCOM_UsbStream(ComPortNum) );
             return USB_Uninitialize( ConvertCOM_UsbController(ComPortNum) );
         case SOCKET_TRANSPORT:
-            return SOCKETS_Uninitialize(ConvertCOM_SockPort(ComPortNum));
+        	hal_printf("SOCKET_TRANSPORT\n");
+            //return SOCKETS_Uninitialize(ConvertCOM_SockPort(ComPortNum));
     }
 
     return FALSE;
@@ -63,7 +67,7 @@ int DebuggerPort_Write( COM_HANDLE ComPortNum, const char* Data, size_t size )
                 ret = USB_Write( ConvertCOM_UsbStream( ComPortNum ), dataTmp, size );
                 break;
             case SOCKET_TRANSPORT:
-                ret = SOCKETS_Write( ConvertCOM_SockPort(ComPortNum), dataTmp, size );
+                //ret = SOCKETS_Write( ConvertCOM_SockPort(ComPortNum), dataTmp, size );
                 break;
         }
         if(ret < 0)
@@ -104,7 +108,7 @@ int DebuggerPort_Read( COM_HANDLE ComPortNum, char* Data, size_t size )
             ret = USB_Read( ConvertCOM_UsbStream( ComPortNum ), Data, size );
             break;
         case SOCKET_TRANSPORT:
-            ret = SOCKETS_Read( ConvertCOM_SockPort(ComPortNum), Data, size );
+            //ret = SOCKETS_Read( ConvertCOM_SockPort(ComPortNum), Data, size );
             break;
     }
 
@@ -122,7 +126,8 @@ BOOL DebuggerPort_Flush( COM_HANDLE ComPortNum )
         case USB_TRANSPORT:
             return USB_Flush( ConvertCOM_UsbStream(ComPortNum) );
         case SOCKET_TRANSPORT:
-            return SOCKETS_Flush( ConvertCOM_SockPort(ComPortNum) );
+        	hal_printf("SOCKET_TRANSPORT\n");
+            //return SOCKETS_Flush( ConvertCOM_SockPort(ComPortNum) );
     }
 
     return FALSE;
@@ -172,7 +177,8 @@ BOOL DebuggerPort_UpgradeToSsl( COM_HANDLE ComPortNum, UINT32 flags )
                     g_DebuggerPortSslConfig.GetDeviceCertificate(&pDeviceCert, &deviceCertLen);
                 }
                 
-                return SOCKETS_UpgradeToSsl(ConvertCOM_ComPort(ComPortNum), pCACert, caCertLen, pDeviceCert, deviceCertLen, szTargetHost);
+                return TRUE;
+                //return SOCKETS_UpgradeToSsl(ConvertCOM_ComPort(ComPortNum), pCACert, caCertLen, pDeviceCert, deviceCertLen, szTargetHost);
             }
     }
 
@@ -184,7 +190,8 @@ BOOL DebuggerPort_IsUsingSsl( COM_HANDLE ComPortNum )
         switch(ExtractTransport(ComPortNum))
         {
             case SOCKET_TRANSPORT:
-                return SOCKETS_IsUsingSsl(ConvertCOM_ComPort(ComPortNum));
+            	hal_printf("SOCKET_TRANSPORT\n");
+                //return SOCKETS_IsUsingSsl(ConvertCOM_ComPort(ComPortNum));
         }
         return FALSE;
 }
@@ -218,7 +225,8 @@ void CPU_InitializeCommunication()
     }
 
 
-    Network_Initialize();
+    //Network_Initialize();
+    hal_printf("Network_Initialize\n");
 }
 
 void CPU_UninitializeCommunication()
@@ -251,7 +259,8 @@ void CPU_UninitializeCommunication()
     }
     USB_Uninitialize(0);        // USB_Uninitialize will only stop USB controller 0 if it has no open streams
     
-    Network_Uninitialize();
+    //Network_Uninitialize();
+    hal_printf("Network_Uninitialize\n");
 }
 
 

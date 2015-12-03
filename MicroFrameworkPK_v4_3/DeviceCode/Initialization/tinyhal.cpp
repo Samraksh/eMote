@@ -473,7 +473,7 @@ void HAL_Uninitialize()
     Gesture_Uninitialize();
     PalEvent_Uninitialize();
 
-    SOCKETS_CloseConnections();
+    //SOCKETS_CloseConnections();
 
 #if defined( SAM_APP_TINYCLR )
     MacLayer_UnInitialize();

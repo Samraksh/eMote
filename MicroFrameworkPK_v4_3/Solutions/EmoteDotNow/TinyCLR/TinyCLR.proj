@@ -228,14 +228,28 @@
     <DriverLibs Include="sockets_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" />
   </ItemGroup>
+  <!--
   <ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <!--ItemGroup>
+  -->
+  <!--
+  <ItemGroup>
     <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\sockets_lwip\dotNetMF.proj" />
-  </ItemGroup-->
+  </ItemGroup>
+  -->
+  <!--
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_dhcp_lwIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_dhcp.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_sockets.proj" />
+  </ItemGroup>
+  -->
   <ItemGroup>
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />

@@ -11,10 +11,11 @@
     <FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj</FilePath>
   </Templates>
   <Templates xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
-    <FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\sockets_stubs.cpp</FilePath>
+    <!--FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\sockets_stubs.cpp</FilePath-->
+    <FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\sockets.cpp</FilePath>
   </Templates>
   <Documentation xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd" />
-  <StubLibrary Name="sockets_pal_stubs" Guid="{BC7825B3-69F9-45F3-A4D3-55A14B388095}" ProjectPath="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" Conditional="" xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+  <StubLibrary Name="sockets_pal" Guid="{BC7825B3-69F9-45F3-A4D3-55A14B388095}" ProjectPath="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" Conditional="" xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
     <VersionDependency>
       <Major>4</Major>
       <Minor>0</Minor>
@@ -49,6 +50,6 @@
   </PropertyGroup>
   <ItemGroup>
     <LibraryCollection Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" />
-    <LibraryCollection Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotnetmf.proj" />
+    <!--LibraryCollection Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotnetmf.proj" /-->
   </ItemGroup>
 </Project>
