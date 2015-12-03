@@ -23,17 +23,11 @@ void PublicPostExecutionTaskHandler1(void * param){
 }
 
 void PublicSchedulerTaskHandler1(void * param){
-	VirtTimer_Change(HAL_SLOT_TIMER, 0, MAXSCHEDULERUPDATE, FALSE); //1 sec Timer in micro seconds
+	VirtTimer_Change(HAL_SLOT_TIMER, 0, MAXSCHEDULERUPDATE*100, FALSE); //1 sec Timer in micro seconds
 	if((g_omac_scheduler.SchedulerINUse)){
 		g_omac_scheduler.SchedulerINUse = false;
 		g_omac_scheduler.RunEventTask();
-		g_omac_scheduler.timer1INuse=false;
 	}
-}
-
-void PublicSchedulerTaskHandler2(void * param){
-	g_omac_scheduler.RunEventTask();
-	g_omac_scheduler.timer2INuse=false;
 }
 
 void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
@@ -42,8 +36,6 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	CPU_GPIO_EnableOutputPin(SCHED_START_STOP_PIN, FALSE);
 #endif
 
-	timer1INuse = false;
-	timer2INuse =false;
 	radioID = _radioID;
 	macID = _macID;
 	
@@ -116,7 +108,7 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	VirtTimer_Change(HAL_SLOT_TIMER, 0, MAXSCHEDULERUPDATE, FALSE); //1 sec Timer in micro seconds
-	UINT64 nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
+	nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
 	if (rxEventOffset < MINEVENTTIME) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;

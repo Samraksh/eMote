@@ -90,13 +90,15 @@ private:
 
 
 public:
-	bool timer1INuse, timer2INuse, SchedulerINUse;
+	bool SchedulerINUse;
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
 	OMACTimeSync m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
+
+	UINT64 nextWakeupTimeInMicSec;
 
 	UINT64 m_InitializationTimeinTicks; //The time val
 
