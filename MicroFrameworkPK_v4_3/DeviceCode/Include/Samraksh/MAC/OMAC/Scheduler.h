@@ -98,6 +98,7 @@ public:
 	OMACTimeSync m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
+	UINT64 m_InitializationTimeinTicks; //The time val
 
 
 	//BK The methods from this point on is in use for sure. The rest can be deleted.

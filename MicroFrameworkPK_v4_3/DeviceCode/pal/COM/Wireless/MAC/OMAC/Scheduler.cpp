@@ -76,6 +76,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	m_DataTransmissionHandler.Initialize();
 	m_TimeSyncHandler.Initialize(radioID, macID);
 
+	m_InitializationTimeinTicks = HAL_Time_CurrentTicks();
+
 	ScheduleNextEvent();
 	VirtTimer_Start(HAL_SLOT_TIMER);
 }
@@ -160,19 +162,24 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 
 
-	UINT64 curTicks = HAL_Time_CurrentTicks();
+
 #ifdef def_Neighbor2beFollowed
+	UINT64 curTicks = HAL_Time_CurrentTicks();
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
 			, HAL_Time_TicksToTime(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(HAL_Time_TicksToTime(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
+	if(curTicks - m_InitializationTimeinTicks > (120 * 8000000)){
+		hal_printf("Critial TIme has Passed. Be careful. About to crash!!\n");
+	}
 #endif
 	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
-	if(nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE){
-		nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
+	if(nextWakeupTimeInMicSec >= 2000000){
+		nextWakeupTimeInMicSec = 2000000;
 	}
-	if(nextWakeupTimeInMicSec < MINEVENTTIME){
+	if(nextWakeupTimeInMicSec <= MINEVENTTIME){
 		nextWakeupTimeInMicSec = MINEVENTTIME;
 	}
+
 
 	SchedulerINUse = true;
 	VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
@@ -217,7 +224,7 @@ bool OMACScheduler::RunEventTask(){
 			m_lastHandler = CONTROL_BEACON_HANDLER;
 			break;
 		default: //Case for
-			ScheduleNextEvent();
+			PostPostExecution();
 	}
 }
 
