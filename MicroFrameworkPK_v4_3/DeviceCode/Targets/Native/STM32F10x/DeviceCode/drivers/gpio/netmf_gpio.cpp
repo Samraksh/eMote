@@ -384,6 +384,15 @@ BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERR
 		return FALSE;
 	}
 
+	// Short circuit for simple inputs.
+	if ( PIN_ISR == NULL && IntEdge == GPIO_INT_NONE && ResistorState == RESISTOR_DISABLED && GlitchFilterEnable == false ) {
+		GPIOMode_TypeDef mode = GPIO_Mode_IN_FLOATING;
+		GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
+		uint16_t pinInHex = GPIO_GetPin(Pin);
+		GPIO_ConfigurePin(port, pinInHex, mode);
+		return TRUE;
+	}
+
 	return CPU_GPIO_EnableInputPin2(Pin, GlitchFilterEnable, PIN_ISR, NULL, IntEdge, ResistorState );
 }
 
