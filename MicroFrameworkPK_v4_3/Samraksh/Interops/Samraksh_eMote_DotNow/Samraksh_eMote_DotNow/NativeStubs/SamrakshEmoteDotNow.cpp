@@ -53,14 +53,15 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::Initialize___BOOLEAN,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::Uninitialize___BOOLEAN,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::Write___BOOLEAN__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::SetDP___BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::WriteN___BOOLEAN__I4__SamraksheMoteDotNowLCD,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::WriteRawBytes___BOOLEAN__I4__I4__I4__I4,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::Blink___BOOLEAN__SamraksheMoteDotNowBlink,
-    Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD::Clear___BOOLEAN,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
     NULL,
     NULL,
     NULL,
@@ -87,7 +88,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_DotNow =
 {
     "Samraksh_eMote_DotNow", 
-    0x21FC2CB2,
+    0xF461E43C,
     method_lookup
 };
 

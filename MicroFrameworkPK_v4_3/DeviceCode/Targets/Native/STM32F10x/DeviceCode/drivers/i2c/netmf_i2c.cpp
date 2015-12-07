@@ -236,7 +236,11 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
-
+		if ( (IsInitializedI2C1 == TRUE) && (bus == I2CBus1)){
+			return DS_Fail;
+		}	else if ( (IsInitializedI2C2 == TRUE) && (bus == I2CBus2)){
+			return DS_Fail;
+		} 
 		GPIO_InitTypeDef GPIO_InitStructure;
 		I2C_InitTypeDef I2C_InitStruct;
 
@@ -302,6 +306,7 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 
 			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C1_ER))
 				return DS_Fail;
+			IsInitializedI2C1 = TRUE;
 
 		}
 		else
@@ -322,6 +327,7 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 			if(!CPU_INTC_InterruptEnable(STM32_AITC::c_IRQ_INDEX_I2C2_ER))
 				return DS_Fail;
 
+			IsInitializedI2C2 = TRUE;
 		}
 #if 0
 		I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);
@@ -333,7 +339,7 @@ DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 
 		currentActiveBus = bus;
 
-		IsInitialized = TRUE;
+		
 
 		return DS_Success;
 

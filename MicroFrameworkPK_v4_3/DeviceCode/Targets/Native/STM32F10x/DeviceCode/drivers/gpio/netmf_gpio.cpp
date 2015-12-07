@@ -15,9 +15,9 @@ const char* c_strGpioBadSize = "size greater than max allowable pins";
 //#define DEBUG_GPIO_VERBOSE 1
 
 #if defined(DEBUG_GPIO_VERBOSE)
-#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \n", ##__VA_ARGS__, __LINE__, __FILE__)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \r\n", ##__VA_ARGS__, __LINE__, __FILE__)
 #elif defined(DEBUG_GPIO)
-#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format "\n", ##__VA_ARGS__)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format "\r\n", ##__VA_ARGS__)
 #else
 #define GPIO_DEBUG_PRINT(format, ...)
 #endif

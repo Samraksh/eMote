@@ -49,7 +49,8 @@ class STM32F10x_I2C_Driver
 
 public:
 
-	static BOOL IsInitialized;
+	static BOOL IsInitializedI2C1;
+	static BOOL IsInitializedI2C2;
 
 	UINT32 currentActiveBus;
 
@@ -93,7 +94,8 @@ UINT32 STM32F10x_I2C_Driver::I2CClock[2] = {RCC_APB1Periph_I2C1, RCC_APB1Periph_
 UINT32 STM32F10x_I2C_Driver::GpioPinsBus1[2] = {I2C1_SCL,I2C1_SDA};
 UINT32 STM32F10x_I2C_Driver::GpioPinsBus2[2] = {I2C2_SCL,I2C2_SDA};
 
-BOOL STM32F10x_I2C_Driver::IsInitialized = FALSE;
+BOOL STM32F10x_I2C_Driver::IsInitializedI2C1 = FALSE;
+BOOL STM32F10x_I2C_Driver::IsInitializedI2C2 = FALSE;
 
 
 #endif

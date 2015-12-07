@@ -53,23 +53,22 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_AnalogInput
 
 struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD
 {
-    static const int FIELD__currentColumn1 = 1;
-    static const int FIELD__currentColumn2 = 2;
-    static const int FIELD__currentColumn3 = 3;
-    static const int FIELD__currentColumn4 = 4;
-    static const int FIELD__DP1 = 5;
-    static const int FIELD__DP2 = 6;
-    static const int FIELD__DP3 = 7;
-    static const int FIELD__DP4 = 8;
+    static const int FIELD_STATIC__enableLCD = 6;
 
-    TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(Uninitialize___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(Write___BOOLEAN__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD__SamraksheMoteDotNowLCD);
-    TINYCLR_NATIVE_DECLARE(SetDP___BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN__BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(WriteN___BOOLEAN__I4__SamraksheMoteDotNowLCD);
-    TINYCLR_NATIVE_DECLARE(WriteRawBytes___BOOLEAN__I4__I4__I4__I4);
-    TINYCLR_NATIVE_DECLARE(Blink___BOOLEAN__SamraksheMoteDotNowBlink);
-    TINYCLR_NATIVE_DECLARE(Clear___BOOLEAN);
+    static const int FIELD__config = 1;
+    static const int FIELD__i2c = 2;
+    static const int FIELD__i2cTx = 3;
+    static const int FIELD__LCD_NUM = 4;
+    static const int FIELD__currentColumn1 = 5;
+    static const int FIELD__currentColumn2 = 6;
+    static const int FIELD__currentColumn3 = 7;
+    static const int FIELD__currentColumn4 = 8;
+    static const int FIELD__DP1 = 9;
+    static const int FIELD__DP2 = 10;
+    static const int FIELD__DP3 = 11;
+    static const int FIELD__DP4 = 12;
+    static const int FIELD__LCD_Initialized = 13;
+
 
     //--//
 
@@ -77,14 +76,14 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD
 
 struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR
 {
-    static const int FIELD_STATIC__writeAddressPtr = 6;
-    static const int FIELD_STATIC__readAddressPtr = 7;
-    static const int FIELD_STATIC__startOfRecordDelimiter = 8;
-    static const int FIELD_STATIC__endOfRecordDelimiter = 9;
-    static const int FIELD_STATIC__startOfRecordInBytes = 10;
-    static const int FIELD_STATIC__endOfRecordInBytes = 11;
-    static const int FIELD_STATIC__maxSize = 12;
-    static const int FIELD_STATIC__fullFlag = 13;
+    static const int FIELD_STATIC__writeAddressPtr = 7;
+    static const int FIELD_STATIC__readAddressPtr = 8;
+    static const int FIELD_STATIC__startOfRecordDelimiter = 9;
+    static const int FIELD_STATIC__endOfRecordDelimiter = 10;
+    static const int FIELD_STATIC__startOfRecordInBytes = 11;
+    static const int FIELD_STATIC__endOfRecordInBytes = 12;
+    static const int FIELD_STATIC__maxSize = 13;
+    static const int FIELD_STATIC__fullFlag = 14;
 
     TINYCLR_NATIVE_DECLARE(InternalInitialize___STATIC__BOOLEAN);
     TINYCLR_NATIVE_DECLARE(InternalWrite___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__U4__U2);

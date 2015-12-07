@@ -479,7 +479,7 @@
             <summary>
             Uninitializes the lcd hardware
             </summary>
-            <returns>The result of lcd uninitialize: Success, Fail</returns>
+            <returns>The result of lcd uninitialize: Success, Fail</returns>        
         </member>
         <member name="M:Samraksh.eMote.DotNow.EmoteLCD.Write(Samraksh.eMote.DotNow.LCD,Samraksh.eMote.DotNow.LCD,Samraksh.eMote.DotNow.LCD,Samraksh.eMote.DotNow.LCD)">
             <summary>

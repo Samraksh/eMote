@@ -13,9 +13,6 @@
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal_mshl.cpp" />
 <HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal.h" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal.cpp" />
-<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD_mshl.cpp" />
-<HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD.h" />
-<Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_EmoteLCD.cpp" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR_mshl.cpp" />
 <HFile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR.h" />
 <Compile Include="SamrakshEmoteDotNow_Samraksh_eMote_DotNow_NOR.cpp" />
