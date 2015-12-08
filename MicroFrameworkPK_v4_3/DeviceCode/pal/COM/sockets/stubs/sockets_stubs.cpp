@@ -26,47 +26,55 @@ BOOL Network_Uninitialize()
 
 BOOL SOCKETS_Initialize( int ComPortNum )
 {
+	hal_printf("Inside SOCKETS_Initialize in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return TRUE;
 }
 
 BOOL SOCKETS_Uninitialize( int ComPortNum )
 {
+	hal_printf("Inside SOCKETS_Uninitialize in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return TRUE;
 }
 
 int SOCKETS_Write( int ComPortNum, const char* Data, size_t size )
 { 
+	hal_printf("Inside SOCKETS_Write in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return 0; 
 }
 
 int SOCKETS_Read( int ComPortNum, char* Data, size_t size )
 { 
+	hal_printf("Inside SOCK_bind in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return 0; 
 }
 
 BOOL SOCKETS_Flush( int ComPortNum )
 { 
+	hal_printf("Inside SOCKETS_Flush in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return FALSE; 
 }
 
 void SOCKETS_CloseConnections()
 {
+	hal_printf("Inside SOCKETS_CloseConnections in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
 }
 
 BOOL SOCKETS_UpgradeToSsl( INT32 ComPortNum, const UINT8* pCACert, UINT32 caCertLen, const UINT8* pDeviceCert, UINT32 deviceCertLen, LPCSTR szTargetHost )
 {
+	hal_printf("Inside SOCKETS_UpgradeToSsl in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return FALSE;
 }
 
 BOOL SOCKETS_IsUsingSsl( INT32 ComPortNum )
 {
+	hal_printf("Inside SOCKETS_IsUsingSsl in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return FALSE;
 }
@@ -74,6 +82,7 @@ BOOL SOCKETS_IsUsingSsl( INT32 ComPortNum )
 
 BOOL SOCKETS_ProcessSocketActivity(SOCK_SOCKET signalSocket)
 {
+	hal_printf("Inside SOCKETS_ProcessSocketActivity in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return TRUE;
 }
@@ -128,75 +137,85 @@ HRESULT HAL_SOCK_CONFIGURATION_LoadWirelessConfiguration( UINT32 interfaceIndex,
 
 int SOCK_socket( int family, int type, int protocol ) 
 { 
-    NATIVE_PROFILE_PAL_COM();
-    hal_printf("Inside SOCK_socket in sockets_stubs.cpp\n");
+	hal_printf("Inside SOCK_socket in sockets_stubs.cpp\n");
+	NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_bind( int socket, const struct SOCK_sockaddr* address, int addressLen  ) 
 { 
+	hal_printf("Inside SOCK_bind in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_connect(int socket, const struct SOCK_sockaddr* address, int addressLen) 
 { 
+	hal_printf("Inside SOCK_connect in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_send(int socket, const char* buf, int len, int flags) 
 { 
+	hal_printf("Inside SOCK_send in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_recv(int socket, char* buf, int len, int timeout) 
 { 
+	hal_printf("Inside SOCK_recv in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_close(int socket) 
 { 
+	hal_printf("Inside SOCK_close in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_listen( int socket, int backlog ) 
 { 
+	hal_printf("Inside SOCK_listen in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_accept( int socket, struct SOCK_sockaddr* address, int* addressLen ) 
 { 
+	hal_printf("Inside SOCK_accept in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_shutdown( int socket, int how ) 
 { 
+	hal_printf("Inside SOCK_shutdown in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 int SOCK_getaddrinfo(  const char* nodename, char* servname, const struct SOCK_addrinfo* hints, struct SOCK_addrinfo** res ) 
 { 
+	hal_printf("Inside SOCK_getaddrinfo in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 
 void SOCK_freeaddrinfo( struct SOCK_addrinfo* ai )
 {
+	hal_printf("Inside SOCK_freeaddrinfo in sockets_stubs.cpp\n");
     NATIVE_PROFILE_PAL_COM();
 }
     
 
 int SOCK_ioctl( int socket, int cmd, int* data ) 
 { 
-    NATIVE_PROFILE_PAL_COM();
-    hal_printf("Inside SOCK_ioctl in sockets_stubs.cpp\n");
+	hal_printf("Inside SOCK_ioctl in sockets_stubs.cpp\n");
+	NATIVE_PROFILE_PAL_COM();
     return SOCK_SOCKET_ERROR; 
 }
 

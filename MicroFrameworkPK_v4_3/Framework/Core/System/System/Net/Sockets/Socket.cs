@@ -38,11 +38,13 @@ namespace System.Net.Sockets
 
         public Socket(AddressFamily addressFamily, SocketType socketType, ProtocolType protocolType)
         {
+            Debug.Print("Socket constructor 1");
             m_Handle = NativeSocket.socket((int)addressFamily, (int)socketType, (int)protocolType);
         }
 
         private Socket(int handle)
         {
+            Debug.Print("Socket constructor 2");
             m_Handle = handle;
         }
 

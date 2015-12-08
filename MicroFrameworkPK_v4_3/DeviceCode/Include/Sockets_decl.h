@@ -5,7 +5,7 @@
 #ifndef _DRIVERS_SOCKETS_DECL_H_
 #define _DRIVERS_SOCKETS_DECL_H_ 1
 
-#include <platform_selector.h>
+//#include <platform_selector.h>
 
 //--//
 
@@ -289,6 +289,7 @@ typedef struct SOCK_ip_mreq
     SOCK_in_addr imr_multiaddr; /* IPv4 Class D multicast address */
     SOCK_in_addr imr_interface; /* IPv4 address of local interface */
 } SOCK_ip_mreq;
+
 
 typedef struct SOCK_discoveryinfo 
 {

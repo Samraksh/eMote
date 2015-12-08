@@ -43,7 +43,15 @@
   </ItemGroup>
   <!-- #TestSystem: All project information below this line will automatically be used to update the native project files in the TestSuite -->
   <Import Project="$(SPOCLIENT)\Framework\Features\core.featureproj" />
-  <Import Project="$(SPOCLIENT)\Framework\Features\hardware.featureproj" />
+  
+  <Import Project="$(SPOCLIENT)\Framework\Features\Network.featureproj" />
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\Network_lwip.featureproj" /ERROR-->
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\SPOT_Net_CLR.libcatproj" /PART OF NETWORK-->
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\Sockets_Port.featureproj" /PART OF NETWORK-->
+  <Import Project="$(SPOCLIENT)\Framework\Features\Sockets_LWIP_PAL.libcatproj" />
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\Sockets_PAL.libcatproj" /-->
+  
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\hardware.featureproj" /PART OF NETWORK-->
   <Import Project="$(SPOCLIENT)\Framework\Features\NativeEventDispatcher.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\BlockStorage.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\Debugger.featureproj" />
@@ -84,6 +92,7 @@
     <PlatformIndependentLibs Include="SPOT.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT\dotNetMF.proj" />
   </ItemGroup>
+  
   <ItemGroup>
     <PlatformIndependentLibs Include="SecurityPkcs11.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SecurityPkcs11\dotNetMF.proj" />
@@ -228,13 +237,17 @@
     <DriverLibs Include="sockets_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" />
   </ItemGroup>
-  <!--
+  <ItemGroup>
+    <PlatformIndependentLibs Include="SPOT_Net.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Net\dotNetMF.proj" />
+  </ItemGroup>
+  
   <ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  -->
-  <!--
+  
+  <!--INCLUDES LOT OF OTHER THINGS AND DOES NOT SOLVE THE SOCKETS ISSUE
   <ItemGroup>
     <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\sockets_lwip\dotNetMF.proj" />

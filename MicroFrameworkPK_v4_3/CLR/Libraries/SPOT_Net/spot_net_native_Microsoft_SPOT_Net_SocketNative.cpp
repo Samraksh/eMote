@@ -4,9 +4,11 @@
 
 #include "SPOT_Net.h"
 #include <TinyCLR_endian.h>
+//#include "C:\Samraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Sockets_decl.h"
      
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::socket___STATIC__I4__I4__I4__I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket in Library_spot_net SocketNative\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -15,7 +17,6 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::socket___STATIC
     CLR_INT32 protocol = stack.Arg2().NumericByRef().s4;
     
     CLR_INT32 nonBlocking = 1;
-    hal_printf("invoking SOCK_socket\n");
     CLR_INT32 sock        = SOCK_socket( family, type, protocol );
     
     TINYCLR_CHECK_HRESULT(ThrowOnError( stack, sock ));
@@ -29,30 +30,35 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::socket___STATIC
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::bind___STATIC__VOID__OBJECT__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket bind\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return BindConnectHelper( stack, true );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::connect___STATIC__VOID__OBJECT__SZARRAY_U1__BOOLEAN( CLR_RT_StackFrame& stack )
 {        
+	hal_printf("Inside socket connect\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return BindConnectHelper( stack, false );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::send___STATIC__I4__OBJECT__SZARRAY_U1__I4__I4__I4__I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket send\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SendRecvHelper( stack, true, false );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::recv___STATIC__I4__OBJECT__SZARRAY_U1__I4__I4__I4__I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket recv\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SendRecvHelper( stack, false, false );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::close___STATIC__I4__OBJECT( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket close\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -74,6 +80,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::close___STATIC_
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::getaddrinfo___STATIC__VOID__STRING__BYREF_STRING__BYREF_SZARRAY_SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket getaddrinfo\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -199,6 +206,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::getaddrinfo___S
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::listen___STATIC__VOID__OBJECT__I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket listen\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -219,6 +227,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::listen___STATIC
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::accept___STATIC__I4__OBJECT( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket accept\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -255,6 +264,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::accept___STATIC
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::shutdown___STATIC__VOID__OBJECT__I4__BYREF_I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket shutdown\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -275,6 +285,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::shutdown___STAT
 
 CLR_INT32 Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::Helper__SelectSocket(CLR_INT32 handle, CLR_INT32 mode )
 {
+	hal_printf("Inside socket helper\n");
     struct SOCK_timeval timeval;
     SOCK_fd_set* readfds   = NULL;
     SOCK_fd_set* writefds  = NULL;
@@ -335,6 +346,7 @@ CLR_INT32 Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::Helper__Selec
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::poll___STATIC__BOOLEAN__OBJECT__I4__I4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket poll\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -390,42 +402,49 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::poll___STATIC__
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::sendto___STATIC__I4__OBJECT__SZARRAY_U1__I4__I4__I4__I4__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket sendto\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SendRecvHelper( stack, true, true );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::recvfrom___STATIC__I4__OBJECT__SZARRAY_U1__I4__I4__I4__I4__BYREF_SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket recvfrom\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SendRecvHelper( stack, false, true );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::getpeername___STATIC__VOID__OBJECT__BYREF_SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket getpeername\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SockNameHelper( stack, true );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::getsockname___STATIC__VOID__OBJECT__BYREF_SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket getsockname\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SockNameHelper( stack, false );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::getsockopt___STATIC__VOID__OBJECT__I4__I4__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket getsockopt\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SockOptHelper( stack, true );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::setsockopt___STATIC__VOID__OBJECT__I4__I4__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket setsockopt\n");
     NATIVE_PROFILE_CLR_NETWORK();
     return SockOptHelper( stack, false );
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::ioctl___STATIC__VOID__OBJECT__U4__BYREF_U4( CLR_RT_StackFrame& stack )
 {
+	hal_printf("Inside socket ioctl\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -453,6 +472,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::ioctl___STATIC_
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::BindConnectHelper( CLR_RT_StackFrame& stack, bool fBind )
 {
+	hal_printf("Inside socket BindConnectHelper\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -492,6 +512,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::BindConnectHelp
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::MarshalSockAddress( CLR_RT_HeapBlock& blkDst, const struct SOCK_sockaddr* addrSrc, CLR_UINT32 addrLenSrc )
 {
+	hal_printf("Inside socket MarshalSockAddress\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -524,7 +545,8 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::MarshalSockAddr
 }
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::MarshalSockAddress( struct SOCK_sockaddr* addrDst, CLR_UINT32& addrLen, const CLR_RT_HeapBlock& blkSockAddress )
-{        
+{
+	hal_printf("Inside socket MarshalSockAddress\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -552,6 +574,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::MarshalSockAddr
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SendRecvHelper( CLR_RT_StackFrame& stack, bool fSend, bool fAddress )
 {
+	hal_printf("Inside socket SendRecvHelper\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -719,6 +742,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SendRecvHelper(
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SockOptHelper( CLR_RT_StackFrame& stack, bool fGet )
 {
+	hal_printf("Inside socket SockOptHelper\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -756,6 +780,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SockOptHelper( 
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SockNameHelper( CLR_RT_StackFrame& stack, bool fPeer )
 {
+	hal_printf("Inside socket SockNameHelper\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
@@ -787,6 +812,7 @@ HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::SockNameHelper(
 
 void Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::ThrowError( CLR_RT_StackFrame& stack, CLR_INT32 errorCode )
 {        
+	hal_printf("Inside socket ThrowError\n");
     NATIVE_PROFILE_CLR_NETWORK();
     CLR_RT_HeapBlock& res = stack.m_owningThread->m_currentException;
                             
@@ -798,6 +824,7 @@ void Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::ThrowError( CLR_RT
 
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::ThrowOnError( CLR_RT_StackFrame& stack, CLR_INT32 res )
 {        
+	hal_printf("Inside socket ThrowOnError\n");
     NATIVE_PROFILE_CLR_NETWORK();
     TINYCLR_HEADER();
 
