@@ -8,7 +8,8 @@
   <Level xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">PAL</Level>
   <Groups xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">Network</Groups>
   <Templates xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
-    <FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj</FilePath>
+    <!--FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj</FilePath-->
+    <FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj</FilePath>
   </Templates>
   <Templates xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
     <!--FilePath>$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\sockets_stubs.cpp</FilePath-->
