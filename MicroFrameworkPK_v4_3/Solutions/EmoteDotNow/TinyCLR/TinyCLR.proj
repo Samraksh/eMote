@@ -248,22 +248,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Net\dotNetMF.proj" />
   </ItemGroup>
   
-  <!--INCLUDES LOT OF OTHER THINGS AND DOES NOT SOLVE THE SOCKETS ISSUE
+  <!--INCLUDES LOT OF OTHER THINGS AND DOES NOT SOLVE THE SOCKETS ISSUE-->
   <ItemGroup>
     <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\sockets_lwip\dotNetMF.proj" />
   </ItemGroup>
-  -->
-  <!--
-  <ItemGroup>
-    <DriverLibs Include="sockets_hal_dhcp_lwIP.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_dhcp.proj" />
-  </ItemGroup>
-  <ItemGroup>
-    <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_sockets.proj" />
-  </ItemGroup>
-  -->
+    
   <ItemGroup>
     <DriverLibs Include="COM_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\dotNetMF.proj" />
@@ -688,13 +678,46 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\LWIP\src\dotNetMF.proj" />
     <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
   </ItemGroup>
-  <!--
+  
   <ItemGroup>
+    <DriverLibs Include="sockets_hal_dhcp_lwIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_dhcp.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_sockets.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_TCP_LWIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_tcp.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_udp_lwIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_udp.proj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\tinyclr\dotNetMF.proj" />
+  </ItemGroup>
+  
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60\dotNetMF.proj" />
     <DriverLibs Include="Ethernet_enc28j60.$(LIB_EXT)" />
+  </ItemGroup-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60_lwip\dotNetMF.proj" />
+    <DriverLibs Include="Ethernet_enc28j60_lwip.$(LIB_EXT)" />
   </ItemGroup>
-  -->
-    
+  <!--ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Network\ENC28J60\dotNetMF.proj" />
+    <DriverLibs Include="ENC28J60_config_iMXS_thumb.$(LIB_EXT)" />
+  </ItemGroup-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\iMXS_net\DeviceCode\Network\ENC28J60_LWIP\dotNetMF.proj" />
+    <DriverLibs Include="ENC28J60_LWIP_config_iMXS_net.$(LIB_EXT)" />
+  </ItemGroup>
+      
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\radio\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_radio_rf231.$(LIB_EXT)" />

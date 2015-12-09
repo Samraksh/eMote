@@ -3,8 +3,8 @@
 
 //--//
 
-#define ENC28J60_INT                   MC9328MXL_GPIO::c_Port_A_06
-#define ENC28J60_CS                    MC9328MXL_GPIO::c_Port_A_04
+//#define ENC28J60_INT                   MC9328MXL_GPIO::c_Port_A_06
+//#define ENC28J60_CS                    MC9328MXL_GPIO::c_Port_A_04
 #define ENC28J60_CS_ACTIVE             FALSE
 #define ENC28J60_MSK_IDLE              FALSE
 #define ENC28J60_MSK_SAMPLE_EDGE       TRUE
@@ -12,7 +12,7 @@
 #define ENC28J60_CLOCK_RATE_KHZ        25000
 #define ENC28J60_CS_SETUP_USEC         0
 #define ENC28J60_CS_HOLD_USEC          0
-#define ENC28J60_MODULE                MC9328MXL_SPI::c_SPI1
+//#define ENC28J60_MODULE                MC9328MXL_SPI::c_SPI1
 #define ENC28J60_BUSYPIN               GPIO_PIN_NONE
 #define ENC28J60_BUSYPIN_ACTIVESTATE   FALSE
 
@@ -28,7 +28,7 @@ ENC28J60_LWIP_DEVICE_CONFIG g_ENC28J60_LWIP_Config =
     {
         {                                   // ENC28J60_DRIVER_CONFIG
             {                               // SPI_CONFIGURATION
-                ENC28J60_CS,
+                //ENC28J60_CS,
                 ENC28J60_CS_ACTIVE,
                 ENC28J60_MSK_IDLE,
                 ENC28J60_MSK_SAMPLE_EDGE,
@@ -36,14 +36,14 @@ ENC28J60_LWIP_DEVICE_CONFIG g_ENC28J60_LWIP_Config =
                 ENC28J60_CLOCK_RATE_KHZ,
                 ENC28J60_CS_SETUP_USEC,
                 ENC28J60_CS_HOLD_USEC,
-                ENC28J60_MODULE,
-                {
+                //ENC28J60_MODULE,
+                /*{
                     ENC28J60_BUSYPIN,
                     ENC28J60_BUSYPIN_ACTIVESTATE,
-                },
+                },*/
             },
             
-            ENC28J60_INT,                    // Interrupt Pin
+            //ENC28J60_INT,                    // Interrupt Pin
         },
     }
 };
