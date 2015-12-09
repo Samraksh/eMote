@@ -66,7 +66,7 @@
   <!--Import Project="$(SPOCLIENT)\Framework\Features\USB_Port.featureproj" Condition="'$(USB_PORT_FEATUREPROJ)'==''" /-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Usb.featureproj" /-->
   <Import Project="$(SPOCLIENT)\Framework\Features\OneWire.featureproj" />
-  <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" />
+  <!--Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\Samraksh_eMote.featureproj" /-->
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
@@ -233,22 +233,22 @@
     <PlatformIndependentLibs Include="WireProtocol.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\Support\WireProtocol\dotNetMF.proj" />
   </ItemGroup>
+  <!--MAY/MAT NOT BE NEEDED FOR COAP IF STUBS ARE INCLUDED-->
   <ItemGroup>
     <DriverLibs Include="sockets_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\dotNetMF.proj" />
   </ItemGroup>
-  
+  <!--MAY/MAT NOT BE NEEDED FOR COAP-->
   <ItemGroup>
     <DriverLibs Include="sockets_pal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Sockets\stubs\dotNetMF.proj" />
   </ItemGroup>
-  
+  <!--NEEDED FOR COAP-->
   <ItemGroup>
     <PlatformIndependentLibs Include="SPOT_Net.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Net\dotNetMF.proj" />
   </ItemGroup>
-  
-  <!--INCLUDES LOT OF OTHER THINGS AND DOES NOT SOLVE THE SOCKETS ISSUE-->
+  <!--NEEDED FOR COAP-->
   <ItemGroup>
     <DriverLibs Include="sockets_pal_lwip.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\sockets_lwip\dotNetMF.proj" />
@@ -597,32 +597,32 @@
   
   <!--     - - - - - - - -               Samraksh's Extensions   - - - - - - - -                  -->
   <!-- 									Hardware Extension        								-->
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DotNow\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DotNow.$(LIB_EXT)" />
 </ItemGroup>
 
   <!-- 									DSP Extension        								-->
- <ItemGroup>
+ <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_DSP.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   <!-- 									Realtime Extension        								-->
   
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\dotNetMF.proj" />
     <DriverLibs Include="Samraksh_eMote_RealTime.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   
   <!-- 									NVM/Data Store Extension        								-->
-  <ItemGroup>
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\DataStore\dotNetMF.proj" />
     <DriverLibs Include="DataStore_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
   
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote\dotNetMF.proj" />
@@ -674,11 +674,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\SocketsDriver\dotNetMF.proj" />
     <DriverLibs Include="sockets_lwIP_pal.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--NOT NEEDED FOR COAP-->
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\LWIP\src\dotNetMF.proj" />
     <DriverLibs Include="sockets_hal_sockets_lwIP.$(LIB_EXT)" />
-  </ItemGroup>
-  
+  </ItemGroup-->
+  <!--ALL 4 BELOW NEEDED FOR COAP-->
   <ItemGroup>
     <DriverLibs Include="sockets_hal_dhcp_lwIP.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_dhcp.proj" />
@@ -695,7 +696,7 @@
     <DriverLibs Include="sockets_hal_udp_lwIP.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\lwip\LWIP\src\dotNetMF_udp.proj" />
   </ItemGroup>
-  
+  <!--NEEDED FOR COAP-->
   <ItemGroup>
     <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\tinyclr\dotNetMF.proj" />
@@ -705,6 +706,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60\dotNetMF.proj" />
     <DriverLibs Include="Ethernet_enc28j60.$(LIB_EXT)" />
   </ItemGroup-->
+  <!--NEEDED FOR COAP (Network_Interface_Close and Network_Interface_Open)-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60_lwip\dotNetMF.proj" />
     <DriverLibs Include="Ethernet_enc28j60_lwip.$(LIB_EXT)" />
@@ -713,6 +715,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Network\ENC28J60\dotNetMF.proj" />
     <DriverLibs Include="ENC28J60_config_iMXS_thumb.$(LIB_EXT)" />
   </ItemGroup-->
+  <!--NEEDED FOR COAP-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\iMXS_net\DeviceCode\Network\ENC28J60_LWIP\dotNetMF.proj" />
     <DriverLibs Include="ENC28J60_LWIP_config_iMXS_net.$(LIB_EXT)" />
