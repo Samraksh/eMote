@@ -666,10 +666,12 @@
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
-  <ItemGroup>
+  <!--NOT NEEDED FOR COAP-->
+  <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\rtip\SocketsDriver\dotNetMF.proj" />
     <DriverLibs Include="sockets_rtip_pal.$(LIB_EXT)" />
-  </ItemGroup>
+  </ItemGroup-->
+  <!--NEEDED FOR COAP (HAL_SOCK_bind)-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\SocketsDriver\dotNetMF.proj" />
     <DriverLibs Include="sockets_lwIP_pal.$(LIB_EXT)" />
@@ -701,7 +703,7 @@
     <DriverLibs Include="sockets_hal_async_LWIP.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\lwip\tinyclr\dotNetMF.proj" />
   </ItemGroup>
-  
+  <!--NOT NEEDED FOR COAP-->
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60\dotNetMF.proj" />
     <DriverLibs Include="Ethernet_enc28j60.$(LIB_EXT)" />
@@ -711,6 +713,7 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\Ethernet\enc28j60_lwip\dotNetMF.proj" />
     <DriverLibs Include="Ethernet_enc28j60_lwip.$(LIB_EXT)" />
   </ItemGroup>
+  <!--NOT NEEDED FOR COAP-->
   <!--ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\Network\ENC28J60\dotNetMF.proj" />
     <DriverLibs Include="ENC28J60_config_iMXS_thumb.$(LIB_EXT)" />
