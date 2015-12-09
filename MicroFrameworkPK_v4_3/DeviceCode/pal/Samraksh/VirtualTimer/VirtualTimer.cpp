@@ -325,7 +325,7 @@ void VirtualTimerCallback(void *arg)
 
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
-		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS) || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME) )
+		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS) || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME) || (runningTimer->get_m_timer_id() == HAL_SLOT_TIMER)  )
 		{
 			(runningTimer->get_m_callback())(NULL);
 		} else {
