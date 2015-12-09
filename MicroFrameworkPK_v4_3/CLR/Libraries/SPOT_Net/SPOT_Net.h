@@ -12,8 +12,6 @@
 
 #include <TinyCLR_Version.h>
 
-//#include "C:\Samraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Sockets_decl.h"
-
 #include "SPOT_net_native.h"
 #include <SPOT_native.h>
 #include <CorLib_native.h>

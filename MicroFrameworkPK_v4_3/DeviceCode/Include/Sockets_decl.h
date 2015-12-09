@@ -5,8 +5,6 @@
 #ifndef _DRIVERS_SOCKETS_DECL_H_
 #define _DRIVERS_SOCKETS_DECL_H_ 1
 
-//#include <platform_selector.h>
-
 //--//
 
 #if defined(__ADSPBLACKFIN__) || defined(__GNUC__) || defined(__RENESAS__)

@@ -4,7 +4,6 @@
 
 #include "SPOT_Net.h"
 #include <TinyCLR_endian.h>
-//#include "C:\Samraksh\MF\MicroFrameworkPK_v4_3\DeviceCode\Include\Sockets_decl.h"
      
 HRESULT Library_spot_net_native_Microsoft_SPOT_Net_SocketNative::socket___STATIC__I4__I4__I4__I4( CLR_RT_StackFrame& stack )
 {
