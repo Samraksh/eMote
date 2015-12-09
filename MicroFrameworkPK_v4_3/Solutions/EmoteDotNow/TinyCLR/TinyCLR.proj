@@ -44,8 +44,8 @@
   <!-- #TestSystem: All project information below this line will automatically be used to update the native project files in the TestSuite -->
   <Import Project="$(SPOCLIENT)\Framework\Features\core.featureproj" />
   
-  <Import Project="$(SPOCLIENT)\Framework\Features\Network.featureproj" />
-  <!--Import Project="$(SPOCLIENT)\Framework\Features\Network_lwip.featureproj" /ERROR-->
+  <!--Import Project="$(SPOCLIENT)\Framework\Features\Network.featureproj" /-->
+  <Import Project="$(SPOCLIENT)\Framework\Features\Network_lwip.featureproj" />
   <!--Import Project="$(SPOCLIENT)\Framework\Features\SPOT_Net_CLR.libcatproj" /PART OF NETWORK-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Sockets_Port.featureproj" /PART OF NETWORK-->
   <!--Import Project="$(SPOCLIENT)\Framework\Features\Sockets_LWIP_PAL.libcatproj" /-->
