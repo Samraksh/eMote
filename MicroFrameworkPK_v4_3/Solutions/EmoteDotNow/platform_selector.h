@@ -195,15 +195,34 @@ const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
 const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 
+
+/*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways
+Timers in use :
+VIRT_TIMER_TIME 2
+HAL_SLOT_TIMER 3
+HAL_SLOT_TIMER3 4
+HAL_DISCOVERY_TIMER 5
+HAL_RECEPTION_TIMER 6
+
+*/
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
+#define HAL_SLOT_TIMER 				3
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
 #define VIRT_TIMER_MAC_BEACON 		4
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
+
+#define HAL_SLOT_TIMER2 7
+#define HAL_DISCOVERY_TIMER 5
+#define HAL_RECEPTION_TIMER 6
+#define HAL_SLOT_TIMER3 10
+
+#define LocalClockMonitor_TIMER1 7
+#define NeighborClockMonitor_TIMER1 9
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
@@ -241,11 +260,11 @@ J12_PIN10 = GND
 #define RF231_FRAME_BUFF_ACTIVE (GPIO_PIN)120
 
 #define TIMESYNC_SENDPIN (GPIO_PIN)120 // 3 				//J11_pin6
-#define TIMESYNC_RECEIVEPIN (GPIO_PIN)120 // 23 			//J12_pin5
+#define TIMESYNC_RECEIVEPIN (GPIO_PIN)29 			//J12_pin5
 
 #define DATARECEPTION_SLOTPIN (GPIO_PIN)30 //2				//J12_PIN4
 
-#define DATATX_PIN (GPIO_PIN)29 //2							//J12_PIN3
+#define DATATX_PIN (GPIO_PIN)120 //2							//J12_PIN3
 
 #define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5
 
@@ -253,14 +272,48 @@ J12_PIN10 = GND
 #define DISCO_SYNCRECEIVEPIN (GPIO_PIN)25					//J12_PIN2
 
 #define OMAC_DEBUG_PIN (GPIO_PIN)120			 			//J11_PIN5
-#define OMAC_DATARXPIN (GPIO_PIN)31 //120 //2					//J12_pin5
+#define OMAC_DATARXPIN (GPIO_PIN)120 //2					//J12_pin5
 #define OMAC_RXPIN (GPIO_PIN)0							//J11_pin3 0
 
 #define RADIOCONTROL_SEND_PIN (GPIO_PIN)120 				//J11_pin4
 #define RADIOCONTROL_SENDTS_PIN (GPIO_PIN)120 				//J11_pin5
-#define RADIOCONTROL_STATEPIN (GPIO_PIN)22 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
+#define RADIOCONTROL_STATEPIN (GPIO_PIN)23 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
 
 #define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
+
+/*PIN SETUP FOR TEST LEVEL_0G : TimeSync Test
+ *
+#define RF231_TX_INTERRUPT (GPIO_PIN)120					//J11_PIN7
+#define RF231_RADIO_STATEPIN2 (GPIO_PIN)120					//J11_PIN7
+#define RF231_RX (GPIO_PIN)120								//J11_PIN8
+#define RF231_TX_TIMESTAMP (GPIO_PIN)120								//J11_PIN9
+#define RF231_TX (GPIO_PIN)120								//J11_PIN10
+#define RF231_FRAME_BUFF_ACTIVE (GPIO_PIN)120
+
+#define TIMESYNC_SENDPIN (GPIO_PIN)120 // 3 				//J11_pin6
+#define TIMESYNC_RECEIVEPIN (GPIO_PIN)29 			//J12_pin5
+
+#define DATARECEPTION_SLOTPIN (GPIO_PIN)30 //2				//J12_PIN4
+
+#define DATATX_PIN (GPIO_PIN)120 //2							//J12_PIN3
+
+#define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5
+
+#define DISCO_SYNCSENDPIN (GPIO_PIN)24						//J12_PIN1
+#define DISCO_SYNCRECEIVEPIN (GPIO_PIN)25					//J12_PIN2
+
+#define OMAC_DEBUG_PIN (GPIO_PIN)120			 			//J11_PIN5
+#define OMAC_DATARXPIN (GPIO_PIN)120 //2					//J12_pin5
+#define OMAC_RXPIN (GPIO_PIN)0							//J11_pin3 0
+
+#define RADIOCONTROL_SEND_PIN (GPIO_PIN)120 				//J11_pin4
+#define RADIOCONTROL_SENDTS_PIN (GPIO_PIN)120 				//J11_pin5
+#define RADIOCONTROL_STATEPIN (GPIO_PIN)23 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
+
+#define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
+ *
+ *
+ */
 
 /*PIN SETUP FOR TEST LEVEL_0A : TimeSync Test
  *

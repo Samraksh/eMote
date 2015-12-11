@@ -90,7 +90,7 @@ private:
 
 
 public:
-	bool timer1INuse, timer2INuse, SchedulerINUse;
+	bool SchedulerINUse;
 	State_t InputState;		//stores data needed by protocol for processing
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
@@ -98,6 +98,9 @@ public:
 	OMACTimeSync m_TimeSyncHandler;
 	SeedGenerator m_seedGenerator;
 
+	UINT64 nextWakeupTimeInMicSec;
+
+	UINT64 m_InitializationTimeinTicks; //The time val
 
 
 	//BK The methods from this point on is in use for sure. The rest can be deleted.

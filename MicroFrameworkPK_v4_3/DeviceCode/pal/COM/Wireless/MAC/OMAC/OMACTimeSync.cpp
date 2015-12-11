@@ -47,8 +47,8 @@ inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
  */
 void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_EnableOutputPin(TIMESYNC_SENDPIN, TRUE);
-	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(TIMESYNC_SENDPIN, FALSE);
+	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, FALSE);
 	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
 #endif
 
@@ -198,10 +198,10 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
 			TimerReturn = false;
+		}
 #ifdef DEBUG_TSYNC_PIN
 	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
 #endif
-		}
 	}
 #endif
 
@@ -232,10 +232,11 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >= 2  ){
+
+		}
 #ifdef DEBUG_TSYNC_PIN
 	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, FALSE );
 #endif
-		}
 	}
 #endif
 	return DS_Success;
