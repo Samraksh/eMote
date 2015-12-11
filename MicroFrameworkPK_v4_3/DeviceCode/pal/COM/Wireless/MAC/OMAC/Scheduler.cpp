@@ -113,17 +113,16 @@ void OMACScheduler::ScheduleNextEvent(){
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
 	nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
-	if (rxEventOffset < MINEVENTTIME) rxEventOffset = 0xffffffffffffffff;
+	if (rxEventOffset < 1) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;
 	txEventOffset = m_DataTransmissionHandler.NextEvent();
-	if (txEventOffset < MINEVENTTIME) txEventOffset = 0xffffffffffffffff;
+	if (txEventOffset < 1) txEventOffset = 0xffffffffffffffff;
 	//txEventOffset = txEventOffset-1;
 	beaconEventOffset = m_DiscoveryHandler.NextEvent();
-	if (beaconEventOffset < MINEVENTTIME) beaconEventOffset = 0xffffffffffffffff;
+	if (beaconEventOffset < 1) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
-	//timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
-	//if (timeSyncEventOffset < MINEVENTTIME)
-	timeSyncEventOffset = 0xffffffffffffffff;
+	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
+	if (timeSyncEventOffset < 1) timeSyncEventOffset = 0xffffffffffffffff;
 	//timeSyncEventOffset = timeSyncEventOffset-1;
 
 	if(rxEventOffset < MAXSCHEDULERUPDATE && rxEventOffset < nextWakeupTimeInMicSec) {
@@ -166,14 +165,8 @@ void OMACScheduler::ScheduleNextEvent(){
 		hal_printf("Critial TIme has Passed. Be careful. About to crash!!\n");
 	}
 #endif
-	nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
+	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
-	if(nextWakeupTimeInMicSec >= 2000000){
-		nextWakeupTimeInMicSec = 2000000;
-	}
-	if(nextWakeupTimeInMicSec <= MINEVENTTIME){
-		nextWakeupTimeInMicSec = MINEVENTTIME;
-	}
 
 
 	SchedulerINUse = true;
