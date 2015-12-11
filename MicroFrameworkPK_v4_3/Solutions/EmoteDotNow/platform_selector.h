@@ -195,15 +195,34 @@ const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
 const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 
+
+/*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways
+Timers in use :
+VIRT_TIMER_TIME 2
+HAL_SLOT_TIMER 3
+HAL_SLOT_TIMER3 4
+HAL_DISCOVERY_TIMER 5
+HAL_RECEPTION_TIMER 6
+
+*/
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
+#define HAL_SLOT_TIMER 				3
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
 #define VIRT_TIMER_MAC_BEACON 		4
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
+
+#define HAL_SLOT_TIMER2 7
+#define HAL_DISCOVERY_TIMER 5
+#define HAL_RECEPTION_TIMER 6
+#define HAL_SLOT_TIMER3 10
+
+#define LocalClockMonitor_TIMER1 7
+#define NeighborClockMonitor_TIMER1 9
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
