@@ -60,10 +60,17 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 OMACTimeSync::NextEvent(){
+	Neighbor_t* sn;
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots();
-	if(nextEventsSlot == 0) return(nextEventsMicroSec-1);//BK: Current slot is already too late. Hence return a large number back
+	while(nextEventsSlot == 0){
+		sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+		if(sn != NULL) {
+			Send(sn->MacAddress, true);
+			nextEventsSlot = NextEventinSlots();
+		}
+	}
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
@@ -90,44 +97,6 @@ UINT16 OMACTimeSync::NextEventinSlots(){
 	}
 }
 
-/*UINT32 OMACTimeSync::NextSlot(UINT32 currSlot){
-	////hal_printf("start OMACTimeSync::NextSlot\n");
-	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
-	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
-	if ( sn == NULL ) return ((UINT32) MAX_UINT32);
-	else if( (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
-		Send(sn ->MacAddress);
-		////hal_printf("end send OMACTimeSync::NextSlot\n");
-		return 0;
-	}
-	else {
-		UINT64 remslots = (m_messagePeriod - (HAL_Time_CurrentTicks() - sn->LastTimeSyncTime) ) / SLOT_PERIOD;
-		if ( remslots < 2 ) {
-			hal_printf("end remslots 2 OMACTimeSync::NextSlot\n");
-			return 0;
-		}
-		else {
-			////hal_printf("end remslots %d OMACTimeSync::NextSlot\n", remslots);
-			return remslots;
-		}
-	}
-}*/
-
-
-	//BK: Return periods until next timesync
-/*	if( (currSlot > m_lastSlotExecuted)  ) {
-		if ( (currSlot-m_lastSlotExecuted) >= m_messagePeriod  )
-			return(0); //This is the case for triggerting
-		else
-			return (  m_messagePeriod - (currSlot-m_lastSlotExecuted) );
-	}
-	else{
-		if( ( (MAX_UINT32 -  m_lastSlotExecuted) + currSlot ) >= m_messagePeriod)
-			return(0);
-		else
-			return(m_messagePeriod-( (MAX_UINT32 -  m_lastSlotExecuted) + currSlot ));
-	}
-}*/
 
 /*
  *
