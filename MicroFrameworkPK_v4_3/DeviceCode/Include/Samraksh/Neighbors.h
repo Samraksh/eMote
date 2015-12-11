@@ -110,7 +110,7 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 
 UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
-	return BringOutYourDead(NeighborLivenessDelay);
+	//return BringOutYourDead(NeighborLivenessDelay);
 }
 
 DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){

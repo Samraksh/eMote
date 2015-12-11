@@ -194,7 +194,7 @@ bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
-	g_OMAC.UpdateNeighborTable();
+	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = HAL_Time_CurrentTicks();
 #ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask() \n"

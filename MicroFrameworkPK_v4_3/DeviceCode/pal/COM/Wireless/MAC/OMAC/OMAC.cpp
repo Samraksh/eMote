@@ -417,6 +417,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		payload[i] = lmsg[i];
 	}
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+	return msg_carrier;
 }
 
 

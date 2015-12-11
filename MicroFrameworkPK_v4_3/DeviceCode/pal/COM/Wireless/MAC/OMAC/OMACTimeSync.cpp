@@ -140,7 +140,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	m_timeSyncMsg = (TimeSyncMsg *) m_timeSyncMsgBuffer.GetPayload();
 	UINT64 y = HAL_Time_CurrentTicks();
 	CreateMessage(m_timeSyncMsg, y, request_TimeSync);
-	BOOL rs = g_OMAC.SendTimeStamped(address, MFM_TIMESYNC, &m_timeSyncMsgBuffer, sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
+	BOOL rs = g_OMAC.SendTimeStamped(address, MFM_TIMESYNC, &m_timeSyncMsg, sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
 	g_NeighborTable.RecordTimeSyncRequestSent(address, (UINT32) (y & (~(UINT32) 0)));
 	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef OMAC_DEBUG_GPIO
