@@ -281,8 +281,8 @@
     <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(GCC_VER)'=='4.9.3'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\armv7-m</GNU_LIBGCC_DIR>
 	<GNU_LIB_DIR     Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(GCC_VER)'!='4.9.3'">$(GNU_TOOLS)\$(GNU_TARGET)\lib\thumb2</GNU_LIB_DIR>
     <GNU_LIBGCC_DIR  Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(GCC_VER)'!='4.9.3'">$(GNU_TOOLS)\lib\gcc\$(GNU_TARGET)\$(GCC_VER)\thumb2</GNU_LIBGCC_DIR>
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs>
-    <ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs>
+    <!--ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='be'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.b $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.b</ExtraLibs-->
+    <!--ExtraLibs       Condition="'$(INSTRUCTION_SET)'=='thumb2' and '$(ENDIANNESS)'=='le'">$(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\h_t.l $(SPOCLIENT)\tools\ads_v3_1\Lib\armlib\c_t.l</ExtraLibs-->
 
     <LIBGCC >libgcc.a</LIBGCC>
     <LIBCGCC>libc.a</LIBCGCC>
