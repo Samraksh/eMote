@@ -49,17 +49,19 @@ enum POWER_LEVEL_CATEGORY
     POWER_LEVEL_CATEGORY__POSTNOTIFY  = 0x02,    
 };
 
-    
-//--//
+#ifdef GCC // using special GCC attributes
+void CPU_Reset           () __attribute__ ((noreturn));
+void CPU_Halt            () __attribute__ ((noreturn));
+#else
+void CPU_Reset           ();
+void CPU_Halt            ();
+#endif // ifdef GCC
+
 BOOL CPU_Initialize      ();
 BOOL CPU_JTAG_Attached();
-void CPU_Reset           ();
 void CPU_Sleep           (SLEEP_LEVEL level, UINT64 wakeEvents);
 void CPU_ChangePowerLevel(POWER_LEVEL level);
-void CPU_Halt            ();
 BOOL CPU_IsSoftRebootSupported();
-
-//--//
 
 #endif // _DRIVERS_POWER_DECL_H_
 
