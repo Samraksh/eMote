@@ -93,7 +93,8 @@
 #define __forceinline __attribute__((always_inline))
 #define ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED // Include so that zi variables are correctly sectioned
 
-#define FORCEINLINE __forceinline
+//#define FORCEINLINE __forceinline
+#define FORCEINLINE // Nothing
 
 
 #elif defined(arm) || defined(__arm)
