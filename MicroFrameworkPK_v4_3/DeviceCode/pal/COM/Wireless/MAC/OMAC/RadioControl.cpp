@@ -115,7 +115,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		// Adjust the time stamp of the timesync packet accordingly.
 		// First check if the lower 32 bits of the 64 bit timer (HAL_Time_CurrentTicks) has overflown
 		UINT64 y =  HAL_Time_CurrentTicks();
-		if ( event_time >  (UINT32)y ){ //The case of overflow
+		if ( event_time >=  (UINT32)y ){ //The case of overflow
 			y = y - ( ((0xFFFFFFFF) - event_time) + (UINT32)y);
 		}
 		else{ //The case of no overflow
