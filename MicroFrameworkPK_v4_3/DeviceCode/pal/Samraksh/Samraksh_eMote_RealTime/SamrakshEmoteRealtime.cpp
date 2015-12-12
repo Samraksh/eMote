@@ -93,6 +93,7 @@ BOOL RT_Dispose ()
 	if (realtimeTimerCnt > 0){
 		realtimeTimerCnt--;
 	}
+	return TRUE;
 }
 
 BOOL RT_Change(uint dueTime, uint period)

@@ -243,7 +243,7 @@ void CalibrateHSI() {
 	skip = trim_test(hsi_trim_error, hsi_trim_val, PWR_HSI_DEFAULT_TRIM);
 
 	while( PWR_HSI_TRIM_VALID(trim) ) {
-		int min_trim = trim;
+		unsigned min_trim = trim;
 
 		if (!skip) { skip = trim_test(hsi_trim_error, hsi_trim_val, trim);   }
 		if (!skip) { skip = trim_test(hsi_trim_error, hsi_trim_val, trim-1); }

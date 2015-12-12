@@ -384,7 +384,7 @@ void __irq USART1_IRQHandler() {
 	static char buf[RX_HAL_BUF_SIZE];
 	static int idx;
 	unsigned int status;
-	volatile unsigned int dummy;
+	volatile unsigned int dummy __attribute__ ((unused));
 
 	//CPU_GPIO_SetPinState((GPIO_PIN) 30, TRUE);
 	GLOBAL_LOCK(irq);
@@ -455,7 +455,7 @@ void __irq USART1_IRQHandler() {
 
 void USART2_Handler(void *args)
 {
-	int err;
+	int err __attribute__ ((unused));
 	if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
 	{
 		  char c = (char) USART_ReceiveData(USART2); // read RX data

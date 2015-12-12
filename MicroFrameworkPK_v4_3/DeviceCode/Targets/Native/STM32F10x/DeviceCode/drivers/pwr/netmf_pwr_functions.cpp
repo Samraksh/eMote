@@ -4,6 +4,7 @@
 
 BOOL CPU_Initialize() {
 	PowerInit();
+	return TRUE;
 }
 
 BOOL CPU_JTAG_Attached(){

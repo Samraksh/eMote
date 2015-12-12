@@ -153,7 +153,7 @@ GPIO_TypeDef* GPIO_GetPortPtr(GPIO_PIN Pin) {
  * TODO: make this a giant macro.
  */
 GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
-    int itr_port;
+    unsigned itr_port;
     for(itr_port=0; itr_port < GPIO_PORTS; ++itr_port) {
         if(GPIO_PORT_ARRAY[itr_port] == Port) {
             break;
@@ -161,7 +161,7 @@ GPIO_PIN GPIO_GetNumber(GPIO_TypeDef* Port, uint16_t Pin) {
     }
     ASSERT(itr_port < GPIO_PORTS);
     ASSERT(Pin < (1 << GPIO_PPP));
-    int itr_pin;
+    unsigned itr_pin;
     for(itr_pin=0; itr_pin < GPIO_PPP; ++itr_pin) {
         if((Pin >> itr_pin) == 0x1) {
             break;
@@ -441,7 +441,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 		mode = GPIO_Mode_IPD;
 	} else if(ResistorState == RESISTOR_PULLUP) {
 		mode = GPIO_Mode_IPU;
-	}
+	} else mode = GPIO_Mode_IN_FLOATING;
 
 	GPIO_TypeDef* port = GPIO_GetPortPtr(Pin);
 	uint16_t pinInHex = GPIO_GetPin(Pin);

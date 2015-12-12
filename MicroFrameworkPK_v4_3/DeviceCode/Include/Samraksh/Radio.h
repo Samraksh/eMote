@@ -24,7 +24,7 @@ extern "C"
 {
 	void* DefaultRecieveHandler(void *msg, UINT16 Size)
 	{
-
+		return NULL;
 	}
 
 	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status)
@@ -34,7 +34,7 @@ extern "C"
 
 	BOOL DefaultRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 	{
-
+		return FALSE;
 	}
 }
 
@@ -102,7 +102,7 @@ public:
 		defaultHandler.SetSendAckHandler(DefaultSendAckHandler);
 		defaultHandler.SetRadioInterruptHandler(DefaultRadioInterruptHandler);
 		MacHandlers[MacIDIndex] = &defaultHandler;
-
+		return TRUE;
 	}
 	UINT16 GetAddress(){
 		return (UINT16) MyAddress;

@@ -9,8 +9,6 @@
 
 static const UINT64 HAL_Completion_IdleValue = 0x0000FFFFFFFFFFFFull;
 
-static void ISR( void* Param );
-
 
 BOOL HAL_Time_Initialize()
 {
