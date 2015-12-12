@@ -36,9 +36,10 @@ ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION
     USB_DESCRIPTOR_HEADER           endList;
 };
 
-extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration;
+//extern const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration;
 
-const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration=
+//const ADS_PACKED struct GNU_PACKED USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration=
+const struct USB_DYNAMIC_CONFIGURATION UsbDefaultConfiguration=
 {
     {
         {
