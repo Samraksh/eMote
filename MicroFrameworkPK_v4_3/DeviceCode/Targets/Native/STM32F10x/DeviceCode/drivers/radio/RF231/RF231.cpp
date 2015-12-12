@@ -301,13 +301,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	//Transmit the event timestamp
 	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
-	//Check if overflow in the timestamp
-	if ( eventTime >=  timestamp ){ //The case of overflow
-		eventOffset = timestamp + ( 0xFFFFFFFF - eventTime );
-	}
-	else{ //The case of no overflow
-		eventOffset = timestamp - eventTime;
-	}
+	eventOffset = timestamp - eventTime;
 
 	for(int ii=0; ii<timestamp_size; ii++) {
 		CPU_SPI_ReadWriteByte(config, *(timeStampPtr++));

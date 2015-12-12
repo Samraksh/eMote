@@ -92,7 +92,8 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	const int timestamp_size = TIMESTAMP_SIZE;	//used in Radio driver's RF231Radio::Send_TimeStamped
 	int additional_overhead = crc_size;
 
-	UINT64 event_time;
+	UINT64 event_time,y;
+	UINT32 y_lo, event_time_lo;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
 	if((header->GetFlags() & MFM_TIMESYNC) || (header->type == MFM_TIMESYNC)){ //Already embedded
@@ -113,14 +114,9 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		// Event time already exists in the packet (either just added or added by the C# application earlier)
 		// Adjust the time stamp of the timesync packet accordingly.
-		// First check if the lower 32 bits of the 64 bit timer (HAL_Time_CurrentTicks) has overflown
-		UINT64 y =  HAL_Time_CurrentTicks();
-		if ( event_time >=  (UINT32)y ){ //The case of overflow
-			y = y - ( ((0xFFFFFFFF) - event_time) + (UINT32)y);
-		}
-		else{ //The case of no overflow
-			y = y - ((UINT32)y - event_time);
-		}
+		y_lo = y & 0xFFFFFFFF;
+		event_time_lo = event_time & 0xFFFFFFFF;
+		y = y - ( y_lo - event_time_lo );
 		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
 		msg->GetHeader()->SetFlags((UINT8)(msg->GetHeader()->GetFlags() | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
