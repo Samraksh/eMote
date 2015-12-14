@@ -269,7 +269,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 #endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
-				location_in_packet_payload += data_msg->size;
+				//location_in_packet_payload += data_msg->size;
+				location_in_packet_payload += data_msg->size + sizeof(UINT8);
 				//BK:I don't understand the following stuff. Hence commenting it out
 				//BK: Why do we need to store the packet pointer in the g_receive_buffer? It seems like reception is a direct function call
 				//AnanthAtSamraksh: As per current design of the Samraksh_eMote_Net dll, g_receive_buffer is the glue between native and managed code.
@@ -315,9 +316,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
-			tsmg =  (TimeSyncMsg*) (msg->GetPayload());
+			data_msg = (DataMsg_t*) msg->GetPayload();
+			tsmg =  (TimeSyncMsg*) (data_msg->payload);
 			g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime);
-			location_in_packet_payload += sizeof(TimeSyncMsg);
+			location_in_packet_payload += data_msg->size + sizeof(UINT8);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
