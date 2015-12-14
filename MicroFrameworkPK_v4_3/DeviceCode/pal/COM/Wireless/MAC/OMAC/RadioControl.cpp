@@ -114,6 +114,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		// Event time already exists in the packet (either just added or added by the C# application earlier)
 		// Adjust the time stamp of the timesync packet accordingly.
+		y = HAL_Time_CurrentTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
