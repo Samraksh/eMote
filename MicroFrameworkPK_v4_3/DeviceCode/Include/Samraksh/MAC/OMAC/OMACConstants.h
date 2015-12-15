@@ -257,9 +257,11 @@ public:
 typedef OFProv<UINT64> OMACMicroSeconds;
 typedef OFProv<UINT64> OMACTicks;
 
-
+//GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
+// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
+//PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 8000			//compensate for time-sync errors; accounts for the clock drift
+#define GUARDTIME_MICRO 5000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules

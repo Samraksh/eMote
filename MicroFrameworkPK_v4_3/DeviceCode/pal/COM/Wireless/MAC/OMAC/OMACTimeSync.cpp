@@ -83,7 +83,6 @@ UINT64 OMACTimeSync::NextEvent(){
  *
  */
 UINT16 OMACTimeSync::NextEventinSlots(){
-	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
 	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
