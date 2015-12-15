@@ -79,7 +79,9 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
-			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
+			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			randVal = 10;
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
