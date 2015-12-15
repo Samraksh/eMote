@@ -286,20 +286,20 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				//					lot of changes which affects CSMA as well. Hence, going with the approach taken by CSMA in OMAC as well.
 
 				// Implement bag exchange if the packet type is data
-				Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+				//Message_15_4_t** next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+
+				Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 
 				if(! (next_free_buffer))
 				{
 					g_receive_buffer.DropOldest(1);
-					next_free_buffer = g_receive_buffer.GetNextFreeBufferPtr();
+					next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 				}
-				ASSERT_SP(next_free_buffer);
 
-				memcpy(new_packet->GetPayload(),data_msg->payload,data_msg->size);
-				newpacket->GetHeader()->length = data_msg->size;
+				memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
+				next_free_buffer->GetHeader()->length = data_msg->size;
 
-				(*next_free_buffer) = newpacket;	//put the currently received message into the buffer (thereby its not free anymore)
-				(*g_rxAckHandler)(tempMsg, data_msg->size);
+						(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
