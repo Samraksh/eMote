@@ -144,6 +144,7 @@ void OMACTimeSync::PostExecuteEvent(){
  */
 //DeviceStatus OMACTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
+	TimeSyncRequestMsg * tsreqmsg;
 	BOOL rs = false;
 	UINT64 y = HAL_Time_CurrentTicks();
 
@@ -152,10 +153,10 @@ BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, TRUE );
 #endif
 		IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
-		m_timeSyncMsg = (TimeSyncMsg *) m_timeSyncMsgBuffer.GetPayload();
-		CreateMessage(m_timeSyncMsg, y, request_TimeSync);
+		tsreqmsg = (TimeSyncRequestMsg *) m_timeSyncMsgBuffer.GetPayload();
+		tsreqmsg->request_TimeSync = request_TimeSync;
 
-		rs = g_OMAC.Send(address, MFM_ROUTING, m_timeSyncMsg, sizeof(TimeSyncMsg));
+		rs = g_OMAC.Send(address, MFM_TIMESYNC, tsreqmsg, sizeof(TimeSyncRequestMsg));
 		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
@@ -166,6 +167,18 @@ BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 	}
 	return rs;
 }
+
+DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestMsg* rcv_msg){
+
+	//Determine if timesync is requested, schedule sending a message back to the source
+	if(rcv_msg->request_TimeSync){
+		hal_printf("OMACTimeSync::Receive. Sending\n");
+		this->Send(msg_src, false);
+	}
+	return DS_Success;
+}
+
+
 
 void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync) {
 	timeSyncMsg->timesyncIdentifier = 50529027; //0x03030303
@@ -223,11 +236,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 		}
 	}
 #endif
-	//Determine if timesync is requested, schedule sending a message back to the source
-	if(rcv_msg->request_TimeSync){
-		hal_printf("OMACTimeSync::Receive. Sending\n");
-		this->Send(msg_src, false);
-	}
+
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >= 2  ){

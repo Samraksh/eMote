@@ -37,6 +37,7 @@ public:
 
 	//UINT32 GetSyncPoint();
 	DeviceStatus Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, INT64 EventTime);
+	DeviceStatus ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestMsg* rcv_msg);
 
 	BOOL Send(RadioAddress_t address, bool request_TimeSync);
 

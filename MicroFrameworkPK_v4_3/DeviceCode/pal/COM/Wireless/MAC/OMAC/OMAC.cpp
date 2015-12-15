@@ -219,6 +219,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	DiscoveryMsg_t* disco_msg = NULL;
 	TimeSyncMsg* tsmg = NULL;
 	DataMsg_t* data_msg = NULL;
+	TimeSyncRequestMsg* tsreqmg = NULL;
 
 	INT64 evTime;
 	UINT64 rx_start_ticks = HAL_Time_CurrentTicks();
@@ -328,8 +329,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(data_msg->msg_identifier != 16843009){
 				ASSERT_SP(0);
 			}
-			tsmg =  (TimeSyncMsg*) (data_msg->payload);
-			ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime);
+			tsreqmg =  (TimeSyncRequestMsg*) (data_msg->payload);
+			ds = g_omac_scheduler.m_TimeSyncHandler.ReceiveTSReq(sourceID, tsreqmg);
 			if(ds == DS_Success){
 				location_in_packet_payload += data_msg->size + DataMsgOverhead;
 			}

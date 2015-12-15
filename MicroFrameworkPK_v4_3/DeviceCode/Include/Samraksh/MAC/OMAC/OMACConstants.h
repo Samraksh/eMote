@@ -188,6 +188,12 @@ struct TimeSyncMsg
 
 };
 
+struct TimeSyncRequestMsg
+{
+  UINT32 timesyncIdentifier;
+  bool request_TimeSync;
+};
+
 /*
  *
  */
