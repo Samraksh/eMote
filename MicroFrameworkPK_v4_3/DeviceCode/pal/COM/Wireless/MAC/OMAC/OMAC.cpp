@@ -215,7 +215,7 @@ BOOL OMACType::UnInitialize(){
  */
 Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 {
-
+	DeviceStatus ds;
 	DiscoveryMsg_t* disco_msg = NULL;
 	TimeSyncMsg* tsmg = NULL;
 	DataMsg_t* data_msg = NULL;
@@ -269,8 +269,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 #endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
+				if(data_msg->msg_identifier != 16843009){
+					ASSERT_SP(0);
+				}
 				//location_in_packet_payload += data_msg->size;
-				location_in_packet_payload += data_msg->size + sizeof(UINT8);
+				location_in_packet_payload += data_msg->size + DataMsgOverhead;
 				//BK:I don't understand the following stuff. Hence commenting it out
 				//BK: Why do we need to store the packet pointer in the g_receive_buffer? It seems like reception is a direct function call
 				//AnanthAtSamraksh: As per current design of the Samraksh_eMote_Net dll, g_receive_buffer is the glue between native and managed code.
@@ -297,7 +300,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(payload_tmp, payload, MAX_DATA_PCKT_SIZE);
 
 				(*next_free_buffer) = tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
-
 				(*g_rxAckHandler)(tempMsg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
@@ -307,6 +309,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 			break;
 		case MFM_ROUTING:
+			data_msg = (DataMsg_t*) msg->GetPayload();
+			if(data_msg->msg_identifier != 16843009){
+				ASSERT_SP(0);
+			}
+			location_in_packet_payload += data_msg->size + DataMsgOverhead;
+
 			hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
 			break;
 		case MFM_NEIGHBORHOOD:
@@ -317,9 +325,17 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 			data_msg = (DataMsg_t*) msg->GetPayload();
+			if(data_msg->msg_identifier != 16843009){
+				ASSERT_SP(0);
+			}
 			tsmg =  (TimeSyncMsg*) (data_msg->payload);
-			g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime);
-			location_in_packet_payload += data_msg->size + sizeof(UINT8);
+			ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime);
+			if(ds == DS_Success){
+				location_in_packet_payload += data_msg->size + DataMsgOverhead;
+			}
+			else{
+				location_in_packet_payload += data_msg->size + DataMsgOverhead;
+			}
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
@@ -333,7 +349,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
 		ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 		tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
-		g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
+		ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
 		location_in_packet_payload += sizeof(TimeSyncMsg);
 	}
 	if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
@@ -342,6 +358,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		location_in_packet_payload += sizeof(DiscoveryMsg_t);
 	}
 
+	if( tsmg != NULL && disco_msg == NULL){
+		rx_start_ticks = HAL_Time_CurrentTicks();
+	}
 	}
 
 #ifdef OMAC_DEBUG_GPIO
@@ -405,7 +424,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
+	//header->length = size + sizeof(IEEE802_15_4_Header_t);
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
 	header->dsn = 97;
@@ -419,12 +438,16 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
 	data_msg->size = size;
+	data_msg->msg_identifier = 16843009; // 0x01010101
 	UINT8* payload = data_msg->payload;
 	UINT8* lmsg = (UINT8*) msg;
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+
+	header->length = size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t);
+
 	return msg_carrier;
 }
 

@@ -82,7 +82,7 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
 	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
-		rv = rv || PiggybackDiscoMessage(msg, size);
+	//	rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
 }
@@ -105,15 +105,17 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	}
 	else{ //Otherwise add it
 		additional_overhead += timestamp_size;
-		header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
+		//header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
 		event_time = HAL_Time_CurrentTicks();
-		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
+
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
 		TimeSyncMsg * tmsg = (TimeSyncMsg *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		// Event time already exists in the packet (either just added or added by the C# application earlier)
 		// Adjust the time stamp of the timesync packet accordingly.
+		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
+		header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
 		y = HAL_Time_CurrentTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;

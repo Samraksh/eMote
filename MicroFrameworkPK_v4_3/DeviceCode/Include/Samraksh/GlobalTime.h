@@ -138,6 +138,10 @@ private:
 		}
 		samples[nbrIndex].relativeFreq = samples[nbrIndex].relativeFreq / (numSamples-1);
 
+		if(samples[nbrIndex].relativeFreq > 1.2 || samples[nbrIndex].relativeFreq < 0.8){
+			ASSERT_SP(0);
+		}
+
 		samples[nbrIndex].recordedTimeAvg = newLocalAverage;
 		samples[nbrIndex].offsetAvg = newOffsetAverage;
 		//hal_printf("GlobalTime: Avg Drift: %lu, Avg Skew: %f \n",samples[nbrIndex].offsetAvg, samples[nbrIndex].avgSkew);
@@ -165,6 +169,8 @@ public:
 	};
 	void Insert(UINT16 nbr,UINT64 nbr_ltime, INT64 nbr_loffset){
 		UINT16 nbrIndex = FindNeighbor(nbr);
+		UINT64 timeDifference;
+		UINT8 previndex;
 		//Add new neighbor if not found
 		if (nbrIndex ==255){
 			nbrIndex = nbrCount;
@@ -175,6 +181,12 @@ public:
 			}
 		}
 		samples[nbrIndex].nbrID = nbr;
+		previndex = samples[nbrIndex].lastTimeIndex;
+		if( samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] != INVALID_TIMESTAMP
+		&&  samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] >= nbr_ltime
+		){ // Discard out of orderly received time stamps // Consider adding it in between.
+			return;
+		}
 		samples[nbrIndex].lastTimeIndex++;
 		samples[nbrIndex].lastTimeIndex =samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
 		samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] = nbr_ltime;

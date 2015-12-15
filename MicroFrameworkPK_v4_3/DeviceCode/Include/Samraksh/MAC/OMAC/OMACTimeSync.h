@@ -20,6 +20,9 @@ class OMACTimeSync : public EventHandler{
 	UINT64 m_messagePeriod;
 	//PacketTimeSync_15_4 m_packetTimeSync;
 	UINT32 m_seqNo;
+
+	UINT32 m_numofdummymessaging;
+	UINT64 firsttimesyncTimeinSlotNum;
 public:
 	GlobalTime m_globalTime;
 

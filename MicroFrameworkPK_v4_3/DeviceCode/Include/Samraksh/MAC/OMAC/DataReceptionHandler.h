@@ -25,6 +25,7 @@ public:
 	UINT64 m_nextwakeupSlot;//This variable stores the wakeup time in absolute slot number
 	UINT32 m_seedUpdateIntervalinSlots;//Frame Length. One reception slot is selected among this many number of slots
 
+	UINT64 lastwakeupSlotUpdateTimeinTicks;
 
 	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT64 NextEvent();

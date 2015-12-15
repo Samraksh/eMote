@@ -128,6 +128,7 @@ typedef enum {
  */
 typedef struct DiscoveryMsg
 {
+	UINT32 msg_identifier;
 	//seed to generate the pseduo-random wakeup schedule
 	UINT16 nextSeed;
 	UINT16 mask;
@@ -140,14 +141,23 @@ typedef struct DiscoveryMsg
 	//fields below are just for convenience. not transmitted over the air
 	UINT16 nodeID;
 
+	UINT32 localTime0;
+	UINT32 localTime1;
+
+	UINT32 lastwakeupSlotUpdateTimeinTicks0;
+	UINT32 lastwakeupSlotUpdateTimeinTicks1;
+
 
 } DiscoveryMsg_t;
 
+#define DataMsgOverhead sizeof(UINT32)+sizeof(UINT8)
 typedef struct DataMsg_t
 {
+	UINT32 msg_identifier;
 	UINT8 size;
 	UINT8 payload[MAX_DATA_PCKT_SIZE];
 } DataMsg_t;
+#define DataMsgOverhead sizeof(UINT32)+sizeof(UINT8)
 
 /*
  * After TEP 133, the message timestamp contains the difference between
@@ -169,11 +179,13 @@ struct TimeSyncMsg
   //use this neighbor info along with local info to compute this difference
   //UINT16 radioStartDelay;
 //  float skew;
+  UINT32 timesyncIdentifier;
   UINT32 localTime0;
   UINT32 localTime1;
   bool request_TimeSync;
  // UINT16 nodeID;
   UINT32 seqNo;
+
 };
 
 /*
@@ -241,7 +253,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
+#define GUARDTIME_MICRO 8000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 1000		//delay between switching between radio states
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules

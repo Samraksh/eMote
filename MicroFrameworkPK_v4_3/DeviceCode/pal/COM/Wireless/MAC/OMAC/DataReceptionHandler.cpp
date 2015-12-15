@@ -46,7 +46,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 3 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -71,19 +71,32 @@ UINT64 DataReceptionHandler::NextEvent(){
 }
 
 void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
-#ifdef def_Neighbor2beFollowed
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler:UpdateSeedandCalculateWakeupSlot\n"
-			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
-#endif
+//#ifdef def_Neighbor2beFollowed
+//	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler:UpdateSeedandCalculateWakeupSlot\n"
+//			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+//#endif
+//	if (currentSlotNum >= wakeupSlot){
+//		UINT16 randVal;
+//		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
+//		while ( currentSlotNum >= wakeupSlot ){
+//			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+//			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
+//			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
+//		}
+//	}
+//	lastwakeupSlotUpdateTimeinTicks = HAL_Time_CurrentTicks();
+//	ASSERT_SP(wakeupSlot  > currentSlotNum);
+
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
-			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			randVal = 10; //g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
 	}
+	lastwakeupSlotUpdateTimeinTicks = HAL_Time_CurrentTicks();
 	ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*

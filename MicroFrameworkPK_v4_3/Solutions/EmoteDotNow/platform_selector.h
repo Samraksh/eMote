@@ -273,11 +273,11 @@ J12_PIN10 = GND
 
 #define OMAC_DEBUG_PIN (GPIO_PIN)120			 			//J11_PIN5
 #define OMAC_DATARXPIN (GPIO_PIN)120 //2					//J12_pin5
-#define OMAC_RXPIN (GPIO_PIN)120							//J11_pin3 0
+#define OMAC_RXPIN (GPIO_PIN)120 //23  //120							//J11_pin3 0
 
 #define RADIOCONTROL_SEND_PIN (GPIO_PIN)120 				//J11_pin4
 #define RADIOCONTROL_SENDTS_PIN (GPIO_PIN)120 				//J11_pin5
-#define RADIOCONTROL_STATEPIN (GPIO_PIN)23 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
+#define RADIOCONTROL_STATEPIN (GPIO_PIN)23 // 120 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
 
 #define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
 
