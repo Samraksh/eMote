@@ -156,7 +156,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
 		tsreqmsg = (TimeSyncRequestMsg *) m_timeSyncMsgBuffer.GetPayload();
 		tsreqmsg->request_TimeSync = request_TimeSync;
 
-		rs = g_OMAC.Send(address, MFM_TIMESYNC, tsreqmsg, sizeof(TimeSyncRequestMsg));
+		rs = g_OMAC.Send(address, MFM_TIMESYNCREQ, tsreqmsg, sizeof(TimeSyncRequestMsg));
 		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
