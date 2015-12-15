@@ -67,15 +67,11 @@ UINT64 DiscoveryHandler::NextEvent(){
 		firstDiscoTimeinSlotNum = currentSlotNum;
 	}
 	if(highdiscorate && ( (currentSlotNum - firstDiscoTimeinSlotNum) /7500 ) %2 == 1 ) {
-		m_period1 = m_period1 * 10;
-		m_period2 = m_period2 * 10;
+		m_period1 = m_period1 * 100;
+		m_period2 = m_period2 * 100;
 		highdiscorate = false;
 	}
-	else if(!highdiscorate && ( (currentSlotNum - firstDiscoTimeinSlotNum) /7500 ) %2 == 2 ){
-		m_period1 = m_period1 / 10 ;
-		m_period2 = m_period2 / 10 ;
-		highdiscorate = false;
-	}
+
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
 	if(nextEventsSlot == 0) {
 		currentSlotNum = currentSlotNum +1;
