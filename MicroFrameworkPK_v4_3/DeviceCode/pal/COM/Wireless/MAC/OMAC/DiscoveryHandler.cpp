@@ -66,7 +66,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 	if(firstDiscoTimeinSlotNum == 0) {
 		firstDiscoTimeinSlotNum = currentSlotNum;
 	}
-	if(highdiscorate && ( (currentSlotNum - firstDiscoTimeinSlotNum) /7500 ) %2 == 1 ) {
+	if(highdiscorate && ( (currentSlotNum - firstDiscoTimeinSlotNum) / HIGH_DISCO_PERIOD_IN_SLOTS ) %2 == 1 ) {
 		m_period1 = m_period1 * 100;
 		m_period2 = m_period2 * 100;
 		highdiscorate = false;

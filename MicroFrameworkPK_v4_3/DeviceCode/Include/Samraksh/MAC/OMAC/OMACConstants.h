@@ -267,6 +267,8 @@ typedef OFProv<UINT64> OMACTicks;
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
 
+#define HIGH_DISCO_PERIOD_IN_SLOTS 1000
+
 #define WAKEUPPERIODINTICKS 8000000
 enum {
   TICKS_PER_MILLI     = 8000,
