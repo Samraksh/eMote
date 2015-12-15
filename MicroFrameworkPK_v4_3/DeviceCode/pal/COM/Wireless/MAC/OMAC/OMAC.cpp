@@ -295,12 +295,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 				ASSERT_SP(next_free_buffer);
 
-				Message_15_4_t* tempMsg = msg;
-				UINT8* payload = data_msg->payload;
-				UINT8* payload_tmp = tempMsg->GetPayload();
-				memcpy(payload_tmp, payload, MAX_DATA_PCKT_SIZE);
-
-				(*next_free_buffer) = tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
+				(*next_free_buffer) = msg;	//put the currently received message into the buffer (thereby its not free anymore)
 				(*g_rxAckHandler)(tempMsg, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
