@@ -60,8 +60,8 @@ typedef struct {
 	UINT64  nextwakeupSlot;
 	UINT32  seedUpdateIntervalinSlots;
 
-	UINT64  LastTimeSyncTime;
-	UINT64  LastTimeSyncRequestTime;
+	UINT64  LastTimeSyncTime;			// Lasst time a time sync message is received or a time sync request is sent.
+	UINT64  LastTimeSyncRequestTime;	// Last time instant a time sync request is sent
 	//UINT8   numErrors;
 	//UINT8   size;
 	//BOOL    isInTransition;
@@ -317,6 +317,7 @@ DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _La
 
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
 		Neighbor[index].LastTimeSyncTime = _LastTimeSyncTime;
+		Neighbor[index].LastTimeSyncRequestTime = _LastTimeSyncTime;
 		return DS_Success;
 	}
 	else {

@@ -82,7 +82,7 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
 	if(!(header->GetFlags() & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
-		rv = rv || PiggybackDiscoMessage(msg, size);
+	//	rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
 }

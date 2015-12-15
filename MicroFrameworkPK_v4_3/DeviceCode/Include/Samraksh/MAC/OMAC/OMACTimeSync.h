@@ -20,6 +20,9 @@ class OMACTimeSync : public EventHandler{
 	UINT64 m_messagePeriod;
 	//PacketTimeSync_15_4 m_packetTimeSync;
 	UINT32 m_seqNo;
+
+	UINT32 m_numofdummymessaging;
+	UINT64 firsttimesyncTimeinSlotNum;
 public:
 	GlobalTime m_globalTime;
 
@@ -34,6 +37,7 @@ public:
 
 	//UINT32 GetSyncPoint();
 	DeviceStatus Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, INT64 EventTime);
+	DeviceStatus ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestMsg* rcv_msg);
 
 	BOOL Send(RadioAddress_t address, bool request_TimeSync);
 

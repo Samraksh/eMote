@@ -57,6 +57,8 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 	m_messagePeriod = 10000 * TICKS_PER_MILLI;//Time period in ticks
 	m_globalTime.Init();
+	m_numofdummymessaging = 0;
+	firsttimesyncTimeinSlotNum = 0;
 }
 
 UINT64 OMACTimeSync::NextEvent(){
@@ -71,6 +73,8 @@ UINT64 OMACTimeSync::NextEvent(){
 			nextEventsSlot = NextEventinSlots();
 		}
 	}
+
+
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
@@ -79,10 +83,17 @@ UINT64 OMACTimeSync::NextEvent(){
  *
  */
 UINT16 OMACTimeSync::NextEventinSlots(){
-	//return MAX_UINT32; //BK: WILD HACK. Disable the independent sending of the messages. TimeSync relies on the discovery alone.
+	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
+
+	if(firsttimesyncTimeinSlotNum == 0) firsttimesyncTimeinSlotNum = currentSlotNum;
+
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
+	else if( (currentSlotNum - firsttimesyncTimeinSlotNum)/1000 > m_numofdummymessaging ) {
+			m_numofdummymessaging++;
+			return 0;
+	}
 	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
 			return 0;
@@ -132,25 +143,44 @@ void OMACTimeSync::PostExecuteEvent(){
  */
 //DeviceStatus OMACTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL OMACTimeSync::Send(RadioAddress_t address, bool request_TimeSync){
+	TimeSyncRequestMsg * tsreqmsg;
+	BOOL rs = false;
+	UINT64 y = HAL_Time_CurrentTicks();
+
+	if (m_globalTime.regressgt2.NumberOfRecordedElements(address) >=2  ){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, TRUE );
 #endif
+		IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
+		tsreqmsg = (TimeSyncRequestMsg *) m_timeSyncMsgBuffer.GetPayload();
+		tsreqmsg->request_TimeSync = request_TimeSync;
 
-	IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
-	m_timeSyncMsg = (TimeSyncMsg *) m_timeSyncMsgBuffer.GetPayload();
-	UINT64 y = HAL_Time_CurrentTicks();
-	CreateMessage(m_timeSyncMsg, y, request_TimeSync);
-	BOOL rs = g_OMAC.SendTimeStamped(address, MFM_TIMESYNC, &m_timeSyncMsg, sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
-	g_NeighborTable.RecordTimeSyncRequestSent(address, (UINT32) (y & (~(UINT32) 0)));
-	rs = g_OMAC.SendTimeStamped(address, MFM_TIMESYNC, m_timeSyncMsg, sizeof(TimeSyncMsg), (UINT32) (y & (~(UINT32) 0)) );
-	hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
+		rs = g_OMAC.Send(address, MFM_TIMESYNCREQ, tsreqmsg, sizeof(TimeSyncRequestMsg));
+		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
 #endif
+	}
+	if(request_TimeSync) {
+		g_NeighborTable.RecordTimeSyncRequestSent(address, y);
+	}
 	return rs;
 }
 
+DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestMsg* rcv_msg){
+
+	//Determine if timesync is requested, schedule sending a message back to the source
+	if(rcv_msg->request_TimeSync){
+		hal_printf("OMACTimeSync::Receive. Sending\n");
+		this->Send(msg_src, false);
+	}
+	return DS_Success;
+}
+
+
+
 void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync) {
+	timeSyncMsg->timesyncIdentifier = 50529027; //0x03030303
 	timeSyncMsg->localTime0 = (UINT32) curticks;
 	timeSyncMsg->localTime1 = (UINT32) (curticks>>32);
 	timeSyncMsg->request_TimeSync = request_TimeSync;
@@ -163,16 +193,26 @@ void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
 DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, INT64 EventTime){
 	bool TimerReturn;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
+	UINT64 y,neighborscurtime;
 
-
-
+	if(rcv_msg->timesyncIdentifier != 50529027 ){
+		y = HAL_Time_CurrentTicks();
+		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
+		ASSERT_SP(0);
+	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
-
 	UINT64 rcv_ltime;
 	INT64 l_offset;
 	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
 	l_offset = (INT64)rcv_ltime - (INT64)EventTime;
+
+	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
+		return DS_Fail;
+	}
+
+
+
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
@@ -192,19 +232,16 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 #endif
 
 
+
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-			UINT64 y = HAL_Time_CurrentTicks();
-			UINT64 curtime = m_globalTime.Neighbor2LocalTime(msg_src,rcv_ltime);
+			y = HAL_Time_CurrentTicks();
+			neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,rcv_ltime);
 		}
 	}
 #endif
-	//Determine if timesync is requested, schedule sending a message back to the source
-	if(rcv_msg->request_TimeSync){
-		hal_printf("OMACTimeSync::Receive. Sending\n");
-		this->Send(msg_src, false);
-	}
+
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >= 2  ){
