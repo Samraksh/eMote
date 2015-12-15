@@ -164,16 +164,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	bool TimerReturn;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 
-#ifdef def_Neighbor2beFollowed
-	if (msg_src == g_OMAC.Neighbor2beFollowed ){
-		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-			TimerReturn = false;
-		}
-#ifdef DEBUG_TSYNC_PIN
-	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
-#endif
-	}
-#endif
+
 
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
@@ -185,6 +176,21 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
+
+	if(m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime ){
+		return DS_Fail;
+	}
+#ifdef def_Neighbor2beFollowed
+	if (msg_src == g_OMAC.Neighbor2beFollowed ){
+		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
+			TimerReturn = false;
+		}
+#ifdef DEBUG_TSYNC_PIN
+	CPU_GPIO_SetPinState( TIMESYNC_RECEIVEPIN, TRUE );
+#endif
+	}
+#endif
+
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
