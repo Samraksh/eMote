@@ -295,8 +295,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 				ASSERT_SP(next_free_buffer);
 
-				Message_15_4_t* newpacket = new Message_15_4_t;
-				memcpy(newpacket->GetPayload(),data_msg->payload,data_msg->size);
+				memcpy(new_packet->GetPayload(),data_msg->payload,data_msg->size);
 				newpacket->GetHeader()->length = data_msg->size;
 
 				(*next_free_buffer) = newpacket;	//put the currently received message into the buffer (thereby its not free anymore)

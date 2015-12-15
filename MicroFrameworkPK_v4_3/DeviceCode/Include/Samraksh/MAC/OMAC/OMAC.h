@@ -92,7 +92,7 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
 
-
+	Message_15_4_t new_packet;
 	// Pointer to the outgoing message
 	Message_15_4_t* tx_msg_ptr;
 	// Pointer to the incoming message
