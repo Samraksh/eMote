@@ -57,8 +57,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 	m_messagePeriod = 10000 * TICKS_PER_MILLI;//Time period in ticks
 	m_globalTime.Init();
-	m_numofdummymessaging = 0;
-	firsttimesyncTimeinSlotNum = 0;
+
 }
 
 UINT64 OMACTimeSync::NextEvent(){
@@ -87,13 +86,8 @@ UINT16 OMACTimeSync::NextEventinSlots(){
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	Neighbor_t* sn = g_NeighborTable.GetMostObsoleteTimeSyncNeighborPtr();
 
-	if(firsttimesyncTimeinSlotNum == 0) firsttimesyncTimeinSlotNum = currentSlotNum;
-
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
-	else if( (currentSlotNum - firsttimesyncTimeinSlotNum)/1000 > m_numofdummymessaging ) {
-			m_numofdummymessaging++;
-			return 0;
-	}
+
 	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
 			return 0;
