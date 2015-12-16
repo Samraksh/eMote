@@ -82,6 +82,20 @@ public:
 		return rtn;
 	}
 
+	MessageT* GetFirstFullBufferwOutTakingOut(){
+		MessageT* rtn = msgPtr[firstFullBuffer];
+//		firstFullBuffer += 1;
+//		if(firstFullBuffer >= BufferSizeT){
+//			firstFullBuffer = 0;
+//		}
+//		//firstFullBuffer= (firstFullBuffer++) % BufferSizeT;
+//		numElements--;
+#ifdef _DEBUG_BUFFER_
+		hal_printf("GetFirstFullBuffer numElements: %u\n", numElements);
+#endif
+		return rtn;
+	}
+
 	MessageT** GetFirstFullBufferPtr(){
 		MessageT** rtn = &msgPtr[firstFullBuffer];
 		firstFullBuffer += 1;
@@ -189,6 +203,14 @@ public:
 		}
 
 		return this->GetFirstFullBuffer();
+	}
+
+	Message_15_4_t* GetOldestwithoutRemoval(){
+		if(this->IsEmpty()){
+			return (Message_15_4_t *)(NULL);
+		}
+
+		return this->GetFirstFullBufferwOutTakingOut();
 	}
 
 	BOOL IsBufferEmpty(){
