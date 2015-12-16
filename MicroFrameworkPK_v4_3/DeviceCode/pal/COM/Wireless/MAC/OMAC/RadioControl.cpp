@@ -19,6 +19,7 @@
 
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
+extern NeighborTable g_NeighborTable;
 
 #define LOCALSKEW 1
 //#define DEBUG_RADIO_STATE 1
@@ -119,6 +120,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
 		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
+		g_NeighborTable.RecordTimeSyncSent(msg->GetHeader()->dest,y);
 		msg->GetHeader()->SetFlags((UINT8)(msg->GetHeader()->GetFlags() | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
 	}

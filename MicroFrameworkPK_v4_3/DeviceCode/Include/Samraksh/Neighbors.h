@@ -60,8 +60,9 @@ typedef struct {
 	UINT64  nextwakeupSlot;
 	UINT32  seedUpdateIntervalinSlots;
 
-	UINT64  LastTimeSyncTime;			// Lasst time a time sync message is received or a time sync request is sent.
+	UINT64  LastTimeSyncTime;			// Lasst time a time sync message is received
 	UINT64  LastTimeSyncRequestTime;	// Last time instant a time sync request is sent
+	UINT64  LastTimeSyncSendTime;	// Last time instant a time sync is sent(piggbacked)
 	//UINT8   numErrors;
 	//UINT8   size;
 	//BOOL    isInTransition;
@@ -96,9 +97,12 @@ public:
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
+	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncRecv(UINT16 address, UINT64 _lastTimeSyncRecv);
+	UINT64 GetLastTimeSyncRecv(UINT16 address);
 	void RecordTimeSyncBroadcast(UINT64 _LastTimeSyncTime);
 	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr();
+	Neighbor_t* GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& re_request_limit);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 
@@ -188,9 +192,9 @@ DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].seedUpdateIntervalinSlots = 0;
 
 
-
 	Neighbor[tableIndex].LastTimeSyncTime = 0;
 	Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
+	Neighbor[tableIndex].LastTimeSyncSendTime = 0;
 
 	NumberValidNeighbor--;
 	return DS_Success;
@@ -316,8 +320,20 @@ DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _La
 	 DeviceStatus retValue = FindIndex(address, &index);
 
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
-		Neighbor[index].LastTimeSyncTime = _LastTimeSyncTime;
 		Neighbor[index].LastTimeSyncRequestTime = _LastTimeSyncTime;
+		return DS_Success;
+	}
+	else {
+		return DS_Fail;
+	}
+}
+
+DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime){
+	 UINT8 index;
+	 DeviceStatus retValue = FindIndex(address, &index);
+
+	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+		Neighbor[index].LastTimeSyncSendTime = _LastTimeSyncTime;
 		return DS_Success;
 	}
 	else {
@@ -351,6 +367,18 @@ DeviceStatus NeighborTable::RecordTimeSyncRecv(UINT16 address, UINT64 _LastTimeS
 	}
 }
 
+UINT64 NeighborTable::GetLastTimeSyncRecv(UINT16 address){
+	 UINT8 index;
+	 DeviceStatus retValue = FindIndex(address, &index);
+
+	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+		return(Neighbor[index].LastTimeSyncTime);
+	}
+	else {
+		return (0);
+	}
+}
+
 void NeighborTable::RecordTimeSyncBroadcast(UINT64 _LastTimeSyncTime){
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
@@ -366,6 +394,24 @@ Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(){
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].Status != Dead){
 			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncTime < rn->LastTimeSyncTime  )
+				rn = &Neighbor[tableIndex];
+		}
+	}
+	return rn;
+}
+
+Neighbor_t* NeighborTable::GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& re_request_limit){
+	Neighbor_t* rn = NULL;
+	int tableIndex;
+	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
+		if (Neighbor[tableIndex].Status != Dead){
+			if(rn == NULL
+			||(   Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime
+				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0
+					|| Neighbor[tableIndex].LastTimeSyncRequestTime - curticks > re_request_limit
+						)
+			   )
+			)
 				rn = &Neighbor[tableIndex];
 		}
 	}

@@ -299,7 +299,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
 				next_free_buffer->GetHeader()->length = data_msg->size;
 
-						(*g_rxAckHandler)(next_free_buffer, data_msg->size);
+				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 #ifdef def_Neighbor2beFollowed
 				if ( sourceID == Neighbor2beFollowed) {
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
