@@ -221,7 +221,9 @@ bool DataTransmissionHandler::Send(){
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
+		g_send_buffer.DropOldest(1);
 		//set flag to false after packet has been sent
+
 		isDataPacketScheduled = false;
 		m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success)
@@ -244,7 +246,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 	// 2) Case : destination does not exist in the neighbor table
 	//	3) Case: No timing info is available for the destination
 	if (m_outgoingEntryPtr == NULL && g_send_buffer.GetNumberMessagesInBuffer() > 0 ) {//If we already have a packet
-		m_outgoingEntryPtr = g_send_buffer.GetOldest();
+		m_outgoingEntryPtr = g_send_buffer.GetOldestwithoutRemoval();
 		if (m_outgoingEntryPtr == NULL) {
 			return FALSE;
 		}
