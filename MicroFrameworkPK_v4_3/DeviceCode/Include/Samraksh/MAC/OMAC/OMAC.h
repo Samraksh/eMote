@@ -9,8 +9,9 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
-#define TWO_NODES_TX_RX
-//#define OMAC_DEBUG_GPIO
+//#define TWO_NODES_TX_RX
+#define OMAC_DEBUG_GPIO
+//#define OMAC_DEBUG_PRINTF
 
 #if defined(TWO_NODES_TX_RX)
 #define def_Neighbor2beFollowed
@@ -21,12 +22,11 @@
 */
 //Bora's Nodes
 //#define TXNODEID 30906
-#define TXNODEID 4028
-#define RXNODEID 32696
-/*// Ananth's Nodes
+//#define TXNODEID 4028
+//#define RXNODEID 32696
+// Ananth's Nodes
 #define TXNODEID 3505
 #define RXNODEID 6846
-*/
 #endif
 
 #include <Samraksh/MAC.h>

@@ -139,7 +139,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 			return status;
 		}
 
-#ifdef DEBUG_OMAC
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
 #endif
 		SetMyID(CPU_Radio_GetAddress(radioName));
@@ -299,17 +299,17 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 				memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
 				memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-				/*memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));*/
-				next_free_buffer->GetHeader()->length = data_msg->size;
+				memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+				next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 
 				//Another method of doing the same thing as above
 				/*Message_15_4_t tempMsg;
-				memcpy(tempMsg.GetPayload(), data_msg->payload, MAX_DATA_PCKT_SIZE);
+				memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
 				memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-				//memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-				//memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+				memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+				memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 				(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
 				(*g_rxAckHandler)(&tempMsg, data_msg->size);*/
 
