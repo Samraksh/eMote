@@ -88,7 +88,7 @@ UINT16 OMACTimeSync::NextEventinSlots(){
 
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
 
-	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
+	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncSendTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
 			return 0;
 		}
@@ -97,7 +97,7 @@ UINT16 OMACTimeSync::NextEventinSlots(){
 		}
 	}
 	else {
-		UINT64 remslots = (m_messagePeriod - DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncTime) ) / SLOT_PERIOD;
+		UINT64 remslots = (m_messagePeriod - DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
 		return remslots;
 	}
 }
@@ -144,7 +144,9 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 	BOOL rs = false;
 	UINT64 y = HAL_Time_CurrentTicks();
 
-	 if(lastTimeSyncRecv - y > FORCE_REQUESTTIMESYNC_INTICKS ){
+	ASSERT_SP( y > lastTimeSyncRecv); //Ensure no rollover
+
+	 if( y - lastTimeSyncRecv > FORCE_REQUESTTIMESYNC_INTICKS ){
 		 request_TimeSync = true;
 	 }
 	 else{
