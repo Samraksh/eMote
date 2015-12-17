@@ -217,9 +217,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
 
-	if(m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime ){
-		return DS_Fail;
-	}
+
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
