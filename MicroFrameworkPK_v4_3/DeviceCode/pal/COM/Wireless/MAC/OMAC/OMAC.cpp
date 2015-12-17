@@ -225,9 +225,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	INT64 evTime;
 	UINT64 rx_start_ticks = HAL_Time_CurrentTicks();
 	UINT16 location_in_packet_payload = 0;
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
-#endif
+
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
@@ -245,7 +243,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
 	RadioAddress_t myID = g_OMAC.GetAddress();
+#ifdef	def_Neighbor2beFollowed
 	if(sourceID == Neighbor2beFollowed) {
+#endif
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+#endif
+
 	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
 
@@ -378,7 +382,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
+#ifdef	def_Neighbor2beFollowed
 }
+#endif
 	UINT64 rx_end_ticks = HAL_Time_CurrentTicks();
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
 		return msg;
