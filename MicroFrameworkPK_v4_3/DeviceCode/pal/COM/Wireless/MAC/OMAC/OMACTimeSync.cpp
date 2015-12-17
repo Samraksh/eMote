@@ -66,7 +66,7 @@ UINT64 OMACTimeSync::NextEvent(){
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots();
 	while(nextEventsSlot == 0){
-		sn = g_NeighborTable.GetNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),FORCE_REREQUESTTIMESYNC_INTICKS);
+		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 		if(sn != NULL) {
 			Send(sn->MacAddress);
 			nextEventsSlot = NextEventinSlots();
@@ -84,8 +84,7 @@ UINT64 OMACTimeSync::NextEvent(){
 UINT16 OMACTimeSync::NextEventinSlots(){
 	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
-	Neighbor_t* sn = g_NeighborTable.GetNeighborWOldestSyncPtr(y,FORCE_REREQUESTTIMESYNC_INTICKS);
-
+	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS );
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
 
 	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
@@ -105,7 +104,7 @@ void OMACTimeSync::ExecuteEvent(){
 	//BK: This will be handled with the non_interrupt timer
 //	Neighbor_t* sn;
 //	while(NextEventinSlots() == 0){
-//		sn = g_NeighborTable.GetNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),FORCE_REREQUESTTIMESYNC_INTICKS);
+//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 //		Send(sn->MacAddress);
 //	}
 	PostExecuteEvent();
