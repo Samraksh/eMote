@@ -120,6 +120,8 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 	DeviceStatus e = DS_Fail;
 	bool rv = Send();
+	if(rv)
+		g_send_buffer.DropOldest(1);
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
@@ -225,7 +227,6 @@ bool DataTransmissionHandler::Send(){
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 
-		g_send_buffer.DropOldest(1);
 		//set flag to false after packet has been sent
 
 		isDataPacketScheduled = false;
