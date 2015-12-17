@@ -120,8 +120,17 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 	DeviceStatus e = DS_Fail;
 	bool rv = Send();
-	if(rv)
+	if(rv) {
 		g_send_buffer.DropOldest(1);
+	}
+	else{
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+	}
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
