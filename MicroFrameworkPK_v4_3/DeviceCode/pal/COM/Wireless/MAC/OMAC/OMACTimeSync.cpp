@@ -102,11 +102,12 @@ UINT16 OMACTimeSync::NextEventinSlots(){
  *
  */
 void OMACTimeSync::ExecuteEvent(){
-	Neighbor_t* sn;
-	while(NextEventinSlots() == 0){
-		sn = g_NeighborTable.GetNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),FORCE_REREQUESTTIMESYNC_INTICKS);
-		Send(sn->MacAddress);
-	}
+	//BK: This will be handled with the non_interrupt timer
+//	Neighbor_t* sn;
+//	while(NextEventinSlots() == 0){
+//		sn = g_NeighborTable.GetNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),FORCE_REREQUESTTIMESYNC_INTICKS);
+//		Send(sn->MacAddress);
+//	}
 	PostExecuteEvent();
 }
 
