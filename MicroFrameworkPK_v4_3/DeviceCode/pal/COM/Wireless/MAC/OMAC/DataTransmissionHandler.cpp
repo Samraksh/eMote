@@ -115,25 +115,28 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 #endif
 
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
 	DeviceStatus e = DS_Fail;
-	bool rv = Send();
-	if(rv) {
-		g_send_buffer.DropOldest(1);
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			bool rv = Send();
+			if(rv) {
+				g_send_buffer.DropOldest(1);
+			}
+			else{
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			}
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		#endif
 	}
-	else{
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
-	}
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-#endif
 	PostExecuteEvent();
 }
 
@@ -149,7 +152,7 @@ void DataTransmissionHandler::ExecuteEvent(){
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
-	//g_omac_RadioControl.Stop();
+	g_omac_RadioControl.Stop();
 	g_omac_scheduler.PostExecution();
 }
 
