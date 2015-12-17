@@ -46,7 +46,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, 2 * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, 16 * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
