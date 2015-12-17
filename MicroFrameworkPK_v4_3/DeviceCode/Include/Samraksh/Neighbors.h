@@ -101,7 +101,8 @@ public:
 	DeviceStatus RecordTimeSyncRecv(UINT16 address, UINT64 _lastTimeSyncRecv);
 	UINT64 GetLastTimeSyncRecv(UINT16 address);
 	Neighbor_t* GetMostObsoleteTimeSyncNeighborPtr();
-	Neighbor_t* GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& re_request_limit);
+	//Neighbor_t* GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit);
+	Neighbor_t* GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit,const UINT64& forcererequest_limit);
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 
@@ -392,17 +393,21 @@ Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(){
 	return rn;
 }
 
-Neighbor_t* NeighborTable::GetNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& re_request_limit){
+Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& curticks, const UINT64& request_limit, const UINT64& forcererequest_limit){
 	Neighbor_t* rn = NULL;
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].Status != Dead){
-			if( (rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime)
-			 && (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > re_request_limit)
-			   )
+			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime ){ //Consider this neighbor
+				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit)
+				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit)
+				){
 				rn = &Neighbor[tableIndex];
+				}
+			}
 		}
 	}
+
 	return rn;
 }
 
