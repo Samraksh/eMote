@@ -160,7 +160,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 
 
-
+#ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
 	UINT64 curTicks = HAL_Time_CurrentTicks();
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
@@ -168,6 +168,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(curTicks - m_InitializationTimeinTicks > (120 * 8000000)){
 		hal_printf("Critial TIme has Passed. Be careful. About to crash!!\n");
 	}
+#endif
 #endif
 	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
@@ -196,10 +197,14 @@ bool OMACScheduler::RunEventTask(){
 #endif
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = HAL_Time_CurrentTicks();
+
+#ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask() \n"
 			, HAL_Time_TicksToTime(curTicks), GetSlotNumber(), HAL_Time_TicksToTime(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)) );
 #endif
+#endif
+
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			m_lastHandler = DATA_TX_HANDLER;
