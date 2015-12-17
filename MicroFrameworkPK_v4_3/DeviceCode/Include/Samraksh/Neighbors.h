@@ -397,13 +397,9 @@ Neighbor_t* NeighborTable::GetNeighborWOldestSyncPtr(const UINT64& curticks, con
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].Status != Dead){
-			if(rn == NULL
-			||(   Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime
-				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0
-					|| curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > re_request_limit
-						)
+			if( (rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime)
+			 && (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > re_request_limit)
 			   )
-			)
 				rn = &Neighbor[tableIndex];
 		}
 	}
