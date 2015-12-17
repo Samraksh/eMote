@@ -400,7 +400,7 @@ Neighbor_t* NeighborTable::GetNeighborWOldestSyncPtr(const UINT64& curticks, con
 			if(rn == NULL
 			||(   Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime
 				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0
-					|| Neighbor[tableIndex].LastTimeSyncRequestTime - curticks > re_request_limit
+					|| curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > re_request_limit
 						)
 			   )
 			)

@@ -37,10 +37,10 @@ BOOL GlobalTime::synced=FALSE;
 /*
  *
  */
-inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
-	if(X>Y) return (X-Y);
-	else return( (MAX_UINT64 - Y) + X);
-}
+//inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
+//	if(X>Y) return (X-Y);
+//	else return( (MAX_UINT64 - Y) + X);
+//}
 
 /*
  *
@@ -84,20 +84,15 @@ UINT64 OMACTimeSync::NextEvent(){
 UINT16 OMACTimeSync::NextEventinSlots(){
 	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
-	Neighbor_t* sn = g_NeighborTable.GetNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),FORCE_REREQUESTTIMESYNC_INTICKS);
+	Neighbor_t* sn = g_NeighborTable.GetNeighborWOldestSyncPtr(y,FORCE_REREQUESTTIMESYNC_INTICKS);
 
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
 
-	else if( DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncSendTime) >= m_messagePeriod) { //Already passed the time. schedule send immediately
-		if(sn->LastTimeSyncRequestTime == 0 || DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncRequestTime) > MIN_TICKS_DIFF_BTW_TSM ) {
-			return 0;
-		}
-		else {
-			return ((UINT16) MAX_UINT32);
-		}
+	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
+		return 0;
 	}
 	else {
-		UINT64 remslots = (m_messagePeriod - DifferenceBetweenTimes(HAL_Time_CurrentTicks(), sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
+		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
 		return remslots;
 	}
 }
