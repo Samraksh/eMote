@@ -56,6 +56,7 @@ void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
 void DataTransmissionHandler::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
 
@@ -237,7 +238,9 @@ bool DataTransmissionHandler::Send(){
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
 		//set flag to false after packet has been sent
 

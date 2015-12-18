@@ -159,7 +159,9 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		tsreqmsg->request_TimeSync = request_TimeSync;
 
 		rs = g_OMAC.Send(address, MFM_TIMESYNCREQ, tsreqmsg, sizeof(TimeSyncRequestMsg));
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
+#endif
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
 	CPU_GPIO_SetPinState( DATATX_TIMESTAMP_PIN, FALSE );
@@ -214,12 +216,8 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 		return DS_Fail;
 	}
 
-
-
-
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
-
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
@@ -231,8 +229,6 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 #endif
 	}
 #endif
-
-
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
