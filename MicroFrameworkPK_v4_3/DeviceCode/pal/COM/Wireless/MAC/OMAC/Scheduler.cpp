@@ -172,8 +172,6 @@ void OMACScheduler::ScheduleNextEvent(){
 #endif
 	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
-
-
 	SchedulerINUse = true;
 	rm = VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
