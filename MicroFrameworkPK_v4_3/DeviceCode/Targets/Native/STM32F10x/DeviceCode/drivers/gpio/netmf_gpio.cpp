@@ -15,9 +15,9 @@ const char* c_strGpioBadSize = "size greater than max allowable pins";
 //#define DEBUG_GPIO_VERBOSE 1
 
 #if defined(DEBUG_GPIO_VERBOSE)
-#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \r\n", ##__VA_ARGS__, __LINE__, __FILE__)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format " at %d, %s \n", ##__VA_ARGS__, __LINE__, __FILE__)
 #elif defined(DEBUG_GPIO)
-#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format "\r\n", ##__VA_ARGS__)
+#define GPIO_DEBUG_PRINT(format, ...) hal_printf("[Native] [GPIO Driver] " format "\n", ##__VA_ARGS__)
 #else
 #define GPIO_DEBUG_PRINT(format, ...)
 #endif
@@ -69,7 +69,7 @@ static void handle_exti(unsigned int exti)
 		UINT32 pin = line + port * GPIO_PPP;
 		void *parm;
 
-		// Shouldn't this be a HAL_CONTINUATION??? TODO --NPS  // The C# GPIO ISR will already treat this like a continuation, and we would need a better latency profiling before using continuations with native drivers? --MAM
+		// The C# GPIO ISR will add this interrupt to g_CLR_HW_Hardware.m_interruptData.m_HalQueue via SaveToHALQueue(), which eventually gets added to m_interruptData.m_applicationQueue via CLR_HW_Hardware::TransferAllInterruptsToApplicationQueue() which eventually gets dispatched via CLR_HW_Hardware::SpawnDispatcher()
 		my_isr = gpio_isr[pin];
 		parm = gpio_parm[pin];
 		if(my_isr != NULL)
