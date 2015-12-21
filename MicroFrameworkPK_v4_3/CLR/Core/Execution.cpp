@@ -1796,7 +1796,7 @@ CLR_RT_HeapBlock* CLR_RT_ExecutionEngine::ExtractHeapBlocks( CLR_RT_DblLinkedLis
             break;
 
         default: // Total failure...
-#if !defined(BUILD_RTM)
+#if (!defined(BUILD_RTM) && defined(DEBUG))	    
             CLR_Debug::Printf( "Failed allocation for %d blocks, %d bytes\r\n\r\n", length, length * sizeof(CLR_RT_HeapBlock) );
 #endif
             if(g_CLR_RT_GarbageCollector.m_freeBytes >= (length * sizeof(CLR_RT_HeapBlock)))
