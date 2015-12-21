@@ -38,6 +38,9 @@ void* OMACReceiveHandler(void* msg, UINT16 size){
  *
  */
 BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
+	if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) && Interrupt==StartOfReception){
+		g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = true;
+	}
 	return TRUE;
 }
 
@@ -251,12 +254,15 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
 
+	g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
+
 	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
 	//Any message might have timestamping attached to it. Check for it and process
 	if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
 		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
 	}
+
 
 	//Get the primary packet
 	switch(msg->GetHeader()->GetType()){
@@ -304,6 +310,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 				next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
+
 
 				//Another method of doing the same thing as above
 				/*Message_15_4_t tempMsg;
@@ -359,7 +366,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 	};
 
-
 	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
 		ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 		tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
@@ -387,6 +393,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
 		return msg;
 	}
+
+
 
 	return msg;
 }
