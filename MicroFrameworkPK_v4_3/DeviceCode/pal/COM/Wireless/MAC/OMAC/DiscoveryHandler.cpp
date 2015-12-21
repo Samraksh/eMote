@@ -232,7 +232,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
  *
  */
 void DiscoveryHandler::Beacon1(){
-	Message_15_4_t m_discoveryMsgBuffer;
+	//Message_15_4_t m_discoveryMsgBuffer;
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 		if(ds != DS_Success) {
@@ -246,7 +246,7 @@ void DiscoveryHandler::Beacon1(){
  *
  */
 void DiscoveryHandler::BeaconN(){
-	Message_15_4_t m_discoveryMsgBuffer;
+	//Message_15_4_t m_discoveryMsgBuffer;
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
 		hal_printf("BeaconN failed. ds = %d; \n", ds);

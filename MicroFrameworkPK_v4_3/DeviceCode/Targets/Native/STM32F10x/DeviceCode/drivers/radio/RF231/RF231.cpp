@@ -144,7 +144,8 @@ static void interrupt_mode_check() {
 void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status) {
 	SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(msg, size, status);
-	return msg;
+	if (status != DS_Success) return NULL;
+	else return msg;
 }
 
 
@@ -245,7 +246,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	UINT8 *timeStampPtr;
 	UINT8 *ldata;
 
-	Message_15_4_t* temp;
+	Message_15_4_t* temp = NULL;
 
 	const int timestamp_size = 4; // we decrement in a loop later.
 	const int crc_size = 2;
@@ -313,13 +314,12 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	state = STATE_BUSY_TX;
 
 	// exchange bags
-	temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
-	return temp;
+	return tx_msg_ptr;
 }
 
 DeviceStatus RF231Radio::Reset()
@@ -588,7 +588,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	state = STATE_BUSY_TX;
 
 	// exchange bags
-	temp = tx_msg_ptr;
+	//temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
 	cmd = CMD_TRANSMIT;
 
@@ -1183,7 +1183,9 @@ void RF231Radio::HandleInterrupt()
 	}
 
 	// See datasheet section 9.7.5. We handle both of these manually.
-	if(irq_cause & TRX_IRQ_PLL_LOCK) {  }
+	if(irq_cause & TRX_IRQ_PLL_LOCK) {
+		(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(PreambleDetect);
+	}
 	if(irq_cause & TRX_IRQ_PLL_UNLOCK) {  }
 
 	if(irq_cause & TRX_IRQ_RX_START)
@@ -1223,6 +1225,9 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 		cmd = CMD_RECEIVE;
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
+
+		 (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(StartOfReception);
+
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)

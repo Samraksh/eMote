@@ -46,7 +46,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, 16 * 1 * MICSECINMILISEC, TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, SLOT_PERIOD_MILLI * 1 * MICSECINMILISEC, FALSE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -111,7 +111,7 @@ void DataReceptionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
-
+		m_isreceiving = false;
 	static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
@@ -137,12 +137,15 @@ void DataReceptionHandler::ExecuteEvent(){
  *
  */
 void DataReceptionHandler::PostExecuteEvent(){
-	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
-	g_omac_RadioControl.Stop();
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
-#endif
-	g_omac_scheduler.PostExecution();
+	if(!m_isreceiving){
+		VirtTimer_Stop(HAL_RECEPTION_TIMER);
+		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
+		g_omac_RadioControl.Stop();
+	#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	#endif
+		g_omac_scheduler.PostExecution();
+	}
 }
 
 

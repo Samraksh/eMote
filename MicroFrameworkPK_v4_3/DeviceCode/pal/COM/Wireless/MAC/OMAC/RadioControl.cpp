@@ -71,7 +71,8 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	else {
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
-	return DS_Success;
+	if(msg == NULL) return DS_Fail;
+	else return DS_Success;
 }
 
 
