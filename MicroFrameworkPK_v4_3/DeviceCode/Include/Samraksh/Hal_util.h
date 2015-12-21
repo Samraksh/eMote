@@ -11,13 +11,13 @@ DS_Timeout,
 
 
 enum NetOpStatus{
-NO_Success,
-NO_Fail,
-NO_Busy,
-NO_Full,
-NO_Ready,
-NO_BadPacket,
-NO_Collision,
+NetworkOperations_Success,
+NetworkOperations_Fail,
+NetworkOperations_Busy,
+NetworkOperations_Full,
+NetworkOperations_Ready,
+NetworkOperations_BadPacket,
+NetworkOperations_Collision,
 };
 
 enum InteropNetOpStatus{

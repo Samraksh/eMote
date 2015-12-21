@@ -252,11 +252,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	// Adding 2 for crc and 4 bytes for timestamp
 	if(size + crc_size + timestamp_size > IEEE802_15_4_FRAME_LENGTH){
-		return Send_Ack(tx_msg_ptr, tx_length, NO_BadPacket);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket);
 	}
 
 	if ( !IsInitialized() ) {
-		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail);
 	}
 
 	interrupt_mode_check();
@@ -270,7 +270,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		state = STATE_PLL_ON;
 	}
 	else {
-		return Send_Ack(tx_msg_ptr, tx_length, NO_Busy);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 
 	tx_length = size;
@@ -536,11 +536,11 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	// Adding 2 for crc
 	if(size + crc_size> IEEE802_15_4_FRAME_LENGTH){
-		return Send_Ack(tx_msg_ptr, tx_length, NO_BadPacket);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket);
 	}
 
 	if ( !IsInitialized() ) {
-		return Send_Ack(tx_msg_ptr, tx_length, NO_Fail);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail);
 	}
 
 	interrupt_mode_check();
@@ -554,7 +554,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		state = STATE_PLL_ON;
 	}
 	else {
-		return Send_Ack(tx_msg_ptr, tx_length, NO_Busy);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 
 	tx_length = size;
@@ -1240,7 +1240,7 @@ void RF231Radio::HandleInterrupt()
 			state = STATE_PLL_ON;
 			// Call radio send done event handler when the send is complete
 			SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-			(*AckHandler)(tx_msg_ptr, tx_length,NO_Success);
+			(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
 

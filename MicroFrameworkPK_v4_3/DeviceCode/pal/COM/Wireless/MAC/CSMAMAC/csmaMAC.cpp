@@ -500,7 +500,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 #endif
 	switch(status)
 	{
-		case NO_Success:
+		case NetworkOperations_Success:
 			{
 				//gHalTimerManagerObject.StopTimer(3);
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
@@ -514,7 +514,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			}
 			break;
 		
-		case NO_Busy:
+		case NetworkOperations_Busy:
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
 			DEBUG_PRINTF_CSMA("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);

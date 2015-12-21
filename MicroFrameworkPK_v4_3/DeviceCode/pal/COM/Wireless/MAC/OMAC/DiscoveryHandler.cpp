@@ -240,7 +240,6 @@ void DiscoveryHandler::Beacon1(){
 		}
 		//If Beacon 1 fails, just continue operation. There is one more beacon
 	}
-
 }
 
 /*
@@ -285,6 +284,9 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	}
 #endif
 
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, TRUE );
+#endif
 	//DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	//RadioAddress_t source = msg->GetHeader()->src;
 
@@ -307,6 +309,9 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 #endif
 	}
 #endif
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, FALSE );
+#endif
 
 	return DS_Success;
 }
@@ -327,13 +332,12 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->type = MFM_DISCOVERY;
 	header->flags = 0; //Initialize flags to zero
 
-
 	msg->GetMetaData()->SetReceiveTimeStamp(event_time);
 
 	retValue = g_omac_RadioControl.Send(address, msg, header->length);
 
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
+	CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
 #endif
 
 	return retValue;

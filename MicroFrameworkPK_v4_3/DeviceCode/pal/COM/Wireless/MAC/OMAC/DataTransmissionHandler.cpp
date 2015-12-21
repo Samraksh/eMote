@@ -56,6 +56,7 @@ void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
 void DataTransmissionHandler::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 #endif
 
@@ -115,14 +116,28 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 #endif
 
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
 	DeviceStatus e = DS_Fail;
-	bool rv = Send();
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-#endif
+	e = g_omac_RadioControl.StartRx();
+	if (e == DS_Success){
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			bool rv = Send();
+			if(rv) {
+				g_send_buffer.DropOldest(1);
+			}
+			else{
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			}
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		#endif
+	}
 	PostExecuteEvent();
 }
 
@@ -138,7 +153,7 @@ void DataTransmissionHandler::ExecuteEvent(){
  */
 void DataTransmissionHandler::PostExecuteEvent(){
 	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
-	//g_omac_RadioControl.Stop();
+	g_omac_RadioControl.Stop();
 	g_omac_scheduler.PostExecution();
 }
 
@@ -223,9 +238,10 @@ bool DataTransmissionHandler::Send(){
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
-		g_send_buffer.DropOldest(1);
 		//set flag to false after packet has been sent
 
 		isDataPacketScheduled = false;

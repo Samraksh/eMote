@@ -54,7 +54,9 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			break;
 		case MFM_DATA:
 		{
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			(*g_txAckHandler)(msg, Size, status);
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
 		}
 		case MFM_ROUTING:
@@ -62,6 +64,8 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		case MFM_NEIGHBORHOOD:
 			break;
 		case MFM_TIMESYNC:
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
 		default:
 			break;
@@ -91,13 +95,12 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
  *
  */
 DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-
-
-
 	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
-	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATARX_TIMESTAMP_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATARX_DATA_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(SEND_ACK_PIN, TRUE);
 #endif
 
 	DeviceStatus status;
@@ -236,8 +239,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		return msg;
 	}
 
-
-
 	Size -= sizeof(IEEE802_15_4_Header_t);
 
 	RadioAddress_t sourceID = msg->GetHeader()->src;
@@ -252,12 +253,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
-
 	//Any message might have timestamping attached to it. Check for it and process
 	if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
 		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
 	}
-
 
 	//Get the primary packet
 	switch(msg->GetHeader()->GetType()){
@@ -268,11 +267,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 		case MFM_DATA:
 			if(true || myID == destID) {
-#ifdef def_Neighbor2beFollowed
-				if ( sourceID == Neighbor2beFollowed) {
-					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-					//hal_printf("OMACType::ReceiveHandler received a message from  Neighbor2beFollowed %u\n", sourceID);
-				}
+#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
+				CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 #endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
 				if(data_msg->msg_identifier != 16843009){
@@ -316,11 +313,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 				(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
 				(*g_rxAckHandler)(&tempMsg, data_msg->size);*/
-
-#ifdef def_Neighbor2beFollowed
-				if ( sourceID == Neighbor2beFollowed) {
-					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
-				}
+#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
+				CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
 #endif
 			}
 			break;
@@ -337,9 +332,11 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNCREQ:
-
+			CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
 			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
+#endif
 			data_msg = (DataMsg_t*) msg->GetPayload();
 			if(data_msg->msg_identifier != 16843009){
 				ASSERT_SP(0);
@@ -352,6 +349,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			else{
 				location_in_packet_payload += data_msg->size + DataMsgOverhead;
 			}
+			CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
