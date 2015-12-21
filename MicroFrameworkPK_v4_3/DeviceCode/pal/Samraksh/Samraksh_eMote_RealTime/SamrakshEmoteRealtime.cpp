@@ -113,7 +113,7 @@ static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispat
 		return S_FALSE;
    }
    // We check here to see if we have a debugger attached.
-   if(CLR_EE_DBG_IS(Enabled))
+   if(CLR_EE_DBG_IS( SourceLevelDebugging ))
 	{
 		debuggerAttached = true;
 		CLR_Debug::Printf("Notice: the real-time timer is running in debugger mode!\r\n");
