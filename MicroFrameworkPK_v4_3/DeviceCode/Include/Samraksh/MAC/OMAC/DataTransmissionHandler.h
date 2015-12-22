@@ -44,7 +44,6 @@ public:
 	void SetTxTicks(UINT64);
 	void SetTxCounter(UINT32);
 
-	void SendHelper();
 };
 
 

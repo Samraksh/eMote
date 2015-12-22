@@ -27,7 +27,6 @@ DataTransmissionHandler g_DataTransmissionHandler;
 
 void PublicTXEndHCallback(void * param){
 	//g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
-	//g_DataTransmissionHandler.SendHelper();
 	g_DataTransmissionHandler.PostExecuteEvent();
 }
 
@@ -108,36 +107,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	}
 }
 
-void DataTransmissionHandler::SendHelper()
-{
-	ASSERT_SP(m_outgoingEntryPtr != NULL);
-	//IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 
-	#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	#endif
-		bool rv = Send();
-		if(rv) {
-			//if(header->type == MFM_DATA){
-				//hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
-			//}
-			g_send_buffer.DropOldest(1);
-		}
-		else{
-	#ifdef OMAC_DEBUG_GPIO
-		hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	#endif
-		}
-	#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	#endif
-
-	PostExecuteEvent();
-}
 /*
  *
  */
@@ -157,11 +127,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 	HAL_Time_Sleep_MicroSeconds(500);
 
 	if (e == DS_Success){
-		//hal_printf("Starting virtual timer to send\n");
-		//rm = VirtTimer_Start(HAL_SLOT_TIMER2);
-		//ASSERT_SP(rm == TimerSupported);
-
-		//SendHelper();
 		#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 		#endif
@@ -295,7 +260,6 @@ bool DataTransmissionHandler::Send(){
 		isDataPacketScheduled = false;
 		m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success){
-			//hal_printf("DataTransmissionHandler::Send not successful\n");
 			return false;
 		}
 		else
