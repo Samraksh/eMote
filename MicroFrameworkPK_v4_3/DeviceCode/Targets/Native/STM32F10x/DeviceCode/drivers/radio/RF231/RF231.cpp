@@ -1184,7 +1184,7 @@ void RF231Radio::HandleInterrupt()
 
 	// See datasheet section 9.7.5. We handle both of these manually.
 	if(irq_cause & TRX_IRQ_PLL_LOCK) {
-		(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(PreambleDetect);
+		//(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(PreambleDetect);
 	}
 	if(irq_cause & TRX_IRQ_PLL_UNLOCK) {  }
 
@@ -1226,7 +1226,7 @@ void RF231Radio::HandleInterrupt()
 		cmd = CMD_RECEIVE;
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
-		 (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(StartOfReception);
+		 (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 	}
 

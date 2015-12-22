@@ -38,9 +38,15 @@ void* OMACReceiveHandler(void* msg, UINT16 size){
  *
  */
 BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(DATA_RX_INTERRUPT_PIN, TRUE);
+#endif
 	if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) && Interrupt==StartOfReception){
-		g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = true;
+		g_omac_scheduler.m_DataReceptionHandler.HandleRadioInterrupt();
 	}
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(DATA_RX_INTERRUPT_PIN, FALSE);
+#endif
 	return TRUE;
 }
 
@@ -48,6 +54,9 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  *
  */
 void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, TRUE);
+#endif
 	Message_15_4_t* rcv_msg = (Message_15_4_t*)msg;
 
 	//Demutiplex packets received based on type
@@ -73,6 +82,10 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		default:
 			break;
 	};
+
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, FALSE);
+#endif
 }
 
 
@@ -104,6 +117,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_EnableOutputPin(DATARX_TIMESTAMP_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATARX_DATA_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(SEND_ACK_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, FALSE);
+	CPU_GPIO_EnableOutputPin(DATA_TX_ACK_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(DATA_RX_INTERRUPT_PIN, FALSE);
 #endif
 
 	DeviceStatus status;
