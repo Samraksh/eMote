@@ -1,9 +1,6 @@
 /*
  * DataReceptionHandler.cpp
  *
- *  Created on: Aug 30, 2012
- *      Author: Mukundan Sridharan
- *
  *  Modified on: Oct 30, 2015
  *  	Authors: Bora Karaoglu; Ananth Muralidharan
  *

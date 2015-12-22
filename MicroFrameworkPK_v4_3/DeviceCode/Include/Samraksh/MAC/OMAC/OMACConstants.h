@@ -267,7 +267,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
-#define SEED_UPDATE_INTERVAL_IN_SLOTS 250 //The FRAME SIZE in slots
+#define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1000
 
