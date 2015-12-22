@@ -253,13 +253,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	// Adding 2 for crc and 4 bytes for timestamp
 	if(size + crc_size + timestamp_size > IEEE802_15_4_FRAME_LENGTH){
-		Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket);
-		return NULL;
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket);
 	}
 
 	if ( !IsInitialized() ) {
-		Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail);
-		return NULL;
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail);
 	}
 
 	interrupt_mode_check();
@@ -273,8 +271,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		state = STATE_PLL_ON;
 	}
 	else {
-		Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
-		return NULL;
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 
 	tx_length = size;
