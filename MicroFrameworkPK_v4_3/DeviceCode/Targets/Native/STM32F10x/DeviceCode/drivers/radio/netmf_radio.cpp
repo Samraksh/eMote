@@ -219,7 +219,7 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
 
 	}
 
-	ASSERT_NOFAIL(status);
+	//ASSERT_NOFAIL(status);
 	return status;
 }
 
