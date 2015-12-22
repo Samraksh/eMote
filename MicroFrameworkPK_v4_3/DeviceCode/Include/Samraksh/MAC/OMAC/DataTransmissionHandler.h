@@ -43,6 +43,8 @@ public:
 	UINT32 GetTxCounter();
 	void SetTxTicks(UINT64);
 	void SetTxCounter(UINT32);
+
+	void SendHelper();
 };
 
 
