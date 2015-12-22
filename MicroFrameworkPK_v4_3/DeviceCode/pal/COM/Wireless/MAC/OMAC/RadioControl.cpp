@@ -66,6 +66,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	//Check if we can send with timestamping, 4bytes for timestamping + 8 bytes for clock value
 	PiggybackMessages( msg, size);
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
+	Message_15_4_t* returnMsg;
 
 	header->length = size;
 
@@ -80,10 +81,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 
 	if( (header->GetFlags() & TIMESTAMPED_FLAG) ){
-		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
+		returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 	}
 	else {
-		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
+		returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
 
 #ifdef OMAC_DEBUG_GPIO
@@ -95,8 +96,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 #endif
 
-	if(msg == NULL) return DS_Fail;
-	else return DS_Success;
+	if(returnMsg == msg)
+		return DS_Success;
+
+	return DS_Fail;
 }
 
 

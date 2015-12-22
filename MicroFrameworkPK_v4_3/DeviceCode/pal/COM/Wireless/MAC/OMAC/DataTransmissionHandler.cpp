@@ -116,18 +116,25 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 #endif
 
+	IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
+
 	if (e == DS_Success){
 		#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 		#endif
 			bool rv = Send();
 			if(rv) {
+				if(header->type == MFM_DATA){
+					hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
+				}
 				g_send_buffer.DropOldest(1);
 			}
 			else{
 		#ifdef OMAC_DEBUG_GPIO
+			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
@@ -246,8 +253,10 @@ bool DataTransmissionHandler::Send(){
 
 		isDataPacketScheduled = false;
 		m_outgoingEntryPtr = NULL;
-		if(rs != DS_Success)
+		if(rs != DS_Success){
+			hal_printf("DataTransmissionHandler::Send Send was not successful\n");
 			return false;
+		}
 		else
 			return true;
 	}
