@@ -25,7 +25,7 @@ void PublicPostExecutionTaskHandler1(void * param){
 void PublicSchedulerTaskHandler1(void * param){
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_Stop(HAL_SLOT_TIMER);
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
 	ASSERT_SP(rm == TimerSupported);
 
 	if((g_omac_scheduler.SchedulerINUse)){
@@ -57,7 +57,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	bool rv = VirtTimer_Initialize();
 	ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1);
 	ASSERT_SP(rm == TimerSupported);
 //	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
 //	ASSERT_SP(rm == TimerSupported);
@@ -173,9 +173,9 @@ void OMACScheduler::ScheduleNextEvent(){
 	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
 	SchedulerINUse = true;
-	rm = VirtTimer_Change(HAL_SLOT_TIMER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
-	rm = VirtTimer_Start(HAL_SLOT_TIMER);
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
 	ASSERT_SP(rm == TimerSupported);
 
 
