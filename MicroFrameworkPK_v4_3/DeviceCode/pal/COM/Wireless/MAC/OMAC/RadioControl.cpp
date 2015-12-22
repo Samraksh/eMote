@@ -33,6 +33,9 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_STATEPIN, FALSE);
+	CPU_GPIO_EnableOutputPin(RC_TX_TIMESYNCREQ, FALSE);
+	CPU_GPIO_EnableOutputPin(RC_TX_DATA, FALSE);
+
 #endif
 	return DS_Success;
 }
@@ -65,12 +68,33 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 
 	header->length = size;
+
+
+#ifdef OMAC_DEBUG_GPIO
+		if(header->type == MFM_TIMESYNCREQ){
+			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, TRUE );
+		}
+		else if(header->type == MFM_DATA){
+			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
+		}
+#endif
+
 	if( (header->GetFlags() & TIMESTAMPED_FLAG) ){
 		msg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 	}
 	else {
 		msg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 	}
+
+#ifdef OMAC_DEBUG_GPIO
+		if(header->type == MFM_TIMESYNCREQ){
+			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, FALSE );
+		}
+		else if(header->type == MFM_DATA){
+			CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
+		}
+#endif
+
 	if(msg == NULL) return DS_Fail;
 	else return DS_Success;
 }
