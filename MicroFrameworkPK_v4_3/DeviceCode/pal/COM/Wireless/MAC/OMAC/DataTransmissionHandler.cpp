@@ -65,7 +65,7 @@ void DataTransmissionHandler::Initialize(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -150,7 +150,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		#endif
 	}
-	VirtTimer_Start(HAL_SLOT_TIMER2);
+	VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	//PostExecuteEvent();
 }
 

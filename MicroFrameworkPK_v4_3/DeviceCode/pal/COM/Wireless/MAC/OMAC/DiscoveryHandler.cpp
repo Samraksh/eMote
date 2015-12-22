@@ -55,7 +55,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_DISCOVERY_TIMER, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -108,7 +108,7 @@ void DiscoveryHandler::ExecuteEvent(){
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Start(HAL_DISCOVERY_TIMER);
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm == TimerSupported) {
 			Beacon1();
 		}

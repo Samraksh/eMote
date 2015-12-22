@@ -327,11 +327,11 @@ void VirtualTimerCallback(void *arg)
 	if (runningTimer->get_m_is_running()){
 		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME)
-		  || (runningTimer->get_m_timer_id() == HAL_SLOT_TIMER)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER)
 		  || (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
 		  || (runningTimer->get_m_timer_id() == NeighborClockMonitor_TIMER1)
-		  || (runningTimer->get_m_timer_id() == HAL_DISCOVERY_TIMER)
-		  || (runningTimer->get_m_timer_id() == HAL_RECEPTION_TIMER)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER)
 		  ){
 			(runningTimer->get_m_callback())(NULL);
 		} else {

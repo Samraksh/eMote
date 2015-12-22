@@ -43,7 +43,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(HAL_RECEPTION_TIMER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -100,8 +100,8 @@ void DataReceptionHandler::ExecuteEvent(){
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Change(HAL_RECEPTION_TIMER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
-		rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
@@ -119,9 +119,9 @@ void DataReceptionHandler::ExecuteEvent(){
 void DataReceptionHandler::HandleRadioInterrupt(){
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = true;
-	rm = VirtTimer_Stop(HAL_RECEPTION_TIMER);
-	rm = VirtTimer_Change(HAL_RECEPTION_TIMER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
-	rm = VirtTimer_Start(HAL_RECEPTION_TIMER);
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 }
 /*
  *
