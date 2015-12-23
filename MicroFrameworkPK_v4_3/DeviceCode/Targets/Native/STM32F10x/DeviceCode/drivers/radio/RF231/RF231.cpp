@@ -1075,7 +1075,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 {
 	UINT8 trx_status;
 
-	return DS_Fail; // Not yet supported --NPS
+	//return DS_Fail; // Not yet supported --NPS
 
 	GLOBAL_LOCK(irq);
 
@@ -1139,20 +1139,26 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 //template<class T>
 DeviceStatus RF231Radio::ClearChannelAssesment()
 {
-	UINT8 trx_status;
-
-	return DS_Fail;  // Not yet supported --NPS
+	//return DS_Fail;  // Not yet supported --NPS
 
 	GLOBAL_LOCK(irq);
 
+	// Must be in RX mode to do measurment.
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	if (trx_status != RX_ON && trx_status != BUSY_RX)
+		return DS_Fail;
+
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
+
+	//irq.Release();
 
 	// Busy wait for the minimum duration of 140 us
 	HAL_Time_Sleep_MicroSeconds(150);
 
-	trx_status = ReadRegister(RF230_TRX_STATE);
+	UINT8 stat;
+	stat = ReadRegister(RF230_TRX_STATE);
 
-	return ((trx_status & RF230_CCA_DONE) ? ((trx_status & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
+	return ((stat & RF230_CCA_DONE) ? ((stat & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
 }
 
 
