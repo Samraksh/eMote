@@ -189,7 +189,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	Wakeup();
 
 	// current status
-	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 	radio_hal_trx_status_t orig_status = trx_status;
 
 	ASSERT_RADIO(trx_status != P_ON); // P_ON is 0 and normally impossible to reach after init. So likely SPI died.
@@ -206,7 +206,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	WriteRegister(RF230_TRX_STATE, target); // do the move
 
 	do{
-		trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+		trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 		if( poll_counter == timeout || (trx_status != orig_status \
 				&& trx_status != target \
 				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS \
@@ -477,7 +477,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 	}
 
 	// Read current state of radio to be sure. --Update, I'm actually sure now, but we'll leave it. --NPS
-	regState = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	regState = (VERIFY_STATE_CHANGE);
 
 	// Observe that I am trying, perhaps stupidly, to be clever with fall-through here... --NPS
 	switch(regState) {
@@ -1095,11 +1095,11 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 
 	if(state != STATE_RX_ON)
 	{
-		UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+		UINT8 reg = VERIFY_STATE_CHANGE;
 		return DS_Fail;
 	}
 
-	//UINT8 reg = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
+	//UINT8 reg = VERIFY_STATE_CHANGE;
 
 	// Make a cca request
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
@@ -1144,7 +1144,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 	GLOBAL_LOCK(irq);
 
 	// Must be in RX mode to do measurment.
-	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 	if (trx_status != RX_ON && trx_status != BUSY_RX)
 		return DS_Fail;
 
@@ -1156,7 +1156,8 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 	HAL_Time_Sleep_MicroSeconds(150);
 
 	UINT8 stat;
-	stat = ReadRegister(RF230_TRX_STATE);
+	//stat = ReadRegister(RF230_TRX_STATE);
+	stat = VERIFY_STATE_CHANGE;
 
 	return ((stat & RF230_CCA_DONE) ? ((stat & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
 }

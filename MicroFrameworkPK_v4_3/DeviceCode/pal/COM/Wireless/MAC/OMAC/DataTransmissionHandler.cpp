@@ -22,6 +22,7 @@ extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
+extern DiscoveryHandler g_DiscoveryHandler;
 DataTransmissionHandler g_DataTransmissionHandler;
 
 
@@ -58,7 +59,9 @@ void DataTransmissionHandler::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 #endif
 
 	isDataPacketScheduled = false;
@@ -76,6 +79,7 @@ void DataTransmissionHandler::Initialize(){
 UINT64 DataTransmissionHandler::NextEvent(){
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, TRUE );
 
 	if(ScheduleDataPacket()) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
@@ -105,6 +109,8 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		//Either Dont have packet to send or missing timing for the destination
 		return MAX_UINT64;
 	}
+
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 }
 
 
@@ -120,6 +126,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 
 	VirtualTimerReturnMessage rm;
+	DeviceStatus DS = DS_Success;
 	IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 
 	DeviceStatus e = DS_Fail;
@@ -127,31 +134,42 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	HAL_Time_Sleep_MicroSeconds(500);
-
-	if (e == DS_Success){
-		#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		#endif
-			bool rv = Send();
-			if(rv) {
-				/*if(header->type == MFM_DATA){
-					hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
-				}*/
-				g_send_buffer.DropOldest(1);
-			}
-			else{
-		#ifdef OMAC_DEBUG_GPIO
-			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		#endif
-			}
-		#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		#endif
+	//HAL_Time_Sleep_MicroSeconds(500);
+	//Start CCA only after the initial normal DISCO period
+	if(g_DiscoveryHandler.highdiscorate == false){
+		DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+	}
+	if(DS != DS_Success){
+		hal_printf("Cannot transmit right now!\n");
+	}
+	else{
+		if (e == DS_Success){
+			#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			#endif
+				bool rv = Send();
+				if(rv) {
+					/*if(header->type == MFM_DATA){
+						hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
+					}*/
+					g_send_buffer.DropOldest(1);
+				}
+				else{
+			#ifdef OMAC_DEBUG_GPIO
+				hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			#endif
+				}
+			#ifdef OMAC_DEBUG_GPIO
+				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			#endif
+		}
+		else{
+			hal_printf("Radio not in RX state\n");
+		}
 	}
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
