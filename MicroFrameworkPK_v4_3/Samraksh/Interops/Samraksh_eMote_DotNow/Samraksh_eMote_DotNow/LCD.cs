@@ -303,12 +303,12 @@ namespace Samraksh.eMote.DotNow
         /// <summary>
         /// Set the decimal point
         /// </summary>
-        /// <param name="dp1">Columns 1</param>
-        /// <param name="dp2">Columns 2</param>
-        /// <param name="dp3">Columns 3</param>
         /// <param name="dp4">Columns 4</param>
+        /// <param name="dp3">Columns 3</param>
+        /// <param name="dp2">Columns 2</param>        
+        /// <param name="dp1">Columns 1</param>
         /// <returns>The result ofthe write operation</returns>
-        public bool SetDP(bool dp1, bool dp2, bool dp3, bool dp4)
+        public bool SetDP(bool dp4, bool dp3, bool dp2, bool dp1)
         {
             if (LCD_Initialized == false) { return false; }
 
@@ -396,8 +396,6 @@ namespace Samraksh.eMote.DotNow
                 else
                     return true;
             }
-
-            return true;
         }
 
         /// <summary>

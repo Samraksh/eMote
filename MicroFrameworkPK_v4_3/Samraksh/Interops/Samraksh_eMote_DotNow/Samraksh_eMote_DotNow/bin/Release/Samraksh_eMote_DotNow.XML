@@ -495,10 +495,10 @@
             <summary>
             Set the decimal point
             </summary>
-            <param name="dp1">Columns 1</param>
-            <param name="dp2">Columns 2</param>
-            <param name="dp3">Columns 3</param>
             <param name="dp4">Columns 4</param>
+            <param name="dp3">Columns 3</param>
+            <param name="dp2">Columns 2</param>        
+            <param name="dp1">Columns 1</param>
             <returns>The result ofthe write operation</returns>
         </member>
         <member name="M:Samraksh.eMote.DotNow.EmoteLCD.WriteN(System.Int32,Samraksh.eMote.DotNow.LCD)">
