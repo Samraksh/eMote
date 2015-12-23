@@ -28,8 +28,8 @@ DiscoveryHandler g_DiscoveryHandler;
  *
  */
 void PublicBeaconNCallback(void * param){
-	//g_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
-	g_DiscoveryHandler.BeaconNTimerHandler();
+	g_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
+	//g_DiscoveryHandler.BeaconNTimerHandler();
 }
 
 

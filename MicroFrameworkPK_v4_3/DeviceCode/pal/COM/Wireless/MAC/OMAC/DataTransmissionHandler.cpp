@@ -26,8 +26,8 @@ DataTransmissionHandler g_DataTransmissionHandler;
 
 
 void PublicDataTxCallback(void * param){
-	//g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
-	g_DataTransmissionHandler.PostExecuteEvent();
+	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
+	//g_DataTransmissionHandler.PostExecuteEvent();
 }
 
 UINT64 DataTransmissionHandler::GetTxTicks()

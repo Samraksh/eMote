@@ -21,8 +21,8 @@ MacEventHandler_t* g_appHandler;
 
 
 void PublicDataRxCallback(void * param){
-	//g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
-	g_DataReceptionHandler.PostExecuteEvent();
+	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+	//g_DataReceptionHandler.PostExecuteEvent();
 }
 
 /*

@@ -35,7 +35,8 @@ BOOL GlobalTime::synced=FALSE;
 
 
 void PublicTimeSyncCallback(void * param){
-	g_OMACTimeSync.PostExecuteEvent();
+	g_omac_scheduler.m_TimeSyncHandler.PostExecuteEvent();
+	//g_OMACTimeSync.PostExecuteEvent();
 }
 
 /*
