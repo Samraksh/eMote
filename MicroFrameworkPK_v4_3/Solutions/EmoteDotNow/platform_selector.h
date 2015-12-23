@@ -208,7 +208,7 @@ HAL_RECEPTION_TIMER 6
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
-#define HAL_SLOT_TIMER 				3
+#define VIRT_TIMER_OMAC_SCHEDULER	3
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
@@ -216,9 +216,10 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
 
-#define HAL_SLOT_TIMER2 7
-#define HAL_DISCOVERY_TIMER 5
-#define HAL_RECEPTION_TIMER 6
+#define VIRT_TIMER_OMAC_DISCOVERY	4
+#define VIRT_TIMER_OMAC_TIMESYNC 	5
+#define VIRT_TIMER_OMAC_RECEIVER 	6
+#define VIRT_TIMER_OMAC_TRANSMITTER	7
 #define HAL_SLOT_TIMER3 10
 
 #define LocalClockMonitor_TIMER1 7
@@ -273,7 +274,7 @@ J12_PIN10 = GND
 #define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
 #define DATARX_DATA_PIN			(GPIO_PIN)120 //30
 #define SEND_ACK_PIN			(GPIO_PIN)120
-#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)0
+#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)120	//0
 #define DATA_TX_ACK_PIN			(GPIO_PIN)31
 
 

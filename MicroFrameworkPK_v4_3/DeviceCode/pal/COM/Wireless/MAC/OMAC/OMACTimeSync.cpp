@@ -23,6 +23,7 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 extern NeighborTable g_NeighborTable;
 extern OMACScheduler g_omac_scheduler;
+OMACTimeSync g_OMACTimeSync;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
@@ -33,6 +34,9 @@ BOOL GlobalTime::synced=FALSE;
 
 
 
+void PublicTimeSyncCallback(void * param){
+	g_OMACTimeSync.PostExecuteEvent();
+}
 
 /*
  *
@@ -58,6 +62,10 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	m_messagePeriod = SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST;//Time period in ticks
 	m_globalTime.Init();
 
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback); //1 sec Timer in micro seconds
+	ASSERT_SP(rm == TimerSupported);
+
 }
 
 UINT64 OMACTimeSync::NextEvent(){
@@ -72,7 +80,6 @@ UINT64 OMACTimeSync::NextEvent(){
 			nextEventsSlot = NextEventinSlots();
 		}
 	}
-
 
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
@@ -107,7 +114,12 @@ void OMACTimeSync::ExecuteEvent(){
 //		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 //		Send(sn->MacAddress);
 //	}
-	PostExecuteEvent();
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TIMESYNC);
+	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		PostExecuteEvent();
+	}
+	//PostExecuteEvent();
 }
 
 /*
