@@ -30,7 +30,7 @@ static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better
 #ifdef PLATFORM_ARM_EmoteDotNow
 	const UINT8 VTCount0 = 8;
 #else
-	const UINT8 VTCount0 = 8;
+	const UINT8 VTCount0 = 16;
 #endif
 
 template<>

@@ -192,7 +192,7 @@
 
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {16};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 
 
