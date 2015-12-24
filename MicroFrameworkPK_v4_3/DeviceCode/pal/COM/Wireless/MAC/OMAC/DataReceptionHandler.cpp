@@ -31,7 +31,9 @@ void PublicDataRxCallback(void * param){
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATARECEPTION_SLOTPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATATX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, FALSE );
 #endif
 	RadioID = radioID;
 	MacID = macID;
@@ -49,6 +51,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, TRUE );
 	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
@@ -61,6 +64,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 	UINT64 curTicks = HAL_Time_CurrentTicks();
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, FALSE );
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF

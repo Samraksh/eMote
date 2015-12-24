@@ -291,7 +291,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(true || myID == destID) {
 #ifdef OMAC_DEBUG_GPIO
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-				CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
+				CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
 #endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
 				if(data_msg->msg_identifier != 16843009){
@@ -338,7 +338,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				(*g_rxAckHandler)(&tempMsg, data_msg->size);*/
 #ifdef OMAC_DEBUG_GPIO
 				CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
-				CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
+				CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
 #endif
 			}
 			break;
@@ -355,7 +355,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNCREQ:
-			CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
+			CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
@@ -372,7 +372,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			else{
 				location_in_packet_payload += data_msg->size + DataMsgOverhead;
 			}
-			CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
+			CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
 			break;
 		case OMAC_DATA_BEACON_TYPE:
 			hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
