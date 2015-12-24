@@ -271,8 +271,13 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1000
 
-#define FORCE_REQUESTTIMESYNC_INTICKS 100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
-#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  60000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+//40000000 - 5 secs
+//48000000 - 6 secs
+//60000000 - 7.5 secs
+//80000000 - 10 secs
+//100000000 - 12.5 secs
+#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
 #define WAKEUPPERIODINTICKS 8000000
 enum {

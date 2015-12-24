@@ -85,7 +85,10 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 curTicks = HAL_Time_CurrentTicks();
+		//ASSERT_SP(nextTXTicks > curTicks);
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
+		//Wake up the transmitter a little early
+		remMicroSecnextTX -= GUARDTIME_MICRO;
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
@@ -137,7 +140,11 @@ void DataTransmissionHandler::ExecuteEvent(){
 	//HAL_Time_Sleep_MicroSeconds(500);
 	//Start CCA only after the initial normal DISCO period
 	if(g_DiscoveryHandler.highdiscorate == false){
-		DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+		//For GUARDTIME_MICRO period check the channel before transmitting
+		//150 usec is the time taken for CCA to return a result
+		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
+			DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+		}
 	}
 	if(DS != DS_Success){
 		hal_printf("Cannot transmit right now!\n");
