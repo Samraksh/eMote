@@ -135,7 +135,8 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(txEventOffset < MAXSCHEDULERUPDATE && txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
-	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
+	//if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
+	if(beaconEventOffset < MAXSCHEDULERUPDATE) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}
 	if(timeSyncEventOffset < MAXSCHEDULERUPDATE && timeSyncEventOffset < nextWakeupTimeInMicSec) {
@@ -146,7 +147,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		InputState.RequestState(I_DATA_RCV_PENDING);
 	}
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO;
+		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO;
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {

@@ -32,6 +32,7 @@ public:
 	UINT64 NextEvent();
 	//UINT64 NextEvent(UINT64 currentTicks);
 	void ExecuteEvent();
+	void ExecuteEventHelper();
 	//UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 

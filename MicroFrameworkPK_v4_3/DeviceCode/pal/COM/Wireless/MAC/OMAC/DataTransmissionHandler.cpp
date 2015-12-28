@@ -31,6 +31,10 @@ void PublicDataTxCallback(void * param){
 	//g_DataTransmissionHandler.PostExecuteEvent();
 }
 
+void PublicDataTxExecEventCallback(void * param){
+	g_omac_scheduler.m_DataTransmissionHandler.ExecuteEventHelper();
+}
+
 UINT64 DataTransmissionHandler::GetTxTicks()
 {
 	//return m_nextTXTicks;
@@ -68,7 +72,9 @@ void DataTransmissionHandler::Initialize(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
+	ASSERT_SP(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TX_EXECEVENT, 0, 0, TRUE, FALSE, PublicDataTxExecEventCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -117,6 +123,56 @@ UINT64 DataTransmissionHandler::NextEvent(){
 }
 
 
+void DataTransmissionHandler::ExecuteEventHelper()
+{
+	DeviceStatus DS = DS_Success;
+	VirtualTimerReturnMessage rm;
+
+	//An alternate arrangement for the non availability of CCA in the radio driver
+	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
+	//HAL_Time_Sleep_MicroSeconds(500);
+	//Start CCA only after the initial normal DISCO period
+	//if(g_DiscoveryHandler.highdiscorate == false){
+		//For GUARDTIME_MICRO period check the channel before transmitting
+		//150 usec is the time taken for CCA to return a result
+		for(int i = 0; i < (GUARDTIME_MICRO/150)+1; i++){
+			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			if(DS != DS_Success){
+				hal_printf("Cannot transmit right now!\n");
+				break;
+			}
+		}
+	//}
+
+	#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	#endif
+		bool rv = Send();
+		if(rv) {
+			/*if(header->type == MFM_DATA){
+				hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
+			}*/
+			g_send_buffer.DropOldest(1);
+		}
+		else{
+	#ifdef OMAC_DEBUG_GPIO
+		hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	#endif
+		}
+	#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	#endif
+
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		PostExecuteEvent();
+	}
+}
+
 /*
  *
  */
@@ -135,54 +191,71 @@ void DataTransmissionHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 
+	if(e == DS_Success){
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+	else{
+		hal_printf("Radio not in RX state\n");
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+
+#if 0
 	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	//HAL_Time_Sleep_MicroSeconds(500);
 	//Start CCA only after the initial normal DISCO period
-	if(g_DiscoveryHandler.highdiscorate == false){
+	//if(g_DiscoveryHandler.highdiscorate == false){
 		//For GUARDTIME_MICRO period check the channel before transmitting
 		//150 usec is the time taken for CCA to return a result
-		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
-			DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+		for(int i = 0; i < (GUARDTIME_MICRO/150)+1; i++){
+			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			if(DS != DS_Success){
+				hal_printf("Cannot transmit right now!\n");
+				break;
+			}
 		}
-	}
-	if(DS != DS_Success){
-		hal_printf("Cannot transmit right now!\n");
+	//}
+
+	if (e == DS_Success){
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			bool rv = Send();
+			if(rv) {
+				/*if(header->type == MFM_DATA){
+					hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
+				}*/
+				g_send_buffer.DropOldest(1);
+			}
+			else{
+		#ifdef OMAC_DEBUG_GPIO
+			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		#endif
+			}
+		#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		#endif
 	}
 	else{
-		if (e == DS_Success){
-			#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-			#endif
-				bool rv = Send();
-				if(rv) {
-					/*if(header->type == MFM_DATA){
-						hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
-					}*/
-					g_send_buffer.DropOldest(1);
-				}
-				else{
-			#ifdef OMAC_DEBUG_GPIO
-				hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
-				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-				CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-			#endif
-				}
-			#ifdef OMAC_DEBUG_GPIO
-				CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			#endif
-		}
-		else{
-			hal_printf("Radio not in RX state\n");
-		}
+		hal_printf("Radio not in RX state\n");
 	}
+
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
 	}
 	//PostExecuteEvent();
+#endif
 }
 
 /*
@@ -339,7 +412,8 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 			}
 			UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
-				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
+				UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
+				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, currentSlotNum );
 			}
 			isDataPacketScheduled = true;
 			return TRUE;
