@@ -34,7 +34,7 @@ public:
 		return tmpseed;
 	}
 
-	/*static UINT16 RandWithMask(UINT16 *seedRet, UINT16 mask) {
+	static UINT16 RandWithMask(UINT16 *seedRet, UINT16 mask) {
 		bool endbit;
 		UINT16 tmpseed;
 
@@ -50,10 +50,10 @@ public:
 		*seedRet = tmpseed;
 		tmpseed = tmpseed ^ mask;
 		return tmpseed;
-	}*/
+	}
 
 	//Based on tinyRNG's xorshift32 RNG
-	static UINT16 RandWithMask(UINT16 *seedRet, UINT16 mask) {
+	/*static UINT16 RandWithMask(UINT16 *seedRet, UINT16 mask) {
 		UINT16 randVal;
 
 		randVal = (*seedRet ^ (*seedRet >> 7));
@@ -63,7 +63,7 @@ public:
 		randVal = (*seedRet ^ (*seedRet << 2)) ^ (randVal ^ (randVal << 13));
 
 		return randVal;
-	}
+	}*/
 
 	//Based on tinyRNG's kiss32 RNG
 	/*static UINT16 RandWithMask(UINT16 *seedRet, UINT16 mask) {

@@ -11,6 +11,7 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
 
+CLR_RT_Random rand1;
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 extern RadioControl_t g_omac_RadioControl;
@@ -43,6 +44,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
 	m_nextwakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_seedUpdateIntervalinSlots;
+	rand1.Initialize(m_nextSeed);
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
@@ -98,6 +100,9 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
 			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			//hal_printf("%u \t", randVal);
+			/*int randValNext = rand1.Next();
+			randVal = randValNext & 0xFFFF;*/
 			randVal = 10;
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
