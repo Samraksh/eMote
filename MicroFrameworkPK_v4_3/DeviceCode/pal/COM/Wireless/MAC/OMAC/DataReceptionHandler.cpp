@@ -99,10 +99,11 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
-			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-			//hal_printf("%u \t", randVal);
+			/*hal_printf("next_seed: %u \n", next_seed);
+			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			hal_printf("next_seed: %u; randVal: %u \n", next_seed, randVal);*/
 			/*int randValNext = rand1.Next();
-			randVal = randValNext & 0xFFFF;*/
+			randVal = randValNext & 0xF;*/
 			randVal = 10;
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
@@ -161,7 +162,8 @@ void DataReceptionHandler::PostExecuteEvent(){
 
 	}
 	else{
-		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
+		UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
+		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, currentSlotNum );
 		g_omac_RadioControl.Stop();
 	#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
