@@ -88,8 +88,15 @@ INT32 Radio_802_15_4_Base::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT8 rad
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_ClearChannelAssesment(radioID);
-	return status;
+
+	status = CPU_Radio_ClearChannelAssesment(0);
+	if(status == DS_Success){
+		return true;
+	}
+	else
+		return false;
+
+	//return status;
 }
 
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT16 numberOfMicroSecond, HRESULT &hr )
