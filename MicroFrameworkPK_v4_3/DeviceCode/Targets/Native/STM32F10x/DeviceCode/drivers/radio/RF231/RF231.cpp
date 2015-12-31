@@ -1141,8 +1141,8 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 //Min RSSI (absolute value) is 0 and max is 28 in steps of 3dB.
 //P_RF = RSSI_BASE_VAL + 3*(RSSI -1) [dBm] (RSSI_BASE_VAL is -91 dbm)
 //0 db is -91 dbm and 28 is -10 dbm
-//Choosing a value of 10 db as the threshold for detection of transmission, which
-//	corresponds to -62 dbm.
+//Choosing a value of 4 db as the threshold for detection of transmission, which
+//	corresponds to -82 dbm.
 //RF230_CCA_THRES_VALUE is set to the default value of C7 which corresponds to -77dbm (-91 + 2*7).
 //	7 is the lower 4 bits of the register
 //NOTE: this is in the basic operating mode of the radio
@@ -1150,12 +1150,13 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 //	is more than 4 towards the end, then return success, else fail
 BOOL RF231Radio::CheckForRSSI()
 {
-	int measureAgainCounter = 0;
+	/*int measureAgainCounter = 0;
 measureAgain:
+	static int startIndexForGoodRssi = 0;*/
+	const UINT8 rssiThresholdForTransmission = 4;
+	const UINT8 rssiCount = 8;
 	bool result = false;
-	static int startIndexForGoodRssi = 0;
-	UINT8 rssiThresholdForTransmission = 10;
-	int rssiCount = 8;
+	UINT16 averageRssi = 0;
 	UINT8 rssiBuffer[rssiCount] = {0};
 	//Store rssi values in a static buffer
 	CPU_GPIO_SetPinState( (GPIO_PIN)30, TRUE );
@@ -1166,6 +1167,17 @@ measureAgain:
 	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
 
 	for(int i = 0; i < rssiCount; i++){
+		averageRssi += rssiBuffer[i];
+	}
+	if(averageRssi > rssiThresholdForTransmission){
+		result = true;
+	}
+	else{
+		result = false;
+	}
+
+	//Below method is aggressive in terms of finding if there is some transmission activity going on
+	/*for(int i = 0; i < rssiCount; i++){
 		if(rssiBuffer[i] > rssiThresholdForTransmission){
 			//If index is g.t 3 and either current value is g.t prev value or current is g.t threshold, result is true
 			if( i >= 3 && ( (rssiBuffer[i] >= rssiBuffer[i-1]) || (rssiBuffer[i] > rssiThresholdForTransmission) ) ){
@@ -1186,7 +1198,7 @@ measureAgain:
 				goto measureAgain;
 			}
 		}
-	}
+	}*/
 
 	return result;
 
