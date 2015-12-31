@@ -13,6 +13,7 @@
 
 #include "Samraksh_eMote_Net.h"
 #include "Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base.h"
+#include <Samraksh/Radio_decl.h>
 
 using namespace Samraksh::eMote::Net::Radio;
 
@@ -78,13 +79,19 @@ INT32 Radio_802_15_4_Base::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, CLR_RT_Ty
 
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    return retVal;
+	DeviceStatus status;
+	status = CPU_Radio_ClearChannelAssesment(0);
+	if(status == DS_Success){
+		return true;
+	}
+	else
+		return false;
+	//return status;
 }
 
 INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-    INT8 retVal = 0; 
+    INT32 retVal = 0;
     return retVal;
 }
 

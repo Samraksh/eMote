@@ -701,6 +701,11 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState((GPIO_PIN)24, FALSE);
 #endif
 
+	CPU_GPIO_EnableOutputPin((GPIO_PIN)30, TRUE);
+	CPU_GPIO_EnableOutputPin((GPIO_PIN)31, TRUE);
+	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
+	CPU_GPIO_SetPinState( (GPIO_PIN)31, FALSE );
+
 	// Set MAC datastructures
 	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success)
@@ -1243,6 +1248,67 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 
 }
 
+
+//From the RF231 datasheet (pg 89, 90)
+//Min RSSI (absolute value) is 0 and max is 28 in steps of 3dB.
+//P_RF = RSSI_BASE_VAL + 3*(RSSI -1) [dBm] (RSSI_BASE_VAL is -91 dbm)
+//0 db is -91 dbm and 28 is -10 dbm
+//Choosing a value of 10 db as the threshold for detection of transmission, which
+//	corresponds to -62 dbm.
+//RF230_CCA_THRES_VALUE is set to the default value of C7 which corresponds to -77dbm (-91 + 2*7).
+//	7 is the lower 4 bits of the register
+//NOTE: this is in the basic operating mode of the radio
+//Check RSSI over a period of 16 usec (2 usec per measurement) and if RSSI value of 10 and above
+//	is more than 4 towards the end, then return success, else fail
+BOOL RF231Radio::CheckForRSSI()
+{
+	int measureAgainCounter = 0;
+measureAgain:
+	bool result = false;
+	static int startIndexForGoodRssi = 0;
+	UINT8 rssiThresholdForTransmission = 10;
+	int rssiCount = 8;
+	UINT8 rssiBuffer[rssiCount] = {0};
+	//Store rssi values in a static buffer
+	CPU_GPIO_SetPinState( (GPIO_PIN)30, TRUE );
+	//Takes 109 usec to read 8 RSSI values
+	for(int i = 0; i < rssiCount; i++){
+		rssiBuffer[i] = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
+	}
+	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
+
+	for(int i = 0; i < rssiCount; i++){
+		if(rssiBuffer[i] > rssiThresholdForTransmission){
+			//If index is g.t 3 and either current value is g.t prev value or current is g.t threshold, result is true
+			if( i >= 3 && ( (rssiBuffer[i] >= rssiBuffer[i-1]) || (rssiBuffer[i] > rssiThresholdForTransmission) ) ){
+				result = true;
+				startIndexForGoodRssi = i;
+			}
+			else{
+				result = false;
+			}
+			//If high rssi values are towards the end, then measure again.
+			//Maybe there is a transmission that just started
+			if(result && startIndexForGoodRssi >= 7){
+				measureAgainCounter++;
+				startIndexForGoodRssi = 0;
+				if(measureAgainCounter >= 2){
+					return false;
+				}
+				goto measureAgain;
+			}
+		}
+	}
+
+	return result;
+
+	//Check if there is a TRX_END interrupt raised at end of RSSI measurement. If yes, then transmission is over (experimental)
+	/*UINT8 irq_cause = ReadRegister(RF230_IRQ_STATUS);
+	if(irq_cause & TRX_IRQ_TRX_END){
+		return true;
+	}*/
+}
+
 //	Responsible for clear channel assessment
 //  Default version waits for 140 us
 //	Returns DS_Success if the channel is free, DS_Busy is not and DS_Fail is the assessment failed
@@ -1251,18 +1317,64 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 //template<class T>
 DeviceStatus RF231Radio::ClearChannelAssesment()
 {
-	UINT8 trx_status;
+	//return DS_Fail;  // Not yet supported --NPS
 
 	GLOBAL_LOCK(irq);
 
+	// Must be in RX mode to do measurment.
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	if (trx_status != RX_ON && trx_status != BUSY_RX)
+		return DS_Fail;
+
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
+	//irq.Release();
+
 	// Busy wait for the minimum duration of 140 us
-	HAL_Time_Sleep_MicroSeconds(150);
+	//HAL_Time_Sleep_MicroSeconds(150);
 
-	trx_status = ReadRegister(RF230_TRX_STATE);
+	CPU_GPIO_SetPinState( (GPIO_PIN)31, TRUE );
+	//UINT8 stat;
+	//stat = ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK;
 
-	return ((trx_status & RF230_CCA_DONE) ? ((trx_status & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
+	//CheckForRSSI takes 116 usec (109 usec + 7 usec for processing)
+	BOOL rssiStatus = CheckForRSSI();
+
+	CPU_GPIO_SetPinState( (GPIO_PIN)31, FALSE );
+
+	if(rssiStatus){
+		return DS_Success;
+	}
+	else{
+		return DS_Fail;
+	}
+
+	/*static int counter0 = 0;
+	//static int counter10 = 0;
+	INT16 temp = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
+	if(temp != 0){
+		hal_printf("Rssi value is %d\n", temp);
+		if(temp > 10){
+			counter10++;
+			if(counter10 % 100 == 0){
+				hal_printf("counter10 is %d\n", counter10);
+			}
+		}
+	}
+	else if(temp == 0){
+		counter0++;
+		if(counter0 % 100 == 0){
+			hal_printf("counter0 is %d\n", counter0);
+		}
+	}
+
+	if(temp > 10){
+		return DS_Success;
+	}
+	else{
+		return DS_Fail;
+	}*/
+	//return ((stat & RF230_CCA_DONE) ? ((stat & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
 }
 
 

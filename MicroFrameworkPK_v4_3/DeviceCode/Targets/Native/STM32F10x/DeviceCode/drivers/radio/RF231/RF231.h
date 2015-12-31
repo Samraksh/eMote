@@ -235,6 +235,7 @@ public:
     DeviceStatus SetTimeStamp(UINT64 timeStamp);
     INT32 GetSNR();
     INT32 GetRSSI();
+    BOOL CheckForRSSI();
 
     DeviceStatus Sleep(int level);
 

@@ -520,7 +520,7 @@ radio_hal_trx_status_t radio_hal_trx_status; //Current state of the transceiver.
 
 #define	 RF230_TRX_CTRL_0_VALUE		 0x0
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
-#define	 RF230_CCA_MODE_VALUE  		 (3 << 5)
+#define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
 #define RF230_DEF_CHANNEL 26
 
