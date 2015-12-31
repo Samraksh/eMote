@@ -1,5 +1,5 @@
-#ifndef _MAC_DECL_H_
-#define _MAC_DECL_H_
+#ifndef _SHUTDOWN_H_
+#define _SHUTDOWN_H_
 
 #include "Hal_util.h"
 

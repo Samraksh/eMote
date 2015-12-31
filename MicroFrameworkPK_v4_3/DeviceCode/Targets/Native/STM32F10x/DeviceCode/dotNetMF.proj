@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AssemblyName>STM32F10x_dirver_control</AssemblyName>
+    <AssemblyName>STM32F10x_driver_control</AssemblyName>
     <ProjectGuid>{36101ca5-349a-4471-aeb0-3babba567477}</ProjectGuid>
     <Size>
     </Size>
     <Description>STM32F10x adc</Description>
     <Level>HAL</Level>
-    <LibraryFile>STM32F10x_dirver_control.$(LIB_EXT)</LibraryFile>
+    <LibraryFile>STM32F10x_driver_control.$(LIB_EXT)</LibraryFile>
     <ProjectPath>$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\adc\dotNetMF.proj</ProjectPath>
-    <ManifestFile>STM32F10x_dirver_control.$(LIB_EXT).manifest</ManifestFile>
+    <ManifestFile>STM32F10x_driver_control.$(LIB_EXT).manifest</ManifestFile>
     <Groups>Processor\STM32F10x</Groups>
     <LibraryCategory>
       <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="adc_HAL" Guid="{15AB3FEB-4D7A-40AD-B1A0-4BF663A6EF93}" ProjectPath="" Conditional="" xmlns="">
