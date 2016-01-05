@@ -56,7 +56,7 @@ public:
 	static UINT16 RandWithMask_Dummy(UINT16 *seedRet, UINT16 mask) {
 		UINT16 rv;
 		rv = *seedRet;
-		*seedRet = *seedRet * *seedRet ;
+		*seedRet = (*seedRet+1) * (*seedRet+10) ;
 		return rv;
 
 	}
