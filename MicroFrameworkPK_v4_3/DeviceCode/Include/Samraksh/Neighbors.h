@@ -289,6 +289,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status
 	Neighbor[*index].LastHeardTime = currTime;
 
 	Neighbor[*index].nextSeed = seed;
+	Neighbor[*index].mask = mask;
 	Neighbor[*index].nextwakeupSlot = nextwakeupSlot;
 	Neighbor[*index].seedUpdateIntervalinSlots = seedUpdateIntervalinSlots;
 	return DS_Success;
