@@ -53,6 +53,21 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
+//Page 71-72 in RF231 datasheet
+//Bits 0,3,6,7 - Reserved
+//Bit 1 - Promiscuous mode (disabled)
+//Bit 2 - Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
+//Bit 4 - If set, received frames indicated as a reserved frame are further processed
+//Bit 5 - If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006.
+//		   Can be set only if bit 4 is set.
+#define	 RF230_AUTO_ACK_CONFIG		 0x0
+
+//Page 73 in RF231 datasheet
+//Bits 4-7 - Max_frame_retries - being set to 1
+//Bits 1-3 - Max_csma_retries - being set to 1
+//Bit 0 - slotted operation - set to 0
+#define	 RF230_MAX_TX_RETRIES		 0x12
+
 #define RF230_DEF_CHANNEL 26
 
 #define NODE_ID 0x1
@@ -179,6 +194,10 @@ enum RadioStateEnum
 	STATE_PLL_ON = 9,
 	STATE_SLEEP_PENDING = 10,
 	STATE_BUSY_RX = 11,
+	STATE_RX_AACK_ON = 12,
+	STATE_BUSY_RX_AACK = 13,
+	STATE_TX_ARET_ON = 14,
+	STATE_BUSY_TX_ARET = 15,
 };
 
 enum RadioCommandEnum
@@ -194,6 +213,8 @@ enum RadioCommandEnum
 	CMD_SIGNAL_DONE = 8,
 	CMD_DOWNLOAD = 9,
 	CMD_LISTEN = 10,
+	CMD_TX_ARET = 11,
+	CMD_RX_AACK = 12
 };
 
 enum Rf230RegistersEnum {
@@ -211,6 +232,7 @@ enum Rf230RegistersEnum {
   RF230_VREG_CTRL = 0x10,
   RF230_BATMON = 0x11,
   RF230_XOSC_CTRL = 0x12,
+  RF230_XAH_CTRL_1 = 0x17,
   RF230_PLL_CF = 0x1A,
   RF230_PLL_DCU = 0x1B,
   RF230_PART_NUM = 0x1C,
@@ -229,7 +251,7 @@ enum Rf230RegistersEnum {
   RF230_IEEE_ADDR_5 = 0x29,
   RF230_IEEE_ADDR_6 = 0x2A,
   RF230_IEEE_ADDR_7 = 0x2B,
-  RF230_XAH_CTRL = 0x2C,
+  RF230_XAH_CTRL_0 = 0x2C,
   RF230_CSMA_SEED_0 = 0x2D,
   RF230_CSMA_SEED_1 = 0x2E
 };
@@ -440,6 +462,8 @@ private:
 	BOOL Interrupt_Pending();
 	BOOL Careful_State_Change(radio_hal_trx_status_t target);
 	BOOL Careful_State_Change(uint32_t target); // Our register enums are a mess. Until I fix. --NPS
+	BOOL Careful_State_Change_Extended(radio_hal_trx_status_t target);
+	BOOL Careful_State_Change_Extended(uint32_t target);
 	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status);
 
 	RadioEventHandler Radio_event_handler;

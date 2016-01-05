@@ -3,10 +3,11 @@
 #include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
 
 
-//#define TIME_OPTIMIZED_TRANSMIT
+#define TIME_OPTIMIZED_TRANSMIT
 #ifndef TIME_OPTIMIZED_TRANSMIT
 #define WRITE_THEN_TRANSMIT
 #endif
+#define RF231_EXTENDED_MODE
 
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
@@ -160,11 +161,28 @@ void RF231Radio::Wakeup() {
 	INIT_STATE_CHECK();
 	GLOBAL_LOCK(irq);
 	if (state == STATE_SLEEP) {
+#ifdef RF231_EXTENDED_MODE
+		UINT8 trx_status = (VERIFY_STATE_CHANGE);
+		if(trx_status == TX_ARET_ON){
+			state = STATE_TX_ARET_ON;
+		}
+		else if(trx_status == RX_AACK_ON){
+			state = STATE_RX_AACK_ON;
+		}
+		else{
+			SlptrClear();
+			HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
+			DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+			ENABLE_LRR(TRUE);
+			state = STATE_TRX_OFF;
+		}
+#else
 		SlptrClear();
 		HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
 		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
 		ENABLE_LRR(TRUE);
 		state = STATE_TRX_OFF;
+#endif
 	}
 }
 
@@ -216,7 +234,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 		trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 		if( poll_counter == timeout || (trx_status != orig_status \
 				&& trx_status != target \
-				&& trx_status != RF230_STATE_TRANSITION_IN_PROGRESS \
+				&& trx_status != STATE_TRANSITION_IN_PROGRESS \
 				&& !(trx_status == PLL_ON && target == RX_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
 			{
 				switch(trx_status) {
@@ -242,6 +260,88 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 	// We made it!
 	return TRUE;
 }
+
+
+BOOL RF231Radio::Careful_State_Change_Extended(uint32_t target) { return Careful_State_Change_Extended( (radio_hal_trx_status_t) target ); }
+BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
+
+	uint32_t poll_counter=0;
+	const uint32_t timeout = 0xFFFF;
+
+	GLOBAL_LOCK(irq);
+
+	Wakeup();
+
+	// current status
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	radio_hal_trx_status_t orig_status = trx_status;
+
+	ASSERT_RADIO(trx_status != P_ON); // P_ON is 0 and normally impossible to reach after init. So likely SPI died.
+
+	if (target == trx_status) { return TRUE; } // already there!
+	if (target == RX_AACK_ON && trx_status == BUSY_RX_AACK) { return TRUE; } // BUSY_RX and RX_ON are equiv.
+
+	// Make sure we're not busy and can move.
+	if ( trx_status == BUSY_RX_AACK || trx_status == BUSY_TX_ARET || Interrupt_Pending() )
+	{
+		return FALSE;
+	}
+
+	/*if(target == TX_ARET_ON){
+		WriteRegister(RF230_TRX_STATE, PLL_ON); // do the move
+
+		do{
+			trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			if( poll_counter == timeout || (trx_status != orig_status \
+					&& trx_status != PLL_ON \
+					&& trx_status != STATE_TRANSITION_IN_PROGRESS \
+					&& !(trx_status == PLL_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
+				{
+					switch(trx_status) {
+						case BUSY_RX: state = STATE_BUSY_RX_AACK; break;
+						case BUSY_TX: state = STATE_BUSY_TX_ARET; break;
+						default: state = STATE_PLL_ON; ASSERT_RADIO(0); // Unknown. Put here just because.
+					}
+					return FALSE;
+				}
+			poll_counter++;
+		} while(trx_status != PLL_ON);
+	}*/
+
+
+	WriteRegister(RF230_TRX_STATE, target); // do the move
+
+	do{
+		trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+		if( poll_counter == timeout || (trx_status != orig_status \
+				&& trx_status != target \
+				&& trx_status != STATE_TRANSITION_IN_PROGRESS \
+				&& !(trx_status == TX_ARET_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
+			{
+				switch(trx_status) {
+					case BUSY_RX: state = STATE_BUSY_RX_AACK; break;
+					case BUSY_TX: state = STATE_BUSY_TX_ARET; break;
+					default: state = STATE_PLL_ON; ASSERT_RADIO(0); // Unknown. Put here just because.
+				}
+				return FALSE;
+			}
+		poll_counter++;
+	} while(trx_status != target);
+
+	// Check one last time for interrupt.
+	// Not clear how this could happen, but assume it would be an RX. --NPS
+	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX_AACK; return FALSE; } // Not an error, just odd
+
+	// Reset cmd here just to be clean.
+	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
+	{
+		cmd = CMD_NONE;
+	}
+
+	// We made it!
+	return TRUE;
+}
+
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
@@ -273,6 +373,21 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	add_send_ts_time(); // Debugging. Will remove.
 
+#ifdef RF231_EXTENDED_MODE
+	if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+		state = RF230_PLL_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+	// Go to PLL_ON
+	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
+		state = RF230_TX_ARET_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+#else
 	// Go to PLL_ON
 	if ( Careful_State_Change(RF230_PLL_ON) ) {
 		state = STATE_PLL_ON;
@@ -280,6 +395,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
+#endif
 
 	tx_length = size;
 	ldata =(UINT8*) msg;
@@ -397,7 +513,12 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	// exchange bags
 	tx_msg_ptr = (Message_15_4_t*) msg;
+#ifdef RF231_EXTENDED_MODE
+	//Extended mode
+	cmd = CMD_TX_ARET;
+#else
 	cmd = CMD_TRANSMIT;
+#endif
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
@@ -498,7 +619,7 @@ DeviceStatus RF231Radio::ChangeTxPower(int power) {
 	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
-	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
+	if ( !Careful_State_Change(RF230_TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
 	state = STATE_TRX_OFF;
@@ -516,7 +637,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel) {
 	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
-	if ( !Careful_State_Change(TRX_OFF) || !IsInitialized() ) {
+	if ( !Careful_State_Change(RF230_TRX_OFF) || !IsInitialized() ) {
 		return DS_Fail; // We were busy.
 	}
 	state = STATE_TRX_OFF;
@@ -550,6 +671,21 @@ DeviceStatus RF231Radio::Sleep(int level)
 	// Queue the sleep request if we think we are busy.
 	//if(state == STATE_BUSY_TX || state == STATE_BUSY_RX) { return DS_Success; } // This is now done in Careful_State_Change()
 
+#ifdef RF231_EXTENDED_MODE
+	// Go to TRX_OFF
+	if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+		state = STATE_PLL_ON;
+	}
+	else { // If we are busy that's OK, the sleep request is still queued.
+		return DS_Success;
+	}
+	if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+		state = STATE_TRX_OFF;
+	}
+	else { // If we are busy that's OK, the sleep request is still queued.
+		return DS_Success;
+	}
+#else
 	// Go to TRX_OFF
 	if ( Careful_State_Change(RF230_TRX_OFF) ) {
 		state = STATE_TRX_OFF;
@@ -557,6 +693,7 @@ DeviceStatus RF231Radio::Sleep(int level)
 	else { // If we are busy that's OK, the sleep request is still queued.
 		return DS_Success;
 	}
+#endif
 
 	// Read current state of radio to be sure. --Update, I'm actually sure now, but we'll leave it. --NPS
 	regState = (VERIFY_STATE_CHANGE);
@@ -631,6 +768,15 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	add_send_time(); // Debugging. Will remove.
 
+#ifdef RF231_EXTENDED_MODE
+	// Go to PLL_ON
+	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
+		state = RF230_TX_ARET_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+#else
 	// Go to PLL_ON
 	if ( Careful_State_Change(RF230_PLL_ON) ) {
 		state = STATE_PLL_ON;
@@ -638,6 +784,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
+#endif
 
 	tx_length = size;
 	ldata =(UINT8*) msg;
@@ -737,7 +884,12 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	// exchange bags
 	//temp = tx_msg_ptr;
 	tx_msg_ptr = (Message_15_4_t*) msg;
+#ifdef RF231_EXTENDED_MODE
+	//Extended mode
+	cmd = CMD_TX_ARET;
+#else
 	cmd = CMD_TRANSMIT;
+#endif
 
 	CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
@@ -973,6 +1125,20 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		HAL_Time_Sleep_MicroSeconds(510);
 
+		/***********Extended mode configuration***********/
+#ifdef RF231_EXTENDED_MODE
+		//Put the radio into extended mode
+		WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+
+		WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
+		DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);
+
+		WriteRegister(RF230_XAH_CTRL_1, RF230_AUTO_ACK_CONFIG);
+		WriteRegister(RF230_XAH_CTRL_0, RF230_MAX_TX_RETRIES);
+#endif
+		/*************************************************/
+
 		if(this->GetRadioName() == RF231RADIOLR)
 		{
 			/* AnanthAtSamraksh - adding below line to fix receive on LR radio extension board - 2/11/2014 */
@@ -980,9 +1146,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			rf231_enable_pa_rxtx();
 		}
 
-
 		// Register controls the interrupts that are currently enabled
-
 		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
 
 		// The RF230_CCA_THRES sets the ed level for CCA, currently setting threshold to 0xc7
@@ -1192,7 +1356,11 @@ DeviceStatus RF231Radio::TurnOnRx()
 
 	add_rx_start_time();
 
+#ifdef RF231_EXTENDED_MODE
+	if ( !Careful_State_Change_Extended(RX_AACK_ON) ) { return DS_Fail; }
+#else
 	if ( !Careful_State_Change(RX_ON) ) { return DS_Fail; }
+#endif
 
 	state = STATE_RX_ON;
 	return DS_Success;
@@ -1500,7 +1668,6 @@ void RF231Radio::HandleInterrupt()
 	{
 		if(cmd == CMD_TRANSMIT)
 		{
-
 #			ifdef DEBUG_RF231
 			hal_printf("RF231: TRX_IRQ_TRX_END : Transmit Done\r\n");
 #			endif
@@ -1585,12 +1752,99 @@ void RF231Radio::HandleInterrupt()
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
 		}
-		else { // Something happened. unclear what. Try to go to a safe state.
-#			ifndef NDEBUG
+		else if(cmd == CMD_TX_ARET)
+		{
+			hal_printf("Inside CMD_TX_ARET\n");
+			add_send_done();
+
+			state = STATE_PLL_ON;
+			// Call radio send done event handler when the send is complete
+			SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+			(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+
+			cmd = CMD_NONE;
+
+			if(sleep_pending)
+			{
+				Sleep(0);
+				return;
+			}
+			else //
+			{
+				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+				state = STATE_RX_AACK_ON;
+			}
+		}
+		else if(cmd == CMD_RX_AACK)
+		{
+			hal_printf("Inside CMD_RX_AACK\n");
+			state = STATE_RX_AACK_ON; // Right out of BUSY_RX
+
+			// Go to PLL_ON at least until the frame buffer is empty
+			WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+			state = STATE_PLL_ON;
+
+			if(DS_Success == DownloadMessage()){
+				//rx_msg_ptr->SetActiveMessageSize(rx_length);
+				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
+					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+#endif
+					return;
+				}
+
+				// Please note this is kind of a hack.
+				// Manually check our interrupts here (since we are locked).
+				// If we see a new interrupt, just assume it means we had an RX overrun.
+				// In which case we just drop the packet (or packets?) --NPS
+
+				// Un-sure if this is how to drop a packet. --NPS
+
+				if ( !Interrupt_Pending() ) {
+					int type = rx_msg_ptr->GetHeader()->type;
+					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+				}
+			}
+			else {
+				// download error
+				add_download_error();
+			}
+
+			cmd = CMD_NONE;
+
+			// Check if mac issued a sleep while i was receiving something
+			if(sleep_pending)
+			{
+				Sleep(0);
+				return;
+			}
+			else { // Now safe to go back to RX_ON
+				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+				state = STATE_RX_AACK_ON;
+			}
+		}
+		else
+		{ // Something happened. unclear what. Try to go to a safe state.
+#ifndef NDEBUG
 			hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
-#			endif
+#endif
+#ifdef RF231_EXTENDED_MODE
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("1. current status inside handle interrupt is: %d; state is: %d\n", trx_status, state);
+			Careful_State_Change(PLL_ON);
+			state = STATE_PLL_ON;
+			trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("2. current state inside handle interrupt is: %d\n", trx_status);
 			Careful_State_Change(TRX_OFF);
 			state = STATE_TRX_OFF;
+#else
+			Careful_State_Change(TRX_OFF);
+			state = STATE_TRX_OFF;
+#endif
 		}
 	}
 
