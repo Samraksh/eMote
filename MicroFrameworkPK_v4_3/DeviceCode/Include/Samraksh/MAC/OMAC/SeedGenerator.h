@@ -51,6 +51,15 @@ public:
 		tmpseed = tmpseed ^ mask;
 		return tmpseed;
 	}
+
+
+	static UINT16 RandWithMask_Dummy(UINT16 *seedRet, UINT16 mask) {
+		UINT16 rv;
+		rv = *seedRet;
+		*seedRet = *seedRet * *seedRet ;
+		return rv;
+
+	}
 };
 
 
