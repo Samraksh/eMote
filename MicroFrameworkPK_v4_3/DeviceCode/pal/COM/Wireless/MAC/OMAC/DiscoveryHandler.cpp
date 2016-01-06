@@ -21,15 +21,13 @@ extern OMACScheduler g_omac_scheduler;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
-DiscoveryHandler g_DiscoveryHandler;
 
 
 /*
  *
  */
 void PublicBeaconNCallback(void * param){
-	//g_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
-	g_DiscoveryHandler.BeaconNTimerHandler();
+	g_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
 }
 
 

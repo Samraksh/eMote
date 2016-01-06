@@ -15,9 +15,6 @@ extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 extern RadioControl_t g_omac_RadioControl;
 
-MacReceiveFuncPtrType g_rxAckHandler;
-MacEventHandler_t* g_appHandler;
-
 
 void PublicDataRxCallback(void * param){
 	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
