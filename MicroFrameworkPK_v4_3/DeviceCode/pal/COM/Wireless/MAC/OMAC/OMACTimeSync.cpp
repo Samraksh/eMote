@@ -51,7 +51,7 @@ void PublicTimeSyncCallback(void * param){
  */
 void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_EnableOutputPin(TIMESYNC_SENDPIN, FALSE);
+	CPU_GPIO_EnableOutputPin(TIMESYNC_GENERATE_MESSAGEPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, FALSE);
 	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
 #endif
@@ -162,7 +162,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 
 	if (m_globalTime.regressgt2.NumberOfRecordedElements(address) >=2  ){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, TRUE );
+	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, TRUE );
 #endif
 		IEEE802_15_4_Header_t * header = m_timeSyncMsgBuffer.GetHeader();
 		tsreqmsg = (TimeSyncRequestMsg *) m_timeSyncMsgBuffer.GetPayload();
@@ -173,7 +173,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #endif
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( TIMESYNC_SENDPIN, FALSE );
+	CPU_GPIO_SetPinState( TIMESYNC_GENERATE_MESSAGEPIN, FALSE );
 #endif
 	}
 
