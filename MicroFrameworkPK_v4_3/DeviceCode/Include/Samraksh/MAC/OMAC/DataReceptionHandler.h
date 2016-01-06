@@ -35,6 +35,7 @@ public:
 
  	void HandleRadioInterrupt();
 	void PostExecuteEvent();
+	void HandleEndofReception();
 };
 
 

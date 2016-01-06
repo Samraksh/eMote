@@ -14,15 +14,13 @@
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 extern RadioControl_t g_omac_RadioControl;
-DataReceptionHandler g_DataReceptionHandler;
 
 MacReceiveFuncPtrType g_rxAckHandler;
 MacEventHandler_t* g_appHandler;
 
 
 void PublicDataRxCallback(void * param){
-	//g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
-	g_DataReceptionHandler.PostExecuteEvent();
+	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
 
 /*
@@ -127,21 +125,21 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 }
-/*
- *
- */
-void DataReceptionHandler::PostExecuteEvent(){
-	if(0 && m_isreceiving){
 
-	}
-	else{
-		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  g_omac_scheduler.GetSlotNumber() );
-		g_omac_RadioControl.Stop();
+void DataReceptionHandler::HandleEndofReception(){
+	VirtualTimerReturnMessage rm;
+	m_isreceiving = false;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 1, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+}
+
+void DataReceptionHandler::PostExecuteEvent(){
+	g_omac_RadioControl.Stop();
 	#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 	#endif
-		g_omac_scheduler.PostExecution();
-	}
+	g_omac_scheduler.PostExecution();
 }
 
 

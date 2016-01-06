@@ -357,6 +357,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 			break;
 		case MFM_TIMESYNCREQ:
+			if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+				g_omac_scheduler.m_DataReceptionHandler.HandleEndofReception();
+			}
+
 			CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
 			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
