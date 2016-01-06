@@ -63,7 +63,7 @@ void DataTransmissionHandler::Initialize(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -151,6 +151,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		#endif
 	}
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -164,6 +165,21 @@ void DataTransmissionHandler::ExecuteEvent(){
 /*UINT8 DataTransmissionHandler::ExecuteEventDone(){
 	return 0;
 }*/
+
+void DataTransmissionHandler::SendACKHandler(){
+	VirtualTimerReturnMessage rm;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+	if(rm == TimerSupported){
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+	else{		//Could not stop timer just wait for it
+	}
+}
+
 
 /*
  *

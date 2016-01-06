@@ -269,6 +269,8 @@ typedef OFProv<UINT64> OMACTicks;
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
+#define MAX_PACKET_TX_DURATION_MICRO 16*MICSECINMILISEC
+
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1000
 
 #define FORCE_REQUESTTIMESYNC_INTICKS 100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.

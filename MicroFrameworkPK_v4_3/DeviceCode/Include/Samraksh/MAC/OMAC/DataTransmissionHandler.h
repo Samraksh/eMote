@@ -38,6 +38,7 @@ public:
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
 	BOOL ScheduleDataPacket();
 	bool Send();
+	void SendACKHandler();
 
 	UINT64 GetTxTicks();
 	UINT32 GetTxCounter();

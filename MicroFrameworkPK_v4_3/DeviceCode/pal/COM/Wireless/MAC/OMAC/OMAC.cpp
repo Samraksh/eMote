@@ -64,13 +64,6 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		case MFM_DISCOVERY:
 			g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
 			break;
-		case MFM_DATA:
-		{
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			(*g_txAckHandler)(msg, Size, status);
-			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
-			break;
-		}
 		case MFM_ROUTING:
 			break;
 		case MFM_NEIGHBORHOOD:
@@ -79,7 +72,16 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
+		case MFM_DATA:
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+			(*g_txAckHandler)(msg, Size, status);
+			//break;
 		default:
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+			if(g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)){
+				g_omac_scheduler.m_DataTransmissionHandler.SendACKHandler();
+			}
+			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
 	};
 
