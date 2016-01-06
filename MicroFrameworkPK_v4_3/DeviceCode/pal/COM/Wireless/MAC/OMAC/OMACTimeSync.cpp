@@ -23,7 +23,6 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 extern NeighborTable g_NeighborTable;
 extern OMACScheduler g_omac_scheduler;
-OMACTimeSync g_OMACTimeSync;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
@@ -35,20 +34,9 @@ BOOL GlobalTime::synced=FALSE;
 
 
 void PublicTimeSyncCallback(void * param){
-	g_OMACTimeSync.PostExecuteEvent();
+	g_omac_scheduler.m_TimeSyncHandler.PostExecuteEvent();
 }
 
-/*
- *
- */
-//inline UINT64 DifferenceBetweenTimes(UINT64 X, UINT64 Y){
-//	if(X>Y) return (X-Y);
-//	else return( (MAX_UINT64 - Y) + X);
-//}
-
-/*
- *
- */
 void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(TIMESYNC_SENDPIN, FALSE);
