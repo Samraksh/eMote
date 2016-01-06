@@ -14,9 +14,6 @@ extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 
-HAL_COMPLETION OMAC_scheduler_TimerCompletion;
-
-
 
 void PublicPostExecutionTaskHandler1(void * param){
 	g_omac_scheduler.PostPostExecution();
@@ -64,7 +61,6 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	//rm = VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
 	//ASSERT_SP(rm == TimerSupported);
 	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
-	OMAC_scheduler_TimerCompletion.Initialize();
 
 	//Initialize Handlers
 	m_DiscoveryHandler.Initialize(radioID, macID);
@@ -78,8 +74,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 }
 
 void OMACScheduler::UnInitialize(){
-	OMAC_scheduler_TimerCompletion.Abort();
-	OMAC_scheduler_TimerCompletion.Uninitialize();
+
 }
 
 UINT64 OMACScheduler::GetSlotNumber(){
