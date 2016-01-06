@@ -22,12 +22,10 @@ extern OMACScheduler g_omac_scheduler;
 extern Buffer_15_4_t g_send_buffer;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
-DataTransmissionHandler g_DataTransmissionHandler;
 
 
 void PublicDataTxCallback(void * param){
-	//g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
-	g_DataTransmissionHandler.PostExecuteEvent();
+	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 }
 
 UINT64 DataTransmissionHandler::GetTxTicks()
