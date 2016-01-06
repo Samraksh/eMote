@@ -25,7 +25,7 @@ extern RadioControl_t g_omac_RadioControl;
 DataTransmissionHandler g_DataTransmissionHandler;
 
 
-void PublicTXEndHCallback(void * param){
+void PublicDataTxCallback(void * param){
 	//g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 	g_DataTransmissionHandler.PostExecuteEvent();
 }
@@ -65,7 +65,7 @@ void DataTransmissionHandler::Initialize(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicTXEndHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, 1 * MICSECINMILISEC, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -119,11 +119,14 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 #endif
 
+	VirtualTimerReturnMessage rm;
 	IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 
+	//An alternate arrangement for the non availability of CCA in the radio driver
+	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	HAL_Time_Sleep_MicroSeconds(500);
 
 	if (e == DS_Success){
@@ -150,7 +153,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		#endif
 	}
-	VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		PostExecuteEvent();
+	}
 	//PostExecuteEvent();
 }
 

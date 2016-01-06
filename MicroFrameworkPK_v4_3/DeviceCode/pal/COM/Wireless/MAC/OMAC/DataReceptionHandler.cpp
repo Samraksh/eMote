@@ -20,8 +20,9 @@ MacReceiveFuncPtrType g_rxAckHandler;
 MacEventHandler_t* g_appHandler;
 
 
-void PublicReceiveHCallback(void * param){
-	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+void PublicDataRxCallback(void * param){
+	//g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+	g_DataReceptionHandler.PostExecuteEvent();
 }
 
 /*
@@ -43,7 +44,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicReceiveHCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -71,14 +72,29 @@ UINT64 DataReceptionHandler::NextEvent(){
 }
 
 void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
+//#ifdef def_Neighbor2beFollowed
+//	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler:UpdateSeedandCalculateWakeupSlot\n"
+//			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+//#endif
+//	if (currentSlotNum >= wakeupSlot){
+//		UINT16 randVal;
+//		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
+//		while ( currentSlotNum >= wakeupSlot ){
+//			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+//			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
+//			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
+//		}
+//	}
+//	lastwakeupSlotUpdateTimeinTicks = HAL_Time_CurrentTicks();
+//	ASSERT_SP(wakeupSlot  > currentSlotNum);
+
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
-			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-			//randVal = 10;
-			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask_Dummy(&next_seed, mask);
+			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			randVal = 10;
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
@@ -93,13 +109,14 @@ void DataReceptionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
-		m_isreceiving = false;
-	static int failureCount = 0;
+
+	VirtualTimerReturnMessage rm;
+	m_isreceiving = false;
+	//static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -108,11 +125,15 @@ void DataReceptionHandler::ExecuteEvent(){
 	}
 	else{
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
-		failureCount++;
+		/*failureCount++;
 		if(failureCount > 5){
 			//ASSERT_SP(0);
+		}*/
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
 		}
-		PostExecuteEvent();
+		//PostExecuteEvent();
 	}
 }
 
