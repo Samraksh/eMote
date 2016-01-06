@@ -72,29 +72,12 @@ UINT64 DataReceptionHandler::NextEvent(){
 }
 
 void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
-//#ifdef def_Neighbor2beFollowed
-//	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler:UpdateSeedandCalculateWakeupSlot\n"
-//			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())),g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
-//#endif
-//	if (currentSlotNum >= wakeupSlot){
-//		UINT16 randVal;
-//		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
-//		while ( currentSlotNum >= wakeupSlot ){
-//			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-//			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
-//			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
-//		}
-//	}
-//	lastwakeupSlotUpdateTimeinTicks = HAL_Time_CurrentTicks();
-//	ASSERT_SP(wakeupSlot  > currentSlotNum);
-
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
-			//randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
-			randVal = 10;
+			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
