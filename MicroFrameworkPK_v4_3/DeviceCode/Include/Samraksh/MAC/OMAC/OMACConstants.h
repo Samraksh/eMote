@@ -269,6 +269,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
+//#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
+#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+
 #define MAX_PACKET_TX_DURATION_MICRO 16*MICSECINMILISEC
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1000

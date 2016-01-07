@@ -95,6 +95,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -107,6 +108,8 @@ void DataReceptionHandler::ExecuteEvent(){
 		if(failureCount > 5){
 			//ASSERT_SP(0);
 		}*/
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -127,7 +130,7 @@ void DataReceptionHandler::HandleEndofReception(){
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 1, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 }
 
