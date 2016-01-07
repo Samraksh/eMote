@@ -190,11 +190,10 @@
 #define DATASTORE_END_ADDRESS 0x64FE0000
 
 
-#define g_totalCountOfVirtualTimers	16
-const UINT8 g_CountOfHardwareTimers = 1;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {g_totalCountOfVirtualTimers};
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+const UINT8 g_CountOfHardwareTimers = 2;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1, 4};
+const UINT8 g_VirtualTimerPerHardwareTimer = 16;
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways

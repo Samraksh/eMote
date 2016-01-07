@@ -53,18 +53,18 @@ BOOL InitializeTimer ()
 	if (debuggerAttached == true)
 	{
 		realTimeID = VIRT_TIMER_REALTIME_DEBUGGER;
-		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
+		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false, ADVTIMER_32BIT) != TimerSupported)
 		{
-			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_RT_Debugger) != TimerSupported)
+			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_RT_Debugger, ADVTIMER_32BIT) != TimerSupported)
 			{
 				ASSERT(FALSE);
 			}
 		}
 	} else {
 		realTimeID = VIRT_TIMER_REALTIME;
-		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false) != TimerSupported)
+		if(VirtTimer_Change(realTimeID, 0, RealTimeTimerMicrosecs, false, ADVTIMER_32BIT) != TimerSupported)
 		{
-			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER) != TimerSupported)
+			if(VirtTimer_SetTimer(realTimeID, 0, RealTimeTimerMicrosecs, FALSE, TRUE, ISR_REALTIME_TIMER, ADVTIMER_32BIT) != TimerSupported)
 			{
 				ASSERT(FALSE);
 			}
@@ -97,7 +97,7 @@ BOOL RT_Dispose ()
 
 BOOL RT_Change(uint dueTime, uint period)
 {
-	VirtTimer_Change(realTimeID, dueTime, period, false);
+	VirtTimer_Change(realTimeID, dueTime, period, false, ADVTIMER_32BIT);
 
 	return 1;
 }

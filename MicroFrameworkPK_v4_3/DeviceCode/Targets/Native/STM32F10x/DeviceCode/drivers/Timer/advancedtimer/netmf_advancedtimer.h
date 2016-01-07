@@ -61,11 +61,11 @@ public:
 	bool setCompareRunning;
 
 	HAL_CALLBACK_FPN callBackISR;
-	void* callBackISR_Param;
+	UINT32 callBackISR_Param;
 
 	// Not exposing the ability to modify the timers involved because it involved knowledge of internal workings
 	// The advanced timer combination will always be TIM1 -> TIM2.
-	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_Param);
+	DeviceStatus Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param);
 
 	DeviceStatus SetCompare(UINT64 compareValue);
 
