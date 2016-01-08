@@ -142,8 +142,9 @@ static void interrupt_mode_check() {
 }
 
 void* RF231Radio::Send_Ack(void *msg, UINT16 size, NetOpStatus status) {
-	SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-	(*AckHandler)(msg, size, status);
+	////SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+	////(*AckHandler)(msg, size, status);
+	(Radio_event_handler.GetSendAckHandler())(msg, size, status);
 	if (status != NetworkOperations_Success) return NULL;
 	else return msg;
 }
@@ -594,7 +595,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
-	return temp;
+	return tx_msg_ptr;
 }
 
 
@@ -709,6 +710,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	interrupt_mode_check();
 
+	CPU_GPIO_EnableOutputPin(CCA_PIN, TRUE);
+	CPU_GPIO_SetPinState(CCA_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
@@ -724,11 +727,14 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
 	CPU_GPIO_SetPinState( (GPIO_PIN)31, FALSE );
 
+	//active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
 	// Set MAC datastructures
-	active_mac_index = Radio<Message_15_4_t>::GetMacIdIndex();
-	if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success){
+	Radio_event_handler.SetReceiveHandler(event_handler->GetReceiveHandler());
+	Radio_event_handler.SetSendAckHandler(event_handler->GetSendAckHandler());
+	Radio_event_handler.SetRadioInterruptHandler(event_handler->GetRadioInterruptHandler());
+	/*if(Radio<Message_15_4_t>::Initialize(event_handler, mac_id) != DS_Success){
 		return DS_Fail;
-	}
+	}*/
 
 	//If the radio hardware is not already initialized, initialize it
 	if(!IsInitialized())
@@ -887,10 +893,10 @@ DeviceStatus RF231Radio::UnInitialize()
     {
         RstnClear();
         SetInitialized(FALSE);
-        ASSERT_RADIO((active_mac_index & 0xFF00) == 0);
+        /*ASSERT_RADIO((active_mac_index & 0xFF00) == 0);
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
-        }
+        }*/
         SpiUnInitialize();
         GpioPinUnInitialize();
         if(this->GetRadioName() == RF231RADIO){
@@ -1148,57 +1154,79 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 //NOTE: this is in the basic operating mode of the radio
 //Check RSSI over a period of 16 usec (2 usec per measurement) and if RSSI value of 10 and above
 //	is more than 4 towards the end, then return success, else fail
+//#define RSSI_CHECK_ALL_VALUES
 BOOL RF231Radio::CheckForRSSI()
 {
-	/*int measureAgainCounter = 0;
+#ifdef RSSI_CHECK_ALL_VALUES
+	int measureAgainCounter = 0;
 measureAgain:
-	static int startIndexForGoodRssi = 0;*/
+	static int startIndexForGoodRssi = 0;
+#endif
+	static int counter = 0;
+	counter++;
 	const UINT8 rssiThresholdForTransmission = 4;
 	const UINT8 rssiCount = 8;
 	bool result = false;
 	UINT16 averageRssi = 0;
 	UINT8 rssiBuffer[rssiCount] = {0};
 	//Store rssi values in a static buffer
-	CPU_GPIO_SetPinState( (GPIO_PIN)30, TRUE );
+	////CPU_GPIO_SetPinState( (GPIO_PIN)30, TRUE );
 	//Takes 109 usec to read 8 RSSI values
 	for(int i = 0; i < rssiCount; i++){
 		rssiBuffer[i] = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
 	}
-	CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
+	////CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
 
+#ifndef RSSI_CHECK_ALL_VALUES
 	for(int i = 0; i < rssiCount; i++){
 		averageRssi += rssiBuffer[i];
+		/*if(counter % 100 == 0 && rssiBuffer[i] >= rssiThresholdForTransmission){
+			hal_printf("[%d] %d\t", i, rssiBuffer[i]);
+		}*/
 	}
-	if(averageRssi > rssiThresholdForTransmission){
+	/*if(counter % 100 == 0){
+		hal_printf("\n\n");
+	}*/
+	averageRssi = averageRssi/rssiCount;
+	if(averageRssi >= rssiThresholdForTransmission){
+		/*if(counter % 100 == 0){
+			hal_printf("averageRssi: %d\n", averageRssi);
+		}*/
+		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 		result = true;
 	}
 	else{
 		result = false;
 	}
+#endif
 
+#ifdef RSSI_CHECK_ALL_VALUES
 	//Below method is aggressive in terms of finding if there is some transmission activity going on
-	/*for(int i = 0; i < rssiCount; i++){
-		if(rssiBuffer[i] > rssiThresholdForTransmission){
+	for(int i = 0; i < rssiCount; i++){
+		if(rssiBuffer[i] >= rssiThresholdForTransmission){
 			//If index is g.t 3 and either current value is g.t prev value or current is g.t threshold, result is true
-			if( i >= 3 && ( (rssiBuffer[i] >= rssiBuffer[i-1]) || (rssiBuffer[i] > rssiThresholdForTransmission) ) ){
+			if( i >= 3){
 				result = true;
 				startIndexForGoodRssi = i;
 			}
-			else{
-				result = false;
-			}
-			//If high rssi values are towards the end, then measure again.
-			//Maybe there is a transmission that just started
-			if(result && startIndexForGoodRssi >= 7){
-				measureAgainCounter++;
-				startIndexForGoodRssi = 0;
-				if(measureAgainCounter >= 2){
-					return false;
-				}
-				goto measureAgain;
-			}
 		}
-	}*/
+		else{
+			result = false;
+		}
+	}
+
+	//If high rssi values are towards the end, then measure again.
+	//Maybe there is a transmission that just started
+	if(result && startIndexForGoodRssi >= 7){
+		measureAgainCounter++;
+		startIndexForGoodRssi = 0;
+		if(measureAgainCounter >= 2){
+			return false;
+		}
+		goto measureAgain;
+	}
+#endif
 
 	return result;
 
@@ -1232,10 +1260,10 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 	BOOL rssiStatus = CheckForRSSI();
 
 	if(rssiStatus){
-		return DS_Success;
+		return DS_Fail;
 	}
 	else{
-		return DS_Fail;
+		return DS_Success;
 	}
 
 	//irq.Release();
@@ -1262,6 +1290,7 @@ void RF231Radio::HandleInterrupt()
 	// I don't want to do a big lock here but the rest of the driver is so ugly... --NPS
 	GLOBAL_LOCK(irq);
 
+
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
 
 	// DEBUG NATHAN
@@ -1276,6 +1305,7 @@ void RF231Radio::HandleInterrupt()
 		//cmd = CMD_NONE; // Thinking about this... --NPS
 		// else it was an RX overrun and we live with it.
 	}
+
 
 	// See datasheet section 9.7.5. We handle both of these manually.
 	if(irq_cause & TRX_IRQ_PLL_LOCK) {
@@ -1321,9 +1351,11 @@ void RF231Radio::HandleInterrupt()
 		cmd = CMD_RECEIVE;
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
-		 (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
+		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
+		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 	}
+
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
 	if(irq_cause & TRX_IRQ_TRX_END)
@@ -1339,8 +1371,9 @@ void RF231Radio::HandleInterrupt()
 
 			state = STATE_PLL_ON;
 			// Call radio send done event handler when the send is complete
-			SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-			(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success);
 
 			cmd = CMD_NONE;
 
@@ -1370,6 +1403,7 @@ void RF231Radio::HandleInterrupt()
 			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
 			state = STATE_PLL_ON;
 
+
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
@@ -1389,7 +1423,8 @@ void RF231Radio::HandleInterrupt()
 				if ( !Interrupt_Pending() ) {
 					int type = rx_msg_ptr->GetHeader()->type;
 					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-					rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+					(Message_15_4_t *) (Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
 			}
 			else {
