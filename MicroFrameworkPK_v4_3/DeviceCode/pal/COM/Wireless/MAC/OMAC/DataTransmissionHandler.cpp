@@ -125,6 +125,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 void DataTransmissionHandler::ExecuteEventHelper()
 {
+	bool canISend = false;
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
 
@@ -135,37 +136,45 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	//if(g_DiscoveryHandler.highdiscorate == false){
 		//For GUARDTIME_MICRO period check the channel before transmitting
 		//150 usec is the time taken for CCA to return a result
-		for(int i = 0; i < (GUARDTIME_MICRO/150)+1; i++){
+		for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			//HAL_Time_Sleep_MicroSeconds(520);
 			if(DS != DS_Success){
-				hal_printf("Cannot transmit right now!\n");
+				hal_printf("transmission detected!\n");
+				i = GUARDTIME_MICRO/140;
+				canISend = false;
 				break;
+			}
+			else{
+				canISend = true;
 			}
 		}
 	//}
 
-	#ifdef OMAC_DEBUG_GPIO
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	#endif
-		bool rv = Send();
-		if(rv) {
-			/*if(header->type == MFM_DATA){
-				hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
-			}*/
-			g_send_buffer.DropOldest(1);
+#endif
+		if(canISend){
+			bool rv = Send();
+			if(rv) {
+				/*if(header->type == MFM_DATA){
+					hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
+				}*/
+				g_send_buffer.DropOldest(1);
+			}
+			else{
+#ifdef OMAC_DEBUG_GPIO
+			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+			}
 		}
-		else{
-	#ifdef OMAC_DEBUG_GPIO
-		hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	#endif
-		}
-	#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	#endif
+#endif
 
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -359,15 +368,15 @@ bool DataTransmissionHandler::Send(){
 		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
-		//set flag to false after packet has been sent
-
-		isDataPacketScheduled = false;
-		m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success){
 			return false;
 		}
-		else
+		else{
+			//set flag to false after packet has been sent
+			isDataPacketScheduled = false;
+			m_outgoingEntryPtr = NULL;
 			return true;
+		}
 	}
 	else{
 		return false;

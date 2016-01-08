@@ -1162,10 +1162,8 @@ BOOL RF231Radio::CheckForRSSI()
 measureAgain:
 	static int startIndexForGoodRssi = 0;
 #endif
-	static int counter = 0;
-	counter++;
 	const UINT8 rssiThresholdForTransmission = 4;
-	const UINT8 rssiCount = 8;
+	const UINT8 rssiCount = 4;
 	bool result = false;
 	UINT16 averageRssi = 0;
 	UINT8 rssiBuffer[rssiCount] = {0};
@@ -1180,18 +1178,9 @@ measureAgain:
 #ifndef RSSI_CHECK_ALL_VALUES
 	for(int i = 0; i < rssiCount; i++){
 		averageRssi += rssiBuffer[i];
-		/*if(counter % 100 == 0 && rssiBuffer[i] >= rssiThresholdForTransmission){
-			hal_printf("[%d] %d\t", i, rssiBuffer[i]);
-		}*/
 	}
-	/*if(counter % 100 == 0){
-		hal_printf("\n\n");
-	}*/
 	averageRssi = averageRssi/rssiCount;
 	if(averageRssi >= rssiThresholdForTransmission){
-		/*if(counter % 100 == 0){
-			hal_printf("averageRssi: %d\n", averageRssi);
-		}*/
 		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 		result = true;
