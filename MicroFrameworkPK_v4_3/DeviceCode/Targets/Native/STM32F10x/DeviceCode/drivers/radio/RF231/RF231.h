@@ -51,7 +51,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 #define	 RF230_TRX_CTRL_0_VALUE		 0x0
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
-#define	 RF230_CCA_MODE_VALUE  		 (3 << 5)
+#define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
 #define RF230_DEF_CHANNEL 26
 
@@ -439,6 +439,8 @@ private:
 	BOOL Careful_State_Change(radio_hal_trx_status_t target);
 	BOOL Careful_State_Change(uint32_t target); // Our register enums are a mess. Until I fix. --NPS
 	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status);
+
+	RadioEventHandler Radio_event_handler;
 
 public:
     UINT8* GetRxMsgBuffer()
