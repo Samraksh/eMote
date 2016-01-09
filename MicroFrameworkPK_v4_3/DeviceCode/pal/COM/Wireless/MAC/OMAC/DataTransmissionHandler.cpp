@@ -28,6 +28,10 @@ void PublicDataTxCallback(void * param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 }
 
+void PublicDataTxExecEventCallback(void * param){
+	g_omac_scheduler.m_DataTransmissionHandler.ExecuteEventHelper();
+}
+
 UINT64 DataTransmissionHandler::GetTxTicks()
 {
 	//return m_nextTXTicks;
@@ -56,7 +60,9 @@ void DataTransmissionHandler::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 #endif
 
 	isDataPacketScheduled = false;
@@ -64,6 +70,8 @@ void DataTransmissionHandler::Initialize(){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
+	ASSERT_SP(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TX_EXECEVENT, 0, 0, TRUE, FALSE, PublicDataTxExecEventCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -74,12 +82,16 @@ void DataTransmissionHandler::Initialize(){
 UINT64 DataTransmissionHandler::NextEvent(){
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, TRUE );
 
 	if(ScheduleDataPacket()) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 curTicks = HAL_Time_CurrentTicks();
+		//ASSERT_SP(nextTXTicks > curTicks);
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
+		//Wake up the transmitter a little early
+		remMicroSecnextTX -= GUARDTIME_MICRO;
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
@@ -103,6 +115,8 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		//Either Dont have packet to send or missing timing for the destination
 		return MAX_UINT64;
 	}
+
+	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 }
 
 
@@ -118,8 +132,9 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	//Start CCA only after the initial normal DISCO period
 	//if(g_DiscoveryHandler.highdiscorate == false){
 		//For GUARDTIME_MICRO period check the channel before transmitting
-		//150 usec is the time taken for CCA to return a result
-		for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+		//140 usec is the time taken for CCA to return a result
+		//Do CCA one extra count
+		for(int i = 0; i < (GUARDTIME_MICRO/140)+1; i++){
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			//HAL_Time_Sleep_MicroSeconds(520);
 			if(DS != DS_Success){
@@ -177,14 +192,43 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 
 	VirtualTimerReturnMessage rm;
+	DeviceStatus DS = DS_Success;
 	IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 
 	DeviceStatus e = DS_Fail;
 	e = g_omac_RadioControl.StartRx();
 
+	if(e == DS_Success){
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+	else{
+		hal_printf("Radio not in RX state\n");
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+
+#if 0
 	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	HAL_Time_Sleep_MicroSeconds(CCA_PERIOD_MICRO);
+
+	//HAL_Time_Sleep_MicroSeconds(500);
+	//Start CCA only after the initial normal DISCO period
+	//if(g_DiscoveryHandler.highdiscorate == false){
+		//For GUARDTIME_MICRO period check the channel before transmitting
+		//150 usec is the time taken for CCA to return a result
+		for(int i = 0; i < (GUARDTIME_MICRO/150)+1; i++){
+			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			if(DS != DS_Success){
+				hal_printf("Cannot transmit right now!\n");
+				break;
+			}
+		}
+	//}
 
 	if (e == DS_Success){
 		#ifdef OMAC_DEBUG_GPIO
@@ -210,12 +254,16 @@ void DataTransmissionHandler::ExecuteEvent(){
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		#endif
 	}
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
+	else{
+		hal_printf("Radio not in RX state\n");
+	}
+
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
 	}
 	//PostExecuteEvent();
+#endif
 }
 
 /*
@@ -387,7 +435,8 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 			}
 			UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
-				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
+				UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
+				g_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, currentSlotNum );
 			}
 			isDataPacketScheduled = true;
 			return TRUE;

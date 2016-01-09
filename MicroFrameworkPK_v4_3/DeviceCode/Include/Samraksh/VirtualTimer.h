@@ -238,11 +238,11 @@ public:
 
 	//For additional virtual timer support, adjust values here as well as in VirtualTimer.cpp, platform_selector.h
 #ifdef PLATFORM_ARM_EmoteDotNow
-	VirtualTimerMapper<8> virtualTimerMapper_0;
-	VirtualTimerMapper<10> virtualTimerMapper_1;
+	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_0;
+	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_1;
 #else
-	VirtualTimerMapper<8> virtualTimerMapper_0;
-	VirtualTimerMapper<8> virtualTimerMapper_1;
+	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_0;
+	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_1;
 #endif
 
 };

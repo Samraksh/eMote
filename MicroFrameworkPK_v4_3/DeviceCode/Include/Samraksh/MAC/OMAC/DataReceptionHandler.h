@@ -10,6 +10,7 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 #include "Scheduler.h"
+#include <TinyCLR_Runtime.h>
 
 #ifndef DATARECEPTIONHANDLER_H_
 #define DATARECEPTIONHANDLER_H_

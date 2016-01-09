@@ -190,9 +190,10 @@
 #define DATASTORE_END_ADDRESS 0x64FE0000
 
 
+#define g_totalCountOfVirtualTimers	16
 const UINT8 g_CountOfHardwareTimers = 1;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {8};
+const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {g_totalCountOfVirtualTimers};
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
 
 
@@ -220,10 +221,10 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_TIMESYNC 	5
 #define VIRT_TIMER_OMAC_RECEIVER 	6
 #define VIRT_TIMER_OMAC_TRANSMITTER	7
-#define HAL_SLOT_TIMER3 10
+#define VIRT_TIMER_OMAC_TX_EXECEVENT	8
 
-#define LocalClockMonitor_TIMER1 7
-#define NeighborClockMonitor_TIMER1 9
+#define LocalClockMonitor_TIMER1 10
+#define NeighborClockMonitor_TIMER1 11
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
@@ -263,23 +264,27 @@ J12_PIN10 = GND
 #define RF231_TX (GPIO_PIN)120								//J11_PIN10
 #define RF231_FRAME_BUFF_ACTIVE (GPIO_PIN)120
 
-#define TIMESYNC_GENERATE_MESSAGEPIN (GPIO_PIN)25 //120 //24 //120// // 3 				//J11_pin6
-#define TIMESYNC_RECEIVEPIN (GPIO_PIN)24 			//J12_pin5
+#define TIMESYNC_GENERATE_MESSAGEPIN (GPIO_PIN)120 //120 //24 //120// // 3 				//J11_pin6
+#define TIMESYNC_SENDPIN (GPIO_PIN)120 //120// // 3 				//J11_pin6
+#define TIMESYNC_RECEIVEPIN (GPIO_PIN)120 			//J12_pin5
+
+#define DATARECEPTION_SLOTPIN (GPIO_PIN)1 //31 //2				//J12_PIN4
 
 #define CCA_PIN		(GPIO_PIN)30
-#define DATARECEPTION_SLOTPIN (GPIO_PIN)29 //31 //2				//J12_PIN4
-
 #define DATATX_PIN (GPIO_PIN)120 //120 //120 //2							//J12_PIN3
-#define RC_TX_TIMESYNCREQ (GPIO_PIN)120
-#define RC_TX_DATA (GPIO_PIN)120
+#define RC_TX_TIMESYNCREQ (GPIO_PIN)24
+#define RC_TX_DATA (GPIO_PIN)29
 
-//#define DATATX_TIMESTAMP_PIN	(GPIO_PIN)120 // TIMESYNC_GENERATE_MESSAGEPIN//24 //Same as TIMESYNC_GENERATE_MESSAGEPIN
+#define DATATX_NEXTEVENT		(GPIO_PIN)120
+#define DATARX_NEXTEVENT		(GPIO_PIN)120
+
+//#define DATATX_TIMESTAMP_PIN	(GPIO_PIN)120 // TIMESYNC_SENDPIN//24 //Same as TIMESYNC_SENDPIN
 #define DATATX_DATA_PIN			(GPIO_PIN)120 //25
-#define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
-#define DATARX_DATA_PIN			(GPIO_PIN)120 //30
+#define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120	////30 //29
+#define DATARX_DATA_PIN			(GPIO_PIN)120	////31 //30
 #define SEND_ACK_PIN			(GPIO_PIN)120
-#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)0
-#define DATA_TX_ACK_PIN			(GPIO_PIN)31
+#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)120	//0
+#define DATA_TX_ACK_PIN			(GPIO_PIN)120
 
 
 #define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5

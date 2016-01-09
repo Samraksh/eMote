@@ -11,6 +11,7 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
 
+CLR_RT_Random rand1;
 extern OMACType g_OMAC;
 extern OMACScheduler g_omac_scheduler;
 extern RadioControl_t g_omac_RadioControl;
@@ -26,7 +27,9 @@ void PublicDataRxCallback(void * param){
 void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATARECEPTION_SLOTPIN, TRUE);
+	CPU_GPIO_EnableOutputPin(DATATX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, FALSE );
 #endif
 	RadioID = radioID;
 	MacID = macID;
@@ -36,6 +39,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
 	m_nextwakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_seedUpdateIntervalinSlots;
+	rand1.Initialize(m_nextSeed);
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
@@ -44,6 +48,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, TRUE );
 	UINT64 y = HAL_Time_CurrentTicks();
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
@@ -56,6 +61,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
 	UINT64 curTicks = HAL_Time_CurrentTicks();
+	CPU_GPIO_SetPinState( DATATX_NEXTEVENT, FALSE );
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF

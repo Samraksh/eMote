@@ -28,9 +28,9 @@ static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better
 
 //For additional virtual timer support, adjust values here as well as in platform_selector.h, VirtualTimer.h (VirtualTimer class)
 #ifdef PLATFORM_ARM_EmoteDotNow
-	const UINT8 VTCount0 = 8;
+	const UINT8 VTCount0 = g_totalCountOfVirtualTimers;
 #else
-	const UINT8 VTCount0 = 8;
+	const UINT8 VTCount0 = g_totalCountOfVirtualTimers;
 #endif
 
 template<>

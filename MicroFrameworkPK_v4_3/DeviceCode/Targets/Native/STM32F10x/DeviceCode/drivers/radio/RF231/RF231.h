@@ -61,6 +61,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 #define INIT_STATE_CHECK()				UINT16 poll_counter, trx_status;
 
+#define VERIFY_STATE_CHANGE				ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK
+
 // Simple assert function that prints a message and infinite whiles
 #if !defined(NDEBUG)
 #define ASSERT_RADIO(x)  if(!(x)){ SOFT_BREAKPOINT(); }

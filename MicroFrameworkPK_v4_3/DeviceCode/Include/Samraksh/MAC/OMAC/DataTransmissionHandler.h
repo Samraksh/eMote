@@ -33,6 +33,7 @@ public:
 	//UINT64 NextEvent(UINT64 currentTicks);
 	void ExecuteEventHelper();
 	void ExecuteEvent();
+	void ExecuteEventHelper();
 	//UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 

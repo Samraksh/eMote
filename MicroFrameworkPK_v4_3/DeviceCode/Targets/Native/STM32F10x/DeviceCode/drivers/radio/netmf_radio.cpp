@@ -333,7 +333,8 @@ DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//DS_Fail is a valid state returned from ClearChannelAssesment
+	//ASSERT_NOFAIL(status);
 	return status;
 }
 
@@ -355,7 +356,8 @@ DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSe
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//DS_Fail is a valid state returned from ClearChannelAssesment
+	//ASSERT_NOFAIL(status);
 	return status;
 
 }
