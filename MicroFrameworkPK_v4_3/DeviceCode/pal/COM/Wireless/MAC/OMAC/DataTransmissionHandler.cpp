@@ -135,8 +135,9 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	//Start CCA only after the initial normal DISCO period
 	//if(g_DiscoveryHandler.highdiscorate == false){
 		//For GUARDTIME_MICRO period check the channel before transmitting
-		//150 usec is the time taken for CCA to return a result
-		for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+		//140 usec is the time taken for CCA to return a result
+		//Do CCA one extra count
+		for(int i = 0; i < (GUARDTIME_MICRO/140)+1; i++){
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			//HAL_Time_Sleep_MicroSeconds(520);
 			if(DS != DS_Success){

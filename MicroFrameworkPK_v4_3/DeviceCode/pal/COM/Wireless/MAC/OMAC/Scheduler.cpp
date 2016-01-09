@@ -135,8 +135,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(txEventOffset < MAXSCHEDULERUPDATE && txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
-	//if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
-	if(beaconEventOffset < MAXSCHEDULERUPDATE) {
+	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}
 	if(timeSyncEventOffset < MAXSCHEDULERUPDATE && timeSyncEventOffset < nextWakeupTimeInMicSec) {

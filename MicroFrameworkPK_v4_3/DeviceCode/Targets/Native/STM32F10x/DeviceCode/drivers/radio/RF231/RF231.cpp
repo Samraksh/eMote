@@ -1163,7 +1163,7 @@ measureAgain:
 	static int startIndexForGoodRssi = 0;
 #endif
 	const UINT8 rssiThresholdForTransmission = 4;
-	const UINT8 rssiCount = 4;
+	const UINT8 rssiCount = 8;
 	bool result = false;
 	UINT16 averageRssi = 0;
 	UINT8 rssiBuffer[rssiCount] = {0};
