@@ -39,6 +39,7 @@
 #include "Scheduler.h"
 #include "Handlers.h"
 
+#define SOFTWARE_ACKS_ENABLED
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 
@@ -140,6 +141,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
 
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int size);
+
+
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
 	void SendAckHandler(void* msg, int Size, NetOpStatus status);
 	BOOL UnInitialize(void);

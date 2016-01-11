@@ -33,9 +33,12 @@ public:
 	void UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum );
  	void ExecuteEvent();
 
+ 	void SendDataACK(UINT16 address);
+ 	void SendACKHandler();
+
  	void HandleRadioInterrupt();
 	void PostExecuteEvent();
-	void HandleEndofReception();
+	void HandleEndofReception(UINT16 address);
 };
 
 
