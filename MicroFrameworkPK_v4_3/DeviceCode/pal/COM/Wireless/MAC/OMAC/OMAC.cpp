@@ -396,6 +396,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef SOFTWARE_ACKS_ENABLED
 			case MFM_DATA_ACK:
 				g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+				location_in_packet_payload += 1;
 				break;
 #endif
 			default:
