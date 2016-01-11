@@ -125,7 +125,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	HAL_Time_Sleep_MicroSeconds(CCA_PERIOD_MICRO);
+	//HAL_Time_Sleep_MicroSeconds(CCA_PERIOD_MICRO);
 
 	if (e == DS_Success){
 		#ifdef OMAC_DEBUG_GPIO
