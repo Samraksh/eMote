@@ -27,6 +27,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATARECEPTION_SLOTPIN, TRUE);
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_TX_DATAACK_PIN, FALSE);
 #endif
 	RadioID = radioID;
 	MacID = macID;
@@ -126,12 +127,57 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 }
 
-void DataReceptionHandler::HandleEndofReception(){
+void DataReceptionHandler::SendACKHandler(){
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+}
+
+void DataReceptionHandler::HandleEndofReception(UINT16 address){
+#ifdef SOFTWARE_ACKS_ENABLED
+	VirtualTimerReturnMessage rm;
+	m_isreceiving = false;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+	if(rm == TimerSupported){
+		this->SendDataACK(address);
+	}
+#endif
+#ifndef SOFTWARE_ACKS_ENABLED
+	VirtualTimerReturnMessage rm;
+	m_isreceiving = false;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+#endif
+}
+
+void DataReceptionHandler::SendDataACK(UINT16 address){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
+#endif
+	Message_15_4_t msg ;
+	IEEE802_15_4_Header_t* header = msg.GetHeader();
+	header->fcf = (65 << 8);
+	header->fcf |= 136;
+	header->dsn = 97;
+	header->destpan = (34 << 8);
+	header->destpan |= 0;
+	header->dest = address;
+	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	//header->network = MyConfig.Network;
+	header->mac_id = g_OMAC.macName;
+	header->type = MFM_DATA_ACK;
+	header->SetFlags(0);
+	msg.GetMetaData()->SetReceiveTimeStamp(0);
+	header->length = sizeof(IEEE802_15_4_Header_t);
+	g_omac_RadioControl.Send(address, &msg, header->length);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
+#endif
 }
 
 void DataReceptionHandler::PostExecuteEvent(){
