@@ -281,8 +281,8 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define PROCESSING_DELAY_BEFORE_TX_MICRO 581
 #define RADIO_TURN_ON_DELAY_MICRO 670
-#define RADIO_TURN_OFF_DELAY_MICRO 453 //BK: This is not used but it is measured as this (may not be very accurate)
-
+#define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
+#define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
 #define WAKEUPPERIODINTICKS 8000000
 enum {
