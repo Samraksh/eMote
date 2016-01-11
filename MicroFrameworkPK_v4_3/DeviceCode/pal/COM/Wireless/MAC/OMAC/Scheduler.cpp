@@ -141,7 +141,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		InputState.RequestState(I_DATA_RCV_PENDING);
 	}
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO;
+		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO;
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
