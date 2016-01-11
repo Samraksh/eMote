@@ -133,8 +133,9 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	//if(g_DiscoveryHandler.highdiscorate == false){
 		//For GUARDTIME_MICRO period check the channel before transmitting
 		//140 usec is the time taken for CCA to return a result
-		//Do CCA one extra count
-		for(int i = 0; i < (GUARDTIME_MICRO/140)+1; i++){
+		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
+		// to check CCA before tx in that procedure.
+		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			//HAL_Time_Sleep_MicroSeconds(520);
 			if(DS != DS_Success){

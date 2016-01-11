@@ -2,6 +2,12 @@
 #include <tinyhal.h>
 #include <stm32f10x.h> // TODO. FIX ME. Only needed for interrupt pin check and NOPs. Not platform independant.
 
+
+//#define TIME_OPTIMIZED_TRANSMIT
+#ifndef TIME_OPTIMIZED_TRANSMIT
+#define WRITE_THEN_TRANSMIT
+#endif
+
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
@@ -278,11 +284,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	tx_length = size;
 	ldata =(UINT8*) msg;
 
-	// Make sure SLP_TR is low before we start.
-	SlptrSet();
-	HAL_Time_Sleep_MicroSeconds(16);
-	SlptrClear();
 
+	/***********Start of "Write to SPI and then transmit"*********/
+#if defined(WRITE_THEN_TRANSMIT)
+
+	//Start writing data to the SPI bus
 	SelnClear();
 
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
@@ -311,7 +317,82 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_SPI_ReadByte(config);
 
+	//Indicate end of writing to SPI bus
 	SelnSet();
+
+	//Check CCA before transmission
+	// Go to RX_ON
+	if ( Careful_State_Change(RF230_RX_ON) ) {
+		state = STATE_RX_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+	DeviceStatus ds = ClearChannelAssesment();
+	if(ds == DS_Fail){
+		hal_printf("sendTS CCA failed\n");
+		return NULL;
+	}
+
+	// Go to PLL_ON
+	if ( Careful_State_Change(RF230_PLL_ON) ) {
+		state = STATE_PLL_ON;
+	}
+	else {
+		hal_printf("SendTS Radio state change failed; state is %d\n", state);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+
+	// Initiate frame transmission by asserting SLP_TR pin
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	/***********End of "Write to SPI and then transmit"*********/
+
+
+	/***********Start of "Time optimized frame transmit procedure"*********/
+#elif defined(TIME_OPTIMIZED_TRANSMIT)
+	// Make sure SLP_TR is low before we start.
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	//Start writing data to the SPI bus
+	SelnClear();
+
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+
+	// Write the size of packet that is sent out
+	// Including FCS which is automatically generated and is two bytes
+	//Plus 4 bytes for timestamp
+	CPU_SPI_ReadWriteByte(config, size + crc_size + timestamp_size);
+
+	lLength = size;
+	timeStampPtr = (UINT8 *) &eventOffset;
+
+	add_size(size);
+
+	for(int ii=0; ii<lLength; ii++) {
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}
+
+	//Transmit the event timestamp
+	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+	eventOffset = timestamp - eventTime;
+
+	for(int ii=0; ii<timestamp_size; ii++) {
+		CPU_SPI_ReadWriteByte(config, *(timeStampPtr++));
+	}
+
+	CPU_SPI_ReadByte(config);
+
+	//Indicate end of writing to SPI bus
+	SelnSet();
+#endif
+	/***********End of "Time optimized frame transmit procedure"*********/
+
+
 	state = STATE_BUSY_TX;
 
 	// exchange bags
@@ -561,11 +642,10 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	tx_length = size;
 	ldata =(UINT8*) msg;
 
-	// Make sure SLP_TR is low before we start.
-	SlptrSet();
-	HAL_Time_Sleep_MicroSeconds(16);
-	SlptrClear();
+	/***********Start of "Write to SPI and then transmit"*********/
+#if defined(WRITE_THEN_TRANSMIT)
 
+	//Start writing data to the SPI bus
 	SelnClear();
 
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
@@ -585,7 +665,73 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	CPU_SPI_ReadByte(config);
 
+	//Indicate end of writing to SPI bus
 	SelnSet();
+
+	//Check CCA before transmission
+	// Go to RX_ON
+	if ( Careful_State_Change(RF230_RX_ON) ) {
+		state = STATE_RX_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+	DeviceStatus ds = ClearChannelAssesment();
+	if(ds == DS_Fail){
+		hal_printf("send CCA failed\n");
+		return NULL;
+	}
+
+	// Go to PLL_ON
+	if ( Careful_State_Change(RF230_PLL_ON) ) {
+		state = STATE_PLL_ON;
+	}
+	else {
+		hal_printf("send Radio state change failed; state is %d\n", state);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
+	}
+
+	// Initiate frame transmission by asserting SLP_TR pin
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	/***********End of "Write to SPI and then transmit"*********/
+
+
+	/***********Start of "Time optimized frame transmit procedure"*********/
+#elif defined(TIME_OPTIMIZED_TRANSMIT)
+	// Make sure SLP_TR is low before we start.
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	//Start writing data to the SPI bus
+	SelnClear();
+
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+
+	// Write the size of packet that is sent out
+	// Including FCS which is automatically generated and is two bytes
+	//Plus 4 bytes for timestamp
+	CPU_SPI_ReadWriteByte(config, size + crc_size);
+
+	lLength = size;
+
+	add_size(size);
+
+	for(int ii=0; ii<lLength; ii++) {
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}
+
+	CPU_SPI_ReadByte(config);
+
+	//Indicate end of writing to SPI bus
+	SelnSet();
+#endif
+	/***********End of "Time optimized frame transmit procedure"*********/
+
+
 	state = STATE_BUSY_TX;
 
 	// exchange bags
@@ -1240,14 +1386,17 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 
 	// Must be in RX mode to do measurment.
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-	if (trx_status != RX_ON && trx_status != BUSY_RX)
+	if (trx_status != RX_ON && trx_status != BUSY_RX){
+		hal_printf("CCA failed; state is %d\n", state);
 		return DS_Fail;
+	}
 
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
 	//CheckForRSSI takes 116 usec (109 usec + 7 usec for processing)
 	BOOL rssiStatus = CheckForRSSI();
 
+	//If there is energy in the channel, return failure
 	if(rssiStatus){
 		return DS_Fail;
 	}

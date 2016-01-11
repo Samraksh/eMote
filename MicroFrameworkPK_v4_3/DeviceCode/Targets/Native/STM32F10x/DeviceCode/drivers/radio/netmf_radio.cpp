@@ -171,7 +171,7 @@ void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
 			break;
 	}
 
-	ASSERT_SP(ptr_temp != NULL);
+	//ASSERT_SP(ptr_temp != NULL);
 	return ptr_temp;
 }
 
