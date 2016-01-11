@@ -241,8 +241,8 @@ public:
 	VirtualTimerMapper<8> virtualTimerMapper_0;
 	VirtualTimerMapper<10> virtualTimerMapper_1;
 #else
-	VirtualTimerMapper<8> virtualTimerMapper_0;
-	VirtualTimerMapper<8> virtualTimerMapper_1;
+	VirtualTimerMapper<16> virtualTimerMapper_0;
+	VirtualTimerMapper<16> virtualTimerMapper_1;
 #endif
 
 };

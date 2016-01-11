@@ -281,6 +281,11 @@ typedef OFProv<UINT64> OMACTicks;
 #define FORCE_REQUESTTIMESYNC_INTICKS 100000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  60000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
+#define PROCESSING_DELAY_BEFORE_TX_MICRO 581
+#define RADIO_TURN_ON_DELAY_MICRO 670
+#define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
+#define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
+
 #define WAKEUPPERIODINTICKS 8000000
 enum {
   TICKS_PER_MILLI     = 8000,

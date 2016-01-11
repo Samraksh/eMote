@@ -30,7 +30,7 @@ static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better
 #ifdef PLATFORM_ARM_EmoteDotNow
 	const UINT8 VTCount0 = 8;
 #else
-	const UINT8 VTCount0 = 8;
+	const UINT8 VTCount0 = 16;
 #endif
 
 template<>
@@ -328,9 +328,9 @@ void VirtualTimerCallback(void *arg)
 		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER)
-		  /*|| (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
+		  || (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
 		  || (runningTimer->get_m_timer_id() == NeighborClockMonitor_TIMER1)
-		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
+		 /* || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER)*/
 		  ){
 			(runningTimer->get_m_callback())(NULL);

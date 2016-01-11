@@ -259,10 +259,11 @@ void DataReceptionHandler::PostExecuteEvent(){
 		m_isreceiving = false;
 	}
 
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+#endif
 	g_omac_RadioControl.Stop();
-	#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
-	#endif
+
 	g_omac_scheduler.PostExecution();
 }
 
