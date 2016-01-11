@@ -274,7 +274,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
 #define MAX_PACKET_TX_DURATION_MICRO 16*MICSECINMILISEC
-#define MAX_ACK_DELAY_MICRO 2000
+#define ACK_RX_MAX_DURATION_MICRO 16000
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1000
 

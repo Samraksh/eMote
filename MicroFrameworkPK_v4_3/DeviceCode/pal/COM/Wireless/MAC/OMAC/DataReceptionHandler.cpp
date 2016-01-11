@@ -19,6 +19,9 @@ extern RadioControl_t g_omac_RadioControl;
 void PublicDataRxCallback(void * param){
 	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
+void PublicDataRxSendAckCallback(void * param){
+	g_omac_scheduler.m_DataReceptionHandler.SendDataACK();
+}
 
 /*
  *
@@ -41,6 +44,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback); //1 sec Timer in micro seconds
 
 	ASSERT_SP(rm == TimerSupported);
 
@@ -185,13 +189,11 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	m_isreceiving = false;
 	ASSERT_SP(m_receptionstate == 1);
 	m_receptionstate = 2;
+	m_lastRXNodeId = address;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE );
-	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
-	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
-	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
-	if(rm == TimerSupported){
-		this->SendDataACK(address);
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);
+	if(rm != TimerSupported){
+		this->SendDataACK();
 	}
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
@@ -207,19 +209,32 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 #endif
 }
 
-void DataReceptionHandler::SendDataACK(UINT16 address){
+
+
+void DataReceptionHandler::SendDataACK(){
+	VirtualTimerReturnMessage rm;
 	ASSERT_SP(m_receptionstate == 2);
 	m_receptionstate = 3;
+	m_isreceiving = false;
+
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 #endif
+
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE );
+	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+
+
+
 	IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
 	header->fcf = (65 << 8);
 	header->fcf |= 136;
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
-	header->dest = address;
+	header->dest = m_lastRXNodeId;
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
 	//header->network = MyConfig.Network;
 	header->mac_id = g_OMAC.macName;
@@ -231,7 +246,7 @@ void DataReceptionHandler::SendDataACK(UINT16 address){
 	*payload = 66;
 
 	header->length = sizeof(IEEE802_15_4_Header_t) + 1;
-	g_omac_RadioControl.Send(address, &m_ACKmsg, header->length);
+	g_omac_RadioControl.Send(m_lastRXNodeId, &m_ACKmsg, header->length);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 #endif

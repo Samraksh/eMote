@@ -220,10 +220,11 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_TIMESYNC 	5
 #define VIRT_TIMER_OMAC_RECEIVER 	6
 #define VIRT_TIMER_OMAC_TRANSMITTER	7
+#define VIRT_TIMER_OMAC_RECEIVER_ACK 	9
 #define HAL_SLOT_TIMER3 10
 
-#define LocalClockMonitor_TIMER1 7
-#define NeighborClockMonitor_TIMER1 9
+#define LocalClockMonitor_TIMER1 10
+#define NeighborClockMonitor_TIMER1 11
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

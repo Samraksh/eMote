@@ -28,6 +28,7 @@ public:
 	UINT64 m_lastScheduledOriginTime;
 	UINT64 m_currtime;
 	UINT64 m_lastScheduledTargetTime;
+	UINT16 m_lastRXNodeId;
 	bool m_isreceiving;
 	UINT8 m_receptionstate;
 	UINT64 lastwakeupSlotUpdateTimeinTicks;
@@ -39,7 +40,7 @@ public:
 	void UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum );
  	void ExecuteEvent();
 
- 	void SendDataACK(UINT16 address);
+ 	void SendDataACK();
  	void SendACKHandler();
 
  	void HandleRadioInterrupt();
