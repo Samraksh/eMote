@@ -73,7 +73,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 		break;
 	case MFM_DATA_ACK:
-		if(g_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)){
+		if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 			g_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
 		}
 		break;
