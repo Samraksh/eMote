@@ -44,7 +44,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback); //1 sec Timer in micro seconds
+#ifdef SOFTWARE_ACKS_ENABLED
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback); //1 sec Timer in micro seconds
+#endif
 
 	ASSERT_SP(rm == TimerSupported);
 
@@ -168,10 +170,10 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	}
-
 }
 
 void DataReceptionHandler::SendACKHandler(){
+#ifdef SOFTWARE_ACKS_ENABLED
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
 	ASSERT_SP(m_receptionstate == 3);
@@ -181,6 +183,7 @@ void DataReceptionHandler::SendACKHandler(){
 	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+#endif
 }
 
 void DataReceptionHandler::HandleEndofReception(UINT16 address){
@@ -225,8 +228,6 @@ void DataReceptionHandler::SendDataACK(){
 	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
-
-
 
 	IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
 	header->fcf = (65 << 8);

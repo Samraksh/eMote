@@ -39,7 +39,9 @@
 #include "Scheduler.h"
 #include "Handlers.h"
 
-#define SOFTWARE_ACKS_ENABLED
+#ifdef SOFTWARE_ACKS_ENABLED
+#undef SOFTWARE_ACKS_ENABLED
+#endif
 
 typedef Buffer_15_4<8> Buffer_15_4_t;
 

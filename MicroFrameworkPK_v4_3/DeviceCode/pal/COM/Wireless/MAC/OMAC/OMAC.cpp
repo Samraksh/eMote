@@ -73,9 +73,11 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 		CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 		break;
 	case MFM_DATA_ACK:
+#ifdef SOFTWARE_ACKS_ENABLED
 		if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 			g_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
 		}
+#endif
 		break;
 	case MFM_DATA:
 		CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
@@ -277,7 +279,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
 
-		g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
+		//g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
