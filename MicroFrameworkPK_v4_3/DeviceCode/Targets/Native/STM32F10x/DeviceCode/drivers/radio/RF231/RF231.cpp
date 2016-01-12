@@ -169,6 +169,15 @@ void RF231Radio::Wakeup() {
 		else if(trx_status == RX_AACK_ON){
 			state = STATE_RX_AACK_ON;
 		}
+		else if(trx_status == BUSY_TX_ARET){
+			state = STATE_BUSY_TX_ARET;
+		}
+		else if(trx_status == RX_AACK_ON_NOCLK){
+			SlptrClear();
+			trx_status = (VERIFY_STATE_CHANGE);
+			ASSERT_RADIO(trx_status == RX_AACK_ON);
+			state = STATE_RX_AACK_ON;
+		}
 		else{
 			SlptrClear();
 			HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
@@ -1127,15 +1136,20 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		/***********Extended mode configuration***********/
 #ifdef RF231_EXTENDED_MODE
-		//Put the radio into extended mode
+		//RX_AACK configuration
+		WriteRegister(RF230_XAH_CTRL_1, RF231_AUTO_ACK_CONFIG);
+		WriteRegister(RF230_XAH_CTRL_0, RF231_MAX_TX_RETRIES);
+		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
+		WriteRegister(RF230_CSMA_SEED_0, RF231_CSMA_SEED_0_VALUE);
+
+		//Put the radio into extended mode (RX_AACK)
 		WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 
+		//TX_ARET configuration
+		/*WriteRegister(RF230_TRX_CTRL_1, RF230_TRX_CTRL_1_VALUE);
 		WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
-		DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);
-
-		WriteRegister(RF230_XAH_CTRL_1, RF230_AUTO_ACK_CONFIG);
-		WriteRegister(RF230_XAH_CTRL_0, RF230_MAX_TX_RETRIES);
+		DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);*/
 #endif
 		/*************************************************/
 
@@ -1555,7 +1569,7 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 	// Must be in RX mode to do measurment.
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 	if (trx_status != RX_ON && trx_status != BUSY_RX){
-		hal_printf("CCA failed; state is %d\n", state);
+		//hal_printf("CCA failed; state is %d\n", state);
 		return DS_Fail;
 	}
 
@@ -1654,7 +1668,12 @@ void RF231Radio::HandleInterrupt()
 		//time = (HAL_Time_CurrentTicks() >> 32); // Throwing away the bottom 32-bits? Doesn't that really hurt timing??? --NPS
 
 		// Initiate cmd receive
+#ifdef RF231_EXTENDED_MODE
+		cmd = CMD_RX_AACK;
+#else
 		cmd = CMD_RECEIVE;
+#endif
+
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
@@ -1664,7 +1683,8 @@ void RF231Radio::HandleInterrupt()
 
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
-	if(irq_cause & TRX_IRQ_TRX_END)
+	//if(irq_cause & TRX_IRQ_TRX_END)
+	if(irq_cause & TRX_IRQ_RX_START)
 	{
 		if(cmd == CMD_TRANSMIT)
 		{
@@ -1729,7 +1749,7 @@ void RF231Radio::HandleInterrupt()
 					int type = rx_msg_ptr->GetHeader()->type;
 					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					(Message_15_4_t *) (Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
 			}
 			else {
@@ -1754,13 +1774,14 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_TX_ARET)
 		{
-			hal_printf("Inside CMD_TX_ARET\n");
+			//hal_printf("Inside CMD_TX_ARET\n");
 			add_send_done();
 
 			state = STATE_PLL_ON;
 			// Call radio send done event handler when the send is complete
-			SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
-			(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
+			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
 
@@ -1778,7 +1799,7 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
-			hal_printf("Inside CMD_RX_AACK\n");
+			//hal_printf("Inside CMD_RX_AACK\n");
 			state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
 			// Go to PLL_ON at least until the frame buffer is empty
@@ -1805,7 +1826,8 @@ void RF231Radio::HandleInterrupt()
 				if ( !Interrupt_Pending() ) {
 					int type = rx_msg_ptr->GetHeader()->type;
 					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-					rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
 			}
 			else {
