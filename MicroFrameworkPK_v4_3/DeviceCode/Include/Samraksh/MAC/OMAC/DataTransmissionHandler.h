@@ -39,6 +39,7 @@ public:
 	BOOL ScheduleDataPacket();
 	bool Send();
 	void SendACKHandler();
+	void ReceiveDATAACK(UINT16 address);
 
 	UINT64 GetTxTicks();
 	UINT32 GetTxCounter();
