@@ -1141,9 +1141,24 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		/***********Extended mode configuration***********/
 #ifdef RF231_EXTENDED_MODE
+		//Configure MAC short address, PAN-ID and IEEE address
+		//Page 76-78 in RF231 datasheet
+		WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
+		WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
+		WriteRegister(RF230_PAN_ID_0, 0xFF);
+		WriteRegister(RF230_PAN_ID_1, 0xFF);
+		WriteRegister(RF230_IEEE_ADDR_0, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_1, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_2, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_3, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_4, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_5, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_6, 0x00);
+		WriteRegister(RF230_IEEE_ADDR_7, 0x00);
+
 		//RX_AACK configuration
-		WriteRegister(RF230_XAH_CTRL_1, RF231_AUTO_ACK_CONFIG);
-		WriteRegister(RF230_XAH_CTRL_0, RF231_MAX_TX_RETRIES);
+		WriteRegister(RF230_XAH_CTRL_1, RF231_XAH_CTRL_1_VALUE);
+		WriteRegister(RF230_XAH_CTRL_0, RF231_XAH_CTRL_0_VALUE);
 		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
 		WriteRegister(RF230_CSMA_SEED_0, RF231_CSMA_SEED_0_VALUE);
 

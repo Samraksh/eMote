@@ -58,15 +58,16 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bits 0,3,6,7 - Reserved
 //Bit 1 - Promiscuous mode (disabled)
 //Bit 2 - Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
+//			if set, then ack is sent 2 symbol periods later.
 //Bit 4 - If set, received frames indicated as a reserved frame are further processed
 //Bit 5 - If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006.
 //		   Can be set only if bit 4 is set.
-#define	 RF231_AUTO_ACK_CONFIG		 0x0
+#define	 RF231_XAH_CTRL_1_VALUE		 0x0
 //Page 73 in RF231 datasheet
 //Bits 4-7 - Max_frame_retries - being set to 1
 //Bits 1-3 - Max_csma_retries - being set to 1
 //Bit 0 - slotted operation - set to 0
-#define	 RF231_MAX_TX_RETRIES		 0x12
+#define	 RF231_XAH_CTRL_0_VALUE		 0x12
 //Page 74-75 in the RF231 datasheet
 //Bit [7:6] - AACK_FVN_MODE	11 (to be changed to 0x00 later)
 //Bit 5 	- AACK_SET_PD	0
