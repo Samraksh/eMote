@@ -1703,12 +1703,36 @@ void RF231Radio::HandleInterrupt()
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
-		(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+
+
+		/*if(DS_Success==DownloadMessage()){
+			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+#					ifdef DEBUG_RF231
+				hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+#					endif
+				return;
+			}
+
+			// Please note this is kind of a hack.
+			// Manually check our interrupts here (since we are locked).
+			// If we see a new interrupt, just assume it means we had an RX overrun.
+			// In which case we just drop the packet (or packets?) --NPS
+
+			// Un-sure if this is how to drop a packet. --NPS
+
+			//if ( !Interrupt_Pending() ) {
+				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+
+				cmd = CMD_NONE;
+			//}
+		}*/
 	}
 
 
 	if(irq_cause & TRX_IRQ_AMI){
-		hal_printf("HERE\n");
+		hal_printf("Inside TRX_IRQ_AMI\n");
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
