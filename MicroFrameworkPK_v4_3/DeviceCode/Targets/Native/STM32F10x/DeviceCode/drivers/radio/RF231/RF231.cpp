@@ -1168,6 +1168,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		//TX_ARET configuration
 		/*WriteRegister(RF230_TRX_CTRL_1, RF230_TRX_CTRL_1_VALUE);
+		WriteRegister(RF230_CSMA_BE, RF231_CSMA_BE_VALUE);
 		WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);*/
 #endif

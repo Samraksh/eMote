@@ -79,6 +79,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //The higher 3 bits (010) is set in bits 2:0 in CSMA_SEED_1
 //The lower 8 bits are set in CSMA_SEED_0
 #define RF231_CSMA_SEED_0_VALUE		0xAA
+//Page 75 (default value)
+#define RF231_CSMA_BE_VALUE		0x53
 
 
 #define RF230_DEF_CHANNEL 26
@@ -271,7 +273,8 @@ enum Rf230RegistersEnum {
   RF230_IEEE_ADDR_7 = 0x2B,
   RF230_XAH_CTRL_0 = 0x2C,
   RF230_CSMA_SEED_0 = 0x2D,
-  RF230_CSMA_SEED_1 = 0x2E
+  RF230_CSMA_SEED_1 = 0x2E,
+  RF230_CSMA_BE = 0x2F
 };
 
 
