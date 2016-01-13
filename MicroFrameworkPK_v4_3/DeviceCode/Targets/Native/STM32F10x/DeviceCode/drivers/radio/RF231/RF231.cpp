@@ -1143,6 +1143,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 #ifdef RF231_EXTENDED_MODE
 		//Configure MAC short address, PAN-ID and IEEE address
 		//Page 76-78 in RF231 datasheet
+		//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
+		//			to switching to RX_AACK mode
 		WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
 		WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
 		WriteRegister(RF230_PAN_ID_0, 0xFF);
@@ -1157,6 +1159,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		WriteRegister(RF230_IEEE_ADDR_7, 0x00);
 
 		//RX_AACK configuration
+		WriteRegister(RF230_TRX_CTRL_2, RF231_TRX_CTRL_2_VALUE);
 		WriteRegister(RF230_XAH_CTRL_1, RF231_XAH_CTRL_1_VALUE);
 		WriteRegister(RF230_XAH_CTRL_0, RF231_XAH_CTRL_0_VALUE);
 		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
@@ -1704,7 +1707,7 @@ void RF231Radio::HandleInterrupt()
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
-
+#ifdef RF231_EXTENDED_MODE
 		/*if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
@@ -1728,6 +1731,7 @@ void RF231Radio::HandleInterrupt()
 				cmd = CMD_NONE;
 			//}
 		}*/
+#endif
 	}
 
 

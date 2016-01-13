@@ -54,32 +54,56 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
+//Configuration based on page 54
+//
+//Page 154 in RF231 datasheet
+//Bit 7 - RX_SAFE_MODE	- If set, dynamic frame buffer protection is enabled (1)
+//Bit [6:2] - Reserved 	- 00
+//Bit [1:0] - OQPSK_DATA_RATE - Page 137, 140 - 0 is for 250 kb/s
+//Register TRX_CTRL_2 is 0x0C
+//1000 0000
+#define RF231_TRX_CTRL_2_VALUE	0x80
 //Page 71-72 in RF231 datasheet
 //Bits 0,3,6,7 - Reserved
-//Bit 1 - Promiscuous mode (disabled)
-//Bit 2 - Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
-//			if set, then ack is sent 2 symbol periods later.
-//Bit 4 - If set, received frames indicated as a reserved frame are further processed
-//Bit 5 - If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006.
+//Bit 1 - AACK_PROM_MODE 	- Promiscuous mode (disabled) (0)
+//Bit 2 - AACK_ACK_TIME 	- Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
+//								if set, then ack is sent 2 symbol periods later. (0)
+//Bit 3 - Reserved (0)
+//Bit 4 - AACK_UPLD_RES_FT 	- If set, received frames indicated as a reserved frame are further processed (1)
+//								An IRQ_3 (TRX_END) interrupt is generated if the FCS is valid
+//Bit 5 - AACK_FLTR_RES_FT 	- If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006. (1)
 //		   Can be set only if bit 4 is set.
-#define	 RF231_XAH_CTRL_1_VALUE		 0x0
+//Bit [7:6] - Reserved (00)
+//Register XAH_CTRL_1 is 0x17
+//0011 0000
+#define	 RF231_XAH_CTRL_1_VALUE		 0x30
 //Page 73 in RF231 datasheet
-//Bits 4-7 - Max_frame_retries - being set to 1
-//Bits 1-3 - Max_csma_retries - being set to 1
-//Bit 0 - slotted operation - set to 0
+//Bits 4-7 - MAX_FRAME_RETRIES - being set to 1
+//Bits 1-3 - MAX_CSMA_RETRIES - being set to 1
+//Bit 0 - SLOTTED_OPERATION - set to 0
+//Register XAH_CTRL_1 is 0x2C
+//0001 0010
 #define	 RF231_XAH_CTRL_0_VALUE		 0x12
 //Page 74-75 in the RF231 datasheet
-//Bit [7:6] - AACK_FVN_MODE	11 (to be changed to 0x00 later)
-//Bit 5 	- AACK_SET_PD	0
-//Bit 4 	- AACK_DIS_ACK	0
-//Bit 3 	- AACK_I_AM_COORD	0
-//Bit [2:0]	- CSMA_SEED_1	010
+//Bit [7:6] - AACK_FVN_MODE		- Mode is set to 3 (Acknowledge independent of frame version number) (11) (to be changed to 00 later)
+//Bit 5 	- AACK_SET_PD 		- Content is copied into the frame pending subfield of the acknowledgement frame if ack
+//									is the answer to a data request MAC command frame (0)
+//Bit 4 	- AACK_DIS_ACK 		- If this bit is set no ack frames are transmitted (0)
+//Bit 3 	- AACK_I_AM_COORD 	- This has to be set if the node is a PAN coordinator (0)
+//Bit [2:0]	- CSMA_SEED_1 		- Higher 3 bit of the CSMA_SEED (010)
+//Register CSMA_SEED_1 is 0x2E
+//1100 0010
 #define RF231_CSMA_SEED_1_VALUE		0xC2
+//Page 73-74
 //The seed for random value for CSMA-CA backoff is 010 1010 1010
 //The higher 3 bits (010) is set in bits 2:0 in CSMA_SEED_1
 //The lower 8 bits are set in CSMA_SEED_0
+//Register CSMA_SEED_0 is 0x2D
+//1010 1010
 #define RF231_CSMA_SEED_0_VALUE		0xAA
 //Page 75 (default value)
+//Register CSMA_BE is 0x2F
+//0101 0011
 #define RF231_CSMA_BE_VALUE		0x53
 
 
@@ -247,6 +271,7 @@ enum Rf230RegistersEnum {
   RF230_PHY_ED_LEVEL = 0x07,
   RF230_PHY_CC_CCA = 0x08,
   RF230_CCA_THRES = 0x09,
+  RF230_TRX_CTRL_2 = 0x0C,
   RF230_IRQ_MASK = 0x0E,
   RF230_IRQ_STATUS = 0x0F,
   RF230_VREG_CTRL = 0x10,
