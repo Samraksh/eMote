@@ -59,9 +59,6 @@ BOOL Time_Driver::Uninitialize()
 	retVal = retVal && (VirtTimer_Stop( VIRT_TIMER_TIME ) == TimerSupported);
 	ASSERT(retVal);
 
-	retVal = retVal && (!VirtTimer_UnInitialize());
-	ASSERT(retVal);
-
 	return retVal;
 }
 
