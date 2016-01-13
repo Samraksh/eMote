@@ -65,18 +65,19 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define RF231_TRX_CTRL_2_VALUE	0x80
 //Page 71-72 in RF231 datasheet
 //Bits 0,3,6,7 - Reserved
-//Bit 1 - AACK_PROM_MODE 	- Promiscuous mode (disabled) (0)
+//Bit 0 - Reserved (0)
+//Bit 1 - AACK_PROM_MODE 	- Promiscuous mode (enabled since we cannot filter on addresses) (1)
 //Bit 2 - AACK_ACK_TIME 	- Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
 //								if set, then ack is sent 2 symbol periods later. (0)
 //Bit 3 - Reserved (0)
-//Bit 4 - AACK_UPLD_RES_FT 	- If set, received frames indicated as a reserved frame are further processed (1)
+//Bit 4 - AACK_UPLD_RES_FT 	- If set, received frames indicated as a reserved frame are further processed (0)
 //								An IRQ_3 (TRX_END) interrupt is generated if the FCS is valid
-//Bit 5 - AACK_FLTR_RES_FT 	- If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006. (1)
+//Bit 5 - AACK_FLTR_RES_FT 	- If set, reserved frame types are filtered similar to data frames as specified in IEEE 802.15.4-2006. (0)
 //		   Can be set only if bit 4 is set.
 //Bit [7:6] - Reserved (00)
 //Register XAH_CTRL_1 is 0x17
-//0011 0000
-#define	 RF231_XAH_CTRL_1_VALUE		 0x30
+//0000 0010
+#define	 RF231_XAH_CTRL_1_VALUE		 0x02
 //Page 73 in RF231 datasheet
 //Bits 4-7 - MAX_FRAME_RETRIES - being set to 1
 //Bits 1-3 - MAX_CSMA_RETRIES - being set to 1
