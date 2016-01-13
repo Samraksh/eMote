@@ -576,7 +576,12 @@ DeviceStatus RF231Radio::Reset()
 
 	HAL_Time_Sleep_MicroSeconds(510);
 
-	WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+#ifdef RF231_EXTENDED_MODE
+		// Register controls the interrupts that are currently enabled
+		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_AMI | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+#else
+		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+#endif
 
 			// The RF230_CCA_THRES sets the ed level for CCA, currently setting threshold to 0xc7
 	WriteRegister(RF230_CCA_THRES, RF230_CCA_THRES_VALUE);
@@ -1160,8 +1165,12 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			rf231_enable_pa_rxtx();
 		}
 
+#ifdef RF231_EXTENDED_MODE
 		// Register controls the interrupts that are currently enabled
+		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_AMI | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+#else
 		WriteRegister(RF230_IRQ_MASK, RF230_IRQ_TRX_UR | RF230_IRQ_TRX_END | RF230_IRQ_RX_START);
+#endif
 
 		// The RF230_CCA_THRES sets the ed level for CCA, currently setting threshold to 0xc7
 		WriteRegister(RF230_CCA_THRES, RF230_CCA_THRES_VALUE);
@@ -1678,13 +1687,16 @@ void RF231Radio::HandleInterrupt()
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
-
+		(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 	}
 
 
+	if(irq_cause & TRX_IRQ_AMI){
+		hal_printf("HERE\n");
+	}
+
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
-	//if(irq_cause & TRX_IRQ_TRX_END)
-	if(irq_cause & TRX_IRQ_RX_START)
+	if(irq_cause & TRX_IRQ_TRX_END)
 	{
 		if(cmd == CMD_TRANSMIT)
 		{

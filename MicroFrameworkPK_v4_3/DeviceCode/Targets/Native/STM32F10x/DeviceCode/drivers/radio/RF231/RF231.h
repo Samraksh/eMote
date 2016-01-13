@@ -160,12 +160,14 @@ typedef enum radio_irq_reason
     TRX_NO_IRQ                      = (0x00),
     TRX_IRQ_4                       = (0x10),
     TRX_IRQ_5                       = (0x20),
-    TRX_IRQ_BAT_LOW                 = (0x80),
     TRX_IRQ_PLL_LOCK                = (0x01),
     TRX_IRQ_PLL_UNLOCK              = (0x02),
     TRX_IRQ_RX_START                = (0x04),
     TRX_IRQ_TRX_END                 = (0x08),
-    TRX_IRQ_TRX_UR                  = (0x40)
+    TRX_IRQ_CCA_ED_DONE             = (0x10),
+    TRX_IRQ_AMI             		= (0x20),
+    TRX_IRQ_TRX_UR                  = (0x40),
+    TRX_IRQ_BAT_LOW                 = (0x80)
 } radio_irq_reason_t;
 
 
@@ -306,6 +308,8 @@ enum Rf230IrqRegisterEnum {
 
   RF230_IRQ_BAT_LOW = 1 << 7,
   RF230_IRQ_TRX_UR = 1 << 6,
+  RF230_IRQ_AMI = 1 << 5,
+  RF230_IRQ_CCA_ED_DONE = 1 << 4,
   RF230_IRQ_TRX_END = 1 << 3,
   RF230_IRQ_RX_START = 1 << 2,
   RF230_IRQ_PLL_UNLOCK = 1 << 1,
