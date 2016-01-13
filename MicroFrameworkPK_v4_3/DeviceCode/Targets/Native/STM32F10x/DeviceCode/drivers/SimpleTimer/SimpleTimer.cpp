@@ -38,6 +38,7 @@ BOOL HAL_Time_Initialize()
 	SysTick->VAL = 0;
 	//SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 	SysTick->CTRL  = SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
+	return TRUE;
 }
 
 // Must catch every interrupt before next roll-over, so should be 1st or 2nd highest priority
@@ -53,6 +54,7 @@ void __irq SysTick_Handler(void) {
 BOOL HAL_Time_Uninitialize()
 {
 	SysTick->CTRL = 0;
+	return TRUE;
 }
 
 // Convert to 100ns ticks
