@@ -27,7 +27,7 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 
 void SendFirstPacketToRadio(void * arg){
 
-	//g_csmaMacObject.SendToRadio();
+	g_csmaMacObject.SendToRadio();
 
 }
 
@@ -184,7 +184,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
-	header->fcf = 25638;
+	header->fcf = 9254;
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
@@ -230,7 +230,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
-	header->fcf = 25638;
+	header->fcf = 9254;
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
