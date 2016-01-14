@@ -49,8 +49,17 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define AMP_PIN_LR		(GPIO_PIN) 26
 #define INTERRUPT_PIN_LR 55
 
-#define	 RF230_TRX_CTRL_0_VALUE		 0x0
-#define	 RF230_TRX_CTRL_1_VALUE		 0x20
+#define	 RF231_TRX_CTRL_0_VALUE		 0x0
+//Bit 7 - PA_EXT_EN - 0
+//Bit 6 - IRQ_2_EXT_EN - 0
+//Bit 5 - TX_AUTO_CRC_ON - 1
+//Bit 4 - RX_BL_CTRL - 0
+//Bit [3:2] - SPI_CMD_MODE - 00
+//Bit 1 - IRQ_MASK_MODE - 1
+//Bit 0 - IRQ_POLARITY - 0
+//Register TRX_CTRL_1 is 0x04
+//0010 0010
+#define	 RF231_TRX_CTRL_1_VALUE		 0x22
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
@@ -58,17 +67,17 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //
 //Page 154 in RF231 datasheet
 //Bit 7 - RX_SAFE_MODE	- If set, dynamic frame buffer protection is enabled (1)
-//Bit [6:2] - Reserved 	- 00
-//Bit [1:0] - OQPSK_DATA_RATE - Page 137, 140 - 0 is for 250 kb/s
+//Bit [6:2] - Reserved 	- 00000
+//Bit [1:0] - OQPSK_DATA_RATE - Page 137, 140 - 00 is for 250 kb/s
 //Register TRX_CTRL_2 is 0x0C
 //1000 0000
 #define RF231_TRX_CTRL_2_VALUE	0x80
 //Page 71-72 in RF231 datasheet
 //Bits 0,3,6,7 - Reserved
 //Bit 0 - Reserved (0)
-//Bit 1 - AACK_PROM_MODE 	- Promiscuous mode (enabled since we cannot filter on addresses) (1)
+//Bit 1 - AACK_PROM_MODE 	- Promiscuous mode (enabled since we cannot filter on addresses) (0)
 //Bit 2 - AACK_ACK_TIME 	- Auto ack time (ack set to transmit 12 symbols after reception of last symbol of a frame)
-//								if set, then ack is sent 2 symbol periods later. (0)
+//								if set, then ack is sent 2 symbol periods later. (1)
 //Bit 3 - Reserved (0)
 //Bit 4 - AACK_UPLD_RES_FT 	- If set, received frames indicated as a reserved frame are further processed (0)
 //								An IRQ_3 (TRX_END) interrupt is generated if the FCS is valid
@@ -76,15 +85,15 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //		   Can be set only if bit 4 is set.
 //Bit [7:6] - Reserved (00)
 //Register XAH_CTRL_1 is 0x17
-//0000 0010
-#define	 RF231_XAH_CTRL_1_VALUE		 0x02
+//0000 0100
+#define	 RF231_XAH_CTRL_1_VALUE		 0x04
 //Page 73 in RF231 datasheet
-//Bits 4-7 - MAX_FRAME_RETRIES - being set to 1
-//Bits 1-3 - MAX_CSMA_RETRIES - being set to 1
+//Bits 7-4 - MAX_FRAME_RETRIES - being set to 0 (0000)
+//Bits 3-1 - MAX_CSMA_RETRIES - being set to 0 (000)
 //Bit 0 - SLOTTED_OPERATION - set to 0
 //Register XAH_CTRL_1 is 0x2C
-//0001 0010
-#define	 RF231_XAH_CTRL_0_VALUE		 0x12
+//0000 0000
+#define	 RF231_XAH_CTRL_0_VALUE		 0x00
 //Page 74-75 in the RF231 datasheet
 //Bit [7:6] - AACK_FVN_MODE		- Mode is set to 3 (Acknowledge independent of frame version number) (11) (to be changed to 00 later)
 //Bit 5 	- AACK_SET_PD 		- Content is copied into the frame pending subfield of the acknowledgement frame if ack

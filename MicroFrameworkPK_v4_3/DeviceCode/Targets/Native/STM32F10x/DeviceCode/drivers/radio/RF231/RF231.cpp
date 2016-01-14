@@ -142,7 +142,7 @@ static void interrupt_mode_check() {
 	return;
 #else
 	if (isInterrupt()) {
-		hal_printf("Warning: RF231 driver called from interrupt context\r\n");
+		//hal_printf("Warning: RF231 driver called from interrupt context\r\n");
 	}
 	else return;
 #endif
@@ -162,7 +162,12 @@ void RF231Radio::Wakeup() {
 	GLOBAL_LOCK(irq);
 	if (state == STATE_SLEEP) {
 #ifdef RF231_EXTENDED_MODE
-		UINT8 trx_status = (VERIFY_STATE_CHANGE);
+		SlptrClear();
+		HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
+		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
+		ENABLE_LRR(TRUE);
+		state = STATE_TRX_OFF;
+		/*UINT8 trx_status = (VERIFY_STATE_CHANGE);
 		if(trx_status == TX_ARET_ON){
 			state = STATE_TX_ARET_ON;
 		}
@@ -184,7 +189,7 @@ void RF231Radio::Wakeup() {
 			DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
 			ENABLE_LRR(TRUE);
 			state = STATE_TRX_OFF;
-		}
+		}*/
 #else
 		SlptrClear();
 		HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
@@ -296,7 +301,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 		return FALSE;
 	}
 
-	/*if(target == TX_ARET_ON){
+	if(target == RX_AACK_ON){
 		WriteRegister(RF230_TRX_STATE, PLL_ON); // do the move
 
 		do{
@@ -315,7 +320,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 				}
 			poll_counter++;
 		} while(trx_status != PLL_ON);
-	}*/
+	}
 
 
 	WriteRegister(RF230_TRX_STATE, target); // do the move
@@ -561,7 +566,7 @@ DeviceStatus RF231Radio::Reset()
 
 	// The RF230_TRX_CTRL_0 register controls the drive current of the digital output pads and the CLKM clock rate
 	// Setting value to 0
-	WriteRegister(RF230_TRX_CTRL_0, RF230_TRX_CTRL_0_VALUE);
+	WriteRegister(RF230_TRX_CTRL_0, RF231_TRX_CTRL_0_VALUE);
 
 	UINT32 reg = 0;
 	reg = ReadRegister(RF230_TRX_CTRL_0);
@@ -687,18 +692,38 @@ DeviceStatus RF231Radio::Sleep(int level)
 
 #ifdef RF231_EXTENDED_MODE
 	// Go to TRX_OFF
-	if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-		state = STATE_PLL_ON;
+	/*hal_printf("1. Current state is %d\n", state);
+	if(state == STATE_RX_AACK_ON_NOCLK){
+		//Clear SLP_TR so that state becomes RX_AACK_ON
+		SlptrClear();
+		DID_STATE_CHANGE_ASSERT(RX_AACK_ON);
+		state = RX_AACK_ON;
+		if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+			state = STATE_PLL_ON;
+		}
+		else { // If we are busy that's OK, the sleep request is still queued.
+			return DS_Success;
+		}
 	}
-	else { // If we are busy that's OK, the sleep request is still queued.
-		return DS_Success;
+	else if(state == STATE_BUSY_RX){
+		if ( Careful_State_Change_Extended(RF230_RX_ON) ) {
+			state = STATE_RX_ON;
+		}
+		else { // If we are busy that's OK, the sleep request is still queued.
+			return DS_Success;
+		}
 	}
+	else{
+		hal_printf("2. Current state is %d\n", state);
+	}*/
+
 	if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
 		state = STATE_TRX_OFF;
 	}
 	else { // If we are busy that's OK, the sleep request is still queued.
 		return DS_Success;
 	}
+
 #else
 	// Go to TRX_OFF
 	if ( Careful_State_Change(RF230_TRX_OFF) ) {
@@ -1124,7 +1149,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		// The RF230_TRX_CTRL_0 register controls the drive current of the digital output pads and the CLKM clock rate
 		// Setting value to 0
-		WriteRegister(RF230_TRX_CTRL_0, RF230_TRX_CTRL_0_VALUE);
+		WriteRegister(RF230_TRX_CTRL_0, RF231_TRX_CTRL_0_VALUE);
 
 		UINT32 reg = 0;
 		reg = ReadRegister(RF230_TRX_CTRL_0);
@@ -1141,12 +1166,17 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		/***********Extended mode configuration***********/
 #ifdef RF231_EXTENDED_MODE
+
 		//Configure MAC short address, PAN-ID and IEEE address
 		//Page 76-78 in RF231 datasheet
 		//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
 		//			to switching to RX_AACK mode
-		WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
-		WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
+		WriteRegister(RF230_SHORT_ADDR_0, 0xBE);
+		WriteRegister(RF230_SHORT_ADDR_1, 0x1A);
+		//WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
+		//WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
+		//WriteRegister(RF230_PAN_ID_0, 0x00);
+		//WriteRegister(RF230_PAN_ID_1, 0x22);
 		WriteRegister(RF230_PAN_ID_0, 0xFF);
 		WriteRegister(RF230_PAN_ID_1, 0xFF);
 		WriteRegister(RF230_IEEE_ADDR_0, 0x00);
@@ -1166,13 +1196,13 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		WriteRegister(RF230_CSMA_SEED_0, RF231_CSMA_SEED_0_VALUE);
 
 		//Put the radio into extended mode (RX_AACK)
-		WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+		/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);*/
 
 		//TX_ARET configuration
-		/*WriteRegister(RF230_TRX_CTRL_1, RF230_TRX_CTRL_1_VALUE);
+		WriteRegister(RF230_TRX_CTRL_1, RF231_TRX_CTRL_1_VALUE);
 		WriteRegister(RF230_CSMA_BE, RF231_CSMA_BE_VALUE);
-		WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
+		/*WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);*/
 #endif
 		/*************************************************/
@@ -1640,6 +1670,7 @@ void RF231Radio::HandleInterrupt()
 
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
+	hal_printf("irq_cause is: %u\n", irq_cause);
 
 	// DEBUG NATHAN
 	add_irq_time(irq_cause);
@@ -1863,6 +1894,8 @@ void RF231Radio::HandleInterrupt()
 			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
 			state = STATE_PLL_ON;
 
+			(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+
 			if(DS_Success == DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
@@ -1911,12 +1944,12 @@ void RF231Radio::HandleInterrupt()
 			hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
 #endif
 #ifdef RF231_EXTENDED_MODE
-			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("1. current status inside handle interrupt is: %d; state is: %d\n", trx_status, state);
 			Careful_State_Change(PLL_ON);
 			state = STATE_PLL_ON;
 			trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-			hal_printf("2. current state inside handle interrupt is: %d\n", trx_status);
+			hal_printf("2. current state inside handle interrupt is: %d\n", trx_status);*/
 			Careful_State_Change(TRX_OFF);
 			state = STATE_TRX_OFF;
 #else

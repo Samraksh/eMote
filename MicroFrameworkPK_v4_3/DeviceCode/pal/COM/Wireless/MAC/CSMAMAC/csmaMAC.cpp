@@ -27,7 +27,7 @@ BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
 
 void SendFirstPacketToRadio(void * arg){
 
-	g_csmaMacObject.SendToRadio();
+	//g_csmaMacObject.SendToRadio();
 
 }
 
@@ -35,7 +35,7 @@ void SendFirstPacketToRadio(void * arg){
 void beaconScheduler(void *arg){
 	DEBUG_PRINTF_CSMA("bS fire\r\n");
 	g_csmaMacObject.UpdateNeighborTable();
-	g_csmaMacObject.SendHello();
+	//g_csmaMacObject.SendHello();
 }
 
 DeviceStatus csmaMAC::SendHello()
@@ -182,8 +182,9 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
+	//header->fcf = (65 << 8);
+	//header->fcf |= 136;
+	header->fcf = 25638;
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
@@ -227,12 +228,19 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
 
 	header->length = Size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
+	//header->fcf = (65 << 8);
+	//header->fcf |= 136;
+	header->fcf = 25638;
 	header->dsn = 97;
 	header->destpan = (34 << 8);
 	header->destpan |= 0;
-	header->dest =dest;
+	//header->dest =dest;
+	if(GetRadioAddress() == 6846){
+		header->dest = 3505;
+	}
+	else{
+		header->dest = 6846;
+	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
 	header->network = MyConfig.Network;
 	header->mac_id = this->macName;
@@ -313,7 +321,9 @@ void csmaMAC::SendToRadio(){
 		m_recovery = 1;
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
-		DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
+		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
+		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName);
+		DeviceStatus ds = DS_Success;
 		if(ds == DS_Busy) {
 			/*HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress() % 200));
 			if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success)
