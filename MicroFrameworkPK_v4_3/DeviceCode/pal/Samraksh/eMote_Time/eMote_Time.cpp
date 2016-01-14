@@ -31,7 +31,7 @@ BOOL Time_Driver::Initialize()
 
 	// this timer keeps our timer constantly running so we can keep track of our system time
 	// overflows are kept track of in the timer driver itself
-	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler) == TimerSupported);
+	retVal = retVal && (VirtTimer_SetTimer(VIRT_TIMER_TIME, 0, maxTicks, FALSE, TRUE, TimeHandler, ADVTIMER_32BIT) == TimerSupported);
 	ASSERT(retVal);
 
 	retVal = retVal && (VirtTimer_Start( VIRT_TIMER_TIME ) == TimerSupported);
@@ -97,9 +97,9 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	}
 	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
 
-	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE) != TimerSupported)
+	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, ADVTIMER_32BIT) != TimerSupported)
 	{
-		if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, TRUE, SetCompareHandler) != TimerSupported)
+		if(VirtTimer_SetTimer(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, TRUE, SetCompareHandler, ADVTIMER_32BIT) != TimerSupported)
 		{
 			ASSERT(FALSE);
 		}
