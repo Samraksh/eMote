@@ -141,8 +141,8 @@ typedef struct IEEE802_15_4_Header {
 } IEEE802_15_4_Header_t;
 
 typedef class IEEE802_15_4_Footer{
-//public:
-	//UINT16 FCS;
+public:
+	UINT16 FCS;
 }IEEE802_15_4_Footer_t;
 
 typedef class IEEE802_15_4_Metadata{

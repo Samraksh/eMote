@@ -58,8 +58,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit 1 - IRQ_MASK_MODE - 1
 //Bit 0 - IRQ_POLARITY - 0
 //Register TRX_CTRL_1 is 0x04
-//0000 0000
-#define	 RF231_TRX_CTRL_1_VALUE		 0x00
+//0010 0000
+#define	 RF231_TRX_CTRL_1_VALUE		 0x20
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
@@ -70,8 +70,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit [6:2] - Reserved 	- 00000
 //Bit [1:0] - OQPSK_DATA_RATE - Page 137, 140 - 00 is for 250 kb/s
 //Register TRX_CTRL_2 is 0x0C
-//1000 0000
-#define RF231_TRX_CTRL_2_VALUE	0x80
+//0000 0000
+#define RF231_TRX_CTRL_2_VALUE	0x00
 //Page 71-72 in RF231 datasheet
 //Bits 0,3,6,7 - Reserved
 //Bit 0 - Reserved (0)

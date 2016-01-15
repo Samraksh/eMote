@@ -259,16 +259,19 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	header->destpan = 0x0001;
 	//header->dest =dest;
 	if(GetRadioAddress() == 6846){
-		header->dest = 0x0001;
+		header->dest = 0x0DB1;
 	}
 	else{
-		header->dest = 0x0001;
+		header->dest = 0x1ABE;
 	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
 	/*header->network = MyConfig.Network;
 	header->mac_id = this->macName;
 	header->type = dataType;
 	header->SetFlags(MFM_DATA);*/
+
+	IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
+	footer->FCS = 0xAAAA;
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();

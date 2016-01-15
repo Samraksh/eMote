@@ -1170,8 +1170,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//Page 76-78 in RF231 datasheet
 		//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
 		//			to switching to RX_AACK mode
-		WriteRegister(RF230_SHORT_ADDR_0, 0x01);
-		WriteRegister(RF230_SHORT_ADDR_1, 0x00);
+		WriteRegister(RF230_SHORT_ADDR_0, 0xBE);
+		WriteRegister(RF230_SHORT_ADDR_1, 0x1A);
 		//WriteRegister(RF230_SHORT_ADDR_0, 0xAA);
 		//WriteRegister(RF230_SHORT_ADDR_1, 0xAA);
 		//WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
@@ -1743,7 +1743,7 @@ void RF231Radio::HandleInterrupt()
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 #ifdef RF231_EXTENDED_MODE
-		if(DS_Success==DownloadMessage()){
+		/*if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
 				hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
@@ -1758,20 +1758,21 @@ void RF231Radio::HandleInterrupt()
 
 			// Un-sure if this is how to drop a packet. --NPS
 
-			if ( !Interrupt_Pending() ) {
+			//if ( !Interrupt_Pending() ) {
 				//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
 				cmd = CMD_NONE;
-			}
-		}
+			//}
+		}*/
 #endif
 	}
 
 
 	if(irq_cause & TRX_IRQ_AMI){
 		hal_printf("Inside TRX_IRQ_AMI\n");
+		cmd = CMD_RX_AACK;
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
@@ -1890,7 +1891,7 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
-			//hal_printf("Inside CMD_RX_AACK\n");
+			hal_printf("Inside CMD_RX_AACK\n");
 			state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
 			// Go to PLL_ON at least until the frame buffer is empty
