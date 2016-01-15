@@ -389,14 +389,14 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 #ifdef RF231_EXTENDED_MODE
 	if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-		state = RF230_PLL_ON;
+		state = STATE_PLL_ON;
 	}
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 	// Go to PLL_ON
 	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
-		state = RF230_TX_ARET_ON;
+		state = STATE_TX_ARET_ON;
 	}
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
@@ -810,7 +810,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 #ifdef RF231_EXTENDED_MODE
 	// Go to PLL_ON
 	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
-		state = RF230_TX_ARET_ON;
+		state = STATE_TX_ARET_ON;
 	}
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
@@ -1696,7 +1696,11 @@ void RF231Radio::HandleInterrupt()
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
 		add_rx_start_time();
+#ifdef RF231_EXTENDED_MODE
+		state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
+#else
 		state = STATE_BUSY_RX; // Seems like we should change state, so I made one up...
+#endif
 		//NATHAN_SET_DEBUG_GPIO(0);
 #		ifdef DEBUG_RF231
 		hal_printf("RF231: TRX_IRQ_RX_START\r\n");
@@ -1730,9 +1734,9 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 #ifdef RF231_EXTENDED_MODE
 		cmd = CMD_RX_AACK;
-		WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+		/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
-		state = STATE_RX_AACK_ON;
+		state = STATE_RX_AACK_ON;*/
 #else
 		cmd = CMD_RECEIVE;
 #endif
@@ -1743,7 +1747,7 @@ void RF231Radio::HandleInterrupt()
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 #ifdef RF231_EXTENDED_MODE
-		/*if(DS_Success==DownloadMessage()){
+		if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
 				hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
@@ -1761,11 +1765,11 @@ void RF231Radio::HandleInterrupt()
 			//if ( !Interrupt_Pending() ) {
 				//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
 
 				cmd = CMD_NONE;
 			//}
-		}*/
+		}
 #endif
 	}
 
@@ -1895,11 +1899,14 @@ void RF231Radio::HandleInterrupt()
 			state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
 			// Go to PLL_ON at least until the frame buffer is empty
+			/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+				state = STATE_PLL_ON;
+			}*/
 			WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
 			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
 			state = STATE_PLL_ON;
 
-			(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+			//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
 			if(DS_Success == DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
@@ -1938,6 +1945,12 @@ void RF231Radio::HandleInterrupt()
 				return;
 			}
 			else { // Now safe to go back to RX_ON
+				/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+					state = STATE_PLL_ON;
+				}
+				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+					state = STATE_TRX_OFF;
+				}*/
 				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 				state = STATE_RX_AACK_ON;

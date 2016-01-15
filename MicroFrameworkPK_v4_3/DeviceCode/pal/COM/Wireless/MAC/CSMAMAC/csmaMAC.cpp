@@ -470,7 +470,10 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	}*/
 
 	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
-	if(rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName))
+	if((rcv_msg_hdr->dest == 0)){
+		//dont do anything
+	}
+	else if( ( rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName) ) )
 	{
 		//HandlePromiscousMessage(msg);
 		return msg;
