@@ -56,7 +56,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
-	UINT64 y = HAL_Time_CurrentTicks();
+	UINT64 y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
@@ -67,7 +67,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 	ASSERT_SP(NextEventTimeinTicks > y);
 
 	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
-	UINT64 curTicks = HAL_Time_CurrentTicks();
+	UINT64 curTicks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
@@ -89,7 +89,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
 	}
-	lastwakeupSlotUpdateTimeinTicks = HAL_Time_CurrentTicks();
+	lastwakeupSlotUpdateTimeinTicks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*
@@ -110,7 +110,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	if (e == DS_Success){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
-		m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+		m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -125,7 +125,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		}*/
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
-		m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+		m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -154,7 +154,7 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	}
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
-	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * PACKET_PERIOD_FOR_RECEPTION_HANDLER;
 	if(rm != TimerSupported){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
@@ -180,7 +180,7 @@ void DataReceptionHandler::SendACKHandler(){
 	m_receptionstate = 4;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
-	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);//HAL_Time_CurrentTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 #endif
@@ -206,7 +206,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	m_receptionstate = 2;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
-	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 #endif
@@ -225,7 +225,7 @@ void DataReceptionHandler::SendDataACK(){
 #endif
 
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE );
-	m_lastScheduledOriginTime = HAL_Time_CurrentTicks();
+	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 
@@ -254,7 +254,7 @@ void DataReceptionHandler::SendDataACK(){
 }
 
 void DataReceptionHandler::PostExecuteEvent(){
-	m_currtime = HAL_Time_CurrentTicks();
+	m_currtime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 
 	if(!(m_receptionstate == 0 || m_receptionstate == 4)){
 		m_isreceiving = false;

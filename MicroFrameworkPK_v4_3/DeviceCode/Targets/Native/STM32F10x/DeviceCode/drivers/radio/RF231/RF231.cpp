@@ -54,61 +54,61 @@ static void add_size(uint32_t size) {
 
 static void add_irq_time(uint32_t cause) {
 	static int index=0;
-	irq_times[index] = HAL_Time_CurrentTicks();
+	irq_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	irq_causes[index] = cause;
 	index = (++index) % 16;
 }
 
 static void add_sleep_time() {
 	static int index=0;
-	sleep_times[index] = HAL_Time_CurrentTicks();
+	sleep_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_rx_start_time() {
 	static int index=0;
-	rx_start_times[index] = HAL_Time_CurrentTicks();
+	rx_start_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_send_ts_time() {
 	static int index=0;
-	send_ts_times[index] = HAL_Time_CurrentTicks();
+	send_ts_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_send_time() {
 	static int index=0;
-	send_times[index] = HAL_Time_CurrentTicks();
+	send_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_rx_time() {
 	static int index=0;
-	rx_times[index] = HAL_Time_CurrentTicks();
+	rx_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_send_done() {
 	static int index=0;
-	send_dones[index] = HAL_Time_CurrentTicks();
+	send_dones[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_trx_ur() {
 	static int index=0;
-	trx_ur_times[index] = HAL_Time_CurrentTicks();
+	trx_ur_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 
 static void add_download_error() {
 	static int index=0;
-	download_error_times[index] = HAL_Time_CurrentTicks();
+	download_error_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 static void add_int_pend() {
 	static int index=0;
-	int_pend_times[index] = HAL_Time_CurrentTicks();
+	int_pend_times[index] = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	index = (++index) % 16;
 }
 #else
@@ -301,7 +301,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	}
 
 	//Transmit the event timestamp
-	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+	timestamp = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) & 0xFFFFFFFF; // Lower bits only
 	eventOffset = timestamp - eventTime;
 
 	for(int ii=0; ii<timestamp_size; ii++) {
@@ -1212,7 +1212,7 @@ void RF231Radio::HandleInterrupt()
 		// Do the time stamp here instead of after done, I think.
 		// Note there is potential to use a capture time here, for better accuracy.
 		// Currently, this will depend on interrupt latency.
-		receive_timestamp = HAL_Time_CurrentTicks();
+		receive_timestamp = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 
 		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
@@ -1220,7 +1220,7 @@ void RF231Radio::HandleInterrupt()
 		//AnanthAtSamraksh: defaulting to the AdvancedTimer
 
 		// This is not being used anywhere right now, so commenting out.
-		//time = (HAL_Time_CurrentTicks() >> 32); // Throwing away the bottom 32-bits? Doesn't that really hurt timing??? --NPS
+		//time = (VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) >> 32); // Throwing away the bottom 32-bits? Doesn't that really hurt timing??? --NPS
 
 		// Initiate cmd receive
 		cmd = CMD_RECEIVE;

@@ -254,7 +254,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	TimeSyncRequestMsg* tsreqmg = NULL;
 
 	INT64 evTime;
-	UINT64 rx_start_ticks = HAL_Time_CurrentTicks();
+	UINT64 rx_start_ticks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	UINT16 location_in_packet_payload = 0;
 
 
@@ -418,7 +418,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 
 			if( tsmg != NULL && disco_msg == NULL){
-				rx_start_ticks = HAL_Time_CurrentTicks();
+				rx_start_ticks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 			}
 		}
 
@@ -428,7 +428,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef	def_Neighbor2beFollowed
 	}
 #endif
-	UINT64 rx_end_ticks = HAL_Time_CurrentTicks();
+	UINT64 rx_end_ticks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
 		return msg;
 	}

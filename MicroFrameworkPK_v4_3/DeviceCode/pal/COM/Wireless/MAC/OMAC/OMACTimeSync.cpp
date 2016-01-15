@@ -62,7 +62,7 @@ UINT64 OMACTimeSync::NextEvent(){
 	UINT64 nextEventsMicroSec = 0;
 	nextEventsSlot = NextEventinSlots();
 	while(nextEventsSlot == 0){
-		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
+		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 		if(sn != NULL) {
 			Send(sn->MacAddress);
 			nextEventsSlot = NextEventinSlots();
@@ -77,7 +77,7 @@ UINT64 OMACTimeSync::NextEvent(){
  *
  */
 UINT16 OMACTimeSync::NextEventinSlots(){
-	UINT64 y = HAL_Time_CurrentTicks();
+	UINT64 y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
 	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS );
 	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
@@ -99,7 +99,7 @@ void OMACTimeSync::ExecuteEvent(){
 	//BK: This will be handled with the non_interrupt timer
 //	Neighbor_t* sn;
 //	while(NextEventinSlots() == 0){
-//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(HAL_Time_CurrentTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
+//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 //		Send(sn->MacAddress);
 //	}
 	VirtualTimerReturnMessage rm;
@@ -137,7 +137,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 
 	TimeSyncRequestMsg * tsreqmsg;
 	BOOL rs = false;
-	UINT64 y = HAL_Time_CurrentTicks();
+	UINT64 y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 
 	ASSERT_SP( y > lastTimeSyncRecv); //Ensure no rollover
 
@@ -198,7 +198,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	UINT64 y,neighborscurtime;
 
 	if(rcv_msg->timesyncIdentifier != 50529027 ){
-		y = HAL_Time_CurrentTicks();
+		y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
 		ASSERT_SP(0);
 	}
@@ -230,7 +230,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
 		if (m_globalTime.regressgt2.NumberOfRecordedElements(msg_src) >=2  ){
-			y = HAL_Time_CurrentTicks();
+			y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 			neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,rcv_ltime);
 		}
 	}

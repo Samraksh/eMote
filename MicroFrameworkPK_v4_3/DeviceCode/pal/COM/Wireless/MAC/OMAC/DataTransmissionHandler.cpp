@@ -79,7 +79,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	if(ScheduleDataPacket()) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		UINT64 curTicks = HAL_Time_CurrentTicks();
+		UINT64 curTicks = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 
 #ifdef OMAC_DEBUG_PRINTF
@@ -91,7 +91,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 #endif
 #endif
 
-		/*UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks()));
+		/*UINT64 neighborSlot = g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER)));
 		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(dest);
 		UINT64 neighborwakeUpSlot = neigh_ptr->nextwakeupSlot;
 		if(neighborwakeUpSlot - neighborSlot < 20 ){
@@ -114,7 +114,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 #ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
-			, HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, HAL_Time_CurrentTicks())) );
+			, HAL_Time_TicksToTime(VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER)), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER))), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER))) );
 #endif
 #endif
 
@@ -329,8 +329,8 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 				isDataPacketScheduled = false;
 				return FALSE;
 			}
-			UINT64 y = HAL_Time_CurrentTicks();
-			UINT64 neighborTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, HAL_Time_CurrentTicks());
+			UINT64 y = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
+			UINT64 neighborTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER));
 			if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
 				//Keep the packet but do not schedule the data packet
 				hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
