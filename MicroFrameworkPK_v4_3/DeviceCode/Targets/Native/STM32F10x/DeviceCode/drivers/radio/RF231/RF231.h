@@ -58,8 +58,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit 1 - IRQ_MASK_MODE - 1
 //Bit 0 - IRQ_POLARITY - 0
 //Register TRX_CTRL_1 is 0x04
-//0010 0010
-#define	 RF231_TRX_CTRL_1_VALUE		 0x22
+//0000 0000
+#define	 RF231_TRX_CTRL_1_VALUE		 0x00
 #define  RF230_CCA_THRES_VALUE 	 	 0xC7
 #define	 RF230_CCA_MODE_VALUE  		 (1 << 5)
 
@@ -85,8 +85,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //		   Can be set only if bit 4 is set.
 //Bit [7:6] - Reserved (00)
 //Register XAH_CTRL_1 is 0x17
-//0000 0100
-#define	 RF231_XAH_CTRL_1_VALUE		 0x04
+//0011 0100
+#define	 RF231_XAH_CTRL_1_VALUE		 0x34
 //Page 73 in RF231 datasheet
 //Bits 7-4 - MAX_FRAME_RETRIES - being set to 0 (0000)
 //Bits 3-1 - MAX_CSMA_RETRIES - being set to 0 (000)
@@ -95,15 +95,15 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //0000 0000
 #define	 RF231_XAH_CTRL_0_VALUE		 0x00
 //Page 74-75 in the RF231 datasheet
-//Bit [7:6] - AACK_FVN_MODE		- Mode is set to 3 (Acknowledge independent of frame version number) (01) (to be changed to 00 later)
+//Bit [7:6] - AACK_FVN_MODE		- Mode is set to 3 (Acknowledge independent of frame version number) (11) (to be changed to 00 later)
 //Bit 5 	- AACK_SET_PD 		- Content is copied into the frame pending subfield of the acknowledgement frame if ack
 //									is the answer to a data request MAC command frame (0)
 //Bit 4 	- AACK_DIS_ACK 		- If this bit is set no ack frames are transmitted (0)
 //Bit 3 	- AACK_I_AM_COORD 	- This has to be set if the node is a PAN coordinator (0)
 //Bit [2:0]	- CSMA_SEED_1 		- Higher 3 bit of the CSMA_SEED (010)
 //Register CSMA_SEED_1 is 0x2E
-//0100 0010
-#define RF231_CSMA_SEED_1_VALUE		0x42
+//1100 0010
+#define RF231_CSMA_SEED_1_VALUE		0xC2
 //Page 73-74
 //The seed for random value for CSMA-CA backoff is 010 1010 1010
 //The higher 3 bits (010) is set in bits 2:0 in CSMA_SEED_1

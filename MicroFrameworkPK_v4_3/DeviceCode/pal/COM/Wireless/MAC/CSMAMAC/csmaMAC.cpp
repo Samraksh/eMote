@@ -188,7 +188,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
 	header->fcf = 9254;
-	header->dsn = seqNumber;
+	//header->dsn = seqNumber;
 	//header->destpan = (34 << 8);
 	//header->destpan |= 0;
 	header->destpan = 0xAAAA;
@@ -251,18 +251,18 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	length = Size + sizeof(IEEE802_15_4_Header_t);
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
-	header->fcf = 9254;
+	header->fcf = 26150;
 	header->dsn = seqNumber;
 	//header->destpan = (34 << 8);
 	//header->destpan |= 0;
-	header->srcpan = 0xAAAA;
-	header->destpan = 0xAAAA;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
 	//header->dest =dest;
 	if(GetRadioAddress() == 6846){
-		header->dest = 0x0DB1;
+		header->dest = 0x0001;
 	}
 	else{
-		header->dest = 0x1ABE;
+		header->dest = 0x0001;
 	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
 	/*header->network = MyConfig.Network;
