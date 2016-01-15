@@ -51,3 +51,5 @@ D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Ne
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\be\Samraksh_eMote_Net.pdbx
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\le\Samraksh_eMote_Net.pe
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\le\Samraksh_eMote_Net.pdbx
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.csprojResolveAssemblyReference.cache
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\TinyCLR_DebugReferences.cache

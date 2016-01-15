@@ -1173,12 +1173,14 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//			to switching to RX_AACK mode
 		WriteRegister(RF230_SHORT_ADDR_0, 0xBE);
 		WriteRegister(RF230_SHORT_ADDR_1, 0x1A);
+		//WriteRegister(RF230_SHORT_ADDR_0, 0xAA);
+		//WriteRegister(RF230_SHORT_ADDR_1, 0xAA);
 		//WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
 		//WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
 		//WriteRegister(RF230_PAN_ID_0, 0x00);
 		//WriteRegister(RF230_PAN_ID_1, 0x22);
-		WriteRegister(RF230_PAN_ID_0, 0xFF);
-		WriteRegister(RF230_PAN_ID_1, 0xFF);
+		WriteRegister(RF230_PAN_ID_0, 0xAA);
+		WriteRegister(RF230_PAN_ID_1, 0xAA);
 		WriteRegister(RF230_IEEE_ADDR_0, 0x00);
 		WriteRegister(RF230_IEEE_ADDR_1, 0x00);
 		WriteRegister(RF230_IEEE_ADDR_2, 0x00);
@@ -1710,8 +1712,8 @@ void RF231Radio::HandleInterrupt()
 		rssi_busy += temp - (rssi_busy >> 2);
 
 		// Add the rssi to the message
-		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-		metadata->SetRssi(temp);
+		//IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+		//metadata->SetRssi(temp);
 
 		// Do the time stamp here instead of after done, I think.
 		// Note there is potential to use a capture time here, for better accuracy.
@@ -1729,6 +1731,9 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 #ifdef RF231_EXTENDED_MODE
 		cmd = CMD_RX_AACK;
+		WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+		state = STATE_RX_AACK_ON;
 #else
 		cmd = CMD_RECEIVE;
 #endif
@@ -1739,7 +1744,7 @@ void RF231Radio::HandleInterrupt()
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 #ifdef RF231_EXTENDED_MODE
-		/*if(DS_Success==DownloadMessage()){
+		if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
 				hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
@@ -1755,13 +1760,13 @@ void RF231Radio::HandleInterrupt()
 			// Un-sure if this is how to drop a packet. --NPS
 
 			//if ( !Interrupt_Pending() ) {
-				(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+				//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
 				cmd = CMD_NONE;
 			//}
-		}*/
+		}
 #endif
 	}
 
@@ -1833,8 +1838,8 @@ void RF231Radio::HandleInterrupt()
 				// Un-sure if this is how to drop a packet. --NPS
 
 				if ( !Interrupt_Pending() ) {
-					int type = rx_msg_ptr->GetHeader()->type;
-					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					//int type = rx_msg_ptr->GetHeader()->type;
+					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
@@ -1913,8 +1918,8 @@ void RF231Radio::HandleInterrupt()
 				// Un-sure if this is how to drop a packet. --NPS
 
 				if ( !Interrupt_Pending() ) {
-					int type = rx_msg_ptr->GetHeader()->type;
-					(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					//int type = rx_msg_ptr->GetHeader()->type;
+					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
@@ -1978,7 +1983,9 @@ DeviceStatus RF231Radio::DownloadMessage()
 	UINT8* temp_rx_msg_ptr;
 
 	// Auto-CRC is enabled. This checks the status bit.
-	if ( !phy_rssi ) { retStatus = DS_Fail; }
+	if ( !phy_rssi ) {
+		retStatus = DS_Fail;
+	}
 
 	GLOBAL_LOCK(irq);
 
@@ -2019,9 +2026,9 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	SelnSet();
 
-	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+	/*IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 	metadata->SetLqi(lqi);
-	metadata->SetReceiveTimeStamp(receive_timestamp);
+	metadata->SetReceiveTimeStamp(receive_timestamp);*/
 
 	return retStatus;
 }

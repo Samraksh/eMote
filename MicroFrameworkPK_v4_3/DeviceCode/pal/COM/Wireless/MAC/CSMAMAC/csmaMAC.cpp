@@ -174,41 +174,58 @@ UINT8 test = 0;
 
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
 {
+	static UINT8 seqNumber = 0;
 	Message_15_4_t msg_carrier;
 	if(Size > csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
+	//IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
+	UINT8 length = 0;
 
-	header->length = Size + sizeof(IEEE802_15_4_Header_t);
+	////header->length = Size + sizeof(IEEE802_15_4_Header_t);
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
 	header->fcf = 9254;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest =dest;
+	header->dsn = seqNumber;
+	//header->destpan = (34 << 8);
+	//header->destpan |= 0;
+	header->destpan = 0xAAAA;
+	//header->dest =dest;
+	if(GetRadioAddress() == 6846){
+		header->dest = 0xAAAA;
+	}
+	else{
+		header->dest = 0xAAAA;
+	}
+	header->srcpan = 0xAAAA;
 	header->src = CPU_Radio_GetAddress(this->radioName);
-	header->network = MyConfig.Network;
-	header->mac_id = this->macName;
-	header->type = dataType;
-	header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+	////header->network = MyConfig.Network;
+	////header->mac_id = this->macName;
+	////header->type = dataType;
+	////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
 
-	IEEE802_15_4_Metadata_t* metaData =  msg_carrier.GetMetaData();
-	metaData->SetReceiveTimeStamp(eventTime);
+	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
+	footer->FCS = 0x0;*/
+
+	/*IEEE802_15_4_Metadata_t* metaData =  msg_carrier.GetMetaData();
+	metaData->SetReceiveTimeStamp(eventTime);*/
 
 	for(UINT8 i = 0 ; i < Size; i++){
 		payload[i] = lmsg[i];
 	}
 
+	seqNumber++;
 	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
 	// Check if the circular buffer is full
-	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+	//if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
+	if(!g_send_buffer.Store((void *) &msg_carrier, length)){
 		return FALSE;
 	}
 
@@ -220,32 +237,38 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 {
+	static UINT8 seqNumber = 0;
 	Message_15_4_t msg_carrier;
 	if(Size >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
+	//IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
+	UINT8 length = 0;
 
-	header->length = Size + sizeof(IEEE802_15_4_Header_t);
+	//metadata->length = Size + sizeof(IEEE802_15_4_Header_t);
+	length = Size + sizeof(IEEE802_15_4_Header_t);
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
 	header->fcf = 9254;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
+	header->dsn = seqNumber;
+	//header->destpan = (34 << 8);
+	//header->destpan |= 0;
+	header->srcpan = 0xAAAA;
+	header->destpan = 0xAAAA;
 	//header->dest =dest;
 	if(GetRadioAddress() == 6846){
-		header->dest = 3505;
+		header->dest = 0x0DB1;
 	}
 	else{
-		header->dest = 6846;
+		header->dest = 0x1ABE;
 	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
-	header->network = MyConfig.Network;
+	/*header->network = MyConfig.Network;
 	header->mac_id = this->macName;
 	header->type = dataType;
-	header->SetFlags(MFM_DATA);
+	header->SetFlags(MFM_DATA);*/
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
@@ -253,10 +276,12 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 	for(UINT8 i = 0 ; i < Size; i++)
 		payload[i] = lmsg[i];
 
+	seqNumber++;
 	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
-	if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
+	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
+	if(!g_send_buffer.Store((void *) &msg_carrier, length)){
 		return FALSE;
 	}
 
@@ -369,15 +394,17 @@ void csmaMAC::SendToRadio(){
 		if(txMsgPtr != NULL){
 			DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
 			RadioAckPending = TRUE;
-			if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
+			/*if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
 				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
 			}
 			else
-			{
-				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
-			}
+			{*/
+				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
+				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength());
+			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
+			//}
 		}
 	}
 }
@@ -396,7 +423,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	// Get the header packet
 	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
-	IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
+	//IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
 	//UINT8* rcv_payload = msg->GetPayload();
 
 	//hal_printf("(%d) <%d> %d\r\n",Size, (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
@@ -404,7 +431,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	// If the message type is a discovery then return the same bag you got from the radio layer
 	// Don't make a callback here because the neighbor table takes care of informing the application of a changed situation of
 	// it neighbors
-	if(rcv_msg_hdr->type == MFM_DISCOVERY)
+	/*if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
 			if(g_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
@@ -426,7 +453,8 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 			else
 			{
-				g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+				//g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
+				g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0);
 #if 0
 				g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
 				g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
@@ -436,7 +464,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 			}
 			return msg;
-	}
+	}*/
 
 	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
 	if(rcv_msg_hdr->dest != MAC_BROADCAST_ADDRESS && rcv_msg_hdr->dest != CPU_Radio_GetAddress(this->radioName))

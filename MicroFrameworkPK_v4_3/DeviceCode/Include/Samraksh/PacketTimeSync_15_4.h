@@ -41,16 +41,16 @@ class PacketTimeSync_15_4{
                 // Also the demodulation delay is irrelevant. There can a small adjustment accounting for the initiation of the sender side delay, preamble and interrupt latecny on the receiver side
                 // This value is estimated to be TXRXOFFSET = 50 micro seconds
                 UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + _payloadsize + TIMESTAMP_OFFSET);
-                INT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
+                INT64 rcv_ts;// = msg->GetMetaData()->GetReceiveTimeStamp();
                 UINT32 sender_delay = *senderEventTime;
                 rcv_ts = rcv_ts - (INT64) sender_delay - (INT64)(CPU_TicksPerSecond()/1000000)*TXRXOFFSET; // - (UINT64)(msgsizeadjust + TXRXOFFSET) * (CPU_TicksPerSecond()/1000000) ;
                 return rcv_ts;
         }
 
         static bool IsValid(Message_15_4_t *msg){
-                if(msg->GetMetaData()->GetReceiveTimeStamp()==TIMESTAMP_ERROR)
+                /*if(msg->GetMetaData()->GetReceiveTimeStamp()==TIMESTAMP_ERROR)
                         return FALSE;
-                else
+                else*/
                         return TRUE;
         }
 };
