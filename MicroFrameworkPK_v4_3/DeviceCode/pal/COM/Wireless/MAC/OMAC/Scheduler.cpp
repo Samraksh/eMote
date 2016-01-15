@@ -54,13 +54,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	bool rv = VirtTimer_Initialize();
 	ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
 	ASSERT_SP(rm == TimerSupported);
-//	rm = VirtTimer_SetTimer(HAL_SLOT_TIMER2, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicSchedulerTaskHandler2);
-//	ASSERT_SP(rm == TimerSupported);
-	//rm = VirtTimer_SetTimer(HAL_SLOT_TIMER3, 0, 5 * MICSECINMILISEC, TRUE, FALSE, PublicPostExecutionTaskHandler1);
-	//ASSERT_SP(rm == TimerSupported);
-	//VirtTimer_SetTimer(HAL_POSTEXECUTE_TIMER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, TRUE, FALSE, PublicPostExecuteTaskTCallback);
 
 	//Initialize Handlers
 	m_DiscoveryHandler.Initialize(radioID, macID);
@@ -171,7 +166,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
 	SchedulerINUse = true;
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE); //1 sec Timer in micro seconds
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
 	ASSERT_SP(rm == TimerSupported);

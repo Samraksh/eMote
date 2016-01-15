@@ -43,9 +43,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 #ifdef SOFTWARE_ACKS_ENABLED
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 #endif
 
 	ASSERT_SP(rm == TimerSupported);
@@ -109,7 +109,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 		m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
@@ -124,7 +124,7 @@ void DataReceptionHandler::ExecuteEvent(){
 			//ASSERT_SP(0);
 		}*/
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE ,OMACClockSpecifier);
 		m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
@@ -153,7 +153,7 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	}
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * PACKET_PERIOD_FOR_RECEPTION_HANDLER;
 	if(rm != TimerSupported){
@@ -179,7 +179,7 @@ void DataReceptionHandler::SendACKHandler(){
 	ASSERT_SP(m_receptionstate == 3);
 	m_receptionstate = 4;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);//HAL_Time_CurrentTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
@@ -205,7 +205,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	ASSERT_SP(m_receptionstate == 1);
 	m_receptionstate = 2;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
@@ -224,7 +224,7 @@ void DataReceptionHandler::SendDataACK(){
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 #endif
 
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE,OMACClockSpecifier );
 	m_lastScheduledOriginTime = VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER);
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);

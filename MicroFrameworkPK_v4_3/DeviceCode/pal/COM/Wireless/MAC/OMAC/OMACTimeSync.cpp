@@ -51,7 +51,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	m_globalTime.Init();
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 
 }
