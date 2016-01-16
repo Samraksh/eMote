@@ -293,7 +293,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 	ASSERT_RADIO(trx_status != P_ON); // P_ON is 0 and normally impossible to reach after init. So likely SPI died.
 
 	if (target == trx_status) { return TRUE; } // already there!
-	if (target == RX_AACK_ON && trx_status == BUSY_RX_AACK) { return TRUE; } // BUSY_RX and RX_ON are equiv.
+	if (target == RX_AACK_ON && trx_status == BUSY_RX_AACK) { return TRUE; } // BUSY_RX_AACK and RX_AACK_ON are equiv.
 
 	// Make sure we're not busy and can move.
 	if ( trx_status == BUSY_RX_AACK || trx_status == BUSY_TX_ARET || Interrupt_Pending() )
@@ -312,9 +312,15 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 					&& !(trx_status == PLL_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
 				{
 					switch(trx_status) {
-						case BUSY_RX: state = STATE_BUSY_RX_AACK; break;
-						case BUSY_TX: state = STATE_BUSY_TX_ARET; break;
-						default: state = STATE_PLL_ON; ASSERT_RADIO(0); // Unknown. Put here just because.
+						case BUSY_RX_AACK:
+							state = STATE_BUSY_RX_AACK;
+							break;
+						case BUSY_TX_ARET:
+							state = STATE_BUSY_TX_ARET;
+							break;
+						default:
+							state = STATE_PLL_ON;
+							ASSERT_RADIO(0); // Unknown. Put here just because.
 					}
 					return FALSE;
 				}
@@ -333,9 +339,15 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 				&& !(trx_status == TX_ARET_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
 			{
 				switch(trx_status) {
-					case BUSY_RX: state = STATE_BUSY_RX_AACK; break;
-					case BUSY_TX: state = STATE_BUSY_TX_ARET; break;
-					default: state = STATE_PLL_ON; ASSERT_RADIO(0); // Unknown. Put here just because.
+					case BUSY_RX_AACK:
+						state = STATE_BUSY_RX_AACK;
+						break;
+					case BUSY_TX_ARET:
+						state = STATE_BUSY_TX_ARET;
+						break;
+					default:
+						state = STATE_PLL_ON;
+						ASSERT_RADIO(0); // Unknown. Put here just because.
 				}
 				return FALSE;
 			}
@@ -344,7 +356,10 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 
 	// Check one last time for interrupt.
 	// Not clear how this could happen, but assume it would be an RX. --NPS
-	if ( Interrupt_Pending() ) { state = STATE_BUSY_RX_AACK; return FALSE; } // Not an error, just odd
+	if ( Interrupt_Pending() ) {
+		state = STATE_BUSY_RX_AACK;
+		return FALSE;
+	} // Not an error, just odd
 
 	// Reset cmd here just to be clean.
 	if ( trx_status == PLL_ON || trx_status == TRX_OFF )
@@ -1671,7 +1686,7 @@ void RF231Radio::HandleInterrupt()
 
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
-	hal_printf("irq_cause is: %u\n", irq_cause);
+	//hal_printf("irq_cause is: %u\n", irq_cause);
 
 	// DEBUG NATHAN
 	add_irq_time(irq_cause);
@@ -1734,6 +1749,9 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 #ifdef RF231_EXTENDED_MODE
 		cmd = CMD_RX_AACK;
+		if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
+			state = STATE_RX_AACK_ON;
+		}
 		/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 		state = STATE_RX_AACK_ON;*/
@@ -1775,7 +1793,7 @@ void RF231Radio::HandleInterrupt()
 
 
 	if(irq_cause & TRX_IRQ_AMI){
-		hal_printf("Inside TRX_IRQ_AMI\n");
+		//hal_printf("Inside TRX_IRQ_AMI\n");
 		cmd = CMD_RX_AACK;
 	}
 
@@ -1895,16 +1913,39 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
-			hal_printf("Inside CMD_RX_AACK\n");
-			state = STATE_RX_AACK_ON; // Right out of BUSY_RX
+			//hal_printf("Inside CMD_RX_AACK\n");
+			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
-			// Go to PLL_ON at least until the frame buffer is empty
-			/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-				state = STATE_PLL_ON;
-			}*/
-			WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-			state = STATE_PLL_ON;
+			// Initiate frame transmission by asserting SLP_TR pin
+			HAL_Time_Sleep_MicroSeconds(40);
+			SlptrSet();
+
+#if 0
+			if(state == STATE_RX_AACK_ON){
+				if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+					state = STATE_PLL_ON;
+				}
+			}
+			else if(state == STATE_BUSY_RX_AACK){
+				radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+				while(trx_status == BUSY_RX_AACK){
+					trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+					HAL_Time_Sleep_MicroSeconds(500);
+				}
+				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+					state = STATE_TRX_OFF;
+				}
+			}
+			else if(state != STATE_BUSY_RX_AACK){
+				// Go to PLL_ON at least until the frame buffer is empty
+				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+					state = STATE_TRX_OFF;
+				}
+				/*WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+				DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
+				state = STATE_PLL_ON;*/
+			}
+#endif
 
 			//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
@@ -1937,6 +1978,7 @@ void RF231Radio::HandleInterrupt()
 			}
 
 			cmd = CMD_NONE;
+			SlptrClear();
 
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
@@ -1951,9 +1993,64 @@ void RF231Radio::HandleInterrupt()
 				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
 					state = STATE_TRX_OFF;
 				}*/
-				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+				if(state == STATE_RX_AACK_ON){
+					//hal_printf("state is STATE_RX_AACK_ON\n");
+#if 0
+					static UINT8 stopBusy_rx_AACK_counter = 0;
+					radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+					while(trx_status == BUSY_RX_AACK){
+						trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+						HAL_Time_Sleep_MicroSeconds(300);
+						if(trx_status == RX_AACK_ON){
+							state = STATE_RX_AACK_ON;
+							break;
+						}
+						//Wait for 1200 usec before FORCE_TRX_OFF (page 63 shows close to 1000 usec)
+						if(stopBusy_rx_AACK_counter > 100){
+							/*if ( Careful_State_Change_Extended(RF230_FORCE_TRX_OFF) ) {
+								//state = STATE_RX_AACK_ON;
+							}
+							//WriteRegister(RF230_TRX_STATE, RF230_FORCE_TRX_OFF);
+							//DID_STATE_CHANGE_ASSERT(FORCE_TRX_OFF);
+							WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
+							DID_STATE_CHANGE_ASSERT(PLL_ON);
+							WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+							DID_STATE_CHANGE_ASSERT(RX_AACK_ON);
+							state = STATE_RX_AACK_ON;*/
+							hal_printf("I am done\n");
+							break;
+						}
+						stopBusy_rx_AACK_counter++;
+					}
+					if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
+						state = STATE_RX_AACK_ON;
+					}
+					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+						state = STATE_TRX_OFF;
+					}
+#endif
+				}
+#if 0
+				else if(state == STATE_BUSY_RX_AACK){
+					radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+					while(trx_status == BUSY_RX_AACK){
+						trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+						HAL_Time_Sleep_MicroSeconds(500);
+					}
+					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+						state = STATE_TRX_OFF;
+					}
+				}
+				else if(state != STATE_BUSY_RX_AACK){
+					// Go to PLL_ON at least until the frame buffer is empty
+					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
+						state = STATE_TRX_OFF;
+					}
+				}
+				/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
-				state = STATE_RX_AACK_ON;
+				state = STATE_RX_AACK_ON;*/
+#endif
 			}
 		}
 		else

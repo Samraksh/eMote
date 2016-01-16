@@ -136,7 +136,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 #define DID_STATE_CHANGE(x)				poll_counter = 0;               \
 										do{ 							\
-											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											trx_status = (radio_hal_trx_status_t)(ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
 												hal_printf(RADIOERROR03);  \
@@ -148,7 +148,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 #define DID_STATE_CHANGE_NULL(x)		poll_counter = 0;               \
 										do{ 							\
-											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											trx_status = (radio_hal_trx_status_t)(ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
 												hal_printf(RADIOERROR03);  \
@@ -160,7 +160,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 
 #define DID_STATE_CHANGE_ASSERT(x)		poll_counter = 0;               \
 										do{ 							\
-											trx_status = (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
+											trx_status = (radio_hal_trx_status_t)(ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);		\
 											if(poll_counter == 0xfff)    \
 											{  								\
 												SOFT_BREAKPOINT();          \
@@ -215,6 +215,7 @@ typedef enum radio_hal_trx_status
     BUSY_RX                         = 1,
     BUSY_TX                         = 2,
 	FORCE_PLL_ON					= 4, // should not be used
+	FORCE_TRX_OFF					= 5,
     RX_ON                           = 6,
     TRX_OFF                         = 8,
     PLL_ON                          = 9,
