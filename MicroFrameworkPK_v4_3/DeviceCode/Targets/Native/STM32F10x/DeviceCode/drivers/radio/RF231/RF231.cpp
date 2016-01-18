@@ -1931,7 +1931,6 @@ void RF231Radio::HandleInterrupt()
 			//hal_printf("Inside CMD_RX_AACK\n");
 			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
-
 #if 0
 			if(state == STATE_RX_AACK_ON){
 				if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
@@ -1982,16 +1981,8 @@ void RF231Radio::HandleInterrupt()
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-					//sequenceNumberReceiver = header->dsn;
 					hal_printf("receiver seq number is: %d\n", header->dsn);
-					//if(header->src != 0 && header->dest != 0){
-						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-					/*}
-					else{
-						if(sequenceNumberReceiver == sequenceNumberSender){
-							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-						}
-					}*/
+					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 				}
 			}
 			else {
@@ -2000,7 +1991,6 @@ void RF231Radio::HandleInterrupt()
 			}
 
 			cmd = CMD_NONE;
-			//SlptrClear();
 			// Initiate frame transmission by asserting SLP_TR pin
 			HAL_Time_Sleep_MicroSeconds(40);
 			SlptrSet();
