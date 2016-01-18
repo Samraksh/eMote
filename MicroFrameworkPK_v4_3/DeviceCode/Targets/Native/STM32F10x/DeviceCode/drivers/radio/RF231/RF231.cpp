@@ -12,6 +12,9 @@
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
+static UINT32 sequenceNumberSender = 0;
+static UINT32 sequenceNumberReceiver = 0;
+
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -386,6 +389,9 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	const int timestamp_size = 4; // we decrement in a loop later.
 	const int crc_size = 2;
+
+	IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
+	sequenceNumberSender = header->dsn;
 
 	// Adding 2 for crc and 4 bytes for timestamp
 	if(size + crc_size + timestamp_size > IEEE802_15_4_FRAME_LENGTH){
@@ -806,6 +812,9 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	Message_15_4_t* temp;
 
 	const int crc_size = 2;
+
+	IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
+	sequenceNumberSender = header->dsn;
 
 	// Adding 2 for crc
 	if(size + crc_size> IEEE802_15_4_FRAME_LENGTH){
@@ -1780,13 +1789,19 @@ void RF231Radio::HandleInterrupt()
 
 			// Un-sure if this is how to drop a packet. --NPS
 
-			//if ( !Interrupt_Pending() ) {
+			if ( !Interrupt_Pending() ) {
 				//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-				(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
+				IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+				sequenceNumberReceiver = header->dsn;
+				if(header->src == 0 && header->dest == 0){
+					if(sequenceNumberReceiver == sequenceNumberSender){
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
+					}
+				}
 
 				cmd = CMD_NONE;
-			//}
+			}
 		}
 #endif
 	}
@@ -1916,9 +1931,6 @@ void RF231Radio::HandleInterrupt()
 			//hal_printf("Inside CMD_RX_AACK\n");
 			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
-			// Initiate frame transmission by asserting SLP_TR pin
-			HAL_Time_Sleep_MicroSeconds(40);
-			SlptrSet();
 
 #if 0
 			if(state == STATE_RX_AACK_ON){
@@ -1969,7 +1981,17 @@ void RF231Radio::HandleInterrupt()
 					//int type = rx_msg_ptr->GetHeader()->type;
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+					IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+					//sequenceNumberReceiver = header->dsn;
+					hal_printf("receiver seq number is: %d\n", header->dsn);
+					//if(header->src != 0 && header->dest != 0){
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+					/*}
+					else{
+						if(sequenceNumberReceiver == sequenceNumberSender){
+							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+						}
+					}*/
 				}
 			}
 			else {
@@ -1978,6 +2000,10 @@ void RF231Radio::HandleInterrupt()
 			}
 
 			cmd = CMD_NONE;
+			//SlptrClear();
+			// Initiate frame transmission by asserting SLP_TR pin
+			HAL_Time_Sleep_MicroSeconds(40);
+			SlptrSet();
 			SlptrClear();
 
 			// Check if mac issued a sleep while i was receiving something
