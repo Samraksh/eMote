@@ -1688,13 +1688,16 @@ void RF231Radio::HandleInterrupt()
 {
 	UINT32 irq_cause;
 	INT16 temp;
-	//static int ackSendCounter = -1;
 	const UINT8 UNSUPPORTED_INTERRUPTS = TRX_IRQ_4 | TRX_IRQ_5 | TRX_IRQ_BAT_LOW | TRX_IRQ_TRX_UR;
 	INIT_STATE_CHECK();
 
 	// I don't want to do a big lock here but the rest of the driver is so ugly... --NPS
 	GLOBAL_LOCK(irq);
 
+#ifdef DEBUG_RF231
+	/*trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	hal_printf("HandleInterrupt beginning; trx_status is: %d; state is: %d\n", trx_status, state);*/
+#endif
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
 	//hal_printf("irq_cause is: %u\n", irq_cause);
@@ -1760,9 +1763,9 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 #ifdef RF231_EXTENDED_MODE
 		cmd = CMD_RX_AACK;
-		if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
+		/*if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
 			state = STATE_RX_AACK_ON;
-		}
+		}*/
 		/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 		state = STATE_RX_AACK_ON;*/
@@ -1812,7 +1815,6 @@ void RF231Radio::HandleInterrupt()
 					cmd = CMD_NONE;
 				}
 			}
-			//ackSendCounter++;
 		}
 #endif
 	}
@@ -1921,7 +1923,7 @@ void RF231Radio::HandleInterrupt()
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
-			hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
+			//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
 			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
@@ -1972,60 +1974,73 @@ void RF231Radio::HandleInterrupt()
 
 			//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
-			if(DS_Success == DownloadMessage()){
-				//rx_msg_ptr->SetActiveMessageSize(rx_length);
-				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
-#endif
-					return;
-				}
+			//Refer page 62 and 69, 70
+			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
+			//	Indicates that an ACK frame is about to be sent
+			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			HAL_Time_Sleep_MicroSeconds(130);
+//#ifdef DEBUG_RF231
+			//radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			//static int tempCounter = 150;
+			//HAL_Time_Sleep_MicroSeconds(130);
+			//hal_printf("tempCounter: %d\n", tempCounter);
+			//tempCounter -= 5;
+			//hal_printf("trx_status before is: %d; state is: %d\n", trx_status, state);
+//#endif
+			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
+			{
+				if(DS_Success == DownloadMessage()){
+					//rx_msg_ptr->SetActiveMessageSize(rx_length);
+					if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+		#ifdef DEBUG_RF231
+						hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+		#endif
+						return;
+					}
 
-				// Please note this is kind of a hack.
-				// Manually check our interrupts here (since we are locked).
-				// If we see a new interrupt, just assume it means we had an RX overrun.
-				// In which case we just drop the packet (or packets?) --NPS
+					// Please note this is kind of a hack.
+					// Manually check our interrupts here (since we are locked).
+					// If we see a new interrupt, just assume it means we had an RX overrun.
+					// In which case we just drop the packet (or packets?) --NPS
 
-				// Un-sure if this is how to drop a packet. --NPS
+					// Un-sure if this is how to drop a packet. --NPS
 
-				//if(ackSendCounter >= 0){
+
 					if ( !Interrupt_Pending() ) {
 						//int type = rx_msg_ptr->GetHeader()->type;
 						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 						sequenceNumberReceiver = header->dsn;
-						hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
+						//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
 						//if(header->src != 0 && header->dest != 0){
-							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						/*}
 						else{
 							if(sequenceNumberReceiver == sequenceNumberSender){
 								(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 							}
 						}*/
-					//}
-					// Initiate frame transmission by asserting SLP_TR pin
-					HAL_Time_Sleep_MicroSeconds(32);
-					SlptrSet();
-					SlptrClear();
-					HAL_Time_Sleep_MicroSeconds(4000000);
+
+						// Initiate frame transmission by asserting SLP_TR pin
+						//HAL_Time_Sleep_MicroSeconds(32);
+						SlptrSet();
+						SlptrClear();
+						//HAL_Time_Sleep_MicroSeconds(4000000);
+					}
 				}
-			}
-			else {
-				// download error
-				add_download_error();
+				else {
+					// download error
+					add_download_error();
+				}
 			}
 
 			cmd = CMD_NONE;
 
-			//SlptrClear();
-			/*if(ackSendCounter == -1){
-				// Initiate frame transmission by asserting SLP_TR pin
-				HAL_Time_Sleep_MicroSeconds(32);
-				SlptrSet();
-				SlptrClear();
-			}*/
+#ifdef DEBUG_RF231
+			/*trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("trx_status after is: %d; state is: %d\n", trx_status, state);*/
+#endif
 
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
@@ -2121,6 +2136,11 @@ void RF231Radio::HandleInterrupt()
 		}
 	}
 
+#ifdef DEBUG_RF231
+	/*trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	hal_printf("handleInterrupt end; trx_status is: %d; state is: %d\n\n", trx_status, state);*/
+#endif
+
 	if(sleep_pending)
 	{
 		Sleep(0);
@@ -2197,6 +2217,11 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
 
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
+//#ifdef DEBUG_RF231
+	/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (grf231Radio.ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
+	HAL_Time_Sleep_MicroSeconds(40);
+	hal_printf("Radio_Handler trx_status is: %d; state is: %d\n", trx_status, grf231Radio.GetState());*/
+//#endif
 	grf231Radio.HandleInterrupt();
 }
 
