@@ -130,7 +130,7 @@ VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, U
 {
 	VirtualTimerReturnMessage retVal = TimerSupported;
 	UINT8 VTMapper = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(hardwareTimerId, VTMapper);
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(timer_id, VTMapper);
 
 	if(!gVirtualTimerObject.virtualTimerMapper[VTMapper].ChangeTimer(timer_id, start_delay, period, is_one_shot))
 		retVal = TimerNotSupported;
