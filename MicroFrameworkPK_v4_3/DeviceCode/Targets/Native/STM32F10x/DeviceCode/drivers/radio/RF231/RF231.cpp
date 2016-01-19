@@ -815,6 +815,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
 	sequenceNumberSender = header->dsn;
+	hal_printf("RF231Radio::Send sequenceNumberSender is: %d\n", sequenceNumberSender);
 
 	// Adding 2 for crc
 	if(size + crc_size> IEEE802_15_4_FRAME_LENGTH){
@@ -1789,18 +1790,26 @@ void RF231Radio::HandleInterrupt()
 
 			// Un-sure if this is how to drop a packet. --NPS
 
-			if ( !Interrupt_Pending() ) {
-				//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-				//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-				IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-				sequenceNumberReceiver = header->dsn;
-				if(header->src == 0 && header->dest == 0){
-					if(sequenceNumberReceiver == sequenceNumberSender){
-						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
-					}
-				}
+			IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+			sequenceNumberReceiver = header->dsn;
+			hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
 
-				cmd = CMD_NONE;
+			if(header->src == 0 && header->dest == 0){
+				if ( !Interrupt_Pending() ) {
+					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+					/*IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+					sequenceNumberReceiver = header->dsn;
+					hal_printf("HandleInterrupt::TRX_IRQ_RX_START sender seq number: %d; receiver seq number is: %d\n", sequenceNumberSender, sequenceNumberReceiver);*/
+					//if(header->src == 0 && header->dest == 0){
+						//hal_printf("HandleInterrupt::TRX_IRQ_RX_START sender seq number: %d; receiver seq number is: %d\n", sequenceNumberSender, sequenceNumberReceiver);
+						if(sequenceNumberReceiver == sequenceNumberSender){
+							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
+						}
+					//}
+
+					cmd = CMD_NONE;
+				}
 			}
 		}
 #endif
@@ -1910,6 +1919,7 @@ void RF231Radio::HandleInterrupt()
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
 			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
@@ -1960,6 +1970,12 @@ void RF231Radio::HandleInterrupt()
 
 			//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
+			// Initiate frame transmission by asserting SLP_TR pin
+			HAL_Time_Sleep_MicroSeconds(32);
+			SlptrSet();
+			HAL_Time_Sleep_MicroSeconds(16);
+			SlptrClear();
+
 			if(DS_Success == DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
@@ -1980,9 +1996,17 @@ void RF231Radio::HandleInterrupt()
 					//int type = rx_msg_ptr->GetHeader()->type;
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-					hal_printf("receiver seq number is: %d\n", header->dsn);
-					(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+					IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+					sequenceNumberReceiver = header->dsn;
+					hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
+					//if(header->src != 0 && header->dest != 0){
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+					/*}
+					else{
+						if(sequenceNumberReceiver == sequenceNumberSender){
+							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+						}
+					}*/
 				}
 			}
 			else {
@@ -1991,10 +2015,13 @@ void RF231Radio::HandleInterrupt()
 			}
 
 			cmd = CMD_NONE;
+
+			//SlptrClear();
 			// Initiate frame transmission by asserting SLP_TR pin
-			HAL_Time_Sleep_MicroSeconds(40);
+			/*HAL_Time_Sleep_MicroSeconds(32);
 			SlptrSet();
-			SlptrClear();
+			HAL_Time_Sleep_MicroSeconds(16);
+			SlptrClear();*/
 
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
