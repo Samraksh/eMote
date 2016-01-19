@@ -208,7 +208,7 @@ HAL_RECEPTION_TIMER 6
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
-#define VIRT_TIMER_OMAC_SCHEDULER	3
+#define VIRT_TIMER_OMAC_SCHEDULER	7
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
@@ -216,15 +216,15 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
 
-#define VIRT_TIMER_OMAC_DISCOVERY	4
-#define VIRT_TIMER_OMAC_TIMESYNC 	5
-#define VIRT_TIMER_OMAC_RECEIVER 	6
-#define VIRT_TIMER_OMAC_TRANSMITTER	7
-#define VIRT_TIMER_OMAC_RECEIVER_ACK 	9
-#define HAL_SLOT_TIMER3 10
+#define VIRT_TIMER_OMAC_DISCOVERY	8
+#define VIRT_TIMER_OMAC_TIMESYNC 	9
+#define VIRT_TIMER_OMAC_RECEIVER 	10
+#define VIRT_TIMER_OMAC_TRANSMITTER	11
+#define VIRT_TIMER_OMAC_RECEIVER_ACK 	12
+#define HAL_SLOT_TIMER3 13
 
-#define LocalClockMonitor_TIMER1 10
-#define NeighborClockMonitor_TIMER1 11
+#define LocalClockMonitor_TIMER1 14
+#define NeighborClockMonitor_TIMER1 15
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
