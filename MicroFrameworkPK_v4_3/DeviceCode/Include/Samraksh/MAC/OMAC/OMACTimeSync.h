@@ -40,6 +40,8 @@ public:
 
 	BOOL Send(RadioAddress_t address);
 
+	UINT64 GetCurrentTimeinTicks();
+
 };
 
 
