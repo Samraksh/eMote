@@ -1072,6 +1072,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	interrupt_mode_check();
 
+	CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
+	CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 	CPU_GPIO_EnableOutputPin(CCA_PIN, TRUE);
 	CPU_GPIO_SetPinState(CCA_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
@@ -1694,11 +1696,6 @@ void RF231Radio::HandleInterrupt()
 	// I don't want to do a big lock here but the rest of the driver is so ugly... --NPS
 	GLOBAL_LOCK(irq);
 
-#ifdef DEBUG_RF231
-	/*trx_status = (radio_hal_trx_status_t) (ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
-	hal_printf("HandleInterrupt beginning; trx_status is: %d; state is: %d\n", trx_status, state);*/
-#endif
-
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
 	//hal_printf("irq_cause is: %u\n", irq_cause);
 
@@ -1886,7 +1883,6 @@ void RF231Radio::HandleInterrupt()
 				// In which case we just drop the packet (or packets?) --NPS
 
 				// Un-sure if this is how to drop a packet. --NPS
-
 				if ( !Interrupt_Pending() ) {
 					//int type = rx_msg_ptr->GetHeader()->type;
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
@@ -1916,7 +1912,6 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_TX_ARET)
 		{
-			//hal_printf("Inside CMD_TX_ARET\n");
 			add_send_done();
 
 			state = STATE_PLL_ON;
@@ -1942,7 +1937,6 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
-			//hal_printf("Inside CMD_RX_AACK\n");
 			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
 #if 0
@@ -1978,15 +1972,12 @@ void RF231Radio::HandleInterrupt()
 			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
 			//	Indicates that an ACK frame is about to be sent
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			//As per page 62, transmission is signaled using SLP_TR after 6 symbols (96 usec).
+			//But that translates to 130 usec for eMote debug version.
+			//This should be changed for release version of eMote.
+			//TODO:Modify for release
 			HAL_Time_Sleep_MicroSeconds(130);
-//#ifdef DEBUG_RF231
-			//radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-			//static int tempCounter = 150;
-			//HAL_Time_Sleep_MicroSeconds(130);
-			//hal_printf("tempCounter: %d\n", tempCounter);
-			//tempCounter -= 5;
-			//hal_printf("trx_status before is: %d; state is: %d\n", trx_status, state);
-//#endif
+
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
 				if(DS_Success == DownloadMessage()){
@@ -2004,8 +1995,6 @@ void RF231Radio::HandleInterrupt()
 					// In which case we just drop the packet (or packets?) --NPS
 
 					// Un-sure if this is how to drop a packet. --NPS
-
-
 					if ( !Interrupt_Pending() ) {
 						//int type = rx_msg_ptr->GetHeader()->type;
 						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
@@ -2013,20 +2002,13 @@ void RF231Radio::HandleInterrupt()
 						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 						sequenceNumberReceiver = header->dsn;
 						//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
-						//if(header->src != 0 && header->dest != 0){
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-						/*}
-						else{
-							if(sequenceNumberReceiver == sequenceNumberSender){
-								(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-							}
-						}*/
 
 						// Initiate frame transmission by asserting SLP_TR pin
-						//HAL_Time_Sleep_MicroSeconds(32);
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 						SlptrSet();
 						SlptrClear();
-						//HAL_Time_Sleep_MicroSeconds(4000000);
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 					}
 				}
 				else {
@@ -2036,11 +2018,6 @@ void RF231Radio::HandleInterrupt()
 			}
 
 			cmd = CMD_NONE;
-
-#ifdef DEBUG_RF231
-			/*trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-			hal_printf("trx_status after is: %d; state is: %d\n", trx_status, state);*/
-#endif
 
 			// Check if mac issued a sleep while i was receiving something
 			if(sleep_pending)
@@ -2136,11 +2113,6 @@ void RF231Radio::HandleInterrupt()
 		}
 	}
 
-#ifdef DEBUG_RF231
-	/*trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-	hal_printf("handleInterrupt end; trx_status is: %d; state is: %d\n\n", trx_status, state);*/
-#endif
-
 	if(sleep_pending)
 	{
 		Sleep(0);
@@ -2217,11 +2189,6 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param)
 
 void Radio_Handler(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-//#ifdef DEBUG_RF231
-	/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (grf231Radio.ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK);
-	HAL_Time_Sleep_MicroSeconds(40);
-	hal_printf("Radio_Handler trx_status is: %d; state is: %d\n", trx_status, grf231Radio.GetState());*/
-//#endif
 	grf231Radio.HandleInterrupt();
 }
 
