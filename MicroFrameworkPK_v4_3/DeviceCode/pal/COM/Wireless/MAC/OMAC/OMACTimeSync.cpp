@@ -192,7 +192,7 @@ void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
 /*
  *
  */
-DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, INT64 EventTime){
+DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 SenderDelay, UINT64 ReceiveTS){
 	bool TimerReturn;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
@@ -206,15 +206,15 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
 	UINT64 rcv_ltime;
 	INT64 l_offset;
-	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0;
-	l_offset = (INT64)rcv_ltime - (INT64)EventTime;
+	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0 + SenderDelay;
+	l_offset = (INT64)rcv_ltime - (INT64)ReceiveTS;
 
 	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
 		return DS_Fail;
 	}
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
-	g_NeighborTable.RecordTimeSyncRecv(msg_src,EventTime);
+	g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){

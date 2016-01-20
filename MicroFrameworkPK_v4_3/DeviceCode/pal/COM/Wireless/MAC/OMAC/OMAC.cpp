@@ -255,6 +255,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	INT64 evTime;
 	UINT64 rx_start_ticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 senderDelay;
+	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
 
@@ -285,10 +287,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
-				evTime = PacketTimeSync_15_4::EventTime(msg,Size);
-				UINT64 y1 = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-				UINT64 y2 = HAL_Time_CurrentTicks();
-				evTime = y1 - ( y2 - evTime );
+				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size);
+				rx_time_stamp = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
+
 			}
 
 
@@ -411,7 +412,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
 				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
-				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
+				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, senderDelay, rx_time_stamp );
 				location_in_packet_payload += sizeof(TimeSyncMsg);
 			}
 			if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
