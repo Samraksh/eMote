@@ -335,7 +335,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 	//UINT8 * payload = msg->GetPayload();
-	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata));
 	metadata->SetMACId(g_OMAC.macName);
 	metadata->SetType(MFM_DISCOVERY);
 	metadata->SetFlags(0); //Initialize flags to zero

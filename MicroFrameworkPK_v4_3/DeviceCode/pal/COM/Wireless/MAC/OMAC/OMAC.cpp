@@ -329,7 +329,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
 				memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-				next_free_buffer->GetMetaData()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t));
+				next_free_buffer->GetMetaData()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t));
 				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
@@ -490,7 +490,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
-	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata));
 	metadata->SetNetwork(MyConfig.Network);
 	metadata->SetMACId(macName);
 	metadata->SetType(dataType);
@@ -506,7 +506,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 
-	metadata->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata));
 
 	return msg_carrier;
 }

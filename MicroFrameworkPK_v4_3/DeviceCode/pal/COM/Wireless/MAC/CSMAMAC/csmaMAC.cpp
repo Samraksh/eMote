@@ -181,11 +181,11 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	header->src = CPU_Radio_GetAddress(this->radioName);
 	seqNumber++;
 
-	IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
-	footer->FCS = 0xAAAA;
+	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
+	footer->FCS = 0xAAAA;*/
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
 	metadata->SetLength(length);
 	metadata->SetNetwork(MyConfig.Network);
 	metadata->SetMACId(this->macName);
@@ -234,11 +234,11 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	header->src = CPU_Radio_GetAddress(this->radioName);
 	seqNumber++;
 
-	IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
-	footer->FCS = 0xAAAA;
+	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
+	footer->FCS = 0xAAAA;*/
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
 	metadata->SetLength(length);
 	metadata->SetNetwork(MyConfig.Network);
 	metadata->SetMACId(this->macName);
