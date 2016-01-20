@@ -44,19 +44,25 @@ DeviceStatus RadioControl_t::Initialize(){
  *
  */
 DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size){
+	static UINT8 seqNumber = 0;
+	UINT8 finalSeqNumber = 0;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
+
 	header->fcf = 26150;
-	header->dsn = 0;
+	finalSeqNumber = g_OMAC.GetMyAddress() ^ 0xAA;
+	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
+	finalSeqNumber += seqNumber;
+	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	if(CPU_Radio_GetAddress(g_OMAC.radioName) == 6846){
+	if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
 	}
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-
+	header->src = g_OMAC.GetMyAddress();
+	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));

@@ -40,10 +40,10 @@ class MAC : public MAC_ID
 private:
 	static MacEventHandler_t* AppHandlers[MAX_APPS];
 	static UINT8 AppIDIndex;
+	UINT16 MyAddress;
 
 public:
 	UINT16 MaxPayload;
-	UINT16 MyAddress;
 	UINT8 macName;
 	UINT8 radioName;
 	BOOL Initialized;
@@ -65,17 +65,18 @@ public:
 	UINT16 GetSendPending();
 	UINT16 GetReceivePending();
 
-	/*BOOL SetAddress(UINT16 address)
-	{
+	BOOL SetMyAddress(UINT16 address){
 		this->MyAddress = address;
 	}
+	UINT16 GetMyAddress(){
+		return this->MyAddress;
+	}
 
-	void SetMaxPayload(UINT16 payload)
+	/*void SetMaxPayload(UINT16 payload)
 	{
 		this->MaxPayload = payload;
 	}
 
-	//UINT16 GetAddress();
 	UINT16 GetMaxPayload()
 	{
 		return this->MaxPayload;

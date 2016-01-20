@@ -100,9 +100,12 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	volatile UINT16 tx_length;
 	volatile UINT16 rx_length;
 
+	/*Already set in MAC class from which OMAC is derived
 	UINT16 GetAddress(){return MyID;}
-	UINT16 GetMaxPayload(){return MaxPayload;	}
-	BOOL SetAddress(UINT16 address){MyAddress = address; return TRUE;}
+	BOOL SetAddress(UINT16 address){
+		MyAddress = address;
+		return TRUE;
+	}*/
 
 	BOOL SetRadioAddress(UINT16 address){
 		BOOL ret = CPU_Radio_SetAddress(this->radioName, address);
@@ -114,6 +117,7 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 		return temp;
 	}
 
+	UINT16 GetMaxPayload(){return MaxPayload;	}
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
 
 	void SetCurrentActiveApp(UINT8 CurrentActiveApp){

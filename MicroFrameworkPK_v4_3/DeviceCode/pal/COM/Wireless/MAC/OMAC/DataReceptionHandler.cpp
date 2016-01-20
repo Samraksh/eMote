@@ -35,8 +35,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	m_nextwakeupSlot = 0;
 	m_seedUpdateIntervalinSlots = SEED_UPDATE_INTERVAL_IN_SLOTS;
 
-	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
-	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
+	m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
+	m_nextSeed = 119 * 119 * (g_OMAC.GetMyAddress() + 1); // The initial seed
 	m_nextwakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_seedUpdateIntervalinSlots;
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
 

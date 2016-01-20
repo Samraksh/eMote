@@ -107,6 +107,8 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 			return status;
 		}
 
+		SetMyAddress(CPU_Radio_GetAddress(this->radioName));
+
 		// VIRT_TIMER_MAC_SENDPKT is the one-shot resend timer that will be activated if we need to resend a packet
 		if(VirtTimer_SetOrChangeTimer(VIRT_TIMER_MAC_SENDPKT, 0, 30000, TRUE, TRUE, SendFirstPacketToRadio) != TimerSupported){ //50 milli sec Timer in micro seconds
 			ASSERT(FALSE);
@@ -162,6 +164,8 @@ BOOL csmaMAC::UnInitialize(){
 
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime){
 	static UINT8 seqNumber = 0;
+	UINT8 finalSeqNumber = 0;
+
 	Message_15_4_t msg_carrier;
 	if(Size > csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
@@ -169,7 +173,10 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
 	header->fcf = 26150;
-	header->dsn = seqNumber;
+	finalSeqNumber = GetMyAddress() ^ 0xAA;
+	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
+	finalSeqNumber += seqNumber;
+	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
@@ -178,7 +185,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	else{
 		header->dest = 0x1ABE;
 	}
-	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->src = GetMyAddress();
 	seqNumber++;
 
 	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
@@ -215,6 +222,8 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 
 BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	static UINT8 seqNumber = 0;
+	UINT8 finalSeqNumber = 0;
+
 	Message_15_4_t msg_carrier;
 	if(Size >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
@@ -222,7 +231,10 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
 	header->fcf = 26150;
-	header->dsn = seqNumber;
+	finalSeqNumber = GetMyAddress() ^ 0xAA;
+	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
+	finalSeqNumber += seqNumber;
+	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
@@ -231,7 +243,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	else{
 		header->dest = 0x1ABE;
 	}
-	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->src = GetMyAddress();
 	seqNumber++;
 
 	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();

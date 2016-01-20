@@ -127,7 +127,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
-		hal_printf("OMACType Error: Already Initialized!! My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("OMACType Error: Already Initialized!! My address: %d\n", g_OMAC.GetMyAddress());
 	}
 	else {
 		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
@@ -166,8 +166,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		}
 
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("Initializing OMACType: My address: %d\n", CPU_Radio_GetAddress(this->radioName));
+		hal_printf("Initializing OMACType: My address: %d\n", g_OMAC.GetMyAddress());
 #endif
+		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
 		g_omac_RadioControl.Initialize();
@@ -188,7 +189,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 #ifdef def_Neighbor2beFollowed
 	#if defined(TWO_NODES_TX_RX)
-		if(g_OMAC.GetAddress() == RXNODEID) {
+		if(g_OMAC.GetMyAddress() == RXNODEID) {
 			Neighbor2beFollowed = TXNODEID;
 		}
 		else {
@@ -198,7 +199,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 #endif
 
 #if defined(FAN_OUT)
-		if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+		if(g_OMAC.GetMyAddress() == RXNODEID1 || g_OMAC.GetMyAddress() == RXNODEID2) {
 	#ifdef def_Neighbor2beFollowed
 			Neighbor2beFollowed = TXNODEID;
 	#endif
@@ -210,7 +211,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	#endif
 		}
 #elif defined(FAN_IN)
-		if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+		if(g_OMAC.GetMyAddress() == TXNODEID1 || g_OMAC.GetMyAddress() == TXNODEID2) {
 	#ifdef def_Neighbor2beFollowed
 			Neighbor2beFollowed = RXNODEID;
 	#endif
@@ -266,7 +267,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
-	RadioAddress_t myID = g_OMAC.GetAddress();
+	RadioAddress_t myID = g_OMAC.GetMyAddress();
 #ifdef	def_Neighbor2beFollowed
 	if(sourceID == Neighbor2beFollowed) {
 #endif
@@ -466,6 +467,8 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 
 Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
 	static UINT8 seqNumber = 0;
+	UINT8 finalSeqNumber = 0;
+
 	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
 	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
@@ -479,7 +482,10 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	header->fcf = 26150;
-	header->dsn = seqNumber;
+	finalSeqNumber = GetMyAddress() ^ 0xAA;
+	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
+	finalSeqNumber += seqNumber;
+	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
@@ -488,7 +494,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	else{
 		header->dest = 0x1ABE;
 	}
-	header->src = CPU_Radio_GetAddress(this->radioName);
+	header->src = GetMyAddress();
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();

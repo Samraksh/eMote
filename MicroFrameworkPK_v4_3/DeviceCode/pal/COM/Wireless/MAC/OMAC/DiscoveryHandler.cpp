@@ -46,8 +46,8 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 	firstDiscoTimeinSlotNum = 0;
 
-	m_period1 = CONTROL_P1[g_OMAC.GetAddress() % 7] ;
-	m_period2 = CONTROL_P2[g_OMAC.GetAddress() % 7] ;
+	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
+	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 
@@ -189,7 +189,7 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
 	discoveryMsg->nextwakeupSlot0 = (UINT32)nextwakeupSlot;
 	discoveryMsg->nextwakeupSlot1 = (UINT32)(nextwakeupSlot>>32);
 	discoveryMsg->seedUpdateIntervalinSlots = g_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
-	discoveryMsg->nodeID = g_OMAC.GetAddress();
+	discoveryMsg->nodeID = g_OMAC.GetMyAddress();
 
 	UINT64 curticks = HAL_Time_CurrentTicks();
 	discoveryMsg->localTime0 = (UINT32) curticks;
@@ -319,18 +319,23 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
 	DeviceStatus retValue;
 	static UINT8 seqNumber = 0;
+	UINT8 finalSeqNumber = 0;
+
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	header->fcf = 26150;
-	header->dsn = seqNumber;
+	finalSeqNumber = g_OMAC.GetMyAddress() ^ 0xAA;
+	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
+	finalSeqNumber += seqNumber;
+	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	if(CPU_Radio_GetAddress(g_OMAC.radioName) == 6846){
+	if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
 	}
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	header->src = g_OMAC.GetMyAddress();
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
