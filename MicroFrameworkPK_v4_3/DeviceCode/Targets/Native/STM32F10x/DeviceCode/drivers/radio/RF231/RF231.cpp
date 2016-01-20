@@ -409,12 +409,12 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	add_send_ts_time(); // Debugging. Will remove.
 
 #ifdef RF231_EXTENDED_MODE
-	if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
+	/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
 		state = STATE_PLL_ON;
 	}
 	else {
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
-	}
+	}*/
 	// Go to PLL_ON
 	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
 		state = STATE_TX_ARET_ON;
@@ -543,8 +543,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 #endif
 	/***********End of "Time optimized frame transmit procedure"*********/
 
-
+#ifdef RF231_EXTENDED_MODE
+	state = STATE_BUSY_TX_ARET;
+#else
 	state = STATE_BUSY_TX;
+#endif
 
 	// exchange bags
 	tx_msg_ptr = (Message_15_4_t*) msg;
@@ -943,7 +946,11 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	/***********End of "Time optimized frame transmit procedure"*********/
 
 
+#ifdef RF231_EXTENDED_MODE
+	state = STATE_BUSY_TX_ARET;
+#else
 	state = STATE_BUSY_TX;
+#endif
 
 	// exchange bags
 	//temp = tx_msg_ptr;
