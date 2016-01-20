@@ -59,9 +59,9 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
-	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 
-	msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Metadata));
+	msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 	return DS_Success;
 }
 

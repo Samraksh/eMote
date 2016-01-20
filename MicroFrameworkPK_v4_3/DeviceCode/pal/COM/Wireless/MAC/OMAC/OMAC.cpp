@@ -144,7 +144,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		MacEventHandler_t* appHandler = MAC<Message_15_4_t, MacConfig>::GetAppHandler(MAC<Message_15_4_t, MacConfig>::GetAppIdIndex());
 
 		AppCount = 0; //number of upperlayers connected to you
-		OMACType::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
+		//MaxPayload is already defined in Message.h
+		//OMACType::SetMaxPayload( (UINT16)( IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Metadata) ) );
+		OMACType::SetMaxPayload((UINT16)IEEE802_15_4_MAX_PAYLOAD);
 
 		Radio_Event_Handler.RadioInterruptMask = (StartOfTransmission|EndOfTransmission|StartOfReception);
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
@@ -252,8 +254,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
-	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
-		hal_printf("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t));
+	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
+		hal_printf("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 		return msg;
 	}
 	if(Size < sizeof(IEEE802_15_4_Header_t)){
@@ -329,7 +331,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
 				memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-				next_free_buffer->GetMetaData()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t));
+				next_free_buffer->GetMetaData()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata_t));
 				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
@@ -490,7 +492,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
-	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata));
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 	metadata->SetNetwork(MyConfig.Network);
 	metadata->SetMACId(macName);
 	metadata->SetType(dataType);
@@ -506,7 +508,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 
-	metadata->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata));
+	metadata->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 
 	return msg_carrier;
 }
