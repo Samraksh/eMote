@@ -286,6 +286,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
 				evTime = PacketTimeSync_15_4::EventTime(msg,Size);
+				UINT64 y1 = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+				UINT64 y2 = HAL_Time_CurrentTicks();
+				evTime = y1 - ( y2 - evTime );
 			}
 
 
