@@ -66,13 +66,13 @@ UINT64 DataReceptionHandler::NextEvent(){
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
 	ASSERT_SP(NextEventTimeinTicks > y);
 
-	UINT64 nextEventsMicroSec = (HAL_Time_TicksToTime(TicksTillNextEvent)) ;
+	UINT64 nextEventsMicroSec = (g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(TicksTillNextEvent)) ;
 	UINT64 curTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
 	//hal_printf("DataReceptionHandler::NextEvent curTicks: %llu; NextEventTimeinTicks: %llu; m_nextwakeupSlot: %lu; TicksTillNextEvent: %llu; nextEventsMicroSec: %llu\n", curTicks, NextEventTimeinTicks, m_nextwakeupSlot, TicksTillNextEvent, nextEventsMicroSec);
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumberfromTicks(curTicks), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec, (HAL_Time_TicksToTime(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_omac_scheduler.GetSlotNumberfromTicks(curTicks), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec, (g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
 #endif
 #endif
 	return(nextEventsMicroSec);
@@ -105,7 +105,6 @@ void DataReceptionHandler::ExecuteEvent(){
 	m_receptionstate = 0;
 	//static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
-	//hal_printf("\n[LT: %llu NT: %llu] DataReceptionHandler:ExecuteEvent\n",HAL_Time_TicksToTime(HAL_Time_CurrentTicks()), g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_omac_scheduler.m_TimeSyncHandler.Neighbor2beFollowed, HAL_Time_CurrentTicks()));
 	e = g_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
@@ -138,7 +137,7 @@ void DataReceptionHandler::ExecuteEvent(){
 void DataReceptionHandler::HandleRadioInterrupt(){
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = true;
-	ASSERT_SP(m_receptionstate == 0);
+	//ASSERT_SP(m_receptionstate == 0);
 	m_receptionstate = 1;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );

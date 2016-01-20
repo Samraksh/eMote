@@ -80,14 +80,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 curTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
+		UINT64 remMicroSecnextTX = g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks - curTicks);
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
 #ifdef def_Neighbor2beFollowed
 		hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
-				, HAL_Time_TicksToTime(curTicks), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
-				, remMicroSecnextTX, HAL_Time_TicksToTime(nextTXTicks), g_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), HAL_Time_TicksToTime(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
+				, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_omac_scheduler.GetSlotNumber(), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
+				, remMicroSecnextTX, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks), g_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
 #endif
 #endif
 
@@ -114,7 +114,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 #ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
-			, HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks()), g_omac_scheduler.GetSlotNumber(), HAL_Time_TicksToTime(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())) );
+			, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks()), g_omac_scheduler.GetSlotNumber(), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())) );
 #endif
 #endif
 
@@ -126,7 +126,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	//HAL_Time_Sleep_MicroSeconds(CCA_PERIOD_MICRO);
 
 	if (e == DS_Success){
 		#ifdef OMAC_DEBUG_GPIO

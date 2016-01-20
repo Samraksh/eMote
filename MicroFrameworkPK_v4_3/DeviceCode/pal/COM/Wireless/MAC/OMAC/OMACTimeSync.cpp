@@ -251,6 +251,13 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 
 UINT64 OMACTimeSync::GetCurrentTimeinTicks(){ //This function gets the time ticks required for OMAC
 	return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio;
+	return HAL_Time_CurrentTicks();
+}
+
+
+UINT64 OMACTimeSync::ConvertTickstoMicroSecs(const UINT64& ticks){ //This function gets the time ticks required for OMAC
+	//return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio;
+	return HAL_Time_TicksToTime(ticks);
 }
 
 //GlobalTime interface implementation
