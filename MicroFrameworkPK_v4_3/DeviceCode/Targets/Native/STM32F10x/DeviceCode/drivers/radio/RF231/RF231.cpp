@@ -1201,8 +1201,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//Page 76-78 in RF231 datasheet
 		//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
 		//			to switching to RX_AACK mode
-		WriteRegister(RF230_SHORT_ADDR_0, 0xBE);
-		WriteRegister(RF230_SHORT_ADDR_1, 0x1A);
+		UINT16 addressHigh = GetAddress() >> 8;
+		UINT16 addressLow = GetAddress() & 0xFF;
+		WriteRegister(RF230_SHORT_ADDR_0, addressLow);
+		WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
 		WriteRegister(RF230_PAN_ID_0, 0x01);
 		WriteRegister(RF230_PAN_ID_1, 0x00);
 		WriteRegister(RF230_IEEE_ADDR_0, 0x00);

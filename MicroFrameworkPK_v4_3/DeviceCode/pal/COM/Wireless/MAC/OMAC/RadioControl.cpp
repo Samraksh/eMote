@@ -55,12 +55,20 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	if(g_OMAC.GetMyAddress() == 6846){
+	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
+	}*/
+	//6846(0x1ABE) is the receiver
+	/*if(g_OMAC.GetMyAddress() != 0x1ABE){
+		header->dest = 0x1ABE;
 	}
+	else{
+		header->dest = 0x1111;
+	}*/
+	header->dest = address;
 	header->src = g_OMAC.GetMyAddress();
 	seqNumber++;
 
@@ -86,10 +94,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 
 #ifdef OMAC_DEBUG_GPIO
-		if(header->type == MFM_TIMESYNCREQ){
+		if(metadata->GetType() == MFM_TIMESYNCREQ){
 			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, TRUE );
 		}
-		else if(header->type == MFM_DATA){
+		else if(metadata->GetType() == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
 		}
 #endif
@@ -102,10 +110,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	}
 
 #ifdef OMAC_DEBUG_GPIO
-		if(header->type == MFM_TIMESYNCREQ){
+		if(metadata->GetType() == MFM_TIMESYNCREQ){
 			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, FALSE );
 		}
-		else if(header->type == MFM_DATA){
+		else if(metadata->GetType() == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
 		}
 #endif

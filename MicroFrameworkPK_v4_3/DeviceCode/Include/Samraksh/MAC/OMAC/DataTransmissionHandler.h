@@ -26,6 +26,8 @@ class DataTransmissionHandler: public EventHandler {
 	Message_15_4_t m_TXMsgBuffer;
 	DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
+	UINT8 currentAttempt;
+	UINT8 maxRetryAttempts;
 
 public:
 	void Initialize();
@@ -39,6 +41,8 @@ public:
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
 	BOOL ScheduleDataPacket();
 	bool Send();
+	void SendRetry();
+	void HardwareACKHandler();
 	void SendACKHandler();
 
 	UINT64 GetTxTicks();

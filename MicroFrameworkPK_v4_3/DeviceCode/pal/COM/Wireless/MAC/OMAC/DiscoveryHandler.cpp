@@ -323,18 +323,28 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
 	header->fcf = 26150;
+	//header->fcf = (65 << 8);
+	//header->fcf |= 136;
 	finalSeqNumber = g_OMAC.GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	if(g_OMAC.GetMyAddress() == 6846){
+	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
+	}*/
+	//6846(0x1ABE) is the receiver
+	/*if(g_OMAC.GetMyAddress() != 0x1ABE){
+		header->dest = 0x1ABE;
 	}
+	else{
+		header->dest = 0x1111;
+	}*/
+	header->dest = address;
 	header->src = g_OMAC.GetMyAddress();
 	seqNumber++;
 

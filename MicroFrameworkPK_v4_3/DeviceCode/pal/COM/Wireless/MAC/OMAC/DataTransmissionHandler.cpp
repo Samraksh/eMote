@@ -24,12 +24,16 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 
 
-void PublicDataTxCallback(void * param){
+void PublicDataTxCallback(void* param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
 }
 
-void PublicDataTxExecEventCallback(void * param){
+void PublicDataTxExecEventCallback(void* param){
 	g_omac_scheduler.m_DataTransmissionHandler.ExecuteEventHelper();
+}
+
+void PublicFastRecoveryCallback(void* param){
+	g_omac_scheduler.m_DataTransmissionHandler.SendRetry();
 }
 
 UINT64 DataTransmissionHandler::GetTxTicks()
@@ -66,12 +70,16 @@ void DataTransmissionHandler::Initialize(){
 #endif
 
 	isDataPacketScheduled = false;
+	currentAttempt = 0;
+	maxRetryAttempts = 2;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TX_EXECEVENT, 0, 0, TRUE, FALSE, PublicDataTxExecEventCallback); //1 sec Timer in micro seconds
+	ASSERT_SP(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE, FALSE, PublicFastRecoveryCallback); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -119,6 +127,24 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 }
 
+void DataTransmissionHandler::HardwareACKHandler(){
+	//When a hardware ack is received, stop the 1-shot timer and drop the packet
+	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+	ASSERT_SP(rm == TimerSupported);
+	hal_printf("Received a hardware ack. Dropping packet\n");
+	g_send_buffer.DropOldest(1);
+	currentAttempt = 0;
+}
+
+void DataTransmissionHandler::SendRetry(){
+	currentAttempt++;
+	hal_printf("currentAttempt: %d\n", currentAttempt);
+	//If retry count goes beyond the limit, packet could not reach dest, so drop it
+	if(currentAttempt >= maxRetryAttempts){
+		hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
+		g_send_buffer.DropOldest(1);
+	}
+}
 
 void DataTransmissionHandler::ExecuteEventHelper()
 {
@@ -153,13 +179,15 @@ void DataTransmissionHandler::ExecuteEventHelper()
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
-		if(canISend){
+		if(canISend && currentAttempt < maxRetryAttempts){
 			bool rv = Send();
 			if(rv) {
-				/*if(header->type == MFM_DATA){
-					hal_printf("DataTransmissionHandler::ExecuteEvent Dropping oldest packet\n");
-				}*/
-				g_send_buffer.DropOldest(1);
+				//If send is successful, start timer for hardware ACK.
+				//If hardware ack is received within stipulated period, drop the oldest packet.
+				//Else retry
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				ASSERT_SP(rm == TimerSupported);
+				//g_send_buffer.DropOldest(1);
 			}
 			else{
 #ifdef OMAC_DEBUG_GPIO

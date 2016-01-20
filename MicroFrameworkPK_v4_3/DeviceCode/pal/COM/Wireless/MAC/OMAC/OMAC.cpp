@@ -284,6 +284,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
 	}
 
+	//This is a hardware ACK
+	if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
+		g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+	}
 
 	//Get the primary packet
 	switch(msg->GetMetaData()->GetType()){
@@ -488,12 +492,20 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	header->dsn = finalSeqNumber;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	if(GetRadioAddress() == 6846){
+	/*if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
+	}*/
+	/*//6846(0x1ABE) is the receiver
+	if(g_OMAC.GetMyAddress() != 0x1ABE){
+		header->dest = 0x1ABE;
 	}
+	else{
+		header->dest = 0x1111;
+	}*/
+	header->dest = address;
 	header->src = GetMyAddress();
 	seqNumber++;
 
