@@ -55,7 +55,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -159,7 +159,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	CreateMessage(m_discoveryMsg);
 
-	//localTime = HAL_Time_CurrentTicks();
+	//localTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	//m_discoveryMsg->localTime0 = (UINT32) localTime ;
 	//m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
@@ -191,7 +191,7 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
 	discoveryMsg->seedUpdateIntervalinSlots = g_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
 	discoveryMsg->nodeID = g_OMAC.GetAddress();
 
-	UINT64 curticks = HAL_Time_CurrentTicks();
+	UINT64 curticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	discoveryMsg->localTime0 = (UINT32) curticks;
 	discoveryMsg->localTime1 = (UINT32) (curticks>>32);
 
@@ -270,10 +270,10 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg){  //(Message_15_4_t* msg, void* payload, UINT8 len){
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
-	UINT64 localTime = HAL_Time_CurrentTicks();
+	UINT64 localTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 	if(disMsg -> msg_identifier != 33686018){
-		localTime = HAL_Time_CurrentTicks();
+		localTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		ASSERT_SP(0);
 	}
 #ifdef def_Neighbor2beFollowed

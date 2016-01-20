@@ -81,6 +81,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 
 	if( (header->GetFlags() & TIMESTAMPED_FLAG) ){
+		//Convert TimeStamp to high freq clock
+		UINT64 time_elapsed_since_TS = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
+		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 	}
 	else {
@@ -134,7 +138,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	}
 	else{ //Otherwise calculate it . Will be added later add it
 		additional_overhead += timestamp_size;
-		event_time = HAL_Time_CurrentTicks();
+		event_time = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
@@ -143,7 +147,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		// Adjust the time stamp of the timesync packet accordingly.
 		msg->GetMetaData()->SetReceiveTimeStamp(event_time);
 		header->SetFlags((header->GetFlags() | TIMESTAMPED_FLAG));
-		y = HAL_Time_CurrentTicks();
+		y = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );

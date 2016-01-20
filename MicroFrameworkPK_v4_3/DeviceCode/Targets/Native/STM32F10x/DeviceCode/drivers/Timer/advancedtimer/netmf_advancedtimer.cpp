@@ -76,7 +76,7 @@ void STM32F10x_AdvancedTimer::ClearTimerOverflow()
 
 // Initialize the advanced timer system. This involves initializing timer1 as a master timer and tim2 as a slave
 // and using timer1 as a prescaler to timer2.
-DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void *ISR_Param)
+DeviceStatus STM32F10x_AdvancedTimer::Initialize(UINT32 Prescaler, HAL_CALLBACK_FPN ISR, UINT32 ISR_Param)
 {
 
 	// Return if already initialized
@@ -318,7 +318,7 @@ void ISR_TIM2(void* Param)
 
 		if ( (TIM1->CNT > g_STM32F10x_AdvancedTimer.tar_lower) || ((g_STM32F10x_AdvancedTimer.tar_lower - TIM1->CNT)<750) ){
 			g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
-			g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
+			g_STM32F10x_AdvancedTimer.callBackISR(&g_STM32F10x_AdvancedTimer.callBackISR_Param);
 		} else {
 			TIM_SetCompare3(TIM1, g_STM32F10x_AdvancedTimer.tar_lower);
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
@@ -343,6 +343,6 @@ void ISR_TIM1( void* Param )
 
 		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
 		g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
-		g_STM32F10x_AdvancedTimer.callBackISR(g_STM32F10x_AdvancedTimer.callBackISR_Param);
+		g_STM32F10x_AdvancedTimer.callBackISR(&g_STM32F10x_AdvancedTimer.callBackISR_Param);
 	}
 }

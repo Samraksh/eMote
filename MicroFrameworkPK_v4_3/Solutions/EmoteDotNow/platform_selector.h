@@ -190,11 +190,10 @@
 #define DATASTORE_END_ADDRESS 0x64FE0000
 
 
-#define g_totalCountOfVirtualTimers	16
-const UINT8 g_CountOfHardwareTimers = 1;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {g_totalCountOfVirtualTimers};
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+const UINT8 g_CountOfHardwareTimers = 2;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1, 4};
+const UINT8 g_VirtualTimerPerHardwareTimer = 16;
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways
@@ -209,7 +208,7 @@ HAL_RECEPTION_TIMER 6
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
-#define VIRT_TIMER_OMAC_SCHEDULER	3
+#define VIRT_TIMER_OMAC_SCHEDULER	7
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
@@ -217,15 +216,15 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
 
-#define VIRT_TIMER_OMAC_DISCOVERY	4
-#define VIRT_TIMER_OMAC_TIMESYNC 	5
-#define VIRT_TIMER_OMAC_RECEIVER 	6
-#define VIRT_TIMER_OMAC_TRANSMITTER	7
-#define VIRT_TIMER_OMAC_RECEIVER_ACK 	9
-#define HAL_SLOT_TIMER3 10
+#define VIRT_TIMER_OMAC_DISCOVERY	8
+#define VIRT_TIMER_OMAC_TIMESYNC 	9
+#define VIRT_TIMER_OMAC_RECEIVER 	10
+#define VIRT_TIMER_OMAC_TRANSMITTER	11
+#define VIRT_TIMER_OMAC_RECEIVER_ACK 	12
+#define HAL_SLOT_TIMER3 13
 
-#define LocalClockMonitor_TIMER1 10
-#define NeighborClockMonitor_TIMER1 11
+#define LocalClockMonitor_TIMER1 14
+#define NeighborClockMonitor_TIMER1 15
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
@@ -279,8 +278,8 @@ J12_PIN10 = GND
 #define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
 #define DATARX_DATA_PIN			(GPIO_PIN)120 //30
 #define SEND_ACK_PIN			(GPIO_PIN)120
-#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)120
-#define DATA_TX_ACK_PIN			(GPIO_PIN)120
+#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)23
+#define DATA_TX_ACK_PIN			(GPIO_PIN)0
 
 
 #define DELAY_BETWEEN_DATATX_SCHED_ACTUAL	(GPIO_PIN)120	//J12_pin5
@@ -292,8 +291,8 @@ J12_PIN10 = GND
 #define OMAC_DATARXPIN (GPIO_PIN)120 //26	//120 //2					//J12_pin5
 #define OMAC_RXPIN (GPIO_PIN)22 //120 //23  //120							//J11_pin3 0
 
-#define OMAC_TX_DATAACK_PIN (GPIO_PIN)0 //120 //23  //120							//J11_pin3 0
-#define OMAC_RX_DATAACK_PIN (GPIO_PIN)23 // 120 //23  //120							//J11_pin3 0
+#define OMAC_TX_DATAACK_PIN (GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
+#define OMAC_RX_DATAACK_PIN (GPIO_PIN)120 // 120 //23  //120							//J11_pin3 0
 
 
 #define RADIOCONTROL_SEND_PIN (GPIO_PIN)120 				//J11_pin4

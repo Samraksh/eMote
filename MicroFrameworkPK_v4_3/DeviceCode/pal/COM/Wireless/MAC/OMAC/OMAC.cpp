@@ -254,7 +254,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	TimeSyncRequestMsg* tsreqmg = NULL;
 
 	INT64 evTime;
-	UINT64 rx_start_ticks = HAL_Time_CurrentTicks();
+	UINT64 rx_start_ticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 senderDelay;
+	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
 
@@ -285,7 +287,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
-				evTime = PacketTimeSync_15_4::EventTime(msg,Size);
+				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size);
+				rx_time_stamp = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
+
 			}
 
 
@@ -408,7 +412,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
 				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
-				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
+				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, senderDelay, rx_time_stamp );
 				location_in_packet_payload += sizeof(TimeSyncMsg);
 			}
 			if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
@@ -418,7 +422,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 
 			if( tsmg != NULL && disco_msg == NULL){
-				rx_start_ticks = HAL_Time_CurrentTicks();
+				rx_start_ticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 			}
 		}
 
@@ -428,7 +432,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef	def_Neighbor2beFollowed
 	}
 #endif
-	UINT64 rx_end_ticks = HAL_Time_CurrentTicks();
+	UINT64 rx_end_ticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
 		return msg;
 	}

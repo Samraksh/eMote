@@ -190,22 +190,20 @@ struct VirtualTimerConfig
 };
 
 
-template<UINT8 TimerInfoSize>
 class VirtualTimerMapper
 {
 private:
 	UINT64 m_lastQueueAdjustmentTime;
 
 public:
-
 	UINT16 m_current_timer_cnt_;     //<! TODO: description goes here. please.
 	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
 
 	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
 	UINT16 VTM_countOfVirtualTimers; //<! TODO: description goes here. please.
-	VirtualTimerInfo g_VirtualTimerInfo[TimerInfoSize];
+	VirtualTimerInfo g_VirtualTimerInfo[g_VirtualTimerPerHardwareTimer];
 
-	BOOL Initialize(UINT16, UINT16, UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
+	BOOL Initialize(UINT16, UINT16);
 
 	BOOL SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 
@@ -224,7 +222,7 @@ public:
 
 extern const UINT8 g_CountOfHardwareTimers;
 extern const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers];
-extern const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers];
+extern const UINT8 g_VirtualTimerPerHardwareTimer;
 
 
 class VirtualTimer
@@ -233,28 +231,18 @@ private:
 
 
 public:
-	UINT16 VT_hardwareTimerId;
-	UINT16 VT_countOfVirtualTimers;  //<! TODO: description goes here. please.
-
 	//For additional virtual timer support, adjust values here as well as in VirtualTimer.cpp, platform_selector.h
-#ifdef PLATFORM_ARM_EmoteDotNow
-	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_0;
-	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_1;
-#else
-	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_0;
-	VirtualTimerMapper<g_totalCountOfVirtualTimers> virtualTimerMapper_1;
-#endif
-
+	VirtualTimerMapper virtualTimerMapper[g_CountOfHardwareTimers];
 };
 
 	//PAL interface for VirtualTimers
-	BOOL VirtTimer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
+	BOOL VirtTimer_Initialize();
 	BOOL VirtTimer_UnInitialize();
-	VirtualTimerReturnMessage VirtTimer_SetOrChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
-	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
+	VirtualTimerReturnMessage VirtTimer_SetOrChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback, UINT8 hardwareTimerId=1);
+	VirtualTimerReturnMessage VirtTimer_SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback, UINT8 hardwareTimerId=1);
 	VirtualTimerReturnMessage VirtTimer_Start(UINT8 timer_id);
 	VirtualTimerReturnMessage VirtTimer_Stop(UINT8 timer_id);
-	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot);
+	VirtualTimerReturnMessage VirtTimer_Change(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, UINT8 hardwareTimerId=1);
 
 	UINT32 VirtTimer_SetCounter(UINT8 timer_id, UINT32 Count);
 	UINT32 VirtTimer_GetCounter(UINT8 timer_id);
@@ -264,7 +252,6 @@ public:
 	void VirtTimer_SleepMicroseconds(UINT8 timer_id, UINT32 uSec);
 
 	UINT32 VirtTimer_GetMaxTicks(UINT8 timer_id);
-
 
 
 
