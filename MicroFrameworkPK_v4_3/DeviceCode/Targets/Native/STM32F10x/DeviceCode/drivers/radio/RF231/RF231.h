@@ -70,8 +70,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit [6:2] - Reserved 	- 00000
 //Bit [1:0] - OQPSK_DATA_RATE - Page 137, 140 - 00 is for 250 kb/s
 //Register TRX_CTRL_2 is 0x0C
-//0000 0000
-#define RF231_TRX_CTRL_2_VALUE	0x00
+//1000 0000
+#define RF231_TRX_CTRL_2_VALUE	0x80
 //Page 71-72 in RF231 datasheet
 //Bits 0,3,6,7 - Reserved
 //Bit 0 - Reserved (0)
