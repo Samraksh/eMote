@@ -2003,6 +2003,13 @@ void RF231Radio::HandleInterrupt()
 
 					// Un-sure if this is how to drop a packet. --NPS
 					if ( !Interrupt_Pending() ) {
+						// Initiate frame transmission by asserting SLP_TR pin
+						//Send ACK only if msg has been successfully downloaded and receiveHandler will be called.
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+						SlptrSet();
+						SlptrClear();
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+
 						//int type = rx_msg_ptr->GetHeader()->type;
 						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
@@ -2010,12 +2017,6 @@ void RF231Radio::HandleInterrupt()
 						sequenceNumberReceiver = header->dsn;
 						//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-
-						// Initiate frame transmission by asserting SLP_TR pin
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-						SlptrSet();
-						SlptrClear();
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 					}
 				}
 				else {
