@@ -11,7 +11,7 @@
 #include <Samraksh/PacketTimeSync_15_4.h>
 
 extern csmaMAC g_csmaMacObject;
-//extern OMACType g_OMAC;
+extern OMACType g_OMAC;
 
 Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
@@ -43,7 +43,7 @@ DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 
 	else if(macName == OMAC) {
 		DeviceStatus status;
 		currentMacName = macName;
-		//status = g_OMAC.Initialize(eventHandler, macName, routingAppID, radioName, (MacConfig *) config);
+		status = g_OMAC.Initialize(eventHandler, macName, routingAppID, radioName, (MacConfig *) config);
 		return status;
 	}
 	else
@@ -59,7 +59,7 @@ UINT16 Mac_GetRadioAddress(){
 		return tempMacName;
 	}
 	else if(currentMacName == OMAC) {
-		//tempMacName = g_OMAC.GetRadioAddress();
+		tempMacName = g_OMAC.GetRadioAddress();
 		return tempMacName;
 	}
 	return tempMacName;
@@ -72,7 +72,7 @@ BOOL Mac_SetRadioAddress(UINT16 address){
 		return status;
 	}
 	else if(currentMacName == OMAC) {
-		//status = g_OMAC.SetRadioAddress(address);
+		status = g_OMAC.SetRadioAddress(address);
 		return status;
 	}
 	return status;
@@ -84,33 +84,33 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 
 	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
 
-	if((*temp) == NULL)
+	if((*temp) == NULL){
 		return DS_Fail;
+	}
 
-	//UINT8 Size = ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t);
-	//UINT8 Size = ((*temp)->GetMetaData())->length - sizeof(IEEE802_15_4_Header_t);
-	UINT8 Size = 56;
+	UINT8 Size = ((*temp)->GetMetaData())->GetLength() - sizeof(IEEE802_15_4_Header_t);
 
-	if(Size > 127)
+	if(Size > 127){
 		return DS_Fail;
+	}
 		
 	(*managedBuffer)[0] = Size & 0xff;
 	(*managedBuffer)[1] =  (Size & 0xff00) >> 8;
 
 	memcpy(&((*managedBuffer)[2]), (*temp)->GetPayload(), Size);
 
-	//(*managedBuffer)[2 + Size] = (*temp)->GetMetaData()->GetRssi();
-	//(*managedBuffer)[3 + Size] = (*temp)->GetMetaData()->GetLqi();
+	(*managedBuffer)[2 + Size] = (*temp)->GetMetaData()->GetRssi();
+	(*managedBuffer)[3 + Size] = (*temp)->GetMetaData()->GetLqi();
 	(*managedBuffer)[4 + Size] = (*temp)->GetHeader()->src;
 	(*managedBuffer)[5 + Size] = ((*temp)->GetHeader()->src & 0Xff00) >> 8;
 	(*managedBuffer)[6 + Size] = ((*temp)->GetHeader()->dest == MAC_BROADCAST_ADDRESS) ? 0 : 1;
 	//memcpy(*managedBuffer, *temp, ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t));
 
-	/*if(((*temp)->GetHeader())->GetFlags() & MFM_TIMESYNC)
+	if(((*temp)->GetMetaData())->GetFlags() & MFM_TIMESYNC)
 	{
 		// The packet is timestamped
 		(*managedBuffer)[7 + Size] = (BYTE) TRUE;
-		UINT64 EventTime = PacketTimeSync_15_4::EventTime((*temp), ((*temp)->GetHeader())->length);
+		UINT64 EventTime = PacketTimeSync_15_4::EventTime((*temp), ((*temp)->GetMetaData())->GetLength());
 
 		UINT32 eventTime = (EventTime & 0xffffffff);
 
@@ -128,17 +128,17 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 		(*managedBuffer)[15 + Size] = (EventTime >> 56) & 0xff;
 	}
 	else
-	{*/
+	{
 		(*managedBuffer)[7 + Size] = (BYTE) FALSE;
-		/*(*managedBuffer)[8 + Size] = ((*temp)->GetMetaData()->GetReceiveTimeStamp() & 0xff);
+		(*managedBuffer)[8 + Size] = ((*temp)->GetMetaData()->GetReceiveTimeStamp() & 0xff);
      	(*managedBuffer)[9 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 8) & 0xff);
 		(*managedBuffer)[10 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 16) & 0xff);
 		(*managedBuffer)[11 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 24) & 0xff);
 		(*managedBuffer)[12 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 32) & 0xff);
 		(*managedBuffer)[13 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 40) & 0xff);
 		(*managedBuffer)[14 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 48) & 0xff);
-		(*managedBuffer)[15 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 56) & 0xff);*/
-	//}
+		(*managedBuffer)[15 + Size] = (((*temp)->GetMetaData()->GetReceiveTimeStamp() >> 56) & 0xff);
+	}
 
 	//g_receive_buffer.DropOldest(1);
 
@@ -151,7 +151,7 @@ DeviceStatus Mac_UnInitialize(){
 		status = g_csmaMacObject.UnInitialize();
 	}
 	else if(currentMacName == OMAC) {
-		//status = g_OMAC.UnInitialize();
+		status = g_OMAC.UnInitialize();
 	}
 
 	return ((status == TRUE) ? DS_Success : DS_Fail);
@@ -167,7 +167,7 @@ DeviceStatus Mac_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg,
 		status = g_csmaMacObject.SendTimeStamped(destAddress, dataType, msg, size, eventTime);
 	}
 	else if(currentMacName == OMAC){
-		//status = g_OMAC.SendTimeStamped(destAddress, dataType, msg, size, eventTime);
+		status = g_OMAC.SendTimeStamped(destAddress, dataType, msg, size, eventTime);
 	}
 
 	if(status != TRUE)
@@ -184,7 +184,7 @@ DeviceStatus Mac_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 siz
 		status = g_csmaMacObject.Send(destAddress, dataType, msg, size);
 	}
 	else if(currentMacName == OMAC){
-		//status = g_OMAC.Send(destAddress, dataType, msg, size);
+		status = g_OMAC.Send(destAddress, dataType, msg, size);
 	}
 
 	if(status != TRUE)
@@ -277,7 +277,7 @@ UINT8 Mac_GetBufferSize(){
 		bufferSize = g_csmaMacObject.GetBufferSize();
 	}
 	else if(currentMacName == OMAC){
-		//bufferSize = g_OMAC.GetBufferSize();
+		bufferSize = g_OMAC.GetBufferSize();
 	}
 
 	return bufferSize;
@@ -289,7 +289,7 @@ UINT8 Mac_GetNumberPendingPackets(){
 		pendingPackets = g_csmaMacObject.GetSendPending();
 	}
 	else if(currentMacName == OMAC){
-		//pendingPackets = g_OMAC.GetSendPending();
+		pendingPackets = g_OMAC.GetSendPending();
 	}
 
 	return pendingPackets;
@@ -310,7 +310,7 @@ BOOL MacLayer_UnInitialize(){
 		status = g_csmaMacObject.UnInitialize();
 	}
 	else if(currentMacName == OMAC){
-		//status = g_OMAC.UnInitialize();
+		status = g_OMAC.UnInitialize();
 	}
 
 	return status;
