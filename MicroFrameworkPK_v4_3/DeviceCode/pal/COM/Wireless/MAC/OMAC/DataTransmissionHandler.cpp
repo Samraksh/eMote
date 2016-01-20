@@ -379,8 +379,9 @@ bool DataTransmissionHandler::Send(){
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, metadata->GetLength());
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
 		if(rs != DS_Success){

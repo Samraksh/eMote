@@ -527,6 +527,9 @@ private:
 
 	RadioEventHandler Radio_event_handler;
 
+	UINT32 sequenceNumberSender;
+	UINT32 sequenceNumberReceiver;
+
 public:
     UINT8* GetRxMsgBuffer()
     {

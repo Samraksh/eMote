@@ -60,7 +60,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 	Message_15_4_t* rcv_msg = (Message_15_4_t*)msg;
 
 	//Demutiplex packets received based on type
-	switch(rcv_msg->GetHeader()->GetType()){
+	switch(rcv_msg->GetMetaData()->GetType()){
 		case MFM_DISCOVERY:
 			g_omac_scheduler.m_DiscoveryHandler.BeaconAckHandler(rcv_msg,rcv_msg->GetPayloadSize(),status);
 			break;
@@ -277,13 +277,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
 	//Any message might have timestamping attached to it. Check for it and process
-	if(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG){
+	if(msg->GetMetaData()->GetFlags() & TIMESTAMPED_FLAG){
 		evTime = PacketTimeSync_15_4::EventTime(msg,Size);
 	}
 
 
 	//Get the primary packet
-	switch(msg->GetHeader()->GetType()){
+	switch(msg->GetMetaData()->GetType()){
 		case MFM_DISCOVERY:
 			disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
 			g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg);
@@ -329,7 +329,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
 				memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 				memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-				next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
+				next_free_buffer->GetMetaData()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t));
 				(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
@@ -365,7 +365,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 
 			CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
-			ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+			ASSERT_SP(msg->GetMetaData()->GetFlags() & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
 			hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 #endif
@@ -391,13 +391,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			break;
 	};
 
-	if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
-		ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+	if(msg->GetMetaData()->GetFlags() &  MFM_TIMESYNC) {
+		ASSERT_SP(msg->GetMetaData()->GetFlags() & TIMESTAMPED_FLAG);
 		tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 		ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
 		location_in_packet_payload += sizeof(TimeSyncMsg);
 	}
-	if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
+	if(msg->GetMetaData()->GetFlags() &  MFM_DISCOVERY) {
 		disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
 		g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
 		location_in_packet_payload += sizeof(DiscoveryMsg_t);
@@ -440,7 +440,8 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->SetFlags(0);
+	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+	metadata->SetFlags(0);
 	return true;
 }
 
@@ -456,11 +457,13 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
 	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
-	header->SetFlags(TIMESTAMPED_FLAG);
+	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+	metadata->SetFlags(TIMESTAMPED_FLAG);
 	return true;
 }
 
 Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
+	static UINT8 seqNumber = 0;
 	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
 	if(size > OMACType::GetMaxPayload()){
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
@@ -468,22 +471,30 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 	msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		hal_printf("OMACType::Send g_send_buffer full.\n");
+		hal_printf("OMACType::Send g_send_buffer full\n");
 		return msg_carrier;
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	//header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
+	header->fcf = 26150;
+	header->dsn = seqNumber;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
+	if(GetRadioAddress() == 6846){
+		header->dest = 0x0DB1;
+	}
+	else{
+		header->dest = 0x1ABE;
+	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
-	header->network = MyConfig.Network;
-	header->mac_id = macName;
-	header->type = dataType;
+	seqNumber++;
+
+	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetNetwork(MyConfig.Network);
+	metadata->SetMACId(macName);
+	metadata->SetType(dataType);
+	metadata->SetReceiveTimeStamp((UINT32)0);
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
 	data_msg->size = size;
@@ -493,9 +504,9 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	for(UINT8 i = 0 ; i < size; i++){
 		payload[i] = lmsg[i];
 	}
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
+	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 
-	header->length = size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t);
+	metadata->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t));
 
 	return msg_carrier;
 }

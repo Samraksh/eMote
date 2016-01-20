@@ -10,36 +10,30 @@ volatile UINT32 csmaSendToRadioFailCount = 0;  //!< count DS_Fail from radio dur
 UINT8 RadioLockUp;
 UINT16 discoveryCounter = 0;
 
-void* csmaReceiveHandler(void *msg, UINT16 Size)
-{
+void* csmaReceiveHandler(void *msg, UINT16 Size){
 	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
-void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status)
-{
+void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 	g_csmaMacObject.SendAckHandler(msg, Size, status);
 }
 
-BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param)
-{
+BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
 	return g_csmaMacObject.RadioInterruptHandler(Interrupt, param);
 }
 
 void SendFirstPacketToRadio(void * arg){
-
 	g_csmaMacObject.SendToRadio();
-
 }
 
 // Send a beacon everytime this fires
 void beaconScheduler(void *arg){
 	DEBUG_PRINTF_CSMA("bS fire\r\n");
 	g_csmaMacObject.UpdateNeighborTable();
-	//g_csmaMacObject.SendHello();
+	g_csmaMacObject.SendHello();
 }
 
-DeviceStatus csmaMAC::SendHello()
-{
+DeviceStatus csmaMAC::SendHello(){
 	UINT8 helloPayload[5];
 
 	helloPayload[0] = (UINT8) 'H';
@@ -69,8 +63,7 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config)
-{
+DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config){
 	DeviceStatus status;
 
 	//Initialize yourself first (you being the MAC)
@@ -87,7 +80,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		g_csmaMacObject.SetAppIdIndex(routingAppID);
 		//Initialize upperlayer callbacks
 		g_csmaMacObject.SetAppHandlers(eventHandler);
-
 
 		AppCount = 0; //number of upperlayers connected to you
 		csmaMAC::SetMaxPayload((UINT16)(IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)));
@@ -125,7 +117,6 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 			ASSERT(FALSE);
 			return DS_Fail;
 		}
-		//gHalTimerManagerObject.StartTimer(2);
 		VirtTimer_Start(VIRT_TIMER_MAC_BEACON);
 
 		// This is the buffer flush timer that flushes the send buffer if it contains more than just one packet
@@ -156,8 +147,7 @@ UINT16 csmaMAC::GetRadioAddress(){
 	return temp;
 }
 
-BOOL csmaMAC::UnInitialize()
-{
+BOOL csmaMAC::UnInitialize(){
 	BOOL retVal = TRUE;
 	if(this->Initialized) {
 		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_BEACON) == TimerSupported );
@@ -170,10 +160,7 @@ BOOL csmaMAC::UnInitialize()
 	return retVal;
 }
 
-UINT8 test = 0;
-
-BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime)
-{
+BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime){
 	static UINT8 seqNumber = 0;
 	Message_15_4_t msg_carrier;
 	if(Size > csmaMAC::GetMaxPayload()){
@@ -181,51 +168,42 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 		return FALSE;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
-	//IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = 0;
-
-	////header->length = Size + sizeof(IEEE802_15_4_Header_t);
-	//header->fcf = (65 << 8);
-	//header->fcf |= 136;
-	header->fcf = 9254;
-	//header->dsn = seqNumber;
-	//header->destpan = (34 << 8);
-	//header->destpan |= 0;
-	header->destpan = 0xAAAA;
-	//header->dest =dest;
+	header->fcf = 26150;
+	header->dsn = seqNumber;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
-		header->dest = 0xAAAA;
+		header->dest = 0x0DB1;
 	}
 	else{
-		header->dest = 0xAAAA;
+		header->dest = 0x1ABE;
 	}
-	header->srcpan = 0xAAAA;
 	header->src = CPU_Radio_GetAddress(this->radioName);
-	////header->network = MyConfig.Network;
-	////header->mac_id = this->macName;
-	////header->type = dataType;
-	////header->SetFlags(MFM_DATA | MFM_TIMESYNC);
+	seqNumber++;
+
+	IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
+	footer->FCS = 0xAAAA;
+
+	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
+	metadata->SetLength(length);
+	metadata->SetNetwork(MyConfig.Network);
+	metadata->SetMACId(this->macName);
+	metadata->SetType(dataType);
+	metadata->SetFlags(MFM_DATA | MFM_TIMESYNC);
+	metadata->SetReceiveTimeStamp(eventTime);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
-
-	/*IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
-	footer->FCS = 0x0;*/
-
-	/*IEEE802_15_4_Metadata_t* metaData =  msg_carrier.GetMetaData();
-	metaData->SetReceiveTimeStamp(eventTime);*/
-
 	for(UINT8 i = 0 ; i < Size; i++){
 		payload[i] = lmsg[i];
 	}
 
-	seqNumber++;
 	DEBUG_PRINTF_CSMA("CSMA Sending: My address is : %d\r\n",CPU_Radio_GetAddress(this->radioName));
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
-	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
-	if(!g_send_buffer.Store((void *) &msg_carrier, length)){
+	if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
 		return FALSE;
 	}
 
@@ -235,29 +213,18 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	return TRUE;
 }
 
-BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
-{
+BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	static UINT8 seqNumber = 0;
 	Message_15_4_t msg_carrier;
 	if(Size >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Send Error: Packet is too big: %d \r\n", Size);
 		return FALSE;
 	}
-	IEEE802_15_4_Header_t *header = msg_carrier.GetHeader();
-	//IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = 0;
-
-	//metadata->length = Size + sizeof(IEEE802_15_4_Header_t);
-	length = Size + sizeof(IEEE802_15_4_Header_t);
-	//header->fcf = (65 << 8);
-	//header->fcf |= 136;
+	IEEE802_15_4_Header_t* header = msg_carrier.GetHeader();
 	header->fcf = 26150;
 	header->dsn = seqNumber;
-	//header->destpan = (34 << 8);
-	//header->destpan |= 0;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
-	//header->dest =dest;
 	if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
@@ -265,21 +232,25 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 		header->dest = 0x1ABE;
 	}
 	header->src = CPU_Radio_GetAddress(this->radioName);
-	/*header->network = MyConfig.Network;
-	header->mac_id = this->macName;
-	header->type = dataType;
-	header->SetFlags(MFM_DATA);*/
+	seqNumber++;
 
 	IEEE802_15_4_Footer* footer = msg_carrier.GetFooter();
 	footer->FCS = 0xAAAA;
 
+	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
+	metadata->SetLength(length);
+	metadata->SetNetwork(MyConfig.Network);
+	metadata->SetMACId(this->macName);
+	metadata->SetType(dataType);
+	metadata->SetFlags(MFM_DATA);
+
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
-
-	for(UINT8 i = 0 ; i < Size; i++)
+	for(UINT8 i = 0 ; i < Size; i++){
 		payload[i] = lmsg[i];
+	}
 
-	seqNumber++;
 	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
@@ -297,7 +268,6 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size)
 // This function calls the updateneighbrtable of the neighbor object and calls the neighbor change
 // callback if the neighbors died
 void csmaMAC::UpdateNeighborTable(){
-
 	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 
 	if(numberOfDeadNeighbors > 0)
@@ -318,8 +288,7 @@ void csmaMAC::UpdateNeighborTable(){
 }
 
 // Called by the mac for retrying in case of failed packets 
-BOOL csmaMAC::Resend(void* msg, int Size)
-{
+BOOL csmaMAC::Resend(void* msg, int Size){
 	// Try and push the packet back into the buffer
 	if(!g_send_buffer.Store(msg, Size))
 		return FALSE;
@@ -332,13 +301,11 @@ void csmaMAC::SendToRadio(){
 	DEBUG_PRINTF_CSMA("SndRad<%d> %d\r\n",g_send_buffer.GetNumberMessagesInBuffer(), RadioAckPending);
 	if ( (g_send_buffer.GetNumberMessagesInBuffer() > 1) && (flushTimerRunning == false) ){
 		DEBUG_PRINTF_CSMA("start FLUSHBUFFER3\r\n");
-		//gHalTimerManagerObject.StartTimer(3);
 		VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = true;
 	}
 	else if ( (g_send_buffer.GetNumberMessagesInBuffer() == 0) && (flushTimerRunning == true) ){
 		DEBUG_PRINTF_CSMA("stop FLUSHBUFFER3\r\n");
-		//gHalTimerManagerObject.StopTimer(3);
 		VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 		flushTimerRunning = false;
 	}
@@ -362,7 +329,8 @@ void csmaMAC::SendToRadio(){
 			//TODO: AnanthAtSamraksh - check if this is right
 			CPU_Timer_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
 			//CPU_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
-			if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
+			//if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
+			if(CPU_Radio_ClearChannelAssesment(this->radioName)!=DS_Success){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
 			}
@@ -397,25 +365,22 @@ void csmaMAC::SendToRadio(){
 		if(txMsgPtr != NULL){
 			DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
 			RadioAckPending = TRUE;
-			/*if(txMsgPtr->GetHeader()->GetFlags() & MFM_TIMESYNC)
+			if(txMsgPtr->GetMetaData()->GetFlags() & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
-				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength(), snapShot);
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength(), snapShot);
 			}
 			else
-			{*/
+			{
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
-				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength());
-			txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
-			//}
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength());
+				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
+			}
 		}
 	}
 }
 
-Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
-{
-
-
+Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT8 index;
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
@@ -423,10 +388,9 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		return msg;
 	}
 
-
 	// Get the header packet
-	IEEE802_15_4_Header_t *rcv_msg_hdr = msg->GetHeader();
-	//IEEE802_15_4_Metadata_t * rcv_meta = msg->GetMetaData();
+	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
+	IEEE802_15_4_Metadata_t* rcv_meta = msg->GetMetaData();
 	//UINT8* rcv_payload = msg->GetPayload();
 
 	//hal_printf("(%d) <%d> %d\r\n",Size, (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]) );
@@ -434,7 +398,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 	// If the message type is a discovery then return the same bag you got from the radio layer
 	// Don't make a callback here because the neighbor table takes care of informing the application of a changed situation of
 	// it neighbors
-	/*if(rcv_msg_hdr->type == MFM_DISCOVERY)
+	if(rcv_meta->GetType() == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
 			if(g_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
@@ -467,7 +431,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 			}
 			return msg;
-	}*/
+	}
 
 	// Dont add the packet to the handler if the message happens to be a unicast not intended for me, unless you want to enable promiscous
 	if((rcv_msg_hdr->dest == 0)){
@@ -530,14 +494,12 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 }
 
 
-BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param)
-{
+BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 	return FALSE;
 }
 
 
-void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
-{
+void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status){
 #ifdef DEBUG_CSMAMAC
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
@@ -546,7 +508,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 	{
 		case NetworkOperations_Success:
 			{
-				//gHalTimerManagerObject.StopTimer(3);
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				////SendAckFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->SendAckHandler;
@@ -562,7 +523,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			//TODO: when resend is called, packet should be placed at front of buffer. Right now it is at end of buffer.
 			DEBUG_PRINTF_CSMA("Resending <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 			Resend(msg, Size);
-			//gHalTimerManagerObject.StartTimer(3);
 			VirtTimer_Start(VIRT_TIMER_MAC_FLUSHBUFFER);
 			flushTimerRunning = true;
 			break;
@@ -572,7 +532,6 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 			break;
 	}
 	
-
 	RadioAckPending=FALSE;
 	RadioLockUp=0;
 }

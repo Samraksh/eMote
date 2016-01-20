@@ -16,14 +16,14 @@
 #include <Samraksh\Radio_decl.h>
 
 // template for message header
-//template<class Header_T,UINT16 PayLoadSize_T, class Footer_T, class Metadata_T>
-template<class Header_T,UINT16 PayLoadSize_T, class Footer_T>
+//template<class Header_T,UINT16 PayLoadSize_T, class Footer_T>
+template<class Header_T,UINT16 PayLoadSize_T, class Footer_T, class Metadata_T>
 class Message
 {
 	Header_T header;
 	UINT8 payload[PayLoadSize_T];
 	Footer_T footer;
-	//Metadata_T metadata;
+	Metadata_T metadata;
 
 public:
 	// Returns a pointer to the message
@@ -33,12 +33,11 @@ public:
 	}
 
 	// returns the size of the message packet
-	UINT16 	 GetMessageSize()
+	UINT16 GetMessageSize()
 	{
-		//return sizeof(Header_T) + sizeof(Footer_T) + sizeof(Metadata_T) + PayLoadSize_T;
-		return sizeof(Header_T) + sizeof(Footer_T) + PayLoadSize_T;
+		return sizeof(Header_T) + sizeof(Footer_T) + sizeof(Metadata_T) + PayLoadSize_T;
+		//return sizeof(Header_T) + sizeof(Footer_T) + PayLoadSize_T;
 	}
-
 
 	// returns a pointer to the header
 	Header_T* GetHeader()
@@ -78,7 +77,7 @@ public:
 	}
 
 	// returns a pointer to the metadata
-	/*Metadata_T* GetMetaData()
+	Metadata_T* GetMetaData()
 	{
 		return &metadata;
 	}
@@ -87,8 +86,7 @@ public:
 	UINT16 GetMetaDataSize()
 	{
 		return sizeof(Metadata_T);
-	}*/
-
+	}
 };
 
 
@@ -109,12 +107,9 @@ public:
 //All fields up to 'network' are 802.15.4 specification fields, network is a option field for 6LowPAN compatibility
 //mac_id is Samraksh's Radio API to demultiplex radio packets
 
-/*typedef struct IEEE802_15_4_Header_Length{
-	UINT8 length;
-	UINT8 GetLength(){return length; }
-	void SetLength(UINT8 _length){length = _length; }
-}IEEE802_15_4_Header_Length_t;*/
-
+//This structure is as per IEEE 802.15.4 standard.
+//MAC Protocol Layer Data Unit (MPDU) in page 80 of RF231 datasheet.
+//Do not modify as extended mode will not work
 typedef struct IEEE802_15_4_Header {
   UINT16 fcf;
   UINT8 dsn;
@@ -122,52 +117,69 @@ typedef struct IEEE802_15_4_Header {
   UINT16 dest;
   UINT16 srcpan;
   UINT16 src;
-  //UINT8 length;
-  //UINT8 network;  // optionally included with 6LowPAN layer
-  //UINT8 mac_id;
-  //UINT8 type;
-  //UINT8 flags;
-
-
-  //UINT8 GetType(){ return type;}
-  //UINT8 GetLength(){return length; }
-  //bool IsTimestamped() {return timestamped;}
-  // Timestamp has been changed to flags
-  //UINT8 GetFlags() { return flags; }
-
-  //void SetFlags(UINT8 flags) { this->flags = flags; }
-
-  //void SetLength(UINT8 _length){length = _length; }
 } IEEE802_15_4_Header_t;
 
+//Transmitting footer in a MAC frame is not required, though for FCS to succeed, footer is needed.
+//It has been tested that footer need not be transmitted along with header and payload.
 typedef class IEEE802_15_4_Footer{
 public:
 	UINT16 FCS;
 }IEEE802_15_4_Footer_t;
 
 typedef class IEEE802_15_4_Metadata{
+	UINT8 length;
+	UINT8 network;  // optionally included with 6LowPAN layer
+	UINT8 mac_id;
+	UINT8 type;
+	UINT8 flags;
 	UINT8 Rssi;
 	UINT8 Lqi;
 	UINT32 ReceiveTimeStamp0;
 	UINT32 ReceiveTimeStamp1;
 
-
   public:
-	UINT8 length;
-
 	UINT8 GetLength(){
-		return length;
+		return this->length;
 	}
-
 	void SetLength(UINT8 _length){
 		length = _length;
 	}
-
+	UINT8 GetNetwork(){
+		return this->network;
+	}
+	void SetNetwork(UINT8 network){
+		this->network = network;
+	}
+	UINT8 GetMACId(){
+		return this->mac_id;
+	}
+	void SetMACId(UINT8 mac_id){
+		this->mac_id = mac_id;
+	}
+	UINT8 GetType(){
+		return type;
+	}
+	void SetType(UINT8 type){
+		this->type = type;
+	}
+	// Timestamp has been changed to flags
+	UINT8 GetFlags() {
+		return flags;
+	}
+	void SetFlags(UINT8 flags) {
+		this->flags = flags;
+	}
 	UINT8 GetRssi(){
 		return Rssi;
 	}
+	void SetRssi(UINT8 Rssi){
+		this->Rssi = Rssi;
+	}
 	UINT8 GetLqi(){
 		return Lqi;
+	}
+	void SetLqi(UINT8 Lqi){
+		this->Lqi = Lqi;
 	}
 	UINT64 GetReceiveTimeStamp(){
 		UINT64 rtn;
@@ -175,20 +187,11 @@ typedef class IEEE802_15_4_Metadata{
 		rtn+=ReceiveTimeStamp0;
 		return rtn;
 	}
-	void SetRssi(UINT8 Rssi)
-	{
-		this->Rssi = Rssi;
-	}
-	void SetLqi(UINT8 Lqi)
-	{
-		this->Lqi = Lqi;
-	}
 	void SetReceiveTimeStamp(INT64 timestamp){
 		this->ReceiveTimeStamp0 = (UINT32)timestamp;
 		this->ReceiveTimeStamp1= (UINT32)(timestamp>>32);
 	}
-
-	void SetRecieveTimeStamp(UINT32 timestamp){
+	void SetReceiveTimeStamp(UINT32 timestamp){
 		this->ReceiveTimeStamp0 = timestamp;
 	}
 
@@ -201,8 +204,8 @@ const int timestamp_size = 4;	//used in Radio driver's RF231Radio::Send_TimeStam
 #define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t))
 //#define IEEE802_15_4_MAX_PAYLOAD (IEEE802_15_4_FRAME_LENGTH-sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata_t)-crc_size-timestamp_size)
 
-//typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
-typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t> IEEE802_15_4_Message_t;
+typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t,IEEE802_15_4_Metadata_t> IEEE802_15_4_Message_t;
+//typedef Message<IEEE802_15_4_Header_t,IEEE802_15_4_MAX_PAYLOAD,IEEE802_15_4_Footer_t> IEEE802_15_4_Message_t;
 #define Message_15_4_t IEEE802_15_4_Message_t
 
 #endif /* MESSAGE_H_ */

@@ -318,23 +318,31 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
 	DeviceStatus retValue;
+	static UINT8 seqNumber = 0;
 	IEEE802_15_4_Header_t * header = msg->GetHeader();
-	//UINT8 * payload = msg->GetPayload();
-	header->length = size + sizeof(IEEE802_15_4_Header_t);
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
-	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
-	header->dest = address;
+	header->fcf = 26150;
+	header->dsn = seqNumber;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
+	if(CPU_Radio_GetAddress(g_OMAC.radioName) == 6846){
+		header->dest = 0x0DB1;
+	}
+	else{
+		header->dest = 0x1ABE;
+	}
 	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
-	header->mac_id = g_OMAC.macName;
-	header->type = MFM_DISCOVERY;
-	header->flags = 0; //Initialize flags to zero
+	seqNumber++;
 
-	msg->GetMetaData()->SetReceiveTimeStamp(event_time);
+	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
+	//UINT8 * payload = msg->GetPayload();
+	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t));
+	metadata->SetMACId(g_OMAC.macName);
+	metadata->SetType(MFM_DISCOVERY);
+	metadata->SetFlags(0); //Initialize flags to zero
 
-	retValue = g_omac_RadioControl.Send(address, msg, header->length);
+	msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
+
+	retValue = g_omac_RadioControl.Send(address, msg, metadata->GetLength());
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );

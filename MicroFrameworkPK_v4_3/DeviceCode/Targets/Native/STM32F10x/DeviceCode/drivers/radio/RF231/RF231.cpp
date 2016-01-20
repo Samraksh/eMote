@@ -12,9 +12,6 @@
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
-static UINT32 sequenceNumberSender = 0;
-static UINT32 sequenceNumberReceiver = 0;
-
 BOOL GetCPUSerial(UINT8 * ptr, UINT16 num_of_bytes ){
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
 	Device_Serial0 = *(UINT32*)(0x1FFFF7E8);
@@ -818,7 +815,6 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
 	sequenceNumberSender = header->dsn;
-	//hal_printf("RF231Radio::Send sequenceNumberSender is: %d\n", sequenceNumberSender);
 
 	// Adding 2 for crc
 	if(size + crc_size> IEEE802_15_4_FRAME_LENGTH){
@@ -1110,6 +1106,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	//If the radio hardware is not already initialized, initialize it
 	if(!IsInitialized())
 	{
+		sequenceNumberSender = 0; sequenceNumberReceiver = 0;
 
 		// Give the radio its name , rf231 or rf231 long range
 		this->SetRadioName(radio);
@@ -1206,12 +1203,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		//			to switching to RX_AACK mode
 		WriteRegister(RF230_SHORT_ADDR_0, 0xBE);
 		WriteRegister(RF230_SHORT_ADDR_1, 0x1A);
-		//WriteRegister(RF230_SHORT_ADDR_0, 0xAA);
-		//WriteRegister(RF230_SHORT_ADDR_1, 0xAA);
-		//WriteRegister(RF230_SHORT_ADDR_0, 0xFF);
-		//WriteRegister(RF230_SHORT_ADDR_1, 0xFF);
-		//WriteRegister(RF230_PAN_ID_0, 0x00);
-		//WriteRegister(RF230_PAN_ID_1, 0x22);
 		WriteRegister(RF230_PAN_ID_0, 0x01);
 		WriteRegister(RF230_PAN_ID_1, 0x00);
 		WriteRegister(RF230_IEEE_ADDR_0, 0x00);
@@ -1800,21 +1791,17 @@ void RF231Radio::HandleInterrupt()
 
 			IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 			sequenceNumberReceiver = header->dsn;
-			//hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
+#ifdef DEBUG_RF231
+			hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
+#endif
 
 			if(header->src == 0 && header->dest == 0){
 				if ( !Interrupt_Pending() ) {
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					/*IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-					sequenceNumberReceiver = header->dsn;
-					hal_printf("HandleInterrupt::TRX_IRQ_RX_START sender seq number: %d; receiver seq number is: %d\n", sequenceNumberSender, sequenceNumberReceiver);*/
-					//if(header->src == 0 && header->dest == 0){
-						//hal_printf("HandleInterrupt::TRX_IRQ_RX_START sender seq number: %d; receiver seq number is: %d\n", sequenceNumberSender, sequenceNumberReceiver);
-						if(sequenceNumberReceiver == sequenceNumberSender){
-							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
-						}
-					//}
+					if(sequenceNumberReceiver == sequenceNumberSender){
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
+					}
 
 					cmd = CMD_NONE;
 				}
@@ -1825,7 +1812,7 @@ void RF231Radio::HandleInterrupt()
 
 
 	if(irq_cause & TRX_IRQ_AMI){
-		//hal_printf("Inside TRX_IRQ_AMI\n");
+		//After an address match, next step is FCS which generates TRX_END interrupt
 		cmd = CMD_RX_AACK;
 	}
 
@@ -1922,10 +1909,12 @@ void RF231Radio::HandleInterrupt()
 			add_send_done();
 
 			state = STATE_PLL_ON;
+#ifdef DEBUG_RF231
+			hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
+#endif
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
-			//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
 			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
@@ -1990,9 +1979,9 @@ void RF231Radio::HandleInterrupt()
 				if(DS_Success == DownloadMessage()){
 					//rx_msg_ptr->SetActiveMessageSize(rx_length);
 					if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-		#ifdef DEBUG_RF231
+#ifdef DEBUG_RF231
 						hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
-		#endif
+#endif
 						return;
 					}
 
@@ -2005,17 +1994,22 @@ void RF231Radio::HandleInterrupt()
 					if ( !Interrupt_Pending() ) {
 						// Initiate frame transmission by asserting SLP_TR pin
 						//Send ACK only if msg has been successfully downloaded and receiveHandler will be called.
+#ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+#endif
 						SlptrSet();
 						SlptrClear();
+#ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+#endif
 
-						//int type = rx_msg_ptr->GetHeader()->type;
-						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
-						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
+#ifdef DEBUG_RF231
 						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 						sequenceNumberReceiver = header->dsn;
-						//hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
+						hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
+#endif
+						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 					}
 				}
