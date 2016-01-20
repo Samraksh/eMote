@@ -286,7 +286,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
-#define OMACClockSpecifier 4 // This is the RTC clock
+#define HFCLOCKID 1
+#define LFCLOCKID 4
+#define OMACClockSpecifier HFCLOCKID // This is the RTC clock
 #define OMACClockFreq 32
 #define OMACClocktoSystemClockFreqRatio 250
 
