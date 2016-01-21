@@ -193,11 +193,11 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
 	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
-	metadata->SetLength(length);
+	header->length = length;
 	metadata->SetNetwork(MyConfig.Network);
-	metadata->SetMACId(this->macName);
-	metadata->SetType(dataType);
-	metadata->SetFlags(MFM_DATA | MFM_TIMESYNC);
+	header->mac_id = this->macName;
+	header->type = dataType;
+	header->flags = (MFM_DATA | MFM_TIMESYNC);
 	metadata->SetReceiveTimeStamp(eventTime);
 
 	UINT8* lmsg = (UINT8 *) msg;
@@ -210,7 +210,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, header->GetLength())){
-	if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
+	if(!g_send_buffer.Store((void *) &msg_carrier, header->length)){
 		return FALSE;
 	}
 
@@ -251,11 +251,11 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
 	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
-	metadata->SetLength(length);
+	header->length = length;
 	metadata->SetNetwork(MyConfig.Network);
-	metadata->SetMACId(this->macName);
-	metadata->SetType(dataType);
-	metadata->SetFlags(MFM_DATA);
+	header->mac_id = this->macName;
+	header->type = dataType;
+	header->flags = (MFM_DATA);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
@@ -263,7 +263,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 		payload[i] = lmsg[i];
 	}
 
-	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, CPU_Radio_GetAddress(this->radioName),  MyConfig.Network,this->macName,dataType);
+	DEBUG_PRINTF_CSMA("CSMA Sending: dest: %d, src: %d, network: %d, mac_id: %d, type: %d\r\n",dest, GetMyAddress(),MyConfig.Network,this->macName,dataType);
 
 	// Check if the circular buffer is full
 	//if(!g_send_buffer.Store((void *) &msg_carrier, metadata->GetLength())){
@@ -377,15 +377,15 @@ void csmaMAC::SendToRadio(){
 		if(txMsgPtr != NULL){
 			DEBUG_PRINTF_CSMA("-------><%d> %d\r\n", (int)snd_payload[0], ((int)(snd_payload[1] << 8) + (int)snd_payload[2]) );
 			RadioAckPending = TRUE;
-			if(txMsgPtr->GetMetaData()->GetFlags() & MFM_TIMESYNC)
+			if(txMsgPtr->GetHeader()->flags & MFM_TIMESYNC)
 			{
 				UINT32 snapShot = (UINT32) txMsgPtr->GetMetaData()->GetReceiveTimeStamp();
-				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength(), snapShot);
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length, snapShot);
 			}
 			else
 			{
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->GetLength());
-				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetMetaData())->GetLength());
+				txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), (txMsgPtr->GetHeader())->length);
 				//txMsgPtr = (Message_15_4_t *) CPU_Radio_Send(this->radioName, (txMsgPtr), 70);
 			}
 		}
@@ -410,7 +410,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 	// If the message type is a discovery then return the same bag you got from the radio layer
 	// Don't make a callback here because the neighbor table takes care of informing the application of a changed situation of
 	// it neighbors
-	if(rcv_meta->GetType() == MFM_DISCOVERY)
+	if(rcv_msg_hdr->type == MFM_DISCOVERY)
 	{
 			//Add the sender to NeighborTable
 			if(g_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)

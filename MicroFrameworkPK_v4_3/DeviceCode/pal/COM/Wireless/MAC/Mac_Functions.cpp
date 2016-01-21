@@ -88,7 +88,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 		return DS_Fail;
 	}
 
-	UINT8 Size = ((*temp)->GetMetaData())->GetLength() - sizeof(IEEE802_15_4_Header_t);
+	UINT8 Size = ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t);
 
 	if(Size > 127){
 		return DS_Fail;
@@ -106,11 +106,11 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	(*managedBuffer)[6 + Size] = ((*temp)->GetHeader()->dest == MAC_BROADCAST_ADDRESS) ? 0 : 1;
 	//memcpy(*managedBuffer, *temp, ((*temp)->GetHeader())->length - sizeof(IEEE802_15_4_Header_t));
 
-	if(((*temp)->GetMetaData())->GetFlags() & MFM_TIMESYNC)
+	if(((*temp)->GetHeader())->flags & MFM_TIMESYNC)
 	{
 		// The packet is timestamped
 		(*managedBuffer)[7 + Size] = (BYTE) TRUE;
-		UINT64 EventTime = PacketTimeSync_15_4::EventTime((*temp), ((*temp)->GetMetaData())->GetLength());
+		UINT64 EventTime = PacketTimeSync_15_4::EventTime((*temp), ((*temp)->GetHeader())->length);
 
 		UINT32 eventTime = (EventTime & 0xffffffff);
 

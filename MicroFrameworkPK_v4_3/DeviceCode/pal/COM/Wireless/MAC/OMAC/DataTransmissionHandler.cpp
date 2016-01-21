@@ -66,6 +66,8 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_EnableOutputPin(HW_ACK_PIN, TRUE);
+	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 #endif
 
@@ -129,11 +131,13 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 void DataTransmissionHandler::HardwareACKHandler(){
 	//When a hardware ack is received, stop the 1-shot timer and drop the packet
-	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
-	ASSERT_SP(rm == TimerSupported);
-	hal_printf("Received a hardware ack. Dropping packet\n");
-	g_send_buffer.DropOldest(1);
+	//VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+	//ASSERT_SP(rm == TimerSupported);
+	//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
+	//g_send_buffer.DropOldest(1);
+	CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
+	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 }
 
 void DataTransmissionHandler::SendRetry(){
@@ -162,11 +166,11 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
 		// to check CCA before tx in that procedure.
 		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
-			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-			//HAL_Time_Sleep_MicroSeconds(520);
+			//DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			HAL_Time_Sleep_MicroSeconds(140);
 			if(DS != DS_Success){
 				hal_printf("transmission detected!\n");
-				i = GUARDTIME_MICRO/140;
+				i = GUARDTIME_MICRO/150;
 				canISend = false;
 				break;
 			}
@@ -180,14 +184,16 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
 		if(canISend && currentAttempt < maxRetryAttempts){
+			//hal_printf("DataTransmissionHandler::ExecuteEventHelper - about to send\n");
 			bool rv = Send();
 			if(rv) {
 				//If send is successful, start timer for hardware ACK.
 				//If hardware ack is received within stipulated period, drop the oldest packet.
 				//Else retry
-				rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
-				ASSERT_SP(rm == TimerSupported);
-				//g_send_buffer.DropOldest(1);
+				//hal_printf("ExecuteEventHelper; start fast recovery timer\n");
+				//rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				//ASSERT_SP(rm == TimerSupported);
+				g_send_buffer.DropOldest(1);
 			}
 			else{
 #ifdef OMAC_DEBUG_GPIO
@@ -405,11 +411,13 @@ bool DataTransmissionHandler::Send(){
 
 	//Send only when packet has been scheduled
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
+		//UINT16 fcf = m_outgoingEntryPtr->GetHeader()->fcf;
+		//hal_printf("DataTransmissionHandler::Send - fcf is %d\n", fcf);
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, metadata->GetLength());
+		rs = g_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
 		if(rs != DS_Success){

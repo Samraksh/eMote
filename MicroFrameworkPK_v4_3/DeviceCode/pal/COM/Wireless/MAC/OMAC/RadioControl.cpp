@@ -73,9 +73,11 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
-	metadata->SetLength(size + sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+	//header->SetLength(size + sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+	header->length = (size + sizeof(IEEE802_15_4_Header_t));
 
-	msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+	//msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+	msg = (Message_15_4_t *) CPU_Radio_Preload(g_OMAC.radioName, (void *)msg, size+sizeof(IEEE802_15_4_Header_t));
 	return DS_Success;
 }
 
@@ -90,19 +92,19 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 	Message_15_4_t* returnMsg;
 
-	metadata->SetLength(size);
+	header->length = (size);
 
 
 #ifdef OMAC_DEBUG_GPIO
-		if(metadata->GetType() == MFM_TIMESYNCREQ){
+		if(header->type == MFM_TIMESYNCREQ){
 			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, TRUE );
 		}
-		else if(metadata->GetType() == MFM_DATA){
+		else if(header->type == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
 		}
 #endif
 
-	if( (metadata->GetFlags() & TIMESTAMPED_FLAG) ){
+	if( (header->flags & TIMESTAMPED_FLAG) ){
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 	}
 	else {
@@ -110,16 +112,18 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 	}
 
 #ifdef OMAC_DEBUG_GPIO
-		if(metadata->GetType() == MFM_TIMESYNCREQ){
+		if(header->type == MFM_TIMESYNCREQ){
 			CPU_GPIO_SetPinState( RC_TX_TIMESYNCREQ, FALSE );
 		}
-		else if(metadata->GetType() == MFM_DATA){
+		else if(header->type == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, FALSE );
 		}
 #endif
 
-	if(returnMsg == msg)
+	if(returnMsg == msg){
+		//hal_printf("Returning success\n");
 		return DS_Success;
+	}
 
 	return DS_Fail;
 }
@@ -130,10 +134,10 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if(!(metadata->GetFlags() & MFM_TIMESYNC) && (metadata->GetType() != MFM_TIMESYNC)) {
+	if(!(header->flags & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) {
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
-	if(!(metadata->GetFlags() & MFM_DISCOVERY) && (metadata->GetType() != MFM_DISCOVERY)) {
+	if(!(header->flags & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
 	//	rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
@@ -149,11 +153,11 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((metadata->GetFlags() & MFM_TIMESYNC) || (metadata->GetType() == MFM_TIMESYNC)){ //Already embedded
+	if((header->flags & MFM_TIMESYNC) || (header->type == MFM_TIMESYNC)){ //Already embedded
 		return false;
 	}
 
-	if( (metadata->GetFlags() & TIMESTAMPED_FLAG) ){ //Check if already stamped
+	if( (header->flags & TIMESTAMPED_FLAG) ){ //Check if already stamped
 		event_time = msg->GetMetaData()->GetReceiveTimeStamp();
 	}
 	else{ //Otherwise calculate it . Will be added later add it
@@ -166,14 +170,14 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		// Event time already exists in the packet (either just added or added by the C# application earlier)
 		// Adjust the time stamp of the timesync packet accordingly.
 		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
-		metadata->SetFlags((metadata->GetFlags() | TIMESTAMPED_FLAG));
+		header->flags = ((header->flags | TIMESTAMPED_FLAG));
 		y = HAL_Time_CurrentTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
 		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
 		g_NeighborTable.RecordTimeSyncSent(msg->GetHeader()->dest,y);
-		msg->GetMetaData()->SetFlags((UINT8)(msg->GetMetaData()->GetFlags() | MFM_TIMESYNC));
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
 	}
 }
@@ -185,14 +189,14 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((metadata->GetFlags() & MFM_DISCOVERY) || (metadata->GetType() == MFM_DISCOVERY)){ //Already embedded
+	if((header->flags & MFM_DISCOVERY) || (header->type == MFM_DISCOVERY)){ //Already embedded
 		return false;
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
 		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		g_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
-		msg->GetMetaData()->SetFlags((UINT8)(msg->GetMetaData()->GetFlags() | MFM_DISCOVERY));
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY));
 		size += sizeof(DiscoveryMsg_t);
 	}
 }

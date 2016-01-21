@@ -111,44 +111,25 @@ public:
 //MAC Protocol Layer Data Unit (MPDU) in page 80 of RF231 datasheet.
 //Do not modify as extended mode will not work
 typedef struct IEEE802_15_4_Header {
+public:
   UINT16 fcf;
   UINT8 dsn;
   UINT16 destpan;
   UINT16 dest;
   UINT16 srcpan;
   UINT16 src;
-} IEEE802_15_4_Header_t;
 
-//Transmitting footer in a MAC frame is not required, though for FCS to succeed, footer is needed.
-//It has been tested that footer need not be transmitted along with header and payload.
-typedef class IEEE802_15_4_Footer{
-public:
-	//UINT16 FCS;
-}IEEE802_15_4_Footer_t;
+  UINT8 length;
+  UINT8 mac_id;
+  UINT8 type;
+  UINT8 flags;
 
-typedef class IEEE802_15_4_Metadata{
-	UINT8 length;
-	UINT8 network;  // optionally included with 6LowPAN layer
-	UINT8 mac_id;
-	UINT8 type;
-	UINT8 flags;
-	UINT8 Rssi;
-	UINT8 Lqi;
-	UINT32 ReceiveTimeStamp0;
-	UINT32 ReceiveTimeStamp1;
-
-  public:
+/*public:
 	UINT8 GetLength(){
 		return this->length;
 	}
 	void SetLength(UINT8 _length){
 		length = _length;
-	}
-	UINT8 GetNetwork(){
-		return this->network;
-	}
-	void SetNetwork(UINT8 network){
-		this->network = network;
 	}
 	UINT8 GetMACId(){
 		return this->mac_id;
@@ -168,6 +149,58 @@ typedef class IEEE802_15_4_Metadata{
 	}
 	void SetFlags(UINT8 flags) {
 		this->flags = flags;
+	}*/
+} IEEE802_15_4_Header_t;
+
+//Transmitting footer in a MAC frame is not required, though for FCS to succeed, footer is needed.
+//It has been tested that footer need not be transmitted along with header and payload.
+typedef class IEEE802_15_4_Footer{
+public:
+	//UINT16 FCS;
+}IEEE802_15_4_Footer_t;
+
+typedef class IEEE802_15_4_Metadata{
+	/*UINT8 length;
+	UINT8 mac_id;
+	UINT8 type;
+	UINT8 flags;*/
+	UINT8 network;  // optionally included with 6LowPAN layer
+	UINT8 Rssi;
+	UINT8 Lqi;
+	UINT32 ReceiveTimeStamp0;
+	UINT32 ReceiveTimeStamp1;
+
+  public:
+	/*UINT8 GetLength(){
+		return this->length;
+	}
+	void SetLength(UINT8 _length){
+		length = _length;
+	}
+	UINT8 GetMACId(){
+		return this->mac_id;
+	}
+	void SetMACId(UINT8 mac_id){
+		this->mac_id = mac_id;
+	}
+	UINT8 GetType(){
+		return type;
+	}
+	void SetType(UINT8 type){
+		this->type = type;
+	}
+	// Timestamp has been changed to flags
+	UINT8 GetFlags() {
+		return flags;
+	}
+	void SetFlags(UINT8 flags) {
+		this->flags = flags;
+	}*/
+	UINT8 GetNetwork(){
+		return this->network;
+	}
+	void SetNetwork(UINT8 network){
+		this->network = network;
 	}
 	UINT8 GetRssi(){
 		return Rssi;

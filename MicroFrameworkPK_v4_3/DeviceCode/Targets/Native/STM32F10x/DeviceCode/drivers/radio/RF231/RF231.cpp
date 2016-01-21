@@ -9,6 +9,8 @@
 #endif
 #define RF231_EXTENDED_MODE
 
+static bool sendHwAckForData = false;
+
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
@@ -556,6 +558,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 #endif
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
+
+	//hal_printf("RF231Radio::Send_TimeStamped - sent successfully\n");
 
 	return tx_msg_ptr;
 }
@@ -1595,8 +1599,8 @@ measureAgain:
 	}
 	averageRssi = averageRssi/rssiCount;
 	if(averageRssi >= rssiThresholdForTransmission){
-		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 		result = true;
 	}
 	else{
@@ -1697,7 +1701,9 @@ void RF231Radio::HandleInterrupt()
 	GLOBAL_LOCK(irq);
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
-	//hal_printf("irq_cause is: %u\n", irq_cause);
+#ifdef DEBUG_RF231
+	hal_printf("irq_cause is: %u\n", irq_cause);
+#endif
 
 	// DEBUG NATHAN
 	add_irq_time(irq_cause);
@@ -1741,8 +1747,8 @@ void RF231Radio::HandleInterrupt()
 		rssi_busy += temp - (rssi_busy >> 2);
 
 		// Add the rssi to the message
-		//IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
-		//metadata->SetRssi(temp);
+		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+		metadata->SetRssi(temp);
 
 		// Do the time stamp here instead of after done, I think.
 		// Note there is potential to use a capture time here, for better accuracy.
@@ -1776,6 +1782,7 @@ void RF231Radio::HandleInterrupt()
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 #ifdef RF231_EXTENDED_MODE
+		sendHwAckForData = false;
 		if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
@@ -1798,15 +1805,26 @@ void RF231Radio::HandleInterrupt()
 #endif
 
 			if(header->src == 0 && header->dest == 0){
-				if ( !Interrupt_Pending() ) {
+				if(sequenceNumberReceiver == 27){
+					hal_printf("(RX_START)Received a DISCO\n");
+				}
+				else if(sequenceNumberReceiver == 97){
+					hal_printf("(RX_START)Received a DATA\n");
+				}
+				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+				//if ( !Interrupt_Pending() ) {
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					if(sequenceNumberReceiver == sequenceNumberSender){
-						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, 70);
-					}
+					//hal_printf("About to send a hw ACK\n");
+					//if(sequenceNumberReceiver == sequenceNumberSender){
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+					//}
 
 					cmd = CMD_NONE;
-				}
+				//}
 			}
 		}
 #endif
@@ -1814,6 +1832,9 @@ void RF231Radio::HandleInterrupt()
 
 
 	if(irq_cause & TRX_IRQ_AMI){
+#ifdef DEBUG_RF231
+		hal_printf("Inside TRX_IRQ_AMI\n");
+#endif
 		//After an address match, next step is FCS which generates TRX_END interrupt
 		cmd = CMD_RX_AACK;
 	}
@@ -1912,6 +1933,7 @@ void RF231Radio::HandleInterrupt()
 
 			state = STATE_PLL_ON;
 #ifdef DEBUG_RF231
+			hal_printf("Inside TRX_IRQ_TRX_END(CMD_TX_ARET)\n");
 			hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_TX_ARET) sequenceNumberSender: %d\n", sequenceNumberSender);
 #endif
 			// Call radio send done event handler when the send is complete
@@ -1935,6 +1957,9 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
+#ifdef DEBUG_RF231
+			hal_printf("Inside TRX_IRQ_TRX_END(CMD_RX_AACK)\n");
+#endif
 			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
 #if 0
@@ -1974,11 +1999,13 @@ void RF231Radio::HandleInterrupt()
 			//But that translates to 130 usec for eMote debug version.
 			//This should be changed for release version of eMote.
 			//TODO:Modify for release
-			HAL_Time_Sleep_MicroSeconds(130);
+			HAL_Time_Sleep_MicroSeconds(150);
 
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
+				sendHwAckForData = true;
 				if(DS_Success == DownloadMessage()){
+					//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 					//rx_msg_ptr->SetActiveMessageSize(rx_length);
 					if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
@@ -2001,6 +2028,14 @@ void RF231Radio::HandleInterrupt()
 #endif
 						SlptrSet();
 						SlptrClear();
+
+						/*IEEE802_15_4_Header_t* header = rx_msg_ptr->GetHeader();
+						if(header->dsn == 27){
+							hal_printf("Received a DISCO\n");
+						}
+						else if(header->dsn == 97){
+							hal_printf("Received a DATA\n");
+						}*/
 #ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 #endif
@@ -2013,6 +2048,12 @@ void RF231Radio::HandleInterrupt()
 						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+
+						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+
+						/*HAL_Time_Sleep_MicroSeconds(100);
+						SlptrSet();
+						SlptrClear();*/
 					}
 				}
 				else {
@@ -2149,6 +2190,13 @@ DeviceStatus RF231Radio::DownloadMessage()
 	temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
 	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH);
 
+	/*if(sendHwAckForData == true){
+		HAL_Time_Sleep_MicroSeconds(50);
+		SlptrSet();
+		SlptrClear();
+		sendHwAckForData = false;
+	}*/
+
 	//RF231_240NS_DELAY();
 	SelnClear();
 	//RF231_240NS_DELAY();
@@ -2165,10 +2213,28 @@ DeviceStatus RF231Radio::DownloadMessage()
 	// We don't want to read the two CRC bytes into the packet
 	rx_length = len - 2;
 
-	while ( ((len--) -2) > 0) {
-		temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
-		//RF231_240NS_DELAY();
+	//hal_printf("DownloadMessage rx_length is %d\n", rx_length);
+
+	/*if(rx_length > 50 && rx_length < 60){
+		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+		while ( ((len--) -2) > 0) {
+			temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
+			//Send a hw ack for a data msg
+			if(cnt == 20){
+				SlptrSet();
+				SlptrClear();
+				CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+			}
+		}
 	}
+	else{
+		SlptrSet();
+		SlptrClear();*/
+		while ( ((len--) -2) > 0) {
+			temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
+			//RF231_240NS_DELAY();
+		}
+	//}
 
 	// Two dummy reads for the CRC bytes
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
@@ -2179,9 +2245,13 @@ DeviceStatus RF231Radio::DownloadMessage()
 
 	SelnSet();
 
-	/*IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+	/*if(rx_length > 50 && rx_length < 60){
+		hal_printf("stop here\n");
+	}*/
+
+	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 	metadata->SetLqi(lqi);
-	metadata->SetReceiveTimeStamp(receive_timestamp);*/
+	metadata->SetReceiveTimeStamp(receive_timestamp);
 
 	return retStatus;
 }
