@@ -1826,8 +1826,8 @@ void RF231Radio::HandleInterrupt()
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 				cmd = CMD_NONE;
 			}*/
-			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 			if(header->src == 0 && header->dest == 0){
 				/*if(sequenceNumberReceiver == 27){
 					hal_printf("(RX_START)Received DISCO\n\n");
@@ -1978,6 +1978,10 @@ void RF231Radio::HandleInterrupt()
 			if(sleep_pending)
 			{
 				Sleep(0);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 				//hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-going to sleep\n");
 				return;
 			}
@@ -1986,6 +1990,8 @@ void RF231Radio::HandleInterrupt()
 				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 			}
 			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);*/
@@ -2062,10 +2068,10 @@ void RF231Radio::HandleInterrupt()
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 #endif
 						//HAL_Time_Sleep_MicroSeconds(100);
-						SlptrSet();
+						/*SlptrSet();
 						SlptrClear();
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );*/
 
 #ifdef DEBUG_RF231
 						IEEE802_15_4_Header_t* header = rx_msg_ptr->GetHeader();
@@ -2097,9 +2103,11 @@ void RF231Radio::HandleInterrupt()
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						/*HAL_Time_Sleep_MicroSeconds(100);
+						HAL_Time_Sleep_MicroSeconds(130);
 						SlptrSet();
-						SlptrClear();*/
+						SlptrClear();
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 					}
 				}
 				else {
