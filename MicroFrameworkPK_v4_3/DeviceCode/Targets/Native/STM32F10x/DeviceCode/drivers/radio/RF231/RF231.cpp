@@ -2103,7 +2103,8 @@ void RF231Radio::HandleInterrupt()
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						HAL_Time_Sleep_MicroSeconds(130);
+						//Use 120 usec with fast recovery and 130 usec without fast recovery
+						HAL_Time_Sleep_MicroSeconds(120);
 						SlptrSet();
 						SlptrClear();
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );

@@ -254,10 +254,23 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT64 rx_start_ticks = HAL_Time_CurrentTicks();
 	UINT16 location_in_packet_payload = 0;
 
-	//This is a hardware ACK
+	//Handle hardware ACKs
 	if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
-		//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-		g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+		//This is a hardware ACK for a Data packet
+		if(msg->GetHeader()->dsn != 27){
+			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
+			g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+			return msg;
+		}
+		//This is a hardware ACK for a DISCO packet
+		else if(msg->GetHeader()->dsn == 27){
+			//Don't do anything for now. DISCO msgs are anyway sent multiple times
+			return msg;
+		}
+		else{
+			//This should never happen
+			ASSERT_SP(0);
+		}
 	}
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();

@@ -23,6 +23,9 @@ extern Buffer_15_4_t g_send_buffer;
 extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 
+const uint EXECUTE_WITH_CCA = 0;
+const uint FAST_RECOVERY = 1;
+
 
 void PublicDataTxCallback(void* param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
@@ -133,11 +136,13 @@ UINT64 DataTransmissionHandler::NextEvent(){
 }
 
 void DataTransmissionHandler::HardwareACKHandler(){
-	//When a hardware ack is received, stop the 1-shot timer and drop the packet
-	//VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
-	//ASSERT_SP(rm == TimerSupported);
-	//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
-	//g_send_buffer.DropOldest(1);
+	if(FAST_RECOVERY){
+		//When a hardware ack is received, stop the 1-shot timer and drop the packet
+		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+		ASSERT_SP(rm == TimerSupported);
+		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
+		g_send_buffer.DropOldest(1);
+	}
 	CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
 	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
@@ -145,10 +150,11 @@ void DataTransmissionHandler::HardwareACKHandler(){
 
 void DataTransmissionHandler::SendRetry(){
 	currentAttempt++;
-	hal_printf("currentAttempt: %d\n", currentAttempt);
+	//hal_printf("currentAttempt: %d\n", currentAttempt);
 	//If retry count goes beyond the limit, packet could not reach dest, so drop it
 	if(currentAttempt >= maxRetryAttempts){
-		hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
+		//hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
+		currentAttempt = 0;
 		g_send_buffer.DropOldest(1);
 	}
 }
@@ -169,8 +175,12 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
 		// to check CCA before tx in that procedure.
 		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
-			//DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-			HAL_Time_Sleep_MicroSeconds(140);
+			if(EXECUTE_WITH_CCA){
+				DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			}
+			else{
+				HAL_Time_Sleep_MicroSeconds(140);
+			}
 			if(DS != DS_Success){
 				hal_printf("transmission detected!\n");
 				i = GUARDTIME_MICRO/150;
@@ -190,20 +200,17 @@ void DataTransmissionHandler::ExecuteEventHelper()
 			//hal_printf("DataTransmissionHandler::ExecuteEventHelper - about to send\n");
 			bool rv = Send();
 			if(rv) {
-				/*DeviceStatus e = DS_Fail;
-				e = g_omac_RadioControl.StartRx();
-				if(e == DS_Success)
-					hal_printf("DataTx - in RX\n");
-				else
-					hal_printf("DataTx - not in RX\n");*/
-
-				//If send is successful, start timer for hardware ACK.
-				//If hardware ack is received within stipulated period, drop the oldest packet.
-				//Else retry
-				//hal_printf("ExecuteEventHelper; start fast recovery timer\n");
-				//rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
-				//ASSERT_SP(rm == TimerSupported);
-				g_send_buffer.DropOldest(1);
+				if(FAST_RECOVERY){
+					//If send is successful, start timer for hardware ACK.
+					//If hardware ack is received within stipulated period, drop the oldest packet.
+					//Else retry
+					//hal_printf("ExecuteEventHelper; start fast recovery timer\n");
+					rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+					ASSERT_SP(rm == TimerSupported);
+				}
+				else{
+					g_send_buffer.DropOldest(1);
+				}
 			}
 			else{
 #ifdef OMAC_DEBUG_GPIO
@@ -220,7 +227,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 #endif
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 3500, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -254,7 +261,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	else{
 		hal_printf("Radio not in RX state\n");
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 3500, TRUE );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -323,16 +330,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 }*/
 
 void DataTransmissionHandler::SendACKHandler(){
-	/*DeviceStatus e = DS_Fail;
-	e = g_omac_RadioControl.StartRx();
-	if(e == DS_Success)
-		hal_printf("Radio in RX\n");
-	else
-		hal_printf("Radio NOT in RX\n");*/
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 3500, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -350,7 +351,6 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	//Commenting out below as g_omac_scheduler.PostExecution() also stops radio
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	//g_omac_RadioControl.StartRx();
 	g_omac_RadioControl.Stop();
 	g_omac_scheduler.PostExecution();
 }
