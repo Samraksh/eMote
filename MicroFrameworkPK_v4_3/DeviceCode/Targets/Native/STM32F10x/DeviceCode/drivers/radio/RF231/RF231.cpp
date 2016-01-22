@@ -1461,12 +1461,20 @@ DeviceStatus RF231Radio::TurnOnRx()
 	add_rx_start_time();
 
 #ifdef RF231_EXTENDED_MODE
-	if ( !Careful_State_Change_Extended(RX_AACK_ON) ) { return DS_Fail; }
+	if ( !Careful_State_Change_Extended(RX_AACK_ON) ) {
+		radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+		hal_printf("RF231Radio::TurnOnRx - returning failure; status is %d\n", trx_status);
+		return DS_Fail;
+	}
 #else
 	if ( !Careful_State_Change(RX_ON) ) { return DS_Fail; }
 #endif
 
+#ifdef RF231_EXTENDED_MODE
+	state = STATE_RX_AACK_ON;
+#else
 	state = STATE_RX_ON;
+#endif
 	return DS_Success;
 }	//RF231Radio::TurnOnRx()
 
@@ -1799,18 +1807,34 @@ void RF231Radio::HandleInterrupt()
 			// Un-sure if this is how to drop a packet. --NPS
 
 			IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+			UINT8* payloadMSG = rx_msg_ptr->GetPayload();
 			sequenceNumberReceiver = header->dsn;
 #ifdef DEBUG_RF231
 			hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
 #endif
 
+			/*if(header->dsn == 97){
+				hal_printf("(RX_START)payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
+				hal_printf("(RX_START)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
+			}*/
+			/*if(header->dsn == 97 && header->src != 6846 && header->destpan == 1 && header->dest == 3505 && payloadMSG[1] != 2 && payloadMSG[2] != 2 && payloadMSG[3] != 2 && payloadMSG[4] != 2){
+				//hal_printf("(RX_START)Received DATA\n\n");
+				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+				//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+				cmd = CMD_NONE;
+			}*/
+			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 			if(header->src == 0 && header->dest == 0){
-				if(sequenceNumberReceiver == 27){
-					hal_printf("(RX_START)Received a DISCO\n");
+				/*if(sequenceNumberReceiver == 27){
+					hal_printf("(RX_START)Received DISCO\n\n");
 				}
 				else if(sequenceNumberReceiver == 97){
-					hal_printf("(RX_START)Received a DATA\n");
-				}
+					hal_printf("(RX_START)Received DATA\n\n");
+				}*/
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 				//if ( !Interrupt_Pending() ) {
@@ -1818,9 +1842,9 @@ void RF231Radio::HandleInterrupt()
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					//hal_printf("About to send a hw ACK\n");
 					//if(sequenceNumberReceiver == sequenceNumberSender){
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 					//}
 
 					cmd = CMD_NONE;
@@ -1939,6 +1963,14 @@ void RF231Radio::HandleInterrupt()
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
+#ifdef DEBUG_RF231
+			/*IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
+			UINT8* payloadMSG = tx_msg_ptr->GetPayload();
+			if(header->dsn == 97){
+				hal_printf("(CMD_TX_ARET)Sending DATA; payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[8]);
+				hal_printf("(CMD_TX_ARET)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
+			}*/
+#endif
 			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
@@ -1946,6 +1978,7 @@ void RF231Radio::HandleInterrupt()
 			if(sleep_pending)
 			{
 				Sleep(0);
+				//hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-going to sleep\n");
 				return;
 			}
 			else //
@@ -1954,6 +1987,8 @@ void RF231Radio::HandleInterrupt()
 				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
 			}
+			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);*/
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
@@ -1999,7 +2034,7 @@ void RF231Radio::HandleInterrupt()
 			//But that translates to 130 usec for eMote debug version.
 			//This should be changed for release version of eMote.
 			//TODO:Modify for release
-			HAL_Time_Sleep_MicroSeconds(150);
+			HAL_Time_Sleep_MicroSeconds(140);
 
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
@@ -2026,16 +2061,27 @@ void RF231Radio::HandleInterrupt()
 #ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 #endif
+						//HAL_Time_Sleep_MicroSeconds(100);
 						SlptrSet();
 						SlptrClear();
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						/*IEEE802_15_4_Header_t* header = rx_msg_ptr->GetHeader();
-						if(header->dsn == 27){
-							hal_printf("Received a DISCO\n");
-						}
-						else if(header->dsn == 97){
-							hal_printf("Received a DATA\n");
+#ifdef DEBUG_RF231
+						IEEE802_15_4_Header_t* header = rx_msg_ptr->GetHeader();
+						UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+						/*if(header->dsn == 27){
+							hal_printf("(CMD_RX_AACK)Received DISCO; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
+							hal_printf("(CMD_RX_AACK)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 						}*/
+						if(header->dsn == 97){
+							//hal_printf("(CMD_RX_AACK)Received DATA; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
+							hal_printf("(CMD_RX_AACK)Received DATA; payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[8]);
+							//hal_printf("(CMD_RX_AACK)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
+							hal_printf("(CMD_RX_AACK)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan);
+						}
+#endif
+
 #ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 #endif
