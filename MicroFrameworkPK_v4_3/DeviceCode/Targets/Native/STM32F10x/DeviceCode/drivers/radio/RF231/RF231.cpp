@@ -2107,14 +2107,19 @@ void RF231Radio::HandleInterrupt()
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+						if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//Use 120 usec with fast recovery and 130 usec without fast recovery
-							HAL_Time_Sleep_MicroSeconds(130);
+							HAL_Time_Sleep_MicroSeconds(100);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-						//}
+						}
+						else{
+							//HAL_Time_Sleep_MicroSeconds(100);
+							SlptrSet();
+							SlptrClear();
+						}
 					}
 				}
 				else {
