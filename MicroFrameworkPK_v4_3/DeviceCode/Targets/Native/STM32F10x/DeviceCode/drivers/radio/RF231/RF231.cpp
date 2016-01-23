@@ -1462,8 +1462,10 @@ DeviceStatus RF231Radio::TurnOnRx()
 
 #ifdef RF231_EXTENDED_MODE
 	if ( !Careful_State_Change_Extended(RX_AACK_ON) ) {
+#ifdef DEBUG_RF231
 		radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 		hal_printf("RF231Radio::TurnOnRx - returning failure; status is %d\n", trx_status);
+#endif
 		return DS_Fail;
 	}
 #else
@@ -1837,18 +1839,18 @@ void RF231Radio::HandleInterrupt()
 				}*/
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-				//if ( !Interrupt_Pending() ) {
+				if ( !Interrupt_Pending() ) {
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					//hal_printf("About to send a hw ACK\n");
-					//if(sequenceNumberReceiver == sequenceNumberSender){
+					if(sequenceNumberReceiver == sequenceNumberSender){
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-					//}
+					}
 
 					cmd = CMD_NONE;
-				//}
+				}
 			}
 		}
 #endif
@@ -2040,7 +2042,7 @@ void RF231Radio::HandleInterrupt()
 			//But that translates to 130 usec for eMote debug version.
 			//This should be changed for release version of eMote.
 			//TODO:Modify for release
-			HAL_Time_Sleep_MicroSeconds(140);
+			//HAL_Time_Sleep_MicroSeconds(140);
 
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
@@ -2067,7 +2069,9 @@ void RF231Radio::HandleInterrupt()
 #ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 #endif
-						//HAL_Time_Sleep_MicroSeconds(100);
+						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+							//HAL_Time_Sleep_MicroSeconds(40);
+						//}
 						/*SlptrSet();
 						SlptrClear();
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
@@ -2103,12 +2107,14 @@ void RF231Radio::HandleInterrupt()
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						//Use 120 usec with fast recovery and 130 usec without fast recovery
-						HAL_Time_Sleep_MicroSeconds(120);
-						SlptrSet();
-						SlptrClear();
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+							//Use 120 usec with fast recovery and 130 usec without fast recovery
+							HAL_Time_Sleep_MicroSeconds(130);
+							SlptrSet();
+							SlptrClear();
+							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+						//}
 					}
 				}
 				else {

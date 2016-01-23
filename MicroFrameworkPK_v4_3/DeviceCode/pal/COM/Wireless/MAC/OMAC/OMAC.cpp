@@ -257,13 +257,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//Handle hardware ACKs
 	if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
 		//This is a hardware ACK for a Data packet
-		if(msg->GetHeader()->dsn != 27){
+		if(msg->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
 			g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
 			return msg;
 		}
 		//This is a hardware ACK for a DISCO packet
-		else if(msg->GetHeader()->dsn == 27){
+		else if(msg->GetHeader()->dsn == OMAC_DISCO_SEQ_NUMBER){
 			//Don't do anything for now. DISCO msgs are anyway sent multiple times
 			return msg;
 		}
@@ -507,8 +507,12 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	finalSeqNumber = GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
-	//header->dsn = finalSeqNumber;
-	header->dsn = 97;
+	//Make sure that we differentiate between a DISCO and DATA sequence number
+	if(finalSeqNumber == OMAC_DISCO_SEQ_NUMBER){
+		finalSeqNumber += 1;
+	}
+	header->dsn = finalSeqNumber;
+	//header->dsn = 97;
 	header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	/*if(GetRadioAddress() == 6846){

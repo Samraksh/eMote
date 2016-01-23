@@ -174,9 +174,13 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		//140 usec is the time taken for CCA to return a result
 		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
 		// to check CCA before tx in that procedure.
-		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
+		for(int i = 0; i < (GUARDTIME_MICRO/170); i++){
 			if(EXECUTE_WITH_CCA){
-				DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+				//Check CCA only for DATA packets
+				if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER)
+					DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+				else
+					HAL_Time_Sleep_MicroSeconds(140);
 			}
 			else{
 				HAL_Time_Sleep_MicroSeconds(140);
