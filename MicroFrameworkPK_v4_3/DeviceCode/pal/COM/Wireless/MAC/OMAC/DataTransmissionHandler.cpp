@@ -161,7 +161,7 @@ void DataTransmissionHandler::SendRetry(){
 
 void DataTransmissionHandler::ExecuteEventHelper()
 {
-	bool canISend = false;
+	bool canISend = true;
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
 
@@ -174,25 +174,29 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		//140 usec is the time taken for CCA to return a result
 		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
 		// to check CCA before tx in that procedure.
-		for(int i = 0; i < (GUARDTIME_MICRO/150); i++){
+		for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
 			if(EXECUTE_WITH_CCA){
 				//Check CCA only for DATA packets
-				if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER)
+				if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 					DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-				else
+				}
+				else{
+					DS = DS_Success;
 					HAL_Time_Sleep_MicroSeconds(140);
+				}
+
+				if(DS != DS_Success){
+					hal_printf("transmission detected!\n");
+					i = GUARDTIME_MICRO/140;
+					canISend = false;
+					break;
+				}
+				else{
+					canISend = true;
+				}
 			}
 			else{
 				HAL_Time_Sleep_MicroSeconds(140);
-			}
-			if(DS != DS_Success){
-				hal_printf("transmission detected!\n");
-				i = GUARDTIME_MICRO/150;
-				canISend = false;
-				break;
-			}
-			else{
-				canISend = true;
 			}
 		}
 	//}
