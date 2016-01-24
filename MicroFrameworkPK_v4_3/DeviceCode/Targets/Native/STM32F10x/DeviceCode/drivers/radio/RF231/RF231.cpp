@@ -1668,10 +1668,17 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 
 	// Must be in RX mode to do measurment.
 	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+#ifdef RF231_EXTENDED_MODE
+	if (trx_status != RX_AACK_ON && trx_status != BUSY_RX_AACK){
+		//hal_printf("CCA failed; state is %d\n", state);
+		return DS_Fail;
+	}
+#else
 	if (trx_status != RX_ON && trx_status != BUSY_RX){
 		//hal_printf("CCA failed; state is %d\n", state);
 		return DS_Fail;
 	}
+#endif
 
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_REQUEST | RF230_CCA_MODE_VALUE | channel);
 
@@ -2110,7 +2117,7 @@ void RF231Radio::HandleInterrupt()
 
 						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//Use 120 usec with fast recovery and 130 usec without fast recovery
-							HAL_Time_Sleep_MicroSeconds(120);
+							HAL_Time_Sleep_MicroSeconds(130);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
