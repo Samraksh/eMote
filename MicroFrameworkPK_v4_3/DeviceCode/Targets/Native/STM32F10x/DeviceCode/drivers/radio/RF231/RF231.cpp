@@ -1846,19 +1846,19 @@ void RF231Radio::HandleInterrupt()
 				}*/
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-				//if ( !Interrupt_Pending() ) {
+				if ( !Interrupt_Pending() ) {
 					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					//hal_printf("About to send a hw ACK\n");
 					//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != 27){
-					//if(sequenceNumberReceiver == sequenceNumberSender){
+					if(sequenceNumberReceiver == sequenceNumberSender){
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-					//}
+					}
 
 					cmd = CMD_NONE;
-				//}
+				}
 			}
 		}
 #endif
