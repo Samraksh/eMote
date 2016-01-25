@@ -146,6 +146,13 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
 	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+
+	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		PostExecuteEvent();
+	}
 }
 
 void DataTransmissionHandler::SendRetry(){
@@ -165,54 +172,47 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
 
-	//An alternate arrangement for the non availability of CCA in the radio driver
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	//HAL_Time_Sleep_MicroSeconds(500);
-	//Start CCA only after the initial normal DISCO period
-	//if(g_DiscoveryHandler.highdiscorate == false){
-		//For GUARDTIME_MICRO period check the channel before transmitting
-		//140 usec is the time taken for CCA to return a result
-		//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
-		// to check CCA before tx in that procedure.
-		for(int i = 0; i < (GUARDTIME_MICRO/140)+1; i++){
-			if(EXECUTE_WITH_CCA){
-				//Check CCA only for DATA packets
-				if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
-					DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-				}
-				else{
-					DS = DS_Success;
-					HAL_Time_Sleep_MicroSeconds(140);
-				}
-
-				if(DS != DS_Success){
-					hal_printf("transmission detected!\n");
-					i = GUARDTIME_MICRO/140;
-					canISend = false;
-					break;
-				}
-				else{
-					canISend = true;
-				}
+	//For GUARDTIME_MICRO period check the channel before transmitting
+	//140 usec is the time taken for CCA to return a result
+	//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
+	// to check CCA before tx in that procedure.
+	for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+		if(EXECUTE_WITH_CCA){
+			//Check CCA only for DATA packets
+			if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+				DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			}
 			else{
+				DS = DS_Success;
 				HAL_Time_Sleep_MicroSeconds(140);
 			}
+
+			if(DS != DS_Success){
+				hal_printf("transmission detected!\n");
+				i = GUARDTIME_MICRO/140;
+				canISend = false;
+				break;
+			}
+			else{
+				canISend = true;
+			}
 		}
-	//}
+		else{
+			HAL_Time_Sleep_MicroSeconds(140);
+		}
+	}
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
 		if(canISend && currentAttempt < maxRetryAttempts){
-			//hal_printf("DataTransmissionHandler::ExecuteEventHelper - about to send\n");
 			bool rv = Send();
 			if(rv) {
 				if(FAST_RECOVERY){
 					//If send is successful, start timer for hardware ACK.
 					//If hardware ack is received within stipulated period, drop the oldest packet.
 					//Else retry
-					//hal_printf("ExecuteEventHelper; start fast recovery timer\n");
 					rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
 					ASSERT_SP(rm == TimerSupported);
 				}
@@ -261,10 +261,11 @@ void DataTransmissionHandler::ExecuteEvent(){
 	e = g_omac_RadioControl.StartRx();
 
 	if(e == DS_Success){
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
+		this->ExecuteEventHelper();
+		/*rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
-		}
+		}*/
 	}
 	else{
 		hal_printf("Radio not in RX state\n");
@@ -338,7 +339,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 }*/
 
 void DataTransmissionHandler::SendACKHandler(){
-	VirtualTimerReturnMessage rm;
+	/*VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
@@ -348,7 +349,7 @@ void DataTransmissionHandler::SendACKHandler(){
 		}
 	}
 	else{		//Could not stop timer just wait for it
-	}
+	}*/
 }
 
 

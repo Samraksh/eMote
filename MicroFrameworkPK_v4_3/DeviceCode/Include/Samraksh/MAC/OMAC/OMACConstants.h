@@ -276,7 +276,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD 5*MICSECINMILISEC
-#define DATATX_POST_EXEC_DELAY	3.5*MICSECINMILISEC
+#define DATATX_POST_EXEC_DELAY	  4*MICSECINMILISEC
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1500
 
