@@ -288,7 +288,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define HFCLOCKID 1
 #define LFCLOCKID 4
-#define OMACClockSpecifier LFCLOCKID // This is the RTC clock
+#define OMACClockSpecifier HFCLOCKID // This is the RTC clock
 #define OMACClockFreq 32
 #define OMACClocktoSystemClockFreqRatio 250
 
