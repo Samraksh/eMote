@@ -107,7 +107,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		//ASSERT_SP(nextTXTicks > curTicks);
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 		//Wake up the transmitter a little early
-		remMicroSecnextTX -= GUARDTIME_MICRO;
+		//remMicroSecnextTX -= GUARDTIME_MICRO;
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
