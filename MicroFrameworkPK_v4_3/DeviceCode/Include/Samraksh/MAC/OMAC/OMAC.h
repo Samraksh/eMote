@@ -12,8 +12,8 @@
 #define TWO_NODES_TX_RX
 #define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
-
 #if defined(TWO_NODES_TX_RX)
+
 #define def_Neighbor2beFollowed
 #define OMAC_DEBUG_GPIO
 /* // Nathan's nodes
@@ -75,6 +75,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 
 
 
+
+
 	//Protocol variables
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 	Message_15_4_t* PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size);
@@ -94,6 +96,16 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	//Buffer variables
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
+
+	MacReceiveFuncPtrType m_rxAckHandler;
+	SendAckFuncPtrType m_txAckHandler;
+
+	Buffer_15_4_t m_send_buffer;
+	Buffer_15_4_t m_receive_buffer;
+	NeighborTable m_NeighborTable;
+
+	RadioControl_t m_omac_RadioControl;
+	OMACScheduler m_omac_scheduler;
 
 	Message_15_4_t rx_msg;
 	// Pointer to the outgoing message

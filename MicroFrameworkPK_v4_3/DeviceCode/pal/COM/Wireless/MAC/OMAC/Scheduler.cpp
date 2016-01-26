@@ -10,13 +10,10 @@
 #include <Samraksh/MAC/OMAC/Scheduler.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
-extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
-extern OMACScheduler g_omac_scheduler;
-
 
 void PublicPostExecutionTaskHandler1(void * param){
-	g_omac_scheduler.PostPostExecution();
+	g_OMAC.m_omac_scheduler.PostPostExecution();
 }
 
 void PublicSchedulerTaskHandler1(void * param){
@@ -25,9 +22,9 @@ void PublicSchedulerTaskHandler1(void * param){
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
 	ASSERT_SP(rm == TimerSupported);
 
-	if((g_omac_scheduler.SchedulerINUse)){
-		g_omac_scheduler.SchedulerINUse = false;
-		g_omac_scheduler.RunEventTask();
+	if((g_OMAC.m_omac_scheduler.SchedulerINUse)){
+		g_OMAC.m_omac_scheduler.SchedulerINUse = false;
+		g_OMAC.m_omac_scheduler.RunEventTask();
 	}
 }
 
@@ -40,8 +37,6 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	radioID = _radioID;
 	macID = _macID;
 	
-
-
 #ifdef PROFILING
 	minStartDelay = 300; maxStartDelay = 10;
 	minStopDelay = 300; maxStopDelay = 10;
@@ -63,7 +58,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	m_DataTransmissionHandler.Initialize();
 	m_TimeSyncHandler.Initialize(radioID, macID);
 
-	m_InitializationTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	m_InitializationTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 	ScheduleNextEvent();
 }
@@ -73,7 +68,7 @@ void OMACScheduler::UnInitialize(){
 }
 
 UINT64 OMACScheduler::GetSlotNumber(){
-	UINT64 currentTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 currentTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	UINT64 slotNumber = currentTicks / SLOT_PERIOD_TICKS;
 	return slotNumber;
 }
@@ -87,7 +82,7 @@ UINT32 OMACScheduler::GetSlotNumberfromMicroSec(const UINT64 &y){
 }
 
 UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
-	UINT64 cur_ticks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 cur_ticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	UINT64 ticks_till_end = SLOT_PERIOD_TICKS - ( (cur_ticks + SLOT_PERIOD_TICKS) % SLOT_PERIOD_TICKS);
 	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
 	return ms_till_end;
@@ -155,9 +150,9 @@ void OMACScheduler::ScheduleNextEvent(){
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
-	UINT64 curTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
-			, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
+			, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
 	if(curTicks - m_InitializationTimeinTicks > (120 * 8000000)){
 		hal_printf("Critial TIme has Passed. Be careful. About to crash!!\n");
 	}
@@ -187,12 +182,12 @@ bool OMACScheduler::RunEventTask(){
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
 	//g_OMAC.UpdateNeighborTable();
-	UINT64 curTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::RunEventTask() \n"
-			, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), GetSlotNumber(), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)) );
+			, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), GetSlotNumber(), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)) );
 #endif
 #endif
 
@@ -234,7 +229,7 @@ void OMACScheduler::PostPostExecution(){
 
 bool OMACScheduler::EnsureStopRadio(){
 	DeviceStatus  ds = DS_Success;
-	ds = g_omac_RadioControl.Stop();
+	ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		return TRUE;
 	}

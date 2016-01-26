@@ -9,7 +9,6 @@
 #define RADIOCONTROL_H_
 
 #include <Samraksh/Message.h>
-#include "OMAC.h"
 
 /*
  * Radio Wrapper Class

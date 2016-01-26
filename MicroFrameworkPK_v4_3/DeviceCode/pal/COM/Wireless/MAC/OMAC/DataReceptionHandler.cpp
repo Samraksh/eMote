@@ -12,15 +12,13 @@
 
 
 extern OMACType g_OMAC;
-extern OMACScheduler g_omac_scheduler;
-extern RadioControl_t g_omac_RadioControl;
 
 
 void PublicDataRxCallback(void * param){
-	g_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 }
 void PublicDataRxSendAckCallback(void * param){
-	g_omac_scheduler.m_DataReceptionHandler.SendDataACK();
+	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendDataACK();
 }
 
 /*
@@ -39,8 +37,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	m_mask = 137 * 29 * (CPU_Radio_GetAddress(radioID) + 1);
 	m_nextSeed = 119 * 119 * (CPU_Radio_GetAddress(radioID) + 1); // The initial seed
-	m_nextwakeupSlot = g_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_seedUpdateIntervalinSlots;
-	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_omac_scheduler.GetSlotNumber() );
+	m_nextwakeupSlot = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_nextSeed, m_mask) % m_seedUpdateIntervalinSlots;
+	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_OMAC.m_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
@@ -56,8 +54,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
-	UINT64 y = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
+	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
 	}
@@ -66,13 +64,13 @@ UINT64 DataReceptionHandler::NextEvent(){
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
 	ASSERT_SP(NextEventTimeinTicks > y);
 
-	UINT64 nextEventsMicroSec = (g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(TicksTillNextEvent)) ;
-	UINT64 curTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 nextEventsMicroSec = (g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(TicksTillNextEvent)) ;
+	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 #ifdef def_Neighbor2beFollowed
 #ifdef OMAC_DEBUG_PRINTF
 	//hal_printf("DataReceptionHandler::NextEvent curTicks: %llu; NextEventTimeinTicks: %llu; m_nextwakeupSlot: %lu; TicksTillNextEvent: %llu; nextEventsMicroSec: %llu\n", curTicks, NextEventTimeinTicks, m_nextwakeupSlot, TicksTillNextEvent, nextEventsMicroSec);
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_omac_scheduler.GetSlotNumberfromTicks(curTicks), g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_omac_scheduler.GetSlotNumberfromTicks(g_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec, (g_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataReceptionHandler::NextEvent() nextWakeupTimeInMicSec = %llu AbsnextWakeupTimeInMicSec= %llu - %lu \n", g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(curTicks), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextEventsMicroSec, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec, (g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks)+nextEventsMicroSec)/SLOT_PERIOD_MILLI/MICSECINMILISEC );
 #endif
 #endif
 	return(nextEventsMicroSec);
@@ -84,12 +82,12 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
-			randVal = g_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
+			randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
 		}
 	}
-	lastwakeupSlotUpdateTimeinTicks = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	lastwakeupSlotUpdateTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*
@@ -105,11 +103,11 @@ void DataReceptionHandler::ExecuteEvent(){
 	m_receptionstate = 0;
 	//static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
-	e = g_omac_RadioControl.StartRx();
+	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
-		m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -124,7 +122,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		}*/
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE ,OMACClockSpecifier);
-		m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -153,7 +151,7 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	}
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
-	m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * PACKET_PERIOD_FOR_RECEPTION_HANDLER;
 	if(rm != TimerSupported){
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
@@ -179,7 +177,7 @@ void DataReceptionHandler::SendACKHandler(){
 	m_receptionstate = 4;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
-	m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();//HAL_Time_CurrentTicks();
+	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();//HAL_Time_CurrentTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 #endif
@@ -205,7 +203,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	m_receptionstate = 2;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
-	m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 #endif
@@ -224,7 +222,7 @@ void DataReceptionHandler::SendDataACK(){
 #endif
 
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE,OMACClockSpecifier );
-	m_lastScheduledOriginTime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 
@@ -246,14 +244,14 @@ void DataReceptionHandler::SendDataACK(){
 	*payload = 66;
 
 	header->length = sizeof(IEEE802_15_4_Header_t) + 1;
-	g_omac_RadioControl.Send(m_lastRXNodeId, &m_ACKmsg, header->length);
+	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, &m_ACKmsg, header->length);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 #endif
 }
 
 void DataReceptionHandler::PostExecuteEvent(){
-	m_currtime = g_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	m_currtime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 	if(!(m_receptionstate == 0 || m_receptionstate == 4)){
 		m_isreceiving = false;
@@ -262,9 +260,9 @@ void DataReceptionHandler::PostExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 #endif
-	g_omac_RadioControl.Stop();
+	g_OMAC.m_omac_RadioControl.Stop();
 
-	g_omac_scheduler.PostExecution();
+	g_OMAC.m_omac_scheduler.PostExecution();
 }
 
 
