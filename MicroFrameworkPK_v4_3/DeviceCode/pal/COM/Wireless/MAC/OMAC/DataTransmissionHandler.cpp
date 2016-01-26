@@ -24,8 +24,8 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 
 const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 0;
-#define HARDWARE_ACKS_ENABLED
+const uint FAST_RECOVERY = 1;
+//#define HARDWARE_ACKS_ENABLED
 
 
 void PublicDataTxCallback(void* param){
@@ -224,7 +224,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 					g_send_buffer.DropOldest(1);
 #endif
 #endif
-					g_send_buffer.DropOldest(1);
+					//g_send_buffer.DropOldest(1);
 				}
 			}
 			else{
@@ -242,7 +242,8 @@ void DataTransmissionHandler::ExecuteEventHelper()
 #endif
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
+	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -275,6 +276,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	else{
 		hal_printf("Radio not in RX state\n");
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately

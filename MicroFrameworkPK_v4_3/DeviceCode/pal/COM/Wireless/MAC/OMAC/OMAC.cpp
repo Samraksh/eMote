@@ -266,8 +266,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//This is a hardware ACK for a Data packet
 		if(msg->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-			//g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
-			g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
+			g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+			//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
 			return msg;
 		}
 		//This is a hardware ACK for a DISCO packet
