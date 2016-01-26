@@ -25,7 +25,7 @@ extern RadioControl_t g_omac_RadioControl;
 
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 0;
-//#define HARDWARE_ACKS_ENABLED
+#define HARDWARE_ACKS_ENABLED
 
 
 void PublicDataTxCallback(void* param){
@@ -224,6 +224,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 					g_send_buffer.DropOldest(1);
 #endif
 #endif
+					g_send_buffer.DropOldest(1);
 				}
 			}
 			else{
@@ -352,12 +353,13 @@ void DataTransmissionHandler::SendACKHandler(){
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
+		CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 #ifndef SOFTWARE_ACKS_ENABLED
 #ifdef HARDWARE_ACKS_ENABLED
-	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+	//g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 #endif
 #endif
 	if(rm == TimerSupported){
@@ -369,6 +371,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
+		CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 #endif
 }
 

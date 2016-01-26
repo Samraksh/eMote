@@ -2050,7 +2050,7 @@ void RF231Radio::HandleInterrupt()
 			//But that translates to 130 usec for eMote debug version.
 			//This should be changed for release version of eMote.
 			//TODO:Modify for release
-			HAL_Time_Sleep_MicroSeconds(250);
+			//HAL_Time_Sleep_MicroSeconds(250);
 
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
@@ -2117,7 +2117,7 @@ void RF231Radio::HandleInterrupt()
 
 						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//Use 120 usec with fast recovery and 130 usec without fast recovery
-							//HAL_Time_Sleep_MicroSeconds(130);
+							HAL_Time_Sleep_MicroSeconds(250);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
