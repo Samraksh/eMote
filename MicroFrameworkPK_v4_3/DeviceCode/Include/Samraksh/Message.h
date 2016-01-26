@@ -100,6 +100,7 @@ public:
 #define MFM_DISCOVERY (1 << 4)
 #define TIMESTAMPED_FLAG (1 << 5)
 #define MFM_TIMESYNCREQ (1 << 6)
+#define MFM_DATA_ACK (1 << 7)
 
 //IEEE802.15.4 Message structure
 #define IEEE802_15_4_FRAME_LENGTH 126

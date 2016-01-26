@@ -265,6 +265,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
 #define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 2*GUARDTIME_MICRO
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
+#define ACK_TX_MAX_DURATION_MICRO 4000
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
@@ -273,6 +274,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
 #define MAX_PACKET_TX_DURATION_MICRO 16*MICSECINMILISEC
+#define ACK_RX_MAX_DURATION_MICRO 20000
 
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD 5*MICSECINMILISEC
@@ -287,6 +289,11 @@ typedef OFProv<UINT64> OMACTicks;
 //100000000 - 12.5 secs
 #define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+
+#define PROCESSING_DELAY_BEFORE_TX_MICRO 581
+#define RADIO_TURN_ON_DELAY_MICRO 670
+#define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
+#define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
 #define WAKEUPPERIODINTICKS 8000000
 enum {

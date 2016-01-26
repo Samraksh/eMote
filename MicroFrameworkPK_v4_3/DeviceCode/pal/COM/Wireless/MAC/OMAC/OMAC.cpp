@@ -72,6 +72,13 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
+		case MFM_DATA_ACK:
+#ifdef SOFTWARE_ACKS_ENABLED
+			if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+				g_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+			}
+#endif
+			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			(*g_txAckHandler)(msg, Size, status);
@@ -189,40 +196,40 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 
 #ifdef def_Neighbor2beFollowed
-	#if defined(TWO_NODES_TX_RX)
-		if(g_OMAC.GetMyAddress() == RXNODEID) {
-			Neighbor2beFollowed = TXNODEID;
-		}
-		else {
-			Neighbor2beFollowed = RXNODEID;
-		}
-	#endif
+#if defined(TWO_NODES_TX_RX)
+	if(g_OMAC.GetAddress() == RXNODEID) {
+		Neighbor2beFollowed = TXNODEID;
+	}
+	else {
+		Neighbor2beFollowed = RXNODEID;
+	}
+#endif
 #endif
 
 #if defined(FAN_OUT)
-		if(g_OMAC.GetMyAddress() == RXNODEID1 || g_OMAC.GetMyAddress() == RXNODEID2) {
-	#ifdef def_Neighbor2beFollowed
-			Neighbor2beFollowed = TXNODEID;
-	#endif
-		}
-		else {
-	#ifdef def_Neighbor2beFollowed2
-			Neighbor2beFollowed1 = RXNODEID1;
-			Neighbor2beFollowed2 = RXNODEID2;
-	#endif
-		}
+	if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+#ifdef def_Neighbor2beFollowed
+		Neighbor2beFollowed = TXNODEID;
+#endif
+	}
+	else {
+#ifdef def_Neighbor2beFollowed2
+		Neighbor2beFollowed1 = RXNODEID1;
+		Neighbor2beFollowed2 = RXNODEID2;
+#endif
+	}
 #elif defined(FAN_IN)
-		if(g_OMAC.GetMyAddress() == TXNODEID1 || g_OMAC.GetMyAddress() == TXNODEID2) {
-	#ifdef def_Neighbor2beFollowed
-			Neighbor2beFollowed = RXNODEID;
-	#endif
-		}
-		else {
-	#ifdef def_Neighbor2beFollowed2
-			Neighbor2beFollowed1 = TXNODEID1;
-			Neighbor2beFollowed2 = TXNODEID2;
-	#endif
-		}
+	if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+#ifdef def_Neighbor2beFollowed
+		Neighbor2beFollowed = RXNODEID;
+#endif
+	}
+	else {
+#ifdef def_Neighbor2beFollowed2
+		Neighbor2beFollowed1 = TXNODEID1;
+		Neighbor2beFollowed2 = TXNODEID2;
+#endif
+	}
 #endif
 
 	//Initialize radio layer
@@ -293,21 +300,20 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	if(sourceID == Neighbor2beFollowed) {
 #endif
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
+		CPU_GPIO_SetPinState(OMAC_RXPIN, TRUE);
 #endif
 
+		//g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
-	g_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
+		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
 
-	if( destID == myID || destID == RADIO_BROADCAST_ADDRESS)
-	{
-		//Any message might have timestamping attached to it. Check for it and process
-		if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
-			evTime = PacketTimeSync_15_4::EventTime(msg,Size);
-		}
+			//Any message might have timestamping attached to it. Check for it and process
+			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
+				evTime = PacketTimeSync_15_4::EventTime(msg,Size);
+			}
 
-		//Get the primary packet
-		switch(msg->GetHeader()->type){
+			//Get the primary packet
+			switch(msg->GetHeader()->GetType()){
 			case MFM_DISCOVERY:
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
 				g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg);
@@ -316,12 +322,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			case MFM_DATA:
 				if(true || myID == destID) {
 					if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-						g_omac_scheduler.m_DataReceptionHandler.HandleEndofReception();
+						g_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
-	#ifdef OMAC_DEBUG_GPIO
+#ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-					CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
-	#endif
+					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
+#endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					if(data_msg->msg_identifier != 16843009){
 						ASSERT_SP(0);
@@ -353,23 +359,22 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
 					memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 					memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-					//next_free_buffer->GetHeader()->SetLength(data_msg->size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata_t));
-					next_free_buffer->GetHeader()->length = (data_msg->size + sizeof(IEEE802_15_4_Header_t));
+					next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 					(*g_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
 					//Another method of doing the same thing as above
 					/*Message_15_4_t tempMsg;
-					memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
-					memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-					memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-					memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-					(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
-					(*g_rxAckHandler)(&tempMsg, data_msg->size);*/
-	#ifdef OMAC_DEBUG_GPIO
+				memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
+				memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
+				memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+				memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+				(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
+				(*g_rxAckHandler)(&tempMsg, data_msg->size);*/
+#ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
-					CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
-	#endif
+					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
+#endif
 				}
 				break;
 			case MFM_ROUTING:
@@ -385,15 +390,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 				break;
 			case MFM_TIMESYNCREQ:
-				if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-					g_omac_scheduler.m_DataReceptionHandler.HandleEndofReception();
+				if(true || myID == destID) {
+					if(g_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+						g_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
+					}
 				}
-
 				CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
 				ASSERT_SP(msg->GetHeader()->flags & TIMESTAMPED_FLAG);
-	#ifdef OMAC_DEBUG_PRINTF
+#ifdef OMAC_DEBUG_PRINTF
 				hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
-	#endif
+#endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
 				if(data_msg->msg_identifier != 16843009){
 					ASSERT_SP(0);
@@ -407,37 +413,44 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 				}
 				CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
+				CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
 				break;
 			case OMAC_DATA_BEACON_TYPE:
 				hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 				hal_printf("Got a data beacon packet\n");
 				break;
+#ifdef SOFTWARE_ACKS_ENABLED
+			case MFM_DATA_ACK:
+				g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+				location_in_packet_payload += 1;
+				break;
+#endif
 			default:
 				break;
-		};
+			};
 
-		if(msg->GetHeader()->flags &  MFM_TIMESYNC) {
-			ASSERT_SP(msg->GetHeader()->flags & TIMESTAMPED_FLAG);
-			tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
-			ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
-			location_in_packet_payload += sizeof(TimeSyncMsg);
-		}
-		if(msg->GetHeader()->flags &  MFM_DISCOVERY) {
-			disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
-			g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
-			location_in_packet_payload += sizeof(DiscoveryMsg_t);
-		}
+			if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
+				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
+				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
+				location_in_packet_payload += sizeof(TimeSyncMsg);
+			}
+			if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
+				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
+				g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
+				location_in_packet_payload += sizeof(DiscoveryMsg_t);
+			}
 
-		if( tsmg != NULL && disco_msg == NULL){
-			rx_start_ticks = HAL_Time_CurrentTicks();
+			if( tsmg != NULL && disco_msg == NULL){
+				rx_start_ticks = HAL_Time_CurrentTicks();
+			}
 		}
-	}
 
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
+		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
 #endif
 #ifdef	def_Neighbor2beFollowed
-}
+	}
 #endif
 	UINT64 rx_end_ticks = HAL_Time_CurrentTicks();
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
@@ -455,6 +468,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 
 }
+
 
 /*
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
@@ -575,7 +589,7 @@ void OMACType::UpdateNeighborTable(){
 	MyAddress = address;
 	return TRUE;
 }
-*/
+ */
 
 UINT8 OMACType::GetBufferSize(){
 	return g_send_buffer.Size();

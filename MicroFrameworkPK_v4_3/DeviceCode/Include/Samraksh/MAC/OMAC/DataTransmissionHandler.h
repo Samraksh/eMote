@@ -44,6 +44,7 @@ public:
 	void SendRetry();
 	void HardwareACKHandler();
 	void SendACKHandler();
+	void ReceiveDATAACK(UINT16 address);
 
 	UINT64 GetTxTicks();
 	UINT32 GetTxCounter();
