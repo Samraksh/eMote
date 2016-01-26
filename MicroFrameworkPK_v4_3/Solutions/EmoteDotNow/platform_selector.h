@@ -229,6 +229,7 @@ HAL_RECEPTION_TIMER 6
 #define NeighborClockMonitor_TIMER1 11
 
 #define OMAC_DISCO_SEQ_NUMBER	27
+#define OMAC_HW_ACK_DELAY	250
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

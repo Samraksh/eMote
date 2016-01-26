@@ -139,19 +139,21 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	if(rxEventOffset == nextWakeupTimeInMicSec) {
 		InputState.RequestState(I_DATA_RCV_PENDING);
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO;
+		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO - OMAC_HW_ACK_DELAY;
 	}
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
 		//BK: Transmitter first turns the radio on and hence incurs that delay, then copies the packet on the SPI bus and incurs that delay.
 		//TODO: BK: The PROCESSING_DELAY_BEFORE_TX_MICRO should depend on the packet size. We need to experiment and make it better. This will help balance out the guardband and take the bias out of it.
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO - 250;
+		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO - OMAC_HW_ACK_DELAY;
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
+		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY;
 		InputState.RequestState(I_DISCO_PENDING);
 	}
 	else if(timeSyncEventOffset == nextWakeupTimeInMicSec) {
+		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY;
 		InputState.RequestState(I_TIMESYNC_PENDING);
 	}
 	else{

@@ -1851,11 +1851,11 @@ void RF231Radio::HandleInterrupt()
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					//hal_printf("About to send a hw ACK\n");
 					//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != 27){
-					if(sequenceNumberReceiver == sequenceNumberSender){
+					//if(sequenceNumberReceiver == sequenceNumberSender){
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-					}
+					//}
 
 					cmd = CMD_NONE;
 				}
@@ -2117,7 +2117,7 @@ void RF231Radio::HandleInterrupt()
 
 						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//Use 120 usec with fast recovery and 130 usec without fast recovery
-							HAL_Time_Sleep_MicroSeconds(250);
+							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
