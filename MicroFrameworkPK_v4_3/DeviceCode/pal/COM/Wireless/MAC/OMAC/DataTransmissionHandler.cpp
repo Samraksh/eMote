@@ -162,8 +162,14 @@ void DataTransmissionHandler::SendACKHandler(){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
+#ifdef SOFTWARE_ACKS_ENABLED
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+#endif
+#ifndef SOFTWARE_ACKS_ENABLED
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+#endif
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
