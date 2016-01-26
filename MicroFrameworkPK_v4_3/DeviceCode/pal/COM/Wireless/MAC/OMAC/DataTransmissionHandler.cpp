@@ -152,7 +152,7 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
 	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -186,6 +186,10 @@ void DataTransmissionHandler::SendRetry(){
 		}
 	}
 	//hal_printf("currentAttempt: %d\n", currentAttempt);
+	//Attempt to continuously transmit the msg
+	/*if(currentAttempt == 1){
+		bool rv = Send();
+	}*/
 	//If retry count goes beyond the limit, packet could not reach dest, so drop it
 	if(currentAttempt >= maxRetryAttempts){
 		//hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
@@ -268,8 +272,8 @@ void DataTransmissionHandler::ExecuteEventHelper()
 #endif
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
-	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
+	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -365,7 +369,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 }
 
 void DataTransmissionHandler::SendACKHandler(){
-	VirtualTimerReturnMessage rm;
+	/*VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
@@ -374,7 +378,7 @@ void DataTransmissionHandler::SendACKHandler(){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
-	}
+	}*/
 	//else{		//Could not stop timer just wait for it
 	//}
 }
