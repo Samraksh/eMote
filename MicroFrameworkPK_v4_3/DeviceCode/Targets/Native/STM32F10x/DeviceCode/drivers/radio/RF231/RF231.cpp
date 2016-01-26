@@ -7,7 +7,7 @@
 #ifndef TIME_OPTIMIZED_TRANSMIT
 #define WRITE_THEN_TRANSMIT
 #endif
-//#define RF231_EXTENDED_MODE
+#define RF231_EXTENDED_MODE
 
 static bool sendHwAckForData = false;
 
@@ -2117,7 +2117,7 @@ void RF231Radio::HandleInterrupt()
 
 						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//Use 120 usec with fast recovery and 130 usec without fast recovery
-							HAL_Time_Sleep_MicroSeconds(130);
+							//HAL_Time_Sleep_MicroSeconds(130);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );

@@ -310,7 +310,7 @@ J12_PIN10 = GND
 
 #define RADIOCONTROL_SEND_PIN (GPIO_PIN)120 				//J11_pin4
 #define RADIOCONTROL_SENDTS_PIN (GPIO_PIN)120 				//J11_pin5
-#define RADIOCONTROL_STATEPIN (GPIO_PIN)30 //120 //23 //120 // 120 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
+#define RADIOCONTROL_STATEPIN (GPIO_PIN)120 //120 //23 //120 // 120 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
 
 #define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
 
