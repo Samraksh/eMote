@@ -7,7 +7,7 @@
 #ifndef TIME_OPTIMIZED_TRANSMIT
 #define WRITE_THEN_TRANSMIT
 #endif
-#define RF231_EXTENDED_MODE
+//#define RF231_EXTENDED_MODE
 
 static bool sendHwAckForData = false;
 

@@ -24,7 +24,8 @@ extern NeighborTable g_NeighborTable;
 extern RadioControl_t g_omac_RadioControl;
 
 const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 1;
+const uint FAST_RECOVERY = 0;
+//#define HARDWARE_ACKS_ENABLED
 
 
 void PublicDataTxCallback(void* param){
@@ -108,7 +109,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		//ASSERT_SP(nextTXTicks > curTicks);
 		UINT64 remMicroSecnextTX = HAL_Time_TicksToTime(nextTXTicks - curTicks);
 		//Wake up the transmitter a little early
-		//remMicroSecnextTX -= GUARDTIME_MICRO;
+		remMicroSecnextTX -= GUARDTIME_MICRO;
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
@@ -218,7 +219,11 @@ void DataTransmissionHandler::ExecuteEventHelper()
 					ASSERT_SP(rm == TimerSupported);
 				}
 				else{
+#ifndef SOFTWARE_ACKS_ENABLED
+#ifndef HARDWARE_ACKS_ENABLED
 					g_send_buffer.DropOldest(1);
+#endif
+#endif
 				}
 			}
 			else{
@@ -236,7 +241,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 #endif
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -269,7 +274,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	else{
 		hal_printf("Radio not in RX state\n");
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -350,8 +355,10 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-#ifdef SOFTWARE_ACKS_ENABLED
+#ifndef SOFTWARE_ACKS_ENABLED
+#ifdef HARDWARE_ACKS_ENABLED
 	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+#endif
 #endif
 	if(rm == TimerSupported){
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
@@ -363,7 +370,6 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
 #endif
->>>>>>> OMAC_Dev_SW_ack_Working
 }
 
 

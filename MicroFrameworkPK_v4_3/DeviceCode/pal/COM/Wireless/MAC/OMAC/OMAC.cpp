@@ -266,7 +266,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//This is a hardware ACK for a Data packet
 		if(msg->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-			g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+			//g_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+			g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
 			return msg;
 		}
 		//This is a hardware ACK for a DISCO packet
@@ -313,7 +314,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 
 			//Get the primary packet
-			switch(msg->GetHeader()->GetType()){
+			switch(msg->GetHeader()->type){
 			case MFM_DISCOVERY:
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
 				g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg);
@@ -429,13 +430,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				break;
 			};
 
-			if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
-				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+			if(msg->GetHeader()->flags &  MFM_TIMESYNC) {
+				ASSERT_SP(msg->GetHeader()->flags & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 				ds = g_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, evTime );
 				location_in_packet_payload += sizeof(TimeSyncMsg);
 			}
-			if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
+			if(msg->GetHeader()->flags &  MFM_DISCOVERY) {
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
 				g_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);

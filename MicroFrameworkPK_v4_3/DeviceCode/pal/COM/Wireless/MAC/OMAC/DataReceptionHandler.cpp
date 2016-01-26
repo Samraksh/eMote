@@ -244,8 +244,8 @@ void DataReceptionHandler::SendDataACK(){
 	//header->network = MyConfig.Network;
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DATA_ACK;
-	header->SetFlags(0);
-	m_ACKmsg.GetMetaData()->SetReceiveTimeStamp(0);
+	header->flags = (0);
+	m_ACKmsg.GetMetaData()->SetReceiveTimeStamp((UINT32)0);
 
 	UINT8* payload = m_ACKmsg.GetPayload();
 	*payload = 66;
