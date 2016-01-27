@@ -72,8 +72,10 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	CPU_GPIO_EnableOutputPin(HW_ACK_PIN, TRUE);
-	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	//CPU_GPIO_EnableOutputPin(HW_ACK_PIN, TRUE);
+	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 	CPU_GPIO_EnableOutputPin(DATATX_POSTEXEC, TRUE);
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
@@ -147,9 +149,9 @@ void DataTransmissionHandler::HardwareACKHandler(){
 		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
 		g_send_buffer.DropOldest(1);
 	}
-	CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
-	CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
 	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE );
@@ -237,6 +239,8 @@ void DataTransmissionHandler::ExecuteEventHelper()
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 		if(canISend && currentAttempt < maxRetryAttempts){
 			bool rv = Send();
@@ -245,6 +249,8 @@ void DataTransmissionHandler::ExecuteEventHelper()
 					//If send is successful, start timer for hardware ACK.
 					//If hardware ack is received within stipulated period, drop the oldest packet.
 					//Else retry
+					rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+					rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
 					rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
 					ASSERT_SP(rm == TimerSupported);
 				}
@@ -269,11 +275,13 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
+	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -369,16 +377,29 @@ void DataTransmissionHandler::ExecuteEvent(){
 }
 
 void DataTransmissionHandler::SendACKHandler(){
-	/*VirtualTimerReturnMessage rm;
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	VirtualTimerReturnMessage rm;
+
+	//If send is successful, start timer for hardware ACK.
+	//If hardware ack is received within stipulated period, drop the oldest packet.
+	//Else retry
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
+	rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+	ASSERT_SP(rm == TimerSupported);
+
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
-	}*/
+	}
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	//else{		//Could not stop timer just wait for it
 	//}
 }
@@ -386,7 +407,7 @@ void DataTransmissionHandler::SendACKHandler(){
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
-		CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -404,7 +425,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
-		CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 #endif
 }
 

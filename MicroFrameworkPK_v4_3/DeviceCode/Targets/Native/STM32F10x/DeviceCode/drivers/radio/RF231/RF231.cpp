@@ -1079,10 +1079,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	interrupt_mode_check();
 
-	CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
-	CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
-	CPU_GPIO_EnableOutputPin(CCA_PIN, TRUE);
-	CPU_GPIO_SetPinState(CCA_PIN, FALSE);
+	//CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
+	//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+	//CPU_GPIO_EnableOutputPin(CCA_PIN, TRUE);
+	//CPU_GPIO_SetPinState(CCA_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
@@ -1988,10 +1988,10 @@ void RF231Radio::HandleInterrupt()
 			if(sleep_pending)
 			{
 				Sleep(0);
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				/*CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);*/
 				//hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-going to sleep\n");
 				return;
 			}
@@ -2000,8 +2000,8 @@ void RF231Radio::HandleInterrupt()
 				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
 				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+				/*CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);*/
 			}
 			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);*/
@@ -2120,8 +2120,8 @@ void RF231Radio::HandleInterrupt()
 							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY);
 							SlptrSet();
 							SlptrClear();
-							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 						/*}
 						else{
 							HAL_Time_Sleep_MicroSeconds(125);
