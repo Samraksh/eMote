@@ -164,6 +164,11 @@ void OMACScheduler::ScheduleNextEvent(){
 #endif
 	//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - TIMER_EVENT_DELAY_OFFSET; //BK: There seems to be a constant delay in timers. This is to compansate for it.
 
+	if(nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE || nextWakeupTimeInMicSec < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO ) {
+		nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
+		InputState.RequestState(I_IDLE);
+	}
+
 	SchedulerINUse = true;
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
