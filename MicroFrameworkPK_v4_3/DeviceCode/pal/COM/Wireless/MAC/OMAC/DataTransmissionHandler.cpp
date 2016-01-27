@@ -27,6 +27,8 @@ const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
 //#define HARDWARE_ACKS_ENABLED
 
+static UINT64 currentStartTicksForRetransmission = 0;
+
 
 void PublicDataTxCallback(void* param){
 	g_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
@@ -159,6 +161,30 @@ void DataTransmissionHandler::HardwareACKHandler(){
 
 void DataTransmissionHandler::SendRetry(){
 	currentAttempt++;
+
+	//Resend same packet if listen period is large enough
+	if(FAST_RECOVERY_WAIT_PERIOD < LISTEN_PERIOD_FOR_RECEPTION_HANDLER && currentAttempt < maxRetryAttempts){
+		hal_printf("Retrying %d\n", currentAttempt);
+		//Find out how long into reception slot the sender is.
+		//This is based on finding diff between start of transmission and current time at retry.
+		//But this logic does not cover the case where the tx starts after the rx, but only when tx is before or
+		//	close to beginning of rx slot.
+		UINT64 currentEndTicksForRetransmission = HAL_Time_CurrentTicks();
+		UINT64 currentAttemptDuration = currentEndTicksForRetransmission - currentStartTicksForRetransmission;
+		INT64 currentAttemptDurationTime = HAL_Time_TicksToTime(currentAttemptDuration);
+		if(currentAttemptDurationTime < LISTEN_PERIOD_FOR_RECEPTION_HANDLER){
+			bool rv = Send();
+			if(rv){
+				//If send is successful, start timer for hardware ACK.
+				//If hardware ack is received within stipulated period, drop the oldest packet.
+				//Else retry
+				VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				ASSERT_SP(rm == TimerSupported);
+			}
+		}
+	}
 	//hal_printf("currentAttempt: %d\n", currentAttempt);
 	//If retry count goes beyond the limit, packet could not reach dest, so drop it
 	if(currentAttempt >= maxRetryAttempts){
@@ -267,6 +293,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	e = g_omac_RadioControl.StartRx();
 
 	if(e == DS_Success){
+		currentStartTicksForRetransmission = HAL_Time_CurrentTicks();
 		this->ExecuteEventHelper();
 		/*rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
