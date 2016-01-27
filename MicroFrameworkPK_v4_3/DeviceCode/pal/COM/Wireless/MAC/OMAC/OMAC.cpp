@@ -301,7 +301,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					if(data_msg->msg_identifier != 16843009){
-						ASSERT_SP(0);
+						////ASSERT_SP(0);
 					}
 					//location_in_packet_payload += data_msg->size;
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
@@ -338,7 +338,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			case MFM_ROUTING:
 				data_msg = (DataMsg_t*) msg->GetPayload();
 				if(data_msg->msg_identifier != 16843009){
-					ASSERT_SP(0);
+					//ASSERT_SP(0);
 				}
 				location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
@@ -354,13 +354,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					}
 				}
 				CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, TRUE);
-				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+				//ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
 				hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 #endif
 				data_msg = (DataMsg_t*) msg->GetPayload();
 				if(data_msg->msg_identifier != 16843009){
-					ASSERT_SP(0);
+					//ASSERT_SP(0);
 				}
 				tsreqmg =  (TimeSyncRequestMsg*) (data_msg->payload);
 				ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ReceiveTSReq(sourceID, tsreqmg);
@@ -390,7 +390,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 #endif
-				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
+				//ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 				ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, senderDelay, rx_time_stamp );
 				location_in_packet_payload += sizeof(TimeSyncMsg);

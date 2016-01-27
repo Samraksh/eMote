@@ -53,7 +53,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
-	ASSERT_SP(rm == TimerSupported);
+	//ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
@@ -271,7 +271,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 
 	if(disMsg -> msg_identifier != 33686018){
 		localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-		ASSERT_SP(0);
+		//ASSERT_SP(0);
 	}
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){

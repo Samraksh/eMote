@@ -20,7 +20,7 @@ void PublicSchedulerTaskHandler1(void * param){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
-	ASSERT_SP(rm == TimerSupported);
+	////ASSERT_SP(rm == TimerSupported);
 
 	if((g_OMAC.m_omac_scheduler.SchedulerINUse)){
 		g_OMAC.m_omac_scheduler.SchedulerINUse = false;
@@ -47,10 +47,10 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	//Initialize the HAL vitual timer layer
 
 	bool rv = VirtTimer_Initialize();
-	ASSERT_SP(rv);
+	//ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
-	ASSERT_SP(rm == TimerSupported);
+	//ASSERT_SP(rm == TimerSupported);
 
 	//Initialize Handlers
 	m_DiscoveryHandler.Initialize(radioID, macID);
@@ -162,9 +162,9 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	SchedulerINUse = true;
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_SCHEDULER, 0, nextWakeupTimeInMicSec, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-	ASSERT_SP(rm == TimerSupported);
+	//ASSERT_SP(rm == TimerSupported);
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
-	ASSERT_SP(rm == TimerSupported);
+	//ASSERT_SP(rm == TimerSupported);
 
 
 //

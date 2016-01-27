@@ -46,7 +46,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 #endif
 
-	ASSERT_SP(rm == TimerSupported);
+	//ASSERT_SP(rm == TimerSupported);
 
 	m_isreceiving = false;
 	m_receptionstate = 0;
@@ -62,7 +62,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 	UINT64 NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS;
 	//UINT64 NextEventTime = (( y/ (UINT64) WAKEUPPERIODINTICKS)  + 1) * ((UINT64)WAKEUPPERIODINTICKS);
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
-	ASSERT_SP(NextEventTimeinTicks > y);
+	//ASSERT_SP(NextEventTimeinTicks > y);
 
 	UINT64 nextEventsMicroSec = (g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(TicksTillNextEvent)) ;
 	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
@@ -88,7 +88,7 @@ void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, 
 		}
 	}
 	lastwakeupSlotUpdateTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-	ASSERT_SP(wakeupSlot  > currentSlotNum);
+	//ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*
  *
@@ -187,7 +187,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 #ifdef SOFTWARE_ACKS_ENABLED
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
-	ASSERT_SP(m_receptionstate == 1);
+	//ASSERT_SP(m_receptionstate == 1);
 	m_receptionstate = 2;
 	m_lastRXNodeId = address;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
@@ -199,7 +199,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 #ifndef SOFTWARE_ACKS_ENABLED
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
-	ASSERT_SP(m_receptionstate == 1);
+	//ASSERT_SP(m_receptionstate == 1);
 	m_receptionstate = 2;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
@@ -213,7 +213,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 
 void DataReceptionHandler::SendDataACK(){
 	VirtualTimerReturnMessage rm;
-	ASSERT_SP(m_receptionstate == 2);
+	//ASSERT_SP(m_receptionstate == 2);
 	m_receptionstate = 3;
 	m_isreceiving = false;
 

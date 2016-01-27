@@ -47,7 +47,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
-	ASSERT_SP(rm == TimerSupported);
+	////ASSERT_SP(rm == TimerSupported);
 
 }
 
@@ -134,7 +134,7 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 	BOOL rs = false;
 	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
-	ASSERT_SP( y > lastTimeSyncRecv); //Ensure no rollover
+	//ASSERT_SP( y > lastTimeSyncRecv); //Ensure no rollover
 
 	 if( y - lastTimeSyncRecv > FORCE_REQUESTTIMESYNC_INTICKS ){
 		 request_TimeSync = true;
@@ -195,7 +195,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	if(rcv_msg->timesyncIdentifier != 50529027 ){
 		y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
-		ASSERT_SP(0);
+		//ASSERT_SP(0);
 	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
