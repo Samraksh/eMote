@@ -221,10 +221,13 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_RECEIVER 	10
 #define VIRT_TIMER_OMAC_TRANSMITTER	11
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	12
-#define HAL_SLOT_TIMER3 13
+//#define HAL_SLOT_TIMER3 13
 
 #define LocalClockMonitor_TIMER1 14
 #define NeighborClockMonitor_TIMER1 15
+
+
+#define TEST_0B_TIMER	13
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
@@ -254,8 +257,8 @@ J12_PIN10 = GND
 
 #define VT_CALLBACK (GPIO_PIN)120					//J11_PIN7
 
-#define NEIGHBORCLOCKMONITORPIN (GPIO_PIN)25 // 120 //31 //2
-#define LOCALCLOCKMONITORPIN (GPIO_PIN)24 //120 //22 //25
+#define NEIGHBORCLOCKMONITORPIN (GPIO_PIN)120 //25 // 120 //31 //2
+#define LOCALCLOCKMONITORPIN (GPIO_PIN)120 //24 //120 //22 //25
 
 #define RF231_TX_INTERRUPT (GPIO_PIN)120					//J11_PIN7
 #define RF231_RADIO_STATEPIN2 (GPIO_PIN)120					//J11_PIN7
@@ -290,9 +293,9 @@ J12_PIN10 = GND
 
 #define OMAC_DEBUG_PIN (GPIO_PIN)120			 			//J11_PIN5
 
-#define OMAC_DATARXPIN (GPIO_PIN)0 //26	//120 //2					//J12_pin5
+#define OMAC_DATARXPIN (GPIO_PIN)120 //0 //26	//120 //2					//J12_pin5
 #define OMAC_RXPIN (GPIO_PIN)22 //120 //23  //120							//J11_pin3 0
-#define OMAC_TIMESYNCREQRXPIN 	(GPIO_PIN)23 //30
+#define OMAC_TIMESYNCREQRXPIN 	(GPIO_PIN)120 //23 //30
 
 #define OMAC_TX_DATAACK_PIN (GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
 #define OMAC_RX_DATAACK_PIN (GPIO_PIN)120 // 120 //23  //120							//J11_pin3 0
@@ -303,6 +306,11 @@ J12_PIN10 = GND
 #define RADIOCONTROL_STATEPIN (GPIO_PIN)30 //120 //23 //120 // 120 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
 
 #define SCHED_START_STOP_PIN (GPIO_PIN)120 //4
+
+#define SCHED_RX_EXEC_PIN (GPIO_PIN)25 //4
+#define SCHED_TX_EXEC_PIN (GPIO_PIN)24 //4
+#define SCHED_DISCO_EXEC_PIN (GPIO_PIN)0 //4
+#define SCHED_TSREQ_EXEC_PIN (GPIO_PIN)23 //4
 
 
 /*PIN SETUP FOR TEST LEVEL_0G : TimeSync Test with stability testing
