@@ -115,7 +115,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATARX_TIMESTAMP_PIN, TRUE);
-	CPU_GPIO_EnableOutputPin(DATARX_DATA_PIN, TRUE);
+	CPU_GPIO_EnableOutputPin(OMAC_TIMESYNCREQRXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(SEND_ACK_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(DATA_TX_ACK_PIN, FALSE);
@@ -298,7 +298,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					}
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
-					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 #endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					if(data_msg->msg_identifier != 16843009){
@@ -333,7 +332,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				(*m_rxAckHandler)(&tempMsg, data_msg->size);*/
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
-					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
 #endif
 				}
 				break;
@@ -355,7 +353,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
 				}
-				CPU_GPIO_SetPinState(DATARX_DATA_PIN, TRUE);
+				CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, TRUE);
 				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
 				hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
@@ -372,7 +370,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				else{
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 				}
-				CPU_GPIO_SetPinState(DATARX_DATA_PIN, FALSE);
+				CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, FALSE);
 				break;
 			case OMAC_DATA_BEACON_TYPE:
 				hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
@@ -389,10 +387,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			};
 
 			if(msg->GetHeader()->GetFlags() &  MFM_TIMESYNC) {
+#ifdef OMAC_DEBUG_GPIO
+					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
+#endif
 				ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
 				ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, senderDelay, rx_time_stamp );
 				location_in_packet_payload += sizeof(TimeSyncMsg);
+#ifdef OMAC_DEBUG_GPIO
+					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
+#endif
 			}
 			if(msg->GetHeader()->GetFlags() &  MFM_DISCOVERY) {
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
