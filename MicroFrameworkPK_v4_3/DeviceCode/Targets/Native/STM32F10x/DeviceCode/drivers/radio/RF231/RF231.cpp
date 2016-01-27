@@ -1256,8 +1256,8 @@ void RF231Radio::HandleInterrupt()
 			}
 			else //
 			{
-				WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-				DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
+				Careful_State_Change(RX_ON);
+				//DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 				state = STATE_RX_ON;
 			}
 		}
@@ -1268,12 +1268,9 @@ void RF231Radio::HandleInterrupt()
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
 #			endif
 
-			state = STATE_RX_ON; // Right out of BUSY_RX
 
 			// Go to PLL_ON at least until the frame buffer is empty
-			WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-			DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-			state = STATE_PLL_ON;
+
 
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
@@ -1301,6 +1298,10 @@ void RF231Radio::HandleInterrupt()
 				// download error
 				add_download_error();
 			}
+
+
+			Careful_State_Change(RX_ON);
+			state = STATE_RX_ON; // Right out of BUSY_RX
 
 			cmd = CMD_NONE;
 
