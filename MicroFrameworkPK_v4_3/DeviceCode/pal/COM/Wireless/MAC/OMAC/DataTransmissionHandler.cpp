@@ -69,11 +69,20 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
 
-	if(ScheduleDataPacket()) {
+	if(ScheduleDataPacket(0)) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-		UINT64 remMicroSecnextTX = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks - curTicks);
+		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+
+		while(nextTXmicro  <= curmicro + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) {
+			if(!ScheduleDataPacket(1)){
+				nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+			}
+		}
+		UINT64 remMicroSecnextTX = nextTXmicro - curmicro;
+
 
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
@@ -307,7 +316,7 @@ bool DataTransmissionHandler::Send(){
 /*
  * Schedule a data packet only if a neighbor is found or there are msgs in the buffer
  */
-BOOL DataTransmissionHandler::ScheduleDataPacket()
+BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 {
 	// do not schedule a packet if
 	// 1) Case for no data packets in line
@@ -342,7 +351,12 @@ BOOL DataTransmissionHandler::ScheduleDataPacket()
 			}
 			UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 			if(neighborSlot >= neighborEntry->nextwakeupSlot) {
-				g_OMAC.m_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks) );
+				g_OMAC.m_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, neighborSlot );
+			}
+			while(_skipperiods > 0) {
+				--_skipperiods;
+				neighborSlot = neighborEntry->nextwakeupSlot;
+				g_OMAC.m_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, neighborSlot );
 			}
 			isDataPacketScheduled = true;
 			return TRUE;

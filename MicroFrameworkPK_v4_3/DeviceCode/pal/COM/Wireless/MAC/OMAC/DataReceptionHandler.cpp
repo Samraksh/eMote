@@ -59,8 +59,13 @@ UINT64 DataReceptionHandler::NextEvent(){
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
 	}
-	UINT64 NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS;
-	//UINT64 NextEventTime = (( y/ (UINT64) WAKEUPPERIODINTICKS)  + 1) * ((UINT64)WAKEUPPERIODINTICKS);
+	UINT64 NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS - RADIO_TURN_ON_DELAY_MICRO * TICKS_PER_MICRO;
+
+	while(NextEventTimeinTicks  <= y + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS){
+		currentSlotNum = m_nextwakeupSlot;
+		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
+		NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS - RADIO_TURN_ON_DELAY_MICRO * TICKS_PER_MICRO;
+	}
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
 	//ASSERT_SP(NextEventTimeinTicks > y);
 

@@ -32,6 +32,10 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(SCHED_START_STOP_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(SCHED_RX_EXEC_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(SCHED_TX_EXEC_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(SCHED_DISCO_EXEC_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(SCHED_TSREQ_EXEC_PIN, FALSE);
 #endif
 
 	radioID = _radioID;
@@ -100,17 +104,17 @@ void OMACScheduler::ScheduleNextEvent(){
 
 
 	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
-	if (timeSyncEventOffset < 1) timeSyncEventOffset = 0xffffffffffffffff;
+	if (timeSyncEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) timeSyncEventOffset = 0xffffffffffffffff;
 
 
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
-	if (rxEventOffset < 1) rxEventOffset = 0xffffffffffffffff;
+	if (rxEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;
 	txEventOffset = m_DataTransmissionHandler.NextEvent();
-	if (txEventOffset < 1) txEventOffset = 0xffffffffffffffff;
+	if (txEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) txEventOffset = 0xffffffffffffffff;
 	//txEventOffset = txEventOffset-1;
 	beaconEventOffset = m_DiscoveryHandler.NextEvent();
-	if (beaconEventOffset < 1) beaconEventOffset = 0xffffffffffffffff;
+	if (beaconEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
 
 
@@ -129,12 +133,12 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	if(rxEventOffset == nextWakeupTimeInMicSec) {
 		InputState.RequestState(I_DATA_RCV_PENDING);
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO;
+		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO; //BK: THis calculation is done inside the nextevent in order to prevent a negative value
 	}
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
 		//BK: Transmitter first turns the radio on and hence incurs that delay, then copies the packet on the SPI bus and incurs that delay.
 		//TODO: BK: The PROCESSING_DELAY_BEFORE_TX_MICRO should depend on the packet size. We need to experiment and make it better. This will help balance out the guardband and take the bias out of it.
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;//BK: THis calculation is done inside the nextevent in order to prevent a negative value
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
@@ -193,18 +197,31 @@ bool OMACScheduler::RunEventTask(){
 
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
+#endif
+
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent();
 			break;
 		case I_DATA_RCV_PENDING:
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+#endif
 			m_lastHandler = DATA_RX_HANDLER;
 			m_DataReceptionHandler.ExecuteEvent();
 			break;
 		case I_TIMESYNC_PENDING:
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, TRUE);
+#endif
 			m_lastHandler = TIMESYNC_HANDLER;
 			m_TimeSyncHandler.ExecuteEvent();
 			break;
 		case I_DISCO_PENDING:
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
+#endif
 			m_DiscoveryHandler.ExecuteEvent();
 			m_lastHandler = CONTROL_BEACON_HANDLER;
 			break;
@@ -224,6 +241,10 @@ void OMACScheduler::PostPostExecution(){
 	ScheduleNextEvent();
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
+		CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, FALSE);
+		CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
+		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
 #endif
 }
 

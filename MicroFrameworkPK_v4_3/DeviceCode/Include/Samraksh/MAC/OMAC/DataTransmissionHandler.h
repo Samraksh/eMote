@@ -36,7 +36,7 @@ public:
 	void PostExecuteEvent();
 
 	void DataBeaconReceive(UINT8 type, Message_15_4_t *msg, UINT8 size);
-	BOOL ScheduleDataPacket();
+	BOOL ScheduleDataPacket(UINT8 _skipperiods);
 	bool Send();
 	void SendACKHandler();
 	void ReceiveDATAACK(UINT16 address);

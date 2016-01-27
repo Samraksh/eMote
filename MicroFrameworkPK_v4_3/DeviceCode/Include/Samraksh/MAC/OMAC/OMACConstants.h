@@ -292,9 +292,13 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMACClockFreq 32
 #define OMACClocktoSystemClockFreqRatio 250
 
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 800
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 100
+
 #define WAKEUPPERIODINTICKS 8000000
 enum {
   TICKS_PER_MILLI     = 8000,
+  TICKS_PER_MICRO     = 8,
 
 #ifdef SHORT_SLOT
 #warning *** USING 8ms SLOT ***
