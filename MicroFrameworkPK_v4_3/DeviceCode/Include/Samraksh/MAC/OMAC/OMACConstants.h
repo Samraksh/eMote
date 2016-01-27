@@ -261,7 +261,7 @@ typedef OFProv<UINT64> OMACTicks;
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 2000			//compensate for time-sync errors; accounts for the clock drift
+#define GUARDTIME_MICRO 20000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
 #define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 15*GUARDTIME_MICRO
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
@@ -295,9 +295,19 @@ typedef OFProv<UINT64> OMACTicks;
 #define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
+#define HFCLOCKID 1
+#define LFCLOCKID 4
+#define OMACClockSpecifier HFCLOCKID // This is the RTC clock
+#define OMACClockFreq 32
+#define OMACClocktoSystemClockFreqRatio 250
+
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 800
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 100
+
 #define WAKEUPPERIODINTICKS 8000000
 enum {
   TICKS_PER_MILLI     = 8000,
+  TICKS_PER_MICRO     = 8,
 
 #ifdef SHORT_SLOT
 #warning *** USING 8ms SLOT ***

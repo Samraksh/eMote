@@ -201,10 +201,7 @@ UINT64  CPU_TicksToTime               ( UINT32 Ticks32, UINT16 Timer = 1 );
 
 //--//
 
-// Nived.Sivadas - adding this interface to enable the HALTimer
-////BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL FreeRunning = FALSE, UINT32 ClkSource = 0, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);	//Original
-////BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Period_micSecs, HAL_CALLBACK_FPN ISR, void* ISR_PARAM = NULL);	//Mukundan's suggestion
-BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL, void* ISR_PARAM = NULL);
+BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL);
 BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 
 //TODO: AnanthAtSamraksh -- check if UINT64 is right
@@ -228,6 +225,7 @@ void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c );
 const UINT8 ADVTIMER_32BIT = 1;
 const UINT8 TIMER1_16BIT = 2;
 const UINT8 TIMER2_16BIT = 3;
+const UINT8 RTC_32BIT = 4;
 
 #endif // _DRIVERS_TIME_DECL_H_
 

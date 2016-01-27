@@ -17,9 +17,6 @@
 #include <Samraksh/MAC/OMAC/OMAC.h>
 #include <DeviceCode\LCD_PCF85162_HAL\LCD_PCF85162.h>
 
-extern OMACScheduler g_omac_scheduler;
-extern NeighborTable g_NeighborTable;
-extern RadioControl_t g_omac_RadioControl;
 extern OMACType g_OMAC;
 
 
@@ -27,7 +24,7 @@ extern OMACType g_OMAC;
  *
  */
 void PublicBeaconNCallback(void * param){
-	g_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
+	g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
 }
 
 
@@ -55,12 +52,12 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback); //1 sec Timer in micro seconds
-	ASSERT_SP(rm == TimerSupported);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DiscoveryHandler::NextEvent(){
-	UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
+	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	if(firstDiscoTimeinSlotNum == 0) {
@@ -79,7 +76,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		nextEventsSlot = nextEventsSlot + 1;
 	}
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
-	nextEventsMicroSec = nextEventsMicroSec + g_omac_scheduler.GetTimeTillTheEndofSlot();
+	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
 
@@ -87,7 +84,7 @@ UINT64 DiscoveryHandler::NextEvent(){
  *
  */
 UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
-	//UINT64 currentSlotNum = g_omac_scheduler.GetSlotNumber();
+	//UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	UINT64 period1Remaining, period2Remaining;
 	period1Remaining = currentSlotNum % m_period1;
 	period2Remaining = currentSlotNum % m_period2;
@@ -105,7 +102,7 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  */
 void DiscoveryHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
-	e = g_omac_RadioControl.StartRx();
+	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
@@ -128,11 +125,11 @@ void DiscoveryHandler::ExecuteEvent(){
 void DiscoveryHandler::PostExecuteEvent(){
 	//stop the radio
 	/*DeviceStatus  ds;
-	ds = g_omac_RadioControl.Stop();
+	ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds != DS_Success) {
 		hal_printf("DiscoveryHandler::Cannot stop the radio");
 	}*/
-	g_omac_scheduler.PostExecution();
+	g_OMAC.m_omac_scheduler.PostExecution();
 }
 
 
@@ -159,7 +156,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	CreateMessage(m_discoveryMsg);
 
-	//localTime = HAL_Time_CurrentTicks();
+	//localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	//m_discoveryMsg->localTime0 = (UINT32) localTime ;
 	//m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
@@ -183,20 +180,20 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 }
 
 void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
-	discoveryMsg->nextSeed = g_omac_scheduler.m_DataReceptionHandler.m_nextSeed;
-	discoveryMsg->mask = g_omac_scheduler.m_DataReceptionHandler.m_mask;
-	UINT64 nextwakeupSlot = g_omac_scheduler.m_DataReceptionHandler.m_nextwakeupSlot;
+	discoveryMsg->nextSeed = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_nextSeed;
+	discoveryMsg->mask = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_mask;
+	UINT64 nextwakeupSlot = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_nextwakeupSlot;
 	discoveryMsg->nextwakeupSlot0 = (UINT32)nextwakeupSlot;
 	discoveryMsg->nextwakeupSlot1 = (UINT32)(nextwakeupSlot>>32);
-	discoveryMsg->seedUpdateIntervalinSlots = g_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
+	discoveryMsg->seedUpdateIntervalinSlots = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
 	discoveryMsg->nodeID = g_OMAC.GetMyAddress();
 
-	UINT64 curticks = HAL_Time_CurrentTicks();
+	UINT64 curticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	discoveryMsg->localTime0 = (UINT32) curticks;
 	discoveryMsg->localTime1 = (UINT32) (curticks>>32);
 
-	discoveryMsg->lastwakeupSlotUpdateTimeinTicks0 = (UINT32) g_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks;
-	discoveryMsg->lastwakeupSlotUpdateTimeinTicks1 = (UINT32) (g_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks>>32);
+	discoveryMsg->lastwakeupSlotUpdateTimeinTicks0 = (UINT32) g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks;
+	discoveryMsg->lastwakeupSlotUpdateTimeinTicks1 = (UINT32) (g_OMAC.m_omac_scheduler.m_DataReceptionHandler.lastwakeupSlotUpdateTimeinTicks>>32);
 	discoveryMsg->msg_identifier = 33686018; // 0x02020202
 }
 
@@ -270,11 +267,11 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg){  //(Message_15_4_t* msg, void* payload, UINT8 len){
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
-	UINT64 localTime = HAL_Time_CurrentTicks();
+	UINT64 localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
 	if(disMsg -> msg_identifier != 33686018){
-		localTime = HAL_Time_CurrentTicks();
-		ASSERT_SP(0);
+		localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		//ASSERT_SP(0);
 	}
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
@@ -292,14 +289,14 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 
 	UINT64 nextwakeupSlot = (((UINT64)disMsg->nextwakeupSlot1) <<32) + disMsg->nextwakeupSlot0;
 
-	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
+	if (g_OMAC.m_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
+		g_OMAC.m_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 		//stop disco when there are 2 or more neighbors
 		/*if(nbrIdx >= 1){
 			stopBeacon = true;
 		}*/
 	} else {
-		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
+		g_OMAC.m_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
 #ifdef def_Neighbor2beFollowed
@@ -359,7 +356,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 
 	msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 
-	retValue = g_omac_RadioControl.Send(address, msg, header->length);
+	retValue = g_OMAC.m_omac_RadioControl.Send(address, msg, header->length);
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );

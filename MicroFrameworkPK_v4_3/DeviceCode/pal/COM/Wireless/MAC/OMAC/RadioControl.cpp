@@ -14,12 +14,10 @@
 #include <Samraksh/Radio_decl.h>
 #include <Samraksh/Message.h>
 #include <Samraksh/MAC/OMAC/RadioControl.h>
-#include <Samraksh/MAC/OMAC/OMACConstants.h>
 #include <Samraksh/MAC/OMAC/OMAC.h>
 
 extern OMACType g_OMAC;
-extern OMACScheduler g_omac_scheduler;
-extern NeighborTable g_NeighborTable;
+
 
 #define LOCALSKEW 1
 //#define DEBUG_RADIO_STATE 1
@@ -105,6 +103,10 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 
 	if( (header->flags & TIMESTAMPED_FLAG) ){
+		//Convert TimeStamp to high freq clock
+		UINT64 time_elapsed_since_TS = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
+		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 	}
 	else {
@@ -162,7 +164,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	}
 	else{ //Otherwise calculate it . Will be added later add it
 		additional_overhead += timestamp_size;
-		event_time = HAL_Time_CurrentTicks();
+		event_time = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
@@ -171,12 +173,12 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		// Adjust the time stamp of the timesync packet accordingly.
 		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 		header->flags = ((header->flags | TIMESTAMPED_FLAG));
-		y = HAL_Time_CurrentTicks();
+		y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
-		g_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
-		g_NeighborTable.RecordTimeSyncSent(msg->GetHeader()->dest,y);
+		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
+		g_OMAC.m_NeighborTable.RecordTimeSyncSent(msg->GetHeader()->dest,y);
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
 	}
@@ -195,7 +197,7 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
 		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
-		g_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
+		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY));
 		size += sizeof(DiscoveryMsg_t);
 	}

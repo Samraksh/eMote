@@ -190,11 +190,10 @@
 #define DATASTORE_END_ADDRESS 0x64FE0000
 
 
-#define g_totalCountOfVirtualTimers	16
-const UINT8 g_CountOfHardwareTimers = 1;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1};
-const UINT8 g_VirtualTimerPerHardwareTimer[g_CountOfHardwareTimers] = {g_totalCountOfVirtualTimers};
-const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000};
+const UINT8 g_CountOfHardwareTimers = 2;
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1, 4};
+const UINT8 g_VirtualTimerPerHardwareTimer = 16;
+const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
 /*BK: TImer Mapper does not seem to work. We need manually select timers from range 0-8 anyways
@@ -209,7 +208,7 @@ HAL_RECEPTION_TIMER 6
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
-#define VIRT_TIMER_OMAC_SCHEDULER	3
+#define VIRT_TIMER_OMAC_SCHEDULER	7
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_MAC_SENDPKT 		3
@@ -217,16 +216,19 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
 #define VIRT_TIMER_REALTIME_DEBUGGER 6
 
-#define VIRT_TIMER_OMAC_DISCOVERY	4
-#define VIRT_TIMER_OMAC_TIMESYNC 	5
-#define VIRT_TIMER_OMAC_RECEIVER 	7
-#define VIRT_TIMER_OMAC_TRANSMITTER	8
-#define VIRT_TIMER_OMAC_TX_EXECEVENT	9
-#define VIRT_TIMER_OMAC_FAST_RECOVERY	10
-#define VIRT_TIMER_OMAC_RECEIVER_ACK 	11
+#define VIRT_TIMER_OMAC_DISCOVERY	3
+#define VIRT_TIMER_OMAC_TIMESYNC 	4
+#define VIRT_TIMER_OMAC_RECEIVER 	5
+#define VIRT_TIMER_OMAC_TRANSMITTER	7
+//#define VIRT_TIMER_OMAC_TX_EXECEVENT	8
+#define VIRT_TIMER_OMAC_FAST_RECOVERY	8
+#define VIRT_TIMER_OMAC_RECEIVER_ACK 	9
 
-#define LocalClockMonitor_TIMER1 10
-#define NeighborClockMonitor_TIMER1 11
+#define LocalClockMonitor_TIMER1 14
+#define NeighborClockMonitor_TIMER1 15
+
+
+#define TEST_0B_TIMER	13
 
 #define OMAC_DISCO_SEQ_NUMBER	27
 #define OMAC_HW_ACK_DELAY	250
@@ -259,8 +261,8 @@ J12_PIN10 = GND
 
 #define VT_CALLBACK (GPIO_PIN)120					//J11_PIN7
 
-#define NEIGHBORCLOCKMONITORPIN (GPIO_PIN)25 // 120 //31 //2
-#define LOCALCLOCKMONITORPIN (GPIO_PIN)24 //120 //22 //25
+#define NEIGHBORCLOCKMONITORPIN (GPIO_PIN)120 //25 // 120 //31 //2
+#define LOCALCLOCKMONITORPIN (GPIO_PIN)120 //24 //120 //22 //25
 
 #define RF231_TX_INTERRUPT (GPIO_PIN)120					//J11_PIN7
 #define RF231_RADIO_STATEPIN2 (GPIO_PIN)120					//J11_PIN7
@@ -278,8 +280,9 @@ J12_PIN10 = GND
 
 //#define DATATX_TIMESTAMP_PIN	(GPIO_PIN)120 // TIMESYNC_SENDPIN//24 //Same as TIMESYNC_SENDPIN
 #define DATATX_DATA_PIN			(GPIO_PIN)120 //25
-#define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120	////30 //29
-#define DATARX_DATA_PIN			(GPIO_PIN)120	////31 //30
+#define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
+
+
 #define SEND_ACK_PIN			(GPIO_PIN)120
 #define DATA_TX_ACK_PIN			(GPIO_PIN)120
 
@@ -290,12 +293,13 @@ J12_PIN10 = GND
 #define DATATX_PIN (GPIO_PIN)2 //120 //120 //2							//J12_PIN3
 #define DATATX_POSTEXEC			(GPIO_PIN)4
 #define SCHED_START_STOP_PIN (GPIO_PIN)8 //4
-#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)22	//0
+#define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)120	//0
+#define OMAC_RXPIN (GPIO_PIN)22 //120 //23  //120							//J11_pin3 0
 #define DATA_RX_END_OF_RECEPTION		(GPIO_PIN)23
 #define RC_TX_TIMESYNCREQ (GPIO_PIN)24
 #define RC_TX_DATA (GPIO_PIN)29
 //#define CCA_PIN		(GPIO_PIN)30
-#define OMAC_RXPIN (GPIO_PIN)31 //120 //23  //120							//J11_pin3 0
+//#define OMAC_RXPIN (GPIO_PIN)31 //120 //23  //120							//J11_pin3 0
 
 
 
@@ -305,7 +309,12 @@ J12_PIN10 = GND
 #define DISCO_SYNCRECEIVEPIN (GPIO_PIN)120 //25 //120					//J12_PIN2
 
 #define OMAC_DEBUG_PIN (GPIO_PIN)120			 			//J11_PIN5
-#define OMAC_DATARXPIN (GPIO_PIN)120 //26	//120 //2					//J12_pin5
+
+#define OMAC_DATARXPIN (GPIO_PIN)120 //0 //26	//120 //2					//J12_pin5
+#define OMAC_TIMESYNCREQRXPIN 	(GPIO_PIN)120 //23 //30
+
+#define OMAC_TX_DATAACK_PIN (GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
+#define OMAC_RX_DATAACK_PIN (GPIO_PIN)120 // 120 //23  //120							//J11_pin3 0
 
 #define OMAC_TX_DATAACK_PIN (GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
 #define OMAC_RX_DATAACK_PIN (GPIO_PIN)120 // 120 //23  //120							//J11_pin3 0
@@ -315,6 +324,11 @@ J12_PIN10 = GND
 #define RADIOCONTROL_STATEPIN (GPIO_PIN)120 //120 //23 //120 // 120 //120 				//J11_pin6 //This (GPIO_PIN)3  did not work
 
 
+
+#define SCHED_RX_EXEC_PIN (GPIO_PIN)25 //4
+#define SCHED_TX_EXEC_PIN (GPIO_PIN)24 //4
+#define SCHED_DISCO_EXEC_PIN (GPIO_PIN)0 //4
+#define SCHED_TSREQ_EXEC_PIN (GPIO_PIN)23 //4
 
 
 /*PIN SETUP FOR TEST LEVEL_0G : TimeSync Test with stability testing
@@ -343,7 +357,7 @@ J12_PIN10 = GND
 //#define DATATX_TIMESTAMP_PIN	(GPIO_PIN)120 // TIMESYNC_GENERATE_MESSAGEPIN//24 //Same as TIMESYNC_GENERATE_MESSAGEPIN
 #define DATATX_DATA_PIN			(GPIO_PIN)120 //25
 #define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
-#define DATARX_DATA_PIN			(GPIO_PIN)120 //30
+#define OMAC_TIMESYNCREQRXPIN			(GPIO_PIN)120 //30
 #define SEND_ACK_PIN			(GPIO_PIN)120
 #define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)120
 #define DATA_TX_ACK_PIN			(GPIO_PIN)120
@@ -501,7 +515,7 @@ J12_PIN10 = GND
 //#define DATATX_TIMESTAMP_PIN	(GPIO_PIN)120 // TIMESYNC_GENERATE_MESSAGEPIN//24 //Same as TIMESYNC_GENERATE_MESSAGEPIN
 #define DATATX_DATA_PIN			(GPIO_PIN)120 //25
 #define DATARX_TIMESTAMP_PIN	(GPIO_PIN)120 //29
-#define DATARX_DATA_PIN			(GPIO_PIN)120 //30
+#define OMAC_TIMESYNCREQRXPIN			(GPIO_PIN)120 //30
 #define SEND_ACK_PIN			(GPIO_PIN)120
 #define DATA_RX_INTERRUPT_PIN	(GPIO_PIN)0
 #define DATA_TX_ACK_PIN			(GPIO_PIN)31
