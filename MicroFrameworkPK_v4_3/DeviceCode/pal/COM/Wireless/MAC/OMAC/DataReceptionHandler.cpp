@@ -132,7 +132,7 @@ void DataReceptionHandler::ExecuteEvent(){
 			//ASSERT_SP(0);
 		}*/
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE ,OMACClockSpecifier);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 100, TRUE ,OMACClockSpecifier);
 		m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
@@ -213,7 +213,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	//ASSERT_SP(m_receptionstate == 1);
 	m_receptionstate = 2;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 100, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);

@@ -263,7 +263,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define MICSECINMILISEC 1000
 #define GUARDTIME_MICRO 20000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 15*GUARDTIME_MICRO
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 2*GUARDTIME_MICRO
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
 #define ACK_TX_MAX_DURATION_MICRO 4000
 #define TIMER_EVENT_DELAY_OFFSET 0

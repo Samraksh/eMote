@@ -79,7 +79,7 @@ void DataTransmissionHandler::Initialize(){
 
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
-	maxRetryAttempts = 2;
+	maxRetryAttempts = 200;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -156,7 +156,7 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
 	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -351,7 +351,7 @@ void DataTransmissionHandler::SendACKHandler(){
 				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
 		}
 		else{
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 			if(rm == TimerSupported)
 				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
@@ -382,7 +382,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 #endif
 	if(rm == TimerSupported){
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
