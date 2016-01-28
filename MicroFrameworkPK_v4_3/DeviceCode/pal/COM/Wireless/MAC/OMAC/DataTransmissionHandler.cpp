@@ -123,6 +123,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 
 
+	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 
@@ -130,11 +131,13 @@ void DataTransmissionHandler::ExecuteEvent(){
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 
 	if (e == DS_Success){
+		txhandler_state = DTS_RADIO_START_SUCCESS;
 		#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 		#endif
 			bool rv = Send();
 			if(rv) {
+				txhandler_state = DTS_SEND_INITIATION_SUCCESS;
 #ifndef SOFTWARE_ACKS_ENABLED
 	#ifndef HARDWARE_ACKS_ENABLED
 				g_OMAC.m_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
@@ -142,6 +145,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 			}
 			else{
+				txhandler_state = DTS_SEND_INITIATION_FAIL;
 		#ifdef OMAC_DEBUG_GPIO
 			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
@@ -154,6 +158,9 @@ void DataTransmissionHandler::ExecuteEvent(){
 			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		#endif
 	}
+	else{
+		txhandler_state = DTS_RADIO_START_FAILED;
+	}
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -163,16 +170,19 @@ void DataTransmissionHandler::ExecuteEvent(){
 }
 
 void DataTransmissionHandler::SendACKHandler(){
+	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
 #ifdef SOFTWARE_ACKS_ENABLED
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
 #endif
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -183,6 +193,7 @@ void DataTransmissionHandler::SendACKHandler(){
 }
 
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
+	txhandler_state = DTS_RECEIVEDDATAACK;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 #endif
@@ -200,6 +211,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+		else{
+			txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+		}
 	}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
@@ -211,10 +225,16 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
+	txhandler_state = DTS_POSTEXECUTION;
 	//Commenting out below as g_OMAC.m_omac_scheduler.PostExecution() also stops radio
 	g_OMAC.m_omac_RadioControl.Stop();
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
+
+void DataTransmissionHandler::FailsafeStop(){
+	VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+}
+
 
 /*
  *

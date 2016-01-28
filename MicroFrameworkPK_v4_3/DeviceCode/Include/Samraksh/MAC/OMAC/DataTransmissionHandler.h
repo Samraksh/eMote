@@ -14,6 +14,18 @@
 #include "OMACConstants.h"
 #include "Handlers.h"
 //#include "Scheduler.h"
+enum DataTransmissionHandlerStates{
+	DTS_EXECUTE_START,
+	DTS_RADIO_START_SUCCESS,
+	DTS_RADIO_START_FAILED,
+	DTS_SEND_INITIATION_SUCCESS,
+	DTS_SEND_INITIATION_FAIL,
+	DTS_SEND_FINISHED,
+	DTS_WAITING_FOR_ACKS,
+	DTS_WAITING_FOR_POSTEXECUTION,
+	DTS_RECEIVEDDATAACK,
+	DTS_POSTEXECUTION,
+};
 
 /*
  *
@@ -26,6 +38,8 @@ class DataTransmissionHandler: public EventHandler {
 	Message_15_4_t m_TXMsgBuffer;
 	DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
+
+	DataTransmissionHandlerStates txhandler_state;
 
 public:
 	void Initialize();
@@ -40,6 +54,7 @@ public:
 	bool Send();
 	void SendACKHandler();
 	void ReceiveDATAACK(UINT16 address);
+	void FailsafeStop();
 
 	UINT64 GetTxTicks();
 	UINT32 GetTxCounter();

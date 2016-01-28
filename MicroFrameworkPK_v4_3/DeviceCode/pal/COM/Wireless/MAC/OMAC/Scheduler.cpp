@@ -16,6 +16,29 @@ void PublicPostExecutionTaskHandler1(void * param){
 	g_OMAC.m_omac_scheduler.PostPostExecution();
 }
 
+void PublicPostExecutionTaskHandler1(void * param){
+	switch(InputState.GetState()) {
+		case I_DATA_SEND_PENDING:
+			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.FailsafeStop();
+			PostExecuteEvent();
+			break;
+		case I_DATA_RCV_PENDING:
+			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.FailsafeStop();
+			PostExecuteEvent();
+			break;
+		case I_TIMESYNC_PENDING:
+			g_OMAC.m_omac_scheduler.m_TimeSyncHandler.FailsafeStop();
+			PostExecuteEvent();
+			break;
+		case I_DISCO_PENDING:
+			g_OMAC.m_omac_scheduler.m_DiscoveryHandler.FailsafeStop();
+			PostExecuteEvent();
+			break;
+		default: //Case for
+			PostPostExecution();
+	}
+}
+
 void PublicSchedulerTaskHandler1(void * param){
 
 	VirtualTimerReturnMessage rm;
@@ -54,6 +77,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	//ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, FALSE, FALSE, PublicSchedulerTaskHandlerFailsafe, OMACClockSpecifier);
+
 	//ASSERT_SP(rm == TimerSupported);
 
 	//Initialize Handlers
@@ -190,6 +215,7 @@ bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
@@ -244,6 +270,7 @@ void OMACScheduler::PostPostExecution(){
 	EnsureStopRadio();
 	InputState.ForceState(I_IDLE);
 	ScheduleNextEvent();
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);

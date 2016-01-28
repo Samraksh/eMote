@@ -226,6 +226,7 @@ HAL_RECEPTION_TIMER 6
 #define LocalClockMonitor_TIMER1 14
 #define NeighborClockMonitor_TIMER1 15
 
+#define VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE 3
 
 #define TEST_0B_TIMER	13
 

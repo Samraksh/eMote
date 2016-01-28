@@ -120,7 +120,9 @@ void OMACTimeSync::PostExecuteEvent(){
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
 
-
+void OMACTimeSync::FailsafeStop(){
+	VirtTimer_Stop(VIRT_TIMER_OMAC_TIMESYNC);
+}
 
 /*
  *
