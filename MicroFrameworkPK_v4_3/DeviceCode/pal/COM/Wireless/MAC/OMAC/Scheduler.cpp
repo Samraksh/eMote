@@ -16,26 +16,26 @@ void PublicPostExecutionTaskHandler1(void * param){
 	g_OMAC.m_omac_scheduler.PostPostExecution();
 }
 
-void PublicPostExecutionTaskHandler1(void * param){
-	switch(InputState.GetState()) {
+void PublicSchedulerTaskHandlerFailsafe(void * param){
+	switch(g_OMAC.m_omac_scheduler.InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.FailsafeStop();
-			PostExecuteEvent();
+			g_OMAC.m_omac_scheduler.PostExecution();
 			break;
 		case I_DATA_RCV_PENDING:
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.FailsafeStop();
-			PostExecuteEvent();
+			g_OMAC.m_omac_scheduler.PostExecution();
 			break;
 		case I_TIMESYNC_PENDING:
 			g_OMAC.m_omac_scheduler.m_TimeSyncHandler.FailsafeStop();
-			PostExecuteEvent();
+			g_OMAC.m_omac_scheduler.PostExecution();
 			break;
 		case I_DISCO_PENDING:
 			g_OMAC.m_omac_scheduler.m_DiscoveryHandler.FailsafeStop();
-			PostExecuteEvent();
+			g_OMAC.m_omac_scheduler.PostExecution();
 			break;
 		default: //Case for
-			PostPostExecution();
+			g_OMAC.m_omac_scheduler.PostExecution();
 	}
 }
 
@@ -220,7 +220,7 @@ bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
 #endif
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+		VirtualTimerReturnMessage rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 	//g_OMAC.UpdateNeighborTable();
 	UINT64 curTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 
@@ -236,7 +236,6 @@ bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
 #endif
-
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent();
 			break;
@@ -272,10 +271,18 @@ void OMACScheduler::PostExecution(){
 }
 
 void OMACScheduler::PostPostExecution(){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+#endif
 	EnsureStopRadio();
 	InputState.ForceState(I_IDLE);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
+		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+#endif
 	ScheduleNextEvent();
-	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
@@ -292,6 +299,7 @@ bool OMACScheduler::EnsureStopRadio(){
 		return TRUE;
 	}
 	else {//TODO: BK : This should be implemented in the case of radio not stopping
+		hal_printf("OMACScheduler::EnsureStopRadio Radio did not go to sleep\n");
 		return FALSE;
 	}
 }

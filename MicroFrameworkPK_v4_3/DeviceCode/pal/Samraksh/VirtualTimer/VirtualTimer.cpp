@@ -64,16 +64,16 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 	for (UINT16 j = 0; j < m_current_timer_cnt_; j++)
 	{
 		g_VirtualTimerInfo[j].set_m_timer_id(0);
-		}
+	}
 	
 
 	if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, VirtualTimerCallback)) {
-			ASSERT(0);
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
+		ASSERT(0);
+		return FALSE;
+	}
+	else {
+		return TRUE;
+	}
 }
 
 BOOL VirtualTimerMapper::UnInitialize(UINT16 temp_HWID)

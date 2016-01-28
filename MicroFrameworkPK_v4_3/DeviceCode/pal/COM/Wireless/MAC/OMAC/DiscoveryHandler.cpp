@@ -123,6 +123,7 @@ void DiscoveryHandler::ExecuteEvent(){
  *
  */
 void DiscoveryHandler::PostExecuteEvent(){
+	//Scheduler's PostExecution stops the radio
 	//stop the radio
 	/*DeviceStatus  ds;
 	ds = g_OMAC.m_omac_RadioControl.Stop();

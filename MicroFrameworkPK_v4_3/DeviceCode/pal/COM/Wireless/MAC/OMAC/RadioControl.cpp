@@ -221,6 +221,9 @@ DeviceStatus RadioControl_t::Stop(){
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
 #endif
 	}
+	else{
+		hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+	}
 	return returnVal;
 }
 

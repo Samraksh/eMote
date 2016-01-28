@@ -114,7 +114,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		}
 		UINT64 remMicroSecnextTX = nextTXmicro - curmicro;
 		//Wake up the transmitter a little early
-		remMicroSecnextTX -= GUARDTIME_MICRO;
+		//remMicroSecnextTX -= GUARDTIME_MICRO;
 
 
 #ifdef OMAC_DEBUG_PRINTF
@@ -167,8 +167,7 @@ void DataTransmissionHandler::SendRetry(){
 	currentAttempt++;
 
 	//Resend same packet if listen period is large enough
-	if(FAST_RECOVERY_WAIT_PERIOD < LISTEN_PERIOD_FOR_RECEPTION_HANDLER && currentAttempt < maxRetryAttempts){
-		hal_printf("Retrying %d\n", currentAttempt);
+	/*if(FAST_RECOVERY_WAIT_PERIOD < LISTEN_PERIOD_FOR_RECEPTION_HANDLER && currentAttempt < maxRetryAttempts){
 		//Find out how long into reception slot the sender is.
 		//This is based on finding diff between start of transmission and current time at retry.
 		//But this logic does not cover the case where the tx starts after the rx, but only when tx is before or
@@ -177,6 +176,7 @@ void DataTransmissionHandler::SendRetry(){
 		UINT64 currentAttemptDuration = currentEndTicksForRetransmission - currentStartTicksForRetransmission;
 		INT64 currentAttemptDurationTime = HAL_Time_TicksToTime(currentAttemptDuration);
 		if(currentAttemptDurationTime < LISTEN_PERIOD_FOR_RECEPTION_HANDLER){
+			hal_printf("Retrying %d\n", currentAttempt);
 			bool rv = Send();
 			if(rv){
 				//If send is successful, start timer for hardware ACK.
@@ -188,7 +188,7 @@ void DataTransmissionHandler::SendRetry(){
 				ASSERT_SP(rm == TimerSupported);
 			}
 		}
-	}
+	}*/
 	//hal_printf("currentAttempt: %d\n", currentAttempt);
 	//Attempt to continuously transmit the msg
 	/*if(currentAttempt == 1){
@@ -245,6 +245,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 		if(canISend && currentAttempt < maxRetryAttempts){
+			currentStartTicksForRetransmission = HAL_Time_CurrentTicks();
 			bool rv = Send();
 			if(rv) {
 				if(FAST_RECOVERY){
@@ -300,7 +301,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 
 	if(e == DS_Success){
-		currentStartTicksForRetransmission = HAL_Time_CurrentTicks();
 		this->ExecuteEventHelper();
 		/*rm = VirtTimer_Start(VIRT_TIMER_OMAC_TX_EXECEVENT);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -344,8 +344,8 @@ void DataTransmissionHandler::SendACKHandler(){
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
 		if(FAST_RECOVERY){
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 			if(rm == TimerSupported)
 				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
@@ -405,7 +405,7 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	txhandler_state = DTS_POSTEXECUTION;
-	//Commenting out below as g_OMAC.m_omac_scheduler.PostExecution() also stops radio
+	//Scheduler's PostExecution stops the radio
 	//g_OMAC.m_omac_RadioControl.Stop();
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
