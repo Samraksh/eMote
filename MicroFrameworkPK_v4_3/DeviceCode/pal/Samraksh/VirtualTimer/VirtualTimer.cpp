@@ -49,6 +49,8 @@ inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTim
 // The SetCompare timer then needs to be set appropriately
 BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 {
+	CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
+
 #ifdef DEBUG_VT
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
@@ -319,12 +321,12 @@ void VirtualTimerCallback(void *arg)
 	        	vtCallbackContinuation.Enqueue();
 			}
 			else{
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
-				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
 			}
 		}
 	}
