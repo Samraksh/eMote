@@ -328,6 +328,8 @@ J12_PIN10 = GND
 
 
 
+#define VIRTUAL_TIMER_EXCEPTION_CHECK_PIN SCHED_TSREQ_EXEC_PIN
+
 
 /*PIN SETUP FOR TEST LEVEL_0G : TimeSync Test with stability testing
  *
