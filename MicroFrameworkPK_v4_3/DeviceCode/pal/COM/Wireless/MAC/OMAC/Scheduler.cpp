@@ -147,7 +147,6 @@ void OMACScheduler::ScheduleNextEvent(){
 	else if(txEventOffset == nextWakeupTimeInMicSec) {
 		//BK: Transmitter first turns the radio on and hence incurs that delay, then copies the packet on the SPI bus and incurs that delay.
 		//TODO: BK: The PROCESSING_DELAY_BEFORE_TX_MICRO should depend on the packet size. We need to experiment and make it better. This will help balance out the guardband and take the bias out of it.
-		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO; //MMA
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO - OMAC_HW_ACK_DELAY;	//MMA
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;//BK: THis calculation is done inside the nextevent in order to prevent a negative value
 		InputState.RequestState(I_DATA_SEND_PENDING);

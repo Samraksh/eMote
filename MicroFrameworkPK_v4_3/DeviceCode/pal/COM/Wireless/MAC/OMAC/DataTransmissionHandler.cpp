@@ -79,7 +79,7 @@ void DataTransmissionHandler::Initialize(){
 
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
-	maxRetryAttempts = 200;
+	maxRetryAttempts = 3;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -104,14 +104,25 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		if(EXECUTE_WITH_CCA){
+			nextTXmicro -= CCA_PERIOD_MICRO;
+		}
 		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 
 		while(nextTXmicro  <= curmicro + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) {
-			if(!ScheduleDataPacket(1)){
+			if(ScheduleDataPacket(1)){
 				nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
 				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+				if(EXECUTE_WITH_CCA){
+					nextTXmicro -= CCA_PERIOD_MICRO;
+				}
+			}
+			else{
+				nextTXmicro = MAX_UINT64;
+				break;
 			}
 		}
+		ASSERT_SP(nextTXmicro > curmicro);
 		UINT64 remMicroSecnextTX = nextTXmicro - curmicro;
 		//Wake up the transmitter a little early
 		//remMicroSecnextTX -= GUARDTIME_MICRO;
@@ -149,14 +160,15 @@ void DataTransmissionHandler::HardwareACKHandler(){
 		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
 		ASSERT_SP(rm == TimerSupported);
 		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
-		g_send_buffer.DropOldest(1);
+		//g_send_buffer.DropOldest(1);
 	}
+	g_send_buffer.DropOldest(1);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
 	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -211,10 +223,9 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	//For GUARDTIME_MICRO period check the channel before transmitting
 	//140 usec is the time taken for CCA to return a result
-	//Do an extra count of CCA if using "Time optimized frame transmit procedure", as it is not possible
-	// to check CCA before tx in that procedure.
-	for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
-		if(EXECUTE_WITH_CCA){
+	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+	while(EXECUTE_WITH_CCA){
 			//Check CCA only for DATA packets
 			if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 				DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
@@ -226,17 +237,15 @@ void DataTransmissionHandler::ExecuteEventHelper()
 
 			if(DS != DS_Success){
 				hal_printf("transmission detected!\n");
-				i = GUARDTIME_MICRO/140;
+				//i = GUARDTIME_MICRO/140;
 				canISend = false;
 				break;
 			}
-			else{
-				canISend = true;
+			canISend = true;
+
+			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y > CCA_PERIOD_MICRO){
+				break;
 			}
-		}
-		else{
-			HAL_Time_Sleep_MicroSeconds(140);
-		}
 	}
 
 #ifdef OMAC_DEBUG_GPIO
@@ -327,13 +336,15 @@ void DataTransmissionHandler::SendACKHandler(){
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 
-	//If send is successful, start timer for hardware ACK.
-	//If hardware ack is received within stipulated period, drop the oldest packet.
-	//Else retry
-	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
-	rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
-	ASSERT_SP(rm == TimerSupported);
+	if(FAST_RECOVERY){
+		//If send is successful, start timer for hardware ACK.
+		//If hardware ack is received within stipulated period, drop the oldest packet.
+		//Else retry
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+		ASSERT_SP(rm == TimerSupported);
+	}
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
@@ -351,7 +362,7 @@ void DataTransmissionHandler::SendACKHandler(){
 				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
 		}
 		else{
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 			if(rm == TimerSupported)
 				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
@@ -382,7 +393,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 #endif
 	if(rm == TimerSupported){
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
