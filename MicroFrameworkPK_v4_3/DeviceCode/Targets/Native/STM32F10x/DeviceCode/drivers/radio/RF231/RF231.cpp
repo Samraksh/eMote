@@ -9,8 +9,6 @@
 #endif
 #define RF231_EXTENDED_MODE
 
-static bool sendHwAckForData = false;
-
 RF231Radio grf231Radio;
 RF231Radio grf231RadioLR;
 
@@ -408,12 +406,6 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	add_send_ts_time(); // Debugging. Will remove.
 
 #ifdef RF231_EXTENDED_MODE
-	/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-		state = STATE_PLL_ON;
-	}
-	else {
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
-	}*/
 	// Go to PLL_ON
 	if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
 		state = STATE_TX_ARET_ON;
@@ -707,41 +699,19 @@ DeviceStatus RF231Radio::Sleep(int level)
 	sleep_pending = TRUE;
 	//irq.Probe();
 
-	////hal_printf("RF231Radio::Sleep: before state:%d\n", state);
+#ifdef DEBUG_RF231
+	hal_printf("RF231Radio::Sleep: before state:%d\n", state);
+#endif
 	// If we are already in sleep state do nothing
 	// Unsure if during sleep we can read registers (No, you can't --NPS).
-	if(state == STATE_SLEEP) { return DS_Success; }
+	if(state == STATE_SLEEP) {
+		return DS_Success;
+	}
 
 	// Queue the sleep request if we think we are busy.
 	//if(state == STATE_BUSY_TX || state == STATE_BUSY_RX) { return DS_Success; } // This is now done in Careful_State_Change()
 
 #ifdef RF231_EXTENDED_MODE
-	// Go to TRX_OFF
-	/*hal_printf("1. Current state is %d\n", state);
-	if(state == STATE_RX_AACK_ON_NOCLK){
-		//Clear SLP_TR so that state becomes RX_AACK_ON
-		SlptrClear();
-		DID_STATE_CHANGE_ASSERT(RX_AACK_ON);
-		state = RX_AACK_ON;
-		if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-			state = STATE_PLL_ON;
-		}
-		else { // If we are busy that's OK, the sleep request is still queued.
-			return DS_Success;
-		}
-	}
-	else if(state == STATE_BUSY_RX){
-		if ( Careful_State_Change_Extended(RF230_RX_ON) ) {
-			state = STATE_RX_ON;
-		}
-		else { // If we are busy that's OK, the sleep request is still queued.
-			return DS_Success;
-		}
-	}
-	else{
-		hal_printf("2. Current state is %d\n", state);
-	}*/
-
 	if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
 		state = STATE_TRX_OFF;
 	}
@@ -774,9 +744,9 @@ DeviceStatus RF231Radio::Sleep(int level)
 			SlptrSet();
 			state = STATE_SLEEP;
 			sleep_pending = TRUE;
-#			ifdef DEBUG_RF231
+#ifdef DEBUG_RF231
 			hal_printf("RF231: SLEEP.\r\n");
-#			endif
+#endif
 			break;
 		default:
 			sleep_pending = TRUE; // Only sleep from known states, otherwise just try later. Redundant.
@@ -787,7 +757,9 @@ DeviceStatus RF231Radio::Sleep(int level)
 	//CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
 	add_sleep_time();
 
-	////hal_printf("RF231Radio::Sleep: after state:%d\n", state);
+#ifdef DEBUG_RF231
+	hal_printf("RF231Radio::Sleep: after state:%d\n", state);
+#endif
 	return DS_Success;
 }
 
@@ -1783,12 +1755,6 @@ void RF231Radio::HandleInterrupt()
 		// Initiate cmd receive
 #ifdef RF231_EXTENDED_MODE
 		cmd = CMD_RX_AACK;
-		/*if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
-			state = STATE_RX_AACK_ON;
-		}*/
-		/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-		DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
-		state = STATE_RX_AACK_ON;*/
 #else
 		cmd = CMD_RECEIVE;
 #endif
@@ -1799,7 +1765,6 @@ void RF231Radio::HandleInterrupt()
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
 #ifdef RF231_EXTENDED_MODE
-		sendHwAckForData = false;
 		if(DS_Success==DownloadMessage()){
 			if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #					ifdef DEBUG_RF231
@@ -1820,39 +1785,23 @@ void RF231Radio::HandleInterrupt()
 			sequenceNumberReceiver = header->dsn;
 #ifdef DEBUG_RF231
 			hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
-#endif
-
 			/*if(header->dsn == 97){
 				hal_printf("(RX_START)payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
 				hal_printf("(RX_START)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 			}*/
-			/*if(header->dsn == 97 && header->src != 6846 && header->destpan == 1 && header->dest == 3505 && payloadMSG[1] != 2 && payloadMSG[2] != 2 && payloadMSG[3] != 2 && payloadMSG[4] != 2){
-				//hal_printf("(RX_START)Received DATA\n\n");
-				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-				//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
-				cmd = CMD_NONE;
-			}*/
+#endif
+
 			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 			if(header->src == 0 && header->dest == 0){
-				/*if(sequenceNumberReceiver == 27){
-					hal_printf("(RX_START)Received DISCO\n\n");
-				}
-				else if(sequenceNumberReceiver == 97){
-					hal_printf("(RX_START)Received DATA\n\n");
-				}*/
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 				if ( !Interrupt_Pending() ) {
-					//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-					//hal_printf("About to send a hw ACK\n");
-					//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != 27){
+					//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != OMAC_DISCO_SEQ_NUMBER){
 					//if(sequenceNumberReceiver == sequenceNumberSender){
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
+						(rx_msg_ptr->GetHeader())->length = rx_length;
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 					//}
@@ -1900,7 +1849,6 @@ void RF231Radio::HandleInterrupt()
 			else //
 			{
 				Careful_State_Change(RX_ON);
-				//DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
 				state = STATE_RX_ON;
 			}
 		}
@@ -1913,8 +1861,6 @@ void RF231Radio::HandleInterrupt()
 
 
 			// Go to PLL_ON at least until the frame buffer is empty
-
-
 
 			if(DS_Success==DownloadMessage()){
 				//rx_msg_ptr->SetActiveMessageSize(rx_length);
@@ -1943,10 +1889,6 @@ void RF231Radio::HandleInterrupt()
 				add_download_error();
 			}
 
-
-			Careful_State_Change(RX_ON);
-			state = STATE_RX_ON; // Right out of BUSY_RX
-
 			cmd = CMD_NONE;
 
 			// Check if mac issued a sleep while i was receiving something
@@ -1956,8 +1898,7 @@ void RF231Radio::HandleInterrupt()
 				return;
 			}
 			else { // Now safe to go back to RX_ON
-				WriteRegister(RF230_TRX_STATE, RF230_RX_ON);
-				DID_STATE_CHANGE_ASSERT(RF230_RX_ON);
+				Careful_State_Change(RX_ON);
 				state = STATE_RX_ON;
 			}
 			CPU_GPIO_SetPinState( RF231_RX, FALSE );
@@ -1993,19 +1934,19 @@ void RF231Radio::HandleInterrupt()
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);*/
-				//hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-going to sleep\n");
 				return;
 			}
 			else //
 			{
-				WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
+				Careful_State_Change_Extended(RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
 				/*CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 				CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);*/
 			}
-			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);*/
+#ifdef DEBUG_RF231
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);
+#endif
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
@@ -2014,52 +1955,19 @@ void RF231Radio::HandleInterrupt()
 #endif
 			//state = STATE_RX_AACK_ON; // Right out of BUSY_RX
 
-#if 0
-			if(state == STATE_RX_AACK_ON){
-				if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-					state = STATE_PLL_ON;
-				}
-			}
-			else if(state == STATE_BUSY_RX_AACK){
-				radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-				while(trx_status == BUSY_RX_AACK){
-					trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-					HAL_Time_Sleep_MicroSeconds(500);
-				}
-				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-					state = STATE_TRX_OFF;
-				}
-			}
-			else if(state != STATE_BUSY_RX_AACK){
-				// Go to PLL_ON at least until the frame buffer is empty
-				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-					state = STATE_TRX_OFF;
-				}
-				/*WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-				DID_STATE_CHANGE_ASSERT(RF230_PLL_ON);
-				state = STATE_PLL_ON;*/
-			}
-#endif
-
 			//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
 			//Refer page 62 and 69, 70
 			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
 			//	Indicates that an ACK frame is about to be sent
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
-			//As per page 62, transmission is signaled using SLP_TR after 6 symbols (96 usec).
-			//But that translates to 130 usec for eMote debug version.
-			//This should be changed for release version of eMote.
-			//TODO:Modify for release
-			//HAL_Time_Sleep_MicroSeconds(250);
 
 			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			{
-				sendHwAckForData = true;
 				if(DS_Success == DownloadMessage()){
 					//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 					//rx_msg_ptr->SetActiveMessageSize(rx_length);
-					if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
+					if(rx_length > IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
 						hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
 #endif
@@ -2075,19 +1983,19 @@ void RF231Radio::HandleInterrupt()
 					if ( !Interrupt_Pending() ) {
 						// Initiate frame transmission by asserting SLP_TR pin
 						//Send ACK only if msg has been successfully downloaded and receiveHandler will be called.
-#ifdef DEBUG_RF231
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-#endif
-						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
-							//HAL_Time_Sleep_MicroSeconds(40);
-						//}
+
 						/*SlptrSet();
 						SlptrClear();
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );*/
 
 #ifdef DEBUG_RF231
-						IEEE802_15_4_Header_t* header = rx_msg_ptr->GetHeader();
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
+						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+						sequenceNumberReceiver = header->dsn;
+						hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
+
 						UINT8* payloadMSG = rx_msg_ptr->GetPayload();
 						/*if(header->dsn == 27){
 							hal_printf("(CMD_RX_AACK)Received DISCO; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
@@ -2101,23 +2009,17 @@ void RF231Radio::HandleInterrupt()
 						}
 #endif
 
-#ifdef DEBUG_RF231
-						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
-#endif
-
-#ifdef DEBUG_RF231
-						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-						sequenceNumberReceiver = header->dsn;
-						hal_printf("HandleInterrupt::TRX_IRQ_TRX_END(CMD_RX_AACK) header->dsn: %d; sequenceNumberReceiver: %d\n", header->dsn, sequenceNumberReceiver);
-#endif
-						//(rx_msg_ptr->GetHeader())->SetLength(rx_length);
+						(rx_msg_ptr->GetHeader())->length = rx_length;
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
 						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
-							//Use 120 usec with fast recovery and 130 usec without fast recovery
+							//As per page 62, transmission is signaled using SLP_TR after 6 symbols (96 usec).
+							//But that translates to 130 usec for eMote debug version.
+							//This should be changed for release version of eMote.
+							//TODO:Modify for release
 							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY);
 							SlptrSet();
 							SlptrClear();
@@ -2146,70 +2048,8 @@ void RF231Radio::HandleInterrupt()
 				return;
 			}
 			else { // Now safe to go back to RX_ON
-				/*if ( Careful_State_Change_Extended(RF230_PLL_ON) ) {
-					state = STATE_PLL_ON;
-				}
-				if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-					state = STATE_TRX_OFF;
-				}*/
-				if(state == STATE_RX_AACK_ON){
-					//hal_printf("state is STATE_RX_AACK_ON\n");
-#if 0
-					static UINT8 stopBusy_rx_AACK_counter = 0;
-					radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-					while(trx_status == BUSY_RX_AACK){
-						trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-						HAL_Time_Sleep_MicroSeconds(300);
-						if(trx_status == RX_AACK_ON){
-							state = STATE_RX_AACK_ON;
-							break;
-						}
-						//Wait for 1200 usec before FORCE_TRX_OFF (page 63 shows close to 1000 usec)
-						if(stopBusy_rx_AACK_counter > 100){
-							/*if ( Careful_State_Change_Extended(RF230_FORCE_TRX_OFF) ) {
-								//state = STATE_RX_AACK_ON;
-							}
-							//WriteRegister(RF230_TRX_STATE, RF230_FORCE_TRX_OFF);
-							//DID_STATE_CHANGE_ASSERT(FORCE_TRX_OFF);
-							WriteRegister(RF230_TRX_STATE, RF230_PLL_ON);
-							DID_STATE_CHANGE_ASSERT(PLL_ON);
-							WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-							DID_STATE_CHANGE_ASSERT(RX_AACK_ON);
-							state = STATE_RX_AACK_ON;*/
-							hal_printf("I am done\n");
-							break;
-						}
-						stopBusy_rx_AACK_counter++;
-					}
-					if ( Careful_State_Change_Extended(RF230_RX_AACK_ON) ) {
-						state = STATE_RX_AACK_ON;
-					}
-					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-						state = STATE_TRX_OFF;
-					}
-#endif
-				}
-#if 0
-				else if(state == STATE_BUSY_RX_AACK){
-					radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-					while(trx_status == BUSY_RX_AACK){
-						trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-						HAL_Time_Sleep_MicroSeconds(500);
-					}
-					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-						state = STATE_TRX_OFF;
-					}
-				}
-				else if(state != STATE_BUSY_RX_AACK){
-					// Go to PLL_ON at least until the frame buffer is empty
-					if ( Careful_State_Change_Extended(RF230_TRX_OFF) ) {
-						state = STATE_TRX_OFF;
-					}
-				}
-				/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-				DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);
-				state = STATE_RX_AACK_ON;*/
-#endif
+				Careful_State_Change_Extended(PLL_ON);
+				state = STATE_PLL_ON;
 			}
 		}
 		else
@@ -2217,13 +2057,17 @@ void RF231Radio::HandleInterrupt()
 #ifndef NDEBUG
 			hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
 #endif
-#ifdef RF231_EXTENDED_MODE
-			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+
+#ifdef DEBUG_RF231
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("1. current status inside handle interrupt is: %d; state is: %d\n", trx_status, state);
 			Careful_State_Change(PLL_ON);
 			state = STATE_PLL_ON;
 			trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-			hal_printf("2. current state inside handle interrupt is: %d\n", trx_status);*/
+			hal_printf("2. current state inside handle interrupt is: %d\n", trx_status);
+#endif
+
+#ifdef RF231_EXTENDED_MODE
 			Careful_State_Change(TRX_OFF);
 			state = STATE_TRX_OFF;
 #else
@@ -2265,13 +2109,6 @@ DeviceStatus RF231Radio::DownloadMessage()
 	temp_rx_msg_ptr = (UINT8 *) rx_msg_ptr;
 	memset(temp_rx_msg_ptr, 0,  IEEE802_15_4_FRAME_LENGTH);
 
-	/*if(sendHwAckForData == true){
-		HAL_Time_Sleep_MicroSeconds(50);
-		SlptrSet();
-		SlptrClear();
-		sendHwAckForData = false;
-	}*/
-
 	//RF231_240NS_DELAY();
 	SelnClear();
 	//RF231_240NS_DELAY();
@@ -2288,28 +2125,10 @@ DeviceStatus RF231Radio::DownloadMessage()
 	// We don't want to read the two CRC bytes into the packet
 	rx_length = len - 2;
 
-	//hal_printf("DownloadMessage rx_length is %d\n", rx_length);
-
-	/*if(rx_length > 50 && rx_length < 60){
-		CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-		while ( ((len--) -2) > 0) {
-			temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
-			//Send a hw ack for a data msg
-			if(cnt == 20){
-				SlptrSet();
-				SlptrClear();
-				CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-			}
-		}
+	while ( ((len--) -2) > 0) {
+		temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
+		//RF231_240NS_DELAY();
 	}
-	else{
-		SlptrSet();
-		SlptrClear();*/
-		while ( ((len--) -2) > 0) {
-			temp_rx_msg_ptr[cnt++] = CPU_SPI_WriteReadByte(config, 0);
-			//RF231_240NS_DELAY();
-		}
-	//}
 
 	// Two dummy reads for the CRC bytes
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
@@ -2319,10 +2138,6 @@ DeviceStatus RF231Radio::DownloadMessage()
 	lqi = CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 
 	SelnSet();
-
-	/*if(rx_length > 50 && rx_length < 60){
-		hal_printf("stop here\n");
-	}*/
 
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
 	metadata->SetLqi(lqi);
