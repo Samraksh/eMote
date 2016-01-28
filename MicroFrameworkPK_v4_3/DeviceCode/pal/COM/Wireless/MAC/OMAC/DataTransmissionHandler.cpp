@@ -149,14 +149,14 @@ void DataTransmissionHandler::HardwareACKHandler(){
 		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
 		ASSERT_SP(rm == TimerSupported);
 		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
-		g_OMAC.m_send_buffer.DropOldest(1);
+		g_send_buffer.DropOldest(1);
 	}
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
 	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 100, TRUE );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
@@ -198,7 +198,7 @@ void DataTransmissionHandler::SendRetry(){
 	if(currentAttempt >= maxRetryAttempts){
 		//hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
 		currentAttempt = 0;
-		g_OMAC.m_send_buffer.DropOldest(1);
+		g_send_buffer.DropOldest(1);
 	}
 }
 
@@ -259,7 +259,7 @@ void DataTransmissionHandler::ExecuteEventHelper()
 				else{
 #ifndef SOFTWARE_ACKS_ENABLED
 #ifndef HARDWARE_ACKS_ENABLED
-					g_OMAC.m_send_buffer.DropOldest(1);
+					g_send_buffer.DropOldest(1);
 #endif
 #endif
 				}
@@ -349,7 +349,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 			if(rv) {
 #ifndef SOFTWARE_ACKS_ENABLED
 	#ifndef HARDWARE_ACKS_ENABLED
-				g_OMAC.m_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+				g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 	#endif
 #endif
 			}
@@ -426,10 +426,10 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 #ifdef SOFTWARE_ACKS_ENABLED
-	g_OMAC.m_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 #endif
 #ifdef HARDWARE_ACKS_ENABLED
-	g_OMAC.m_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
 #endif
 	if(rm == TimerSupported){
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
@@ -568,8 +568,8 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 	// 1) Case for no data packets in line
 	// 2) Case : destination does not exist in the neighbor table
 	//	3) Case: No timing info is available for the destination
-	if (m_outgoingEntryPtr == NULL && g_OMAC.m_send_buffer.GetNumberMessagesInBuffer() > 0 ) {//If we already have a packet
-		m_outgoingEntryPtr = g_OMAC.m_send_buffer.GetOldestwithoutRemoval();
+	if (m_outgoingEntryPtr == NULL && g_send_buffer.GetNumberMessagesInBuffer() > 0 ) {//If we already have a packet
+		m_outgoingEntryPtr = g_send_buffer.GetOldestwithoutRemoval();
 		if (m_outgoingEntryPtr == NULL) {
 			return FALSE;
 		}

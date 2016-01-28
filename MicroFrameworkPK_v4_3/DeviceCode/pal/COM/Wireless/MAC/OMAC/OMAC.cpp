@@ -152,8 +152,8 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
 
-		m_send_buffer.Initialize();
-		m_receive_buffer.Initialize();
+		g_send_buffer.Initialize();
+		g_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
 		RadioAckPending = FALSE;
@@ -329,12 +329,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					//location_in_packet_payload += data_msg->size;
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
-					Message_15_4_t* next_free_buffer = m_receive_buffer.GetNextFreeBuffer();
+					Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 
 					if(! (next_free_buffer))
 					{
-						m_receive_buffer.DropOldest(1);
-						next_free_buffer = m_receive_buffer.GetNextFreeBuffer();
+						g_receive_buffer.DropOldest(1);
+						next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 					}
 
 					memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
@@ -496,9 +496,9 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return msg_carrier;
 	}
-	msg_carrier = m_send_buffer.GetNextFreeBuffer();
+	msg_carrier = g_send_buffer.GetNextFreeBuffer();
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		hal_printf("OMACType::Send m_send_buffer full.\n");
+		hal_printf("OMACType::Send g_send_buffer full.\n");
 		return msg_carrier;
 	}
 
@@ -578,15 +578,15 @@ void OMACType::UpdateNeighborTable(){
  */
 
 UINT8 OMACType::GetBufferSize(){
-	return m_send_buffer.Size();
+	return g_send_buffer.Size();
 }
 
 UINT16 OMACType::GetSendPending(){
-	return m_send_buffer.GetNumberMessagesInBuffer();
+	return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
 UINT16 OMACType::GetReceivePending(){
-	return m_send_buffer.GetNumberMessagesInBuffer();
+	return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
 

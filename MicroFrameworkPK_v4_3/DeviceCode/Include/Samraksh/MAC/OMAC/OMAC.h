@@ -58,6 +58,9 @@ typedef Buffer_15_4<8> Buffer_15_4_t;
 //#define TXNODEID 30906
 //#define RXNODEID 4028
 
+extern Buffer_15_4_t g_send_buffer;
+extern Buffer_15_4_t g_receive_buffer;
+
 /*
  *
  */
@@ -100,8 +103,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	MacReceiveFuncPtrType m_rxAckHandler;
 	SendAckFuncPtrType m_txAckHandler;
 
-	Buffer_15_4_t m_send_buffer;
-	Buffer_15_4_t m_receive_buffer;
+	//Buffer_15_4_t g_send_buffer;
+	//Buffer_15_4_t g_receive_buffer;
 	NeighborTable m_NeighborTable;
 
 	RadioControl_t m_omac_RadioControl;
