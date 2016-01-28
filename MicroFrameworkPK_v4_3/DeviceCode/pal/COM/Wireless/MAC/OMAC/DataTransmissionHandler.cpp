@@ -280,13 +280,6 @@ void DataTransmissionHandler::ExecuteEventHelper()
 		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
-	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
-	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE );
-	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-		PostExecuteEvent();
-	}
 }
 
 /*
@@ -302,6 +295,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	VirtualTimerReturnMessage rm;
 
+	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 
@@ -315,73 +309,22 @@ void DataTransmissionHandler::ExecuteEvent(){
 	}
 	else{
 		hal_printf("Radio not in RX state\n");
-		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			PostExecuteEvent();
-		}
+		txhandler_state = DTS_RADIO_START_FAILED;
 	}
 
-#if 0
-	//An alternate arrangement for the non availability of CCA in the radio driver
-	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
-	//HAL_Time_Sleep_MicroSeconds(500);
-	//Start CCA only after the initial normal DISCO period
-	//if(g_DiscoveryHandler.highdiscorate == false){
-		//For GUARDTIME_MICRO period check the channel before transmitting
-		//150 usec is the time taken for CCA to return a result
-		for(int i = 0; i < (GUARDTIME_MICRO/150)+1; i++){
-			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-			if(DS != DS_Success){
-				hal_printf("Cannot transmit right now!\n");
-				break;
-			}
-		}
-	//}
-
-	if (e == DS_Success){
-		#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		#endif
-			bool rv = Send();
-			if(rv) {
-#ifndef SOFTWARE_ACKS_ENABLED
-	#ifndef HARDWARE_ACKS_ENABLED
-				g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
-	#endif
-#endif
-			}
-			else{
-		#ifdef OMAC_DEBUG_GPIO
-			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		#endif
-			}
-		#ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		#endif
-	}
-	else{
-		hal_printf("Radio not in RX state\n");
-	}
-
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE );
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 		PostExecuteEvent();
 	}
-	//PostExecuteEvent();
-#endif
 }
 
 void DataTransmissionHandler::SendACKHandler(){
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 
 	//If send is successful, start timer for hardware ACK.
@@ -397,15 +340,21 @@ void DataTransmissionHandler::SendACKHandler(){
 #ifdef SOFTWARE_ACKS_ENABLED
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
 		if(FAST_RECOVERY){
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+			if(rm == TimerSupported)
+				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
 		}
 		else{
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+			if(rm == TimerSupported)
+				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
 		}
 #endif
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -419,6 +368,7 @@ void DataTransmissionHandler::SendACKHandler(){
 }
 
 void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
+	txhandler_state = DTS_RECEIVEDDATAACK;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
@@ -437,6 +387,9 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+		else{
+			txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+		}
 	}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
@@ -451,9 +404,16 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 void DataTransmissionHandler::PostExecuteEvent(){
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	g_OMAC.m_omac_RadioControl.Stop();
+	txhandler_state = DTS_POSTEXECUTION;
+	//Commenting out below as g_OMAC.m_omac_scheduler.PostExecution() also stops radio
+	//g_OMAC.m_omac_RadioControl.Stop();
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
+
+void DataTransmissionHandler::FailsafeStop(){
+	VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+}
+
 
 /*
  *

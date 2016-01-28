@@ -56,6 +56,8 @@ class DiscoveryHandler: public EventHandler {
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
 	void BeaconNTimerHandler();
 
+	void FailsafeStop();
+
 	UINT64 NextEvent();
   	UINT64 NextEventinSlots(const UINT64 &currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);

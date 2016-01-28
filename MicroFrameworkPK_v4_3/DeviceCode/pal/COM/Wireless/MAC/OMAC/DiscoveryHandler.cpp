@@ -132,6 +132,9 @@ void DiscoveryHandler::PostExecuteEvent(){
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
 
+void DiscoveryHandler::FailsafeStop(){
+	VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+}
 
 ////////////////////Private Functions////////////////////////////
 /*
