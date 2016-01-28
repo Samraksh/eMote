@@ -318,6 +318,14 @@ void VirtualTimerCallback(void *arg)
 	    	{
 	        	vtCallbackContinuation.Enqueue();
 			}
+			else{
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, TRUE );
+				CPU_GPIO_SetPinState( SCHED_TSREQ_EXEC_PIN, FALSE );
+			}
 		}
 	}
 
