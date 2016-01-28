@@ -16,7 +16,7 @@ void PublicPostExecutionTaskHandler1(void * param){
 	g_OMAC.m_omac_scheduler.PostPostExecution();
 }
 
-void PublicPostExecutionTaskHandler1(void * param){
+void PublicSchedulerTaskHandlerFailsafe(void * param){
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.FailsafeStop();
