@@ -43,7 +43,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 #ifdef SOFTWARE_ACKS_ENABLED
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, 0 , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 #endif
 
 	//ASSERT_SP(rm == TimerSupported);
