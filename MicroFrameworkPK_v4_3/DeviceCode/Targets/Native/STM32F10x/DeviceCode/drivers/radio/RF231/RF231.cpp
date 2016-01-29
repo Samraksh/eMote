@@ -167,29 +167,6 @@ void RF231Radio::Wakeup() {
 		DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
 		ENABLE_LRR(TRUE);
 		state = STATE_TRX_OFF;
-		/*UINT8 trx_status = (VERIFY_STATE_CHANGE);
-		if(trx_status == TX_ARET_ON){
-			state = STATE_TX_ARET_ON;
-		}
-		else if(trx_status == RX_AACK_ON){
-			state = STATE_RX_AACK_ON;
-		}
-		else if(trx_status == BUSY_TX_ARET){
-			state = STATE_BUSY_TX_ARET;
-		}
-		else if(trx_status == RX_AACK_ON_NOCLK){
-			SlptrClear();
-			trx_status = (VERIFY_STATE_CHANGE);
-			ASSERT_RADIO(trx_status == RX_AACK_ON);
-			state = STATE_RX_AACK_ON;
-		}
-		else{
-			SlptrClear();
-			HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
-			DID_STATE_CHANGE_ASSERT(RF230_TRX_OFF);
-			ENABLE_LRR(TRUE);
-			state = STATE_TRX_OFF;
-		}*/
 #else
 		SlptrClear();
 		HAL_Time_Sleep_MicroSeconds(380); // Wait for the radio to come out of sleep
@@ -301,7 +278,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 		return FALSE;
 	}
 
-	if(target == RX_AACK_ON){
+	//if(target == RX_AACK_ON){
 		WriteRegister(RF230_TRX_STATE, PLL_ON); // do the move
 
 		do{
@@ -326,33 +303,34 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 				}
 			poll_counter++;
 		} while(trx_status != PLL_ON);
-	}
+	//}
 
+	//if(target == TX_ARET_ON){
+		WriteRegister(RF230_TRX_STATE, target); // do the move
 
-	WriteRegister(RF230_TRX_STATE, target); // do the move
-
-	do{
-		trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
-		if( poll_counter == timeout || (trx_status != orig_status \
-				&& trx_status != target \
-				&& trx_status != STATE_TRANSITION_IN_PROGRESS \
-				&& !(trx_status == TX_ARET_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
-			{
-				switch(trx_status) {
-					case BUSY_RX_AACK:
-						state = STATE_BUSY_RX_AACK;
-						break;
-					case BUSY_TX_ARET:
-						state = STATE_BUSY_TX_ARET;
-						break;
-					default:
-						state = STATE_PLL_ON;
-						ASSERT_RADIO(0); // Unknown. Put here just because.
+		do{
+			trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			if( poll_counter == timeout || (trx_status != orig_status \
+					&& trx_status != target \
+					&& trx_status != STATE_TRANSITION_IN_PROGRESS \
+					&& !(trx_status == TX_ARET_ON && target == RX_AACK_ON)) ) // Don't ask me why... but this seems to be a thing. Revisit. --NPS
+				{
+					switch(trx_status) {
+						case BUSY_RX_AACK:
+							state = STATE_BUSY_RX_AACK;
+							break;
+						case BUSY_TX_ARET:
+							state = STATE_BUSY_TX_ARET;
+							break;
+						default:
+							state = STATE_PLL_ON;
+							ASSERT_RADIO(0); // Unknown. Put here just because.
+					}
+					return FALSE;
 				}
-				return FALSE;
-			}
-		poll_counter++;
-	} while(trx_status != target);
+			poll_counter++;
+		} while(trx_status != target);
+	//}
 
 	// Check one last time for interrupt.
 	// Not clear how this could happen, but assume it would be an RX. --NPS
@@ -1794,8 +1772,6 @@ void RF231Radio::HandleInterrupt()
 			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 			//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
 			if(header->src == 0 && header->dest == 0){
-				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-				//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 				if ( !Interrupt_Pending() ) {
 					//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 					//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != OMAC_DISCO_SEQ_NUMBER){
@@ -2048,8 +2024,8 @@ void RF231Radio::HandleInterrupt()
 				return;
 			}
 			else { // Now safe to go back to RX_ON
-				Careful_State_Change_Extended(PLL_ON);
-				state = STATE_PLL_ON;
+				Careful_State_Change_Extended(RX_AACK_ON);
+				state = STATE_RX_AACK_ON;
 			}
 		}
 		else

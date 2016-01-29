@@ -347,12 +347,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 					//Another method of doing the same thing as above
 					/*Message_15_4_t tempMsg;
-				memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
-				memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
-				memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
-				memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
-				(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
-				(*m_rxAckHandler)(&tempMsg, data_msg->size);*/
+					memcpy(tempMsg.GetPayload(), data_msg->payload, data_msg->size);
+					memcpy(tempMsg.GetHeader(), msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
+					memcpy(tempMsg.GetFooter, msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
+					memcpy(tempMsg.GetMetaData, msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
+					(*next_free_buffer) = &tempMsg;	//put the currently received message into the buffer (thereby its not free anymore)
+					(*m_rxAckHandler)(&tempMsg, data_msg->size);*/
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 #endif
