@@ -15,7 +15,18 @@ extern OMACType g_OMAC;
 
 
 void PublicDataRxCallback(void * param){
+#ifdef SOFTWARE_ACKS_ENABLED
+	if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_receptionstate==2){
+		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendDataACK();
+	}
+	else{
+		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+	}
+#endif
+#ifndef SOFTWARE_ACKS_ENABLED
 	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
+#endif SOFTWARE_ACKS_ENABLED
+
 }
 void PublicDataRxSendAckCallback(void * param){
 	g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendDataACK();
@@ -196,10 +207,14 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	m_receptionstate = 2;
 	m_lastRXNodeId = address;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+	//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
+	//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);
 	if(rm != TimerSupported){
 		this->SendDataACK();
 	}
+	//SendDataACK();
+
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
 	VirtualTimerReturnMessage rm;
