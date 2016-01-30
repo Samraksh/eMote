@@ -362,6 +362,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	Message_15_4_t* temp = NULL;
 
+	static int busyRxCounter = 0;
+
 	const int timestamp_size = 4; // we decrement in a loop later.
 	const int crc_size = 2;
 
@@ -389,6 +391,14 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		state = STATE_TX_ARET_ON;
 	}
 	else {
+		radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+		if(trx_status == BUSY_RX_AACK){
+			busyRxCounter++;
+			//ASSERT_RADIO(busyRxCounter < 500);
+		}
+		else
+			busyRxCounter = 0;
+
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 #else

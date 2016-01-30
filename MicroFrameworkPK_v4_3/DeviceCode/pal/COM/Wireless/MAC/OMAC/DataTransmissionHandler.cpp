@@ -21,7 +21,17 @@ const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
 //#define HARDWARE_ACKS_ENABLED
 
-static UINT64 currentStartTicksForRetransmission = 0;
+//Allows coordination between retrying and receiving a hw ack
+//If a hw ack is received, this variable is set to true, which means that current retry
+// was a success
+static bool resendSuccessful = false;
+//If current retry was not successful, then function SendRetry is called again,
+// resulting in an endless loop. This avoids that scenario.
+//This is set before sending a packet the first time and is reset during retry.
+//volatile bool currentSendRetry = false;
+
+//Needs some more thought before implementing this fully
+//static UINT64 currentStartTicksForRetransmission = 0;
 
 
 void PublicDataTxCallback(void * param){
@@ -164,8 +174,8 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	}
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	/*CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );*/
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	resendSuccessful = true;
 	g_send_buffer.DropOldest(1);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
@@ -181,7 +191,70 @@ void DataTransmissionHandler::HardwareACKHandler(){
 }
 
 void DataTransmissionHandler::SendRetry(){
-	currentAttempt++;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+#endif
+
+	if(FAST_RECOVERY){
+		static UINT8 currentFrameRetryAttempt = 0;
+		UINT8 currentFrameRetryMaxAttempt = 1;
+		//If an ack is not received, then attempt to send multiple times in current frame itself,
+		// as there is a possibility that tx woke up early then rx. In this case, trying to send
+		// would allow the packet to reach in current frame itself, rather than next frame.
+		/*if(!currentSendRetry){
+			//If current retry is a failure, this variable prevents the same retry from happening again.
+			currentSendRetry = true;*/
+		//"if" condition has to be below "while" because, before 2nd attempt, check if 1st attempt was successful or not (Updated: NOT TRUE)
+		if(!resendSuccessful){
+			if(currentFrameRetryAttempt < currentFrameRetryMaxAttempt){
+				bool rv = false;
+				//Do a random back-off here
+				//HAL_Time_Sleep_MicroSeconds(100);
+				//Check channel for energy
+				//DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+				DeviceStatus DS = DS_Success;
+				if(DS == DS_Success){
+					rv = Send();
+					if(rv){
+						resendSuccessful = false;
+						VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+						rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
+						rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+						ASSERT_SP(rm == TimerSupported);
+					}
+				}
+				else{
+					//Do a random back-off here
+					HAL_Time_Sleep_MicroSeconds(100);
+				}
+			}
+			currentFrameRetryAttempt++;
+			if(currentFrameRetryAttempt == currentFrameRetryMaxAttempt && currentFrameRetryMaxAttempt != 1){
+				currentFrameRetryAttempt = 0;
+				//break;
+				goto END;
+			}
+			if(currentFrameRetryMaxAttempt == 1){
+				currentFrameRetryAttempt = 0;
+			}
+		}
+		//}
+	}
+	//If retry count goes beyond the limit, packet could not reach dest, so drop it
+	//else{
+		currentAttempt++;
+		if(currentAttempt >= maxRetryAttempts){
+			//hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
+			currentAttempt = 0;
+			g_send_buffer.DropOldest(1);
+		}
+	//}
+END:
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+#endif
 
 	//Resend same packet if listen period is large enough
 	/*if(FAST_RECOVERY_WAIT_PERIOD < LISTEN_PERIOD_FOR_RECEPTION_HANDLER && currentAttempt < maxRetryAttempts){
@@ -211,12 +284,6 @@ void DataTransmissionHandler::SendRetry(){
 	/*if(currentAttempt == 1){
 		bool rv = Send();
 	}*/
-	//If retry count goes beyond the limit, packet could not reach dest, so drop it
-	if(currentAttempt >= maxRetryAttempts){
-		//hal_printf("Packet could not reach dest after max attempts. Dropping packet\n");
-		currentAttempt = 0;
-		g_send_buffer.DropOldest(1);
-	}
 }
 
 void DataTransmissionHandler::ExecuteEventHelper()
@@ -425,8 +492,8 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	//Scheduler's PostExecution stops the radio
 	g_OMAC.m_omac_RadioControl.Stop();
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
