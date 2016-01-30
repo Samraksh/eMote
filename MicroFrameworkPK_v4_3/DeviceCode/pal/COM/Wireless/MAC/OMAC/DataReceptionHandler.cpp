@@ -149,33 +149,33 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 	//ASSERT_SP(m_receptionstate == 0);
 	m_receptionstate = 1;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
+	/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
-	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );*/
 	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	if(rm != TimerSupported){
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
+		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );*/
 	}
 	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, PACKET_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 	m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * PACKET_PERIOD_FOR_RECEPTION_HANDLER;
 	if(rm != TimerSupported){
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
+		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );*/
 	}
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 	if(rm != TimerSupported){
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
+		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );*/
 	}
 }
 
@@ -207,6 +207,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	}
 #endif
 #ifndef SOFTWARE_ACKS_ENABLED
+	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, TRUE );
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
@@ -269,14 +270,11 @@ void DataReceptionHandler::PostExecuteEvent(){
 		m_isreceiving = false;
 	}*/
 
+	//Scheduler's PostExecution stops the radio
+	g_OMAC.m_omac_RadioControl.Stop();
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 #endif
-	//Scheduler's PostExecution stops the radio
-	/*DeviceStatus ds = g_OMAC.m_omac_RadioControl.Stop();
-	if(ds != DS_Success){
-		hal_printf("DataReceptionHandler::PostExecuteEvent Radio did not go to sleep\n");
-	}*/
 
 	g_OMAC.m_omac_scheduler.PostExecution();
 }

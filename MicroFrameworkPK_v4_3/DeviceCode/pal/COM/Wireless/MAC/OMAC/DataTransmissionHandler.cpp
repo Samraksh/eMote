@@ -162,6 +162,11 @@ void DataTransmissionHandler::HardwareACKHandler(){
 		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
 		//g_send_buffer.DropOldest(1);
 	}
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	/*CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );*/
+	resendSuccessful = true;
 	g_send_buffer.DropOldest(1);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 	currentAttempt = 0;
@@ -226,68 +231,71 @@ void DataTransmissionHandler::ExecuteEventHelper()
 	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
 	while(EXECUTE_WITH_CCA){
-			//Check CCA only for DATA packets
-			if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
-				DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-			}
-			else{
-				DS = DS_Success;
-				HAL_Time_Sleep_MicroSeconds(140);
-			}
+		//Check CCA only for DATA packets
+		if(m_outgoingEntryPtr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+		}
+		else{
+			DS = DS_Success;
+			HAL_Time_Sleep_MicroSeconds(140);
+		}
 
-			if(DS != DS_Success){
-				hal_printf("transmission detected!\n");
-				//i = GUARDTIME_MICRO/140;
-				canISend = false;
-				break;
-			}
-			canISend = true;
+		if(DS != DS_Success){
+			hal_printf("transmission detected!\n");
+			//i = GUARDTIME_MICRO/140;
+			canISend = false;
+			break;
+		}
+		canISend = true;
 
-			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y > CCA_PERIOD_MICRO){
-				break;
-			}
+		if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
+			break;
+		}
 	}
 
+	if(canISend && currentAttempt < maxRetryAttempts){
+		//Needs some more thought before implementing this fully
+		//currentStartTicksForRetransmission = HAL_Time_CurrentTicks();
+		resendSuccessful = false;
+		//currentSendRetry = false;
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
-		if(canISend && currentAttempt < maxRetryAttempts){
-			currentStartTicksForRetransmission = HAL_Time_CurrentTicks();
-			bool rv = Send();
-			if(rv) {
-				if(FAST_RECOVERY){
-					//If send is successful, start timer for hardware ACK.
-					//If hardware ack is received within stipulated period, drop the oldest packet.
-					//Else retry
-					rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
-					rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
-					rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
-					ASSERT_SP(rm == TimerSupported);
-				}
-				else{
-#ifndef SOFTWARE_ACKS_ENABLED
-#ifndef HARDWARE_ACKS_ENABLED
-					g_send_buffer.DropOldest(1);
-#endif
-#endif
-				}
+		bool rv = Send();
+		if(rv) {
+			if(FAST_RECOVERY){
+				//If send is successful, start timer for hardware ACK.
+				//If hardware ack is received within stipulated period, drop the oldest packet.
+				//Else retry
+				rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
+				ASSERT_SP(rm == TimerSupported);
 			}
 			else{
-#ifdef OMAC_DEBUG_GPIO
-			hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-			CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-			CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#ifndef SOFTWARE_ACKS_ENABLED
+#ifndef HARDWARE_ACKS_ENABLED
+				g_send_buffer.DropOldest(1);
+#endif
 #endif
 			}
 		}
+		else{
+#ifdef OMAC_DEBUG_GPIO
+		hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+		}
+	}
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
 }
@@ -331,8 +339,8 @@ void DataTransmissionHandler::ExecuteEvent(){
 }
 
 void DataTransmissionHandler::SendACKHandler(){
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 
@@ -372,8 +380,8 @@ void DataTransmissionHandler::SendACKHandler(){
 			PostExecuteEvent();
 		}
 	}
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	//else{		//Could not stop timer just wait for it
 	//}
 }
@@ -413,11 +421,13 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
  *
  */
 void DataTransmissionHandler::PostExecuteEvent(){
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
-	//g_OMAC.m_omac_RadioControl.Stop();
+	g_OMAC.m_omac_RadioControl.Stop();
+#ifdef OMAC_DEBUG_GPIO
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+#endif
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
 

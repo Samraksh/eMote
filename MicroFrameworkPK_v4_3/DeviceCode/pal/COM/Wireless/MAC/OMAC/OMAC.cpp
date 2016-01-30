@@ -72,7 +72,11 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
+			CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+			CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 			(*g_OMAC.m_txAckHandler)(msg, Size, status);
+			CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+			CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
@@ -119,7 +123,10 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_EnableOutputPin(SEND_ACK_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(OMAC_RXPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(DATA_TX_ACK_PIN, FALSE);
+	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(DATA_RX_INTERRUPT_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(DATATX_POSTEXEC, TRUE);
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
 	DeviceStatus status;
