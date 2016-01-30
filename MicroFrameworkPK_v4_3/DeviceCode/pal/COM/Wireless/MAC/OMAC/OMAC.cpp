@@ -72,11 +72,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-			CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 			(*g_OMAC.m_txAckHandler)(msg, Size, status);
-			CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-			CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);

@@ -425,8 +425,8 @@ void DataTransmissionHandler::PostExecuteEvent(){
 	//Scheduler's PostExecution stops the radio
 	g_OMAC.m_omac_RadioControl.Stop();
 #ifdef OMAC_DEBUG_GPIO
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
