@@ -48,16 +48,6 @@ typedef Buffer_15_4<8> Buffer_15_4_t;
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
 //#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
 
-
-
-// Ananth
-
-
-
-
-//#define TXNODEID 30906
-//#define RXNODEID 4028
-
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 
@@ -75,9 +65,6 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 
 	UINT8 CurrentActiveApp;
 	UINT16 MyID;
-
-
-
 
 
 	//Protocol variables
@@ -117,6 +104,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	Message_15_4_t* rx_msg_ptr;
 	volatile UINT16 tx_length;
 	volatile UINT16 rx_length;
+	UINT16 senderSequenceNumber;
+	UINT16 receiverSequenceNumber;
 
 	/*Already set in MAC class from which OMAC is derived
 	UINT16 GetAddress(){return MyID;}

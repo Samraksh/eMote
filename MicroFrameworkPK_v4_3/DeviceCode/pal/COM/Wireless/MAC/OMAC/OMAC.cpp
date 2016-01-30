@@ -159,6 +159,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		g_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
+		senderSequenceNumber = receiverSequenceNumber = 0;
 		RadioAckPending = FALSE;
 		Initialized = TRUE;
 		m_recovery = 1;
@@ -259,15 +260,19 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	//Handle hardware ACKs
 	if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
+		receiverSequenceNumber = msg->GetHeader()->dsn;
+#ifdef OMAC_DEBUG_PRINTF
+		hal_printf("senderSequenceNumber: %d; receiverSequenceNumber: %d\n", senderSequenceNumber, receiverSequenceNumber);
+#endif
 		//This is a hardware ACK for a Data packet
-		if(msg->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+		if(receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER && receiverSequenceNumber == senderSequenceNumber){
 			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
 			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
 			//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
 			return msg;
 		}
 		//This is a hardware ACK for a DISCO packet
-		else if(msg->GetHeader()->dsn == OMAC_DISCO_SEQ_NUMBER){
+		else if(receiverSequenceNumber == OMAC_DISCO_SEQ_NUMBER){
 			//Don't do anything for now. DISCO msgs are anyway sent multiple times
 			return msg;
 		}

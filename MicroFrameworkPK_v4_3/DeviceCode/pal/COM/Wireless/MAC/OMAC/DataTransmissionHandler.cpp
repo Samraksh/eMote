@@ -585,6 +585,7 @@ bool DataTransmissionHandler::Send(){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
+		g_OMAC.senderSequenceNumber = header->dsn;
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
