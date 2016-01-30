@@ -1788,7 +1788,7 @@ void RF231Radio::HandleInterrupt()
 					//if(sequenceNumberReceiver == sequenceNumberSender){
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 						(rx_msg_ptr->GetHeader())->length = rx_length;
-						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
+						//(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 					//}
 

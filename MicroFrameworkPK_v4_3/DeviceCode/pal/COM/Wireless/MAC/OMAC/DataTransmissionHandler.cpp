@@ -18,7 +18,8 @@
 extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 1;
+const uint FAST_RECOVERY = 0;
+#define SOFTWARE_ACKS_ENABLED
 //#define HARDWARE_ACKS_ENABLED
 
 //Allows coordination between retrying and receiving a hw ack
@@ -126,10 +127,6 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				if(EXECUTE_WITH_CCA){
 					nextTXmicro -= CCA_PERIOD_MICRO;
 				}
-			}
-			else{
-				nextTXmicro = MAX_UINT64;
-				break;
 			}
 			else{
 				nextTXmicro = MAX_UINT64;
