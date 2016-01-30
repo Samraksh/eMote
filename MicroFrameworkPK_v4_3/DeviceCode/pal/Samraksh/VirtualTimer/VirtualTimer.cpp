@@ -309,6 +309,7 @@ void VirtualTimerCallback(void *arg)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER)
 		  || (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
 		  || (runningTimer->get_m_timer_id() == NeighborClockMonitor_TIMER1)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK)
 		 /* || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER)*/
 		  ){

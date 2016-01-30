@@ -131,6 +131,10 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				nextTXmicro = MAX_UINT64;
 				break;
 			}
+			else{
+				nextTXmicro = MAX_UINT64;
+				break;
+			}
 		}
 		ASSERT_SP(nextTXmicro > curmicro);
 		UINT64 remMicroSecnextTX = nextTXmicro - curmicro;
