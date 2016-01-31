@@ -265,11 +265,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		hal_printf("senderSequenceNumber: %d; receiverSequenceNumber: %d\n", senderSequenceNumber, receiverSequenceNumber);
 #endif
 		//This is a hardware ACK for a Data packet
-		if(receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER && receiverSequenceNumber == senderSequenceNumber){
-			//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
-			//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
-			return msg;
+		if(receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER){
+			if(receiverSequenceNumber == senderSequenceNumber){
+				//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
+				//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
+				return msg;
+			}
+			else{
+				return NULL;
+			}
 		}
 		//This is a hardware ACK for a DISCO packet
 		else if(receiverSequenceNumber == OMAC_DISCO_SEQ_NUMBER){
