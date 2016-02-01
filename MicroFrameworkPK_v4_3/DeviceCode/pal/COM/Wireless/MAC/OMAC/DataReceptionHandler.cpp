@@ -122,7 +122,7 @@ void DataReceptionHandler::ExecuteEvent(){
 
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = false;
-	//m_receptionstate = 0;
+	m_receptionstate = 0;
 	//static int failureCount = 0;
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
@@ -255,13 +255,12 @@ void DataReceptionHandler::SendDataACK(){
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 
 	IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
-	header->fcf = (65 << 8);
-	header->fcf |= 136;
+	header->fcf = 26150;
 	header->dsn = 97;
-	header->destpan = (34 << 8);
-	header->destpan |= 0;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
 	header->dest = m_lastRXNodeId;
-	header->src = CPU_Radio_GetAddress(g_OMAC.radioName);
+	header->src = g_OMAC.GetMyAddress();
 	//header->network = MyConfig.Network;
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DATA_ACK;

@@ -19,6 +19,8 @@ extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
+const uint HARDWARE_ACKS = 0;
+const uint SOFTWARE_ACKS = 1;
 //#define SOFTWARE_ACKS_ENABLED
 //#define HARDWARE_ACKS_ENABLED
 
@@ -168,28 +170,30 @@ UINT64 DataTransmissionHandler::NextEvent(){
 }
 
 void DataTransmissionHandler::HardwareACKHandler(){
-	if(FAST_RECOVERY){
-		//When a hardware ack is received, stop the 1-shot timer and drop the packet
-		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
-		ASSERT_SP(rm == TimerSupported);
-		//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
-		//g_send_buffer.DropOldest(1);
-	}
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	resendSuccessful = true;
-	g_send_buffer.DropOldest(1);
-	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
-	currentAttempt = 0;
-	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+	if(HARDWARE_ACKS){
+		if(FAST_RECOVERY){
+			//When a hardware ack is received, stop the 1-shot timer and drop the packet
+			VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+			ASSERT_SP(rm == TimerSupported);
+			//hal_printf("DataTransmissionHandler::HardwareACKHandler - dropping packet\n");
+			//g_send_buffer.DropOldest(1);
+		}
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+		resendSuccessful = true;
+		g_send_buffer.DropOldest(1);
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+		currentAttempt = 0;
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 
-	VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE );
-	rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-	if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-		PostExecuteEvent();
+		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
 	}
 }
 
@@ -199,6 +203,7 @@ void DataTransmissionHandler::SendRetry(){
 	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
+	VirtualTimerReturnMessage rm;
 	if(FAST_RECOVERY){
 		static UINT8 currentFrameRetryAttempt = 0;
 		UINT8 currentFrameRetryMaxAttempt = 2;
@@ -223,7 +228,7 @@ void DataTransmissionHandler::SendRetry(){
 					if(rv){
 						hal_printf("Fast recovery-send successful\n");
 						resendSuccessful = false;
-						VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+						rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
 						rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
 						rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
 						ASSERT_SP(rm == TimerSupported);
@@ -239,11 +244,18 @@ void DataTransmissionHandler::SendRetry(){
 			currentFrameRetryAttempt++;
 			if(currentFrameRetryAttempt == currentFrameRetryMaxAttempt && currentFrameRetryMaxAttempt != 1){
 				currentFrameRetryAttempt = 0;
+				rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 				//break;
 				goto END;
 			}
 			if(currentFrameRetryMaxAttempt == 1){
 				currentFrameRetryAttempt = 0;
+				rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+				goto END;
 			}
 		}
 		//}
@@ -350,11 +362,9 @@ void DataTransmissionHandler::ExecuteEventHelper()
 				ASSERT_SP(rm == TimerSupported);
 			}
 			else{
-#ifndef SOFTWARE_ACKS_ENABLED
-#ifndef HARDWARE_ACKS_ENABLED
-				g_send_buffer.DropOldest(1);
-#endif
-#endif
+				if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
+					g_send_buffer.DropOldest(1);
+				}
 			}
 		}
 		else{
@@ -431,26 +441,39 @@ void DataTransmissionHandler::SendACKHandler(){
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 	if(rm == TimerSupported){
-#ifdef SOFTWARE_ACKS_ENABLED
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
-#endif
-#ifndef SOFTWARE_ACKS_ENABLED
-		if(FAST_RECOVERY){
-			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-			if(rm == TimerSupported)
-				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+		if(SOFTWARE_ACKS){
+			if(FAST_RECOVERY){
+				//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+				if(rm == TimerSupported)
+					txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+			}
+			else{
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+				if(rm == TimerSupported)
+					txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+			}
+		}
+		else if(HARDWARE_ACKS){
+			if(FAST_RECOVERY){
+				//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, DATATX_POST_EXEC_DELAY, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+				if(rm == TimerSupported)
+					txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+			}
+			else{
+				rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+				if(rm == TimerSupported)
+					txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+			}
 		}
 		else{
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 0 microsecond delay (that is ideally 0 but would not make a difference)
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-			if(rm == TimerSupported)
-				txhandler_state = DTS_WAITING_FOR_POSTEXECUTION;
+			ASSERT_SP(0);
 		}
-#endif
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
@@ -468,13 +491,18 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
 	VirtualTimerReturnMessage rm;
+
+	if(FAST_RECOVERY){
+		//When a software ack is received, stop the 1-shot timer and drop the packet
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
+		ASSERT_SP(rm == TimerSupported);
+	}
+
+	if(SOFTWARE_ACKS){
+		g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+	}
+
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-#ifdef SOFTWARE_ACKS_ENABLED
-	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
-#endif
-#ifdef HARDWARE_ACKS_ENABLED
-	g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
-#endif
 	if(rm == TimerSupported){
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 10, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
