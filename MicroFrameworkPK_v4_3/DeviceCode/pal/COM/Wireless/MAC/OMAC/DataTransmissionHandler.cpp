@@ -215,12 +215,13 @@ void DataTransmissionHandler::SendRetry(){
 				//Do a random back-off here
 				//HAL_Time_Sleep_MicroSeconds(100);
 				//Check channel for energy
-				//DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
-				DeviceStatus DS = DS_Success;
+				DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+				//DeviceStatus DS = DS_Success;
 				if(DS == DS_Success){
 					CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 					rv = Send();
 					if(rv){
+						hal_printf("Fast recovery-send successful\n");
 						resendSuccessful = false;
 						VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_FAST_RECOVERY);
 						rm = VirtTimer_Change(VIRT_TIMER_OMAC_FAST_RECOVERY, 0, FAST_RECOVERY_WAIT_PERIOD, TRUE );
@@ -230,8 +231,9 @@ void DataTransmissionHandler::SendRetry(){
 					CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 				}
 				else{
+					hal_printf("Fast recovery-channel energy detected\n");
 					//Do a random back-off here
-					HAL_Time_Sleep_MicroSeconds(100);
+					//HAL_Time_Sleep_MicroSeconds(100);
 				}
 			}
 			currentFrameRetryAttempt++;
