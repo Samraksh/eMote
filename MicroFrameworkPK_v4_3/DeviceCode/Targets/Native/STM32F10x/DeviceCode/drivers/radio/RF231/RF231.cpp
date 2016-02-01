@@ -391,14 +391,19 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		state = STATE_TX_ARET_ON;
 	}
 	else {
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 		radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 		if(trx_status == BUSY_RX_AACK){
 			busyRxCounter++;
 			//ASSERT_RADIO(busyRxCounter < 500);
 		}
-		else
+		else{
 			busyRxCounter = 0;
+		}
 
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+		CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 	}
 #else
@@ -1046,6 +1051,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
+	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
+	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 
 	//CPU_GPIO_EnableOutputPin(RF231_TURN_ON_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RX, FALSE);

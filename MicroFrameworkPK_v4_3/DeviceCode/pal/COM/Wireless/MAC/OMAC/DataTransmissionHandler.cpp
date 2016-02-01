@@ -79,6 +79,8 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
+	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 	//CPU_GPIO_EnableOutputPin(HW_ACK_PIN, TRUE);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
@@ -90,7 +92,7 @@ void DataTransmissionHandler::Initialize(){
 
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
-	maxRetryAttempts = 3;
+	maxRetryAttempts = 4;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -175,8 +177,8 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	}
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	resendSuccessful = true;
 	g_send_buffer.DropOldest(1);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
@@ -193,8 +195,8 @@ void DataTransmissionHandler::HardwareACKHandler(){
 
 void DataTransmissionHandler::SendRetry(){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
 	if(FAST_RECOVERY){
@@ -216,6 +218,7 @@ void DataTransmissionHandler::SendRetry(){
 				//DeviceStatus DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 				DeviceStatus DS = DS_Success;
 				if(DS == DS_Success){
+					CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 					rv = Send();
 					if(rv){
 						resendSuccessful = false;
@@ -224,6 +227,7 @@ void DataTransmissionHandler::SendRetry(){
 						rm = VirtTimer_Start(VIRT_TIMER_OMAC_FAST_RECOVERY);
 						ASSERT_SP(rm == TimerSupported);
 					}
+					CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 				}
 				else{
 					//Do a random back-off here
@@ -253,8 +257,9 @@ void DataTransmissionHandler::SendRetry(){
 	//}
 END:
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
+	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 
 	//Resend same packet if listen period is large enough
