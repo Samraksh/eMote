@@ -20,14 +20,11 @@
 
 struct TSSamples {
 	UINT16 nbrID;
-	UINT64 recordedTime[MAX_SAMPLES];
-	INT64 offsetBtwNodes[MAX_SAMPLES];
+	double recordedTime[MAX_SAMPLES];
+	double offsetBtwNodes[MAX_SAMPLES];
 	UINT8 lastTimeIndex;
 	UINT8 numSamples;
-	INT64 recordedTimeAvg;
-	INT64 offsetAvg;
-	float avgSkew;
-	float relativeFreq;
+	float relativeFreq; // y *f = x x is the local clock clcok
 	//INT64 Last_TS_localtime;
 	//INT64 Last_Adjust_localtime;
 		//INT64 First_TS_localtime;
@@ -39,7 +36,7 @@ class Regression {
 private:
 	UINT8 nbrCount;
 
-	void Compute(UINT16 nbr){
+	/*void Compute(UINT16 nbr){
 		INT64 newLocalAverage, newOffsetAverage, localSum, localAverageRest;
 		INT64 offsetSum, offsetAverageRest;
 		INT64 latestLocalTime, earliestLocalTime;
@@ -145,6 +142,63 @@ private:
 		samples[nbrIndex].recordedTimeAvg = newLocalAverage;
 		samples[nbrIndex].offsetAvg = newOffsetAverage;
 		//hal_printf("GlobalTime: Avg Drift: %lu, Avg Skew: %f \n",samples[nbrIndex].offsetAvg, samples[nbrIndex].avgSkew);
+	}*/
+
+	void Compute(UINT16 nbr){
+		UINT16 nbrIndex = FindNeighbor(nbr);
+		if(nbrIndex==255){
+			return;
+		}
+		double *nbrLocalTimes = samples[nbrIndex].recordedTime;
+		double *nbrOffset = samples[nbrIndex].offsetBtwNodes;
+		UINT8 numSamples = samples[nbrIndex].numSamples;
+
+		if (numSamples < 2) {
+			return;
+		}
+
+	    UINT8 firstIdx, lastIdx;
+	    firstIdx = lastIdx = i;
+	    double latestLocalTime, earliestLocalTime;
+		//Find latestLocalTime and earliestLocalTime in the buffer
+		latestLocalTime = nbrLocalTimes[lastIdx];
+		earliestLocalTime = nbrLocalTimes[firstIdx];
+		for (i = 0; i < MAX_SAMPLES; i++) {
+			if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+				if (nbrLocalTimes[i] > latestLocalTime) {
+					latestLocalTime = nbrLocalTimes[i];
+					lastIdx = i;
+				}
+				if (nbrLocalTimes[i] < earliestLocalTime) {
+					earliestLocalTime = nbrLocalTimes[i];
+					firstIdx = i;
+				}
+			}
+		}
+
+		double
+
+		double SSxy = 0;
+		double SSxx = 0;
+		double sum_y = 0;
+		double sum_x = 0;
+		UINT8 i,j;
+		//samples[nbrIndex].relativeFreq = 0;
+		for (i = firstIdx; i != lastIdx ; i = ((i+1) % MAX_SAMPLES)){
+			if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+				sum_y += nbrLocalTimes[i];
+				sum_x += nbrLocalTimes[i] - nbrOffset[i] ;
+			}
+		}
+
+		for (i = firstIdx; i != lastIdx ; i = ((i+1) % MAX_SAMPLES)){
+			if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+				SSxx += ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples)) * ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples));
+				SSxy += ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples)) * ((nbrLocalTimes[i])  - sum_y/((double)numSamples));
+			}
+		}
+		samples[nbrIndex].relativeFreq = SSxx/SSxy;
+
 	}
 
 public:
