@@ -529,6 +529,7 @@ private:
 
 	UINT32 sequenceNumberSender;
 	UINT32 sequenceNumberReceiver;
+	UINT8 RF231_extended_mode;
 
 public:
     UINT8* GetRxMsgBuffer()

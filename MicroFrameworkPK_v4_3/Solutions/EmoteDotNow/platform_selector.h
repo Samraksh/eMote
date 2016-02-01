@@ -211,11 +211,15 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_SCHEDULER	7
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
+#define VIRT_TIMER_REALTIME_DEBUGGER 6
+
+/********CSMAMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 #define VIRT_TIMER_MAC_SENDPKT 		3
 #define VIRT_TIMER_MAC_BEACON 		4
 #define VIRT_TIMER_MAC_FLUSHBUFFER 	5
-#define VIRT_TIMER_REALTIME_DEBUGGER 6
+/********CSMAMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
+/********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 #define VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE 3
 #define VIRT_TIMER_OMAC_DISCOVERY	4
 #define VIRT_TIMER_OMAC_TIMESYNC 	5
@@ -225,13 +229,16 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_FAST_RECOVERY	10
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	11
 
+#define OMAC_DISCO_SEQ_NUMBER	27
+#define OMAC_HW_ACK_DELAY	100
+const uint HARDWARE_ACKS = 0;
+/********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
+
 #define LocalClockMonitor_TIMER1 14
 #define NeighborClockMonitor_TIMER1 15
 
 #define TEST_0B_TIMER	13
 
-#define OMAC_DISCO_SEQ_NUMBER	27
-#define OMAC_HW_ACK_DELAY	100
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////
