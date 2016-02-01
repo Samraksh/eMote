@@ -2025,7 +2025,7 @@ void RF231Radio::HandleInterrupt()
 							//But that translates to 130 usec for eMote debug version.
 							//This should be changed for release version of eMote.
 							//TODO:Modify for release
-							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY);
+							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
 							SlptrSet();
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );

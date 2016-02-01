@@ -152,11 +152,11 @@ void OMACScheduler::ScheduleNextEvent(){
 		InputState.RequestState(I_DATA_SEND_PENDING);
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY;
+		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY_MICRO;
 		InputState.RequestState(I_DISCO_PENDING);
 	}
 	else if(timeSyncEventOffset == nextWakeupTimeInMicSec) {
-		nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY;
+		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY_MICRO;
 		InputState.RequestState(I_TIMESYNC_PENDING);
 	}
 	else{
