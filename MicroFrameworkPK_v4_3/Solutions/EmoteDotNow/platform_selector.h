@@ -231,7 +231,7 @@ HAL_RECEPTION_TIMER 6
 #define TEST_0B_TIMER	13
 
 #define OMAC_DISCO_SEQ_NUMBER	27
-#define OMAC_HW_ACK_DELAY	50
+#define OMAC_HW_ACK_DELAY	100
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

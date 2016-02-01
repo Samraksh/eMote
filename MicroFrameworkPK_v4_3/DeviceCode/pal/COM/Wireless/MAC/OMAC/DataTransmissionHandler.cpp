@@ -92,7 +92,7 @@ void DataTransmissionHandler::Initialize(){
 
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
-	maxRetryAttempts = 4;
+	maxRetryAttempts = 100;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -201,7 +201,7 @@ void DataTransmissionHandler::SendRetry(){
 
 	if(FAST_RECOVERY){
 		static UINT8 currentFrameRetryAttempt = 0;
-		UINT8 currentFrameRetryMaxAttempt = 1;
+		UINT8 currentFrameRetryMaxAttempt = 2;
 		//If an ack is not received, then attempt to send multiple times in current frame itself,
 		// as there is a possibility that tx woke up early then rx. In this case, trying to send
 		// would allow the packet to reach in current frame itself, rather than next frame.
