@@ -19,8 +19,6 @@ extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
-//const uint HARDWARE_ACKS = 0;
-//const uint SOFTWARE_ACKS = 1;
 
 
 //Allows coordination between retrying and receiving a hw ack
@@ -73,12 +71,6 @@ void DataTransmissionHandler::Initialize(){
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
 	maxRetryAttempts = 100;
-	if(HARDWARE_ACKS){
-		SOFTWARE_ACKS = 0;
-	}
-	else{
-		SOFTWARE_ACKS = 1;
-	}
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
