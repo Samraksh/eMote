@@ -192,7 +192,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 
 #ifdef def_Neighbor2beFollowed
 #if defined(TWO_NODES_TX_RX)
-	if(g_OMAC.GetAddress() == RXNODEID) {
+	if(g_OMAC.GetMyAddress() == RXNODEID) {
 		Neighbor2beFollowed = TXNODEID;
 	}
 	else {
@@ -202,7 +202,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 #endif
 
 #if defined(FAN_OUT)
-	if(g_OMAC.GetAddress() == RXNODEID1 || g_OMAC.GetAddress() == RXNODEID2) {
+	if(g_OMAC.GetMyAddress() == RXNODEID1 || g_OMAC.GetMyAddress() == RXNODEID2) {
 #ifdef def_Neighbor2beFollowed
 		Neighbor2beFollowed = TXNODEID;
 #endif
@@ -214,7 +214,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 #endif
 	}
 #elif defined(FAN_IN)
-	if(g_OMAC.GetAddress() == TXNODEID1 || g_OMAC.GetAddress() == TXNODEID2) {
+	if(g_OMAC.GetMyAddress() == TXNODEID1 || g_OMAC.GetMyAddress() == TXNODEID2) {
 #ifdef def_Neighbor2beFollowed
 		Neighbor2beFollowed = RXNODEID;
 #endif
