@@ -20,14 +20,13 @@
 
 struct TSSamples {
 	UINT16 nbrID;
-	UINT64 recordedTime[MAX_SAMPLES];
-	INT64 offsetBtwNodes[MAX_SAMPLES];
+	double recordedTime[MAX_SAMPLES];
+	double offsetBtwNodes[MAX_SAMPLES];
+	bool isused[MAX_SAMPLES];
 	UINT8 lastTimeIndex;
 	UINT8 numSamples;
-	INT64 recordedTimeAvg;
-	INT64 offsetAvg;
-	float avgSkew;
-	float relativeFreq;
+	double relativeFreq; // y *f = x x is the local clock clcok
+	double y_intercept; // y *f = x x is the local clock clcok
 	//INT64 Last_TS_localtime;
 	//INT64 Last_Adjust_localtime;
 		//INT64 First_TS_localtime;
@@ -39,7 +38,7 @@ class Regression {
 private:
 	UINT8 nbrCount;
 
-	void Compute(UINT16 nbr){
+	/*void Compute(UINT16 nbr){
 		INT64 newLocalAverage, newOffsetAverage, localSum, localAverageRest;
 		INT64 offsetSum, offsetAverageRest;
 		INT64 latestLocalTime, earliestLocalTime;
@@ -145,6 +144,63 @@ private:
 		samples[nbrIndex].recordedTimeAvg = newLocalAverage;
 		samples[nbrIndex].offsetAvg = newOffsetAverage;
 		//hal_printf("GlobalTime: Avg Drift: %lu, Avg Skew: %f \n",samples[nbrIndex].offsetAvg, samples[nbrIndex].avgSkew);
+	}*/
+
+	void Compute(UINT16 nbr){
+		UINT16 nbrIndex = FindNeighbor(nbr);
+		if(nbrIndex==255){
+			return;
+		}
+		double *nbrLocalTimes = samples[nbrIndex].recordedTime;
+		double *nbrOffset = samples[nbrIndex].offsetBtwNodes;
+		UINT8 numSamples = samples[nbrIndex].numSamples;
+
+		if (numSamples < 2) {
+			return;
+		}
+
+	    UINT8 firstIdx, lastIdx, i;
+	    firstIdx = lastIdx = i = 1;
+	    double latestLocalTime, earliestLocalTime;
+		//Find latestLocalTime and earliestLocalTime in the buffer
+		latestLocalTime = nbrLocalTimes[lastIdx];
+		earliestLocalTime = nbrLocalTimes[firstIdx];
+		for (i = 0; i < MAX_SAMPLES; i++) {
+			//if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+			if( samples[nbrIndex].isused[i]){
+				if (nbrLocalTimes[i] > latestLocalTime) {
+					latestLocalTime = nbrLocalTimes[i];
+					lastIdx = i;
+				}
+				if (nbrLocalTimes[i] < earliestLocalTime) {
+					earliestLocalTime = nbrLocalTimes[i];
+					firstIdx = i;
+				}
+			}
+		}
+
+		double SSxy = 0;
+		double SSxx = 0;
+		double sum_y = 0;
+		double sum_x = 0;
+		//samples[nbrIndex].relativeFreq = 0;
+		for (i = 0; i < MAX_SAMPLES; i++) {
+			//if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+			if( samples[nbrIndex].isused[i]){
+				sum_y += nbrLocalTimes[i];
+				sum_x += nbrLocalTimes[i] - nbrOffset[i] ;
+			}
+		}
+		for (i = 0; i < MAX_SAMPLES; i++) {
+			//if( nbrLocalTimes[i] != INVALID_TIMESTAMP ) {
+			if( samples[nbrIndex].isused[i]){
+				SSxx += ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples)) * ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples));
+				SSxy += ((nbrLocalTimes[i] - nbrOffset[i])  - sum_x/((double)numSamples)) * ((nbrLocalTimes[i])  - sum_y/((double)numSamples));
+			}
+		}
+		samples[nbrIndex].relativeFreq = SSxy/SSxx;
+		samples[nbrIndex].y_intercept = sum_y/((double)numSamples) - sum_x/((double)numSamples) * samples[nbrIndex].relativeFreq;
+
 	}
 
 public:
@@ -182,13 +238,15 @@ public:
 		}
 		samples[nbrIndex].nbrID = nbr;
 		previndex = samples[nbrIndex].lastTimeIndex;
-		if( samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] != INVALID_TIMESTAMP
+		//if( samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] != INVALID_TIMESTAMP
+		if( samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex]
 		&&  samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] >= nbr_ltime
 		){ // Discard out of orderly received time stamps // Consider adding it in between.
 			return;
 		}
 		samples[nbrIndex].lastTimeIndex++;
-		samples[nbrIndex].lastTimeIndex =samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
+		samples[nbrIndex].lastTimeIndex = samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
+		samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex] = true;
 		samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] = nbr_ltime;
 		samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].lastTimeIndex] = nbr_loffset;
 		if(samples[nbrIndex].numSamples < MAX_SAMPLES){
@@ -211,13 +269,14 @@ public:
 			samples[ii].nbrID = INVALID_NBR_ID;
 			samples[ii].lastTimeIndex = MAX_SAMPLES;
 			samples[ii].numSamples = 0;
-			samples[ii].recordedTimeAvg = 0;
-			samples[ii].offsetAvg = 0;
-			samples[ii].avgSkew = 1;
+			//samples[ii].recordedTimeAvg = 0;
+			//samples[ii].offsetAvg = 0;
+			//samples[ii].avgSkew = 1;
 			samples[ii].relativeFreq = 1;
 			for(int i=0; i< MAX_SAMPLES; i++){
 				samples[ii].recordedTime[i] = INVALID_TIMESTAMP;
 				samples[ii].offsetBtwNodes[i] = 0;
+				samples[ii].isused[i] = false;
 			}
 		}
 	}
@@ -276,7 +335,7 @@ void GlobalTime::Init(){
 UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
 	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
-	UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
+	/*UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
 	UINT64 periodlength;
 	bool negativeperiod = FALSE;
 	//Check roll over
@@ -297,12 +356,14 @@ UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	lastrecordedTime = lastrecordedTime - regressgt2.samples[nbrIndex].offsetBtwNodes[regressgt2.samples[nbrIndex].lastTimeIndex];
 	if (negativeperiod) lastrecordedTime = lastrecordedTime - (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
 	else lastrecordedTime = lastrecordedTime + (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
-	return (lastrecordedTime);
+	return (lastrecordedTime);*/
+	return ( ( (double)nbrTime - regressgt2.samples[nbrIndex].y_intercept)/regressgt2.samples[nbrIndex].relativeFreq );
 }
 
 UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(0);
-	//UINT64 curtime = HAL_Time_CurrentTime();
+	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
+	/*//UINT64 curtime = HAL_Time_CurrentTime();
 	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
 	UINT64 periodlength;
 	bool negativeperiod = FALSE;
@@ -334,6 +395,7 @@ UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	lastlocalTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
 	if (negativeperiod) lastlocalTime = lastlocalTime - (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
 	else lastlocalTime = lastlocalTime + (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
-	return (lastlocalTime);
+	return (lastlocalTime);*/
+	return ( regressgt2.samples[nbrIndex].relativeFreq * (double)curtime + regressgt2.samples[nbrIndex].y_intercept );
 }
 #endif //GLOBALTIME_H_
