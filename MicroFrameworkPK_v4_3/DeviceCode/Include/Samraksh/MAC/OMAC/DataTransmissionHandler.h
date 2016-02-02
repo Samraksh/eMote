@@ -61,12 +61,6 @@ public:
 	void SendACKHandler();
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();
-
-	UINT64 GetTxTicks();
-	UINT32 GetTxCounter();
-	void SetTxTicks(UINT64);
-	void SetTxCounter(UINT32);
-
 };
 
 

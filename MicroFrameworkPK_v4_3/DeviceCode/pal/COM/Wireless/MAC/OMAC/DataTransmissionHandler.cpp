@@ -48,27 +48,6 @@ void PublicFastRecoveryCallback(void* param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
 }
 
-UINT64 DataTransmissionHandler::GetTxTicks()
-{
-	//return m_nextTXTicks;
-}
-
-UINT32 DataTransmissionHandler::GetTxCounter()
-{
-	//return m_nextTXCounter;
-}
-
-void DataTransmissionHandler::SetTxTicks(UINT64 tmp_nextTXTicks)
-{
-	//m_nextTXTicks = tmp_nextTXTicks;
-}
-
-void DataTransmissionHandler::SetTxCounter(UINT32 tmp_nextTXCounter)
-{
-	//m_nextTXCounter = tmp_nextTXCounter;
-}
-
-
 /*
  *
  */
