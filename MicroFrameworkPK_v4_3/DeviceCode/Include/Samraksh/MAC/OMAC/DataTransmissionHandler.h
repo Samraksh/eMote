@@ -42,7 +42,6 @@ class DataTransmissionHandler: public EventHandler {
 	UINT8 maxRetryAttempts;
 
 	DataTransmissionHandlerStates txhandler_state;
-	UINT8 SOFTWARE_ACKS;
 
 public:
 	void Initialize();
