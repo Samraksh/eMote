@@ -23,7 +23,7 @@ void PublicDataRxCallback(void * param){
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 		}
 	}
-	else{
+	if(!SOFTWARE_ACKS){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 	}
 }
@@ -153,15 +153,12 @@ void DataReceptionHandler::ExecuteEvent(){
 	}
 }
 
-void DataReceptionHandler::HandleRadioInterrupt(){
+void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a reception
 	VirtualTimerReturnMessage rm;
 	m_isreceiving = true;
 	//ASSERT_SP(m_receptionstate == 0);
 	m_receptionstate = 1;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-	/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
-	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
-	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );*/
 	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
 	if(rm != TimerSupported){
 		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
@@ -189,8 +186,8 @@ void DataReceptionHandler::HandleRadioInterrupt(){
 	}
 }
 
-void DataReceptionHandler::SendACKHandler(){
-	if(SOFTWARE_ACKS){
+void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission interupt from the radio
+	if(SOFTWARE_ACKS) { //Only happens in SOFTWARE_ACKS case
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		ASSERT_SP(m_receptionstate == 3);
@@ -211,37 +208,43 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		m_receptionstate = 2;
 		m_lastRXNodeId = address;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
-		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);
 		if(rm != TimerSupported){
 			this->SendDataACK();
 		}
 	}
-	//SendDataACK();
-	else{
-#ifdef OMAC_DEBUG_GPIO
+	else if(HARDWARE_ACKS) {
+		VirtualTimerReturnMessage rm;
+		m_isreceiving = false;
+		//ASSERT_SP(m_receptionstate == 1);
+		m_receptionstate = 2;
+		m_lastRXNodeId = address;
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+		if(rm != TimerSupported){
+			this->SendDataACK();
+		}
+	}
+	else if(!SOFTWARE_ACKS && !HARDWARE_ACKS) {
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, TRUE );
-#endif
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
 		m_receptionstate = 2;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 100, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 		m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
-#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, FALSE );
-#endif
 	}
 }
 
 
 
-void DataReceptionHandler::SendDataACK(){
+void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet and sends it to the radiocontroller
 	VirtualTimerReturnMessage rm;
 	//ASSERT_SP(m_receptionstate == 2);
 	m_receptionstate = 3;

@@ -42,7 +42,6 @@ class DataTransmissionHandler: public EventHandler {
 	UINT8 maxRetryAttempts;
 
 	DataTransmissionHandlerStates txhandler_state;
-
 public:
 	void Initialize();
 	UINT64 NextEvent();
@@ -60,12 +59,6 @@ public:
 	void SendACKHandler();
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();
-
-	UINT64 GetTxTicks();
-	UINT32 GetTxCounter();
-	void SetTxTicks(UINT64);
-	void SetTxCounter(UINT32);
-
 };
 
 
