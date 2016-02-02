@@ -64,11 +64,11 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
 		case MFM_DATA_ACK:
-#ifdef SOFTWARE_ACKS_ENABLED
-			if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-				g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+			if(SOFTWARE_ACKS){
+				if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
+				}
 			}
-#endif
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
@@ -412,12 +412,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 				hal_printf("Got a data beacon packet\n");
 				break;
-#ifdef SOFTWARE_ACKS_ENABLED
+
 			case MFM_DATA_ACK:
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
-				location_in_packet_payload += 1;
-				break;
-#endif
+				if(SOFTWARE_ACKS){
+					g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+					location_in_packet_payload += 1;
+					break;
+				}
 			default:
 				break;
 			};
