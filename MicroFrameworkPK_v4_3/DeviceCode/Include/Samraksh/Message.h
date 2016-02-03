@@ -108,12 +108,36 @@ public:
 //All fields up to 'network' are 802.15.4 specification fields, network is a option field for 6LowPAN compatibility
 //mac_id is Samraksh's Radio API to demultiplex radio packets
 
+#define FRAME_TYPE_BEACON 	000
+#define FRAME_TYPE_DATA 	001
+#define FRAME_TYPE_ACK 		010
+#define FRAME_TYPE_MAC 		011
+
+//Please refer page 80 in RF231 datasheet
+typedef union{
+	struct IEEE802_15_4_Header_FCF_BitValue{
+		UINT8 frameType : 3;		//Can be beacon (000), data (001), ack (010), MAC (011)
+		bool securityEnabled : 1;	//True if security processing applies to this frame
+		bool framePending : 1;		//Indicates that node which transmitted the ACK has more data to send
+		bool ackRequired : 1;		//If set within data or MAC command that is not broadcast, recipient
+									// acks a frame within time specified by IEEE 802.15.4
+		bool intraPAN : 1;			//If src and dest addresses are present, PAN-ID of src address field is omitted.
+		UINT8 reserved : 3;			//Reserved
+		UINT8 destAddrMode : 2;		//Format of destination address of frame
+		UINT8 frameVersion : 2;		//Specifies version number corresponding to frame. Set to 1 to indicate an
+									// IEEE 802.15.4-2006 frame.
+		UINT8 srcAddrMode : 2;		//Format of source address of frame
+	}IEEE802_15_4_Header_FCF_BitValue;
+	UINT16 fcfWordValue;
+}IEEE802_15_4_Header_FCF_t;
+
 //This structure is as per IEEE 802.15.4 standard.
 //MAC Protocol Layer Data Unit (MPDU) in page 80 of RF231 datasheet.
 //Do not modify as extended mode will not work
 typedef struct IEEE802_15_4_Header {
 public:
-  UINT16 fcf;
+  //UINT16 fcf;
+  IEEE802_15_4_Header_FCF_t fcf;
   UINT8 dsn;
   UINT16 destpan;
   UINT16 dest;

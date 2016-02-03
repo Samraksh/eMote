@@ -516,7 +516,18 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	header->fcf = 26150;
+	/****** Taking the word value of below bits gives 26150 *******/
+	/*header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameType = FRAME_TYPE_MAC;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.securityEnabled = 0;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.framePending = 0;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.ackRequired = 1;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.intraPAN = 1;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.reserved = 0;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.destAddrMode = 2;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
+	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
+	/**************************************************************/
+	header->fcf.fcfWordValue = 26150;
 	finalSeqNumber = GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
