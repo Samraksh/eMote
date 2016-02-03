@@ -73,7 +73,7 @@ void DataTransmissionHandler::Initialize(){
 
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
-	maxRetryAttempts = 100;
+	maxRetryAttempts = 3;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;

@@ -580,7 +580,7 @@ DeviceStatus RF231Radio::Reset()
 	UINT32 reg = 0;
 	reg = ReadRegister(RF230_TRX_CTRL_0);
 
-			// The RF230_TRX_STATE register controls the state transition
+	// The RF230_TRX_STATE register controls the state transition
 	WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
 
 	// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
@@ -1804,12 +1804,13 @@ void RF231Radio::HandleInterrupt()
 					if ( !Interrupt_Pending() ) {
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != OMAC_DISCO_SEQ_NUMBER){
-						//if(sequenceNumberReceiver == sequenceNumberSender){
+						//Don't propagate DISCO HW acks upto MAC layer
+						if(sequenceNumberReceiver != OMAC_DISCO_SEQ_NUMBER){
 							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 							(rx_msg_ptr->GetHeader())->length = rx_length;
 							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
 							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-						//}
+						}
 
 						cmd = CMD_NONE;
 					}
@@ -1989,11 +1990,6 @@ void RF231Radio::HandleInterrupt()
 						// Initiate frame transmission by asserting SLP_TR pin
 						//Send ACK only if msg has been successfully downloaded and receiveHandler will be called.
 
-						/*SlptrSet();
-						SlptrClear();
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-						CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );*/
-
 #ifdef DEBUG_RF231
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
 						CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
@@ -2020,7 +2016,8 @@ void RF231Radio::HandleInterrupt()
 
 						//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
 
-						//if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
+						//Send acks only for data packets
+						if(rx_msg_ptr->GetHeader()->dsn != OMAC_DISCO_SEQ_NUMBER){
 							//As per page 62, transmission is signaled using SLP_TR after 6 symbols (96 usec).
 							//But that translates to 130 usec for eMote debug version.
 							//This should be changed for release version of eMote.
@@ -2030,12 +2027,16 @@ void RF231Radio::HandleInterrupt()
 							SlptrClear();
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-						/*}
+						}
 						else{
-							HAL_Time_Sleep_MicroSeconds(125);
+							//HW acks need not be sent for DISCO msgs, however SLP_TR pin needs to be toggled,
+							// otherwise, there is a problem with radio state change.
+							//In order not to propagate a DISCO HW ack all the way up to MAC layer, a filter is
+							// added in RX_START interrupt handler.
+							//HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
 							SlptrSet();
 							SlptrClear();
-						}*/
+						}
 					}
 				}
 				else {

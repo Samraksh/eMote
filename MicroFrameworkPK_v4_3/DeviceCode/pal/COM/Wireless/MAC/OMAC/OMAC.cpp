@@ -412,13 +412,12 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				hal_printf("OMACType::ReceiveHandler OMAC_DATA_BEACON_TYPE\n");
 				hal_printf("Got a data beacon packet\n");
 				break;
-
 			case MFM_DATA_ACK:
 				if(SOFTWARE_ACKS){
 					g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 					location_in_packet_payload += 1;
-					break;
 				}
+				break;
 			default:
 				break;
 			};

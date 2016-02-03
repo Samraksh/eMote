@@ -201,7 +201,7 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 }
 
 void DataReceptionHandler::HandleEndofReception(UINT16 address){
-	if(SOFTWARE_ACKS) {
+	if(SOFTWARE_ACKS){
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
