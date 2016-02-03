@@ -22,7 +22,6 @@ enum DataTransmissionHandlerStates{
 	DTS_SEND_INITIATION_FAIL,
 	DTS_SEND_FINISHED,
 	DTS_WAITING_FOR_ACKS,
-	DTS_WAITING_FOR_POSTEXECUTION,
 	DTS_RECEIVEDDATAACK,
 	DTS_POSTEXECUTION,
 };
@@ -40,6 +39,8 @@ class DataTransmissionHandler: public EventHandler {
 	BOOL isDataPacketScheduled;
 	UINT8 currentAttempt;
 	UINT8 maxRetryAttempts;
+
+	UINT8 m_currentFrameRetryAttempt;
 
 	DataTransmissionHandlerStates txhandler_state;
 public:

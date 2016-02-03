@@ -304,6 +304,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 800
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 100
 
+#define CURRENTFRAMERETRYMAXATTEMPT 2
+#define CCA_PERIOD_FRAME_RETRY_MICRO 2000 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+
 #define FAILSAFETIME_MICRO 1000000
 
 #define WAKEUPPERIODINTICKS 8000000
