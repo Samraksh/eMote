@@ -17,8 +17,9 @@
 
 extern OMACType g_OMAC;
 
-const uint EXECUTE_WITH_CCA = 0;
-const uint FAST_RECOVERY = 0;
+const uint EXECUTE_WITH_CCA = 1;
+const uint FAST_RECOVERY = 1;
+const uint RANDOM_BACKOFF = 1;
 
 
 //Allows coordination between retrying and receiving a hw ack
@@ -62,11 +63,15 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
+	CPU_GPIO_EnableOutputPin(DATATX_SEND_ACK_HANDLER, TRUE);
+	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 	//CPU_GPIO_EnableOutputPin(HW_ACK_PIN, TRUE);
 	//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 	CPU_GPIO_EnableOutputPin(DATATX_POSTEXEC, TRUE);
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_EnableOutputPin(DATATX_RECV_HW_ACK, TRUE);
+	CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, FALSE );
 
 	CPU_GPIO_EnableOutputPin(OMAC_RX_DATAACK_PIN, FALSE);
 #endif
@@ -94,18 +99,39 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	if(ScheduleDataPacket(0)) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		//UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
 		if(EXECUTE_WITH_CCA){
 			nextTXmicro -= CCA_PERIOD_MICRO;
 		}
+		//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
+		/*if(HARDWARE_ACKS){
+			nextTXmicro -= EXTENDED_MODE_TX_DELAY;
+			ASSERT_SP(nextTXmicro > 0);
+		}*/
+		if(RANDOM_BACKOFF){
+			nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
+			ASSERT_SP(nextTXmicro > 0);
+		}
+
 		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 
 		while(nextTXmicro  <= curmicro + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) {
 			if(ScheduleDataPacket(1)){
 				nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+				//nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
 				if(EXECUTE_WITH_CCA){
 					nextTXmicro -= CCA_PERIOD_MICRO;
+				}
+				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
+				/*if(HARDWARE_ACKS){
+					nextTXmicro -= EXTENDED_MODE_TX_DELAY;
+					ASSERT_SP(nextTXmicro > 0);
+				}*/
+				if(RANDOM_BACKOFF){
+					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
+					ASSERT_SP(nextTXmicro > 0);
 				}
 			}
 			else{
@@ -149,14 +175,15 @@ void DataTransmissionHandler::HardwareACKHandler(){
 	txhandler_state = DTS_RECEIVEDDATAACK;
 	if(HARDWARE_ACKS){
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-		CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+		CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, TRUE );
+		CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, FALSE );
 		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 #endif
 		resendSuccessful = true;
 		g_send_buffer.DropOldest(1);
 		currentAttempt = 0;
+		m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
 
 		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
@@ -168,15 +195,14 @@ void DataTransmissionHandler::HardwareACKHandler(){
 }
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
-#ifdef OMAC_DEBUG_GPIO
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-#endif
-
 	VirtualTimerReturnMessage rm;
 	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && m_currentFrameRetryAttempt < CURRENTFRAMERETRYMAXATTEMPT){
-		++m_currentFrameRetryAttempt;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
+#endif
 		ExecuteEventHelper();
+		++m_currentFrameRetryAttempt;
 	}
 	else{
 		PostExecuteEvent();
@@ -186,6 +212,7 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts sending routine for a packet
 	bool canISend = true;
 	DeviceStatus DS = DS_Success;
+	static UINT16 next_seed = 1;
 	VirtualTimerReturnMessage rm;
 
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
@@ -194,6 +221,10 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
 	while(EXECUTE_WITH_CCA){
+		//If retrying, don't do CCA, but perform random backoff and transmit
+		if(m_currentFrameRetryAttempt > 0){
+			break;
+		}
 		//Check CCA only for DATA packets
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 
@@ -217,6 +248,25 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 
+	//Perform CCA for random backoff period
+	if(RANDOM_BACKOFF){
+		UINT16 m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
+		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
+		next_seed = randVal;
+		int i = 0;
+		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
+		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
+			i++;
+			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+			if(DS != DS_Success){
+				hal_printf("transmission detected!\n");
+				canISend = false;
+				break;
+			}
+		}
+	}
+
+	//Transmit
 	if(canISend){
 		resendSuccessful = false;
 #ifdef OMAC_DEBUG_GPIO
@@ -238,7 +288,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -295,10 +346,13 @@ void DataTransmissionHandler::ExecuteEvent(){
 void DataTransmissionHandler::SendACKHandler(){
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
+	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 
 	if(SOFTWARE_ACKS || HARDWARE_ACKS){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -398,6 +452,7 @@ bool DataTransmissionHandler::Send(){
 		}
 	}
 	else{
+		//hal_printf("Nothing scheduled yet\n");
 		return false;
 	}
 }

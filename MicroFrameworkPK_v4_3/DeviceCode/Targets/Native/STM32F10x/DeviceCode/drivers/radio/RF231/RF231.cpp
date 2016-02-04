@@ -386,15 +386,22 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	add_send_ts_time(); // Debugging. Will remove.
 
+#ifdef DEBUG_RF231
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	hal_printf("(Send_TimeStamped)trx_status is %d; state is %d\n", trx_status, state);
+#endif
 	if(RF231_extended_mode){
 		// Go to PLL_ON
 		if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
 			state = STATE_TX_ARET_ON;
 		}
 		else {
-			CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
-			CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
+			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+#ifdef DEBUG_RF231
+			hal_printf("(Send_TimeStamped)trx_status is %d; state is %d\n", trx_status, state);
+#endif
 			if(trx_status == BUSY_RX_AACK){
 				busyRxCounter++;
 				//ASSERT_RADIO(busyRxCounter < 500);
@@ -403,8 +410,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 				busyRxCounter = 0;
 			}
 
-			CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
-			CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
+			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
+			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 		}
 	}
@@ -543,7 +550,9 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
-	//hal_printf("RF231Radio::Send_TimeStamped - sent successfully\n");
+#ifdef DEBUG_RF231
+	hal_printf("RF231Radio::Send_TimeStamped - sent successfully\n");
+#endif
 
 	return tx_msg_ptr;
 }
@@ -800,12 +809,18 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	add_send_time(); // Debugging. Will remove.
 
+#ifdef DEBUG_RF231
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	hal_printf("(Send)trx_status is %d; state is %d\n", trx_status, state);
+#endif
 	if(RF231_extended_mode){
 		// Go to PLL_ON
 		if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
 			state = STATE_TX_ARET_ON;
 		}
 		else {
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("(Send)trx_status is %d; state is %d\n", trx_status, state);
 			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy);
 		}
 	}
@@ -927,6 +942,9 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	CPU_GPIO_SetPinState( RF231_TX, FALSE );
 
+#ifdef DEBUG_RF231
+	hal_printf("(Send)Finished send\n");
+#endif
 	return tx_msg_ptr;
 }
 
@@ -1044,8 +1062,12 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 	CPU_GPIO_EnableOutputPin(RF231_HW_ACK_RESP_TIME, TRUE);
 	CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_START_OF_RX_MODE, TRUE);
+	CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 	CPU_GPIO_EnableOutputPin(CCA_PIN, TRUE);
 	CPU_GPIO_SetPinState(CCA_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(RF231_GENERATE_HW_ACK, TRUE);
+	CPU_GPIO_SetPinState(RF231_GENERATE_HW_ACK, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RADIO_STATEPIN2, TRUE);
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, TRUE );
 	CPU_GPIO_SetPinState( RF231_RADIO_STATEPIN2, FALSE );
@@ -1928,6 +1950,8 @@ void RF231Radio::HandleInterrupt()
 				hal_printf("(CMD_TX_ARET)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 			}*/
 #endif
+			/*UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);*/
 			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
 
 			cmd = CMD_NONE;
@@ -1946,8 +1970,8 @@ void RF231Radio::HandleInterrupt()
 				Careful_State_Change_Extended(RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
 			}
-			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-			CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
+			CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+			CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 #ifdef DEBUG_RF231
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);
@@ -1966,9 +1990,10 @@ void RF231Radio::HandleInterrupt()
 			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
 			//	Indicates that an ACK frame is about to be sent
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			/*hal_printf("(CMD_RX_AACK)trx_state: %d\n", trx_state);*/
 
-			if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
-			{
+			//if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
+			//{
 				if(DS_Success == DownloadMessage()){
 					//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 					//rx_msg_ptr->SetActiveMessageSize(rx_length);
@@ -2028,8 +2053,8 @@ void RF231Radio::HandleInterrupt()
 							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
 							SlptrSet();
 							SlptrClear();
-							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-							CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
+							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, TRUE );
+							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, FALSE );
 						/*}
 						else{
 							HAL_Time_Sleep_MicroSeconds(125);
@@ -2042,7 +2067,10 @@ void RF231Radio::HandleInterrupt()
 					// download error
 					add_download_error();
 				}
-			}
+			/*}
+			else{
+				ASSERT_RADIO(0);
+			}*/
 
 			cmd = CMD_NONE;
 

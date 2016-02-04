@@ -261,10 +261,22 @@ typedef OFProv<UINT64> OMACTicks;
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 20000			//compensate for time-sync errors; accounts for the clock drift
+#define GUARDTIME_MICRO 2000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 2*GUARDTIME_MICRO
+
+#define CURRENTFRAMERETRYMAXATTEMPT 2
+#define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+
+#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
+#define EXTENDED_MODE_TX_DELAY	1.5*MICSECINMILISEC	//delay from start of tx to start of rx
+#define RANDOM_BACKOFF_COUNT_MAX	4
+#define RANDOM_BACKOFF_COUNT_MIN	1
+#define DELAY_DUE_TO_CCA_MICRO	140
+#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
+																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER GUARDTIME_MICRO+OMAC_TIME_ERROR+EXTENDED_MODE_TX_DELAY+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO	//Random_backoff is done before every transmission
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
+
 #define ACK_TX_MAX_DURATION_MICRO 4000
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
@@ -277,7 +289,8 @@ typedef OFProv<UINT64> OMACTicks;
 #define ACK_RX_MAX_DURATION_MICRO 20000
 
 //Below 2 values are based on empirical observations made on a debug build
-#define FAST_RECOVERY_WAIT_PERIOD 6*MICSECINMILISEC
+#define FAST_RECOVERY_WAIT_PERIOD_MICRO 5.5*MICSECINMILISEC
+#define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MICSECINMILISEC
 #define DATATX_POST_EXEC_DELAY	  10*MICSECINMILISEC
 
 #define HIGH_DISCO_PERIOD_IN_SLOTS 1500
@@ -303,9 +316,6 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 800
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 100
-
-#define CURRENTFRAMERETRYMAXATTEMPT 2
-#define CCA_PERIOD_FRAME_RETRY_MICRO 2000 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
 #define FAILSAFETIME_MICRO 1000000
 

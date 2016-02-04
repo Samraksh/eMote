@@ -137,7 +137,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		//hal_printf("Returning success\n");
 		return DS_Success;
 	}
-
+	//hal_printf("Returning DS_Fail\n");
 	return DS_Fail;
 }
 

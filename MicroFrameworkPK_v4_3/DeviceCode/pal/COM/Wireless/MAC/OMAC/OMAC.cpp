@@ -337,7 +337,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
 					if(data_msg->msg_identifier != 16843009){
-						////ASSERT_SP(0);
+						ASSERT_SP(0);
 					}
 					//location_in_packet_payload += data_msg->size;
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
