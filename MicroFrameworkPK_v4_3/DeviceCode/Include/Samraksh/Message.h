@@ -115,19 +115,22 @@ public:
 
 //Please refer page 80 in RF231 datasheet
 typedef union{
-	struct IEEE802_15_4_Header_FCF_BitValue{
+	//Below struct (though has bit-fields) occupies more memory than the word value which stops msgs from being received.
+	//It worked when I tested, but does not work now.
+	//Have either the bit-field (with reserved commented out) or have the word value.
+	/*struct IEEE802_15_4_Header_FCF_BitValue{
 		UINT8 frameType : 3;		//Can be beacon (000), data (001), ack (010), MAC (011)
-		bool securityEnabled : 1;	//True if security processing applies to this frame
-		bool framePending : 1;		//Indicates that node which transmitted the ACK has more data to send
-		bool ackRequired : 1;		//If set within data or MAC command that is not broadcast, recipient
+		UINT8 securityEnabled : 1;	//True if security processing applies to this frame
+		UINT8 framePending : 1;		//Indicates that node which transmitted the ACK has more data to send
+		UINT8 ackRequired : 1;		//If set within data or MAC command that is not broadcast, recipient
 									// acks a frame within time specified by IEEE 802.15.4
-		bool intraPAN : 1;			//If src and dest addresses are present, PAN-ID of src address field is omitted.
-		UINT8 reserved : 3;			//Reserved
+		UINT8 intraPAN : 1;			//If src and dest addresses are present, PAN-ID of src address field is omitted.
+		//UINT8 reserved : 3;			//Reserved
 		UINT8 destAddrMode : 2;		//Format of destination address of frame
 		UINT8 frameVersion : 2;		//Specifies version number corresponding to frame. Set to 1 to indicate an
 									// IEEE 802.15.4-2006 frame.
 		UINT8 srcAddrMode : 2;		//Format of source address of frame
-	}IEEE802_15_4_Header_FCF_BitValue;
+	}IEEE802_15_4_Header_FCF_BitValue;*/
 	UINT16 fcfWordValue;
 }IEEE802_15_4_Header_FCF_t;
 
