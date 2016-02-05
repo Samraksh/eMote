@@ -35,6 +35,7 @@ void PublicTimeSyncCallback(void * param){
 void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(TIMESYNC_GENERATE_MESSAGEPIN, FALSE);
+	CPU_GPIO_SetPinState(TIMESYNC_GENERATE_MESSAGEPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, FALSE);
 	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
 #endif
@@ -67,7 +68,7 @@ UINT64 OMACTimeSync::NextEvent(){
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
 	/*if(HARDWARE_ACKS){
-		nextEventsMicroSec -= EXTENDED_MODE_TX_DELAY_MICRO;
+		nextEventsMicroSec += (1*EXTENDED_MODE_TX_DELAY_MICRO);
 	}*/
 	return(nextEventsMicroSec);
 }

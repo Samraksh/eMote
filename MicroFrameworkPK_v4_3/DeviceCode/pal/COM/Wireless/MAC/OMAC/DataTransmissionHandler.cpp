@@ -57,6 +57,7 @@ void DataTransmissionHandler::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(DATATX_PIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATATX_DATA_PIN, TRUE);
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
@@ -72,6 +73,8 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
 	CPU_GPIO_EnableOutputPin(DATATX_RECV_HW_ACK, TRUE);
 	CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, FALSE );
+	CPU_GPIO_EnableOutputPin(DATATX_SCHED_DATA_PKT, TRUE);
+	CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, FALSE );
 
 	CPU_GPIO_EnableOutputPin(OMAC_RX_DATAACK_PIN, FALSE);
 #endif
@@ -198,6 +201,7 @@ void DataTransmissionHandler::HardwareACKHandler(){
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
 	VirtualTimerReturnMessage rm;
+	currentAttempt++;
 	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && m_currentFrameRetryAttempt < CURRENTFRAMERETRYMAXATTEMPT){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
@@ -207,9 +211,12 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 		++m_currentFrameRetryAttempt;
 	}
 	else{
-		//Packet will have to be dropped if retried max attempts
-		//hal_printf("dropping packet\n");
-		//g_send_buffer.DropOldest(1);
+		if(currentAttempt > maxRetryAttempts){
+			currentAttempt = 0;
+			//Packet will have to be dropped if retried max attempts
+			hal_printf("dropping packet\n");
+			g_send_buffer.DropOldest(1);
+		}
 		PostExecuteEvent();
 	}
 }
@@ -264,7 +271,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			i++;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			if(DS != DS_Success){
-				hal_printf("transmission detected!\n");
+				hal_printf("transmission detected (inside backoff)!\n");
 				canISend = false;
 				break;
 			}
@@ -355,9 +362,14 @@ void DataTransmissionHandler::SendACKHandler(){
 	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 
 	if(SOFTWARE_ACKS || HARDWARE_ACKS){
+		resendSuccessful = true;
+		g_send_buffer.DropOldest(1);
+		currentAttempt = 0;
+		m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -457,7 +469,11 @@ bool DataTransmissionHandler::Send(){
 		}
 	}
 	else{
-		hal_printf("Nothing scheduled yet\n");
+		/*hal_printf("Nothing scheduled yet\n");
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );*/
 		return false;
 	}
 }
@@ -467,6 +483,8 @@ bool DataTransmissionHandler::Send(){
  */
 BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 {
+	CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, TRUE );
+	CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, FALSE );
 	// do not schedule a packet if
 	// 1) Case for no data packets in line
 	// 2) Case : destination does not exist in the neighbor table
@@ -518,6 +536,10 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 		}
 	}
 	else{ //Case for no data packets in line
+		CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, TRUE );
+		CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, FALSE );
+		CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, TRUE );
+		CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, FALSE );
 		return FALSE;
 	}
 }

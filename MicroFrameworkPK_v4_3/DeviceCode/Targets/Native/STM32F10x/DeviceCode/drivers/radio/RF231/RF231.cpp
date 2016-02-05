@@ -1074,6 +1074,13 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 
+	CPU_GPIO_EnableOutputPin(RF231_RX_START, TRUE);
+	CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
+	CPU_GPIO_EnableOutputPin(RF231_AMI, TRUE);
+	CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+	CPU_GPIO_EnableOutputPin(RF231_TRX_RX_END, TRUE);
+	CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
+
 	//CPU_GPIO_EnableOutputPin(RF231_TURN_ON_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_TX_TIMESTAMP, FALSE);
@@ -1790,6 +1797,9 @@ void RF231Radio::HandleInterrupt()
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
+		CPU_GPIO_SetPinState( RF231_RX_START, TRUE );
+		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
+
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
@@ -1847,6 +1857,8 @@ void RF231Radio::HandleInterrupt()
 #endif
 		//After an address match, next step is FCS which generates TRX_END interrupt
 		cmd = CMD_RX_AACK;
+		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
+		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
@@ -1932,6 +1944,13 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_TX_ARET)
 		{
+			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			if(trx_status == RX_AACK_ON){
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+			}*/
 			add_send_done();
 
 			state = STATE_PLL_ON;
@@ -1950,9 +1969,18 @@ void RF231Radio::HandleInterrupt()
 				hal_printf("(CMD_TX_ARET)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 			}*/
 #endif
-			/*UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
-			hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);*/
-			(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			if(trx_state == 0x00){	//Success
+				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+				(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length,NetworkOperations_Success);
+			}
+			//else if(trx_state == 0x00){	//Success)
+
+			//}
 
 			cmd = CMD_NONE;
 
@@ -1970,8 +1998,8 @@ void RF231Radio::HandleInterrupt()
 				Careful_State_Change_Extended(RX_AACK_ON);
 				state = STATE_RX_AACK_ON;
 			}
-			CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
-			CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
+			//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
+			//CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 #ifdef DEBUG_RF231
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::HandleInterrupt(TX_ARET)-status is %d, state is %d\n", trx_status, state);
@@ -2039,6 +2067,8 @@ void RF231Radio::HandleInterrupt()
 						}
 #endif
 
+						CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
+						CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 						(rx_msg_ptr->GetHeader())->length = rx_length;
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
@@ -2050,9 +2080,9 @@ void RF231Radio::HandleInterrupt()
 							//But that translates to 130 usec for eMote debug version.
 							//This should be changed for release version of eMote.
 							//TODO:Modify for release
-							HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
+							/*HAL_Time_Sleep_MicroSeconds(OMAC_HW_ACK_DELAY_MICRO);
 							SlptrSet();
-							SlptrClear();
+							SlptrClear();*/
 							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, TRUE );
 							CPU_GPIO_SetPinState( (GPIO_PIN)RF231_GENERATE_HW_ACK, FALSE );
 						/*}
