@@ -50,6 +50,8 @@ inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTim
 BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 {
 	CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(VTIMER_CALLBACK_LATENCY_PIN, FALSE);
+	CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 
 #ifdef DEBUG_VT
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
@@ -302,6 +304,11 @@ void VirtualTimerCallback(void *arg)
 	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_cnt_;
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
+	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
+		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, TRUE );
+	}
+
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
 		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
@@ -368,6 +375,11 @@ void VirtualTimerCallback(void *arg)
 			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
 		}		
 		gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_ = nextTimer;
+	}
+
+	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
+		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 	}
 
 }

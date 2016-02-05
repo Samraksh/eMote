@@ -40,6 +40,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	CPU_GPIO_EnableOutputPin(SCHED_TX_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_DISCO_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_TSREQ_EXEC_PIN, FALSE);
+	CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
 #endif
 
 	radioID = _radioID;
@@ -157,6 +158,8 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 	else if(timeSyncEventOffset == nextWakeupTimeInMicSec) {
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY_MICRO;
+		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, TRUE);
+		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
 		InputState.RequestState(I_TIMESYNC_PENDING);
 	}
 	else{

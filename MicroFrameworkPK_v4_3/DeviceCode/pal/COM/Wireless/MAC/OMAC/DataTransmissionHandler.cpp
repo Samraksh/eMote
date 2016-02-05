@@ -104,15 +104,16 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		if(EXECUTE_WITH_CCA){
 			nextTXmicro -= CCA_PERIOD_MICRO;
 		}
-		//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
+		//Delay due to extended mode should not happen before a wake up event; The delay happens after the tx event
 		/*if(HARDWARE_ACKS){
-			nextTXmicro -= EXTENDED_MODE_TX_DELAY;
+			nextTXmicro -= EXTENDED_MODE_TX_DELAY_MICRO;
 			ASSERT_SP(nextTXmicro > 0);
 		}*/
-		if(RANDOM_BACKOFF){
+		//Not needed as random backoff is done only during retries
+		/*if(RANDOM_BACKOFF){
 			nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
 			ASSERT_SP(nextTXmicro > 0);
-		}
+		}*/
 
 		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 
@@ -126,13 +127,14 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				}
 				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
 				/*if(HARDWARE_ACKS){
-					nextTXmicro -= EXTENDED_MODE_TX_DELAY;
+					nextTXmicro -= EXTENDED_MODE_TX_DELAY_MICRO;
 					ASSERT_SP(nextTXmicro > 0);
 				}*/
-				if(RANDOM_BACKOFF){
+				//Not needed as random backoff is done only during retries
+				/*if(RANDOM_BACKOFF){
 					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
 					ASSERT_SP(nextTXmicro > 0);
-				}
+				}*/
 			}
 			else{
 				nextTXmicro = MAX_UINT64;
@@ -205,6 +207,9 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 		++m_currentFrameRetryAttempt;
 	}
 	else{
+		//Packet will have to be dropped if retried max attempts
+		//hal_printf("dropping packet\n");
+		//g_send_buffer.DropOldest(1);
 		PostExecuteEvent();
 	}
 }
@@ -248,8 +253,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 	}
 
-	//Perform CCA for random backoff period
-	if(RANDOM_BACKOFF){
+	//Perform CCA for random backoff period (only for retries)
+	if(RANDOM_BACKOFF && m_currentFrameRetryAttempt > 0){
 		UINT16 m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
 		next_seed = randVal;
@@ -452,7 +457,7 @@ bool DataTransmissionHandler::Send(){
 		}
 	}
 	else{
-		//hal_printf("Nothing scheduled yet\n");
+		hal_printf("Nothing scheduled yet\n");
 		return false;
 	}
 }

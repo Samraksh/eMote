@@ -66,6 +66,9 @@ UINT64 OMACTimeSync::NextEvent(){
 
 	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
+	/*if(HARDWARE_ACKS){
+		nextEventsMicroSec -= EXTENDED_MODE_TX_DELAY_MICRO;
+	}*/
 	return(nextEventsMicroSec);
 }
 /*

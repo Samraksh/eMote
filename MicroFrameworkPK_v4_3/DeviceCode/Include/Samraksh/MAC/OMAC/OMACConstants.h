@@ -264,18 +264,27 @@ typedef OFProv<UINT64> OMACTicks;
 #define GUARDTIME_MICRO 2000			//compensate for time-sync errors; accounts for the clock drift
 #define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
 
-#define CURRENTFRAMERETRYMAXATTEMPT 2
+#define CURRENTFRAMERETRYMAXATTEMPT 1
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
 #define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
-#define EXTENDED_MODE_TX_DELAY	1.5*MICSECINMILISEC	//delay from start of tx to start of rx
+#define EXTENDED_MODE_TX_DELAY_MICRO	1.5*MICSECINMILISEC	//delay from start of tx to start of rx
 #define RANDOM_BACKOFF_COUNT_MAX	4
 #define RANDOM_BACKOFF_COUNT_MIN	1
 #define DELAY_DUE_TO_CCA_MICRO	140
 #define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER GUARDTIME_MICRO+OMAC_TIME_ERROR+EXTENDED_MODE_TX_DELAY+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO	//Random_backoff is done before every transmission
+
+#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	1.2*MICSECINMILISEC
+#define HW_ACK_TO_START_OF_TX_MICRO	2*MICSECINMILISEC
+//Random_backoff is done before re-transmission
+//GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
+//GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR+EXTENDED_MODE_TX_DELAY_MICRO+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO\
+													+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
+//How long should receiver be awake after sending a HW ack
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
+//#define PACKET_PERIOD_FOR_RECEPTION_HANDLER EXTENDED_MODE_TX_DELAY+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
 
 #define ACK_TX_MAX_DURATION_MICRO 4000
 #define TIMER_EVENT_DELAY_OFFSET 0
