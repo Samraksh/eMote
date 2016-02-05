@@ -353,7 +353,6 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
 	UINT32 eventOffset;
 	UINT32 timestamp;
 
@@ -505,6 +504,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	//Start writing data to the SPI bus
 	SelnClear();
 
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
 	// Write the size of packet that is sent out
@@ -531,6 +532,8 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	CPU_SPI_ReadByte(config);
 
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	//Indicate end of writing to SPI bus
 	SelnSet();
 #endif
@@ -547,8 +550,6 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	// exchange bags
 	tx_msg_ptr = (Message_15_4_t*) msg;
-
-	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 
 #ifdef DEBUG_RF231
 	hal_printf("RF231Radio::Send_TimeStamped - sent successfully\n");
@@ -1080,10 +1081,14 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 	CPU_GPIO_EnableOutputPin(RF231_TRX_RX_END, TRUE);
 	CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
+	CPU_GPIO_EnableOutputPin(RF231_TRX_TX_END, TRUE);
+	CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 
 	//CPU_GPIO_EnableOutputPin(RF231_TURN_ON_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_RX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_TX_TIMESTAMP, FALSE);
+	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
+
 	CPU_GPIO_EnableOutputPin(RF231_TX, FALSE);
 	CPU_GPIO_EnableOutputPin(RF231_FRAME_BUFF_ACTIVE, FALSE);
 
@@ -1803,7 +1808,7 @@ void RF231Radio::HandleInterrupt()
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 
-		if(RF231_extended_mode){
+		/*if(RF231_extended_mode){
 			if(DS_Success==DownloadMessage()){
 				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
@@ -1824,10 +1829,10 @@ void RF231Radio::HandleInterrupt()
 				sequenceNumberReceiver = header->dsn;
 #ifdef DEBUG_RF231
 				hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
-				/*if(header->dsn == 97){
+				if(header->dsn == 97){
 					hal_printf("(RX_START)payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
 					hal_printf("(RX_START)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
-				}*/
+				}
 #endif
 
 				//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
@@ -1847,7 +1852,7 @@ void RF231Radio::HandleInterrupt()
 					}
 				}
 			}	//end of if(DS_Success==DownloadMessage())
-		}	//end of if(RF231_extended_mode)
+		}*/	//end of if(RF231_extended_mode)
 	}
 
 
@@ -1871,6 +1876,9 @@ void RF231Radio::HandleInterrupt()
 #			endif
 
 			add_send_done();
+
+			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
+			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 
 			state = STATE_PLL_ON;
 			// Call radio send done event handler when the send is complete
@@ -1898,6 +1906,8 @@ void RF231Radio::HandleInterrupt()
 			hal_printf("RF231: TRX_IRQ_TRX_END : Receive Done\n");
 #			endif
 
+			CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
+			CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 
 			// Go to PLL_ON at least until the frame buffer is empty
 
@@ -1969,6 +1979,8 @@ void RF231Radio::HandleInterrupt()
 				hal_printf("(CMD_TX_ARET)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
 			}*/
 #endif
+			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
+			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
 			if(trx_state == 0x00){	//Success
 				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);

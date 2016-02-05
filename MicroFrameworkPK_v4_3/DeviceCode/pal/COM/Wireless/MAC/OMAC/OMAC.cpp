@@ -259,7 +259,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT16 location_in_packet_payload = 0;
 
 	//Handle hardware ACKs
-	if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
+	/*if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
 		receiverSequenceNumber = msg->GetHeader()->dsn;
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("senderSequenceNumber: %d; receiverSequenceNumber: %d\n", senderSequenceNumber, receiverSequenceNumber);
@@ -285,7 +285,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//This should never happen
 			ASSERT_SP(0);
 		}
-	}
+	}*/
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
