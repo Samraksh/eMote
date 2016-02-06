@@ -414,6 +414,17 @@ enum Channels
 	channel_26,
 };
 
+//page 70
+enum TRAC_STATUS
+{
+	TRAC_STATUS_SUCCESS = 0x00,
+	TRAC_STATUS_SUCCESS_DATA_PENDING = 0x20,	//0010 0000
+	TRAC_STATUS_SUCCESS_WAIT_FOR_ACK = 0x40,	//0100 0000
+	TRAC_STATUS_CHANNEL_ACCESS_FAILURE = 0x60,	//0110 0000
+	TRAC_STATUS_NO_ACK = 0xA0,					//1010 0000
+	TRAC_STATUS_INVALID	= 0xE0,					//1110 0000
+};
+
 class RF231Radio : public Radio<Message_15_4_t>
 {
 	// Constant node id defined by macro NODE_ID
@@ -523,7 +534,7 @@ private:
 	BOOL Careful_State_Change(uint32_t target); // Our register enums are a mess. Until I fix. --NPS
 	BOOL Careful_State_Change_Extended(radio_hal_trx_status_t target);
 	BOOL Careful_State_Change_Extended(uint32_t target);
-	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status);
+	void* Send_Ack(void *msg, UINT16 size, NetOpStatus status, UINT8 tracStatus);
 
 	RadioEventHandler Radio_event_handler;
 

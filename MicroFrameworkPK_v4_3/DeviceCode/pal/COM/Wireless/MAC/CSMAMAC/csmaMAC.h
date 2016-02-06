@@ -71,7 +71,7 @@ public:
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int Size);
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
-	void SendAckHandler(void* msg, int Size, NetOpStatus status);
+	void SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus);
 	BOOL UnInitialize(void);
 	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);

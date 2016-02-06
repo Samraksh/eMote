@@ -36,7 +36,7 @@ typedef void (*MacReceiveFuncPtrType) (void *msg, UINT16 arg1);
 typedef void (*NeighborChangeFuncPtrType) (INT16 arg2);
 
 // Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
+typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
 typedef  class MacEventHandler{
 

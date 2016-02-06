@@ -27,7 +27,7 @@ extern "C"
 
 	}
 
-	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status)
+	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus)
 	{
 
 	}

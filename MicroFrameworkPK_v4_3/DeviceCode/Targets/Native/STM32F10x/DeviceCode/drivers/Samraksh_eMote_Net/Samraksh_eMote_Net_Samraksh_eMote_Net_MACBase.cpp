@@ -33,7 +33,7 @@ enum CallBackTypes
 };
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2);
-void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status);
+void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
@@ -165,7 +165,7 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
    return Mac_GetNeighborStatus(param0, param1.GetBuffer());
 }
 
-void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status){
+void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
 }
 
 INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )

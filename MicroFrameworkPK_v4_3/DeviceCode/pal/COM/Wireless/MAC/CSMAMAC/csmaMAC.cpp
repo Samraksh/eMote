@@ -14,8 +14,8 @@ void* csmaReceiveHandler(void *msg, UINT16 Size){
 	return (void*) g_csmaMacObject.ReceiveHandler((Message_15_4_t *) msg, Size);
 }
 
-void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
-	g_csmaMacObject.SendAckHandler(msg, Size, status);
+void csmaSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
+	g_csmaMacObject.SendAckHandler(msg, Size, status, radioAckStatus);
 }
 
 BOOL csmaRadioInterruptHandler(RadioInterrupt Interrupt, void *param){
@@ -533,7 +533,7 @@ BOOL csmaMAC::RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 }
 
 
-void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status){
+void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus){
 #ifdef DEBUG_CSMAMAC
 	Message_15_4_t* temp = (Message_15_4_t *)msg;
 	UINT8* rcv_payload =  temp->GetPayload();
@@ -546,7 +546,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status){
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
 				////SendAckFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->SendAckHandler;
 				SendAckFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->SendAckHandler;
-				(*appHandler)(msg, Size, status);
+				(*appHandler)(msg, Size, status, radioAckStatus);
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
 					SendFirstPacketToRadio(NULL);

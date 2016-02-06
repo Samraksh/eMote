@@ -44,7 +44,7 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 /*
  *
  */
-void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
+void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_TX_ACK_PIN, TRUE);
 #endif
@@ -72,7 +72,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status){
 			break;
 		case MFM_DATA:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			(*g_OMAC.m_txAckHandler)(msg, Size, status);
+			(*g_OMAC.m_txAckHandler)(msg, Size, status, radioAckStatus);
 			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);

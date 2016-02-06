@@ -60,7 +60,7 @@ typedef UINT8 ErrorType;
 typedef  void* (*ReceiveFuncPtrType) (void *msg, UINT16 Size);
 
 // Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
+typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
 // Typedef defining the signature of the RadioInterruptFuncPtr function
 typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param);
