@@ -26,6 +26,17 @@ enum DataTransmissionHandlerStates{
 	DTS_POSTEXECUTION,
 };
 
+//page 70 in RF231 datasheet
+enum TRAC_STATUS
+{
+	TRAC_STATUS_SUCCESS = 0x00,
+	TRAC_STATUS_SUCCESS_DATA_PENDING = 0x20,	//0010 0000
+	TRAC_STATUS_SUCCESS_WAIT_FOR_ACK = 0x40,	//0100 0000
+	TRAC_STATUS_CHANNEL_ACCESS_FAILURE = 0x60,	//0110 0000
+	TRAC_STATUS_NO_ACK = 0xA0,					//1010 0000
+	TRAC_STATUS_INVALID	= 0xE0,					//1110 0000
+};
+
 /*
  *
  */
@@ -56,7 +67,7 @@ public:
 	bool Send();
 	void SendRetry();
 	void HardwareACKHandler();
-	void SendACKHandler();
+	void SendACKHandler(UINT8 radioAckStatus);
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();
 };

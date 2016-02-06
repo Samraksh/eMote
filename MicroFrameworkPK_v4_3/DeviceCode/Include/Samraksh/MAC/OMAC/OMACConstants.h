@@ -267,21 +267,23 @@ typedef OFProv<UINT64> OMACTicks;
 #define CURRENTFRAMERETRYMAXATTEMPT 1
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
-#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
-#define EXTENDED_MODE_TX_DELAY_MICRO	1.5*MICSECINMILISEC	//delay from start of tx to start of rx
 #define RANDOM_BACKOFF_COUNT_MAX	4
 #define RANDOM_BACKOFF_COUNT_MIN	1
 #define DELAY_DUE_TO_CCA_MICRO	140
 #define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
-
 #define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	1.2*MICSECINMILISEC
 #define HW_ACK_TO_START_OF_TX_MICRO	2*MICSECINMILISEC
+
+#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
+#define EXTENDED_MODE_TX_DELAY_MICRO	0.75*MICSECINMILISEC	//delay from start of tx to start of rx
+#define DELAY_FROM_OMAC_TX_TO_RF231_TX	0.40*MICSECINMILISEC	//Delay from start of tx in OMAC to start of writing to SPI bus
+#define ACK_DELAY	0.4*MICSECINMILISEC		//Delay in Rx generating an ack
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR+EXTENDED_MODE_TX_DELAY_MICRO+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO\
-													+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR+DELAY_FROM_OMAC_TX_TO_RF231_TX+EXTENDED_MODE_TX_DELAY_MICRO+ACK_DELAY
+
 //How long should receiver be awake after sending a HW ack
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
 //#define PACKET_PERIOD_FOR_RECEPTION_HANDLER EXTENDED_MODE_TX_DELAY+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
@@ -298,7 +300,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define ACK_RX_MAX_DURATION_MICRO 20000
 
 //Below 2 values are based on empirical observations made on a debug build
-#define FAST_RECOVERY_WAIT_PERIOD_MICRO 5.5*MICSECINMILISEC
+#define FAST_RECOVERY_WAIT_PERIOD_MICRO 3.6*MICSECINMILISEC
 #define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MICSECINMILISEC
 #define DATATX_POST_EXEC_DELAY	  10*MICSECINMILISEC
 

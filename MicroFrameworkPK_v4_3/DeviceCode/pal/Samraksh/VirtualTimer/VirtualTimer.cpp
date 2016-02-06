@@ -305,7 +305,7 @@ void VirtualTimerCallback(void *arg)
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
 	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
-			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
+			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK){
 		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, TRUE );
 	}
 

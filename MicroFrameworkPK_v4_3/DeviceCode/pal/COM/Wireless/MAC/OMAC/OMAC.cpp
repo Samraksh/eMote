@@ -77,7 +77,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
 			if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)){
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler();
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(radioAckStatus);
 			}
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;

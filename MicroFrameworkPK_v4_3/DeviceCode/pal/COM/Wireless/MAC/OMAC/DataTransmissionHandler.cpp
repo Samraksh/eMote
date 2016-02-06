@@ -17,9 +17,9 @@
 
 extern OMACType g_OMAC;
 
-const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 1;
-const uint RANDOM_BACKOFF = 1;
+const uint EXECUTE_WITH_CCA = 0;
+const uint FAST_RECOVERY = 0;
+const uint RANDOM_BACKOFF = 0;
 
 
 //Allows coordination between retrying and receiving a hw ack
@@ -82,6 +82,7 @@ void DataTransmissionHandler::Initialize(){
 	isDataPacketScheduled = false;
 	currentAttempt = 0;
 	maxRetryAttempts = 3;
+	m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -108,10 +109,10 @@ UINT64 DataTransmissionHandler::NextEvent(){
 			nextTXmicro -= CCA_PERIOD_MICRO;
 		}
 		//Delay due to extended mode should not happen before a wake up event; The delay happens after the tx event
-		/*if(HARDWARE_ACKS){
-			nextTXmicro -= EXTENDED_MODE_TX_DELAY_MICRO;
+		if(HARDWARE_ACKS){
+			nextTXmicro = nextTXmicro - EXTENDED_MODE_TX_DELAY_MICRO - DELAY_FROM_OMAC_TX_TO_RF231_TX;
 			ASSERT_SP(nextTXmicro > 0);
-		}*/
+		}
 		//Not needed as random backoff is done only during retries
 		/*if(RANDOM_BACKOFF){
 			nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
@@ -129,10 +130,10 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					nextTXmicro -= CCA_PERIOD_MICRO;
 				}
 				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
-				/*if(HARDWARE_ACKS){
-					nextTXmicro -= EXTENDED_MODE_TX_DELAY_MICRO;
+				if(HARDWARE_ACKS){
+					nextTXmicro = nextTXmicro - EXTENDED_MODE_TX_DELAY_MICRO - DELAY_FROM_OMAC_TX_TO_RF231_TX;
 					ASSERT_SP(nextTXmicro > 0);
-				}*/
+				}
 				//Not needed as random backoff is done only during retries
 				/*if(RANDOM_BACKOFF){
 					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
@@ -289,6 +290,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
 				g_send_buffer.DropOldest(1);
 			}
+			g_send_buffer.DropOldest(1);
 		}
 		else{
 #ifdef OMAC_DEBUG_GPIO
@@ -355,24 +357,33 @@ void DataTransmissionHandler::ExecuteEvent(){
 	}
 }
 
-void DataTransmissionHandler::SendACKHandler(){
+void DataTransmissionHandler::SendACKHandler(UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
-	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-	CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 
 	if(SOFTWARE_ACKS || HARDWARE_ACKS){
 		resendSuccessful = true;
-		g_send_buffer.DropOldest(1);
-		currentAttempt = 0;
-		m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
-		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+		if(radioAckStatus == TRAC_STATUS_SUCCESS){
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			g_send_buffer.DropOldest(1);
+			currentAttempt = 0;
+			m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+			if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
+			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				PostExecuteEvent();
+			}
+		}
+		else{
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			PostExecuteEvent();
 		}
 	}
