@@ -285,6 +285,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	header->mac_id = g_OMAC.macName;
 	header->type = MFM_DATA_ACK;
 	header->flags = (0);
+	//header->retryAttempt = 0;
 	m_ACKmsg.GetMetaData()->SetReceiveTimeStamp((UINT32)0);
 
 	UINT8* payload = m_ACKmsg.GetPayload();

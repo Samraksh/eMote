@@ -151,6 +151,7 @@ public:
   UINT8 mac_id;
   UINT8 type;
   UINT8 flags;
+  //UINT8 retryAttempt;
 
 /*public:
 	UINT8 GetLength(){

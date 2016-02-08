@@ -359,6 +359,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	}*/
 	header->dest = address;
 	header->src = g_OMAC.GetMyAddress();
+	//header->retryAttempt = 0;
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();

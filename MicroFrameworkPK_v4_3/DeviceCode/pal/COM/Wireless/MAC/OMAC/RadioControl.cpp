@@ -79,6 +79,7 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	}*/
 	header->dest = address;
 	header->src = g_OMAC.GetMyAddress();
+	//header->retryAttempt = 0;
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();

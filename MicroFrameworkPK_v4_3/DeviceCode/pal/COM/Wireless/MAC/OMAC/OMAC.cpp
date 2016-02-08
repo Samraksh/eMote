@@ -554,6 +554,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}*/
 	header->dest = address;
 	header->src = GetMyAddress();
+	//header->retryAttempt = 0;
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
