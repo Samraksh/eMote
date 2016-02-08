@@ -18,7 +18,7 @@
 extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 0;
-const uint FAST_RECOVERY = 0;
+const uint FAST_RECOVERY = 1;
 const uint RANDOM_BACKOFF = 0;
 
 
@@ -212,12 +212,12 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 		++m_currentFrameRetryAttempt;
 	}
 	else{
-		if(currentAttempt > maxRetryAttempts){
+		/*if(currentAttempt > maxRetryAttempts){
 			currentAttempt = 0;
 			//Packet will have to be dropped if retried max attempts
 			hal_printf("dropping packet\n");
 			g_send_buffer.DropOldest(1);
-		}
+		}*/
 		PostExecuteEvent();
 	}
 }
@@ -290,7 +290,6 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
 				g_send_buffer.DropOldest(1);
 			}
-			g_send_buffer.DropOldest(1);
 		}
 		else{
 #ifdef OMAC_DEBUG_GPIO
@@ -344,6 +343,13 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	if(e == DS_Success){
 		this->ExecuteEventHelper();
+		/*currentAttempt++;
+		if(currentAttempt > maxRetryAttempts){
+			currentAttempt = 0;
+			//Packet will have to be dropped if retried max attempts
+			hal_printf("dropping packet\n");
+			g_send_buffer.DropOldest(1);
+		}*/
 	}
 	else{
 		hal_printf("Radio not in RX state\n");
@@ -357,7 +363,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	}
 }
 
-void DataTransmissionHandler::SendACKHandler(UINT8 radioAckStatus){
+void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 
@@ -366,7 +372,14 @@ void DataTransmissionHandler::SendACKHandler(UINT8 radioAckStatus){
 		if(radioAckStatus == TRAC_STATUS_SUCCESS){
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-			g_send_buffer.DropOldest(1);
+			//Drop data packets only if send was successful
+			//g_OMAC.receiverSequenceNumber = rcv_msg->GetHeader()->dsn;
+			//if(g_OMAC.receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER){
+				//if(g_OMAC.receiverSequenceNumber == g_OMAC.senderSequenceNumber){
+					//hal_printf("SendAckHanlder; senderSequenceNumber: %d; receiverSequenceNumber: %d\n", g_OMAC.senderSequenceNumber, g_OMAC.receiverSequenceNumber);
+					g_send_buffer.DropOldest(1);
+				//}
+			//}
 			currentAttempt = 0;
 			m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -380,6 +393,13 @@ void DataTransmissionHandler::SendACKHandler(UINT8 radioAckStatus){
 			}
 		}
 		else{
+			/*currentAttempt++;
+			if(currentAttempt > maxRetryAttempts){
+				currentAttempt = 0;
+				//Packet will have to be dropped if retried max attempts
+				hal_printf("dropping packet\n");
+				g_send_buffer.DropOldest(1);
+			}*/
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
@@ -466,6 +486,10 @@ bool DataTransmissionHandler::Send(){
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
+		//Drop timesync packets irrespective of whether send was successful or not
+		if(m_outgoingEntryPtr->GetHeader()->type == MFM_TIMESYNCREQ){
+			g_send_buffer.DropOldest(1);
+		}
 		//set flag to false after packet has been sent
 		isDataPacketScheduled = false;
 		m_outgoingEntryPtr = NULL;

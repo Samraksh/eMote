@@ -1990,7 +1990,10 @@ void RF231Radio::HandleInterrupt()
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
-				(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+				//if(DS_Success == DownloadMessage()){
+					//(rx_msg_ptr->GetHeader())->length = rx_length;
+					(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
+				//}
 			}
 			//else if(trx_state == 0x00){	//Success)
 

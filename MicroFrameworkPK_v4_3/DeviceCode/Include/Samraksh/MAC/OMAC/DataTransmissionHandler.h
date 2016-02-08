@@ -67,7 +67,7 @@ public:
 	bool Send();
 	void SendRetry();
 	void HardwareACKHandler();
-	void SendACKHandler(UINT8 radioAckStatus);
+	void SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus);
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();
 };
