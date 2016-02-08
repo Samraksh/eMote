@@ -300,7 +300,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 		else{
 #ifdef OMAC_DEBUG_GPIO
-		hal_printf("DataTransmissionHandler::ExecuteEvent Toggling\n");
+		//hal_printf("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
