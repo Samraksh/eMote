@@ -48,10 +48,11 @@ class DataTransmissionHandler: public EventHandler {
 	Message_15_4_t m_TXMsgBuffer;
 	DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
-	UINT8 currentAttempt;
-	UINT8 maxRetryAttempts;
-
+	UINT8 m_currentSlotRetryAttempt;
 	UINT8 m_currentFrameRetryAttempt;
+	UINT8 maxSlotRetryAttempts;
+	UINT8 maxFrameRetryAttempts;
+	UINT8 RANDOM_BACKOFF;
 
 	DataTransmissionHandlerStates txhandler_state;
 public:

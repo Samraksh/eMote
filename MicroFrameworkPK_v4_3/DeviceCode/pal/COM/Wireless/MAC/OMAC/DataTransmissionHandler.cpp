@@ -19,7 +19,7 @@ extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 0;
 const uint FAST_RECOVERY = 1;
-const uint RANDOM_BACKOFF = 0;
+//const uint RANDOM_BACKOFF = 0;
 
 
 //Allows coordination between retrying and receiving a hw ack
@@ -79,9 +79,11 @@ void DataTransmissionHandler::Initialize(){
 #endif
 
 	isDataPacketScheduled = false;
-	currentAttempt = 0;
-	maxRetryAttempts = 3;
-	m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
+	maxSlotRetryAttempts = SLOTRETRYMAXATTEMPT;
+	maxFrameRetryAttempts = FRAMERETRYMAXATTEMPT;
+	m_currentSlotRetryAttempt = 0;
+	m_currentFrameRetryAttempt = 0;
+	RANDOM_BACKOFF = 0;
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -98,6 +100,15 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, TRUE );
+
+	m_currentFrameRetryAttempt++;
+	if(m_currentFrameRetryAttempt > FRAMERETRYMAXATTEMPT){
+		m_currentFrameRetryAttempt = 0;
+		m_currentSlotRetryAttempt = 0;
+		//Packet will have to be dropped if retried max attempts
+		hal_printf("dropping packet\n");
+		g_send_buffer.DropOldest(1);
+	}
 
 	if(ScheduleDataPacket(0)) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
@@ -187,8 +198,8 @@ void DataTransmissionHandler::HardwareACKHandler(){
 #endif
 		resendSuccessful = true;
 		g_send_buffer.DropOldest(1);
-		currentAttempt = 0;
-		m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
+		m_currentSlotRetryAttempt = 0;
+		m_currentFrameRetryAttempt = FRAMERETRYMAXATTEMPT;
 
 		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
@@ -201,26 +212,24 @@ void DataTransmissionHandler::HardwareACKHandler(){
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
 	VirtualTimerReturnMessage rm;
-	//currentAttempt++;
-	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && currentAttempt < CURRENTFRAMERETRYMAXATTEMPT){
+	m_currentSlotRetryAttempt++;
+	RANDOM_BACKOFF = 0;
+
+	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && m_currentSlotRetryAttempt < SLOTRETRYMAXATTEMPT){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 #endif
-		currentAttempt++;
+		//Enable RANDOM_BACKOFF for retries
+		RANDOM_BACKOFF = 1;
 		ExecuteEventHelper();
-		//++m_currentFrameRetryAttempt;
 	}
 	else{
-		if(currentAttempt >= CURRENTFRAMERETRYMAXATTEMPT){
-			currentAttempt = 0;
+		if(m_currentSlotRetryAttempt >= SLOTRETRYMAXATTEMPT){
+			m_currentSlotRetryAttempt = 0;
+			//Disable RANDOM_BACKOFF after retries
+			RANDOM_BACKOFF = 0;
 		}
-		/*if(currentAttempt > maxRetryAttempts){
-			currentAttempt = 0;
-			//Packet will have to be dropped if retried max attempts
-			hal_printf("dropping packet\n");
-			g_send_buffer.DropOldest(1);
-		}*/
 		PostExecuteEvent();
 	}
 }
@@ -238,7 +247,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
 	while(EXECUTE_WITH_CCA){
 		//If retrying, don't do CCA, but perform random backoff and transmit
-		if(m_currentFrameRetryAttempt > 0){
+		if(m_currentSlotRetryAttempt > 0){
 			break;
 		}
 		//Check CCA only for DATA packets
@@ -252,7 +261,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 		canISend = true;
 
-		if(m_currentFrameRetryAttempt == 0){
+		if(m_currentSlotRetryAttempt == 0){
 			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
 				break;
 			}
@@ -265,7 +274,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	}
 
 	//Perform CCA for random backoff period (only for retries)
-	if(RANDOM_BACKOFF && m_currentFrameRetryAttempt > 0){
+	if(RANDOM_BACKOFF && m_currentSlotRetryAttempt > 0){
 		UINT16 m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
 		next_seed = randVal;
@@ -337,9 +346,8 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 
 	VirtualTimerReturnMessage rm;
-
-	currentAttempt = 0;
-	m_currentFrameRetryAttempt = 0;
+	//When starting a new send, reset attempt to 0
+	m_currentSlotRetryAttempt = 0;
 
 	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
@@ -348,13 +356,6 @@ void DataTransmissionHandler::ExecuteEvent(){
 	if(e == DS_Success){
 		this->ExecuteEventHelper();
 		txhandler_state = DTS_WAITING_FOR_ACKS;
-		/*currentAttempt++;
-		if(currentAttempt > maxRetryAttempts){
-			currentAttempt = 0;
-			//Packet will have to be dropped if retried max attempts
-			hal_printf("dropping packet\n");
-			g_send_buffer.DropOldest(1);
-		}*/
 	}
 	else{
 		hal_printf("Radio not in RX state\n");
@@ -383,35 +384,40 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			isDataPacketScheduled = false;
 			m_outgoingEntryPtr = NULL;
 
-			currentAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			//hal_printf("SendACKHandler(if); currentAttempt: %d\n", currentAttempt);
-			//m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
+			m_currentSlotRetryAttempt = 0;
+			m_currentFrameRetryAttempt = 0;
+			txhandler_state = DTS_RECEIVEDDATAACK;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
-			//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, RECV_HW_ACK_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-			if(rm == TimerSupported) txhandler_state = DTS_RECEIVEDDATAACK;
+			//if(rm == TimerSupported)	txhandler_state = DTS_RECEIVEDDATAACK;
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
 		}
 		else{
-			/*currentAttempt++;
-			if(currentAttempt > maxRetryAttempts){
-				currentAttempt = 0;
-				//Packet will have to be dropped if retried max attempts
-				hal_printf("dropping packet\n");
+			//Drop timesync packets irrespective of whether send was successful or not.
+			//Don't retry a TS packet (for now)
+			/*if(rcv_msg->GetHeader()->type == MFM_TIMESYNCREQ){
+				m_currentSlotRetryAttempt = 0;
+				m_currentFrameRetryAttempt = 0;
+				//isDataPacketScheduled = false;
+				//m_outgoingEntryPtr = NULL;
 				g_send_buffer.DropOldest(1);
+			}
+			else if(m_outgoingEntryPtr->GetHeader()->type == MFM_DATA){
+				m_currentSlotRetryAttempt++;
 			}*/
+
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-			if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
+			//if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
@@ -495,22 +501,6 @@ bool DataTransmissionHandler::Send(){
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
-
-		//Drop timesync packets irrespective of whether send was successful or not.
-		//Don't retry a TS packet (for now)
-		if(m_outgoingEntryPtr->GetHeader()->type == MFM_TIMESYNCREQ){
-			//m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			currentAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			if(currentAttempt >= CURRENTFRAMERETRYMAXATTEMPT){
-				currentAttempt = 0;
-				//isDataPacketScheduled = false;
-				//m_outgoingEntryPtr = NULL;
-				g_send_buffer.DropOldest(1);
-			}
-		}
-		else if(m_outgoingEntryPtr->GetHeader()->type == MFM_DATA){
-			//currentAttempt++;
-		}
 
 		//m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success){
