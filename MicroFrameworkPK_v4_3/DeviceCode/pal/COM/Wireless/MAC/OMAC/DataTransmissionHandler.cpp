@@ -19,8 +19,6 @@ extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
-//const uint RANDOM_BACKOFF = 0;
-
 
 
 void PublicDataTxCallback(void * param){
@@ -71,7 +69,9 @@ void DataTransmissionHandler::Initialize(){
 	maxFrameRetryAttempts = FRAMERETRYMAXATTEMPT;
 	m_currentSlotRetryAttempt = 0;
 	m_currentFrameRetryAttempt = 0;
-	RANDOM_BACKOFF = 0;
+	m_RANDOM_BACKOFF = 0;
+	m_backoff_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
+	m_backoff_seed = 119 * 119 * (g_OMAC.GetMyAddress() + 1); // The initial seed
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
@@ -89,34 +89,18 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	//tx time, tx immediately
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, TRUE );
 
-	m_currentFrameRetryAttempt++;
-	if(m_currentFrameRetryAttempt > FRAMERETRYMAXATTEMPT){
-		m_currentFrameRetryAttempt = 0;
-		m_currentSlotRetryAttempt = 0;
-		//Packet will have to be dropped if retried max attempts
-		hal_printf("dropping packet\n");
-
+	++m_currentFrameRetryAttempt;
+	if( m_outgoingEntryPtr != NULL && m_currentFrameRetryAttempt > FRAMERETRYMAXATTEMPT){
 		DropPacket();
 	}
 
 	if(ScheduleDataPacket(0)) {
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		//UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) - DELAY_FROM_OMAC_TX_TO_RF231_TX + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
 		if(EXECUTE_WITH_CCA){
 			nextTXmicro -= CCA_PERIOD_MICRO;
 		}
-		//Delay due to extended mode should not happen before a wake up event; The delay happens after the tx event
-		if(HARDWARE_ACKS){
-			nextTXmicro = nextTXmicro - DELAY_FROM_OMAC_TX_TO_RF231_TX;
-			ASSERT_SP(nextTXmicro > 0);
-		}
-		//Not needed as random backoff is done only during retries
-		/*if(RANDOM_BACKOFF){
-			nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
-			ASSERT_SP(nextTXmicro > 0);
-		}*/
 
 		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 
@@ -134,7 +118,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					ASSERT_SP(nextTXmicro > 0);
 				}
 				//Not needed as random backoff is done only during retries
-				/*if(RANDOM_BACKOFF){
+				/*if(m_RANDOM_BACKOFF){
 					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
 					ASSERT_SP(nextTXmicro > 0);
 				}*/
@@ -177,31 +161,31 @@ UINT64 DataTransmissionHandler::NextEvent(){
 }
 
 void DataTransmissionHandler::DropPacket(){
+	//Packet will have to be dropped if retried max attempts
+	hal_printf("dropping packet\n");
+
 	m_outgoingEntryPtr = NULL;
 	g_send_buffer.DropOldest(1);
 	isDataPacketScheduled = false;
+
+	m_currentFrameRetryAttempt = 0;
+	m_currentSlotRetryAttempt = 0;
 }
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
 	VirtualTimerReturnMessage rm;
 	m_currentSlotRetryAttempt++;
-	RANDOM_BACKOFF = 0;
 
 	if(FAST_RECOVERY && txhandler_state == DTS_WAITING_FOR_ACKS && m_currentSlotRetryAttempt < SLOTRETRYMAXATTEMPT){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 #endif
-		//Enable RANDOM_BACKOFF for retries
-		RANDOM_BACKOFF = 1;
+		//Enable m_RANDOM_BACKOFF for retries
+		m_RANDOM_BACKOFF = 1;
 		ExecuteEventHelper();
 	}
 	else{
-		if(m_currentSlotRetryAttempt >= SLOTRETRYMAXATTEMPT){
-			m_currentSlotRetryAttempt = 0;
-			//Disable RANDOM_BACKOFF after retries
-			RANDOM_BACKOFF = 0;
-		}
 		PostExecuteEvent();
 	}
 }
@@ -209,7 +193,6 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts sending routine for a packet
 	bool canISend = true;
 	DeviceStatus DS = DS_Success;
-	static UINT16 next_seed = 1;
 	VirtualTimerReturnMessage rm;
 
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
@@ -246,14 +229,12 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	}
 
 	//Perform CCA for random backoff period (only for retries)
-	if(RANDOM_BACKOFF && m_currentSlotRetryAttempt > 0){
-		UINT16 m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
-		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
-		next_seed = randVal;
+	if(m_RANDOM_BACKOFF){
+		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
 		int i = 0;
 		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
 		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
-			i++;
+			++i;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			if(DS != DS_Success){
 				hal_printf("transmission detected (inside backoff)!\n");
@@ -320,6 +301,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
+	m_RANDOM_BACKOFF = 0;
 
 	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
@@ -536,10 +518,8 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 			return TRUE;
 		}
 		else { //Case : destination does not exist in the neighbor table
-			//Keep the packet
-			isDataPacketScheduled = false;
-			DropPacket();
 			hal_printf("Cannot find nbr %u\n", dest);
+			DropPacket();
 			return FALSE;
 		}
 	}

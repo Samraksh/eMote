@@ -52,7 +52,9 @@ class DataTransmissionHandler: public EventHandler {
 	UINT8 m_currentFrameRetryAttempt;
 	UINT8 maxSlotRetryAttempts;
 	UINT8 maxFrameRetryAttempts;
-	UINT8 RANDOM_BACKOFF;
+	UINT8 m_RANDOM_BACKOFF;
+	UINT16 m_backoff_seed;
+	UINT16 m_backoff_mask;
 
 	DataTransmissionHandlerStates txhandler_state;
 public:
