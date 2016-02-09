@@ -198,6 +198,7 @@ typedef class IEEE802_15_4_Metadata{
 	UINT8 Lqi;
 	UINT32 ReceiveTimeStamp0;
 	UINT32 ReceiveTimeStamp1;
+	UINT8 RetryAttempts;
 
   public:
 	/*UINT8 GetLength(){
@@ -255,6 +256,12 @@ typedef class IEEE802_15_4_Metadata{
 	}
 	void SetReceiveTimeStamp(UINT32 timestamp){
 		this->ReceiveTimeStamp0 = timestamp;
+	}
+	UINT8 GetRetryAttempts(){
+		return RetryAttempts;
+	}
+	UINT8 SetRetryAttempts(UINT8 r){
+		RetryAttempts = r;
 	}
 
 }IEEE802_15_4_Metadata_t;
