@@ -1984,7 +1984,7 @@ void RF231Radio::HandleInterrupt()
 			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
 			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
 			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
-			if(trx_state == 0x00){	//Success
+			//if(trx_state == 0x00){	//Success
 				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
@@ -1994,7 +1994,7 @@ void RF231Radio::HandleInterrupt()
 					//(rx_msg_ptr->GetHeader())->length = rx_length;
 					(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
 				//}
-			}
+			//}
 			//else if(trx_state == 0x00){	//Success)
 
 			//}

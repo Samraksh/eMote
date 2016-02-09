@@ -60,8 +60,7 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 	CPU_GPIO_EnableOutputPin(DATARX_NEXTEVENT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+
 	CPU_GPIO_EnableOutputPin(FAST_RECOVERY_SEND, TRUE);
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 	CPU_GPIO_EnableOutputPin(DATATX_SEND_ACK_HANDLER, TRUE);
@@ -110,7 +109,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		}
 		//Delay due to extended mode should not happen before a wake up event; The delay happens after the tx event
 		if(HARDWARE_ACKS){
-			nextTXmicro = nextTXmicro - EXTENDED_MODE_TX_DELAY_MICRO - DELAY_FROM_OMAC_TX_TO_RF231_TX;
+			nextTXmicro = nextTXmicro - DELAY_FROM_OMAC_TX_TO_RF231_TX;
 			ASSERT_SP(nextTXmicro > 0);
 		}
 		//Not needed as random backoff is done only during retries
@@ -131,7 +130,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				}
 				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
 				if(HARDWARE_ACKS){
-					nextTXmicro = nextTXmicro - EXTENDED_MODE_TX_DELAY_MICRO - DELAY_FROM_OMAC_TX_TO_RF231_TX;
+					nextTXmicro = nextTXmicro - DELAY_FROM_OMAC_TX_TO_RF231_TX;
 					ASSERT_SP(nextTXmicro > 0);
 				}
 				//Not needed as random backoff is done only during retries
@@ -208,16 +207,13 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 #endif
-		//hal_printf("SendRetry(if); currentAttempt: %d\n", currentAttempt);
 		currentAttempt++;
 		ExecuteEventHelper();
 		//++m_currentFrameRetryAttempt;
 	}
 	else{
-		//hal_printf("SendRetry(else); currentAttempt: %d\n", currentAttempt);
 		if(currentAttempt >= CURRENTFRAMERETRYMAXATTEMPT){
 			currentAttempt = 0;
-			//hal_printf("SendRetry(else if); currentAttempt: %d\n", currentAttempt);
 		}
 		/*if(currentAttempt > maxRetryAttempts){
 			currentAttempt = 0;
@@ -308,8 +304,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -382,14 +378,8 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			//Drop data packets only if send was successful
-			//g_OMAC.receiverSequenceNumber = rcv_msg->GetHeader()->dsn;
-			//if(g_OMAC.receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER){
-				//if(g_OMAC.receiverSequenceNumber == g_OMAC.senderSequenceNumber){
-					//hal_printf("SendAckHanlder; senderSequenceNumber: %d; receiverSequenceNumber: %d\n", g_OMAC.senderSequenceNumber, g_OMAC.receiverSequenceNumber);
-					g_send_buffer.DropOldest(1);
-				//}
-			//}
-			//set flag to false after packet has been sent
+			g_send_buffer.DropOldest(1);
+			//set flag to false after packet has been sent and ack received
 			isDataPacketScheduled = false;
 			m_outgoingEntryPtr = NULL;
 
@@ -418,8 +408,13 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-			txhandler_state = DTS_WAITING_FOR_ACKS;
-			PostExecuteEvent();
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+			if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
+			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				PostExecuteEvent();
+			}
 		}
 	}
 	else {
@@ -505,23 +500,16 @@ bool DataTransmissionHandler::Send(){
 		//Don't retry a TS packet (for now)
 		if(m_outgoingEntryPtr->GetHeader()->type == MFM_TIMESYNCREQ){
 			//m_currentFrameRetryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			//m_outgoingEntryPtr->GetHeader()->retryAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			//currentAttempt = CURRENTFRAMERETRYMAXATTEMPT;
-			////currentAttempt++;
-			//hal_printf("Send(if); currentAttempt: %d\n", currentAttempt);
-			if(currentAttempt > CURRENTFRAMERETRYMAXATTEMPT){
+			currentAttempt = CURRENTFRAMERETRYMAXATTEMPT;
+			if(currentAttempt >= CURRENTFRAMERETRYMAXATTEMPT){
 				currentAttempt = 0;
-				//hal_printf("Send(if if); currentAttempt: %d\n", currentAttempt);
-				isDataPacketScheduled = false;
-				m_outgoingEntryPtr = NULL;
+				//isDataPacketScheduled = false;
+				//m_outgoingEntryPtr = NULL;
 				g_send_buffer.DropOldest(1);
 			}
 		}
 		else if(m_outgoingEntryPtr->GetHeader()->type == MFM_DATA){
-			//m_outgoingEntryPtr->GetHeader()->retryAttempt++;
-			//currentAttempt = m_outgoingEntryPtr->GetHeader()->retryAttempt;
 			//currentAttempt++;
-			//hal_printf("Send(if elseif); currentAttempt: %d\n", currentAttempt);
 		}
 
 		//m_outgoingEntryPtr = NULL;
@@ -536,11 +524,6 @@ bool DataTransmissionHandler::Send(){
 		}
 	}
 	else{
-		/*hal_printf("Nothing scheduled yet\n");
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );*/
 		return false;
 	}
 }
@@ -564,6 +547,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 	}
 
 	if ( m_outgoingEntryPtr != NULL ){
+		//hal_printf("DataTx ScheduleDataPacket; %d\n", (m_outgoingEntryPtr->GetPayload())[8]);
 		UINT16 dest;
 		Neighbor_t* neighborEntry;
 		dest = m_outgoingEntryPtr->GetHeader()->dest;

@@ -111,6 +111,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 		else if(header->type == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
+			//hal_printf("RC send; Sending: %d\n", (msg->GetPayload())[8]);
 		}
 #endif
 

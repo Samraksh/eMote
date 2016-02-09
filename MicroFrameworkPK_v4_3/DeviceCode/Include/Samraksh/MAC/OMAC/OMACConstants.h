@@ -279,7 +279,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
 #define DELAY_FROM_OMAC_TX_TO_RF231_TX	0.40*MICSECINMILISEC	//Delay from start of tx in OMAC to start of writing to SPI bus
 #define ACK_DELAY	0.4*MICSECINMILISEC		//Delay in Rx generating an ack
-#define EXTRA_DELAY_IN_WAITING_FOR_ACK 1.6*MICSECINMILISEC	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
+#define EXTRA_DELAY_IN_WAITING_FOR_ACK 1.6*MICSECINMILISEC	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define FUDGE_FACTOR_FOR_RETRY	0.5*MICSECINMILISEC
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
@@ -299,7 +299,7 @@ typedef OFProv<UINT64> OMACTicks;
 //#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
 #define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
-#define MAX_PACKET_TX_DURATION_MICRO 16*MICSECINMILISEC
+#define MAX_PACKET_TX_DURATION_MICRO 5*MICSECINMILISEC
 #define ACK_RX_MAX_DURATION_MICRO 20000
 
 //Below 2 values are based on empirical observations made on a debug build
