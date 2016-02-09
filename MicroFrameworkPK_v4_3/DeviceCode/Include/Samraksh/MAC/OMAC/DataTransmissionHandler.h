@@ -65,6 +65,7 @@ public:
 	void PostExecuteEvent();
 
 	BOOL ScheduleDataPacket(UINT8 _skipperiods);
+	void DropPacket();
 	bool Send();
 	void SendRetry();
 	void SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus);

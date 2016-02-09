@@ -22,19 +22,6 @@ const uint FAST_RECOVERY = 1;
 //const uint RANDOM_BACKOFF = 0;
 
 
-//Allows coordination between retrying and receiving a hw ack
-//If a hw ack is received, this variable is set to true, which means that current retry
-// was a success
-//static bool resendSuccessful = false; //BK: This is not used and hence I am disabling it
-
-//If current retry was not successful, then function SendRetry is called again,
-// resulting in an endless loop. This avoids that scenario.
-//This is set before sending a packet the first time and is reset during retry.
-//volatile bool currentSendRetry = false;
-
-//Needs some more thought before implementing this fully
-//static UINT64 currentStartTicksForRetransmission = 0;
-
 
 void PublicDataTxCallback(void * param){
 	if(	FAST_RECOVERY) {
@@ -108,7 +95,8 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		m_currentSlotRetryAttempt = 0;
 		//Packet will have to be dropped if retried max attempts
 		hal_printf("dropping packet\n");
-		g_send_buffer.DropOldest(1);
+
+		DropPacket();
 	}
 
 	if(ScheduleDataPacket(0)) {
@@ -188,7 +176,11 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 }
 
-
+void DataTransmissionHandler::DropPacket(){
+	m_outgoingEntryPtr = NULL;
+	g_send_buffer.DropOldest(1);
+	isDataPacketScheduled = false;
+}
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
 	VirtualTimerReturnMessage rm;
@@ -280,7 +272,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		bool rv = Send();
 		if(rv) {
 			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
-				g_send_buffer.DropOldest(1);
+				DropPacket
 			}
 		}
 		else{
@@ -359,10 +351,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			//Drop data packets only if send was successful
-			g_send_buffer.DropOldest(1);
+			DropPacket();
 			//set flag to false after packet has been sent and ack received
-			isDataPacketScheduled = false;
-			m_outgoingEntryPtr = NULL;
+
 
 			m_currentSlotRetryAttempt = 0;
 			m_currentFrameRetryAttempt = 0;
@@ -370,25 +361,11 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-			//if(rm == TimerSupported)	txhandler_state = DTS_RECEIVEDDATAACK;
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
 		}
 		else{
-			//Drop timesync packets irrespective of whether send was successful or not.
-			//Don't retry a TS packet (for now)
-			/*if(rcv_msg->GetHeader()->type == MFM_TIMESYNCREQ){
-				m_currentSlotRetryAttempt = 0;
-				m_currentFrameRetryAttempt = 0;
-				//isDataPacketScheduled = false;
-				//m_outgoingEntryPtr = NULL;
-				g_send_buffer.DropOldest(1);
-			}
-			else if(m_outgoingEntryPtr->GetHeader()->type == MFM_DATA){
-				m_currentSlotRetryAttempt++;
-			}*/
-
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
@@ -431,7 +408,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 
 
 	if(SOFTWARE_ACKS){
-		g_send_buffer.DropOldest(1); // The decision for dropping the packet depends on the outcome of the data reception
+		DropPacket(); // The decision for dropping the packet depends on the outcome of the data reception
 	}
 
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -561,6 +538,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods)
 		else { //Case : destination does not exist in the neighbor table
 			//Keep the packet
 			isDataPacketScheduled = false;
+			DropPacket();
 			hal_printf("Cannot find nbr %u\n", dest);
 			return FALSE;
 		}
