@@ -67,7 +67,6 @@ public:
 	BOOL ScheduleDataPacket(UINT8 _skipperiods);
 	bool Send();
 	void SendRetry();
-	void HardwareACKHandler();
 	void SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus);
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();

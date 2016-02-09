@@ -25,7 +25,8 @@ const uint FAST_RECOVERY = 1;
 //Allows coordination between retrying and receiving a hw ack
 //If a hw ack is received, this variable is set to true, which means that current retry
 // was a success
-static bool resendSuccessful = false;
+//static bool resendSuccessful = false; //BK: This is not used and hence I am disabling it
+
 //If current retry was not successful, then function SendRetry is called again,
 // resulting in an endless loop. This avoids that scenario.
 //This is set before sending a packet the first time and is reset during retry.
@@ -187,28 +188,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 }
 
-void DataTransmissionHandler::HardwareACKHandler(){
-	txhandler_state = DTS_RECEIVEDDATAACK;
-	if(HARDWARE_ACKS){
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, TRUE );
-		CPU_GPIO_SetPinState( DATATX_RECV_HW_ACK, FALSE );
-		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
-		//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
-#endif
-		resendSuccessful = true;
-		g_send_buffer.DropOldest(1);
-		m_currentSlotRetryAttempt = 0;
-		m_currentFrameRetryAttempt = FRAMERETRYMAXATTEMPT;
 
-		VirtualTimerReturnMessage rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
-		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
-			PostExecuteEvent();
-		}
-	}
-}
 
 void DataTransmissionHandler::SendRetry(){ // BK: This function is called to retry in the case of FAST_RECOVERY
 	VirtualTimerReturnMessage rm;
@@ -293,7 +273,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 	//Transmit
 	if(canISend){
-		resendSuccessful = false;
+		//resendSuccessful = false;
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
@@ -373,8 +353,8 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 	txhandler_state = DTS_SEND_FINISHED;
 	VirtualTimerReturnMessage rm;
 
-	if(SOFTWARE_ACKS || HARDWARE_ACKS){
-		resendSuccessful = true;
+	if(HARDWARE_ACKS){
+		//resendSuccessful = true;
 		if(radioAckStatus == TRAC_STATUS_SUCCESS){
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
@@ -421,6 +401,15 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
+		}
+	}
+	else if(SOFTWARE_ACKS){
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
 		}
 	}
 	else {

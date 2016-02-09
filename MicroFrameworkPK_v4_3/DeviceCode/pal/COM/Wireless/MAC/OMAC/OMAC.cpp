@@ -258,34 +258,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
-	//Handle hardware ACKs
-	/*if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
-		receiverSequenceNumber = msg->GetHeader()->dsn;
-#ifdef OMAC_DEBUG_PRINTF
-		hal_printf("senderSequenceNumber: %d; receiverSequenceNumber: %d\n", senderSequenceNumber, receiverSequenceNumber);
-#endif
-		//This is a hardware ACK for a Data packet
-		if(receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER){
-			if(receiverSequenceNumber == senderSequenceNumber){
-				//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
-				//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
-				return msg;
-			}
-			else{
-				return NULL;
-			}
-		}
-		//This is a hardware ACK for a DISCO packet
-		else if(receiverSequenceNumber == OMAC_DISCO_SEQ_NUMBER){
-			//Don't do anything for now. DISCO msgs are anyway sent multiple times
-			return msg;
-		}
-		else{
-			//This should never happen
-			ASSERT_SP(0);
-		}
-	}*/
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
