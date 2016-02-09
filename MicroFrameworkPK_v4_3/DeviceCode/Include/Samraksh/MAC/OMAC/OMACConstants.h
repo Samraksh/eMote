@@ -273,20 +273,24 @@ typedef OFProv<UINT64> OMACTicks;
 #define DELAY_DUE_TO_CCA_MICRO	140
 #define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
+#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO
 #define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	1.2*MICSECINMILISEC
 #define HW_ACK_TO_START_OF_TX_MICRO	2*MICSECINMILISEC
 
+#define EXTRA_DELAY_IN_WAITING_FOR_ACK 1.6*MICSECINMILISEC	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
 #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
-#define DELAY_FROM_OMAC_TX_TO_RF231_TX	0.40*MICSECINMILISEC	//Delay from start of tx in OMAC to start of writing to SPI bus
-#define ACK_DELAY	0.4*MICSECINMILISEC		//Delay in Rx generating an ack
-#define EXTRA_DELAY_IN_WAITING_FOR_ACK 1.6*MICSECINMILISEC	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
-#define FUDGE_FACTOR_FOR_RETRY	0.5*MICSECINMILISEC
+#define DELAY_FROM_OMAC_TX_TO_RF231_TX	0.3*MICSECINMILISEC	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
+#define DELAY_FROM_RF231_TX_TO_RF231_RX	0.2*MICSECINMILISEC	//(B)Delay between Node N1 starting TX to node N2 receiving
+#define ACK_DELAY	0.4*MICSECINMILISEC						//(C)Delay in Rx generating an ack
+#define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
+															//   Sum of (max-min) of (A),(B) will go into (D)
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR+DELAY_FROM_OMAC_TX_TO_RF231_TX+EXTENDED_MODE_TX_DELAY_MICRO+ACK_DELAY\
-													+EXTRA_DELAY_IN_WAITING_FOR_ACK+FUDGE_FACTOR_FOR_RETRY
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
+													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
+														+RETRY_FUDGE_FACTOR
 
 //How long should receiver be awake after sending a HW ack
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
