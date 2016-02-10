@@ -44,7 +44,7 @@ enum TRAC_STATUS
 class DataTransmissionHandler: public EventHandler {
 
 	//Message_15_4_t m_piggybackBeaconCopy;
-	//Message_15_4_t* m_outgoingEntryPtr; //Pointer to the packet to be sent next. Set by schedule data packet
+	Message_15_4_t* m_outgoingEntryPtr; //Pointer to the packet to be sent next. Set by schedule data packet
 	//UINT8 m_outgoingEntryPtr_pos; //Position of the packet in the buffer to be sent next set by next_event
 	UINT16 m_outgoingEntryPtr_dest;
 

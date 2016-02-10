@@ -223,16 +223,18 @@ void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
 	hal_printf("dropping packet\n");
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 		neigh_ptr->send_buffer.DropOldest(1);
-		if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){ //This is flushing the time sync message queue if the previous message was successful
+		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)
+		&& (m_outgoingEntryPtr ->GetHeader()->flags &  MFM_TIMESYNC)
+		){ //This is flushing the time sync message queue if the previous message was successful
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 		}
 	}
-	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
 		neigh_ptr->tsr_send_buffer.DropOldest(1);
 	}
-	else{
+	else{ // The packet is gone
 
 		ASSERT_SP(0);
 	}
@@ -505,29 +507,29 @@ bool DataTransmissionHandler::Send(){
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr == NULL) return false;
 
-	Message_15_4_t* outgoingEntryPtr = NULL;
+	m_outgoingEntryPtr = NULL;
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-		outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+		m_outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
 	}
 	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-		outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
 	}
 	else{
 		ASSERT_SP(0);
 	}
 
 	//Send only when packet has been scheduled
-	if(outgoingEntryPtr != NULL && isDataPacketScheduled){
+	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
 		//UINT16 fcf = m_outgoingEntryPtr->GetHeader()->fcf;
 		//hal_printf("DataTransmissionHandler::Send - fcf is %d\n", fcf);
-		UINT16 dest = outgoingEntryPtr->GetHeader()->dest;
-		IEEE802_15_4_Header_t* header = outgoingEntryPtr->GetHeader();
-		IEEE802_15_4_Metadata* metadata = outgoingEntryPtr->GetMetaData();
+		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
+		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
+		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		g_OMAC.senderSequenceNumber = header->dsn; //BK: I don't know what this is. Seems like residue from incorrect HW ACK implementation. Ananth should check
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
 
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		rs = g_OMAC.m_omac_RadioControl.Send(dest, outgoingEntryPtr, header->length);
+		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
 
