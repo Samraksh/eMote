@@ -180,7 +180,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		if(g_OMAC.m_NeighborTable.Neighbor[i].Status != Dead){
 			// Readjust the neighbors queues
 			while(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
-					&& g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
+					&& g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
 				  ){
 				g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
 			}
@@ -190,7 +190,8 @@ UINT64 DataTransmissionHandler::NextEvent(){
 				g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
 			}
 
-			if(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+
+			if(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 				cur_remMicroSecnextTX = CalculateNextRXOpp(g_OMAC.m_NeighborTable.Neighbor[i].MacAddress);
 				if(cur_remMicroSecnextTX < remMicroSecnextTX){
 					remMicroSecnextTX = cur_remMicroSecnextTX;
@@ -198,7 +199,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					isDataPacketScheduled = true;
 				}
 			}
-			else if(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+			else if(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
 				cur_remMicroSecnextTX = CalculateNextRXOpp(g_OMAC.m_NeighborTable.Neighbor[i].MacAddress);
 				if(cur_remMicroSecnextTX < remMicroSecnextTX){
 					remMicroSecnextTX = cur_remMicroSecnextTX;
@@ -222,11 +223,14 @@ void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
 	hal_printf("dropping packet\n");
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-	if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-		neigh_ptr->tsr_send_buffer.DropOldest(1);
-	}
-	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 		neigh_ptr->send_buffer.DropOldest(1);
+		if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){ //This is flushing the time sync message queue if the previous message was successful
+			neigh_ptr->tsr_send_buffer.DropOldest(1);
+		}
+	}
+	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+		neigh_ptr->tsr_send_buffer.DropOldest(1);
 	}
 	else{
 
@@ -502,11 +506,11 @@ bool DataTransmissionHandler::Send(){
 	if(neigh_ptr == NULL) return false;
 
 	Message_15_4_t* outgoingEntryPtr = NULL;
-	if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-		outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
-	}
-	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
 		outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+	}
+	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+		outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
 	}
 	else{
 		ASSERT_SP(0);
