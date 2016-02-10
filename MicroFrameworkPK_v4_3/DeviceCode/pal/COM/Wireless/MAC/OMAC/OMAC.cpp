@@ -155,7 +155,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
 
-		g_send_buffer.Initialize();
+		//g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
@@ -481,9 +481,25 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return msg_carrier;
 	}
-	msg_carrier = g_send_buffer.GetNextFreeBuffer();
+
+	Neighbor_t* neighborEntry = g_OMAC.m_NeighborTable.GetNeighborPtr(address);
+	if(neighborEntry == NULL) {
+		hal_printf("OMACType Send Error: Destination does not exist in neighbor table %d ", address);
+		return msg_carrier;
+	}
+	else if(neighborEntry->Status == Dead) {
+		hal_printf("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d ", address);
+		return msg_carrier;
+	}
+
+	if(dataType == MFM_TIMESYNCREQ){
+		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+	}
+	else{
+		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
+	}
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		hal_printf("OMACType::Send g_send_buffer full.\n");
+		hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
 		return msg_carrier;
 	}
 
@@ -575,15 +591,23 @@ void OMACType::UpdateNeighborTable(){
  */
 
 UINT8 OMACType::GetBufferSize(){
-	return g_send_buffer.Size();
+	return m_NeighborTable.Neighbor[0].send_buffer.Size();
 }
 
 UINT16 OMACType::GetSendPending(){
-	return g_send_buffer.GetNumberMessagesInBuffer();
+	UINT16 n_msg = 0;
+	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
+		if(m_NeighborTable.Neighbor[i].Status != Dead){
+			n_msg = n_msg + m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer();
+			n_msg = n_msg + m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer();
+		}
+	}
+	return n_msg;
 }
 
 UINT16 OMACType::GetReceivePending(){
-	return g_send_buffer.GetNumberMessagesInBuffer();
+	return 0;
+	//return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
 

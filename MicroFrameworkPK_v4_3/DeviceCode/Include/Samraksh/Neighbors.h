@@ -10,11 +10,14 @@
 #define NEIGHBORS_H_
 
 #include <Samraksh/Mac_decl.h>
+#include <Samraksh\Buffer.h>
 
 #define NeighborChanged 1
 #define Received 0
 
 //#include "TinyCLR_Runtime.h"
+
+#define Buffer_15_4_t_SIZE 8
 
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12
@@ -72,6 +75,9 @@ typedef struct {
 	//TODO: BK: DELETE THESE NOT USED BUT KEPT FOR THE TIME BEIGN
 	UINT16  radioStartDelay;
 	UINT16  counterOffset;
+
+	Buffer_15_4<Buffer_15_4_t_SIZE> send_buffer;
+	Buffer_15_4<1> tsr_send_buffer;
 }Neighbor_t;
 
 class NeighborTable {
@@ -195,6 +201,10 @@ DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].LastTimeSyncRecvTime = 0;
 	Neighbor[tableIndex].LastTimeSyncRequestTime = 0;
 	Neighbor[tableIndex].LastTimeSyncSendTime = 0;
+
+	Neighbor[tableIndex].send_buffer.Initialize();
+	Neighbor[tableIndex].tsr_send_buffer.Initialize();
+
 
 	NumberValidNeighbor--;
 	return DS_Success;

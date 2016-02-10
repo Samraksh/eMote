@@ -19,8 +19,8 @@
 #include <Samraksh\Radio_decl.h>
 
 
-#define Buffer_15_4_t_SIZE 8
-typedef Buffer_15_4<Buffer_15_4_t_SIZE> Buffer_15_4_t;
+
+typedef Buffer_15_4<8> Buffer_15_4_t;
 
 #define MAX_APPS 4
 

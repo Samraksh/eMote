@@ -77,8 +77,7 @@ void DataTransmissionHandler::Initialize(){
 
 }
 
-UINT64 DataTransmissionHandler::CalculateNextRXOpp(Message_15_4_t* _m_outgoingEntryPtr){
-	UINT16 dest = _m_outgoingEntryPtr->GetHeader()->dest;
+UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 	if(UpdateNeighborsWakeUpSlot(dest, 0)) {
 
 		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
@@ -122,9 +121,9 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(Message_15_4_t* _m_outgoingEn
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
 #ifdef def_Neighbor2beFollowed
-		hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
-				, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
-				, remMicroSecnextTX, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
+		//hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
+		//		, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
+		//		, remMicroSecnextTX, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
 #endif
 #endif
 
@@ -154,43 +153,85 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 
 // Check all elements in the buffer
-	UINT64 remMicroSecnextTX = MAX_UINT64;
-	m_outgoingEntryPtr_pos = Buffer_15_4_t_SIZE;
+//	UINT64 remMicroSecnextTX = MAX_UINT64;
+//	m_outgoingEntryPtr_pos = Buffer_15_4_t_SIZE;
+//	m_outgoingEntryPtr_dest = 0;
+//	UINT8 curpos = g_send_buffer.GetFirstFullBufferPosition();
+//	for(UINT8 i = 0; i < g_send_buffer.GetNumberMessagesInBuffer(); ++i){
+//		if(g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetMetaData()->GetRetryAttempts() < FRAMERETRYMAXATTEMPT){
+//			if( (m_outgoingEntryPtr_pos == Buffer_15_4_t_SIZE || m_outgoingEntryPtr_dest != g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest)
+//			&& CalculateNextRXOpp(g_send_buffer.PeekElementAtPosition(curpos)) < remMicroSecnextTX
+//			){
+//				m_outgoingEntryPtr_pos = curpos;
+//				m_outgoingEntryPtr_dest = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest;
+//			}
+//		}
+//		else{
+//			g_send_buffer.DropElementAtPosition(curpos);
+//		}
+//		++curpos;
+//	}
+
+	//Check all Neighbors that have a packet in the queue
+	isDataPacketScheduled = false;
 	m_outgoingEntryPtr_dest = 0;
-	UINT8 curpos = g_send_buffer.GetFirstFullBufferPosition();
-	for(UINT8 i = 0; i < g_send_buffer.GetNumberMessagesInBuffer(); ++i){
-		if(g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetMetaData()->GetRetryAttempts() < FRAMERETRYMAXATTEMPT){
-			if( (m_outgoingEntryPtr_pos == Buffer_15_4_t_SIZE || m_outgoingEntryPtr_dest != g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest)
-			&& CalculateNextRXOpp(g_send_buffer.PeekElementAtPosition(curpos)) < remMicroSecnextTX
-			){
-				m_outgoingEntryPtr_pos = curpos;
-				m_outgoingEntryPtr_dest = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest;
+	UINT64 cur_remMicroSecnextTX, remMicroSecnextTX = MAX_UINT64;
+	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
+		if(g_OMAC.m_NeighborTable.Neighbor[i].Status != Dead){
+			// Readjust the neighbors queues
+			while(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
+					&& g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
+				  ){
+				g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
+			}
+			while(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
+					&& g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
+				  ){
+				g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
+			}
+
+			if(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_OMAC.m_NeighborTable.Neighbor[i].MacAddress);
+				if(cur_remMicroSecnextTX < remMicroSecnextTX){
+					remMicroSecnextTX = cur_remMicroSecnextTX;
+					m_outgoingEntryPtr_dest = g_OMAC.m_NeighborTable.Neighbor[i].MacAddress;
+					isDataPacketScheduled = true;
+				}
+			}
+			else if(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_OMAC.m_NeighborTable.Neighbor[i].MacAddress);
+				if(cur_remMicroSecnextTX < remMicroSecnextTX){
+					remMicroSecnextTX = cur_remMicroSecnextTX;
+					m_outgoingEntryPtr_dest = g_OMAC.m_NeighborTable.Neighbor[i].MacAddress;
+					isDataPacketScheduled = true;
+				}
 			}
 		}
-		else{
-			g_send_buffer.DropElementAtPosition(curpos);
-		}
-		++curpos;
 	}
 
-	//At this point we have decided to send the packet at m_outgoingEntryPtr_pos
-	if(m_outgoingEntryPtr_pos < Buffer_15_4_t_SIZE) {
-		isDataPacketScheduled = true;
-		return CalculateNextRXOpp(g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos));
+	//At this point we have decided to send the packet to m_outgoingEntryPtr_dest
+	if(isDataPacketScheduled) {
+		return CalculateNextRXOpp(m_outgoingEntryPtr_dest);
 	}
 	else {
-		isDataPacketScheduled = false;
 		return MAX_UINT64;
 	}
-
 }
 
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
 	hal_printf("dropping packet\n");
+	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+		neigh_ptr->tsr_send_buffer.DropOldest(1);
+	}
+	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+		neigh_ptr->send_buffer.DropOldest(1);
+	}
+	else{
 
-	g_send_buffer.DropElementAtPosition(m_outgoingEntryPtr_pos);
-	m_outgoingEntryPtr_pos = Buffer_15_4_t_SIZE;
+		ASSERT_SP(0);
+	}
 
 	isDataPacketScheduled = false;
 
@@ -207,7 +248,7 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 	CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
 #endif
 		//Enable m_RANDOM_BACKOFF for retries
-		m_RANDOM_BACKOFF = 1;
+		m_RANDOM_BACKOFF = true;
 		ExecuteEventHelper();
 	}
 	else{
@@ -326,7 +367,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
-	m_RANDOM_BACKOFF = 0;
+	m_RANDOM_BACKOFF = false;
 
 	txhandler_state = DTS_EXECUTE_START;
 	DeviceStatus e = DS_Fail;
@@ -457,21 +498,32 @@ bool DataTransmissionHandler::Send(){
 	//ASSERT_SP(m_outgoingEntryPtr != NULL);
 
 	DeviceStatus rs;
+	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr == NULL) return false;
 
-	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
+	Message_15_4_t* outgoingEntryPtr = NULL;
+	if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
+		outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
+	}
+	else if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
+		outgoingEntryPtr = neigh_ptr->send_buffer.GetOldestwithoutRemoval();
+	}
+	else{
+		ASSERT_SP(0);
+	}
 
 	//Send only when packet has been scheduled
-	if(m_outgoingEntryPtr_pos != Buffer_15_4_t_SIZE && isDataPacketScheduled){
+	if(outgoingEntryPtr != NULL && isDataPacketScheduled){
 		//UINT16 fcf = m_outgoingEntryPtr->GetHeader()->fcf;
 		//hal_printf("DataTransmissionHandler::Send - fcf is %d\n", fcf);
-		UINT16 dest = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader()->dest;
-		IEEE802_15_4_Header_t* header = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetHeader();
-		IEEE802_15_4_Metadata* metadata = g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos)->GetMetaData();
-		g_OMAC.senderSequenceNumber = header->dsn;
+		UINT16 dest = outgoingEntryPtr->GetHeader()->dest;
+		IEEE802_15_4_Header_t* header = outgoingEntryPtr->GetHeader();
+		IEEE802_15_4_Metadata* metadata = outgoingEntryPtr->GetMetaData();
+		g_OMAC.senderSequenceNumber = header->dsn; //BK: I don't know what this is. Seems like residue from incorrect HW ACK implementation. Ananth should check
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
 
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
-		rs = g_OMAC.m_omac_RadioControl.Send(dest, g_send_buffer.PeekElementAtPosition(m_outgoingEntryPtr_pos), header->length);
+		rs = g_OMAC.m_omac_RadioControl.Send(dest, outgoingEntryPtr, header->length);
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 
 
@@ -480,9 +532,7 @@ bool DataTransmissionHandler::Send(){
 			return false;
 		}
 		else{
-			//set flag to false after packet has been sent
 			isDataPacketScheduled = false;
-			//m_outgoingEntryPtr = NULL;
 			return true;
 		}
 	}
@@ -491,9 +541,8 @@ bool DataTransmissionHandler::Send(){
 	}
 }
 
-/*
- * Schedule a data packet only if a neighbor is found or there are msgs in the buffer
- */
+/* Schedule a data packet only if a neighbor is found or there are msgs in the buffer
+
 BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods, UINT16 dest)
 {
 	CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, TRUE );
@@ -505,8 +554,10 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods, UINT16 dest
 
 
 }
+*/
 
-bool DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skipperiods){
+
+BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skipperiods){
 	Neighbor_t* neighborEntry =  g_OMAC.m_NeighborTable.GetNeighborPtr(dest);
 	if (neighborEntry != NULL) {
 		if (neighborEntry->MacAddress != dest) {
