@@ -532,7 +532,6 @@ bool DataTransmissionHandler::Send(){
 			return false;
 		}
 		else{
-			isDataPacketScheduled = false;
 			return true;
 		}
 	}
