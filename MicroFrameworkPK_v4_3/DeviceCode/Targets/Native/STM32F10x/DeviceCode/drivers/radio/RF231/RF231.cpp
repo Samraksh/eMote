@@ -1214,8 +1214,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			UINT16 addressLow = GetAddress() & 0xFF;
 			WriteRegister(RF230_SHORT_ADDR_0, addressLow);
 			WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
-			WriteRegister(RF230_PAN_ID_0, 0x01);
-			WriteRegister(RF230_PAN_ID_1, 0x00);
+			WriteRegister(RF230_PAN_ID_0, 0xFF);
+			WriteRegister(RF230_PAN_ID_1, 0xFF);
 			WriteRegister(RF230_IEEE_ADDR_0, 0x00);
 			WriteRegister(RF230_IEEE_ADDR_1, 0x00);
 			WriteRegister(RF230_IEEE_ADDR_2, 0x00);
@@ -1758,15 +1758,19 @@ void RF231Radio::HandleInterrupt()
 	if(irq_cause & TRX_IRQ_PLL_UNLOCK) {  }
 
 	//if( (irq_cause & TRX_IRQ_RX_START) && (irq_cause & TRX_IRQ_AMI) ){
-	if( irq_cause == 36 ){
+	if( irq_cause == (TRX_IRQ_RX_START | TRX_IRQ_AMI) ){
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+		//This is an invalid case
+		//irq_cause = TRX_NO_IRQ;
+		//return;
 	}
 
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
+		/*
 		add_rx_start_time();
 		if(RF231_extended_mode){
 			state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
@@ -1819,6 +1823,7 @@ void RF231Radio::HandleInterrupt()
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
+		*/
 
 		/*if(RF231_extended_mode){
 			if(DS_Success==DownloadMessage()){
@@ -1868,14 +1873,85 @@ void RF231Radio::HandleInterrupt()
 	}
 
 
-	if(irq_cause & TRX_IRQ_AMI){
+	if(irq_cause & TRX_IRQ_AMI)
+	{
 #ifdef DEBUG_RF231
 		hal_printf("Inside TRX_IRQ_AMI\n");
 #endif
 		//After an address match, next step is FCS which generates TRX_END interrupt
-		cmd = CMD_RX_AACK;
+		////cmd = CMD_RX_AACK;
+
+		/*
+		if(DS_Success == DownloadMessage()){
+			if(rx_length > IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
+			hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+#endif
+				return;
+			}
+			IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+			UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+			//if(header->dest != GetAddress() && header->dest != 65535){
+			if(header->dest == GetAddress()){
+				hal_printf("Incorrect dest address: %d\n", header->dest);
+				hal_printf("Incorrect src address: %d\n", header->src);
+				//hal_printf("payload[8]: %d\n", payloadMSG[8]);
+				return;
+			}
+		}
+		*/
+
+		add_rx_start_time();
+		if(RF231_extended_mode){
+			state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
+		}
+		else{
+			state = STATE_BUSY_RX; // Seems like we should change state, so I made one up...
+		}
+		//NATHAN_SET_DEBUG_GPIO(0);
+#		ifdef DEBUG_RF231
+		hal_printf("RF231: TRX_IRQ_RX_START\r\n");
+#		endif
+		// We got an Recieve frame start when the driver is not doing any thing particular
+		// let us process this interrupt then
+
+		temp = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
+
+		// Keeps track of average rssi, why ?? may be useful someday :)
+		// How is this an average??? --NPS
+		rssi_busy += temp - (rssi_busy >> 2);
+
+		// Add the rssi to the message
+		IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+		metadata->SetRssi(temp);
+
+		// Do the time stamp here instead of after done, I think.
+		// Note there is potential to use a capture time here, for better accuracy.
+		// Currently, this will depend on interrupt latency.
+		receive_timestamp = HAL_Time_CurrentTicks();
+
+		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
+		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
+		// captured giving more accurate timestamping, we are going to rely on this less reliable technique
+		//AnanthAtSamraksh: defaulting to the AdvancedTimer
+
+		// This is not being used anywhere right now, so commenting out.
+		//time = (HAL_Time_CurrentTicks() >> 32); // Throwing away the bottom 32-bits? Doesn't that really hurt timing??? --NPS
+
+		// Initiate cmd receive
+		if(RF231_extended_mode){
+			cmd = CMD_RX_AACK;
+		}
+		else{
+			cmd = CMD_RECEIVE;
+		}
+
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+
+		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
+
+		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 	}
 
 	// The contents of the frame buffer went out (OR we finished a RX --NPS)
@@ -2002,10 +2078,17 @@ void RF231Radio::HandleInterrupt()
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, FALSE);
-				//if(DS_Success == DownloadMessage()){
-					//(rx_msg_ptr->GetHeader())->length = rx_length;
-					(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
-				//}
+				/*if(DS_Success == DownloadMessage()){
+					(rx_msg_ptr->GetHeader())->length = rx_length;
+					IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+					UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+					if(header->src == 0 && header->dest == 0){
+						hal_printf("ACK dest address: %d\n", header->dest);
+						hal_printf("ACK src address: %d\n", header->src);
+						hal_printf("ACK seq number: %d\n", header->dsn);
+					}
+				}*/
+				(Radio_event_handler.GetSendAckHandler())(tx_msg_ptr, tx_length, NetworkOperations_Success, trx_state);
 			//}
 			//else if(trx_state == 0x00){	//Success)
 
@@ -2096,6 +2179,19 @@ void RF231Radio::HandleInterrupt()
 						}
 #endif
 
+
+						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+						//UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+						if(header->dest != GetAddress() && header->dest != 65535){
+							UINT16 myAddr = GetAddress();
+							hal_printf("Incorrect dest address: %d\n", header->dest);
+							hal_printf("Incorrect src address: %d\n", header->src);
+							ASSERT_RADIO(0);
+							//hal_printf("payload[8]: %d\n", payloadMSG[8]);
+							return;
+						}
+
+
 						CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
 						CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 						(rx_msg_ptr->GetHeader())->length = rx_length;
@@ -2147,7 +2243,8 @@ void RF231Radio::HandleInterrupt()
 		else
 		{ // Something happened. unclear what. Try to go to a safe state.
 #ifndef NDEBUG
-			hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
+			//hal_printf("Warning: RF231: Strangeness at line %d\r\n", __LINE__);
+			hal_printf("irq_cause is: %u; cmd is: %d; line: %d\n", irq_cause, cmd, __LINE__);
 #endif
 
 #ifdef DEBUG_RF231

@@ -409,10 +409,20 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				m_currentSlotRetryAttempt++;
 			}*/
 
-			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
-			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
-			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			if(radioAckStatus == TRAC_STATUS_NO_ACK){
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			}
+			else if(radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			}
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );

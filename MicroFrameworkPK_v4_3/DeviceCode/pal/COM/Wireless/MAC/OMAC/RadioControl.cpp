@@ -29,7 +29,9 @@ extern OMACType g_OMAC;
 DeviceStatus RadioControl_t::Initialize(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SEND_PIN, FALSE);
+	CPU_GPIO_SetPinState( RADIOCONTROL_SEND_PIN, FALSE );
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_SENDTS_PIN, FALSE);
+	CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, FALSE );
 	CPU_GPIO_EnableOutputPin(RADIOCONTROL_STATEPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(RC_TX_TIMESYNCREQ, FALSE);
 	CPU_GPIO_EnableOutputPin(RC_TX_DATA, FALSE);
@@ -62,8 +64,8 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
-	header->srcpan = 0x0001;
-	header->destpan = 0x0001;
+	header->srcpan = 0xFFFF;
+	header->destpan = 0xFFFF;
 	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
@@ -149,10 +151,10 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if(!(header->flags & MFM_TIMESYNC) && (header->type != MFM_TIMESYNC)) {
+	if(!(header->flags & TIMESTAMPED_FLAG) && (header->type != MFM_TIMESYNC)) {
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
-	if(!(header->flags & MFM_DISCOVERY) && (header->type != MFM_DISCOVERY)) {
+	if(!(header->flags & TIMESTAMPED_FLAG) && (header->type != MFM_DISCOVERY)) {
 	//	rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
@@ -168,7 +170,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((header->flags & MFM_TIMESYNC) || (header->type == MFM_TIMESYNC)){ //Already embedded
+	if((header->flags & TIMESTAMPED_FLAG) || (header->type == MFM_TIMESYNC)){ //Already embedded
 		return false;
 	}
 
@@ -185,6 +187,12 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		// Event time already exists in the packet (either just added or added by the C# application earlier)
 		// Adjust the time stamp of the timesync packet accordingly.
 		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
+
+		CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, TRUE );
+		CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, FALSE );
+		CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, TRUE );
+		CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, FALSE );
+
 		header->flags = ((header->flags | TIMESTAMPED_FLAG));
 		y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 		y_lo = y & 0xFFFFFFFF;
@@ -204,7 +212,7 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((header->flags & MFM_DISCOVERY) || (header->type == MFM_DISCOVERY)){ //Already embedded
+	if((header->flags & TIMESTAMPED_FLAG) || (header->type == MFM_DISCOVERY)){ //Already embedded
 		return false;
 	}
 

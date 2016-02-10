@@ -342,8 +342,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	finalSeqNumber += seqNumber;
 	//header->dsn = finalSeqNumber;
 	header->dsn = OMAC_DISCO_SEQ_NUMBER;
-	header->srcpan = 0x0001;
-	header->destpan = 0x0001;
+	header->srcpan = 0xFFFF;
+	header->destpan = 0xFFFF;
 	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
