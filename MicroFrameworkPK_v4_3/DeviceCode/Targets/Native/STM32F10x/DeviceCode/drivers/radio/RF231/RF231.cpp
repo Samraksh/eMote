@@ -372,11 +372,11 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	// Adding 2 for crc and 4 bytes for timestamp
 	if(size + crc_size + timestamp_size > IEEE802_15_4_FRAME_LENGTH){
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	if ( !IsInitialized() ) {
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	interrupt_mode_check();
@@ -411,7 +411,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
-			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 		}
 	}
 	else{
@@ -420,7 +420,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 			state = STATE_PLL_ON;
 		}
 		else {
-			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 		}
 	}
 
@@ -469,7 +469,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		state = STATE_RX_ON;
 	}
 	else {
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 	}
 	DeviceStatus ds = ClearChannelAssesment();
 	if(ds == DS_Fail){
@@ -483,7 +483,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	}
 	else {
 		hal_printf("SendTS Radio state change failed; state is %d\n", state);
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	// Initiate frame transmission by asserting SLP_TR pin
@@ -590,7 +590,7 @@ DeviceStatus RF231Radio::Reset()
 	UINT32 reg = 0;
 	reg = ReadRegister(RF230_TRX_CTRL_0);
 
-			// The RF230_TRX_STATE register controls the state transition
+	// The RF230_TRX_STATE register controls the state transition
 	WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
 
 	// Nived.Sivadas - Hanging in the initialize function caused by the radio being in an unstable state
@@ -797,11 +797,11 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 
 	// Adding 2 for crc
 	if(size + crc_size> IEEE802_15_4_FRAME_LENGTH){
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	if ( !IsInitialized() ) {
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	interrupt_mode_check();
@@ -822,7 +822,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		else {
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("(Send)trx_status is %d; state is %d\n", trx_status, state);
-			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 		}
 	}
 	else{
@@ -831,7 +831,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 			state = STATE_PLL_ON;
 		}
 		else {
-			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 		}
 	}
 
@@ -870,7 +870,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 		state = STATE_RX_ON;
 	}
 	else {
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 	}
 	DeviceStatus ds = ClearChannelAssesment();
 	if(ds == DS_Fail){
@@ -884,7 +884,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 	}
 	else {
 		hal_printf("send Radio state change failed; state is %d\n", state);
-		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_INVALID);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
 	}
 
 	// Initiate frame transmission by asserting SLP_TR pin
@@ -1615,6 +1615,9 @@ measureAgain:
 
 #ifndef RSSI_CHECK_ALL_VALUES
 	for(int i = 0; i < rssiCount; i++){
+		/*if(rssiBuffer[i] > averageRssi){
+			averageRssi = rssiBuffer[i];
+		}*/
 		averageRssi += rssiBuffer[i];
 	}
 	averageRssi = averageRssi/rssiCount;
@@ -1722,13 +1725,14 @@ void RF231Radio::HandleInterrupt()
 {
 	UINT32 irq_cause;
 	INT16 temp;
-	const UINT8 UNSUPPORTED_INTERRUPTS = TRX_IRQ_4 | TRX_IRQ_5 | TRX_IRQ_BAT_LOW | TRX_IRQ_TRX_UR;
+	const UINT8 UNSUPPORTED_INTERRUPTS = TRX_IRQ_BAT_LOW | TRX_IRQ_TRX_UR;
 	INIT_STATE_CHECK();
 
 	// I don't want to do a big lock here but the rest of the driver is so ugly... --NPS
 	GLOBAL_LOCK(irq);
 
 	irq_cause = ReadRegister(RF230_IRQ_STATUS); // This clears the IRQ as well
+	//hal_printf("irq_cause is: %u\n", irq_cause);
 #ifdef DEBUG_RF231
 	hal_printf("irq_cause is: %u\n", irq_cause);
 #endif
@@ -1752,6 +1756,14 @@ void RF231Radio::HandleInterrupt()
 		//(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(PreambleDetect);
 	}
 	if(irq_cause & TRX_IRQ_PLL_UNLOCK) {  }
+
+	//if( (irq_cause & TRX_IRQ_RX_START) && (irq_cause & TRX_IRQ_AMI) ){
+	if( irq_cause == 36 ){
+		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
+		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
+		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+	}
 
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
@@ -1882,7 +1894,7 @@ void RF231Radio::HandleInterrupt()
 
 			state = STATE_PLL_ON;
 
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
 			// Call radio send done event handler when the send is complete
 			//SendAckFuncPtrType AckHandler = Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetSendAckHandler();
 			//(*AckHandler)(tx_msg_ptr, tx_length,NetworkOperations_Success);
@@ -1983,7 +1995,7 @@ void RF231Radio::HandleInterrupt()
 #endif
 			CPU_GPIO_SetPinState( RF231_TRX_TX_END, TRUE );
 			CPU_GPIO_SetPinState( RF231_TRX_TX_END, FALSE );
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
 			//if(trx_state == 0x00){	//Success
 				//hal_printf("(CMD_TX_ARET)trx_state: %d\n", trx_state);
 				CPU_GPIO_SetPinState(RF231_START_OF_RX_MODE, TRUE);
@@ -2034,7 +2046,7 @@ void RF231Radio::HandleInterrupt()
 			//Refer page 62 and 69, 70
 			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
 			//	Indicates that an ACK frame is about to be sent
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & 0xE0;
+			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
 			/*hal_printf("(CMD_RX_AACK)trx_state: %d\n", trx_state);*/
 
 			//if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)

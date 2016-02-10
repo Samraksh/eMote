@@ -375,7 +375,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 	if(SOFTWARE_ACKS || HARDWARE_ACKS){
 		resendSuccessful = true;
-		if(radioAckStatus == TRAC_STATUS_SUCCESS){
+		if(radioAckStatus == TRAC_STATUS_SUCCESS || radioAckStatus == TRAC_STATUS_SUCCESS_DATA_PENDING){
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 			//Drop data packets only if send was successful
@@ -395,7 +395,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				PostExecuteEvent();
 			}
 		}
-		else{
+		else if(radioAckStatus == TRAC_STATUS_NO_ACK || radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
 			//Drop timesync packets irrespective of whether send was successful or not.
 			//Don't retry a TS packet (for now)
 			/*if(rcv_msg->GetHeader()->type == MFM_TIMESYNCREQ){
@@ -421,6 +421,26 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
+		}
+		/*else if(radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
+			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+			txhandler_state = DTS_WAITING_FOR_ACKS;
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 2000, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+			//if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
+			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				PostExecuteEvent();
+			}
+		}*/
+		else{
+			hal_printf("radioAckStatus: %d\n", radioAckStatus);
+			ASSERT_SP(0);
 		}
 	}
 	else {

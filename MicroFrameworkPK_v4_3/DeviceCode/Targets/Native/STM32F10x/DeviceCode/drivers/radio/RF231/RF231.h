@@ -116,6 +116,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //0101 0011
 #define RF231_CSMA_BE_VALUE		0x53
 
+#define TRAC_STATUS_MASK	0xE0
+
 
 #define RF230_DEF_CHANNEL 26
 
@@ -201,10 +203,10 @@ typedef enum radio_irq_reason
     TRX_IRQ_PLL_UNLOCK              = (0x02),
     TRX_IRQ_RX_START                = (0x04),
     TRX_IRQ_TRX_END                 = (0x08),
-    TRX_IRQ_CCA_ED_DONE             = (0x10),
-    TRX_IRQ_AMI             		= (0x20),
-    TRX_IRQ_TRX_UR                  = (0x40),
-    TRX_IRQ_BAT_LOW                 = (0x80)
+    TRX_IRQ_CCA_ED_DONE             = (0x10),	//16
+    TRX_IRQ_AMI             		= (0x20),	//32
+    TRX_IRQ_TRX_UR                  = (0x40),	//64
+    TRX_IRQ_BAT_LOW                 = (0x80)	//128
 } radio_irq_reason_t;
 
 
@@ -414,15 +416,16 @@ enum Channels
 	channel_26,
 };
 
-//page 70
+//page 70 in RF231 datasheet
 enum TRAC_STATUS
 {
 	TRAC_STATUS_SUCCESS = 0x00,
-	TRAC_STATUS_SUCCESS_DATA_PENDING = 0x20,	//0010 0000
-	TRAC_STATUS_SUCCESS_WAIT_FOR_ACK = 0x40,	//0100 0000
-	TRAC_STATUS_CHANNEL_ACCESS_FAILURE = 0x60,	//0110 0000
-	TRAC_STATUS_NO_ACK = 0xA0,					//1010 0000
-	TRAC_STATUS_INVALID	= 0xE0,					//1110 0000
+	TRAC_STATUS_SUCCESS_DATA_PENDING = 0x20,	//0010 0000 (32)
+	TRAC_STATUS_SUCCESS_WAIT_FOR_ACK = 0x40,	//0100 0000 (64)
+	TRAC_STATUS_CHANNEL_ACCESS_FAILURE = 0x60,	//0110 0000 (96)
+	TRAC_STATUS_FAIL_TO_SEND = 0x80,			//1000 0000 (128)
+	TRAC_STATUS_NO_ACK = 0xA0,					//1010 0000 (160)
+	TRAC_STATUS_INVALID	= 0xE0,					//1110 0000 (224)
 };
 
 class RF231Radio : public Radio<Message_15_4_t>
