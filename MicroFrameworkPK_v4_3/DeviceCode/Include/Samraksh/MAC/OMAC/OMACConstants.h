@@ -270,7 +270,7 @@ typedef OFProv<UINT64> OMACTicks;
 
 #define RANDOM_BACKOFF_COUNT_MAX	4
 #define RANDOM_BACKOFF_COUNT_MIN	1
-#define DELAY_DUE_TO_CCA_MICRO	140
+#define DELAY_DUE_TO_CCA_MICRO	260
 #define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
 #define RETRY_RANDOM_BACKOFF_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO

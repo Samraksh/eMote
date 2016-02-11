@@ -652,6 +652,7 @@ public:
 	DeviceStatus StandBy();
 
 	DeviceStatus DownloadMessage();
+	DeviceStatus DownloadMessage(UINT16 length);
 
 	void HandleInterrupt();
 };

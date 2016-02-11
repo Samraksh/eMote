@@ -20,7 +20,7 @@ extern OMACType g_OMAC;
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
 //const uint RANDOM_BACKOFF = 0;
-#define RADIO_CHIP_CSMA 1
+//#define RADIO_CHIP_CSMA 1
 
 
 //Allows coordination between retrying and receiving a hw ack
