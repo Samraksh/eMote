@@ -516,7 +516,6 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	hal_printf("1.header->dest: %d\n", header->dest);
 	/****** Taking the word value of below bits gives 26150 *******/
 	/*header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameType = FRAME_TYPE_MAC;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.securityEnabled = 0;
@@ -538,8 +537,8 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 	header->dsn = finalSeqNumber;
 	//header->dsn = 97;
-	header->srcpan = 0xFFFF;
-	header->destpan = 0xFFFF;
+	header->srcpan = 0x0001;
+	header->destpan = 0x0001;
 	/*if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
@@ -554,7 +553,6 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		header->dest = 0x1111;
 	}*/
 	header->dest = address;
-	hal_printf("2.header->dest: %d\n", header->dest);
 	header->src = GetMyAddress();
 	//header->retryAttempt = 0;
 	seqNumber++;

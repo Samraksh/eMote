@@ -1214,10 +1214,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			UINT16 addressLow = GetAddress() & 0xFF;
 			WriteRegister(RF230_SHORT_ADDR_0, addressLow);
 			WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
-			WriteRegister(RF230_PAN_ID_0, 0xFF);
-			WriteRegister(RF230_PAN_ID_1, 0xFF);
-			WriteRegister(RF230_IEEE_ADDR_0, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_1, 0x00);
+			WriteRegister(RF230_PAN_ID_0, 0x01);
+			WriteRegister(RF230_PAN_ID_1, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_0, addressLow);
+			WriteRegister(RF230_IEEE_ADDR_1, addressHigh);
 			WriteRegister(RF230_IEEE_ADDR_2, 0x00);
 			WriteRegister(RF230_IEEE_ADDR_3, 0x00);
 			WriteRegister(RF230_IEEE_ADDR_4, 0x00);
@@ -1881,7 +1881,8 @@ void RF231Radio::HandleInterrupt()
 		//After an address match, next step is FCS which generates TRX_END interrupt
 		////cmd = CMD_RX_AACK;
 
-		/*
+		//Enable ACKs
+		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
 		if(DS_Success == DownloadMessage()){
 			if(rx_length > IEEE802_15_4_FRAME_LENGTH){
 #ifdef DEBUG_RF231
@@ -1890,16 +1891,19 @@ void RF231Radio::HandleInterrupt()
 				return;
 			}
 			IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-			UINT8* payloadMSG = rx_msg_ptr->GetPayload();
-			//if(header->dest != GetAddress() && header->dest != 65535){
-			if(header->dest == GetAddress()){
-				hal_printf("Incorrect dest address: %d\n", header->dest);
-				hal_printf("Incorrect src address: %d\n", header->src);
+			//UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+			if(header->dest != GetAddress() && header->dest != 65535){
+			//if(header->dest == GetAddress()){
+				//Disable ACKs
+				//1101 0010
+				WriteRegister(RF230_CSMA_SEED_1, 0xD2);
+				//hal_printf("Incorrect dest address: %d\n", header->dest);
+				//hal_printf("Incorrect src address: %d\n", header->src);
 				//hal_printf("payload[8]: %d\n", payloadMSG[8]);
-				return;
+				//return;
 			}
 		}
-		*/
+
 
 		add_rx_start_time();
 		if(RF231_extended_mode){
@@ -2179,18 +2183,18 @@ void RF231Radio::HandleInterrupt()
 						}
 #endif
 
-
+						/*
 						IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
 						//UINT8* payloadMSG = rx_msg_ptr->GetPayload();
 						if(header->dest != GetAddress() && header->dest != 65535){
 							UINT16 myAddr = GetAddress();
 							hal_printf("Incorrect dest address: %d\n", header->dest);
 							hal_printf("Incorrect src address: %d\n", header->src);
-							ASSERT_RADIO(0);
+							//ASSERT_RADIO(0);
 							//hal_printf("payload[8]: %d\n", payloadMSG[8]);
-							return;
+							//return;
 						}
-
+						*/
 
 						CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
 						CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
