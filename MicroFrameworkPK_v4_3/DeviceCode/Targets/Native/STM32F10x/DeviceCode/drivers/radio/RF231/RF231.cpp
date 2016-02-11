@@ -1933,6 +1933,7 @@ void RF231Radio::HandleInterrupt()
 
 	if(irq_cause & TRX_IRQ_AMI)
 	{
+		//hal_printf("Inside TRX_IRQ_AMI\n");
 #ifdef DEBUG_RF231
 		hal_printf("Inside TRX_IRQ_AMI\n");
 #endif
@@ -2005,9 +2006,10 @@ void RF231Radio::HandleInterrupt()
 				//Bit 4 	- AACK_DIS_ACK 		- If this bit is set no ack frames are transmitted (0)
 				//1101 0010
 				WriteRegister(RF230_CSMA_SEED_1, 0xD2);
-				//hal_printf("Incorrect dest address: %d\n", header->dest);
-				//hal_printf("Incorrect src address: %d\n", header->src);
+				hal_printf("Incorrect dest address: %d\n", header->dest);
+				hal_printf("src address: %d\n", header->src);
 				//hal_printf("payload[8]: %d\n", payloadMSG[8]);
+				//ASSERT_RADIO(0);
 				//return;
 			}
 		}
@@ -2248,7 +2250,7 @@ void RF231Radio::HandleInterrupt()
 						if(header->dest != GetAddress() && header->dest != 65535){
 							UINT16 myAddr = GetAddress();
 							hal_printf("Incorrect dest address: %d\n", header->dest);
-							hal_printf("Incorrect src address: %d\n", header->src);
+							hal_printf("src address: %d\n", header->src);
 							//ASSERT_RADIO(0);
 							//hal_printf("payload[8]: %d\n", payloadMSG[8]);
 							//return;

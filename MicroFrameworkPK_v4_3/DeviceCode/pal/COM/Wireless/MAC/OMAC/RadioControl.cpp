@@ -48,7 +48,7 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	UINT8 finalSeqNumber = 0;
 
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
-	/****** Taking the word value of below bits gives 26150 *******/
+	/****** Taking the word value of below bits gives FCF_WORD_VALUE *******/
 	/*header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameType = FRAME_TYPE_MAC;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.securityEnabled = 0;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.framePending = 0;
@@ -59,7 +59,7 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
 	/**************************************************************/
-	header->fcf.fcfWordValue = 26150;
+	header->fcf.fcfWordValue = FCF_WORD_VALUE;
 	finalSeqNumber = g_OMAC.GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;

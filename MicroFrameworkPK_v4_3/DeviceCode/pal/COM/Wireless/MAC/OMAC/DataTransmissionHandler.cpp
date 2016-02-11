@@ -291,12 +291,13 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
 		next_seed = randVal;
 		int i = 0;
+		int finalBackoffValue = randVal % RANDOM_BACKOFF_COUNT_MAX;
 		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT_MAX));
-		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
-			i++;
+		while(i <= finalBackoffValue){
+			++i;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			if(DS != DS_Success){
-				hal_printf("transmission detected (inside backoff)!\n");
+				//hal_printf("transmission detected (inside backoff)!\n");
 				canISend = false;
 				break;
 			}

@@ -96,13 +96,21 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define	 RF231_XAH_CTRL_0_VALUE		 0x0E
 //Page 74-75 in the RF231 datasheet
 //Bit [7:6] - AACK_FVN_MODE		- Mode is set to 3 (Acknowledge independent of frame version number) (11) (to be changed to 00 later)
+//									RX_AACK register bit AACK_FVN_MODE (register 0x2E, CSMA_SEED_1) controls the behavior
+//									of frame acknowledgements. This register determines if, depending on the Frame Version
+//									Number, a frame is acknowledged or not. This is necessary for backward compatibility to IEEE
+//									802.15.4-2003 and for future use. Even if frame version numbers 2 and 3 are reserved, it can be
+//									handled by the radio transceiver.
+//								  If AACK_FVN_MODE is 2 and frame version in FCF is 2 - No AMI is generated
+//								  If AACK_FVN_MODE is 2 and frame version in FCF is 3 - AMI is generated
+//
 //Bit 5 	- AACK_SET_PD 		- Content is copied into the frame pending subfield of the acknowledgement frame if ack
 //									is the answer to a data request MAC command frame (0)
 //Bit 4 	- AACK_DIS_ACK 		- If this bit is set no ack frames are transmitted (0)
 //Bit 3 	- AACK_I_AM_COORD 	- This has to be set if the node is a PAN coordinator (0)
 //Bit [2:0]	- CSMA_SEED_1 		- Higher 3 bit of the CSMA_SEED (010)
 //Register CSMA_SEED_1 is 0x2E
-//1100 0010 (0x82 also works)
+//1100 0010 (0x82, 0xC2 work)
 #define RF231_CSMA_SEED_1_VALUE		0xC2
 //Page 73-74
 //The seed for random value for CSMA-CA backoff is 010 1010 1010
