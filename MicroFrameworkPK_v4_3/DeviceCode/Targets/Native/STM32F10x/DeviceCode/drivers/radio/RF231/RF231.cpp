@@ -558,6 +558,64 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	return tx_msg_ptr;
 }
 
+void* RF231Radio::SendRetry(){
+	if ( !IsInitialized() ) {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+	}
+
+	interrupt_mode_check();
+
+	GLOBAL_LOCK(irq);
+
+	if(RF231_extended_mode){
+		// Go to TX_ARET_ON
+		if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
+			state = STATE_TX_ARET_ON;
+		}
+		else {
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+#ifdef DEBUG_RF231
+			hal_printf("(Send_TimeStamped)trx_status is %d; state is %d\n", trx_status, state);
+#endif
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+		}
+	}
+	else{
+		// Go to PLL_ON
+		if ( Careful_State_Change(RF230_PLL_ON) ) {
+			state = STATE_PLL_ON;
+		}
+		else {
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+		}
+	}
+
+	// Toggle SLP_TR pin to indicate radio to start TX
+	SlptrSet();
+	//HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+}
+
+DeviceStatus RF231Radio::EnableCSMA(){
+	//Page 73 in RF231 datasheet
+	//Bits 7-4 - MAX_FRAME_RETRIES - being set to 0 (0000)
+	//Bits 3-1 - MAX_CSMA_RETRIES - being set to 7 (000)
+	//Bit 0 - SLOTTED_OPERATION - set to 0
+	//Register XAH_CTRL_1 is 0x2C
+	//0000 0000
+	WriteRegister(RF230_XAH_CTRL_0, 0x00);
+}
+
+DeviceStatus RF231Radio::DisableCSMA(){
+	//Page 73 in RF231 datasheet
+	//Bits 7-4 - MAX_FRAME_RETRIES - being set to 0 (0000)
+	//Bits 3-1 - MAX_CSMA_RETRIES - being set to 7 (111)
+	//Bit 0 - SLOTTED_OPERATION - set to 0
+	//Register XAH_CTRL_1 is 0x2C
+	//0000 1110
+	WriteRegister(RF230_XAH_CTRL_0, 0x0E);
+}
+
 DeviceStatus RF231Radio::Reset()
 {
 	INIT_STATE_CHECK()
@@ -1881,30 +1939,6 @@ void RF231Radio::HandleInterrupt()
 		//After an address match, next step is FCS which generates TRX_END interrupt
 		////cmd = CMD_RX_AACK;
 
-		//Enable ACKs
-		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
-		if(DS_Success == DownloadMessage()){
-			if(rx_length > IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-			hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
-#endif
-				return;
-			}
-			IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-			//UINT8* payloadMSG = rx_msg_ptr->GetPayload();
-			if(header->dest != GetAddress() && header->dest != 65535){
-			//if(header->dest == GetAddress()){
-				//Disable ACKs
-				//1101 0010
-				WriteRegister(RF230_CSMA_SEED_1, 0xD2);
-				//hal_printf("Incorrect dest address: %d\n", header->dest);
-				//hal_printf("Incorrect src address: %d\n", header->src);
-				//hal_printf("payload[8]: %d\n", payloadMSG[8]);
-				//return;
-			}
-		}
-
-
 		add_rx_start_time();
 		if(RF231_extended_mode){
 			state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
@@ -1952,6 +1986,31 @@ void RF231Radio::HandleInterrupt()
 
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
+
+		//Enable ACKs
+		//1100 0010
+		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
+		if(DS_Success == DownloadMessage()){
+			if(rx_length > IEEE802_15_4_FRAME_LENGTH){
+#ifdef DEBUG_RF231
+			hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
+#endif
+				return;
+			}
+			IEEE802_15_4_Header_t* header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
+			//UINT8* payloadMSG = rx_msg_ptr->GetPayload();
+			if(header->dest != GetAddress() && header->dest != 65535){
+			//if(header->dest == GetAddress()){
+				//Disable ACKs
+				//Bit 4 	- AACK_DIS_ACK 		- If this bit is set no ack frames are transmitted (0)
+				//1101 0010
+				WriteRegister(RF230_CSMA_SEED_1, 0xD2);
+				//hal_printf("Incorrect dest address: %d\n", header->dest);
+				//hal_printf("Incorrect src address: %d\n", header->src);
+				//hal_printf("payload[8]: %d\n", payloadMSG[8]);
+				//return;
+			}
+		}
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 

@@ -20,6 +20,7 @@ extern OMACType g_OMAC;
 const uint EXECUTE_WITH_CCA = 1;
 const uint FAST_RECOVERY = 1;
 //const uint RANDOM_BACKOFF = 0;
+#define RADIO_CHIP_CSMA 1
 
 
 //Allows coordination between retrying and receiving a hw ack
@@ -275,11 +276,22 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 	//Perform CCA for random backoff period (only for retries)
 	if(RANDOM_BACKOFF && m_currentSlotRetryAttempt > 0){
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+
+#ifdef RADIO_CHIP_CSMA
+		CPU_Radio_EnableCSMA(g_OMAC.radioName);
+		CPU_Radio_SendRetry(g_OMAC.radioName);
+		CPU_Radio_DisableCSMA(g_OMAC.radioName);
+#endif
+
+#ifndef RADIO_CHIP_CSMA
 		UINT16 m_mask = 137 * 29 * (g_OMAC.GetMyAddress() + 1);
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, m_mask);
 		next_seed = randVal;
 		int i = 0;
-		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
+		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT_MAX));
 		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
 			i++;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
@@ -289,6 +301,11 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 				break;
 			}
 		}
+#endif
+
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+#endif
 	}
 
 	//Transmit

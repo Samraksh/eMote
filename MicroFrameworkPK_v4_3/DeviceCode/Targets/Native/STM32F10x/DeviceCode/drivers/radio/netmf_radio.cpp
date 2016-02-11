@@ -154,6 +154,27 @@ void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 	return NULL;
 }
 
+void* CPU_Radio_SendRetry(UINT8 radioID)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.SendRetry();
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.SendRetry();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
 void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
 {
 	void* ptr_temp = NULL;
@@ -198,7 +219,49 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 e
 	return ptr_temp;
 }
 
+DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
 
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.EnableCSMA();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.EnableCSMA();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}
+
+DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.DisableCSMA();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.DisableCSMA();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}
 
 // This function calls the corresponding radio turn on function based on the input radio id
 DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)

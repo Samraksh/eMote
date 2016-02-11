@@ -585,6 +585,9 @@ public:
 
     DeviceStatus UnInitialize();
 
+    DeviceStatus EnableCSMA();
+    DeviceStatus DisableCSMA();
+    void* SendRetry();
     void* Send(void* msg, UINT16 size);
 
     void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime);

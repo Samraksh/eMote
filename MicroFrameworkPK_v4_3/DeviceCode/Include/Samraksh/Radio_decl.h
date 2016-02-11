@@ -139,11 +139,14 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 BOOL CPU_Radio_UnInitialize(UINT8 radioIDs);
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs);
 void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);
+void* CPU_Radio_SendRetry(UINT8 radioID);
 void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 eventTime);
 DeviceStatus CPU_Radio_Send_Strobe(UINT8 radioID);	//Send preloaded message
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID);
 DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSecond);
+DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID);
+DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID);
 DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID);
 DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID);
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level);
