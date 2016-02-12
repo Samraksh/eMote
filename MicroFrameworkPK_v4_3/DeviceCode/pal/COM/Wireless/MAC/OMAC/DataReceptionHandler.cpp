@@ -277,8 +277,8 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	/**************************************************************/
 	header->fcf.fcfWordValue = FCF_WORD_VALUE;
 	header->dsn = 97;
-	header->srcpan = 0x0001;
-	header->destpan = 0x0001;
+	header->srcpan = SRC_PAN_ID;
+	header->destpan = DEST_PAN_ID;
 	header->dest = m_lastRXNodeId;
 	header->src = g_OMAC.GetMyAddress();
 	//header->network = MyConfig.Network;

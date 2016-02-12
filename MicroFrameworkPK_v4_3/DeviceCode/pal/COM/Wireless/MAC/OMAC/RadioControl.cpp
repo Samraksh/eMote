@@ -64,8 +64,8 @@ DeviceStatus RadioControl_t::Preload(RadioAddress_t address, Message_15_4_t * ms
 	finalSeqNumber += ((g_OMAC.GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
-	header->srcpan = 0x0001;
-	header->destpan = 0x0001;
+	header->srcpan = SRC_PAN_ID;
+	header->destpan = DEST_PAN_ID;
 	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}

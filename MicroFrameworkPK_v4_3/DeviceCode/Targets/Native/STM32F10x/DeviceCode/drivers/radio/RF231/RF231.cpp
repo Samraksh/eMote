@@ -1272,8 +1272,8 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			UINT16 addressLow = GetAddress() & 0xFF;
 			WriteRegister(RF230_SHORT_ADDR_0, addressLow);
 			WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
-			WriteRegister(RF230_PAN_ID_0, 0x01);
-			WriteRegister(RF230_PAN_ID_1, 0x00);
+			WriteRegister(RF230_PAN_ID_0, 0x55);
+			WriteRegister(RF230_PAN_ID_1, 0x55);
 			WriteRegister(RF230_IEEE_ADDR_0, addressLow);
 			WriteRegister(RF230_IEEE_ADDR_1, addressHigh);
 			WriteRegister(RF230_IEEE_ADDR_2, 0x00);

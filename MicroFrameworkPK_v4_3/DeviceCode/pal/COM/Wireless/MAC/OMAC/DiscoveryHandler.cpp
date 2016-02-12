@@ -334,7 +334,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
 	/**************************************************************/
-	header->fcf.fcfWordValue = FCF_WORD_VALUE;
+	header->fcf.fcfWordValue = FCF_WORD_VALUE_DISCO;
 	//header->fcf = (65 << 8);
 	//header->fcf |= 136;
 	finalSeqNumber = g_OMAC.GetMyAddress() ^ 0xAA;
@@ -342,8 +342,8 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	finalSeqNumber += seqNumber;
 	//header->dsn = finalSeqNumber;
 	header->dsn = OMAC_DISCO_SEQ_NUMBER;
-	header->srcpan = 0x0001;
-	header->destpan = 0x0001;
+	header->srcpan = SRC_PAN_ID;
+	header->destpan = DEST_PAN_ID;
 	/*if(g_OMAC.GetMyAddress() == 6846){
 		header->dest = 0x0DB1;
 	}

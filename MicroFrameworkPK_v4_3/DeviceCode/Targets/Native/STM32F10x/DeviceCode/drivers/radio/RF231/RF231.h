@@ -110,8 +110,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit 3 	- AACK_I_AM_COORD 	- This has to be set if the node is a PAN coordinator (0)
 //Bit [2:0]	- CSMA_SEED_1 		- Higher 3 bit of the CSMA_SEED (010)
 //Register CSMA_SEED_1 is 0x2E
-//1100 0010 (0x82, 0xC2 work)
-#define RF231_CSMA_SEED_1_VALUE		0xC2
+//1000 0010 (0x82, 0xC2 work)
+#define RF231_CSMA_SEED_1_VALUE		0x82
 //Page 73-74
 //The seed for random value for CSMA-CA backoff is 010 1010 1010
 //The higher 3 bits (010) is set in bits 2:0 in CSMA_SEED_1
