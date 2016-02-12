@@ -5,7 +5,7 @@
 #ifndef _PLATFORM_EmoteDotNow_SELECTOR_H_
 #define _PLATFORM_EmoteDotNow_SELECTOR_H_ 1
 
-
+#include "testDefines.h"
 
 /////////////////////////////////////////////////////////
 //
