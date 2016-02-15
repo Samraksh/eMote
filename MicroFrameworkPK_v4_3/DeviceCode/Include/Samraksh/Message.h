@@ -144,7 +144,7 @@ public:
   UINT8 dsn;
   UINT16 destpan;
   UINT16 dest;
-  UINT16 srcpan;
+  //UINT16 srcpan;
   UINT16 src;
 
   UINT8 length;
