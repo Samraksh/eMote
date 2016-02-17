@@ -157,7 +157,6 @@ typedef struct DataMsg_t
 	UINT8 size;
 	UINT8 payload[MAX_DATA_PCKT_SIZE];
 } DataMsg_t;
-#define DataMsgOverhead sizeof(UINT32)+sizeof(UINT8)
 
 /*
  * After TEP 133, the message timestamp contains the difference between

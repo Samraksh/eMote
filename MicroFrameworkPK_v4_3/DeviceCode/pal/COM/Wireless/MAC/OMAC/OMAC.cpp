@@ -575,7 +575,8 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	//msg_carrier->GetMetaData()->SetReceiveTimeStamp(0);
 
 	//header->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
-	header->length = (size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t));
+	//header->length = (size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t));
+	header->length = (size + DataMsgOverhead + sizeof(IEEE802_15_4_Header_t));
 
 	return msg_carrier;
 }
