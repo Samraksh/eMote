@@ -10,6 +10,8 @@
 
 #include <tinyhal.h>
 
+#define PACK __attribute__ ((packed))
+
 //types 1-5 are taken up by global types
 #define OMAC_DATA_BEACON_TYPE 7
 
@@ -126,7 +128,7 @@ typedef enum {
 /*
  *
  */
-typedef struct DiscoveryMsg
+typedef struct PACK DiscoveryMsg
 {
 	UINT32 msg_identifier;
 	//seed to generate the pseduo-random wakeup schedule
@@ -168,7 +170,7 @@ typedef struct DataMsg_t
  * timestamp. The receiving timestamp thus represents the time on the
  * receiving clock when the remote globalTime was taken.
  */
-struct TimeSyncMsg
+struct PACK TimeSyncMsg
 {
 
 //  UINT32 globalTime0;
@@ -187,7 +189,7 @@ struct TimeSyncMsg
 
 };
 
-struct TimeSyncRequestMsg
+struct PACK TimeSyncRequestMsg
 {
   UINT32 timesyncIdentifier;
   bool request_TimeSync;
