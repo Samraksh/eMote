@@ -1672,13 +1672,19 @@ measureAgain:
 	////CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
 
 #ifndef RSSI_CHECK_ALL_VALUES
-	for(int i = 0; i < rssiCount; i++){
-		/*if(rssiBuffer[i] > averageRssi){
-			averageRssi = rssiBuffer[i];
-		}*/
+	//Find average RSSI
+	/*for(int i = 0; i < rssiCount; i++){
 		averageRssi += rssiBuffer[i];
 	}
-	averageRssi = averageRssi/rssiCount;
+	averageRssi = averageRssi/rssiCount;*/
+
+	//Find max RSSI
+	for(int i = 0; i < rssiCount; i++){
+		if(rssiBuffer[i] > averageRssi){
+			averageRssi = rssiBuffer[i];
+		}
+	}
+
 	if(averageRssi >= rssiThresholdForTransmission){
 		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
 		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
