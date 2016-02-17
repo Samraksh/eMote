@@ -85,8 +85,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //		   Can be set only if bit 4 is set.
 //Bit [7:6] - Reserved (00)
 //Register XAH_CTRL_1 is 0x17
-//0010 0100
-#define	 RF231_XAH_CTRL_1_VALUE		 0x24
+//0000 0100
+#define	 RF231_XAH_CTRL_1_VALUE		 0x04
 //Page 73 in RF231 datasheet
 //Bits 7-4 - MAX_FRAME_RETRIES - being set to 0 (0000)
 //Bits 3-1 - MAX_CSMA_RETRIES - being set to 7 (111)
@@ -110,8 +110,8 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 //Bit 3 	- AACK_I_AM_COORD 	- This has to be set if the node is a PAN coordinator (0)
 //Bit [2:0]	- CSMA_SEED_1 		- Higher 3 bit of the CSMA_SEED (010)
 //Register CSMA_SEED_1 is 0x2E
-//0000 0010 (0x82, 0xC2 work)
-#define RF231_CSMA_SEED_1_VALUE		0x02
+//0100 0010 (0x82, 0xC2 work)
+#define RF231_CSMA_SEED_1_VALUE		0x42
 //Page 73-74
 //The seed for random value for CSMA-CA backoff is 010 1010 1010
 //The higher 3 bits (010) is set in bits 2:0 in CSMA_SEED_1

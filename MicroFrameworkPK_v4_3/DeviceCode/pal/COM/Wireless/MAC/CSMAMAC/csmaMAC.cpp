@@ -188,7 +188,7 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
-	header->srcpan = 0x0001;
+	//header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
@@ -257,7 +257,7 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
-	header->srcpan = 0x0001;
+	//header->srcpan = 0x0001;
 	header->destpan = 0x0001;
 	if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;

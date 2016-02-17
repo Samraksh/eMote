@@ -537,7 +537,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 	header->dsn = finalSeqNumber;
 	//header->dsn = 97;
-	header->srcpan = SRC_PAN_ID;
+	//header->srcpan = SRC_PAN_ID;
 	header->destpan = DEST_PAN_ID;
 	/*if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;

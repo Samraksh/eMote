@@ -1262,46 +1262,6 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		HAL_Time_Sleep_MicroSeconds(510);
 
-		/***********Extended mode configuration***********/
-		if(RF231_extended_mode){
-			//Configure MAC short address, PAN-ID and IEEE address
-			//Page 76-78 in RF231 datasheet
-			//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
-			//			to switching to RX_AACK mode
-			UINT16 addressHigh = GetAddress() >> 8;
-			UINT16 addressLow = GetAddress() & 0xFF;
-			WriteRegister(RF230_SHORT_ADDR_0, addressLow);
-			WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
-			WriteRegister(RF230_PAN_ID_0, 0x55);
-			WriteRegister(RF230_PAN_ID_1, 0x55);
-			WriteRegister(RF230_IEEE_ADDR_0, addressLow);
-			WriteRegister(RF230_IEEE_ADDR_1, addressHigh);
-			WriteRegister(RF230_IEEE_ADDR_2, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_3, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_4, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_5, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_6, 0x00);
-			WriteRegister(RF230_IEEE_ADDR_7, 0x00);
-
-			//RX_AACK configuration
-			WriteRegister(RF230_TRX_CTRL_2, RF231_TRX_CTRL_2_VALUE);
-			WriteRegister(RF230_XAH_CTRL_1, RF231_XAH_CTRL_1_VALUE);
-			WriteRegister(RF230_XAH_CTRL_0, RF231_XAH_CTRL_0_VALUE);
-			WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
-			WriteRegister(RF230_CSMA_SEED_0, RF231_CSMA_SEED_0_VALUE);
-
-			//Put the radio into extended mode (RX_AACK)
-			/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
-			DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);*/
-
-			//TX_ARET configuration
-			WriteRegister(RF230_TRX_CTRL_1, RF231_TRX_CTRL_1_VALUE);
-			WriteRegister(RF230_CSMA_BE, RF231_CSMA_BE_VALUE);
-			/*WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
-			DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);*/
-		}
-		/*************************************************/
-
 		if(this->GetRadioName() == RF231RADIOLR)
 		{
 			/* AnanthAtSamraksh - adding below line to fix receive on LR radio extension board - 2/11/2014 */
@@ -1338,6 +1298,46 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 			//CPU_GPIO_EnableOutputPin(AMP_PIN_LR, FALSE);
 			GPIO_ConfigurePin(GPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
 		}
+
+		/***********Extended mode configuration***********/
+		if(RF231_extended_mode){
+			//Configure MAC short address, PAN-ID and IEEE address
+			//Page 76-78 in RF231 datasheet
+			//Page 54 - Configuration and address bits are to be set in TRX_OFF or PLL_ON state prior
+			//			to switching to RX_AACK mode
+			UINT16 addressHigh = GetAddress() >> 8;
+			UINT16 addressLow = GetAddress() & 0xFF;
+			WriteRegister(RF230_SHORT_ADDR_0, addressLow);
+			WriteRegister(RF230_SHORT_ADDR_1, addressHigh);
+			WriteRegister(RF230_PAN_ID_0, 0x55);
+			WriteRegister(RF230_PAN_ID_1, 0x55);
+			WriteRegister(RF230_IEEE_ADDR_0, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_1, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_2, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_3, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_4, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_5, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_6, 0x00);
+			WriteRegister(RF230_IEEE_ADDR_7, 0x00);
+
+			//RX_AACK configuration
+			WriteRegister(RF230_TRX_CTRL_2, RF231_TRX_CTRL_2_VALUE);
+			WriteRegister(RF230_XAH_CTRL_1, RF231_XAH_CTRL_1_VALUE);
+			WriteRegister(RF230_XAH_CTRL_0, RF231_XAH_CTRL_0_VALUE);
+			WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
+			WriteRegister(RF230_CSMA_SEED_0, RF231_CSMA_SEED_0_VALUE);
+
+			//Put the radio into extended mode (RX_AACK)
+			/*WriteRegister(RF230_TRX_STATE, RF230_RX_AACK_ON);
+			DID_STATE_CHANGE_ASSERT(RF230_RX_AACK_ON);*/
+
+			//TX_ARET configuration
+			WriteRegister(RF230_TRX_CTRL_1, RF231_TRX_CTRL_1_VALUE);
+			WriteRegister(RF230_CSMA_BE, RF231_CSMA_BE_VALUE);
+			/*WriteRegister(RF230_TRX_STATE, RF230_TX_ARET_ON);
+			DID_STATE_CHANGE_ASSERT(RF230_TX_ARET_ON);*/
+		}
+		/*************************************************/
 
 		SlptrSet();
 		sleep_pending = TRUE;
@@ -1988,6 +1988,7 @@ void RF231Radio::HandleInterrupt()
 		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 
+		/*
 		//Enable ACKs
 		//1100 0010
 		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
@@ -2013,6 +2014,7 @@ void RF231Radio::HandleInterrupt()
 				//return;
 			}
 		}
+		*/
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 

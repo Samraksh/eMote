@@ -15,6 +15,8 @@
 #include <tinyhal.h>
 #include <Samraksh\Radio_decl.h>
 
+#define PACK __attribute__ ((packed))
+
 // template for message header
 //template<class Header_T,UINT16 PayLoadSize_T, class Footer_T>
 template<class Header_T,UINT16 PayLoadSize_T, class Footer_T, class Metadata_T>
@@ -137,7 +139,7 @@ typedef union{
 //This structure is as per IEEE 802.15.4 standard.
 //MAC Protocol Layer Data Unit (MPDU) in page 80 of RF231 datasheet.
 //Do not modify as extended mode will not work
-typedef struct IEEE802_15_4_Header {
+typedef struct PACK IEEE802_15_4_Header {
 public:
   //UINT16 fcf;
   IEEE802_15_4_Header_FCF_t fcf;
