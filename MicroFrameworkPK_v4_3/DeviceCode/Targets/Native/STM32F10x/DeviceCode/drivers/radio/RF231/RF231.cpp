@@ -2192,6 +2192,8 @@ void RF231Radio::HandleInterrupt()
 		}
 		else if(cmd == CMD_RX_AACK)
 		{
+			CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
+			CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 #ifdef DEBUG_RF231
 			hal_printf("Inside TRX_IRQ_TRX_END(CMD_RX_AACK)\n");
 #endif
@@ -2202,8 +2204,8 @@ void RF231Radio::HandleInterrupt()
 			//Refer page 62 and 69, 70
 			//Getting bits 5,6,7 of TRX_STATE to check if status is SUCCESS_WAIT_FOR_ACK
 			//	Indicates that an ACK frame is about to be sent
-			UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
-			/*hal_printf("(CMD_RX_AACK)trx_state: %d\n", trx_state);*/
+			/*UINT8 trx_state = ReadRegister(RF230_TRX_STATE) & TRAC_STATUS_MASK;
+			hal_printf("(CMD_RX_AACK)trx_state: %d\n", trx_state);*/
 
 			//if(trx_state == 0x40 && state == STATE_BUSY_RX_AACK)
 			//{
@@ -2265,8 +2267,6 @@ void RF231Radio::HandleInterrupt()
 						}
 						*/
 
-						CPU_GPIO_SetPinState( RF231_TRX_RX_END, TRUE );
-						CPU_GPIO_SetPinState( RF231_TRX_RX_END, FALSE );
 						(rx_msg_ptr->GetHeader())->length = rx_length;
 						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
 						(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
