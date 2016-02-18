@@ -161,6 +161,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	UINT8 GetBufferSize();
 	UINT16 GetSendPending();
 	UINT16 GetReceivePending();
+
+	void PushPacketsToUpperLayers();
 };
 
 
