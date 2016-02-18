@@ -408,6 +408,8 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			DropPacket();
 			//set flag to false after packet has been sent and ack received
 
+			g_OMAC.m_NeighborTable.RecordLastHeardTime(rcv_msg->GetHeader()->dest,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+
 			txhandler_state = DTS_RECEIVEDDATAACK;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
@@ -459,6 +461,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 
 
 	if(SOFTWARE_ACKS){
+		g_OMAC.m_NeighborTable.RecordLastHeardTime(address,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 		DropPacket(); // The decision for dropping the packet depends on the outcome of the data reception
 	}
 

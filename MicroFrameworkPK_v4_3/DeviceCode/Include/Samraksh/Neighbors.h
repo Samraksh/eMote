@@ -112,7 +112,22 @@ public:
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 
+	void RecordLastHeardTime(UINT16 MacAddress, UINT64 &currTime);
+
 };
+
+void NeighborTable::RecordLastHeardTime(UINT16 MacAddress, UINT64 &currTime){
+	 UINT8 index;
+	 DeviceStatus retValue = FindIndex(address, &index);
+
+	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+		Neighbor[index].LastTimeSyncSendTime = LastHeardTime;
+		return DS_Success;
+	}
+	else {
+		return DS_Fail;
+	}
+}
 
 UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
@@ -120,7 +135,7 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 
 UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
-	//return BringOutYourDead(NeighborLivenessDelay);
+	return BringOutYourDead(NeighborLivenessDelay);
 }
 
 DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){

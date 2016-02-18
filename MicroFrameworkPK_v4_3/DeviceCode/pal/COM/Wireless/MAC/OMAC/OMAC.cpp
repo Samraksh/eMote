@@ -293,6 +293,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
+			g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
@@ -503,13 +505,17 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	if(dataType == MFM_TIMESYNCREQ){
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		while(msg_carrier == (Message_15_4_t*)(NULL)){
+			neighborEntry->tsr_send_buffer.DropOldest(1);
+			msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
-	}
-	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
-		return msg_carrier;
+		if(msg_carrier == (Message_15_4_t*)(NULL)){
+			hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
+			return msg_carrier;
+		}
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
