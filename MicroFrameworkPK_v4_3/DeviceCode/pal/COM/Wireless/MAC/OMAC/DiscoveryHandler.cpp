@@ -41,7 +41,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 
 	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
-	firstDiscoTimeinSlotNum = 0;
+	firstHighRateDiscoTimeinSlotNum = 0;
 
 	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
@@ -60,10 +60,11 @@ UINT64 DiscoveryHandler::NextEvent(){
 	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
-	if(firstDiscoTimeinSlotNum == 0) {
-		firstDiscoTimeinSlotNum = currentSlotNum;
+	if(firstHighRateDiscoTimeinSlotNum == 0) {
+		firstHighRateDiscoTimeinSlotNum = currentSlotNum;
 	}
-	if(highdiscorate && ( (currentSlotNum - firstDiscoTimeinSlotNum) / HIGH_DISCO_PERIOD_IN_SLOTS ) %2 == 1 ) {
+
+	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) / HIGH_DISCO_PERIOD_IN_SLOTS ) %2 == 1 ) {
 		m_period1 = m_period1 * 100;
 		m_period2 = m_period2 * 100;
 		highdiscorate = false;
@@ -294,12 +295,18 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	UINT64 nextwakeupSlot = (((UINT64)disMsg->nextwakeupSlot1) <<32) + disMsg->nextwakeupSlot0;
 
 	if (g_OMAC.m_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
+		if(g_OMAC.m_NeighborTable.Neighbor[nbrIdx].Status != Alive) {
+			highdiscorate = true;
+			firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+		}
 		g_OMAC.m_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 		//stop disco when there are 2 or more neighbors
 		/*if(nbrIdx >= 1){
 			stopBeacon = true;
 		}*/
 	} else {
+		highdiscorate = true;
+		firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 		g_OMAC.m_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 

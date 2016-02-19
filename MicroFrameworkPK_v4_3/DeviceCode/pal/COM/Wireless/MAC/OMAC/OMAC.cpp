@@ -155,7 +155,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
 
-		g_send_buffer.Initialize();
+		//g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
 		m_NeighborTable.ClearTable();
 
@@ -241,6 +241,14 @@ BOOL OMACType::UnInitialize(){
 	return ret;
 }
 
+void OMACType::PushPacketsToUpperLayers(){
+	Message_15_4_t* next_free_buffer;
+	while(!g_receive_buffer.IsEmpty()){
+		next_free_buffer = g_receive_buffer.GetOldestwithoutRemoval();
+		(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->length - sizeof(IEEE802_15_4_Header_t));
+	}
+}
+
 /*
  *
  */
@@ -258,34 +266,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
-	//Handle hardware ACKs
-	/*if( msg->GetHeader()->src == 0 && msg->GetHeader()->dest == 0 ){
-		receiverSequenceNumber = msg->GetHeader()->dsn;
-#ifdef OMAC_DEBUG_PRINTF
-		hal_printf("senderSequenceNumber: %d; receiverSequenceNumber: %d\n", senderSequenceNumber, receiverSequenceNumber);
-#endif
-		//This is a hardware ACK for a Data packet
-		if(receiverSequenceNumber != OMAC_DISCO_SEQ_NUMBER){
-			if(receiverSequenceNumber == senderSequenceNumber){
-				//hal_printf("OMACType::ReceiveHandler - received a hw ACK\n");
-				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.HardwareACKHandler();
-				//g_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(1);
-				return msg;
-			}
-			else{
-				return NULL;
-			}
-		}
-		//This is a hardware ACK for a DISCO packet
-		else if(receiverSequenceNumber == OMAC_DISCO_SEQ_NUMBER){
-			//Don't do anything for now. DISCO msgs are anyway sent multiple times
-			return msg;
-		}
-		else{
-			//This should never happen
-			ASSERT_SP(0);
-		}
-	}*/
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
@@ -313,6 +293,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
+			g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
@@ -355,7 +337,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 					memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 					next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-					(*m_rxAckHandler)(next_free_buffer, data_msg->size);
+
+					//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
 					//Another method of doing the same thing as above
@@ -509,10 +492,30 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
 		return msg_carrier;
 	}
-	msg_carrier = g_send_buffer.GetNextFreeBuffer();
-	if(msg_carrier == (Message_15_4_t*)(NULL)){
-		hal_printf("OMACType::Send g_send_buffer full.\n");
+
+	Neighbor_t* neighborEntry = g_OMAC.m_NeighborTable.GetNeighborPtr(address);
+	if(neighborEntry == NULL) {
+		hal_printf("OMACType Send Error: Destination does not exist in neighbor table %d ", address);
 		return msg_carrier;
+	}
+	else if(neighborEntry->Status == Dead) {
+		hal_printf("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d ", address);
+		return msg_carrier;
+	}
+
+	if(dataType == MFM_TIMESYNCREQ){
+		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		while(msg_carrier == (Message_15_4_t*)(NULL)){
+			neighborEntry->tsr_send_buffer.DropOldest(1);
+			msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		}
+	}
+	else{
+		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
+		if(msg_carrier == (Message_15_4_t*)(NULL)){
+			hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
+			return msg_carrier;
+		}
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -604,15 +607,23 @@ void OMACType::UpdateNeighborTable(){
  */
 
 UINT8 OMACType::GetBufferSize(){
-	return g_send_buffer.Size();
+	return m_NeighborTable.Neighbor[0].send_buffer.Size();
 }
 
 UINT16 OMACType::GetSendPending(){
-	return g_send_buffer.GetNumberMessagesInBuffer();
+	UINT16 n_msg = 0;
+	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
+		if(m_NeighborTable.Neighbor[i].Status != Dead){
+			n_msg = n_msg + m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer();
+			n_msg = n_msg + m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer();
+		}
+	}
+	return n_msg;
 }
 
 UINT16 OMACType::GetReceivePending(){
-	return g_send_buffer.GetNumberMessagesInBuffer();
+	return 0;
+	//return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
 

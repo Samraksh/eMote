@@ -38,22 +38,25 @@ enum TRAC_STATUS
 	TRAC_STATUS_INVALID	= 0xE0,					//1110 0000 (224)
 };
 
+
 /*
  *
  */
 class DataTransmissionHandler: public EventHandler {
 
-	Message_15_4_t m_piggybackBeaconCopy;
+	//Message_15_4_t m_piggybackBeaconCopy;
 	Message_15_4_t* m_outgoingEntryPtr; //Pointer to the packet to be sent next. Set by schedule data packet
+	//UINT8 m_outgoingEntryPtr_pos; //Position of the packet in the buffer to be sent next set by next_event
+	UINT16 m_outgoingEntryPtr_dest;
 
-	Message_15_4_t m_TXMsgBuffer;
-	DataMsg_t *m_TXMsg;
+	//Message_15_4_t m_TXMsgBuffer;
+	//DataMsg_t *m_TXMsg;
 	BOOL isDataPacketScheduled;
 	UINT8 m_currentSlotRetryAttempt;
-	UINT8 m_currentFrameRetryAttempt;
-	UINT8 maxSlotRetryAttempts;
-	UINT8 maxFrameRetryAttempts;
-	UINT8 RANDOM_BACKOFF;
+
+	BOOL m_RANDOM_BACKOFF;
+	UINT16 m_backoff_seed;
+	UINT16 m_backoff_mask;
 
 	DataTransmissionHandlerStates txhandler_state;
 public:
@@ -65,13 +68,16 @@ public:
 	//UINT8 ExecuteEventDone();
 	void PostExecuteEvent();
 
-	BOOL ScheduleDataPacket(UINT8 _skipperiods);
+	//BOOL ScheduleDataPacket(UINT8 _skipperiods);
+	void DropPacket();
 	bool Send();
 	void SendRetry();
-	void HardwareACKHandler();
 	void SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus);
 	void ReceiveDATAACK(UINT16 address);
 	void FailsafeStop();
+
+	UINT64 CalculateNextRXOpp(UINT16 dest);
+	BOOL UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skipperiods);
 };
 
 

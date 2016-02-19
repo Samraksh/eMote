@@ -37,7 +37,7 @@ class DiscoveryHandler: public EventHandler {
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
 
-	UINT64 firstDiscoTimeinSlotNum;
+	UINT64 firstHighRateDiscoTimeinSlotNum;
 	bool highdiscorate;
 
 	Message_15_4_t m_discoveryMsgBuffer;
