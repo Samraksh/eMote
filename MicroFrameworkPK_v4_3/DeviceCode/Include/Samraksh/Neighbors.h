@@ -17,7 +17,7 @@
 
 //#include "TinyCLR_Runtime.h"
 
-#define Buffer_15_4_t_SIZE 8
+#define Buffer_15_4_t_SIZE 2
 
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12

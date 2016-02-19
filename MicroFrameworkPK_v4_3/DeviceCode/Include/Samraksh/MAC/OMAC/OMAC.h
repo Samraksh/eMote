@@ -40,7 +40,7 @@
 #include "Handlers.h"
 
 
-typedef Buffer_15_4<8> Buffer_15_4_t;
+//typedef Buffer_15_4<8> Buffer_15_4_t;
 
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
 //#define TIMESYNC_RECEIVEPIN 31 // 23 //PB7 J11-10
