@@ -224,7 +224,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		m_receptionstate = 2;
 		m_lastRXNodeId = address;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){
 			this->SendDataACK();
