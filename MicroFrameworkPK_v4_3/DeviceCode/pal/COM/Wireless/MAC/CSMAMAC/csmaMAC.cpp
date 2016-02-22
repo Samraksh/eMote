@@ -570,7 +570,11 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 	RadioLockUp=0;
 }
 
-UINT8 csmaMAC::GetBufferSize(){
+UINT8 csmaMAC::GetSendBufferSize(){
 	return g_send_buffer.Size();
+}
+
+UINT8 csmaMAC::GetReceiveBufferSize(){
+	return g_receive_buffer.Size();
 }
 

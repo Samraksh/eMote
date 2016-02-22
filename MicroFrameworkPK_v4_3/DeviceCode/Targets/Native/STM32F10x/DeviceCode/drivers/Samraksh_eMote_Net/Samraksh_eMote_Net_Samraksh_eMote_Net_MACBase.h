@@ -40,7 +40,8 @@ namespace Samraksh
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
                 static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
-                static UINT8 GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static UINT8 GetPendingPacketCount_Receive( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                static UINT8 GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static UINT8 GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                 static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );

@@ -244,7 +244,7 @@ BOOL OMACType::UnInitialize(){
 void OMACType::PushPacketsToUpperLayers(){
 	Message_15_4_t* next_free_buffer;
 	while(!g_receive_buffer.IsEmpty()){
-		next_free_buffer = g_receive_buffer.GetOldestwithoutRemoval();
+		next_free_buffer = g_receive_buffer.GetOldest();
 		(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->length - sizeof(IEEE802_15_4_Header_t));
 	}
 }
@@ -339,8 +339,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 					memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 					next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-
-					//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
+					(*m_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
 					//Another method of doing the same thing as above
@@ -608,8 +607,12 @@ void OMACType::UpdateNeighborTable(){
 }
  */
 
-UINT8 OMACType::GetBufferSize(){
+UINT8 OMACType::GetSendBufferSize(){
 	return m_NeighborTable.Neighbor[0].send_buffer.Size();
+}
+
+UINT8 OMACType::GetReceiveBufferSize(){
+	return g_receive_buffer.Size();
 }
 
 UINT16 OMACType::GetSendPending(){
@@ -624,8 +627,7 @@ UINT16 OMACType::GetSendPending(){
 }
 
 UINT16 OMACType::GetReceivePending(){
-	return 0;
-	//return g_send_buffer.GetNumberMessagesInBuffer();
+	return g_receive_buffer.GetNumberMessagesInBuffer();
 }
 
 

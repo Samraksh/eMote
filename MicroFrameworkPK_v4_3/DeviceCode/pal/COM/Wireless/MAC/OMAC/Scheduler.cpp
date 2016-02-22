@@ -253,7 +253,7 @@ bool OMACScheduler::RunEventTask(){
 
 void OMACScheduler::PostExecution(){
 	//VirtTimer_Start(HAL_SLOT_TIMER3);
-	g_OMAC.PushPacketsToUpperLayers();
+	//g_OMAC.PushPacketsToUpperLayers();
 	PostPostExecution();
 }
 
