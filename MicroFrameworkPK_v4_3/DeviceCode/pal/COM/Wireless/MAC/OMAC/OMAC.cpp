@@ -505,15 +505,17 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 
 	if(dataType == MFM_TIMESYNCREQ){
-		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
-		while(msg_carrier == (Message_15_4_t*)(NULL)){
+		//msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		//while(msg_carrier == (Message_15_4_t*)(NULL)){
+		while(!neighborEntry->tsr_send_buffer.IsBufferEmpty()){
 			neighborEntry->tsr_send_buffer.DropOldest(1);
-			msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 		}
+		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
-		if(msg_carrier == (Message_15_4_t*)(NULL)){
+		//if(msg_carrier == (Message_15_4_t*)(NULL)){
+		if(neighborEntry->send_buffer.IsBufferFull()){
 			hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
 			return msg_carrier;
 		}

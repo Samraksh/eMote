@@ -32,7 +32,7 @@ extern UINT8 MacName;
 #else
 #define ENABLE_PIN_NB(x,y)
 #define SET_PIN_NB(x,y)
-#define DEBUG_PRINTF_NB(x)
+#define DEBUG_PRINTF_NB(x) hal_printf(x)
 #endif
 
 typedef struct {
@@ -168,7 +168,6 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 	{
 		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-
 			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
 			Neighbor[i].Status = Dead;
 			deadNeighbors++;
@@ -176,9 +175,7 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 		}
 	}
 
-
 	return deadNeighbors;
-
 }
 
 DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
