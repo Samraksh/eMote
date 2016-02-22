@@ -221,7 +221,9 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
+#ifdef OMAC_DEBUG_PRINTF
 	hal_printf("dropping packet\n");
+#endif
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 		neigh_ptr->send_buffer.DropOldest(1);
@@ -405,6 +407,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
+	RadioAddress_t dest = 0;
 	VirtualTimerReturnMessage rm;
 
 	if(HARDWARE_ACKS){
@@ -416,7 +419,13 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			DropPacket();
 			//set flag to false after packet has been sent and ack received
 
-			g_OMAC.m_NeighborTable.RecordLastHeardTime(rcv_msg->GetHeader()->dest,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+			m_currentSlotRetryAttempt = 0;
+			//m_currentFrameRetryAttempt = 0;
+			dest = rcv_msg->GetHeader()->dest;
+			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(dest,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+			if(ds != DS_Success){
+				hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
+			}
 
 			txhandler_state = DTS_RECEIVEDDATAACK;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);

@@ -167,6 +167,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 
 	UINT64 event_time,y;
 	UINT32 y_lo, event_time_lo;
+	RadioAddress_t dest = 0;
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
@@ -199,7 +200,11 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
 		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
-		g_OMAC.m_NeighborTable.RecordTimeSyncSent(msg->GetHeader()->dest,y);
+		dest = header->dest;
+		DeviceStatus ds = g_OMAC.m_NeighborTable.RecordTimeSyncSent(dest,y);
+		if(ds != DS_Success && dest != 0xFFFF){
+			hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+		}
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
 	}

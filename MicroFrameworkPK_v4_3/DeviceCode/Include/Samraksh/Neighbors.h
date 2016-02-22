@@ -121,7 +121,7 @@ DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MacAddress, UINT64 currTi
 	 DeviceStatus retValue = FindIndex(MacAddress, &index);
 
 	if ( (retValue==DS_Success) && (MacAddress != 0 || MacAddress != 65535)){
-		Neighbor[index].LastTimeSyncSendTime = currTime;
+		Neighbor[index].LastHeardTime = currTime;
 		return DS_Success;
 	}
 	else {

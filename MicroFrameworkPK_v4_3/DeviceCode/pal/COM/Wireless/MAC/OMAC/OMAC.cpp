@@ -293,8 +293,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
-			g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
-
+			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+			if(ds != DS_Success){
+				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
+			}
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){

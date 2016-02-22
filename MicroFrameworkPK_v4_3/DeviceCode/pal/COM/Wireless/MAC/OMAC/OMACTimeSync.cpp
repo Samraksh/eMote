@@ -166,7 +166,11 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 #endif
 	}
 
-	g_OMAC.m_NeighborTable.RecordTimeSyncRequestSent(address, y);
+	DeviceStatus ds = g_OMAC.m_NeighborTable.RecordTimeSyncRequestSent(address, y);
+	if(ds != DS_Success){
+		hal_printf("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d\n", address, __LINE__);
+	}
+
 	return rs;
 }
 
@@ -215,7 +219,10 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	}
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
-	g_OMAC.m_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
+	DeviceStatus ds = g_OMAC.m_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
+	if(ds != DS_Success){
+		hal_printf("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
+	}
 
 #ifdef def_Neighbor2beFollowed
 	if (msg_src == g_OMAC.Neighbor2beFollowed ){
