@@ -505,6 +505,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	SelnClear();
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
+	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 
@@ -523,7 +524,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	}
 
 	//Transmit the event timestamp
-	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+	//timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
 	eventOffset = timestamp - eventTime;
 
 	for(int ii=0; ii<timestamp_size; ii++) {
@@ -1834,7 +1835,7 @@ void RF231Radio::HandleInterrupt()
 
 	if(irq_cause & TRX_IRQ_RX_START)
 	{
-		/*
+		CPU_GPIO_SetPinState( RF231_RX_START, TRUE );
 		add_rx_start_time();
 		if(RF231_extended_mode){
 			state = STATE_BUSY_RX_AACK; // Seems like we should change state, so I made one up...
@@ -1862,7 +1863,9 @@ void RF231Radio::HandleInterrupt()
 		// Do the time stamp here instead of after done, I think.
 		// Note there is potential to use a capture time here, for better accuracy.
 		// Currently, this will depend on interrupt latency.
+
 		receive_timestamp = HAL_Time_CurrentTicks();
+		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
 
 		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
@@ -1872,73 +1875,27 @@ void RF231Radio::HandleInterrupt()
 		// This is not being used anywhere right now, so commenting out.
 		//time = (HAL_Time_CurrentTicks() >> 32); // Throwing away the bottom 32-bits? Doesn't that really hurt timing??? --NPS
 
-		// Initiate cmd receive
-		if(RF231_extended_mode){
-			cmd = CMD_RX_AACK;
-		}
-		else{
-			cmd = CMD_RECEIVE;
-		}
+		// Initiate cmd receive // This is tied to
+//		if(RF231_extended_mode){
+//			cmd = CMD_RX_AACK;
+//		}
+//		else{
+//			cmd = CMD_RECEIVE;
+//		}
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
-		CPU_GPIO_SetPinState( RF231_RX_START, TRUE );
-		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
+
+
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
-		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
-		*/
-
-		/*if(RF231_extended_mode){
-			if(DS_Success==DownloadMessage()){
-				if(rx_length>  IEEE802_15_4_FRAME_LENGTH){
-#ifdef DEBUG_RF231
-					hal_printf("Radio Receive Error: Packet too big: %d\r\n",rx_length);
-#endif
-					return;
-				}
-
-				// Please note this is kind of a hack.
-				// Manually check our interrupts here (since we are locked).
-				// If we see a new interrupt, just assume it means we had an RX overrun.
-				// In which case we just drop the packet (or packets?) --NPS
-
-				// Un-sure if this is how to drop a packet. --NPS
-
-				IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)rx_msg_ptr->GetHeader();
-				UINT8* payloadMSG = rx_msg_ptr->GetPayload();
-				sequenceNumberReceiver = header->dsn;
-#ifdef DEBUG_RF231
-				hal_printf("HandleInterrupt::TRX_IRQ_RX_START(CMD_RX_AACK) sequenceNumberSender: %d; sequenceNumberReceiver: %d\n", sequenceNumberSender, sequenceNumberReceiver);
-				if(header->dsn == 97){
-					hal_printf("(RX_START)payload[0]: %d; payload[1]: %d; payload[2]: %d; payload[3]: %d; payload[4]: %d; payload[8]: %d\n\n", payloadMSG[0], payloadMSG[1], payloadMSG[2], payloadMSG[3], payloadMSG[4], payloadMSG[8]);
-					hal_printf("(RX_START)header->fcf: %d;header->dsn: %d;header->dest: %d;header->destpan: %d;header->src: %d;header->srcpan: %d;header->length: %d;header->mac_id: %d;header->type: %d;header->flags: %d\n\n", header->fcf,header->dsn,header->dest,header->destpan,header->src,header->srcpan,header->length,header->mac_id,header->type,header->flags);
-				}
-#endif
-
-				//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, TRUE);
-				//CPU_GPIO_SetPinState(RF231_HW_ACK_RESP_TIME, FALSE);
-				if(header->src == 0 && header->dest == 0){
-					if ( !Interrupt_Pending() ) {
-						//rx_msg_ptr = (Message_15_4_t *) (Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, rx_length);
-						//if(sequenceNumberReceiver == sequenceNumberSender && sequenceNumberReceiver != OMAC_DISCO_SEQ_NUMBER){
-						//if(sequenceNumberReceiver == sequenceNumberSender){
-							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-							(rx_msg_ptr->GetHeader())->length = rx_length;
-							(Radio_event_handler.GetReceiveHandler())(rx_msg_ptr, rx_length);
-							//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-						//}
-
-						cmd = CMD_NONE;
-					}
-				}
-			}	//end of if(DS_Success==DownloadMessage())
-		}*/	//end of if(RF231_extended_mode)
+		//(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 	}
 
 
 	if(irq_cause & TRX_IRQ_AMI)
 	{
+		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
 		//hal_printf("Inside TRX_IRQ_AMI\n");
 #ifdef DEBUG_RF231
 		hal_printf("Inside TRX_IRQ_AMI\n");
@@ -1973,7 +1930,7 @@ void RF231Radio::HandleInterrupt()
 		// Do the time stamp here instead of after done, I think.
 		// Note there is potential to use a capture time here, for better accuracy.
 		// Currently, this will depend on interrupt latency.
-		receive_timestamp = HAL_Time_CurrentTicks();
+		//receive_timestamp = HAL_Time_CurrentTicks();
 
 		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
@@ -1991,11 +1948,11 @@ void RF231Radio::HandleInterrupt()
 			cmd = CMD_RECEIVE;
 		}
 
-		CPU_GPIO_SetPinState( RF231_AMI, TRUE );
-		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 
-		/*
-		//Enable ACKs
+
+
+
+		/*//Enable ACKs
 		//1100 0010
 		WriteRegister(RF230_CSMA_SEED_1, RF231_CSMA_SEED_1_VALUE);
 		if(DS_Success == DownloadMessage(sizeof(IEEE802_15_4_Header_t))){
@@ -2024,6 +1981,7 @@ void RF231Radio::HandleInterrupt()
 
 		//HAL_Time_Sleep_MicroSeconds(64); // wait 64us to prevent spurious TRX_UR interrupts. // TODO... HELP --NPS
 
+		CPU_GPIO_SetPinState( RF231_AMI, FALSE );
 		(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 	}
 
