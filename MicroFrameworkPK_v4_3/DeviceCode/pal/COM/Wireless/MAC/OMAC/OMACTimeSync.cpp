@@ -133,7 +133,7 @@ void OMACTimeSync::FailsafeStop(){
  */
 //DeviceStatus OMACTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL OMACTimeSync::Send(RadioAddress_t address){
-	 bool request_TimeSync;
+	bool request_TimeSync;
 	UINT64 lastTimeSyncRecv = g_OMAC.m_NeighborTable.GetLastTimeSyncRecv(address);
 
 	TimeSyncRequestMsg * tsreqmsg;
