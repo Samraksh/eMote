@@ -40,6 +40,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
 #endif
 
+
 	RadioID = radioID;
 	MacID = macID;
 
@@ -49,6 +50,8 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	////ASSERT_SP(rm == TimerSupported);
+
+	m_inter_clock_offset = 0;
 
 }
 
@@ -205,6 +208,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
+	ReceiveTS = ReceiveTS - DELAY_FROM_RF231_TX_TO_RF231_RX;
 	UINT64 rcv_ltime;
 	INT64 l_offset;
 	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0 + SenderDelay;
@@ -250,9 +254,15 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	return DS_Success;
 }
 
+UINT64 OMACTimeSync::CreateSyncPointBetweenClocks(){
+	if(0 && OMACClockSpecifier == LFCLOCKID){
+
+		m_inter_clock_offset = HAL_Time_CurrentTicks() - VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio ;
+	}
+}
 UINT64 OMACTimeSync::GetCurrentTimeinTicks(){ //This function gets the time ticks required for OMAC
 	if(OMACClockSpecifier == LFCLOCKID){
-		return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio;
+		return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio + m_inter_clock_offset;
 	}
 	else{
 		return HAL_Time_CurrentTicks();

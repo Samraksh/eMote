@@ -21,6 +21,7 @@ class OMACTimeSync : public EventHandler{
 	//PacketTimeSync_15_4 m_packetTimeSync;
 	UINT32 m_seqNo;
 
+	UINT64 m_inter_clock_offset;
 
 public:
 	GlobalTime m_globalTime;
@@ -42,6 +43,7 @@ public:
 
 	UINT64 GetCurrentTimeinTicks();
 	UINT64 ConvertTickstoMicroSecs(const UINT64& ticks);
+	UINT64 CreateSyncPointBetweenClocks();
 
 };
 

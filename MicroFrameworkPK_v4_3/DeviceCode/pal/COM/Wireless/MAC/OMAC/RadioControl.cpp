@@ -179,6 +179,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	}
 	else{ //Otherwise calculate it . Will be added later add it
 		additional_overhead += timestamp_size;
+		//g_OMAC.m_omac_scheduler.m_TimeSyncHandler.CreateSyncPointBetweenClocks();
 		event_time = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	}
 
