@@ -18,7 +18,7 @@
 extern OMACType g_OMAC;
 
 const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 1;
+const uint FAST_RECOVERY = 0;
 
 
 void PublicDataTxCallback(void * param){
@@ -77,35 +77,28 @@ void DataTransmissionHandler::Initialize(){
 
 }
 
+UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
+	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+	UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+	if(EXECUTE_WITH_CCA){
+		nextTXmicro -= CCA_PERIOD_MICRO;
+	}
+	if(FAST_RECOVERY){
+		nextTXmicro -= GUARDTIME_MICRO;
+	}
+}
+
 UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 	if(UpdateNeighborsWakeUpSlot(dest, 0)) {
 
-		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) - DELAY_FROM_OMAC_TX_TO_RF231_TX + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-		if(EXECUTE_WITH_CCA){
-			nextTXmicro -= CCA_PERIOD_MICRO;
-		}
 
+		UINT64 nextTXmicro = CalculateNextTxMicro(dest);
 		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 
 		while(nextTXmicro  <= curmicro + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) {
 			if(UpdateNeighborsWakeUpSlot(dest, 1)){
-				nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-				//nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-				if(EXECUTE_WITH_CCA){
-					nextTXmicro -= CCA_PERIOD_MICRO;
-				}
-				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
-				if(HARDWARE_ACKS){
-					nextTXmicro = nextTXmicro - DELAY_FROM_OMAC_TX_TO_RF231_TX;
-					ASSERT_SP(nextTXmicro > 0);
-				}
-				//Not needed as random backoff is done only during retries
-				/*if(m_RANDOM_BACKOFF){
-					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
-					ASSERT_SP(nextTXmicro > 0);
-				}*/
+				nextTXmicro = CalculateNextTxMicro(dest);
+				curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 			}
 			else{
 				nextTXmicro = MAX_UINT64;
