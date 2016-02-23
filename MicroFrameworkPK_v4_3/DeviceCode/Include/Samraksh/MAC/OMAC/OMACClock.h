@@ -2,6 +2,7 @@
 #define OMACCLOK_H_
 
 #include <Samraksh/Hal_util.h>
+#include <Samraksh/VirtualTimer.h>
 
 #define DEBUG_TSYNC_PIN
 
@@ -21,7 +22,6 @@ OMACClock::OMACClock(){
 
 UINT64 OMACClock::CreateSyncPointBetweenClocks(){
 	if(0 && OMACClockSpecifier == LFCLOCKID){
-
 		m_inter_clock_offset = HAL_Time_CurrentTicks() - VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio ;
 	}
 }
