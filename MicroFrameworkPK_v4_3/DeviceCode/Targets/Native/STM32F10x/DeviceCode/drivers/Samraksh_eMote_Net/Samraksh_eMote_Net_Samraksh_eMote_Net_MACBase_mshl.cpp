@@ -32,7 +32,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::RemovePacket___Sa
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketCount___U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketCount_Receive___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -40,7 +40,23 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketC
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT8 retVal = MACBase::GetPendingPacketCount( pMngObj,  hr );
+        UINT8 retVal = MACBase::GetPendingPacketCount_Receive( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketCount_Send___U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT8 retVal = MACBase::GetPendingPacketCount_Send( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT8( stack, retVal );
 

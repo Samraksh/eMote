@@ -101,8 +101,10 @@ DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer);
 //Channel/freq functions
 DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer);
 //Buffer functions
-UINT8 Mac_GetBufferSize();
-UINT8 Mac_GetNumberPendingPackets();
+UINT8 Mac_GetSendBufferSize();
+UINT8 Mac_GetReceiveBufferSize();
+UINT8 Mac_GetPendingPacketsCount_Send();
+UINT8 Mac_GetPendingPacketsCount_Receive();
 DeviceStatus Mac_RemovePacket(UINT8* msg);
 
 //MAC Aggregate APIs

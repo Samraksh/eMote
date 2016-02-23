@@ -38,6 +38,7 @@ void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 r
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
 
+extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 
 UINT8 CSMAInteropBuffer[128];
@@ -48,9 +49,14 @@ INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 
     return retVal;
 }
 
-UINT8 MACBase::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::GetPendingPacketCount_Receive( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     return g_receive_buffer.GetNumberMessagesInBuffer();
+}
+
+UINT8 MACBase::GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
 UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )

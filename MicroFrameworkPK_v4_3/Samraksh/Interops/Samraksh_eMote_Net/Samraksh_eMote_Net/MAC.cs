@@ -371,7 +371,12 @@ namespace Samraksh.eMote.Net
         /// <summary>Get a count of unprocessed packets in the buffer</summary>
         /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetPendingPacketCount();
+        public extern byte GetPendingPacketCount_Receive();
+
+        /// <summary>Get a count of unprocessed packets in the buffer</summary>
+        /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern byte GetPendingPacketCount_Send();
 
         /// <summary>Get the buffer size</summary>
         /// <returns>The size of the buffer.</returns>

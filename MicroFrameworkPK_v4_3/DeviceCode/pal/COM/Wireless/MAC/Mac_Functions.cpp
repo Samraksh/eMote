@@ -83,6 +83,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	GLOBAL_LOCK(irq);
 
 	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
+	//Message_15_4_t* temp = (Message_15_4_t*)managedBuffer;
 
 	if((*temp) == NULL){
 		return DS_Fail;
@@ -271,25 +272,49 @@ Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress){
 
 
 //Buffer functions
-UINT8 Mac_GetBufferSize(){
+UINT8 Mac_GetSendBufferSize(){
 	UINT8 bufferSize = -1;
 	if(currentMacName == CSMAMAC){
-		bufferSize = g_csmaMacObject.GetBufferSize();
+		bufferSize = g_csmaMacObject.GetSendBufferSize();
 	}
 	else if(currentMacName == OMAC){
-		bufferSize = g_OMAC.GetBufferSize();
+		bufferSize = g_OMAC.GetSendBufferSize();
 	}
 
 	return bufferSize;
 }
 
-UINT8 Mac_GetNumberPendingPackets(){
+UINT8 Mac_GetReceiveBufferSize(){
+	UINT8 bufferSize = -1;
+	if(currentMacName == CSMAMAC){
+		bufferSize = g_csmaMacObject.GetReceiveBufferSize();
+	}
+	else if(currentMacName == OMAC){
+		bufferSize = g_OMAC.GetReceiveBufferSize();
+	}
+
+	return bufferSize;
+}
+
+UINT8 Mac_GetPendingPacketsCount_Send(){
 	UINT8 pendingPackets = -1;
 	if(currentMacName == CSMAMAC){
 		pendingPackets = g_csmaMacObject.GetSendPending();
 	}
 	else if(currentMacName == OMAC){
 		pendingPackets = g_OMAC.GetSendPending();
+	}
+
+	return pendingPackets;
+}
+
+UINT8 Mac_GetPendingPacketsCount_Receive(){
+	UINT8 pendingPackets = -1;
+	if(currentMacName == CSMAMAC){
+		pendingPackets = g_csmaMacObject.GetReceivePending();
+	}
+	else if(currentMacName == OMAC){
+		pendingPackets = g_OMAC.GetReceivePending();
 	}
 
 	return pendingPackets;

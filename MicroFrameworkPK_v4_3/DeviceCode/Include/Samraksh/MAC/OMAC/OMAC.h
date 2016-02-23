@@ -9,7 +9,7 @@
 #ifndef OMAC_H_
 #define OMAC_H_
 
-#define TWO_NODES_TX_RX
+//#define TWO_NODES_TX_RX
 #define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
 #if defined(TWO_NODES_TX_RX)
@@ -158,7 +158,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	Message_15_4_t* FindFirstSyncedNbrMessage();
 	Message_15_4_t* FindFirstMessageForNbr(UINT16 nbr);
 	void UpdateNeighborTable();
-	UINT8 GetBufferSize();
+	UINT8 GetSendBufferSize();
+	UINT8 GetReceiveBufferSize();
 	UINT16 GetSendPending();
 	UINT16 GetReceivePending();
 

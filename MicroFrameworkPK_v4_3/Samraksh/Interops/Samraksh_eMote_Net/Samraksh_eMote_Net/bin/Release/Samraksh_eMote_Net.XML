@@ -229,7 +229,13 @@
             </summary>
             <returns>Buffer size</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMac.GetPendingPacketCount">
+        <member name="M:Samraksh.eMote.Net.Mac.IMac.GetPendingPacketCount_Send">
+            <summary>
+            Get pending packet count of MAC instance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Mac.IMac.GetPendingPacketCount_Receive">
             <summary>
             Get pending packet count of MAC instance
             </summary>
@@ -369,7 +375,11 @@
             <param name="msg">The removed packed</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetPendingPacketCount">
+        <member name="M:Samraksh.eMote.Net.MACBase.GetPendingPacketCount_Receive">
+            <summary>Get a count of unprocessed packets in the buffer</summary>
+            <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.GetPendingPacketCount_Send">
             <summary>Get a count of unprocessed packets in the buffer</summary>
             <returns>The number of packets in the buffer not yet delivered to the program</returns>
         </member>

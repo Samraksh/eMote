@@ -267,6 +267,10 @@ public:
 		return this->IsEmpty();
 	}
 
+	BOOL IsBufferFull(){
+		return this->IsFull();
+	}
+
 	Message_15_4_t** GetOldestPtr(){
 		if(this->IsEmpty()){
 			return (Message_15_4_t **)(NULL);

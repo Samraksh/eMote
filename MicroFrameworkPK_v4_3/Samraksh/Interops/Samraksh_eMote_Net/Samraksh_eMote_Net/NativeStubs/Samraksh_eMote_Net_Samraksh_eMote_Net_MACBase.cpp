@@ -22,7 +22,13 @@ INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 
     return retVal;
 }
 
-UINT8 MACBase::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::GetPendingPacketCount_Receive( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    UINT8 retVal = 0; 
+    return retVal;
+}
+
+UINT8 MACBase::GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
     return retVal;

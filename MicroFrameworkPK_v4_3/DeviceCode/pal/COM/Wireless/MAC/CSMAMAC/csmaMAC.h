@@ -78,7 +78,8 @@ public:
 	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
 	void SendToRadio();
 	void UpdateNeighborTable();
-	UINT8 GetBufferSize();
+	UINT8 GetSendBufferSize();
+	UINT8 GetReceiveBufferSize();
 	UINT16 GetSendPending(){ return g_send_buffer.GetNumberMessagesInBuffer();}
 	UINT16 GetReceivePending(){return g_receive_buffer.GetNumberMessagesInBuffer();}
 

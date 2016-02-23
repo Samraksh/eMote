@@ -244,7 +244,7 @@ BOOL OMACType::UnInitialize(){
 void OMACType::PushPacketsToUpperLayers(){
 	Message_15_4_t* next_free_buffer;
 	while(!g_receive_buffer.IsEmpty()){
-		next_free_buffer = g_receive_buffer.GetOldestwithoutRemoval();
+		next_free_buffer = g_receive_buffer.GetOldest();
 		(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->length - sizeof(IEEE802_15_4_Header_t));
 	}
 }
@@ -293,8 +293,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
-			g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
-
+			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+			if(ds != DS_Success){
+				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
+			}
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
@@ -337,8 +339,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 					memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 					next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-
-					//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
+					(*m_rxAckHandler)(next_free_buffer, data_msg->size);
 
 
 					//Another method of doing the same thing as above
@@ -504,15 +505,17 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	}
 
 	if(dataType == MFM_TIMESYNCREQ){
-		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
-		while(msg_carrier == (Message_15_4_t*)(NULL)){
+		//msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+		//while(msg_carrier == (Message_15_4_t*)(NULL)){
+		while(!neighborEntry->tsr_send_buffer.IsBufferEmpty()){
 			neighborEntry->tsr_send_buffer.DropOldest(1);
-			msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 		}
+		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
-		if(msg_carrier == (Message_15_4_t*)(NULL)){
+		//if(msg_carrier == (Message_15_4_t*)(NULL)){
+		if(neighborEntry->send_buffer.IsBufferFull()){
 			hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
 			return msg_carrier;
 		}
@@ -606,8 +609,12 @@ void OMACType::UpdateNeighborTable(){
 }
  */
 
-UINT8 OMACType::GetBufferSize(){
+UINT8 OMACType::GetSendBufferSize(){
 	return m_NeighborTable.Neighbor[0].send_buffer.Size();
+}
+
+UINT8 OMACType::GetReceiveBufferSize(){
+	return g_receive_buffer.Size();
 }
 
 UINT16 OMACType::GetSendPending(){
@@ -622,8 +629,7 @@ UINT16 OMACType::GetSendPending(){
 }
 
 UINT16 OMACType::GetReceivePending(){
-	return 0;
-	//return g_send_buffer.GetNumberMessagesInBuffer();
+	return g_receive_buffer.GetNumberMessagesInBuffer();
 }
 
 

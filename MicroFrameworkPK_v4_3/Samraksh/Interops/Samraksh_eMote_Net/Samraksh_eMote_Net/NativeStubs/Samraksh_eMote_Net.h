@@ -36,7 +36,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD__radioObj = 6;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(GetPendingPacketCount___U1);
+    TINYCLR_NATIVE_DECLARE(GetPendingPacketCount_Receive___U1);
+    TINYCLR_NATIVE_DECLARE(GetPendingPacketCount_Send___U1);
     TINYCLR_NATIVE_DECLARE(GetID___U1);
     TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);

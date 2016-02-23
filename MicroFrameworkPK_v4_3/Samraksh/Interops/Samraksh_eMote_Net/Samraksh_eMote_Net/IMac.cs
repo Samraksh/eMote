@@ -318,7 +318,13 @@ namespace Samraksh.eMote.Net
             /// Get pending packet count of MAC instance
             /// </summary>
             /// <returns></returns>
-            byte GetPendingPacketCount();
+            byte GetPendingPacketCount_Send();
+
+            /// <summary>
+            /// Get pending packet count of MAC instance
+            /// </summary>
+            /// <returns></returns>
+            byte GetPendingPacketCount_Receive();
 
             /// <summary>
             /// Remove packet from pending
