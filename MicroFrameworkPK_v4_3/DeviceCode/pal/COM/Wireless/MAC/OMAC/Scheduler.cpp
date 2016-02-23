@@ -108,36 +108,36 @@ void OMACScheduler::ScheduleNextEvent(){
 	g_OMAC.UpdateNeighborTable();
 	VirtualTimerReturnMessage rm;
 
-	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0;
-	UINT64 curmicro_rx, curmicro_tx, curmicro_beacon, curmicro_timesync, curmicro;
+	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0, rxEventOffsetAdjust, txEventOffsetAdjust;
+	UINT64 curticks_rx, curticks_tx, curticks_beacon, curticks_timesync, curticks;
 	nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
 
 
 	timeSyncEventOffset = m_TimeSyncHandler.NextEvent();
-	curmicro_timesync =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+	curticks_timesync =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	if (timeSyncEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) timeSyncEventOffset = 0xffffffffffffffff;
 
 
 	rxEventOffset = m_DataReceptionHandler.NextEvent();
-	curmicro_rx =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+	curticks_rx =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	if (rxEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) rxEventOffset = 0xffffffffffffffff;
 	//rxEventOffset = rxEventOffset-1;
 
 	txEventOffset = m_DataTransmissionHandler.NextEvent();
-	curmicro_tx =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+	curticks_tx =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	if (txEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) txEventOffset = 0xffffffffffffffff;
 	//txEventOffset = txEventOffset-1;
 
 
 	beaconEventOffset = m_DiscoveryHandler.NextEvent();
-	curmicro_beacon = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+	curticks_beacon = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
 	if (beaconEventOffset < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) beaconEventOffset = 0xffffffffffffffff;
 	//beaconEventOffset = beaconEventOffset -1;
 
-	//Readjust
-	curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
-	rxEventOffset = rxEventOffset - (curmicro - curmicro_rx);
-	txEventOffset = rxEventOffset - (curmicro - curmicro_tx);
+	//Readjust: No time intensive tasks after this point
+	curticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	rxEventOffset = rxEventOffset -  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curticks - curticks_rx);
+	txEventOffset = txEventOffset -  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curticks - curticks_tx);
 
 	if(rxEventOffset < MAXSCHEDULERUPDATE && rxEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = rxEventOffset;
