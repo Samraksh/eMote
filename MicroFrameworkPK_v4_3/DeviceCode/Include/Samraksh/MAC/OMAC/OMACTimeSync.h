@@ -41,9 +41,7 @@ public:
 
 	BOOL Send(RadioAddress_t address);
 
-	UINT64 GetCurrentTimeinTicks();
-	UINT64 ConvertTickstoMicroSecs(const UINT64& ticks);
-	UINT64 CreateSyncPointBetweenClocks();
+
 
 };
 

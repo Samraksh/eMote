@@ -261,7 +261,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	TimeSyncRequestMsg* tsreqmg = NULL;
 
 	INT64 evTime;
-	UINT64 rx_start_ticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 senderDelay;
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
@@ -293,7 +293,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
 		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
-			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 			if(ds != DS_Success){
 				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
 			}
@@ -301,7 +301,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
 				senderDelay = PacketTimeSync_15_4::SenderDelay(msg,Size);
-				rx_time_stamp = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
+				rx_time_stamp = g_OMAC.m_Clock.GetCurrentTimeinTicks() - (HAL_Time_CurrentTicks() - msg->GetMetaData()->GetReceiveTimeStamp());
 			}
 
 			//Get the primary packet
@@ -425,7 +425,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 			}
 
 			if( tsmg != NULL && disco_msg == NULL){
-				rx_start_ticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+				rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 			}
 		}
 
@@ -435,7 +435,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef	def_Neighbor2beFollowed
 	}
 #endif
-	UINT64 rx_end_ticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 rx_end_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
 		return msg;
 	}
