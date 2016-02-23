@@ -564,11 +564,15 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	seqNumber++;
 
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+
+	metadata->ClearData();
 	//header->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 	metadata->SetNetwork(MyConfig.Network);
 	header->mac_id = (macName);
 	header->type = (dataType);
 	metadata->SetReceiveTimeStamp((UINT32)0);
+
+
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
 	data_msg->size = size;
