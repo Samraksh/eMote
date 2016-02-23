@@ -596,7 +596,7 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 void OMACType::UpdateNeighborTable(){
-	m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
+	m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay, m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
 	//m_NeighborTable.DegradeLinks();
 }
 
