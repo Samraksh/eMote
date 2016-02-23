@@ -130,6 +130,10 @@ void DataReceptionHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+#endif
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 		m_lastScheduledOriginTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();

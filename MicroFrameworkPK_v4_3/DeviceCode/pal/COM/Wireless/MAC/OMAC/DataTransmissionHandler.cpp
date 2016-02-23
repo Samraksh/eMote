@@ -267,6 +267,11 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
 
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	//For GUARDTIME_MICRO period check the channel before transmitting
 	//140 usec is the time taken for CCA to return a result
@@ -302,9 +307,6 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 	//Perform CCA for random backoff period (only for retries)
 	if(m_RANDOM_BACKOFF){
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
 		m_backoff_seed = randVal;
 		int i = 0;
@@ -319,17 +321,15 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 				break;
 			}
 		}
+	}
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
-	}
-
 	//Transmit
 	if(canISend){
 		//resendSuccessful = false;
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
+
 		bool rv = Send();
 		if(rv) {
 			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
@@ -378,6 +378,10 @@ void DataTransmissionHandler::ExecuteEvent(){
 #endif
 #endif
 
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
+
 	VirtualTimerReturnMessage rm;
 	//When starting a new send, reset attempt to 0
 	m_currentSlotRetryAttempt = 0;
@@ -409,6 +413,10 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 	if(HARDWARE_ACKS){
 		//resendSuccessful = true;
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+#endif
 		if(radioAckStatus == TRAC_STATUS_SUCCESS || radioAckStatus == TRAC_STATUS_SUCCESS_DATA_PENDING){
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
@@ -422,6 +430,10 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+#endif
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
@@ -581,11 +593,16 @@ bool DataTransmissionHandler::Send(){
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		g_OMAC.senderSequenceNumber = header->dsn; //BK: I don't know what this is. Seems like residue from incorrect HW ACK implementation. Ananth should check
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
 
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
-
+#endif
 
 		//m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success){
