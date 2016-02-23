@@ -21,7 +21,7 @@ extern OMACType g_OMAC;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
-UINT16 GlobalTime::leader = 0xFFFF;
+UINT16 GlobalTime::leader = RADIO_BROADCAST_ADDRESS;
 BOOL GlobalTime::synced=FALSE;
 
 #define MIN_TICKS_DIFF_BTW_TSM 8000000

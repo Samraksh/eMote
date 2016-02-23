@@ -202,7 +202,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
 		dest = header->dest;
 		DeviceStatus ds = g_OMAC.m_NeighborTable.RecordTimeSyncSent(dest,y);
-		if(ds != DS_Success && dest != 0xFFFF){
+		if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 			hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
 		}
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));

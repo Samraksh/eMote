@@ -436,7 +436,8 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
-	RadioAddress_t dest = 0;
+	RadioAddress_t src = 0;
+	RadioAddress_t myID = g_OMAC.GetMyAddress();
 	VirtualTimerReturnMessage rm;
 
 	if(HARDWARE_ACKS){
@@ -450,10 +451,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 			m_currentSlotRetryAttempt = 0;
 			//m_currentFrameRetryAttempt = 0;
-			dest = rcv_msg->GetHeader()->dest;
-			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(dest,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
-			if(ds != DS_Success){
-				hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
+			src = rcv_msg->GetHeader()->src;
+			if(src != myID){
+				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+				if(ds != DS_Success){
+					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", src, __LINE__);
+				}
 			}
 
 			txhandler_state = DTS_RECEIVEDDATAACK;
