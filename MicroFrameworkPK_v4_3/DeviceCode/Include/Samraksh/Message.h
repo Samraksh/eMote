@@ -89,6 +89,7 @@ public:
 	{
 		return sizeof(Metadata_T);
 	}
+
 };
 
 
@@ -203,6 +204,10 @@ typedef class IEEE802_15_4_Metadata{
 	UINT8 RetryAttempts;
 
   public:
+	void ClearData(){
+		RetryAttempts = 0;
+
+	}
 	/*UINT8 GetLength(){
 		return this->length;
 	}
