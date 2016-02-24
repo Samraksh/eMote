@@ -70,12 +70,13 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 DataReceptionHandler::NextEvent(){
+	UINT64 NextEventTimeinTicks;
 	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	if ( currentSlotNum >= m_nextwakeupSlot ){ //Check for seed update
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
 	}
-	UINT64 NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS - RADIO_TURN_ON_DELAY_MICRO * TICKS_PER_MICRO;
+	NextEventTimeinTicks = g_OMAC.m_Clock.SubstractTicks(g_OMAC.m_Clock.ConvertSlotstoTicks(m_nextwakeupSlot) ,  g_OMAC.m_Clock.ConvertMicroSecstoTicks(RADIO_TURN_ON_DELAY_MICRO + GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION));
 	/*if(HARDWARE_ACKS){
 		NextEventTimeinTicks -= (EXTENDED_MODE_TX_DELAY_MICRO * TICKS_PER_MICRO);
 		ASSERT_SP(NextEventTimeinTicks > 0);
@@ -84,7 +85,7 @@ UINT64 DataReceptionHandler::NextEvent(){
 	while(NextEventTimeinTicks  <= y + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS){
 		currentSlotNum = m_nextwakeupSlot;
 		UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots,  currentSlotNum );
-		NextEventTimeinTicks = m_nextwakeupSlot * SLOT_PERIOD_TICKS - RADIO_TURN_ON_DELAY_MICRO * TICKS_PER_MICRO;
+		NextEventTimeinTicks = g_OMAC.m_Clock.SubstractTicks(g_OMAC.m_Clock.ConvertSlotstoTicks(m_nextwakeupSlot) ,  g_OMAC.m_Clock.ConvertMicroSecstoTicks(RADIO_TURN_ON_DELAY_MICRO + GUARDTIME_MICRO + ADDITIONAL_TIMEADVANCE_FOR_RECEPTION));
 	}
 	UINT64 TicksTillNextEvent = NextEventTimeinTicks - y;
 	//ASSERT_SP(NextEventTimeinTicks > y);

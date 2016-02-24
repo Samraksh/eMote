@@ -17,9 +17,9 @@
 
 extern OMACType g_OMAC;
 
-const uint EXECUTE_WITH_CCA = 1;
+const uint EXECUTE_WITH_CCA = 0;
 const uint FAST_RECOVERY = 0;
-
+const uint FAST_RECOVERY2 = 1;
 
 void PublicDataTxCallback(void * param){
 	if(	FAST_RECOVERY) {
@@ -79,13 +79,17 @@ void DataTransmissionHandler::Initialize(){
 
 UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
 	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-	UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+	//UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+	UINT64 nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (RADIO_TURN_ON_DELAY_MICRO+PROCESSING_DELAY_BEFORE_TX_MICRO));
 	if(EXECUTE_WITH_CCA){
 		nextTXmicro -= CCA_PERIOD_MICRO;
 	}
 	if(FAST_RECOVERY){
 		nextTXmicro -= GUARDTIME_MICRO;
 	}
+	if(FAST_RECOVERY2){
+	}
+	return nextTXmicro;
 }
 
 UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
@@ -126,14 +130,15 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 		if(neighborwakeUpSlot - neighborSlot < 20 ){
 			neighborwakeUpSlot = neighborwakeUpSlot+1;
 		}*/
-
+		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 		return remMicroSecnextTX;
 	}
 	else {
+		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 		//Either Dont have packet to send or missing timing for the destination
 		return MAX_UINT64;
 	}
-	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
+
 }
 
 /*
@@ -259,6 +264,7 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 
 void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts sending routine for a packet
 	bool canISend = true;
+	UINT64 y;
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
 
@@ -270,8 +276,8 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	//For GUARDTIME_MICRO period check the channel before transmitting
 	//140 usec is the time taken for CCA to return a result
-	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+	if(EXECUTE_WITH_CCA) y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+
 	while(EXECUTE_WITH_CCA){
 		//If retrying, don't do CCA, but perform random backoff and transmit
 		if(m_currentSlotRetryAttempt > 0){
@@ -455,6 +461,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			}*/
 
 			if(radioAckStatus == TRAC_STATUS_NO_ACK){
+				if(FAST_RECOVERY2){
+					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
+				}
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );

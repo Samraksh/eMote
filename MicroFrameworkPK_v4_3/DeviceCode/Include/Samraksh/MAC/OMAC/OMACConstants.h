@@ -262,7 +262,10 @@ typedef OFProv<UINT64> OMACTicks;
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 10000			//compensate for time-sync errors; accounts for the clock drift
+#define TICKSINMICSEC 8
+
+#define GUARDTIME_MICRO 500			//compensate for time-sync errors; accounts for the clock drift
+
 
 #define FRAMERETRYMAXATTEMPT 100
 #define SLOTRETRYMAXATTEMPT 2
@@ -290,6 +293,7 @@ typedef OFProv<UINT64> OMACTicks;
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
 #define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	(2*GUARDTIME_MICRO + DELAY_FROM_RF231_TX_TO_RF231_RX)
 
+#define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
 //#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
 //													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
 //														+RETRY_FUDGE_FACTOR
@@ -326,14 +330,14 @@ typedef OFProv<UINT64> OMACTicks;
 #define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
-#define PROCESSING_DELAY_BEFORE_TX_MICRO (581 + CCA_PERIOD_ERROR) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
-#define RADIO_TURN_ON_DELAY_MICRO 670
+#define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
+#define RADIO_TURN_ON_DELAY_MICRO 693
 #define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
 #define HFCLOCKID 1
 #define LFCLOCKID 4 // This is the RTC clock
-#define OMACClockSpecifier LFCLOCKID
+#define OMACClockSpecifier HFCLOCKID
 #define OMACClockFreq 32
 #define OMACClocktoSystemClockFreqRatio 250
 
