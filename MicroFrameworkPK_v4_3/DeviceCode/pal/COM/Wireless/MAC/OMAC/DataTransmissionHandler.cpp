@@ -30,10 +30,34 @@ void PublicDataTxCallback(void * param){
 	}
 }
 
-
-
 void PublicFastRecoveryCallback(void* param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
+}
+
+void ClearMsgContents(Message_15_4_t* msg){
+	IEEE802_15_4_Header_t* header = msg->GetHeader();
+	int length = header->length;
+	header->fcf.fcfWordValue = 0;
+	header->dest = 0;
+	header->length = 0;
+	header->type = 0;
+	header->flags = 0;
+
+	DataMsg_t* data_msg = (DataMsg_t*)msg->GetPayload();
+	data_msg->msg_identifier = 0;
+	int size = data_msg->size;
+	data_msg->size = 0;
+	for(int i = 0; i < length; i++){
+		data_msg->payload[i] = 0;
+	}
+
+	IEEE802_15_4_Metadata_t* metadata = msg->GetMetaData();
+	metadata->SetRetryAttempts(0);
+	metadata->SetReceiveTimeStamp((INT64)0);
+	metadata->SetReceiveTimeStamp((UINT32)0);
+	metadata->SetRssi(0);
+	metadata->SetLqi(0);
+	metadata->SetNetwork(0);
 }
 
 /*
@@ -180,11 +204,13 @@ UINT64 DataTransmissionHandler::NextEvent(){
 			while(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
 					&& g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
 				  ){
+				ClearMsgContents(g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval());
 				g_OMAC.m_NeighborTable.Neighbor[i].tsr_send_buffer.DropOldest(1);
 			}
 			while(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0
 					&& g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT
 				  ){
+				ClearMsgContents(g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.GetOldestwithoutRemoval());
 				g_OMAC.m_NeighborTable.Neighbor[i].send_buffer.DropOldest(1);
 			}
 
@@ -224,18 +250,21 @@ void DataTransmissionHandler::DropPacket(){
 #endif
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
+		ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 		neigh_ptr->send_buffer.DropOldest(1);
-		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)
-		&& (m_outgoingEntryPtr ->GetHeader()->flags &  MFM_TIMESYNC)
+
+		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr ->GetHeader()->flags & MFM_TIMESYNC)
 		){ //This is flushing the time sync message queue if the previous message was successful
+			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
 		}
 	}
 	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
+		ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 		neigh_ptr->tsr_send_buffer.DropOldest(1);
+		//neigh_ptr->tsr_send_buffer.ClearBuffer();
 	}
 	else{ // The packet is gone
-
 		ASSERT_SP(0);
 	}
 
@@ -410,7 +439,8 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
-	RadioAddress_t dest = 0;
+	RadioAddress_t src = 0;
+	RadioAddress_t myID = g_OMAC.GetMyAddress();
 	VirtualTimerReturnMessage rm;
 
 	if(HARDWARE_ACKS){
@@ -428,10 +458,12 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 			m_currentSlotRetryAttempt = 0;
 			//m_currentFrameRetryAttempt = 0;
-			dest = rcv_msg->GetHeader()->dest;
-			DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(dest,g_OMAC.m_Clock.GetCurrentTimeinTicks());
-			if(ds != DS_Success){
-				hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
+			src = rcv_msg->GetHeader()->src;
+			if(src != myID){
+				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+				if(ds != DS_Success){
+					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", src, __LINE__);
+				}
 			}
 
 			txhandler_state = DTS_RECEIVEDDATAACK;
@@ -582,7 +614,9 @@ bool DataTransmissionHandler::Send(){
 
 	DeviceStatus rs;
 	Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
-	if(neigh_ptr == NULL) return false;
+	if(neigh_ptr == NULL){
+		return false;
+	}
 
 	m_outgoingEntryPtr = NULL;
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 ) {
@@ -597,8 +631,6 @@ bool DataTransmissionHandler::Send(){
 
 	//Send only when packet has been scheduled
 	if(m_outgoingEntryPtr != NULL && isDataPacketScheduled){
-		//UINT16 fcf = m_outgoingEntryPtr->GetHeader()->fcf;
-		//hal_printf("DataTransmissionHandler::Send - fcf is %d\n", fcf);
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();

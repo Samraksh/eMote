@@ -478,8 +478,8 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 		return false;
 	}
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
-	msg_carrier->GetMetaData()->SetReceiveTimeStamp(eventTime);
 	IEEE802_15_4_Metadata* metadata = msg_carrier->GetMetaData();
+	metadata->SetReceiveTimeStamp(eventTime);
 	header->flags = (TIMESTAMPED_FLAG);
 	return true;
 }

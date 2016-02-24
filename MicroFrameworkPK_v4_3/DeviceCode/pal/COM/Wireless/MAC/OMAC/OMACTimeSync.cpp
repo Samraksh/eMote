@@ -21,7 +21,7 @@ extern OMACType g_OMAC;
 
 INT64 GlobalTime::offset =0;
 float GlobalTime::skew =0;
-UINT16 GlobalTime::leader = 0xFFFF;
+UINT16 GlobalTime::leader = RADIO_BROADCAST_ADDRESS;
 BOOL GlobalTime::synced=FALSE;
 
 #define MIN_TICKS_DIFF_BTW_TSM 8000000
@@ -136,7 +136,7 @@ void OMACTimeSync::FailsafeStop(){
  */
 //DeviceStatus OMACTimeSync::Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time){
 BOOL OMACTimeSync::Send(RadioAddress_t address){
-	 bool request_TimeSync;
+	bool request_TimeSync;
 	UINT64 lastTimeSyncRecv = g_OMAC.m_NeighborTable.GetLastTimeSyncRecv(address);
 
 	TimeSyncRequestMsg * tsreqmsg;
