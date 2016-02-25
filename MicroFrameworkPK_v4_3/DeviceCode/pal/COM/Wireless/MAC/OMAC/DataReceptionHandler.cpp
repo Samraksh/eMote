@@ -319,12 +319,17 @@ void DataReceptionHandler::PostExecuteEvent(){
 	}*/
 
 	//Scheduler's PostExecution stops the radio
-	g_OMAC.m_omac_RadioControl.Stop();
+	DeviceStatus returnVal = g_OMAC.m_omac_RadioControl.Stop();
+	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 #endif
-
-	g_OMAC.m_omac_scheduler.PostExecution();
+		g_OMAC.m_omac_scheduler.PostExecution();
+	}
+	else{
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+	}
 }
 
 void DataReceptionHandler::FailsafeStop(){
