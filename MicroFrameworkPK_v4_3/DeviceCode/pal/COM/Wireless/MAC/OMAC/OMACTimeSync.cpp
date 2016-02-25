@@ -212,7 +212,7 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
-	ReceiveTS = ReceiveTS - DELAY_FROM_RF231_TX_TO_RF231_RX;
+	ReceiveTS = ReceiveTS - TIME_BETWEEN_TX_RX_TS_TICKS;
 	UINT64 rcv_ltime;
 	INT64 l_offset;
 	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0 + SenderDelay;

@@ -285,6 +285,7 @@ typedef OFProv<UINT64> OMACTicks;
 // BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
 #define DELAY_FROM_OMAC_TX_TO_RF231_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
 #define DELAY_FROM_RF231_TX_TO_RF231_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
+#define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
 #define ACK_DELAY	0.4*MICSECINMILISEC						//(C)Delay in Rx generating an ack
 #define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
 															//   Sum of (max-min) of (A),(B) will go into (D)
