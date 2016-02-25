@@ -460,7 +460,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			//m_currentFrameRetryAttempt = 0;
 			src = rcv_msg->GetHeader()->src;
 			if(src != myID){
-				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 				if(ds != DS_Success){
 					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", src, __LINE__);
 				}

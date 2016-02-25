@@ -1865,7 +1865,6 @@ void RF231Radio::HandleInterrupt()
 		// Currently, this will depend on interrupt latency.
 
 		receive_timestamp = HAL_Time_CurrentTicks();
-		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
 
 		// We have a 64 bit local clock, do we need 64 bit timestamping, perhaps not
 		// Lets stick to 32, the iris implementation uses the timer to measure when the input was
@@ -1890,6 +1889,7 @@ void RF231Radio::HandleInterrupt()
 
 		 ////(Radio<Message_15_4_t>::GetMacHandler(active_mac_index)->GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
 		//(Radio_event_handler.GetRadioInterruptHandler())(StartOfReception,(void*)rx_msg_ptr);
+		CPU_GPIO_SetPinState( RF231_RX_START, FALSE );
 	}
 
 

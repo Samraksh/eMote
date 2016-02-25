@@ -15,6 +15,10 @@ extern OMACType g_OMAC;
 
 
 void PublicDataRxCallback(void * param){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+#endif
 	if(SOFTWARE_ACKS){
 		if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_receptionstate==2){
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendDataACK();
@@ -304,7 +308,11 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 }
 
 void DataReceptionHandler::PostExecuteEvent(){
-	m_currtime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
+		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
+#endif
+	//m_currtime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
 	/*if(!(m_receptionstate == 0 || m_receptionstate == 4)){
 		m_isreceiving = false;
