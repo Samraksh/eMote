@@ -22,7 +22,7 @@ namespace Samraksh.eMote.Net
 		/// <summary>
 		/// MAC configuration
 		/// </summary>
-		public class MacConfiguration {
+		public class MACConfiguration {
 			/// <summary>
 			/// Enable or disable MAC CCA (clear channel assessment)
 			/// </summary>
@@ -70,7 +70,7 @@ namespace Samraksh.eMote.Net
             /// <summary>
             /// MAC configuration constructor
             /// </summary>
-            public MacConfiguration()
+            public MACConfiguration()
             {
                 this.CCA = true;
                 this.BufferSize = 8;
@@ -85,7 +85,7 @@ namespace Samraksh.eMote.Net
             /// MAC configuration constructor
             /// </summary>
             /// <param name="config">Configuration to apply</param>
-            public MacConfiguration(MacConfiguration config)
+            public MACConfiguration(MACConfiguration config)
             {
                 this.CCA = config.CCA;
                 this.BufferSize = config.BufferSize;
@@ -106,7 +106,7 @@ namespace Samraksh.eMote.Net
             /// <param name="radioID">Radio ID</param>
             /// <param name="neighborLivelinessDelay">Delay before a neighbor is deemed dead</param>
             /// <param name="config">Radio configuration</param>
-            public MacConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID, UInt32 neighborLivelinessDelay, Radio.RadioConfiguration config)
+            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID, UInt32 neighborLivelinessDelay, Radio.RadioConfiguration config)
             {
                 this.CCA = CCA;
                 this.NumberOfRetries = numberOfRetries;
@@ -126,7 +126,7 @@ namespace Samraksh.eMote.Net
             /// <param name="ccaSenseTime">Carrier sense time</param>
             /// <param name="bufferSize">BufferSize of the radio</param>
             /// <param name="radioID">Radio ID</param>
-            public MacConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID)
+            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID)
             {
                 this.CCA = CCA;
                 this.NumberOfRetries = numberOfRetries;
@@ -248,11 +248,11 @@ namespace Samraksh.eMote.Net
 		/// <summary>
        /// MAC interface
        /// </summary>
-        public interface IMac
+        public interface IMAC
         {
             //Basic functions
-            //DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
-            //DeviceStatus Configure(MacConfiguration config);
+            //DeviceStatus Initialize(MACConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
+            //DeviceStatus Configure(MACConfiguration config);
 
             /// <summary>
             /// Unitialize MAC

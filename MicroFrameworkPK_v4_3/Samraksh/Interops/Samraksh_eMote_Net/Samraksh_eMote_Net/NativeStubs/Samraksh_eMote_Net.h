@@ -77,7 +77,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Link
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MacConfiguration
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MACConfiguration
 {
     static const int FIELD__CCA = 1;
     static const int FIELD__NumberOfRetries = 2;

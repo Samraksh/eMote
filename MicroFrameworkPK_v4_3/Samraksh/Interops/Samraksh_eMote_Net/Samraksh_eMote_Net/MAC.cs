@@ -17,7 +17,7 @@ namespace Samraksh.eMote.Net
     }*/
 
     /// <summary>Kinds of protocol</summary>
-    public enum MacID
+    public enum MACID
     {
         /// <summary>
         /// 
@@ -33,7 +33,7 @@ namespace Samraksh.eMote.Net
     /// <summary>Base class for wireless protocols</summary>
     /// <seealso cref="Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
     /// <seealso cref="OMAC" cat="Inherited by">OMAC Class</seealso>
-    public class MACBase : IMac
+    public class MACBase : IMAC
     {
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
@@ -44,7 +44,7 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// Specifies the neighbor size
         /// </summary>
-        const byte NeighborSize = 22; //Look at IMac.cs to figure out the size of the Neighbor structure.
+        const byte NeighborSize = 22; //Look at IMAC.cs to figure out the size of the Neighbor structure.
 
         const byte MaxNeighbors = 255;
 
@@ -57,7 +57,7 @@ namespace Samraksh.eMote.Net
         /// <summary>Configure MAC (obsolete)</summary>
         /// <value>Accesses MacConfig</value>
         [Obsolete("Use MacConfig instead")]
-        public static MacConfiguration macconfig {
+        public static MACConfiguration macconfig {
             get { return MacConfig; }
             set { MacConfig = value; }
         }
@@ -65,11 +65,11 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// Mac Config
         /// </summary>
-        public static MacConfiguration MacConfig = null;
+        public static MACConfiguration MacConfig = null;
 
         private Message message;
 
-        private MacID macname;
+        private MACID macname;
 
         private static Neighbor neighbor = new Neighbor();
 
@@ -83,13 +83,13 @@ namespace Samraksh.eMote.Net
         /// <param name="macname">CSMA, OMAC or other MAC</param>
         /// <exception caption="MacNotConfigured Exception" cref="MacNotConfiguredException"></exception>
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
-        public MACBase(MacID macname)
+        public MACBase(MACID macname)
         {
 
             if (MacConfig == null || Callbacks.GetReceiveCallback() == null)
                 throw new MacNotConfiguredException();
 
-            if (macname == MacID.CSMA)
+            if (macname == MACID.CSMA)
             {
                 Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.CSMAMAC;
                 if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
@@ -97,7 +97,7 @@ namespace Samraksh.eMote.Net
                 else if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
                     radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.CSMAMAC);
             }
-            else if (macname == MacID.OMAC)
+            else if (macname == MACID.OMAC)
             {
                 Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.OMAC;
                 if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
@@ -160,7 +160,7 @@ namespace Samraksh.eMote.Net
         /// <param name="config"></param>
         /// <param name="macname"></param>
         /// <returns></returns>
-        private DeviceStatus Initialize(MacConfiguration config, MacID macname)
+        private DeviceStatus Initialize(MACConfiguration config, MACID macname)
         {
             if (config.CCA)
                 MarshalBuffer[0] = 1;
@@ -191,20 +191,20 @@ namespace Samraksh.eMote.Net
         /// <summary>Reconfigure MAC</summary>
         /// <param name="config">New MAC configuration</param>
         /// <param name="macName">Kind of MAC</param>
-        public DeviceStatus ReConfigure(MacConfiguration config, MacID macName)
+        public DeviceStatus ReConfigure(MACConfiguration config, MACID macName)
         {
             MacConfig = config;
 
             if (radioObj.GetRadioName() != config.radioConfig.GetRadioName())
             {
-                if (macName == MacID.CSMA)
+                if (macName == MACID.CSMA)
                 {
                     if (config.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
                         radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.CSMAMAC);
                     else
                         radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
                 }
-                else if (macName == MacID.OMAC)
+                else if (macName == MACID.OMAC)
                 {
                     if (config.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
                         radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.OMAC);
@@ -523,9 +523,9 @@ namespace Samraksh.eMote.Net
 		/// <param name="receiveCallback">Method to call when message received</param>
 		/// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
 		/// <returns>Status of operation</returns>
-		public static DeviceStatus Configure(MacConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback) {
+		public static DeviceStatus Configure(MACConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback) {
 			if (MacConfig == null) {
-				MacConfig = new MacConfiguration(config);
+				MacConfig = new MACConfiguration(config);
 				Callbacks.SetReceiveCallback(receiveCallback);
 				Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
 

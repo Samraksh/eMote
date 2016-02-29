@@ -36,7 +36,7 @@
     <Compile Include="Common.cs" />
     <Compile Include="CSMA.cs" />
     <Compile Include="Exception.cs" />
-    <Compile Include="IMac.cs" />
+    <Compile Include="IMAC.cs" />
     <Compile Include="IRadio.cs" />
     <Compile Include="MAC.cs" />
     <Compile Include="Message.cs" />

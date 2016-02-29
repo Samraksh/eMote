@@ -1549,6 +1549,39 @@ DeviceStatus RF231Radio::TurnOnRx()
 }	//RF231Radio::TurnOnRx()
 
 
+DeviceStatus RF231Radio::TurnOffRx()
+{
+	INIT_STATE_CHECK();
+	interrupt_mode_check();
+	GLOBAL_LOCK(irq);
+
+	if (!IsInitialized()) { return DS_Fail; }
+
+	sleep_pending = FALSE;
+
+	add_rx_start_time();
+
+	if(RF231_extended_mode){
+		if ( !Careful_State_Change_Extended(TRX_OFF) ) {
+#ifdef DEBUG_RF231
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("RF231Radio::TurnOffRx - returning failure; status is %d\n", trx_status);
+#endif
+			return DS_Fail;
+		}
+	}
+	else{
+		if ( !Careful_State_Change(TRX_OFF) ) {
+			return DS_Fail;
+		}
+	}
+
+	state = STATE_TRX_OFF;
+
+	return DS_Success;
+}	//RF231Radio::TurnOffRx()
+
+
 //template<class T>
 UINT8 RF231Radio::ReadRegister(UINT8 reg)
 {

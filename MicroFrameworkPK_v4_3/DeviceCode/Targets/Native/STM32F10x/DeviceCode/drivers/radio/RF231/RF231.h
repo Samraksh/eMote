@@ -654,6 +654,7 @@ public:
 	DeviceStatus PreLoadFrame();
 
 	DeviceStatus TurnOnRx();
+	DeviceStatus TurnOffRx();
 
 	DeviceStatus TurnOff();
 

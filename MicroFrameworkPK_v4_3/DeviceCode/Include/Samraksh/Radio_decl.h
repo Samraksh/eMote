@@ -148,6 +148,7 @@ DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSe
 DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID);
 DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID);
 DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID);
+DeviceStatus CPU_Radio_TurnOffRx(UINT8 radioID);
 DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID);
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level);
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID);

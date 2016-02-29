@@ -279,7 +279,28 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
+	}
 
+	//ASSERT_NOFAIL(status);
+	return status;
+}
+
+// This function calls the corresponding radio turn off function based on the input radio id
+DeviceStatus CPU_Radio_TurnOffRx(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.TurnOffRx();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.TurnOffRx();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
 	}
 
 	//ASSERT_NOFAIL(status);
