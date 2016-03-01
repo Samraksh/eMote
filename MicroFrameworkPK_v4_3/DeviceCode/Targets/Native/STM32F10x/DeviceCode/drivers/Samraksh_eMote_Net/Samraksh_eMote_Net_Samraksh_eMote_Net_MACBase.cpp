@@ -59,20 +59,20 @@ UINT8 MACBase::GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &h
     return g_send_buffer.GetNumberMessagesInBuffer();
 }
 
-UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::GetMACType( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
     return retVal;
 }
 
-INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 address, HRESULT &hr )
+INT32 MACBase::SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT16 address, HRESULT &hr )
 {
 	BOOL status = FALSE;
 	status = Mac_SetRadioAddress(address);
 	return status;
 }
 
-UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT16 MACBase::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	UINT16 temp = Mac_GetRadioAddress();
 	return temp;
@@ -85,9 +85,9 @@ INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return status;
 }
 
-void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+/*void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-}
+}*/
 
 INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 nativeBuffer, HRESULT &hr )
 {

@@ -80,7 +80,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketC
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetID___U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetMACType___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -88,7 +88,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetID___U1( CLR_R
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT8 retVal = MACBase::GetID( pMngObj,  hr );
+        UINT8 retVal = MACBase::GetMACType( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT8( stack, retVal );
 
@@ -96,7 +96,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetID___U1( CLR_R
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SetAddress___BOOLEAN__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SetRadioAddress___SamraksheMoteNetDeviceStatus__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -107,15 +107,15 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SetAddress___BOOL
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        INT8 retVal = MACBase::SetAddress( pMngObj,  param0, hr );
+        INT32 retVal = MACBase::SetRadioAddress( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT8( stack, retVal );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetAddress___U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetRadioAddress___U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -123,7 +123,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetAddress___U2( 
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT16 retVal = MACBase::GetAddress( pMngObj,  hr );
+        UINT16 retVal = MACBase::GetRadioAddress( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT16( stack, retVal );
 
@@ -152,39 +152,6 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheM
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
 
         INT32 retVal = MACBase::Send( pMngObj,  param0, param1, param2, param3, hr );
-        TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
-
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::ReleasePacket___VOID( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        MACBase::ReleasePacket( pMngObj,  hr );
-        TINYCLR_CHECK_HRESULT( hr );
-    }
-    TINYCLR_NOCLEANUP();
-}
-
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
-{
-    TINYCLR_HEADER(); hr = S_OK;
-    {
-        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
-
-        FAULT_ON_NULL(pMngObj);
-
-        CLR_RT_TypedArray_UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::GetNextPacket( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -229,6 +196,25 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::InternalReConfigu
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
 
         INT32 retVal = MACBase::InternalReConfigure( pMngObj,  param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        CLR_RT_TypedArray_UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
+
+        INT32 retVal = MACBase::GetNextPacket( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

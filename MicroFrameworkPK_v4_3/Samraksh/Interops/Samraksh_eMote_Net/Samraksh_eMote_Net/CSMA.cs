@@ -11,7 +11,8 @@ namespace Samraksh.eMote.Net.Mac
         private static CSMA instance;
         private static object syncObject = new Object();
 
-        private CSMA() : base(MACID.CSMA)
+        private CSMA()
+            : base(MACType.CSMA)
         {
         }
 

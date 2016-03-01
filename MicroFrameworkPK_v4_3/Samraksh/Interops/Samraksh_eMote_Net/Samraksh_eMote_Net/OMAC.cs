@@ -11,7 +11,8 @@ namespace Samraksh.eMote.Net.Mac
         private static OMAC instance;
         private static object syncObject = new Object();
 
-        private OMAC() : base(MACID.OMAC)
+        private OMAC() 
+            : base(MACType.OMAC)
         {
         }
 

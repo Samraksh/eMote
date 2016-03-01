@@ -7,7 +7,7 @@ namespace Samraksh.eMote.Net.Radio
     public class Radio_802_15_4_LR : Radio_802_15_4_Base
     {
 
-        private static Radio_802_15_4_LR instance;
+        private static Radio_802_15_4_LR LRRadioInstance;
         private static object syncObject = new Object();
 
 
@@ -22,79 +22,75 @@ namespace Samraksh.eMote.Net.Radio
         {
         }
 
-        /// <summary>Get instance</summary>
+        /// <summary>Get RadioInstance</summary>
         /// <returns>Instance</returns>
         /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance()
         {
-            if (Config == null)
+            if (RadioBaseConfig == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (Config.GetRadioName() != RadioName.RF231RADIOLR)
+            if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
             }
 
-            if (instance == null)
+            if (LRRadioInstance == null)
             {
                 lock (syncObject)
                 {
-                    if (instance == null)
-                        instance = new Radio_802_15_4_LR();
+                    if (LRRadioInstance == null)
+                        LRRadioInstance = new Radio_802_15_4_LR();
                 }
             }
 
-            if (instance != null)
-                instance.SetRadioName(RadioName.RF231RADIOLR);
+            //if (RadioInstance != null)
+                //RadioInstance.RadioName = RadioName.RF231RADIOLR;
 
-            return instance;
+            return LRRadioInstance;
         }
 
 
 
-        /// <summary>Get shallow instance</summary>
-        /// <param name="user">Shallow instance</param>
+        /// <summary>Get radio instance</summary>
+        /// <param name="user">Radio user</param>
         /// <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
-        public static Radio_802_15_4_LR GetShallowInstance(RadioUser user)
+        public static Radio_802_15_4_LR GetInstance(RadioUser user)
         {
-
-            if (Config == null)
+            if (RadioBaseConfig == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
 
-            if (Config.GetRadioName() != RadioName.RF231RADIOLR)
+            if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed");
             }
 
-            if (instance == null)
+            if (LRRadioInstance == null)
             {
                 lock (syncObject)
                 {
-                    if (instance == null)
+                    if (LRRadioInstance == null)
                     {
                         if (user == RadioUser.CSMAMAC)
-                            instance = new Radio_802_15_4_LR("CSMACallback", 4321);
+                            LRRadioInstance = new Radio_802_15_4_LR("CSMACallback", 4321);
                         else if (user == RadioUser.OMAC)
-                            instance = new Radio_802_15_4_LR("OMACCallback", 4322);
+                            LRRadioInstance = new Radio_802_15_4_LR("OMACCallback", 4322);
                         else if (user == RadioUser.CSharp)
-                            instance = new Radio_802_15_4_LR();
+                            LRRadioInstance = new Radio_802_15_4_LR();
                     }
                 }
 
-                if (instance != null)
-                    instance.SetRadioName(RadioName.RF231RADIOLR);
+                //if (RadioInstance != null)
+                    //instance.RadioName = RadioName.RF231RADIOLR;
             }
 
-            return instance;
+            return LRRadioInstance;
         }
     }
-
-
-    
 }

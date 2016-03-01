@@ -27,7 +27,7 @@ namespace Samraksh.eMote.Net
 
         /// <summary>Was packet unicast?</summary>
         /// <value>True if packet was unicast, else broadcast</value>
-        public bool Unicast;
+        public bool IsUnicast;
 
         /// <summary>
         /// Received packet
@@ -50,15 +50,17 @@ namespace Samraksh.eMote.Net
             set { SenderEventTimeStamp = value; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsPacketTimeStamped;
 
-        private bool timeStamped;
-
-        /// <summary>Check if packet is timestamped</summary>
+        /*/// <summary>Check if packet is timestamped</summary>
         /// <returns>True iff packet is timestamped</returns>
-        public bool IsSenderTimeStamped()
+        public bool IsPacketTimeStamped()
         {
-            return timeStamped;
-        }
+            return IsPacketTimeStamped;
+        }*/
 
         /// <summary>Create a packet with the default size</summary>
         public Packet()
@@ -91,15 +93,15 @@ namespace Samraksh.eMote.Net
 
             // Determines whether the packet is unicast or not 
             if (msg[i++ + 2] == 1)
-                Unicast = true;
+                IsUnicast = true;
             else
-                Unicast = false;
+                IsUnicast = false;
 
             // Check if the packet is timestamped from the sender 
             if (msg[i++ + 2] == 1)
-                timeStamped = true;
+                IsPacketTimeStamped = true;
             else
-                timeStamped = false;
+                IsPacketTimeStamped = false;
 
             // Elaborate conversion plan because nothing else works 
             UInt32 lsbItem = msg[i++ + 2];
@@ -122,10 +124,10 @@ namespace Samraksh.eMote.Net
         /// <summary>Create a packet with specified parameters</summary>
         /// <param name="payload">Packet payload</param>
         /// <param name="Src">Source of the packet</param>
-        /// <param name="Unicast">Was transmission unicast</param>
+        /// <param name="IsUnicast">Was transmission unicast</param>
         /// <param name="RSSI">RSSI</param>
         /// <param name="LQI">LQI</param>
-        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI)
+        public Packet(byte[] payload, UInt16 Src, bool IsUnicast, byte RSSI, byte LQI)
         {
             //Create a payload object of default size
             Payload = new byte[MacPacketSize];
@@ -138,7 +140,7 @@ namespace Samraksh.eMote.Net
 
             // Copy other parameters to this object 
             this.Src = Src;
-            this.Unicast = Unicast;
+            this.IsUnicast = IsUnicast;
             this.RSSI = RSSI;
             this.LQI = LQI;
         }
@@ -146,11 +148,11 @@ namespace Samraksh.eMote.Net
         /// <summary>Create a packet with specified parameters</summary>
         /// <param name="payload">Packet payload</param>
         /// <param name="Src">Source of the packet</param>
-        /// <param name="Unicast">Was transmission unicast</param>
+        /// <param name="IsUnicast">Was transmission unicast</param>
         /// <param name="RSSI">RSSI</param>
         /// <param name="LQI">LQI</param>
         /// <param name="Size">Size of the payload buffer </param>
-        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size)
+        public Packet(byte[] payload, UInt16 Src, bool IsUnicast, byte RSSI, byte LQI, UInt16 Size)
         {
             //Create a message object of default size
             Payload = new byte[Size];
@@ -163,7 +165,7 @@ namespace Samraksh.eMote.Net
 
             // Copy other parameters to this object 
             this.Src = Src;
-            this.Unicast = Unicast;
+            this.IsUnicast = IsUnicast;
             this.RSSI = RSSI;
             this.LQI = LQI;
         }
@@ -171,12 +173,12 @@ namespace Samraksh.eMote.Net
         /// <summary>Create a packet with specified parameters</summary>
         /// <param name="payload"></param>
         /// <param name="Src"></param>
-        /// <param name="Unicast"></param>
+        /// <param name="IsUnicast"></param>
         /// <param name="RSSI"></param>
         /// <param name="LQI"></param>
         /// <param name="Size"></param>
-        /// <param name="timeStamped"></param>
-        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
+        /// <param name="IsPacketTimeStamped"></param>
+        public Packet(byte[] payload, UInt16 Src, bool IsUnicast, byte RSSI, byte LQI, UInt16 Size, bool IsPacketTimeStamped)
         {
             //Create a message object of default size
             Payload = new byte[Size];
@@ -189,10 +191,10 @@ namespace Samraksh.eMote.Net
 
             // Copy other parameters to this object 
             this.Src = Src;
-            this.Unicast = Unicast;
+            this.IsUnicast = IsUnicast;
             this.RSSI = RSSI;
             this.LQI = LQI;
-            this.timeStamped = timeStamped;
+            this.IsPacketTimeStamped = IsPacketTimeStamped;
         }
 
         /// <summary>Configure size of messages</summary>

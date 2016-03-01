@@ -40,35 +40,25 @@ UINT8 MACBase::GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &h
     return retVal;
 }
 
-UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::GetMACType( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
     return retVal;
 }
 
-INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
+INT32 MACBase::SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
 {
-    INT8 retVal = 0; 
+    INT32 retVal = 0; 
     return retVal;
 }
 
-UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT16 MACBase::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT16 retVal = 0; 
     return retVal;
 }
 
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-}
-
-INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
@@ -81,6 +71,12 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 }
 
 INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

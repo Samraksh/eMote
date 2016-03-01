@@ -29,8 +29,6 @@ namespace Samraksh
 
                     static UNSUPPORTED_TYPE& Get_packet( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::FIELD__packet ); }
 
-                    static INT32& Get_radioName( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::FIELD__radioName ); }
-
                     static UNSUPPORTED_TYPE& Get_marshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::FIELD__marshalBuffer ); }
 
                     // Declaration of stubs. These functions are implemented by Interop code developers

@@ -11,7 +11,21 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public RadioConfigurationMismatchException() { Debug.Print("Mismatch between initialized radio object and configuration passed\n"); }
+        public RadioConfigurationMismatchException() 
+        {
+            throw new RadioConfigurationMismatchException();
+            //Debug.Print("Mismatch between initialized radio object and configuration passed\n"); 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public RadioConfigurationMismatchException(string message)
+            : base(message)
+        {
+            throw new RadioConfigurationMismatchException("Mismatch between initialized radio object and configuration passed");
+        }
     }
 
     /// <summary>
@@ -22,12 +36,19 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public RadioNotConfiguredException() { Debug.Print("The radio has not been configured with a config object or a callback\n"); }
+        public RadioNotConfiguredException() 
+        {
+            throw new RadioNotConfiguredException();
+            //Debug.Print("The radio has not been configured with a config object or a callback\n"); 
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public RadioNotConfiguredException(string message) : base(message) { 
+        public RadioNotConfiguredException(string message) : base(message) 
+        {
+            throw new RadioNotConfiguredException("The radio has not been configured with a config object or a callback");
             //Debug.Print(message); 
         }
     }
@@ -40,7 +61,21 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public RadioBusyException() { Debug.Print("The radio already has a user\n"); }
+        public RadioBusyException() 
+        {
+            throw new RadioBusyException();
+            //Debug.Print("The radio already has a user\n"); 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public RadioBusyException(string message)
+            : base(message)
+        {
+            throw new RadioBusyException("The radio already has a user");
+        }
     }
 
     /// <summary>
@@ -51,18 +86,32 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public MACNotConfiguredException() { Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); }
+        public MACNotConfiguredException() 
+        {
+            throw new MACNotConfiguredException();
+            //Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); 
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public MACNotConfiguredException(string message) : base(message) { }
+        public MACNotConfiguredException(string message) 
+            : base(message) 
+        {
+            throw new MACNotConfiguredException("You are attempting to acquire an instance of the mac without configuring it");
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public MACNotConfiguredException(string message, Exception innerException) : base(message, innerException) { }
+        public MACNotConfiguredException(string message, Exception innerException) 
+            : base(message, innerException) 
+        {
+            throw new MACNotConfiguredException("You are attempting to acquire an instance of the mac without configuring it", new MACNotConfiguredException());
+        }
     }
 
     /// <summary>
@@ -73,6 +122,20 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public CallbackNotConfiguredException() { Debug.Print("Receive callback has not been configured \n"); }
+        public CallbackNotConfiguredException() 
+        {
+            throw new CallbackNotConfiguredException();
+            //Debug.Print("Receive callback has not been configured \n"); 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public CallbackNotConfiguredException(string message)
+            : base(message)
+        {
+            throw new CallbackNotConfiguredException("Receive callback has not been configured");
+        }
     }
 }

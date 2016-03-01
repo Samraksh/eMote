@@ -21,7 +21,7 @@ namespace Samraksh.eMote.Net
     /// <summary>
     /// Callback class, should only be used internally by the mac and not by any user programs
     /// </summary>
-    public static class Callbacks
+    internal static class Callbacks
     {
         private static ReceiveCallBack _receiveCallBack = null;
         private static NeighborhoodChangeCallBack _neighborChangeCallBack = null;
@@ -103,6 +103,5 @@ namespace Samraksh.eMote.Net
                 _neighborChangeCallBack((UInt16)data2);
 
         }
-
     }
 }

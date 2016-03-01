@@ -34,16 +34,23 @@ namespace Samraksh.eMote.Net.Radio
        /// <summary>
         /// Transmission power of the radio
         /// </summary>
-        private TxPowerValue TxPower;
+        public TxPowerValue TxPower;
         /// <summary>
         /// Channel the radio will transmit on
         /// </summary>
-        private Channels Channel;
-
-        private RadioName Name;
-
-        private ReceiveCallBack OnReceiveCallback;
-        private NeighborhoodChangeCallBack OnNeighborChangeCallback;
+        public Channel Channel;
+        /// <summary>
+        /// 
+        /// </summary>
+        public RadioType RadioType;
+        /// <summary>
+        /// 
+        /// </summary>
+        public ReceiveCallBack OnReceiveCallback;
+        /// <summary>
+        /// 
+        /// </summary>
+        public NeighborhoodChangeCallBack OnNeighborChangeCallback;
 
         /// <summary>
         /// Radio configuration constructor
@@ -51,8 +58,8 @@ namespace Samraksh.eMote.Net.Radio
         public RadioConfiguration()
         {
             TxPower = TxPowerValue.Power_3dBm;
-            Channel = Channels.Channel_26;
-            Name = RadioName.RF231RADIO;
+            Channel = Channel.Channel_26;
+            RadioType = RadioType.RF231RADIO;
         }
 
         /// <summary>
@@ -63,7 +70,7 @@ namespace Samraksh.eMote.Net.Radio
         {
             this.TxPower = config.TxPower;
             this.Channel = config.Channel;
-            this.Name = config.Name;
+            this.RadioType = config.RadioType;
             this.OnReceiveCallback = config.OnReceiveCallback;
             this.OnNeighborChangeCallback = config.OnNeighborChangeCallback;
         }
@@ -74,14 +81,14 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="power">Transmission power</param>
         /// <param name="channel">Channel</param>
         /// <param name="name">name</param>
-        public RadioConfiguration(TxPowerValue power, Channels channel, RadioName name)
+        public RadioConfiguration(TxPowerValue power, Channel channel, RadioType name)
         {
             this.Channel = channel;
             this.TxPower = power;
-            this.Name = name;
+            this.RadioType = name;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Set the channel 
         /// </summary>
         /// <param name="channel">Channel</param>
@@ -168,8 +175,7 @@ namespace Samraksh.eMote.Net.Radio
         public NeighborhoodChangeCallBack GetNeighborChangeCallBack()
         {
             return this.OnNeighborChangeCallback;
-        }
-
+        }*/
     };
 
 
