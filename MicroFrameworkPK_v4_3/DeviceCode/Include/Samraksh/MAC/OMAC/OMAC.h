@@ -157,7 +157,7 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
 	Message_15_4_t* FindFirstSyncedNbrMessage();
 	Message_15_4_t* FindFirstMessageForNbr(UINT16 nbr);
-	void UpdateNeighborTable();
+	UINT8 UpdateNeighborTable();
 	UINT8 GetSendBufferSize();
 	UINT8 GetReceiveBufferSize();
 	UINT16 GetSendPending();

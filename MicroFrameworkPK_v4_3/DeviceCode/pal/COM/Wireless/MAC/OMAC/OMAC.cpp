@@ -602,8 +602,8 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
 /*
  *
  */
-void OMACType::UpdateNeighborTable(){
-	m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
+UINT8 OMACType::UpdateNeighborTable(){
+	return m_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay);
 	//m_NeighborTable.DegradeLinks();
 }
 

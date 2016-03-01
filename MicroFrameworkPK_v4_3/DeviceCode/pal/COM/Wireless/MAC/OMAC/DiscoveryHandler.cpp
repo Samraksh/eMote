@@ -305,8 +305,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 			stopBeacon = true;
 		}*/
 	} else {
-		highdiscorate = true;
-		firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+		TempIncreaseDiscoRate();
 		g_OMAC.m_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
@@ -388,4 +387,9 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	return retValue;
 }
 
-
+void DiscoveryHandler::TempIncreaseDiscoRate(){
+	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
+	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
+	highdiscorate = true;
+	firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+}

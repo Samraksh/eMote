@@ -82,6 +82,8 @@ class DiscoveryHandler: public EventHandler {
   	}
 
   	~DiscoveryHandler();
+
+  	void TempIncreaseDiscoRate();
 };
 
 
