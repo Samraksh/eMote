@@ -55,7 +55,7 @@ namespace Samraksh.eMote.Net
 		}
 
 		/// <summary>
-        /// Returns the recieve callback function
+        /// Returns the receive callback function
         /// </summary>
         /// <returns></returns>
         public static ReceiveCallBack GetReceiveCallback()

@@ -115,7 +115,6 @@ namespace Samraksh.eMote.Net
                 this.RadioID = radioID;
 
                 this.radioConfig = new Radio.RadioConfiguration(config);
-
             }
 
             /// <summary>
@@ -135,7 +134,6 @@ namespace Samraksh.eMote.Net
                 this.RadioID = radioID;
                 this.radioConfig = new Radio.RadioConfiguration();
             }
-
         };
 
         /// <summary>

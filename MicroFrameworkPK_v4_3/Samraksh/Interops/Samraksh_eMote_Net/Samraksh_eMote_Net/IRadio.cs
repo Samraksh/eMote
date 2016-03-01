@@ -40,7 +40,10 @@ namespace Samraksh.eMote.Net.Radio
         /// </summary>
         private Channels Channel;
 
-        private RadioName name;
+        private RadioName Name;
+
+        private ReceiveCallBack OnReceiveCallback;
+        private NeighborhoodChangeCallBack OnNeighborChangeCallback;
 
         /// <summary>
         /// Radio configuration constructor
@@ -49,7 +52,7 @@ namespace Samraksh.eMote.Net.Radio
         {
             TxPower = TxPowerValue.Power_3dBm;
             Channel = Channels.Channel_26;
-            name = RadioName.RF231RADIO;
+            Name = RadioName.RF231RADIO;
         }
 
         /// <summary>
@@ -60,7 +63,9 @@ namespace Samraksh.eMote.Net.Radio
         {
             this.TxPower = config.TxPower;
             this.Channel = config.Channel;
-            this.name = config.name;
+            this.Name = config.Name;
+            this.OnReceiveCallback = config.OnReceiveCallback;
+            this.OnNeighborChangeCallback = config.OnNeighborChangeCallback;
         }
 
         /// <summary>
@@ -73,7 +78,7 @@ namespace Samraksh.eMote.Net.Radio
         {
             this.Channel = channel;
             this.TxPower = power;
-            this.name = name;
+            this.Name = name;
         }
 
         /// <summary>
@@ -118,7 +123,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="name">Radio name</param>
         public void SetRadioName(RadioName name)
         {
-            this.name = name;
+            this.Name = name;
         }
 
         /// <summary>
@@ -127,7 +132,42 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>Radio name</returns>
         public RadioName GetRadioName()
         {
-            return this.name;
+            return this.Name;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="OnReceiveCallBack"></param>
+        public void SetReceiveCallBack(ReceiveCallBack onReceiveCallBack)
+        {
+            this.OnReceiveCallback = onReceiveCallBack;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ReceiveCallBack GetReceiveCallBack()
+        {
+            return this.OnReceiveCallback;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="onNeighborChangeCallBack"></param>
+        public void SetNeighborChangeCallBack(NeighborhoodChangeCallBack onNeighborChangeCallBack)
+        {
+            this.OnNeighborChangeCallback = onNeighborChangeCallBack;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public NeighborhoodChangeCallBack GetNeighborChangeCallBack()
+        {
+            return this.OnNeighborChangeCallback;
         }
 
     };

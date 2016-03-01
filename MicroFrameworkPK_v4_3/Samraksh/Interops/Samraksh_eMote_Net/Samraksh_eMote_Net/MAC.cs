@@ -55,17 +55,17 @@ namespace Samraksh.eMote.Net
 		byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
         /// <summary>Configure MAC (obsolete)</summary>
-        /// <value>Accesses MacConfig</value>
-        [Obsolete("Use MacConfig instead")]
+        /// <value>Accesses MACConfig</value>
+        [Obsolete("Use MACConfig instead")]
         public static MACConfiguration macconfig {
-            get { return MacConfig; }
-            set { MacConfig = value; }
+            get { return MACConfig; }
+            set { MACConfig = value; }
         }
 
         /// <summary>
-        /// Mac Config
+        /// MAC Config
         /// </summary>
-        public static MACConfiguration MacConfig = null;
+        public static MACConfiguration MACConfig = null;
 
         private Packet packet;
 
@@ -85,35 +85,34 @@ namespace Samraksh.eMote.Net
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public MACBase(MACID macname)
         {
-
-            if (MacConfig == null || Callbacks.GetReceiveCallback() == null)
-                throw new MacNotConfiguredException();
+            if (MACConfig == null || Callbacks.GetReceiveCallback() == null)
+                throw new MACNotConfiguredException();
 
             if (macname == MACID.CSMA)
             {
                 Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.CSMAMAC;
-                if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
+                if (MACConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
                     radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.CSMAMAC);
-                else if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                else if (MACConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
                     radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.CSMAMAC);
             }
             else if (macname == MACID.OMAC)
             {
                 Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.OMAC;
-                if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
+                if (MACConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIO)
                     radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
-                else if (MacConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
+                else if (MACConfig.radioConfig.GetRadioName() == Radio.RadioName.RF231RADIOLR)
                     radioObj = Radio.Radio_802_15_4_LR.GetShallowInstance(Radio.RadioUser.OMAC);
             }
 
             this.macname = macname;
             //this.neighbor = new Neighbor();
 
-            DeviceStatus status = Initialize(MacConfig, macname);
+            DeviceStatus status = Initialize(MACConfig, macname);
 
             if (status != DeviceStatus.Success)
             {
-                throw new MacNotConfiguredException("Mac initialization failed. One reason for failure could be that a USB cable is attached to the DotNow.\n");
+                throw new MACNotConfiguredException("Mac initialization failed. One reason for failure could be that a USB cable is attached to the DotNow.\n");
             }
             
         }
@@ -176,23 +175,48 @@ namespace Samraksh.eMote.Net
             MarshalBuffer[8] = (byte)((config.NeighborLivenessDelay& 0xff000000) >> 24);
             // Breaking the object boundary, but shallow instances of the radio can not initialize
             MarshalBuffer[9] = (byte)config.radioConfig.GetTxPower();
-            MarshalBuffer[10] = (byte) config.radioConfig.GetChannel();
+            MarshalBuffer[10] = (byte)config.radioConfig.GetChannel();
             MarshalBuffer[11] = (byte)config.radioConfig.GetRadioName();
 
             return InternalInitialize(MarshalBuffer, (byte) macname);
         }
 
+        /// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
+        /// <param name="config">MAC configuration to use</param>
+        /// <param name="receiveCallback">Method to call when packet received</param>
+        /// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
+        /// <returns>Status of operation</returns>
+        //public static DeviceStatus Configure(MACConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback)
+        public static DeviceStatus Configure(MACConfiguration config)
+        {
+            if (MACConfig == null)
+            {
+                MACConfig = new MACConfiguration(config);
+                //Callbacks.SetReceiveCallback(receiveCallback);
+                //Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus InternalReConfigure(byte[] marshalBuffer, byte macname);
+                // Configure the radio 
+                if (Radio.Radio_802_15_4.Configure(MACConfig.radioConfig) == DeviceStatus.Busy)
+                    return DeviceStatus.Busy;
+            }
+            else
+            {
+                //Callbacks.SetReceiveCallback(receiveCallback);
+                //Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
 
+                // Configure the radio
+                if (Radio.Radio_802_15_4.Configure(MACConfig.radioConfig) == DeviceStatus.Busy)
+                    return DeviceStatus.Busy;
+            }
+            return DeviceStatus.Success;
+        }
 
         /// <summary>Reconfigure MAC</summary>
         /// <param name="config">New MAC configuration</param>
         /// <param name="macName">Kind of MAC</param>
         public DeviceStatus ReConfigure(MACConfiguration config, MACID macName)
         {
-            MacConfig = config;
+            MACConfig = config;
 
             if (radioObj.GetRadioName() != config.radioConfig.GetRadioName())
             {
@@ -211,7 +235,6 @@ namespace Samraksh.eMote.Net
                         radioObj = Radio.Radio_802_15_4.GetShallowInstance(Radio.RadioUser.OMAC);
                 }
             }
-                
 
             if (config.CCA)
                 MarshalBuffer[0] = 1;
@@ -236,18 +259,18 @@ namespace Samraksh.eMote.Net
         [Obsolete("Use SetNeighborLivenessDelay instead")]
         public DeviceStatus SetNeighbourLivelinessDelay(UInt32 livelinessDelay)
         {
-            MacConfig.NeighbourLivelinesDelay= livelinessDelay;
+            MACConfig.NeighbourLivelinesDelay= livelinessDelay;
 
-            return ReConfigure(MacConfig, this.macname);
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>Set the liveness delay</summary>
         /// <param name="livenessDelay"></param>
         /// <returns>Result of setting this parameter</returns>
         public DeviceStatus SetNeighborLivelinessDelay(UInt32 livenessDelay) {
-            MacConfig.NeighborLivenessDelay = livenessDelay;
+            MACConfig.NeighborLivenessDelay = livenessDelay;
 
-            return ReConfigure(MacConfig, this.macname);
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>
@@ -257,27 +280,25 @@ namespace Samraksh.eMote.Net
         [Obsolete("Use GetNeighborLivenessDelay instead")]
         public UInt32 GetNeighbourLivelinessDelay()
         {
-            return MacConfig.NeighbourLivelinesDelay;
+            return MACConfig.NeighbourLivelinesDelay;
         }
 
         /// <summary>
         /// Get the current liveness delay parameter
         /// </summary>
         /// <returns></returns>
-        public UInt32 GetNeighborLivenessDelay() {
-            return MacConfig.NeighborLivenessDelay;
+        public UInt32 GetNeighborLivenessDelay() 
+        {
+            return MACConfig.NeighborLivenessDelay;
         }
-
 
         /// <summary>Enable or disable Clear Channel Assessment</summary>
         /// <param name="CCA">True to enable, false to disable</param>
         /// <returns>Status of operation</returns>
         public DeviceStatus SetCCA(bool CCA)
         {
-            MacConfig.CCA = CCA;
-
-            return ReConfigure(MacConfig, this.macname);
-
+            MACConfig.CCA = CCA;
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>Set the count of send retries</summary>
@@ -285,9 +306,8 @@ namespace Samraksh.eMote.Net
         /// <returns>DeviceStatus</returns>
         public DeviceStatus SetNumberOfRetries(byte NumberOfRetries)
         {
-            MacConfig.NumberOfRetries = NumberOfRetries;
-
-            return ReConfigure(MacConfig, this.macname);
+            MACConfig.NumberOfRetries = NumberOfRetries;
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>Set the time to do Clear Channel Assessment</summary>
@@ -295,9 +315,8 @@ namespace Samraksh.eMote.Net
         /// <returns>Status of operation</returns>
         public DeviceStatus SetCCASenseTime(byte CCASenseTime)
         {
-            MacConfig.CCASenseTime = CCASenseTime;
-
-            return ReConfigure(MacConfig, this.macname);
+            MACConfig.CCASenseTime = CCASenseTime;
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>Set the size of the buffer</summary>
@@ -305,9 +324,8 @@ namespace Samraksh.eMote.Net
         /// <returns>Operation status</returns>
         public DeviceStatus SetBufferSize(byte BufferSize)
         {
-            MacConfig.BufferSize = BufferSize;
-
-            return ReConfigure(MacConfig, this.macname);
+            MACConfig.BufferSize = BufferSize;
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>
@@ -317,71 +335,43 @@ namespace Samraksh.eMote.Net
         /// <returns>DeviceStatus</returns>
         public DeviceStatus SetRadioID(byte RadioID)
         {
-            MacConfig.RadioID = RadioID;
-
-            return ReConfigure(MacConfig, this.macname);
+            MACConfig.RadioID = RadioID;
+            return ReConfigure(MACConfig, this.macname);
         }
 
         /// <summary>Get Clear Channel Assessment</summary>
         /// <returns>True iff channel is clear</returns>
         public bool GetCCA()
         {
-            return MacConfig.CCA;
+            return MACConfig.CCA;
         }
 
         /// <summary>Get number of times to retry sending</summary>
         /// <returns>Number of times to retry sending</returns>
         public byte GetNumberOfRetries()
         {
-            return MacConfig.NumberOfRetries;
+            return MACConfig.NumberOfRetries;
         }
 
         /// <summary>Get Clear Channel Assessment Sense Time</summary>
         /// <returns>Time to sense CCA (microseconds)</returns>
         public byte GetCCASenseTime()
         {
-            return MacConfig.CCASenseTime;
+            return MACConfig.CCASenseTime;
         }
 
         /// <summary>Get the Radio ID</summary>
         /// <returns>Radio ID</returns>
         public byte GetRadioID()
         {
-            return MacConfig.RadioID;
+            return MACConfig.RadioID;
         }
-
-
-        /// <summary>
-        /// Initialize native MAC, radio and interop drivers.
-        /// </summary>
-        /// <param name="marshalBuffer"></param>
-        /// <param name="macname"></param>
-        /// <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus InternalInitialize(byte[] marshalBuffer, byte macname);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
-
-
-        /// <summary>Remove a packet from the buffer</summary>
-        /// <param name="msg">The removed packet</param>
-        /// <returns>Status of operation</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus RemovePacket(byte[] msg);
-
-        /// <summary>Get a count of unprocessed packets in the buffer</summary>
-        /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetPendingPacketCount_Receive();
-
-        /// <summary>Get a count of unprocessed packets in the buffer</summary>
-        /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetPendingPacketCount_Send();
-
+        
         /// <summary>Get the buffer size</summary>
         /// <returns>The size of the buffer.</returns>
         public byte GetBufferSize()
         {
-            return MacConfig.BufferSize;
+            return MACConfig.BufferSize;
         }
 
 		/// <summary>Get the list of neighbors from the MAC</summary>
@@ -407,11 +397,7 @@ namespace Samraksh.eMote.Net
 			return NeighborList;
 		}
 
-		[MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus GetNeighborListInternal(UInt16[] neighborlist);
-
-
-	    /// <summary>Get the details for a neighbor</summary>
+		/// <summary>Get the details for a neighbor</summary>
 	    /// <param name="macAddress">Address of the neighbor</param>
 	    /// <returns>Neighbor</returns>
 	    public Neighbor GetNeighborStatus(UInt16 macAddress) {
@@ -460,8 +446,61 @@ namespace Samraksh.eMote.Net
 			return null;
 		}
 
+        /// <summary>
+        /// Initialize native MAC, radio and interop drivers.
+        /// </summary>
+        /// <param name="marshalBuffer"></param>
+        /// <param name="macname"></param>
+        /// <returns>The driver status after initialization: Success, Fail, Ready, Busy</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus InternalInitialize(byte[] marshalBuffer, byte macname);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
+
+        /// <summary>Uninitialize radio</summary>
+        /// <returns>Status of operation</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus UnInitialize();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="marshalBuffer"></param>
+        /// <param name="macname"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus InternalReConfigure(byte[] marshalBuffer, byte macname);
+
+        /// <summary>Remove a packet from the buffer</summary>
+        /// <param name="msg">The removed packet</param>
+        /// <returns>Status of operation</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus RemovePacket(byte[] msg);
+
+        /// <summary>Get a count of unprocessed packets in the buffer</summary>
+        /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern byte GetPendingPacketCount_Receive();
+
+        /// <summary>Get a count of unprocessed packets in the buffer</summary>
+        /// <returns>The number of packets in the buffer not yet delivered to the program</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern byte GetPendingPacketCount_Send();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="macAddress"></param>
+        /// <param name="neighborlist"></param>
+        /// <returns></returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus GetNeighborInternal(UInt16 macAddress, byte[] byte_nbr);
+        private extern DeviceStatus GetNeighborInternal(UInt16 macAddress, byte[] neighborlist);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="neighborlist"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetNeighborListInternal(UInt16[] neighborlist);
 
         /// <summary>Get the ID of this CSMA instance</summary>
         /// <returns>The ID of the instance</returns>
@@ -490,10 +529,10 @@ namespace Samraksh.eMote.Net
         /// <param name="size">The number of bytes to send</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus Send(UInt16 address, byte[] packet, UInt16 offset, UInt16 size);
+        public extern NetOpStatus Send(UInt16 address, byte[] payload, UInt16 offset, UInt16 size);
 
         /// <summary>Send a time stamped packet. Time stamping is done in native send</summary>
-        /// <param name="Address">The address of reciever</param>
+        /// <param name="Address">The address of receiver</param>
         /// <param name="packet">Packet to send</param>
         /// <param name="offset">offset if any in the byte array</param>
         /// <param name="size">size of the packet</param>
@@ -502,7 +541,7 @@ namespace Samraksh.eMote.Net
         public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size);
 
         /// <summary>Send a time stamped packet. Time stamp is specified as a parameter</summary>
-        /// <param name="Address">Address of reciever</param>
+        /// <param name="Address">Address of receiver</param>
         /// <param name="packet">Packet to be sent</param>
         /// <param name="offset">offset if any in the byte array</param>
         /// <param name="size">size of the packet</param>
@@ -510,37 +549,6 @@ namespace Samraksh.eMote.Net
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size, UInt32 eventTime);
-
-
-        /// <summary>Uninitialize radio</summary>
-        /// <returns>Status of operation</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus UnInitialize();
-
-		/// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
-		/// <param name="config">MAC configuration to use</param>
-		/// <param name="receiveCallback">Method to call when packet received</param>
-		/// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
-		/// <returns>Status of operation</returns>
-		public static DeviceStatus Configure(MACConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback) {
-			if (MacConfig == null) {
-				MacConfig = new MACConfiguration(config);
-				Callbacks.SetReceiveCallback(receiveCallback);
-				Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
-
-				// Configure the radio 
-				if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
-					return DeviceStatus.Busy;
-			}
-			else {
-                Callbacks.SetReceiveCallback(receiveCallback);
-                Callbacks.SetNeighborChangeCallback(neighborChangeCallback);
-
-                // Configure the radio 
-                if (Radio.Radio_802_15_4.Configure(MacConfig.radioConfig) == DeviceStatus.Busy)
-                    return DeviceStatus.Busy;
-			}
-			return DeviceStatus.Success;
-		}
+	
 	}
 }

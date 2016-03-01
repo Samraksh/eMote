@@ -199,7 +199,6 @@ namespace Samraksh.eMote.Net.Radio
         public Radio_802_15_4_Base()
             : base("RadioCallback_802_15_4", 1234)
         {
-
             if (Config == null || Callbacks.GetReceiveCallback() == null)
                 throw new RadioNotConfiguredException();
 
@@ -213,11 +212,8 @@ namespace Samraksh.eMote.Net.Radio
         public Radio_802_15_4_Base(string drvname, ulong drvData)
             : base(drvname, drvData)
         {
-
-
             if (Config == null)
                 Debug.Print("The Configuration is null\n");
-
             
             if (Config == null ||  Callbacks.GetReceiveCallback() == null)
                 throw new RadioNotConfiguredException();
@@ -329,14 +325,26 @@ namespace Samraksh.eMote.Net.Radio
 		/// <param name="rcallback">Packet receive callback</param>
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
-		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighborhoodChangeCallBack ncallback) {
+		public static DeviceStatus Configure(RadioConfiguration config) {
 			Radio_802_15_4_Base.Config = new RadioConfiguration(config);
-			Callbacks.SetReceiveCallback(rcallback);
-			Callbacks.SetNeighborChangeCallback(ncallback);
+			Callbacks.SetReceiveCallback(config.GetReceiveCallBack());
+			Callbacks.SetNeighborChangeCallback(config.GetNeighborChangeCallBack());
 
 			return DeviceStatus.Success;
-
 		}
+
+        /*/// <summary>
+        /// Set Radio configuration for 802.15.4 radio.
+        /// </summary>
+        /// <param name="config">Configuration to use</param>
+        /// <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
+        /// <returns>Status of operation</returns>
+        public static DeviceStatus Configure(RadioConfiguration config)
+        {
+            DeviceStatus result = DeviceStatus.Success;
+            Radio_802_15_4_Base.Config = new RadioConfiguration(config);
+            return result;
+        }*/
 
 		/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
@@ -352,21 +360,6 @@ namespace Samraksh.eMote.Net.Radio
 			return DeviceStatus.Success;
 
 		}
-
-		/// <summary>
-        /// Set Radio configuration for 802.15.4 radio.
-        /// </summary>
-        /// <param name="config">Configuration to use</param>
-        /// <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
-        /// <returns>Status of operation</returns>
-        public static DeviceStatus Configure(RadioConfiguration config)
-        {
-            DeviceStatus result = DeviceStatus.Success;
-
-            Radio_802_15_4_Base.Config = new RadioConfiguration(config);
-
-            return result;
-        }
 
         /// <summary>Set the transmit power of the radio</summary>
         /// <param name="radioID">Radio ID</param>

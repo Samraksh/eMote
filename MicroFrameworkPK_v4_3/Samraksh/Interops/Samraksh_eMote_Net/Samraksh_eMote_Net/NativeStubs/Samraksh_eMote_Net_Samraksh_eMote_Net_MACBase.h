@@ -36,6 +36,7 @@ namespace Samraksh
                 static UNSUPPORTED_TYPE& Get_radioObj( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__radioObj ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
+                static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
                 static UINT8 GetPendingPacketCount_Receive( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static UINT8 GetPendingPacketCount_Send( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
@@ -43,13 +44,12 @@ namespace Samraksh
                 static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr );
                 static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
-                static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static void ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
-                static INT32 InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
-                static INT32 GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );
+                static INT32 InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr );
                 static INT32 GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr );
+                static INT32 GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr );
                 static INT32 SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
                 static INT32 SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr );
             };

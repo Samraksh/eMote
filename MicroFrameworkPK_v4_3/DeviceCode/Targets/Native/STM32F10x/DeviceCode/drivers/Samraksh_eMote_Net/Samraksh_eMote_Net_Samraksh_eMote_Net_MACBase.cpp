@@ -33,7 +33,7 @@ enum CallBackTypes
 };
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2);
-void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
+void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus);
 
 void NeighborChangedCallbackFn(INT16 numberOfNeighbors);
 void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
@@ -43,7 +43,7 @@ extern Buffer_15_4_t g_receive_buffer;
 
 UINT8 CSMAInteropBuffer[128];
 
-INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
@@ -78,24 +78,6 @@ UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 	return temp;
 }
 
-INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
-{
-	InteropNetOpStatus retVal;
-    UINT16 address, offset, length;
-    UINT8* payload =param1.GetBuffer();
-    address=param0;
-    offset=param2;
-    length=param3;
-    memcpy (CSMAInteropBuffer, payload,  length);
-
-    if (Mac_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, length) == DS_Success)
-		retVal = S_Success;
-	else
-		retVal = E_MacSendError;
-
-	return retVal;
-}
-
 INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	DeviceStatus status;
@@ -107,23 +89,23 @@ void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 }
 
-INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 nativeBuffer, HRESULT &hr )
 {
-	UINT8* managedBuffer = param0.GetBuffer();
+	UINT8* managedBuffer = nativeBuffer.GetBuffer();
     return Mac_GetNextPacket(&managedBuffer);
 }
 
-INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
+INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, UINT8 macname, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
+INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, UINT8 macname, HRESULT &hr )
 {
 	INT32 result = DS_Success;
 
-	UINT8* configParams = param0.GetBuffer();
+	UINT8* configParams = marshalBuffer.GetBuffer();
 
 	MacConfig config;
 
@@ -143,7 +125,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(Mac_Initialize(&Event_Handler, param1, MyAppID, configParams[11], (void*) &config) != DS_Success) {
+	if(Mac_Initialize(&Event_Handler, macname, MyAppID, configParams[11], (void*) &config) != DS_Success) {
 	    hr = -1;
 		return DS_Fail;
 	}
@@ -161,30 +143,27 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	return DS_Success;
 }
 
-INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
+INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )
 {
-    return Mac_GetNeighborList(param0.GetBuffer());
+    return Mac_GetNeighborList(neighborlist.GetBuffer());
 }
 
-INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, HRESULT &hr )
+INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 macAddress, CLR_RT_TypedArray_UINT8 neighborlist, HRESULT &hr )
 {
-   return Mac_GetNeighborStatus(param0, param1.GetBuffer());
+   return Mac_GetNeighborStatus(macAddress, neighborlist.GetBuffer());
 }
 
-void  ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
-}
-
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
+INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;
-	UINT16 address, offset, length;
-	UINT8* payload =param1.GetBuffer();
-	address=param0;
-	offset=param2;
-	length=param3;
-	memcpy (CSMAInteropBuffer, payload,  length);
+    //UINT16 address, offset, length;
+    UINT8* payload = payloadTemp.GetBuffer();
+    //address=param0;
+    //offset=param2;
+    //length=param3;
+    memcpy (CSMAInteropBuffer, payload,  size);
 
-	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, length, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+    if (Mac_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, size) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -192,23 +171,36 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	return retVal;
 }
 
-void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets)
-{
-	ManagedCallback(ReceivedCallback, numberOfPackets);
-}
-
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;
-	UINT16 address, offset, length;
-	UINT8* payload =param1.GetBuffer();
+	//UINT16 address, offset, length;
+	UINT8* payload = payloadTemp.GetBuffer();
+	//address=param0;
+	//offset=param2;
+	//length=param3;
+	memcpy (CSMAInteropBuffer, payload, size);
+
+	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+		retVal = S_Success;
+	else
+		retVal = E_MacSendError;
+
+	return retVal;
+}
+
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, UINT32 eventTime, HRESULT &hr )
+{
+	InteropNetOpStatus retVal;
+	//UINT16 address, offset, length;
+	UINT8* payload = payloadTemp.GetBuffer();
 	
-	address=param0;
-	offset=param2;
-	length=param3;
-	memcpy (CSMAInteropBuffer, payload,  length);
+	//address=param0;
+	//offset=param2;
+	//length=param3;
+	memcpy (CSMAInteropBuffer, payload, size);
 
-	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, length, param4) == DS_Success)
+	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, eventTime) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -216,9 +208,17 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT
 	return retVal;
 }
 
-void NeighborChangedCallbackFn(INT16 numberOfNeighbors)
+void ReceiveDoneCallbackFn(void* msg, UINT16 countOfPackets)
 {
-	ManagedCallback(NeighborChangedCallback,(UINT16) numberOfNeighbors);
+	ManagedCallback(ReceivedCallback, countOfPackets);
+}
+
+void NeighborChangedCallbackFn(INT16 countOfNeighbors)
+{
+	ManagedCallback(NeighborChangedCallback,(UINT16) countOfNeighbors);
+}
+
+void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 radioAckStatus){
 }
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2)
@@ -229,5 +229,4 @@ void ManagedCallback(UINT16 arg1, UINT16 arg2)
 	//data2 = arg2;
 
 	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
-
 }

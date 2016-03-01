@@ -24,7 +24,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 {
-    static const int FIELD_STATIC__MacConfig = 3;
+    static const int FIELD_STATIC__MACConfig = 3;
     static const int FIELD_STATIC__neighbor = 4;
     static const int FIELD_STATIC__dataBuffer = 5;
 
@@ -35,6 +35,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD__macname = 5;
     static const int FIELD__radioObj = 6;
 
+    TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount_Receive___U1);
     TINYCLR_NATIVE_DECLARE(GetPendingPacketCount_Send___U1);
@@ -42,13 +43,12 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     TINYCLR_NATIVE_DECLARE(SetAddress___BOOLEAN__U2);
     TINYCLR_NATIVE_DECLARE(GetAddress___U2);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
-    TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(ReleasePacket___VOID);
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
-    TINYCLR_NATIVE_DECLARE(GetNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2);
+    TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamraksheMoteNetDeviceStatus__U2__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4);
 
@@ -174,7 +174,9 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 {
     static const int FIELD__TxPower = 1;
     static const int FIELD__Channel = 2;
-    static const int FIELD__name = 3;
+    static const int FIELD__Name = 3;
+    static const int FIELD__OnReceiveCallback = 4;
+    static const int FIELD__OnNeighborChangeCallback = 5;
 
 
     //--//

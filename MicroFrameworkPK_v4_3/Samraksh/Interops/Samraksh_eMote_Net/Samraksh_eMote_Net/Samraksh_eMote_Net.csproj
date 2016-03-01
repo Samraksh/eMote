@@ -32,7 +32,7 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Callback.cs" />
+    <Compile Include="Callbacks.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="CSMA.cs" />
     <Compile Include="Exception.cs" />

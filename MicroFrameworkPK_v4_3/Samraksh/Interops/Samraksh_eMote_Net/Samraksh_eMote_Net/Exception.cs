@@ -46,23 +46,23 @@ namespace Samraksh.eMote.Net
     /// <summary>
     /// 
     /// </summary>
-    public class MacNotConfiguredException : System.Exception
+    public class MACNotConfiguredException : System.Exception
     {
         /// <summary>
         /// 
         /// </summary>
-        public MacNotConfiguredException() { Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); }
+        public MACNotConfiguredException() { Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public MacNotConfiguredException(string message) : base(message) { }
+        public MACNotConfiguredException(string message) : base(message) { }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public MacNotConfiguredException(string message, Exception innerException) : base(message, innerException) { }
+        public MACNotConfiguredException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>
