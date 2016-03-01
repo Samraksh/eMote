@@ -134,15 +134,15 @@ namespace Samraksh.eMote.Net.Radio
     public class Radio_802_15_4_Base : NativeEventDispatcher, IRadio
     {
         // Size of the radio message
-        const byte RadioMessageSize = 128;
+        const byte RadioPacketSize = 128;
 
         // Size of the radio configuration byte array for marshalling purposes
         // Note we are marshalling because NETMF does not support passing custom types to native code
         const byte RadioConfigSize = 3;
 
-        byte[] dataBuffer = new byte[RadioMessageSize];
+        byte[] dataBuffer = new byte[RadioPacketSize];
 
-        Message message;
+        Packet packet;
 
         private RadioName radioName;
 
@@ -228,9 +228,9 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>Releases the message packet's memory.</summary>
         /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
         /// <returns></returns>
-        public void ReleaseMessage()
+        public void ClearPacket()
         {
-            message = null;
+            packet = null;
         }
 
         /*
@@ -282,14 +282,14 @@ namespace Samraksh.eMote.Net.Radio
         /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
         /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
         /// <returns>A data packet of message type to the caller</returns>
-        public Message GetNextPacket()
+        public Packet GetNextPacket()
         {
             if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
                 return null;
 
-            message = new Message(dataBuffer);
+            packet = new Packet(dataBuffer);
 
-            return message;
+            return packet;
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -326,7 +326,7 @@ namespace Samraksh.eMote.Net.Radio
 
 		/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="rcallback">Packet receive callback</param>
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
 		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighborhoodChangeCallBack ncallback) {
@@ -340,7 +340,7 @@ namespace Samraksh.eMote.Net.Radio
 
 		/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Message receive callback</param>
+		/// <param name="rcallback">Packet receive callback</param>
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
 		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
@@ -468,7 +468,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Load the message into the transmit buffer of the radio.
         /// </summary>
-        /// <param name="message">Message to load</param>
+        /// <param name="message">Packet to load</param>
         /// <param name="size">Size of message</param>
         /// <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -481,7 +481,7 @@ namespace Samraksh.eMote.Net.Radio
 
         /// <summary>Load and send a message</summary>
         /// <param name="radioID">Radio ID</param>
-        /// <param name="message">Message to send</param>
+        /// <param name="message">Packet to be sent</param>
         /// <param name="size">Size of message</param>
         /// <returns>Result of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -489,7 +489,7 @@ namespace Samraksh.eMote.Net.Radio
 
         /// <summary>Load and send a time-stamped message, with specified time stamp</summary>
         /// <param name="radioID">Radio ID</param>
-        /// <param name="message">Message to send</param>
+        /// <param name="message">Packet to be sent</param>
         /// <param name="size">Size of message</param>
         /// <param name="eventTime">The time stamp.</param>
         /// <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>

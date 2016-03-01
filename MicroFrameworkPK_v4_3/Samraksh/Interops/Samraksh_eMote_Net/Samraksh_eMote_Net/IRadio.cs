@@ -192,10 +192,10 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// Preload radio
         /// </summary>
-        /// <param name="message">Message to preload</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet to preload</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>Success of operation</returns>
-        NetOpStatus PreLoad(byte[] message, UInt16 size);
+        NetOpStatus PreLoad(byte[] packet, UInt16 size);
 
         /// <summary>
         /// Send preloaded message
@@ -207,20 +207,20 @@ namespace Samraksh.eMote.Net.Radio
         /// Send message on radio
         /// </summary>
         /// <param name="radioID">Radio ID</param>
-        /// <param name="message">Message to send</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet to send</param>
+        /// <param name="size">Size of packet</param>
         /// <returns>Success of operation</returns>
-        NetOpStatus Send(byte radioID, byte[] message, UInt16 size);
+        NetOpStatus Send(byte radioID, byte[] packet, UInt16 size);
 
         /// <summary>
         /// Sent time-stamped message
         /// </summary>
         /// <param name="radioID">Radio ID</param>
-        /// <param name="message">Message buffer to send</param>
-        /// <param name="size">Size of message</param>
+        /// <param name="packet">Packet buffer to send</param>
+        /// <param name="size">Size of packet</param>
         /// <param name="eventTime">Time stamp of message</param>
-        /// <returns>Success of message</returns>
-        NetOpStatus SendTimeStamped(byte radioID, byte[] message, UInt16 size, UInt32 eventTime);
+        /// <returns>Send status</returns>
+        NetOpStatus SendTimeStamped(byte radioID, byte[] packet, UInt16 size, UInt32 eventTime);
 
         /// <summary>
         /// Check if channel is clear

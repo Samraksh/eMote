@@ -3,15 +3,15 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net
 {
-    /// <summary>Message object. Passed to native</summary>
-    public class Message
+    /// <summary>Packet object. Passed to native</summary>
+    public class Packet
     {
         /// <summary>
-        /// Defines the default size of the mac message
+        /// Defines the default size of the mac packet
         /// </summary>
-        const byte MacMessageSize = 128;
+        const byte MacPacketSize = 128;
 
-        /// <summary>Received Signal Strength of message</summary>
+        /// <summary>Received Signal Strength of packet</summary>
         /// <value>RSSI value</value>
         public byte RSSI;
 
@@ -25,17 +25,17 @@ namespace Samraksh.eMote.Net
         /// <value>Source of the packet</value>
         public UInt16 Src;
 
-        /// <summary>Was message sent unicast?</summary>
-        /// <value>True if message was sent unicast, else broadcast</value>
+        /// <summary>Was packet unicast?</summary>
+        /// <value>True if packet was unicast, else broadcast</value>
         public bool Unicast;
 
         /// <summary>
-        /// Received Message
+        /// Received packet
         /// </summary>
-        private byte[] ReceiveMessage;
+        public byte[] Payload;
 
-        /// <summary>Size of the message payload</summary>
-        /// <value>Size of message payload</value>
+        /// <summary>Size of the packet payload</summary>
+        /// <value>Size of packet payload</value>
         public UInt16 Size;
 
         /// <summary>The time at which the packet was sent out</summary>
@@ -53,22 +53,22 @@ namespace Samraksh.eMote.Net
 
         private bool timeStamped;
 
-        /// <summary>Check if message is timestamped</summary>
-        /// <returns>True iff message is timestamped</returns>
+        /// <summary>Check if packet is timestamped</summary>
+        /// <returns>True iff packet is timestamped</returns>
         public bool IsSenderTimeStamped()
         {
             return timeStamped;
         }
 
-        /// <summary>Create a message with the default size</summary>
-        public Message()
+        /// <summary>Create a packet with the default size</summary>
+        public Packet()
         {
-            ReceiveMessage = new byte[MacMessageSize];
+            Payload = new byte[MacPacketSize];
         }
 
-        /// <summary>Create a message with Size, Payload, RSSI, LQI, Src and Unicast information specified in message array</summary>
-        /// <param name="msg">Message. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
-        public Message(byte[] msg)
+        /// <summary>Create a packet with Size, Payload, RSSI, LQI, Src and Unicast information specified in packet array</summary>
+        /// <param name="msg">Packet. Size, Payload, RSSI, LQI, Src and Unicast information specified in the first 6 bytes. Rest is payload</param>
+        public Packet(byte[] msg)
         {
             UInt16 i = 0;
             UInt16 length = (UInt16) msg[0];
@@ -76,11 +76,11 @@ namespace Samraksh.eMote.Net
 
             Size = length;
 
-            ReceiveMessage = new byte[MacMessageSize];
+            Payload = new byte[MacPacketSize];
 
             for (i = 0; i < length; i++)
             {
-                ReceiveMessage[i] = msg[i + 2];
+                Payload[i] = msg[i + 2];
             }
 
             RSSI = msg[i++ + 2];
@@ -89,13 +89,13 @@ namespace Samraksh.eMote.Net
             Src = msg[i++ + 2];
             Src |= (UInt16) (msg[i++ + 2] << 8);
 
-            // Determines whether the message is unicast or not 
+            // Determines whether the packet is unicast or not 
             if (msg[i++ + 2] == 1)
                 Unicast = true;
             else
                 Unicast = false;
 
-            // Check if the message is timestamped from the sender 
+            // Check if the packet is timestamped from the sender 
             if (msg[i++ + 2] == 1)
                 timeStamped = true;
             else
@@ -119,21 +119,21 @@ namespace Samraksh.eMote.Net
 
         }
 
-        /// <summary>Create a message with specified parameters</summary>
-        /// <param name="message">Message payload</param>
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="payload">Packet payload</param>
         /// <param name="Src">Source of the packet</param>
         /// <param name="Unicast">Was transmission unicast</param>
         /// <param name="RSSI">RSSI</param>
         /// <param name="LQI">LQI</param>
-        public Message(byte[] message, UInt16 Src, bool Unicast, byte RSSI, byte LQI)
+        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI)
         {
-            //Create a message object of default size
-            ReceiveMessage = new byte[MacMessageSize];
+            //Create a payload object of default size
+            Payload = new byte[MacPacketSize];
 
-            // Copy the message to the receive message buffer the traditional way 
-            for (int i = 0; i < message.Length; i++)
+            // Copy the payload to the receive packet buffer the traditional way 
+            for (int i = 0; i < payload.Length; i++)
             {
-                ReceiveMessage[i] = message[i];
+                Payload[i] = payload[i];
             }
 
             // Copy other parameters to this object 
@@ -143,22 +143,22 @@ namespace Samraksh.eMote.Net
             this.LQI = LQI;
         }
 
-        /// <summary>Create a message with specified parameters</summary>
-        /// <param name="message">Message payload</param>
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="payload">Packet payload</param>
         /// <param name="Src">Source of the packet</param>
         /// <param name="Unicast">Was transmission unicast</param>
         /// <param name="RSSI">RSSI</param>
         /// <param name="LQI">LQI</param>
         /// <param name="Size">Size of the payload buffer </param>
-        public Message(byte[] message, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size)
+        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size)
         {
             //Create a message object of default size
-            ReceiveMessage = new byte[Size];
+            Payload = new byte[Size];
 
             // Copy the message to the receive message buffer the traditional way 
-            for (int i = 0; i < message.Length; i++)
+            for (int i = 0; i < payload.Length; i++)
             {
-                ReceiveMessage[i] = message[i];
+                Payload[i] = payload[i];
             }
 
             // Copy other parameters to this object 
@@ -168,23 +168,23 @@ namespace Samraksh.eMote.Net
             this.LQI = LQI;
         }
 
-        /// <summary>Create a message with specified parameters</summary>
-        /// <param name="message"></param>
+        /// <summary>Create a packet with specified parameters</summary>
+        /// <param name="payload"></param>
         /// <param name="Src"></param>
         /// <param name="Unicast"></param>
         /// <param name="RSSI"></param>
         /// <param name="LQI"></param>
         /// <param name="Size"></param>
         /// <param name="timeStamped"></param>
-        public Message(byte[] message, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
+        public Packet(byte[] payload, UInt16 Src, bool Unicast, byte RSSI, byte LQI, UInt16 Size, bool timeStamped)
         {
             //Create a message object of default size
-            ReceiveMessage = new byte[Size];
+            Payload = new byte[Size];
 
             // Copy the message to the receive message buffer the traditional way 
-            for (int i = 0; i < message.Length; i++)
+            for (int i = 0; i < payload.Length; i++)
             {
-                ReceiveMessage[i] = message[i];
+                Payload[i] = payload[i];
             }
 
             // Copy other parameters to this object 
@@ -197,16 +197,17 @@ namespace Samraksh.eMote.Net
 
         /// <summary>Configure size of messages</summary>
         /// <param name="Size">Size of messages</param>
-        public Message(int Size)
+        public Packet(int Size)
         {
-            ReceiveMessage = new byte[Size];
+            Payload = new byte[Size];
         }
 
         /// <summary>Get the next message</summary>
         /// <returns>The message, as a byte array</returns>
+        [Obsolete("Deprecated. Use property Payload instead")]
         public byte[] GetMessage()
         {
-            return ReceiveMessage;
+            return Payload;
         }
 
     }

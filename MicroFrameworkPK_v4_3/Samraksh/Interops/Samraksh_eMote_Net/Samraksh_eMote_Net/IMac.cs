@@ -329,9 +329,9 @@ namespace Samraksh.eMote.Net
             /// <summary>
             /// Remove packet from pending
             /// </summary>
-            /// <param name="msg">Message to remove</param>
+            /// <param name="packet">Packet to remove</param>
             /// <returns>Status of result</returns>
-            DeviceStatus RemovePacket(byte[] msg);
+            DeviceStatus RemovePacket(byte[] packet);
 
             //MAC Aggregate APIs
             //bool MacLayer_Initialize();

@@ -12,8 +12,8 @@ namespace Samraksh.eMote.Net
     public class eMoteNetException : Exception
     {
         public eMoteNetException() { }
-        public eMoteNetException(string message) { }
-        public eMoteNetException(string message, Exception innerException) { }
+        public eMoteNetException(string packet) { }
+        public eMoteNetException(string packet, Exception innerException) { }
     }*/
 
     /// <summary>Kinds of protocol</summary>
@@ -40,7 +40,7 @@ namespace Samraksh.eMote.Net
         /// </summary>
         const byte MarshalBufferSize = 12;
 
-        const byte MacMessageSize = 126;
+        const byte MacPacketSize = 126;
         /// <summary>
         /// Specifies the neighbor size
         /// </summary>
@@ -67,13 +67,13 @@ namespace Samraksh.eMote.Net
         /// </summary>
         public static MACConfiguration MacConfig = null;
 
-        private Message message;
+        private Packet packet;
 
         private MACID macname;
 
         private static Neighbor neighbor = new Neighbor();
 
-        static byte[] dataBuffer = new byte[MacMessageSize];
+        static byte[] dataBuffer = new byte[MacPacketSize];
         
         Radio.Radio_802_15_4_Base radioObj;
 
@@ -126,22 +126,21 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// Get the next packet from the mac buffer
         /// </summary>
-        /// <returns>Next message</returns>
-        public Message GetNextPacket()
+        /// <returns>Next packet</returns>
+        public Packet GetNextPacket()
         {
-            for (UInt16 i = 0; i < MacMessageSize; i++)
+            for (UInt16 i = 0; i < MacPacketSize; i++)
                 dataBuffer[i] = 0;
 
             if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
                 return null;
-
-
+            
             if (dataBuffer[0] == 0)
                 return null;
 
-            message = new Message(dataBuffer);
+            packet = new Packet(dataBuffer);
 
-            return message;
+            return packet;
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -281,8 +280,8 @@ namespace Samraksh.eMote.Net
 
         }
 
-        /// <summary>Set the number of times to try to send a message</summary>
-        /// <param name="NumberOfRetries">Number of times to try to send</param>
+        /// <summary>Set the count of send retries</summary>
+        /// <param name="NumberOfRetries">Send retry count</param>
         /// <returns>DeviceStatus</returns>
         public DeviceStatus SetNumberOfRetries(byte NumberOfRetries)
         {
@@ -362,8 +361,8 @@ namespace Samraksh.eMote.Net
         private extern DeviceStatus InternalInitialize(byte[] marshalBuffer, byte macname);  // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
 
 
-        /// <summary>Remove a message packet from the buffer</summary>
-        /// <param name="msg">The removed packed</param>
+        /// <summary>Remove a packet from the buffer</summary>
+        /// <param name="msg">The removed packet</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus RemovePacket(byte[] msg);
@@ -484,33 +483,33 @@ namespace Samraksh.eMote.Net
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern UInt16 GetAddress();
 
-        /// <summary>Send a message</summary>
+        /// <summary>Send a packet</summary>
         /// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
-        /// <param name="message">Byte array containing the message to be sent</param>
+        /// <param name="packet">Byte array containing the packet to be sent</param>
         /// <param name="offset">The first byte in the array to send. Normally 0</param>
         /// <param name="size">The number of bytes to send</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus Send(UInt16 address, byte[] message, UInt16 offset, UInt16 size);
+        public extern NetOpStatus Send(UInt16 address, byte[] packet, UInt16 offset, UInt16 size);
 
-        /// <summary>Send a time stamped message. Time stamping is ddone in the send in native code</summary>
+        /// <summary>Send a time stamped packet. Time stamping is done in native send</summary>
         /// <param name="Address">The address of reciever</param>
-        /// <param name="message">Message to send</param>
+        /// <param name="packet">Packet to send</param>
         /// <param name="offset">offset if any in the byte array</param>
-        /// <param name="size">size of the message</param>
+        /// <param name="size">size of the packet</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] message, UInt16 offset, UInt16 size);
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size);
 
-        /// <summary>Send a time stamped message. Time stamp is specified in call</summary>
+        /// <summary>Send a time stamped packet. Time stamp is specified as a parameter</summary>
         /// <param name="Address">Address of reciever</param>
-        /// <param name="message">Message to send</param>
+        /// <param name="packet">Packet to be sent</param>
         /// <param name="offset">offset if any in the byte array</param>
-        /// <param name="size">size of the message</param>
+        /// <param name="size">size of the packet</param>
         /// <param name="eventTime">Time to use for timestamp</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] message, UInt16 offset, UInt16 size, UInt32 eventTime);
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size, UInt32 eventTime);
 
 
         /// <summary>Uninitialize radio</summary>
@@ -520,7 +519,7 @@ namespace Samraksh.eMote.Net
 
 		/// <summary>Configure the MAC object. Must be called before a call to get instance</summary>
 		/// <param name="config">MAC configuration to use</param>
-		/// <param name="receiveCallback">Method to call when message received</param>
+		/// <param name="receiveCallback">Method to call when packet received</param>
 		/// <param name="neighborChangeCallback">Method to call when neighborhood changed</param>
 		/// <returns>Status of operation</returns>
 		public static DeviceStatus Configure(MACConfiguration config, ReceiveCallBack receiveCallback, NeighborhoodChangeCallBack neighborChangeCallback) {
