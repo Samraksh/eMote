@@ -49,13 +49,14 @@ DeviceStatus csmaMAC::SendHello(){
 }
 
 DeviceStatus csmaMAC::SetConfig(MACConfig *config){
-	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.CCA = config->BufferSize;
-	MyConfig.CCASenseTime = config->CCASenseTime;
-	MyConfig.RadioID  = config->RadioID;
-	MyConfig.FCF = config->FCF;
+	/*MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
-	MyConfig.Network = config->Network;
+	MyConfig.Network = config->Network;*/
+	MyConfig.CCA = config->BufferSize;
+	MyConfig.NumberOfRetries = config->NumberOfRetries;
+	MyConfig.CCASenseTime = config->CCASenseTime;
+	MyConfig.BufferSize = config->BufferSize;
+	MyConfig.RadioType  = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
 	DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);
@@ -205,7 +206,8 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
 	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
 	header->length = length;
-	metadata->SetNetwork(MyConfig.Network);
+	//metadata->SetNetwork(MyConfig.Network);
+	metadata->SetNetwork(0);
 	header->mac_id = this->macName;
 	header->type = dataType;
 	header->flags = (MFM_DATA | MFM_TIMESYNC);
@@ -274,7 +276,8 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
 	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
 	header->length = length;
-	metadata->SetNetwork(MyConfig.Network);
+	//metadata->SetNetwork(MyConfig.Network);
+	metadata->SetNetwork(0);
 	header->mac_id = this->macName;
 	header->type = dataType;
 	header->flags = (MFM_DATA);

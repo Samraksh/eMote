@@ -105,7 +105,7 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 	config.NumberOfRetries = configParams[1];
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
-	config.RadioID = configParams[4];
+	config.RadioType = configParams[4];
 	config.NeighborLivenessDelay = configParams[5];
 	config.NeighborLivenessDelay |= configParams[6] << 8;
 	config.NeighborLivenessDelay |= configParams[7] << 16;
@@ -128,7 +128,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.NumberOfRetries = configParams[1];
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
-	config.RadioID = configParams[4];
+	config.RadioType = configParams[4];
 	config.NeighborLivenessDelay = configParams[5];
 	config.NeighborLivenessDelay |= configParams[6] << 8;
 	config.NeighborLivenessDelay |= configParams[7] << 16;

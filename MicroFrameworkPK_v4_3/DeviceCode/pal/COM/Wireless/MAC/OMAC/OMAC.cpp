@@ -96,13 +96,14 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
  *
  */
 DeviceStatus OMACType::SetConfig(MACConfig *config){
-	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.CCA = config->CCA;
-	MyConfig.CCASenseTime = config->CCASenseTime;
-	MyConfig.RadioID = config->RadioID;
-	MyConfig.FCF = config->FCF;
+	/*MyConfig.FCF = config->FCF;
 	MyConfig.DestPAN = config->DestPAN;
-	MyConfig.Network = config->Network;
+	MyConfig.Network = config->Network;*/
+	MyConfig.CCA = config->CCA;
+	MyConfig.NumberOfRetries = config->NumberOfRetries;
+	MyConfig.CCASenseTime = config->CCASenseTime;
+	MyConfig.BufferSize = config->BufferSize;
+	MyConfig.RadioType = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 	return DS_Success;
 }
@@ -567,7 +568,8 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	metadata->ClearData();
 	//header->SetLength(size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
-	metadata->SetNetwork(MyConfig.Network);
+	//metadata->SetNetwork(MyConfig.Network);
+	metadata->SetNetwork(0);
 	header->mac_id = (macName);
 	header->type = (dataType);
 	metadata->SetReceiveTimeStamp((UINT32)0);

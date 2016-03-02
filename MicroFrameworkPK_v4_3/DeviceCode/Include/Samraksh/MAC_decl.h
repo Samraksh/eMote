@@ -15,16 +15,17 @@ enum MACNames
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
-struct MACConfig {
-	UINT16 FCF;
-	UINT16 DestPAN;
-	UINT8 Network;
-	BOOL CCA;
 
+//Should be consistent with that in "MACConfiguration" in IMAC.cs (Samraksh_eMote_Net)
+struct MACConfig {
+	//UINT16 FCF;
+	//UINT16 DestPAN;
+	//UINT8 Network;
+	BOOL CCA;
     UINT8 NumberOfRetries;
     UINT8 CCASenseTime;
     UINT8 BufferSize;
-    UINT8 RadioID;
+    UINT8 RadioType;
     UINT32 NeighborLivenessDelay;
 };
 //struct MACConfig;
