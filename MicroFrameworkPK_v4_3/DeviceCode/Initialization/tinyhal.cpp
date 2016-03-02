@@ -477,9 +477,9 @@ void HAL_Uninitialize()
 
 #if defined(SAM_APP_TINYCLR)
 #	if defined(PLATFORM_ARM_SOC_ADAPT)
-#	warning "STUB: MacLayer_UnInitialize() was not defined on SOC_ADAPT"
+#	warning "STUB: MACLayer_UnInitialize() was not defined on SOC_ADAPT"
 #	else
-    MacLayer_UnInitialize();
+    MACLayer_UnInitialize();
 #	endif
 #endif
 

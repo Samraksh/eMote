@@ -89,13 +89,13 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 }
 
 
-//DeviceStatus SetConfig(MacConfig *config);
+//DeviceStatus SetConfig(MACConfig *config);
 //BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 
 /*
  *
  */
-DeviceStatus OMACType::SetConfig(MacConfig *config){
+DeviceStatus OMACType::SetConfig(MACConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->CCA;
 	MyConfig.CCASenseTime = config->CCASenseTime;
@@ -110,8 +110,8 @@ DeviceStatus OMACType::SetConfig(MacConfig *config){
 /*
  *
  */
-DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config) {
-	//DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MacConfig *config) {
+DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig* config) {
+	//DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8* macID, UINT8 routingAppID, MACConfig *config) {
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(OMAC_DATARXPIN, TRUE);
 	CPU_GPIO_EnableOutputPin(DATARX_TIMESTAMP_PIN, TRUE);
@@ -131,7 +131,7 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		hal_printf("OMACType Error: Already Initialized!! My address: %d\n", g_OMAC.GetMyAddress());
 	}
 	else {
-		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
+		////MAC<Message_15_4_t, MACConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
 		if(routingAppID >= MAX_APPS) {
 			return DS_Fail;
 		}
@@ -140,9 +140,9 @@ DeviceStatus OMACType::Initialize(MacEventHandler* eventHandler, UINT8 macName, 
 		SetConfig(config);
 
 		//Initialize upper layer call backs
-		MAC<Message_15_4_t, MacConfig>::SetAppIdIndex(routingAppID);
-		MAC<Message_15_4_t, MacConfig>::SetAppHandlers(eventHandler);
-		MacEventHandler_t* appHandler = MAC<Message_15_4_t, MacConfig>::GetAppHandler(MAC<Message_15_4_t, MacConfig>::GetAppIdIndex());
+		MAC<Message_15_4_t, MACConfig>::SetAppIdIndex(routingAppID);
+		MAC<Message_15_4_t, MACConfig>::SetAppHandlers(eventHandler);
+		MACEventHandler_t* appHandler = MAC<Message_15_4_t, MACConfig>::GetAppHandler(MAC<Message_15_4_t, MACConfig>::GetAppIdIndex());
 
 		AppCount = 0; //number of upperlayers connected to you
 		//MaxPayload is already defined in Message.h

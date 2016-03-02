@@ -13,14 +13,14 @@
 
 #include "Samraksh_eMote_Net.h"
 #include "Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase.h"
-#include <Samraksh/Mac_decl.h>
+#include <Samraksh/MAC_decl.h>
 #include <Samraksh/MAC.h>
 
 using namespace Samraksh::eMote::Net;
 
 extern CLR_RT_HeapBlock_NativeEventDispatcher *Net_ne_Context;
 
-MacEventHandler_t MACBase::Event_Handler;
+MACEventHandler_t MACBase::Event_Handler;
 UINT8 MacID = 0;
 UINT8 MACBase::MyAppID;
 
@@ -68,20 +68,20 @@ UINT8 MACBase::GetMACType( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 INT32 MACBase::SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT16 address, HRESULT &hr )
 {
 	BOOL status = FALSE;
-	status = Mac_SetRadioAddress(address);
+	status = MAC_SetRadioAddress(address);
 	return status;
 }
 
 UINT16 MACBase::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-	UINT16 temp = Mac_GetRadioAddress();
+	UINT16 temp = MAC_GetRadioAddress();
 	return temp;
 }
 
 INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = Mac_UnInitialize();
+	status = MAC_UnInitialize();
     return status;
 }
 
@@ -92,14 +92,14 @@ INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 nativeBuffer, HRESULT &hr )
 {
 	UINT8* managedBuffer = nativeBuffer.GetBuffer();
-    return Mac_GetNextPacket(&managedBuffer);
+    return MAC_GetNextPacket(&managedBuffer);
 }
 
 INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
 	INT32 result = DS_Success;
 	UINT8* configParams = marshalBuffer.GetBuffer();
-	MacConfig config;
+	MACConfig config;
 
 	config.CCA = (configParams[0] == 1) ? TRUE :  FALSE;
 	config.NumberOfRetries = configParams[1];
@@ -111,7 +111,7 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 	config.NeighborLivenessDelay |= configParams[7] << 16;
 	config.NeighborLivenessDelay |= configParams[8] << 24;
 
-	if( Mac_Reconfigure((void*) &config) != DS_Success ){
+	if( MAC_Reconfigure((void*) &config) != DS_Success ){
 		hr = -1;
 		result = DS_Fail;
 	}
@@ -122,7 +122,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 {
 	INT32 result = DS_Success;
 	UINT8* configParams = marshalBuffer.GetBuffer();
-	MacConfig config;
+	MACConfig config;
 
 	config.CCA = (configParams[0] == 1) ? TRUE :  FALSE;
 	config.NumberOfRetries = configParams[1];
@@ -140,7 +140,7 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	MyAppID=3; //pick a number less than MAX_APPS currently 4.
 
-	if(Mac_Initialize(&Event_Handler, macname, MyAppID, configParams[11], (void*) &config) != DS_Success) {
+	if(MAC_Initialize(&Event_Handler, macname, MyAppID, configParams[11], (void*) &config) != DS_Success) {
 	    hr = -1;
 	    result = DS_Fail;
 	}
@@ -160,12 +160,12 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )
 {
-    return Mac_GetNeighborList(neighborlist.GetBuffer());
+    return MAC_GetNeighborList(neighborlist.GetBuffer());
 }
 
 INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 macAddress, CLR_RT_TypedArray_UINT8 neighborlist, HRESULT &hr )
 {
-   return Mac_GetNeighborStatus(macAddress, neighborlist.GetBuffer());
+   return MAC_GetNeighborStatus(macAddress, neighborlist.GetBuffer());
 }
 
 INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
@@ -178,7 +178,7 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArra
     //length=param3;
     memcpy (CSMAInteropBuffer, payload,  size);
 
-    if (Mac_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, size) == DS_Success)
+    if (MAC_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, size) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -196,7 +196,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_R
 	//length=param3;
 	memcpy (CSMAInteropBuffer, payload, size);
 
-	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+	if (MAC_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -215,7 +215,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_R
 	//length=param3;
 	memcpy (CSMAInteropBuffer, payload, size);
 
-	if (Mac_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, eventTime) == DS_Success)
+	if (MAC_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, eventTime) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;

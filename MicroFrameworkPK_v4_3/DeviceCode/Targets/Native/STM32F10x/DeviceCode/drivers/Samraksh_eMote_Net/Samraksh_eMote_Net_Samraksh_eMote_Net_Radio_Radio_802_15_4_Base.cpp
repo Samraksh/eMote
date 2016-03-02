@@ -46,6 +46,13 @@ INT32 Radio_802_15_4_Base::TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, H
 	return status;
 }
 
+INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+{
+	DeviceStatus status;
+	status = CPU_Radio_TurnOffRx(radioID);
+	return status;
+}
+
 INT32 Radio_802_15_4_Base::Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT8 level, HRESULT &hr )
 {
 	DeviceStatus status;

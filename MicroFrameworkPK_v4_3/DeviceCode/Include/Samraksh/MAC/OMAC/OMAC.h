@@ -51,7 +51,7 @@ extern Buffer_15_4_t g_receive_buffer;
 /*
  *
  */
-class OMACType: public MAC<Message_15_4_t, MacConfig>{
+class OMACType: public MAC<Message_15_4_t, MACConfig>{
   private:
 	//Underlying radio variables
 	static const UINT8 NumberRadios =1;
@@ -84,7 +84,7 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
 
-	MacReceiveFuncPtrType m_rxAckHandler;
+	MACReceiveFuncPtrType m_rxAckHandler;
 	SendAckFuncPtrType m_txAckHandler;
 
 	//Buffer_15_4_t g_send_buffer;
@@ -141,8 +141,8 @@ class OMACType: public MAC<Message_15_4_t, MacConfig>{
 	}
 
 	//Override base class methods here, implement them later in cpp file
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig *config);
-	DeviceStatus SetConfig(MacConfig *config);
+	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig *config);
+	DeviceStatus SetConfig(MACConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size);
 	//BOOL SendTimeStamped(RadioAddress_t dest, UINT8 dataType, Message_15_4_t* msg, int Size, UINT32 eventTime);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);

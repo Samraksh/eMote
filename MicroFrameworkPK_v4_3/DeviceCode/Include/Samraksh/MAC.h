@@ -39,7 +39,7 @@ template <class MessageT, class ConfigT>
 class MAC : public MAC_ID
 {
 private:
-	static MacEventHandler_t* AppHandlers[MAX_APPS];
+	static MACEventHandler_t* AppHandlers[MAX_APPS];
 	static UINT8 AppIDIndex;
 	UINT16 MyAddress;
 
@@ -86,7 +86,7 @@ public:
 	NeighborTable* GetNeighborTable();
 	Neighbor_t* GetNeighbor(UINT16 macAddress);
 
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, ConfigT* config)
+	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, ConfigT* config)
 	{
 		/*if(routingAppID > MAX_APPS){
 			return DS_Fail;
@@ -100,7 +100,7 @@ public:
 		return DS_Success;*/
 	}
 
-	BOOL SetAppHandlers(MacEventHandler* handler)
+	BOOL SetAppHandlers(MACEventHandler* handler)
 	{
 		if(handler == NULL){
 			return FALSE;
@@ -116,10 +116,10 @@ public:
 		return TRUE;
 	}
 
-	MacEventHandler* GetAppHandler(UINT8 MacIndex)
+	MACEventHandler* GetAppHandler(UINT8 MacIndex)
 	{
 		if(MacIndex >= MAX_APPS){
-			return (MacEventHandler*)NULL;
+			return (MACEventHandler*)NULL;
 		}
 		return AppHandlers[MacIndex];
 	}
@@ -140,6 +140,6 @@ template<class MessageT, class ConfigT>
 UINT8 MAC<MessageT, ConfigT>::AppIDIndex = 0;
 
 template<class MessageT, class ConfigT>
-MacEventHandler_t* MAC<MessageT, ConfigT>::AppHandlers[MAX_APPS] = {NULL,NULL,NULL};
+MACEventHandler_t* MAC<MessageT, ConfigT>::AppHandlers[MAX_APPS] = {NULL,NULL,NULL};
 
 #endif

@@ -397,10 +397,10 @@ namespace Samraksh.eMote.Net.Radio
             packet = new Packet(dataBuffer);
 
             return packet;
-        }*/
+        }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
+        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);*/
 
         /// <summary>Releases the message packet's memory.</summary>
         /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>

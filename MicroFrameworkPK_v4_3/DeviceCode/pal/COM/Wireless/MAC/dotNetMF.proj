@@ -40,7 +40,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <Compile Include="Mac_Functions.cpp" />
+    <Compile Include="MAC_Functions.cpp" />
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

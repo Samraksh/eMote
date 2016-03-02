@@ -48,7 +48,7 @@ extern volatile UINT32 csmaSendToRadioFailCount;
 // core mac class definitions extends the MAC class and implements its virtual functions
 // MAC does not have a template because of function pointer issues as they were primarily for the return type of handlers
 
-class csmaMAC: public MAC<Message_15_4_t, MacConfig>
+class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 {
 	//Buffer variable
 	UINT8 CurrentActiveApp;
@@ -65,8 +65,8 @@ public:
 
 
 	BOOL Resend(void* msg, int Size);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MacConfig *config);
-	DeviceStatus SetConfig(MacConfig *config);
+	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MACConfig *config);
+	DeviceStatus SetConfig(MACConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int Size);

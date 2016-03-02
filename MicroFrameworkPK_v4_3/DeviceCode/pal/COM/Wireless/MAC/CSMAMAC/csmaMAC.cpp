@@ -48,7 +48,7 @@ DeviceStatus csmaMAC::SendHello(){
 	return DS_Fail;
 }
 
-DeviceStatus csmaMAC::SetConfig(MacConfig *config){
+DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
 	MyConfig.CCA = config->BufferSize;
 	MyConfig.CCASenseTime = config->CCASenseTime;
@@ -63,12 +63,12 @@ DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	return DS_Success;
 }
 
-DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MacConfig* config){
+DeviceStatus csmaMAC::Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig* config){
 	DeviceStatus status;
 
 	//Initialize yourself first (you being the MAC)
 	if(!this->Initialized){
-		////MAC<Message_15_4_t, MacConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
+		////MAC<Message_15_4_t, MACConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
 		if(routingAppID >= MAX_APPS) {
 			SOFT_BREAKPOINT();
 			return DS_Fail;
@@ -76,7 +76,7 @@ DeviceStatus csmaMAC::Initialize(MacEventHandler* eventHandler, UINT8 macName, U
 		this->macName = macName;
 		this->radioName = radioID;
 		SetConfig(config);
-		//MAC<Message_15_4_t, MacConfig>::AppIDIndex = routingAppID;
+		//MAC<Message_15_4_t, MACConfig>::AppIDIndex = routingAppID;
 		g_csmaMacObject.SetAppIdIndex(routingAppID);
 		//Initialize upperlayer callbacks
 		g_csmaMacObject.SetAppHandlers(eventHandler);
@@ -493,7 +493,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	//Call routing/app receive callback
 	////MacReceiveFuncPtrType appHandler = AppHandlers[3]->ReceiveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
-	MacReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
+	MACReceiveFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->ReceiveHandler;
 
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)
