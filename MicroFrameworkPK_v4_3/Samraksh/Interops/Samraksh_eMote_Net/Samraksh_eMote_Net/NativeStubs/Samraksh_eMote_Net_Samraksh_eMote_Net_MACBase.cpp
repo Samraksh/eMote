@@ -64,6 +64,24 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray
     return retVal;
 }
 
+INT32 MACBase::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
 INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 

@@ -148,7 +148,7 @@ INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT
 	return result;
 }
 
-INT32 Radio_802_15_4_Base::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
+/*INT32 Radio_802_15_4_Base::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	DeviceStatus status;
 	status = CPU_Radio_SetRadioType(radioType);
@@ -188,7 +188,7 @@ UINT8 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 ra
 	UINT8 channel;
 	channel = CPU_Radio_GetChannel(radioType);
 	return channel;
-}
+}*/
 
 /*INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {

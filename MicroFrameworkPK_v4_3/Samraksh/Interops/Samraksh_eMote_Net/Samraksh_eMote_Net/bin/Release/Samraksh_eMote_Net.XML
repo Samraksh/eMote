@@ -335,6 +335,57 @@
             <summary>Get Clear Channel Assessment Sense Time</summary>
             <returns>Time to sense CCA (microseconds)</returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetRadioType(Samraksh.eMote.Net.Radio.RadioType)">
+            <summary>
+            Set Radio type
+            </summary>
+            <param name="RadioType">Radio type</param>
+            <returns>DeviceStatus</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetTxPower(Samraksh.eMote.Net.Radio.TxPowerValue)">
+            <summary>
+            
+            </summary>
+            <param name="txPowerValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetChannel(Samraksh.eMote.Net.Radio.Channel)">
+            <summary>
+            
+            </summary>
+            <param name="channel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetReceiveCallback(Samraksh.eMote.Net.ReceiveCallBack)">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetNeighborChangeCallback(Samraksh.eMote.Net.NeighborhoodChangeCallBack)">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetRadioType(System.Byte)">
+            <summary>
+            
+            </summary>
+            <param name="radioType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetTxPower(System.Byte,System.Int32)">
+            <summary>Set the transmit power of the radio</summary>
+            <param name="radioType">Radio ID</param>
+            <param name="TxPower">Transmission power to use</param>
+            <returns>Status of operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.SetChannel(System.Byte,System.Int32)">
+            <summary>Set the radio channel</summary>
+            <param name="radioType">Radio ID</param>
+            <param name="Channel">Channel to use</param>
+            <returns>Status of operation</returns>
+        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborList">
             <summary>Get the list of neighbors from the MAC</summary>
             <returns>An array with the list of active neighbors</returns>
@@ -1034,11 +1085,6 @@
             802.15.4 radio configuration
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.RadioBaseConfig">
-            <summary>
-            Radio configuration
-            </summary>
-        </member>
         <member name="F:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.CurrUser">
             <summary>
             Current user of the radio (C# or MAC objects)
@@ -1077,74 +1123,6 @@
             </summary>
             <param name="RadioConfig"></param>
             <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetReceiveCallback(Samraksh.eMote.Net.ReceiveCallBack)">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetNeighborChangeCallback(Samraksh.eMote.Net.NeighborhoodChangeCallBack)">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioType(Samraksh.eMote.Net.Radio.RadioType)">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(Samraksh.eMote.Net.Radio.TxPowerValue)">
-            <summary>
-            
-            </summary>
-            <param name="TxPower"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(Samraksh.eMote.Net.Radio.Channel)">
-            <summary>
-            
-            </summary>
-            <param name="Channel"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioType(System.Byte)">
-            <summary>
-            
-            </summary>
-            <param name="radioType"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Byte,System.Int32)">
-            <summary>Set the transmit power of the radio</summary>
-            <param name="radioType">Radio ID</param>
-            <param name="TxPower">Transmission power to use</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(System.Byte,System.Int32)">
-            <summary>Set the radio channel</summary>
-            <param name="radioType">Radio ID</param>
-            <param name="Channel">Channel to use</param>
-            <returns>Status of operation</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetRadioType">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetTxPower(System.Byte)">
-            <summary>Return the transmission power value of the radio</summary>
-            <param name="radioType">Radio ID</param>
-            <returns>Transmission power value</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetChannel(System.Byte)">
-            <summary>
-            Return the current active channel of the radio 
-            </summary>
-            <param name="radioType">Radio ID</param>
-            <returns>Active channel</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.UnInitialize">
             <summary>Uninitialize native MAC, radio and interop drivers</summary>
@@ -1223,10 +1201,6 @@
             <param name="radioType">Radio ID</param>
             <param name="numberOfMicroSecond">Number of microseconds to check</param>
             <returns>True iff channel is free</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.config">
-            <summary>Radio configuration</summary>
-            <value>Configuration</value>
         </member>
         <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.currUser">
             <summary>

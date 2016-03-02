@@ -54,6 +54,11 @@ namespace Samraksh.eMote.Net
 
 		byte[] MarshalBuffer = new byte[MarshalBufferSize];
 
+        /// <summary>
+        /// MAC Config
+        /// </summary>
+        public MACConfiguration MACConfig = null;
+
         /// <summary>Configure MAC (obsolete)</summary>
         /// <value>Accesses MACConfig</value>
         [Obsolete("Use MACConfig instead")]
@@ -62,10 +67,6 @@ namespace Samraksh.eMote.Net
             set { MACConfig = value; }
         }
 
-        /// <summary>
-        /// MAC Config
-        /// </summary>
-        public MACConfiguration MACConfig = null;
         /// <summary>
         /// 
         /// </summary>
@@ -115,6 +116,9 @@ namespace Samraksh.eMote.Net
             if (MACConfig == null || Callbacks.GetReceiveCallback() == null)
                 throw new MACNotConfiguredException();
 
+            if (MACConfig.MACRadioConfig == null)
+                throw new RadioNotConfiguredException();
+
             if (MACType == MACType.CSMA)
             {
                 if (!CSMAInstanceSet)
@@ -128,6 +132,10 @@ namespace Samraksh.eMote.Net
                     else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
                     {
                         MACRadioObj = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.CSMAMAC);
+                    }
+                    else
+                    {
+                        throw new RadioConfigurationMismatchException("Unknown radio type");
                     }
                 }
                 else
@@ -148,6 +156,10 @@ namespace Samraksh.eMote.Net
                     else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
                     {
                         MACRadioObj = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.OMAC);
+                    }
+                    else
+                    {
+                        throw new RadioConfigurationMismatchException("Unknown radio type");
                     }
                 }
                 else
@@ -279,13 +291,14 @@ namespace Samraksh.eMote.Net
             MarshalBuffer[6] = (byte)((MACConfig.NeighborLivenessDelay & 0xff00) >> 8);
             MarshalBuffer[7] = (byte)((MACConfig.NeighborLivenessDelay & 0xff0000) >> 16);
             MarshalBuffer[8] = (byte)((MACConfig.NeighborLivenessDelay & 0xff000000) >> 24);
+           
             // Breaking the object boundary, but shallow instances of the radio can not initialize
-            MarshalBuffer[9] = (byte)MACConfig.MACRadioConfig.TxPower;
+            /*MarshalBuffer[9] = (byte)MACConfig.MACRadioConfig.TxPower;
             MarshalBuffer[10] = (byte)MACConfig.MACRadioConfig.Channel;
             MarshalBuffer[11] = (byte)MACConfig.MACRadioConfig.RadioType;
-
             //Change radio's properties as well
-            MACRadioObj.ReConfigure(MACConfig.MACRadioConfig);
+            MACRadioObj.ReConfigure(MACConfig.MACRadioConfig);*/
+
             /*MACRadio.SetRadioType(MACConfig.MACRadioConfig.RadioType);
             MACRadio.SetTxPower(MACConfig.MACRadioConfig.TxPower);
             MACRadio.SetChannel(MACConfig.MACRadioConfig.Channel);*/
@@ -414,7 +427,19 @@ namespace Samraksh.eMote.Net
             return MACConfig.CCASenseTime;
         }
 
-        /*/// <summary>
+        /// <summary>
+        /// Set Radio type
+        /// </summary>
+        /// <param name="RadioType">Radio type</param>
+        /// <returns>DeviceStatus</returns>
+        public DeviceStatus SetRadioType(Radio.RadioType RadioType)
+        {
+            MACConfig.MACRadioConfig.RadioType = RadioType;
+            return SetRadioType((byte)RadioType);
+            //return Configure();
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="txPowerValue"></param>
@@ -422,7 +447,8 @@ namespace Samraksh.eMote.Net
         public DeviceStatus SetTxPower(Radio.TxPowerValue txPowerValue)
         {
             MACConfig.MACRadioConfig.TxPower = txPowerValue;
-            return Configure();
+            return SetTxPower((byte)MACConfig.MACRadioConfig.RadioType, (byte)txPowerValue);
+            //return Configure();
         }
 
         /// <summary>
@@ -433,27 +459,10 @@ namespace Samraksh.eMote.Net
         public DeviceStatus SetChannel(Radio.Channel channel)
         {
             MACConfig.MACRadioConfig.Channel = channel;
-            return Configure();
-        }
-
-        /// <summary>
-        /// Set Radio type
-        /// </summary>
-        /// <param name="RadioType">Radio type</param>
-        /// <returns>DeviceStatus</returns>
-        public DeviceStatus SetRadioType(Radio.RadioType RadioType)
-        {
-            MACConfig.MACRadioConfig.RadioType = RadioType;
-            return Configure();
+            return SetChannel((byte)MACConfig.MACRadioConfig.RadioType, (byte)channel);
+            //return Configure();
         }
         
-        /// <summary>Get the Radio type</summary>
-        /// <returns>Radio type</returns>
-        public Radio.RadioType GetRadioType()
-        {
-            return MACConfig.RadioType;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -471,7 +480,65 @@ namespace Samraksh.eMote.Net
         {
             MACConfig.MACRadioConfig.OnNeighborChangeCallback = OnNeighborChangeCallback;
             Callbacks.SetNeighborChangeCallback(OnNeighborChangeCallback);
-        }*/
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="radioType"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus SetRadioType(byte radioType);
+
+        /// <summary>Set the transmit power of the radio</summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <param name="TxPower">Transmission power to use</param>
+        /// <returns>Status of operation</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus SetTxPower(byte radioType, int TxPower);
+
+        /// <summary>Set the radio channel</summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <param name="Channel">Channel to use</param>
+        /// <returns>Status of operation</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus SetChannel(byte radioType, int Channel);
+
+        /*/// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Radio.RadioType GetRadioType()
+        {
+            return (Radio.RadioType)GetRadioTypeValue();
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern byte GetRadioTypeValue();
+
+        /// <summary>Return the transmission power value of the radio</summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <returns>Transmission power value</returns>
+        public Radio.TxPowerValue GetTxPower(byte radioType)
+        {
+            return (Radio.TxPowerValue)GetTxPowerValue(radioType);
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern byte GetTxPowerValue(byte radioType);
+
+        /// <summary>
+        /// Return the current active channel of the radio 
+        /// </summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <returns>Active channel</returns>
+        public Radio.Channel GetChannel(byte radioType)
+        {
+            return (Radio.Channel)GetActiveChannel(radioType);
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern byte GetActiveChannel(byte radioType);*/
 
         /*/// <summary>Get the buffer size</summary>
         /// <returns>The size of the buffer.</returns>

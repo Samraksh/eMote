@@ -45,6 +45,9 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     TINYCLR_NATIVE_DECLARE(SetRadioAddress___SamraksheMoteNetDeviceStatus__U2);
     TINYCLR_NATIVE_DECLARE(GetRadioAddress___U2);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
+    TINYCLR_NATIVE_DECLARE(SetRadioType___SamraksheMoteNetDeviceStatus__U1);
+    TINYCLR_NATIVE_DECLARE(SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4);
+    TINYCLR_NATIVE_DECLARE(SetChannel___SamraksheMoteNetDeviceStatus__U1__I4);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
     TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
@@ -166,8 +169,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 {
-    static const int FIELD_STATIC__RadioBaseConfig = 7;
-    static const int FIELD_STATIC__CurrUser = 8;
+    static const int FIELD_STATIC__CurrUser = 7;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__marshalBuffer = 6;
@@ -184,12 +186,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1__U2);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
-    TINYCLR_NATIVE_DECLARE(SetRadioType___SamraksheMoteNetDeviceStatus__U1);
-    TINYCLR_NATIVE_DECLARE(SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4);
-    TINYCLR_NATIVE_DECLARE(SetChannel___SamraksheMoteNetDeviceStatus__U1__I4);
-    TINYCLR_NATIVE_DECLARE(GetRadioTypeValue___U1);
-    TINYCLR_NATIVE_DECLARE(GetTxPowerValue___U1__U1);
-    TINYCLR_NATIVE_DECLARE(GetActiveChannel___U1__U1);
     TINYCLR_NATIVE_DECLARE(TurnOffRx___SamraksheMoteNetDeviceStatus__U1);
 
     //--//
@@ -198,8 +194,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__GenericRadioInstance = 9;
-    static const int FIELD_STATIC__syncObject = 10;
+    static const int FIELD_STATIC__GenericRadioInstance = 8;
+    static const int FIELD_STATIC__syncObject = 9;
 
 
     //--//
@@ -208,8 +204,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_LR
 {
-    static const int FIELD_STATIC__LRRadioInstance = 11;
-    static const int FIELD_STATIC__syncObject = 12;
+    static const int FIELD_STATIC__LRRadioInstance = 10;
+    static const int FIELD_STATIC__syncObject = 11;
 
 
     //--//

@@ -88,42 +88,6 @@ INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 Radio_802_15_4_Base::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 Radio_802_15_4_Base::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-UINT8 Radio_802_15_4_Base::GetRadioTypeValue( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
-UINT8 Radio_802_15_4_Base::GetTxPowerValue( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
-UINT8 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    UINT8 retVal = 0; 
-    return retVal;
-}
-
 INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 

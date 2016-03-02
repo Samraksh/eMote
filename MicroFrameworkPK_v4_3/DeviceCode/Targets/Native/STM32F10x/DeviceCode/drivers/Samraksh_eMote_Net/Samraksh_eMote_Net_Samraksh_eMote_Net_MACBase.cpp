@@ -145,6 +145,11 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	    result = DS_Fail;
 	}
 
+	if(CPU_Radio_SetRadioType(configParams[11]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
 	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success) {
 	    hr = -1;
 	    result = DS_Fail;
@@ -156,6 +161,27 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	}
 
 	return result;
+}
+
+INT32 MACBase::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
+{
+	DeviceStatus status;
+	status = CPU_Radio_SetRadioType(radioType);
+	return status;
+}
+
+INT32 MACBase::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, INT32 power, HRESULT &hr )
+{
+	DeviceStatus status;
+	status = CPU_Radio_ChangeTxPower(radioType, power);
+	return status;
+}
+
+INT32 MACBase::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, INT32 channel, HRESULT &hr )
+{
+	DeviceStatus status;
+	status = CPU_Radio_ChangeChannel(radioType, channel);
+	return status;
 }
 
 INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )

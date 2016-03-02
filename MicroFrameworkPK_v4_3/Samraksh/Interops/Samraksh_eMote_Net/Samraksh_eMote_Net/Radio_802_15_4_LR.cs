@@ -24,7 +24,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance()
         {
-            if (RadioBaseConfig == null)
+            /*if (RadioBaseConfig == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
@@ -32,7 +32,7 @@ namespace Samraksh.eMote.Net.Radio
             if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
-            }
+            }*/
 
             if (LRRadioInstance == null)
             {
@@ -57,7 +57,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance(RadioUser user)
         {
-            if (RadioBaseConfig == null)
+            /*if (RadioBaseConfig == null)
             {
                 throw new Samraksh.eMote.Net.RadioNotConfiguredException();
             }
@@ -65,7 +65,7 @@ namespace Samraksh.eMote.Net.Radio
             if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
             {
                 throw new SystemException("Mismatch between radio object initialized and configuration passed");
-            }
+            }*/
 
             if (LRRadioInstance == null)
             {

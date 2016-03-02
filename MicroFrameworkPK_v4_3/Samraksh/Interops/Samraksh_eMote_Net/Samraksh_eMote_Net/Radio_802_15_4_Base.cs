@@ -161,18 +161,18 @@ namespace Samraksh.eMote.Net.Radio
             return this.radioName;
         }*/
 
-        /// <summary>
+        /*/// <summary>
         /// Radio configuration
         /// </summary>
-        public static RadioConfiguration RadioBaseConfig = null;
+        public static RadioConfiguration RadioBaseConfig = null;*/
 
-        /// <summary>Radio configuration</summary>
+        /*/// <summary>Radio configuration</summary>
         /// <value>Configuration</value>
         [Obsolete("Use RadioBaseConfig instead")]
         public static RadioConfiguration config {
             get { return RadioBaseConfig; }
             set { RadioBaseConfig = value; }
-        }
+        }*/
 
         // Create a buffer that you can use when you want to marshal
         byte[] marshalBuffer = new byte[RadioConfigSize];
@@ -200,10 +200,10 @@ namespace Samraksh.eMote.Net.Radio
         public Radio_802_15_4_Base()
             : base("RadioCallback_802_15_4", 1234)
         {
-            if (RadioBaseConfig == null || Callbacks.GetReceiveCallback() == null)
+            /*if (RadioBaseConfig == null || Callbacks.GetReceiveCallback() == null)
                 throw new RadioNotConfiguredException();
 
-            Initialize(RadioBaseConfig);
+            Initialize(RadioBaseConfig);*/
         }
 
         /// <summary>Constructor for 802.15.4 radio, specifying driver name and data</summary>
@@ -213,13 +213,13 @@ namespace Samraksh.eMote.Net.Radio
         public Radio_802_15_4_Base(string drvname, ulong drvData)
             : base(drvname, drvData)
         {
-            if (RadioBaseConfig == null)
+            /*if (RadioBaseConfig == null)
                 Debug.Print("The Configuration is null\n");
 
             if (RadioBaseConfig == null || Callbacks.GetReceiveCallback() == null)
                 throw new RadioNotConfiguredException();
 
-            Initialize(RadioBaseConfig);
+            Initialize(RadioBaseConfig);*/
         }
 
         /*
@@ -282,7 +282,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         private DeviceStatus Initialize(RadioConfiguration config)
         {
-            RadioBaseConfig = new RadioConfiguration(config);
+            //RadioBaseConfig = new RadioConfiguration(config);
             NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
             OnInterrupt += eventHandler;
             marshalBuffer[0] = (byte)config.Channel;
@@ -346,7 +346,7 @@ namespace Samraksh.eMote.Net.Radio
 		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
 		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback) 
         {
-            Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
+            //Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
 			Callbacks.SetReceiveCallback(rcallback);
 			Callbacks.SetNeighbourChangeCallback(ncallback);
 
@@ -360,14 +360,15 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns></returns>
         public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
         {
-            DeviceStatus status = DeviceStatus.Fail;
+            DeviceStatus status = DeviceStatus.Success;
+            return status;
 
-            if (RadioBaseConfig == null || RadioConfig == null)
+            /*if (RadioBaseConfig == null || RadioConfig == null)
             {
                 throw new RadioNotConfiguredException();
-            }
+            }*/
             //RadioBaseConfig = new RadioConfiguration(config);
-            if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
+            /*if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
             {
                 throw new RadioNotConfiguredException();
             }
@@ -378,17 +379,17 @@ namespace Samraksh.eMote.Net.Radio
             {
                 return status;
             }
-            status = this.SetTxPower(RadioConfig.TxPower);
+            status = this.SetTxPower(RadioConfig.RadioType, RadioConfig.TxPower);
             if (status != DeviceStatus.Success)
             {
                 return status;
             }
-            status = this.SetChannel(RadioConfig.Channel);
+            status = this.SetChannel(RadioConfig.RadioType, RadioConfig.Channel);
             if (status != DeviceStatus.Success)
             {
                 return status;
             }
-            return status;
+            return status;*/
 
             /*marshalBuffer[0] = (byte)RadioConfig.TxPower;
             marshalBuffer[1] = (byte)RadioConfig.Channel;
@@ -425,13 +426,13 @@ namespace Samraksh.eMote.Net.Radio
             packet = null;
         }*/
 
-        /// <summary>
+        /*/// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         public void SetReceiveCallback(ReceiveCallBack OnReceiveCallback)
         {
-            RadioBaseConfig.OnReceiveCallback = OnReceiveCallback;
+            //RadioBaseConfig.OnReceiveCallback = OnReceiveCallback;
             Callbacks.SetReceiveCallback(OnReceiveCallback);
         }
 
@@ -440,7 +441,7 @@ namespace Samraksh.eMote.Net.Radio
         /// </summary>
         public void SetNeighborChangeCallback(NeighborhoodChangeCallBack OnNeighborChangeCallback)
         {
-            RadioBaseConfig.OnNeighborChangeCallback = OnNeighborChangeCallback;
+            //RadioBaseConfig.OnNeighborChangeCallback = OnNeighborChangeCallback;
             Callbacks.SetNeighborChangeCallback(OnNeighborChangeCallback);
         }
 
@@ -450,7 +451,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns></returns>
         public DeviceStatus SetRadioType(RadioType RadioType)
         {
-            RadioBaseConfig.RadioType = RadioType;
+            //RadioBaseConfig.RadioType = RadioType;
             //return Configure();
             return SetRadioType((byte)RadioType);
         }
@@ -458,28 +459,30 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="RadioType"></param>
         /// <param name="TxPower"></param>
         /// <returns></returns>
-        public DeviceStatus SetTxPower(TxPowerValue TxPower)
+        public DeviceStatus SetTxPower(RadioType RadioType, TxPowerValue TxPower)
         {
-            RadioBaseConfig.TxPower = TxPower;
+            //RadioBaseConfig.TxPower = TxPower;
             //return Configure();
-            return SetTxPower((byte)RadioBaseConfig.RadioType, (int)TxPower);
+            return SetTxPower((byte)RadioType, (int)TxPower);
         }
 
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="RadioType"></param>
         /// <param name="Channel"></param>
         /// <returns></returns>
-        public DeviceStatus SetChannel(Channel Channel)
+        public DeviceStatus SetChannel(RadioType RadioType, Channel Channel)
         {
-            RadioBaseConfig.Channel = Channel;
+            //RadioBaseConfig.Channel = Channel;
             //return Configure();
-            return SetChannel((byte)RadioBaseConfig.RadioType, (int)Channel);
-        }
+            return SetChannel((byte)RadioType, (int)Channel);
+        }*/
 
-        /// <summary>
+        /*/// <summary>
         /// 
         /// </summary>
         /// <param name="radioType"></param>
@@ -535,7 +538,7 @@ namespace Samraksh.eMote.Net.Radio
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern byte GetActiveChannel(byte radioType);
+        private extern byte GetActiveChannel(byte radioType);*/
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>
