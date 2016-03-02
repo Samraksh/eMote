@@ -308,6 +308,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 }
 
 void DataReceptionHandler::PostExecuteEvent(){
+	VirtualTimerReturnMessage rm;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
