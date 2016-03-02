@@ -142,7 +142,7 @@ namespace Samraksh.eMote.Net.Radio
 
         byte[] dataBuffer = new byte[RadioPacketSize];
 
-        Packet packet;
+        //private Packet packet;
 
         /*/// <summary>
         /// 
@@ -308,32 +308,6 @@ namespace Samraksh.eMote.Net.Radio
 			return DeviceStatus.Success;
 		}*/
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="RadioConfig"></param>
-        /// <returns></returns>
-        public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
-        {
-            if (RadioBaseConfig == null || RadioConfig == null)
-            {
-                throw new RadioNotConfiguredException();
-            }
-            //RadioBaseConfig = new RadioConfiguration(config);
-            if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
-            {
-                throw new RadioNotConfiguredException();
-            }
-            Callbacks.SetReceiveCallback(RadioConfig.OnReceiveCallback);
-            Callbacks.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
-
-            marshalBuffer[0] = (byte)RadioConfig.TxPower;
-            marshalBuffer[1] = (byte)RadioConfig.Channel;
-            marshalBuffer[2] = (byte)RadioConfig.RadioType;
-
-            return ReConfigure(marshalBuffer);
-        }
-
         /// <summary>Reconfigure the radio object with new configuration</summary>
         /// <returns>Status of operation</returns>
         private DeviceStatus Configure()
@@ -352,10 +326,6 @@ namespace Samraksh.eMote.Net.Radio
 
             return ReConfigure(marshalBuffer);
         }
-
-        //Make the interop call to set the new configuration 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus ReConfigure(byte[] buffer);
 
         /*/// <summary>
         /// Set Radio configuration for 802.15.4 radio.
@@ -385,6 +355,36 @@ namespace Samraksh.eMote.Net.Radio
 			return DeviceStatus.Success;
 		}
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="RadioConfig"></param>
+        /// <returns></returns>
+        public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
+        {
+            if (RadioBaseConfig == null || RadioConfig == null)
+            {
+                throw new RadioNotConfiguredException();
+            }
+            //RadioBaseConfig = new RadioConfiguration(config);
+            if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
+            {
+                throw new RadioNotConfiguredException();
+            }
+            Callbacks.SetReceiveCallback(RadioConfig.OnReceiveCallback);
+            Callbacks.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
+
+            marshalBuffer[0] = (byte)RadioConfig.TxPower;
+            marshalBuffer[1] = (byte)RadioConfig.Channel;
+            marshalBuffer[2] = (byte)RadioConfig.RadioType;
+
+            return ReConfigure(marshalBuffer);
+        }
+
+        //Make the interop call to set the new configuration 
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus ReConfigure(byte[] buffer);
+
         /*/// <summary>Get the next packet from the radio driver.</summary>
         /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
         /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
@@ -402,13 +402,13 @@ namespace Samraksh.eMote.Net.Radio
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);*/
 
-        /// <summary>Releases the message packet's memory.</summary>
+        /*/// <summary>Releases the message packet's memory.</summary>
         /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
         /// <returns></returns>
         public void ClearPacket()
         {
             packet = null;
-        }
+        }*/
 
         /// <summary>
         /// 

@@ -144,7 +144,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    NULL,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetChannel___SamraksheMoteNetDeviceStatus__U1__I4,
     NULL,
@@ -183,7 +182,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net =
 {
     "Samraksh_eMote_Net", 
-    0x22A38459,
+    0x74E7D624,
     method_lookup
 };
 

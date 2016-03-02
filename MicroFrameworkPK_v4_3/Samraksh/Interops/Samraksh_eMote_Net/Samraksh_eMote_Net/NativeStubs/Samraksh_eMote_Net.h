@@ -188,8 +188,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     static const int FIELD_STATIC__CurrUser = 12;
 
     static const int FIELD__dataBuffer = 5;
-    static const int FIELD__packet = 6;
-    static const int FIELD__marshalBuffer = 7;
+    static const int FIELD__marshalBuffer = 6;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(GetAddress___U2__U1);
