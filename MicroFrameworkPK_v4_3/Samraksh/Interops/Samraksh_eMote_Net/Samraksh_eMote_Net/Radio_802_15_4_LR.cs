@@ -6,17 +6,13 @@ namespace Samraksh.eMote.Net.Radio
     /// <summary>Long range radio</summary>
     public class Radio_802_15_4_LR : Radio_802_15_4_Base
     {
-
         private static Radio_802_15_4_LR LRRadioInstance;
         private static object syncObject = new Object();
 
-
         private Radio_802_15_4_LR()
         {
-
         }
-
-                
+        
         private Radio_802_15_4_LR(string drvName, ulong drvdata)
             : base(drvName, drvdata)
         {

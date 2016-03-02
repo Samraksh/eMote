@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 namespace Samraksh.eMote.Net.Radio
 {
 
-    /// <summary>Kind of radio</summary>
+    /// <summary>Type of radio</summary>
     public enum RadioType
     {
         /// <summary>On-board radio</summary>
@@ -54,8 +54,6 @@ namespace Samraksh.eMote.Net.Radio
         Power_Minus12dBm,
         /// <summary>-17.0 dB</summary>
         Power_Minus17dBm,
-
-
     }
 
     /// <summary>Channels the RF231 radio can use</summary>
@@ -308,7 +306,7 @@ namespace Samraksh.eMote.Net.Radio
 			return DeviceStatus.Success;
 		}*/
 
-        /// <summary>Reconfigure the radio object with new configuration</summary>
+        /*/// <summary>Reconfigure the radio object with new configuration</summary>
         /// <returns>Status of operation</returns>
         private DeviceStatus Configure()
         {
@@ -325,7 +323,7 @@ namespace Samraksh.eMote.Net.Radio
             marshalBuffer[2] = (byte)RadioBaseConfig.RadioType;
 
             return ReConfigure(marshalBuffer);
-        }
+        }*/
 
         /*/// <summary>
         /// Set Radio configuration for 802.15.4 radio.
@@ -362,6 +360,8 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns></returns>
         public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
         {
+            DeviceStatus status = DeviceStatus.Fail;
+
             if (RadioBaseConfig == null || RadioConfig == null)
             {
                 throw new RadioNotConfiguredException();
@@ -371,19 +371,34 @@ namespace Samraksh.eMote.Net.Radio
             {
                 throw new RadioNotConfiguredException();
             }
-            Callbacks.SetReceiveCallback(RadioConfig.OnReceiveCallback);
-            Callbacks.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
+            this.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
+            this.SetReceiveCallback(RadioConfig.OnReceiveCallback);
+            status = this.SetRadioType(RadioConfig.RadioType);
+            if (status != DeviceStatus.Success)
+            {
+                return status;
+            }
+            status = this.SetTxPower(RadioConfig.TxPower);
+            if (status != DeviceStatus.Success)
+            {
+                return status;
+            }
+            status = this.SetChannel(RadioConfig.Channel);
+            if (status != DeviceStatus.Success)
+            {
+                return status;
+            }
+            return status;
 
-            marshalBuffer[0] = (byte)RadioConfig.TxPower;
+            /*marshalBuffer[0] = (byte)RadioConfig.TxPower;
             marshalBuffer[1] = (byte)RadioConfig.Channel;
             marshalBuffer[2] = (byte)RadioConfig.RadioType;
-
-            return ReConfigure(marshalBuffer);
+            return ReConfigure(marshalBuffer);*/
         }
 
-        //Make the interop call to set the new configuration 
+        /*//Make the interop call to set the new configuration 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus ReConfigure(byte[] buffer);
+        private extern DeviceStatus ReConfigure(byte[] buffer);*/
 
         /*/// <summary>Get the next packet from the radio driver.</summary>
         /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
@@ -436,7 +451,8 @@ namespace Samraksh.eMote.Net.Radio
         public DeviceStatus SetRadioType(RadioType RadioType)
         {
             RadioBaseConfig.RadioType = RadioType;
-            return Configure();
+            //return Configure();
+            return SetRadioType((byte)RadioType);
         }
 
         /// <summary>
@@ -447,7 +463,8 @@ namespace Samraksh.eMote.Net.Radio
         public DeviceStatus SetTxPower(TxPowerValue TxPower)
         {
             RadioBaseConfig.TxPower = TxPower;
-            return Configure();
+            //return Configure();
+            return SetTxPower((byte)RadioBaseConfig.RadioType, (int)TxPower);
         }
 
         /// <summary>
@@ -458,8 +475,17 @@ namespace Samraksh.eMote.Net.Radio
         public DeviceStatus SetChannel(Channel Channel)
         {
             RadioBaseConfig.Channel = Channel;
-            return Configure();
+            //return Configure();
+            return SetChannel((byte)RadioBaseConfig.RadioType, (int)Channel);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="radioType"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus SetRadioType(byte radioType);
 
         /// <summary>Set the transmit power of the radio</summary>
         /// <param name="radioType">Radio ID</param>
@@ -475,16 +501,28 @@ namespace Samraksh.eMote.Net.Radio
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus SetChannel(byte radioType, int Channel);
 
-        /// <summary>Return the transmission power value of the radio</summary>
-        /// <param name="radioType">Radio ID</param>
-        /// <returns>Transmission power value</returns>
-        public TxPowerValue GetTxPowerValue(byte radioType)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Radio.RadioType GetRadioType()
         {
-            return (TxPowerValue)GetTxPower(radioType);
+            return (RadioType)GetRadioTypeValue();
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern int GetTxPower(byte radioType);
+        private extern byte GetRadioTypeValue();
+
+        /// <summary>Return the transmission power value of the radio</summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <returns>Transmission power value</returns>
+        public TxPowerValue GetTxPower(byte radioType)
+        {
+            return (TxPowerValue)GetTxPowerValue(radioType);
+        }
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern byte GetTxPowerValue(byte radioType);
 
         /// <summary>
         /// Return the current active channel of the radio 
@@ -497,7 +535,7 @@ namespace Samraksh.eMote.Net.Radio
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern int GetActiveChannel(byte radioType);
+        private extern byte GetActiveChannel(byte radioType);
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>
@@ -511,20 +549,20 @@ namespace Samraksh.eMote.Net.Radio
 
         /// <summary>Get the address of the device</summary>
         /// <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-        /// <param name="radioType">Radio ID</param>
+        /// <param name="radioType">Radio type</param>
         /// <returns>Address of the device</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern UInt16 GetAddress(byte radioType);
+        public extern UInt16 GetRadioAddress(byte radioType);
 
         /// <summary>Set the address of the device</summary>
-        /// <param name="radioType">Radio ID</param>
+        /// <param name="radioType">Radio type</param>
         /// <param name="address">Address of the device</param>
         /// <remarks>This is the address by which the device is known to the rest of the world. 
         ///     A return value of false can occur if another layer locks the address and prevents changes.
         /// </remarks>
         /// <returns>Success / failure</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool SetAddress(byte radioType, UInt16 address);
+        public extern bool SetRadioAddress(byte radioType, UInt16 address);
 
         /// <summary>Turn radio on</summary>
         /// <param name="radioType">Radio ID</param>

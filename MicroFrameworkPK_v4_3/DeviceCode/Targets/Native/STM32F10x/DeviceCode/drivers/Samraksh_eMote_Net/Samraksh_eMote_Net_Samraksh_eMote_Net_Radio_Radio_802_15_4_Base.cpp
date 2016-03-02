@@ -25,38 +25,38 @@ INT32 Radio_802_15_4_Base::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr 
     return retVal;
 }
 
-UINT16 Radio_802_15_4_Base::GetAddress( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+UINT16 Radio_802_15_4_Base::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	UINT16 address;
-	address = CPU_Radio_GetAddress(radioID);
+	address = CPU_Radio_GetAddress(radioType);
 	return address;
 }
 
-INT8 Radio_802_15_4_Base::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT16 address, HRESULT &hr )
+INT8 Radio_802_15_4_Base::SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, UINT16 address, HRESULT &hr )
 {
 	BOOL status;
-	status = CPU_Radio_SetAddress(radioID, address);
+	status = CPU_Radio_SetAddress(radioType, address);
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+INT32 Radio_802_15_4_Base::TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_TurnOnRx(radioID);
+	status = CPU_Radio_TurnOnRx(radioType);
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_TurnOffRx(radioID);
+	status = CPU_Radio_TurnOffRx(radioType);
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT8 level, HRESULT &hr )
+INT32 Radio_802_15_4_Base::Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, UINT8 level, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_Sleep(radioID, level);
+	status = CPU_Radio_Sleep(radioType, level);
 	return status;
 }
 
@@ -78,27 +78,27 @@ INT32 Radio_802_15_4_Base::SendStrobe( CLR_RT_HeapBlock* pMngObj, UINT8 radioTyp
     return status;
 }
 
-INT32 Radio_802_15_4_Base::Send( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, CLR_RT_TypedArray_UINT8 message, UINT16 size, HRESULT &hr )
+INT32 Radio_802_15_4_Base::Send( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, CLR_RT_TypedArray_UINT8 message, UINT16 size, HRESULT &hr )
 {
 	void* msg;
-	msg = CPU_Radio_Send(radioID, message.GetBuffer(), size);
+	msg = CPU_Radio_Send(radioType, message.GetBuffer(), size);
 	if(msg == NULL)
 		return -1;
 	else
 		return 0;
 }
 
-INT32 Radio_802_15_4_Base::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, CLR_RT_TypedArray_UINT8 message, UINT16 size, UINT32 eventTime, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, CLR_RT_TypedArray_UINT8 message, UINT16 size, UINT32 eventTime, HRESULT &hr )
 {
 	void* msg;
-	msg = CPU_Radio_Send_TimeStamped(radioID, message.GetBuffer(), size, eventTime);
+	msg = CPU_Radio_Send_TimeStamped(radioType, message.GetBuffer(), size, eventTime);
 	if(msg == NULL)
 		return -1;
 	else
 		return 0;
 }
 
-INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	DeviceStatus status;
 
@@ -112,10 +112,10 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
 	//return status;
 }
 
-INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT16 numberOfMicroSecond, HRESULT &hr )
+INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, UINT16 numberOfMicroSecond, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_ClearChannelAssesment(radioID, numberOfMicroSecond);
+	status = CPU_Radio_ClearChannelAssesment(radioType, numberOfMicroSecond);
 	return status;
 }
 
@@ -148,35 +148,49 @@ INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT
 	return result;
 }
 
-INT32 Radio_802_15_4_Base::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, INT32 power, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_ChangeTxPower(radioID, power);
+	status = CPU_Radio_SetRadioType(radioType);
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, INT32 channel, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, INT32 power, HRESULT &hr )
 {
 	DeviceStatus status;
-	status = CPU_Radio_ChangeChannel(radioID, channel);
+	status = CPU_Radio_ChangeTxPower(radioType, power);
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::GetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, INT32 channel, HRESULT &hr )
 {
-	UINT32 txPower;
-	txPower = CPU_Radio_GetTxPower(radioID);
+	DeviceStatus status;
+	status = CPU_Radio_ChangeChannel(radioType, channel);
+	return status;
+}
+
+UINT8 Radio_802_15_4_Base::GetRadioTypeValue( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+	UINT8 radioType;
+	radioType = CPU_Radio_GetRadioType();
+	return radioType;
+}
+
+UINT8 Radio_802_15_4_Base::GetTxPowerValue( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
+{
+	UINT8 txPower;
+	txPower = CPU_Radio_GetTxPower(radioType);
 	return txPower;
 }
 
-INT32 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+UINT8 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {
-	UINT32 channel;
-	channel = CPU_Radio_GetChannel(radioID);
+	UINT8 channel;
+	channel = CPU_Radio_GetChannel(radioType);
 	return channel;
 }
 
-INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
+/*INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
 	INT32 result = DS_Success;
 	UINT8* configParams = marshalBuffer.GetBuffer();
@@ -197,5 +211,5 @@ INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedA
 	}
 
 	return result;
-}
+}*/
 

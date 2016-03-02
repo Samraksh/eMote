@@ -31,8 +31,8 @@ namespace Samraksh
 
                     // Declaration of stubs. These functions are implemented by Interop code developers
                     static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-                    static UINT16 GetAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                    static INT8 SetAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr );
+                    static UINT16 GetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
+                    static INT8 SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr );
                     static INT32 TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT8 param1, HRESULT &hr );
                     static INT32 PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr );
@@ -42,11 +42,12 @@ namespace Samraksh
                     static INT8 ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT8 ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr );
                     static INT32 InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
-                    static INT32 ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                    static INT32 SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr );
                     static INT32 SetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, INT32 param1, HRESULT &hr );
-                    static INT32 GetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
-                    static INT32 GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
+                    static UINT8 GetRadioTypeValue( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static UINT8 GetTxPowerValue( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
+                    static UINT8 GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                 };
             }

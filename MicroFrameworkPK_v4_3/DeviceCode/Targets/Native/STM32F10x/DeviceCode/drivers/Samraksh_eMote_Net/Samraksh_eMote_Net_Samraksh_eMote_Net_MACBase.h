@@ -14,7 +14,7 @@
 #ifndef _SAMRAKSH_EMOTE_NET_SAMRAKSH_EMOTE_NET_MACBASE_H_
 #define _SAMRAKSH_EMOTE_NET_SAMRAKSH_EMOTE_NET_MACBASE_H_
 
-#include <Samraksh/Mac_decl.h>
+#include <Samraksh/MAC_decl.h>
 #include <Samraksh/Message.h>
 
 namespace Samraksh
@@ -31,6 +31,10 @@ namespace Samraksh
                 static UNSUPPORTED_TYPE& Get_ByteNeighbor( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__ByteNeighbor ); }
 
                 static UNSUPPORTED_TYPE& Get_MarshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__MarshalBuffer ); }
+
+                static UNSUPPORTED_TYPE& Get_MACConfig( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__MACConfig ); }
+
+                static UNSUPPORTED_TYPE& Get_MACRadioObj( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__MACRadioObj ); }
 
                 static UNSUPPORTED_TYPE& Get_packet( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__packet ); }
 

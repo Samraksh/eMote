@@ -212,7 +212,7 @@ namespace Samraksh.eMote.Net.Radio
         /// Get radio address
         /// </summary>
         /// <returns>Radio address</returns>
-        UInt16 GetAddress(byte radioType);
+        UInt16 GetRadioAddress(byte radioType);
 
         /// <summary>
         /// Set radio address
@@ -220,7 +220,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="radioType">Radio ID</param>
         /// <param name="address">Radio address</param>
         /// <returns></returns>
-        bool SetAddress(byte radioType, UInt16 address);
+        bool SetRadioAddress(byte radioType, UInt16 address);
 
         /// <summary>
         /// Turn radio on

@@ -257,7 +257,7 @@
             MAC Config
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MACBase.MACRadio">
+        <member name="F:Samraksh.eMote.Net.MACBase.MACRadioObj">
             <summary>
             
             </summary>
@@ -323,13 +323,6 @@
             <param name="BufferSize">Size of the buffer</param>
             <returns>Operation status</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.SetRadioType(System.Byte)">
-            <summary>
-            Set Radio type
-            </summary>
-            <param name="RadioType">Radio type</param>
-            <returns>DeviceStatus</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetCCA">
             <summary>Get Clear Channel Assessment</summary>
             <returns>True iff channel is clear</returns>
@@ -341,10 +334,6 @@
         <member name="M:Samraksh.eMote.Net.MACBase.GetCCASenseTime">
             <summary>Get Clear Channel Assessment Sense Time</summary>
             <returns>Time to sense CCA (microseconds)</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetRadioType">
-            <summary>Get the Radio type</summary>
-            <returns>Radio type</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborList">
             <summary>Get the list of neighbors from the MAC</summary>
@@ -849,13 +838,13 @@
             <param name="config">New radio configuration</param>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetAddress(System.Byte)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetRadioAddress(System.Byte)">
             <summary>
             Get radio address
             </summary>
             <returns>Radio address</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SetAddress(System.Byte,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.SetRadioAddress(System.Byte,System.UInt16)">
             <summary>
             Set radio address
             </summary>
@@ -1075,10 +1064,6 @@
             <param name="config">MAC configuration.</param>
             <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure">
-            <summary>Reconfigure the radio object with new configuration</summary>
-            <returns>Status of operation</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure(Samraksh.eMote.Net.Radio.RadioConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighbourhoodChangeCallBack)">
             <summary>Set configuration for 802.15.4 radio.</summary>
             <param name="config">Configuration to use</param>
@@ -1124,6 +1109,13 @@
             <param name="Channel"></param>
             <returns></returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioType(System.Byte)">
+            <summary>
+            
+            </summary>
+            <param name="radioType"></param>
+            <returns></returns>
+        </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Byte,System.Int32)">
             <summary>Set the transmit power of the radio</summary>
             <param name="radioType">Radio ID</param>
@@ -1136,7 +1128,13 @@
             <param name="Channel">Channel to use</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetTxPowerValue(System.Byte)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetRadioType">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetTxPower(System.Byte)">
             <summary>Return the transmission power value of the radio</summary>
             <param name="radioType">Radio ID</param>
             <returns>Transmission power value</returns>
@@ -1152,15 +1150,15 @@
             <summary>Uninitialize native MAC, radio and interop drivers</summary>
             <returns>Status of operation.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetAddress(System.Byte)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetRadioAddress(System.Byte)">
             <summary>Get the address of the device</summary>
             <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-            <param name="radioType">Radio ID</param>
+            <param name="radioType">Radio type</param>
             <returns>Address of the device</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetAddress(System.Byte,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioAddress(System.Byte,System.UInt16)">
             <summary>Set the address of the device</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioType">Radio type</param>
             <param name="address">Address of the device</param>
             <remarks>This is the address by which the device is known to the rest of the world. 
                 A return value of false can occur if another layer locks the address and prevents changes.
@@ -1248,7 +1246,7 @@
             <exception caption="System Exception" cref="T:System.SystemException"></exception>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RadioType">
-            <summary>Kind of radio</summary>
+            <summary>Type of radio</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Radio.RadioType.RF231RADIO">
             <summary>On-board radio</summary>

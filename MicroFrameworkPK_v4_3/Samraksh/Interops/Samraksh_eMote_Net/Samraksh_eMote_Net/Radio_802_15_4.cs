@@ -71,11 +71,17 @@ namespace Samraksh.eMote.Net.Radio
                     if (GenericRadioInstance == null)
                     {
                         if (user == RadioUser.CSMAMAC)
+                        {
                             GenericRadioInstance = new Radio_802_15_4("CSMACallback", 4321);
+                        }
                         else if (user == RadioUser.OMAC)
+                        {
                             GenericRadioInstance = new Radio_802_15_4("OMACCallback", 4322);
+                        }
                         else if (user == RadioUser.CSharp)
+                        {
                             GenericRadioInstance = new Radio_802_15_4();
+                        }
                     }
                 }
 

@@ -38,7 +38,7 @@
     <Compile Include="Exception.cs" />
     <Compile Include="IMAC.cs" />
     <Compile Include="IRadio.cs" />
-    <Compile Include="MAC.cs" />
+    <Compile Include="MACBase.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="OMAC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

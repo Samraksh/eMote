@@ -29,7 +29,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetAddress___U2__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetRadioAddress___U2__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -40,7 +40,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
         UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        UINT16 retVal = Radio_802_15_4_Base::GetAddress( pMngObj,  param0, hr );
+        UINT16 retVal = Radio_802_15_4_Base::GetRadioAddress( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_UINT16( stack, retVal );
 
@@ -48,7 +48,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetAddress___BOOLEAN__U1__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetRadioAddress___BOOLEAN__U1__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -62,7 +62,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
         UINT16 param1;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 2, param1 ) );
 
-        INT8 retVal = Radio_802_15_4_Base::SetAddress( pMngObj,  param0, param1, hr );
+        INT8 retVal = Radio_802_15_4_Base::SetRadioAddress( pMngObj,  param0, param1, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
 
@@ -268,7 +268,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::ReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::SetRadioType___SamraksheMoteNetDeviceStatus__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -276,10 +276,10 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
 
         FAULT_ON_NULL(pMngObj);
 
-        CLR_RT_TypedArray_UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
+        UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4_Base::ReConfigure( pMngObj,  param0, hr );
+        INT32 retVal = Radio_802_15_4_Base::SetRadioType( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -331,7 +331,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetTxPower___I4__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetRadioTypeValue___U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -339,18 +339,15 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
 
         FAULT_ON_NULL(pMngObj);
 
-        UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
-
-        INT32 retVal = Radio_802_15_4_Base::GetTxPower( pMngObj,  param0, hr );
+        UINT8 retVal = Radio_802_15_4_Base::GetRadioTypeValue( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+        SetResult_UINT8( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetActiveChannel___I4__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetTxPowerValue___U1__U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -361,9 +358,28 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base:
         UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
 
-        INT32 retVal = Radio_802_15_4_Base::GetActiveChannel( pMngObj,  param0, hr );
+        UINT8 retVal = Radio_802_15_4_Base::GetTxPowerValue( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
-        SetResult_INT32( stack, retVal );
+        SetResult_UINT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::GetActiveChannel___U1__U1( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        UINT8 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 1, param0 ) );
+
+        UINT8 retVal = Radio_802_15_4_Base::GetActiveChannel( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_UINT8( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

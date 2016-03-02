@@ -156,7 +156,7 @@ namespace Samraksh.eMote.Net
 			/// <summary>
 			/// Radio type used by current MAC
 			/// </summary>
-			public byte RadioType;
+			public Radio.RadioType RadioType;
 
 			/// <summary>
 			/// Delay before a neighbor is deemed dead
@@ -185,7 +185,7 @@ namespace Samraksh.eMote.Net
                 this.CCA = true;
                 this.BufferSize = 8;
                 this.NumberOfRetries = 0;
-                this.RadioType = 1;
+                this.RadioType = Radio.RadioType.RF231RADIO;
                 this.CCASenseTime = 140;
                 this.NeighborLivenessDelay = 100;
                 this.MACRadioConfig = new Radio.RadioConfiguration();
