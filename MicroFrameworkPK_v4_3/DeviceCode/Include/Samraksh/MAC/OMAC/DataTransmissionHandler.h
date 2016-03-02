@@ -59,6 +59,7 @@ class DataTransmissionHandler: public EventHandler {
 	UINT16 m_backoff_mask;
 
 	DataTransmissionHandlerStates txhandler_state;
+	UINT64 CalculateNextTxMicro(UINT16 dest);
 public:
 	void Initialize();
 	UINT64 NextEvent();

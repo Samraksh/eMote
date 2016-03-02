@@ -262,8 +262,10 @@ typedef OFProv<UINT64> OMACTicks;
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
 #define MICSECINMILISEC 1000
-#define GUARDTIME_MICRO 2000			//compensate for time-sync errors; accounts for the clock drift
-#define SWITCHING_DELAY_MICRO 0		//delay between switching between radio states
+#define TICKSINMICSEC 8
+
+#define GUARDTIME_MICRO 500			//compensate for time-sync errors; accounts for the clock drift
+
 
 #define FRAMERETRYMAXATTEMPT 100
 #define SLOTRETRYMAXATTEMPT 2
@@ -272,38 +274,45 @@ typedef OFProv<UINT64> OMACTicks;
 #define RANDOM_BACKOFF_COUNT_MAX	4
 #define RANDOM_BACKOFF_COUNT_MIN	1
 #define DELAY_DUE_TO_CCA_MICRO	260
-#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
+#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO)		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
-#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO
-#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	1.2*MICSECINMILISEC
-#define HW_ACK_TO_START_OF_TX_MICRO	2*MICSECINMILISEC
+#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO)
+#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	(1.2*MICSECINMILISEC)
+#define HW_ACK_TO_START_OF_TX_MICRO	(2*MICSECINMILISEC)
 
-#define EXTRA_DELAY_IN_WAITING_FOR_ACK 1.6*MICSECINMILISEC	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
+#define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MICSECINMILISEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
-#define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
-#define DELAY_FROM_OMAC_TX_TO_RF231_TX	0.3*MICSECINMILISEC	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
-#define DELAY_FROM_RF231_TX_TO_RF231_RX	0.2*MICSECINMILISEC	//(B)Delay between Node N1 starting TX to node N2 receiving
+// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
+#define DELAY_FROM_OMAC_TX_TO_RF231_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
+#define DELAY_FROM_RF231_TX_TO_RF231_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
+#define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
 #define ACK_DELAY	0.4*MICSECINMILISEC						//(C)Delay in Rx generating an ack
 #define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
 															//   Sum of (max-min) of (A),(B) will go into (D)
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
-													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
-														+RETRY_FUDGE_FACTOR
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	(2*GUARDTIME_MICRO + DELAY_FROM_RF231_TX_TO_RF231_RX)
 
-//How long should receiver be awake after sending a HW ack
+#define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
+//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
+//													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
+//														+RETRY_FUDGE_FACTOR
+
+//How long should receiver be awake after sending a HW ack. BK: No it is not! see the following
+// This is the maximum period to wait for the reception of a packet after receiving StartOfReception interrupt. Due to the change in RF231.cpp the interrupt is received after AMI. Hence it is the packet
 #define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
 //#define PACKET_PERIOD_FOR_RECEPTION_HANDLER EXTENDED_MODE_TX_DELAY+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
 
 #define ACK_TX_MAX_DURATION_MICRO 4000
+#define RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO 1000
 #define TIMER_EVENT_DELAY_OFFSET 0
 #define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
 //#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
 #define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+#define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
 
 #define MAX_PACKET_TX_DURATION_MICRO 5*MICSECINMILISEC
 #define ACK_RX_MAX_DURATION_MICRO 20000
@@ -323,19 +332,19 @@ typedef OFProv<UINT64> OMACTicks;
 #define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
 #define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
 
-#define PROCESSING_DELAY_BEFORE_TX_MICRO 581
-#define RADIO_TURN_ON_DELAY_MICRO 670
+#define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
+#define RADIO_TURN_ON_DELAY_MICRO 693
 #define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
 #define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
 
 #define HFCLOCKID 1
-#define LFCLOCKID 4
-#define OMACClockSpecifier HFCLOCKID // This is the RTC clock
+#define LFCLOCKID 4 // This is the RTC clock
+#define OMACClockSpecifier HFCLOCKID
 #define OMACClockFreq 32
 #define OMACClocktoSystemClockFreqRatio 250
 
-#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 800
-#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 100
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
 
 #define FAILSAFETIME_MICRO 1000000
 

@@ -17,9 +17,9 @@
 
 extern OMACType g_OMAC;
 
-const uint EXECUTE_WITH_CCA = 1;
-const uint FAST_RECOVERY = 1;
-
+const uint EXECUTE_WITH_CCA = 0;
+const uint FAST_RECOVERY = 0;
+const uint FAST_RECOVERY2 = 1;
 
 void PublicDataTxCallback(void * param){
 	if(	FAST_RECOVERY) {
@@ -101,35 +101,32 @@ void DataTransmissionHandler::Initialize(){
 
 }
 
+UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
+	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+	//UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
+	UINT64 nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (RADIO_TURN_ON_DELAY_MICRO+PROCESSING_DELAY_BEFORE_TX_MICRO));
+	if(EXECUTE_WITH_CCA){
+		nextTXmicro -= CCA_PERIOD_MICRO;
+	}
+	if(FAST_RECOVERY){
+		nextTXmicro -= GUARDTIME_MICRO;
+	}
+	if(FAST_RECOVERY2){
+	}
+	return nextTXmicro;
+}
+
 UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 	if(UpdateNeighborsWakeUpSlot(dest, 0)) {
 
-		UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-		UINT64 nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) - DELAY_FROM_OMAC_TX_TO_RF231_TX + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-		if(EXECUTE_WITH_CCA){
-			nextTXmicro -= CCA_PERIOD_MICRO;
-		}
 
-		UINT64 curmicro =  g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+		UINT64 nextTXmicro = CalculateNextTxMicro(dest);
+		UINT64 curmicro =  g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks());
 
 		while(nextTXmicro  <= curmicro + OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO) {
 			if(UpdateNeighborsWakeUpSlot(dest, 1)){
-				nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_OMAC.m_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
-				//nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-				nextTXmicro = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks) + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-				if(EXECUTE_WITH_CCA){
-					nextTXmicro -= CCA_PERIOD_MICRO;
-				}
-				//Delay due to extended should not happen before a wake up event; The delay happens after the tx event
-				if(HARDWARE_ACKS){
-					nextTXmicro = nextTXmicro - DELAY_FROM_OMAC_TX_TO_RF231_TX;
-					ASSERT_SP(nextTXmicro > 0);
-				}
-				//Not needed as random backoff is done only during retries
-				/*if(m_RANDOM_BACKOFF){
-					nextTXmicro -= RANDOM_BACKOFF_TOTAL_DELAY_MICRO;
-					ASSERT_SP(nextTXmicro > 0);
-				}*/
+				nextTXmicro = CalculateNextTxMicro(dest);
+				curmicro =  g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks());
 			}
 			else{
 				nextTXmicro = MAX_UINT64;
@@ -146,25 +143,26 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
 #ifdef def_Neighbor2beFollowed
 		//hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
-		//		, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
-		//		, remMicroSecnextTX, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(nextTXTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
+		//		, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
+		//		, remMicroSecnextTX, g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
 #endif
 #endif
 
-		/*UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks()));
+		/*UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks()));
 		Neighbor_t* neigh_ptr = g_OMAC.m_NeighborTable.GetNeighborPtr(dest);
 		UINT64 neighborwakeUpSlot = neigh_ptr->nextwakeupSlot;
 		if(neighborwakeUpSlot - neighborSlot < 20 ){
 			neighborwakeUpSlot = neighborwakeUpSlot+1;
 		}*/
-
+		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 		return remMicroSecnextTX;
 	}
 	else {
+		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
 		//Either Dont have packet to send or missing timing for the destination
 		return MAX_UINT64;
 	}
-	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
+
 }
 
 /*
@@ -295,14 +293,20 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 
 void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts sending routine for a packet
 	bool canISend = true;
+	UINT64 y;
 	DeviceStatus DS = DS_Success;
 	VirtualTimerReturnMessage rm;
+
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
 
 	//The number 500 was chosen arbitrarily. In reality it should be the sum of backoff period + CCA period + guard band.
 	//For GUARDTIME_MICRO period check the channel before transmitting
 	//140 usec is the time taken for CCA to return a result
-	UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-	//for(int i = 0; i < (GUARDTIME_MICRO/140); i++){
+	if(EXECUTE_WITH_CCA) y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+
 	while(EXECUTE_WITH_CCA){
 		//If retrying, don't do CCA, but perform random backoff and transmit
 		if(m_currentSlotRetryAttempt > 0){
@@ -320,12 +324,12 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		canISend = true;
 
 		if(m_currentSlotRetryAttempt == 0){
-			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
+			if( g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
 				break;
 			}
 		}
 		else{
-			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - y) > CCA_PERIOD_FRAME_RETRY_MICRO){
+			if( g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks() - y) > CCA_PERIOD_FRAME_RETRY_MICRO){
 				break;
 			}
 		}
@@ -333,9 +337,6 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 	//Perform CCA for random backoff period (only for retries)
 	if(m_RANDOM_BACKOFF){
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
 		m_backoff_seed = randVal;
 		int i = 0;
@@ -350,17 +351,15 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 				break;
 			}
 		}
+	}
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
-	}
-
 	//Transmit
 	if(canISend){
 		//resendSuccessful = false;
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
-#endif
+
 		bool rv = Send();
 		if(rv) {
 			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
@@ -405,8 +404,12 @@ void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 #ifdef def_Neighbor2beFollowed
 	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
-			, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks()), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks())) );
+			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks()), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_Clock.GetCurrentTimeinTicks())), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_Clock.GetCurrentTimeinTicks())) );
 #endif
+#endif
+
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 #endif
 
 	VirtualTimerReturnMessage rm;
@@ -442,6 +445,10 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 	if(HARDWARE_ACKS){
 		//resendSuccessful = true;
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+#endif
 		if(radioAckStatus == TRAC_STATUS_SUCCESS || radioAckStatus == TRAC_STATUS_SUCCESS_DATA_PENDING){
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
@@ -453,7 +460,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			//m_currentFrameRetryAttempt = 0;
 			src = rcv_msg->GetHeader()->src;
 			if(src != myID){
-				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+				DeviceStatus ds = g_OMAC.m_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 				if(ds != DS_Success){
 					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", src, __LINE__);
 				}
@@ -463,6 +470,10 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
 			rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
+		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+#endif
 			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 				PostExecuteEvent();
 			}
@@ -482,6 +493,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			}*/
 
 			if(radioAckStatus == TRAC_STATUS_NO_ACK){
+				if(FAST_RECOVERY2){
+					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
+				}
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
@@ -553,7 +567,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 
 
 	if(SOFTWARE_ACKS){
-		g_OMAC.m_NeighborTable.RecordLastHeardTime(address,g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+		g_OMAC.m_NeighborTable.RecordLastHeardTime(address,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 		DropPacket(); // The decision for dropping the packet depends on the outcome of the data reception
 	}
 
@@ -622,11 +636,16 @@ bool DataTransmissionHandler::Send(){
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
 		g_OMAC.senderSequenceNumber = header->dsn; //BK: I don't know what this is. Seems like residue from incorrect HW ACK implementation. Ananth should check
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
+	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+#endif
 
-		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
 		rs = g_OMAC.m_omac_RadioControl.Send(dest, m_outgoingEntryPtr, header->length);
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
-
+#endif
 
 		//m_outgoingEntryPtr = NULL;
 		if(rs != DS_Success){
@@ -664,8 +683,8 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 			hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 			return FALSE;
 		}
-		UINT64 y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
-		UINT64 neighborTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks());
+		UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+		UINT64 neighborTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 		if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
 			//Keep the packet but do not schedule the data packet
 			hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
