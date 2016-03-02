@@ -97,7 +97,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
  */
 DeviceStatus OMACType::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.CCA = config->BufferSize;
+	MyConfig.CCA = config->CCA;
 	MyConfig.CCASenseTime = config->CCASenseTime;
 	MyConfig.RadioID = config->RadioID;
 	MyConfig.FCF = config->FCF;

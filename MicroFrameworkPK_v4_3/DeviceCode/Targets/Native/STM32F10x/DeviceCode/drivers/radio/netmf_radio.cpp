@@ -29,6 +29,7 @@ const char * strUfoRadio = "[NATIVE] Error in function %s : Unidentified radio \
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioID, UINT8 numberRadios, UINT8 mac_id )
 {
 	DeviceStatus status = DS_Fail;
+	currentRadioType = -1;
 
 	if(eventHandlers == NULL)
 		return DS_Fail;
@@ -36,9 +37,11 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 	switch(radioID)
 	{
 		case RF231RADIO:
+			currentRadioType = RF231RADIO;
 			status = grf231Radio.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		case RF231RADIOLR:
+			currentRadioType = RF231RADIOLR;
 			status = grf231RadioLR.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		default:
@@ -147,6 +150,50 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address)
 	return status;
 }
 
+INT8 CPU_Radio_GetRadioType()
+{
+	INT8 radioType = -1;
+	switch(currentRadioType)
+	{
+		case RF231RADIO:
+			radioType = grf231Radio.GetRadioType();
+			break;
+		case RF231RADIOLR:
+			radioType = grf231RadioLR.GetRadioType();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	return radioType;
+}
+
+DeviceStatus CPU_Radio_SetRadioType(INT8 radioType)
+{
+	DeviceStatus status = DS_Fail;
+	switch(radioType)
+	{
+		case RF231RADIO:
+			currentRadioType = radioType;
+			grf231Radio.SetRadioType(radioType);
+			status = DS_Success;
+			break;
+		case RF231RADIOLR:
+			currentRadioType = radioType;
+			grf231RadioLR.SetRadioType(radioType);
+			status = DS_Success;
+			break;
+		default:
+			currentRadioType = -1;
+			PRINTF_UNIDENTIFIED_RADIO();
+			ASSERT_SP(0);
+			break;
+	}
+
+	return status;
+}
+
 // Function is not currently supported
 void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
 {
@@ -165,6 +212,27 @@ void* CPU_Radio_SendRetry(UINT8 radioID)
 			break;
 		case RF231RADIOLR:
 			ptr_temp = (void *) grf231RadioLR.SendRetry();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
+void* CPU_Radio_SendStrobe(UINT8 radioID, UINT16 size)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.SendStrobe(size);
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.SendStrobe(size);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -217,6 +285,16 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 e
 
 	//ASSERT_SP(ptr_temp != NULL);
 	return ptr_temp;
+}
+
+NetOpStatus CPU_Radio_PreloadMessage(UINT8* msgBuffer, UINT16 size)
+{
+	NetOpStatus status = NetworkOperations_Success;
+	Message_15_4_t* retMsg = grf231Radio.Preload((Message_15_4_t*)msgBuffer, size);
+	if(retMsg == NULL){
+		status = NetworkOperations_Busy;
+	}
+	return status;
 }
 
 DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID)

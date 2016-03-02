@@ -82,6 +82,7 @@ UINT8 currentMacName;
 
 //Basic functions
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);
+DeviceStatus Mac_Reconfigure(void* config);
 UINT16 Mac_GetRadioAddress();
 BOOL Mac_SetRadioAddress(UINT16 address);
 DeviceStatus Mac_UnInitialize();

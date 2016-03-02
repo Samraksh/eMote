@@ -44,7 +44,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     TINYCLR_NATIVE_DECLARE(GetRadioAddress___U2);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
-    TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1);
+    TINYCLR_NATIVE_DECLARE(InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetNeighborInternal___SamraksheMoteNetDeviceStatus__U2__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(GetNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2);
@@ -57,7 +57,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_CSMA
 {
-    static const int FIELD_STATIC__instance = 7;
+    static const int FIELD_STATIC__CSMAInstance = 7;
     static const int FIELD_STATIC__syncObject = 8;
 
 
@@ -145,7 +145,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighbourTable
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_OMAC
 {
-    static const int FIELD_STATIC__instance = 9;
+    static const int FIELD_STATIC__OMACInstance = 9;
     static const int FIELD_STATIC__syncObject = 10;
 
 
@@ -197,18 +197,19 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     TINYCLR_NATIVE_DECLARE(TurnOnRx___SamraksheMoteNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(Sleep___SamraksheMoteNetDeviceStatus__U1__U1);
     TINYCLR_NATIVE_DECLARE(PreLoad___SamraksheMoteNetNetOpStatus__SZARRAY_U1__U2);
-    TINYCLR_NATIVE_DECLARE(SendStrobe___SamraksheMoteNetNetOpStatus);
+    TINYCLR_NATIVE_DECLARE(SendStrobe___SamraksheMoteNetNetOpStatus__U1__U2);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2);
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2__U4);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1__U2);
-    TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(ReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(SetTxPower___SamraksheMoteNetDeviceStatus__U1__I4);
     TINYCLR_NATIVE_DECLARE(SetChannel___SamraksheMoteNetDeviceStatus__U1__I4);
     TINYCLR_NATIVE_DECLARE(GetTxPower___I4__U1);
-    TINYCLR_NATIVE_DECLARE(GetChannel___I4__U1);
-    TINYCLR_NATIVE_DECLARE(ReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(GetActiveChannel___I4__U1);
+    TINYCLR_NATIVE_DECLARE(TurnOffRx___SamraksheMoteNetDeviceStatus__U1);
 
     //--//
 

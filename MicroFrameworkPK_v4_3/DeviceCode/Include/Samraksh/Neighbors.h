@@ -168,7 +168,7 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 	{
 		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			hal_printf("[NATIVE] Neighbors.h : Removing Neighbor: %d due to inactivity\n", Neighbor[i]);
 			Neighbor[i].Status = Dead;
 			deadNeighbors++;
 			NumberValidNeighbor--;

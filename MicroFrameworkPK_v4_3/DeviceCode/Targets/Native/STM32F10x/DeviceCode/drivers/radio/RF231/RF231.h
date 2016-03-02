@@ -191,7 +191,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define RF231_SLP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET); }
 #define RF231_AMP(x) { if(x) GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_SET); else GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_RESET); }
 
-#define ENABLE_LRR(X) if(RF231RADIOLR == this->GetRadioName()) \
+#define ENABLE_LRR(X) if(RF231RADIOLR == this->GetRadioType()) \
 			{	\
 				this->Amp(X); \
 				this->PARXTX(X); \
@@ -448,7 +448,7 @@ class RF231Radio : public Radio<Message_15_4_t>
 
 	GPIO_PIN kinterrupt;
 
-	INT32 radioName;
+	INT32 radioType;
 
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
@@ -567,14 +567,14 @@ public:
 
     UINT32 GetTxPower();
 
-    void SetRadioName(INT32 radio)
+    void SetRadioType(INT32 radio)
     {
-    	this->radioName = radio;
+    	this->radioType = radio;
     }
 
-    INT32 GetRadioName()
+    INT32 GetRadioType()
     {
-    	return this->radioName;
+    	return this->radioType;
     }
 
     // Functions added to support the long range radio
@@ -596,6 +596,7 @@ public:
     DeviceStatus EnableCSMA();
     DeviceStatus DisableCSMA();
     void* SendRetry();
+    void* SendStrobe(UINT16 size);
     void* Send(void* msg, UINT16 size);
 
     void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime);

@@ -213,16 +213,16 @@ namespace Samraksh.eMote.Net
             /// <param name="numberOfRetries">Number of retries</param>
             /// <param name="ccaSenseTime">Clear Channel Assessment time</param>
             /// <param name="bufferSize">Size of send buffer</param>
-            /// <param name="radioID">Radio ID</param>
+            /// <param name="radioType">Radio ID</param>
             /// <param name="neighborLivelinessDelay">Delay before a neighbor is deemed dead</param>
             /// <param name="config">Radio configuration</param>
-            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID, UInt32 neighborLivenessDelay, Radio.RadioConfiguration config)
+            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioType, UInt32 neighborLivenessDelay, Radio.RadioConfiguration config)
             {
                 this.CCA = CCA;
                 this.NumberOfRetries = numberOfRetries;
                 this.CCASenseTime = ccaSenseTime;
                 this.BufferSize = bufferSize;
-                this.RadioID = radioID;
+                this.RadioID = radioType;
                 this.NeighborLivenessDelay = neighborLivenessDelay;
 
                 this.radioConfig = new Radio.RadioConfiguration(config);
@@ -235,14 +235,14 @@ namespace Samraksh.eMote.Net
             /// <param name="numberOfRetries">Number of retries for sending</param>
             /// <param name="ccaSenseTime">Carrier sense time</param>
             /// <param name="bufferSize">BufferSize of the radio</param>
-            /// <param name="radioID">Radio ID</param>
-            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID)
+            /// <param name="radioType">Radio ID</param>
+            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioType)
             {
                 this.CCA = CCA;
                 this.NumberOfRetries = numberOfRetries;
                 this.CCASenseTime = ccaSenseTime;
                 this.BufferSize = bufferSize;
-                this.RadioID = radioID;
+                this.RadioID = radioType;
                 this.radioConfig = new Radio.RadioConfiguration();
             }*/
         };

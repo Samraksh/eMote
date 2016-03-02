@@ -52,7 +52,7 @@ INT32 Radio_802_15_4_Base::PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::SendStrobe( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SendStrobe( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
@@ -82,13 +82,19 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 Radio_802_15_4_Base::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
@@ -112,13 +118,13 @@ INT32 Radio_802_15_4_Base::GetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 param0, 
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::GetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

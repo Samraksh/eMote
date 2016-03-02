@@ -224,14 +224,6 @@ namespace Samraksh.eMote.Net.Radio
             Initialize(RadioBaseConfig);
         }
 
-        /// <summary>Releases the message packet's memory.</summary>
-        /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
-        /// <returns></returns>
-        public void ClearPacket()
-        {
-            packet = null;
-        }
-
         /*
         private static Radio_802_15_4 RadioInstance;
         private static object syncObject = new Object();
@@ -275,25 +267,7 @@ namespace Samraksh.eMote.Net.Radio
 
             return RadioInstance;
         }
-         * */
-
-        /// <summary>Get the next packet from the radio driver.</summary>
-        /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
-        /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
-        /// <returns>A data packet of message type to the caller</returns>
-        public Packet GetNextPacket()
-        {
-            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
-                return null;
-
-            packet = new Packet(dataBuffer);
-
-            return packet;
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
-
+        */
 
         private DeviceStatus Initialize()
         {
@@ -310,6 +284,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         private DeviceStatus Initialize(RadioConfiguration config)
         {
+            RadioBaseConfig = new RadioConfiguration(config);
             NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
             OnInterrupt += eventHandler;
             marshalBuffer[0] = (byte)config.Channel;
@@ -317,24 +292,70 @@ namespace Samraksh.eMote.Net.Radio
             marshalBuffer[2] = (byte)config.RadioType;
             return InternalInitialize(marshalBuffer);
         }
-
-
+        
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus InternalInitialize(byte[] config);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
-
-
-		/// <summary>Set configuration for 802.15.4 radio.</summary>
+        
+		/*/// <summary>Set configuration for 802.15.4 radio.</summary>
 		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Packet receive callback</param>
-		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
-		public static DeviceStatus Configure(RadioConfiguration config) {
+		public static DeviceStatus Configure(RadioConfiguration config) 
+        {
             Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
             Callbacks.SetReceiveCallback(config.OnReceiveCallback);
             Callbacks.SetNeighborChangeCallback(config.OnNeighborChangeCallback);
 
 			return DeviceStatus.Success;
-		}
+		}*/
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="RadioConfig"></param>
+        /// <returns></returns>
+        public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
+        {
+            if (RadioBaseConfig == null || RadioConfig == null)
+            {
+                throw new RadioNotConfiguredException();
+            }
+            //RadioBaseConfig = new RadioConfiguration(config);
+            if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
+            {
+                throw new RadioNotConfiguredException();
+            }
+            Callbacks.SetReceiveCallback(RadioConfig.OnReceiveCallback);
+            Callbacks.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
+
+            marshalBuffer[0] = (byte)RadioConfig.TxPower;
+            marshalBuffer[1] = (byte)RadioConfig.Channel;
+            marshalBuffer[2] = (byte)RadioConfig.RadioType;
+
+            return ReConfigure(marshalBuffer);
+        }
+
+        /// <summary>Reconfigure the radio object with new configuration</summary>
+        /// <returns>Status of operation</returns>
+        private DeviceStatus Configure()
+        {
+            if (RadioBaseConfig == null)
+            {
+                throw new RadioNotConfiguredException();
+            }
+            //RadioBaseConfig = new RadioConfiguration(config);
+            Callbacks.SetReceiveCallback(RadioBaseConfig.OnReceiveCallback);
+            Callbacks.SetNeighborChangeCallback(RadioBaseConfig.OnNeighborChangeCallback);
+
+            marshalBuffer[0] = (byte)RadioBaseConfig.TxPower;
+            marshalBuffer[1] = (byte)RadioBaseConfig.Channel;
+            marshalBuffer[2] = (byte)RadioBaseConfig.RadioType;
+
+            return ReConfigure(marshalBuffer);
+        }
+
+        //Make the interop call to set the new configuration 
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus ReConfigure(byte[] buffer);
 
         /*/// <summary>
         /// Set Radio configuration for 802.15.4 radio.
@@ -355,69 +376,128 @@ namespace Samraksh.eMote.Net.Radio
 		/// <param name="ncallback">Neighbor change callback</param>
 		/// <returns>Status of operation</returns>
 		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
-		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback) {
+		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback) 
+        {
             Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
 			Callbacks.SetReceiveCallback(rcallback);
 			Callbacks.SetNeighbourChangeCallback(ncallback);
 
 			return DeviceStatus.Success;
-
 		}
 
+        /*/// <summary>Get the next packet from the radio driver.</summary>
+        /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
+        /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
+        /// <returns>A data packet of message type to the caller</returns>
+        public Packet GetNextPacket()
+        {
+            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
+                return null;
+
+            packet = new Packet(dataBuffer);
+
+            return packet;
+        }*/
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);
+
+        /// <summary>Releases the message packet's memory.</summary>
+        /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
+        /// <returns></returns>
+        public void ClearPacket()
+        {
+            packet = null;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public void SetReceiveCallback(ReceiveCallBack OnReceiveCallback)
+        {
+            RadioBaseConfig.OnReceiveCallback = OnReceiveCallback;
+            Callbacks.SetReceiveCallback(OnReceiveCallback);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void SetNeighborChangeCallback(NeighborhoodChangeCallBack OnNeighborChangeCallback)
+        {
+            RadioBaseConfig.OnNeighborChangeCallback = OnNeighborChangeCallback;
+            Callbacks.SetNeighborChangeCallback(OnNeighborChangeCallback);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public DeviceStatus SetRadioType(RadioType RadioType)
+        {
+            RadioBaseConfig.RadioType = RadioType;
+            return Configure();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="TxPower"></param>
+        /// <returns></returns>
+        public DeviceStatus SetTxPower(TxPowerValue TxPower)
+        {
+            RadioBaseConfig.TxPower = TxPower;
+            return Configure();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Channel"></param>
+        /// <returns></returns>
+        public DeviceStatus SetChannel(Channel Channel)
+        {
+            RadioBaseConfig.Channel = Channel;
+            return Configure();
+        }
+
         /// <summary>Set the transmit power of the radio</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="TxPower">Transmission power to use</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetTxPower(byte radioID, int TxPower);
+        private extern DeviceStatus SetTxPower(byte radioType, int TxPower);
 
         /// <summary>Set the radio channel</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="Channel">Channel to use</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus SetChannel(byte radioID, int Channel);
+        private extern DeviceStatus SetChannel(byte radioType, int Channel);
 
         /// <summary>Return the transmission power value of the radio</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <returns>Transmission power value</returns>
-        public TxPowerValue GetTxPowerValue(byte radioID)
+        public TxPowerValue GetTxPowerValue(byte radioType)
         {
-            return (TxPowerValue)GetTxPower(radioID);
+            return (TxPowerValue)GetTxPower(radioType);
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern int GetTxPower(byte radioID);
-
+        private extern int GetTxPower(byte radioType);
 
         /// <summary>
         /// Return the current active channel of the radio 
         /// </summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <returns>Active channel</returns>
-        public Channel GetActiveChannel(byte radioID)
+        public Channel GetChannel(byte radioType)
         {
-            return (Channel)GetChannel(radioID);
+            return (Channel)GetActiveChannel(radioType);
         }
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern int GetChannel(byte radioID);
-
-        /// <summary>Reconfigure the radio object with new configuration</summary>
-        /// <param name="config">Configuration to use</param>
-        /// <returns>Status of operation</returns>
-        public DeviceStatus ReConfigure(RadioConfiguration config)
-        {
-            marshalBuffer[0] = (byte) config.TxPower;
-            marshalBuffer[1] = (byte) config.Channel;
-
-            return ReConfigure(marshalBuffer);
-
-        }
-
-        //Make the interop call to set the new configuration 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus ReConfigure(byte[] data);
+        private extern int GetActiveChannel(byte radioType);
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>
@@ -431,35 +511,42 @@ namespace Samraksh.eMote.Net.Radio
 
         /// <summary>Get the address of the device</summary>
         /// <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <returns>Address of the device</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern UInt16 GetAddress(byte radioID);
+        public extern UInt16 GetAddress(byte radioType);
 
         /// <summary>Set the address of the device</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="address">Address of the device</param>
         /// <remarks>This is the address by which the device is known to the rest of the world. 
         ///     A return value of false can occur if another layer locks the address and prevents changes.
         /// </remarks>
         /// <returns>Success / failure</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool SetAddress(byte radioID, UInt16 address);
+        public extern bool SetAddress(byte radioType, UInt16 address);
 
         /// <summary>Turn radio on</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <returns>Status of operation</returns>
         /// <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus TurnOnRx(byte radioID);
+        public extern DeviceStatus TurnOnRx(byte radioType);
+
+        /// <summary>Turn radio off</summary>
+        /// <param name="radioType">Radio ID</param>
+        /// <returns>Status of operation</returns>
+        /// <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern DeviceStatus TurnOffRx(byte radioType);
 
         /// <summary>Put the radio to sleep</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="level">Sleep level</param>
         /// <returns>Status of operation</returns>
         /// <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOn">TurnOn Method</seealso>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus Sleep(byte radioID, byte level);
+        public extern DeviceStatus Sleep(byte radioType, byte level);
 
         /// <summary>
         /// Load the message into the transmit buffer of the radio.
@@ -473,38 +560,38 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>Send the message in the transmit buffer</summary>
         /// <returns>Result of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendStrobe();	//Send preloaded message
+        public extern NetOpStatus SendStrobe(byte radioType, UInt16 size);	//Send preloaded message
 
         /// <summary>Load and send a message</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="message">Packet to be sent</param>
         /// <param name="size">Size of message</param>
         /// <returns>Result of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus Send(byte radioID, byte[] message, UInt16 size);
+        public extern NetOpStatus Send(byte radioType, byte[] message, UInt16 size);
 
         /// <summary>Load and send a time-stamped message, with specified time stamp</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="message">Packet to be sent</param>
         /// <param name="size">Size of message</param>
         /// <param name="eventTime">The time stamp.</param>
         /// <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
         /// <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(byte radioID, byte[] message, UInt16 size, UInt32 eventTime);
+        public extern NetOpStatus SendTimeStamped(byte radioType, byte[] message, UInt16 size, UInt32 eventTime);
 
         /// <summary>Assess channel activity</summary>
         /// <remarks>Default is 140 microseconds.</remarks>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <returns>True iff channel is free</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool ClearChannelAssesment(byte radioID);
+        public extern bool ClearChannelAssesment(byte radioType);
 
         /// <summary>Assess channel activity</summary>
-        /// <param name="radioID">Radio ID</param>
+        /// <param name="radioType">Radio ID</param>
         /// <param name="numberOfMicroSecond">Number of microseconds to check</param>
         /// <returns>True iff channel is free</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern bool ClearChannelAssesment(byte radioID, UInt16 numberOfMicroSecond);
+        public extern bool ClearChannelAssesment(byte radioType, UInt16 numberOfMicroSecond);
     }
 }

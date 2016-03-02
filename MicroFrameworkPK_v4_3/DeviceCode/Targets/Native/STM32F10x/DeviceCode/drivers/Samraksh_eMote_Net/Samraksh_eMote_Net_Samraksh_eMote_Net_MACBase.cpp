@@ -95,18 +95,33 @@ INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8
     return Mac_GetNextPacket(&managedBuffer);
 }
 
-INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, UINT8 macname, HRESULT &hr )
+INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	INT32 result = DS_Success;
+	UINT8* configParams = marshalBuffer.GetBuffer();
+	MacConfig config;
+
+	config.CCA = (configParams[0] == 1) ? TRUE :  FALSE;
+	config.NumberOfRetries = configParams[1];
+	config.CCASenseTime = configParams[2];
+	config.BufferSize = configParams[3];
+	config.RadioID = configParams[4];
+	config.NeighborLivenessDelay = configParams[5];
+	config.NeighborLivenessDelay |= configParams[6] << 8;
+	config.NeighborLivenessDelay |= configParams[7] << 16;
+	config.NeighborLivenessDelay |= configParams[8] << 24;
+
+	if( Mac_Reconfigure((void*) &config) != DS_Success ){
+		hr = -1;
+		result = DS_Fail;
+	}
+	return result;
 }
 
 INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, UINT8 macname, HRESULT &hr )
 {
 	INT32 result = DS_Success;
-
 	UINT8* configParams = marshalBuffer.GetBuffer();
-
 	MacConfig config;
 
 	config.CCA = (configParams[0] == 1) ? TRUE :  FALSE;
@@ -127,20 +142,20 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 
 	if(Mac_Initialize(&Event_Handler, macname, MyAppID, configParams[11], (void*) &config) != DS_Success) {
 	    hr = -1;
-		return DS_Fail;
+	    result = DS_Fail;
 	}
 
 	if(CPU_Radio_ChangeTxPower( configParams[11], configParams[9]) != DS_Success) {
 	    hr = -1;
-		return DS_Fail;
+	    result = DS_Fail;
 	}
 
 	if(CPU_Radio_ChangeChannel( configParams[11], configParams[10]) != DS_Success) {
 	    hr = -1;
-		return DS_Fail;
+	    result = DS_Fail;
 	}
 
-	return DS_Success;
+	return result;
 }
 
 INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 neighborlist, HRESULT &hr )

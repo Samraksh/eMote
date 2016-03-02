@@ -181,7 +181,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::InternalInitializ
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1__U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::InternalReConfigure___SamraksheMoteNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -192,10 +192,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::InternalReConfigu
         CLR_RT_TypedArray_UINT8 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
 
-        UINT8 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
-
-        INT32 retVal = MACBase::InternalReConfigure( pMngObj,  param0, param1, hr );
+        INT32 retVal = MACBase::InternalReConfigure( pMngObj,  param0, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

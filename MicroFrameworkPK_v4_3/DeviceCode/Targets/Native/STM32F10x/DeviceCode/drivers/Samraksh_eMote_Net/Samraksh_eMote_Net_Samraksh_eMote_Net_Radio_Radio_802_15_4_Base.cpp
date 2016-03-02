@@ -53,16 +53,22 @@ INT32 Radio_802_15_4_Base::Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, UINT
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT16 param1, HRESULT &hr )
+INT32 Radio_802_15_4_Base::PreLoad( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 messageBuffer, UINT16 size, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	UINT8* managedBuffer = messageBuffer.GetBuffer();
+	NetOpStatus status = CPU_Radio_PreloadMessage(managedBuffer, size);
+    return status;
 }
 
-INT32 Radio_802_15_4_Base::SendStrobe( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+INT32 Radio_802_15_4_Base::SendStrobe( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, UINT16 size, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	NetOpStatus status = NetworkOperations_Success;
+	void* returnMsg = CPU_Radio_SendStrobe(radioType, size);
+	if(returnMsg == NULL){
+		status = NetworkOperations_Fail;
+	}
+
+    return status;
 }
 
 INT32 Radio_802_15_4_Base::Send( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, CLR_RT_TypedArray_UINT8 message, UINT16 size, HRESULT &hr )
@@ -106,16 +112,33 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
 	return status;
 }
 
-INT32 Radio_802_15_4_Base::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+/*INT32 Radio_802_15_4_Base::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 dataBuffer, HRESULT &hr )
 {
-    INT32 retVal = 0; 
+	INT32 retVal = 0;
     return retVal;
-}
+}*/
 
-INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	INT32 result = DS_Success;
+	UINT8* configParams = marshalBuffer.GetBuffer();
+
+	if(CPU_Radio_SetRadioType(configParams[2]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	if(CPU_Radio_ChangeTxPower( configParams[2], configParams[1]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	if(CPU_Radio_ChangeChannel( configParams[2], configParams[0]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	return result;
 }
 
 INT32 Radio_802_15_4_Base::SetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, INT32 power, HRESULT &hr )
@@ -139,16 +162,33 @@ INT32 Radio_802_15_4_Base::GetTxPower( CLR_RT_HeapBlock* pMngObj, UINT8 radioID,
 	return txPower;
 }
 
-INT32 Radio_802_15_4_Base::GetChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
+INT32 Radio_802_15_4_Base::GetActiveChannel( CLR_RT_HeapBlock* pMngObj, UINT8 radioID, HRESULT &hr )
 {
 	UINT32 channel;
 	channel = CPU_Radio_GetChannel(radioID);
 	return channel;
 }
 
-INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 Radio_802_15_4_Base::ReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+	INT32 result = DS_Success;
+	UINT8* configParams = marshalBuffer.GetBuffer();
+
+	if(CPU_Radio_SetRadioType(configParams[2]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	if(CPU_Radio_ChangeTxPower( configParams[2], configParams[1]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	if(CPU_Radio_ChangeChannel( configParams[2], configParams[0]) != DS_Success) {
+	    hr = -1;
+	    result = DS_Fail;
+	}
+
+	return result;
 }
 

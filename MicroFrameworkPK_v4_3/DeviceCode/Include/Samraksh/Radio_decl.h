@@ -134,14 +134,18 @@ public:
 //{
 //Radio HAL declarations
 
+INT8 currentRadioType;
+
 // Called by MAC layers responsible for registering of eventhandlers
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioIDs, UINT8 numberRadios , UINT8 mac_id); //Initializes Return the ID of the Radio layer that was initialized
 BOOL CPU_Radio_UnInitialize(UINT8 radioIDs);
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs);
 void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_SendRetry(UINT8 radioID);
+void* CPU_Radio_SendStrobe(UINT8 radioID, UINT16 size);
 void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 eventTime);
+NetOpStatus CPU_Radio_PreloadMessage(UINT8* msg, UINT16 size);
 DeviceStatus CPU_Radio_Send_Strobe(UINT8 radioID);	//Send preloaded message
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID);
 DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSecond);
@@ -166,6 +170,9 @@ UINT8 CPU_Radio_NumberRadiosSupported();
 BOOL CPU_Radio_Reset(UINT8 radioID);
 UINT16 CPU_Radio_GetAddress(UINT8 radioID);
 BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address);
+
+INT8 CPU_Radio_GetRadioType();
+DeviceStatus CPU_Radio_SetRadioType(INT8 radioType);
 
 DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power);
 

@@ -34,22 +34,36 @@ NeighborTable g_NeighborTable;
 //UINT8 MacName = 0;
 
 DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* config){
+	DeviceStatus status = DS_Success;
 	if(macName == CSMAMAC){
-		DeviceStatus status;
 		currentMacName = macName;
 		status = g_csmaMacObject.Initialize(eventHandler, macName, routingAppID, radioName, (MacConfig*)config) ;
-		return status;
 	}
 	else if(macName == OMAC) {
-		DeviceStatus status;
 		currentMacName = macName;
 		status = g_OMAC.Initialize(eventHandler, macName, routingAppID, radioName, (MacConfig *) config);
-		return status;
 	}
-	else
-		return DS_Fail;
+	else{
+		status = DS_Fail;
+	}
 
-	return DS_Success;
+	return status;
+}
+
+DeviceStatus Mac_Reconfigure(void* config)
+{
+	DeviceStatus status = DS_Success;
+	if(currentMacName == CSMAMAC){
+		status = g_csmaMacObject.SetConfig((MacConfig*)config);
+	}
+	else if(currentMacName == OMAC) {
+		status = g_OMAC.SetConfig((MacConfig*)config);
+	}
+	else{
+		status = DS_Fail;
+	}
+
+	return status;
 }
 
 UINT16 Mac_GetRadioAddress(){
@@ -96,7 +110,7 @@ DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer)
 	}
 		
 	(*managedBuffer)[0] = Size & 0xff;
-	(*managedBuffer)[1] =  (Size & 0xff00) >> 8;
+	(*managedBuffer)[1] = (Size & 0xff00) >> 8;
 
 	memcpy(&((*managedBuffer)[2]), (*temp)->GetPayload(), Size);
 

@@ -350,6 +350,183 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 	return TRUE;
 }
 
+Message_15_4_t* RF231Radio::Preload(Message_15_4_t* msg, UINT16 size){
+	const int crc_size = 2;
+	// Adding 2 for crc
+	if(size + crc_size > IEEE802_15_4_FRAME_LENGTH){
+		return NULL;
+	}
+
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	if(trx_status == BUSY_TX || trx_status == BUSY_TX_ARET || trx_status == TX_ARET_ON){
+		return NULL;
+	}
+	memcpy(grf231Radio.tx_msg_ptr, msg, size);
+	return msg;
+}
+
+void* RF231Radio::SendStrobe(UINT16 size)
+{
+	UINT32 eventOffset;
+	UINT32 timestamp;
+
+	UINT8 lLength;
+	UINT8 *timeStampPtr;
+	UINT8 *ldata;
+
+	Message_15_4_t* temp;
+
+	const int crc_size = 2;
+
+	IEEE802_15_4_Header_t *header = (IEEE802_15_4_Header_t*)tx_msg_ptr->GetHeader();
+	sequenceNumberSender = header->dsn;
+
+	// Adding 2 for crc
+	if(size + crc_size > IEEE802_15_4_FRAME_LENGTH){
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_BadPacket, TRAC_STATUS_FAIL_TO_SEND);
+	}
+
+	if ( !IsInitialized() ) {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Fail, TRAC_STATUS_FAIL_TO_SEND);
+	}
+
+	interrupt_mode_check();
+
+	GLOBAL_LOCK(irq);
+
+	add_send_time(); // Debugging. Will remove.
+
+#ifdef DEBUG_RF231
+	radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	hal_printf("(Send)trx_status is %d; state is %d\n", trx_status, state);
+#endif
+	if(RF231_extended_mode){
+		// Go to PLL_ON
+		if ( Careful_State_Change_Extended(RF230_TX_ARET_ON) ) {
+			state = STATE_TX_ARET_ON;
+		}
+		else {
+			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			hal_printf("(Send)trx_status is %d; state is %d\n", trx_status, state);
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+		}
+	}
+	else{
+		// Go to PLL_ON
+		if ( Careful_State_Change(RF230_PLL_ON) ) {
+			state = STATE_PLL_ON;
+		}
+		else {
+			return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+		}
+	}
+
+	tx_length = size;
+	ldata = (UINT8*) tx_msg_ptr;
+
+	/***********Start of "Write to SPI and then transmit"*********/
+#if defined(WRITE_THEN_TRANSMIT)
+
+	//Start writing data to the SPI bus
+	SelnClear();
+
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+
+	// Write the size of packet that is sent out
+	// Including FCS which is automatically generated and is two bytes
+	//Plus 4 bytes for timestamp
+	CPU_SPI_ReadWriteByte(config, size + crc_size);
+
+	lLength = size;
+
+	add_size(size);
+
+	for(int ii=0; ii<lLength; ii++) {
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}
+
+	CPU_SPI_ReadByte(config);
+
+	//Indicate end of writing to SPI bus
+	SelnSet();
+
+	//Check CCA before transmission
+	// Go to RX_ON
+	if ( Careful_State_Change(RF230_RX_ON) ) {
+		state = STATE_RX_ON;
+	}
+	else {
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+	}
+	DeviceStatus ds = ClearChannelAssesment();
+	if(ds == DS_Fail){
+		hal_printf("send CCA failed\n");
+		return NULL;
+	}
+
+	// Go to PLL_ON
+	if ( Careful_State_Change(RF230_PLL_ON) ) {
+		state = STATE_PLL_ON;
+	}
+	else {
+		hal_printf("send Radio state change failed; state is %d\n", state);
+		return Send_Ack(tx_msg_ptr, tx_length, NetworkOperations_Busy, TRAC_STATUS_FAIL_TO_SEND);
+	}
+
+	// Initiate frame transmission by asserting SLP_TR pin
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	/***********End of "Write to SPI and then transmit"*********/
+
+
+	/***********Start of "Time optimized frame transmit procedure"*********/
+#elif defined(TIME_OPTIMIZED_TRANSMIT)
+	// Make sure SLP_TR is low before we start.
+	SlptrSet();
+	HAL_Time_Sleep_MicroSeconds(16);
+	SlptrClear();
+
+	//Start writing data to the SPI bus
+	SelnClear();
+
+	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
+
+	// Write the size of packet that is sent out
+	// Including FCS which is automatically generated and is two bytes
+	//Plus 4 bytes for timestamp
+	CPU_SPI_ReadWriteByte(config, size + crc_size);
+
+	lLength = size;
+
+	add_size(size);
+
+	for(int ii=0; ii<lLength; ii++) {
+		CPU_SPI_ReadWriteByte(config, *(ldata++));
+	}
+
+	CPU_SPI_ReadByte(config);
+
+	//Indicate end of writing to SPI bus
+	SelnSet();
+#endif
+	/***********End of "Time optimized frame transmit procedure"*********/
+
+	if(RF231_extended_mode){
+		state = STATE_BUSY_TX_ARET;
+		cmd = CMD_TX_ARET;
+	}
+	else{
+		state = STATE_BUSY_TX;
+		cmd = CMD_TRANSMIT;
+	}
+
+#ifdef DEBUG_RF231
+	hal_printf("(Send)Finished send\n");
+#endif
+	return tx_msg_ptr;
+}
 
 void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 {
@@ -425,7 +602,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	}
 
 	tx_length = size;
-	ldata =(UINT8*) msg;
+	ldata = (UINT8*) msg;
 
 
 	/***********Start of "Write to SPI and then transmit"*********/
@@ -680,9 +857,9 @@ DeviceStatus RF231Radio::Reset()
 	WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 
 	// Enable the gpio pin as the interrupt point
-	if(this->GetRadioName() == RF231RADIO)
+	if(this->GetRadioType() == RF231RADIO)
 		CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
-	else if(this->GetRadioName() == RF231RADIOLR)
+	else if(this->GetRadioType() == RF231RADIOLR)
 		CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 
 
@@ -1011,7 +1188,7 @@ void* RF231Radio::Send(void* msg, UINT16 size)
 DeviceStatus RF231Radio::AntDiversity(BOOL enable)
 {
 	// only works on the long range radio board
-	if(this->GetRadioName() != RF231RADIOLR)
+	if(this->GetRadioType() != RF231RADIOLR)
 	{
 		return DS_Fail;
 	}
@@ -1037,7 +1214,7 @@ DeviceStatus RF231Radio::AntDiversity(BOOL enable)
 DeviceStatus RF231Radio::PARXTX(BOOL enable)
 {
 	// only works on the long range radio board
-	if(this->GetRadioName() != RF231RADIOLR)
+	if(this->GetRadioType() != RF231RADIOLR)
 	{
 		return DS_Fail;
 	}
@@ -1061,7 +1238,7 @@ DeviceStatus RF231Radio::PARXTX(BOOL enable)
 
 void RF231Radio::Amp(BOOL TurnOn)
 {
-	if(this->GetRadioName() != RF231RADIOLR)
+	if(this->GetRadioType() != RF231RADIOLR)
 	{
 		return;
 	}
@@ -1176,17 +1353,17 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		}
 
 		// Give the radio its name , rf231 or rf231 long range
-		this->SetRadioName(radio);
+		this->SetRadioType(radio);
 
 		// Set the corresponding gpio pins
-		if(this->GetRadioName() == RF231RADIO)
+		if(this->GetRadioType() == RF231RADIO)
 		{
 			kslpTr 		= 	 SLP_TR_PIN;
 			krstn 		= 	 RSTN_PIN;
 			kseln		= 	 SELN_PIN;
 			kinterrupt	= 	 INTERRUPT_PIN;
 		}
-		else if(this->GetRadioName() == RF231RADIOLR)
+		else if(this->GetRadioType() == RF231RADIOLR)
 		{
 			kslpTr		=    SLP_TR_PIN_LR;
 			krstn 		= 	 RSTN_PIN_LR;
@@ -1262,7 +1439,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 
 		HAL_Time_Sleep_MicroSeconds(510);
 
-		if(this->GetRadioName() == RF231RADIOLR)
+		if(this->GetRadioType() == RF231RADIOLR)
 		{
 			/* AnanthAtSamraksh - adding below line to fix receive on LR radio extension board - 2/11/2014 */
 			// Enable external PA and control from RF231
@@ -1290,10 +1467,10 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 		// Sets the channel number
 		WriteRegister(RF230_PHY_CC_CCA, RF230_CCA_MODE_VALUE | channel);
 		// Enable the gpio pin as the interrupt point
-		if(this->GetRadioName() == RF231RADIO){
+		if(this->GetRadioType() == RF231RADIO){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN, FALSE, Radio_Handler, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 		}
-		else if(this->GetRadioName() == RF231RADIOLR){
+		else if(this->GetRadioType() == RF231RADIOLR){
 			CPU_GPIO_EnableInputPin(INTERRUPT_PIN_LR, FALSE, Radio_Handler_LR, GPIO_INT_EDGE_HIGH, RESISTOR_DISABLED);
 			//CPU_GPIO_EnableOutputPin(AMP_PIN_LR, FALSE);
 			GPIO_ConfigurePin(GPIOB, GPIO_Pin_12, GPIO_Mode_Out_PP, GPIO_Speed_2MHz);
@@ -1377,10 +1554,10 @@ DeviceStatus RF231Radio::UnInitialize()
         }*/
         SpiUnInitialize();
         GpioPinUnInitialize();
-        if(this->GetRadioName() == RF231RADIO){
+        if(this->GetRadioType() == RF231RADIO){
             CPU_GPIO_DisablePin(INTERRUPT_PIN, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }
-        else if(this->GetRadioName() == RF231RADIOLR){
+        else if(this->GetRadioType() == RF231RADIOLR){
             CPU_GPIO_DisablePin(INTERRUPT_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
             CPU_GPIO_DisablePin(AMP_PIN_LR, RESISTOR_DISABLED, GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }
@@ -1479,11 +1656,11 @@ BOOL RF231Radio::SpiInitialize()
 	config.MSK_IDLE               = false;
 	config.MSK_SampleEdge         = false;
 	config.Clock_RateKHz          = 16; // THIS IS IGNORED.
-	if(this->GetRadioName() == RF231RADIO)
+	if(this->GetRadioType() == RF231RADIO)
 	{
 		config.SPI_mod                = RF231_SPI_BUS;
 	}
-	else if(this->GetRadioName() == RF231RADIOLR)
+	else if(this->GetRadioType() == RF231RADIOLR)
 	{
 		config.SPI_mod 				  = RF231_LR_SPI_BUS;
 	}
