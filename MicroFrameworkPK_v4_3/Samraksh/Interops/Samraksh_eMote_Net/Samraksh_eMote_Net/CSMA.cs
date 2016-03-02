@@ -8,15 +8,18 @@ namespace Samraksh.eMote.Net.Mac
     /// <summary>CSMA objects</summary>
     public class CSMA : MACBase
     {
-        private static CSMA CSMAInstance;
-        private static object syncObject = new Object();
+        //private static CSMA CSMAInstance;
+        //private static object syncObject = new Object();
 
-        private CSMA()
+        /// <summary>
+        /// 
+        /// </summary>
+        public CSMA()
             : base(MACType.CSMA)
         {
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Returns the instance of the CSMA object
         /// </summary>
         /// <remarks>This is a singleton pattern. There can only be one CSMA Mac object.</remarks>
@@ -36,7 +39,7 @@ namespace Samraksh.eMote.Net.Mac
 
                 return CSMAInstance;
             }
-        }
+        }*/
 
     }
 }

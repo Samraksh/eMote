@@ -460,12 +460,10 @@
             <summary>Configure MAC (obsolete)</summary>
             <value>Accesses MACConfig</value>
         </member>
-        <member name="P:Samraksh.eMote.Net.Mac.CSMA.Instance">
+        <member name="M:Samraksh.eMote.Net.Mac.CSMA.#ctor">
             <summary>
-            Returns the instance of the CSMA object
+            
             </summary>
-            <remarks>This is a singleton pattern. There can only be one CSMA Mac object.</remarks>
-            /// <value>Instance of CSMA object</value>
         </member>
         <member name="T:Samraksh.eMote.Net.RadioConfigurationMismatchException">
             <summary>
@@ -537,6 +535,22 @@
             </summary>
             <param name="message"></param>
             <param name="innerException"></param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACTypeMismatchException">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACTypeMismatchException.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACTypeMismatchException.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="message"></param>
         </member>
         <member name="T:Samraksh.eMote.Net.CallbackNotConfiguredException">
             <summary>
@@ -1018,12 +1032,10 @@
         <member name="T:Samraksh.eMote.Net.Mac.OMAC">
             <summary>OMAC objects</summary>
         </member>
-        <member name="P:Samraksh.eMote.Net.Mac.OMAC.Instance">
+        <member name="M:Samraksh.eMote.Net.Mac.OMAC.#ctor">
             <summary>
-            Returns the instance of the OMAC object
+            
             </summary>
-            <remarks>This is a singleton pattern. There can only be one OMAC Mac object.</remarks>
-            <value>Instance of OMAC object</value>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4">
             <summary>Generic radio object</summary>

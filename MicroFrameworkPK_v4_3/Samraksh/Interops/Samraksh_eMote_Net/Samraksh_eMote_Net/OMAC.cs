@@ -8,15 +8,18 @@ namespace Samraksh.eMote.Net.Mac
     /// <summary>OMAC objects</summary>
     public class OMAC : MACBase
     {
-        private static OMAC OMACInstance;
-        private static object syncObject = new Object();
+        //private static OMAC OMACInstance;
+        //private static object syncObject = new Object();
 
-        private OMAC() 
+        /// <summary>
+        /// 
+        /// </summary>
+        public OMAC() 
             : base(MACType.OMAC)
         {
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Returns the instance of the OMAC object
         /// </summary>
         /// <remarks>This is a singleton pattern. There can only be one OMAC Mac object.</remarks>
@@ -36,6 +39,6 @@ namespace Samraksh.eMote.Net.Mac
 
                 return OMACInstance;
             }
-        }
+        }*/
     }
 }

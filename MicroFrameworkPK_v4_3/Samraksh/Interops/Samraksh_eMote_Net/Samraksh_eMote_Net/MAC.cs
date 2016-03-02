@@ -74,6 +74,9 @@ namespace Samraksh.eMote.Net
         private static Neighbor neighbor = new Neighbor();
 
         static byte[] dataBuffer = new byte[MacPacketSize];
+
+        private static bool CSMAInstanceSet = false;
+        private static bool OMACInstanceSet = false;
         
         /// <summary>
         /// 
@@ -115,19 +118,47 @@ namespace Samraksh.eMote.Net
 
             if (MACType == MACType.CSMA)
             {
-                Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.CSMAMAC;
-                if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
-                    MACRadio = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.CSMAMAC);
-                else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
-                    MACRadio = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.CSMAMAC);
+                if (!CSMAInstanceSet)
+                {
+                    CSMAInstanceSet = true;
+                    Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.CSMAMAC;
+                    if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
+                    {
+                        MACRadio = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.CSMAMAC);
+                    }
+                    else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
+                    {
+                        MACRadio = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.CSMAMAC);
+                    }
+                }
+                else
+                {
+                    Debug.Print("CSMAMAC already configured");
+                }
             }
             else if (MACType == MACType.OMAC)
             {
-                Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.OMAC;
-                if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
-                    MACRadio = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.OMAC);
-                else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
-                    MACRadio = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.OMAC);
+                if (!OMACInstanceSet)
+                {
+                    OMACInstanceSet = true;
+                    Radio.Radio_802_15_4.CurrUser = Radio.RadioUser.OMAC;
+                    if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
+                    {
+                        MACRadio = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.OMAC);
+                    }
+                    else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
+                    {
+                        MACRadio = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.OMAC);
+                    }
+                }
+                else
+                {
+                    Debug.Print("OMAC already configured");
+                }
+            }
+            else
+            {
+                throw new MACTypeMismatchException("Unrecognized MAC type");
             }
 
             this.MACType = MACType;
