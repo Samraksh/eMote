@@ -24,16 +24,6 @@ namespace Samraksh.eMote.Net.Radio
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance()
         {
-            /*if (RadioBaseConfig == null)
-            {
-                throw new Samraksh.eMote.Net.RadioNotConfiguredException();
-            }
-
-            if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
-            {
-                throw new SystemException("Mismatch between radio object initialized and configuration passed\n");
-            }*/
-
             if (LRRadioInstance == null)
             {
                 lock (syncObject)
@@ -42,9 +32,6 @@ namespace Samraksh.eMote.Net.Radio
                         LRRadioInstance = new Radio_802_15_4_LR();
                 }
             }
-
-            //if (RadioInstance != null)
-                //RadioInstance.RadioName = RadioName.RF231RADIOLR;
 
             return LRRadioInstance;
         }
@@ -57,16 +44,6 @@ namespace Samraksh.eMote.Net.Radio
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public static Radio_802_15_4_LR GetInstance(RadioUser user)
         {
-            /*if (RadioBaseConfig == null)
-            {
-                throw new Samraksh.eMote.Net.RadioNotConfiguredException();
-            }
-
-            if (RadioBaseConfig.RadioType != RadioType.RF231RADIOLR)
-            {
-                throw new SystemException("Mismatch between radio object initialized and configuration passed");
-            }*/
-
             if (LRRadioInstance == null)
             {
                 lock (syncObject)
@@ -74,16 +51,22 @@ namespace Samraksh.eMote.Net.Radio
                     if (LRRadioInstance == null)
                     {
                         if (user == RadioUser.CSMAMAC)
+                        {
+                            Radio_802_15_4_Base.CurrUser = RadioUser.CSMAMAC;
                             LRRadioInstance = new Radio_802_15_4_LR("CSMACallback", 4321);
+                        }
                         else if (user == RadioUser.OMAC)
+                        {
+                            Radio_802_15_4_Base.CurrUser = RadioUser.OMAC;
                             LRRadioInstance = new Radio_802_15_4_LR("OMACCallback", 4322);
+                        }
                         else if (user == RadioUser.CSharp)
+                        {
+                            Radio_802_15_4_Base.CurrUser = RadioUser.CSharp;
                             LRRadioInstance = new Radio_802_15_4_LR();
+                        }
                     }
                 }
-
-                //if (RadioInstance != null)
-                    //instance.RadioName = RadioName.RF231RADIOLR;
             }
 
             return LRRadioInstance;

@@ -82,12 +82,6 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
     return retVal;
 }
 
-INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
 INT32 Radio_802_15_4_Base::TurnOffRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 

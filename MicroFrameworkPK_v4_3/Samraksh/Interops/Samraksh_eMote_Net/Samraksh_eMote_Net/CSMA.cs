@@ -14,8 +14,8 @@ namespace Samraksh.eMote.Net.Mac
         /// <summary>
         /// 
         /// </summary>
-        public CSMA()
-            : base(MACType.CSMA)
+        public CSMA(MACConfiguration MacConfig)
+            : base(MacConfig, MACType.CSMA)
         {
         }
 

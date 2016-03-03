@@ -2,7 +2,6 @@ using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 
-//using Samraksh.eMote.Net.Radio;
 using System.Runtime.CompilerServices;
 
 namespace Samraksh.eMote.Net.Radio
@@ -140,43 +139,8 @@ namespace Samraksh.eMote.Net.Radio
 
         byte[] dataBuffer = new byte[RadioPacketSize];
 
-        //private Packet packet;
-
-        /*/// <summary>
-        /// 
-        /// </summary>
-        public RadioName RadioName;*/
-
-        /*/// <summary>Set the name of the radio</summary>
-        /// <param name="radioName">Name of the radio</param>
-        public void SetRadioName(RadioName radioName)
-        {
-            this.radioName = radioName;
-        }
-
-        /// <summary>Get the kind radio</summary>
-        /// <returns>Radio kind</returns>
-        public RadioName GetRadioName()
-        {
-            return this.radioName;
-        }*/
-
-        /*/// <summary>
-        /// Radio configuration
-        /// </summary>
-        public static RadioConfiguration RadioBaseConfig = null;*/
-
-        /*/// <summary>Radio configuration</summary>
-        /// <value>Configuration</value>
-        [Obsolete("Use RadioBaseConfig instead")]
-        public static RadioConfiguration config {
-            get { return RadioBaseConfig; }
-            set { RadioBaseConfig = value; }
-        }*/
-
         // Create a buffer that you can use when you want to marshal
         byte[] marshalBuffer = new byte[RadioConfigSize];
-
 
         /// <summary>
         /// Current user of the radio (C# or MAC objects)
@@ -185,25 +149,12 @@ namespace Samraksh.eMote.Net.Radio
         public static RadioUser CurrUser = RadioUser.IDLE;
 
         /// <summary>
-        /// Current user of the radio (C# or MAC objects)
-        /// </summary>
-        [Obsolete("Use CurrUser instead")]
-        public static RadioUser currUser { 
-            get{return CurrUser; }
-            set { CurrUser = value; }
-        }
-
-        /// <summary>
         /// Constructor for 802.15.4 radio
         /// </summary>
         /// <exception caption="RadioNotConfigured Exception" cref="RadioNotConfiguredException"></exception>
         public Radio_802_15_4_Base()
             : base("RadioCallback_802_15_4", 1234)
         {
-            /*if (RadioBaseConfig == null || Callbacks.GetReceiveCallback() == null)
-                throw new RadioNotConfiguredException();
-
-            Initialize(RadioBaseConfig);*/
         }
 
         /// <summary>Constructor for 802.15.4 radio, specifying driver name and data</summary>
@@ -213,60 +164,12 @@ namespace Samraksh.eMote.Net.Radio
         public Radio_802_15_4_Base(string drvname, ulong drvData)
             : base(drvname, drvData)
         {
-            /*if (RadioBaseConfig == null)
-                Debug.Print("The Configuration is null\n");
-
-            if (RadioBaseConfig == null || Callbacks.GetReceiveCallback() == null)
-                throw new RadioNotConfiguredException();
-
-            Initialize(RadioBaseConfig);*/
         }
 
-        /*
-        private static Radio_802_15_4 RadioInstance;
-        private static object syncObject = new Object();
-
-        public static Radio_802_15_4 GetInstance()
-        {
-            if (RadioInstance == null)
-            {
-                lock (syncObject)
-                {
-                    if (RadioInstance == null)
-                        RadioInstance = new Radio_802_15_4();
-                }
-            }
-
-            return RadioInstance;
-        }
-
-        /// <summary>
-        /// Get a shallow RadioInstance of the radio object, should only be used by the mac 
+        /*/// <summary>
+        /// 
         /// </summary>
-        /// <param name="user"></param>
-        /// <returns>Returns a radio object</returns>
-        public static Radio_802_15_4 GetShallowInstance(RadioUser user)
-        {
-            if (RadioInstance == null)
-            {
-                lock (syncObject)
-                {
-                    if (RadioInstance == null)
-                    {
-                        if (user == RadioUser.CSMAMAC)
-                            RadioInstance = new Radio_802_15_4("CSMACallback", 4321);
-                        else if (user == RadioUser.OMAC)
-                            RadioInstance = new Radio_802_15_4("OMACCallback", 4322);
-                        else if (user == RadioUser.CSharp)
-                            RadioInstance = new Radio_802_15_4();
-                    }
-                }
-            }
-
-            return RadioInstance;
-        }
-        */
-
+        /// <returns></returns>
         private DeviceStatus Initialize()
         {
             NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
@@ -282,7 +185,6 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
         private DeviceStatus Initialize(RadioConfiguration config)
         {
-            //RadioBaseConfig = new RadioConfiguration(config);
             NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
             OnInterrupt += eventHandler;
             marshalBuffer[0] = (byte)config.Channel;
@@ -292,68 +194,9 @@ namespace Samraksh.eMote.Net.Radio
         }
         
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus InternalInitialize(byte[] config);    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
+        private extern DeviceStatus InternalInitialize(byte[] config);*/    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
         
-		/*/// <summary>Set configuration for 802.15.4 radio.</summary>
-		/// <param name="config">Configuration to use</param>
-		/// <returns>Status of operation</returns>
-		public static DeviceStatus Configure(RadioConfiguration config) 
-        {
-            Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
-            Callbacks.SetReceiveCallback(config.OnReceiveCallback);
-            Callbacks.SetNeighborChangeCallback(config.OnNeighborChangeCallback);
-
-			return DeviceStatus.Success;
-		}*/
-
-        /*/// <summary>Reconfigure the radio object with new configuration</summary>
-        /// <returns>Status of operation</returns>
-        private DeviceStatus Configure()
-        {
-            if (RadioBaseConfig == null)
-            {
-                throw new RadioNotConfiguredException();
-            }
-            //RadioBaseConfig = new RadioConfiguration(config);
-            Callbacks.SetReceiveCallback(RadioBaseConfig.OnReceiveCallback);
-            Callbacks.SetNeighborChangeCallback(RadioBaseConfig.OnNeighborChangeCallback);
-
-            marshalBuffer[0] = (byte)RadioBaseConfig.TxPower;
-            marshalBuffer[1] = (byte)RadioBaseConfig.Channel;
-            marshalBuffer[2] = (byte)RadioBaseConfig.RadioType;
-
-            return ReConfigure(marshalBuffer);
-        }*/
-
-        /*/// <summary>
-        /// Set Radio configuration for 802.15.4 radio.
-        /// </summary>
-        /// <param name="config">Configuration to use</param>
-        /// <remarks>Used to change the Radio configuration during and after initialization, using this function can change the callback if a different callback is used. Please use reconfigure to change power and channel</remarks>
-        /// <returns>Status of operation</returns>
-        public static DeviceStatus Configure(RadioConfiguration config)
-        {
-            DeviceStatus result = DeviceStatus.Success;
-            Radio_802_15_4_Base.Config = new RadioConfiguration(config);
-            return result;
-        }*/
-
-		/// <summary>Set configuration for 802.15.4 radio.</summary>
-		/// <param name="config">Configuration to use</param>
-		/// <param name="rcallback">Packet receive callback</param>
-		/// <param name="ncallback">Neighbor change callback</param>
-		/// <returns>Status of operation</returns>
-		[Obsolete("Deprecated. Use Configure with NeighborhoodChangeCallBack instead")]
-		public static DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack rcallback, NeighbourhoodChangeCallBack ncallback) 
-        {
-            //Radio_802_15_4_Base.RadioBaseConfig = new RadioConfiguration(config);
-			Callbacks.SetReceiveCallback(rcallback);
-			Callbacks.SetNeighbourChangeCallback(ncallback);
-
-			return DeviceStatus.Success;
-		}
-
-        /// <summary>
+		/// <summary>
         /// 
         /// </summary>
         /// <param name="RadioConfig"></param>
@@ -362,193 +205,12 @@ namespace Samraksh.eMote.Net.Radio
         {
             DeviceStatus status = DeviceStatus.Success;
             return status;
-
-            /*if (RadioBaseConfig == null || RadioConfig == null)
-            {
-                throw new RadioNotConfiguredException();
-            }*/
-            //RadioBaseConfig = new RadioConfiguration(config);
-            /*if (RadioConfig.OnReceiveCallback == null || RadioConfig.OnNeighborChangeCallback == null)
-            {
-                throw new RadioNotConfiguredException();
-            }
-            this.SetNeighborChangeCallback(RadioConfig.OnNeighborChangeCallback);
-            this.SetReceiveCallback(RadioConfig.OnReceiveCallback);
-            status = this.SetRadioType(RadioConfig.RadioType);
-            if (status != DeviceStatus.Success)
-            {
-                return status;
-            }
-            status = this.SetTxPower(RadioConfig.RadioType, RadioConfig.TxPower);
-            if (status != DeviceStatus.Success)
-            {
-                return status;
-            }
-            status = this.SetChannel(RadioConfig.RadioType, RadioConfig.Channel);
-            if (status != DeviceStatus.Success)
-            {
-                return status;
-            }
-            return status;*/
-
-            /*marshalBuffer[0] = (byte)RadioConfig.TxPower;
-            marshalBuffer[1] = (byte)RadioConfig.Channel;
-            marshalBuffer[2] = (byte)RadioConfig.RadioType;
-            return ReConfigure(marshalBuffer);*/
         }
-
-        /*//Make the interop call to set the new configuration 
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus ReConfigure(byte[] buffer);*/
-
-        /*/// <summary>Get the next packet from the radio driver.</summary>
-        /// <remarks>The radio does not maintain a buffer so the onus is on the application to sample this data as quickly as possible on getting a receive interrupt.
-        /// Otherwise the packet is overwritten in the radio layer. For buffer support use the MAC interface</remarks>
-        /// <returns>A data packet of message type to the caller</returns>
-        public Packet GetNextPacket()
-        {
-            if (GetNextPacket(dataBuffer) != DeviceStatus.Success)
-                return null;
-
-            packet = new Packet(dataBuffer);
-
-            return packet;
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus GetNextPacket(byte[] nativeBuffer);*/
-
-        /*/// <summary>Releases the message packet's memory.</summary>
-        /// <remarks>Normally the packet's memory will be released during a subsequent GetNextPacket call. This method releases the memory immediately.</remarks>
-        /// <returns></returns>
-        public void ClearPacket()
-        {
-            packet = null;
-        }*/
-
-        /*/// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public void SetReceiveCallback(ReceiveCallBack OnReceiveCallback)
-        {
-            //RadioBaseConfig.OnReceiveCallback = OnReceiveCallback;
-            Callbacks.SetReceiveCallback(OnReceiveCallback);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void SetNeighborChangeCallback(NeighborhoodChangeCallBack OnNeighborChangeCallback)
-        {
-            //RadioBaseConfig.OnNeighborChangeCallback = OnNeighborChangeCallback;
-            Callbacks.SetNeighborChangeCallback(OnNeighborChangeCallback);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public DeviceStatus SetRadioType(RadioType RadioType)
-        {
-            //RadioBaseConfig.RadioType = RadioType;
-            //return Configure();
-            return SetRadioType((byte)RadioType);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="RadioType"></param>
-        /// <param name="TxPower"></param>
-        /// <returns></returns>
-        public DeviceStatus SetTxPower(RadioType RadioType, TxPowerValue TxPower)
-        {
-            //RadioBaseConfig.TxPower = TxPower;
-            //return Configure();
-            return SetTxPower((byte)RadioType, (int)TxPower);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="RadioType"></param>
-        /// <param name="Channel"></param>
-        /// <returns></returns>
-        public DeviceStatus SetChannel(RadioType RadioType, Channel Channel)
-        {
-            //RadioBaseConfig.Channel = Channel;
-            //return Configure();
-            return SetChannel((byte)RadioType, (int)Channel);
-        }*/
-
-        /*/// <summary>
-        /// 
-        /// </summary>
-        /// <param name="radioType"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus SetRadioType(byte radioType);
-
-        /// <summary>Set the transmit power of the radio</summary>
-        /// <param name="radioType">Radio ID</param>
-        /// <param name="TxPower">Transmission power to use</param>
-        /// <returns>Status of operation</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus SetTxPower(byte radioType, int TxPower);
-
-        /// <summary>Set the radio channel</summary>
-        /// <param name="radioType">Radio ID</param>
-        /// <param name="Channel">Channel to use</param>
-        /// <returns>Status of operation</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus SetChannel(byte radioType, int Channel);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public Radio.RadioType GetRadioType()
-        {
-            return (RadioType)GetRadioTypeValue();
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern byte GetRadioTypeValue();
-
-        /// <summary>Return the transmission power value of the radio</summary>
-        /// <param name="radioType">Radio ID</param>
-        /// <returns>Transmission power value</returns>
-        public TxPowerValue GetTxPower(byte radioType)
-        {
-            return (TxPowerValue)GetTxPowerValue(radioType);
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern byte GetTxPowerValue(byte radioType);
-
-        /// <summary>
-        /// Return the current active channel of the radio 
-        /// </summary>
-        /// <param name="radioType">Radio ID</param>
-        /// <returns>Active channel</returns>
-        public Channel GetChannel(byte radioType)
-        {
-            return (Channel)GetActiveChannel(radioType);
-        }
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern byte GetActiveChannel(byte radioType);*/
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public extern DeviceStatus UnInitialize();
-
-        /*/// <summary>Get the ID of this 802.15.4 radio RadioInstance</summary>
-        /// <returns>The ID of the RadioInstance</returns>
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern byte GetID();*/
 
         /// <summary>Get the address of the device</summary>
         /// <remarks>This is the address by which the device is known to the rest of the world.</remarks>

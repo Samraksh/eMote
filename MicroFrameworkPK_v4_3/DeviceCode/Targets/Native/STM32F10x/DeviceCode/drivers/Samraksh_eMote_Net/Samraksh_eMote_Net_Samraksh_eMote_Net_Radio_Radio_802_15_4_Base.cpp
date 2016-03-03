@@ -125,7 +125,7 @@ INT8 Radio_802_15_4_Base::ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT
     return retVal;
 }*/
 
-INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
+/*INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, HRESULT &hr )
 {
 	INT32 result = DS_Success;
 	UINT8* configParams = marshalBuffer.GetBuffer();
@@ -146,7 +146,7 @@ INT32 Radio_802_15_4_Base::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT
 	}
 
 	return result;
-}
+}*/
 
 /*INT32 Radio_802_15_4_Base::SetRadioType( CLR_RT_HeapBlock* pMngObj, UINT8 radioType, HRESULT &hr )
 {

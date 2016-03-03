@@ -89,95 +89,6 @@ namespace Samraksh.eMote.Net.Radio
             this.TxPower = power;
             this.RadioType = type;
         }
-
-        /*/// <summary>
-        /// Set the channel 
-        /// </summary>
-        /// <param name="channel">Channel</param>
-        public void SetChannel(Channels channel)
-        {
-            this.Channel = channel;
-        }
-
-        /// <summary>
-        /// Get current channel
-        /// </summary>
-        /// <returns>Channel</returns>
-        public Channels GetChannel()
-        {
-            return Channel;
-        }
-
-        /// <summary>
-        /// Set the transmission power of the radio
-        /// </summary>
-        /// <param name="power">Transmission power value</param>
-        public void SetTxPower(TxPowerValue power)
-        {
-            this.TxPower = power;
-        }
-
-        /// <summary>
-        /// Get current transmission power
-        /// </summary>
-        /// <returns>Transmission power</returns>
-        public TxPowerValue GetTxPower()
-        {
-            return TxPower;
-        }
-
-        /// <summary>
-        /// Set radio name 
-        /// </summary>
-        /// <param name="name">Radio name</param>
-        public void SetRadioName(RadioName name)
-        {
-            this.Name = name;
-        }
-
-        /// <summary>
-        /// Get radio name 
-        /// </summary>
-        /// <returns>Radio name</returns>
-        public RadioName GetRadioName()
-        {
-            return this.Name;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="OnReceiveCallBack"></param>
-        public void SetReceiveCallBack(ReceiveCallBack onReceiveCallBack)
-        {
-            this.OnReceiveCallback = onReceiveCallBack;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public ReceiveCallBack GetReceiveCallBack()
-        {
-            return this.OnReceiveCallback;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="onNeighborChangeCallBack"></param>
-        public void SetNeighborChangeCallBack(NeighborhoodChangeCallBack onNeighborChangeCallBack)
-        {
-            this.OnNeighborChangeCallback = onNeighborChangeCallBack;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public NeighborhoodChangeCallBack GetNeighborChangeCallBack()
-        {
-            return this.OnNeighborChangeCallback;
-        }*/
     };
 
 
@@ -201,12 +112,6 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="config">New radio configuration</param>
         /// <returns>Success of operation</returns>
         DeviceStatus ReConfigure(RadioConfiguration config);
-
-        /*/// <summary>
-        /// Get radio ID
-        /// </summary>
-        /// <returns>Radio ID</returns>
-        byte GetID();*/
 
         /// <summary>
         /// Get radio address

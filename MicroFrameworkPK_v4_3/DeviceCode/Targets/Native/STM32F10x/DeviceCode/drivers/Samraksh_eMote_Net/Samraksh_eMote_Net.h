@@ -15,7 +15,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 {
     static const int FIELD_STATIC___receiveCallBack = 0;
     static const int FIELD_STATIC___neighborChangeCallBack = 1;
-    static const int FIELD_STATIC___neighbourChangeCallBack = 2;
 
 
     //--//
@@ -24,18 +23,18 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Callbacks
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 {
-    static const int FIELD_STATIC__neighbor = 3;
-    static const int FIELD_STATIC__dataBuffer = 4;
-    static const int FIELD_STATIC__CSMAInstanceSet = 5;
-    static const int FIELD_STATIC__OMACInstanceSet = 6;
+    static const int FIELD_STATIC__neighbor = 2;
+    static const int FIELD_STATIC__dataBuffer = 3;
+    static const int FIELD_STATIC__CSMAInstanceSet = 4;
+    static const int FIELD_STATIC__OMACInstanceSet = 5;
 
-    static const int FIELD__NeighborList = 1;
-    static const int FIELD__ByteNeighbor = 2;
-    static const int FIELD__MarshalBuffer = 3;
-    static const int FIELD__MACConfig = 4;
-    static const int FIELD__MACRadioObj = 5;
-    static const int FIELD__packet = 6;
-    static const int FIELD__MACType = 7;
+    static const int FIELD__NeighborList = 5;
+    static const int FIELD__ByteNeighbor = 6;
+    static const int FIELD__MarshalBuffer = 7;
+    static const int FIELD__MACConfig = 8;
+    static const int FIELD__MACRadioObj = 9;
+    static const int FIELD__packet = 10;
+    static const int FIELD__MACType = 11;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
@@ -112,32 +111,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighborTable
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Neighbour
-{
-    static const int FIELD__MacAddress = 1;
-    static const int FIELD__ForwardLink = 2;
-    static const int FIELD__ReverseLink = 3;
-    static const int FIELD__Status = 4;
-    static const int FIELD__PacketsReceived = 5;
-    static const int FIELD__LastHeardTime = 6;
-    static const int FIELD__ReceiveDutyCycle = 7;
-    static const int FIELD__FrameLength = 8;
-
-
-    //--//
-
-};
-
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighbourTable
-{
-    static const int FIELD__NumberValidNeighbour = 1;
-    static const int FIELD__Neighbor = 2;
-
-
-    //--//
-
-};
-
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Packet
 {
     static const int FIELD__RSSI = 1;
@@ -169,7 +142,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_RadioConfiguration
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 {
-    static const int FIELD_STATIC__CurrUser = 7;
+    static const int FIELD_STATIC__CurrUser = 6;
 
     static const int FIELD__dataBuffer = 5;
     static const int FIELD__marshalBuffer = 6;
@@ -185,7 +158,6 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     TINYCLR_NATIVE_DECLARE(SendTimeStamped___SamraksheMoteNetNetOpStatus__U1__SZARRAY_U1__U2__U4);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1__U2);
-    TINYCLR_NATIVE_DECLARE(InternalInitialize___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(TurnOffRx___SamraksheMoteNetDeviceStatus__U1);
 
     //--//
@@ -194,8 +166,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__GenericRadioInstance = 8;
-    static const int FIELD_STATIC__syncObject = 9;
+    static const int FIELD_STATIC__GenericRadioInstance = 7;
+    static const int FIELD_STATIC__syncObject = 8;
 
 
     //--//
@@ -204,8 +176,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_LR
 {
-    static const int FIELD_STATIC__LRRadioInstance = 10;
-    static const int FIELD_STATIC__syncObject = 11;
+    static const int FIELD_STATIC__LRRadioInstance = 9;
+    static const int FIELD_STATIC__syncObject = 10;
 
 
     //--//

@@ -15,9 +15,6 @@
         <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighborChanged">
             <summary>Neighborhood has changed</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighbourChanged">
-            <summary></summary>
-        </member>
         <member name="T:Samraksh.eMote.Net.Callbacks">
             <summary>
             Callback class, should only be used internally by the mac and not by any user programs
@@ -35,12 +32,6 @@
             </summary>
             <param name="callback">Neighborcallback function pointer</param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Callbacks.SetNeighbourChangeCallback(Samraksh.eMote.Net.NeighbourhoodChangeCallBack)">
-            <summary>
-            Set the neighbor change callback to be called when there is a change in neighbor table
-            </summary>
-            <param name="callback">Neighborcallback function pointer</param>
-        </member>
         <member name="M:Samraksh.eMote.Net.Callbacks.GetReceiveCallback">
             <summary>
             Returns the receive callback function
@@ -48,12 +39,6 @@
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Callbacks.GetNeighborChangeCallback">
-            <summary>
-            Returns the neighbor change callback function registered
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Callbacks.GetNeighbourChangeCallback">
             <summary>
             Returns the neighbor change callback function registered
             </summary>
@@ -155,12 +140,6 @@
             </summary>
             <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
         </member>
-        <member name="T:Samraksh.eMote.Net.NeighbourhoodChangeCallBack">
-            <summary>
-            Neighborhood callback delegate
-            </summary>
-            <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
-        </member>
         <member name="T:Samraksh.eMote.Net.Mac.CSMA">
             <summary>CSMA objects</summary>
         </member>
@@ -216,13 +195,6 @@
             <param name="macAddress">MAC address of neighbor</param>
             <returns>Neighbor status</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetNeighbourStatus(System.UInt16)">
-            <summary>
-            Get neighbor status
-            </summary>
-            <param name="macAddress">MAC address of neighbor</param>
-            <returns>Neighbor status</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetPendingPacketCount_Send">
             <summary>
             Get pending packet count of MAC instance
@@ -262,13 +234,20 @@
             
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.MACType)">
+        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration,Samraksh.eMote.Net.MACType)">
             <summary>
             Constructor that takes in a mactype parameter and initializes the corresponding mac object
             </summary>
+            <param name="MacConfig"></param>
             <param name="MACType">CSMA, OMAC or other MAC</param>
             <exception caption="MacNotConfigured Exception" cref="T:Samraksh.eMote.Net.MACNotConfiguredException"></exception>
             <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.InitializeMacConfig(Samraksh.eMote.Net.Mac.MACConfiguration)">
+            <summary>
+            
+            </summary>
+            <param name="config"></param>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Initialize(Samraksh.eMote.Net.Mac.MACConfiguration,Samraksh.eMote.Net.MACType)">
             <summary>
@@ -291,17 +270,6 @@
             <summary>Set the liveness delay</summary>
             <param name="livenessDelay"></param>
             <returns>Result of setting this parameter</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.SetNeighbourLivelinessDelay(System.UInt32)">
-            <summary>Set the liveness delay</summary>
-            <param name="livelinessDelay"></param>
-            <returns>Result of setting this parameter</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighbourLivelinessDelay">
-            <summary>
-            Get the current liveliness delay parameter
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.SetCCA(System.Boolean)">
             <summary>Enable or disable Clear Channel Assessment</summary>
@@ -390,16 +358,7 @@
             <summary>Get the list of neighbors from the MAC</summary>
             <returns>An array with the list of active neighbors</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighbourList">
-            <summary>Get the list of neighbors from the MAC</summary>
-            <returns>An array with the list of active neighbors</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.GetNeighborStatus(System.UInt16)">
-            <summary>Get the details for a neighbor</summary>
-            <param name="macAddress">Address of the neighbor</param>
-            <returns>Neighbor</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNeighbourStatus(System.UInt16)">
             <summary>Get the details for a neighbor</summary>
             <param name="macAddress">Address of the neighbor</param>
             <returns>Neighbor</returns>
@@ -496,11 +455,7 @@
             <param name="eventTime">Time to use for timestamp</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="P:Samraksh.eMote.Net.MACBase.macconfig">
-            <summary>Configure MAC (obsolete)</summary>
-            <value>Accesses MACConfig</value>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Mac.CSMA.#ctor">
+        <member name="M:Samraksh.eMote.Net.Mac.CSMA.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration)">
             <summary>
             
             </summary>
@@ -647,20 +602,6 @@
         <member name="F:Samraksh.eMote.Net.Mac.NeighborStatus.Suspect">
             <summary>Neighbor is suspect</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.NeighbourStatus">
-            <summary>
-            Neighbor status
-            </summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighbourStatus.Alive">
-            <summary>Neighbor is alive</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighbourStatus.Dead">
-            <summary>Neighbor is dead</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighbourStatus.Suspect">
-            <summary>Neighbor is suspect</summary>
-        </member>
         <member name="T:Samraksh.eMote.Net.Mac.Neighbor">
             <summary>
             Neighbor details
@@ -690,35 +631,6 @@
         <member name="F:Samraksh.eMote.Net.Mac.Neighbor.FrameLength">
             <summary>Frame length of neighbor</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.Neighbour">
-            <summary>
-            Neighbor details
-            </summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.MacAddress">
-            <summary>MAC address of neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.ForwardLink">
-            <summary>Forward link of neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.ReverseLink">
-            <summary>Reverse link of neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.Status">
-            <summary>Status of neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.PacketsReceived">
-            <summary>Packets received from neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.LastHeardTime">
-            <summary>Last time heard from neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.ReceiveDutyCycle">
-            <summary>Receive duty cycle of neighbor</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbour.FrameLength">
-            <summary>Frame length of neighbor</summary>
-        </member>
         <member name="T:Samraksh.eMote.Net.Mac.NeighborTable">
             <summary>
             List of neighbors and their details
@@ -728,17 +640,6 @@
             <summary>Number of neighbor's valid neighbors</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Mac.NeighborTable.Neighbor">
-            <summary>Neighbor</summary>
-        </member>
-        <member name="T:Samraksh.eMote.Net.Mac.NeighbourTable">
-            <summary>
-            List of neighbors and their details
-            </summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighbourTable.NumberValidNeighbour">
-            <summary>Number of neighbor's valid neighbors</summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighbourTable.Neighbor">
             <summary>Neighbor</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Mac.MACConfiguration">
@@ -791,11 +692,6 @@
             MAC configuration constructor
             </summary>
             <param name="config">Configuration to apply</param>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Mac.MACConfiguration.NeighbourLivelinesDelay">
-            <summary>
-            Delay before a neighbor is deemed dead
-            </summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RadioUser">
             <summary>
@@ -1061,18 +957,10 @@
             <summary>Configure size of messages</summary>
             <param name="Size">Size of messages</param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Packet.GetMessage">
-            <summary>Get the next message</summary>
-            <returns>The message, as a byte array</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Packet.senderEventTimeStamp">
-            <summary>The time at which the packet was sent out</summary>
-            <value>Time the packet was sent out (microseconds)</value>
-        </member>
         <member name="T:Samraksh.eMote.Net.Mac.OMAC">
             <summary>OMAC objects</summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.OMAC.#ctor">
+        <member name="M:Samraksh.eMote.Net.Mac.OMAC.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration)">
             <summary>
             
             </summary>
@@ -1102,20 +990,6 @@
             <param name="drvname">Driver name</param>
             <param name="drvData">Driver data</param>
             <exception caption="RadioNotConfigured Exception" cref="T:Samraksh.eMote.Net.RadioNotConfiguredException"></exception>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Initialize(Samraksh.eMote.Net.Radio.RadioConfiguration)">
-            <summary>
-            Initialize native radio and interop drivers.
-            </summary>
-            <param name="config">MAC configuration.</param>
-            <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Configure(Samraksh.eMote.Net.Radio.RadioConfiguration,Samraksh.eMote.Net.ReceiveCallBack,Samraksh.eMote.Net.NeighbourhoodChangeCallBack)">
-            <summary>Set configuration for 802.15.4 radio.</summary>
-            <param name="config">Configuration to use</param>
-            <param name="rcallback">Packet receive callback</param>
-            <param name="ncallback">Neighbor change callback</param>
-            <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ReConfigure(Samraksh.eMote.Net.Radio.RadioConfiguration)">
             <summary>
@@ -1201,11 +1075,6 @@
             <param name="radioType">Radio ID</param>
             <param name="numberOfMicroSecond">Number of microseconds to check</param>
             <returns>True iff channel is free</returns>
-        </member>
-        <member name="P:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.currUser">
-            <summary>
-            Current user of the radio (C# or MAC objects)
-            </summary>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.GetInstance">
             <summary>Get the radio instance</summary>

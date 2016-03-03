@@ -80,13 +80,4 @@ namespace Samraksh.eMote.Net
 	/// </summary>
 	/// <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
 	public delegate void NeighborhoodChangeCallBack(UInt16 countOfChangedNeighbors);
-
-	/// <summary>
-	/// Neighborhood callback delegate
-	/// </summary>
-    /// <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
-	[Obsolete("Deprecated. Use NeighborhoodChangeCallBack instead")]
-	public delegate void NeighbourhoodChangeCallBack(UInt16 countOfChangedNeighbors);
-
-
 }

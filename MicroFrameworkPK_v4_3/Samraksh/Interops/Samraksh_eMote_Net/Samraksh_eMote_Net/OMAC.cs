@@ -14,8 +14,8 @@ namespace Samraksh.eMote.Net.Mac
         /// <summary>
         /// 
         /// </summary>
-        public OMAC() 
-            : base(MACType.OMAC)
+        public OMAC(MACConfiguration MacConfig)
+            : base(MacConfig, MACType.OMAC)
         {
         }
 

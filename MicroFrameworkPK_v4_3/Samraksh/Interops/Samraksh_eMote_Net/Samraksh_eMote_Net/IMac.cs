@@ -45,20 +45,6 @@ namespace Samraksh.eMote.Net
         };
 
         /// <summary>
-        /// Neighbor status
-        /// </summary>
-        [Obsolete("Deprecated. Use NeighborStatus instead")]
-        public enum NeighbourStatus
-        {
-            /// <summary>Neighbor is alive</summary>
-            Alive,
-            /// <summary>Neighbor is dead</summary>
-            Dead,
-            /// <summary>Neighbor is suspect</summary>
-            Suspect
-        };
-
-        /// <summary>
         /// Neighbor details
         /// </summary>
         public class Neighbor
@@ -83,31 +69,6 @@ namespace Samraksh.eMote.Net
         };
 
         /// <summary>
-        /// Neighbor details
-        /// </summary>
-        [Obsolete("Deprecated. Use Neighbor instead")]
-        public class Neighbour
-        {
-            /// <summary>MAC address of neighbor</summary>
-            public UInt16 MacAddress;
-            /// <summary>Forward link of neighbor</summary>
-            public Link ForwardLink;
-            /// <summary>Reverse link of neighbor</summary>
-            public Link ReverseLink;
-            /// <summary>Status of neighbor</summary>
-            public NeighbourStatus Status;
-            /// <summary>Packets received from neighbor</summary>
-            public UInt16 PacketsReceived;
-            /// <summary>Last time heard from neighbor</summary>
-            public UInt64 LastHeardTime;
-            /// <summary>Receive duty cycle of neighbor</summary>
-            public byte ReceiveDutyCycle; //percentage
-            /// <summary>Frame length of neighbor</summary>
-            public UInt16 FrameLength;
-
-        };
-
-        /// <summary>
         /// List of neighbors and their details
         /// </summary>
         public class NeighborTable
@@ -119,18 +80,6 @@ namespace Samraksh.eMote.Net
         };
 
         /// <summary>
-        /// List of neighbors and their details
-        /// </summary>
-        [Obsolete("Deprecated. Use NeighborTable instead")]
-        public class NeighbourTable
-        {
-            /// <summary>Number of neighbor's valid neighbors</summary>
-            public byte NumberValidNeighbour;
-            /// <summary>Neighbor</summary>
-            public Neighbour[] Neighbor;
-        };
-
-		/// <summary>
 		/// MAC configuration
 		/// </summary>
 		public class MACConfiguration {
@@ -142,37 +91,23 @@ namespace Samraksh.eMote.Net
 			/// Number of times to try sending before MAC gives up
 			/// </summary>
 			public byte NumberOfRetries;
-
-			/// <summary>
+            /// <summary>
 			/// Duration of CCA
 			/// </summary>
 			public byte CCASenseTime;
-
-			/// <summary>
+            /// <summary>
 			/// Size of send buffer
 			/// </summary>
 			public byte BufferSize;
-
-			/// <summary>
+            /// <summary>
 			/// Radio type used by current MAC
 			/// </summary>
 			public Radio.RadioType RadioType;
-
-			/// <summary>
+            /// <summary>
 			/// Delay before a neighbor is deemed dead
 			/// </summary>
 			public UInt32 NeighborLivenessDelay;
-
-			/// <summary>
-			/// Delay before a neighbor is deemed dead
-			/// </summary>
-			[Obsolete("Use NeighborLivenessDelay instead")]
-			public UInt32 NeighbourLivelinesDelay {
-				get { return NeighborLivenessDelay; }
-				set { NeighborLivenessDelay = value; }
-			}
-
-			/// <summary>
+            /// <summary>
             /// Configuration of the radio power and channel 
             /// </summary>
             public Radio.RadioConfiguration MACRadioConfig;
@@ -205,46 +140,6 @@ namespace Samraksh.eMote.Net
                 this.NeighborLivenessDelay = config.NeighborLivenessDelay;
                 this.MACRadioConfig = new Radio.RadioConfiguration(config.MACRadioConfig);
             }
-
-            /*/// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            /// <param name="CCA">Clear Channel Assessment</param>
-            /// <param name="numberOfRetries">Number of retries</param>
-            /// <param name="ccaSenseTime">Clear Channel Assessment time</param>
-            /// <param name="bufferSize">Size of send buffer</param>
-            /// <param name="radioType">Radio ID</param>
-            /// <param name="neighborLivelinessDelay">Delay before a neighbor is deemed dead</param>
-            /// <param name="config">Radio configuration</param>
-            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioType, UInt32 neighborLivenessDelay, Radio.RadioConfiguration config)
-            {
-                this.CCA = CCA;
-                this.NumberOfRetries = numberOfRetries;
-                this.CCASenseTime = ccaSenseTime;
-                this.BufferSize = bufferSize;
-                this.RadioID = radioType;
-                this.NeighborLivenessDelay = neighborLivenessDelay;
-
-                this.radioConfig = new Radio.RadioConfiguration(config);
-            }
-
-            /// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            /// <param name="CCA">Enable Clear Channel Assessment</param>
-            /// <param name="numberOfRetries">Number of retries for sending</param>
-            /// <param name="ccaSenseTime">Carrier sense time</param>
-            /// <param name="bufferSize">BufferSize of the radio</param>
-            /// <param name="radioType">Radio ID</param>
-            public MACConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioType)
-            {
-                this.CCA = CCA;
-                this.NumberOfRetries = numberOfRetries;
-                this.CCASenseTime = ccaSenseTime;
-                this.BufferSize = bufferSize;
-                this.RadioID = radioType;
-                this.radioConfig = new Radio.RadioConfiguration();
-            }*/
         };
 
 		/// <summary>
@@ -301,22 +196,6 @@ namespace Samraksh.eMote.Net
 			Neighbor GetNeighborStatus(UInt16 macAddress);
 
 			/// <summary>
-			/// Get neighbor status
-			/// </summary>
-			/// <param name="macAddress">MAC address of neighbor</param>
-			/// <returns>Neighbor status</returns>
-			[Obsolete("Deprecated. Use GetNeighborStatus instead")]
-			Neighbor GetNeighbourStatus(UInt16 macAddress);
-
-			//Buffer methods
-
-            /*/// <summary>
-            /// Get buffer size of MAC instance
-            /// </summary>
-            /// <returns>Buffer size</returns>
-            byte GetBufferSize();*/
-
-            /// <summary>
             /// Get pending packet count of MAC instance
             /// </summary>
             /// <returns></returns>

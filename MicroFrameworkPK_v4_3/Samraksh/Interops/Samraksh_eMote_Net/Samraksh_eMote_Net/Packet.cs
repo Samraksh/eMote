@@ -42,14 +42,6 @@ namespace Samraksh.eMote.Net
         /// <value>Time the packet was sent out (microseconds)</value>
         public long SenderEventTimeStamp;
 
-        /// <summary>The time at which the packet was sent out</summary>
-        /// <value>Time the packet was sent out (microseconds)</value>
-        [Obsolete("Use SenderEventTimestamp instead")]
-        public long senderEventTimeStamp {
-            get { return SenderEventTimeStamp; }
-            set { SenderEventTimeStamp = value; }
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -203,14 +195,5 @@ namespace Samraksh.eMote.Net
         {
             Payload = new byte[Size];
         }
-
-        /// <summary>Get the next message</summary>
-        /// <returns>The message, as a byte array</returns>
-        [Obsolete("Deprecated. Use property Payload instead")]
-        public byte[] GetMessage()
-        {
-            return Payload;
-        }
-
     }
 }

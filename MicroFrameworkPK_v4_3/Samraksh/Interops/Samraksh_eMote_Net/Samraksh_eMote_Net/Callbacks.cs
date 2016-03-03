@@ -13,9 +13,6 @@ namespace Samraksh.eMote.Net
         Received,
         /// <summary>Neighborhood has changed</summary>
         NeighborChanged,
-        /// <summary></summary>
-		[Obsolete("Deprecated. Use NeighborChanged instead")]
-		NeighbourChanged = NeighborChanged,
 	}
 
     /// <summary>
@@ -25,9 +22,7 @@ namespace Samraksh.eMote.Net
     {
         private static ReceiveCallBack _receiveCallBack = null;
         private static NeighborhoodChangeCallBack _neighborChangeCallBack = null;
-		[Obsolete("Deprecated. Use _neighborChangeCallBack instead")]
-		private static NeighbourhoodChangeCallBack _neighbourChangeCallBack = null;
-
+		
         /// <summary>
         /// Set the receive callback to be called on arrival of a packet
         /// </summary>
@@ -43,15 +38,6 @@ namespace Samraksh.eMote.Net
 		/// <param name="callback">Neighborcallback function pointer</param>
 		public static void SetNeighborChangeCallback(NeighborhoodChangeCallBack callback) {
 			_neighborChangeCallBack = callback;
-		}
-
-		/// <summary>
-		/// Set the neighbor change callback to be called when there is a change in neighbor table
-		/// </summary>
-		/// <param name="callback">Neighborcallback function pointer</param>
-		[Obsolete("Deprecated. Use SetNeighborChangeCallback instead")]
-		public static void SetNeighbourChangeCallback(NeighbourhoodChangeCallBack callback) {
-			_neighbourChangeCallBack = callback;
 		}
 
 		/// <summary>
@@ -73,15 +59,6 @@ namespace Samraksh.eMote.Net
         }
 
 		/// <summary>
-		/// Returns the neighbor change callback function registered
-		/// </summary>
-		/// <returns></returns>
-		[Obsolete("Deprecated. Use GetNeighborChangeCallback instead")]
-		public static NeighborhoodChangeCallBack GetNeighbourChangeCallback() {
-			return _neighborChangeCallBack;
-		}
-
-		/// <summary>
         /// First level callback from native code
         /// </summary>
         /// <param name="data1"></param>
@@ -90,7 +67,6 @@ namespace Samraksh.eMote.Net
         /// <exception caption="CallbackNotConfigured Exception" cref="CallbackNotConfiguredException"></exception>
         public static void ReceiveFunction(uint data1, uint data2, DateTime time)
         {
-
             if (_receiveCallBack == null)
                 throw new CallbackNotConfiguredException();
 
@@ -101,7 +77,6 @@ namespace Samraksh.eMote.Net
                 _receiveCallBack((UInt16)data2);
             else if ((data1 == (uint)CallbackTypes.NeighborChanged) && (_neighborChangeCallBack != null))
                 _neighborChangeCallBack((UInt16)data2);
-
         }
     }
 }
