@@ -128,7 +128,7 @@ namespace Samraksh.eMote.Net.Radio
     /// <summary>
     /// 802.15.4 radio configuration
     /// </summary>
-    public class Radio_802_15_4_Base : NativeEventDispatcher, IRadio
+    public class Radio_802_15_4_Base : IRadio
     {
         // Size of the radio message
         const byte RadioPacketSize = 128;
@@ -153,7 +153,6 @@ namespace Samraksh.eMote.Net.Radio
         /// </summary>
         /// <exception caption="RadioNotConfigured Exception" cref="RadioNotConfiguredException"></exception>
         public Radio_802_15_4_Base()
-            : base("RadioCallback_802_15_4", 1234)
         {
         }
 
@@ -162,50 +161,8 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="drvData">Driver data</param>
         /// <exception caption="RadioNotConfigured Exception" cref="RadioNotConfiguredException"></exception>
         public Radio_802_15_4_Base(string drvname, ulong drvData)
-            : base(drvname, drvData)
         {
         }
-
-        /*/// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        private DeviceStatus Initialize()
-        {
-            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-            OnInterrupt += eventHandler;
-
-            return DeviceStatus.Success;
-        }
-        
-        /// <summary>
-        /// Initialize native radio and interop drivers.
-        /// </summary>
-        /// <param name="config">MAC configuration.</param>
-        /// <returns>The status after the method call: Success, Fail, Ready, Busy</returns>
-        private DeviceStatus Initialize(RadioConfiguration config)
-        {
-            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-            OnInterrupt += eventHandler;
-            marshalBuffer[0] = (byte)config.Channel;
-            marshalBuffer[1] = (byte)config.TxPower;
-            marshalBuffer[2] = (byte)config.RadioType;
-            return InternalInitialize(marshalBuffer);
-        }
-        
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private extern DeviceStatus InternalInitialize(byte[] config);*/    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
-        
-		/*/// <summary>
-        /// 
-        /// </summary>
-        /// <param name="RadioConfig"></param>
-        /// <returns></returns>
-        public DeviceStatus ReConfigure(RadioConfiguration RadioConfig)
-        {
-            DeviceStatus status = DeviceStatus.Success;
-            return status;
-        }*/
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>

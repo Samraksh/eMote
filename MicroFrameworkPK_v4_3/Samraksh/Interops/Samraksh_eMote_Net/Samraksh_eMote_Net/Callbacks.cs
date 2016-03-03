@@ -72,7 +72,7 @@ namespace Samraksh.eMote.Net
                 throw new CallbackNotConfiguredException();
 
             /*if (_neighborChangeCallBack == null)
-                Debug.Print("The Neighbor Callback has not been configured \n");*/
+                Debug.Print("Neighbor Callback has not been configured");*/
 
             if ((data1 == (uint)CallbackTypes.Received) && (_receiveCallBack != null))
                 _receiveCallBack((UInt16)data2);

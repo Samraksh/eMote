@@ -47,13 +47,6 @@ namespace Samraksh.eMote.Net
         /// </summary>
         public bool IsPacketTimeStamped;
 
-        /*/// <summary>Check if packet is timestamped</summary>
-        /// <returns>True iff packet is timestamped</returns>
-        public bool IsPacketTimeStamped()
-        {
-            return IsPacketTimeStamped;
-        }*/
-
         /// <summary>Create a packet with the default size</summary>
         public Packet()
         {

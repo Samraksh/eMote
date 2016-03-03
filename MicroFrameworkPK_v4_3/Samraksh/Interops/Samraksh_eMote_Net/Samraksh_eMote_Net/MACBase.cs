@@ -7,16 +7,6 @@ using Microsoft.SPOT.Hardware;
 
 namespace Samraksh.eMote.Net
 {
-    /*/// <summary>
-    /// Custom exception class for eMote.Net namespace
-    /// </summary>
-    public class eMoteNetException : Exception
-    {
-        public eMoteNetException() { }
-        public eMoteNetException(string packet) { }
-        public eMoteNetException(string packet, Exception innerException) { }
-    }*/
-
     /// <summary>Kinds of protocol</summary>
     public enum MACType
     {
@@ -29,23 +19,6 @@ namespace Samraksh.eMote.Net
         /// </summary>
         OMAC,
     }
-
-    /*/// <summary>
-    /// 
-    /// </summary>
-    public class InitializeCallback : NativeEventDispatcher
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public InitializeCallback()
-            : base("MACCallback", 1234)
-        {
-            //Enable interrupt handler when receive callback function is invoked
-            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-            OnInterrupt += eventHandler;
-        }
-    }*/
 
     /// <summary>Base class for wireless protocols</summary>
     /// <seealso cref="Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
@@ -114,11 +87,6 @@ namespace Samraksh.eMote.Net
             if (MACConfig.MACRadioConfig == null)
                 throw new RadioNotConfiguredException("Radio not configured");
 
-            //Enable interrupt handler when receive callback function is invoked
-            //InitializeCallback init = new InitializeCallback();
-            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-            OnInterrupt += eventHandler;
-
             if (MACType == MACType.CSMA)
             {
                 if (!CSMAInstanceSet)
@@ -183,6 +151,10 @@ namespace Samraksh.eMote.Net
             MACConfig.MACRadioConfig.Channel = config.MACRadioConfig.Channel;
             SetReceiveCallback(config.MACRadioConfig.OnReceiveCallback);
             SetNeighborChangeCallback(config.MACRadioConfig.OnNeighborChangeCallback);
+
+            //Enable interrupt handler for receive callback function 
+            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
+            OnInterrupt += eventHandler;
         }
 
         /// <summary>

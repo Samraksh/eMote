@@ -3,6 +3,16 @@ using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net
 {
+    /*/// <summary>
+    /// Custom exception class for eMote.Net namespace
+    /// </summary>
+    public class eMoteNetException : Exception
+    {
+        public eMoteNetException() { }
+        public eMoteNetException(string packet) { }
+        public eMoteNetException(string packet, Exception innerException) { }
+    }*/
+
     /// <summary>
     /// Exception thrown when the radio is configured incorrectly
     /// </summary>
