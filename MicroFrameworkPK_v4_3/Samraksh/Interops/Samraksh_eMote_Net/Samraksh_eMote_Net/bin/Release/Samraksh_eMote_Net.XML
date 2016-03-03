@@ -291,18 +291,6 @@
             <param name="BufferSize">Size of the buffer</param>
             <returns>Operation status</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetCCA">
-            <summary>Get Clear Channel Assessment</summary>
-            <returns>True iff channel is clear</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetNumberOfRetries">
-            <summary>Get number of times to retry sending</summary>
-            <returns>Number of times to retry sending</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.GetCCASenseTime">
-            <summary>Get Clear Channel Assessment Sense Time</summary>
-            <returns>Time to sense CCA (microseconds)</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.SetRadioType(Samraksh.eMote.Net.Radio.RadioType)">
             <summary>
             Set Radio type

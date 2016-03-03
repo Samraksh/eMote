@@ -291,7 +291,7 @@ namespace Samraksh.eMote.Net
             return Configure();
         }
 
-        /// <summary>Get Clear Channel Assessment</summary>
+        /*/// <summary>Get Clear Channel Assessment</summary>
         /// <returns>True iff channel is clear</returns>
         public bool GetCCA()
         {
@@ -310,7 +310,7 @@ namespace Samraksh.eMote.Net
         public byte GetCCASenseTime()
         {
             return MACConfig.CCASenseTime;
-        }
+        }*/
 
         /// <summary>
         /// Set Radio type
