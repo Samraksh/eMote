@@ -165,8 +165,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 {
-    static const int FIELD_STATIC__GenericRadioInstance = 7;
-    static const int FIELD_STATIC__syncObject = 8;
+    static const int FIELD_STATIC__GenericRadioInstanceSet = 7;
 
 
     //--//
@@ -175,8 +174,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4
 
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_LR
 {
-    static const int FIELD_STATIC__LRRadioInstance = 9;
-    static const int FIELD_STATIC__syncObject = 10;
+    static const int FIELD_STATIC__LRRadioInstanceSet = 8;
 
 
     //--//

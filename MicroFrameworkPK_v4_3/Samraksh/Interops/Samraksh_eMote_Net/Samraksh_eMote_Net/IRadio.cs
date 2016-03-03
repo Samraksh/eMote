@@ -106,12 +106,12 @@ namespace Samraksh.eMote.Net.Radio
         /// <returns>Success of operation</returns>
         DeviceStatus UnInitialize();
 
-        /// <summary>
+        /*/// <summary>
         /// Reconfigure radio
         /// </summary>
         /// <param name="config">New radio configuration</param>
         /// <returns>Success of operation</returns>
-        DeviceStatus ReConfigure(RadioConfiguration config);
+        DeviceStatus ReConfigure(RadioConfiguration config);*/
 
         /// <summary>
         /// Get radio address

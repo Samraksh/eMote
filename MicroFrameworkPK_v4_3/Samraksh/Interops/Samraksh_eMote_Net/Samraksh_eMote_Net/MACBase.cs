@@ -125,10 +125,10 @@ namespace Samraksh.eMote.Net
                 {
                     CSMAInstanceSet = true;
                     if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIO)
-                        MACRadioObj = Radio_802_15_4.GetInstance(RadioUser.CSMAMAC);
+                        MACRadioObj = new Radio_802_15_4(RadioUser.CSMAMAC);
                     
                     else if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIOLR)
-                        MACRadioObj = Radio_802_15_4_LR.GetInstance(RadioUser.CSMAMAC);
+                        MACRadioObj = new Radio_802_15_4_LR(RadioUser.CSMAMAC);
                     
                     else
                         throw new RadioConfigurationMismatchException("Unknown radio type");
@@ -142,10 +142,10 @@ namespace Samraksh.eMote.Net
                 {
                     OMACInstanceSet = true;
                     if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIO)
-                        MACRadioObj = Radio_802_15_4.GetInstance(RadioUser.OMAC);
+                        MACRadioObj = new Radio_802_15_4(RadioUser.OMAC);
                     
                     else if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIOLR)
-                        MACRadioObj = Radio_802_15_4_LR.GetInstance(RadioUser.OMAC);
+                        MACRadioObj = new Radio_802_15_4_LR(RadioUser.OMAC);
                     
                     else
                         throw new RadioConfigurationMismatchException("Unknown radio type");

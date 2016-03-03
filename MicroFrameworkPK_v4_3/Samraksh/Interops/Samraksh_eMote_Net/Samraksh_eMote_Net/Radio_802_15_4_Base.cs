@@ -196,7 +196,7 @@ namespace Samraksh.eMote.Net.Radio
         [MethodImpl(MethodImplOptions.InternalCall)]
         private extern DeviceStatus InternalInitialize(byte[] config);*/    // Changed to private by Bill Leal 2/6/2013 per Mukundan Sridharan.
         
-		/// <summary>
+		/*/// <summary>
         /// 
         /// </summary>
         /// <param name="RadioConfig"></param>
@@ -205,7 +205,7 @@ namespace Samraksh.eMote.Net.Radio
         {
             DeviceStatus status = DeviceStatus.Success;
             return status;
-        }
+        }*/
 
         /// <summary>Uninitialize native MAC, radio and interop drivers</summary>
         /// <returns>Status of operation.</returns>

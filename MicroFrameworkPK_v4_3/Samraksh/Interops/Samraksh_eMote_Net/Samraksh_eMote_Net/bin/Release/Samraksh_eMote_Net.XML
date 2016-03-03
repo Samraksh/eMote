@@ -773,13 +773,6 @@
             </summary>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.ReConfigure(Samraksh.eMote.Net.Radio.RadioConfiguration)">
-            <summary>
-            Reconfigure radio
-            </summary>
-            <param name="config">New radio configuration</param>
-            <returns>Success of operation</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.GetRadioAddress(System.Byte)">
             <summary>
             Get radio address
@@ -986,13 +979,6 @@
             <param name="drvData">Driver data</param>
             <exception caption="RadioNotConfigured Exception" cref="T:Samraksh.eMote.Net.RadioNotConfiguredException"></exception>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ReConfigure(Samraksh.eMote.Net.Radio.RadioConfiguration)">
-            <summary>
-            
-            </summary>
-            <param name="RadioConfig"></param>
-            <returns></returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.UnInitialize">
             <summary>Uninitialize native MAC, radio and interop drivers</summary>
             <returns>Status of operation.</returns>
@@ -1071,17 +1057,23 @@
             <param name="numberOfMicroSecond">Number of microseconds to check</param>
             <returns>True iff channel is free</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.GetInstance">
-            <summary>Get the radio instance</summary>
-            <returns>Radio instance</returns>
-            <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
-            <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.#ctor">
+            <summary>
+            
+            </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.GetInstance(Samraksh.eMote.Net.Radio.RadioUser)">
-            <summary>Get the radio instance</summary>
-            <param name="user">Radio user</param>
-            <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
-            <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
+            <summary>
+            
+            </summary>
+            <param name="user"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4.#ctor(System.String,System.UInt64)">
+            <summary>
+            
+            </summary>
+            <param name="drvName"></param>
+            <param name="drvdata"></param>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RadioType">
             <summary>Type of radio</summary>
@@ -1231,17 +1223,23 @@
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR">
             <summary>Long range radio</summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR.GetInstance">
-            <summary>Get RadioInstance</summary>
-            <returns>Instance</returns>
-            <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
-            <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR.#ctor">
+            <summary>
+            
+            </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR.GetInstance(Samraksh.eMote.Net.Radio.RadioUser)">
-            <summary>Get radio instance</summary>
-            <param name="user">Radio user</param>
-            <exception caption="RadioNotConfigured Exception" cref="O:Samraksh.eMote.Net.RadioNotConfiguredException._ctor"></exception>
-            <exception caption="System Exception" cref="T:System.SystemException"></exception>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
+            <summary>
+            
+            </summary>
+            <param name="user"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_LR.#ctor(System.String,System.UInt64)">
+            <summary>
+            
+            </summary>
+            <param name="drvName"></param>
+            <param name="drvdata"></param>
         </member>
     </members>
 </doc>
