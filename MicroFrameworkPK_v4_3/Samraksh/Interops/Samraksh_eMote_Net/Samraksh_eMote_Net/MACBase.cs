@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using Samraksh.eMote.Net.Mac;
+using Samraksh.eMote.Net.Radio;
 using System.Runtime.CompilerServices;
 using Microsoft.SPOT.Hardware;
 
@@ -29,7 +30,7 @@ namespace Samraksh.eMote.Net
         OMAC,
     }
 
-    /// <summary>
+    /*/// <summary>
     /// 
     /// </summary>
     public class InitializeCallback : NativeEventDispatcher
@@ -44,12 +45,12 @@ namespace Samraksh.eMote.Net
             NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
             OnInterrupt += eventHandler;
         }
-    }
+    }*/
 
     /// <summary>Base class for wireless protocols</summary>
     /// <seealso cref="Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
     /// <seealso cref="OMAC" cat="Inherited by">OMAC Class</seealso>
-    public class MACBase : IMAC
+    public class MACBase : NativeEventDispatcher, IMAC
     {
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
@@ -78,7 +79,7 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// 
         /// </summary>
-        public Radio.Radio_802_15_4_Base MACRadioObj;
+        public Radio_802_15_4_Base MACRadioObj;
 
         private Packet packet;
 
@@ -99,6 +100,7 @@ namespace Samraksh.eMote.Net
         /// <exception caption="MacNotConfigured Exception" cref="MACNotConfiguredException"></exception>
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public MACBase(MACConfiguration MacConfig, MACType MACType)
+            : base("MACCallback", 1234)
         {
             if(MacConfig == null)
                 throw new MACNotConfiguredException("MAC not configured");
@@ -113,18 +115,20 @@ namespace Samraksh.eMote.Net
                 throw new RadioNotConfiguredException("Radio not configured");
 
             //Enable interrupt handler when receive callback function is invoked
-            InitializeCallback init = new InitializeCallback();
+            //InitializeCallback init = new InitializeCallback();
+            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
+            OnInterrupt += eventHandler;
 
             if (MACType == MACType.CSMA)
             {
                 if (!CSMAInstanceSet)
                 {
                     CSMAInstanceSet = true;
-                    if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
-                        MACRadioObj = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.CSMAMAC);
+                    if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIO)
+                        MACRadioObj = Radio_802_15_4.GetInstance(RadioUser.CSMAMAC);
                     
-                    else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
-                        MACRadioObj = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.CSMAMAC);
+                    else if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIOLR)
+                        MACRadioObj = Radio_802_15_4_LR.GetInstance(RadioUser.CSMAMAC);
                     
                     else
                         throw new RadioConfigurationMismatchException("Unknown radio type");
@@ -137,11 +141,11 @@ namespace Samraksh.eMote.Net
                 if (!OMACInstanceSet)
                 {
                     OMACInstanceSet = true;
-                    if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIO)
-                        MACRadioObj = Radio.Radio_802_15_4.GetInstance(Radio.RadioUser.OMAC);
+                    if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIO)
+                        MACRadioObj = Radio_802_15_4.GetInstance(RadioUser.OMAC);
                     
-                    else if (MACConfig.MACRadioConfig.RadioType == Radio.RadioType.RF231RADIOLR)
-                        MACRadioObj = Radio.Radio_802_15_4_LR.GetInstance(Radio.RadioUser.OMAC);
+                    else if (MACConfig.MACRadioConfig.RadioType == RadioType.RF231RADIOLR)
+                        MACRadioObj = Radio_802_15_4_LR.GetInstance(RadioUser.OMAC);
                     
                     else
                         throw new RadioConfigurationMismatchException("Unknown radio type");
@@ -171,7 +175,7 @@ namespace Samraksh.eMote.Net
             MACConfig.NumberOfRetries = config.NumberOfRetries;
             MACConfig.CCASenseTime = config.CCASenseTime;
             MACConfig.BufferSize = config.BufferSize;
-            MACConfig.RadioType = config.RadioType;
+            //MACConfig.RadioType = config.RadioType;
             MACConfig.NeighborLivenessDelay = config.NeighborLivenessDelay;
 
             MACConfig.MACRadioConfig.RadioType = config.MACRadioConfig.RadioType;
@@ -197,15 +201,15 @@ namespace Samraksh.eMote.Net
             MarshalBuffer[1] = config.NumberOfRetries;
             MarshalBuffer[2] = config.CCASenseTime;
             MarshalBuffer[3] = config.BufferSize;
-            MarshalBuffer[4] = (byte)config.RadioType;
-            MarshalBuffer[5] = (byte) (config.NeighborLivenessDelay & 0xff);
-            MarshalBuffer[6] = (byte)((config.NeighborLivenessDelay& 0xff00) >> 8);
-            MarshalBuffer[7] = (byte)((config.NeighborLivenessDelay& 0xff0000) >> 16);
-            MarshalBuffer[8] = (byte)((config.NeighborLivenessDelay& 0xff000000) >> 24);
+            //MarshalBuffer[4] = (byte)config.RadioType;
+            MarshalBuffer[4] = (byte) (config.NeighborLivenessDelay & 0xff);
+            MarshalBuffer[5] = (byte)((config.NeighborLivenessDelay& 0xff00) >> 8);
+            MarshalBuffer[6] = (byte)((config.NeighborLivenessDelay& 0xff0000) >> 16);
+            MarshalBuffer[7] = (byte)((config.NeighborLivenessDelay& 0xff000000) >> 24);
             // Breaking the object boundary, but shallow instances of the radio can not initialize
-            MarshalBuffer[9] = (byte)config.MACRadioConfig.TxPower;
-            MarshalBuffer[10] = (byte)config.MACRadioConfig.Channel;
-            MarshalBuffer[11] = (byte)config.MACRadioConfig.RadioType;
+            MarshalBuffer[8] = (byte)config.MACRadioConfig.TxPower;
+            MarshalBuffer[9] = (byte)config.MACRadioConfig.Channel;
+            MarshalBuffer[10] = (byte)config.MACRadioConfig.RadioType;
 
             return InternalInitialize(MarshalBuffer, (byte) mactype);
         }
@@ -231,11 +235,11 @@ namespace Samraksh.eMote.Net
             MarshalBuffer[1] = MACConfig.NumberOfRetries;
             MarshalBuffer[2] = MACConfig.CCASenseTime;
             MarshalBuffer[3] = MACConfig.BufferSize;
-            MarshalBuffer[4] = (byte)MACConfig.RadioType;
-            MarshalBuffer[5] = (byte)(MACConfig.NeighborLivenessDelay & 0xff);
-            MarshalBuffer[6] = (byte)((MACConfig.NeighborLivenessDelay & 0xff00) >> 8);
-            MarshalBuffer[7] = (byte)((MACConfig.NeighborLivenessDelay & 0xff0000) >> 16);
-            MarshalBuffer[8] = (byte)((MACConfig.NeighborLivenessDelay & 0xff000000) >> 24);
+            //MarshalBuffer[4] = (byte)MACConfig.RadioType;
+            MarshalBuffer[4] = (byte)(MACConfig.NeighborLivenessDelay & 0xff);
+            MarshalBuffer[5] = (byte)((MACConfig.NeighborLivenessDelay & 0xff00) >> 8);
+            MarshalBuffer[6] = (byte)((MACConfig.NeighborLivenessDelay & 0xff0000) >> 16);
+            MarshalBuffer[7] = (byte)((MACConfig.NeighborLivenessDelay & 0xff000000) >> 24);
            
             // Breaking the object boundary, but shallow instances of the radio can not initialize
             /*MarshalBuffer[9] = (byte)MACConfig.MACRadioConfig.TxPower;
@@ -341,7 +345,7 @@ namespace Samraksh.eMote.Net
         /// </summary>
         /// <param name="RadioType">Radio type</param>
         /// <returns>DeviceStatus</returns>
-        public DeviceStatus SetRadioType(Radio.RadioType RadioType)
+        public DeviceStatus SetRadioType(RadioType RadioType)
         {
             MACConfig.MACRadioConfig.RadioType = RadioType;
             return SetRadioType((byte)RadioType);
@@ -353,7 +357,7 @@ namespace Samraksh.eMote.Net
         /// </summary>
         /// <param name="txPowerValue"></param>
         /// <returns></returns>
-        public DeviceStatus SetTxPower(Radio.TxPowerValue txPowerValue)
+        public DeviceStatus SetTxPower(TxPowerValue txPowerValue)
         {
             MACConfig.MACRadioConfig.TxPower = txPowerValue;
             return SetTxPower((byte)MACConfig.MACRadioConfig.RadioType, (byte)txPowerValue);
@@ -365,7 +369,7 @@ namespace Samraksh.eMote.Net
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        public DeviceStatus SetChannel(Radio.Channel channel)
+        public DeviceStatus SetChannel(Channel channel)
         {
             MACConfig.MACRadioConfig.Channel = channel;
             return SetChannel((byte)MACConfig.MACRadioConfig.RadioType, (byte)channel);

@@ -56,7 +56,7 @@ DeviceStatus csmaMAC::SetConfig(MACConfig *config){
 	MyConfig.NumberOfRetries = config->NumberOfRetries;
 	MyConfig.CCASenseTime = config->CCASenseTime;
 	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.RadioType  = config->RadioType;
+	//MyConfig.RadioType  = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 
 	DEBUG_PRINTF_CSMA("SetConfig: %d %d %d %d %d %d %d %d\r\n",MyConfig.BufferSize,MyConfig.CCA,MyConfig.CCASenseTime,MyConfig.RadioID,MyConfig.FCF,MyConfig.DestPAN,MyConfig.Network,MyConfig.NeighborLivelinessDelay);

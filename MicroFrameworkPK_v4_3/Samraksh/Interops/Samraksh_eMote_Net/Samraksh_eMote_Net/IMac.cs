@@ -1,6 +1,7 @@
 using System;
 using Microsoft.SPOT;
 using Samraksh.eMote.Net;
+using Samraksh.eMote.Net.Radio;
 
 namespace Samraksh.eMote.Net
 {
@@ -99,10 +100,10 @@ namespace Samraksh.eMote.Net
 			/// Size of send buffer
 			/// </summary>
 			public byte BufferSize;
-            /// <summary>
+            /*/// <summary>
 			/// Radio type used by current MAC
 			/// </summary>
-			public Radio.RadioType RadioType;
+			public RadioType RadioType;*/
             /// <summary>
 			/// Delay before a neighbor is deemed dead
 			/// </summary>
@@ -110,7 +111,7 @@ namespace Samraksh.eMote.Net
             /// <summary>
             /// Configuration of the radio power and channel 
             /// </summary>
-            public Radio.RadioConfiguration MACRadioConfig;
+            public RadioConfiguration MACRadioConfig;
 
             /// <summary>
             /// MAC configuration constructor
@@ -120,10 +121,10 @@ namespace Samraksh.eMote.Net
                 this.CCA = true;
                 this.BufferSize = 8;
                 this.NumberOfRetries = 0;
-                this.RadioType = Radio.RadioType.RF231RADIO;
+                //this.RadioType = RadioType.RF231RADIO;
                 this.CCASenseTime = 140;
                 this.NeighborLivenessDelay = 100;
-                this.MACRadioConfig = new Radio.RadioConfiguration();
+                this.MACRadioConfig = new RadioConfiguration();
             }
 
             /// <summary>
@@ -135,10 +136,10 @@ namespace Samraksh.eMote.Net
                 this.CCA = config.CCA;
                 this.BufferSize = config.BufferSize;
                 this.NumberOfRetries = config.NumberOfRetries;
-                this.RadioType = config.RadioType;
+                //this.RadioType = config.RadioType;
                 this.CCASenseTime = config.CCASenseTime;
                 this.NeighborLivenessDelay = config.NeighborLivenessDelay;
-                this.MACRadioConfig = new Radio.RadioConfiguration(config.MACRadioConfig);
+                this.MACRadioConfig = new RadioConfiguration(config.MACRadioConfig);
             }
         };
 

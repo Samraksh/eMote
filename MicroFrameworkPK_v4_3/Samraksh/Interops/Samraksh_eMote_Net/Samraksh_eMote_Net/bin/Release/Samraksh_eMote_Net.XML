@@ -667,11 +667,6 @@
             Size of send buffer
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.RadioType">
-            <summary>
-            Radio type used by current MAC
-            </summary>
-        </member>
         <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.NeighborLivenessDelay">
             <summary>
             Delay before a neighbor is deemed dead
@@ -871,16 +866,6 @@
             </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.MACType.OMAC">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="T:Samraksh.eMote.Net.InitializeCallback">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:Samraksh.eMote.Net.InitializeCallback.#ctor">
             <summary>
             
             </summary>

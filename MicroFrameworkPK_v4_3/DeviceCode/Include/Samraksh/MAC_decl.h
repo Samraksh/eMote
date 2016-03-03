@@ -25,7 +25,7 @@ struct MACConfig {
     UINT8 NumberOfRetries;
     UINT8 CCASenseTime;
     UINT8 BufferSize;
-    UINT8 RadioType;
+    //UINT8 RadioType;
     UINT32 NeighborLivenessDelay;
 };
 //struct MACConfig;

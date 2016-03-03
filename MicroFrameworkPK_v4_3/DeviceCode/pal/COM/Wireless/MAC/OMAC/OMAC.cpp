@@ -103,7 +103,7 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 	MyConfig.NumberOfRetries = config->NumberOfRetries;
 	MyConfig.CCASenseTime = config->CCASenseTime;
 	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.RadioType = config->RadioType;
+	//MyConfig.RadioType = config->RadioType;
 	MyConfig.NeighborLivenessDelay = config->NeighborLivenessDelay;
 	return DS_Success;
 }

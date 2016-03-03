@@ -36,8 +36,9 @@ namespace Samraksh.eMote.Net
 		/// Set the neighbor change callback to be called when there is a change in neighbor table
 		/// </summary>
 		/// <param name="callback">Neighborcallback function pointer</param>
-		public static void SetNeighborChangeCallback(NeighborhoodChangeCallBack callback) {
-			_neighborChangeCallBack = callback;
+		public static void SetNeighborChangeCallback(NeighborhoodChangeCallBack callback) 
+        {
+            _neighborChangeCallBack = callback;
 		}
 
 		/// <summary>

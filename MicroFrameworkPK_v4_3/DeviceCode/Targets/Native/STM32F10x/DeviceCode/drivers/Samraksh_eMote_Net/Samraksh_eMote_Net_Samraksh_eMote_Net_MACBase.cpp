@@ -105,11 +105,11 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 	config.NumberOfRetries = configParams[1];
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
-	config.RadioType = configParams[4];
-	config.NeighborLivenessDelay = configParams[5];
-	config.NeighborLivenessDelay |= configParams[6] << 8;
-	config.NeighborLivenessDelay |= configParams[7] << 16;
-	config.NeighborLivenessDelay |= configParams[8] << 24;
+	//config.RadioType = configParams[4];
+	config.NeighborLivenessDelay = configParams[4];
+	config.NeighborLivenessDelay |= configParams[5] << 8;
+	config.NeighborLivenessDelay |= configParams[6] << 16;
+	config.NeighborLivenessDelay |= configParams[7] << 24;
 
 	if( MAC_Reconfigure((void*) &config) != DS_Success ){
 		hr = -1;
@@ -128,11 +128,11 @@ INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_
 	config.NumberOfRetries = configParams[1];
 	config.CCASenseTime = configParams[2];
 	config.BufferSize = configParams[3];
-	config.RadioType = configParams[4];
-	config.NeighborLivenessDelay = configParams[5];
-	config.NeighborLivenessDelay |= configParams[6] << 8;
-	config.NeighborLivenessDelay |= configParams[7] << 16;
-	config.NeighborLivenessDelay |= configParams[8] << 24;
+	//config.RadioType = configParams[4];
+	config.NeighborLivenessDelay = configParams[4];
+	config.NeighborLivenessDelay |= configParams[5] << 8;
+	config.NeighborLivenessDelay |= configParams[6] << 16;
+	config.NeighborLivenessDelay |= configParams[7] << 24;
 
 	Event_Handler.SetReceiveHandler(&ReceiveDoneCallbackFn);
 	Event_Handler.SetNeighborChangeHandler(&NeighborChangedCallbackFn);

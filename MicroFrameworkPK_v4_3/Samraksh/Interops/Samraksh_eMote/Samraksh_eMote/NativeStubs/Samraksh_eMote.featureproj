@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote</FeatureName>
-    <Guid>{6728c498-e979-4431-b559-7442b4660f82}</Guid>
+    <Guid>{fc906874-4689-45c6-8571-cd0317a47466}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_FEATUREPROJ>True</SAMRAKSH_EMOTE_FEATUREPROJ>
@@ -10,7 +10,7 @@
   <ItemGroup>
     <DriverLibs Include="Samraksh_eMote.$(LIB_EXT)" />
     <InteropFeature Include="Samraksh_eMote" />
-    <!--<MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote.pe" />-->
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote\dotnetmf.proj" />
+    <MMP_DAT_CreateDatabase Include="$(BUILD_TREE_CLIENT)\pe\$(ENDIANNESS)\Samraksh_eMote.pe" />
+    <RequiredProjects Include="NativeStubs\NativeStubs\dotnetmf.proj" />
   </ItemGroup>
 </Project>

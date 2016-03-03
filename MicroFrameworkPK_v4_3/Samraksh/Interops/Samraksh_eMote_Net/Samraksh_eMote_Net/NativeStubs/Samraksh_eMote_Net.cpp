@@ -30,7 +30,6 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     NULL,
     NULL,
-    NULL,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::UnInitialize___SamraksheMoteNetDeviceStatus,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetPendingPacketCount_Receive___U1,
@@ -147,7 +146,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net =
 {
     "Samraksh_eMote_Net", 
-    0xFFC1CDE9,
+    0x7DDA4A4C,
     method_lookup
 };
 
