@@ -28,13 +28,13 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD_STATIC__CSMAInstanceSet = 4;
     static const int FIELD_STATIC__OMACInstanceSet = 5;
 
-    static const int FIELD__NeighborList = 5;
-    static const int FIELD__ByteNeighbor = 6;
-    static const int FIELD__MarshalBuffer = 7;
-    static const int FIELD__MACConfig = 8;
-    static const int FIELD__MACRadioObj = 9;
-    static const int FIELD__packet = 10;
-    static const int FIELD__MACType = 11;
+    static const int FIELD__NeighborList = 1;
+    static const int FIELD__ByteNeighbor = 2;
+    static const int FIELD__MarshalBuffer = 3;
+    static const int FIELD__MACConfig = 4;
+    static const int FIELD__MACRadioObj = 5;
+    static const int FIELD__packet = 6;
+    static const int FIELD__MACType = 7;
 
     TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
@@ -190,6 +190,7 @@ extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net;
 
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_CSMACallback;
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_OMACCallback;
+extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_MACCallback;
 extern const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_RadioCallback_802_15_4;
 
 

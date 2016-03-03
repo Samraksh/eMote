@@ -875,6 +875,16 @@
             
             </summary>
         </member>
+        <member name="T:Samraksh.eMote.Net.InitializeCallback">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.InitializeCallback.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.Packet">
             <summary>Packet object. Passed to native</summary>
         </member>

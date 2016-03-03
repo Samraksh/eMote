@@ -29,10 +29,27 @@ namespace Samraksh.eMote.Net
         OMAC,
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public class InitializeCallback : NativeEventDispatcher
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public InitializeCallback()
+            : base("MACCallback", 1234)
+        {
+            //Enable interrupt handler when receive callback function is invoked
+            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
+            OnInterrupt += eventHandler;
+        }
+    }
+
     /// <summary>Base class for wireless protocols</summary>
     /// <seealso cref="Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
     /// <seealso cref="OMAC" cat="Inherited by">OMAC Class</seealso>
-    public class MACBase : NativeEventDispatcher, IMAC
+    public class MACBase : IMAC
     {
         /// <summary>
         /// Specifies the marshalling buffer size, used by the config to pass data to native code 
@@ -56,7 +73,7 @@ namespace Samraksh.eMote.Net
         /// <summary>
         /// MAC Config
         /// </summary>
-        public MACConfiguration MACConfig = null;
+        public MACConfiguration MACConfig = new MACConfiguration();
 
         /// <summary>
         /// 
@@ -82,7 +99,6 @@ namespace Samraksh.eMote.Net
         /// <exception caption="MacNotConfigured Exception" cref="MACNotConfiguredException"></exception>
         /// <exception caption="System Exception" cref="System.SystemException"></exception>
         public MACBase(MACConfiguration MacConfig, MACType MACType)
-            : base("MACBase", 1234)
         {
             if(MacConfig == null)
                 throw new MACNotConfiguredException("MAC not configured");
@@ -97,8 +113,7 @@ namespace Samraksh.eMote.Net
                 throw new RadioNotConfiguredException("Radio not configured");
 
             //Enable interrupt handler when receive callback function is invoked
-            NativeEventHandler eventHandler = new NativeEventHandler(Callbacks.ReceiveFunction);
-            OnInterrupt += eventHandler;
+            InitializeCallback init = new InitializeCallback();
 
             if (MACType == MACType.CSMA)
             {
