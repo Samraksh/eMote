@@ -601,12 +601,6 @@
             Rest are for applications.
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.TIMESTAMPED_FLAG">
-            <summary></summary>
-        </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNC">
-            <summary></summary>
-        </member>
         <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA">
             <summary></summary>
         </member>
@@ -620,6 +614,9 @@
             <summary></summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DISCOVERY">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNC">
             <summary></summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA_ACK">

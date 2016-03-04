@@ -102,21 +102,21 @@ public:
 //Values 0 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for MF.
 //Rest are for applications.
 enum PayloadType{
-	TIMESTAMPED_FLAG = 0x01,
-	MFM_TIMESYNC = 0x02,
+	//TIMESTAMPED_FLAG = 0x01,
 	MFM_DATA = 0x20,
 	MFM_TIMESYNCREQ = 0x21,
-	MFM_NEIGHBORHOOD = 0x24,
-	MFM_ROUTING = 0x28,
-	MFM_DISCOVERY = 0x2C,
-	MFM_DATA_ACK = 0x34
+	MFM_NEIGHBORHOOD = 0x22,
+	MFM_ROUTING = 0x23,
+	MFM_DISCOVERY = 0x24,
+	MFM_TIMESYNC = 0x25,
+	MFM_DATA_ACK = 0x26
 };
 //#define MFM_DATA (1 << 0)
 //#define MFM_TIMESYNC (1 << 1)
 //#define MFM_NEIGHBORHOOD (1 << 2)
 //#define MFM_ROUTING (1 << 3)
 //#define MFM_DISCOVERY (1 << 4)
-//#define TIMESTAMPED_FLAG 0x40
+#define TIMESTAMPED_FLAG (1 << 0)
 //#define MFM_TIMESYNCREQ (1 << 6)
 //#define MFM_DATA_ACK (1 << 7)
 

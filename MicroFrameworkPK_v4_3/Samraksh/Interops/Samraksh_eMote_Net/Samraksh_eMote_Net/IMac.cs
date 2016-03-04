@@ -53,21 +53,19 @@ namespace Samraksh.eMote.Net
         public enum PayloadType
         {
             /// <summary></summary>
-            TIMESTAMPED_FLAG = 0x01,
-            /// <summary></summary>
-            MFM_TIMESYNC = 0x02,
-            /// <summary></summary>
             MFM_DATA = 0x20,
             /// <summary></summary>
             MFM_TIMESYNCREQ = 0x21,
             /// <summary></summary>
-            MFM_NEIGHBORHOOD = 0x24,
+            MFM_NEIGHBORHOOD = 0x22,
             /// <summary></summary>
-            MFM_ROUTING = 0x28,
+            MFM_ROUTING = 0x23,
             /// <summary></summary>
-            MFM_DISCOVERY = 0x2C,
+            MFM_DISCOVERY = 0x24,
             /// <summary></summary>
-            MFM_DATA_ACK = 0x34
+            MFM_TIMESYNC = 0x25,
+            /// <summary></summary>
+            MFM_DATA_ACK = 0x26
         };
 
         /// <summary>
