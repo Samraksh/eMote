@@ -41,7 +41,7 @@ void ReceiveDoneCallbackFn(void* msg, UINT16 numberOfPackets);
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 
-UINT8 CSMAInteropBuffer[128];
+UINT8 MACInteropBuffer[IEEE802_15_4_FRAME_LENGTH];
 
 INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
 {
@@ -194,7 +194,7 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 macAddress
    return MAC_GetNeighborStatus(macAddress, neighborlist.GetBuffer());
 }
 
-INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
+INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;
     //UINT16 address, offset, length;
@@ -202,9 +202,9 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArra
     //address=param0;
     //offset=param2;
     //length=param3;
-    memcpy (CSMAInteropBuffer, payload,  size);
+    memcpy (MACInteropBuffer, payload, size);
 
-    if (MAC_Send(address, MFM_DATA, (void*) CSMAInteropBuffer, size) == DS_Success)
+    if (MAC_Send(address, payloadType, (void*) MACInteropBuffer, size) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -212,7 +212,7 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArra
 	return retVal;
 }
 
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;
 	//UINT16 address, offset, length;
@@ -220,9 +220,9 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_R
 	//address=param0;
 	//offset=param2;
 	//length=param3;
-	memcpy (CSMAInteropBuffer, payload, size);
+	memcpy (MACInteropBuffer, payload, size);
 
-	if (MAC_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
+	if (MAC_SendTimeStamped(address, payloadType, (void*) MACInteropBuffer, size, (UINT32) HAL_Time_CurrentTicks()) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;
@@ -230,7 +230,7 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_R
 	return retVal;
 }
 
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, UINT32 eventTime, HRESULT &hr )
+INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadType, CLR_RT_TypedArray_UINT8 payloadTemp, UINT16 offset, UINT16 size, UINT32 eventTime, HRESULT &hr )
 {
 	InteropNetOpStatus retVal;
 	//UINT16 address, offset, length;
@@ -239,9 +239,9 @@ INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 address, CLR_R
 	//address=param0;
 	//offset=param2;
 	//length=param3;
-	memcpy (CSMAInteropBuffer, payload, size);
+	memcpy (MACInteropBuffer, payload, size);
 
-	if (MAC_SendTimeStamped(address, MFM_DATA, (void*) CSMAInteropBuffer, size, eventTime) == DS_Success)
+	if (MAC_SendTimeStamped(address, payloadType, (void*) MACInteropBuffer, size, eventTime) == DS_Success)
 		retVal = S_Success;
 	else
 		retVal = E_MacSendError;

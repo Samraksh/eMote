@@ -509,31 +509,34 @@ namespace Samraksh.eMote.Net
 
         /// <summary>Send a packet</summary>
         /// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
+        /// <param name="payloadType">PayloadType to be sent</param>
         /// <param name="payload">Byte array containing the payload to be sent</param>
         /// <param name="offset">The first byte in the array to send. Normally 0</param>
         /// <param name="size">The number of bytes to send</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus Send(UInt16 address, byte[] payload, UInt16 offset, UInt16 size);
+        public extern NetOpStatus Send(UInt16 address, byte payloadType, byte[] payload, UInt16 offset, UInt16 size);
 
         /// <summary>Send a time stamped packet. Time stamping is done in native send</summary>
         /// <param name="Address">The address of receiver</param>
-        /// <param name="packet">Packet to send</param>
+        /// <param name="payloadType">PayloadType to be sent</param>
+        /// <param name="payload">payload to send</param>
         /// <param name="offset">offset if any in the byte array</param>
         /// <param name="size">size of the packet</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size);
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte payloadType, byte[] payload, UInt16 offset, UInt16 size);
 
         /// <summary>Send a time stamped packet. Time stamp is specified as a parameter</summary>
         /// <param name="Address">Address of receiver</param>
-        /// <param name="packet">Packet to be sent</param>
+        /// <param name="payloadType">PayloadType to be sent</param>
+        /// <param name="payload">payload to be sent</param>
         /// <param name="offset">offset if any in the byte array</param>
         /// <param name="size">size of the packet</param>
         /// <param name="eventTime">Time to use for timestamp</param>
         /// <returns>Status of operation</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte[] packet, UInt16 offset, UInt16 size, UInt32 eventTime);
+        public extern NetOpStatus SendTimeStamped(UInt16 Address, byte payloadType, byte[] payload, UInt16 offset, UInt16 size, UInt32 eventTime);
 	
 	}
 }

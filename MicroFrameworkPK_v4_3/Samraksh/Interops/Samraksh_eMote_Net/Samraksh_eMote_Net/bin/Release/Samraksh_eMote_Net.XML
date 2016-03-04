@@ -159,11 +159,12 @@
             </summary>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.Mac.IMAC.Send(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16)">
             <summary>
             Send message
             </summary>
             <param name="address">Address of recipient (can use Addresses.BROADCAST)</param>
+            <param name="payloadType">payloadType</param>
             <param name="message">Byte array of to send</param>
             <param name="offset">Offset into array</param>
             <param name="size">Size of message</param>
@@ -418,26 +419,29 @@
             <remarks>This is the address by which the device is known to the rest of the world</remarks>
             <returns>Address of the device</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16)">
             <summary>Send a packet</summary>
             <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
+            <param name="payloadType">PayloadType to be sent</param>
             <param name="payload">Byte array containing the payload to be sent</param>
             <param name="offset">The first byte in the array to send. Normally 0</param>
             <param name="size">The number of bytes to send</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16)">
             <summary>Send a time stamped packet. Time stamping is done in native send</summary>
             <param name="Address">The address of receiver</param>
-            <param name="packet">Packet to send</param>
+            <param name="payloadType">PayloadType to be sent</param>
+            <param name="payload">payload to send</param>
             <param name="offset">offset if any in the byte array</param>
             <param name="size">size of the packet</param>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.UInt32)">
+        <member name="M:Samraksh.eMote.Net.MACBase.SendTimeStamped(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16,System.UInt32)">
             <summary>Send a time stamped packet. Time stamp is specified as a parameter</summary>
             <param name="Address">Address of receiver</param>
-            <param name="packet">Packet to be sent</param>
+            <param name="payloadType">PayloadType to be sent</param>
+            <param name="payload">payload to be sent</param>
             <param name="offset">offset if any in the byte array</param>
             <param name="size">size of the packet</param>
             <param name="eventTime">Time to use for timestamp</param>
@@ -589,6 +593,37 @@
         </member>
         <member name="F:Samraksh.eMote.Net.Mac.NeighborStatus.Suspect">
             <summary>Neighbor is suspect</summary>
+        </member>
+        <member name="T:Samraksh.eMote.Net.Mac.PayloadType">
+            <summary>
+            To be kept in sync with that in DeviceCode/Include/Samraksh/Message.h
+            Values 0 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for MF.
+            Rest are for applications.
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.TIMESTAMPED_FLAG">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNC">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNCREQ">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_NEIGHBORHOOD">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_ROUTING">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DISCOVERY">
+            <summary></summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA_ACK">
+            <summary></summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Mac.Neighbor">
             <summary>

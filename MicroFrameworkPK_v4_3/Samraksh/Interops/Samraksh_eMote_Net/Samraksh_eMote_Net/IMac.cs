@@ -46,6 +46,31 @@ namespace Samraksh.eMote.Net
         };
 
         /// <summary>
+        /// To be kept in sync with that in DeviceCode/Include/Samraksh/Message.h
+        /// Values 0 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for MF.
+        /// Rest are for applications.
+        /// </summary>
+        public enum PayloadType
+        {
+            /// <summary></summary>
+            TIMESTAMPED_FLAG = 0x01,
+            /// <summary></summary>
+            MFM_TIMESYNC = 0x02,
+            /// <summary></summary>
+            MFM_DATA = 0x20,
+            /// <summary></summary>
+            MFM_TIMESYNCREQ = 0x21,
+            /// <summary></summary>
+            MFM_NEIGHBORHOOD = 0x24,
+            /// <summary></summary>
+            MFM_ROUTING = 0x28,
+            /// <summary></summary>
+            MFM_DISCOVERY = 0x2C,
+            /// <summary></summary>
+            MFM_DATA_ACK = 0x34
+        };
+
+        /// <summary>
         /// Neighbor details
         /// </summary>
         public class Neighbor
@@ -162,11 +187,12 @@ namespace Samraksh.eMote.Net
             /// Send message
             /// </summary>
             /// <param name="address">Address of recipient (can use Addresses.BROADCAST)</param>
+            /// <param name="payloadType">payloadType</param>
             /// <param name="message">Byte array of to send</param>
             /// <param name="offset">Offset into array</param>
             /// <param name="size">Size of message</param>
             /// <returns></returns>
-            NetOpStatus Send(UInt16 address, byte[] message, UInt16 offset, UInt16 size);
+            NetOpStatus Send(UInt16 address, byte payloadType, byte[] message, UInt16 offset, UInt16 size);
             
             /// <summary>
             /// Get address of radio

@@ -131,7 +131,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetRadioAddress__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -142,16 +142,19 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheM
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        CLR_RT_TypedArray_UINT8 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
 
-        UINT16 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+        CLR_RT_TypedArray_UINT8 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 3, param2 ) );
 
         UINT16 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
 
-        INT32 retVal = MACBase::Send( pMngObj,  param0, param1, param2, param3, hr );
+        UINT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 5, param4 ) );
+
+        INT32 retVal = MACBase::Send( pMngObj,  param0, param1, param2, param3, param4, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -323,7 +326,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNeighborListIn
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -334,16 +337,19 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped__
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        CLR_RT_TypedArray_UINT8 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
 
-        UINT16 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+        CLR_RT_TypedArray_UINT8 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 3, param2 ) );
 
         UINT16 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
 
-        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, hr );
+        UINT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 5, param4 ) );
+
+        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, param4, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 
@@ -351,7 +357,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped__
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2__U4( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -362,19 +368,22 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped__
         UINT16 param0;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 1, param0 ) );
 
-        CLR_RT_TypedArray_UINT8 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 2, param1 ) );
+        UINT8 param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8( stack, 2, param1 ) );
 
-        UINT16 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+        CLR_RT_TypedArray_UINT8 param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 3, param2 ) );
 
         UINT16 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
 
-        UINT32 param4;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 5, param4 ) );
+        UINT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 5, param4 ) );
 
-        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, param4, hr );
+        UINT32 param5;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT32( stack, 6, param5 ) );
+
+        INT32 retVal = MACBase::SendTimeStamped( pMngObj,  param0, param1, param2, param3, param4, param5, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

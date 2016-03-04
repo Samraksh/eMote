@@ -58,7 +58,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetMACType___U1,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SetRadioAddress___SamraksheMoteNetDeviceStatus__U2,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetRadioAddress___U2,
-    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
+    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::Send___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2,
     NULL,
     NULL,
     NULL,
@@ -83,8 +83,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNextPacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNeighborInternal___SamraksheMoteNetDeviceStatus__U2__SZARRAY_U1,
     Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::GetNeighborListInternal___SamraksheMoteNetDeviceStatus__SZARRAY_U2,
-    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2,
-    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2__U4,
+    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2,
+    Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::SendTimeStamped___SamraksheMoteNetNetOpStatus__U2__U1__SZARRAY_U1__U2__U2__U4,
     NULL,
     NULL,
     NULL,
@@ -160,7 +160,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote_Net =
 {
     "Samraksh_eMote_Net", 
-    0x33FF2871,
+    0xA90475C0,
     method_lookup
 };
 
