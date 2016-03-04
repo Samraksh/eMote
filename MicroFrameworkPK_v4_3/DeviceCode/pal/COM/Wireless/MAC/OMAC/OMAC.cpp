@@ -407,7 +407,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				break;
 			};
 
-			if(msg->GetHeader()->flags &  MFM_TIMESYNC) {
+			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG) {
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 #endif

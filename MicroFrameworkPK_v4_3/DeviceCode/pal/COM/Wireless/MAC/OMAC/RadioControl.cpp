@@ -205,7 +205,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 			hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
 		}
-		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
+		//msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
 		size += sizeof(TimeSyncMsg);
 	}
 }
