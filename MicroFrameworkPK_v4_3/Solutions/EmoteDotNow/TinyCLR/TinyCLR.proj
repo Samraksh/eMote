@@ -430,8 +430,12 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_adtim.$(LIB_EXT)" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
+    <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
     <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
   </ItemGroup>
   
