@@ -18,6 +18,8 @@
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
 #define UnknownRelativeFreq 255
 
+#define TIME_WALK_STEP (double)(2*GUARDTIME_MICRO*TICKS_PER_MICRO) //BK: This is the search step in Ticks used in FAST_RECOVERY2
+
 struct TSSamples {
 	UINT16 nbrID;
 	double recordedTime[MAX_SAMPLES];
@@ -27,6 +29,7 @@ struct TSSamples {
 	UINT8 numSamples;
 	double relativeFreq; // y *f = x x is the local clock clcok
 	double y_intercept; // y *f = x x is the local clock clcok
+	double additional_y_intercept_offset;
 	//INT64 Last_TS_localtime;
 	//INT64 Last_Adjust_localtime;
 		//INT64 First_TS_localtime;
@@ -201,6 +204,7 @@ private:
 		samples[nbrIndex].relativeFreq = SSxy/SSxx;
 		samples[nbrIndex].y_intercept = sum_y/((double)numSamples) - sum_x/((double)numSamples) * samples[nbrIndex].relativeFreq;
 
+		samples[nbrIndex].additional_y_intercept_offset = 0;
 	}
 
 public:
@@ -313,6 +317,25 @@ public:
 	UINT64 Local2NeighborTime(UINT16 nbr, UINT64 curtime);
 	UINT64 Neighbor2LocalTime(UINT16 nbr, UINT64 nbrtime);
 
+	void UnsuccessfulTransmission(UINT16 nbr){
+		UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
+		if(regressgt2.samples[nbrIndex].additional_y_intercept_offset == 0){
+			regressgt2.samples[nbrIndex].additional_y_intercept_offset = (double)(-1)*TIME_WALK_STEP;
+		}
+		else if(regressgt2.samples[nbrIndex].additional_y_intercept_offset == (double)(-1)*TIME_WALK_STEP){
+			regressgt2.samples[nbrIndex].additional_y_intercept_offset =   TIME_WALK_STEP;
+		}
+		else if(regressgt2.samples[nbrIndex].additional_y_intercept_offset ==  TIME_WALK_STEP){
+			regressgt2.samples[nbrIndex].additional_y_intercept_offset = double(-2) * TIME_WALK_STEP;
+		}
+		else if(regressgt2.samples[nbrIndex].additional_y_intercept_offset == double(-2) * TIME_WALK_STEP){
+			regressgt2.samples[nbrIndex].additional_y_intercept_offset =  double(2.5) * TIME_WALK_STEP;
+		}
+		else{
+			regressgt2.samples[nbrIndex].additional_y_intercept_offset = 0;
+		}
+	}
+
 	// OBSOLETE AND UNTESTED
 	UINT64 Read(){
 		UINT64 rtn;
@@ -357,7 +380,7 @@ UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	if (negativeperiod) lastrecordedTime = lastrecordedTime - (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
 	else lastrecordedTime = lastrecordedTime + (((float) periodlength)  * regressgt2.samples[nbrIndex].relativeFreq);
 	return (lastrecordedTime);*/
-	return ( ( (double)nbrTime - regressgt2.samples[nbrIndex].y_intercept)/regressgt2.samples[nbrIndex].relativeFreq );
+	return ( ( (double)nbrTime - regressgt2.samples[nbrIndex].y_intercept - regressgt2.samples[nbrIndex].additional_y_intercept_offset)/regressgt2.samples[nbrIndex].relativeFreq );
 }
 
 UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
@@ -396,6 +419,6 @@ UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	if (negativeperiod) lastlocalTime = lastlocalTime - (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
 	else lastlocalTime = lastlocalTime + (((float) periodlength) / regressgt2.samples[nbrIndex].relativeFreq);
 	return (lastlocalTime);*/
-	return ( regressgt2.samples[nbrIndex].relativeFreq * (double)curtime + regressgt2.samples[nbrIndex].y_intercept );
+	return ( regressgt2.samples[nbrIndex].relativeFreq * (double)curtime + regressgt2.samples[nbrIndex].y_intercept + regressgt2.samples[nbrIndex].additional_y_intercept_offset);
 }
 #endif //GLOBALTIME_H_

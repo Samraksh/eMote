@@ -58,7 +58,8 @@ class PacketTimeSync_15_4{
             UINT32 * senderEventTime = (UINT32 *)((UINT32)rcv_msg + _payloadsize + TIMESTAMP_OFFSET);
             INT64 rcv_ts = msg->GetMetaData()->GetReceiveTimeStamp();
             UINT32 sender_delay = *senderEventTime;
-            return sender_delay + (CPU_TicksPerSecond()/1000000)*TXRXOFFSET ;
+            return sender_delay;
+            //return sender_delay + (CPU_TicksPerSecond()/1000000)*TXRXOFFSET ;
         }
 
         static bool IsValid(Message_15_4_t *msg){

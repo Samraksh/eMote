@@ -222,7 +222,11 @@ typedef class IEEE802_15_4_Metadata{
   public:
 	void ClearData(){
 		RetryAttempts = 0;
-
+		ReceiveTimeStamp1 = 0;
+		ReceiveTimeStamp0 = 0;
+		Lqi = 0;
+		Rssi = 0;
+		network = 0;
 	}
 	/*UINT8 GetLength(){
 		return this->length;

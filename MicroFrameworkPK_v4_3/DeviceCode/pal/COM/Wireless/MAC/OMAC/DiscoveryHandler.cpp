@@ -161,7 +161,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 
 	CreateMessage(m_discoveryMsg);
 
-	//localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	//localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	//m_discoveryMsg->localTime0 = (UINT32) localTime ;
 	//m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
 
@@ -193,7 +193,7 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
 	discoveryMsg->seedUpdateIntervalinSlots = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_seedUpdateIntervalinSlots;
 	discoveryMsg->nodeID = g_OMAC.GetMyAddress();
 
-	UINT64 curticks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 curticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	discoveryMsg->localTime0 = (UINT32) curticks;
 	discoveryMsg->localTime1 = (UINT32) (curticks>>32);
 
@@ -272,10 +272,10 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg){  //(Message_15_4_t* msg, void* payload, UINT8 len){
 	Neighbor_t tempNeighbor;
 	UINT8 nbrIdx;
-	UINT64 localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+	UINT64 localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
 	if(disMsg -> msg_identifier != 33686018){
-		localTime = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		//ASSERT_SP(0);
 	}
 #ifdef def_Neighbor2beFollowed
@@ -305,8 +305,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 			stopBeacon = true;
 		}*/
 	} else {
-		highdiscorate = true;
-		firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+		TempIncreaseDiscoRate();
 		g_OMAC.m_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 
@@ -388,4 +387,9 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	return retValue;
 }
 
-
+void DiscoveryHandler::TempIncreaseDiscoRate(){
+	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
+	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
+	highdiscorate = true;
+	firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+}

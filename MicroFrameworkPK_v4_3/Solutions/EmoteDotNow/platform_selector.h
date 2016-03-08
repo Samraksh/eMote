@@ -27,7 +27,7 @@
 // processor and features
 //
 /////////////////////////////////////////////////////////
-
+#define RUNTIME_MEMORY_PROFILE__small 1 
 
 /////////////////////////////////////////////////////////
 //
@@ -122,8 +122,8 @@
 #define RF231_SPI_BUS 1					// MUST BE CONSISTENT WITH: netmf_spi.h
 #define RF231_LR_SPI_BUS 2
 
-#define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    512  // there is one TX for each usart port
-#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    512  // there is one RX for each usart port
+#define PLATFORM_DEPENDENT_TX_USART_BUFFER_SIZE    256  // there is one TX for each usart port
+#define PLATFORM_DEPENDENT_RX_USART_BUFFER_SIZE    256  // there is one RX for each usart port
 #define PLATFORM_DEPENDENT_USB_QUEUE_PACKET_COUNT  2    // there is one queue for each pipe of each endpoint and the size of a single packet is sizeof(USB_PACKET64) == 68 bytes
 
 #define DEBUG_TEXT_PORT    COM1

@@ -101,6 +101,7 @@ public:
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
 	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
+	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
 	DeviceStatus RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime);
@@ -133,6 +134,31 @@ UINT16 NeighborTable::GetMaxNeighbors(void){
 	return MAX_NEIGHBORS;
 }
 
+UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime)
+{
+	UINT8 deadNeighbors = 0;
+
+	UINT64 livelinessDelayInTicks = CPU_MillisecondsToTicks(NeighborLivenessDelay * 1000);
+
+
+	//if (Neighbor[0].Status == Alive)
+	//	hal_printf("neighbor 0 last time: %lld\tcurrent time: %lld\tlivelinessDelayinticks: %lld\r\n", Neighbor[0].LastHeardTime,  currentTime, livelinessDelayInTicks);
+
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
+		{
+
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			Neighbor[i].Status = Dead;
+			++deadNeighbors;
+			--NumberValidNeighbor;
+		}
+	}
+
+	return deadNeighbors;
+}
+
 UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
 	return BringOutYourDead(NeighborLivenessDelay);
@@ -152,7 +178,7 @@ DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){
 
 UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
-	GLOBAL_LOCK(irq);
+//	GLOBAL_LOCK(irq);
 
 	UINT8 deadNeighbors = 0;
 

@@ -36,6 +36,7 @@
 #include <Samraksh/Neighbors.h>
 
 #include "OMACConstants.h"
+#include "OMACClock.h"
 #include "Scheduler.h"
 #include "Handlers.h"
 
@@ -90,6 +91,7 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	//Buffer_15_4_t g_send_buffer;
 	//Buffer_15_4_t g_receive_buffer;
 	NeighborTable m_NeighborTable;
+	OMACClock m_Clock;
 
 	RadioControl_t m_omac_RadioControl;
 	OMACScheduler m_omac_scheduler;
@@ -157,7 +159,7 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
 	Message_15_4_t* FindFirstSyncedNbrMessage();
 	Message_15_4_t* FindFirstMessageForNbr(UINT16 nbr);
-	void UpdateNeighborTable();
+	UINT8 UpdateNeighborTable();
 	UINT8 GetSendBufferSize();
 	UINT8 GetReceiveBufferSize();
 	UINT16 GetSendPending();

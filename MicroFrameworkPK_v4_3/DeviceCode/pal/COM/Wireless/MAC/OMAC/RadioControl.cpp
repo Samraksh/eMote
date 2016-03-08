@@ -119,7 +119,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 	if( (header->flags & TIMESTAMPED_FLAG) ){
 		//Convert TimeStamp to high freq clock
-		UINT64 time_elapsed_since_TS = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+		UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
 		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
 		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 		returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
@@ -180,7 +180,8 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	}
 	else{ //Otherwise calculate it . Will be added later add it
 		additional_overhead += timestamp_size;
-		event_time = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		//g_OMAC.m_Clock.CreateSyncPointBetweenClocks();
+		event_time = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	}
 
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
@@ -195,7 +196,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		CPU_GPIO_SetPinState( RADIOCONTROL_SENDTS_PIN, FALSE );
 
 		header->flags = ((header->flags | TIMESTAMPED_FLAG));
-		y = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.GetCurrentTimeinTicks();
+		y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		y_lo = y & 0xFFFFFFFF;
 		event_time_lo = event_time & 0xFFFFFFFF;
 		y = y - ( y_lo - event_time_lo );
