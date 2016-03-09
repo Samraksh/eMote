@@ -25,6 +25,12 @@
 
 #define DISCOVERY_FREQUENCY 200
 
+#define FCF_WORD_VALUE 0x8861 //34913
+#define SRC_PAN_ID	0xAAAA
+#define DEST_PAN_ID	0x5555
+
+#define TIMESTAMP_SIZE 4
+
 extern Buffer_15_4_t g_send_buffer;
 extern Buffer_15_4_t g_receive_buffer;
 extern NeighborTable g_NeighborTable;

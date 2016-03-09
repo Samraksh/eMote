@@ -184,19 +184,20 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
 	/**************************************************************/
-	header->fcf.fcfWordValue = 26150;
+	header->fcf.fcfWordValue = FCF_WORD_VALUE;
 	finalSeqNumber = GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
 	//header->srcpan = 0x0001;
-	header->destpan = 0x0001;
-	if(GetRadioAddress() == 6846){
+	header->destpan = DEST_PAN_ID;
+	/*if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
-	}
+	}*/
+	header->dest = dest;
 	header->src = GetMyAddress();
 	seqNumber++;
 
@@ -204,13 +205,14 @@ BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, 
 	footer->FCS = 0xAAAA;*/
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
+	//UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
 	header->length = length;
 	//metadata->SetNetwork(MyConfig.Network);
 	metadata->SetNetwork(0);
 	header->mac_id = this->macName;
 	header->type = dataType;
-	header->flags = (MFM_DATA | MFM_TIMESYNC);
+	header->flags = (TIMESTAMPED_FLAG);
 	metadata->SetReceiveTimeStamp(eventTime);
 
 	UINT8* lmsg = (UINT8 *) msg;
@@ -254,19 +256,20 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
 	/**************************************************************/
-	header->fcf.fcfWordValue = 26150;
+	header->fcf.fcfWordValue = FCF_WORD_VALUE;
 	finalSeqNumber = GetMyAddress() ^ 0xAA;
 	finalSeqNumber += ((GetMyAddress() >> 8) ^ 0x55);
 	finalSeqNumber += seqNumber;
 	header->dsn = finalSeqNumber;
 	//header->srcpan = 0x0001;
-	header->destpan = 0x0001;
-	if(GetRadioAddress() == 6846){
+	header->destpan = DEST_PAN_ID;
+	/*if(GetRadioAddress() == 6846){
 		header->dest = 0x0DB1;
 	}
 	else{
 		header->dest = 0x1ABE;
-	}
+	}*/
+	header->dest = dest;
 	header->src = GetMyAddress();
 	seqNumber++;
 
@@ -274,13 +277,14 @@ BOOL csmaMAC::Send(UINT16 dest, UINT8 dataType, void* msg, int Size){
 	footer->FCS = 0xAAAA;*/
 
 	IEEE802_15_4_Metadata_t* metadata = msg_carrier.GetMetaData();
-	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
+	//UINT8 length = Size + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Metadata_t);
+	UINT8 length = Size + sizeof(IEEE802_15_4_Header_t);
 	header->length = length;
 	//metadata->SetNetwork(MyConfig.Network);
 	metadata->SetNetwork(0);
 	header->mac_id = this->macName;
 	header->type = dataType;
-	header->flags = (MFM_DATA);
+	header->flags = (0);
 
 	UINT8* lmsg = (UINT8 *) msg;
 	UINT8* payload =  msg_carrier.GetPayload();
@@ -427,6 +431,11 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	// Get the header packet
 	IEEE802_15_4_Header_t* rcv_msg_hdr = msg->GetHeader();
+	//If send happened with a timestamp, then subtract TIMESTAMP_SIZE
+	if(rcv_msg_hdr->flags == TIMESTAMPED_FLAG){
+		rcv_msg_hdr->length -= TIMESTAMP_SIZE;
+	}
+
 	IEEE802_15_4_Metadata_t* rcv_meta = msg->GetMetaData();
 	//UINT8* rcv_payload = msg->GetPayload();
 
