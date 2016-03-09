@@ -312,8 +312,8 @@ void csmaMAC::SendToRadio(){
 				return;
 			}*/
 			//TODO: AnanthAtSamraksh - check if this is right
-			CPU_Timer_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
-			//CPU_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
+			HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
+			//HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
