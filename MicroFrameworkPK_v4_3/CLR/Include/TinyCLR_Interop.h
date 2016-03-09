@@ -40,7 +40,7 @@ void TINYCLR_DEBUG_PROCESS_EXCEPTION( HRESULT hr, LPCSTR szFunc, LPCSTR szFile, 
 #define TINYCLR_HEADER()               HRESULT hr
 #define TINYCLR_CHECK_HRESULT(expr)    { if(FAILED(hr = (expr))) TINYCLR_LEAVE(); }
 #define TINYCLR_EXIT_ON_SUCCESS(expr)  { if(SUCCEEDED(hr = (expr))) TINYCLR_LEAVE(); }
-#define TINYCLR_SET_AND_LEAVE(expr)    { hr = (expr); TINYCLR_LEAVE(); }
+#define TINYCLR_SET_AND_LEAVE(expr)    { hr = (expr); TINYCLR_LEAVE(); }  // EXAMPLE DEBUG CLR ERRORS: { hr = (expr); if(hr==CLR_E_WRONG_TYPE){SOFT_BREAKPOINT();} TINYCLR_LEAVE(); }
 #define TINYCLR_CLEANUP()              hr = S_OK; TinyCLR_Cleanup:
 #define TINYCLR_CLEANUP_END()          TINYCLR_RETURN()
 #define TINYCLR_NOCLEANUP()            TINYCLR_CLEANUP(); TINYCLR_CLEANUP_END()
