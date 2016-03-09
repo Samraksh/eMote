@@ -11,6 +11,25 @@
 #define _SAMRAKSHEMOTE_H_
 
 #include <TinyCLR_Interop.h>
+struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection
+{
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__I4__SZARRAY_R8__BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__I4__I4);
+
+    //--//
+
+};
+
+struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
+{
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
+    TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__R8__I4__U2__U2);
+
+    //--//
+
+};
+
 struct Library_SamrakshEmote_Samraksh_eMote_NonVolatileMemory_DataReference
 {
     static const int FIELD__dStore = 1;

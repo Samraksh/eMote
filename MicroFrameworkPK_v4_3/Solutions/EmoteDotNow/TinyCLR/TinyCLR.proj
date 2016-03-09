@@ -657,6 +657,11 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
   </ItemGroup>
+
+<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
+    <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
+  </ItemGroup>
   
   <!--                      	    Wireless Networking Stack ::End                      -->
   
