@@ -26,6 +26,7 @@ public:
 		}
 		numElements=0;
 		nextCleanBuffer = 0;
+		firstFullBuffer = 0;
 		return TRUE;
 	}
 
