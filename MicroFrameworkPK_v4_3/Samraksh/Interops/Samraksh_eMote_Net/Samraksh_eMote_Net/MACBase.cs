@@ -1,6 +1,6 @@
 using System;
 using Microsoft.SPOT;
-using Samraksh.eMote.Net.Mac;
+using Samraksh.eMote.Net.MAC;
 using Samraksh.eMote.Net.Radio;
 using System.Runtime.CompilerServices;
 using Microsoft.SPOT.Hardware;
@@ -21,8 +21,8 @@ namespace Samraksh.eMote.Net
     }
 
     /// <summary>Base class for wireless protocols</summary>
-    /// <seealso cref="Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
-    /// <seealso cref="OMAC" cat="Inherited by">OMAC Class</seealso>
+    /// <seealso cref="MAC.CSMA" cat="Inherited by">CSMA Class</seealso>
+    /// <seealso cref="MAC.OMAC" cat="Inherited by">OMAC Class</seealso>
     public class MACBase : NativeEventDispatcher, IMAC
     {
         /// <summary>
@@ -129,7 +129,7 @@ namespace Samraksh.eMote.Net
 
             if (status != DeviceStatus.Success)
             {
-                throw new MACNotConfiguredException("Mac initialization failed. One reason for failure could be that a USB cable is attached to the DotNow.\n");
+                throw new MACNotConfiguredException("MAC initialization failed. One reason for failure could be that a USB cable is attached to the DotNow.\n");
             }
         }
 

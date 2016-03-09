@@ -103,24 +103,24 @@
             Radio configuration failed
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MacInit">
+        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MACInit">
             <summary>
-            Mac layer initialization failed
+            MAC layer initialization failed
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MacConfig">
+        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MACConfig">
             <summary>
-            Mac configuration failed
+            MAC configuration failed
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MacSendError">
+        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MACSendError">
             <summary>
-            Mac layer send failed
+            MAC layer send failed
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MacBufferFull">
+        <member name="F:Samraksh.eMote.Net.NetOpStatus.E_MACBufferFull">
             <summary>
-            Mac layer bufferis full
+            MAC layer bufferis full
             </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.NetOpStatus.S_Success">
@@ -140,26 +140,26 @@
             </summary>
             <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.CSMA">
+        <member name="T:Samraksh.eMote.Net.MAC.CSMA">
             <summary>CSMA objects</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.MACBase">
             <summary>Base class for wireless protocols</summary>
-            <seealso cref="T:Samraksh.eMote.Net.Mac.CSMA" cat="Inherited by">CSMA Class</seealso>
-            <seealso cref="T:Samraksh.eMote.Net.Mac.OMAC" cat="Inherited by">OMAC Class</seealso>
+            <seealso cref="T:Samraksh.eMote.Net.MAC.CSMA" cat="Inherited by">CSMA Class</seealso>
+            <seealso cref="T:Samraksh.eMote.Net.MAC.OMAC" cat="Inherited by">OMAC Class</seealso>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.IMAC">
+        <member name="T:Samraksh.eMote.Net.MAC.IMAC">
             <summary>
             MAC interface
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.UnInitialize">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.UnInitialize">
             <summary>
             Unitialize MAC
             </summary>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.Send(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,System.Byte,System.Byte[],System.UInt16,System.UInt16)">
             <summary>
             Send message
             </summary>
@@ -170,45 +170,45 @@
             <param name="size">Size of message</param>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetRadioAddress">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.GetRadioAddress">
             <summary>
             Get address of radio
             </summary>
             <returns>Address</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.SetRadioAddress(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.SetRadioAddress(System.UInt16)">
             <summary>
             Set address of radio
             </summary>
             <param name="address">Address</param>
             <returns>Success of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetMACType">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.GetMACType">
             <summary>
             Get MAC type
             </summary>
             <returns>MAC type</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetNeighborStatus(System.UInt16)">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.GetNeighborStatus(System.UInt16)">
             <summary>
             Get neighbor status
             </summary>
             <param name="macAddress">MAC address of neighbor</param>
             <returns>Neighbor status</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetPendingPacketCount_Send">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.GetPendingPacketCount_Send">
             <summary>
             Get pending packet count of MAC instance
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.GetPendingPacketCount_Receive">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.GetPendingPacketCount_Receive">
             <summary>
             Get pending packet count of MAC instance
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.IMAC.RemovePacket(System.Byte[])">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.RemovePacket(System.Byte[])">
             <summary>
             Remove packet from pending
             </summary>
@@ -235,7 +235,7 @@
             
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration,Samraksh.eMote.Net.MACType)">
+        <member name="M:Samraksh.eMote.Net.MACBase.#ctor(Samraksh.eMote.Net.MAC.MACConfiguration,Samraksh.eMote.Net.MACType)">
             <summary>
             Constructor that takes in a mactype parameter and initializes the corresponding mac object
             </summary>
@@ -244,13 +244,13 @@
             <exception caption="MacNotConfigured Exception" cref="T:Samraksh.eMote.Net.MACNotConfiguredException"></exception>
             <exception caption="System Exception" cref="T:System.SystemException"></exception>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.InitializeMacConfig(Samraksh.eMote.Net.Mac.MACConfiguration)">
+        <member name="M:Samraksh.eMote.Net.MACBase.InitializeMacConfig(Samraksh.eMote.Net.MAC.MACConfiguration)">
             <summary>
             
             </summary>
             <param name="config"></param>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Initialize(Samraksh.eMote.Net.Mac.MACConfiguration,Samraksh.eMote.Net.MACType)">
+        <member name="M:Samraksh.eMote.Net.MACBase.Initialize(Samraksh.eMote.Net.MAC.MACConfiguration,Samraksh.eMote.Net.MACType)">
             <summary>
             Initialize the mac after marshalling the config
             </summary>
@@ -447,7 +447,7 @@
             <param name="eventTime">Time to use for timestamp</param>
             <returns>Status of operation</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.CSMA.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration)">
+        <member name="M:Samraksh.eMote.Net.MAC.CSMA.#ctor(Samraksh.eMote.Net.MAC.MACConfiguration)">
             <summary>
             
             </summary>
@@ -555,154 +555,154 @@
             </summary>
             <param name="message"></param>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.AddressType">
+        <member name="T:Samraksh.eMote.Net.MAC.AddressType">
             <summary>
             MAC address type
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.AddressType.BROADCAST">
+        <member name="F:Samraksh.eMote.Net.MAC.AddressType.BROADCAST">
             <summary>
             Indicates destination is all nodes in range. 
             <para>Other values indicate a particular node.</para>
             </summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.Link">
+        <member name="T:Samraksh.eMote.Net.MAC.Link">
             <summary>
             Link quality
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Link.AveRSSI">
+        <member name="F:Samraksh.eMote.Net.MAC.Link.AveRSSI">
             <summary>Average Received Signal Strength Indication, RSSI </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Link.LinkQuality">
+        <member name="F:Samraksh.eMote.Net.MAC.Link.LinkQuality">
             <summary>Link quality</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Link.AveDelay">
+        <member name="F:Samraksh.eMote.Net.MAC.Link.AveDelay">
             <summary>Average delay</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.NeighborStatus">
+        <member name="T:Samraksh.eMote.Net.MAC.NeighborStatus">
             <summary>
             Neighbor status
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighborStatus.Alive">
+        <member name="F:Samraksh.eMote.Net.MAC.NeighborStatus.Alive">
             <summary>Neighbor is alive</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighborStatus.Dead">
+        <member name="F:Samraksh.eMote.Net.MAC.NeighborStatus.Dead">
             <summary>Neighbor is dead</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighborStatus.Suspect">
+        <member name="F:Samraksh.eMote.Net.MAC.NeighborStatus.Suspect">
             <summary>Neighbor is suspect</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.PayloadType">
+        <member name="T:Samraksh.eMote.Net.MAC.PayloadType">
             <summary>
             To be kept in sync with that in DeviceCode/Include/Samraksh/Message.h
             Values 0 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for MF.
             Rest are for applications.
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_DATA">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNCREQ">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_TIMESYNCREQ">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_NEIGHBORHOOD">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_NEIGHBORHOOD">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_ROUTING">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_ROUTING">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DISCOVERY">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_DISCOVERY">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_TIMESYNC">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_TIMESYNC">
             <summary></summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.PayloadType.MFM_DATA_ACK">
+        <member name="F:Samraksh.eMote.Net.MAC.PayloadType.MFM_DATA_ACK">
             <summary></summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.Neighbor">
+        <member name="T:Samraksh.eMote.Net.MAC.Neighbor">
             <summary>
             Neighbor details
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.MacAddress">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.MacAddress">
             <summary>MAC address of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.ForwardLink">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ForwardLink">
             <summary>Forward link of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.ReverseLink">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ReverseLink">
             <summary>Reverse link of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.Status">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.Status">
             <summary>Status of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.PacketsReceived">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.PacketsReceived">
             <summary>Packets received from neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.LastHeardTime">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.LastHeardTime">
             <summary>Last time heard from neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.ReceiveDutyCycle">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ReceiveDutyCycle">
             <summary>Receive duty cycle of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.Neighbor.FrameLength">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.FrameLength">
             <summary>Frame length of neighbor</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.NeighborTable">
+        <member name="T:Samraksh.eMote.Net.MAC.NeighborTable">
             <summary>
             List of neighbors and their details
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighborTable.NumberValidNeighbor">
+        <member name="F:Samraksh.eMote.Net.MAC.NeighborTable.NumberValidNeighbor">
             <summary>Number of neighbor's valid neighbors</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.NeighborTable.Neighbor">
+        <member name="F:Samraksh.eMote.Net.MAC.NeighborTable.Neighbor">
             <summary>Neighbor</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.MACConfiguration">
+        <member name="T:Samraksh.eMote.Net.MAC.MACConfiguration">
             <summary>
             MAC configuration
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.CCA">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.CCA">
             <summary>
             Enable or disable MAC CCA (clear channel assessment)
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.NumberOfRetries">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.NumberOfRetries">
             <summary>
             Number of times to try sending before MAC gives up
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.CCASenseTime">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.CCASenseTime">
             <summary>
             Duration of CCA
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.BufferSize">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.BufferSize">
             <summary>
             Size of send buffer
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.NeighborLivenessDelay">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.NeighborLivenessDelay">
             <summary>
             Delay before a neighbor is deemed dead
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Mac.MACConfiguration.MACRadioConfig">
+        <member name="F:Samraksh.eMote.Net.MAC.MACConfiguration.MACRadioConfig">
             <summary>
             Configuration of the radio power and channel 
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.MACConfiguration.#ctor">
+        <member name="M:Samraksh.eMote.Net.MAC.MACConfiguration.#ctor">
             <summary>
             MAC configuration constructor
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.MACConfiguration.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration)">
+        <member name="M:Samraksh.eMote.Net.MAC.MACConfiguration.#ctor(Samraksh.eMote.Net.MAC.MACConfiguration)">
             <summary>
             MAC configuration constructor
             </summary>
@@ -720,12 +720,12 @@
         </member>
         <member name="F:Samraksh.eMote.Net.Radio.RadioUser.CSMAMAC">
             <summary>
-            Radio is being used by the CSMA Mac object
+            Radio is being used by the CSMA MAC object
             </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Radio.RadioUser.OMAC">
             <summary>
-            Radio is being used by the OMAC Mac object
+            Radio is being used by the OMAC MAC object
             </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.Radio.RadioUser.IDLE">
@@ -965,10 +965,10 @@
             <summary>Configure size of messages</summary>
             <param name="Size">Size of messages</param>
         </member>
-        <member name="T:Samraksh.eMote.Net.Mac.OMAC">
+        <member name="T:Samraksh.eMote.Net.MAC.OMAC">
             <summary>OMAC objects</summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Mac.OMAC.#ctor(Samraksh.eMote.Net.Mac.MACConfiguration)">
+        <member name="M:Samraksh.eMote.Net.MAC.OMAC.#ctor(Samraksh.eMote.Net.MAC.MACConfiguration)">
             <summary>
             
             </summary>

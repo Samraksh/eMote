@@ -12,11 +12,11 @@ namespace Samraksh.eMote.Net.Radio
         /// </summary>
         CSharp,
         /// <summary>
-        /// Radio is being used by the CSMA Mac object
+        /// Radio is being used by the CSMA MAC object
         /// </summary>
         CSMAMAC,
         /// <summary>
-        /// Radio is being used by the OMAC Mac object
+        /// Radio is being used by the OMAC MAC object
         /// </summary>
         OMAC,
         /// <summary>

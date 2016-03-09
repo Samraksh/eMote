@@ -48,21 +48,21 @@ namespace Samraksh.eMote.Net
         /// </summary>
         E_RadioConfig,
         /// <summary>
-        /// Mac layer initialization failed
+        /// MAC layer initialization failed
         /// </summary>
-        E_MacInit,
+        E_MACInit,
         /// <summary>
-        /// Mac configuration failed
+        /// MAC configuration failed
         /// </summary>
-        E_MacConfig,
+        E_MACConfig,
         /// <summary>
-        /// Mac layer send failed
+        /// MAC layer send failed
         /// </summary>
-        E_MacSendError,
+        E_MACSendError,
         /// <summary>
-        /// Mac layer bufferis full
+        /// MAC layer bufferis full
         /// </summary>
-        E_MacBufferFull,
+        E_MACBufferFull,
         /// <summary>
         /// Success
         /// </summary>

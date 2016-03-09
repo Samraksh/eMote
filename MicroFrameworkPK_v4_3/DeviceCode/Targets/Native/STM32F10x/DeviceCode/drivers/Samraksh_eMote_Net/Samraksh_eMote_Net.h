@@ -59,7 +59,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Link
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_Link
 {
     static const int FIELD__AveRSSI = 1;
     static const int FIELD__LinkQuality = 2;
@@ -70,7 +70,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Link
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MACConfiguration
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_MACConfiguration
 {
     static const int FIELD__CCA = 1;
     static const int FIELD__NumberOfRetries = 2;
@@ -84,7 +84,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_MACConfiguration
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Neighbor
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_Neighbor
 {
     static const int FIELD__MacAddress = 1;
     static const int FIELD__ForwardLink = 2;
@@ -100,7 +100,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_Neighbor
 
 };
 
-struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Mac_NeighborTable
+struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_NeighborTable
 {
     static const int FIELD__NumberValidNeighbor = 1;
     static const int FIELD__Neighbor = 2;

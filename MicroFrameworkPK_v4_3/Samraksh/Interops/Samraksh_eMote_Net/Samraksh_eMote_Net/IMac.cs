@@ -5,7 +5,7 @@ using Samraksh.eMote.Net.Radio;
 
 namespace Samraksh.eMote.Net
 {
-    namespace Mac
+    namespace MAC
     {
         /// <summary>
         /// MAC address type
