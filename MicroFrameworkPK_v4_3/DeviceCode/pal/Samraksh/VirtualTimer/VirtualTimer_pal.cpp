@@ -67,6 +67,7 @@ BOOL VirtTimer_Initialize(UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CA
 		{
 			//if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], FreeRunning, ClkSource, Prescaler, ISR, ISR_PARAM))
 			if(!gVirtualTimerObject.virtualTimerMapper_0.Initialize(gVirtualTimerObject.VT_hardwareTimerId, gVirtualTimerObject.VT_countOfVirtualTimers, g_HardwareTimerIDs[mapperId], IsOneShot, Prescaler, ISR, ISR_PARAM))
+				ASSERT(0);
 				return FALSE;
 		}
 		else if(i == 1)
@@ -245,6 +246,7 @@ BOOL VirtTimer_UnInitialize()
 	{
 			ret &= gVirtualTimerObject.virtualTimerMapper_0.UnInitialize(g_HardwareTimerIDs[i]);
 	}
+	gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_cnt_ = 0;
 	return ret;
 }
 

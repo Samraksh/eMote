@@ -97,6 +97,7 @@ BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_coun
 template<>
 BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
 {
+	// TODO: uninitialize entry in the timer mapper and decrement count of timers
 	if(!CPU_Timer_UnInitialize(temp_HWID)) {
 		ASSERT(0);
 		return FALSE;
@@ -110,11 +111,7 @@ template<>
 BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
 	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
-	// Can not accept anymore timers
-	if(m_current_timer_cnt_ >= VTM_countOfVirtualTimers) {
-		ASSERT(0);
-		return FALSE;
-	}
+
 
 	//Timer 0 is reserved for keeping time and timer 1 for events
 	if (timer_id < 0) {
@@ -126,27 +123,34 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
-	if(!timerFound)
-		VTimerIndex = m_current_timer_cnt_;
+	if(!timerFound) {
+		// Can not accept anymore timers
+		if(m_current_timer_cnt_ >= VTM_countOfVirtualTimers) {
+			ASSERT(0);
+			return FALSE;
+		}
+		else {
+			VTimerIndex = m_current_timer_cnt_;
+			m_current_timer_cnt_++;
+		}
+	}
 
 	if(g_VirtualTimerInfo[VTimerIndex].get_m_reserved()) {
 		ASSERT(0);
 		return FALSE;
 	}
 	
-	ticksPeriod = CPU_MicrosecondsToTicks(period, VTM_hardwareTimerId);
+	ticksPeriod     = CPU_MicrosecondsToTicks(period,      VTM_hardwareTimerId);
 	ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
 
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_callBack(callback);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_period(ticksPeriod);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_is_one_shot(is_one_shot);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_is_running(FALSE);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_reserved(_isreserved);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_start_delay(ticksStartDelay);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_timer_id(timer_id);
-	g_VirtualTimerInfo[m_current_timer_cnt_].set_m_ticks_when_match_(HAL_Time_CurrentTicks() + ticksPeriod + ticksStartDelay);
-
-	m_current_timer_cnt_++;
+	g_VirtualTimerInfo[VTimerIndex].set_m_callBack(callback);
+	g_VirtualTimerInfo[VTimerIndex].set_m_period(ticksPeriod);
+	g_VirtualTimerInfo[VTimerIndex].set_m_is_one_shot(is_one_shot);
+	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(FALSE);
+	g_VirtualTimerInfo[VTimerIndex].set_m_reserved(_isreserved);
+	g_VirtualTimerInfo[VTimerIndex].set_m_start_delay(ticksStartDelay);
+	g_VirtualTimerInfo[VTimerIndex].set_m_timer_id(timer_id);
+	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks() + ticksPeriod + ticksStartDelay);
 
 	return TRUE;
 }
