@@ -158,7 +158,7 @@ struct Settings
 #else     
 
 #if !defined(BUILD_RTM)
-        //CLR_Debug::Printf( "Create TS.\r\n" );
+        //CLR_Debug::Printf( "Create TS.\r\n" ); //... TS stands for Type System.
 #endif
 
         TINYCLR_CHECK_HRESULT(LoadKnownAssemblies( TinyClr_Dat_Start, TinyClr_Dat_End ));

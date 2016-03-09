@@ -2836,6 +2836,7 @@ void CLR_RT_Assembly::Resolve_MethodDef()
         if(md->flags & CLR_RECORD_METHODDEF::MD_EntryPoint)
         {
             g_CLR_RT_TypeSystem.m_entryPoint = idx;
+            g_CLR_RT_TypeSystem.m_entryPoints[g_CLR_RT_TypeSystem.m_entryPointsMax++] = idx;
         }
     }
 }
@@ -2904,8 +2905,32 @@ HRESULT CLR_RT_Assembly::PrepareForExecution()
         //Temporary solution.  All Assemblies get added to the current AppDomain
         //Which assemblies get loaded at boot, and when assemblies get added to AppDomain at runtime is
         //not yet determined/implemented
+#pragma message "HELP FIXME ERROR WARNING"
 
-        TINYCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.GetCurrentAppDomain()->LoadAssembly( this ));
+        CLR_RT_AppDomain*   appDomain = NULL;
+        bool b_assmContainsEntryPoint = FALSE;
+        // create app domain for the entry point in this assembly (FIXME: only one entry point per assembly?)
+        for(int itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)
+        {
+            if(g_CLR_RT_TypeSystem.m_entryPoints[itr_entryPoints].Assembly() == this->m_idx)
+            {
+                b_assmContainsEntryPoint = TRUE;
+                // create unique app domain for unique entry point
+                TINYCLR_CHECK_HRESULT(CLR_RT_AppDomain::CreateInstance( this->m_szName, appDomain ));
+                g_CLR_RT_TypeSystem.m_entryAppDomains[itr_entryPoints] = appDomain;//need app domain handle when resolving app domains during PrepareForExecution.
+                // load mscorlib to initialize system app domain
+                TINYCLR_CHECK_HRESULT(appDomain->LoadAssembly( g_CLR_RT_TypeSystem.m_assemblyMscorlib ));
+                // load Native   to initialize system app domain
+                TINYCLR_CHECK_HRESULT(appDomain->LoadAssembly( g_CLR_RT_TypeSystem.m_assemblyNative   ));
+                break;
+            }
+        }
+        if(b_assmContainsEntryPoint == FALSE)
+        {
+            appDomain = g_CLR_RT_ExecutionEngine.GetCurrentAppDomain();
+        }
+
+        TINYCLR_CHECK_HRESULT(appDomain->LoadAssembly( this ));
 #endif
     }
 
@@ -3321,6 +3346,7 @@ void CLR_RT_TypeSystem::TypeSystem_Cleanup()
     TINYCLR_FOREACH_ASSEMBLY_END();
 
     m_assembliesMax = 0;
+    m_entryPointsMax = 0;
 }
 
 //--//

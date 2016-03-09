@@ -698,8 +698,13 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     NATIVE_PROFILE_CLR_CORE();
     TINYCLR_HEADER();
 
-    CLR_RT_HeapBlock ref;
-    CLR_RT_Thread*   thMain = NULL;
+    struct Process {
+    CLR_RT_HeapBlock       ref;
+    CLR_RT_Thread*         thMain = NULL;
+    CLR_RT_MethodDef_Index entryPoint;
+    };
+
+    Process processes[3];  //FIXME: make the max number of startup "processes" match the max number of entry points
 
 
     //******************************************************
@@ -730,55 +735,64 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
 	//Sleep_uSec(2000);*/
 	//******************************************************
 
-        
-    if(TINYCLR_INDEX_IS_INVALID(g_CLR_RT_TypeSystem.m_entryPoint))
-    {
-#if !defined(BUILD_RTM) || defined(PLATFORM_WINDOWS)
-        CLR_Debug::Printf( "Cannot find any entrypoint!\r\n" );
-#endif
-        TINYCLR_SET_AND_LEAVE(CLR_E_ENTRYPOINT_NOT_FOUND);
-    }
+    CLR_Debug::Printf("found %d entry points!\r\n", g_CLR_RT_TypeSystem.m_entryPointsMax);
 
-    TINYCLR_CHECK_HRESULT(WaitForDebugger());
+    CLR_RT_AppDomain* ad = g_CLR_RT_ExecutionEngine.GetCurrentAppDomain();
+    for(int itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)  //FIXME: iterating over entryPoints when we've switched to "processes"
+    {
+        processes[itr_entryPoints].entryPoint = g_CLR_RT_TypeSystem.m_entryPoints[itr_entryPoints];
+        if(TINYCLR_INDEX_IS_INVALID(processes[itr_entryPoints].entryPoint))
+        {
+#if !defined(BUILD_RTM) || defined(PLATFORM_WINDOWS)
+            CLR_Debug::Printf( "entry point not valid!\r\n" );
+#endif
+            TINYCLR_SET_AND_LEAVE(CLR_E_ENTRYPOINT_NOT_FOUND);
+        }
+
+        TINYCLR_CHECK_HRESULT(WaitForDebugger());
 
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
-    CLR_EE_DBG_SET_MASK(State_ProgramRunning,State_Mask);
+        CLR_EE_DBG_SET_MASK(State_ProgramRunning,State_Mask);
 #endif //#if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)
- 
-    TINYCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Delegate::CreateInstance( ref, g_CLR_RT_TypeSystem.m_entryPoint, NULL ));
 
-    {
-        CLR_RT_ProtectFromGC gc( ref );
+        g_CLR_RT_ExecutionEngine.SetCurrentAppDomain(g_CLR_RT_TypeSystem.m_entryAppDomains[itr_entryPoints]);
 
-        TINYCLR_CHECK_HRESULT(NewThread( thMain, ref.DereferenceDelegate(), ThreadPriority::Normal, -1 ));
-    }
+        TINYCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Delegate::CreateInstance( processes[itr_entryPoints].ref, processes[itr_entryPoints].entryPoint, NULL ));
 
-    {            
-        CLR_RT_StackFrame* stack = thMain->CurrentFrame();
-        
-        if(stack->m_call.m_target->numArgs > 0)
-        {                                
-            //Main entrypoint takes an optional String[] parameter.
-            //Set the arg to NULL, if that's the case.
+        {
+            CLR_RT_ProtectFromGC gc( processes[itr_entryPoints].ref );
 
-#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_WINCE)            
-            if(entryPointArgs != NULL)
+            TINYCLR_CHECK_HRESULT(NewThread( processes[itr_entryPoints].thMain, processes[itr_entryPoints].ref.DereferenceDelegate(), ThreadPriority::Normal, -1 ));
+        }
+
+        {
+            CLR_RT_StackFrame* stack = processes[itr_entryPoints].thMain->CurrentFrame();
+
+            if(stack->m_call.m_target->numArgs > 0)
             {
-                TINYCLR_CHECK_HRESULT(CreateEntryPointArgs( stack->m_arguments[ 0 ], entryPointArgs ));
-            }
-            else
+                //Main entrypoint takes an optional String[] parameter.
+                //Set the arg to NULL, if that's the case.
+
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_WINCE)
+                if(entryPointArgs != NULL)
+                {
+                    TINYCLR_CHECK_HRESULT(CreateEntryPointArgs( stack->m_arguments[ 0 ], entryPointArgs ));
+                }
+                else
 #endif
-            {
-                TINYCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance( stack->m_arguments[ 0 ], 0, g_CLR_RT_WellKnownTypes.m_String ));
+                {
+                    TINYCLR_CHECK_HRESULT(CLR_RT_HeapBlock_Array::CreateInstance( stack->m_arguments[ 0 ], 0, g_CLR_RT_WellKnownTypes.m_String ));
+                }
             }
         }
-    }
 
-    //To debug static constructors, the thread should be created after the entrypoint thread.
-    TINYCLR_CHECK_HRESULT(WaitForDebugger());
-    
-    // m_cctorThread is NULL before call and inialized by the SpawnStaticConstructor
-    SpawnStaticConstructor( m_cctorThread );
+        //To debug static constructors, the thread should be created after the entrypoint thread.
+        TINYCLR_CHECK_HRESULT(WaitForDebugger());
+
+        // m_cctorThread is NULL before call and initialized by the SpawnStaticConstructor
+        SpawnStaticConstructor( m_cctorThread );
+    }
+    g_CLR_RT_ExecutionEngine.SetCurrentAppDomain(ad);
 
 #ifdef DEBUG_CLR
     CPU_GPIO_EnableOutputPin (0, FALSE);
