@@ -657,7 +657,7 @@ void ClrStartup( CLR_SETTINGS params )
         Solution_GetReleaseInfo( releaseInfo );
 #if defined(COMPILE_CUSTOMER_RELEASE)
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
-        CLR_Debug::Printf( "Platform: %s\r\n", HalName );
+        CLR_Debug::Printf( "Platform: %s\r\n", HAL_SYSTEM_NAME );
 		// VERSION_BUILD is not set correctly to 2, once it is set then we use MF_VERSION
         //CLR_Debug::Printf( "Based on Micro Framework v%s\r\n",MF_VERSION );
         //CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
@@ -665,7 +665,7 @@ void ClrStartup( CLR_SETTINGS params )
         CLR_Debug::Printf( "Build Date %s\r\n", __DATE__);
 #else
         CLR_Debug::Printf( "eMote OS v%d\r\n", SAM_VERSION_REVISION );
-        CLR_Debug::Printf( "Platform %s\r\n", HalName );
+        CLR_Debug::Printf( "Platform %s\r\n", HAL_SYSTEM_NAME );
 		CLR_Debug::Printf( "Based on Micro Framework v%d.%d.%d.%d\r\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_REVISION );
         CLR_Debug::Printf( "Build Date %s %s\r\n", __DATE__, __TIME__ );
 #include <Samraksh\githash.h>
