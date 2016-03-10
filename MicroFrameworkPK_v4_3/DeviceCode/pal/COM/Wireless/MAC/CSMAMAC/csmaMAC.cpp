@@ -56,7 +56,7 @@ DeviceStatus csmaMAC::SendHello()
 
 DeviceStatus csmaMAC::SetConfig(MacConfig *config){
 	MyConfig.BufferSize = config->BufferSize;
-	MyConfig.CCA = config->BufferSize;
+	MyConfig.CCA = config->CCA;
 	MyConfig.CCASenseTime = config->CCASenseTime;
 	MyConfig.RadioID  = config->RadioID;
 	MyConfig.FCF = config->FCF;
@@ -305,15 +305,8 @@ void csmaMAC::SendToRadio(){
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment2(this->radioName, 200);
 		if(ds == DS_Busy) {
-			/*HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress() % 200));
-			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success)
-			{
-				gHalTimerManagerObject.StartTimer(1);
-				return;
-			}*/
 			//TODO: AnanthAtSamraksh - check if this is right
-			HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
-			//HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 500));
+			HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200)); // 500?
 			if(CPU_Radio_ClearChannelAssesment2(this->radioName, 200)!=DS_Success){ 	
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
@@ -368,7 +361,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	UINT8 index;
 	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
-		hal_printf("CSMA Receive Error: Packet is too big: %d \r\n", Size+sizeof(IEEE802_15_4_Header_t));
+		hal_printf("CSMA Receive Error: Packet is too big. Size: %d, MaxPayload: %d, ExpectedHeader: %d \r\n", Size, csmaMAC::GetMaxPayload(), sizeof(IEEE802_15_4_Header_t));
 
 		return msg;
 	}
@@ -439,18 +432,20 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 
 	//Call routing/app receive callback
-	MacReceiveFuncPtrType appHandler = AppHandlers[3]->RecieveHandler;  // TODO: seems wrong. -MichaelAtSamraksh
-
+	MacReceiveFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->RecieveHandler;
+	if(rcv_msg_hdr->type < MAX_APPS && AppHandlers[rcv_msg_hdr->type] != NULL) {
+		appHandler = AppHandlers[rcv_msg_hdr->type]->RecieveHandler;
+	}
 	// Protect against catastrophic errors like dereferencing a null pointer
 	if(appHandler == NULL)
 	{
 		SOFT_BREAKPOINT();
-		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\r\n");
-		return temp;
+		hal_printf("[NATIVE] Error from csma mac recieve handler :  Handler not registered\n");
+		goto ReceiveHandler_out;
 	}
 
-	GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
-	(*appHandler)(m_receive_buffer.GetNumberMessagesInBuffer());
+	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
+	(*appHandler)((UINT16)m_receive_buffer.GetNumberMessagesInBuffer());
 
 #if 0
 	//hal_printf("CSMA Receive: SRC address is : %d\n", rcv_msg_hdr->src);
@@ -469,7 +464,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size)
 		//HandlePromiscousMessage(msg);
 	}
 #endif
-
+ReceiveHandler_out:
 	return temp;
 }
 
@@ -493,7 +488,7 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status)
 				//gHalTimerManagerObject.StopTimer(3);
 				DEBUG_PRINTF_CSMA("Success <%d> #%d\r\n", (int)rcv_payload[0],((int)(rcv_payload[1] << 8) + (int)rcv_payload[2]));
 				//VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER);
-				SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler;
+				if(SendAckFuncPtrType appHandler = AppHandlers[CurrentActiveApp]->SendAckHandler)
 				(*appHandler)(msg, Size, status);
 				// Attempt to send the next packet out since we have no scheduler
 				if(!m_send_buffer.IsBufferEmpty())
