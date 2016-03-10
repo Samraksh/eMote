@@ -22,7 +22,7 @@
         <!-- THIS MUST MATCH THE BLOCK STORAGE DRIVER! -->
         <Set Name="Config_BaseAddress"  Value="0x080FF000"/><!-- Config_BaseAddress MUST MATCH TINYCLR SCATTERFILE -->
         <Set Name="Config_Size"         Value="0x00001000"/><!--        Config_Size MUST MATCH TINYCLR SCATTERFILE -->
-        <Set Name="Code_BaseAddress"    Value="0x08000000"/>    
+        <Set Name="Code_BaseAddress"    Value="0x08000000"/>
         <Set Name="Deploy_BaseAddress"  Value="0x080C1000"/>
         <Set Name="Code_Size"           Value="%Deploy_BaseAddress - Code_BaseAddress%"/>
         <Set Name="Valid"               Value="true"/>

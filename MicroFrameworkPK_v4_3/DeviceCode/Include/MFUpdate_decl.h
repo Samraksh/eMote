@@ -29,9 +29,14 @@
 
 #define MFUPDATE_UPDATEID_ANY        0xFFFFFFFF
 
+// TinyCLR_Debugging.h used UINT32 for m_updateId but MFUpdate_decl.h originally
+// used INT32 for UpdateID... led to conflicts when needing to save/send/request
+// UpdateID among devices, so switch to standardized UINT32 and make handles match IDs
+typedef UINT32 UpdateID_t;
+
 struct MFUpdateHeader
 {
-    INT32      UpdateID;
+    UpdateID_t UpdateID;
     MFVersion  Version;
     UINT16     UpdateType;
     UINT16     UpdateSubType;
@@ -86,6 +91,35 @@ struct IUpdateBackupProvider
 #define MFUPDATE_FLAGS__BACKUP_REQIURED 0x00000002
 #define MFUPDATE_FLAGS__AUTHENTICATED   0x00000004
 #define MFUPDATE_FLAGS__VALIDATED       0x00000008
+// TODO: formalize state machine and neighbor state tracking
+#define STATE_OFFSET 16
+#define NEIGHBOR_OFFSET 24
+#define STATE_MASK                      (0xFF << STATE_OFFSET)
+#define NEIGHBOR_MASK                   (0xFF << NEIGHBOR_OFFSET)
+#define RECOVER_REBOOT_FLAG             (0x1 << 0)
+#define START_FLAG                      (0x1 << 1)
+#define AUTHCMD_FLAG                    (0x1 << 2)
+#define AUTHENTICATED_FLAG              (0x1 << 3)
+#define GETMISSINGPKTS_FLAG             (0x1 << 4)
+#define ADDPACKET_FLAG                  (0x1 << 5)
+#define VALIDATED_FLAG                  (0x1 << 6)
+#define INSTALL_FLAG                    (0x1 << 7)
+#define STATE_FLAGS__RECOVER_REBOOT     (RECOVER_REBOOT_FLAG << STATE_OFFSET)
+#define STATE_FLAGS__START              (START_FLAG          << STATE_OFFSET)
+#define STATE_FLAGS__AUTHCMD            (AUTHCMD_FLAG        << STATE_OFFSET)
+#define STATE_FLAGS__AUTHENTICATED      (AUTHENTICATED_FLAG  << STATE_OFFSET)
+#define STATE_FLAGS__GETMISSINGPKTS     (GETMISSINGPKTS_FLAG << STATE_OFFSET)
+#define STATE_FLAGS__ADDPACKET          (ADDPACKET_FLAG      << STATE_OFFSET)
+#define STATE_FLAGS__VALIDATED          (VALIDATED_FLAG      << STATE_OFFSET)
+#define STATE_FLAGS__INSTALL            (INSTALL_FLAG        << STATE_OFFSET)
+#define NEIGHBOR_FLAGS__RECOVER_REBOOT  (RECOVER_REBOOT_FLAG << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__START           (START_FLAG          << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__AUTHCMD         (AUTHCMD_FLAG        << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__AUTHENTICATED   (AUTHENTICATED_FLAG  << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__GETMISSINGPKTS  (GETMISSINGPKTS_FLAG << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__ADDPACKET       (ADDPACKET_FLAG      << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__VALIDATED       (VALIDATED_FLAG      << NEIGHBOR_OFFSET)
+#define NEIGHBOR_FLAGS__INSTALL         (INSTALL_FLAG        << NEIGHBOR_OFFSET)
 
 struct IUpdateProvider
 {
@@ -117,31 +151,45 @@ struct MFUpdate
     const IUpdatePackage *Providers;
     void* Extension;
 
+    UINT32 m_finalPacketIdx;
+    UINT32 m_missingPktsWordfieldSize;
+    static const unsigned int MAX_MISSING_WORDFIELD_SIZE = 25;
+    UINT32 m_missingPkts[MAX_MISSING_WORDFIELD_SIZE];
+    UINT32 m_neighborMissingPkts[MAX_MISSING_WORDFIELD_SIZE];
+
+    static const UpdateID_t badHandle = 0;  //!< Original version used INT32 and -1 for bad handles, but we need to use UINT32 for updateID for new protocol.
+    static MFUpdate* GetUpdate(UpdateID_t handle);
+
     BOOL IsAuthenticated() { return 0 != (Flags & MFUPDATE_FLAGS__AUTHENTICATED); }
     BOOL IsValidated()     { return 0 != (Flags & MFUPDATE_FLAGS__VALIDATED    ); }
 };
 
 
-void  MFUpdate_Initialize();
-INT32 MFUpdate_InitUpdate       ( LPCSTR szProvider, MFUpdateHeader& update );
-BOOL  MFUpdate_AuthCommand      ( INT32 updateHandle, UINT32 cmd, UINT8* pArgs, INT32 argsLen, UINT8* pResponse, INT32& responseLen );
-BOOL  MFUpdate_Authenticate     ( INT32 updateHandle, UINT8* pAuthData, INT32 authLen );
-BOOL  MFUpdate_Open             ( INT32 updateHandle );
-BOOL  MFUpdate_Create           ( INT32 updateHandle );
-BOOL  MFUpdate_GetProperty      ( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32* pPropValueSize);
-BOOL  MFUpdate_SetProperty      ( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32  pPropValueSize);
-BOOL  MFUpdate_GetMissingPackets( INT32 updateHandle, UINT32* pPackets , INT32* pCount );
-BOOL  MFUpdate_AddPacket        ( INT32 updateHandle, INT32 packetIndex, UINT8* packetData, INT32 packetLen, UINT8* pValidationData, INT32 validationLen );
-BOOL  MFUpdate_Validate         ( INT32 updateHandle, UINT8* pValidationData, INT32 validationLen );
-BOOL  MFUpdate_Install          ( INT32 updateHandle, UINT8* pValidationData, INT32 validationLen );
-BOOL  MFUpdate_Delete           ( INT32 updateHandle );
+void  MFUpdate_Initialize       ();
+void  MFUpdate_EnumerateUpdates (UpdateID_t updateIDs[], int len_updateIDs );
+UpdateID_t MFUpdate_InitUpdate  ( LPCSTR szProvider, MFUpdateHeader& update );
+BOOL  MFUpdate_AuthCommand      ( UpdateID_t updateHandle, UINT32 cmd, UINT8* pArgs, INT32 argsLen, UINT8* pResponse, INT32& responseLen );
+BOOL  MFUpdate_Authenticate     ( UpdateID_t updateHandle, UINT8* pAuthData, INT32 authLen );
+BOOL  MFUpdate_Open             ( UpdateID_t updateHandle );
+BOOL  MFUpdate_Create           ( UpdateID_t updateHandle );
+BOOL  MFUpdate_GetProperty      ( UpdateID_t updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32* pPropValueSize);
+BOOL  MFUpdate_SetProperty      ( UpdateID_t updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32  pPropValueSize);
+BOOL  MFUpdate_GetMissingPackets( UpdateID_t updateHandle, UINT32* pPackets , INT32* pCount );
+BOOL  MFUpdate_AddPacket        ( UpdateID_t updateHandle, INT32 packetIndex, UINT8* packetData, INT32 packetLen, UINT8* pValidationData, INT32 validationLen );
+BOOL  MFUpdate_Validate         ( UpdateID_t updateHandle, UINT8* pValidationData, INT32 validationLen );
+BOOL  MFUpdate_Install          ( UpdateID_t updateHandle, UINT8* pValidationData, INT32 validationLen );
+BOOL  MFUpdate_Delete           ( UpdateID_t updateHandle );
+void  MFUpdate_Clear            ( MFUpdate* update );
 
 //--//
 
 extern const IUpdatePackage* g_UpdatePackages;
 extern const INT32           g_UpdatePackageCount;
 
-extern MFUpdate     g_Updates[];
-extern const UINT32 g_UpdateCount;
+
+#define MAX_UPDATE_COUNT 10       //!< FIXME: breaks one definition rule. update storage provider needs to agree with this.
+extern UINT32       g_UpdateCount;
+extern MFUpdate     g_Updates[MAX_UPDATE_COUNT];
+
 
 #endif // _DRIVERS_MFUPDATE_DECL_H_

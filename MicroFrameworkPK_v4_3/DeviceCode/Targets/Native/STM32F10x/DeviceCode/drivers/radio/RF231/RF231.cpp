@@ -1593,12 +1593,19 @@ DeviceStatus RF231Radio::UnInitialize()
     {
         RstnClear();
         SetInitialized(FALSE);
-        /*ASSERT_RADIO((active_mac_index & 0xFF00) == 0);
+        /*ASSERT_RADIO((active_mac_index & 0xFF00) == 0);*/
         if(Radio<Message_15_4_t>::UnInitialize((UINT8)active_mac_index) != DS_Success) {
                 ret = DS_Fail;
-        }*/
-        SpiUnInitialize();
-        GpioPinUnInitialize();
+                SOFT_BREAKPOINT();
+        }
+        if(SpiUnInitialize() != TRUE) {
+            ret = DS_Fail;
+            SOFT_BREAKPOINT();
+        }
+        if(GpioPinUnInitialize() != TRUE) {
+            ret = DS_Fail;
+            SOFT_BREAKPOINT();
+        }
         if(this->GetRadioName() == RF231RADIO){
             CPU_GPIO_DisablePin(INTERRUPT_PIN, RESISTOR_DISABLED,  GPIO_Mode_IN_FLOATING, GPIO_ALT_PRIMARY);
         }

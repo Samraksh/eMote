@@ -116,6 +116,8 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         public const uint c_Monitor_FlashSectorMap = 0x0000000C;
         public const uint c_Monitor_SignatureKeyUpdate = 0x0000000D;
         public const uint c_Monitor_OemInfo = 0x0000000E;
+        public const uint c_Monitor_UpdateInit = 0x0000000F;
+        public const uint c_Monitor_UpdateDeInit = 0x00000010;
 
         public class Monitor_Message : IConverter
         {
@@ -358,6 +360,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
             }
         }
 
+	    public class Monitor_UpdateInit
+        {
+            public uint m_command = 0;
+        }
+
+        public class Monitor_UpdateDeInit
+        {
+            public uint m_command = 0;
+        }
         public class Monitor_DeploymentMap
         {
             public struct DeploymentData
@@ -545,14 +556,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         
             public class Reply
             {
-                public int m_updateHandle;
+                public uint m_updateHandle;
+                public int  m_success;
             };
         };
 
         
         public class Debugging_MFUpdate_AuthCommand
         {
-            public int    m_updateHandle;
+            public uint   m_updateHandle;
             public uint   m_authCommand;
             public uint   m_authArgsSize;
             public byte[] m_authArgs;
@@ -569,20 +581,21 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         
             public class Reply : IConverter
             {
+                public uint   m_updateHandle;
                 public int    m_success;
                 public uint   m_responseSize;
                 public byte[] m_response;
 
                 public void  PrepareForDeserialize(int size, byte[] data, Converter converter)
                 {
-                    m_response = new byte[(size - 8)]; // subtract sizeof(m_success) and sizeof(m_responseSize)
+                    m_response = new byte[(size - 12)]; // subtract sizeof(m_success) and sizeof(m_responseSize)
                 }
             };
         };
         
         public class Debugging_MFUpdate_Authenticate
         {
-            public int    m_updateHandle;
+            public uint   m_updateHandle;
             public uint   m_authenticationSize;
             public byte[] m_authenticationData;
 
@@ -601,30 +614,32 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
             
             public class Reply
             {
+                public uint m_updateHandle;
                 public int m_success;
             };
         };
 
         public class Debugging_MFUpdate_GetMissingPkts
         {
-            public int m_updateHandle;
+            public uint m_updateHandle;
 
             public class Reply : IConverter
             {
-                public int m_success;
-                public int m_missingPktCount;
+                public uint m_updateHandle;
+                public int  m_success;
+                public int  m_missingPktCount;
                 public uint[] m_missingPkts;
 
                 public void PrepareForDeserialize(int size, byte[] data, Converter converter)
                 {
-                    m_missingPkts = new uint[(size - 8) / 4]; // subtract sizeof(m_success) and sizeof(m_missingPktCount)
+                    m_missingPkts = new uint[(size - 12) / 4]; // subtract sizeof(m_success) and sizeof(m_missingPktCount)
                 }
             };
         };
 
         public class Debugging_MFUpdate_AddPacket
         {
-            public int  m_updateHandle;
+            public uint m_updateHandle;
             public uint m_packetIndex;
             public uint m_packetValidation;
             public uint m_packetLength = 0;
@@ -640,13 +655,15 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         
             public class Reply
             {
-                public uint m_success;
+                public uint m_updateHandle;
+                public int  m_success;
+                public uint m_packetIndex;
             };
         };
         
         public class Debugging_MFUpdate_Install
         {
-            public int m_updateHandle;
+            public uint m_updateHandle;
             public uint m_updateValidationSize;
             public byte[] m_updateValidation;
 
@@ -660,7 +677,8 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
         
             public class Reply
             {
-                public uint m_success;
+                public uint m_updateHandle;
+                public int m_success;
             };
         };
         
@@ -1684,6 +1702,8 @@ namespace Microsoft.SPOT.Debugger.WireProtocol
                     case c_Monitor_DeploymentMap: return new Monitor_DeploymentMap();
                     case c_Monitor_FlashSectorMap: return new Monitor_FlashSectorMap();
                     case c_Monitor_SignatureKeyUpdate: return new Monitor_SignatureKeyUpdate();
+                    case c_Monitor_UpdateInit: return new Monitor_UpdateInit();
+					case c_Monitor_UpdateDeInit: return new Monitor_UpdateDeInit();
 
                     case c_Debugging_Execution_BasePtr: return new Debugging_Execution_BasePtr();
                     case c_Debugging_Execution_ChangeConditions: return new Debugging_Execution_ChangeConditions();

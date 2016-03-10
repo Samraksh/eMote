@@ -7,6 +7,10 @@
 #include <MFUpdate_decl.h>
 #include <Samraksh/Shutdown.h>
 
+#if defined(SAMRAKSH_UPDATE_EXT)
+#include <PAK_decl.h>
+#endif
+
 #if defined(PLATFORM_WINDOWS)
 #pragma comment(lib,"crypto")
 #endif
@@ -135,6 +139,16 @@ HRESULT CLR_DBG_Debugger::CreateInstance()
 
     MFUpdate_Initialize();
 
+#if defined(SAMRAKSH_UPDATE_EXT)
+    Samraksh_Emote_Update::CreateInstance();
+
+    Samraksh_Emote_Update::SetMacHandler();  // route radio messages to Updater.
+
+	//#pragma message "WARNING: DEBUGGER WILL AUTOMATICALLY TURN RADIO ON AT BOOT!!!!!!!!!"
+    //Samraksh_Emote_Update::InitializeMac();
+
+#endif
+
     TINYCLR_NOCLEANUP();
 }
 
@@ -162,6 +176,10 @@ HRESULT CLR_DBG_Debugger::DeleteInstance()
         dbg.Debugger_Cleanup();
     }
     TINYCLR_FOREACH_DEBUGGER_END();
+
+#if defined(SAMRAKSH_UPDATE_EXT)
+    Samraksh_Emote_Update::DeleteInstance();
+#endif
 
     TINYCLR_NOCLEANUP_NOLABEL();
 }
@@ -841,7 +859,9 @@ bool CLR_DBG_Debugger::Monitor_EraseMemory( WP_Message* msg, void* owner )
 	::Watchdog_ResetCounter();
 	//ENABLE_INTERRUPTS();
 	
+#if !defined( WIN32 )
 	ShutdownDrivers();
+#endif
 
 	// performing garbage collection and compaction here can be used to force hard faults that occur during
 	// deployment after the Flash has been erased.
@@ -1223,8 +1243,32 @@ bool CLR_DBG_Debugger::Debugging_UpgradeToSsl(WP_Message* msg, void* owner )
 
 static CLR_UINT32 s_missingPkts[64];
 
+#if defined (SAMRAKSH_UPDATE_EXT)
+bool CLR_DBG_Debugger::Monitor_UpdateInit( WP_Message* msg, void* owner) {
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    Samraksh_Emote_Update::CreateInstance();
+    //DEBUG///////////////
+    //TODO: move this into a separate get/set debugger command
+    if( owner != &g_Samraksh_Emote_Update ) {
+        g_Samraksh_Emote_Update.s_fBaseStationMode = true;
+    }
+     //DEBUG//////////////
+    return true;
+}
+
+bool CLR_DBG_Debugger::Monitor_UpdateDeInit(WP_Message* msg, void* owner) {
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    Samraksh_Emote_Update::DeleteInstance();
+    return true;
+}
+#endif
+
 bool CLR_DBG_Debugger::Debugging_MFUpdate_Start (WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::Start(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_Start*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_Start*)msg->m_payload;
@@ -1249,10 +1293,15 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Start (WP_Message* msg, void* owner )
     dbg->m_messaging->ReplyToCommand( msg, true, false, pReply, replySize );
     
     return true;
+#endif
 }
 
 bool CLR_DBG_Debugger::Debugging_MFUpdate_AuthCommand( WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::AuthCommand(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_AuthCommand*)msg->m_payload;
@@ -1297,10 +1346,15 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AuthCommand( WP_Message* msg, void* ow
     }
 
     return true;
+#endif
 }
 
 bool CLR_DBG_Debugger::Debugging_MFUpdate_Authenticate( WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::Authenticate(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger*                                        dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_Authenticate*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_Authenticate*)msg->m_payload;
@@ -1337,10 +1391,15 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Authenticate( WP_Message* msg, void* o
     dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
     return true;
+#endif
 }
 
 bool CLR_DBG_Debugger::Debugging_MFUpdate_GetMissingPkts( WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::GetMissingPkts(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger*                                          dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_GetMissingPkts*)msg->m_payload;
@@ -1382,10 +1441,15 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_GetMissingPkts( WP_Message* msg, void*
     }
     
     return true;    
+#endif
 }
 
 bool CLR_DBG_Debugger::Debugging_MFUpdate_AddPacket(WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::AddPacket(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_AddPacket*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_AddPacket*)msg->m_payload;
@@ -1417,9 +1481,14 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_AddPacket(WP_Message* msg, void* owner
     dbg->m_messaging->ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
     return true;
+#endif
 }
 bool CLR_DBG_Debugger::Debugging_MFUpdate_Install(WP_Message* msg, void* owner )
 {
+#if defined(SAMRAKSH_UPDATE_EXT)
+    NATIVE_PROFILE_CLR_DEBUGGER();
+    return Samraksh_Emote_Update::Install(msg, owner);
+#else
     NATIVE_PROFILE_CLR_DEBUGGER();
     CLR_DBG_Debugger* dbg = (CLR_DBG_Debugger*)owner;
     CLR_DBG_Commands::Debugging_MFUpdate_Install*       cmd = (CLR_DBG_Commands::Debugging_MFUpdate_Install*)msg->m_payload;
@@ -1438,6 +1507,7 @@ bool CLR_DBG_Debugger::Debugging_MFUpdate_Install(WP_Message* msg, void* owner )
     }
 
     return (reply.m_success == TRUE);
+#endif
 }
 
 #if defined(TINYCLR_ENABLE_SOURCELEVELDEBUGGING)

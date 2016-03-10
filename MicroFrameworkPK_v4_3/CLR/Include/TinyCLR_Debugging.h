@@ -54,6 +54,8 @@ struct CLR_DBG_Commands
     static const UINT32 c_Monitor_FlashSectorMap     = 0x0000000C;
     static const UINT32 c_Monitor_SignatureKeyUpdate = 0x0000000D;
     static const UINT32 c_Monitor_OemInfo            = 0x0000000E;
+    static const UINT32 c_Monitor_UpdateInit         = 0x0000000F;
+    static const UINT32 c_Monitor_UpdateDeInit       = 0x00000010;
 
     //--//
 
@@ -187,6 +189,16 @@ struct CLR_DBG_Commands
         UINT8  m_newKey[ 260 ];
         UINT32 m_reserveLength;
         UINT8  m_reserveData[ 1 ];
+    };
+
+    struct Monitor_UpdateInit
+    {
+        UINT32 m_notused;
+    };
+
+    struct Monitor_UpdateDeInit
+    {
+        UINT32 m_notused;
     };
 
     //--------------------------------------------------------------//
@@ -425,7 +437,8 @@ struct CLR_DBG_Commands
 
         struct Reply
         {
-            CLR_INT32 m_updateHandle;
+            CLR_UINT32 m_updateHandle;
+            CLR_INT32  m_success;
         };
     };
 
@@ -438,6 +451,7 @@ struct CLR_DBG_Commands
 
         struct Reply
         {
+            CLR_UINT32 m_updateHandle;
             CLR_INT32  m_success;
             CLR_UINT32 m_responseSize;
             CLR_UINT8  m_response[1];
@@ -452,7 +466,8 @@ struct CLR_DBG_Commands
 
         struct Reply
         {
-            CLR_INT32 m_success;
+            CLR_UINT32 m_updateHandle;
+            CLR_INT32  m_success;
         };
     };
 
@@ -462,7 +477,8 @@ struct CLR_DBG_Commands
         
         struct Reply
         {
-            CLR_INT32 m_success;
+            CLR_UINT32 m_updateHandle;
+            CLR_INT32  m_success;
             CLR_INT32  m_missingPktCount;
             CLR_UINT32 m_missingPkts[1];
         };
@@ -470,27 +486,30 @@ struct CLR_DBG_Commands
 
     struct Debugging_MFUpdate_AddPacket
     {
-        CLR_INT32 m_updateHandle;
+        CLR_UINT32 m_updateHandle;
         CLR_UINT32 m_packetIndex;
         CLR_UINT32 m_packetValidation;
         CLR_UINT32 m_packetLength;
-        CLR_UINT8 m_packetData[1];
+        CLR_UINT8  m_packetData[1];
 
         struct Reply
         {
-            CLR_UINT32 m_success;
+            CLR_UINT32 m_updateHandle;
+            CLR_INT32  m_success;
+            CLR_UINT32 m_packetIndex;
         };
     };
 
     struct Debugging_MFUpdate_Install
     {
-        CLR_INT32 m_updateHandle;
+        CLR_UINT32 m_updateHandle;
         CLR_UINT32 m_updateValidationSize;
-        CLR_UINT8 m_updateValidation[1];
+        CLR_UINT8  m_updateValidation[1];
 
         struct Reply
         {
-            CLR_UINT32 m_success;
+            CLR_UINT32 m_updateHandle;
+            CLR_INT32  m_success;
         };
     };
     
@@ -1099,6 +1118,8 @@ public:
 
     static bool Debugging_UpgradeToSsl                  ( WP_Message* msg, void* owner );
 
+    static bool Monitor_UpdateInit                      ( WP_Message* msg, void* owner );
+    static bool Monitor_UpdateDeInit                    ( WP_Message* msg, void* owner );
     static bool Debugging_MFUpdate_Start                ( WP_Message* msg, void* owner );
     static bool Debugging_MFUpdate_AuthCommand          ( WP_Message* msg, void* owner );
     static bool Debugging_MFUpdate_Authenticate         ( WP_Message* msg, void* owner );

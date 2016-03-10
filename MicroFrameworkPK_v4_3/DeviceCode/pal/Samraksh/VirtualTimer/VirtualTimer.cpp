@@ -88,6 +88,8 @@ BOOL VirtualTimerMapper::UnInitialize(UINT16 temp_HWID)
 		return FALSE;
 	}
 	else {
+		m_current_timer_cnt_ = 0;
+		//FIXME: UnInitialize other VirtualTimerMapper variables.
 		return TRUE;
 	}
 }

@@ -482,7 +482,6 @@ typedef void (*LOGGING_CALLBACK)(LPCSTR text);
 void hal_fprintf_SetLoggingCallback( LOGGING_CALLBACK fpn );
 
 extern "C"
-
 {
 void lcd_printf( const char* format, ... );
 }
@@ -490,7 +489,6 @@ void lcd_printf( const char* format, ... );
 #else
 
 extern "C"
-
 {
 __inline void lcd_printf( const char* format, ... ) {}
 }

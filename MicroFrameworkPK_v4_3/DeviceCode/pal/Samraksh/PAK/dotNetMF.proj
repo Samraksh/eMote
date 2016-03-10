@@ -1,0 +1,62 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>update_pal</AssemblyName>
+    <Size>
+    </Size>
+    <ProjectGuid>{A31E2145-92C6-41A0-8FE9-C088381ACF10}</ProjectGuid>
+    <Description>Online Update PAL Implementation</Description>
+    <Level>HAL</Level>
+    <LibraryFile>update_pal.$(LIB_EXT)</LibraryFile>
+    <ProjectPath>$(SPOCLIENT)\DeviceCode\PAL\PAK\dotNetMF.proj</ProjectPath>
+    <ManifestFile>update_pal.$(LIB_EXT).manifest</ManifestFile>
+    <Groups>Radio</Groups>
+    <LibraryCategory>
+      <MFComponent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="UPDATE_PAL" Guid="{A31E2145-92C6-41A0-8FE9-C088381ACF10}" ProjectPath="" Conditional="" xmlns="">
+        <VersionDependency xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">
+          <Major>4</Major>
+          <Minor>0</Minor>
+          <Revision>0</Revision>
+          <Build>0</Build>
+          <Extra />
+          <Date>2009-04-30</Date>
+        </VersionDependency>
+        <ComponentType xmlns="http://schemas.microsoft.com/netmf/InventoryFormat.xsd">LibraryCategory</ComponentType>
+      </MFComponent>
+    </LibraryCategory>
+    <Documentation>
+    </Documentation>
+    <PlatformIndependent>False</PlatformIndependent>
+    <CustomFilter>
+    </CustomFilter>
+    <Required>False</Required>
+    <IgnoreDefaultLibPath>False</IgnoreDefaultLibPath>
+    <IsStub>False</IsStub>
+    <Directory>DeviceCode\pal\Samraksh\PAK</Directory>
+    <OutputType>Library</OutputType>
+    <PlatformIndependentBuild>false</PlatformIndependentBuild>
+    <Version>4.0.0.0</Version>
+  </PropertyGroup>
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
+  <PropertyGroup />
+  <ItemGroup>
+    <HFiles Include="CLR\Include\TinyCLR_Debugging.h" />
+    <HFiles Include="$(SPOCLIENT)\devicecode\include\mfupdate_decl.h" />
+    <!--
+    <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/MAC.h" />
+    <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/Radio_decl.h" />
+    <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/Message.h" />
+    <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/Hal_util.h" />
+    <HFiles Include="DeviceCode/PAL/COM/Radio/MAC/Base/Buffer.h" />
+    <HFiles Include="csmaMAC.h" />
+    -->
+    <Compile Include="PortableArrayKitMessage.cpp" />
+    <IncludePaths Include="DeviceCode\include" />
+    <IncludePaths Include="DeviceCode\pal" />
+    <IncludePaths Include="CLR\libraries\CorLib" />
+    <IncludePaths Include="CLR\libraries\SPOT" />
+    <IncludePaths Include="CLR\libraries\SPOT_Hardware" />
+    <HFiles Include="DeviceCode\Include\PAK_decl.h" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Targets" />
+</Project>

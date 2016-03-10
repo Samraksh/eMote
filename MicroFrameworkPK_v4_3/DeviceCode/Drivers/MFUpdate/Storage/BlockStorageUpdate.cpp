@@ -149,8 +149,8 @@ INT32 BlockStorageUpdate::Create( MFUpdateHeader& storageHeader, UINT32 flags )
     }
 
     // If we are creating a new deployment we should erase any other of the same type 
-    Delete( MFUPDATE_UPDATEID_ANY, storageHeader.UpdateType, MFUPDATE_UPDATESUBTYPE_ANY );
-
+    // Don't delete other ASSEMBLY files.
+    //Delete( MFUPDATE_UPDATEID_ANY, storageHeader.UpdateType, MFUPDATE_UPDATESUBTYPE_ANY );
     for(i=0; i<ARRAYSIZE(g_BlockStorageUpdate.m_files); i++)
     {
         if( g_BlockStorageUpdate.m_files[i].Type    == storageHeader.UpdateType    && 
@@ -301,6 +301,11 @@ BOOL BlockStorageUpdate::Delete( INT32 storageID, UINT16 storageType, UINT16 sto
 
     return FALSE;
 }
+/**
+ * enumerate first [storageCount] number of stored update files into array storageIDs
+ * when storageIDs == NULL, count number of files.
+ * when storageIDs != NULL, use storageCount to indicate length of storageIDs
+ */
 BOOL BlockStorageUpdate::GetFiles( UINT16 storageType, INT32* storageIDs, INT32* storageCount )
 {
     if(storageCount == NULL) return FALSE;
@@ -317,7 +322,7 @@ BOOL BlockStorageUpdate::GetFiles( UINT16 storageType, INT32* storageIDs, INT32*
         {
             if(storageIDs == NULL)
             {
-                *storageCount++;
+                *storageCount = *storageCount + 1;
             }
             else
             {

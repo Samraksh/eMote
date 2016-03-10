@@ -23,7 +23,10 @@ const CLR_Messaging_CommandHandlerLookup c_Debugger_Lookup_Request[] =
     DEFINE_CMD2(MemoryMap  ),
     DEFINE_CMD2(FlashSectorMap),
     DEFINE_CMD2(DeploymentMap),
-
+#if defined(SAMRAKSH_UPDATE_EXT)
+    DEFINE_CMD2(UpdateInit ),
+    DEFINE_CMD2(UpdateDeInit),
+#endif
     //
     DEFINE_CMD(Execution_BasePtr         ),
     DEFINE_CMD(Execution_ChangeConditions),

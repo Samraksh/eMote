@@ -2567,7 +2567,20 @@ namespace Microsoft.SPOT.Debugger
 
         }
 
-        Dictionary<int, uint[]> m_updateMissingPktTbl = new Dictionary<int, uint[]>();
+		public bool UpdateInit() {
+			WireProtocol.Commands.Monitor_UpdateInit cmd = new WireProtocol.Commands.Monitor_UpdateInit();
+			Request req = AsyncMessage(WireProtocol.Commands.c_Monitor_UpdateInit, WireProtocol.Flags.c_NoCaching, cmd, 2, 5000);
+			//req.Wait();
+			return true;
+		}
+
+		public bool UpdateDeInit() {
+			WireProtocol.Commands.Monitor_UpdateDeInit cmd = new WireProtocol.Commands.Monitor_UpdateDeInit();
+			Request req = AsyncMessage(WireProtocol.Commands.c_Monitor_UpdateDeInit, WireProtocol.Flags.c_NoCaching, cmd, 2, 5000);
+			//IncomingMessage msg = req.Wait();
+			return true;
+		}
+        public Dictionary<uint, uint[]> m_updateMissingPktTbl = new Dictionary<uint, uint[]>();
 
         public bool StartUpdate(
             string provider, 
@@ -2579,7 +2592,7 @@ namespace Microsoft.SPOT.Debugger
             uint updateSize, 
             uint packetSize, 
             uint installAddress, 
-            ref int updateHandle )
+            ref uint updateHandle )
         {
             WireProtocol.Commands.Debugging_MFUpdate_Start cmd = new WireProtocol.Commands.Debugging_MFUpdate_Start();
 
@@ -2603,15 +2616,15 @@ namespace Microsoft.SPOT.Debugger
                 if (cmdReply != null)
                 {
                     updateHandle = cmdReply.m_updateHandle;
-                    return (-1 != updateHandle);
+                    return (cmdReply.m_success == 1);
                 }
             }
 
-            updateHandle = -1;
+            updateHandle = 0;  //MFUpdate::badHandle
             return false;
         }
 
-        public bool UpdateAuthCommand(int updateHandle, uint authCommand, byte[] commandArgs, ref byte[] response)
+        public bool UpdateAuthCommand(uint updateHandle, uint authCommand, byte[] commandArgs, ref byte[] response)
         {
             WireProtocol.Commands.Debugging_MFUpdate_AuthCommand cmd = new WireProtocol.Commands.Debugging_MFUpdate_AuthCommand();
 
@@ -2641,7 +2654,7 @@ namespace Microsoft.SPOT.Debugger
             return false;
         }
 
-        public bool UpdateAuthenticate(int updateHandle, byte[] authenticationData)
+        public bool UpdateAuthenticate(uint updateHandle, byte[] authenticationData)
         {
             WireProtocol.Commands.Debugging_MFUpdate_Authenticate cmd = new WireProtocol.Commands.Debugging_MFUpdate_Authenticate();
 
@@ -2663,7 +2676,7 @@ namespace Microsoft.SPOT.Debugger
             return false;
         }
 
-        private bool UpdateGetMissingPackets(int updateHandle)
+        public bool UpdateGetMissingPackets(uint updateHandle)
         {
             WireProtocol.Commands.Debugging_MFUpdate_GetMissingPkts cmd = new WireProtocol.Commands.Debugging_MFUpdate_GetMissingPkts();
 
@@ -2692,7 +2705,7 @@ namespace Microsoft.SPOT.Debugger
             return false;
         }
 
-        public bool AddPacket(int updateHandle, uint packetIndex, byte[] packetData, uint packetValidation )
+        public bool AddPacket(uint updateHandle, uint packetIndex, byte[] packetData, uint packetValidation )
         {
             if (!m_updateMissingPktTbl.ContainsKey(updateHandle))
             {
@@ -2727,14 +2740,14 @@ namespace Microsoft.SPOT.Debugger
 
                 if (cmdReply != null)
                 {
-                    return cmdReply.m_success != 0;
+                    return (cmdReply.m_success != 0);
                 }
             }
 
             return false;
         }
 
-        public bool InstallUpdate(int updateHandle, byte[] validationData )
+        public bool InstallUpdate(uint updateHandle, byte[] validationData )
         {
             if (m_updateMissingPktTbl.ContainsKey(updateHandle))
             {
