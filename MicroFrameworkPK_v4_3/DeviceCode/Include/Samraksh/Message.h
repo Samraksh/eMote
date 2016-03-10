@@ -117,6 +117,8 @@ enum PayloadType{
 //#define MFM_ROUTING (1 << 3)
 //#define MFM_DISCOVERY (1 << 4)
 #define TIMESTAMPED_FLAG (1 << 0)
+#define MFM_TIMESYNC_FLAG (1 << 1)
+#define MFM_DISCOVERY_FLAG (1 << 2)
 //#define MFM_TIMESYNCREQ (1 << 6)
 //#define MFM_DATA_ACK (1 << 7)
 

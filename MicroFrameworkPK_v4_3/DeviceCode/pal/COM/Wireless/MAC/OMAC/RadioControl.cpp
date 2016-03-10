@@ -206,7 +206,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 			hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
 		}
-		//msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC));
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC_FLAG));
 		size += sizeof(TimeSyncMsg);
 	}
 }
@@ -225,7 +225,7 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	if( (size-sizeof(IEEE802_15_4_Header_t)) < IEEE802_15_4_MAX_PAYLOAD - (sizeof(TimeSyncMsg)+additional_overhead) ){
 		DiscoveryMsg_t * tmsg = (DiscoveryMsg_t *) (msg->GetPayload()+(size-sizeof(IEEE802_15_4_Header_t)));
 		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.CreateMessage(tmsg);
-		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY));
+		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_DISCOVERY_FLAG));
 		size += sizeof(DiscoveryMsg_t);
 	}
 }

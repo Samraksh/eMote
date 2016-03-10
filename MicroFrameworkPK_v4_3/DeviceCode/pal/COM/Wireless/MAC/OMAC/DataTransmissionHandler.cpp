@@ -253,7 +253,7 @@ void DataTransmissionHandler::DropPacket(){
 		ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 		neigh_ptr->send_buffer.DropOldest(1);
 
-		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & TIMESTAMPED_FLAG)
+		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
 		){ //This is flushing the time sync message queue if the previous message was successful
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);

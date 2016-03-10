@@ -407,7 +407,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				break;
 			};
 
-			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG) {
+			if(msg->GetHeader()->flags & MFM_TIMESYNC_FLAG) {
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, TRUE);
 #endif
@@ -419,7 +419,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					CPU_GPIO_SetPinState(DATARX_TIMESTAMP_PIN, FALSE);
 #endif
 			}
-			if(msg->GetHeader()->flags &  MFM_DISCOVERY) {
+			if(msg->GetHeader()->flags &  MFM_DISCOVERY_FLAG) {
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
 				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);
