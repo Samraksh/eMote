@@ -235,13 +235,16 @@ void HAL_AddSoftRebootHandler(ON_SOFT_REBOOT_HANDLER handler)
 {
     for(int i=0; i<ARRAYSIZE(s_rebootHandlers); i++)
     {
+        if(s_rebootHandlers[i] == handler)
+        {
+            return;
+        }
+    }
+    for(int i=0; i<ARRAYSIZE(s_rebootHandlers); i++)
+    {
         if(s_rebootHandlers[i] == NULL)
         {
             s_rebootHandlers[i] = handler;
-            return;
-        }
-        else if(s_rebootHandlers[i] == handler)
-        {
             return;
         }
     }
