@@ -292,14 +292,12 @@ typedef OFProv<UINT64> OMACTicks;
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FROM_RF231_TX_TO_RF231_RX
 #define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
 													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
 														+RETRY_FUDGE_FACTOR
 
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
-//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
-//													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
-//														+RETRY_FUDGE_FACTOR
 
 //How long should receiver be awake after sending a HW ack. BK: No it is not! see the following
 // This is the maximum period to wait for the reception of a packet after receiving StartOfReception interrupt. Due to the change in RF231.cpp the interrupt is received after AMI. Hence it is the packet
