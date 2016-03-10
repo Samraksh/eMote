@@ -80,10 +80,10 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 	switch(id)
 	{
 		case RF231RADIO:
-			result = grf231Radio.UnInitialize();
+			result = (grf231Radio.UnInitialize() == DS_Success);
 			break;
 		case RF231RADIOLR:
-			result = grf231RadioLR.UnInitialize();
+			result = (grf231RadioLR.UnInitialize() == DS_Success);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -235,7 +235,7 @@ DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 	switch(radioID)
 	{
 		case RF231RADIO:
-			status = grf231Radio.Sleep(level);
+			status = grf231Radio.Sleep(level);  //TODO: translate level from device-agnostic to device-specific level if needed... or change the device driver to support the CPU_Radio Level enum
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.Sleep(level);
