@@ -1053,13 +1053,8 @@ BOOL RF231Radio::SpiInitialize()
 
 BOOL RF231Radio::SpiUnInitialize()
 {
-    BOOL ret = FALSE;
-    if(IsInitialized())
-    {
-        CPU_SPI_Uninitialize(config);
-        ret = TRUE;
-    }
-    return ret;
+    CPU_SPI_Uninitialize(config);
+    return TRUE;
 }
 
 
