@@ -25,7 +25,7 @@
 
 //#define DEBUG_RT_TIMER
 
-static bool g_RealTimeTimerEnalbed = false;
+static bool g_RealTimeTimerEnabled = false;
 static CLR_RT_HeapBlock_NativeEventDispatcher *g_Context = NULL;
 CLR_RT_ApplicationInterrupt interrupt;
 static UINT64 g_UserData = 0;
@@ -46,7 +46,7 @@ static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext 
 static int realTimeID = VIRT_TIMER_REALTIME;
 static bool debuggerAttached = false;
 #define REALTIME_TIMER_CNT_MAX 1
-static int realtimeTimerCnt = 0;
+static int realtimeTimerCnt = 0;  //FIXME: why are we keeping count?
 
 BOOL InitializeTimer ()
 {
@@ -77,9 +77,17 @@ BOOL InitializeTimer ()
 	return TRUE;
 }
 
-
+/**
+ * is called regardless of whether timer is initialized.
+ */
 BOOL RT_Dispose ()
 {
+	BOOL ret = TRUE;
+	if(g_RealTimeTimerEnabled == false) {
+		ret = TRUE;
+		goto RT_Dispose_out;
+	}
+
 	VirtTimer_Stop( realTimeID );
 	if (debuggerAttached == false){
 #ifdef PLATFORM_ARM_EmoteDotNow
@@ -88,19 +96,21 @@ BOOL RT_Dispose ()
 		//Need something similar to above for Adapt
 #endif
 	}
-	g_RealTimeTimerEnalbed = false;
+	g_RealTimeTimerEnabled = false;
 	CleanupNativeEventsFromHALQueue( g_Context );
 	if (realtimeTimerCnt > 0){
 		realtimeTimerCnt--;
+		ASSERT(realtimeTimerCnt == 0);
 	}
-	return TRUE;
+RT_Dispose_out:
+	return ret;
 }
 
 BOOL RT_Change(uint dueTime, uint period)
 {
 	VirtTimer_Change(realTimeID, dueTime, period, false);
 
-	return 1;
+	return TRUE;
 }
 
 static HRESULT InitializeRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )
@@ -243,7 +253,7 @@ void ISR_REALTIME_TIMER (void* Param)
 static HRESULT EnableDisableRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, bool fEnable )
 {
 	if(fEnable)
-		g_RealTimeTimerEnalbed = fEnable;
+		g_RealTimeTimerEnabled = fEnable;
 	else
 		RT_Dispose();
 
@@ -254,7 +264,7 @@ static HRESULT CleanupRealTimeTimerDriver( CLR_RT_HeapBlock_NativeEventDispatche
 {
 	// If a user disposes of a real-time timer, usually this function will get called tens of seconds later to make sure all 
 	// events are cleaned up. If we are currently running a new timer this function will break that timer.
-	if (g_RealTimeTimerEnalbed == false){
+	if (g_RealTimeTimerEnabled == false){
 	    g_Context = NULL;
 	    g_UserData = 0;
 	    CleanupNativeEventsFromHALQueue( pContext );

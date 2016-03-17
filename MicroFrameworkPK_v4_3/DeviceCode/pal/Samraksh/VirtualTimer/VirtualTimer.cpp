@@ -267,16 +267,12 @@ template<>
 BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
 {
 	//Timer 0 is reserved for keeping time and timer 1 for events
-	if (timer_id < 0)  {
-		ASSERT(0);
-		return FALSE;
-	}
 
 	UINT8 VTimerIndex = 0;
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
 
 	if(!timerFound) {
-		ASSERT(0);
+		SOFT_BREAKPOINT();
 		return FALSE;
 	}
 
