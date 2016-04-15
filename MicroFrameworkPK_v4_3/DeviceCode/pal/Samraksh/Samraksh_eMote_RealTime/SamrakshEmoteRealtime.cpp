@@ -45,8 +45,11 @@ void ISR_SoftwareInterrupt_Handler (void* Param);
 static void EnqueueEventToCLR( CLR_RT_HeapBlock_NativeEventDispatcher *pContext );
 static int realTimeID = VIRT_TIMER_REALTIME;
 static bool debuggerAttached = false;
+
+// REALTIME_TIMER_CNT_MAX is the number of real-time timers allowed. We could allow more at some future point if desired.
 #define REALTIME_TIMER_CNT_MAX 1
-static int realtimeTimerCnt = 0;  //FIXME: why are we keeping count?
+// We are keeping count of the number of timers to allow a future release to have more than just one real-time timer
+static int realtimeTimerCnt = 0;  
 
 BOOL InitializeTimer ()
 {
