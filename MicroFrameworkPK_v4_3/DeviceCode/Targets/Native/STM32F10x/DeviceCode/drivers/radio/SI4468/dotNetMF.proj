@@ -42,7 +42,9 @@
 	<HFiles Include="si446x.h" />	
 	<HFiles Include="si446x_cmd.h" />
 	<HFiles Include="radio_config_Si4468.h" />
+	<HFiles Include="si4468_driver_test.h" />
 	<Compile Include="si4468_driver.cpp" />
+	<Compile Include="si4468_driver_test.cpp" />
 	<Compile Include="si446x.cpp" />	
   </ItemGroup>
   <ItemGroup />
