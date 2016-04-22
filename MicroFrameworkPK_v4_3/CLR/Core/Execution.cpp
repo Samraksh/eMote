@@ -700,11 +700,16 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
 
     struct Process {
     CLR_RT_HeapBlock       ref;
-    CLR_RT_Thread*         thMain = NULL;
+    CLR_RT_Thread*         thMain;
     CLR_RT_MethodDef_Index entryPoint;
     };
 
-    Process processes[3];  //FIXME: make the max number of startup "processes" match the max number of entry points
+    Process processes[g_CLR_RT_TypeSystem.c_MaxEntryPoints];
+
+    for(CLR_UINT32 itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)
+    {
+        processes[itr_entryPoints].thMain = NULL;
+    }
 
 
     //******************************************************
@@ -738,7 +743,7 @@ HRESULT CLR_RT_ExecutionEngine::Execute( LPWSTR entryPointArgs, int maxContextSw
     CLR_Debug::Printf("found %d entry points!\r\n", g_CLR_RT_TypeSystem.m_entryPointsMax);
 
     CLR_RT_AppDomain* ad = g_CLR_RT_ExecutionEngine.GetCurrentAppDomain();
-    for(int itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)  //FIXME: iterating over entryPoints when we've switched to "processes"
+    for(CLR_UINT32 itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)  // iterating over entryPoints because one process per entrypoint.
     {
         processes[itr_entryPoints].entryPoint = g_CLR_RT_TypeSystem.m_entryPoints[itr_entryPoints];
         if(TINYCLR_INDEX_IS_INVALID(processes[itr_entryPoints].entryPoint))

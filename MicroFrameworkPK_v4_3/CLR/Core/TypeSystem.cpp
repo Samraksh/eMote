@@ -2910,7 +2910,7 @@ HRESULT CLR_RT_Assembly::PrepareForExecution()
         CLR_RT_AppDomain*   appDomain = NULL;
         bool b_assmContainsEntryPoint = FALSE;
         // create app domain for the entry point in this assembly (FIXME: only one entry point per assembly?)
-        for(int itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)
+        for(CLR_UINT32 itr_entryPoints=0; itr_entryPoints<g_CLR_RT_TypeSystem.m_entryPointsMax; itr_entryPoints++)
         {
             if(g_CLR_RT_TypeSystem.m_entryPoints[itr_entryPoints].Assembly() == this->m_idx)
             {
