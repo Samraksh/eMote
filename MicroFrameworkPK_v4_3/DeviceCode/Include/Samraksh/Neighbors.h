@@ -33,11 +33,11 @@ extern UINT8 MacName;
 #if defined(DEBUG_NEIGHBORTABLE)
 #define ENABLE_PIN_NB(x,y) CPU_GPIO_EnableOutputPin(x,y)
 #define SET_PIN_NB(x,y) CPU_GPIO_SetPinState(x,y)
-#define DEBUG_PRINTF_NB(x) hal_printf(x)
+#define DEBUG_PRINTF_NB(...) hal_printf(__VA_ARGS__)
 #else
 #define ENABLE_PIN_NB(x,y)
 #define SET_PIN_NB(x,y)
-#define DEBUG_PRINTF_NB(x)(void)0
+#define DEBUG_PRINTF_NB(...)(void)0
 #endif
 
 typedef struct {
@@ -160,7 +160,7 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 cu
 		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
 
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %d \n", Neighbor[i].MacAddress);
 			Neighbor[i].Status = Dead;
 			++deadNeighbors;
 			--NumberValidNeighbor;
