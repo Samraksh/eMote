@@ -44,7 +44,7 @@ void ClearMsgContents(Message_15_4_t* msg){
 	header->flags = 0;
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg->GetPayload();
-	data_msg->msg_identifier = 0;
+	//data_msg->msg_identifier = 0;
 	int size = data_msg->size;
 	data_msg->size = 0;
 	for(int i = 0; i < length; i++){
@@ -677,6 +677,7 @@ BOOL DataTransmissionHandler::ScheduleDataPacket(UINT8 _skipperiods, UINT16 dest
 
 
 BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skipperiods){
+	bool rv;
 	Neighbor_t* neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 	if (neighborEntry != NULL) {
 		if (neighborEntry->MacAddress != dest) {
@@ -692,7 +693,10 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 		}
 		UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
 		if(neighborSlot >= neighborEntry->nextwakeupSlot) {
-			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, neighborSlot );
+			rv = g_OMAC.m_omac_scheduler.m_DataReceptionHandler.UpdateSeedandCalculateWakeupSlot(neighborEntry->nextwakeupSlot, neighborEntry->nextSeed, neighborEntry->mask, neighborEntry->seedUpdateIntervalinSlots, neighborSlot );
+			if (!rv) { // rv update failed something is wrong with the neighbor, refrain from sending to the neighbor
+				return FALSE;
+			}
 		}
 		while(_skipperiods > 0) {
 			--_skipperiods;

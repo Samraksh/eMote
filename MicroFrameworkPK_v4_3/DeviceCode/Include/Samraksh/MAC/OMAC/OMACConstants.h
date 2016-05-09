@@ -130,7 +130,7 @@ typedef enum {
  */
 typedef struct PACK DiscoveryMsg
 {
-	UINT32 msg_identifier;
+	//UINT32 msg_identifier;
 	//seed to generate the pseduo-random wakeup schedule
 	UINT16 nextSeed;
 	UINT16 mask;
@@ -141,10 +141,10 @@ typedef struct PACK DiscoveryMsg
 	//the wakeup interval of the neighbor
 	UINT32 seedUpdateIntervalinSlots;
 	//fields below are just for convenience. not transmitted over the air
-	UINT16 nodeID;
+	//UINT16 nodeID;
 
-	UINT32 localTime0;
-	UINT32 localTime1;
+	//UINT32 localTime0;
+	//UINT32 localTime1;
 
 	//UINT32 lastwakeupSlotUpdateTimeinTicks0;
 	//UINT32 lastwakeupSlotUpdateTimeinTicks1;
@@ -152,10 +152,10 @@ typedef struct PACK DiscoveryMsg
 
 } DiscoveryMsg_t;
 
-#define DataMsgOverhead sizeof(UINT32)+sizeof(UINT8)
+#define DataMsgOverhead sizeof(UINT8)
 typedef struct DataMsg_t
 {
-	UINT32 msg_identifier;
+	//UINT32 msg_identifier;
 	UINT8 size;
 	UINT8 payload[MAX_DATA_PCKT_SIZE];
 } DataMsg_t;
@@ -180,10 +180,10 @@ struct PACK TimeSyncMsg
   //use this neighbor info along with local info to compute this difference
   //UINT16 radioStartDelay;
 //  float skew;
-  UINT32 timesyncIdentifier;
+  //UINT32 timesyncIdentifier;
   UINT32 localTime0;
   UINT32 localTime1;
-  bool request_TimeSync;
+  //bool request_TimeSync;
  // UINT16 nodeID;
   //UINT32 seqNo;
 
@@ -258,6 +258,7 @@ public:
 typedef OFProv<UINT64> OMACMicroSeconds;
 typedef OFProv<UINT64> OMACTicks;
 
+#define MAXUPDATESEEDITERS 20
 //GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
@@ -349,6 +350,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define FAILSAFETIME_MICRO 1000000
 
 #define WAKEUPPERIODINTICKS 8000000
+
+#define DISCOPERIODINSLOTS 2
+#define TIMEITTAKES2TXDISCOPACKETINMICSEC 4096
 
 //FCF table:
 //15 14 13  12  11  10  9  8  7  6  5  4  3  2  1  0 (bits)
@@ -443,7 +447,19 @@ UINT32 ArbiterP_Timing;
 /*
  * Prime numbers used in determining DISCO period of a node
  */
-UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
-UINT16 CONTROL_P2[] = {227, 181, 197, 191, 193, 211, 199};
+
+
+UINT16 CONTROL_P3[] = {2131, 2099, 2129, 2111, 2153, 2113, 2137};
+UINT16 CONTROL_P4[] = {8429, 8419, 8623, 8443, 8627, 8447, 8467};
+UINT16 CONTROL_P1[] = {197, 157, 151, 163, 211, 113, 127};
+UINT16 CONTROL_P2[] = {911, 727, 787, 769, 773, 853, 797};
+
+//UINT16 CONTROL_P3[] = {197, 157, 151, 163, 211, 113, 127};
+//UINT16 CONTROL_P4[] = {911, 727, 787, 769, 773, 853, 797};
+//UINT16 CONTROL_P1[] = {19, 17, 13, 37, 11, 5, 7};
+//UINT16 CONTROL_P2[] = {67, 43, 53, 47, 61, 59};
+
+//UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
+//UINT16 CONTROL_P2[] = {227, 181, 197, 191, 211, 199};
 
 #endif /* OMACCONSTANTS_H_ */

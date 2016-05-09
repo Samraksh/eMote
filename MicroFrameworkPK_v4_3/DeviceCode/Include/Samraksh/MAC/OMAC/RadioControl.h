@@ -27,6 +27,7 @@ public:
 	DeviceStatus Stop();
 
 	bool PiggybackMessages(Message_15_4_t* msg, UINT16 &size);
+	bool stayOn;
 
 
 };

@@ -108,6 +108,10 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(g_OMAC.UpdateNeighborTable() > 0 ){//If there are neighbor deleted from the table increase the discovery rate
 		m_DiscoveryHandler.TempIncreaseDiscoRate();
 	}
+	else if(g_NeighborTable.NumberOfNeighbors() == 0){//If there are no neighbors stay in high disco mode.
+		m_DiscoveryHandler.TempIncreaseDiscoRate();
+	}
+
 	VirtualTimerReturnMessage rm;
 
 	UINT64 rxEventOffset = 0, txEventOffset = 0, beaconEventOffset = 0, timeSyncEventOffset=0, rxEventOffsetAdjust, txEventOffsetAdjust;

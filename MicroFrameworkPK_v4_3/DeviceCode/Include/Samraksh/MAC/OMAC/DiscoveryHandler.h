@@ -26,10 +26,17 @@ typedef struct MessageCacheEntry {
 #endif
 } MessageCacheEntry_t;
 
+enum DiscoState{
+	DISCO_STATE_BEACON_1,
+	DISCO_STATE_BEACON_N,
+};
 /*
  *
  */
 class DiscoveryHandler: public EventHandler {
+private:
+	bool m_disco_getting_send;
+	DiscoState m_disco_state;
  public:
 
 
@@ -84,6 +91,7 @@ class DiscoveryHandler: public EventHandler {
   	~DiscoveryHandler();
 
   	void TempIncreaseDiscoRate();
+  	void PermanentlyDecreaseDiscoRate();
 };
 
 

@@ -190,10 +190,10 @@ DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestM
 
 
 void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool request_TimeSync) {
-	timeSyncMsg->timesyncIdentifier = 50529027; //0x03030303
+	//timeSyncMsg->timesyncIdentifier = 50529027; //0x03030303
 	timeSyncMsg->localTime0 = (UINT32) curticks;
 	timeSyncMsg->localTime1 = (UINT32) (curticks>>32);
-	timeSyncMsg->request_TimeSync = request_TimeSync;
+	//timeSyncMsg->request_TimeSync = request_TimeSync;
 	//timeSyncMsg->seqNo = m_seqNo++;
 }
 
@@ -205,11 +205,11 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
 
-	if(rcv_msg->timesyncIdentifier != 50529027 ){
-		y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
-		//ASSERT_SP(0);
-	}
+//	if(rcv_msg->timesyncIdentifier != 50529027 ){
+//		y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//		neighborscurtime = m_globalTime.Neighbor2LocalTime(msg_src,y);
+//		//ASSERT_SP(0);
+//	}
 	//UINT64 EventTime = PacketTimeSync_15_4::EventTime(msg,len);
 	//TimeSyncMsg* rcv_msg = (TimeSyncMsg *) msg->GetPayload();
 	ReceiveTS = ReceiveTS - TIME_BETWEEN_TX_RX_TS_TICKS;

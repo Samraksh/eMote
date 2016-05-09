@@ -301,11 +301,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 		//g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_isreceiving = false;
 
-		if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
-			DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_Clock.GetCurrentTimeinTicks());
-			if(ds != DS_Success){
-				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
-			}
+		//if( destID == myID || destID == RADIO_BROADCAST_ADDRESS){
+
 
 			//Any message might have timestamping attached to it. Check for it and process
 			if(msg->GetHeader()->flags & TIMESTAMPED_FLAG){
@@ -321,7 +318,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					location_in_packet_payload += sizeof(DiscoveryMsg_t);
 					break;
 				case MFM_DATA:
-						if(true || myID == destID) {
 							if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 								g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 							}
@@ -329,12 +325,13 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 							CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 #endif
 							data_msg = (DataMsg_t*) msg->GetPayload();
-							if(data_msg->msg_identifier != 16843009){
-								ASSERT_SP(0);
-							}
+//							if(data_msg->msg_identifier != 16843009){
+//								ASSERT_SP(0);
+//							}
 							//location_in_packet_payload += data_msg->size;
 							location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
+						if(myID == destID) {//Process the data packet only if the destination matches
 							Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 
 							if(! (next_free_buffer))
@@ -366,44 +363,39 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #endif
 						}
 						break;
-				case MFM_OMAC_ROUTING:
+				case MFM_OMAC_ROUTING: //Not processed
 					data_msg = (DataMsg_t*) msg->GetPayload();
-					if(data_msg->msg_identifier != 16843009){
-						//ASSERT_SP(0);
-					}
+//					if(data_msg->msg_identifier != 16843009){
+//						//ASSERT_SP(0);
+//					}
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
 					hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
 					break;
-				case MFM_OMAC_NEIGHBORHOOD:
+				case MFM_OMAC_NEIGHBORHOOD://Not processed
 					hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
 					break;
 				case MFM_OMAC_TIMESYNCREQ:
-					if(true || myID == destID) {
-						if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-							g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
-						}
+					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
-						CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, TRUE);
+					CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, TRUE);
 						//ASSERT_SP(msg->GetHeader()->flags & TIMESTAMPED_FLAG);
 #ifdef OMAC_DEBUG_PRINTF
 						hal_printf("OMACType::ReceiveHandler MFM_TIMESYNC\n");
 #endif
 					data_msg = (DataMsg_t*) msg->GetPayload();
-					if(data_msg->msg_identifier != 16843009){
-						//ASSERT_SP(0);
-					}
-					tsreqmg =  (TimeSyncRequestMsg*) (data_msg->payload);
-					ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ReceiveTSReq(sourceID, tsreqmg);
-					if(ds == DS_Success){
-						location_in_packet_payload += data_msg->size + DataMsgOverhead;
-					}
-					else{
-						location_in_packet_payload += data_msg->size + DataMsgOverhead;
+					location_in_packet_payload += data_msg->size + DataMsgOverhead;
+//					if(data_msg->msg_identifier != 16843009){
+//						//ASSERT_SP(0);
+//					}
+					if(myID == destID) {
+						tsreqmg =  (TimeSyncRequestMsg*) (data_msg->payload);
+						ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.ReceiveTSReq(sourceID, tsreqmg);
 					}
 					CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, FALSE);
 					break;
-				case MFM_OMAC_DATA_BEACON_TYPE:
+				case MFM_OMAC_DATA_BEACON_TYPE://Not processed
 					hal_printf("OMACType::ReceiveHandler MFM_OMAC_DATA_BEACON_TYPE\n");
 					hal_printf("Got a data beacon packet\n");
 					break;
@@ -419,9 +411,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 							g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 						}
 						data_msg = (DataMsg_t*) msg->GetPayload();
-						if(data_msg->msg_identifier != 16843009){
-							ASSERT_SP(0);
-						}
+//						if(data_msg->msg_identifier != 16843009){
+//							ASSERT_SP(0);
+//						}
 						//location_in_packet_payload += data_msg->size;
 						location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
@@ -461,10 +453,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			}
 
-			if( tsmg != NULL && disco_msg == NULL){
-				rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//			if( tsmg != NULL && disco_msg == NULL){
+//				rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//			}
+
+			ds = g_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_Clock.GetCurrentTimeinTicks());
+			if(ds != DS_Success){
+				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
 			}
-		}
+
+		//}
 
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RXPIN, FALSE);
@@ -472,10 +470,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 #ifdef	def_Neighbor2beFollowed
 	}
 #endif
-	UINT64 rx_end_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
-		return msg;
-	}
+//	UINT64 rx_end_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+//	if(rx_end_ticks - rx_start_ticks > 8*2000000){ //Dummy if conditions to catch interrupted reception
+//		return msg;
+//	}
 
 
 
@@ -614,7 +612,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
 	data_msg->size = size;
-	data_msg->msg_identifier = 16843009; // 0x01010101
+	//data_msg->msg_identifier = 16843009; // 0x01010101
 	UINT8* payload = data_msg->payload;
 	UINT8* lmsg = (UINT8*) msg;
 	for(UINT8 i = 0 ; i < size; i++){
@@ -641,9 +639,21 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  *
  */
 UINT8 OMACType::UpdateNeighborTable(){
+	UINT8 index;
 	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay, m_Clock.GetCurrentTimeinTicks());
 	if(numberOfDeadNeighbors > 0)
 	{
+		for(UINT8 i =0; i < MAX_NBR; ++i){
+			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
+				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){
+				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+				}
+				else if(g_NeighborTable.Neighbor[index].Status != Alive){
+					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
+				}
+			}
+		}
+
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
@@ -653,6 +663,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
 		}
 	}
+	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();
 }
 

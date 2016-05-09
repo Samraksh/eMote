@@ -106,18 +106,24 @@ UINT64 DataReceptionHandler::NextEvent(){
 	return(nextEventsMicroSec);
 }
 
-void DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
+bool DataReceptionHandler::UpdateSeedandCalculateWakeupSlot(UINT64 &wakeupSlot, UINT16 &next_seed, const UINT16 &mask, const UINT32 &seedUpdateIntervalinSlots,  const UINT64 &currentSlotNum ){
+	UINT8  iternum = 0;
 	if (currentSlotNum >= wakeupSlot){
 		UINT16 randVal;
 		UINT64 curFrameStart = wakeupSlot - wakeupSlot % seedUpdateIntervalinSlots;
+		if(currentSlotNum > curFrameStart &&   currentSlotNum - curFrameStart > MAXUPDATESEEDITERS * seedUpdateIntervalinSlots){ //BK: Prevent infinite loop. We may as well act on this signal and declare the neighbor as dead.
+			return false;
+		}
 		while ( currentSlotNum >= wakeupSlot ){
 			//TODO: BK: The following does not seem to work. For now we are bypassing this by having a constant.
 			randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&next_seed, mask);
 			curFrameStart = curFrameStart + seedUpdateIntervalinSlots;
 			wakeupSlot = curFrameStart + randVal % seedUpdateIntervalinSlots;
+			++iternum;
 		}
 	}
 	lastwakeupSlotUpdateTimeinTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	return true;
 	//ASSERT_SP(wakeupSlot  > currentSlotNum);
 }
 /*

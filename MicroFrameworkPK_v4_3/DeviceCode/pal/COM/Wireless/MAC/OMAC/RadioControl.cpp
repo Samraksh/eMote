@@ -256,17 +256,20 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
  *
  */
 DeviceStatus RadioControl_t::Stop(){
-	DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
-
-	if(returnVal == DS_Success){
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
-#endif
-	}
+	if(stayOn) return DS_Success;
 	else{
-		hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
+
+		if(returnVal == DS_Success){
+	#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
+	#endif
+		}
+		else{
+			hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+		}
+		return returnVal;
 	}
-	return returnVal;
 }
 
 /*
