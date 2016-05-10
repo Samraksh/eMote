@@ -8,9 +8,9 @@
 
 //////////////////////////// Radio Errors/////////////////////////////////////////
 
-#define RADIOERROR01  "Frame Buffer Overrun"
-#define RADIOERROR02  "Battery Low"
-#define RADIOERROR03  "State Change Failed"
+#define RADIOERROR01  "Frame Buffer Overrun\n"
+#define RADIOERROR02  "Battery Low\n"
+#define RADIOERROR03  "State Change Failed\n"
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,12 +22,12 @@
 
 extern "C"
 {
-	void* DefaultRecieveHandler(void *msg, UINT16 Size)
+	void* DefaultReceiveHandler(void *msg, UINT16 Size)
 	{
 		return NULL;
 	}
 
-	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status)
+	void DefaultSendAckHandler(void *msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus)
 	{
 
 	}
@@ -62,7 +62,7 @@ class Radio
 {
 	// Contains a unique id for each radio registered
 
-	UINT8 RadioId;
+	UINT8 RadioID;
 	RadioAddress_t MyAddress;
 
 	// Keeps track of all the mac ids that are currently supported
@@ -98,7 +98,7 @@ public:
 
 	BOOL SetDefaultHandlers()
 	{
-		defaultHandler.SetRecieveHandler(DefaultRecieveHandler);
+		defaultHandler.SetReceiveHandler(DefaultReceiveHandler);
 		defaultHandler.SetSendAckHandler(DefaultSendAckHandler);
 		defaultHandler.SetRadioInterruptHandler(DefaultRadioInterruptHandler);
 		MacHandlers[MacIDIndex] = &defaultHandler;
@@ -119,16 +119,12 @@ public:
 	//virtual DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 mac_id)
 	DeviceStatus Initialize(RadioEventHandler *event_handler, UINT8 mac_id)
 	{
-
 		Radio<T>::MacIDs[MacIDIndex] = mac_id;
-		if(!event_handler)
-		{
+		if(!event_handler){
 			SetDefaultHandlers();
 		}
-		else
-		{
+		else{
 			MacHandlers[MacIDIndex] = event_handler;
-
 		}
 
 		// Increment the mac id index
@@ -210,12 +206,12 @@ public:
 
 	//virtual UINT8 GetRadioID()
 	UINT8 GetRadioID(){
-		return RadioId;
+		return RadioID;
 	}
 
 	void SetRadioID(UINT8 id)
 	{
-		RadioId=id;
+		RadioID=id;
 	}
 
 	// Mutators for radio_type and is_active variables

@@ -25,9 +25,27 @@
 
 #define DISCOVERY_FREQUENCY 200
 
-extern Buffer_15_4_t m_send_buffer;
-extern Buffer_15_4_t m_receive_buffer;
-extern NeighborTable m_NeighborTable;
+//FCF table:
+//15 14 13  12  11  10  9  8  7  6  5  4  3  2  1  0 (bits)
+//1   0  0   0   1   0  0  0  0  1  1  0  0  0  0  1 (values)
+//Frame type (bits 0,1,2)  			- Data
+//Security enabled (bit 3) 			- No
+//Frame pending (bit 4)				- No
+//Ack request (bit 5)				- Yes
+//Intra-pan (bit 6)					- Yes, source PAN-ID is omitted
+//Bits 7,8,9						- Reserved
+//Dest addressing mode (bits 10,11)	- Address field contains a 16-bit short address
+//Frame version (bits 12,13)		- Frames are compatible with IEEE 802.15.4 2003
+//Src addressing mode (bits 14,15)	- Address field contains a 16-bit short address
+#define FCF_WORD_VALUE 0x8861 //34913
+#define SRC_PAN_ID	0xAAAA
+#define DEST_PAN_ID	0x5555
+
+#define TIMESTAMP_SIZE 4
+
+extern Buffer_15_4_t g_send_buffer;
+extern Buffer_15_4_t g_receive_buffer;
+extern NeighborTable g_NeighborTable;
 
 //#define DEBUG_CSMAMAC 1
 
@@ -48,7 +66,7 @@ extern volatile UINT32 csmaSendToRadioFailCount;
 // core mac class definitions extends the MAC class and implements its virtual functions
 // MAC does not have a template because of function pointer issues as they were primarily for the return type of handlers
 
-class csmaMAC: public MAC<Message_15_4_t, MacConfig>
+class csmaMAC: public MAC<Message_15_4_t, MACConfig>
 {
 	//Buffer variable
 	UINT8 CurrentActiveApp;
@@ -62,30 +80,34 @@ public:
 	UINT16 GetMaxPayload(){return MaxPayload;}
 	BOOL SetRadioAddress(UINT16 address);
 	void SetMaxPayload(UINT16 payload){MaxPayload = payload;}
+	BOOL SetRadioName(UINT8 radioName);
+	BOOL SetRadioTxPower(int power);
+	BOOL SetRadioChannel(int channel);
 
 
 	BOOL Resend(void* msg, int Size);
-	DeviceStatus Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MacConfig *config);
-	DeviceStatus SetConfig(MacConfig *config);
+	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID,UINT8 radioName, MACConfig *config);
+	DeviceStatus SetConfig(MACConfig *config);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int Size);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
 	Message_15_4_t* ReceiveHandler(Message_15_4_t* msg, int Size);
 	BOOL RadioInterruptHandler(RadioInterrupt Interrupt, void* Param);
-	void SendAckHandler(void* msg, int Size, NetOpStatus status);
+	void SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radioAckStatus);
 	BOOL UnInitialize(void);
 	BOOL HandleBroadcastMessage(Message_15_4_t * msg);
 	BOOL HandleUnicastMessage(Message_15_4_t * msg);
 	BOOL HandlePromiscousMessage(Message_15_4_t * msg);
 	void SendToRadio();
 	void UpdateNeighborTable();
-	UINT8 GetBufferSize();
-	UINT16 GetSendPending(){ return m_send_buffer.GetNumberMessagesInBuffer();}
-	UINT16 GetReceivePending(){return m_receive_buffer.GetNumberMessagesInBuffer();}
+	UINT8 GetSendBufferSize();
+	UINT8 GetReceiveBufferSize();
+	UINT16 GetSendPending(){ return g_send_buffer.GetNumberMessagesInBuffer();}
+	UINT16 GetReceivePending(){return g_receive_buffer.GetNumberMessagesInBuffer();}
 
 	DeviceStatus SendHello();
 
-	NeighborTable* GetNeighborTable(){return &m_NeighborTable;}
-	Neighbor_t* GetNeighbor(UINT16 macAddress){return m_NeighborTable.GetNeighborPtr(macAddress); }
+	NeighborTable* GetNeighborTable(){return &g_NeighborTable;}
+	Neighbor_t* GetNeighbor(UINT16 macAddress){return g_NeighborTable.GetNeighborPtr(macAddress); }
 
 };
 

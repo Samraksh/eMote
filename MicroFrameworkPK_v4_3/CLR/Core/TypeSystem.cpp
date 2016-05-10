@@ -2836,7 +2836,7 @@ void CLR_RT_Assembly::Resolve_MethodDef()
         if(md->flags & CLR_RECORD_METHODDEF::MD_EntryPoint)
         {
             g_CLR_RT_TypeSystem.m_entryPoint = idx;
-            g_CLR_RT_TypeSystem.m_entryPoints[g_CLR_RT_TypeSystem.m_entryPointsMax++] = idx;
+            //g_CLR_RT_TypeSystem.m_entryPoints[g_CLR_RT_TypeSystem.m_entryPointsMax++] = idx;
         }
     }
 }
@@ -2905,7 +2905,9 @@ HRESULT CLR_RT_Assembly::PrepareForExecution()
         //Temporary solution.  All Assemblies get added to the current AppDomain
         //Which assemblies get loaded at boot, and when assemblies get added to AppDomain at runtime is
         //not yet determined/implemented
-#pragma message "HELP FIXME ERROR WARNING"
+
+        TINYCLR_CHECK_HRESULT(g_CLR_RT_ExecutionEngine.GetCurrentAppDomain()->LoadAssembly( this ));
+/*#pragma message "HELP FIXME ERROR WARNING"
 
         CLR_RT_AppDomain*   appDomain = NULL;
         bool b_assmContainsEntryPoint = FALSE;
@@ -2930,7 +2932,7 @@ HRESULT CLR_RT_Assembly::PrepareForExecution()
             appDomain = g_CLR_RT_ExecutionEngine.GetCurrentAppDomain();
         }
 
-        TINYCLR_CHECK_HRESULT(appDomain->LoadAssembly( this ));
+        TINYCLR_CHECK_HRESULT(appDomain->LoadAssembly( this ));*/
 #endif
     }
 
@@ -3346,7 +3348,7 @@ void CLR_RT_TypeSystem::TypeSystem_Cleanup()
     TINYCLR_FOREACH_ASSEMBLY_END();
 
     m_assembliesMax = 0;
-    m_entryPointsMax = 0;
+    //m_entryPointsMax = 0;
 }
 
 //--//

@@ -17,18 +17,26 @@
 // History 		v0.1 - Added sleep functionality, channel change and power change functionality (nived.sivadas)
 //              v0.2 - Added long range radio support (nived.sivadas)
 //              v0.3 - Added asserts (MichaelAtSamraksh)
+//				v0.4 - Added initial support for Si446x driver (Nathan Stohs)
 
+#include <tinyhal.h>
 #include "RF231\RF231.h"
 
-#define ASSERT_NOFAIL(x) ASSERT((x) != DS_Fail)
+#define ASSERT_NOFAIL(x) {if(x==DS_Fail){ SOFT_BREAKPOINT(); }}
+
+#define SI4468_SPI2_POWER_OFFSET 16
+#define SI4468_SPI2_CHANNEL_OFFSET 16
 
 const char * strUfoRadio = "[NATIVE] Error in function %s : Unidentified radio \r\n";
 #define PRINTF_UNIDENTIFIED_RADIO()  hal_printf( strUfoRadio , __func__ );
+
+INT8 currentRadioName;
 
 // Calls the corresponding radio object initialize function based on the radio chosen
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioID, UINT8 numberRadios, UINT8 mac_id )
 {
 	DeviceStatus status = DS_Fail;
+	currentRadioName = -1;
 
 	if(eventHandlers == NULL)
 		return DS_Fail;
@@ -36,9 +44,11 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 	switch(radioID)
 	{
 		case RF231RADIO:
+			currentRadioName = RF231RADIO;
 			status = grf231Radio.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		case RF231RADIOLR:
+			currentRadioName = RF231RADIOLR;
 			status = grf231RadioLR.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		default:
@@ -46,7 +56,8 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//ASSERT_NOFAIL(status);
+	{if(status==DS_Fail) SOFT_BREAKPOINT();}
 	return status;
 }
 
@@ -91,7 +102,7 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 
 	}
 
-	ASSERT(result == TRUE);
+	ASSERT_SP(result == TRUE);
 	return result;
 }
 
@@ -99,7 +110,7 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs)
 {
 	//*radioIDs=grf231Radio.GetRadioID();
-	ASSERT(0);
+	ASSERT_SP(0);
 	return 1;
 }
 
@@ -120,7 +131,7 @@ UINT16 CPU_Radio_GetAddress(UINT8 radioID)
 		break;
 	}
 
-	ASSERT(address != 0);   // note: 0 is valid address and will pass in Release flavor.
+	ASSERT_SP(address != 0);   // note: 0 is valid address and will pass in Release flavor.
 	return address;
 }
 
@@ -142,112 +153,51 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address)
 			break;
 	}
 
-	ASSERT(status == TRUE);
+	ASSERT_SP(status == TRUE);
 	return status;
 }
 
-// Function is not currently supported
-void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
+INT8 CPU_Radio_GetRadioName()
 {
-	ASSERT(0);
-	return NULL;
-}
-
-void* CPU_Radio_Send(UINT8 radioID, void * msg, UINT16 size)
-{
-	void *ptr_temp = NULL;
-
-	switch(radioID)
+	INT8 radioType = -1;
+	switch(currentRadioName)
 	{
 		case RF231RADIO:
-			ptr_temp = (void *) grf231Radio.Send(msg, size);
+			radioType = grf231Radio.GetRadioName();
 			break;
 		case RF231RADIOLR:
-			ptr_temp = (void *) grf231RadioLR.Send(msg, size);
+			radioType = grf231RadioLR.GetRadioName();
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
 	}
 
-	ASSERT(ptr_temp != NULL);
-	return ptr_temp;
+	return radioType;
 }
 
-// This function is used to send a time stamped packet, time stamping is done just before
-// physical send in hardware
-void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void * msg, UINT16 size, UINT32 eventTime)
-{
-	void *ptr_temp = NULL;
-
-	switch(radioID)
-	{
-		case RF231RADIO:
-			ptr_temp = (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
-			break;
-		case RF231RADIOLR:
-			ptr_temp = (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime);
-			break;
-		default:
-			PRINTF_UNIDENTIFIED_RADIO();
-			break;
-	}
-
-	ASSERT(ptr_temp != NULL);
-	return ptr_temp;
-}
-
-// This function is used in combination with pre loading and is currently not supported
-DeviceStatus CPU_Radio_Send(UINT8 radioID)
-{
-	ASSERT(0);
-	return DS_Fail;
-}
-
-// This function calls the corresponding radio turn on function based on the input radio id
-DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
+DeviceStatus CPU_Radio_SetRadioName(INT8 radioName)
 {
 	DeviceStatus status = DS_Fail;
-
-	switch(radioID)
+	switch(radioName)
 	{
+		currentRadioName = radioName;
 		case RF231RADIO:
-			status = grf231Radio.TurnOnRx();
+			grf231Radio.SetRadioName(radioName);
+			status = DS_Success;
 			break;
 		case RF231RADIOLR:
-			status = grf231RadioLR.TurnOnRx();
+			grf231RadioLR.SetRadioName(radioName);
+			status = DS_Success;
 			break;
 		default:
+			currentRadioName = -1;
 			PRINTF_UNIDENTIFIED_RADIO();
-			break;
-
-	}
-
-	ASSERT_NOFAIL(status);
-	return status;
-}
-
-
-DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
-{
-	DeviceStatus status = DS_Fail;
-
-	switch(radioID)
-	{
-		case RF231RADIO:
-			status = grf231Radio.Sleep(level);  //TODO: translate level from device-agnostic to device-specific level if needed... or change the device driver to support the CPU_Radio Level enum
-			break;
-		case RF231RADIOLR:
-			status = grf231RadioLR.Sleep(level);
-			break;
-		default:
-			PRINTF_UNIDENTIFIED_RADIO();
+			ASSERT_SP(0);
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
 	return status;
-
 }
 
 DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power)
@@ -271,6 +221,26 @@ DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power)
 	return status;
 }
 
+UINT32 CPU_Radio_GetTxPower(UINT8 radioID)
+{
+	UINT32 txPower = 0;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			txPower = grf231Radio.GetTxPower();
+			break;
+		case RF231RADIOLR:
+			txPower = grf231RadioLR.GetTxPower();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	return txPower;
+}
+
 DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel)
 {
 	DeviceStatus status = DS_Fail;
@@ -282,6 +252,270 @@ DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel)
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.ChangeChannel(channel);
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	ASSERT_NOFAIL(status);
+	return status;
+}
+
+UINT32 CPU_Radio_GetChannel(UINT8 radioID)
+{
+	UINT32 channel = 0;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			channel = grf231Radio.GetChannel();
+			break;
+		case RF231RADIOLR:
+			channel = grf231RadioLR.GetChannel();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	return channel;
+}
+
+// Function is not currently supported
+void* CPU_Radio_Preload(UINT8 radioID, void * msg, UINT16 size)
+{
+	ASSERT_SP(0);
+	return NULL;
+}
+
+void* CPU_Radio_SendRetry(UINT8 radioID)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.SendRetry();
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.SendRetry();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
+void* CPU_Radio_SendStrobe(UINT8 radioID, UINT16 size)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.SendStrobe(size);
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.SendStrobe(size);
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
+void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.Send(msg, size);
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.Send(msg, size);
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
+// This function is used to send a time stamped packet, time stamping is done just before
+// physical send in hardware
+void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 eventTime)
+{
+	void* ptr_temp = NULL;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			ptr_temp = (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
+			break;
+		case RF231RADIOLR:
+			ptr_temp = (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime);
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_SP(ptr_temp != NULL);
+	return ptr_temp;
+}
+
+NetOpStatus CPU_Radio_PreloadMessage(UINT8* msgBuffer, UINT16 size)
+{
+	NetOpStatus status = NetworkOperations_Success;
+	Message_15_4_t* retMsg = grf231Radio.Preload((Message_15_4_t*)msgBuffer, size);
+	if(retMsg == NULL){
+		status = NetworkOperations_Busy;
+	}
+	return status;
+}
+
+/*This is not needed anymore. These were added on a trial-and-error basis.
+ * Just to check if it is possible to enable CSMA for 2nd attempt when initial
+ * attempt at sending a packet fails.
+DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.EnableCSMA();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.EnableCSMA();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}
+
+DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.DisableCSMA();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.DisableCSMA();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}*/
+
+
+// This function calls the corresponding radio turn on function based on the input radio id
+DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.TurnOnRx();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.TurnOnRx();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}
+
+// This function calls the corresponding radio turn off function based on the input radio id
+DeviceStatus CPU_Radio_TurnOffRx(UINT8 radioID)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.TurnOffRx();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.TurnOffRx();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	//ASSERT_NOFAIL(status);
+	return status;
+}
+
+
+// This function calls the corresponding radio turn on function based on the input radio id
+DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID)
+{
+	return DS_Success;
+	/* Should not be user exposed. The driver handles this. --NPS
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.TurnOnPLL();
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.TurnOnPLL();
+			break;
+		default:
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+
+	}
+
+	ASSERT_NOFAIL(status);
+	return status;
+	*/
+}
+
+
+DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
+{
+	DeviceStatus status = DS_Fail;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			status = grf231Radio.Sleep(level);  //TODO: translate level from device-agnostic to device-specific level if needed... or change the device driver to support the CPU_Radio Level enum
+			break;
+		case RF231RADIOLR:
+			status = grf231RadioLR.Sleep(level);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -310,12 +544,13 @@ DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//DS_Fail is a valid state returned from ClearChannelAssesment
+	//ASSERT_NOFAIL(status);
 	return status;
 }
 
 
-DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroSecond)
+DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSecond)
 {
 	DeviceStatus status  = DS_Fail;
 
@@ -332,49 +567,10 @@ DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroS
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//DS_Fail is a valid state returned from ClearChannelAssesment
+	//ASSERT_NOFAIL(status);
 	return status;
 
-}
-
-UINT32 CPU_Radio_GetChannel(UINT8 radioID)
-{
-	UINT32 channel = 0;
-
-	switch(radioID)
-	{
-		case RF231RADIO:
-			channel = grf231Radio.GetChannel();
-			break;
-		case RF231RADIOLR:
-			channel = grf231RadioLR.GetChannel();
-			break;
-		default:
-			PRINTF_UNIDENTIFIED_RADIO();
-			break;
-	}
-
-	return channel;
-}
-
-UINT32 CPU_Radio_GetTxPower(UINT8 radioID)
-{
-	UINT32 txPower = 0;
-
-	switch(radioID)
-	{
-		case RF231RADIO:
-			txPower = grf231Radio.GetTxPower();
-			break;
-		case RF231RADIOLR:
-			txPower = grf231RadioLR.GetTxPower();
-			break;
-		default:
-			PRINTF_UNIDENTIFIED_RADIO();
-			break;
-	}
-
-	return txPower;
 }
 
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID)
@@ -392,10 +588,29 @@ UINT32 CPU_Radio_GetSNR(UINT8 radioID)
 	return 0;
 }
 
-
+// Gets the RSSI. Does not use the ED module of the RF231 currently.
+// Must be called when in RX mode. Caller must do this.
+// Return MAX_INT for total fail.
+// Returns 0x7FFFFFFF if not in RX mode.
 UINT32 CPU_Radio_GetRSSI(UINT8 radioID)
 {
-	return 0;
+	UINT32 val;
+
+	switch(radioID)
+	{
+		case RF231RADIO:
+			val = grf231Radio.GetRSSI();
+			break;
+		case RF231RADIOLR:
+			val = grf231RadioLR.GetRSSI();
+			break;
+		default:
+			val=0xFFFFFFFF; // error condition.
+			PRINTF_UNIDENTIFIED_RADIO();
+			break;
+	}
+
+	return val;
 }
 
 

@@ -328,13 +328,13 @@ struct STM32_AITC
 		tmppre = (0x04 - tmppriority); // number bits to shift priority.
 		tmpsub = tmpsub >> tmppriority; // number of sub-group bits to clear out.
 
-#if defined(DEBUG)
+/*#if defined(DEBUG)
 		// Coded assert
 		if(priority > (0xF >> tmppre))
 		{
 			while(TRUE);
 		}
-#endif
+#endif*/
 		tmppriority = (UINT32) (priority << tmppre); // assume caller knows how many priority bits exist, because it uses the lower bits of priority.
 		tmppriority |=  (0 & tmpsub);                // clear out subgroup.
 		tmppriority = (tmppriority << 0x04);         // STMicro PM0056 pg125.

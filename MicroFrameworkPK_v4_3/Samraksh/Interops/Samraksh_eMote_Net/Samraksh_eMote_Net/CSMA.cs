@@ -1,38 +1,22 @@
-using System;
-using Microsoft.SPOT;
-using System.Runtime.CompilerServices;
-using Samraksh.eMote.Net.Mac;
+using Samraksh.eMote.Net.Radio;
 
-namespace Samraksh.eMote.Net.Mac
+
+// ReSharper disable once CheckNamespace
+namespace Samraksh.eMote.Net.MAC
 {
+    /// <summary>CSMA class</summary>
     public class CSMA : MACBase
     {
-        private static CSMA instance;
-        private static object syncObject = new Object();
-
-        private CSMA() : base(MacID.CSMA)
+        /// <summary>Constructor</summary>
+        /// <param name="radioConfiguration">Radio configuratin to use</param>
+        /// <param name="cca">Use Clear Channel Assessment (CCA)</param>
+        /// <param name="numberOfRetries">Number of times to try resending packet</param>
+        /// <param name="ccaSenseTime">Time (in milliseconds) to check for clear channel</param>
+        /// <param name="bufferSize">Send buffer size</param>
+        /// <param name="neighborLivenessDelay">Timeout (in milliseconds) to declare neighbor dead</param>
+        public CSMA(IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 180, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true, byte ccaSenseTime = 120)
+            : base(MACType.CSMA, radioConfiguration, neighborLivenessDelay, numberOfRetries, bufferSize, cca, ccaSenseTime)
         {
-        }
-
-        /// <summary>
-        /// Returns the instance of the CSMA object
-        /// </summary>
-        /// <remarks>This is a singleton pattern. There can only be one CSMA Mac object.</remarks>
-        public static CSMA Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (syncObject)
-                    {
-                        if (instance == null)
-                            instance = new CSMA();
-                    }
-                }
-
-                return instance;
-            }
         }
 
     }

@@ -1,6 +1,3 @@
-using System;
-using Microsoft.SPOT;
-
 namespace Samraksh.eMote.Net
 {
     /// <summary>
@@ -28,65 +25,82 @@ namespace Samraksh.eMote.Net
         /// Timeout 
         /// </summary>
         Timeout,
-    };
+    }
 
     /// <summary>
-    /// Net operation status
+    /// Net operation result status
     /// </summary>
     public enum NetOpStatus
     {
         /// <summary>
         /// Radio initialization failed
         /// </summary>
-        E_RadioInit,
+		// ReSharper disable once InconsistentNaming
+		E_RadioInit,
         /// <summary>
-        /// 
+        /// Radio synchronization failed
         /// </summary>
-        E_RadioSync,
+		// ReSharper disable once InconsistentNaming
+		E_RadioSync,
         /// <summary>
         /// Radio configuration failed
         /// </summary>
-        E_RadioConfig,
+		// ReSharper disable once InconsistentNaming
+		E_RadioConfig,
         /// <summary>
-        /// Mac layer initialization failed
+        /// MAC layer initialization failed
         /// </summary>
-        E_MacInit,
+		// ReSharper disable once InconsistentNaming
+		E_MACInit,
         /// <summary>
-        /// Mac configuration failed
+        /// MAC configuration failed
         /// </summary>
-        E_MacConfig,
+		// ReSharper disable once InconsistentNaming
+		E_MACConfig,
         /// <summary>
-        /// Mac layer send failed
+        /// MAC layer send failed
         /// </summary>
-        E_MacSendError,
+		// ReSharper disable once InconsistentNaming
+		E_MACSendError,
         /// <summary>
-        /// Mac layer bufferis full
+        /// MAC layer bufferis full
         /// </summary>
-        E_MacBufferFull,
+		// ReSharper disable once InconsistentNaming
+		E_MACBufferFull,
         /// <summary>
         /// Success
         /// </summary>
-        S_Success
+		// ReSharper disable once InconsistentNaming
+		S_Success
     };
+
+    /// <summary>
+    /// Kinds of callbacks
+    /// </summary>
+    public enum CallbackTypes
+    {
+        /// <summary>Packet received</summary>
+        Received,
+        /// <summary>Neighborhood has changed</summary>
+        NeighborChanged,
+    }
+
+    /*/// <summary>
+    /// 
+    /// </summary>
+    /// <param name="macBase"></param>
+    //public delegate void ReceiveCallBackGlobal(MACBase macBase);
 
     /// <summary>
     /// ReceiveCallback delegate 
     /// </summary>
-    /// <param name="numberOfPacketsReceived">Number of packets in the receive buffer</param>
-    public delegate void ReceiveCallBack(UInt16 numberOfPacketsReceived);
+    /// <param name="macBase">Type of MAC object</param>
+    //public delegate void ReceiveCallBack(MACBase macBase);
 
 	/// <summary>
 	/// Neighborhood callback delegate
 	/// </summary>
-	/// <param name="numberOfChangedNeighbors">Number of neighbors that have changed</param>
-	public delegate void NeighborhoodChangeCallBack(UInt16 numberOfChangedNeighbors);
-
-	/// <summary>
-	/// Neighborhood callback delegate
-	/// </summary>
-	/// <param name="numberOfChangedNeighbors">Number of neighbors that have changed</param>
-	[Obsolete("Deprecated. Use NeighborhoodChangeCallBack instead")]
-	public delegate void NeighbourhoodChangeCallBack(UInt16 numberOfChangedNeighbors);
-
-
+    /// <param name="macBase">Type of MAC object</param>
+	/// <param name="countOfChangedNeighbors">Count of neighbors that have changed</param>
+    public delegate void NeighborhoodChangeCallBack(MACBase macBase, UInt16 countOfChangedNeighbors);*/
 }

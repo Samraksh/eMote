@@ -1,188 +1,58 @@
 using System;
-using Microsoft.SPOT;
-using Samraksh.eMote.Net;
+using Samraksh.eMote.Net.Radio;
 
 namespace Samraksh.eMote.Net
 {
-    namespace Mac
-    {
-        /// <summary>
-        /// MAC addresses
-        /// </summary>
-        public enum Addresses
-        {
-            /// <summary>
-            /// Indicates destination is all nodes in range. 
-            /// <para>Other values indicate a particular node.</para>
-            /// </summary>
-            BROADCAST = 65535,
-        };
-
+	namespace MAC
+	{
+		/// <summary>
+		/// MAC address type
+		/// </summary>
+		/// <remarks>
+		/// Only used with CSMA
+		/// </remarks>
+		public enum AddressType
+		{
+			/// <summary>
+			/// Indicates destination is all nodes in range. 
+			/// <para>Other values indicate a particular node.</para>
+			/// </summary>
+			Broadcast = 65535,
+		}
 
 		/// <summary>
-		/// MAC configuration
+		/// Link quality
 		/// </summary>
-		public class MacConfiguration {
-			/// <summary>
-			/// Enable or disable MAC CCA (clear channel assessment)
-			/// </summary>
-			public bool CCA;
-			/// <summary>
-			/// Number of times to try sending before MAC gives up
-			/// </summary>
-			public byte NumberOfRetries;
-
-			/// <summary>
-			/// Duration of CCA
-			/// </summary>
-			public byte CCASenseTime;
-
-			/// <summary>
-			/// Size of send buffer
-			/// </summary>
-			public byte BufferSize;
-
-			/// <summary>
-			/// Radio ID current MAC
-			/// </summary>
-			public byte RadioID;
-
-			/// <summary>
-			/// Delay before a neighbor is deemed dead
-			/// </summary>
-			public UInt32 NeighborLivenessDelay;
-
-			/// <summary>
-			/// Delay before a neighbor is deemed dead
-			/// </summary>
-			[Obsolete("Use NeighborLivenessDelay instead")]
-			public UInt32 NeighbourLivelinesDelay {
-				get { return NeighborLivenessDelay; }
-				set { NeighborLivenessDelay = value; }
-			}
-
-			/// <summary>
-            /// Configuration of the radio power and channel 
-            /// </summary>
-            public Radio.RadioConfiguration radioConfig;
-
-
-            /// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            public MacConfiguration()
-            {
-                this.CCA = true;
-                this.BufferSize = 8;
-                this.NumberOfRetries = 0;
-                this.RadioID = 1;
-                this.CCASenseTime = 140;
-                this.NeighborLivenessDelay = 300;
-                this.radioConfig = new Radio.RadioConfiguration();
-            }
-
-            /// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            /// <param name="config">Configuration to apply</param>
-            public MacConfiguration(MacConfiguration config)
-            {
-                this.CCA = config.CCA;
-                this.BufferSize = config.BufferSize;
-                this.NumberOfRetries = config.NumberOfRetries;
-                this.RadioID = config.RadioID;
-                this.CCASenseTime = config.CCASenseTime;
-                this.NeighborLivenessDelay = config.NeighborLivenessDelay;
-                this.radioConfig = new Radio.RadioConfiguration(config.radioConfig);
-            }
-
-            /// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            /// <param name="CCA">Clear Channel Assessment</param>
-            /// <param name="numberOfRetries">Number of retries</param>
-            /// <param name="ccaSenseTime">Clear Channel Assessment time</param>
-            /// <param name="bufferSize">Size of send buffer</param>
-            /// <param name="radioID">Radio ID</param>
-            /// <param name="neighborLivelinessDelay">Delay before a neighbor is deemed dead</param>
-            /// <param name="config">Radio configuration</param>
-            public MacConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID, UInt32 neighborLivelinessDelay, Radio.RadioConfiguration config)
-            {
-                this.CCA = CCA;
-                this.NumberOfRetries = numberOfRetries;
-                this.CCASenseTime = ccaSenseTime;
-                this.BufferSize = bufferSize;
-                this.RadioID = radioID;
-
-                this.radioConfig = new Radio.RadioConfiguration(config);
-
-            }
-
-            /// <summary>
-            /// MAC configuration constructor
-            /// </summary>
-            /// <param name="CCA">Enable Clear Channel Assessment</param>
-            /// <param name="numberOfRetries">Number of retries for sending</param>
-            /// <param name="ccaSenseTime">Carrier sense time</param>
-            /// <param name="bufferSize">BufferSize of the radio</param>
-            /// <param name="radioID">Radio ID</param>
-            public MacConfiguration(bool CCA, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, byte radioID)
-            {
-                this.CCA = CCA;
-                this.NumberOfRetries = numberOfRetries;
-                this.CCASenseTime = ccaSenseTime;
-                this.BufferSize = bufferSize;
-                this.RadioID = radioID;
-                this.radioConfig = new Radio.RadioConfiguration();
-            }
-
-        };
-
-        /// <summary>
-        /// Link quality
-        /// </summary>
-        public struct Link
-        {
-            /// <summary>Average Received Signal Strength Indication, RSSI </summary>
-            public byte AveRSSI;
-            /// <summary>Link quality</summary>
-            public byte LinkQuality;
-            /// <summary>Average delay</summary>
-            public byte AveDelay;
-        };
-
-       /// <summary>
-       /// Neighbor status
-       /// </summary>
-        public enum NeighborStatus
-        {
-            /// <summary>Neighbor is alive</summary>
-            Alive,
-            /// <summary>Neighbor is dead</summary>
-            Dead,
-            /// <summary>Neighbor is suspect</summary>
-            Suspect
-        };
+		public class Link
+		{
+			/// <summary>Average Received Signal Strength Indication, RSSI </summary>
+			public byte AverageRSSI;
+			/// <summary>Link quality</summary>
+			public byte LinkQuality;
+			/// <summary>Average delay</summary>
+			public byte AverageDelay;
+		}
 
 		/// <summary>
 		/// Neighbor status
 		/// </summary>
-		[Obsolete("Deprecated. Use NeighborStatus instead")]
-		public enum NeighbourStatus {
+		public enum NeighborStatus
+		{
 			/// <summary>Neighbor is alive</summary>
 			Alive,
 			/// <summary>Neighbor is dead</summary>
 			Dead,
 			/// <summary>Neighbor is suspect</summary>
 			Suspect
-		};
+		}
 
 		/// <summary>
 		/// Neighbor details
 		/// </summary>
-		public class Neighbor {
+		public class Neighbor
+		{
 			/// <summary>MAC address of neighbor</summary>
-			public UInt16 MacAddress;
+			public ushort MACAddress;
 			/// <summary>Forward link of neighbor</summary>
 			public Link ForwardLink;
 			/// <summary>Reverse link of neighbor</summary>
@@ -190,148 +60,195 @@ namespace Samraksh.eMote.Net
 			/// <summary>Status of neighbor</summary>
 			public NeighborStatus Status;
 			/// <summary>Packets received from neighbor</summary>
-			public UInt16 PacketsReceived;
+			public ushort PacketsReceived;
 			/// <summary>Last time heard from neighbor</summary>
-			public UInt64 LastHeardTime;
+			public ulong LastHeardTime;
 			/// <summary>Receive duty cycle of neighbor</summary>
 			public byte ReceiveDutyCycle; //percentage
 			/// <summary>Frame length of neighbor</summary>
-			public UInt16 FrameLength;
+			public ushort FrameLength;
+		}
 
-		};
+
+		#region commented code	Removed by Bill. NeighborTable is not used in Samraksh.NET and it's hard to see how it might be useful for a user.
+		///// <summary>
+		///// List of neighbors and their details
+		///// </summary>
+		//public class NeighborTable
+		//{
+		//	/// <summary>Number of neighbor's valid neighbors</summary>
+		//	public byte NumberValidNeighbor;
+		//	/// <summary>Neighbor</summary>
+		//	public Neighbor[] Neighbor;
+		//}
+		#endregion
+
+		#region commented code
+		///*/// <summary>MAC configuration</summary>
+		//public class MACConfiguration {
+		//	/// <summary>Enable or disable MAC CCA (clear channel assessment)</summary>
+		//	public bool CCA;
+		//	/// <summary>Number of times to try sending before MAC gives up</summary>
+		//	public byte NumberOfRetries;
+		//	/// <summary>Duration of CCA</summary>
+		//	public byte CCASenseTime;
+		//	/// <summary>Size of send buffer</summary>
+		//	public byte BufferSize;
+		//	//public PayloadType PayloadType;
+		//	/// <summary>Radio type used by current MAC</summary>
+		//	//public RadioType RadioType;
+		//	/// <summary>Delay before a neighbor is deemed dead</summary>
+		//	public UInt32 NeighborLivenessDelay;
+		//	/// <summary>Configuration of the radio power and channel</summary>
+		//	public RadioConfiguration MACRadioConfig;
+
+		//	/// <summary>
+		//	/// MAC configuration constructor
+		//	/// </summary>
+		//	public MACConfiguration()
+		//	{
+		//		this.CCA = true;
+		//		this.BufferSize = 8;
+		//		this.NumberOfRetries = 0;
+		//		//this.RadioType = RadioType.RF231RADIO;
+		//		this.CCASenseTime = 140;
+		//		this.NeighborLivenessDelay = 100;
+		//		//this.PayloadType = PayloadType.MFM_Data;
+		//		this.MACRadioConfig = new RadioConfiguration();
+		//	}
+
+		//	/// <summary>
+		//	/// MAC configuration constructor
+		//	/// </summary>
+		//	/// <param name="config">Configuration to apply</param>
+		//	public MACConfiguration(MACConfiguration config)
+		//	{
+		//		this.CCA = config.CCA;
+		//		this.BufferSize = config.BufferSize;
+		//		this.NumberOfRetries = config.NumberOfRetries;
+		//		//this.RadioType = config.RadioType;
+		//		this.CCASenseTime = config.CCASenseTime;
+		//		this.NeighborLivenessDelay = config.NeighborLivenessDelay;
+		//		//this.PayloadType = config.PayloadType;
+		//		this.MACRadioConfig = new RadioConfiguration(config.MACRadioConfig);
+		//	}
+		//};*/
+		#endregion
 
 		/// <summary>
-		/// Neighbor details
+		/// MAC interface
 		/// </summary>
-		[Obsolete("Deprecated. Use Neighbor instead")]
-		public class Neighbour {
-			/// <summary>MAC address of neighbor</summary>
-			public UInt16 MacAddress;
-			/// <summary>Forward link of neighbor</summary>
-			public Link ForwardLink;
-			/// <summary>Reverse link of neighbor</summary>
-			public Link ReverseLink;
-			/// <summary>Status of neighbor</summary>
-			public NeighbourStatus Status;
-			/// <summary>Packets received from neighbor</summary>
-			public UInt16 PacketsReceived;
-			/// <summary>Last time heard from neighbor</summary>
-			public UInt64 LastHeardTime;
-			/// <summary>Receive duty cycle of neighbor</summary>
-			public byte ReceiveDutyCycle; //percentage
-			/// <summary>Frame length of neighbor</summary>
-			public UInt16 FrameLength;
+		public interface IMAC
+		{
+			// several below added by Bill to force MACPipe to conform to signature of MACBase (so that there can be a one-line change to use MACPipe instead of MACBase)
 
-		};
+			/// <summary>The type of MAC (OMAC, CSMA)</summary>
+			MACType MACType { get; }
 
-		/// <summary>
-		/// List of neighbors and their details
-		/// </summary>
-		public struct NeighborTable {
-			/// <summary>Number of neighbor's valid neighbors</summary>
-			public byte NumberValidNeighbor;
-			/// <summary>Neighbor</summary>
-			public Neighbor[] Neighbor;
-		};
+			/// <summary>The radio object the MAC is using</summary>
+			Radio_802_15_4_Base MACRadioObj { get; }
 
-		/// <summary>
-		/// List of neighbors and their details
-		/// </summary>
-		[Obsolete("Deprecated. Use NeighborTable instead")]
-		public struct NeighbourTable {
-			/// <summary>Number of neighbor's valid neighbors</summary>
-			public byte NumberValidNeighbour;
-			/// <summary>Neighbor</summary>
-			public Neighbour[] Neighbor;
-		};
+			/// <summary>Raised when a packet has been received</summary>
+			event MACBase.IMACEventHandler OnReceive;
 
-		/// <summary>
-       /// MAC interface
-       /// </summary>
-        public interface IMac
-        {
-            //Basic functions
-            //DeviceStatus Initialize(MacConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
-            //DeviceStatus Configure(MacConfiguration config);
+			/// <summary>Raised when neighborhood changes</summary>
+			event MACBase.IMACEventHandler OnNeighborChange;
 
-            /// <summary>
-            /// Unitialize MAC
-            /// </summary>
-            /// <returns>Success of operation</returns>
-            DeviceStatus UnInitialize();
-            
-            /// <summary>
-            /// Send message
-            /// </summary>
-            /// <param name="address">Address of recipient (can use Addresses.BROADCAST)</param>
-            /// <param name="message">Byte array of to send</param>
-            /// <param name="offset">Offset into array</param>
-            /// <param name="size">Size of message</param>
-            /// <returns></returns>
-            NetOpStatus Send(UInt16 address, byte[] message, UInt16 offset, UInt16 size);
-            
-            /// <summary>
-            /// Get address of MAC instance
-            /// </summary>
-            /// <returns>Address</returns>
-            UInt16 GetAddress();
+			/// <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
+			bool CCA { get; set; }
 
-            /// <summary>
-            /// Set address of MAC instance
-            /// </summary>
-            /// <param name="address">Address</param>
-            /// <returns>Success of operation</returns>
-            bool SetAddress(UInt16 address);
+			/// <summary>Number of times to try sending before MAC gives up</summary>
+			byte NumberOfRetries { get; set; }
 
-            /// <summary>
-            /// Get MAC Id
-            /// </summary>
-            /// <returns>MAC Id</returns>
-            byte GetID();
+			/// <summary>Amount of time (in milliseconds) to assess whether channel is clear (CCA)</summary>
+			byte CCASenseTime { get; set; }
 
-            //Neighbor methods
+			/// <summary>Size of send buffer</summary>
+			byte BufferSize { get; set; }
+
+			/// <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
+			uint NeighborLivenessDelay { get; set; }
+
+			/// <summary>
+			/// Get the next packet from the MAC buffer
+			/// </summary>
+			/// <returns>Next packet if any, else null</returns>
+			Packet NextPacket();
+
+			/// <summary>
+			///		Get the list of neighbors from the MAC
+			/// </summary>
+			/// <param name="neighborListArray">
+			///		Array is filled with the addresses of active neighbors, padded with zeroes at the end.
+			/// </param>
+			/// <returns>
+			///		Result status
+			/// </returns>
+			DeviceStatus NeighborList(ushort[] neighborListArray);
+
+			/// <summary>Send packet</summary>
+			/// <param name="address">Address of recipient</param>
+			/// <param name="payload">Payload (in byte array) to send</param>
+			/// <param name="offset">Offset into array</param>
+			/// <param name="size">Size of payload</param>
+			/// <returns>Result status</returns>
+			NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
+
+			/// <summary>Send packet with time value</summary>
+			/// <param name="address">Address of recipient</param>
+			/// <param name="payload">Payload (in byte array) to send</param>
+			/// <param name="offset">Offset into array</param>
+			/// <param name="size">Size of message</param>
+			/// <param name="eventTime">Time value to add to packet</param>
+			/// <returns>Result status</returns>
+			NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime);
+
+			/// <summary>Send packet with payload type</summary>
+			/// <param name="address">Address of recipient</param>
+			/// <param name="payloadType">Payload type of packet</param>
+			/// <param name="payload">Payload (in byte array) to send</param>
+			/// <param name="offset">Offset into array</param>
+			/// <param name="size">Size of payload</param>
+			/// <returns>Result status</returns>
+			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size);
+
+			/// <summary>Send packet with payload type and time value</summary>
+			/// <param name="address">Address of recipient</param>
+			/// <param name="payloadType">Payload type of packet</param>
+			/// <param name="payload">Payload (in byte array) to send</param>
+			/// <param name="offset">Offset into array</param>
+			/// <param name="size">Size of payload</param>
+			/// <param name="eventTime">Time value to add to packet</param>
+			/// <returns>Result status</returns>
+			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime);
+
+			//Neighbor methods
 
 			/// <summary>
 			/// Get neighbor status
 			/// </summary>
 			/// <param name="macAddress">MAC address of neighbor</param>
 			/// <returns>Neighbor status</returns>
-			Neighbor GetNeighborStatus(UInt16 macAddress);
+			Neighbor NeighborStatus(ushort macAddress);
 
 			/// <summary>
-			/// Get neighbor status
+			/// Get pending packet count of MAC instance
 			/// </summary>
-			/// <param name="macAddress">MAC address of neighbor</param>
-			/// <returns>Neighbor status</returns>
-			[Obsolete("Deprecated. Use GetNeighborStatus instead")]
-			Neighbor GetNeighbourStatus(UInt16 macAddress);
+			/// <returns></returns>
+			byte PendingSendPacketCount();
 
-			//Buffer methods
+			/// <summary>
+			/// Get pending packet count of MAC instance
+			/// </summary>
+			/// <returns></returns>
+			byte PendingReceivePacketCount();
 
-            /// <summary>
-            /// Get buffer size of MAC instance
-            /// </summary>
-            /// <returns>Buffer size</returns>
-            byte GetBufferSize();
-
-            /// <summary>
-            /// Get pending packet count of MAC instance
-            /// </summary>
-            /// <returns></returns>
-            byte GetPendingPacketCount();
-
-            /// <summary>
-            /// Remove packet from pending
-            /// </summary>
-            /// <param name="msg">Message to remove</param>
-            /// <returns>Status of result</returns>
-            DeviceStatus RemovePacket(byte[] msg);
-
-            //MAC Aggregate APIs
-            //bool MacLayer_Initialize();
-            //bool MacLayer_UnInitialize();
-            //byte MacLayer_NumberMacsSupported();
-        }
-
-    }
+			/// <summary>
+			/// Remove packet from pending
+			/// </summary>
+			/// <param name="packet">Packet to remove</param>
+			/// <returns>Status of result</returns>
+			DeviceStatus RemovePacket(byte[] packet);
+		}
+	}
 }

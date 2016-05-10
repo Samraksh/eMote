@@ -22,27 +22,15 @@ INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 
     return retVal;
 }
 
-UINT8 MACBase::GetPendingPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::PendingReceivePacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
     return retVal;
 }
 
-UINT8 MACBase::GetID( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+UINT8 MACBase::PendingSendPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     UINT8 retVal = 0; 
-    return retVal;
-}
-
-INT8 MACBase::SetAddress( CLR_RT_HeapBlock* pMngObj, UINT16 param0, HRESULT &hr )
-{
-    INT8 retVal = 0; 
-    return retVal;
-}
-
-UINT16 MACBase::GetAddress( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-    UINT16 retVal = 0; 
     return retVal;
 }
 
@@ -58,29 +46,19 @@ INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
     return retVal;
 }
 
-void MACBase::ReleasePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
-{
-}
-
-INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
-INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
 INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, UINT8 param1, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
+INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
@@ -92,13 +70,25 @@ INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CL
     return retVal;
 }
 
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr )
+INT32 MACBase::GetNeighborListInternal( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;
 }
 
-INT32 MACBase::SendTimeStamped( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
+INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, UINT32 param4, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT8 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, UINT16 param4, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+
+INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, UINT8 param1, CLR_RT_TypedArray_UINT8 param2, UINT16 param3, UINT16 param4, UINT32 param5, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

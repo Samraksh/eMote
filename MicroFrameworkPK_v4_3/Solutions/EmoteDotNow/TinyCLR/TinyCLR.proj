@@ -430,14 +430,19 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\advancedtimer\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_adtim.$(LIB_EXT)" />
   </ItemGroup>
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\netmf_rtc\dotNetMF.proj" />
+    <DriverLibs Include="STM32F10x_rtc.$(LIB_EXT)" />
+  </ItemGroup>
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\dotNetMF.proj" />
     <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
-  </ItemGroup>-->
+</ItemGroup>-->
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Timer\Timer16Bit\Timer16BitStubs\dotNetMF.proj" />
-    <DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
+	<DriverLibs Include="Timer16Bit.$(LIB_EXT)" />
   </ItemGroup>
+  
   
   
   
@@ -625,15 +630,18 @@
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\CSMAMAC\dotNetMF.proj" />
     <DriverLibs Include="csma_pal.$(LIB_EXT)" />
   </ItemGroup>
-  <!--
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\OMAC\dotNetMF.proj" />
     <DriverLibs Include="omac_pal.$(LIB_EXT)" />
   </ItemGroup>
-  -->
   <!--<ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\Routing\MACTest\dotNetMF.proj" />
     <DriverLibs Include="mactest_pal.$(LIB_EXT)" />
+  </ItemGroup>
+  -->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\COM\Wireless\MAC\TimeSyncTest\dotNetMF.proj" />
+    <DriverLibs Include="simpletimesync_pal.$(LIB_EXT)" />
   </ItemGroup>
   -->
   <ItemGroup>
@@ -644,6 +652,11 @@
   <ItemGroup>
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\dotNetMF.proj" />
     <DriverLibs Include="STM32F10x_driver_control.$(LIB_EXT)" />
+  </ItemGroup>
+
+<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Algorithms\dotNetMF.proj" />
+    <DriverLibs Include="Algorithm_pal.$(LIB_EXT)" />
   </ItemGroup>
   
   <!--                      	    Wireless Networking Stack ::End                      -->

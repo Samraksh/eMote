@@ -40,7 +40,7 @@
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Settings" />
   <PropertyGroup />
   <ItemGroup>
-    <HFiles Include="csmaMAC.h" />
+    <HFiles Include="DeviceCode/Include/Samraksh/MAC/CSMAMAC/csmaMAC.h" />
     <Compile Include="csmaMAC.cpp" />
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>

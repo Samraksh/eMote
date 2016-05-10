@@ -496,10 +496,12 @@ void Shutdown() {
 }
 
 void HAL_AssertEx() {
+/*
 #if !defined(NDEBUG)
 	if(JTAG_Attached()) {
 		SOFT_BREAKPOINT(); // use SOFT_BREAKPOINT() because there are too many assertions being thrown, and some assertions might be false positives due to other companies submitting junk to CodePlex.
 	}
 	return;
 #endif
+*/
 }

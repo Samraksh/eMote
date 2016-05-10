@@ -1,0 +1,449 @@
+/*
+ * OMACConstants.h
+ *
+ *  Created on: Sep 4, 2012
+ *      Author: Mukundan
+ */
+
+#ifndef OMACCONSTANTS_H_
+#define OMACCONSTANTS_H_
+
+#include <tinyhal.h>
+
+#define PACK __attribute__ ((packed))
+
+//types 1-5 are taken up by global types
+//#define OMAC_DATA_BEACON_TYPE 7
+
+// Define default primes
+#ifndef P1
+#define P1 97
+#endif
+
+#ifndef P2
+#define P2 103
+#endif
+
+//How often should a node wakeup (in ms). This is roughly the receive duty cycle.
+#ifndef WAKEUP_INTERVAL
+#define WAKEUP_INTERVAL 2000
+#endif
+#ifndef DATA_INTERVAL
+#define DATA_INTERVAL 43
+#endif
+
+#ifndef OPTIMUM_BEACON_PERIOD
+#define OPTIMUM_BEACON_PERIOD 1024 * 32
+#endif
+
+#define TIMESTAMP_FOOTER_OFFSET -4
+#define TIMESTAMP_SIZE 4
+
+
+
+#define MAX_UINT16 	(0xFFFF)
+#define MAX_UINT32 	(0xFFFFFFFF)
+#define MAX_UINT64 	(0xFFFFFFFFFFFFFFFF)
+#define MID_UINT64  (0x7FFFFFFFFFFFFFFF)
+
+#define MAX_DATA_PCKT_SIZE 100
+
+
+/*
+ *
+ */
+typedef enum {
+  //after RadioControl.stopDone();
+  E_TO_IDLE,
+  //after RadioControl.start() is called
+  E_TO_START,
+  //after RadioControl.stop() is called
+  E_TO_STOP,
+  //after data beacon is sent
+  E_TO_WAITING_DATA,
+  //for the first queued packet
+  E_TO_PRELOADING_DATA,
+  E_TO_DATA_PRELOADED,
+  E_TO_SENDING_DATA,
+  //for time synchronization
+  E_TO_BEACON_1,
+  E_TO_BEACON_N,
+} OMacEvent_t;
+
+/*
+ *
+ */
+typedef enum {
+  //after RadioControl.stopDone();
+  S_IDLE,
+  //after RadioControl.start() is called
+  S_STARTING,
+  //after RadioControl.stop() is called
+  S_STOPPING,
+  //after data beacon is sent
+  S_WAITING_DATA,
+  //for the first queued packet
+  S_PRELOADING_DATA,
+  S_DATA_PRELOADED,
+  S_SENDING_DATA,
+  //for Discovery
+  S_BEACON_1,
+  S_BEACON_N,
+  //Time Sync
+  S_TIMESYNC
+} OMacState_t;
+
+/*
+ *
+ */
+typedef enum {
+  I_IDLE,
+  I_DATA_RCV_PENDING, //waiting to receive
+  I_DATA_SEND_PENDING, //pending to send
+  I_TIMESYNC_PENDING,
+  I_DISCO_PENDING,
+  I_DWELL_SEND
+} OMacInput_t;
+
+/*
+ *
+ */
+typedef enum {
+  NULL_HANDLER,
+  CONTROL_BEACON_HANDLER,
+  DATA_RX_HANDLER,
+  DATA_TX_HANDLER,
+  TIMESYNC_HANDLER
+} HandlerType_t;
+
+/*
+ *
+ */
+typedef enum {
+  OMAC_NORMAL_SEND,
+  OMAC_SEND_PRELOAD,
+  OMAC_FIRST_SEND
+} OMacAction_t;
+
+/*
+ *
+ */
+typedef struct PACK DiscoveryMsg
+{
+	UINT32 msg_identifier;
+	//seed to generate the pseduo-random wakeup schedule
+	UINT16 nextSeed;
+	UINT16 mask;
+	//use to compute the offset of neighbor's current slot w.r.t. the start of the next frame
+	//UINT64 nextwakeupSlot;
+	UINT32 nextwakeupSlot0;
+	UINT32 nextwakeupSlot1;
+	//the wakeup interval of the neighbor
+	UINT32 seedUpdateIntervalinSlots;
+	//fields below are just for convenience. not transmitted over the air
+	UINT16 nodeID;
+
+	UINT32 localTime0;
+	UINT32 localTime1;
+
+	//UINT32 lastwakeupSlotUpdateTimeinTicks0;
+	//UINT32 lastwakeupSlotUpdateTimeinTicks1;
+
+
+} DiscoveryMsg_t;
+
+#define DataMsgOverhead sizeof(UINT32)+sizeof(UINT8)
+typedef struct DataMsg_t
+{
+	UINT32 msg_identifier;
+	UINT8 size;
+	UINT8 payload[MAX_DATA_PCKT_SIZE];
+} DataMsg_t;
+
+/*
+ * After TEP 133, the message timestamp contains the difference between
+ * event time and the time the message was actually sent out. TimeSyncP
+ * sends the local time associated with this globalTime to the
+ * TimeStamping mechanism, which then calculates the difference.
+ *
+ * On the receiving side, the difference is applied to the local
+ * timestamp. The receiving timestamp thus represents the time on the
+ * receiving clock when the remote globalTime was taken.
+ */
+struct PACK TimeSyncMsg
+{
+
+//  UINT32 globalTime0;
+//  UINT32 globalTime1;
+
+  //the time to startup the radio could be different for different nodes.
+  //use this neighbor info along with local info to compute this difference
+  //UINT16 radioStartDelay;
+//  float skew;
+  UINT32 timesyncIdentifier;
+  UINT32 localTime0;
+  UINT32 localTime1;
+  bool request_TimeSync;
+ // UINT16 nodeID;
+  //UINT32 seqNo;
+
+};
+
+struct PACK TimeSyncRequestMsg
+{
+  UINT32 timesyncIdentifier;
+  bool request_TimeSync;
+};
+
+/*
+ *
+ */
+typedef struct DataBeacon {
+  UINT16 nodeID;
+} DataBeacon_t;
+
+/*
+ *
+ */
+typedef struct OMacHeader {
+  UINT8 flag;
+} OMacHeader;
+
+//Overflow provisioned class
+template<class Base_T>
+class OFProv:Base_T{
+public:
+	bool isThereOverflow(const Base_T& rhs){
+		if(rhs>*this){
+			if(rhs - *this <= MID_UINT64) return false;
+			else return true;
+		}
+		else{
+			if(*this - rhs <= MID_UINT64) return false;
+			else return true;
+		}
+	}
+	bool operator<(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs<*this) return true;
+			else false;
+		}
+		else{
+			if (rhs<*this) return true;
+			else return false;
+		}
+	}
+	bool operator>(const Base_T& rhs){
+		if (rhs == *this) return false;
+		else if(isThereOverflow(rhs)){
+			if (rhs>*this) return true;
+			else false;
+		}
+		else{
+			if (rhs>*this) return true;
+			else return false;
+		}
+	};
+	bool operator<=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this < *rhs);
+	}
+	bool operator>=(const Base_T& rhs){
+		if (*this == rhs) return true;
+		return (*this > *rhs);
+	}
+};
+
+typedef OFProv<UINT64> OMACMicroSeconds;
+typedef OFProv<UINT64> OMACTicks;
+
+//GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
+// GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
+//PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
+#define MICSECINMILISEC 1000
+#define TICKSINMICSEC 8
+
+#define GUARDTIME_MICRO 500			//compensate for time-sync errors; accounts for the clock drift
+
+
+#define FRAMERETRYMAXATTEMPT 100
+#define SLOTRETRYMAXATTEMPT 2
+#define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+
+#define RANDOM_BACKOFF_COUNT_MAX	4
+#define RANDOM_BACKOFF_COUNT_MIN	1
+#define DELAY_DUE_TO_CCA_MICRO	260
+#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO)		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
+																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
+#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO)
+#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	(1.2*MICSECINMILISEC)
+#define HW_ACK_TO_START_OF_TX_MICRO	(2*MICSECINMILISEC)
+
+#define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MICSECINMILISEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
+#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
+// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
+#define DELAY_FROM_OMAC_TX_TO_RF231_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
+#define DELAY_FROM_RF231_TX_TO_RF231_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
+#define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
+#define ACK_DELAY	0.4*MICSECINMILISEC						//(C)Delay in Rx generating an ack
+#define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
+															//   Sum of (max-min) of (A),(B) will go into (D)
+//Random_backoff is done before re-transmission
+//GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
+//GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
+#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
+													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
+														+RETRY_FUDGE_FACTOR
+//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FROM_RF231_TX_TO_RF231_RX //This is the duration used in FastRecovery 2.0
+
+#define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
+
+//How long should receiver be awake after sending a HW ack. BK: No it is not! see the following
+// This is the maximum period to wait for the reception of a packet after receiving StartOfReception interrupt. Due to the change in RF231.cpp the interrupt is received after AMI. Hence it is the packet
+#define PACKET_PERIOD_FOR_RECEPTION_HANDLER 16000
+//#define PACKET_PERIOD_FOR_RECEPTION_HANDLER EXTENDED_MODE_TX_DELAY+END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO+HW_ACK_TO_START_OF_TX_MICRO+CURRENTFRAMERETRYMAXATTEMPT*RANDOM_BACKOFF_TOTAL_DELAY_MICRO
+
+#define ACK_TX_MAX_DURATION_MICRO 4000
+#define RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO 1000
+#define TIMER_EVENT_DELAY_OFFSET 0
+#define MINEVENTTIME 50000				//minimum time (in micro seconds) required by scheduler to switch between modules
+#define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
+
+//#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
+#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+#define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
+
+#define MAX_PACKET_TX_DURATION_MICRO 5*MICSECINMILISEC
+#define ACK_RX_MAX_DURATION_MICRO 20000
+
+//Below 2 values are based on empirical observations made on a debug build
+#define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MICSECINMILISEC
+#define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MICSECINMILISEC
+#define DATATX_POST_EXEC_DELAY	  10*MICSECINMILISEC
+
+#define HIGH_DISCO_PERIOD_IN_SLOTS 1500
+
+//40000000 - 5 secs
+//48000000 - 6 secs
+//60000000 - 7.5 secs
+//80000000 - 10 secs
+//100000000 - 12.5 secs
+#define FORCE_REQUESTTIMESYNC_INTICKS 80000000					//Translates to 120 secs @8Mhz. Receiver centric time threshold to request for a TImeSync msg.
+#define SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST  48000000		//Translates to 10 secs @8Mhz. Sender centric time threshold to send a TImeSync msg.
+
+#define PROCESSING_DELAY_BEFORE_TX_MICRO (581) //DELAY_FROM_OMAC_TX_TO_RF231_TX //581
+#define RADIO_TURN_ON_DELAY_MICRO 693
+#define RADIO_TURN_OFF_DELAY_MICRO 184 //453 //BK: This is not used but it is measured 184 micro secs (may not be very accurate)
+#define TIMER_MODIFICATION_AND_START_DELAY_MICRO 269 // BK: This is a very rough number
+
+#define HFCLOCKID 1
+#define LFCLOCKID 4 // This is the RTC clock
+#define OMACClockSpecifier HFCLOCKID
+#define OMACClockFreq 32
+#define OMACClocktoSystemClockFreqRatio 250
+
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
+#define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
+
+#define FAILSAFETIME_MICRO 1000000
+
+#define WAKEUPPERIODINTICKS 8000000
+
+//FCF table:
+//15 14 13  12  11  10  9  8  7  6  5  4  3  2  1  0 (bits)
+//1   0  0   0   1   0  0  0  0  1  1  0  0  0  0  1 (values)
+//Frame type (bits 0,1,2)  			- Data
+//Security enabled (bit 3) 			- No
+//Frame pending (bit 4)				- No
+//Ack request (bit 5)				- Yes
+//Intra-pan (bit 6)					- Yes, source PAN-ID is omitted
+//Bits 7,8,9						- Reserved
+//Dest addressing mode (bits 10,11)	- Address field contains a 16-bit short address
+//Frame version (bits 12,13)		- Frames are compatible with IEEE 802.15.4 2003
+//Src addressing mode (bits 14,15)	- Address field contains a 16-bit short address
+#define FCF_WORD_VALUE 0x8861 //34913
+#define FCF_WORD_VALUE_DISCO FCF_WORD_VALUE//34913
+#define SRC_PAN_ID	0xAAAA
+#define DEST_PAN_ID	0x5555
+
+enum {
+  TICKS_PER_MILLI     = 8000,
+  TICKS_PER_MICRO     = 8,
+
+#ifdef SHORT_SLOT
+#warning *** USING 8ms SLOT ***
+  SLOT_PERIOD_MILLI     = 8,    /*modify this along with SLOT_PERIOD_BITS*/
+  SLOT_PERIOD_BITS    = 3 + 13,  /*13 = # of bits of TICKS_PER_MILLI, 4 = # of bits in SLOT_PERIOD_MILLI*/
+#else
+  SLOT_PERIOD_MILLI     = 16,     /*modify this along with SLOT_PERIOD_BITS*/
+  SLOT_PERIOD_BITS    = 4 + 13,  /*13 = # of bits of TICKS_PER_MILLI, assuming its a 10Mhz clock, 4 = # of bits in SLOT_PERIOD_MILLI*/
+#endif
+  SLOT_PERIOD_TICKS   = SLOT_PERIOD_MILLI * TICKS_PER_MILLI,
+  SLOT_PERIOD   = SLOT_PERIOD_MILLI,
+  DWELL_TIME        = 10,
+  /* sender margin compensates for time sync jitter, packet preload delay
+   * and radio startup jitter*/
+  SENDER_MARGIN_IN_MILLI = 3,
+  SENDER_MARGIN     = SENDER_MARGIN_IN_MILLI * TICKS_PER_MILLI,
+  TRANSITION_MARGIN   = SENDER_MARGIN_IN_MILLI * TICKS_PER_MILLI,
+  MINIMUM_BACKOFF_WINDOW  = 64, /*in the unit of 1/32 ms*/
+  RADIO_BACKOFF_WINDOW  = 64, /*in the unit of 1/32 ms*/
+  RANDOM_SCHEDULE_WINDOW  = 0x0,
+  /* receiver's wait time before the first packet arrives. It will not affect efficiency much
+   * if the percentage of failed rendezvous is small because receivers go back to sleep upon
+   * receiving the packet tagged as the last packet in the queue*/
+  WAIT_TIME_AFTER_DATA_BEACON = (RADIO_BACKOFF_WINDOW + MINIMUM_BACKOFF_WINDOW) / TICKS_PER_MILLI + 12,
+  WAIT_TIME_AFTER_PRELOAD = SLOT_PERIOD_MILLI,
+  //8 minutes is the optimum time window for linear regression
+  //the maximum number of times we tx a packet when previous
+  //attempts fail due to congestion
+  MAX_RETRY_CNT     = 10,
+  // number of entries per neighbor
+  MAX_ENTRIES             = 8,
+  MAX_POOL_SIZE     = 32,
+  MAX_CTRL_MSG_POOL_SIZE  = 8,
+  //the number of consecutive messages sent during dwell time
+  //DWELL_COUNT       = DEFAULT_DWELL_COUNT,
+  DWELL_COUNT       = 3,
+  DATA_ALARM_MAX_DURATION = 5,
+  DELAY_AVG_FACTOR    = 9,
+  //copy  from RIMAC implementation, should acknolwedge them
+  //the number of cca detections needed to declare collision
+  OMAC_COLLISION_CCA_THRESHOLD = 0,
+  MAX_NON_SLEEP_STATE   = 10,
+  MAX_NBR_SIZE      = 8,
+  AM_DATA_BEACON      = 0x2E,
+  AM_TIMESYNCMSG      = 0x3E,
+  TIMESYNCMSG_LEN     = sizeof(TimeSyncMsg) - sizeof(UINT32) - sizeof(UINT16),
+  INVALID_TIMESTAMP   = 0xFFFFFFFF,
+  INVALID_ADDRESS     = 0xFFFF,
+  INVALID_INDEX       = 0xFF,
+  // time to declare itself the root if no msg was received (in sync periods)
+  ROOT_TIMEOUT            = 5,
+  // after becoming the root ignore other roots messages (in send period)
+  IGNORE_ROOT_MSG         = 4,
+  // of entries to become synchronized
+  ENTRY_VALID_LIMIT       = 8,
+  // if time sync error is bigger than this clear the table
+  ENTRY_THROWOUT_LIMIT    = 200,
+  // to detect whether my clock or my neighbor's clock has wrapped
+  FLAG_TIMESTAMP_VALID  = (UINT8)1 << 3,
+  FLAG_REQUEST_BEACON   = (UINT8)1 << 4,
+  FLAG_DWELL_TIME     = (UINT8)1 << 6,
+  OMAC_HEADER_LEN     = sizeof(OMacHeader),
+  SEND_PIGGYBACK_BEACON = 1
+    //TODO: needs random mechanism for DATA_INTERVAL
+};
+
+UINT16  CONTROL_BEACON_INTERVAL_SLOT = 7500;
+
+UINT32 ArbiterP_Timing;
+
+/*
+ * Prime numbers used in determining DISCO period of a node
+ */
+UINT16 CONTROL_P1[] = {47, 37, 43, 37, 53, 29, 31};
+UINT16 CONTROL_P2[] = {227, 181, 197, 191, 193, 211, 199};
+
+#endif /* OMACCONSTANTS_H_ */

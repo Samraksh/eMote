@@ -106,7 +106,7 @@ void STM32_AITC_Driver::Initialize()
     STM32_AITC& AITC = STM32::AITC();
 
 	// Nived : Remains of stm's code here .. need to make this more elegant
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
     // // disable all interrupts
     // AITC.ICMR = 0;
     // AITC.ICMR2 = 0;

@@ -48,6 +48,13 @@ enum RadioType{
 	SoftwareDefined,
 };
 
+enum RadioName
+{
+	RF231RADIO,
+	RF231RADIOLR,
+	SI4468_SPI2,
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -60,7 +67,7 @@ typedef UINT8 ErrorType;
 typedef  void* (*ReceiveFuncPtrType) (void *msg, UINT16 Size);
 
 // Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
+typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
 // Typedef defining the signature of the RadioInterruptFuncPtr function
 typedef BOOL (*RadioInterruptFuncPtrType) (RadioInterrupt Interrupt, void *param);
@@ -84,7 +91,7 @@ typedef  class RadioEventHandler{
 
 public:
 	UINT32 RadioInterruptMask;
-	ReceiveFuncPtrType RecieveHandler;
+	ReceiveFuncPtrType ReceiveHandler;
 	SendAckFuncPtrType SendAckHandler;
 	RadioInterruptFuncPtrType RadioInterruptHandler;
 
@@ -96,9 +103,9 @@ public:
 		this->RadioInterruptMask = radio_interrupt_mask;
 	}*/
 
-	void SetRecieveHandler(ReceiveFuncPtrType recieve_handler)
+	void SetReceiveHandler(ReceiveFuncPtrType receive_handler)
 	{
-		this->RecieveHandler = recieve_handler;
+		this->ReceiveHandler = receive_handler;
 	}
 
 	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
@@ -111,9 +118,9 @@ public:
 		this->RadioInterruptHandler = radio_interrupt_handler;
 	}
 
-	ReceiveFuncPtrType GetRecieveHandler()
+	ReceiveFuncPtrType GetReceiveHandler()
 	{
-		return this->RecieveHandler;
+		return this->ReceiveHandler;
 	}
 
 	SendAckFuncPtrType GetSendAckHandler()
@@ -134,17 +141,25 @@ public:
 //{
 //Radio HAL declarations
 
+
 // Called by MAC layers responsible for registering of eventhandlers
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioIDs, UINT8 numberRadios , UINT8 mac_id); //Initializes Return the ID of the Radio layer that was initialized
 BOOL CPU_Radio_UnInitialize(UINT8 radioIDs);
 UINT8 CPU_Radio_GetRadioIDs(UINT8* radioIDs);
 void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);
+void* CPU_Radio_SendRetry(UINT8 radioID);
+void* CPU_Radio_SendStrobe(UINT8 radioID, UINT16 size);
 void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 eventTime);
+NetOpStatus CPU_Radio_PreloadMessage(UINT8* msg, UINT16 size);
 DeviceStatus CPU_Radio_Send_Strobe(UINT8 radioID);	//Send preloaded message
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID);
-DeviceStatus CPU_Radio_ClearChannelAssesment2(UINT8 radioID, UINT32 numberMicroSecond);
+DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSecond);
+//DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID);
+//DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID);
 DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID);
+DeviceStatus CPU_Radio_TurnOffRx(UINT8 radioID);
+DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID);
 DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level);
 BOOL CPU_Radio_SetTimeStamp(UINT8 radioID);
 BOOL CPU_Radio_SetTimeStamp2(UINT8 radioID, UINT64 timeStamp);
@@ -161,6 +176,12 @@ UINT8 CPU_Radio_NumberRadiosSupported();
 BOOL CPU_Radio_Reset(UINT8 radioID);
 UINT16 CPU_Radio_GetAddress(UINT8 radioID);
 BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address);
+
+RadioType CPU_Radio_GetRadioType();
+DeviceStatus CPU_Radio_SetRadioType(RadioType radioType);
+
+INT8 CPU_Radio_GetRadioName();
+DeviceStatus CPU_Radio_SetRadioName(INT8 radioName);
 
 DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power);
 

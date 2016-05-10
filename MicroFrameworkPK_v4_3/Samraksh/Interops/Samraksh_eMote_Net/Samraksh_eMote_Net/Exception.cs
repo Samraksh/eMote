@@ -1,39 +1,114 @@
 using System;
-using Microsoft.SPOT;
 
 namespace Samraksh.eMote.Net
 {
-    /// <summary>
-    /// Exception thrown when the radio is configured incorrectly
-    /// </summary>
-    public class RadioConfigurationMismatchException : System.Exception
-    {
-        public RadioConfigurationMismatchException() { Debug.Print("Mismatch between initialized radio object and configuration passed\n"); }
-    }
+	/// <summary>
+	/// Radio type is unknown
+	/// </summary>
+	public class UnknownRadioTypeException : Exception
+	{
+		/// <summary>
+		/// Radio type is unknown
+		/// </summary>
+		public UnknownRadioTypeException() { }
 
+		/// <summary>
+		/// Radio type is unknown
+		/// </summary>
+		/// <param name="message"></param>
+		public UnknownRadioTypeException(string message) : base(message) { }
+	}
 
-    public class RadioNotConfiguredException : System.Exception
-    {
-        public RadioNotConfiguredException() { Debug.Print("The radio has not been configured with a config object or a callback\n"); }
-        public RadioNotConfiguredException(string message) : base(message) { 
-            //Debug.Print(message); 
-        }
-    }
+	/// <summary>
+	/// Radio is not configured
+	/// </summary>
+	public class RadioNotConfiguredException : Exception
+	{
+		/// <summary>
+		/// Radio is not configured
+		/// </summary>
+		public RadioNotConfiguredException() { }
 
-    public class RadioBusyException : System.Exception
-    {
-        public RadioBusyException() { Debug.Print("The radio already has a user\n"); }
-    }
+		/// <summary>
+		/// Radio is not configured
+		/// </summary>
+		/// <param name="message"></param>
+		public RadioNotConfiguredException(string message) : base(message) { }
+	}
 
-    public class MacNotConfiguredException : System.Exception
-    {
-        public MacNotConfiguredException() { Debug.Print("You are attempting to acquire an instance of the mac without configuring it\n"); }
-        public MacNotConfiguredException(string message) : base(message) { }
-        public MacNotConfiguredException(string message, Exception innerException) : base(message, innerException) { }
-    }
+	/// <summary>
+	/// Radio is busy
+	/// </summary>
+	public class RadioBusyException : Exception
+	{
+		/// <summary>
+		/// Radio is busy
+		/// </summary>
+		public RadioBusyException() { }
 
-    public class CallbackNotConfiguredException : System.Exception
-    {
-        public CallbackNotConfiguredException() { Debug.Print("Receive callback has not been configured \n"); }
-    }
+		/// <summary>
+		/// Radio is busy
+		/// </summary>
+		/// <param name="message"></param>
+		public RadioBusyException(string message) : base(message) { }
+	}
+
+	/// <summary>
+	/// MAC is not configured
+	/// </summary>
+	public class MACNotConfiguredException : Exception
+	{
+		/// <summary>
+		/// MAC is not configured
+		/// </summary>
+		public MACNotConfiguredException() { }
+
+		/// <summary>
+		/// MAC is not configured
+		/// </summary>
+		/// <param name="message"></param>
+		public MACNotConfiguredException(string message) : base(message) { }
+
+		/// <summary>
+		/// MAC is not configured
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="innerException"></param>
+		public MACNotConfiguredException(string message, Exception innerException) : base(message, innerException) { }
+	}
+
+	/// <summary>
+	/// MAC type is unknown
+	/// </summary>
+	public class MACTypeMismatchException : Exception
+	{
+		/// <summary>
+		/// MAC type is unknown
+		/// </summary>
+		public MACTypeMismatchException() { }
+
+		/// <summary>
+		/// MAC type is unknown
+		/// </summary>
+		/// <param name="message"></param>
+		public MACTypeMismatchException(string message) : base(message) { }
+	}
+	#region commented code. Exception is not used.
+	///// <summary>
+	///// 
+	///// </summary>
+	//public class CallbackNotConfiguredException : Exception
+	//{
+	//	/// <summary>
+	//	/// 
+	//	/// </summary>
+	//	public CallbackNotConfiguredException() { }
+
+	//	/// <summary>
+	//	/// 
+	//	/// </summary>
+	//	/// <param name="message"></param>
+	//	public CallbackNotConfiguredException(string message) : base(message) { }
+	#endregion
 }
+

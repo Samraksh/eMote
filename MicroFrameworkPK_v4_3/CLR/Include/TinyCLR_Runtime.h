@@ -1483,10 +1483,10 @@ struct CLR_RT_TypeSystem // EVENT HEAP - NO RELOCATION -
 
     CLR_RT_MethodDef_Index m_entryPoint;
 
-    static const int       c_MaxEntryPoints = 3;                    //<! upper limit of apps to start at boot. FIXME: unify definition to EmoteDotNow.settings or platform_selector.h
+    /*static const int       c_MaxEntryPoints = 3;                    //<! upper limit of apps to start at boot. FIXME: unify definition to EmoteDotNow.settings or platform_selector.h
     CLR_RT_MethodDef_Index m_entryPoints[c_MaxEntryPoints];         //<! keep track of app Main() methods to be started
     size_t                 m_entryPointsMax;                        //<! count of entry points encountered during loading
-    CLR_RT_AppDomain*      m_entryAppDomains[c_MaxEntryPoints];     //<! keep track of app domain created for each entry point
+    CLR_RT_AppDomain*      m_entryAppDomains[c_MaxEntryPoints];     //<! keep track of app domain created for each entry point*/
 
 
     //--//

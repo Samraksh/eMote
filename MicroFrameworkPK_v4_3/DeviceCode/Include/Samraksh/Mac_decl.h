@@ -7,7 +7,7 @@
 
 //typedef UINT16 MacAddress_t;
 
-enum MacNames
+enum MACNames
 {
 	CSMAMAC,
 	OMAC,
@@ -15,39 +15,40 @@ enum MacNames
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
 
-struct MacConfig {
-	UINT16 FCF;
-	UINT16 DestPAN;
-	UINT8 Network;
-	BOOL CCA;
 
+//Should be consistent with that in "MACConfiguration" in IMAC.cs (Samraksh_eMote_Net)
+struct MACConfig {
+	//UINT16 FCF;
+	//UINT16 DestPAN;
+	//UINT8 Network;
+	BOOL CCA;
     UINT8 NumberOfRetries;
     UINT8 CCASenseTime;
     UINT8 BufferSize;
-    UINT8 RadioID;
+    //UINT8 RadioType;
     UINT32 NeighborLivenessDelay;
 };
-//struct MacConfig;
+//struct MACConfig;
 
 // Typedef defining the signature of the receive function
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
-typedef void (*MacReceiveFuncPtrType) (UINT16 arg1);
+typedef void (*MACReceiveFuncPtrType) (void *msg, UINT16 arg1);
 
 typedef void (*NeighborChangeFuncPtrType) (INT16 arg2);
 
 // Typedef defining the signature of the send function
-typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status);
+typedef void (*SendAckFuncPtrType) (void* msg, UINT16 Size, NetOpStatus status, UINT8 radioAckStatus);
 
-typedef  class MacEventHandler{
+typedef  class MACEventHandler{
 
 public:
-	MacReceiveFuncPtrType RecieveHandler;
+	MACReceiveFuncPtrType ReceiveHandler;
 	SendAckFuncPtrType SendAckHandler;
 	NeighborChangeFuncPtrType neighborHandler;
 
-	void SetRecieveHandler(MacReceiveFuncPtrType recieve_handler)
+	void SetReceiveHandler(MACReceiveFuncPtrType receive_handler)
 	{
-		this->RecieveHandler = recieve_handler;
+		this->ReceiveHandler = receive_handler;
 	}
 
 	void SetSendAckHandler(SendAckFuncPtrType send_ack_handler)
@@ -60,38 +61,62 @@ public:
 		this->neighborHandler = neighbor_change_handler;
 	}
 
-}MacEventHandler_t;
+	MACReceiveFuncPtrType GetReceiveHandler()
+	{
+		return this->ReceiveHandler;
+	}
 
+	SendAckFuncPtrType GetSendAckHandler()
+	{
+		return this->SendAckHandler;
+	}
+
+	NeighborChangeFuncPtrType GetNeighborChangeHandler()
+	{
+		return this->neighborHandler;
+	}
+
+}MACEventHandler_t;
+
+
+UINT8 currentMacName;
 
 //Basic functions
-DeviceStatus Mac_Initialize(MacEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);
-UINT16 Mac_GetRadioAddress();
-BOOL Mac_SetRadioAddress(UINT16 address);
-DeviceStatus Mac_UnInitialize(UINT8 macID);
-UINT8 Mac_GetID();
-DeviceStatus Mac_Send(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
-DeviceStatus Mac_SendTimeStamped(UINT8 macID, UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
-DeviceStatus Mac_Config(UINT8 macID, void *macConfig);
+DeviceStatus MAC_Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);
+DeviceStatus MAC_Reconfigure(void* config);
+UINT16 MAC_GetRadioAddress();
+BOOL MAC_SetRadioAddress(UINT16 address);
+BOOL MAC_SetRadioType(RadioType radioType);
+BOOL MAC_SetRadioName(INT8 radioName);
+BOOL MAC_SetRadioTxPower(int power);
+BOOL MAC_SetRadioChannel(int channel);
+DeviceStatus MAC_UnInitialize();
+UINT8 MAC_GetID();
+DeviceStatus MAC_Send(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size); //msg is just the payload,
+DeviceStatus MAC_SendTimeStamped(UINT16 destAddress, UINT8 dataType, void * msg, UINT16 size, UINT32 timeStamp); //msg is just the payload,
+DeviceStatus MAC_Config(void *macConfig);
 
 //Neighbor functions
-//NeighborTable* Mac_GetNeighborTable(UINT8 macID);
-//Neighbor_t* Mac_GetNeighbor(UINT8 macID, UINT16 macAddress);
+//NeighborTable* MAC_GetNeighborTable(UINT8 macID);
+//Neighbor_t* MAC_GetNeighbor(UINT8 macID, UINT16 macAddress);
 
 // Get the neighbor list
-DeviceStatus Mac_GetNeighborList(UINT16 *buffer);
-DeviceStatus Mac_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer);
+DeviceStatus MAC_GetNeighborList(UINT16 *buffer);
+DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer);
 
 //Channel/freq functions
-DeviceStatus Mac_GetNextPacket(UINT8 **managedBuffer);
+DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer);
 //Buffer functions
-UINT8 Mac_GetBufferSize(UINT8 macID);
-UINT8 Mac_GetNumberPendingPackets(UINT8 macID);
-DeviceStatus Mac_RemovePacket(UINT8 macID, UINT8* msg);
+UINT8 MAC_GetSendBufferSize();
+UINT8 MAC_GetReceiveBufferSize();
+UINT8 MAC_GetPendingPacketsCount_Send();
+UINT8 MAC_GetPendingPacketsCount_Receive();
+DeviceStatus MAC_RemovePacket(UINT8* msg);
 
 //MAC Aggregate APIs
-BOOL MacLayer_Initialize();
-BOOL MacLayer_UnInitialize();
-UINT8 MacLayer_NumberMacsSupported();
+BOOL MACLayer_Initialize();
+BOOL MACLayer_UnInitialize();
+UINT8 MACLayer_NumberMacsSupported();
 
 
 #endif

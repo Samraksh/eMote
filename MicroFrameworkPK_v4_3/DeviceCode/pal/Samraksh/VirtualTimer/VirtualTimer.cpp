@@ -26,15 +26,7 @@ extern VirtualTimer gVirtualTimerObject;
 static const UINT64 cTimerMax64Value = 0x0000FFFFFFFFFFFFull; //TODO: use better name.
 static const UINT32 cTimerMax32Value = 0xFFFFFFFFul;          //TODO: use better name or use UINT32_MAX.
 
-//For additional virtual timer support, adjust values here as well as in platform_selector.h, VirtualTimer.h (VirtualTimer class)
-#ifdef PLATFORM_ARM_EmoteDotNow
-	const UINT8 VTCount0 = 8;
-#else
-	const UINT8 VTCount0 = 8;
-#endif
-
-template<>
-inline BOOL VirtualTimerMapper<VTCount0>::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
+inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTimerIndex)
 {
 	BOOL timerFound = FALSE;
 
@@ -55,47 +47,40 @@ inline BOOL VirtualTimerMapper<VTCount0>::VirtTimerIndexMapper(UINT8 timer_id, U
 // Every time the list is changed the m_ticksTillExpire must be adjusted to reflect the current number of ticks before the topmost timer needs to have its callback called.
 // After this adjustment the new timer can be inserted where it will be automatically placed in the correct spot in the queue.
 // The SetCompare timer then needs to be set appropriately
-template<>
-BOOL VirtualTimerMapper<VTCount0>::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers, UINT16 Timer, BOOL IsOneShot, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
+BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 {
+	CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(VTIMER_CALLBACK_LATENCY_PIN, FALSE);
+	CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
+
 #ifdef DEBUG_VT
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 29, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
 #endif
-	VTM_hardwareTimerId = VTM_countOfVirtualTimers = 0;
-
 	VTM_hardwareTimerId = temp_HWID;
+
 	VTM_countOfVirtualTimers = temp_countVTimers;
 
 	m_lastQueueAdjustmentTime = 0;
 
-	// Start Up Timer
-	if(!ISR)
+	for (UINT16 j = 0; j < m_current_timer_cnt_; j++)
 	{
-		if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, VirtualTimerCallback, NULL)) {
-			ASSERT(0);
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
+		g_VirtualTimerInfo[j].set_m_timer_id(0);
 	}
-	else
-	{
-		if(!CPU_Timer_Initialize(Timer, IsOneShot, Prescaler, ISR, ISR_PARAM)) {
-			ASSERT(0);
-			return FALSE;
-		}
-		else {
-			return TRUE;
-		}
+	
+
+	if(!CPU_Timer_Initialize(VTM_hardwareTimerId, FALSE, 0, VirtualTimerCallback)) {
+		ASSERT(0);
+		return FALSE;
+	}
+	else {
+		return TRUE;
 	}
 }
 
-template<>
-BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
+BOOL VirtualTimerMapper::UnInitialize(UINT16 temp_HWID)
 {
 	// TODO: uninitialize entry in the timer mapper and decrement count of timers
 	if(!CPU_Timer_UnInitialize(temp_HWID)) {
@@ -107,8 +92,7 @@ BOOL VirtualTimerMapper<VTCount0>::UnInitialize(UINT16 temp_HWID)
 	}
 }
 
-template<>
-BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
+BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback)
 {
 	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
 
@@ -159,8 +143,7 @@ BOOL VirtualTimerMapper<VTCount0>::SetTimer(UINT8 timer_id, UINT32 start_delay, 
 // This function takes a timer id and dtime as input and changes the corresponding values of the timer
 // Note if the timer is currently in the system when this happens, the values are modified only when the timer
 // finishes its current instance in the queue and when it's added back in it assumes the new values
-template<>
-BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
+BOOL VirtualTimerMapper::ChangeTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot)
 {
 	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
 
@@ -191,8 +174,7 @@ BOOL VirtualTimerMapper<VTCount0>::ChangeTimer(UINT8 timer_id, UINT32 start_dela
 
 // This function takes a timer id as input and changes the state to running or returns false
 // if the timer you specified does not exist
-template<>
-BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
+BOOL VirtualTimerMapper::StartTimer(UINT8 timer_id)
 {
 	UINT64 currentTicks;
 	UINT64 tickElapsed;
@@ -221,7 +203,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 	}
 
 	// Initializing timer
-	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(HAL_Time_CurrentTicks()  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
+	g_VirtualTimerInfo[VTimerIndex].set_m_ticks_when_match_(VirtTimer_GetTicks(timer_id)  + g_VirtualTimerInfo[VTimerIndex].get_m_period() + g_VirtualTimerInfo[VTimerIndex].get_m_start_delay());
 	g_VirtualTimerInfo[VTimerIndex].set_m_is_running(TRUE);
 
 		// looking to see which timer will be called the earliest
@@ -246,13 +228,13 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 		{
 			// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
 			// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
-			if (g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < HAL_Time_CurrentTicks() ) {
-				CPU_Timer_SetCompare(VTM_hardwareTimerId, HAL_Time_CurrentTicks());
+			if (g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(timer_id) ) {
+				CPU_Timer_SetCompare(VTM_hardwareTimerId, VirtTimer_GetTicks(timer_id));
 			}
 			else {
 				CPU_Timer_SetCompare(VTM_hardwareTimerId, g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
 			}
-			gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
+			m_current_timer_running_ = nextTimer;
 		}
 #ifdef DEBUG_VT
 	CPU_GPIO_SetPinState((GPIO_PIN) 25, FALSE);
@@ -263,8 +245,7 @@ BOOL VirtualTimerMapper<VTCount0>::StartTimer(UINT8 timer_id)
 
 // This function takes a timer id as input and changes its state to not running
 // This means that the timer does not go back on the queue once its extracted
-template<>
-BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
+BOOL VirtualTimerMapper::StopTimer(UINT8 timer_id)
 {
 	//Timer 0 is reserved for keeping time and timer 1 for events
 
@@ -284,15 +265,16 @@ BOOL VirtualTimerMapper<VTCount0>::StopTimer(UINT8 timer_id)
 
 namespace VirtTimerHelperFunctions
 {
-	void HardwareVirtTimerMapper(UINT16 hardwareTimer_id, UINT8 &hardwareTimerIndex)
+	// used to take the timer (RTC_32BIT, ADVTIMER_32BIT) and get the correct VT mapper
+	void HardwareVirtTimerMapper(UINT32 hardwareTimerId, UINT8 &currentVTMapper)
 	{
-		hardwareTimerIndex = -1;
+		currentVTMapper = -1;
 		for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 		{
-			if(hardwareTimer_id == g_HardwareTimerIDs[i])
+			if(hardwareTimerId == g_HardwareTimerIDs[i])
 			{
-				hardwareTimerIndex = i;
-				break;
+				currentVTMapper = i;
+				return;
 			}
 		}
 	}
@@ -312,21 +294,36 @@ void VirtualTimerCallback(void *arg)
 	UINT32 ticks = 0, startDelay = 0;
 	UINT16 i = 0;
 
-	UINT16 currentHardwareTimerId = gVirtualTimerObject.VT_hardwareTimerId;
-	UINT8 currentHardwareTimerIndex = 0;
-	VirtTimerHelperFunctions::HardwareVirtTimerMapper(currentHardwareTimerId, currentHardwareTimerIndex);
-	if(currentHardwareTimerIndex == -1) {
+	// the timer used (RTC_32BIT, ADVTIMER_32BIT) is passed as the argument
+	UINT32 currentHardwareTimerId = *(UINT32*)arg;
+	UINT8 currentVTMapper = 0;
+	// getting the correct VT Mapper (currentVTMapper)
+	VirtTimerHelperFunctions::HardwareVirtTimerMapper(currentHardwareTimerId, currentVTMapper);
+	if(currentVTMapper == -1) {
 		ASSERT(0);
 		return;
 	}
 
-	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_cnt_;
-	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_];
+	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_cnt_;
+	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
+
+	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK){
+		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, TRUE );
+	}
 
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
-		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS) || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME) )
-		{
+		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER)
+		  || (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
+		  || (runningTimer->get_m_timer_id() == NeighborClockMonitor_TIMER1)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK)
+		  //|| (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER)
+		 /* || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
+		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER)*/
+		  ){
 			(runningTimer->get_m_callback())(NULL);
 		} else {
 			void * userData = NULL;
@@ -334,6 +331,14 @@ void VirtualTimerCallback(void *arg)
 			if(!vtCallbackContinuation.IsLinked())
 	    	{
 	        	vtCallbackContinuation.Enqueue();
+			}
+			else{
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
+				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
 			}
 		}
 	}
@@ -343,7 +348,7 @@ void VirtualTimerCallback(void *arg)
 		runningTimer->set_m_is_running(FALSE);
 	} else {
 		// calculating the next time this timer will fire
-		runningTimer->set_m_ticks_when_match_(HAL_Time_CurrentTicks() + runningTimer->get_m_period());
+		runningTimer->set_m_ticks_when_match_(VirtTimer_GetTicks(runningTimer->get_m_timer_id()) + runningTimer->get_m_period());
 	}
 
 	// we look for the running timer that needs to be fired the earliest and set the timer comparator
@@ -352,11 +357,11 @@ void VirtualTimerCallback(void *arg)
 	bool timerInQueue = false;
 	for(i = 0; i < currentVirtualTimerCount; i++)
 	{
-		if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
+		if(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_is_running() == TRUE)
 		{
-			if(gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
+			if(gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_ticks_when_match_() <= smallestTicks)
 			{
-					smallestTicks = gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[i].get_m_ticks_when_match_();
+					smallestTicks = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[i].get_m_ticks_when_match_();
 					nextTimer = i;
 					timerInQueue = true;
 			}
@@ -368,12 +373,17 @@ void VirtualTimerCallback(void *arg)
 	{
 		// for now we have to check that we are setting the compare at some time in the future. This check is also made in the setcompare function itself but there it is limited (for now) to 32-bits
 		// when we are fully 64-bit compatible with our timers then we will need only the check in the setcompare function itself
-		if (gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < HAL_Time_CurrentTicks() ){
-			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentHardwareTimerIndex], HAL_Time_CurrentTicks());
+		if (gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() < VirtTimer_GetTicks(runningTimer->get_m_timer_id()) ){
+			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], VirtTimer_GetTicks(runningTimer->get_m_timer_id()));
 		} else {
-			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentHardwareTimerIndex], gVirtualTimerObject.virtualTimerMapper_0.g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
+			CPU_Timer_SetCompare(g_HardwareTimerIDs[currentVTMapper], gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[nextTimer].get_m_ticks_when_match_() );
 		}		
-		gVirtualTimerObject.virtualTimerMapper_0.m_current_timer_running_ = nextTimer;
+		gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_ = nextTimer;
+	}
+
+	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
+		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 	}
 
 }

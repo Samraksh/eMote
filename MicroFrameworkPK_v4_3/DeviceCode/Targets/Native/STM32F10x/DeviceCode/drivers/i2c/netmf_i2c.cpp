@@ -236,11 +236,7 @@ DeviceStatus STM32F10x_I2C_Driver::XActionStop()
 
 DeviceStatus STM32F10x_I2C_Driver::Initialize(I2CBus bus)
 {
-		if ( (IsInitializedI2C1 == TRUE) && (bus == I2CBus1)){
-			return DS_Fail;
-		}	else if ( (IsInitializedI2C2 == TRUE) && (bus == I2CBus2)){
-			return DS_Fail;
-		} 
+
 		GPIO_InitTypeDef GPIO_InitStructure;
 		I2C_InitTypeDef I2C_InitStruct;
 
