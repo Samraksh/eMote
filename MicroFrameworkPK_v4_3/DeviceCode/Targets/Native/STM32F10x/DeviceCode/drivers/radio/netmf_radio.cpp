@@ -21,6 +21,7 @@
 
 #include <tinyhal.h>
 #include "RF231\RF231.h"
+#include "SI4468\si446x.h"
 
 #define ASSERT_NOFAIL(x) {if(x==DS_Fail){ SOFT_BREAKPOINT(); }}
 
@@ -51,6 +52,10 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 			currentRadioName = RF231RADIOLR;
 			status = grf231RadioLR.Initialize(eventHandlers, radioID, mac_id);
 			break;
+		case SI4468_SPI2:
+			currentRadioName = SI4468_SPI2;
+			status = si446x_hal_init(eventHandlers, radioID, mac_id);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -74,6 +79,9 @@ BOOL CPU_Radio_Reset(UINT8 radioID)
 		case RF231RADIOLR:
 			status = grf231RadioLR.Reset();
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_reset(radioID);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -95,6 +103,9 @@ BOOL CPU_Radio_UnInitialize(UINT8 id)
 			break;
 		case RF231RADIOLR:
 			result = (grf231RadioLR.UnInitialize() == DS_Success);
+			break;
+		case SI4468_SPI2:
+			result = (si446x_hal_uninitialize(id) == DS_Success);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -126,6 +137,9 @@ UINT16 CPU_Radio_GetAddress(UINT8 radioID)
 	case RF231RADIOLR:
 		address = grf231RadioLR.GetAddress();
 		break;
+	case SI4468_SPI2:
+		address = si446x_hal_get_address(radioID);
+		break;
 	default:
 		PRINTF_UNIDENTIFIED_RADIO();
 		break;
@@ -148,6 +162,9 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address)
 		case RF231RADIOLR:
 			status = grf231RadioLR.SetAddress(address);
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_set_address(radioID, address);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -167,6 +184,9 @@ INT8 CPU_Radio_GetRadioName()
 			break;
 		case RF231RADIOLR:
 			radioType = grf231RadioLR.GetRadioName();
+			break;
+		case SI4468_SPI2:
+			radioType = si446x_hal_get_RadioType();
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -188,6 +208,10 @@ DeviceStatus CPU_Radio_SetRadioName(INT8 radioName)
 			break;
 		case RF231RADIOLR:
 			grf231RadioLR.SetRadioName(radioName);
+			status = DS_Success;
+			break;
+		case SI4468_SPI2:
+			si446x_hal_set_RadioType(radioName);
 			status = DS_Success;
 			break;
 		default:
@@ -212,6 +236,9 @@ DeviceStatus CPU_Radio_ChangeTxPower(UINT8 radioID, int power)
 		case RF231RADIOLR:
 			status = grf231RadioLR.ChangeTxPower(power);
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_tx_power(radioID, power);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -233,11 +260,13 @@ UINT32 CPU_Radio_GetTxPower(UINT8 radioID)
 		case RF231RADIOLR:
 			txPower = grf231RadioLR.GetTxPower();
 			break;
+		case SI4468_SPI2:
+			txPower = si446x_hal_get_power(radioID);
+			break; 
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
 	}
-
 	return txPower;
 }
 
@@ -252,6 +281,9 @@ DeviceStatus CPU_Radio_ChangeChannel(UINT8 radioID, int channel)
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.ChangeChannel(channel);
+			break;
+		case SI4468_SPI2:
+			status = si446x_hal_set_channel(radioID, channel);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -273,6 +305,9 @@ UINT32 CPU_Radio_GetChannel(UINT8 radioID)
 			break;
 		case RF231RADIOLR:
 			channel = grf231RadioLR.GetChannel();
+			break;
+		case SI4468_SPI2:
+			channel = si446x_hal_get_chan(radioID);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -343,6 +378,9 @@ void* CPU_Radio_Send(UINT8 radioID, void* msg, UINT16 size)
 		case RF231RADIOLR:
 			ptr_temp = (void *) grf231RadioLR.Send(msg, size);
 			break;
+		case SI4468_SPI2:
+			ptr_temp = si446x_hal_send(radioID, msg, size);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -365,6 +403,9 @@ void* CPU_Radio_Send_TimeStamped(UINT8 radioID, void* msg, UINT16 size, UINT32 e
 			break;
 		case RF231RADIOLR:
 			ptr_temp = (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime);
+			break;
+		case SI4468_SPI2:
+			ptr_temp = si446x_hal_send_ts(radioID, msg, size, eventTime);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -400,6 +441,9 @@ DeviceStatus CPU_Radio_EnableCSMA(UINT8 radioID)
 		case RF231RADIOLR:
 			status = grf231RadioLR.EnableCSMA();
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_rx(radioID);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -421,6 +465,9 @@ DeviceStatus CPU_Radio_DisableCSMA(UINT8 radioID)
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.DisableCSMA();
+			break;
+		case SI4468_SPI2:
+			status = si446x_hal_sleep(radioID);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -446,6 +493,9 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioID)
 		case RF231RADIOLR:
 			status = grf231RadioLR.TurnOnRx();
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_rx(radioID);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -467,6 +517,9 @@ DeviceStatus CPU_Radio_TurnOffRx(UINT8 radioID)
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.TurnOffRx();
+			break;
+		case SI4468_SPI2:
+			status = si446x_hal_sleep(radioID);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -493,6 +546,9 @@ DeviceStatus CPU_Radio_TurnOnPLL(UINT8 radioID)
 		case RF231RADIOLR:
 			status = grf231RadioLR.TurnOnPLL();
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_cca(radioID);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -517,6 +573,9 @@ DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 		case RF231RADIOLR:
 			status = grf231RadioLR.Sleep(level);
 			break;
+		case SI4468_SPI2:
+			status = si446x_hal_sleep(radioID);
+			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
@@ -538,6 +597,9 @@ DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.ClearChannelAssesment();
+			break;
+		case SI4468_SPI2:
+			status = si446x_hal_cca(radioID);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -561,6 +623,9 @@ DeviceStatus CPU_Radio_ClearChannelAssesment(UINT8 radioID, UINT32 numberMicroSe
 			break;
 		case RF231RADIOLR:
 			status = grf231RadioLR.ClearChannelAssesment(numberMicroSecond);
+			break;
+		case SI4468_SPI2:
+			status = si446x_hal_cca_ms(radioID, numberMicroSecond);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
@@ -604,12 +669,14 @@ UINT32 CPU_Radio_GetRSSI(UINT8 radioID)
 		case RF231RADIOLR:
 			val = grf231RadioLR.GetRSSI();
 			break;
+		case SI4468_SPI2:
+			val = si446x_hal_get_rssi(radioID);
+			break;
 		default:
 			val=0xFFFFFFFF; // error condition.
 			PRINTF_UNIDENTIFIED_RADIO();
 			break;
 	}
-
 	return val;
 }
 
