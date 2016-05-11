@@ -105,6 +105,12 @@ INT32 ADCInternal::StopSampling( HRESULT &hr )
     return DS_Success;
 }
 
+INT32 ADCInternal::SetPeriodicADCSamplingInterval( double param0, double param1, HRESULT &hr )
+{
+    INT32 retVal = AD_SetPeriodicSamplingInterval(param0, param1); 
+    return retVal;
+}
+
 static HRESULT InitializeADCDriver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )
 {
    g_adcContext  = pContext;

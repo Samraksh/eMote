@@ -13,6 +13,38 @@
 using namespace Samraksh::eMote;
 
 
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Initialize___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = Algorithm_RadarDetection::Initialize( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Uninitialize___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = Algorithm_RadarDetection::Uninitialize( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
 HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
@@ -72,7 +104,7 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Detectio
     TINYCLR_NOCLEANUP();
 }
 
-HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__R8__I4__U2__U2( CLR_RT_StackFrame& stack )
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -80,21 +112,100 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetec
 
         FAULT_ON_NULL(pMngObj);
 
-        double param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_double( stack, 1, param0 ) );
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
 
-        INT32 param1;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 2, param1 ) );
+        double param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_double( stack, 2, param1 ) );
 
-        UINT16 param2;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 3, param2 ) );
+        double param2;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_double( stack, 3, param2 ) );
 
         UINT16 param3;
         TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 4, param3 ) );
 
-        INT8 retVal = Algorithm_RadarDetection::SetDetectionParameters( pMngObj,  param0, param1, param2, param3, hr );
+        UINT16 param4;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 5, param4 ) );
+
+        UINT16 param5;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 6, param5 ) );
+
+        UINT16 param6;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT16( stack, 7, param6 ) );
+
+        INT8 retVal = Algorithm_RadarDetection::SetDetectionParameters( pMngObj,  param0, param1, param2, param3, param4, param5, param6, hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetBackgroundNoiseLevel___I4__SamraksheMoteRADARNOISEREQUEST( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+
+        INT32 retVal = Algorithm_RadarDetection::GetBackgroundNoiseLevel( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::ResetBackgroundNoiseTracking___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = Algorithm_RadarDetection::ResetBackgroundNoiseTracking( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetIQRejectionLevel___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = Algorithm_RadarDetection::GetIQRejectionLevel( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetLastUnwrap___I4__SamraksheMoteRADARNOISEREQUEST( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param0 ) );
+
+        INT32 retVal = Algorithm_RadarDetection::GetLastUnwrap( pMngObj,  param0, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
 
     }
     TINYCLR_NOCLEANUP();

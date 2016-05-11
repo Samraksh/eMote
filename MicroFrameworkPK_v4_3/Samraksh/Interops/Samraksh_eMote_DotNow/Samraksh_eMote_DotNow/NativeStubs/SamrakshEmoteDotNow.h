@@ -36,6 +36,7 @@ struct Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal
     TINYCLR_NATIVE_DECLARE(ConfigureBatchModeWithThresholding___STATIC__SamraksheMoteDotNowDeviceStatus__SZARRAY_U2__I4__U4__U4__U4);
     TINYCLR_NATIVE_DECLARE(DualChannelRead___STATIC__BOOLEAN__SZARRAY_U2);
     TINYCLR_NATIVE_DECLARE(StopSampling___STATIC__I4);
+    TINYCLR_NATIVE_DECLARE(SetPeriodicADCSamplingInterval___STATIC__I4__R8__R8);
 
     //--//
 

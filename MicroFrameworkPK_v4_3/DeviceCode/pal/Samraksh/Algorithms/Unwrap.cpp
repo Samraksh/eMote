@@ -2,7 +2,10 @@
 #include "Samraksh\Unwrap.h"
 
 static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
-
+static int wPhaseMax = 0, uwPhaseMax = 0, wPhase_prevMax = 0, uwPhase_prevMax = 0;
+static int unwrapMax = 0;
+static int wPhaseZero = 0, uwPhaseZero = 0, wPhase_prevZero = 0, uwPhase_prevZero = 0;
+static int unwrapZero = 0;
 
 enum PI
 {
@@ -66,11 +69,15 @@ INT16 findMedian(UINT16* buffer, INT32 length)
 	}
 }
 
-BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, double threshold, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber)
+int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16 medianI, INT16 medianQ, INT16* arcTan, INT32 noiseRejection, UINT16 debugVal, UINT16 IDNumber, UINT16 versionNumber)
 {
 	int i;
 	int unwrappedPhase;
+	int unwrappedPhaseZero;
+	int unwrappedPhaseMax;
 	int minPhase, maxPhase;
+	int minPhaseZero, maxPhaseZero;
+	int minPhaseMax, maxPhaseMax;
 	static BOOL detection = false;
 	static UINT16 markerPrimary = 0xa5a5;
 	static UINT16 markerRepeat = 0xf0f0;
@@ -81,14 +88,10 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 	static UINT16 prevBufferI[250];
 	static UINT16 prevBufferQ[250];
 	static UINT8 uartPort = 0;
-	BOOL threshholdMet = false;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
 	UINT16 dTrue = 1;
 	UINT16 dFalse = 0;
-
-	// threshold passed is given in rotations, converting to radians here
-	double thresholdRadians = threshold * 2 * 3.14159;
 
 	if (debugVal == 2){
 		USART_Write( uartPort, (char *)&markerPrimary, 2 );
@@ -102,8 +105,9 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 		checksumPrimary += versionNumber;
 	}
 
+	//hal_printf("using %d\r\n",noiseRejection);
 	for (i=0; i<length; i++){
-		if (debugVal != 0){
+		if ((debugVal == 1) || (debugVal == 2)){
 			USART_Write( uartPort, (char *)&bufferI[i], 2 );
 			checksumPrimary += bufferI[i];
 			USART_Write( uartPort, (char *)&bufferQ[i], 2 );
@@ -122,10 +126,23 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 				USART_Write( uartPort, (char *)&dFalse, 2 );
 		}
 
-		if (i == 0) {minPhase = maxPhase = unwrappedPhase;}
+		unwrappedPhaseZero = uwPhaseZero >> 12;
+		unwrappedPhaseMax = uwPhaseMax >> 12;
+
+		if (i == 0) {
+			minPhase = maxPhase = unwrappedPhase;
+			minPhaseZero = maxPhaseZero = unwrappedPhaseZero;
+			minPhaseMax = maxPhaseMax = unwrappedPhaseMax;
+		}
 
     	if (unwrappedPhase < minPhase) minPhase = unwrappedPhase;
     	else if (unwrappedPhase > maxPhase) maxPhase = unwrappedPhase;
+
+		if (unwrappedPhaseMax < minPhaseMax) minPhaseMax = unwrappedPhaseMax;
+    	else if (unwrappedPhaseMax > maxPhaseMax) maxPhaseMax = unwrappedPhaseMax;
+
+		if (unwrappedPhaseZero < minPhaseZero) minPhaseZero = unwrappedPhaseZero;
+    	else if (unwrappedPhaseZero > maxPhaseZero) maxPhaseZero = unwrappedPhaseZero;
 	}
 
 	if (debugVal == 2){
@@ -153,18 +170,19 @@ BOOL calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT3
 		memcpy(prevBufferQ, bufferQ, 500);
 	}
 
-	if (maxPhase - minPhase > thresholdRadians)
-    {
-        threshholdMet = 1;
-    }
-    else
-    {
-        threshholdMet = 0;
-    }	
+	//hal_printf("%d %d %d\r\n",(maxPhase - minPhase),unwrapMax,unwrapZero);
+	unwrapMax = maxPhaseMax - minPhaseMax;
+	unwrapZero = maxPhaseZero - minPhaseZero;
 
-	detection = threshholdMet;
+	return (maxPhase - minPhase);
+}
 
-	return detection;
+int getUnwrapMax(){
+	return unwrapMax;
+}
+
+int getUnwrapZero(){
+	return unwrapZero;
 }
 
 int findArcTan(int small, int big, INT16* arcTan)
@@ -178,7 +196,11 @@ int findArcTan(int small, int big, INT16* arcTan)
 int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection)
 {
 	int phase_diff;
+	int phase_diffMax;
+	int phase_diffZero;
     int newPhase = 0;
+    int newPhaseMax = 0;
+    int newPhaseZero = 0;
 
     if (valueI > 0 && valueQ >= 0)
     {			//1st Quadrant: arg = atan(imag/real)
@@ -209,15 +231,20 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection)
         	newPhase = (int)NEG_HALF + findArcTan(valueI, abs(valueQ), arcTan);
     }
 
-	if (noiseRejection != 0){
-		// Ignore small changes
-		if ( abs(valueI) < noiseRejection && abs(valueQ) < noiseRejection ) {
-			newPhase = wPhase_prev;
-		}
+	newPhaseZero = newPhase;
+	newPhaseMax = newPhase;
+
+	// Ignore small changes
+	if ( abs(valueI) < noiseRejection && abs(valueQ) < noiseRejection ) {
+		newPhase = wPhase_prev;
+	}
+	// always keeping track of phase with max IQ rejection
+	if ( abs(valueI) < MAX_IQ_REJECTION && abs(valueQ) < MAX_IQ_REJECTION ) {
+		newPhaseMax = wPhase_prevMax;
 	}
 
+	// phase unwrap with currently used IQ rejection parameter
 	wPhase = newPhase;
-
     phase_diff = wPhase - wPhase_prev + (int)FULL;
     if (phase_diff < 0)
     	phase_diff += (int)TWO;
@@ -225,8 +252,34 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection)
     	phase_diff -= (int)TWO;
     uwPhase = uwPhase_prev + phase_diff - (int)FULL;
 
-    wPhase_prev = wPhase;
+	wPhase_prev = wPhase;
     uwPhase_prev = uwPhase;
+
+	// phase unwrap with currently used IQ rejection of zero
+	wPhaseZero = newPhaseZero;
+	
+    phase_diffZero = wPhaseZero - wPhase_prevZero + (int)FULL;
+    if (phase_diffZero < 0)
+    	phase_diffZero += (int)TWO;
+    else if (phase_diffZero > (int)TWO)
+    	phase_diffZero -= (int)TWO;
+    uwPhaseZero = uwPhase_prevZero + phase_diffZero - (int)FULL;
+
+	wPhase_prevZero = wPhaseZero;
+    uwPhase_prevZero = uwPhaseZero;
+
+	// phase unwrap with currently used IQ rejection of MAX
+	wPhaseMax = newPhaseMax;
+	
+    phase_diffMax = wPhaseMax - wPhase_prevMax + (int)FULL;
+    if (phase_diffMax < 0)
+    	phase_diffMax += (int)TWO;
+    else if (phase_diffMax > (int)TWO)
+    	phase_diffMax -= (int)TWO;
+    uwPhaseMax = uwPhase_prevMax + phase_diffMax - (int)FULL;
+
+	wPhase_prevMax = wPhaseMax;
+    uwPhase_prevMax = uwPhaseMax;
 
     return uwPhase;
 }

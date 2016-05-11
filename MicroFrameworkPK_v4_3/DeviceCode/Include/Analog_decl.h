@@ -45,6 +45,8 @@ DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT3
 DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
 DeviceStatus AD_ConfigureBatchModeDualChannel(UINT16* sampleBuff1, UINT16* sampleBuff2, UINT32 numSamples, UINT32  samplingTime, HAL_CALLBACK_FPN userCallback, void* Param);
 void AD_StopSampling();
+INT32 AD_SetPeriodicSamplingInterval(double secondsADCSamples, double secondsADCsleeps); 
+double AD_GetCallbacksPerSecond(); 
 //--//
 
 #endif // _DRIVERS_ANALOG_DECL_H_

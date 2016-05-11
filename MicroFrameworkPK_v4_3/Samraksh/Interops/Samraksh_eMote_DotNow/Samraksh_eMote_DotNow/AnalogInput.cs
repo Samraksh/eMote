@@ -232,6 +232,17 @@ namespace Samraksh.eMote.DotNow
         {
             _myCallback((long)(((long)data1 << 32) | (long)data2));
         }
+        /// <summary>
+        /// Sets the periodic times the ADC will sample and then sleep. 
+        /// SetPeriodicADCSamplingInterval(1.5, 0.5); will sample for 1.5 seconds, sleep for 0.5 seconds and then repeat.
+        /// </summary>
+        /// <param name="secondsADCSamples">specify lenght of time the ADC samples in seconds</param>
+        /// <param name="secondsADCsleeps">specify lenght of time the ADC sleeps in seconds</param>
+        /// <returns>Returns the result of SetPeriodicADCSamplingInterval</returns>
+        static public int SetPeriodicADCSamplingInterval(double secondsADCSamples, double secondsADCsleeps)
+        {
+            return ADCInternal.SetPeriodicADCSamplingInterval(secondsADCSamples, secondsADCsleeps);
+        }
     }
 
     /// <summary>
@@ -351,7 +362,15 @@ namespace Samraksh.eMote.DotNow
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         extern static public int StopSampling();
 
-
+        /// <summary>
+        /// Sets the periodic times the ADC will sample and then sleep. 
+        /// SetPeriodicADCSamplingInterval(1.5, 0.5); will sample for 1.5 seconds, sleep for 0.5 seconds and then repeat.
+        /// </summary>
+        /// <param name="secondsADCSamples">specify lenght of time the ADC samples in seconds</param>
+        /// <param name="secondsADCsleeps">specify lenght of time the ADC sleeps in seconds</param>
+        /// <returns>Returns the result of SetPeriodicADCSamplingInterval</returns>
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        extern static public int SetPeriodicADCSamplingInterval(double secondsADCSamples, double secondsADCsleeps);
     }
 
 }

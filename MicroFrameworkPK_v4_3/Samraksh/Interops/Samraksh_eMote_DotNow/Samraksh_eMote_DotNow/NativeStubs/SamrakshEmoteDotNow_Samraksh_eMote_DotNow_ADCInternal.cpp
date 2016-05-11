@@ -82,3 +82,9 @@ INT32 ADCInternal::StopSampling( HRESULT &hr )
     return retVal;
 }
 
+INT32 ADCInternal::SetPeriodicADCSamplingInterval( double param0, double param1, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+

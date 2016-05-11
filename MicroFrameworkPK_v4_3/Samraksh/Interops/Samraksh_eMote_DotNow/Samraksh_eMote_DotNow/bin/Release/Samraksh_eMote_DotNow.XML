@@ -140,6 +140,15 @@
             <param name="data2">Parameter passed from native</param>
             <param name="time">Time of callback</param>
         </member>
+        <member name="M:Samraksh.eMote.DotNow.AnalogInput.SetPeriodicADCSamplingInterval(System.Double,System.Double)">
+            <summary>
+            Sets the periodic times the ADC will sample and then sleep. 
+            SetPeriodicADCSamplingInterval(1.5, 0.5); will sample for 1.5 seconds, sleep for 0.5 seconds and then repeat.
+            </summary>
+            <param name="secondsADCSamples">specify lenght of time the ADC samples in seconds</param>
+            <param name="secondsADCsleeps">specify lenght of time the ADC sleeps in seconds</param>
+            <returns>Returns the result of SetPeriodicADCSamplingInterval</returns>
+        </member>
         <member name="T:Samraksh.eMote.DotNow.AdcSampleTime">
             <summary>
             Time taken to sample in the adc driver
@@ -221,6 +230,15 @@
             Stop batch mode and continous mode sampling of the adc 
             </summary>
             <returns>Returns the result of this operation</returns>
+        </member>
+        <member name="M:Samraksh.eMote.DotNow.ADCInternal.SetPeriodicADCSamplingInterval(System.Double,System.Double)">
+            <summary>
+            Sets the periodic times the ADC will sample and then sleep. 
+            SetPeriodicADCSamplingInterval(1.5, 0.5); will sample for 1.5 seconds, sleep for 0.5 seconds and then repeat.
+            </summary>
+            <param name="secondsADCSamples">specify lenght of time the ADC samples in seconds</param>
+            <param name="secondsADCsleeps">specify lenght of time the ADC sleeps in seconds</param>
+            <returns>Returns the result of SetPeriodicADCSamplingInterval</returns>
         </member>
         <member name="T:Samraksh.eMote.DotNow.DeviceStatus">
             <summary>

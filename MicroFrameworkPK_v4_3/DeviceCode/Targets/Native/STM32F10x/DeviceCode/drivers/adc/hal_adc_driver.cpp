@@ -20,6 +20,7 @@
 #include "hal_adc_driver.h"
 #include <Samraksh/Hal_util.h>
 #include <Timer/advancedtimer/netmf_advancedtimer.h>
+#include "../Include/Samraksh/VirtualTimer.h"
 
 uint8_t EMOTE_ADC_CHANNEL[3] = {ADC_Channel_14, ADC_Channel_10, ADC_Channel_0};
 uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
@@ -27,6 +28,7 @@ uint32_t ADC_MODULE[3] = { ADC1_BASE, ADC2_BASE, ADC3_BASE};
 void ADC_GPIO_Configuration(BOOL enable);
 BOOL ADC_NVIC_Configuration(BOOL enable);
 void ADC_RCC_Configuration(BOOL enable);
+static double callbacksPerSecond = 0;
 
 //TODO: Why do we use g_* when the variables are not extern?
 HAL_CALLBACK_FPN g_callback = NULL;
@@ -41,7 +43,11 @@ UINT16 *g_adcDriverBufferChannel1Ptr = NULL;
 UINT32 *g_adcDriverBufferDualModePtr = NULL;
 
 UINT32 adcNumSamples = 0;
+UINT32 adcSamplingTime = 0;
 
+static UINT32 adcPeriodicOnTimeUs = 1000;
+static UINT32 adcPeriodicOffTimeUs = 1000;
+static bool adcPeriodicOnTimeRunning = true;
 // TODO: consolidate state machine into one variable.
 BOOL batchModeADC = FALSE;
 BOOL dmaModeInitialized = FALSE;
@@ -146,7 +152,10 @@ BOOL AD_Initialize( ANALOG_CHANNEL channel, INT32 precisionInBits )
 		while(ADC_GetCalibrationStatus(ADC2));
 	else
 		while(ADC_GetCalibrationStatus(ADC3));
-    return TRUE;
+
+	callbacksPerSecond = 0;
+
+	return TRUE;
 }
 
 void AD_Uninitialize( ANALOG_CHANNEL channel )
@@ -311,6 +320,8 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
 	DeviceStatus retVal = DS_Success;
 	UINT32 period;
 	UINT32 prescaler = 1;
+
+	callbacksPerSecond = ((double)numSamples * (double)samplingTime)/(double)1000000;
 
 	// check if already initialized.
 	if(dmaModeInitialized)
@@ -497,6 +508,7 @@ DeviceStatus AD_ConfigureContinuousMode(UINT16* sampleBuff1, UINT32 numSamples, 
     TIM_Cmd(TIM4, ENABLE);
 
    	adcNumSamples = numSamples;
+	adcSamplingTime = samplingTime;
 
 	// Set DMA mode initialized to true
 	// This is useful in batch mode scenarios where there is a lot of starting and stopping
@@ -524,6 +536,64 @@ ad_ccm_out:
 void AD_StopSampling()
 {
 	TIM_Cmd(TIM4, DISABLE);
+	ADC_Cmd(ADC1, DISABLE);
+	ADC_Cmd(ADC2, DISABLE);
+	VirtTimer_Stop(VIRT_TIMER_ADC_PERIODIC);
+}
+
+double AD_GetCallbacksPerSecond()
+{
+	return callbacksPerSecond;
+}
+
+void ISR_ADC_PERIOD (void* Param)
+{
+	if (adcPeriodicOnTimeRunning == true){
+		adcPeriodicOnTimeRunning = false;
+		VirtTimer_Change(VIRT_TIMER_ADC_PERIODIC, 0, adcPeriodicOffTimeUs, TRUE, ADVTIMER_32BIT);
+		TIM_Cmd(TIM4, DISABLE);
+		ADC_Cmd(ADC1, DISABLE);
+		ADC_Cmd(ADC2, DISABLE);
+	} else {
+		adcPeriodicOnTimeRunning = true;
+		VirtTimer_Change(VIRT_TIMER_ADC_PERIODIC, 0, adcPeriodicOnTimeUs, TRUE, ADVTIMER_32BIT);
+		ADC_Cmd(ADC1, ENABLE);
+		ADC_Cmd(ADC2, ENABLE);
+		TIM_Cmd(TIM4, ENABLE);
+	}
+	VirtTimer_Start(VIRT_TIMER_ADC_PERIODIC);
+}
+
+INT32 AD_SetPeriodicSamplingInterval(double secondsADCSamples, double secondsADCsleeps)
+{
+	if (secondsADCsleeps == 0){
+		hal_printf("periodic sampling disabled\r\n");
+		VirtTimer_Stop(VIRT_TIMER_ADC_PERIODIC);
+	} else {
+		adcPeriodicOnTimeUs = (UINT32)(secondsADCSamples * 1000000);
+		adcPeriodicOffTimeUs = (UINT32)(secondsADCsleeps * 1000000);
+		hal_printf("starting periodic sampling on: %d off: %d\r\n",adcPeriodicOnTimeUs,adcPeriodicOffTimeUs);
+		if(VirtTimer_Change(VIRT_TIMER_ADC_PERIODIC, 0, adcPeriodicOnTimeUs, TRUE, ADVTIMER_32BIT) != TimerSupported)
+		{
+			if(VirtTimer_SetTimer(VIRT_TIMER_ADC_PERIODIC, 0, adcPeriodicOnTimeUs, TRUE, TRUE, ISR_ADC_PERIOD, ADVTIMER_32BIT) != TimerSupported)
+			{
+				ASSERT(FALSE);
+			}
+		}
+		VirtTimer_Start(VIRT_TIMER_ADC_PERIODIC);
+		adcPeriodicOnTimeRunning = true;
+	}
+
+	// callbacksPerSecond has to be adjusted based on the periodic sampling rate
+	// TODO: not sure what to set callbacksPerSecond to be if we have secondsADCSamples over 1
+	if (secondsADCSamples < 1) {
+		callbacksPerSecond = (((double)adcNumSamples * (double)adcSamplingTime)/(double)1000000) * secondsADCSamples;
+	} else {
+		callbacksPerSecond = ((double)adcNumSamples * (double)adcSamplingTime)/(double)1000000;
+	}
+	
+
+	return true;
 }
 
 DeviceStatus AD_ConfigureBatchMode(UINT16* sampleBuff1, UINT32 numSamples, UINT32 samplingTime, HAL_CALLBACK_FPN userCallback, void* Param)
@@ -550,6 +620,8 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 
 	UINT32 period;
 	UINT32 prescaler;
+
+	callbacksPerSecond = ((double)numSamples * (double)samplingTime)/(double)1000000;
 
 	ADC_RCC_Configuration(TRUE);
 
@@ -712,6 +784,7 @@ DeviceStatus AD_ConfigureContinuousModeDualChannel(UINT16* sampleBuff1, UINT16* 
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
 	adcNumSamples = numSamples;
+	adcSamplingTime = samplingTime;
 
 	dualADCMode = TRUE;
 

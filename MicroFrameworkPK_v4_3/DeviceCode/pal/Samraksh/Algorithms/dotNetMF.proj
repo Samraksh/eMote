@@ -43,6 +43,7 @@
   <ItemGroup>
   	<Compile Include="Unwrap.cpp"/>
   	<Compile Include="Acoustic.cpp"/>
+  	<Compile Include="meanTracker.cpp"/>
     <IncludePaths Include="DeviceCode\include" />
   </ItemGroup>
   <ItemGroup />

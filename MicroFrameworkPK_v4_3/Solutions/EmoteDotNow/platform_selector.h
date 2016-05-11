@@ -209,6 +209,7 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	7
+#define VIRT_TIMER_ADC_PERIODIC		12
 // timers that are run within continuations (all C# user timers are run outside an interrupt context also)
 #define VIRT_TIMER_TIME 			2
 #define VIRT_TIMER_REALTIME_DEBUGGER 6

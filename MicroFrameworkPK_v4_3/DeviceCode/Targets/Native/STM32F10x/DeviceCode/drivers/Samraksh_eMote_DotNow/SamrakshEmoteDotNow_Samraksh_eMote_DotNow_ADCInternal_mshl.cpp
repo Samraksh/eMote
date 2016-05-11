@@ -231,3 +231,21 @@ HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::StopSampl
     }
     TINYCLR_NOCLEANUP();
 }
+
+HRESULT Library_SamrakshEmoteDotNow_Samraksh_eMote_DotNow_ADCInternal::SetPeriodicADCSamplingInterval___STATIC__I4__R8__R8( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        double param0;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_double( stack, 0, param0 ) );
+
+        double param1;
+        TINYCLR_CHECK_HRESULT( Interop_Marshal_double( stack, 1, param1 ) );
+
+        INT32 retVal = ADCInternal::SetPeriodicADCSamplingInterval( param0, param1, hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}

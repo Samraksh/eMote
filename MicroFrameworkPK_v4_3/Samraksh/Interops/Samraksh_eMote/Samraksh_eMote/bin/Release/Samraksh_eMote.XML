@@ -4,6 +4,40 @@
         <name>Samraksh_eMote</name>
     </assembly>
     <members>
+        <member name="T:Samraksh.eMote.RADAR_NOISE_CONTROL">
+            <summary>
+            Options for setting the IQ rejection parameter for the Radar Detection class  
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.FIXED_NOISE_REJECTION">
+            <summary>The noise rejection parameter is fixed at noiseRejection.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_ADD">
+            <summary>The noise rejection parameter will be the sum of the background noise plus the parameter noiseRejection.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_MULTIPLY">
+            <summary>The noise rejection parameter will be the product of the background noise times the parameter noiseRejection.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET">
+            <summary>The noise rejection parameter will adjusted untl we reach the specified background noise of the noiseRejection parameter.</summary>
+        </member>
+        <member name="T:Samraksh.eMote.RADAR_NOISE_REQUEST">
+            <summary>
+            Options for requesting the IQ rejection parameter for the Radar Detection class  
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_ZERO">
+            <summary>The noise rejection value set to zero</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX">
+            <summary>The noise rejection value set to max</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_CURRENTLY_USED">
+            <summary>The noise rejection value currently used by the system</summary>
+        </member>
+        <member name="F:Samraksh.eMote.RADAR_NOISE_REQUEST.RADAR_Q">
+            <summary>The current radar Q noise.</summary>
+        </member>
         <member name="T:Samraksh.eMote.Algorithm.RadarDetection">
             <summary>
             Radar Detection class  
@@ -19,6 +53,18 @@
             
             </summary>
         </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.Initialize">
+            <summary>
+            Initializes the RadarDetection software
+            </summary>
+            <returns>The result of radar detection initialization: Success, Fail</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.Uninitialize">
+            <summary>
+            Uninitializes the RadarDetection software
+            </summary>
+            <returns>The result of radar detection initialization: Success, Fail</returns>
+        </member>
         <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.UInt16[],System.Int32,System.Int16[])">
             <summary>
             Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
@@ -31,11 +77,35 @@
             </summary>
             <returns>Returns true if a detection was found, false if no detection was found.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(System.Double,System.Int32,System.UInt16,System.UInt16)">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL,System.Double,System.Double,System.UInt16,System.UInt16,System.UInt16,System.UInt16)">
             <summary>
             Sets detection parameters.
             </summary>
-            <returns>Returns true if sucessful, false if failed.</returns>
+            <returns>Returns true if detection made, false if there was no detection.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetBackgroundNoiseLevel(Samraksh.eMote.RADAR_NOISE_REQUEST)">
+            <summary>
+            Request the background noise level
+            </summary>
+            <returns>Return the current background noise level.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.ResetBackgroundNoiseTracking">
+            <summary>
+            Reset background noise tracking
+            </summary>
+            <returns>Returns true if reset occured, false if there was no reset.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetIQRejectionLevel">
+            <summary>
+            Request the IQ rejection currently used
+            </summary>
+            <returns>Return the current IQ rejection level.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetLastUnwrap(Samraksh.eMote.RADAR_NOISE_REQUEST)">
+            <summary>
+            Request the last unwrap value
+            </summary>
+            <returns>Returns the last unwrap value.</returns>
         </member>
         <member name="T:Samraksh.eMote.Algorithm.AcousticDetection">
             <summary>
