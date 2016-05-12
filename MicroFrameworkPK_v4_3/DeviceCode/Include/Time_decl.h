@@ -222,10 +222,11 @@ void CPU_Timer_ClearTimerOverflow(UINT8 Timer);
 UINT32 CPU_Timer_GetMaxTicks(UINT8 Timer);
 void CPU_GetDriftParameters  ( INT32* a, INT32* b, INT64* c );
 
-const UINT8 ADVTIMER_32BIT = 1;
-const UINT8 TIMER1_16BIT = 2;
-const UINT8 TIMER2_16BIT = 3;
-const UINT8 RTC_32BIT = 4;
+extern const UINT8 TIMER_32BIT;
+extern const UINT8 DEFAULT_TIMER;
+extern const UINT8 TIMER1_16BIT;
+extern const UINT8 TIMER2_16BIT;
+extern const UINT8 LOW_DRIFT_TIMER;
 
 #endif // _DRIVERS_TIME_DECL_H_
 

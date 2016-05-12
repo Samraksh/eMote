@@ -189,9 +189,16 @@
 #define DATASTORE_START_ADDRESS 0x64020000
 #define DATASTORE_END_ADDRESS 0x64FE0000
 
+const UINT8 ADVTIMER_32BIT = 1;
+const UINT8 DEFAULT_TIMER = ADVTIMER_32BIT;
+const UINT8 TIMER_32BIT = ADVTIMER_32BIT;
+const UINT8 TIMER1_16BIT = 2;
+const UINT8 TIMER2_16BIT = 3;
+const UINT8 RTC_32BIT = 4;
+const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 
 const UINT8 g_CountOfHardwareTimers = 2;
-const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {1, 4};
+const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
 const UINT8 g_VirtualTimerPerHardwareTimer = 16;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
@@ -203,32 +210,39 @@ HAL_SLOT_TIMER 3
 HAL_SLOT_TIMER3 4
 HAL_DISCOVERY_TIMER 5
 HAL_RECEPTION_TIMER 6
-
 */
+
 // timers that are run within interrupt context
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
-#define VIRT_TIMER_OMAC_SCHEDULER	7
-#define VIRT_TIMER_ADC_PERIODIC		12
-// timers that are run within continuations (all C# user timers are run outside an interrupt context also)
-#define VIRT_TIMER_TIME 			2
-#define VIRT_TIMER_REALTIME_DEBUGGER 6
+#define VIRT_TIMER_OMAC_SCHEDULER	2
+#define LocalClockMonitor_TIMER1 3
+#define NeighborClockMonitor_TIMER1 4
+#define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
 
+// The following definition will be used within the code as the decision point in deciding if the timer is to be run within interrupt context or continuation
+// Adjust this marker appropriately ( <= marker is interrupt context, > marker is continuation)
+#define VIRT_TIMER_INTERRUPT_CONTEXT_MARKER 5
+
+// timers that are run within continuations (all C# user timers are run outside an interrupt context also)
+#define VIRT_TIMER_TIME 			10
+#define VIRT_TIMER_REALTIME_DEBUGGER 11
+#define VIRT_TIMER_ADC_PERIODIC		12
 /********CSMAMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
-#define VIRT_TIMER_MAC_SENDPKT 		3
-#define VIRT_TIMER_MAC_BEACON 		4
-#define VIRT_TIMER_MAC_FLUSHBUFFER 	5
+#define VIRT_TIMER_MAC_SENDPKT 		13
+#define VIRT_TIMER_MAC_BEACON 		14
+#define VIRT_TIMER_MAC_FLUSHBUFFER 	15
 /********CSMAMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
-#define VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE 3
-#define VIRT_TIMER_OMAC_DISCOVERY	4
-#define VIRT_TIMER_OMAC_TIMESYNC 	5
-#define VIRT_TIMER_OMAC_RECEIVER 	8
-#define VIRT_TIMER_OMAC_TRANSMITTER	9
+#define VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE 16
+#define VIRT_TIMER_OMAC_DISCOVERY	17
+#define VIRT_TIMER_OMAC_TIMESYNC 	18
+#define VIRT_TIMER_OMAC_RECEIVER 	19
+#define VIRT_TIMER_OMAC_TRANSMITTER	20
 //#define VIRT_TIMER_OMAC_TX_EXECEVENT	8
-#define VIRT_TIMER_OMAC_FAST_RECOVERY	10
-#define VIRT_TIMER_OMAC_RECEIVER_ACK 	11
+#define VIRT_TIMER_OMAC_FAST_RECOVERY	21
+
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 const uint OMAC_HW_ACK_DELAY_MICRO = 100;
@@ -236,8 +250,7 @@ const uint HARDWARE_ACKS = 1;
 const uint SOFTWARE_ACKS = 0;
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
-#define LocalClockMonitor_TIMER1 14
-#define NeighborClockMonitor_TIMER1 15
+
 
 
 ////////////////////////////////////SAMRAKSH's definitions done/////////////////////////////

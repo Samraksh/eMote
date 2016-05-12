@@ -307,24 +307,21 @@ void VirtualTimerCallback(void *arg)
 	UINT16 currentVirtualTimerCount = gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_cnt_;
 	VirtualTimerInfo* runningTimer = &gVirtualTimerObject.virtualTimerMapper[currentVTMapper].g_VirtualTimerInfo[gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_];
 
-	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+	/*if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
 			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK){
 		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, TRUE );
-	}
+	}*/
 
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
-		if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
+		/*if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_REALTIME)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER)
 		  || (runningTimer->get_m_timer_id() == LocalClockMonitor_TIMER1)
 		  || (runningTimer->get_m_timer_id() == NeighborClockMonitor_TIMER1)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK)
-		  //|| (runningTimer->get_m_timer_id() == VIRT_TIMER_ADC_PERIODIC)
-		  //|| (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER)
-		 /* || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_DISCOVERY)
-		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER)*/
-		  ){
+		  ){(*/
+		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
 			(runningTimer->get_m_callback())(NULL);
 		} else {
 			void * userData = NULL;
@@ -333,14 +330,14 @@ void VirtualTimerCallback(void *arg)
 	    	{
 	        	vtCallbackContinuation.Enqueue();
 			}
-			else{
+			/*else{
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
-			}
+			}*/
 		}
 	}
 
@@ -382,9 +379,9 @@ void VirtualTimerCallback(void *arg)
 		gVirtualTimerObject.virtualTimerMapper[currentVTMapper].m_current_timer_running_ = nextTimer;
 	}
 
-	if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
+	/*if(runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_SCHEDULER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TIMESYNC || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER /
 			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
 		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
-	}
+	}*/
 
 }
