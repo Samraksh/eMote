@@ -34,6 +34,7 @@ enum {
 
 // Driver Constants
 enum {
+	si446x_lock_max_attempts=2,
 	si446x_timestamp_size=4,
 	si446x_packet_size=128, // max payload accounting for 1 byte size for variable packet
 	si446x_payload_ts=124, // max with timestamp of 4 bytes

@@ -47,7 +47,7 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
 }
 
 // Returns 0 if failed to aquire lock.
-static int get_lock(volatile uint32_t *Lock_Variable) {
+static int get_lock_inner(volatile uint32_t *Lock_Variable) {
 	int status;
 	if (___LOAD(Lock_Variable) != 0) {
 		__ASM("clrex");
@@ -57,6 +57,18 @@ static int get_lock(volatile uint32_t *Lock_Variable) {
 	__DMB();
 
 	return (status == 0);
+}
+
+// Should try more than once, can legit fail even if lock is free.
+// Example, will never succeed if any interrupt hits in between.
+// ldrex-strex only guarantees that lock is free when it says so, but NOT the inverse.
+static int get_lock(volatile uint32_t *Lock_Variable) {
+	int attempts=si446x_lock_max_attempts;
+	do {
+		if ( get_lock_inner(Lock_Variable) )
+			return 1;
+	} while (--attempts);
+	return 0;
 }
 
 static void free_lock(volatile uint32_t *Lock_Variable) {
@@ -639,8 +651,6 @@ si446x_packet_send_CLEANUP:
 
 	si446x_spi_unlock();
 	// RADIO STAYS LOCKED UNTIL TX DONE
-
-	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() TX Started Successfully\r\n");
 
 	return ret;
 }
