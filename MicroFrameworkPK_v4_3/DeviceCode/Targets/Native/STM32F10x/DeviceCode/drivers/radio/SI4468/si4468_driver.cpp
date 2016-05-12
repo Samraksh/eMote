@@ -14,8 +14,9 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { wwf_serial_max = 2, wwf_serial_per = 25 };
-const char wwf_serial_numbers[wwf_serial_max][wwf_serial_per] = { "3300d9054642353044501643", "3300e0054642353045241643" };
+enum { serial_max = 1, serial_per = 25 };
+//const char wwf_serial_numbers[serial_max][serial_per] = { "3300d9054642353044501643", "3300e0054642353045241643" };
+const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
@@ -351,7 +352,7 @@ static int convert_rssi(uint8_t x) {
 static int am_i_wwf(void) {
 	uint8_t cpuserial[serial_size];
 	GetCPUSerial(cpuserial, serial_size);
-	char my_serial[wwf_serial_per];
+	char my_serial[serial_per];
 
 	// Build CPU serial string. Quick and dirty. Please help me =(
 	for(int i=0,j=0; i<12; i++, j+=2) {
@@ -362,11 +363,11 @@ static int am_i_wwf(void) {
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
-	for(int i=0; i<wwf_serial_max; i++) {
-		if ( strcmp( wwf_serial_numbers[i], my_serial ) == 0 )
-			return 1;
+	for(int i=0; i<serial_max; i++) {
+		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
+			return 0;
 	}
-	return 0;
+	return 1;
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
