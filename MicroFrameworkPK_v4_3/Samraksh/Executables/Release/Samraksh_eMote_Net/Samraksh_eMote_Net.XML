@@ -850,7 +850,7 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendStrobe(System.Byte,System.UInt16)">
             <summary>
-            Send preloaded message
+            Send preloaded packet
             </summary>
             <returns>Success of operation</returns>
         </member>
@@ -865,12 +865,12 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
             <summary>
-            Sent time-stamped message
+            Sent time-stamped packet
             </summary>
             <param name="radioType">Radio ID</param>
             <param name="packet">Packet buffer to send</param>
             <param name="size">Size of packet</param>
-            <param name="eventTime">Time stamp of message</param>
+            <param name="eventTime">Time stamp of packet</param>
             <returns>Send status</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment(System.Byte)">
@@ -936,7 +936,7 @@
             <param name="address">Address of recipient</param>
             <param name="payload">Payload (in byte array) to send</param>
             <param name="offset">Offset into array</param>
-            <param name="size">Size of message</param>
+            <param name="size">Size of packet</param>
             <param name="eventTime">Time value to add to packet</param>
             <returns>Result status</returns>
         </member>
@@ -1248,8 +1248,8 @@
             <param name="isPacketTimeStamped">Is packet timestamped?</param>
         </member>
         <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
-            <summary>Configure size of messages</summary>
-            <param name="size">size of messages</param>
+            <summary>Configure size of payload</summary>
+            <param name="size">Size of payload</param>
         </member>
         <member name="T:Samraksh.eMote.Net.MAC.OMAC">
             <summary>OMAC class</summary>
@@ -1345,27 +1345,27 @@
             <returns>True iff _channel is free</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.PreLoad(System.Byte[],System.UInt16)">
-            <summary>Load the message into the transmit buffer of the radio</summary>
-            <param name="message">Packet to load</param>
-            <param name="size">Size of message</param>
+            <summary>Load the packet into the transmit buffer of the radio</summary>
+            <param name="packet">Packet to load</param>
+            <param name="size">Size of packet</param>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendStrobe(System.Byte,System.UInt16)">
-            <summary>Send the message in the transmit buffer</summary>
+            <summary>Send the packet in the transmit buffer</summary>
             <returns>Result of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte,System.Byte[],System.UInt16)">
-            <summary>Load and send a message</summary>
+            <summary>Load and send a packet</summary>
             <param name="radioType">Radio ID</param>
-            <param name="message">Packet to be sent</param>
-            <param name="size">Size of message</param>
+            <param name="packet">Packet to be sent</param>
+            <param name="size">Size of packet</param>
             <returns>Result of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
-            <summary>Load and send a time-stamped message, with specified time stamp</summary>
+            <summary>Load and send a time-stamped packet, with specified time stamp</summary>
             <param name="radioType">Radio ID</param>
-            <param name="message">Packet to be sent</param>
-            <param name="size">Size of message</param>
+            <param name="packet">Packet to be sent</param>
+            <param name="size">Size of packet</param>
             <param name="eventTime">The time stamp.</param>
             <remarks>The offset for the timestamp in the packet is specified by TimeStampOffset  member of the RadioConfiguration structure passed as parameter during radio module initialization.</remarks>
             <returns>The result of the method: E_RadioInit, E_RadioSync, E_RadioConfig, E_MacInit, E_MacConfig, E_MacSendError, E_MacBufferFull, S_Success</returns>
