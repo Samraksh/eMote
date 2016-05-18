@@ -31,7 +31,7 @@ namespace Samraksh.eMote.Net
 		/// <summary>
 		/// The subscribed payload type for the this pipe
 		/// </summary>
-		public PayloadType PayloadType;
+		public readonly PayloadType PayloadType;
 
 		/// <summary>Raised when a packet has been received</summary>
 		public event MACBase.IMACEventHandler OnReceive;
