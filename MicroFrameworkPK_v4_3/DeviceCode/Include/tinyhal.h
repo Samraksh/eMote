@@ -438,8 +438,6 @@ void SineCosine_Precise( INT16 Angle, INT16& Sine, INT16& Cosine );
 
 //--//
 
-#define ASSERT_SP(x) {if(!x) {SOFT_BREAKPOINT();}}
-
 #if !defined(BUILD_RTM) && !defined(NDEBUG)
 
 extern "C"
@@ -483,14 +481,16 @@ typedef void (*LOGGING_CALLBACK)(LPCSTR text);
 
 void hal_fprintf_SetLoggingCallback( LOGGING_CALLBACK fpn );
 
-extern "C"
+extern "C"
+
 {
 void lcd_printf( const char* format, ... );
 }
 
 #else
 
-extern "C"
+extern "C"
+
 {
 __inline void lcd_printf( const char* format, ... ) {}
 }
@@ -519,6 +519,7 @@ extern void HAL_AssertEx();
     #if !defined(BUILD_RTM) && !defined(NDEBUG)
         #define       ASSERT(i)  { if(!(i)) HAL_AssertEx(); }
         #define _SIDE_ASSERTE(i) { if(!(i)) HAL_AssertEx(); }
+        #define     ASSERT_SP(i) { if(!(i)) SOFT_BREAKPOINT();}
     #endif
 #else
     #if defined(_DEBUG) && !defined(_WIN32_WCE) && !defined(__RENESAS__)
@@ -532,6 +533,10 @@ extern void HAL_AssertEx();
 
 #ifndef ASSERT
 #define ASSERT(i)
+#endif
+
+#ifndef ASSERT_SP
+#define ASSERT_SP(i)
 #endif
 
 #ifndef _ASSERTE
