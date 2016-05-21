@@ -275,6 +275,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 	// Make sure we're not busy and can move.
 	if ( trx_status == BUSY_RX_AACK || trx_status == BUSY_TX_ARET || Interrupt_Pending() )
 	{
+		SOFT_BREAKPOINT();
 		return FALSE;
 	}
 
@@ -299,6 +300,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 							state = STATE_PLL_ON;
 							ASSERT_RADIO(0); // Unknown. Put here just because.
 					}
+					SOFT_BREAKPOINT();
 					return FALSE;
 				}
 			poll_counter++;
@@ -326,6 +328,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 							state = STATE_PLL_ON;
 							ASSERT_RADIO(0); // Unknown. Put here just because.
 					}
+					SOFT_BREAKPOINT();
 					return FALSE;
 				}
 			poll_counter++;
@@ -336,6 +339,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 	// Not clear how this could happen, but assume it would be an RX. --NPS
 	if ( Interrupt_Pending() ) {
 		state = STATE_BUSY_RX_AACK;
+		SOFT_BREAKPOINT();
 		return FALSE;
 	} // Not an error, just odd
 
@@ -1742,7 +1746,10 @@ DeviceStatus RF231Radio::TurnOnRx()
 	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
-	if (!IsInitialized()) { return DS_Fail; }
+	if (!IsInitialized()) {
+		ASSERT_RADIO(0);
+		return DS_Fail;
+	}
 
 	sleep_pending = FALSE;
 
@@ -1764,11 +1771,13 @@ DeviceStatus RF231Radio::TurnOnRx()
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::TurnOnRx - returning failure; status is %d\n", trx_status);
 #endif
+			ASSERT_RADIO(0);
 			return DS_Fail;
 		}
 	}
 	else{
 		if ( !Careful_State_Change(RX_ON) ) {
+			ASSERT_RADIO(0);
 			return DS_Fail;
 		}
 	}

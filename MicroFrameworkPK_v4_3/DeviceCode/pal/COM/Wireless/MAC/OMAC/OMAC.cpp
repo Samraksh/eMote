@@ -201,12 +201,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		g_NeighborTable.ClearTable();
 
 		g_NeighborTable.SetPreviousNumberOfNeighbors(0);
-		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success) {
+			SOFT_BREAKPOINT();
 			return status;
 		}
 
-		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
-			SOFT_BREAKPOINT();
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success){
 			return status;
 		}
 
