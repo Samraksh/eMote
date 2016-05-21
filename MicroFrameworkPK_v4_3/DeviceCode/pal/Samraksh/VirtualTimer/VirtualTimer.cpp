@@ -8,7 +8,6 @@
 #include <Samraksh/VirtualTimer.h>
 #include <Samraksh/Hal_util.h>
 
-//#define DEBUG_VT 1
 #if defined(DEBUG_VT)
 #define DEBUG_VT_ASSERT_ANAL(x) ASSERT(x)
 #else
@@ -96,13 +95,6 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 {
 	UINT32 ticksPeriod = 0, ticksStartDelay = 0;
 
-
-	//Timer 0 is reserved for keeping time and timer 1 for events
-	if (timer_id < 0) {
-		ASSERT(0);
-		return FALSE;
-	}
-
 	UINT8 VTimerIndex = 0;
 
 	BOOL timerFound = VirtTimerIndexMapper(timer_id, VTimerIndex);
@@ -124,6 +116,8 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 		return FALSE;
 	}
 	
+	DEBUG_VT_ASSERT_ANAL(g_VirtualTimerInfo[VTimerIndex].get_m_is_running() == FALSE);
+
 	ticksPeriod     = CPU_MicrosecondsToTicks(period,      VTM_hardwareTimerId);
 	ticksStartDelay = CPU_MicrosecondsToTicks(start_delay, VTM_hardwareTimerId);
 

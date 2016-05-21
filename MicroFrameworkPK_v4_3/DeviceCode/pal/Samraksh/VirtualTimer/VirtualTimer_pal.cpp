@@ -7,10 +7,16 @@
 
 #include <Samraksh/VirtualTimer.h>
 
+#if defined(DEBUG_VT)
+#define DEBUG_VT_ASSERT_ANAL(x) ASSERT(x)
+#else
+#define DEBUG_VT_ASSERT_ANAL(x)
+#endif
 
 extern const UINT8 g_CountOfHardwareTimers;
 
 VirtualTimer gVirtualTimerObject;
+BOOL VirtualTimer::isInitialized = FALSE;
 
 namespace VirtTimerHelperFunctions
 {
@@ -50,12 +56,18 @@ namespace VirtTimerHelperFunctions
 //BOOL VirtTimer_Initialize(UINT16 Timer, BOOL FreeRunning, UINT32 ClkSource, UINT32 Prescaler, HAL_CALLBACK_FPN ISR, void* ISR_PARAM)
 BOOL VirtTimer_Initialize()
 {
+	if (gVirtualTimerObject.isInitialized == TRUE) {
+		DEBUG_VT_ASSERT_ANAL(0);
+		return TRUE;
+	}
+
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
 		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer))
 			return FALSE;
 	}
 
+	gVirtualTimerObject.isInitialized = TRUE;
 	return TRUE;
 }
 
@@ -207,7 +219,7 @@ BOOL VirtTimer_UnInitialize()
 			ret &= gVirtualTimerObject.virtualTimerMapper[i].UnInitialize(g_HardwareTimerIDs[i]);
 			gVirtualTimerObject.virtualTimerMapper[i].m_current_timer_cnt_ = 0;
 	}
-	
+	gVirtualTimerObject.isInitialized = FALSE;
 	return ret;
 }
 

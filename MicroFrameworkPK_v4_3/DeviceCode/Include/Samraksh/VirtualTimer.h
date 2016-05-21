@@ -231,6 +231,7 @@ private:
 
 
 public:
+	static BOOL isInitialized;
 	//For additional virtual timer support, adjust values here as well as in VirtualTimer.cpp, platform_selector.h
 	VirtualTimerMapper virtualTimerMapper[g_CountOfHardwareTimers];
 };

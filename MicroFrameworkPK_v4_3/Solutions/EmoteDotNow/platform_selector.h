@@ -147,6 +147,7 @@
 //#define DEBUG_SAM_SPI        // record delay and errors in SPI busy wait
 //#define DEBUG_EMOTE_TIME     // record delay when HAL_Time_SetCompare is asked to compare against a time in the past
 //#define DEBUG_EMOTE_ADVTIME  // record delay when STM32F10x_AdvancedTimer::SetCompare is asked to compare against a time in the past
+//#define DEBUG_VT 1           // break on bad input, multiple initializations, etc.
 
 #if defined(BUILD_RTM) || !defined(DEBUG)
 #if defined(DEBUG_EMOTE_TIME) || defined(DEBUG_EMOTE_ADVTIME)
