@@ -372,6 +372,9 @@
             <param name="eventTime">Time to use for timestamp</param>
             <returns>Status of operation</returns>
         </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Dispose">
+            <summary>Uninitialize MAC instance</summary>
+        </member>
         <member name="P:Samraksh.eMote.Net.MACBase.MACType">
             <summary>The type of MAC (OMAC, CSMA)</summary>
         </member>
@@ -1035,7 +1038,7 @@
             Values go from 1 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for user applications.
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.PayloadType.Default">
+        <member name="F:Samraksh.eMote.Net.PayloadType.Type00">
             <summary>Payload type 0</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.PayloadType.Type01">
