@@ -36,7 +36,7 @@ namespace Samraksh.eMote.Net.Radio
 	}
 
 	#region Commented code
-	///*/// <summary></summary>
+	/*/// <summary></summary>
 	//public enum TxPowerValueSI4468
 	//{
 	//	/// <summary></summary>

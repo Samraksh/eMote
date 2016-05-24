@@ -190,7 +190,7 @@ namespace Samraksh.eMote.Net
 		}
 
 		#region commented code
-		///*
+		/*
 		///// 
 		///// </summary>
 		///// <returns></returns>
@@ -209,7 +209,7 @@ namespace Samraksh.eMote.Net
 		//	return this.MACBase.SetRadioAddress(address);
 		//}*/
 
-		///*
+		/*
 		///// 
 		///// </summary>
 		///// <returns></returns>
@@ -685,7 +685,7 @@ namespace Samraksh.eMote.Net
 		}
 
 		#region commented code
-		///*/// <summary>Set the liveness delay</summary>
+		/*/// <summary>Set the liveness delay</summary>
 		///// <param name="livenessDelay"></param>
 		///// <returns>Result of setting this parameter</returns>
 		//public DeviceStatus SetNeighborLivenessDelay(UInt32 livenessDelay) {
@@ -756,7 +756,7 @@ namespace Samraksh.eMote.Net
 		//	return SetChannel((byte)MACConfig.MACRadioConfig.RadioType, (byte)channel);
 		//}*/
 
-		///*/// <summary></summary>
+		/*/// <summary></summary>
 		///// <param name="radioType"></param>
 		///// <returns></returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
@@ -1020,6 +1020,7 @@ namespace Samraksh.eMote.Net
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern NetOpStatus SendTimeStamped(UInt16 Address, byte PayloadType, byte[] payload, UInt16 offset, UInt16 size);*/
 
+        /// <summary>Uninitialize MAC instance</summary>
 		public override void Dispose()
 		{
 			UnInitialize();

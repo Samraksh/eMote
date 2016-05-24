@@ -84,7 +84,7 @@ namespace Samraksh.eMote.Net
 		#endregion
 
 		#region commented code
-		///*/// <summary>MAC configuration</summary>
+		/*/// <summary>MAC configuration</summary>
 		//public class MACConfiguration {
 		//	/// <summary>Enable or disable MAC CCA (clear channel assessment)</summary>
 		//	public bool CCA;

@@ -9,7 +9,7 @@ namespace Samraksh.eMote.Net
 	public enum PayloadType
 	{
 		/// <summary>Payload type 0</summary>
-		Default = 0x00,
+        Type00 = 0x00,
 		/// <summary>Payload type 1</summary>
 		Type01 = 0x01,
 		/// <summary>Payload type 2</summary>
