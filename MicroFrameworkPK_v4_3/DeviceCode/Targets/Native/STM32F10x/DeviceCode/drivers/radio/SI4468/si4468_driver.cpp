@@ -102,10 +102,7 @@ static int si446x_radio_unlock(void) {
 }
 // END LOCKING STUFF
 
-static inline BOOL isInterrupt()
-{
-    return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0);
-}
+static inline BOOL isInterrupt() { return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0); }
 
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
@@ -630,7 +627,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	if (ret != DS_Success) { return ret; }
 	if ( isInterrupt() ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
-		si446x_spi2_handle_interrupt(0xFFFF, FALSE, NULL); // manually check interrupts before we continue.
+		si446x_spi2_handle_interrupt(SI446X_pin_setup.nirq_mf_pin, FALSE, NULL); // manually check interrupts before we continue.
 	}
 
 	if ( !si446x_spi_lock() ) 	{
@@ -991,7 +988,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	int_ts = HAL_Time_CurrentTicks(); // Log RX time.
 	irq.Release(); // Unlock after timestamp.
 
-	if (Pin != SI446X_pin_setup.nirq_mf_pin && Pin != 0xFFFF) { return; }
+	if (Pin != SI446X_pin_setup.nirq_mf_pin) { return; }
 
 	si446x_debug_print(DEBUG01, "SI446X: INT\r\n");
 
