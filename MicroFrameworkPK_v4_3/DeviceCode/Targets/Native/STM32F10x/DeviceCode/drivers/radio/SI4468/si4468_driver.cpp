@@ -625,6 +625,20 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	// Move the radio out of RX before we start the send
 	ret = si446x_hal_sleep(0);
 	if (ret != DS_Success) { return ret; }
+
+	//  Check if we have a RX waiting to be processed
+	if (rx_callback_continuation.IsLinked()) {
+		// Lock and check again before we remove it.
+		GLOBAL_LOCK(irq);
+		if (rx_callback_continuation.IsLinked()) {
+			rx_callback_continuation.Abort();
+			irq.Release();
+			rx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+
 	if ( isInterrupt() ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
 		si446x_spi2_handle_interrupt(SI446X_pin_setup.nirq_mf_pin, FALSE, NULL); // manually check interrupts before we continue.
