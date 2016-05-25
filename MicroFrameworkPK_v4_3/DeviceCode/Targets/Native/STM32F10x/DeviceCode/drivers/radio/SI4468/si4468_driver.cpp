@@ -623,8 +623,16 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	}
 
 	// Move the radio out of RX before we start the send
-	ret = si446x_hal_sleep(0);
-	if (ret != DS_Success) { return ret; }
+	if ( si446x_request_device_state() == SI_STATE_RX ) {
+		ret = si446x_hal_sleep(0);
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() leaving RX before starting TX...\r\n");
+		if (ret != DS_Success) { return ret; }
+	}
+
+	if ( isInterrupt() ) {
+		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
+		si446x_spi2_handle_interrupt(SI446X_pin_setup.nirq_mf_pin, FALSE, NULL); // manually check interrupts before we continue.
+	}
 
 	//  Check if we have a RX waiting to be processed
 	if (rx_callback_continuation.IsLinked()) {
@@ -637,11 +645,6 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		} else {
 			irq.Release();
 		}
-	}
-
-	if ( isInterrupt() ) {
-		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
-		si446x_spi2_handle_interrupt(SI446X_pin_setup.nirq_mf_pin, FALSE, NULL); // manually check interrupts before we continue.
 	}
 
 	if ( !si446x_spi_lock() ) 	{
@@ -776,7 +779,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	if (!isInit) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. No Init.\r\n");
 		si446x_spi_unlock();
-		return DS_Busy;
+		return DS_Fail;
 	}
 
 	si446x_change_state(SI_STATE_SLEEP);
