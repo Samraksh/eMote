@@ -991,7 +991,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	int_ts = HAL_Time_CurrentTicks(); // Log RX time.
 	irq.Release(); // Unlock after timestamp.
 
-	if (Pin != SI446X_pin_setup.nirq_mf_pin || Pin == 0xFFFF) { return; }
+	if (Pin != SI446X_pin_setup.nirq_mf_pin && Pin != 0xFFFF) { return; }
 
 	si446x_debug_print(DEBUG01, "SI446X: INT\r\n");
 
