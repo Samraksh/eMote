@@ -629,7 +629,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	ret = si446x_hal_sleep(0);
 	if (ret != DS_Success) { return ret; }
 	if ( isInterrupt() ) {
-		si446x_debug_print(ERR99, "Warning, TX called from interrupt context\r\n");
+		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
 		si446x_spi2_handle_interrupt(0xFFFF, FALSE, NULL); // manually check interrupts before we continue.
 	}
 
@@ -966,7 +966,7 @@ static void si446x_pkt_rx_int() {
 #		endif
 	}
 	else {
-		si446x_radio_lock(radio_lock_rx); // TODO: Think about this. Can this fail? --NPS
+		si446x_radio_lock(radio_lock_rx);
 		rx_callback_continuation.Enqueue();
 	}
 }
