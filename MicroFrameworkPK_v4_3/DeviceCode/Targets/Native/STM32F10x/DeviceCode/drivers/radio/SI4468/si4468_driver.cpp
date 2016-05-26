@@ -173,6 +173,11 @@ static void rx_cont_do(void *arg) {
 	}
 
 	size = si446x_get_packet_info(0,0,0);
+	if (size <= 0) {
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return;
+	}
 	si446x_read_rx_fifo(size, rx_pkt);
 
 	if (rx_callback != NULL)
@@ -183,7 +188,10 @@ static void rx_cont_do(void *arg) {
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	if (rx_msg_ptr == NULL) return; // Nothing left to do.
+	if (rx_msg_ptr == NULL) {
+		si446x_debug_print(ERR100,"SI446X: rx_cont_do() Bad rx_msg_ptr from MAC layer. Dropping.\r\n");
+		return; // Nothing left to do.
+	}
 
 	// Metadata struct
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
