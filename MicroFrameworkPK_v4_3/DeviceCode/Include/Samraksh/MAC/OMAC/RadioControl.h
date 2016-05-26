@@ -19,6 +19,7 @@ private:
 	bool PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size);
 public:
 	DeviceStatus Initialize();
+	DeviceStatus Uninitialize();
 	DeviceStatus StartPLL();
 	DeviceStatus StartRx();
 	DeviceStatus Preload(RadioAddress_t address, Message_15_4_t * msg, UINT16 size);

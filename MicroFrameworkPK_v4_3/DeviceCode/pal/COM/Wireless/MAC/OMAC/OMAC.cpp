@@ -277,9 +277,11 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
  */
 BOOL OMACType::UnInitialize(){
 	BOOL ret = TRUE;
-	Initialized = FALSE;
 	m_omac_scheduler.UnInitialize();
+	ret &= (m_omac_RadioControl.Uninitialize() == DS_Success);
+	ret &= (CPU_Radio_TurnOffRx(this->radioName) == DS_Success);
 	ret &= CPU_Radio_UnInitialize(this->radioName);
+	Initialized = FALSE;
 	return ret;
 }
 

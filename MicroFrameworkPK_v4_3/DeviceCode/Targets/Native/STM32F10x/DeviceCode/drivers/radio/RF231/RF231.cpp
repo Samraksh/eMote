@@ -966,7 +966,7 @@ DeviceStatus RF231Radio::ChangeChannel(int channel) {
 // Nathan's re-write of sleep function
 DeviceStatus RF231Radio::Sleep(int level)
 {
-	// Initiailize state change check variables
+	// Initialize state change check variables
 	// Primarily used if DID_STATE_CHANGE_ASSERT is used
 	INIT_STATE_CHECK();
 	UINT32 regState;

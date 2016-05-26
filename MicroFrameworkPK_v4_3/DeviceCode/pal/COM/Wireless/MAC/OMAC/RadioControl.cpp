@@ -47,6 +47,10 @@ DeviceStatus RadioControl_t::Initialize(){
 	return DS_Success;
 }
 
+DeviceStatus RadioControl_t::Uninitialize(){
+	return Stop();
+}
+
 /*
  *
  */
