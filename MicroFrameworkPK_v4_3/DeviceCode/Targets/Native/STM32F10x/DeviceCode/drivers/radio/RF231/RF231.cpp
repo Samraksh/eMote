@@ -275,7 +275,6 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 	// Make sure we're not busy and can move.
 	if ( trx_status == BUSY_RX_AACK || trx_status == BUSY_TX_ARET || Interrupt_Pending() )
 	{
-		SOFT_BREAKPOINT();
 		return FALSE;
 	}
 
@@ -995,6 +994,8 @@ DeviceStatus RF231Radio::Sleep(int level)
 		{
 			ASSERT_RADIO(0);
 		}
+		WriteRegister(RF230_TRX_STATE, RF230_TRX_OFF);
+		return DS_Success; // state is P_ON, might need to wait before it changes from P_ON.
 	}
 
 	if(RF231_extended_mode){
@@ -1800,7 +1801,10 @@ DeviceStatus RF231Radio::TurnOffRx()
 	interrupt_mode_check();
 	GLOBAL_LOCK(irq);
 
-	if (!IsInitialized()) { return DS_Fail; }
+	if (!IsInitialized()) {
+		//ASSERT_SP(0);
+		return DS_Success;
+	}
 
 	sleep_pending = FALSE;
 
@@ -1822,14 +1826,18 @@ DeviceStatus RF231Radio::TurnOffRx()
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::TurnOffRx - returning failure; status is %d\n", trx_status);
 #endif
+			ASSERT_SP(0);
 			return DS_Fail;
 		}
 	}
 	else{
 		if ( !Careful_State_Change(TRX_OFF) ) {
+			ASSERT_SP(0);
 			return DS_Fail;
 		}
 	}
+
+	//TODO:? handle external interrupt firing to indicate RF231 IRQ_4 AWAKE_END?
 
 	state = STATE_TRX_OFF;
 
@@ -2102,6 +2110,12 @@ void RF231Radio::HandleInterrupt()
 		// else it was an RX overrun and we live with it.
 	}
 
+	if( (irq_cause & 0xFF) == (TRX_NO_IRQ & 0xFF) ) {
+#ifdef DEBUG_RF231
+		ASSERT_SP(0);
+#endif
+		return;
+	}
 
 	// See datasheet section 9.7.5. We handle both of these manually.
 	if(irq_cause & TRX_IRQ_PLL_LOCK) {
