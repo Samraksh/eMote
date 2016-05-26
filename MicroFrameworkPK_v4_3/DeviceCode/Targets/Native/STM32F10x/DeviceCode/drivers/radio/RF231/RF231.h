@@ -133,7 +133,7 @@ void Radio_Handler_LR(GPIO_PIN Pin,BOOL PinState, void* Param);
 #define WRITE_ACCESS_COMMAND            (0xC0)//Write access command to the tranceiver
 #define READ_ACCESS_COMMAND             (0x80)//Read access command to the tranceiver
 
-#define INIT_STATE_CHECK()				UINT16 poll_counter, trx_status;
+#define INIT_STATE_CHECK()				volatile UINT16 poll_counter, trx_status;
 
 #define VERIFY_STATE_CHANGE				ReadRegister(RF230_TRX_STATUS) & RF230_TRX_STATUS_MASK
 
@@ -616,7 +616,7 @@ public:
 
 	DeviceStatus Reset();
 
-	UINT8 ReadRegister(UINT8 reg);
+	__IO UINT8 ReadRegister(UINT8 reg);
 
 	// May have to toggle slp_tr, check this during testing of this interface
 	void setChannel(UINT8 channel)

@@ -256,7 +256,7 @@ BOOL RF231Radio::Careful_State_Change(radio_hal_trx_status_t target) {
 BOOL RF231Radio::Careful_State_Change_Extended(uint32_t target) { return Careful_State_Change_Extended( (radio_hal_trx_status_t) target ); }
 BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 
-	uint32_t poll_counter=0;
+	volatile uint32_t poll_counter=0;
 	const uint32_t timeout = 0xFFFF;
 
 	GLOBAL_LOCK(irq);
@@ -1838,7 +1838,7 @@ DeviceStatus RF231Radio::TurnOffRx()
 
 
 //template<class T>
-UINT8 RF231Radio::ReadRegister(UINT8 reg)
+__IO UINT8 RF231Radio::ReadRegister(UINT8 reg)
 {
 	GLOBAL_LOCK(irq);
 	UINT8 read_reg;
@@ -2075,8 +2075,8 @@ DeviceStatus RF231Radio::ClearChannelAssesment()
 //template<class T>
 void RF231Radio::HandleInterrupt()
 {
-	UINT32 irq_cause;
-	INT16 temp;
+	static volatile UINT32 irq_cause = 0;
+	INT16 temp = 0;
 	const UINT8 UNSUPPORTED_INTERRUPTS = TRX_IRQ_BAT_LOW | TRX_IRQ_TRX_UR;
 	INIT_STATE_CHECK();
 
