@@ -11,6 +11,17 @@ PH_STATUS_MASK_CRC_ERROR=0x08, PH_STATUS_MASK_ALT_CRC_ERROR=0x04, PH_STATUS_MASK
 enum { MODEM_MASK_RSSI_LATCH = 0x80, MODEM_MASK_POSTAMBLE_DETECT = 0x40, MODEM_MASK_INVALID_SYNC=0x20, MODEM_MASK_RSSI_JUMP=0x10, \
 MODEM_MASK_RSSI=0x08, MODEM_MASK_INVALID_PREAMBLE=0x04, MODEM_MASK_PREAMBLE_DETECT=0x02, MODEM_MASK_SYNC_DETECT=0x01 };
 
+enum radio_lock_id_t {
+	radio_lock_none			=0,
+	radio_lock_tx			=1,
+	radio_lock_tx_power		=2,
+	radio_lock_set_channel	=3,
+	radio_lock_cca			=4,
+	radio_lock_cca_ms		=5,
+	radio_lock_rx			=6,
+	radio_lock_all			=0xFF,
+};
+
 enum {
 	NONE00=0,
 	DEBUG01=1,
@@ -89,7 +100,6 @@ DeviceStatus 	si446x_hal_tx_power(UINT8 radioID, int pwr);
 DeviceStatus 	si446x_hal_set_channel(UINT8 radioID, int channel);
 INT8 			si446x_hal_get_RadioType();
 void 			si446x_hal_set_RadioType(INT8 radio);
-DeviceStatus 	si446x_hal_cca(UINT8 radioID);
 DeviceStatus 	si446x_hal_cca_ms(UINT8 radioID, UINT32 ms);
 DeviceStatus 	si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS);
 UINT32 			si446x_hal_get_chan(UINT8 radioID);
