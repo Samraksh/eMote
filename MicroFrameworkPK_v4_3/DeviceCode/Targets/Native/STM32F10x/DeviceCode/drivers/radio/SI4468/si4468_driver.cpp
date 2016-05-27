@@ -11,10 +11,6 @@
 
 enum { SI_DUMMY=0, };
 
-#ifdef SI446X_RADIO_LOCK_RESOLVE
-const char radio_lock_owners[][16] = { "NONE", "TX", "TX_POWER", "SET_CHANNEL", "CCA", "CCA_MS", "RX" };
-#endif
-
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
@@ -51,13 +47,13 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
 }
 
 // Returns 0 if failed to aquire lock.
-static int get_lock_inner(volatile uint32_t *Lock_Variable, int x) {
+static int get_lock_inner(volatile uint32_t *Lock_Variable) {
 	int status;
 	if (___LOAD(Lock_Variable) != 0) {
 		__ASM("clrex");
 		return 0;
 	}
-	status = ___STORE(x, Lock_Variable);
+	status = ___STORE(1, Lock_Variable);
 	__DMB();
 
 	return (status == 0);
@@ -66,10 +62,10 @@ static int get_lock_inner(volatile uint32_t *Lock_Variable, int x) {
 // Should try more than once, can legit fail even if lock is free.
 // Example, will never succeed if any interrupt hits in between.
 // ldrex-strex only guarantees that lock is free when it says so, but NOT the inverse.
-static int get_lock(volatile uint32_t *Lock_Variable, int owner) {
+static int get_lock(volatile uint32_t *Lock_Variable) {
 	int attempts=si446x_lock_max_attempts;
 	do {
-		if ( get_lock_inner(Lock_Variable, owner) )
+		if ( get_lock_inner(Lock_Variable) )
 			return 1;
 	} while (--attempts);
 	return 0;
@@ -82,27 +78,21 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 }
 
 static int si446x_spi_lock() {
-	return get_lock(&spi_lock, 1);
+	return get_lock(&spi_lock);
 }
 
 static int si446x_spi_unlock() {
 	free_lock(&spi_lock);
 }
 
-static int si446x_radio_lock(radio_lock_id_t owner) {
-	return get_lock(&radio_lock, (int)owner);
-}
-
-static radio_lock_id_t si446x_radio_lock_get_owner(void) {
-	return (radio_lock_id_t) radio_lock;
+static int si446x_radio_lock(void) {
+	return get_lock(&radio_lock);
 }
 
 static int si446x_radio_unlock(void) {
 	free_lock(&radio_lock);
 }
 // END LOCKING STUFF
-
-static inline BOOL isInterrupt() { return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0); }
 
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
@@ -173,11 +163,6 @@ static void rx_cont_do(void *arg) {
 	}
 
 	size = si446x_get_packet_info(0,0,0);
-	if (size <= 0) {
-		si446x_radio_unlock();
-		si446x_spi_unlock();
-		return;
-	}
 	si446x_read_rx_fifo(size, rx_pkt);
 
 	if (rx_callback != NULL)
@@ -188,10 +173,7 @@ static void rx_cont_do(void *arg) {
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	if (rx_msg_ptr == NULL) {
-		si446x_debug_print(ERR100,"SI446X: rx_cont_do() Bad rx_msg_ptr from MAC layer. Dropping.\r\n");
-		return; // Nothing left to do.
-	}
+	if (rx_msg_ptr == NULL) return; // Nothing left to do.
 
 	// Metadata struct
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
@@ -630,38 +612,13 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		return DS_Fail;
 	}
 
-	// Move the radio out of RX before we start the send
-	if ( si446x_request_device_state() == SI_STATE_RX ) {
-		ret = si446x_hal_sleep(0);
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() leaving RX before starting TX...\r\n");
-		if (ret != DS_Success) { return ret; }
-	}
-
-	if ( isInterrupt() ) {
-		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() WARNING. TX called from interrupt!\r\n");
-		si446x_spi2_handle_interrupt(SI446X_pin_setup.nirq_mf_pin, FALSE, NULL); // manually check interrupts before we continue.
-	}
-
-	//  Check if we have a RX waiting to be processed
-	if (rx_callback_continuation.IsLinked()) {
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
 	if ( !si446x_spi_lock() ) 	{
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked, op in progress.\r\n");
 		return DS_Busy;
 	}
 
 	// Lock radio until TX is done.
-	if ( !si446x_radio_lock(radio_lock_tx) ) 	{
+	if ( !si446x_radio_lock() ) 	{
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op in progress.\r\n");
 		ret = DS_Busy;
 		goto si446x_packet_send_CLEANUP;
@@ -775,13 +732,13 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	return DS_Success;
 }
 
-// This will cancel any radio ops and unlocks the radio.
+// This will cancel any radio ops, i.e unlocks the radio.
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
 	if ( !si446x_spi_lock() ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
-		return DS_Busy;
+		return DS_Fail;
 	}
 
 	if (!isInit) {
@@ -815,7 +772,7 @@ DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock(radio_lock_tx_power) ) {
+	if ( !si446x_radio_lock() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_tx_power() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -845,7 +802,7 @@ DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock(radio_lock_set_channel) ) {
+	if ( !si446x_radio_lock() ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -893,7 +850,7 @@ DeviceStatus si446x_hal_cca(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock(radio_lock_cca) ) {
+	if ( !si446x_radio_lock() ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -930,7 +887,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock(radio_lock_cca_ms) ) {
+	if ( !si446x_radio_lock() ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -977,20 +934,13 @@ static void si446x_pkt_tx_int() {
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
-	radio_lock_id_t owner;
-	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	if (owner = si446x_radio_lock_get_owner()) {
+	if (radio_lock) {
 		si446x_debug_print(ERR100,
-#		ifdef SI446X_RADIO_LOCK_RESOLVE
-							"SI446X: si446x_pkt_rx_int() Radio was locked by %s\r\n", radio_lock_owners[owner]);
-#		else
-							"SI446X: si446x_pkt_rx_int() Radio was locked by %d\r\n", owner);
-#		endif
+							"SI446X: Radio was already busy when RX came in... this is bad... tell Nathan\r\n");
 	}
-	else {
-		si446x_radio_lock(radio_lock_rx);
-		rx_callback_continuation.Enqueue();
-	}
+	si446x_radio_lock(); // TODO: Think about this. Can this fail? --NPS
+	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
+	rx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT, LOCKED
@@ -1021,7 +971,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
-		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy. Interrupt processing deferred.\r\n");
+		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy. You are probably hitting the bus too much.\r\n");
 		int_defer_continuation.Enqueue();
 		return;
 	}

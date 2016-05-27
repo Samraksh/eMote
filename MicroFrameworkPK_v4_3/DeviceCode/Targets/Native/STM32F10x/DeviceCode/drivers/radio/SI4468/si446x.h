@@ -5,18 +5,6 @@
 #include <tinyhal.h>
 #include <stm32f10x.h>
 
-#define SI446X_RADIO_LOCK_RESOLVE // Some error messages will print owner of lock if conflict.
-
-typedef enum radio_lock_id_t {
-	radio_lock_none			=0,
-	radio_lock_tx			=1,
-	radio_lock_tx_power		=2,
-	radio_lock_set_channel	=3,
-	radio_lock_cca			=4,
-	radio_lock_cca_ms		=5,
-	radio_lock_rx			=6,
-};
-
 enum { PH_STATUS_MASK_FILTER_MATCH = 0x80, PH_STATUS_MASK_FILTER_MISS = 0x40, PH_STATUS_MASK_PACKET_SENT=0x20, PH_STATUS_MASK_PACKET_RX=0x10, \
 PH_STATUS_MASK_CRC_ERROR=0x08, PH_STATUS_MASK_ALT_CRC_ERROR=0x04, PH_STATUS_MASK_TX_FIFO_ALMOST_EMPTY=0x02, PH_STATUS_MASK_RX_FIFO_ALMOST_EMPTY=0x01 };
 
