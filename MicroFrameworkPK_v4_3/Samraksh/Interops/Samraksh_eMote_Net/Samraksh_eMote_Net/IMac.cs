@@ -203,7 +203,7 @@ namespace Samraksh.eMote.Net
 			/// <returns>Result status</returns>
 			NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime);
 
-			/// <summary>Send packet with payload type</summary>
+			/*/// <summary>Send packet with payload type</summary>
 			/// <param name="address">Address of recipient</param>
 			/// <param name="payloadType">Payload type of packet</param>
 			/// <param name="payload">Payload (in byte array) to send</param>
@@ -220,7 +220,7 @@ namespace Samraksh.eMote.Net
 			/// <param name="size">Size of payload</param>
 			/// <param name="eventTime">Time value to add to packet</param>
 			/// <returns>Result status</returns>
-			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime);
+			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime);*/
 
 			//Neighbor methods
 
