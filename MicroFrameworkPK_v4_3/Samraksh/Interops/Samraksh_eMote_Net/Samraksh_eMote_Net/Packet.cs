@@ -183,7 +183,7 @@ namespace Samraksh.eMote.Net
 
 			Size = length;
 
-			Payload = new byte[MACPacketSize];
+            Payload = new byte[Size];
 
 			for (i = 0; i < length; i++)
 			{
