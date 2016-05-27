@@ -246,7 +246,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 	}
 }
 
@@ -291,7 +291,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		else{
 			VirtualTimerReturnMessage rm;
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 			if(rm  != TimerSupported){ //In this case no need to do anything. Failsafe timer will restore operation.
 				//PostExecuteEvent();
 			}
