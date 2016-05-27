@@ -9,14 +9,18 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
+// If MAC layer calls an operation before previous finished, refuse the new request
+// Alternatively, can attempt to service ourself.
+#define SI4468_FORCE_MAC_SERVICE
+
 enum { SI_DUMMY=0, };
 
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max = 1, serial_per = 25 };
+enum { serial_max = 2, serial_per = 25 };
 //const char wwf_serial_numbers[serial_max][serial_per] = { "3300d9054642353044501643", "3300e0054642353045241643" };
-const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843" };
+const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
@@ -53,7 +57,7 @@ static int get_lock_inner(volatile uint32_t *Lock_Variable) {
 		__ASM("clrex");
 		return 0;
 	}
-	status = ___STORE(1, Lock_Variable);
+	status = ___STORE(radio_lock_all, Lock_Variable);
 	__DMB();
 
 	return (status == 0);
@@ -371,7 +375,7 @@ static int am_i_wwf(void) {
 		hal_snprintf(&my_serial[j], 3, "%.2x", cpuserial[i]);
 	}
 
-	si446x_debug_print(DEBUG01, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
+	si446x_debug_print(DEBUG02, "SI446X: Found Serial Number 0x%s\r\n", my_serial);
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
@@ -591,12 +595,36 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 
 	// First check if we have a previous send done and waiting to be processed
 	if (tx_callback_continuation.IsLinked()) {
+#		ifdef SI4468_FORCE_MAC_SERVICE
+		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
+		return DS_Bug;
+#		endif
 		// Lock and check again before we remove it.
 		GLOBAL_LOCK(irq);
 		if (tx_callback_continuation.IsLinked()) {
 			tx_callback_continuation.Abort();
 			irq.Release();
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous TX serviced.\r\n");
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous TX before continuing\r\n");
 			tx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+
+	if (rx_callback_continuation.IsLinked()) {
+#		ifdef SI4468_FORCE_MAC_SERVICE
+		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
+		return DS_Bug;
+#		endif
+		// Lock and check again before we remove it.
+		GLOBAL_LOCK(irq);
+		if (rx_callback_continuation.IsLinked()) {
+			rx_callback_continuation.Abort();
+			irq.Release();
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous RX serviced.\r\n");
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous before continuing...\r\n");
+			rx_cont_do(NULL);
 		} else {
 			irq.Release();
 		}
@@ -623,6 +651,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		ret = DS_Busy;
 		goto si446x_packet_send_CLEANUP;
 	}
+
+	radio_lock = radio_lock_tx;
 
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
@@ -706,13 +736,52 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
-	if ( !si446x_spi_lock() ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
+
+	if (!isInit) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
 		return DS_Fail;
 	}
-	if (!isInit) {
-		si446x_spi_unlock();
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
+
+	// First check if we have a previous TX/RX done and waiting to be processed
+	if (tx_callback_continuation.IsLinked()) {
+#		ifdef SI4468_FORCE_MAC_SERVICE
+		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
+		return DS_Bug;
+#		endif
+		// Lock and check again before we remove it.
+		GLOBAL_LOCK(irq);
+		if (tx_callback_continuation.IsLinked()) {
+			tx_callback_continuation.Abort();
+			irq.Release();
+			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous TX serviced.\r\n");
+			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
+			tx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+
+	if (rx_callback_continuation.IsLinked()) {
+#		ifdef SI4468_FORCE_MAC_SERVICE
+		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
+		return DS_Bug;
+#		endif
+		// Lock and check again before we remove it.
+		GLOBAL_LOCK(irq);
+		if (rx_callback_continuation.IsLinked()) {
+			rx_callback_continuation.Abort();
+			irq.Release();
+			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous RX serviced.\r\n");
+			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
+			rx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+
+
+	if ( !si446x_spi_lock() ) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
 
@@ -778,6 +847,8 @@ DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
 		return DS_Fail;
 	}
 
+	radio_lock = radio_lock_tx_power;
+
 	si446x_set_property( 0x22 , 1, 0x01, (uint8_t) pwr );
 	tx_power = pwr;
 
@@ -808,6 +879,8 @@ DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
 		return DS_Fail;
 	}
 
+	radio_lock = radio_lock_set_channel;
+
 	si446x_channel = channel;
 
 	// Technically may not need the locks.
@@ -834,72 +907,46 @@ INT8 si446x_hal_get_RadioType()
 	return radioType;
 }
 
-DeviceStatus si446x_hal_cca(UINT8 radioID) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca()\r\n");
-
-	DeviceStatus ret;
-
-	if ( !si446x_spi_lock() ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca() FAIL. SPI locked.\r\n");
-		return DS_Fail;
-	}
-
-	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca() FAIL. No Init.\r\n");
-		si446x_spi_unlock();
-		return DS_Fail;
-	}
-
-	if ( !si446x_radio_lock() ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca() FAIL. Radio Busy.\r\n");
-		si446x_spi_unlock();
-		return DS_Fail;
-	}
-
-	si446x_start_rx_fast_channel(si446x_channel);
-	for(int i=0; i<160000; i++); // TODO: something less silly. Want to wait 10ms I think. --NPS
-	si446x_get_modem_status( 0xFF );
-	if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
-		ret = DS_Busy;
-	else
-		ret = DS_Success;
-
-	si446x_radio_unlock();
-	si446x_spi_unlock();
-
-	return ret;
-}
-
-// TODO: ms is ignored
 DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca()\r\n");
+	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
 	DeviceStatus ret;
 
-	if ( !si446x_spi_lock() ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked.\r\n");
+	if (!isInit) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
 		return DS_Fail;
 	}
 
-	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
-		si446x_spi_unlock();
+	if ( !si446x_spi_lock() ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
 
 	if ( !si446x_radio_lock() ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. Radio Busy.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
+	radio_lock = radio_lock_cca_ms;
+
+	// Save current interrupt states
+	uint8_t int_enable;
+	int_enable = si446x_get_property(0x01, 1, 0);
+	si446x_set_property(0x01, 1, 0, 0); // Writes 0, disables all interrupts
+
 	si446x_start_rx_fast_channel(si446x_channel);
-	for(int i=0; i<160000; i++); // TODO: something less silly. Want to wait 10ms I think. --NPS
+	HAL_Time_Sleep_MicroSeconds(ms);
 	si446x_get_modem_status( 0xFF );
 	if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
 		ret = DS_Busy;
 	else
 		ret = DS_Success;
+
+	si446x_change_state(SI_STATE_SPI_ACTIVE); 		// disables RX
+	si446x_fifo_info(0x3); 							// Have to clear in case we caught something.
+	si446x_set_property(0x01, 1, 0, int_enable); 	// Writes 0, disables all interrupts
+	si446x_change_state(SI_STATE_SLEEP); 			// All done, sleep.
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -934,11 +981,13 @@ static void si446x_pkt_tx_int() {
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
-	if (radio_lock) {
+	if (!si446x_radio_lock()) {
+		SOFT_BREAKPOINT();
 		si446x_debug_print(ERR100,
-							"SI446X: Radio was already busy when RX came in... this is bad... tell Nathan\r\n");
+							"SI446X: Radio was already busy when RX came in... tell Nathan\r\n");
+		return;
 	}
-	si446x_radio_lock(); // TODO: Think about this. Can this fail? --NPS
+	radio_lock = radio_lock_rx;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	rx_callback_continuation.Enqueue();
 }

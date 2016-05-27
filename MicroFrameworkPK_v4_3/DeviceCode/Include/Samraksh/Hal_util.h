@@ -7,6 +7,7 @@ DS_Fail,
 DS_Ready,
 DS_Busy,
 DS_Timeout,
+DS_Bug,
 };
 
 

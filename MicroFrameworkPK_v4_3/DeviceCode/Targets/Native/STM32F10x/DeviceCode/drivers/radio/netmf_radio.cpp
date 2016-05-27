@@ -599,7 +599,8 @@ DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID)
 			status = grf231RadioLR.ClearChannelAssesment();
 			break;
 		case SI4468_SPI2:
-			status = si446x_hal_cca(radioID);
+			//status = si446x_hal_cca(radioID);
+			status = si446x_hal_cca_ms(radioID, 200);
 			break;
 		default:
 			PRINTF_UNIDENTIFIED_RADIO();
