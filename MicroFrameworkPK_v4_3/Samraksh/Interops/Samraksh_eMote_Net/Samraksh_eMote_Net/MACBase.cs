@@ -100,7 +100,7 @@ namespace Samraksh.eMote.Net
 			return MACBase.Send(address, PayloadType, payload, offset, size, eventTime);
 		}
 
-		/// <summary>Send packet with payload type</summary>
+		/*/// <summary>Send packet with payload type</summary>
 		/// <param name="address">Address of recipient</param>
 		/// <param name="payloadType">Payload type of packet</param>
 		/// <param name="payload">Payload (in byte array) to send</param>
@@ -123,7 +123,7 @@ namespace Samraksh.eMote.Net
 		public NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime)
 		{
 			return MACBase.Send(address, payloadType, payload, offset, size, eventTime);
-		}
+		}*/
 
 		/// <summary>Size of send buffer</summary>
 		public byte BufferSize
@@ -887,27 +887,15 @@ namespace Samraksh.eMote.Net
 		/// <returns>The number of packets in the buffer not yet delivered to the program</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern byte PendingSendPacketCount();
+        #endregion Public Externs
 
-		/// <summary>Send packet</summary>
-		/// <param name="address">Address of recipient</param>
-		/// <param name="payload">Payload (in byte array) to send</param>
-		/// <param name="offset">Offset into array</param>
-		/// <param name="size">Size of payload</param>
-		/// <returns>Result status</returns>
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
-
-		#endregion Public Externs
 
 		#region Private Externs ------------------------------------------------------------------------------------------
-
-
-		/// <summary>Uninitialize radio</summary>
+        /// <summary>Uninitialize radio</summary>
 		/// <returns>Status of operation</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern DeviceStatus UnInitialize();
-
-
+        
 		/// <summary>Initialize native MAC, radio and interop drivers</summary>
 		/// <param name="marshalBuffer"></param>
 		/// <param name="mactype"></param>
@@ -957,11 +945,17 @@ namespace Samraksh.eMote.Net
 		/// <returns>Address of the device</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern UInt16 GetRadioAddress();*/
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		private extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, uint eventTime);
-
 		#endregion Private Externs
+
+
+        /// <summary>Send packet</summary>
+        /// <param name="address">Address of recipient</param>
+        /// <param name="payload">Payload (in byte array) to send</param>
+        /// <param name="offset">Offset into array</param>
+        /// <param name="size">Size of payload</param>
+        /// <returns>Result status</returns>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
 
 		/// <summary>Send a _packet</summary>
 		/// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
@@ -974,6 +968,10 @@ namespace Samraksh.eMote.Net
 		{
 			return Send(address, payload, offset, size, (uint)(eventTime.Ticks & uint.MaxValue));
 		}
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, uint eventTime);
+
 		/// <summary>Send a _packet</summary>
 		/// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
 		/// <param name="payloadType">PayloadType to be sent</param>
