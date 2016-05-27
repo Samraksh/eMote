@@ -2,7 +2,11 @@
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_Net</FeatureName>
+<<<<<<< HEAD
     <Guid>{82882098-910b-476a-a8c6-727a0b9fd740}</Guid>
+=======
+    <Guid>{53294637-5bca-4eb5-bd26-50d2ed5211bc}</Guid>
+>>>>>>> f8bd10c... Fixes issues #410 and #412
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_NET_FEATUREPROJ>True</SAMRAKSH_EMOTE_NET_FEATUREPROJ>

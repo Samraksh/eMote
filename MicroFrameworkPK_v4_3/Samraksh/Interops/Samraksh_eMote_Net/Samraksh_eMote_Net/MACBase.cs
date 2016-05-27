@@ -619,12 +619,19 @@ namespace Samraksh.eMote.Net
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
 
-			if ((data1 == (uint)CallbackTypes.Received) && (OnReceive != null))
+			if ((data1 == (uint)CallbackTypes.Received))
 			{
 				//MACConfig.MACRadioConfig.OnReceiveCallback(this);
-				if (payloadType == (uint)PayloadType.MFM_Data)
+                if (payloadType == (uint)PayloadType.MFM_Data)
 				{
-					OnReceive(this, time);
+                    if (OnReceive != null)
+                    {
+                        OnReceive(this, time);
+                    }
+                    else
+                    {
+                        throw new MACNotConfiguredException("OnReceive callback event not registered");
+                    }
 				}
 				else
 				{
@@ -642,9 +649,16 @@ namespace Samraksh.eMote.Net
 					}
 				}
 			}
-			else if ((data1 == (uint)CallbackTypes.NeighborChanged) && (OnNeighborChange != null))
+			else if ((data1 == (uint)CallbackTypes.NeighborChanged))
 			{
-				OnNeighborChange(this, time);
+                if (OnNeighborChange != null)
+                {
+                    OnNeighborChange(this, time);
+                }
+                else
+                {
+                    throw new MACNotConfiguredException("OnNeighborChange callback event not registered");
+                }
 			}
 		}
 
