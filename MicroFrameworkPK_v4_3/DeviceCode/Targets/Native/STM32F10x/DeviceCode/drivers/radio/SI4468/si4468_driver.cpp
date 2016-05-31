@@ -91,9 +91,9 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 
 // Returns current owner if fail, 0 if success
 static radio_lock_id_t si446x_spi_lock(radio_lock_id_t id) {
-	if (isInterrupt() && id != radio_lock_interrupt) {
-		SOFT_BREAKPOINT();
-	}
+	// if (isInterrupt() && id != radio_lock_interrupt) {
+		// SOFT_BREAKPOINT();
+	// }
 	uint32_t ret = get_lock(&spi_lock, id);
 	if (ret == 1) 	return radio_lock_none;					// Success, '0'
 	else			return (radio_lock_id_t) spi_lock;		// Locked, return current owner
@@ -821,18 +821,23 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	return DS_Success;
 }
 
-// This will cancel any radio ops, i.e unlocks the radio.
+
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
-	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
+	if (!isInit) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. No Init.\r\n");
 		return DS_Fail;
 	}
 
-	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. No Init.\r\n");
+	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
+		return DS_Fail;
+	}
+
+	if ( !si446x_radio_lock() ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
