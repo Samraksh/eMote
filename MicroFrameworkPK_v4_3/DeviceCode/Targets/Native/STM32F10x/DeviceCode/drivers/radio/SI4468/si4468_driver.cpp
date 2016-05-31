@@ -928,14 +928,58 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	radio_lock = radio_lock_cca_ms;
+	if ( rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked() ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Continuation Pending.\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Fail;
+	}
 
-	// Save current interrupt states
+	radio_lock = radio_lock_cca_ms;
+	si_state_t state = si446x_request_device_state();
+
+	// Check for bad state while we're at it.
+	if (state == SI_STATE_TX || state == SI_STATE_TX_TUNE || state == SI_STATE_ERROR) {
+		si446x_debug_print(ERR100, "SI446X: si446x_hal_cca_ms(): Warning, impossible state.\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Fail;
+	}
+
+	// If radio is already in RX, stay in RX.
+	// If a packet comes in, shouldn't lose it.
+	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
+		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
+		HAL_Time_Sleep_MicroSeconds(ms);
+		si446x_get_modem_status( 0xFF );
+		if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
+			ret = DS_Busy;
+		else
+			ret = DS_Success;
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return ret;
+	}
+
+	// Otherwise we were asleep and need to stay asleep
 	uint8_t int_enable;
-	int_enable = si446x_get_property(0x01, 1, 0);
-	si446x_set_property(0x01, 1, 0, 0); // Writes 0, disables all interrupts
+	int_enable = si446x_get_property(0x01, 1, 0); 	// save interrupt states
+	si446x_set_property(0x01, 1, 0, 0); 			// Writes 0, disables all interrupts
+
+	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// Check interrupts, does NOT clear.
+
+	// If there are any interrupts pending at this point, back-off
+	// TX continuation check may be not necessary.
+	if (si446x_get_ph_pend() || si446x_get_modem_pend() || rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked()) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
+		return DS_Fail;
+	}
 
 	si446x_start_rx_fast_channel(si446x_channel);
+	while (state != SI_STATE_RX) { state = si446x_request_device_state(); }
 	HAL_Time_Sleep_MicroSeconds(ms);
 	si446x_get_modem_status( 0xFF );
 	if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
@@ -944,8 +988,8 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		ret = DS_Success;
 
 	si446x_change_state(SI_STATE_SPI_ACTIVE); 		// disables RX
-	si446x_fifo_info(0x3); 							// Have to clear in case we caught something.
-	si446x_set_property(0x01, 1, 0, int_enable); 	// Writes 0, disables all interrupts
+	si446x_fifo_info(0x3); 							// Clear FIFO in case we caught something.
+	si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 	si446x_change_state(SI_STATE_SLEEP); 			// All done, sleep.
 
 	si446x_radio_unlock();
@@ -1020,7 +1064,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
-		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy. You are probably hitting the bus too much.\r\n");
+		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt.\r\n");
 		int_defer_continuation.Enqueue();
 		return;
 	}
