@@ -19,6 +19,12 @@ enum radio_lock_id_t {
 	radio_lock_cca			=4,
 	radio_lock_cca_ms		=5,
 	radio_lock_rx			=6,
+	radio_lock_init			=7,
+	radio_lock_uninit		=8,
+	radio_lock_reset		=9,
+	radio_lock_sleep		=10,
+	radio_lock_crc			=11,
+	radio_lock_interrupt	=11,
 	radio_lock_all			=0xFF,
 };
 
