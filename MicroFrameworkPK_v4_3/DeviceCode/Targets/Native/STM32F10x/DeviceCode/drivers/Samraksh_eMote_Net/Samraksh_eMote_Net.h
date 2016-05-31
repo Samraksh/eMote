@@ -23,15 +23,16 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD___byteNeighbor = 6;
     static const int FIELD___marshalBuffer = 7;
     static const int FIELD___packet = 8;
-    static const int FIELD__OnReceive = 9;
-    static const int FIELD__OnNeighborChange = 10;
-    static const int FIELD___cca = 11;
-    static const int FIELD___numberOfRetries = 12;
-    static const int FIELD___ccaSenseTime = 13;
-    static const int FIELD___bufferSize = 14;
-    static const int FIELD___neighborLivenessDelay = 15;
-    static const int FIELD__MACType = 16;
-    static const int FIELD__MACRadioObj = 17;
+    static const int FIELD__OnReceiveAll = 9;
+    static const int FIELD__OnReceive = 10;
+    static const int FIELD__OnNeighborChange = 11;
+    static const int FIELD___cca = 12;
+    static const int FIELD___numberOfRetries = 13;
+    static const int FIELD___ccaSenseTime = 14;
+    static const int FIELD___bufferSize = 15;
+    static const int FIELD___neighborLivenessDelay = 16;
+    static const int FIELD__MACType = 17;
+    static const int FIELD__MACRadioObj = 18;
 
     TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
     TINYCLR_NATIVE_DECLARE(PendingReceivePacketCount___U1);
@@ -82,7 +83,8 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACPipe
 {
     static const int FIELD__MACBase = 1;
     static const int FIELD__PayloadType = 2;
-    static const int FIELD__OnReceive = 3;
+    static const int FIELD__OnReceiveAll = 3;
+    static const int FIELD__OnReceive = 4;
 
 
     //--//
