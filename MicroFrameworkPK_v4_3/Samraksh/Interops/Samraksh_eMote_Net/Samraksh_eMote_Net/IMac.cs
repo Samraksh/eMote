@@ -31,6 +31,14 @@ namespace Samraksh.eMote.Net
 			public byte LinkQuality;
 			/// <summary>Average delay</summary>
 			public byte AverageDelay;
+
+            /// <summary></summary>
+            public Link()
+            {
+                AverageRSSI = 0;
+                LinkQuality = 0;
+                AverageDelay = 0;
+            }
 		}
 
 		/// <summary>
@@ -67,6 +75,19 @@ namespace Samraksh.eMote.Net
 			public byte ReceiveDutyCycle; //percentage
 			/// <summary>Frame length of neighbor</summary>
 			public ushort FrameLength;
+
+            /// <summary></summary>
+            public Neighbor()
+            {
+                MACAddress = 0;
+                ForwardLink = new Link();
+                ReverseLink = new Link();
+                Status = NeighborStatus.Dead;
+                PacketsReceived = 0;
+                LastHeardTime = 0;
+                ReceiveDutyCycle = 0;
+                FrameLength = 0;
+            }
 		}
 
 
