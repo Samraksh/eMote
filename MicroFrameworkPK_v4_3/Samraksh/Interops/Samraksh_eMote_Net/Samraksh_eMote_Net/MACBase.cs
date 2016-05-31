@@ -59,11 +59,6 @@ namespace Samraksh.eMote.Net
 
 		internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime)
 		{
-			// This check should be unnecessary
-			if (payloadTypeTemp != PayloadType)
-			{
-				return;
-			}
 			if (OnReceive != null)
 			{
 				OnReceive(this, dateTime);
@@ -630,12 +625,14 @@ namespace Samraksh.eMote.Net
 					// OnReceiveAll is raised for every payload type
 					if (OnReceiveAll != null)
 					{
+						//Debug.Print("OnReceiveAll");
 						OnReceiveAll(this, time);
 					}
 
 					// OnReceive is raised for MFM_Data payload type
 					if (payloadType == (uint)PayloadType.MFM_Data)
 					{
+						//Debug.Print("Payload type MFM_Data");
 						if (OnReceive != null)
 						{
 							OnReceive(this, time);
@@ -645,9 +642,11 @@ namespace Samraksh.eMote.Net
 					// Otherwise raise the OnReceive for a registered MACPipe, if any
 					else
 					{
+						//Debug.Print("Payload type " + payloadType);
 						var keyCollection = _macPipeHashtable.Keys;
 						foreach (PayloadType payloadTypeKey in keyCollection)
 						{
+							if (payloadType != (uint)payloadTypeKey) { continue; }
 							var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
 							macPipe.MACPipeCallback(payloadTypeKey, time);
 						}
