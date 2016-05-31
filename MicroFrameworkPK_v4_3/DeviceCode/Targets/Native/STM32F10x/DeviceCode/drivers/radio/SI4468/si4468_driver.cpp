@@ -36,6 +36,11 @@ static SI446X_pin_setup_t SI446X_pin_setup;
 static volatile uint32_t spi_lock;
 static volatile uint32_t radio_lock;
 
+static inline BOOL isInterrupt()
+{
+    return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0);
+}
+
 // CMSIS includes these functions in some form
 // But they didn't quite work for me and I didn't want to mod library so... --NPS
 static uint32_t ___LOAD(volatile uint32_t *addr) __attribute__ ((naked));
@@ -54,13 +59,13 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
 }
 
 // Returns 0 if failed to aquire lock.
-static int get_lock_inner(volatile uint32_t *Lock_Variable) {
+static int get_lock_inner(volatile uint32_t *Lock_Variable, radio_lock_id_t id) {
 	int status;
 	if (___LOAD(Lock_Variable) != 0) {
 		__ASM("clrex");
 		return 0;
 	}
-	status = ___STORE(radio_lock_all, Lock_Variable);
+	status = ___STORE((uint32_t)id, Lock_Variable);
 	__DMB();
 
 	return (status == 0);
@@ -69,13 +74,13 @@ static int get_lock_inner(volatile uint32_t *Lock_Variable) {
 // Should try more than once, can legit fail even if lock is free.
 // Example, will never succeed if any interrupt hits in between.
 // ldrex-strex only guarantees that lock is free when it says so, but NOT the inverse.
-static int get_lock(volatile uint32_t *Lock_Variable) {
+static uint32_t get_lock(volatile uint32_t *Lock_Variable, radio_lock_id_t id) {
 	int attempts=si446x_lock_max_attempts;
 	do {
-		if ( get_lock_inner(Lock_Variable) )
-			return 1;
+		if ( get_lock_inner(Lock_Variable, id) )
+			return 0;
 	} while (--attempts);
-	return 0;
+	return 1;
 }
 
 static void free_lock(volatile uint32_t *Lock_Variable) {
@@ -84,8 +89,14 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 	return;
 }
 
-static int si446x_spi_lock() {
-	return get_lock(&spi_lock);
+// Returns current owner if fail, 0 if success
+static radio_lock_id_t si446x_spi_lock(radio_lock_id_t id) {
+	if (isInterrupt() && id != radio_lock_interrupt) {
+		SOFT_BREAKPOINT();
+	}
+	uint32_t ret = get_lock(&spi_lock, id);
+	if (ret == 1) 	return radio_lock_none;					// Success, '0'
+	else			return (radio_lock_id_t) spi_lock;		// Locked, return current owner
 }
 
 static int si446x_spi_unlock() {
@@ -93,7 +104,7 @@ static int si446x_spi_unlock() {
 }
 
 static int si446x_radio_lock(void) {
-	return get_lock(&radio_lock);
+	return get_lock(&radio_lock, radio_lock_all); // lock names NYI
 }
 
 static int si446x_radio_unlock(void) {
@@ -158,17 +169,17 @@ static void tx_cont_do(void *arg) {
 static void rx_cont_do(void *arg) {
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
+	radio_lock_id_t owner;
 
 	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
 
 	// TODO: NEED TO LOCK SPI BUS HERE, BUT CAREFULLY. (a day later I forgot why...)
 
-	if ( !si446x_spi_lock() ) {
-		si446x_debug_print(ERR99,"SI446X: rx_cont_do() Somehow radio SPI was busy when servicing RX... tell Nathan. Trying agail.\r\n");
+	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
+		si446x_debug_print(ERR99,"SI446X: rx_cont_do() Somehow radio SPI was busy when servicing RX... tell Nathan. Trying again.\r\n");
 		rx_callback_continuation.Enqueue();
 		return;
 	}
-	spi_lock = radio_lock_rx;
 
 	size = si446x_get_packet_info(0,0,0);
 	si446x_read_rx_fifo(size, rx_pkt);
@@ -437,16 +448,16 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	DeviceStatus ret = DS_Success;
 	int reset_errors;
 	uint8_t temp;
+	radio_lock_id_t owner;
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init()\r\n");
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_init) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_init() FAIL, SPI busy???\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_init;
 
 	choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
 
@@ -536,10 +547,10 @@ si446x_hal_init_CLEANUP:
 // TODO: Fix above.
 DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 	DeviceStatus ret = DS_Success;
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_uninitialize()\r\n");
 	
-	if ( !si446x_spi_lock() ) 	{ return DS_Fail; }
-	spi_lock = radio_lock_uninit;
+	if ( owner = si446x_spi_lock(radio_lock_uninit) ) 	{ return DS_Fail; }
 	if ( !isInit )				{ si446x_spi_unlock(); return DS_Fail; }
 	
 	isInit = 0;
@@ -566,11 +577,11 @@ DeviceStatus si446x_hal_uninitialize(UINT8 radio) {
 // A full-stop reset of the chip. In the PAL API but you probably shouldn't be.
 // Prefer to use UnInit() and Init() instead. --NPS
 DeviceStatus si446x_hal_reset(UINT8 radio) {
+	radio_lock_id_t owner;
 
 	si446x_debug_print(ERR99, "SI446X: si446x_hal_reset(). PROBABLY A BAD IDEA. USE UNINIT() AND INIT() INSTEAD.\r\n");
 
-	if ( !si446x_spi_lock() ) 	{ return DS_Fail; }
-	spi_lock = radio_lock_reset;
+	if ( owner = si446x_spi_lock(radio_lock_reset) ) 	{ return DS_Fail; }
 
 	si446x_reset();
 	si446x_get_int_status(0x0, 0x0, 0x0); // Clear all interrupts.
@@ -594,6 +605,7 @@ BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 // eventTime is ignored unless doTS (USE_TIMESTAMP) is set.
 DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS) {
 	uint8_t tx_buf[si446x_packet_size+1]; // Add one for packet size field
+	radio_lock_id_t owner;
 
 	DeviceStatus ret = DS_Success;
 
@@ -647,11 +659,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		return DS_Fail;
 	}
 
-	if ( !si446x_spi_lock() ) 	{
+	if ( owner = si446x_spi_lock(radio_lock_tx) ) 	{
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked, op in progress.\r\n");
 		return DS_Busy;
 	}
-	spi_lock = radio_lock_tx;
 
 	// Lock radio until TX is done.
 	if ( !si446x_radio_lock() ) 	{
@@ -743,6 +754,7 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
 	if (!isInit) {
@@ -788,11 +800,10 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	}
 
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_rx;
 
 	// Supposedly this property is squirrely and likes to mutate
 	// This should be temp1==0 temp2==1 for 1-byte length field
@@ -812,13 +823,13 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 // This will cancel any radio ops, i.e unlocks the radio.
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_sleep;
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() FAIL. No Init.\r\n");
@@ -836,15 +847,15 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 
 
 DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_tx_power()\r\n");
 
 	if (pwr < 0) return DS_Fail; // Not worth of a printf
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_tx_power) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_tx_power() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_tx_power;
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_tx_power() FAIL. No Init.\r\n");
@@ -870,14 +881,14 @@ DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
 }
 
 DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_set_channel()\r\n");
 	if (channel < 0 ) return DS_Fail;
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_set_channel) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_set_channel;
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. No Init.\r\n");
@@ -920,6 +931,7 @@ INT8 si446x_hal_get_RadioType()
 }
 
 DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
+	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
 	DeviceStatus ret;
@@ -929,11 +941,10 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_cca_ms) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked.\r\n");
 		return DS_Fail;
 	}
-	spi_lock = radio_lock_cca_ms;
 
 	if ( !si446x_radio_lock() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Radio Busy.\r\n");
@@ -1051,8 +1062,8 @@ static void si446x_pkt_rx_int() {
 
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_bad_crc_int() {
-	if ( si446x_spi_lock() ) {
-		spi_lock = radio_lock_crc;
+	radio_lock_id_t owner;
+	if ( (owner = si446x_spi_lock(radio_lock_crc)) == 0) { // Only branch if we DO get the lock
 		si446x_fifo_info(0x3); // clear the FIFOs if we can
 		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() FIFOs cleared\r\n");
 		si446x_spi_unlock();
@@ -1064,6 +1075,7 @@ static void si446x_pkt_bad_crc_int() {
 static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
 	unsigned modem_pend, ph_pend;
+	radio_lock_id_t owner;
 	UINT64 int_ts;
 
 	GLOBAL_LOCK(irq); // Locked due to time critical.
@@ -1074,7 +1086,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	si446x_debug_print(DEBUG01, "SI446X: INT\r\n");
 
-	if ( !si446x_spi_lock() ) {
+	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
@@ -1082,7 +1094,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		int_defer_continuation.Enqueue();
 		return;
 	}
-	spi_lock = radio_lock_interrupt;
 
 	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
 	ph_pend			= si446x_get_ph_pend();
