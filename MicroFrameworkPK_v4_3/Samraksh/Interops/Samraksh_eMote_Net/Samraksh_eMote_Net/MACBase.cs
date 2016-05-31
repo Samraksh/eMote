@@ -33,6 +33,9 @@ namespace Samraksh.eMote.Net
 		/// </summary>
 		public readonly PayloadType PayloadType;
 
+        /// <summary>Raised when any packet is received</summary>
+        public event MACBase.IMACEventHandler OnReceiveAll;
+
 		/// <summary>Raised when a packet has been received</summary>
 		public event MACBase.IMACEventHandler OnReceive;
 
@@ -57,15 +60,26 @@ namespace Samraksh.eMote.Net
 			MACBase.RegisterOnReceiveGlobal(this);
 		}
 
-		internal void MACPipeCallback(DateTime dateTime)
+		internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime)
 		{
-			if (OnReceive == null)
-			{
-				return;
-				// Better to do nothing than to throw an exception. A user might want to just send and never receive -- Bill
-				//throw new Exception("Callback not registered");
-			}
-			OnReceive(this, dateTime);
+            if (OnReceiveAll != null)
+            {
+                OnReceiveAll(this, dateTime);
+            }
+
+            if (payloadTypeTemp == this.PayloadType)
+            {
+                if (OnReceive != null)
+                {
+                    OnReceive(this, dateTime);    
+                }
+                else
+                {
+                    return;
+                    // Better to do nothing than to throw an exception. A user might want to just send and never receive -- Bill
+                    //throw new Exception("Callback not registered");
+                }
+            }
 		}
 
 		///// <summary>
@@ -322,6 +336,9 @@ namespace Samraksh.eMote.Net
 		/// </param>
 		/// <param name="time"></param>
 		public delegate void IMACEventHandler(IMAC macInstance, DateTime time);
+
+        /// <summary>Raised when any packet is received (promiscuous mode)</summary>
+        public event IMACEventHandler OnReceiveAll;
 
 		/// <summary>Raised when a packet has been received</summary>
 		public event IMACEventHandler OnReceive;
@@ -619,37 +636,40 @@ namespace Samraksh.eMote.Net
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
 
-			if ((data1 == (uint)CallbackTypes.Received))
+			if ((data1 == (uint)CallbackType.Received))
 			{
 				//MACConfig.MACRadioConfig.OnReceiveCallback(this);
                 if (payloadType == (uint)PayloadType.MFM_Data)
 				{
+                    if (OnReceiveAll != null)
+                    {
+                        OnReceiveAll(this, time);
+                    }
+
                     if (OnReceive != null)
                     {
                         OnReceive(this, time);
                     }
                     else
                     {
-                        throw new MACNotConfiguredException("OnReceive callback event not registered");
+                        return;     // Better to do nothing than to throw an exception. A user might want to just send and never receive
+                        //throw new MACNotConfiguredException("OnReceive callback event not registered");
                     }
 				}
 				else
 				{
-					var keyCollection = _macPipeHashtable.Keys;
+                    var keyCollection = _macPipeHashtable.Keys;
 					foreach (PayloadType payloadTypeKey in keyCollection)
 					{
 						var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
-						if (payloadTypeKey == (PayloadType)payloadType)
-						{
-							/*if (macPipe.OnReceive == null)
-								throw new CallbackNotConfiguredException();*/
-
-							macPipe.MACPipeCallback(time);
-						}
+                        //if (payloadTypeKey == (PayloadType)payloadType)
+						//{
+                            macPipe.MACPipeCallback(payloadTypeKey, time);
+						//}
 					}
 				}
 			}
-			else if ((data1 == (uint)CallbackTypes.NeighborChanged))
+			else if ((data1 == (uint)CallbackType.NeighborChanged))
 			{
                 if (OnNeighborChange != null)
                 {
@@ -657,7 +677,8 @@ namespace Samraksh.eMote.Net
                 }
                 else
                 {
-                    throw new MACNotConfiguredException("OnNeighborChange callback event not registered");
+                    return;     // Better to do nothing than to throw an exception. A user might want to just send and never receive
+                    //throw new MACNotConfiguredException("OnNeighborChange callback event not registered");
                 }
 			}
 		}

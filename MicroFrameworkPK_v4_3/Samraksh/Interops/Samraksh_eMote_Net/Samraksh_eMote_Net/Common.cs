@@ -77,7 +77,7 @@ namespace Samraksh.eMote.Net
     /// <summary>
     /// Kinds of callbacks
     /// </summary>
-    public enum CallbackTypes
+    public enum CallbackType
     {
         /// <summary>Packet received</summary>
         Received,
