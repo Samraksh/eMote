@@ -170,7 +170,7 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
 	if(!(header->flags & TIMESTAMPED_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
-	//	rv = rv || PiggybackDiscoMessage(msg, size);
+		rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
 }
