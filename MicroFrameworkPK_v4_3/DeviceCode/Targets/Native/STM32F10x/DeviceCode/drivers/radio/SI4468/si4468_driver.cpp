@@ -13,6 +13,9 @@
 // Alternatively, can attempt to service ourself.
 #define SI4468_FORCE_MAC_SERVICE
 
+// if, FOR TESTING ONLY, you want to run the continuations inside the interrupts...
+//#define SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
+
 enum { SI_DUMMY=0, };
 
 // For now, memorize all WWF serial numbers
@@ -1093,4 +1096,29 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
+
+// NOT FOR PRODUCTION CODE
+#ifdef SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
+	if (tx_callback_continuation.IsLinked()) {
+		GLOBAL_LOCK(irq);
+		if (tx_callback_continuation.IsLinked()) {
+			tx_callback_continuation.Abort();
+			irq.Release();
+			tx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+
+	if (rx_callback_continuation.IsLinked()) {
+		GLOBAL_LOCK(irq);
+		if (rx_callback_continuation.IsLinked()) {
+			rx_callback_continuation.Abort();
+			irq.Release();
+			rx_cont_do(NULL);
+		} else {
+			irq.Release();
+		}
+	}
+#endif
 }
