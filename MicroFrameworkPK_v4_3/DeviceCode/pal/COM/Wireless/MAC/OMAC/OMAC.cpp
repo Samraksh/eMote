@@ -141,7 +141,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		}
 		this->macName = macName;
 		this->radioName = radioID;
-		this->isSendDone = false;
+		this->isSendDone = true;
 		SetConfig(config);
 
 		//Initialize upper layer call backs
