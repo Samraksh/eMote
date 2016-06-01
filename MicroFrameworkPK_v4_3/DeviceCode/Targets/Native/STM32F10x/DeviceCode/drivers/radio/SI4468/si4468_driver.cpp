@@ -78,9 +78,9 @@ static uint32_t get_lock(volatile uint32_t *Lock_Variable, radio_lock_id_t id) {
 	int attempts=si446x_lock_max_attempts;
 	do {
 		if ( get_lock_inner(Lock_Variable, id) )
-			return 0;
+			return 1;
 	} while (--attempts);
-	return 1;
+	return 0;
 }
 
 static void free_lock(volatile uint32_t *Lock_Variable) {
