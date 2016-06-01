@@ -306,6 +306,9 @@ J12_PIN10 = GND
 #define RF231_TRX_RX_END (GPIO_PIN)120
 #define RF231_TRX_TX_END (GPIO_PIN)120 //(<--4)
 
+// SCHEDULER TESTING
+#define OMAC_TESTING_SCHEDULER_PIN (GPIO_PIN)24
+
 
 //Acknowledgements from radio
 #define SEND_ACK_PIN			(GPIO_PIN)120 //29//120
