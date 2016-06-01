@@ -122,7 +122,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
 		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
 		msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
-		if((g_OMAC.isSendDone)||(g_OMAC.radioName != SI4468_SPI2)){
+		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 			//Reset flag just before sending
 			g_OMAC.isSendDone = false;
 			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
@@ -132,7 +132,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 	}
 	else {
-		if((g_OMAC.isSendDone)||(g_OMAC.radioName != SI4468_SPI2)){
+		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 			//Reset flag just before sending
 			g_OMAC.isSendDone = false;
 			returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
