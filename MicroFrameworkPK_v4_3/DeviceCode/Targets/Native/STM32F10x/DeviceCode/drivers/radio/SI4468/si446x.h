@@ -25,7 +25,7 @@ enum radio_lock_id_t {
 	radio_lock_sleep		=10,
 	radio_lock_crc			=11,
 	radio_lock_interrupt	=12,
-	radio_lock_all			=0xEA,
+	radio_lock_all			=0xFF,
 };
 
 enum {
