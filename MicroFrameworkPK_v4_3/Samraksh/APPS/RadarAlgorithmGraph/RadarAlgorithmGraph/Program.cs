@@ -292,7 +292,7 @@ namespace testchart2
             }*/
             #endregion
             #region variables
-            static int MAX_IQ_REJECTION = 250;
+            static int MAX_IQ_REJECTION = 150;
             static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
             static double wPhaseApprox = 0, uwPhaseApprox = 0, wPhase_prevApprox = 0, uwPhase_prevApprox = 0;
             //static int wPhaseMaxApprox = 0, uwPhaseMaxApprox = 0, wPhase_prevMaxApprox = 0, uwPhase_prevMaxApprox = 0;
@@ -302,16 +302,17 @@ namespace testchart2
             static int unwrapZero = 0;
             //static double runningApproxUnwrap = 0;
             static int plotPt = 0;
-            static int unwrapMedian;
             //unsafe static HeapTrack* unwrapMedianZero;
             //unsafe static HeapTrack* unwrapMedianMax;
             
-            static int INITIAL_ADJUST_SAMPLE_CNT = 30;
-            static int IQ_ADJUSTMENT_PERIOD = 60;
+            static int INITIAL_ADJUST_SAMPLE_CNT = 10;
+            static int IQ_ADJUSTMENT_PERIOD = 80;
             static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
-            static int IQRejectionToUse = 50;
-            static int initialAdjustmentCnt = 100;
+            static int IQRejectionToUse = 100;
+            static int initialAdjustmentCnt = 270;
             static int noiseRejectionPassedParameter = 1;
+
+            static int RAW_UNWRAP_RESULT_DATA = 1;
 
             enum PI
             {
@@ -324,10 +325,14 @@ namespace testchart2
 
             static int approxUnwrappedPhase = 0;
             static int crossUnwrappedPhase = 0;
+            static int crossUnwrappedPhaseMax = 0;
+            static int crossUnwrappedPhaseZero = 0;
 
             static int prevQ = 0, prevI = 0;
+            static int prevQMax = 0, prevIMax = 0;
+            static int prevQZero = 0, prevIZero = 0;
 
-            static int size = 250;
+            static int size = 125;
             static UInt16 medianI = 2040;
             static UInt16 medianQ = 2040;
             //static UInt16 qsmedianI = 2040;
@@ -569,6 +574,8 @@ namespace testchart2
                 Int16[] iBufferI = new Int16[length];
                 Int16[] iBufferQ = new Int16[length];
                 crossUnwrappedPhase = 0;
+                crossUnwrappedPhaseMax = 0;
+                crossUnwrappedPhaseZero = 0;
 
                 for (i = 0; i < length; i++)
                 {
@@ -577,7 +584,7 @@ namespace testchart2
                     unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], noiseRejection) >> 12);	// divide by 4096
                     // scaling and using abs on cross product result
                     //crossUnwrappedPhase += (int)(Math.Abs((double)unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection)*2*Math.PI));                    
-                    crossUnwrappedPhase += (unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection));                    
+                    unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);                    
                     unwrappedPhaseApprox = (int)(approxUnwrapPhase(iBufferI[i], iBufferQ[i], noiseRejection));
 
                     bufferUnwrap[i] = (UInt16)unwrappedPhase;
@@ -615,30 +622,75 @@ namespace testchart2
                 // ADJUSTME
                 //crossUnwrappedPhase = (int)(Math.Abs(crossUnwrappedPhase)*2*Math.PI);
                 crossUnwrappedPhase = (Math.Abs(crossUnwrappedPhase));
+                crossUnwrappedPhaseZero = (Math.Abs(crossUnwrappedPhaseZero));
+                crossUnwrappedPhaseMax = (Math.Abs(crossUnwrappedPhaseMax));
                 //return (int)((maxPhase - minPhase) / (2 * Math.PI));
                 return (int)((maxPhase - minPhase));
             }
             #endregion
             #region Cross product
-            static int unwrapCrossProduct(Int16 valueI, Int16 valueQ, Int32 noiseRejection)
+            static void unwrapCrossProduct(Int16 valueI, Int16 valueQ, Int32 noiseRejection)
             {
-                int crossProductReturnValue = 0;
+                int crossProductResultValue = 0;
+                int cprod = 0;
                 // Ignore small changes
                 if (Math.Abs(valueI) > noiseRejection || Math.Abs(valueQ) > noiseRejection)
                 {
-                    int cprod = (prevQ * valueI) - (prevI * valueQ);
+                    cprod = (prevQ * valueI) - (prevI * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
                     if ((cprod < 0) && (prevI < 0) && (valueI > 0))
-                        crossProductReturnValue = 1;
+                        crossProductResultValue = 1;
                     else if ((cprod > 0) && (prevI > 0) && (valueI < 0))
-                        crossProductReturnValue = -1;
+                        crossProductResultValue = -1;
                     else
-                        crossProductReturnValue = 0;
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhase += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
                     prevQ = valueQ;
                     prevI = valueI;
                 }
 
+                // Ignore small changes                                
+                    cprod = (prevQZero * valueI) - (prevIZero * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
+                    if ((cprod < 0) && (prevIZero < 0) && (valueI > 0))
+                        crossProductResultValue = 1;
+                    else if ((cprod > 0) && (prevIZero > 0) && (valueI < 0))
+                        crossProductResultValue = -1;
+                    else
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhaseZero += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
+                    prevQZero = valueQ;
+                    prevIZero = valueI;
                 
-                return crossProductReturnValue;
+
+                // Ignore small changes
+                    if (Math.Abs(valueI) > MAX_IQ_REJECTION || Math.Abs(valueQ) > MAX_IQ_REJECTION)
+                {
+                    cprod = (prevQMax * valueI) - (prevIMax * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
+                    if ((cprod < 0) && (prevIMax < 0) && (valueI > 0))
+                        crossProductResultValue = 1;
+                    else if ((cprod > 0) && (prevIMax > 0) && (valueI < 0))
+                        crossProductResultValue = -1;
+                    else
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhaseMax += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
+                    prevQMax = valueQ;
+                    prevIMax = valueI;
+                }
+
             }
             #endregion
             #region arctan lookup table
@@ -780,14 +832,15 @@ namespace testchart2
                     // we'll only make adjustments every INITIAL_ADJUST_SAMPLE_CNT samples
                     if ((initialAdjustmentCnt % INITIAL_ADJUST_SAMPLE_CNT) == 0)
                     {
-                        if (currentDisplacementNoise < (noiseRejectionPassedParameter - 1))
+                        if (currentDisplacementNoise < (noiseRejectionPassedParameter ))
                             IQRejectionToUse = IQRejectionToUse - 10;
-                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter + 1))
+                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter ))
                             IQRejectionToUse = IQRejectionToUse + 10;
                         else
                             // we are close enough to where we want to be so the initial large adjustment period is over
                             initialAdjustmentCnt = 0;
                         xResetHeapTrack(300);
+                        System.Diagnostics.Debug.WriteLine("--------------------------------------" + initialAdjustmentCnt.ToString());
                     }
                 }
                 else
@@ -810,7 +863,7 @@ namespace testchart2
                 else if (IQRejectionToUse > MAX_IQ_REJECTION)
                     IQRejectionToUse = MAX_IQ_REJECTION;
 
-                //IQRejectionToUse = 30;
+                IQRejectionToUse = 100;
                 // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
                 // ADJUSTME
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
@@ -863,11 +916,13 @@ namespace testchart2
                 if (debugVal == 6)
                     hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
                 */
-                //xHeapTrackInsert(unwrap);
-                xHeapTrackInsert(crossUnwrappedPhase);
 
-                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
-                //return detection;
+                //xHeapTrackInsert(unwrap);
+                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                
+                xHeapTrackInsert(crossUnwrappedPhase);
+                System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
+                
                 return unwrap;
             }
             #endregion
@@ -929,28 +984,23 @@ namespace testchart2
 
                     xHeapTrackNew(300);
                     xHeapTrackInsert( 0);
-                    initialAdjustmentCnt = 100;
 
-                    /*System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());
-                    xHeapTrackInsert( 5);
-                    System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());
-                    xHeapTrackInsert(9);
-                    System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());*/
                 
 
                 // ADJUSTME
                 // Create the new, empty data file.
-                string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
+                //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\south.bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\radar_data.a991.5715.1";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 9f3a(4693-06).bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 56ce(4693-05).bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
-                //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarDataLogging\RadarDataLogging\recorded.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room2.bbs";
+                string fileName = @"..\..\recorded.bbs";
+                //string fileName = @"..\..\office_noise.bbs";
+                //string fileName = @"..\..\dataCollect\grass near tree.bbs";
+                //string fileName = @"..\..\dataCollect\room1.bbs";
+                //string fileName = @"..\..\dataCollect\room2.bbs";
 
                 string outFileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\results.txt";
 
@@ -960,6 +1010,27 @@ namespace testchart2
                 FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                 BinaryReader r = new BinaryReader(fs);
                 int graphOnlyCnt = 0;
+                if (RAW_UNWRAP_RESULT_DATA == 1)
+                {
+
+                    #region search for beginning of raw data
+                    // Read data from Test.data.
+                    //UInt16 data;
+                    try
+                    {
+                        int dataMarker = r.ReadUInt16();
+                        while (dataMarker != 0xa5a5)
+                        {
+                            dataMarker = r.ReadUInt16();
+                        }
+                        System.Diagnostics.Debug.WriteLine("found marker: " + dataMarker.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("exception thrown looking for marker: " + ex.ToString());
+                    }
+                    #endregion
+                }
                 while (readInSamples(r, IBuffer, QBuffer, size) == true)
                 {
                     graphOnlyCnt++;
@@ -973,6 +1044,60 @@ namespace testchart2
                             rawSeries.Points.AddXY(plotPt, IBuffer[j]);
                             
                         }*/
+                        if (RAW_UNWRAP_RESULT_DATA == 1)
+                        {
+                            try
+                            {
+                                // reading out unwrap data
+                                char readChar = r.ReadChar();
+                                string intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResultZero = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResult = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResultMax = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapMedianResult = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int iqrejectionValue = int.Parse(intString);
+                                int returnChar = r.ReadChar();
+                                int dataMarker = r.ReadUInt16();
+                                System.Diagnostics.Debug.WriteLine(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine("exception thrown looking for unwrap data: " + ex.ToString());
+                            }
+                        }
                     }
                     //System.Diagnostics.Debug.WriteLine(unwrapRet.ToString());
                     outPut.WriteLine(unwrapRet.ToString());

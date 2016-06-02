@@ -24,8 +24,8 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
 {
     TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(Uninitialize___BOOLEAN);
-    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
-    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2);
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4);
+    TINYCLR_NATIVE_DECLARE(DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4);
     TINYCLR_NATIVE_DECLARE(SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2);
     TINYCLR_NATIVE_DECLARE(GetBackgroundNoiseLevel___I4__SamraksheMoteRADARNOISEREQUEST);
     TINYCLR_NATIVE_DECLARE(ResetBackgroundNoiseTracking___BOOLEAN);

@@ -65,13 +65,13 @@
             </summary>
             <returns>The result of radar detection initialization: Success, Fail</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.UInt16[],System.Int32,System.Int16[])">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.UInt16[],System.Int32)">
             <summary>
             Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
             </summary>
             <returns>Returns true if a detection was found, false if no detection was found.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.Int32,System.Int16[])">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.DetectionCalculation(System.UInt16[],System.UInt16[],System.Int32)">
             <summary>
             Radar data is given to the unwrap algorithm which looks for displacements above the threshold.
             </summary>

@@ -46,16 +46,14 @@
     <Reference Include="Microsoft.SPOT.Hardware.SerialPort" />
     <Reference Include="Microsoft.SPOT.Native">
     </Reference>
-    <Reference Include="Samraksh_eMote, Version=4.3.0.12, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\eMote\Samraksh_eMote\Samraksh_eMote.dll</HintPath>
+    <Reference Include="Samraksh_eMote">
+      <HintPath>..\..\..\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\Samraksh_eMote.dll</HintPath>
     </Reference>
-    <Reference Include="Samraksh_eMote_DotNow, Version=4.3.0.12, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\eMote\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow.dll</HintPath>
+    <Reference Include="Samraksh_eMote_DotNow">
+      <HintPath>..\..\..\Interops\Samraksh_eMote_DotNow\Samraksh_eMote_DotNow\bin\Release\Samraksh_eMote_DotNow.dll</HintPath>
     </Reference>
     <Reference Include="Samraksh_eMote_Net">
-      <HintPath>..\eMote\Samraksh_eMote_Net\Samraksh_eMote_Net.dll</HintPath>
+      <HintPath>..\..\..\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\bin\Release\Samraksh_eMote_Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
