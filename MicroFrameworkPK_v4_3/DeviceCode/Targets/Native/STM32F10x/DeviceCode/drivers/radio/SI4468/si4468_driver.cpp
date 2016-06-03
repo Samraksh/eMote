@@ -1065,7 +1065,8 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
 	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
-	tx_callback_continuation.Enqueue();
+	tx_cont_do(NULL);
+	//tx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
@@ -1078,7 +1079,8 @@ static void si446x_pkt_rx_int() {
 	}
 	radio_lock = radio_lock_rx;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	rx_callback_continuation.Enqueue();
+	rx_cont_do(NULL);
+	//rx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT, LOCKED
