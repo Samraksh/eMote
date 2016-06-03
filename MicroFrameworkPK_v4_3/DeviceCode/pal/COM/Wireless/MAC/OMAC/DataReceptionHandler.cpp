@@ -326,7 +326,8 @@ void DataReceptionHandler::PostExecuteEvent(){
 	}*/
 
 	//Scheduler's PostExecution stops the radio
-	DeviceStatus returnVal = g_OMAC.m_omac_RadioControl.Stop();
+	DeviceStatus returnVal = DS_Success;
+	//DeviceStatus returnVal = g_OMAC.m_omac_RadioControl.Stop();
 	if(returnVal == DS_Success) {
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
