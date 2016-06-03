@@ -328,12 +328,11 @@ void OMACScheduler::PostPostExecution(){
 
 bool OMACScheduler::EnsureStopRadio(){
 	DeviceStatus  ds = DS_Success;
-	ds = g_OMAC.m_omac_RadioControl.Stop();
+	//ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		return TRUE;
 	}
 	else {//TODO: BK : This should be implemented in the case of radio not stopping
-		hal_printf("OMACScheduler::EnsureStopRadio Radio did not go to sleep\n");
 		return FALSE;
 	}
 }

@@ -592,7 +592,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 void DataTransmissionHandler::PostExecuteEvent(){
 	txhandler_state = DTS_POSTEXECUTION;
 	//Scheduler's PostExecution stops the radio
-	g_OMAC.m_omac_RadioControl.Stop();
+	//g_OMAC.m_omac_RadioControl.Stop();
 #ifdef OMAC_DEBUG_GPIO
 	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
