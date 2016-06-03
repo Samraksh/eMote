@@ -13,6 +13,14 @@
 // Alternatively, can attempt to service ourself.
 #define SI4468_FORCE_MAC_SERVICE
 
+// Automatically moves the radio to RX after a transmit instead of sleeping.
+// Comment out below line to disable and use default ('0')
+#define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
+// Default value for above, radio returns to previous state.
+#ifndef SI446x_TX_DONE_STATE
+#define SI446x_TX_DONE_STATE 0
+#endif
+
 // if, FOR TESTING ONLY, you want to run the continuations inside the interrupts...
 //#define SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
 
@@ -690,7 +698,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
 
 		si446x_write_tx_fifo(4, (uint8_t*)&eventOffset); // generate and write timestamp late as possible.
-		si446x_start_tx(chan, 0, tx_buf[0]+1);
+		si446x_start_tx(chan, SI446x_TX_DONE_STATE, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
 		si446x_start_tx(chan, 0, tx_buf[0]+1);
@@ -803,6 +811,14 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
 		return DS_Fail;
+	}
+
+	si_state_t state = si446x_request_device_state();
+
+	// We were already in RX, no need to do anything.
+	if (state == SI_STATE_RX) {
+		si446x_spi_unlock();
+		return DS_Success;
 	}
 
 	// Supposedly this property is squirrely and likes to mutate
