@@ -335,8 +335,9 @@ void DataReceptionHandler::PostExecuteEvent(){
 		g_OMAC.m_omac_scheduler.PostExecution();
 	}
 	else{
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO, TRUE, OMACClockSpecifier );
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, RECEIVER_RADIO_STOP_RECHECK_INTERVAL_MICRO, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+		g_OMAC.m_omac_scheduler.PostExecution();
 	}
 }
 
