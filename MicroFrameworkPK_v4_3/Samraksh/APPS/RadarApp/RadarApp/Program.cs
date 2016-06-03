@@ -40,8 +40,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private const int DataStoreNumBlocks = 125;
 
         // sampling 125 radar I and 125 radar Q samples every 0.5 seconds
-        private const int ADCBufferSize = 125; // Number of ushorts per ADC buffer
-        private const int SampleIntervalMicroSec = 4001;    // 4000 gives 3.999ms using logic analyzer (1 second windows of 250 raw data bytes)        
+        private const int ADCBufferSize = 128; // Number of ushorts per ADC buffer
+        private const int SampleIntervalMicroSec = 3907;    
+        // 4000 gives 3.999ms using logic analyzer
+        // 3907 should give 3.90625 ms or close to it
 
         // End of file value
         //  This must be the same value across all Data Collector programs 
