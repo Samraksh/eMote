@@ -48,10 +48,11 @@ inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTim
 // The SetCompare timer then needs to be set appropriately
 BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 {
-	CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
-	CPU_GPIO_EnableOutputPin(VTIMER_CALLBACK_LATENCY_PIN, FALSE);
-	CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
+	//CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
+	//CPU_GPIO_EnableOutputPin(VTIMER_CALLBACK_LATENCY_PIN, FALSE);
+	//CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 
+	//CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
 #ifdef DEBUG_VT
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 24, TRUE);
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 25, TRUE);
@@ -275,8 +276,23 @@ namespace VirtTimerHelperFunctions
 }
 
 
-HAL_CONTINUATION    vtCallbackContinuation;
+#define VT_CALLBACK_CONTINUATION_MAX 8
+static HAL_CONTINUATION vtCallbackContinuationArray[VT_CALLBACK_CONTINUATION_MAX];
 
+bool queueVTCallback(VirtualTimerInfo* runningTimer){
+	int i;
+	
+	for (i=0; i<VT_CALLBACK_CONTINUATION_MAX; i++){
+		if (!vtCallbackContinuationArray[i].IsLinked())
+		{
+			vtCallbackContinuationArray[i].InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
+			vtCallbackContinuationArray[i].Enqueue();
+			return true;
+		}
+	}
+
+	return false;
+}
 
 // Algorithm for the callback:
 // All system timers (except C# user timers) will run through the Virtual timer. Each timer keeps track of the time at which it will fire
@@ -305,7 +321,6 @@ void VirtualTimerCallback(void *arg)
 			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER || runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK){
 		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, TRUE );
 	}*/
-
 	// calling the timer callback that just fired
 	if (runningTimer->get_m_is_running()){
 		/*if ( (runningTimer->get_m_timer_id() == VIRT_TIMER_EVENTS)
@@ -316,14 +331,11 @@ void VirtualTimerCallback(void *arg)
 		  || (runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_RECEIVER_ACK)
 		  ){(*/
 		if ( runningTimer->get_m_timer_id() <= VIRT_TIMER_INTERRUPT_CONTEXT_MARKER){
+	//CPU_GPIO_SetPinState( (GPIO_PIN)24, TRUE );
 			(runningTimer->get_m_callback())(NULL);
 		} else {
-			void * userData = NULL;
-			vtCallbackContinuation.InitializeCallback((HAL_CALLBACK_FPN) (runningTimer->get_m_callback()),NULL);   
-			if(!vtCallbackContinuation.IsLinked())
-	    	{
-	        	vtCallbackContinuation.Enqueue();
-			}
+			//void * userData = NULL;
+			queueVTCallback(runningTimer);
 			/*else{
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, TRUE );
 				CPU_GPIO_SetPinState( VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE );
@@ -377,5 +389,5 @@ void VirtualTimerCallback(void *arg)
 			runningTimer->get_m_timer_id() == VIRT_TIMER_OMAC_TRANSMITTER){
 		CPU_GPIO_SetPinState( VTIMER_CALLBACK_LATENCY_PIN, FALSE );
 	}*/
-
+	//CPU_GPIO_SetPinState( (GPIO_PIN)24, FALSE );
 }

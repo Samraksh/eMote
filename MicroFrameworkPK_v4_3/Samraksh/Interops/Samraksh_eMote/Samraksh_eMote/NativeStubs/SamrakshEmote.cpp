@@ -21,8 +21,8 @@ static const CLR_RT_MethodHandler method_lookup[] =
     NULL,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Initialize___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Uninitialize___BOOLEAN,
-    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2,
-    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4__SZARRAY_I2,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__I4,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::SetDetectionParameters___BOOLEAN__SamraksheMoteRADARNOISECONTROL__R8__R8__U2__U2__U2__U2,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetBackgroundNoiseLevel___I4__SamraksheMoteRADARNOISEREQUEST,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::ResetBackgroundNoiseTracking___BOOLEAN,
@@ -133,7 +133,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0xAA8C698D,
+    0xA9C7A239,
     method_lookup
 };
 

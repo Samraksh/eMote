@@ -66,14 +66,14 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
   __ASM("bx lr");
 }
 
-// Returns 0 if failed to aquire lock.
-static int get_lock_inner(volatile uint32_t *Lock_Variable, radio_lock_id_t id) {
+// Returns true if lock aquired
+static bool get_lock_inner(volatile uint32_t *Lock_Variable, uint32_t id) {
 	int status;
 	if (___LOAD(Lock_Variable) != 0) {
-		__ASM("clrex");
-		return 0;
+		__ASM("clrex"); // TODO: AM I NEEDED?
+		return false;
 	}
-	status = ___STORE((uint32_t)id, Lock_Variable);
+	status = ___STORE(id, Lock_Variable);
 	__DMB();
 
 	return (status == 0);
@@ -82,15 +82,16 @@ static int get_lock_inner(volatile uint32_t *Lock_Variable, radio_lock_id_t id) 
 // Should try more than once, can legit fail even if lock is free.
 // Example, will never succeed if any interrupt hits in between.
 // ldrex-strex only guarantees that lock is free when it says so, but NOT the inverse.
-static uint32_t get_lock(volatile uint32_t *Lock_Variable, radio_lock_id_t id) {
+static uint32_t get_lock(volatile uint32_t *Lock_Variable, uint32_t id) {
 	int attempts=si446x_lock_max_attempts;
 	do {
 		if ( get_lock_inner(Lock_Variable, id) )
-			return 1;
+			return 0;
 	} while (--attempts);
-	return 0;
+	return *Lock_Variable; // return who we think the blocking owner is. NOT GUARANTEED TO BE RIGHT.
 }
 
+// TODO: Add ownership check --NPS
 static void free_lock(volatile uint32_t *Lock_Variable) {
 	__DMB();
 	*Lock_Variable = 0;
@@ -99,20 +100,16 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 
 // Returns current owner if fail, 0 if success
 static radio_lock_id_t si446x_spi_lock(radio_lock_id_t id) {
-	// if (isInterrupt() && id != radio_lock_interrupt) {
-		// SOFT_BREAKPOINT();
-	// }
-	uint32_t ret = get_lock(&spi_lock, id);
-	if (ret == 1) 	return radio_lock_none;					// Success, '0'
-	else			return (radio_lock_id_t) spi_lock;		// Locked, return current owner
+	return (radio_lock_id_t) get_lock(&spi_lock, (uint32_t)id);
 }
 
 static int si446x_spi_unlock() {
 	free_lock(&spi_lock);
 }
 
-static int si446x_radio_lock(void) {
-	return get_lock(&radio_lock, radio_lock_all); // lock names NYI
+// Returns current owner if fail, 0 if success
+static radio_lock_id_t si446x_radio_lock(radio_lock_id_t id) {
+	return (radio_lock_id_t) get_lock(&radio_lock, (uint32_t)id);
 }
 
 static int si446x_radio_unlock(void) {
@@ -673,13 +670,11 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	}
 
 	// Lock radio until TX is done.
-	if ( !si446x_radio_lock() ) 	{
+	if ( owner = si446x_radio_lock(radio_lock_tx) ) 	{
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op in progress.\r\n");
 		ret = DS_Busy;
 		goto si446x_packet_send_CLEANUP;
 	}
-
-	radio_lock = radio_lock_tx;
 
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
@@ -852,7 +847,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock() ) {
+	if ( owner = si446x_radio_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -884,13 +879,11 @@ DeviceStatus si446x_hal_tx_power(UINT8 radioID, int pwr) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock() ) {
+	if ( owner = si446x_radio_lock(radio_lock_tx_power) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_tx_power() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
-
-	radio_lock = radio_lock_tx_power;
 
 	si446x_set_property( 0x22 , 1, 0x01, (uint8_t) pwr );
 	tx_power = pwr;
@@ -917,13 +910,11 @@ DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock() ) {
+	if ( owner = si446x_radio_lock(radio_lock_set_channel) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
-
-	radio_lock = radio_lock_set_channel;
 
 	si446x_channel = channel;
 
@@ -967,7 +958,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if ( !si446x_radio_lock() ) {
+	if ( owner = si446x_radio_lock(radio_lock_cca_ms) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Radio Busy.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -1071,13 +1062,13 @@ static void si446x_pkt_tx_int() {
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
-	if (!si446x_radio_lock()) {
-		SOFT_BREAKPOINT();
+	radio_lock_id_t owner;
+	if (owner = si446x_radio_lock(radio_lock_rx)) {
+		//SOFT_BREAKPOINT();
 		si446x_debug_print(ERR100,
 							"SI446X: Radio was already busy when RX came in... tell Nathan\r\n");
 		return;
 	}
-	radio_lock = radio_lock_rx;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	rx_cont_do(NULL);
 	//rx_callback_continuation.Enqueue();

@@ -38,10 +38,11 @@ static int lastUnwrapZero = 0;
 #define IQ_ADJUSTMENT_PERIOD 80
 static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
 static int noiseTest = 0;
-static INT32 IQRejectionToUse = 50;
+static INT32 IQRejectionToUse = 100;
 static double callbacksPerSecond = 0;
 // the initial adjustment will be made every 10 samples (so at 2 samples a second we will make fast adjustments for the first 50 seconds)
-static int initialAdjustmentCnt = 100;
+#define INITIAL_ADJUSTMENT_SAMPLE_CNT 270
+static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -120,7 +121,7 @@ enum RADAR_NOISE_REQUEST
 static Counter mOfnCounter;
 static MoutOfNDetector mOfnDetector;
 
-INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length, INT16* arcTan)
+INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 length)
 {
 	INT8 detection = 0;	
 	int unwrap;
@@ -148,9 +149,9 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			initialAdjustmentCnt--;
 			// we'll only make adjustments every 10 samples
 			if ((initialAdjustmentCnt%10) == 0){
-				if (currentDisplacementNoise < (noiseRejectionPassedParameter-1))
+				if (currentDisplacementNoise < (noiseRejectionPassedParameter))
 					IQRejectionToUse = IQRejectionToUse - 10;
-				else if (currentDisplacementNoise > (noiseRejectionPassedParameter+1))
+				else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
 					IQRejectionToUse = IQRejectionToUse + 10;
 				else
 					// we are close enough to where we want to be so the initial large adjustment period is over
@@ -164,9 +165,9 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			adjustmentIQPeriod--;
 			// only adjusted every IQ_ADJUSTMENT_PERIOD calls
 			if (adjustmentIQPeriod <= 0){
-				if (currentDisplacementNoise < (noiseRejectionPassedParameter-1))
+				if (currentDisplacementNoise < (noiseRejectionPassedParameter))
 					IQRejectionToUse--;
-				else if (currentDisplacementNoise > (noiseRejectionPassedParameter+1))
+				else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
 					IQRejectionToUse++;
 				adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
 			}
@@ -182,7 +183,7 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	}
 
 	// copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
-	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, arcTan, IQRejectionToUse, debugVal, IDNumber, codeVersion);
+	unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, debugVal, IDNumber, codeVersion);
 
 	lastUnwrap = unwrap;
 	lastUnwrapZero = getUnwrapZero();
@@ -195,11 +196,9 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			threshold = threshold / callbacksPerSecond;
 		}
 	}
-	// threshold passed is given in rotations, converting to radians here
-	double thresholdRadians = threshold * 2 * 3.14159;
 
 	mOfnCounter.count += 1;
-	if (unwrap > thresholdRadians)
+	if (unwrap > threshold)
     {
 		mOfnDetector.Update(mOfnCounter.count, 1);
     }
@@ -219,8 +218,8 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 		detection = 0;
 	}
 	
-	if (debugVal == 6)
-		hal_printf("%d %d %d %d %d %d %d\r\n",getUnwrapMax(),unwrap,getUnwrapZero(),HeapTrackMedian(unwrapMedianMax),HeapTrackMedian(unwrapMedian),HeapTrackMedian(unwrapMedianZero),IQRejectionToUse);
+	if ((debugVal == 6)||(debugVal==7))
+		hal_printf("%d %d %d %d %d\r\n",lastUnwrapZero,unwrap,lastUnwrapMax,HeapTrackMedian(unwrapMedian),IQRejectionToUse);
 
 	return detection;
 }
@@ -239,7 +238,7 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
 		HeapTrackInsert(unwrapMedianZero,0);
 		HeapTrackInsert(unwrapMedianMax,0);
 		HeapTrackInsert(radarQ,0);
-		initialAdjustmentCnt = 100;
+		initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	}
 
 	retVal = 1;
@@ -253,21 +252,21 @@ INT8 Algorithm_RadarDetection::Uninitialize( CLR_RT_HeapBlock* pMngObj, HRESULT 
     return retVal;
 }
 
-INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, CLR_RT_TypedArray_INT16 param4, HRESULT &hr )
+INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, CLR_RT_TypedArray_UINT16 param2, INT32 param3, HRESULT &hr )
 {
     INT8 detection = 0;
 	
-	detection = processPhase(param0.GetBuffer(), param1.GetBuffer(), param2.GetBuffer(), param3, param4.GetBuffer());
+	detection = processPhase(param0.GetBuffer(), param1.GetBuffer(), param2.GetBuffer(), param3);
 
     return detection;
 }
 
-INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, CLR_RT_TypedArray_INT16 param3, HRESULT &hr )
+INT8 Algorithm_RadarDetection::DetectionCalculation( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT16 param0, CLR_RT_TypedArray_UINT16 param1, INT32 param2, HRESULT &hr )
 {
     INT8 detection = 0;
 	UINT16 tempUnwrap[param2];
 
-	detection = processPhase(param0.GetBuffer(), param1.GetBuffer(), tempUnwrap, param2, param3.GetBuffer());
+	detection = processPhase(param0.GetBuffer(), param1.GetBuffer(), tempUnwrap, param2);
 
     return detection;
 }
@@ -283,12 +282,10 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 		M = param3;
 		N = param4;
 		mOfnDetector.Uninit();
-		hal_printf("Uninit M, N\r\n");
 	}
 	if (M == 0){
 		M = 1;
 	}
-	hal_printf("setting m %d of n %d\r\n",M,N);
 	mOfnDetector.Init(M,N);
 	mOfnCounter.count = 0;
 

@@ -135,164 +135,9 @@ namespace testchart2
                      3188, 3189, 3189, 3190, 3190, 3191, 3191, 3192, 3192, 3193, 3193, 3194, 3194, 3195, 3195, 3196, 3196, 3197, 3197, 3198, 3198, 3199, 3199, 3200, 3200, 3201, 3201, 3202, 3202, 3203, 3203, 3204, 3204, 3205, 3205, 3206, 3206, 3207, 3207, 3208,
                      3208, 3209, 3209, 3210, 3210, 3211, 3211, 3212, 3212, 3213, 3213, 3214, 3214, 3215, 3215, 3216, 3216
                     };
-            #endregion
-            #region mean tracker
-/*
-            public unsafe struct HeapTrack
-            {
-               public int* data;  //circular queue of values
-               public int* pos;   //index into `heap` for each value
-               public int* heap;  //max/median/min heap holding indexes into `data`.
-               public int N;     //allocated size.
-               public int idx;   //position in circular queue
-               public int minCt; //count of items in min heap
-               public int maxCt; //count of items in max heap
-            };
-            //returns 1 if heap[i] < heap[j]
-            unsafe bool mmless(HeapTrack* m, int i, int j)
-            {
-                if (m->data[m->heap[i]] < m->data[m->heap[j]])
-                    return true;
-                else
-                    return false;
-            }
-
-            //swaps items i&j in heap, maintains indexes
-            unsafe bool mmexchange(HeapTrack* m, int i, int j)
-            {
-                int t = m->heap[i];
-
-                m->heap[i] = m->heap[j];
-                m->heap[j] = t;
-                m->pos[m->heap[i]] = i;
-                m->pos[m->heap[j]] = j;
-                return true;
-            }
-
-            //swaps items i&j if i<j;  returns true if swapped
-            unsafe bool mmCmpExch(HeapTrack* m, int i, int j)
-            {
-                if (mmless(m, i, j) && mmexchange(m, i, j))
-                    return true;
-                else
-                    return false;
-            }
-
-            //maintains minheap property for all items below i.
-            unsafe void minSortDown(HeapTrack* m, int i)
-            {
-                for (i *= 2; i <= m->minCt; i *= 2)
-                {
-                    if (i < m->minCt && mmless(m, i + 1, i)) { ++i; }
-                    if (!mmCmpExch(m, i, i / 2)) { break; }
-                }
-            }
-
-            //maintains maxheap property for all items below i. (negative indexes)
-            unsafe void maxSortDown(HeapTrack* m, int i)
-            {
-                for (i *= 2; i >= -m->maxCt; i *= 2)
-                {
-                    if (i > -m->maxCt && mmless(m, i, i - 1)) { --i; }
-                    if (!mmCmpExch(m, i / 2, i)) { break; }
-                }
-            }
-
-            //maintains minheap property for all items above i, including median
-            //returns true if median changed
-            unsafe bool minSortUp(HeapTrack* m, int i)
-            {
-                while (i > 0 && mmCmpExch(m, i, i / 2)) i /= 2;
-                if (i == 0)
-                    return true;
-                else
-                    return false;
-            }
-
-            //maintains maxheap property for all items above i, including median
-            //returns true if median changed
-            unsafe bool maxSortUp(HeapTrack* m, int i)
-            {
-                while (i < 0 && mmCmpExch(m, i / 2, i)) i /= 2;
-                if (i == 0)
-                    return true;
-                else
-                    return false;
-            }
-
-            unsafe void ResetHeapTrack(HeapTrack* m, int nints)
-            {
-                m->data = (int*)(m + 1);
-                m->pos = (int*)(m->data + nints);
-                m->heap = m->pos + nints + (nints / 2); //points to middle of storage.
-                m->N = nints;
-                m->minCt = m->maxCt = m->idx = 0;
-                while (nints--)  //set up initial heap fill pattern: median,max,min,max,...
-                {
-                    m->pos[nints] = ((nints + 1) / 2) * ((nints & 1) ? -1 : 1);
-                    m->heap[m->pos[nints]] = nints;
-                }
-            }
-
-
-            //creates new HeapTrack: to calculate `nints` running median. 
-            //mallocs single block of memory, caller must free.
-            unsafe HeapTrack* HeapTrackNew(int nints)
-            {
-                //int size = sizeof(HeapTrack) + nints * (sizeof(int) + sizeof(int) * 2);
-                HeapTrack newTrack = new HeapTrack();
-                HeapTrack* m = &newTrack;
-                int[] dataBlock = new int[nints];
-                m->data = &dataBlock;
-                m->data = (int*)(m + 1);
-                m->pos = (int*)(m->data + nints);
-                m->heap = m->pos + nints + (nints / 2); //points to middle of storage.
-                m->N = nints;
-                m->minCt = m->maxCt = m->idx = 0;
-                while (nints--)  //set up initial heap fill pattern: median,max,min,max,...
-                {
-                    m->pos[nints] = ((nints + 1) / 2) * ((nints & 1) ? -1 : 1);
-                    m->heap[m->pos[nints]] = nints;
-                }
-                return m;
-            }
-
-            //Inserts item, maintains median in O(lg nints)
-            unsafe void HeapTrackInsert(HeapTrack* m, int v)
-            {
-                int p = m->pos[m->idx];
-                int old = m->data[m->idx];
-                m->data[m->idx] = v;
-                m->idx = (m->idx + 1) % m->N;
-                if (p > 0)         //new item is in minHeap
-                {
-                    if (m->minCt < (m->N - 1) / 2) { m->minCt++; }
-                    else if (v > old) { minSortDown(m, p); return; }
-                    if (minSortUp(m, p) && mmCmpExch(m, 0, -1)) { maxSortDown(m, -1); }
-                }
-                else if (p < 0)   //new item is in maxheap
-                {
-                    if (m->maxCt < m->N / 2) { m->maxCt++; }
-                    else if (v < old) { maxSortDown(m, p); return; }
-                    if (maxSortUp(m, p) && m->minCt && mmCmpExch(m, 1, 0)) { minSortDown(m, 1); }
-                }
-                else //new item is at median
-                {
-                    if (m->maxCt && maxSortUp(m, -1)) { maxSortDown(m, -1); }
-                    if (m->minCt && minSortUp(m, 1)) { minSortDown(m, 1); }
-                }
-            }
-
-            //returns median item (or average of 2 when item count is even)
-            unsafe int HeapTrackMedian(HeapTrack* m)
-            {
-                int v = m->data[m->heap[0]];
-                if (m->minCt < m->maxCt) { v = (v + m->data[m->heap[-1]]) / 2; }
-                return v;
-            }*/
-            #endregion
+            #endregion            
             #region variables
-            static int MAX_IQ_REJECTION = 250;
+            static int MAX_IQ_REJECTION = 150;
             static int wPhase = 0, uwPhase = 0, wPhase_prev = 0, uwPhase_prev = 0;
             static double wPhaseApprox = 0, uwPhaseApprox = 0, wPhase_prevApprox = 0, uwPhase_prevApprox = 0;
             //static int wPhaseMaxApprox = 0, uwPhaseMaxApprox = 0, wPhase_prevMaxApprox = 0, uwPhase_prevMaxApprox = 0;
@@ -302,16 +147,17 @@ namespace testchart2
             static int unwrapZero = 0;
             //static double runningApproxUnwrap = 0;
             static int plotPt = 0;
-            static int unwrapMedian;
             //unsafe static HeapTrack* unwrapMedianZero;
             //unsafe static HeapTrack* unwrapMedianMax;
             
-            static int INITIAL_ADJUST_SAMPLE_CNT = 30;
-            static int IQ_ADJUSTMENT_PERIOD = 60;
+            static int INITIAL_ADJUST_SAMPLE_CNT = 10;
+            static int IQ_ADJUSTMENT_PERIOD = 80;
             static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
-            static int IQRejectionToUse = 50;
-            static int initialAdjustmentCnt = 100;
+            static int IQRejectionToUse = 100;
+            static int initialAdjustmentCnt = 270;
             static int noiseRejectionPassedParameter = 1;
+
+            static int RAW_UNWRAP_RESULT_DATA = 1;
 
             enum PI
             {
@@ -324,10 +170,14 @@ namespace testchart2
 
             static int approxUnwrappedPhase = 0;
             static int crossUnwrappedPhase = 0;
+            static int crossUnwrappedPhaseMax = 0;
+            static int crossUnwrappedPhaseZero = 0;
 
             static int prevQ = 0, prevI = 0;
+            static int prevQMax = 0, prevIMax = 0;
+            static int prevQZero = 0, prevIZero = 0;
 
-            static int size = 250;
+            static int size = 128;
             static UInt16 medianI = 2040;
             static UInt16 medianQ = 2040;
             //static UInt16 qsmedianI = 2040;
@@ -569,6 +419,8 @@ namespace testchart2
                 Int16[] iBufferI = new Int16[length];
                 Int16[] iBufferQ = new Int16[length];
                 crossUnwrappedPhase = 0;
+                crossUnwrappedPhaseMax = 0;
+                crossUnwrappedPhaseZero = 0;
 
                 for (i = 0; i < length; i++)
                 {
@@ -577,7 +429,7 @@ namespace testchart2
                     unwrappedPhase = (unwrapPhase(iBufferI[i], iBufferQ[i], noiseRejection) >> 12);	// divide by 4096
                     // scaling and using abs on cross product result
                     //crossUnwrappedPhase += (int)(Math.Abs((double)unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection)*2*Math.PI));                    
-                    crossUnwrappedPhase += (unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection));                    
+                    unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);                    
                     unwrappedPhaseApprox = (int)(approxUnwrapPhase(iBufferI[i], iBufferQ[i], noiseRejection));
 
                     bufferUnwrap[i] = (UInt16)unwrappedPhase;
@@ -615,30 +467,75 @@ namespace testchart2
                 // ADJUSTME
                 //crossUnwrappedPhase = (int)(Math.Abs(crossUnwrappedPhase)*2*Math.PI);
                 crossUnwrappedPhase = (Math.Abs(crossUnwrappedPhase));
+                crossUnwrappedPhaseZero = (Math.Abs(crossUnwrappedPhaseZero));
+                crossUnwrappedPhaseMax = (Math.Abs(crossUnwrappedPhaseMax));
                 //return (int)((maxPhase - minPhase) / (2 * Math.PI));
                 return (int)((maxPhase - minPhase));
             }
             #endregion
             #region Cross product
-            static int unwrapCrossProduct(Int16 valueI, Int16 valueQ, Int32 noiseRejection)
+            static void unwrapCrossProduct(Int16 valueI, Int16 valueQ, Int32 noiseRejection)
             {
-                int crossProductReturnValue = 0;
+                int crossProductResultValue = 0;
+                int cprod = 0;
                 // Ignore small changes
                 if (Math.Abs(valueI) > noiseRejection || Math.Abs(valueQ) > noiseRejection)
                 {
-                    int cprod = (prevQ * valueI) - (prevI * valueQ);
+                    cprod = (prevQ * valueI) - (prevI * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
                     if ((cprod < 0) && (prevI < 0) && (valueI > 0))
-                        crossProductReturnValue = 1;
+                        crossProductResultValue = 1;
                     else if ((cprod > 0) && (prevI > 0) && (valueI < 0))
-                        crossProductReturnValue = -1;
+                        crossProductResultValue = -1;
                     else
-                        crossProductReturnValue = 0;
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhase += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
                     prevQ = valueQ;
                     prevI = valueI;
                 }
 
+                // Ignore small changes                                
+                    cprod = (prevQZero * valueI) - (prevIZero * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
+                    if ((cprod < 0) && (prevIZero < 0) && (valueI > 0))
+                        crossProductResultValue = 1;
+                    else if ((cprod > 0) && (prevIZero > 0) && (valueI < 0))
+                        crossProductResultValue = -1;
+                    else
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhaseZero += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
+                    prevQZero = valueQ;
+                    prevIZero = valueI;
                 
-                return crossProductReturnValue;
+
+                // Ignore small changes
+                    if (Math.Abs(valueI) > MAX_IQ_REJECTION || Math.Abs(valueQ) > MAX_IQ_REJECTION)
+                {
+                    cprod = (prevQMax * valueI) - (prevIMax * valueQ);
+
+                    // we will track the unwrap with zero noise rejection at all times in case we need it
+                    if ((cprod < 0) && (prevIMax < 0) && (valueI > 0))
+                        crossProductResultValue = 1;
+                    else if ((cprod > 0) && (prevIMax > 0) && (valueI < 0))
+                        crossProductResultValue = -1;
+                    else
+                        crossProductResultValue = 0;
+                    // this is the unwrap result if we apply the user's noise rejection value
+                    crossUnwrappedPhaseMax += crossProductResultValue;
+
+                    // here we keep track of the current point if it is not considered noise 
+                    prevQMax = valueQ;
+                    prevIMax = valueI;
+                }
+
             }
             #endregion
             #region arctan lookup table
@@ -780,14 +677,15 @@ namespace testchart2
                     // we'll only make adjustments every INITIAL_ADJUST_SAMPLE_CNT samples
                     if ((initialAdjustmentCnt % INITIAL_ADJUST_SAMPLE_CNT) == 0)
                     {
-                        if (currentDisplacementNoise < (noiseRejectionPassedParameter - 1))
+                        if (currentDisplacementNoise < (noiseRejectionPassedParameter ))
                             IQRejectionToUse = IQRejectionToUse - 10;
-                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter + 1))
+                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter ))
                             IQRejectionToUse = IQRejectionToUse + 10;
                         else
                             // we are close enough to where we want to be so the initial large adjustment period is over
                             initialAdjustmentCnt = 0;
                         xResetHeapTrack(300);
+                        System.Diagnostics.Debug.WriteLine("--------------------------------------" + initialAdjustmentCnt.ToString());
                     }
                 }
                 else
@@ -810,7 +708,7 @@ namespace testchart2
                 else if (IQRejectionToUse > MAX_IQ_REJECTION)
                     IQRejectionToUse = MAX_IQ_REJECTION;
 
-                //IQRejectionToUse = 30;
+                IQRejectionToUse = 100;
                 // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
                 // ADJUSTME
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
@@ -863,11 +761,13 @@ namespace testchart2
                 if (debugVal == 6)
                     hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
                 */
-                //xHeapTrackInsert(unwrap);
-                xHeapTrackInsert(crossUnwrappedPhase);
 
-                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
-                //return detection;
+                //xHeapTrackInsert(unwrap);
+                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                
+                xHeapTrackInsert(crossUnwrappedPhase);
+                System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
+                
                 return unwrap;
             }
             #endregion
@@ -929,28 +829,23 @@ namespace testchart2
 
                     xHeapTrackNew(300);
                     xHeapTrackInsert( 0);
-                    initialAdjustmentCnt = 100;
 
-                    /*System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());
-                    xHeapTrackInsert( 5);
-                    System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());
-                    xHeapTrackInsert(9);
-                    System.Diagnostics.Debug.WriteLine("median: " + xHeapTrackMedian().ToString());*/
                 
 
                 // ADJUSTME
                 // Create the new, empty data file.
-                string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
+                //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\generated.data";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\south.bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\radar_data.a991.5715.1";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 9f3a(4693-06).bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 56ce(4693-05).bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
-                //string fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarDataLogging\RadarDataLogging\recorded.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
-                //string fileName = @"D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\APPS\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room2.bbs";
+                string fileName = @"..\..\recorded.bbs";
+                //string fileName = @"..\..\office_noise.bbs";
+                //string fileName = @"..\..\dataCollect\grass near tree.bbs";
+                //string fileName = @"..\..\dataCollect\room1.bbs";
+                //string fileName = @"..\..\dataCollect\room2.bbs";
 
                 string outFileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\results.txt";
 
@@ -960,6 +855,27 @@ namespace testchart2
                 FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                 BinaryReader r = new BinaryReader(fs);
                 int graphOnlyCnt = 0;
+                if (RAW_UNWRAP_RESULT_DATA == 1)
+                {
+
+                    #region search for beginning of raw data
+                    // Read data from Test.data.
+                    //UInt16 data;
+                    try
+                    {
+                        int dataMarker = r.ReadUInt16();
+                        while (dataMarker != 0xa5a5)
+                        {
+                            dataMarker = r.ReadUInt16();
+                        }
+                        System.Diagnostics.Debug.WriteLine("found marker: " + dataMarker.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("exception thrown looking for marker: " + ex.ToString());
+                    }
+                    #endregion
+                }
                 while (readInSamples(r, IBuffer, QBuffer, size) == true)
                 {
                     graphOnlyCnt++;
@@ -973,6 +889,60 @@ namespace testchart2
                             rawSeries.Points.AddXY(plotPt, IBuffer[j]);
                             
                         }*/
+                        if (RAW_UNWRAP_RESULT_DATA == 1)
+                        {
+                            try
+                            {
+                                // reading out unwrap data
+                                char readChar = r.ReadChar();
+                                string intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResultZero = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResult = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapResultMax = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int unwrapMedianResult = int.Parse(intString);
+                                readChar = r.ReadChar();
+                                intString = "";
+                                while (readChar != '\r' && readChar != ' ' && readChar != '\n')
+                                {
+                                    intString = String.Concat(intString, readChar);
+                                    readChar = r.ReadChar();
+                                }
+                                int iqrejectionValue = int.Parse(intString);
+                                int returnChar = r.ReadChar();
+                                int dataMarker = r.ReadUInt16();
+                                System.Diagnostics.Debug.WriteLine(unwrapResultZero.ToString() + " " + unwrapResult.ToString() + " " + unwrapResultMax.ToString() + " " + unwrapMedianResult.ToString() + " " + iqrejectionValue.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine("exception thrown looking for unwrap data: " + ex.ToString());
+                            }
+                        }
                     }
                     //System.Diagnostics.Debug.WriteLine(unwrapRet.ToString());
                     outPut.WriteLine(unwrapRet.ToString());

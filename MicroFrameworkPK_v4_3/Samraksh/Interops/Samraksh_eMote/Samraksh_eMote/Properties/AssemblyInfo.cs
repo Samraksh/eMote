@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Samraksh")]
 [assembly: AssemblyProduct("Samraksh_eMote")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,5 +21,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("4.3.2.1")]
-[assembly: AssemblyFileVersion("4.3.2.1")]
+[assembly: AssemblyVersion("4.3.2.2")]
+[assembly: AssemblyFileVersion("4.3.2.2")]
