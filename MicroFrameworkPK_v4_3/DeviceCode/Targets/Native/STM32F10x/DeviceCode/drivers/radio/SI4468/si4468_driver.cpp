@@ -669,9 +669,13 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		return DS_Busy;
 	}
 
+	// Start state change before we have radio lock.
+	// Done early to kick radio out of RX before we get the lock
+	si446x_change_state(SI_STATE_TX_TUNE);
+
 	// Lock radio until TX is done.
 	if ( owner = si446x_radio_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op in progress.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op %d in progress.\r\n", owner);
 		ret = DS_Busy;
 		goto si446x_packet_send_CLEANUP;
 	}
@@ -686,8 +690,6 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
 
-		// Go to TX_TUNE state now for minimum latency
-		si446x_change_state(SI_STATE_TX_TUNE);
 		while( si446x_request_device_state() != SI_STATE_TX_TUNE ) ; // spin. TODO: Add timeout.
 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
