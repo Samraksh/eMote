@@ -9,10 +9,6 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
-// If MAC layer calls an operation before previous finished, refuse the new request
-// Alternatively, can attempt to service ourself.
-#define SI4468_FORCE_MAC_SERVICE
-
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
@@ -20,9 +16,6 @@
 #ifndef SI446x_TX_DONE_STATE
 #define SI446x_TX_DONE_STATE 0
 #endif
-
-// if, FOR TESTING ONLY, you want to run the continuations inside the interrupts...
-//#define SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
 
 enum { SI_DUMMY=0, };
 
@@ -169,6 +162,11 @@ static void tx_cont_do(void *arg) {
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
 
 	si446x_radio_unlock();
+}
+
+// Returns true if a continuation is linked and needs service.
+static bool cont_busy(HAL_CONTINUATION cont) {
+	return cont.IsLinked();
 }
 
 static void rx_cont_do(void *arg) {
@@ -611,48 +609,11 @@ BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS) {
 	uint8_t tx_buf[si446x_packet_size+1]; // Add one for packet size field
 	radio_lock_id_t owner;
-
-	DeviceStatus ret = DS_Success;
+	unsigned timeout=200;
+	si_state_t state = SI_STATE_ERROR;
 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
 	si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
-
-	// First check if we have a previous send done and waiting to be processed
-	if (tx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous TX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous TX before continuing\r\n");
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
-	if (rx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous RX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous before continuing...\r\n");
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
 
 	if ( len > si446x_packet_size || (doTS && (len > si446x_payload_ts)) ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() Fail. Packet Too Large.\r\n");
@@ -665,20 +626,42 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	}
 
 	if ( owner = si446x_spi_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked, op in progress.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked by %d.\r\n", owner);
 		return DS_Busy;
 	}
 
-	// Start state change before we have radio lock.
-	// Done early to kick radio out of RX before we get the lock
-	si446x_change_state(SI_STATE_TX_TUNE);
-
 	// Lock radio until TX is done.
 	if ( owner = si446x_radio_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op %d in progress.\r\n", owner);
-		ret = DS_Busy;
-		goto si446x_packet_send_CLEANUP;
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio locked by %d\r\n", owner);
+		si446x_spi_unlock();
+		return DS_Busy;
 	}
+
+	do {
+		// Must ensure we cleanly left RX
+		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
+		// If there are any interrupts pending at this point, back-off
+		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) || (timeout==0)) {
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
+			si446x_radio_unlock();
+			si446x_spi_unlock();
+			return DS_Busy;
+		}
+		si446x_change_state(SI_STATE_READY);
+		state = si446x_request_device_state();
+		timeout--;
+	} while (state == SI_STATE_RX && state != SI_STATE_ERROR);
+
+	if (state == SI_STATE_ERROR) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset the radio?\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Fail;
+	}
+
+	si446x_fifo_info(0x3);	// Clears FIFO in case there is garbage
+
+	// OK, we should be clean
 
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
@@ -690,6 +673,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
 
+		si446x_change_state(SI_STATE_TX_TUNE);
 		while( si446x_request_device_state() != SI_STATE_TX_TUNE ) ; // spin. TODO: Add timeout.
 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
@@ -701,12 +685,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_start_tx(chan, 0, tx_buf[0]+1);
 	}
 
-si446x_packet_send_CLEANUP:
-
 	si446x_spi_unlock();
 	// RADIO STAYS LOCKED UNTIL TX DONE
 
-	return ret;
+	return DS_Success;
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
@@ -767,46 +749,13 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	// First check if we have a previous TX/RX done and waiting to be processed
-	if (tx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous TX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
+	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
+		return DS_Fail;
 	}
-
-	if (rx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous RX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
 
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %d\r\n", owner);
 		return DS_Fail;
 	}
 
@@ -1074,18 +1023,7 @@ static void si446x_pkt_tx_int() {
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
-	radio_lock_id_t owner;
-	if (owner = si446x_radio_lock(radio_lock_rx)) {
-		if (owner == radio_lock_cca_ms) {
-			// This is an exception, getting a RX here is sort-of OK. We will assume CCA will keep the lock for us.
-			si446x_debug_print(DEBUG02,"SI446X: si446x_pkt_rx_int(): Packet arrived during CCA. CCA will keep lock. This is OK.\r\n");
-		}
-		else {
-			si446x_debug_print(ERR99,\
-				"SI446X: si446x_pkt_rx_int(): Packet arrived but unexpected lock by %d. Unstable operation likely.\r\n", owner);
-			SOFT_BREAKPOINT();
-		}
-	}
+	// radio_lock owned by SYNC_DET at this point
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	rx_cont_do(NULL);
 	//rx_callback_continuation.Enqueue();
@@ -1093,13 +1031,18 @@ static void si446x_pkt_rx_int() {
 
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_bad_crc_int() {
-	radio_lock_id_t owner;
-	if ( (owner = si446x_spi_lock(radio_lock_crc)) == 0) { // Only branch if we DO get the lock
-		si446x_fifo_info(0x3); // clear the FIFOs if we can
+	radio_lock_id_t owner = si446x_spi_lock(radio_lock_crc);
+
+	if ( owner == 0 || owner == radio_lock_crc ) { 	// We got the lock, safe to cleanup. Hope this is what happens most/all of the time
+		si446x_fifo_info(0x3); 		// clear the FIFOs if we can
 		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() FIFOs cleared\r\n");
+		si446x_radio_unlock();		// We lost the packet, so give up the radio
 		si446x_spi_unlock();
 	}
-	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int()\r\n");
+	else {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() SPI busy, FIFO not cleared!\r\n");
+		si446x_radio_unlock();		// We lost the packet, so give up the radio
+	}
 }
 
 // INTERRUPT CONTEXT
@@ -1133,34 +1076,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	si446x_spi_unlock();
 
 	// Only save timestamp if it was an RX event.
-	if (modem_pend & MODEM_MASK_SYNC_DETECT)		{ rx_timestamp = int_ts; }
+	if (modem_pend & MODEM_MASK_SYNC_DETECT)	{ owner = si446x_radio_lock(radio_lock_rx); rx_timestamp = int_ts; }
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
-
-// NOT FOR PRODUCTION CODE
-#ifdef SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
-	if (tx_callback_continuation.IsLinked()) {
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
-	if (rx_callback_continuation.IsLinked()) {
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-#endif
 }
