@@ -13,7 +13,7 @@
 
 // Unknown reasons, modem_pend does not mask INVALID_PREAMBLE as expected.
 // Masking manually for now. --NPS
-#define SI446X_INVALID_PREAMBLE_PEND_HACK
+#define SI446X_MODEM_PEND_MASK 0x01 // for SYNC_DET only
 
 //#define SI446X_AGGRESSIVE_CTS
 
@@ -108,10 +108,10 @@ uint8_t si446x_get_modem_status() {
 }
 
 uint8_t si446x_get_modem_pend() {
-#ifndef SI446X_INVALID_PREAMBLE_PEND_HACK
+#ifndef SI446X_MODEM_PEND_MASK
 	return modem_pend;
 #else
-	return (modem_pend & 0xFB); // mask out INVALID_PREAMBLE
+	return (modem_pend & SI446X_MODEM_PEND_MASK);
 #endif
 }
 

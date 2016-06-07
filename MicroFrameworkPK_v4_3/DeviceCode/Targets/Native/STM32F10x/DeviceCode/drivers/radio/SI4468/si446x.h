@@ -44,7 +44,7 @@ enum {
 // These are registers that are changed AFTER automatic generation.
 // Check to make sure they are set.
 enum {
-	RF_GLOBAL_CONFIG_1_1 = 0x30, // For the FIFO size change
+	RF_GLOBAL_CONFIG_1_1 = 0x70, // For the FIFO size change, prev 0x30
 	PKT_LEN = 0x22,
 	PKT_FIELD_2_LENGTH = 0x90,
 };
