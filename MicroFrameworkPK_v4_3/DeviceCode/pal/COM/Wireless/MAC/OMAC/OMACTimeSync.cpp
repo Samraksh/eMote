@@ -161,6 +161,10 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 		tsreqmsg->request_TimeSync = request_TimeSync;
 
 		rs = g_OMAC.Send(address, MFM_OMAC_TIMESYNCREQ, tsreqmsg, sizeof(TimeSyncRequestMsg));
+		if(!rs){
+			hal_printf("OMACTimeSync::Send failed. Addr=%d", address);
+			return rs;
+		}
 #ifdef OMAC_DEBUG_PRINTF
 		hal_printf("TS Send: %d, LTime: %lld \n\n",m_seqNo, y);
 #endif

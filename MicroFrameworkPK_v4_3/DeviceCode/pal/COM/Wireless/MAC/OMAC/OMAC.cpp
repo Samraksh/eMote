@@ -519,6 +519,9 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 	return true;
 }
 
+/**
+ * @return NULL pointer when no buffer available.
+ */
 Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
 	static UINT8 seqNumber = 0;
 	UINT8 finalSeqNumber = 0;
@@ -546,14 +549,22 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 			neighborEntry->tsr_send_buffer.DropOldest(1);
 		}
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
+
+		if(neighborEntry->send_buffer.IsBufferFull()){
+			hal_printf("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
-		//if(msg_carrier == (Message_15_4_t*)(NULL)){
+
 		if(neighborEntry->send_buffer.IsBufferFull()){
-			hal_printf("OMACType::Send neighborEntry->send_buffer full.\n");
-			return msg_carrier;
+			hal_printf("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
 		}
+	}
+
+	if(msg_carrier == (Message_15_4_t*)(NULL)){
+		hal_printf("ERROR: OMACType::PrepareMessageBuffer no free buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+		return msg_carrier;
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();

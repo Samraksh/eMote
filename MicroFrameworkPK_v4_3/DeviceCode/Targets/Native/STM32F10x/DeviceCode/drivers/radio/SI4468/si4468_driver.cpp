@@ -669,9 +669,13 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		return DS_Busy;
 	}
 
+	// Start state change before we have radio lock.
+	// Done early to kick radio out of RX before we get the lock
+	si446x_change_state(SI_STATE_TX_TUNE);
+
 	// Lock radio until TX is done.
 	if ( owner = si446x_radio_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op in progress.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op %d in progress.\r\n", owner);
 		ret = DS_Busy;
 		goto si446x_packet_send_CLEANUP;
 	}
@@ -686,8 +690,6 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
 
-		// Go to TX_TUNE state now for minimum latency
-		si446x_change_state(SI_STATE_TX_TUNE);
 		while( si446x_request_device_state() != SI_STATE_TX_TUNE ) ; // spin. TODO: Add timeout.
 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
@@ -971,7 +973,6 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	radio_lock = radio_lock_cca_ms;
 	si_state_t state = si446x_request_device_state();
 
 	// Check for bad state while we're at it.
@@ -985,6 +986,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	// If radio is already in RX, stay in RX.
 	// If a packet comes in, shouldn't lose it.
 	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
+		bool debug_print = false;
 		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
 		HAL_Time_Sleep_MicroSeconds(ms);
 		si446x_get_modem_status( 0xFF );
@@ -992,8 +994,18 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 			ret = DS_Busy;
 		else
 			ret = DS_Success;
-		si446x_radio_unlock();
+
+		// Its possible we got a packet during CCA, if so, directly move the lock to RX.
+		GLOBAL_LOCK(irq);
+		if (!rx_callback_continuation.IsLinked())
+			si446x_radio_unlock();
+		else {
+			radio_lock = (uint32_t)radio_lock_rx;
+			debug_print = true;
+		}
 		si446x_spi_unlock();
+		irq.Release();
+		if (debug_print) si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA passed lock to RX\r\n");
 		return ret;
 	}
 
@@ -1064,10 +1076,15 @@ static void si446x_pkt_tx_int() {
 static void si446x_pkt_rx_int() {
 	radio_lock_id_t owner;
 	if (owner = si446x_radio_lock(radio_lock_rx)) {
-		//SOFT_BREAKPOINT();
-		si446x_debug_print(ERR100,
-							"SI446X: Radio was already busy when RX came in... tell Nathan\r\n");
-		return;
+		if (owner == radio_lock_cca_ms) {
+			// This is an exception, getting a RX here is sort-of OK. We will assume CCA will keep the lock for us.
+			si446x_debug_print(DEBUG02,"SI446X: si446x_pkt_rx_int(): Packet arrived during CCA. CCA will keep lock. This is OK.\r\n");
+		}
+		else {
+			si446x_debug_print(ERR99,\
+				"SI446X: si446x_pkt_rx_int(): Packet arrived but unexpected lock by %d. Unstable operation likely.\r\n", owner);
+			SOFT_BREAKPOINT();
+		}
 	}
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	rx_cont_do(NULL);
