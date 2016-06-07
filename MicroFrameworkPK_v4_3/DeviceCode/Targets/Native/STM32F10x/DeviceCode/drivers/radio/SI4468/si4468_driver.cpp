@@ -9,10 +9,6 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
-// If MAC layer calls an operation before previous finished, refuse the new request
-// Alternatively, can attempt to service ourself.
-#define SI4468_FORCE_MAC_SERVICE
-
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
@@ -20,9 +16,6 @@
 #ifndef SI446x_TX_DONE_STATE
 #define SI446x_TX_DONE_STATE 0
 #endif
-
-// if, FOR TESTING ONLY, you want to run the continuations inside the interrupts...
-//#define SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
 
 enum { SI_DUMMY=0, };
 
@@ -169,6 +162,11 @@ static void tx_cont_do(void *arg) {
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
 
 	si446x_radio_unlock();
+}
+
+// Returns true if a continuation is linked and needs service.
+static bool cont_busy(HAL_CONTINUATION cont) {
+	return cont.IsLinked();
 }
 
 static void rx_cont_do(void *arg) {
@@ -617,41 +615,9 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
 	si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
 
-	// First check if we have a previous send done and waiting to be processed
-	if (tx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous TX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous TX before continuing\r\n");
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
-	if (rx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_packet_send() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Warning! TX attempt before previous RX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() ...Servicing previous before continuing...\r\n");
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
+	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
+		return DS_Fail;
 	}
 
 	if ( len > si446x_packet_size || (doTS && (len > si446x_payload_ts)) ) {
@@ -767,46 +733,13 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	// First check if we have a previous TX/RX done and waiting to be processed
-	if (tx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous TX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
+	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
+		return DS_Fail;
 	}
-
-	if (rx_callback_continuation.IsLinked()) {
-#		ifdef SI4468_FORCE_MAC_SERVICE
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() ERROR! Previously completed radio op not serviced. New request denied.\r\n");
-		return DS_Bug;
-#		endif
-		// Lock and check again before we remove it.
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Warning! RX attempt before previous RX serviced.\r\n");
-			si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() ...Servicing previous before continuing...\r\n");
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
 
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %d\r\n", owner);
 		return DS_Fail;
 	}
 
@@ -1130,29 +1063,4 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
-
-// NOT FOR PRODUCTION CODE
-#ifdef SI4468_FORCE_CONTINUATIONS_IN_INTERRUPT_CONTEXT
-	if (tx_callback_continuation.IsLinked()) {
-		GLOBAL_LOCK(irq);
-		if (tx_callback_continuation.IsLinked()) {
-			tx_callback_continuation.Abort();
-			irq.Release();
-			tx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-
-	if (rx_callback_continuation.IsLinked()) {
-		GLOBAL_LOCK(irq);
-		if (rx_callback_continuation.IsLinked()) {
-			rx_callback_continuation.Abort();
-			irq.Release();
-			rx_cont_do(NULL);
-		} else {
-			irq.Release();
-		}
-	}
-#endif
 }
