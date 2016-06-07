@@ -766,7 +766,11 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
 		radio_spi_sel_no_assert();
-		for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
+		//for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
+		// Looking for at least 150ns, or likely even half that would be enough.
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP();
 		radio_spi_sel_assert();
 		radio_spi_go(0x44); //read CMD buffer
 		ctsVal = radio_spi_go(0);
