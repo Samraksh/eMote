@@ -1073,31 +1073,25 @@ static void si446x_pkt_tx_int() {
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
-	radio_lock_id_t owner;
-	if (owner = si446x_radio_lock(radio_lock_rx)) {
-		if (owner == radio_lock_cca_ms) {
-			// This is an exception, getting a RX here is sort-of OK. We will assume CCA will keep the lock for us.
-			si446x_debug_print(DEBUG02,"SI446X: si446x_pkt_rx_int(): Packet arrived during CCA. CCA will keep lock. This is OK.\r\n");
-		}
-		else {
-			si446x_debug_print(ERR99,\
-				"SI446X: si446x_pkt_rx_int(): Packet arrived but unexpected lock by %d. Unstable operation likely.\r\n", owner);
-			SOFT_BREAKPOINT();
-		}
-	}
+	// radio_lock owned by SYNC_DET at this point
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	rx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_bad_crc_int() {
-	radio_lock_id_t owner;
-	if ( (owner = si446x_spi_lock(radio_lock_crc)) == 0) { // Only branch if we DO get the lock
-		si446x_fifo_info(0x3); // clear the FIFOs if we can
+	radio_lock_id_t owner = si446x_spi_lock(radio_lock_crc);
+
+	if ( owner == 0 || owner == radio_lock_crc ) { 	// We got the lock, safe to cleanup. Hope this is what happens most/all of the time
+		si446x_fifo_info(0x3); 		// clear the FIFOs if we can
 		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() FIFOs cleared\r\n");
+		si446x_radio_unlock();		// We lost the packet, so give up the radio
 		si446x_spi_unlock();
 	}
-	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int()\r\n");
+	else {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() SPI busy, FIFO not cleared!\r\n");
+		si446x_radio_unlock();		// We lost the packet, so give up the radio
+	}
 }
 
 // INTERRUPT CONTEXT
@@ -1131,7 +1125,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	si446x_spi_unlock();
 
 	// Only save timestamp if it was an RX event.
-	if (modem_pend & MODEM_MASK_SYNC_DETECT)		{ rx_timestamp = int_ts; }
+	if (modem_pend & MODEM_MASK_SYNC_DETECT)	{ owner = si446x_radio_lock(radio_lock_rx); rx_timestamp = int_ts; }
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
