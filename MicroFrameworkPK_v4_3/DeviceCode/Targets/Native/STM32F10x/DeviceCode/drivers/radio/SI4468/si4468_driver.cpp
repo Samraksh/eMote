@@ -609,16 +609,11 @@ BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS) {
 	uint8_t tx_buf[si446x_packet_size+1]; // Add one for packet size field
 	radio_lock_id_t owner;
-
-	DeviceStatus ret = DS_Success;
+	unsigned timeout=200;
+	si_state_t state = SI_STATE_ERROR;
 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
 	si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
-
-	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
-		return DS_Fail;
-	}
 
 	if ( len > si446x_packet_size || (doTS && (len > si446x_payload_ts)) ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() Fail. Packet Too Large.\r\n");
@@ -631,20 +626,42 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	}
 
 	if ( owner = si446x_spi_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked, op in progress.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. SPI locked by %d.\r\n", owner);
 		return DS_Busy;
 	}
 
-	// Start state change before we have radio lock.
-	// Done early to kick radio out of RX before we get the lock
-	si446x_change_state(SI_STATE_TX_TUNE);
-
 	// Lock radio until TX is done.
 	if ( owner = si446x_radio_lock(radio_lock_tx) ) 	{
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio Op %d in progress.\r\n", owner);
-		ret = DS_Busy;
-		goto si446x_packet_send_CLEANUP;
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() Fail. Radio locked by %d\r\n", owner);
+		si446x_spi_unlock();
+		return DS_Busy;
 	}
+
+	do {
+		// Must ensure we cleanly left RX
+		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
+		// If there are any interrupts pending at this point, back-off
+		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) || (timeout==0)) {
+			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
+			si446x_radio_unlock();
+			si446x_spi_unlock();
+			return DS_Busy;
+		}
+		si446x_change_state(SI_STATE_READY);
+		state = si446x_request_device_state();
+		timeout--;
+	} while (state == SI_STATE_RX && state != SI_STATE_ERROR);
+
+	if (state == SI_STATE_ERROR) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset the radio?\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Fail;
+	}
+
+	si446x_fifo_info(0x3);	// Clears FIFO in case there is garbage
+
+	// OK, we should be clean
 
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
@@ -656,6 +673,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
 
+		si446x_change_state(SI_STATE_TX_TUNE);
 		while( si446x_request_device_state() != SI_STATE_TX_TUNE ) ; // spin. TODO: Add timeout.
 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
@@ -667,12 +685,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		si446x_start_tx(chan, 0, tx_buf[0]+1);
 	}
 
-si446x_packet_send_CLEANUP:
-
 	si446x_spi_unlock();
 	// RADIO STAYS LOCKED UNTIL TX DONE
 
-	return ret;
+	return DS_Success;
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
