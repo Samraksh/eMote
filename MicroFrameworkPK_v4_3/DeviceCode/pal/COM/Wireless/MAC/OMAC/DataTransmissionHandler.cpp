@@ -85,6 +85,12 @@ void DataTransmissionHandler::Initialize(){
 	CPU_GPIO_EnableOutputPin(DATATX_SCHED_DATA_PKT, TRUE);
 	CPU_GPIO_SetPinState( DATATX_SCHED_DATA_PKT, FALSE );
 
+	CPU_GPIO_EnableOutputPin(DATATX_NEXT_EVENT, TRUE);
+	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
+
+	CPU_GPIO_EnableOutputPin(DATATX_RECV_SW_ACK, TRUE);
+	CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
+
 	CPU_GPIO_EnableOutputPin(OMAC_RX_DATAACK_PIN, FALSE);
 #endif
 
@@ -171,7 +177,10 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 UINT64 DataTransmissionHandler::NextEvent(){
 	//in case the task delay is large and we are already pass
 	//tx time, tx immediately
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATARX_NEXTEVENT, TRUE );
+	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
+#endif
 
 
 // Check all elements in the buffer
@@ -234,6 +243,9 @@ UINT64 DataTransmissionHandler::NextEvent(){
 		}
 	}
 
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
+#endif
 	//At this point we have decided to send the packet to m_outgoingEntryPtr_dest
 	if(isDataPacketScheduled) {
 		return CalculateNextRXOpp(m_outgoingEntryPtr_dest);
@@ -410,6 +422,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 #endif
 
 	VirtualTimerReturnMessage rm;
@@ -422,11 +435,19 @@ void DataTransmissionHandler::ExecuteEvent(){
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 
 	if(e == DS_Success){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
+#endif
 		this->ExecuteEventHelper();
 		txhandler_state = DTS_WAITING_FOR_ACKS;
 	}
 	else{
-		hal_printf("Radio not in RX state\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
+		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
+#endif
+		//hal_printf("DataTransmissionHandler::ExecuteEvent Radio not in RX state\n");
 		txhandler_state = DTS_RADIO_START_FAILED;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
@@ -562,6 +583,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, TRUE );
 #endif
 	VirtualTimerReturnMessage rm;
 
@@ -582,6 +604,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, FALSE);
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, FALSE );
+		CPU_GPIO_SetPinState( DATATX_RECV_SW_ACK, FALSE );
 #endif
 }
 

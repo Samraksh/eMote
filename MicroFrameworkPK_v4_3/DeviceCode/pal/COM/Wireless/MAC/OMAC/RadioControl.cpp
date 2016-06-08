@@ -36,6 +36,13 @@ DeviceStatus RadioControl_t::Initialize(){
 	CPU_GPIO_EnableOutputPin(RC_TX_TIMESYNCREQ, FALSE);
 	CPU_GPIO_EnableOutputPin(RC_TX_DATA, FALSE);
 
+	CPU_GPIO_EnableOutputPin(OMAC_DRIVING_RADIO_SEND, FALSE);
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DRIVING_RADIO_RECV, FALSE);
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DRIVING_RADIO_SLEEP, FALSE);
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
+
 #endif
 	return DS_Success;
 }
@@ -125,6 +132,9 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 			//Reset flag just before sending
 			g_OMAC.isSendDone = false;
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+#endif
 			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 		}
 		else{
@@ -135,6 +145,9 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 			//Reset flag just before sending
 			g_OMAC.isSendDone = false;
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+#endif
 			returnMsg = (Message_15_4_t *) CPU_Radio_Send(g_OMAC.radioName, msg, size);
 		}
 		else{
@@ -153,10 +166,18 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 	if(returnMsg == msg){
 		//hal_printf("Returning success\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+#endif
 		return DS_Success;
 	}
 endOfSend:
 	//hal_printf("Returning DS_Fail\n");
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
+#endif
 	return DS_Fail;
 }
 
@@ -258,15 +279,24 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 DeviceStatus RadioControl_t::Stop(){
 	if(stayOn) return DS_Success;
 	else{
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
+#endif
 		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
 		if(returnVal == DS_Success){
 	#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 			CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
 	#endif
 		}
 		else{
-			hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+			//hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+#ifdef OMAC_DEBUG_GPIO
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
+			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
+#endif
 		}
 		return returnVal;
 	}
@@ -276,12 +306,21 @@ DeviceStatus RadioControl_t::Stop(){
  *
  */
 DeviceStatus RadioControl_t::StartRx(){
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
+#endif
 	DeviceStatus returnVal = CPU_Radio_TurnOnRx(g_OMAC.radioName);
 	if(returnVal == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, TRUE );
+		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
 #endif
 	}
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
+	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
+#endif
 	return returnVal;
 }
 
