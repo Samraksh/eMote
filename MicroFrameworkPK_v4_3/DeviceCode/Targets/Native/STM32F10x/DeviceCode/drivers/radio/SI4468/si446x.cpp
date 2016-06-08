@@ -14,6 +14,7 @@
 // Unknown reasons, modem_pend does not mask INVALID_PREAMBLE as expected.
 // Masking manually for now. --NPS
 #define SI446X_MODEM_PEND_MASK 0x01 // for SYNC_DET only
+#define SI446X_PH_PEND_MASK 0x38 	// 00111000 == PSNT/PRX/CRCE
 
 //#define SI446X_AGGRESSIVE_CTS
 
@@ -100,7 +101,11 @@ uint8_t si446x_get_ph_status() {
 }
 
 uint8_t si446x_get_ph_pend() {
+#ifndef SI446X_PH_PEND_MASK
 	return ph_pend;
+#else
+	return (ph_pend & SI446X_PH_PEND_MASK);
+#endif
 }
 
 uint8_t si446x_get_modem_status() {
