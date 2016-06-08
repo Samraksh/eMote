@@ -165,23 +165,27 @@ static void tx_cont_do(void *arg) {
 }
 
 // Returns true if a continuation is linked and needs service.
-static bool cont_busy(HAL_CONTINUATION cont) {
-	return cont.IsLinked();
+static bool cont_busy(void) {
+	return (tx_callback_continuation.IsLinked() || rx_callback_continuation.IsLinked() || int_defer_continuation.IsLinked());
 }
 
 static void rx_cont_do(void *arg) {
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
 	radio_lock_id_t owner;
+	uint8_t rssi;
 
 	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
 
-	// TODO: NEED TO LOCK SPI BUS HERE, BUT CAREFULLY. (a day later I forgot why...)
-
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(ERR99,"SI446X: rx_cont_do() Somehow radio SPI was busy when servicing RX... tell Nathan. Trying again.\r\n");
+		si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Radio busy at RX service time, trying again later.\r\n");
 		rx_callback_continuation.Enqueue();
 		return;
+	}
+
+	// For fun, double check to make sure RX holds the radio lock.
+	if ( (owner = si446x_radio_lock(radio_lock_rx)) != radio_lock_rx ) {
+		si446x_debug_print(ERR99,"SI446X: rx_cont_do(): Warning. RX packet service without expected RX lock, owner was %d\r\n", owner);
 	}
 
 	size = si446x_get_packet_info(0,0,0);
@@ -191,6 +195,10 @@ static void rx_cont_do(void *arg) {
 		rx_callback(rx_timestamp, size, rx_pkt);
 
 	si446x_get_modem_status( 0xFF ); // Refresh RSSI
+
+	rssi = si446x_get_latched_rssi();
+
+	si446x_fifo_info(0x3); // Defensively reset FIFO
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -204,7 +212,7 @@ static void rx_cont_do(void *arg) {
 	memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 
 	// Set Metadata
-	metadata->SetRssi( si446x_get_latched_rssi() );
+	metadata->SetRssi( rssi );
 	metadata->SetLqi(0);  // No meaning on this radio
 	metadata->SetReceiveTimeStamp((INT64)rx_timestamp);
 
@@ -641,7 +649,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		// Must ensure we cleanly left RX
 		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
 		// If there are any interrupts pending at this point, back-off
-		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) || (timeout==0)) {
+		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() || (timeout==0)) {
+			if (timeout == 0) { si446x_debug_print(ERR99, "SI446X: ERROR, timeout trying to start TX. Reset radio?\r\n"); }
 			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
 			si446x_radio_unlock();
 			si446x_spi_unlock();
@@ -653,7 +662,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	} while (state == SI_STATE_RX);
 
 	if (state == SI_STATE_ERROR) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset the radio?\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset radio?\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -749,7 +758,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
+	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
 		return DS_Fail;
 	}
@@ -856,7 +865,7 @@ DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
 	}
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. No Init.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_set_channel() FAIL. No Init.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
@@ -915,7 +924,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if ( rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked() ) {
+	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Continuation Pending.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -933,28 +942,20 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	}
 
 	// If radio is already in RX, stay in RX.
-	// If a packet comes in, shouldn't lose it.
+	// If a packet comes in, shouldn't lose it, but RX processing will be defered and timestamp will be wrong.
 	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
-		bool debug_print = false;
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX\r\n");
 		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
 		HAL_Time_Sleep_MicroSeconds(ms);
 		si446x_get_modem_status( 0xFF );
+
 		if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
 			ret = DS_Busy;
 		else
 			ret = DS_Success;
 
-		// Its possible we got a packet during CCA, if so, directly move the lock to RX.
-		GLOBAL_LOCK(irq);
-		if (!rx_callback_continuation.IsLinked())
-			si446x_radio_unlock();
-		else {
-			radio_lock = (uint32_t)radio_lock_rx;
-			debug_print = true;
-		}
+		si446x_radio_unlock();
 		si446x_spi_unlock();
-		irq.Release();
-		if (debug_print) si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA passed lock to RX\r\n");
 		return ret;
 	}
 
@@ -965,13 +966,13 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// Check interrupts, does NOT clear.
 
-	// If there are any interrupts pending at this point, back-off
-	// TX continuation check may be not necessary.
-	if (si446x_get_ph_pend() || si446x_get_modem_pend() || rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked()) {
+	// Check one last time to see if anything happened.
+	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
+	if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		si446x_radio_unlock();
 		si446x_spi_unlock();
-		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		return DS_Fail;
 	}
 

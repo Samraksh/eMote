@@ -14,6 +14,7 @@
 // Unknown reasons, modem_pend does not mask INVALID_PREAMBLE as expected.
 // Masking manually for now. --NPS
 #define SI446X_MODEM_PEND_MASK 0x01 // for SYNC_DET only
+#define SI446X_PH_PEND_MASK 0x38 	// 00111000 == PSNT/PRX/CRCE
 
 //#define SI446X_AGGRESSIVE_CTS
 
@@ -100,7 +101,11 @@ uint8_t si446x_get_ph_status() {
 }
 
 uint8_t si446x_get_ph_pend() {
+#ifndef SI446X_PH_PEND_MASK
 	return ph_pend;
+#else
+	return (ph_pend & SI446X_PH_PEND_MASK);
+#endif
 }
 
 uint8_t si446x_get_modem_status() {
@@ -766,7 +771,11 @@ uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData) {
 
 	while(ctsVal != 0xFF && timeout++ <= CTS_TIMEOUT) {
 		radio_spi_sel_no_assert();
-		for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
+		//for(unsigned i=0; i<CTS_WAIT; i++) ; // spin
+		// Looking for at least 150ns, or likely even half that would be enough.
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+		__NOP();
 		radio_spi_sel_assert();
 		radio_spi_go(0x44); //read CMD buffer
 		ctsVal = radio_spi_go(0);

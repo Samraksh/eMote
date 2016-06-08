@@ -43,6 +43,7 @@ static double callbacksPerSecond = 0;
 // the initial adjustment will be made every 10 samples (so at 2 samples a second we will make fast adjustments for the first 50 seconds)
 #define INITIAL_ADJUSTMENT_SAMPLE_CNT 270
 static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
+static int prevIQrejectionValue = IQRejectionToUse;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -165,11 +166,24 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			adjustmentIQPeriod--;
 			// only adjusted every IQ_ADJUSTMENT_PERIOD calls
 			if (adjustmentIQPeriod <= 0){
+				// here we ajust the IQ rejection to be lower if it is too high
 				if (currentDisplacementNoise < (noiseRejectionPassedParameter))
 					IQRejectionToUse--;
 				else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
 					IQRejectionToUse++;
 				adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
+
+				// we don't want a completely steady state. We want the IQ rejection to be as 
+				// high as possible without making the background noise too low, so we constantly have it adjust to 
+				// be higher here. It will be adjusted back down again if we went slightly too high
+				// but we should constantly be adjusting it a little higher or a little lower
+				// every adjustment period as needed
+				if (IQRejectionToUse == prevIQrejectionValue)
+                {
+                	IQRejectionToUse += 2;
+                }
+                prevIQrejectionValue = IQRejectionToUse;
+				
 			}
 		}
 		// capping the noise rejection to a max or min
@@ -291,6 +305,9 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 
 	debugVal = param5;
 	codeVersion =  param6;
+
+	initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
+	IQRejectionToUse = 100;
 
 	UINT8 cpuserial[12];
 	UINT32 Device_Serial0;UINT32 Device_Serial1; UINT32 Device_Serial2;
