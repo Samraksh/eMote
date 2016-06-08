@@ -177,8 +177,8 @@ static void rx_cont_do(void *arg) {
 
 	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
 
-	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Radio busy at RX service time, trying again later.\r\n");
+	if ( owner = si446x_spi_lock(radio_lock_rx_cont) ) {
+		si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Radio busy at RX service time, trying again later. Owner is %d\r\n", owner);
 		rx_callback_continuation.Enqueue();
 		return;
 	}
@@ -1065,7 +1065,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
-		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt. Radio locked by %d\r\n", owner);
 		int_defer_continuation.Enqueue();
 		return;
 	}
