@@ -35,7 +35,7 @@ static bool initialized = false;
 static int lastUnwrap = 0;
 static int lastUnwrapMax = 0;
 static int lastUnwrapZero = 0;
-#define IQ_ADJUSTMENT_PERIOD 80
+#define IQ_ADJUSTMENT_PERIOD 300
 static int adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
 static int noiseTest = 0;
 static INT32 IQRejectionToUse = 100;
