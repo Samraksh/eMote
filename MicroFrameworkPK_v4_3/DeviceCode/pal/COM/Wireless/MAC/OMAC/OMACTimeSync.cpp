@@ -38,6 +38,8 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState(TIMESYNC_GENERATE_MESSAGEPIN, FALSE);
 	CPU_GPIO_EnableOutputPin(TIMESYNC_RECEIVEPIN, FALSE);
 	CPU_GPIO_SetPinState(TIMESYNC_RECEIVEPIN, FALSE);
+	CPU_GPIO_EnableOutputPin(OMAC_TIMESYNC_NEXT_EVENT, FALSE);
+	CPU_GPIO_SetPinState(OMAC_TIMESYNC_NEXT_EVENT, FALSE);
 #endif
 
 
@@ -56,6 +58,9 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 }
 
 UINT64 OMACTimeSync::NextEvent(){
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(OMAC_TIMESYNC_NEXT_EVENT, TRUE);
+#endif
 	Neighbor_t* sn;
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
@@ -73,6 +78,9 @@ UINT64 OMACTimeSync::NextEvent(){
 	/*if(HARDWARE_ACKS){
 		nextEventsMicroSec += (1*EXTENDED_MODE_TX_DELAY_MICRO);
 	}*/
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(OMAC_TIMESYNC_NEXT_EVENT, FALSE);
+#endif
 	return(nextEventsMicroSec);
 }
 /*

@@ -37,6 +37,10 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 	CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+	CPU_GPIO_EnableOutputPin(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_EnableOutputPin(DISCO_BEACON_N, TRUE);
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
 #endif
 
 
@@ -107,19 +111,35 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  */
 void DiscoveryHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
+	VirtualTimerReturnMessage rm;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+#endif
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-		VirtualTimerReturnMessage rm;
+		//hal_printf("DiscoveryHandler::ExecuteEvent turned on Rx\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC - TIMEITTAKES2TXDISCOPACKETINMICSEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm == TimerSupported) {
 			Beacon1();
 		}
 		else {
+			//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
 			PostExecuteEvent();
 		}
 	}
 	else {
+		//hal_printf("DiscoveryHandler::ExecuteEvent Could not turn on Rx\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
+		//hal_printf("DiscoveryHandler::ExecuteEvent StartRx not successful\n");
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
 		PostExecuteEvent();
 	}
 }
@@ -273,10 +293,21 @@ void DiscoveryHandler::BeaconN(){
 	//Message_15_4_t m_discoveryMsgBuffer;
 	m_disco_getting_send = false;
 	m_disco_state = DISCO_STATE_BEACON_N;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
+#endif
+
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+		CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
+#endif
 		hal_printf("BeaconN failed. ds = %d; \n", ds);
 	}
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+#endif
 	this->PostExecuteEvent();
 }
 

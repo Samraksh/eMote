@@ -41,6 +41,8 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	CPU_GPIO_EnableOutputPin(SCHED_DISCO_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_TSREQ_EXEC_PIN, FALSE);
 	CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
+	CPU_GPIO_EnableOutputPin(SCHED_NEXT_EVENT, FALSE);
+	CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
 
 	radioID = _radioID;
@@ -222,6 +224,7 @@ void OMACScheduler::ScheduleNextEvent(){
 bool OMACScheduler::RunEventTask(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );
+		CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
 #endif
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
@@ -239,6 +242,7 @@ bool OMACScheduler::RunEventTask(){
 		case I_DATA_SEND_PENDING:
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
 			m_lastHandler = DATA_TX_HANDLER;
 			m_DataTransmissionHandler.ExecuteEvent();
@@ -246,6 +250,9 @@ bool OMACScheduler::RunEventTask(){
 		case I_DATA_RCV_PENDING:
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
 			m_lastHandler = DATA_RX_HANDLER;
 			m_DataReceptionHandler.ExecuteEvent();
@@ -260,6 +267,11 @@ bool OMACScheduler::RunEventTask(){
 		case I_DISCO_PENDING:
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, TRUE);
+			CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
 #endif
 			m_DiscoveryHandler.ExecuteEvent();
 			m_lastHandler = CONTROL_BEACON_HANDLER;
@@ -328,7 +340,7 @@ void OMACScheduler::PostPostExecution(){
 
 bool OMACScheduler::EnsureStopRadio(){
 	DeviceStatus  ds = DS_Success;
-	//ds = g_OMAC.m_omac_RadioControl.Stop();
+	ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		return TRUE;
 	}
