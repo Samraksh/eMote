@@ -173,15 +173,19 @@ static void rx_cont_do(void *arg) {
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
 	radio_lock_id_t owner;
+	uint8_t rssi;
 
 	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
 
-	// TODO: NEED TO LOCK SPI BUS HERE, BUT CAREFULLY. (a day later I forgot why...)
-
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(ERR99,"SI446X: rx_cont_do() Somehow radio SPI was busy when servicing RX... tell Nathan. Trying again.\r\n");
+		si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Radio busy at RX service time, trying again later.\r\n");
 		rx_callback_continuation.Enqueue();
 		return;
+	}
+
+	// For fun, double check to make sure RX holds the radio lock.
+	if ( (owner = si446x_radio_lock(radio_lock_rx)) != radio_lock_rx ) {
+		si446x_debug_print(ERR99,"SI446X: rx_cont_do(): Warning. RX packet service without expected RX lock, owner was %d\r\n", owner);
 	}
 
 	size = si446x_get_packet_info(0,0,0);
@@ -191,6 +195,10 @@ static void rx_cont_do(void *arg) {
 		rx_callback(rx_timestamp, size, rx_pkt);
 
 	si446x_get_modem_status( 0xFF ); // Refresh RSSI
+
+	rssi = si446x_get_latched_rssi();
+
+	si446x_fifo_info(0x3); // Defensively reset FIFO
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -204,7 +212,7 @@ static void rx_cont_do(void *arg) {
 	memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 
 	// Set Metadata
-	metadata->SetRssi( si446x_get_latched_rssi() );
+	metadata->SetRssi( rssi );
 	metadata->SetLqi(0);  // No meaning on this radio
 	metadata->SetReceiveTimeStamp((INT64)rx_timestamp);
 
