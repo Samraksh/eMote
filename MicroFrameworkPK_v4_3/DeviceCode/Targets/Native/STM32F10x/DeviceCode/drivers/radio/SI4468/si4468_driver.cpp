@@ -165,8 +165,8 @@ static void tx_cont_do(void *arg) {
 }
 
 // Returns true if a continuation is linked and needs service.
-static bool cont_busy(HAL_CONTINUATION cont) {
-	return cont.IsLinked();
+static bool cont_busy(void) {
+	return (tx_callback_continuation.IsLinked() || rx_callback_continuation.IsLinked() || int_defer_continuation.IsLinked());
 }
 
 static void rx_cont_do(void *arg) {
@@ -641,7 +641,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		// Must ensure we cleanly left RX
 		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
 		// If there are any interrupts pending at this point, back-off
-		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) || (timeout==0)) {
+		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() || (timeout==0)) {
+			if (timeout == 0) { si446x_debug_print(ERR99, "SI446X: ERROR, timeout trying to start TX. Reset radio?\r\n"); }
 			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
 			si446x_radio_unlock();
 			si446x_spi_unlock();
@@ -653,7 +654,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	} while (state == SI_STATE_RX);
 
 	if (state == SI_STATE_ERROR) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset the radio?\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset radio?\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
@@ -749,7 +750,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( cont_busy(tx_callback_continuation) || cont_busy(rx_callback_continuation) ) {
+	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
 		return DS_Fail;
 	}
@@ -856,7 +857,7 @@ DeviceStatus si446x_hal_set_channel(UINT8 radioID, int channel) {
 	}
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_set_channel() FAIL. No Init.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_set_channel() FAIL. No Init.\r\n");
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
