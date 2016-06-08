@@ -37,6 +37,10 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 	CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+	CPU_GPIO_EnableOutputPin(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_EnableOutputPin(DISCO_BEACON_N, TRUE);
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
 #endif
 
 
@@ -107,19 +111,35 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  */
 void DiscoveryHandler::ExecuteEvent(){
 	DeviceStatus e = DS_Fail;
+	VirtualTimerReturnMessage rm;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+#endif
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-		VirtualTimerReturnMessage rm;
+		//hal_printf("DiscoveryHandler::ExecuteEvent turned on Rx\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC - TIMEITTAKES2TXDISCOPACKETINMICSEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm == TimerSupported) {
 			Beacon1();
 		}
 		else {
+			//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
 			PostExecuteEvent();
 		}
 	}
 	else {
+		//hal_printf("DiscoveryHandler::ExecuteEvent Could not turn on Rx\n");
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
+		//hal_printf("DiscoveryHandler::ExecuteEvent StartRx not successful\n");
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
 		PostExecuteEvent();
 	}
 }
@@ -242,12 +262,12 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 #endif
 */
 	m_disco_getting_send = false;
-	if(m_disco_state == DISCO_STATE_BEACON_N){
+	/*if(m_disco_state == DISCO_STATE_BEACON_N){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
-	}
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+	}*/
 }
 
 /*
@@ -255,7 +275,7 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
  */
 void DiscoveryHandler::Beacon1(){
 	//Message_15_4_t m_discoveryMsgBuffer;
-	m_disco_getting_send = 0;
+	m_disco_getting_send = false;
 	m_disco_state = DISCO_STATE_BEACON_1;
 	if (ShouldBeacon()) {
 		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
@@ -271,12 +291,24 @@ void DiscoveryHandler::Beacon1(){
  */
 void DiscoveryHandler::BeaconN(){
 	//Message_15_4_t m_discoveryMsgBuffer;
+	m_disco_getting_send = false;
 	m_disco_state = DISCO_STATE_BEACON_N;
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
+#endif
+
 	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	if (ds != DS_Success) {
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+		CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
+#endif
 		hal_printf("BeaconN failed. ds = %d; \n", ds);
 	}
-
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+#endif
+	this->PostExecuteEvent();
 }
 
 
@@ -284,18 +316,20 @@ void DiscoveryHandler::BeaconN(){
  *
  */
 void DiscoveryHandler::BeaconNTimerHandler(){
+	VirtualTimerReturnMessage rm;
 	if(m_disco_state == DISCO_STATE_BEACON_N ){
-		if( m_disco_getting_send == false){
+		this->PostExecuteEvent();
+		/*if( m_disco_getting_send == false){
+			//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
 			this->PostExecuteEvent();
 		}
 		else{
-			VirtualTimerReturnMessage rm;
 			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER);
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 			if(rm  != TimerSupported){ //In this case no need to do anything. Failsafe timer will restore operation.
 				//PostExecuteEvent();
 			}
-		}
+		}*/
 	}
 	else{
 		m_disco_state = DISCO_STATE_BEACON_N;
@@ -338,6 +372,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		if(g_NeighborTable.Neighbor[nbrIdx].Status != Alive) {
 			TempIncreaseDiscoRate();
 		}
+		hal_printf("DiscoveryHandler::Receive UpdateNeighbor\n");
 		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 		//stop disco when there are 2 or more neighbors
 		/*if(nbrIdx >= 1){
@@ -345,6 +380,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		}*/
 	} else {
 		TempIncreaseDiscoRate();
+		hal_printf("DiscoveryHandler::Receive InsertNeighbor\n");
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 

@@ -57,15 +57,12 @@ namespace Samraksh.eMote.Net
 			MACBase.RegisterOnReceiveGlobal(this);
 		}
 
-		internal void MACPipeCallback(DateTime dateTime)
+		internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime)
 		{
-			if (OnReceive == null)
+			if (OnReceive != null)
 			{
-				return;
-				// Better to do nothing than to throw an exception. A user might want to just send and never receive -- Bill
-				//throw new Exception("Callback not registered");
+				OnReceive(this, dateTime);
 			}
-			OnReceive(this, dateTime);
 		}
 
 		///// <summary>
@@ -100,7 +97,7 @@ namespace Samraksh.eMote.Net
 			return MACBase.Send(address, PayloadType, payload, offset, size, eventTime);
 		}
 
-		/// <summary>Send packet with payload type</summary>
+		/*/// <summary>Send packet with payload type</summary>
 		/// <param name="address">Address of recipient</param>
 		/// <param name="payloadType">Payload type of packet</param>
 		/// <param name="payload">Payload (in byte array) to send</param>
@@ -123,7 +120,7 @@ namespace Samraksh.eMote.Net
 		public NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime)
 		{
 			return MACBase.Send(address, payloadType, payload, offset, size, eventTime);
-		}
+		}*/
 
 		/// <summary>Size of send buffer</summary>
 		public byte BufferSize
@@ -159,7 +156,7 @@ namespace Samraksh.eMote.Net
 			get { return MACBase.NumberOfRetries; }
 			set { MACBase.NumberOfRetries = value; }
 		}
-		
+
 		/// <summary>The radio object the MAC is using</summary>
 		public Radio_802_15_4_Base MACRadioObj { get { return MACBase.MACRadioObj; } }
 
@@ -288,7 +285,7 @@ namespace Samraksh.eMote.Net
 		// ReSharper disable once InconsistentNaming
 		private static readonly Neighbor _neighbor = new Neighbor();
 		//private static bool _initializeCounter;
-		private static Hashtable _macPipeHashtable= new Hashtable();
+		private static Hashtable _macPipeHashtable = new Hashtable();
 		private static bool _csmaInstanceSet;
 		private static bool _omacInstanceSet;
 
@@ -322,6 +319,9 @@ namespace Samraksh.eMote.Net
 		/// </param>
 		/// <param name="time"></param>
 		public delegate void IMACEventHandler(IMAC macInstance, DateTime time);
+
+		/// <summary>Raised when any packet is received (promiscuous mode)</summary>
+		public event IMACEventHandler OnReceiveAll;
 
 		/// <summary>Raised when a packet has been received</summary>
 		public event IMACEventHandler OnReceive;
@@ -619,32 +619,49 @@ namespace Samraksh.eMote.Net
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
 
-			if ((data1 == (uint)CallbackTypes.Received) && (OnReceive != null))
+			switch (data1)
 			{
-				//MACConfig.MACRadioConfig.OnReceiveCallback(this);
-				if (payloadType == (uint)PayloadType.MFM_Data)
-				{
-					OnReceive(this, time);
-				}
-				else
-				{
-					var keyCollection = _macPipeHashtable.Keys;
-					foreach (PayloadType payloadTypeKey in keyCollection)
+				case (uint)CallbackType.Received:
+					// OnReceiveAll is raised for every payload type
+					if (OnReceiveAll != null)
 					{
-						var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
-						if (payloadTypeKey == (PayloadType)payloadType)
-						{
-							/*if (macPipe.OnReceive == null)
-								throw new CallbackNotConfiguredException();*/
+						//Debug.Print("OnReceiveAll");
+						OnReceiveAll(this, time);
+					}
 
-							macPipe.MACPipeCallback(time);
+					// OnReceive is raised for MFM_Data payload type
+					if (payloadType == (uint)PayloadType.MFM_Data)
+					{
+						//Debug.Print("Payload type MFM_Data");
+						if (OnReceive != null)
+						{
+							OnReceive(this, time);
 						}
 					}
-				}
-			}
-			else if ((data1 == (uint)CallbackTypes.NeighborChanged) && (OnNeighborChange != null))
-			{
-				OnNeighborChange(this, time);
+
+					// Otherwise raise the OnReceive for a registered MACPipe, if any
+					else
+					{
+						//Debug.Print("Payload type " + payloadType);
+						var keyCollection = _macPipeHashtable.Keys;
+						foreach (PayloadType payloadTypeKey in keyCollection)
+						{
+							if (payloadType != (uint)payloadTypeKey) { continue; }
+							var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
+							macPipe.MACPipeCallback(payloadTypeKey, time);
+						}
+					}
+					break;
+
+				case (uint)CallbackType.NeighborChanged:
+					if (OnNeighborChange != null)
+					{
+						OnNeighborChange(this, time);
+					}
+					break;
+
+				default:
+					throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
 			}
 		}
 
@@ -873,26 +890,14 @@ namespace Samraksh.eMote.Net
 		/// <returns>The number of packets in the buffer not yet delivered to the program</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern byte PendingSendPacketCount();
-
-		/// <summary>Send packet</summary>
-		/// <param name="address">Address of recipient</param>
-		/// <param name="payload">Payload (in byte array) to send</param>
-		/// <param name="offset">Offset into array</param>
-		/// <param name="size">Size of payload</param>
-		/// <returns>Result status</returns>
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
-
 		#endregion Public Externs
 
+
 		#region Private Externs ------------------------------------------------------------------------------------------
-
-
 		/// <summary>Uninitialize radio</summary>
 		/// <returns>Status of operation</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern DeviceStatus UnInitialize();
-
 
 		/// <summary>Initialize native MAC, radio and interop drivers</summary>
 		/// <param name="marshalBuffer"></param>
@@ -943,11 +948,17 @@ namespace Samraksh.eMote.Net
 		/// <returns>Address of the device</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		public extern UInt16 GetRadioAddress();*/
-
-		[MethodImpl(MethodImplOptions.InternalCall)]
-		private extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, uint eventTime);
-
 		#endregion Private Externs
+
+
+		/// <summary>Send packet</summary>
+		/// <param name="address">Address of recipient</param>
+		/// <param name="payload">Payload (in byte array) to send</param>
+		/// <param name="offset">Offset into array</param>
+		/// <param name="size">Size of payload</param>
+		/// <returns>Result status</returns>
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		public extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size);
 
 		/// <summary>Send a _packet</summary>
 		/// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
@@ -960,6 +971,10 @@ namespace Samraksh.eMote.Net
 		{
 			return Send(address, payload, offset, size, (uint)(eventTime.Ticks & uint.MaxValue));
 		}
+
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		private extern NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, uint eventTime);
+
 		/// <summary>Send a _packet</summary>
 		/// <param name="address">The address of the receiver. Use <code>Addresses.BROADCAST</code> for broadcast</param>
 		/// <param name="payloadType">PayloadType to be sent</param>
@@ -1020,7 +1035,7 @@ namespace Samraksh.eMote.Net
 		[MethodImpl(MethodImplOptions.InternalCall)]
 		private extern NetOpStatus SendTimeStamped(UInt16 Address, byte PayloadType, byte[] payload, UInt16 offset, UInt16 size);*/
 
-        /// <summary>Uninitialize MAC instance</summary>
+		/// <summary>Uninitialize MAC instance</summary>
 		public override void Dispose()
 		{
 			UnInitialize();

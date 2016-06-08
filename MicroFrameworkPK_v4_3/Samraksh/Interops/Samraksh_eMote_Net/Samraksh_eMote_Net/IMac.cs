@@ -31,6 +31,14 @@ namespace Samraksh.eMote.Net
 			public byte LinkQuality;
 			/// <summary>Average delay</summary>
 			public byte AverageDelay;
+
+            /// <summary></summary>
+            public Link()
+            {
+                AverageRSSI = 0;
+                LinkQuality = 0;
+                AverageDelay = 0;
+            }
 		}
 
 		/// <summary>
@@ -67,6 +75,19 @@ namespace Samraksh.eMote.Net
 			public byte ReceiveDutyCycle; //percentage
 			/// <summary>Frame length of neighbor</summary>
 			public ushort FrameLength;
+
+            /// <summary></summary>
+            public Neighbor()
+            {
+                MACAddress = 0;
+                ForwardLink = new Link();
+                ReverseLink = new Link();
+                Status = NeighborStatus.Dead;
+                PacketsReceived = 0;
+                LastHeardTime = 0;
+                ReceiveDutyCycle = 0;
+                FrameLength = 0;
+            }
 		}
 
 
@@ -203,7 +224,7 @@ namespace Samraksh.eMote.Net
 			/// <returns>Result status</returns>
 			NetOpStatus Send(ushort address, byte[] payload, ushort offset, ushort size, DateTime eventTime);
 
-			/// <summary>Send packet with payload type</summary>
+			/*/// <summary>Send packet with payload type</summary>
 			/// <param name="address">Address of recipient</param>
 			/// <param name="payloadType">Payload type of packet</param>
 			/// <param name="payload">Payload (in byte array) to send</param>
@@ -220,7 +241,7 @@ namespace Samraksh.eMote.Net
 			/// <param name="size">Size of payload</param>
 			/// <param name="eventTime">Time value to add to packet</param>
 			/// <returns>Result status</returns>
-			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime);
+			NetOpStatus Send(ushort address, PayloadType payloadType, byte[] payload, ushort offset, ushort size, DateTime eventTime);*/
 
 			//Neighbor methods
 

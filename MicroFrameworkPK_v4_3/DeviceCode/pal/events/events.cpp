@@ -114,6 +114,12 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
 #endif
 
     {
+#		ifdef OMAC_TESTING_SCHEDULER_PIN
+		static int test_pin_config=0;
+		if (!test_pin_config)
+			{ CPU_GPIO_EnableOutputPin( OMAC_TESTING_SCHEDULER_PIN, FALSE ); test_pin_config=1; }
+#		endif
+
         GLOBAL_LOCK(irq);
 
         // then check to make sure the events haven't happened on the way in
@@ -125,9 +131,15 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
 
         while(true)
         {
+
             UINT32 Events = Events_MaskedRead( WakeupSystemEvents ); if(Events) return Events;
 
-            if(Expire <= HAL_Time_CurrentTicks()) return 0;
+            if(Expire <= HAL_Time_CurrentTicks()) {
+#				ifdef OMAC_TESTING_SCHEDULER_PIN
+				CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, FALSE );
+#				endif
+				return 0;
+			}
 
 
             // first check and possibly run any continuations
@@ -135,6 +147,10 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
             if(RunContinuations && !SystemState_QueryNoLock( SYSTEM_STATE_NO_CONTINUATIONS ))
             {
                 // restore interrupts before running a continuation
+#				ifdef OMAC_TESTING_SCHEDULER_PIN
+				CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, TRUE );
+#				endif
+
                 irq.Release();
 
                 // if we stall on time, don't check again until after we sleep
@@ -159,6 +175,9 @@ UINT32 Events_WaitForEvents( UINT32 sleepLevel, UINT32 WakeupSystemEvents, UINT3
                     {
                         s_timewarp_compensate += (CountsRemaining * 10*1000*1000) / CPU_TicksPerSecond();
                     }
+#					ifdef OMAC_TESTING_SCHEDULER_PIN
+					CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, FALSE );
+#					endif
                     return 0;
                 }
 #endif

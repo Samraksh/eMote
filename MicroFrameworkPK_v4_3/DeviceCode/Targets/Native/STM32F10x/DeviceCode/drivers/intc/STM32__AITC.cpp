@@ -1028,6 +1028,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		STM32_AITC& AITC = STM32::AITC();
 		GLOBAL_LOCK(irq);
+#		ifdef OMAC_TESTING_SCHEDULER_PIN
+		BOOL pin_was_high = CPU_GPIO_GetPinState( OMAC_TESTING_SCHEDULER_PIN );
+		if (pin_was_high) CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, FALSE );
+#		endif
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
@@ -1043,37 +1047,16 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+
+#		ifdef OMAC_TESTING_SCHEDULER_PIN
+		if (pin_was_high) CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, TRUE );
+#		endif
 	}
-	
-
-    /*	
-	void __irq TIM2_IRQHandler()
-	{
-
-		UINT32 index;
-
-		STM32_AITC& AITC = STM32::AITC();
-
-		// set before jumping elsewhere or allowing other interrupts
-		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
-		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-
-		STM32_AITC_Driver::IRQ_VECTORING* IsrVector = &STM32_AITC_Driver::s_IsrTable[27];
-
-		// In case the interrupt was forced, remove the flag.
-
-		IsrVector->Handler.Execute();
-
-		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
-		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
-	}
-	*/
 
 	void __irq TIM3_IRQHandler()
 		{
 
 			UINT32 index;
-
 			STM32_AITC& AITC = STM32::AITC();
 
 			// set before jumping elsewhere or allowing other interrupts
@@ -1886,6 +1869,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		STM32_AITC& AITC = STM32::AITC();
 
 		GLOBAL_LOCK(irq);
+#		ifdef OMAC_TESTING_SCHEDULER_PIN
+		BOOL pin_was_high = CPU_GPIO_GetPinState( OMAC_TESTING_SCHEDULER_PIN );
+		if (pin_was_high) CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, FALSE );
+#		endif
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
@@ -1900,6 +1887,9 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+#		ifdef OMAC_TESTING_SCHEDULER_PIN
+		if (pin_was_high) CPU_GPIO_SetPinState( OMAC_TESTING_SCHEDULER_PIN, TRUE );
+#		endif
 	}
 
 }
