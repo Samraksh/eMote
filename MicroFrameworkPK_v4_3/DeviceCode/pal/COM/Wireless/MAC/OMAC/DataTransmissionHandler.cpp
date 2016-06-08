@@ -30,6 +30,10 @@ void PublicDataTxCallback(void * param){
 	}
 }
 
+void PublicDataTxPostExecCallback(void * param){
+	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
+}
+
 void PublicFastRecoveryCallback(void* param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
 }
@@ -104,7 +108,8 @@ void DataTransmissionHandler::Initialize(){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
-
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDataTxPostExecCallback, OMACClockSpecifier);
+	ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
@@ -299,7 +304,8 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 		ExecuteEventHelper();
 	}
 	else{
-		PostExecuteEvent();
+		VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC);
+		//PostExecuteEvent();
 	}
 }
 
