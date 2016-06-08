@@ -18,6 +18,8 @@
 
 OMACType g_OMAC;
 
+static HAL_CONTINUATION OMAC_callback_continuation;
+
 /*
  *
  */
@@ -111,6 +113,25 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 	return DS_Success;
 }
 
+void PushToUpperLayerHelper(void* arg)
+{
+	g_OMAC.PushPacketsToUpperLayers(arg);
+}
+
+void OMACType::PushPacketsToUpperLayers(void* arg){
+	/*Message_15_4_t* next_free_buffer;
+	while(!g_receive_buffer.IsEmpty()){
+		next_free_buffer = g_receive_buffer.GetOldest();
+		(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->length - sizeof(IEEE802_15_4_Header_t));
+	}*/
+
+	//No need for a while loop, as every time a data msg is received, this callback is enqueued
+	//Message_15_4_t* lastFullBuffer = g_receive_buffer.GetLastFullBuffer();
+	//(*m_rxAckHandler)(lastFullBuffer, lastFullBuffer->GetHeader()->payloadType);
+	Message_15_4_t* lastFullBuffer = NULL;
+	(*m_rxAckHandler)(lastFullBuffer, 0);
+}
+
 /*
  *
  */
@@ -159,6 +180,8 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		Radio_Event_Handler.SetRadioInterruptHandler(OMACRadioInterruptHandler);
 		Radio_Event_Handler.SetReceiveHandler(OMACReceiveHandler);
 		Radio_Event_Handler.SetSendAckHandler(OMACSendAckHandler);
+
+		OMAC_callback_continuation.InitializeCallback(PushToUpperLayerHelper, NULL);
 
 		//g_send_buffer.Initialize();
 		g_receive_buffer.Initialize();
@@ -250,14 +273,6 @@ BOOL OMACType::UnInitialize(){
 	return ret;
 }
 
-void OMACType::PushPacketsToUpperLayers(){
-	Message_15_4_t* next_free_buffer;
-	while(!g_receive_buffer.IsEmpty()){
-		next_free_buffer = g_receive_buffer.GetOldest();
-		(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->length - sizeof(IEEE802_15_4_Header_t));
-	}
-}
-
 /*
  *
  */
@@ -347,7 +362,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 							memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 							next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 							//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
-							(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+							//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+							OMAC_callback_continuation.Enqueue();
 
 
 							//Another method of doing the same thing as above
@@ -430,7 +446,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-						(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						OMAC_callback_continuation.Enqueue();
 					}
 					break;
 			};
