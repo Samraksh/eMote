@@ -916,7 +916,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if ( rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked() ) {
+	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. Continuation Pending.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -934,28 +934,20 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	}
 
 	// If radio is already in RX, stay in RX.
-	// If a packet comes in, shouldn't lose it.
+	// If a packet comes in, shouldn't lose it, but RX processing will be defered and timestamp will be wrong.
 	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
-		bool debug_print = false;
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX\r\n");
 		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
 		HAL_Time_Sleep_MicroSeconds(ms);
 		si446x_get_modem_status( 0xFF );
+
 		if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
 			ret = DS_Busy;
 		else
 			ret = DS_Success;
 
-		// Its possible we got a packet during CCA, if so, directly move the lock to RX.
-		GLOBAL_LOCK(irq);
-		if (!rx_callback_continuation.IsLinked())
-			si446x_radio_unlock();
-		else {
-			radio_lock = (uint32_t)radio_lock_rx;
-			debug_print = true;
-		}
+		si446x_radio_unlock();
 		si446x_spi_unlock();
-		irq.Release();
-		if (debug_print) si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA passed lock to RX\r\n");
 		return ret;
 	}
 
@@ -966,13 +958,13 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// Check interrupts, does NOT clear.
 
-	// If there are any interrupts pending at this point, back-off
-	// TX continuation check may be not necessary.
-	if (si446x_get_ph_pend() || si446x_get_modem_pend() || rx_callback_continuation.IsLinked() || tx_callback_continuation.IsLinked()) {
+	// Check one last time to see if anything happened.
+	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
+	if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		si446x_radio_unlock();
 		si446x_spi_unlock();
-		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		return DS_Fail;
 	}
 
