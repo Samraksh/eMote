@@ -581,7 +581,7 @@ DeviceStatus CPU_Radio_Sleep(UINT8 radioID, UINT8 level)
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//ASSERT_NOFAIL(status);
 	return status;
 
 }

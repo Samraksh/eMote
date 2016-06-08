@@ -450,7 +450,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					if(true || myID == destID) {
 						//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
 						//if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-							hal_printf("OMACType::ReceiveHandler received default packet\n");
 							g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 						//}
 						data_msg = (DataMsg_t*) msg->GetPayload();
