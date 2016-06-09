@@ -969,7 +969,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	// Check one last time to see if anything happened.
 	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
-	if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() ) {
+	if (si446x_get_ph_pend() || si446x_get_modem_pend() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
 		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		si446x_radio_unlock();
@@ -987,6 +987,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		ret = DS_Success;
 
 	si446x_change_state(SI_STATE_SPI_ACTIVE); 		// disables RX
+	si446x_get_int_status(0x0, 0x0, 0x0);	 		// Clear interrupts
 	si446x_fifo_info(0x3); 							// Clear FIFO in case we caught something.
 	si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 	si446x_change_state(SI_STATE_SLEEP); 			// All done, sleep.
