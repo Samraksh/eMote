@@ -79,15 +79,15 @@
             Success
             </summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.CallbackTypes">
+        <member name="T:Samraksh.eMote.Net.CallbackType">
             <summary>
             Kinds of callbacks
             </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.CallbackTypes.Received">
+        <member name="F:Samraksh.eMote.Net.CallbackType.Received">
             <summary>Packet received</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.CallbackTypes.NeighborChanged">
+        <member name="F:Samraksh.eMote.Net.CallbackType.NeighborChanged">
             <summary>Neighborhood has changed</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.MAC.CSMA">
@@ -134,25 +134,6 @@
             <param name="payload">Payload (in byte array) to send</param>
             <param name="offset">Offset into array</param>
             <param name="size">Size of message</param>
-            <param name="eventTime">Time value to add to packet</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet with payload type</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payloadType">Payload type of packet</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send packet with payload type and time value</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payloadType">Payload type of packet</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
             <param name="eventTime">Time value to add to packet</param>
             <returns>Result status</returns>
         </member>
@@ -305,14 +286,6 @@
             <summary>Get a count of unprocessed packets in the buffer</summary>
             <returns>The number of packets in the buffer not yet delivered to the program</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACBase.UnInitialize">
             <summary>Uninitialize radio</summary>
             <returns>Status of operation</returns>
@@ -343,6 +316,14 @@
             <summary></summary>
             <param name="neighborlist"></param>
             <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16)">
+            <summary>Send packet</summary>
+            <param name="address">Address of recipient</param>
+            <param name="payload">Payload (in byte array) to send</param>
+            <param name="offset">Offset into array</param>
+            <param name="size">Size of payload</param>
+            <returns>Result status</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Send(System.UInt16,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
             <summary>Send a _packet</summary>
@@ -380,6 +361,9 @@
         </member>
         <member name="P:Samraksh.eMote.Net.MACBase.MACRadioObj">
             <summary>The radio object the MAC is using</summary>
+        </member>
+        <member name="E:Samraksh.eMote.Net.MACBase.OnReceiveAll">
+            <summary>Raised when any packet is received (promiscuous mode)</summary>
         </member>
         <member name="E:Samraksh.eMote.Net.MACBase.OnReceive">
             <summary>Raised when a packet has been received</summary>
@@ -534,6 +518,9 @@
         <member name="F:Samraksh.eMote.Net.MAC.Link.AverageDelay">
             <summary>Average delay</summary>
         </member>
+        <member name="M:Samraksh.eMote.Net.MAC.Link.#ctor">
+            <summary></summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.MAC.NeighborStatus">
             <summary>
             Neighbor status
@@ -576,6 +563,9 @@
         </member>
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.FrameLength">
             <summary>Frame length of neighbor</summary>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MAC.Neighbor.#ctor">
+            <summary></summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RadioUser">
             <summary>
@@ -940,25 +930,6 @@
             <param name="payload">Payload (in byte array) to send</param>
             <param name="offset">Offset into array</param>
             <param name="size">Size of packet</param>
-            <param name="eventTime">Time value to add to packet</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACPipe.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16)">
-            <summary>Send packet with payload type</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payloadType">Payload type of packet</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
-            <returns>Result status</returns>
-        </member>
-        <member name="M:Samraksh.eMote.Net.MACPipe.Send(System.UInt16,Samraksh.eMote.Net.PayloadType,System.Byte[],System.UInt16,System.UInt16,System.DateTime)">
-            <summary>Send packet with payload type and time value</summary>
-            <param name="address">Address of recipient</param>
-            <param name="payloadType">Payload type of packet</param>
-            <param name="payload">Payload (in byte array) to send</param>
-            <param name="offset">Offset into array</param>
-            <param name="size">Size of payload</param>
             <param name="eventTime">Time value to add to packet</param>
             <returns>Result status</returns>
         </member>
