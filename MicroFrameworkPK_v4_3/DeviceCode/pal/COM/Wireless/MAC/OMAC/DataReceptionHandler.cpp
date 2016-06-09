@@ -19,7 +19,7 @@ void PublicDataRxCallback(void * param){
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 #endif
-	if(SOFTWARE_ACKS){
+	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		if(g_OMAC.m_omac_scheduler.m_DataReceptionHandler.m_receptionstate==2){
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendDataACK();
 		}
@@ -27,7 +27,7 @@ void PublicDataRxCallback(void * param){
 			g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 		}
 	}
-	if(!SOFTWARE_ACKS){
+	else{
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.PostExecuteEvent();
 	}
 }
@@ -66,7 +66,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
-	if(SOFTWARE_ACKS){
+	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, 0 , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	}
 
@@ -223,7 +223,7 @@ void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a
 }
 
 void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission interupt from the radio
-	if(SOFTWARE_ACKS) { //Only happens in SOFTWARE_ACKS case
+	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK) { //Only happens in SOFTWARE_ACK case
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		ASSERT_SP(m_receptionstate == 3);
@@ -237,7 +237,7 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 }
 
 void DataReceptionHandler::HandleEndofReception(UINT16 address){
-	if(SOFTWARE_ACKS){
+	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
@@ -249,7 +249,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 			this->SendDataACK();
 		}
 	}
-	else if(HARDWARE_ACKS) {
+	else if(CPU_Radio_GetRadioAckType() == HARDWARE_ACK) {
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
@@ -262,7 +262,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 			this->SendDataACK();
 		}
 	}
-	else if(!SOFTWARE_ACKS && !HARDWARE_ACKS) {
+	else if(CPU_Radio_GetRadioAckType() == NO_ACK) {
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, TRUE );
 		VirtualTimerReturnMessage rm;

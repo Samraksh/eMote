@@ -69,7 +69,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
 			break;
 		case MFM_OMAC_DATA_ACK:
-			if(SOFTWARE_ACKS){
+			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 				if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 					g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
 				}
@@ -435,7 +435,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 				case MFM_OMAC_DATA_ACK:
 				{
-					if(SOFTWARE_ACKS){
+					if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 						g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
 						location_in_packet_payload += 1;
 					}

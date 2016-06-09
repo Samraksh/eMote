@@ -248,9 +248,9 @@ HAL_RECEPTION_TIMER 6
 
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
-const uint OMAC_HW_ACK_DELAY_MICRO = 100;
-const uint HARDWARE_ACKS = 0;
-const uint SOFTWARE_ACKS = 1;
+//const uint OMAC_HW_ACK_DELAY_MICRO = 100;
+//const uint HARDWARE_ACKS = 0;
+//const uint SOFTWARE_ACKS = 1;
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
 
