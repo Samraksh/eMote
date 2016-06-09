@@ -229,5 +229,6 @@ void ManagedCallback(UINT16 arg1, UINT16 arg2)
 	data2 = arg2;
 	//data2 = arg2;
 
+	GLOBAL_LOCK(irq);
 	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
 }
