@@ -796,6 +796,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	radio_lock_id_t owner;
+	DeviceStatus ret;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
 	if (!isInit) {
@@ -814,12 +815,20 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	si446x_change_state(SI_STATE_SLEEP);
+	si446x_get_int_status(0xFF, 0xFF, 0xFF);
+	if ( si446x_get_ph_pend() || si446x_get_modem_pend() ) { // Assuming cont_busy() check isn't necessary
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() radio interrupts pending, abort sleep.\r\n");
+		ret = DS_Busy;
+	}
+	else { // Radio appears to be idle, sleep is a go
+		si446x_change_state(SI_STATE_SLEEP);
+		ret = DS_Success;
+	}
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	return DS_Success;
+	return ret;
 }
 
 
