@@ -55,6 +55,13 @@ enum RadioName
 	SI4468_SPI2,
 };
 
+enum RadioAckType
+{
+	HARDWARE_ACK,
+	SOFTWARE_ACK,
+	NO_ACK
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -180,6 +187,7 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address);
 RadioType CPU_Radio_GetRadioType();
 DeviceStatus CPU_Radio_SetRadioType(RadioType radioType);
 
+INT8 CPU_Radio_GetRadioAckType();
 INT8 CPU_Radio_GetRadioName();
 DeviceStatus CPU_Radio_SetRadioName(INT8 radioName);
 

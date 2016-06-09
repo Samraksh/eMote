@@ -1389,7 +1389,7 @@ DeviceStatus RF231Radio::Initialize(RadioEventHandler *event_handler, UINT8 radi
 	if(!IsInitialized())
 	{
 		sequenceNumberSender = 0; sequenceNumberReceiver = 0;
-		if(HARDWARE_ACKS){
+		if(CPU_Radio_GetRadioAckType() == HARDWARE_ACK){
 			RF231_extended_mode = 1;
 		}
 		else{

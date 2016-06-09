@@ -380,7 +380,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 		bool rv = Send();
 		if(rv) {
-			if(!SOFTWARE_ACKS && !HARDWARE_ACKS){
+			if(CPU_Radio_GetRadioAckType() == NO_ACK){
 				DropPacket();
 			}
 		}
@@ -470,7 +470,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 	VirtualTimerReturnMessage rm;
 
-	if(HARDWARE_ACKS){
+	if(CPU_Radio_GetRadioAckType() == HARDWARE_ACK){
 		//resendSuccessful = true;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState(OMAC_RX_DATAACK_PIN, TRUE);
@@ -566,7 +566,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			ASSERT_SP(0);
 		}
 	}
-	else if(SOFTWARE_ACKS){
+	else if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -594,7 +594,7 @@ void DataTransmissionHandler::ReceiveDATAACK(UINT16 address){
 	VirtualTimerReturnMessage rm;
 
 
-	if(SOFTWARE_ACKS){
+	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		g_NeighborTable.RecordLastHeardTime(address,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 		DropPacket(); // The decision for dropping the packet depends on the outcome of the data reception
 	}

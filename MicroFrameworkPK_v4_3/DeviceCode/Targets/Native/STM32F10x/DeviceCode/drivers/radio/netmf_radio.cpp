@@ -31,7 +31,11 @@
 const char * strUfoRadio = "[NATIVE] Error in function %s : Unidentified radio \r\n";
 #define PRINTF_UNIDENTIFIED_RADIO()  hal_printf( strUfoRadio , __func__ );
 
+#define __HARDWARE_ACK__	1
+#define __SOFTWARE_ACK__	0
+
 INT8 currentRadioName;
+INT8 currentRadioAckType;
 
 // Calls the corresponding radio object initialize function based on the radio chosen
 DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioID, UINT8 numberRadios, UINT8 mac_id )
@@ -46,14 +50,34 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioI
 	{
 		case RF231RADIO:
 			currentRadioName = RF231RADIO;
+			if(__HARDWARE_ACK__){
+				currentRadioAckType = HARDWARE_ACK;
+			}
+			else if(__SOFTWARE_ACK__){
+				currentRadioAckType = SOFTWARE_ACK;
+			}
+			else{
+				currentRadioAckType = NO_ACK;
+			}
 			status = grf231Radio.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		case RF231RADIOLR:
 			currentRadioName = RF231RADIOLR;
+			if(__HARDWARE_ACK__){
+				currentRadioAckType = HARDWARE_ACK;
+			}
+			else if(__SOFTWARE_ACK__){
+				currentRadioAckType = SOFTWARE_ACK;
+			}
+			else{
+				currentRadioAckType = NO_ACK;
+			}
 			status = grf231RadioLR.Initialize(eventHandlers, radioID, mac_id);
 			break;
 		case SI4468_SPI2:
 			currentRadioName = SI4468_SPI2;
+			//Hardware ack not supported by SI4468. So, software ack by default
+			currentRadioAckType = SOFTWARE_ACK;
 			status = si446x_hal_init(eventHandlers, radioID, mac_id);
 			break;
 		default:
@@ -173,6 +197,12 @@ BOOL CPU_Radio_SetAddress(UINT8 radioID, UINT16 address)
 	ASSERT_SP(status == TRUE);
 	return status;
 }
+
+INT8 CPU_Radio_GetRadioAckType()
+{
+	return currentRadioAckType;
+}
+
 
 INT8 CPU_Radio_GetRadioName()
 {
