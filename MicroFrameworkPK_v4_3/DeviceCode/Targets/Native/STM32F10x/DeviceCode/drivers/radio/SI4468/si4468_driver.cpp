@@ -758,34 +758,35 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( cont_busy() ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
-		return DS_Fail;
-	}
-
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %d\r\n", owner);
-		return DS_Fail;
+		return DS_Busy;
 	}
 
+	// If already in RX, we're done
 	si_state_t state = si446x_request_device_state();
-
-	// We were already in RX, no need to do anything.
 	if (state == SI_STATE_RX) {
 		si446x_spi_unlock();
 		return DS_Success;
 	}
 
-	// Supposedly this property is squirrely and likes to mutate
-	// This should be temp1==0 temp2==1 for 1-byte length field
-	// Give it a couple of days, if not an issue can remove it.
-	{
-		uint8_t temp[2];
-		si446x_get_property_multi(0x12, 0x02, 0x0D, temp);
-		if (temp[0] != 0 || temp[1] != 1) {
-			si446x_debug_print(ERR100, "SI446X: si446x_hal_rx() WARNING, PKT_FIELD_1_LENGTH mutation! Tell Nathan\r\n");
-		}
+	// We have to hold radio lock to ensure we are free
+	if ( owner = si446x_radio_lock(radio_lock_rx) ) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Radio locked by %d\r\n", owner);
+		si446x_spi_unlock();
+		return DS_Busy;
 	}
+
+	si446x_get_int_status(0xFF, 0xFF, 0xFF);
+	if ( cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() radio ops pending, aborting.\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Busy;
+	}
+
+	// Now that we are sure we aren't busy, can unlock the radio.
+	si446x_radio_unlock();
 
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
