@@ -763,13 +763,6 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Busy;
 	}
 
-	// If already in RX, we're done
-	si_state_t state = si446x_request_device_state();
-	if (state == SI_STATE_RX) {
-		si446x_spi_unlock();
-		return DS_Success;
-	}
-
 	// We have to hold radio lock to ensure we are free
 	if ( owner = si446x_radio_lock(radio_lock_rx) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Radio locked by %d\r\n", owner);
