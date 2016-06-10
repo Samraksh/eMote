@@ -128,7 +128,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             _adcCopyBuffersPtr = 0;
 
             // threshold is 7 rotations a second, IQ rejection is 30, debug mode is set to no debug information, software version number is 4
-            radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET, 3, 1, 2, 3, 0, 1);
+            radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET, 1.5, 1, 2, 3, 0, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.FIXED_NOISE_REJECTION, 7, 100, 2, 3, 6, 1);
             //radarDetect.SetDetectionParameters(Samraksh.eMote.RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_MULTIPLY, 7, 1, 3, 4, 0, 1);
 
@@ -262,10 +262,10 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             int iqUsed = radarDetect.GetIQRejectionLevel();
             //Debug.Print(unwrap.ToString() + " " + backgroundNoiseZero.ToString() + " " + backgroundNoise.ToString() + " " + backgroundNoiseMax.ToString() + " " + iqUsed.ToString());
 
-            if (unwrap > thresholdRadians)
-                threshholdMet = true;
-            else 
-                threshholdMet = false;
+            if (detection == true)
+            {
+                Debug.Print("****** detection ******\r\n");
+            }
 
             /*byte[] sendMsg = new byte[7];
             sendMsg[0] = (byte)radarDetect.GetLastUnwrap(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
