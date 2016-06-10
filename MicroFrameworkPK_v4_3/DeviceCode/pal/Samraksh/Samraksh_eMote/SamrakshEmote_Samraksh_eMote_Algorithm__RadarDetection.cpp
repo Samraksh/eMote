@@ -293,10 +293,11 @@ INT8 Algorithm_RadarDetection::SetDetectionParameters( CLR_RT_HeapBlock* pMngObj
 	threshold = param1;
 	noiseRejectionPassedParameter = param2;
 	if ( mOfnDetector.initialized == true ){
-		M = param3;
-		N = param4;
 		mOfnDetector.Uninit();
 	}
+	M = param3;
+	N = param4;
+
 	if (M == 0){
 		M = 1;
 	}
