@@ -53,6 +53,9 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 	CPU_GPIO_EnableOutputPin(DATARX_SEND_SW_ACK, TRUE);
 	CPU_GPIO_SetPinState( DATARX_SEND_SW_ACK, FALSE );
+	CPU_GPIO_EnableOutputPin(DATARX_HANDLE_END_OF_RX, TRUE);
+	CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, FALSE );
+
 #endif
 	RadioID = radioID;
 	MacID = macID;
@@ -153,6 +156,8 @@ void DataReceptionHandler::ExecuteEvent(){
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
@@ -195,7 +200,9 @@ void DataReceptionHandler::HandleRadioInterrupt(){ // This is the beginning of a
 	//ASSERT_SP(m_receptionstate == 0);
 	m_receptionstate = 1;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
+#ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
+#endif
 	if(rm != TimerSupported){
 		/*CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, TRUE );
@@ -226,7 +233,7 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK) { //Only happens in SOFTWARE_ACK case
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
-		ASSERT_SP(m_receptionstate == 3);
+		//ASSERT_SP(m_receptionstate == 3);
 		m_receptionstate = 4;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
@@ -238,16 +245,24 @@ void DataReceptionHandler::SendACKHandler(){ // Handler for end of tranmission i
 
 void DataReceptionHandler::HandleEndofReception(UINT16 address){
 	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, TRUE );
+#endif
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
 		m_receptionstate = 2;
 		m_lastRXNodeId = address;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);
+		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);		//This runs in continuation context. Enable this line or next.
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);		//This runs in interrupt context
 		if(rm != TimerSupported){
 			this->SendDataACK();
 		}
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, FALSE );
+#endif
 	}
 	else if(CPU_Radio_GetRadioAckType() == HARDWARE_ACK) {
 		VirtualTimerReturnMessage rm;
@@ -263,8 +278,10 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		}
 	}
 	else if(CPU_Radio_GetRadioAckType() == NO_ACK) {
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATA_RX_INTERRUPT_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, TRUE );
+#endif
 		VirtualTimerReturnMessage rm;
 		m_isreceiving = false;
 		//ASSERT_SP(m_receptionstate == 1);
@@ -274,7 +291,9 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 0;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATA_RX_END_OF_RECEPTION, FALSE );
+#endif
 	}
 }
 
@@ -287,6 +306,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	m_isreceiving = false;
 
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 #endif
@@ -296,7 +316,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 
-	IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
+	//IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
 	/****** Taking the word value of below bits gives FCF_WORD_VALUE *******/
 	/*header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameType = FRAME_TYPE_MAC;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.securityEnabled = 0;
@@ -308,7 +328,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.frameVersion = 1;
 	header->fcf->IEEE802_15_4_Header_FCF_BitValue.srcAddrMode = 2;*/
 	/**************************************************************/
-	header->fcf.fcfWordValue = FCF_WORD_VALUE;
+	/*header->fcf.fcfWordValue = FCF_WORD_VALUE;
 	header->dsn = 97;
 	//header->srcpan = SRC_PAN_ID;
 	header->destpan = DEST_PAN_ID;
@@ -325,8 +345,19 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	*payload = 66;
 
 	header->length = sizeof(IEEE802_15_4_Header_t) + 1;
-	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, &m_ACKmsg, header->length);
+	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, &m_ACKmsg, header->length);*/
+
+	static int i = 0;
+	static softwareACKHeader softwareAckHeader;
+	if(i == 0){
+		softwareAckHeader.src = g_OMAC.GetMyAddress();
+		softwareAckHeader.payloadType = MFM_OMAC_DATA_ACK;
+		i++;
+	}
+	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
+
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 #endif

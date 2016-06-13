@@ -347,9 +347,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				case MFM_DATA:
 				{
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					//if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
-					//}
+					}
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 #endif
@@ -413,9 +413,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				case MFM_OMAC_TIMESYNCREQ:
 				{
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					//if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
-					//}
+					}
 #ifdef OMAC_DEBUG_GPIO
 					CPU_GPIO_SetPinState(OMAC_TIMESYNCREQRXPIN, TRUE);
 #endif
@@ -457,18 +457,19 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 					CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
 #endif
-					if(true || myID == destID) {
-						//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-						//if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
-							g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
-						//}
-						data_msg = (DataMsg_t*) msg->GetPayload();
-						//if(data_msg->msg_identifier != 16843009){
-							//ASSERT_SP(0);
-						//}
-						//location_in_packet_payload += data_msg->size;
-						location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
+					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
+					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
+					}
+					data_msg = (DataMsg_t*) msg->GetPayload();
+					//if(data_msg->msg_identifier != 16843009){
+						//ASSERT_SP(0);
+					//}
+					//location_in_packet_payload += data_msg->size;
+					location_in_packet_payload += data_msg->size + DataMsgOverhead;
+
+					if(true || myID == destID) {
 						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 						if(! (next_free_buffer))
 						{

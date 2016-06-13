@@ -30,9 +30,9 @@ void PublicDataTxCallback(void * param){
 	}
 }
 
-void PublicDataTxPostExecCallback(void * param){
+/*void PublicDataTxPostExecCallback(void * param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.PostExecuteEvent();
-}
+}*/
 
 void PublicFastRecoveryCallback(void* param){
 	g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendRetry();
@@ -108,7 +108,7 @@ void DataTransmissionHandler::Initialize(){
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDataTxPostExecCallback, OMACClockSpecifier);
+	//rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDataTxPostExecCallback, OMACClockSpecifier);
 	ASSERT_SP(rm == TimerSupported);
 }
 
@@ -165,11 +165,15 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 		if(neighborwakeUpSlot - neighborSlot < 20 ){
 			neighborwakeUpSlot = neighborwakeUpSlot+1;
 		}*/
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
+#endif
 		return remMicroSecnextTX;
 	}
 	else {
+#ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_NEXTEVENT, FALSE );
+#endif
 		//Either Dont have packet to send or missing timing for the destination
 		return MAX_UINT64;
 	}
@@ -282,7 +286,7 @@ void DataTransmissionHandler::DropPacket(){
 		//neigh_ptr->tsr_send_buffer.ClearBuffer();
 	}
 	else{ // The packet is gone
-		ASSERT_SP(0);
+		//ASSERT_SP(0);
 	}
 
 	isDataPacketScheduled = false;
@@ -304,8 +308,8 @@ void DataTransmissionHandler::SendRetry(){ // BK: This function is called to ret
 		ExecuteEventHelper();
 	}
 	else{
-		VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC);
-		//PostExecuteEvent();
+		//VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC);
+		PostExecuteEvent();
 	}
 }
 
@@ -378,6 +382,10 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 	if(canISend){
 		//resendSuccessful = false;
 
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+		CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
+#endif
 		bool rv = Send();
 		if(rv) {
 			if(CPU_Radio_GetRadioAckType() == NO_ACK){
@@ -442,6 +450,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 	if(e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
 		this->ExecuteEventHelper();
@@ -477,8 +486,10 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 		//CPU_GPIO_SetPinState( HW_ACK_PIN, TRUE );
 #endif
 		if(radioAckStatus == TRAC_STATUS_SUCCESS || radioAckStatus == TRAC_STATUS_SUCCESS_DATA_PENDING){
+#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 			CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+#endif
 			//Drop data packets only if send was successful
 			DropPacket();
 			//set flag to false after packet has been sent and ack received
@@ -523,18 +534,22 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				if(FAST_RECOVERY2){
 					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.UnsuccessfulTransmission(m_outgoingEntryPtr_dest);
 				}
+#ifdef OMAC_DEBUG_GPIO
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+#endif
 			}
 			else if(radioAckStatus == TRAC_STATUS_FAIL_TO_SEND){
+#ifdef OMAC_DEBUG_GPIO
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, TRUE );
 				CPU_GPIO_SetPinState( DATATX_SEND_ACK_HANDLER, FALSE );
+#endif
 			}
 			txhandler_state = DTS_WAITING_FOR_ACKS;
 			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
@@ -625,6 +640,8 @@ void DataTransmissionHandler::PostExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, TRUE );
 	//CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
+	CPU_GPIO_SetPinState( DATATX_DATA_PIN, FALSE );
 #endif
 	g_OMAC.m_omac_scheduler.PostExecution();
 }
