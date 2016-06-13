@@ -258,6 +258,43 @@ public:
 typedef OFProv<UINT64> OMACMicroSeconds;
 typedef OFProv<UINT64> OMACTicks;
 
+
+#if defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_SI4468
+
+	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	12.8*MICSECINMILISEC	//A 64-byte packet takes 64*8*25 usec to be transmitted (12800 usec);
+																		//At 40kbps, a bit takes 25 usec
+	#define DELAY_IN_RECEIVING_ACK				3.6*MICSECINMILISEC		//Delay in Rx generating an ack; SI4468 does not support H/w acks;
+																		//A 3-byte s/w ack (along with additional 10 bytes added by radio firmware) takes 2600 usec
+																		//Due to software delays (walking up and down the invocation call stack), an addition 1 ms is added
+	#define HIGH_DISCO_PERIOD_IN_SLOTS 			3000
+	#define MAX_PACKET_TX_DURATION_MICRO 		27.6*MICSECINMILISEC	//128 byte packet takes 25600 usec, but in reality time taken is 27600 usec (138 bytes)
+	#define ACK_RX_MAX_DURATION_MICRO 			8*MICSECINMILISEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
+
+#elif defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_RF231
+
+#if defined(RF231_HARDWARE_ACK)
+	#define DELAY_IN_RECEIVING_HW_ACK				0.4*MICSECINMILISEC		//(C)Delay in Rx generating a h/w ack
+	#define DELAY_IN_RECEIVING_SW_ACK				0*MICSECINMILISEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MICSECINMILISEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0*MICSECINMILISEC
+#else
+	#define DELAY_IN_RECEIVING_HW_ACK				0*MICSECINMILISEC
+	#define DELAY_IN_RECEIVING_SW_ACK				0.6*MICSECINMILISEC		//(C)Delay in Rx generating a s/w ack
+	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MICSECINMILISEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0.2*MICSECINMILISEC
+#endif
+
+	#define DELAY_IN_RECEIVING_ACK				DELAY_IN_RECEIVING_HW_ACK+DELAY_IN_RECEIVING_SW_ACK
+	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	DELAY_DUE_TO_MISSING_HW_ACK+DELAY_DUE_TO_MISSING_SW_ACK
+	#define HIGH_DISCO_PERIOD_IN_SLOTS 			1500
+	#define MAX_PACKET_TX_DURATION_MICRO 		5*MICSECINMILISEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
+	#define ACK_RX_MAX_DURATION_MICRO 			20*MICSECINMILISEC
+
+#else
+	#error "Radioname not defined"
+#endif
+
+
 #define MAXUPDATESEEDITERS 20
 //GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
@@ -284,18 +321,19 @@ typedef OFProv<UINT64> OMACTicks;
 #define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MICSECINMILISEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
 // BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
-#define DELAY_FROM_OMAC_TX_TO_RF231_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
-#define DELAY_FROM_RF231_TX_TO_RF231_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
+#define DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
+#define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
 #define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
-#define ACK_DELAY	0.4*MICSECINMILISEC						//(C)Delay in Rx generating an ack
 #define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
 															//   Sum of (max-min) of (A),(B) will go into (D)
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
+
 #define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
-													+DELAY_FROM_OMAC_TX_TO_RF231_TX+DELAY_FROM_RF231_TX_TO_RF231_RX+ACK_DELAY+RETRY_RANDOM_BACKOFF_DELAY_MICRO\
-														+RETRY_FUDGE_FACTOR
+													+DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX+DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX+DELAY_IN_RECEIVING_ACK\
+														+RETRY_RANDOM_BACKOFF_DELAY_MICRO+RETRY_FUDGE_FACTOR\
+															+RETRANS_DELAY_DUE_TO_MISSING_ACK
 //#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FROM_RF231_TX_TO_RF231_RX //This is the duration used in FastRecovery 2.0
 
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
@@ -315,15 +353,12 @@ typedef OFProv<UINT64> OMACTicks;
 #define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 #define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
 
-#define MAX_PACKET_TX_DURATION_MICRO 5*MICSECINMILISEC
-#define ACK_RX_MAX_DURATION_MICRO 20000
-
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MICSECINMILISEC
 #define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MICSECINMILISEC
 #define DATATX_POST_EXEC_DELAY	  10*MICSECINMILISEC
 
-#define HIGH_DISCO_PERIOD_IN_SLOTS 3000
+
 
 //40000000 - 5 secs
 //48000000 - 6 secs
