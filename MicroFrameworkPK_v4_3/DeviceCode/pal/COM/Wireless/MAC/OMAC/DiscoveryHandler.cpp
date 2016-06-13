@@ -372,7 +372,6 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		if(g_NeighborTable.Neighbor[nbrIdx].Status != Alive) {
 			TempIncreaseDiscoRate();
 		}
-		hal_printf("DiscoveryHandler::Receive UpdateNeighbor\n");
 		g_NeighborTable.UpdateNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 		//stop disco when there are 2 or more neighbors
 		/*if(nbrIdx >= 1){
@@ -380,7 +379,6 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		}*/
 	} else {
 		TempIncreaseDiscoRate();
-		hal_printf("DiscoveryHandler::Receive InsertNeighbor\n");
 		g_NeighborTable.InsertNeighbor(source, Alive, localTime, disMsg->nextSeed, disMsg->mask, nextwakeupSlot, disMsg->seedUpdateIntervalinSlots, &nbrIdx);
 	}
 

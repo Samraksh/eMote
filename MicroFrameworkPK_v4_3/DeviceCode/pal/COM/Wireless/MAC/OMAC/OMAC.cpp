@@ -290,6 +290,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
+	if(Size == sizeof(softwareACKHeader)){
+		swAckHeader = (softwareACKHeader*)msg;
+		RadioAddress_t sourceID = swAckHeader->src;
+		UINT8 payloadType = swAckHeader->payloadType;
+		if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
+			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
+			return msg;
+		}
+	}
+
 
 	UINT16 maxPayload = OMACType::GetMaxPayload();
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){

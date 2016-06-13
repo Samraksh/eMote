@@ -64,7 +64,7 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 
 	UINT8 CurrentActiveApp;
 	UINT16 MyID;
-
+	softwareACKHeader* swAckHeader;
 
 	//Protocol variables
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds

@@ -175,6 +175,11 @@ enum PayloadTypeMAC{
 #define FRAME_TYPE_ACK 		010
 #define FRAME_TYPE_MAC 		011
 
+struct PACK softwareACKHeader{
+	UINT8 payloadType;
+	UINT16 src;
+};
+
 //Please refer page 80 in RF231 datasheet
 typedef union{
 	//Below struct (though has bit-fields) occupies more memory than the word value which stops msgs from being received.
