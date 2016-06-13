@@ -135,7 +135,7 @@ static int si446x_channel = 0;
 static unsigned tx_power = 0;
 static volatile UINT64 rx_timestamp;
 
-volatile bool softwareACKSent;
+//volatile bool softwareACKSent;
 
 // Radio PAL stuff
 static Radio<Message_15_4_t> radio_si446x_spi2;
@@ -163,7 +163,7 @@ static void sendSoftwareAck(){
 		i++;
 	}
 	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP);
-	softwareACKSent = true;
+	//softwareACKSent = true;
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 }
 
@@ -254,11 +254,11 @@ static void rx_cont_do(void *arg) {
 	int currentPayloadType = header->payloadType;
 
 	//Send ack from radio itself.
-	if(__SI4468_SOFTWARE_ACK__){
+	/*if(__SI4468_SOFTWARE_ACK__){
 		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
 			sendSoftwareAck();
 		}
-	}
+	}*/
 
 	// I guess this swaps rx_msg_ptr as well???
 	//(rx_msg_ptr->GetHeader())->SetLength(size);
@@ -531,7 +531,7 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
 
 	// Default settings
-	softwareACKSent = true;
+	//softwareACKSent = true;
 	si446x_channel = si446x_default_channel;
 	tx_power = si446x_default_power;
 	tx_msg_ptr = &tx_msg;
@@ -764,9 +764,9 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 
 	DeviceStatus ret;
 
-	if(!softwareACKSent){
+	/*if(!softwareACKSent){
 		return NULL;
-	}
+	}*/
 
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, 0, NO_TIMESTAMP);
@@ -792,9 +792,9 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 
 	DeviceStatus ret;
 
-	if(!softwareACKSent){
+	/*if(!softwareACKSent){
 		return NULL;
-	}
+	}*/
 
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, eventTime, YES_TIMESTAMP);
@@ -825,9 +825,9 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if(!softwareACKSent){
+	/*if(!softwareACKSent){
 		return DS_Fail;
-	}
+	}*/
 
 	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
@@ -874,9 +874,9 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if(!softwareACKSent){
+	/*if(!softwareACKSent){
 		return DS_Fail;
-	}
+	}*/
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
@@ -999,9 +999,9 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 		return DS_Fail;
 	}
 
-	if(!softwareACKSent){
+	/*if(!softwareACKSent){
 		return DS_Fail;
-	}
+	}*/
 
 	if ( owner = si446x_spi_lock(radio_lock_cca_ms) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked.\r\n");
@@ -1111,10 +1111,10 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 static void si446x_pkt_tx_int() {
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
-	if(softwareACKSent){
+	//if(softwareACKSent){
 		tx_cont_do(NULL);
 		//tx_callback_continuation.Enqueue();
-	}
+	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 }
 
@@ -1123,11 +1123,11 @@ static void si446x_pkt_rx_int() {
 	// radio_lock owned by SYNC_DET at this point
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	if(softwareACKSent){
-		softwareACKSent = false;
+	//if(softwareACKSent){
+		//softwareACKSent = false;
 		rx_cont_do(NULL);
 		//rx_callback_continuation.Enqueue();
-	}
+	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 }
 
