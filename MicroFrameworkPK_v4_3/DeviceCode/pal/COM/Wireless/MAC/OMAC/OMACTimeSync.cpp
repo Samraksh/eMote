@@ -46,7 +46,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	RadioID = radioID;
 	MacID = macID;
 
-//	m_messagePeriod = SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST;//Time period in ticks
+	m_messagePeriod = SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST;//Time period in ticks
 	m_globalTime.Init();
 
 	VirtualTimerReturnMessage rm;
@@ -61,18 +61,15 @@ UINT64 OMACTimeSync::NextEvent(){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(OMAC_TIMESYNC_NEXT_EVENT, TRUE);
 #endif
-	Neighbor_t* sn = NULL;
+	Neighbor_t* sn;
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
-	nextEventsSlot = NextEventinSlots(sn);
+	nextEventsSlot = NextEventinSlots();
 	while(nextEventsSlot == 0){
+		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 		if(sn != NULL) {
 			Send(sn->MacAddress);
-			nextEventsSlot = NextEventinSlots(sn);
-		}
-		else{
-			//nextEventsSlot = 0;
-			break;
+			nextEventsSlot = NextEventinSlots();
 		}
 	}
 
@@ -89,23 +86,17 @@ UINT64 OMACTimeSync::NextEvent(){
 /*
  *
  */
-UINT16 OMACTimeSync::NextEventinSlots(Neighbor_t* sn){
+UINT16 OMACTimeSync::NextEventinSlots(){
 	UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
-	sn = NULL;
-	if(g_NeighborTable.NumberValidNeighbor > 0 ){
-		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST, FORCE_REQUESTTIMESYNC_INTICKS );
-	}
-	if ( sn == NULL ) {
-		//return ((UINT16) MAX_UINT32);
-		return (UINT16)((UINT64)SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST / (UINT64)SLOT_PERIOD_TICKS);
-	}
+	Neighbor_t* sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(y, m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS );
+	if ( sn == NULL ) return ((UINT16) MAX_UINT32);
 
-	else if( y - sn->LastTimeSyncSendTime >= SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST) { //Already passed the time. schedule send immediately
+	else if( y - sn->LastTimeSyncSendTime >= m_messagePeriod) { //Already passed the time. schedule send immediately
 		return 0;
 	}
 	else {
-		UINT64 remslots = (SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD_TICKS;
+		UINT64 remslots = (m_messagePeriod - (y - sn->LastTimeSyncSendTime) ) / SLOT_PERIOD;
 		return remslots;
 	}
 }
@@ -118,7 +109,7 @@ void OMACTimeSync::ExecuteEvent(){
 	//BK: This will be handled with the non_interrupt timer
 //	Neighbor_t* sn;
 //	while(NextEventinSlots() == 0){
-//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),SENDER_CENTRIC_PROACTIVE_TIMESYNC_REQUEST,FORCE_REQUESTTIMESYNC_INTICKS);
+//		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 //		Send(sn->MacAddress);
 //	}
 	VirtualTimerReturnMessage rm;
@@ -222,6 +213,7 @@ void OMACTimeSync::CreateMessage(TimeSyncMsg* timeSyncMsg, UINT64 curticks, bool
  *
  */
 DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg, UINT64 SenderDelay, UINT64 ReceiveTS){
+	bool TimerReturn;
 	//RadioAddress_t msg_src = msg->GetHeader()->src;
 	UINT64 y,neighborscurtime;
 
