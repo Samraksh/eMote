@@ -500,7 +500,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			//m_currentFrameRetryAttempt = 0;
 			//dest = rcv_msg->GetHeader()->dest;
 			if(dest != myID){
-				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(dest, ack_rx_time_ticks);
+				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 				if(ds != DS_Success){
 					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
 				}
