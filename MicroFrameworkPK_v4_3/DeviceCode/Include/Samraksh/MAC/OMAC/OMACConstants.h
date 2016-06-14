@@ -191,7 +191,7 @@ struct PACK TimeSyncMsg
 
 struct PACK TimeSyncRequestMsg
 {
-  UINT32 timesyncIdentifier;
+  //UINT32 timesyncIdentifier;
   bool request_TimeSync;
 };
 
