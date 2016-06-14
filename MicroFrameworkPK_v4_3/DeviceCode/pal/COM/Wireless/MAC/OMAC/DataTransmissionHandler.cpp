@@ -218,6 +218,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	UINT64 cur_remMicroSecnextTX, remMicroSecnextTX = MAX_UINT64;
 	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
 		if(g_NeighborTable.Neighbor[i].Status != Dead){
+			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MacAddress)){
 			// Readjust the neighbors queues
 			while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
 					&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
@@ -248,6 +249,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MacAddress;
 					isDataPacketScheduled = true;
 				}
+			}
 			}
 		}
 	}
@@ -475,7 +477,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 
 void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radioAckStatus){
 	txhandler_state = DTS_SEND_FINISHED;
-	RadioAddress_t src = 0;
+	RadioAddress_t dest = m_outgoingEntryPtr_dest;
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 	VirtualTimerReturnMessage rm;
 
@@ -496,11 +498,11 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 
 			m_currentSlotRetryAttempt = 0;
 			//m_currentFrameRetryAttempt = 0;
-			src = rcv_msg->GetHeader()->src;
-			if(src != myID){
-				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(src,g_OMAC.m_Clock.GetCurrentTimeinTicks());
+			//dest = rcv_msg->GetHeader()->dest;
+			if(dest != myID){
+				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(dest, ack_rx_time_ticks);
 				if(ds != DS_Success){
-					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", src, __LINE__);
+					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
 				}
 			}
 
