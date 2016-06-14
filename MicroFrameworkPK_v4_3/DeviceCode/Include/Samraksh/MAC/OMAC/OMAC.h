@@ -56,7 +56,13 @@ extern NeighborTable g_NeighborTable;
 class OMACType: public MAC<Message_15_4_t, MACConfig>{
   private:
 	//Underlying radio variables
-	static const UINT8 NumberRadios =1;
+	static const UINT8 NumberRadios = 1;
+
+	static HAL_CONTINUATION OMAC_callback_continuation;
+
+	static const UINT8 payloadTypeArrayMaxValue = 8;
+	static UINT8 payloadTypeArrayIndex;
+	UINT8 payloadTypeArray[payloadTypeArrayMaxValue];
 
 	BOOL RadioAckPending;
 	UINT8 m_recovery;

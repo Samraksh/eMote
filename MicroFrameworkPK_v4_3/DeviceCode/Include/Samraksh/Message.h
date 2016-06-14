@@ -102,7 +102,7 @@ public:
 //Values 0 to 31 (lower 5 bits - 0x00 to 0x1F) and possibly 0xFF (255) are for MF.
 //Rest are for applications.
 enum PayloadTypeUser{
-	DEFAULT = 0x00,
+	TYPE00 = 0x00,
 	TYPE01 = 0x01,
 	TYPE02 = 0x02,
 	TYPE03 = 0x03,

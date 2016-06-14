@@ -17,7 +17,8 @@
 
 //#include "TinyCLR_Runtime.h"
 
-#define Buffer_15_4_t_SIZE 2
+#define Data_Send_Buffer_15_4_t_SIZE		2
+#define TimeSync_Send_Buffer_15_4_t_SIZE 	1
 
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12
@@ -76,8 +77,8 @@ typedef struct {
 	UINT16  radioStartDelay;
 	UINT16  counterOffset;
 
-	Buffer_15_4<Buffer_15_4_t_SIZE> send_buffer;
-	Buffer_15_4<1> tsr_send_buffer;
+	Buffer_15_4<Data_Send_Buffer_15_4_t_SIZE> send_buffer;
+	Buffer_15_4<TimeSync_Send_Buffer_15_4_t_SIZE> tsr_send_buffer;
 }Neighbor_t;
 
 class NeighborTable {

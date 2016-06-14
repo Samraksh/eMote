@@ -18,7 +18,8 @@
 
 OMACType g_OMAC;
 
-static HAL_CONTINUATION OMAC_callback_continuation;
+UINT8 OMACType::payloadTypeArrayIndex = 0;
+HAL_CONTINUATION OMACType::OMAC_callback_continuation;
 
 /*
  *
@@ -129,7 +130,10 @@ void OMACType::PushPacketsToUpperLayers(void* arg){
 	//Message_15_4_t* lastFullBuffer = g_receive_buffer.GetLastFullBuffer();
 	//(*m_rxAckHandler)(lastFullBuffer, lastFullBuffer->GetHeader()->payloadType);
 	Message_15_4_t* lastFullBuffer = NULL;
-	(*m_rxAckHandler)(lastFullBuffer, 0);
+	payloadTypeArrayIndex--;
+	ASSERT_SP(payloadTypeArrayIndex >= 0);
+	UINT8 payloadTypeUpperLayer = payloadTypeArray[payloadTypeArrayIndex];
+	(*m_rxAckHandler)(lastFullBuffer, payloadTypeUpperLayer);
 }
 
 /*
@@ -377,6 +381,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 						//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
 						//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+						payloadTypeArrayIndex++;
 						OMAC_callback_continuation.Enqueue();
 
 
@@ -484,6 +490,8 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
 						//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+						payloadTypeArrayIndex++;
 						OMAC_callback_continuation.Enqueue();
 #ifdef OMAC_DEBUG_GPIO
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
