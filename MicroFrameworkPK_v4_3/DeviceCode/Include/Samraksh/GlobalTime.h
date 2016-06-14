@@ -246,7 +246,7 @@ public:
 		if( samples[nbrIndex].isused[samples[nbrIndex].lastTimeIndex]
 		&&  samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] >= nbr_ltime
 		){ // Discard out of orderly received time stamps // Consider adding it in between.
-			return;
+			Clean(nbr);
 		}
 		samples[nbrIndex].lastTimeIndex++;
 		samples[nbrIndex].lastTimeIndex = samples[nbrIndex].lastTimeIndex % MAX_SAMPLES;
@@ -260,12 +260,13 @@ public:
 	}
 	void Clean(UINT16 nbr){
 		UINT16 nbrIndex = FindNeighbor(nbr);
-		samples[nbrIndex].nbrID=0xFFFF;
+		//samples[nbrIndex].nbrID=0xFFFF;
 		for(int i=0; i< MAX_SAMPLES; i++){
 			samples[nbrIndex].recordedTime[i] =INVALID_TIMESTAMP;
 		}
+		samples[nbrIndex].lastTimeIndex = 0;
 		//memset(samples[nbrIndex].recordedTime,INVALID_TIMESTAMP,MAX_SAMPLES);
-		samples[nbrIndex].numSamples=0;
+		samples[nbrIndex].numSamples = 0;
 	}
 	void Init(){
 		nbrCount=0;
