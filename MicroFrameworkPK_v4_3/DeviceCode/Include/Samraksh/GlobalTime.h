@@ -18,7 +18,9 @@
 #define MAXRangeUINT64 0xFFFFFFFFFFFFFFFF
 #define UnknownRelativeFreq 255
 
+#define MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION 2
 #define TIME_WALK_STEP (double)(2*GUARDTIME_MICRO*TICKS_PER_MICRO) //BK: This is the search step in Ticks used in FAST_RECOVERY2
+#define UNDEFINED_NEIGHBOR_INDEX 255
 
 struct TSSamples {
 	UINT16 nbrID;
@@ -337,6 +339,10 @@ public:
 		}
 	}
 
+	bool IsNeighborTimeAvailable(UINT16 nbr){
+		if(regressgt2.NumberOfRecordedElements(nbr) >= MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION) return true;
+		else return false;
+	};
 	// OBSOLETE AND UNTESTED
 	UINT64 Read(){
 		UINT64 rtn;
