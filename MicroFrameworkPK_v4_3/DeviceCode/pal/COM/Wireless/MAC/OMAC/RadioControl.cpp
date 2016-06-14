@@ -187,10 +187,10 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if(!(header->flags & TIMESTAMPED_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
+	if(!(header->flags & MFM_TIMESYNC_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
-	if(!(header->flags & TIMESTAMPED_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
+	if( g_OMAC.m_omac_scheduler.m_DiscoveryHandler.highdiscorate && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
 		rv = rv || PiggybackDiscoMessage(msg, size);
 	}
 	return rv;
@@ -207,7 +207,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((header->flags & TIMESTAMPED_FLAG) || (header->payloadType == MFM_TIMESYNC)){ //Already embedded
+	if((header->flags & MFM_TIMESYNC_FLAG) || (header->payloadType == MFM_TIMESYNC)){ //Already embedded
 		return false;
 	}
 
@@ -254,7 +254,7 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
 	IEEE802_15_4_Header_t *header = msg->GetHeader();
 	IEEE802_15_4_Metadata* metadata = msg->GetMetaData();
 
-	if((header->flags & TIMESTAMPED_FLAG) || (header->payloadType == MFM_OMAC_DISCOVERY)){ //Already embedded
+	if((header->flags & MFM_DISCOVERY_FLAG) || (header->payloadType == MFM_OMAC_DISCOVERY)){ //Already embedded
 		return false;
 	}
 
