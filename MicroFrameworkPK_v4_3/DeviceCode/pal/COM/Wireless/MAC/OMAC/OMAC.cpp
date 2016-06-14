@@ -38,6 +38,9 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 	if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) && Interrupt==StartOfReception){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleRadioInterrupt();
 	}
+	else if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DISCO_PENDING) && Interrupt==StartOfReception){
+		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.HandleRadioInterrupt();
+	}
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_RX_INTERRUPT_PIN, FALSE);
 #endif
