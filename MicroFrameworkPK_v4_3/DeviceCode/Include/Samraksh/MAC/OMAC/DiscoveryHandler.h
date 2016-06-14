@@ -15,6 +15,21 @@
 #include "Handlers.h"
 
 
+enum DiscoState{
+	DISCO_INITIAL,
+	DISCO_LISTEN_SUCCESS,
+	DISCO_LISTEN_FAIL,
+	BEACON1_SKIPPED,
+	BEACON1_SEND_START,
+	BEACON1_SEND_DONE,
+	BEACON2_SKIPPED,
+	BEACON2_SEND_START,
+	BEACON2_SEND_DONE,
+	WAITING_FOR_SLEEP,
+	SLEEP_SUCCESSFUL,
+	FAILSAFE_STOPPING,
+};
+
 /*
  *
  */
@@ -26,20 +41,12 @@ typedef struct MessageCacheEntry {
 #endif
 } MessageCacheEntry_t;
 
-enum DiscoState{
-	DISCO_STATE_BEACON_1,
-	DISCO_STATE_BEACON_N,
-};
 /*
  *
  */
 class DiscoveryHandler: public EventHandler {
-private:
-	bool m_disco_getting_send;
-	DiscoState m_disco_state;
+	DiscoState m_state;
  public:
-
-
 	UINT32 discoInterval;
 	UINT16 m_seed;
 	UINT32 m_nextFrame;
@@ -61,9 +68,10 @@ private:
  // public:
 	void Initialize(UINT8 radioID, UINT8 macID);
 	void BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus success);
+	void HandleRadioInterrupt();
 	void BeaconNTimerHandler();
 
-	void FailsafeStop();
+	bool FailsafeStop();
 
 	UINT64 NextEvent();
   	UINT64 NextEventinSlots(const UINT64 &currentSlotNum);

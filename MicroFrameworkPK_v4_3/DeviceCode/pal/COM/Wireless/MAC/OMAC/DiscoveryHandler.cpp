@@ -37,25 +37,20 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 	CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
-	CPU_GPIO_EnableOutputPin(  DISCO_NEXT_EVENT, FALSE );
-	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
-	CPU_GPIO_EnableOutputPin(DISCO_BEACON_N, TRUE);
-	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
 #endif
 
-
+	m_state = DISCO_INITIAL;
 	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
 	PermanentlyDecreaseDiscoRate();
 	TempIncreaseDiscoRate();
+	g_OMAC.m_omac_RadioControl.stayOn = true;
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 
 	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 
-	m_disco_getting_send = 0;
-
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 }
 
@@ -89,18 +84,18 @@ UINT64 DiscoveryHandler::NextEvent(){
 UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
 	//UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	UINT64 period1Remaining, period2Remaining;
-	period1Remaining = (currentSlotNum/2) % m_period1;
-	period2Remaining = (currentSlotNum/2) % m_period2;
+	period1Remaining = (currentSlotNum) % m_period1;
+	period2Remaining = (currentSlotNum) % m_period2;
 
 	if (period1Remaining == 0 || period2Remaining == 0) {
 		return 0;
 	}
 	else  {
 		if(period1Remaining < period2Remaining){
-			return (2*period1Remaining);
+			return (period1Remaining);
 		}
 		else{
-			return (2*period2Remaining);
+			return (period2Remaining);
 		}
 //		return ((period1Remaining < period2Remaining) ? (2*period1Remaining ) : (2*period2Remaining ));
 	}
@@ -110,37 +105,26 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
  *
  */
 void DiscoveryHandler::ExecuteEvent(){
-	DeviceStatus e = DS_Fail;
 	VirtualTimerReturnMessage rm;
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
-#endif
+	m_state = DISCO_INITIAL;
+
+	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
-		//hal_printf("DiscoveryHandler::ExecuteEvent turned on Rx\n");
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
-#endif
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC - TIMEITTAKES2TXDISCOPACKETINMICSEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+		m_state = DISCO_LISTEN_SUCCESS;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-		if(rm == TimerSupported) {
-			Beacon1();
-		}
-		else {
-			//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
 	}
 	else {
-		//hal_printf("DiscoveryHandler::ExecuteEvent Could not turn on Rx\n");
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
-		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
-		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
-#endif
-		//hal_printf("DiscoveryHandler::ExecuteEvent StartRx not successful\n");
-		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
-		PostExecuteEvent();
+		m_state = DISCO_LISTEN_FAIL;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
 	}
 }
 
@@ -149,18 +133,32 @@ void DiscoveryHandler::ExecuteEvent(){
  *
  */
 void DiscoveryHandler::PostExecuteEvent(){
-	//Scheduler's PostExecution stops the radio
-	//stop the radio
-	/*DeviceStatus  ds;
+	VirtualTimerReturnMessage rm;
+	DeviceStatus  ds = DS_Success;
+	m_state = WAITING_FOR_SLEEP;
 	ds = g_OMAC.m_omac_RadioControl.Stop();
-	if (ds != DS_Success) {
-		hal_printf("DiscoveryHandler::Cannot stop the radio");
-	}*/
-	g_OMAC.m_omac_scheduler.PostExecution();
+	if (ds == DS_Success) {
+		m_state = SLEEP_SUCCESSFUL;
+		g_OMAC.m_omac_scheduler.PostExecution();
+	}
+	else {
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+
 }
 
-void DiscoveryHandler::FailsafeStop(){
-	VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+bool DiscoveryHandler::FailsafeStop(){
+	VirtualTimerReturnMessage rm;
+	m_state = FAILSAFE_STOPPING;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+	if(rm != TimerSupported){ //Could not stop the timer
+		return false;
+	}
+	return true;
 }
 
 ////////////////////Private Functions////////////////////////////
@@ -169,12 +167,7 @@ void DiscoveryHandler::FailsafeStop(){
  */
 //Mukundan: Can add conditions to suppress beaconing, will keep this true for now
 BOOL DiscoveryHandler::ShouldBeacon(){
-	if(m_disco_getting_send == false){
-		return TRUE;
-	}
-	else {
-		return FALSE;
-	}
+	return TRUE;
 }
 
 /*
@@ -184,37 +177,34 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
 #endif
-	DeviceStatus e = DS_Fail;
-	UINT64 localTime = 0;
+	DeviceStatus DS = DS_Fail;
+	UINT64 y = 0;
+	bool canISend = true;
 
 	DiscoveryMsg_t* m_discoveryMsg = (DiscoveryMsg_t*)msgPtr->GetPayload();
-
 	CreateMessage(m_discoveryMsg);
 
-	//localTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	//m_discoveryMsg->localTime0 = (UINT32) localTime ;
-	//m_discoveryMsg->localTime1 = (UINT32) (localTime>>32);
+	 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 
-	e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
-
-	if(e == DS_Success){
-		m_disco_getting_send = true;
-	}
-	/*if (m_busy == FALSE) {
-		m_busy = TRUE;
-		if(!stopBeacon){
-			e = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), localTime );
+	 while(1){
+		//Check CCA
+		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
+		if(DS != DS_Success){
+			hal_printf("DiscoveryHandler::Beacon() transmission detected!\n");
+			//i = GUARDTIME_MICRO/140;
+			canISend = false;
+			break;
 		}
-		m_busy = FALSE;
+		if( g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
+			break;
+		}
 	}
-	else {
-		// Why busy? Timing issue?
-		hal_printf("DiscoveryHandler::Beacon m_busy\n");
-		e = DS_Busy;
-	}*/
 
+	if(canISend) {
+		DS = Send(dst, msgPtr, sizeof(DiscoveryMsg_t), 0 );
+	}
 
-	return e;
+	return DS;
 }
 
 void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
@@ -239,6 +229,25 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
  *
  */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
+	VirtualTimerReturnMessage rm;
+	switch(m_state){
+		case BEACON1_SEND_START:
+			m_state = BEACON1_SEND_DONE;
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+			if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+				PostExecuteEvent();
+			}
+			break;
+		case BEACON2_SEND_START:
+			m_state = BEACON2_SEND_DONE;
+			rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  1, TRUE, OMACClockSpecifier );
+			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+			break;
+		default:			hal_printf("DiscoveryHandler::Received Unexpected SendACK\n");
+	}
 	/* Don't use this for now
 	if(status == NO_Busy){
 		hal_printf("NO_Busy - What do we do? Just ignore?\n");
@@ -261,54 +270,64 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
 */
-	m_disco_getting_send = false;
-	/*if(m_disco_state == DISCO_STATE_BEACON_N){
-		VirtualTimerReturnMessage rm;
-		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-	}*/
 }
 
+void DiscoveryHandler::HandleRadioInterrupt(){
+}
 /*
  *
  */
 void DiscoveryHandler::Beacon1(){
-	//Message_15_4_t m_discoveryMsgBuffer;
-	m_disco_getting_send = false;
-	m_disco_state = DISCO_STATE_BEACON_1;
+	VirtualTimerReturnMessage rm;
+	DeviceStatus ds = DS_Fail;
 	if (ShouldBeacon()) {
-		DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
-		if(ds != DS_Success) {
-			hal_printf("Beacon1 failed. ds = %d;\n", ds);
-		}
-		//If Beacon 1 fails, just continue operation. There is one more beacon
+		m_state = BEACON1_SEND_START;
+		ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
+	if(ds == DS_Success) {
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+	else {
+		m_state = BEACON1_SKIPPED;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+		//hal_printf("Beacon1 failed. ds = %d;\n", ds);
+	}
+	//If Beacon 1 fails, just continue operation. There is one more beacon
 }
 
 /*
  *
  */
 void DiscoveryHandler::BeaconN(){
-	//Message_15_4_t m_discoveryMsgBuffer;
-	m_disco_getting_send = false;
-	m_disco_state = DISCO_STATE_BEACON_N;
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
-#endif
-
-	DeviceStatus ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
-	if (ds != DS_Success) {
-#ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
-		CPU_GPIO_SetPinState( DISCO_BEACON_N, TRUE );
-#endif
-		hal_printf("BeaconN failed. ds = %d; \n", ds);
+	VirtualTimerReturnMessage rm;
+	DeviceStatus ds = DS_Fail;
+	if (ShouldBeacon()) {
+		m_state = BEACON2_SEND_START;
+		ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
-#ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
-#endif
-	this->PostExecuteEvent();
+	if(ds == DS_Success) {
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
+	else {
+		m_state = BEACON2_SKIPPED;
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
+			PostExecuteEvent();
+		}
+	}
 }
 
 
@@ -317,25 +336,33 @@ void DiscoveryHandler::BeaconN(){
  */
 void DiscoveryHandler::BeaconNTimerHandler(){
 	VirtualTimerReturnMessage rm;
-	if(m_disco_state == DISCO_STATE_BEACON_N ){
-		this->PostExecuteEvent();
-		/*if( m_disco_getting_send == false){
-			//rm = VirtTimer_Start(VIRT_TIMER_OMAC_POST_EXEC);
-			this->PostExecuteEvent();
-		}
-		else{
-			rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, SLOT_PERIOD_MILLI * DISCOPERIODINSLOTS * MICSECINMILISEC, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
-			rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
-			if(rm  != TimerSupported){ //In this case no need to do anything. Failsafe timer will restore operation.
-				//PostExecuteEvent();
-			}
-		}*/
-	}
-	else{
-		m_disco_state = DISCO_STATE_BEACON_N;
-		if (ShouldBeacon()) {
-			BeaconN();
-		}
+
+	switch(m_state){
+	case FAILSAFE_STOPPING:
+		break;
+	case DISCO_LISTEN_SUCCESS:
+		Beacon1();
+		break;
+	case BEACON1_SEND_START:
+		hal_printf("DiscoveryHandler::Beacon1 transmission send ACK is missing\n");
+	case BEACON1_SKIPPED:
+	case BEACON1_SEND_DONE:
+		BeaconN();
+		break;
+	case BEACON2_SEND_START:
+		hal_printf("DiscoveryHandler::Beacon2 transmission send ACK is missing\n");
+	case BEACON2_SKIPPED:
+	case BEACON2_SEND_DONE:
+			PostExecuteEvent();
+		break;
+	case DISCO_INITIAL:
+	case SLEEP_SUCCESSFUL:
+		hal_printf("DiscoveryHandler::Unexpected firing of VIRT_TIMER_OMAC_DISCOVERY m_state = %d \n", m_state);
+		break;
+	case DISCO_LISTEN_FAIL:
+	case WAITING_FOR_SLEEP:
+	default:
+		PostExecuteEvent();
 	}
 
 }
@@ -397,7 +424,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 }
 
 DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg, UINT16 size, UINT64 event_time){
-	DeviceStatus retValue;
+	DeviceStatus retValue = DS_Fail;
 	static UINT8 seqNumber = 0;
 	UINT8 finalSeqNumber = 0;
 
@@ -465,7 +492,7 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
 	firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
-	 g_OMAC.m_omac_RadioControl.stayOn = true;
+
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
