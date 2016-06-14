@@ -288,6 +288,8 @@ void OMACScheduler::PostExecution(){
 }
 
 void OMACScheduler::FailsafeStop(){
+	VirtualTimerReturnMessage rm;
+	bool rv = false;
 	switch(InputState.GetState()) {
 		case I_DATA_SEND_PENDING:
 			m_DataTransmissionHandler.FailsafeStop();
@@ -302,8 +304,13 @@ void OMACScheduler::FailsafeStop(){
 			PostExecution();
 			break;
 		case I_DISCO_PENDING:
-			m_DiscoveryHandler.FailsafeStop();
-			PostExecution();
+			rv = m_DiscoveryHandler.FailsafeStop();
+			if (!rv){
+				rm = VirtTimer_Start(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
+			}
+			else{
+				PostExecution();
+			}
 			break;
 		default: //Case for
 			PostPostExecution();
