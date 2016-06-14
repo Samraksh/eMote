@@ -6,6 +6,7 @@
 #include <Samraksh/Message.h>
 #include <Samraksh/Hal_util.h>
 #include <Samraksh/GlobalTime.h>
+#include <Samraksh/Neighbors.h>
 
 #define DEBUG_TSYNC_PIN
 /*
@@ -17,7 +18,6 @@ class OMACTimeSync : public EventHandler{
 	UINT8 MacID;
 	Message_15_4_t m_timeSyncMsgBuffer;
 	TimeSyncMsg *m_timeSyncMsg;
-	UINT64 m_messagePeriod;
 	//PacketTimeSync_15_4 m_packetTimeSync;
 	UINT32 m_seqNo;
 
@@ -28,7 +28,7 @@ public:
 
 	void Initialize(UINT8 radioID, UINT8 macID);
 	UINT64 NextEvent();
-  	UINT16 NextEventinSlots();
+  	UINT16 NextEventinSlots(Neighbor_t* sn);
 	//UINT64 NextEvent(UINT64 currentTicks);
 	void ExecuteEvent();
 	UINT8 ExecuteEventDone();
