@@ -230,9 +230,9 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	rcv_ltime = (((UINT64)rcv_msg->localTime1) <<32) + rcv_msg->localTime0 + SenderDelay;
 	l_offset = (INT64)rcv_ltime - (INT64)ReceiveTS;
 
-	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
-		return DS_Fail;
-	}
+//	if((m_globalTime.regressgt2.LastRecordedTime(msg_src) >= rcv_ltime)){
+//		return DS_Fail;
+//	}
 
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
