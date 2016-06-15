@@ -154,6 +154,7 @@ void OMACScheduler::ScheduleNextEvent(){
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
 	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
+		beaconEventOffset = beaconEventOffset - g_OMAC.m_Clock.ConvertTickstoMicroSecs(curticks - curticks_beacon);
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}
 	if(timeSyncEventOffset < MAXSCHEDULERUPDATE && timeSyncEventOffset < nextWakeupTimeInMicSec) {
