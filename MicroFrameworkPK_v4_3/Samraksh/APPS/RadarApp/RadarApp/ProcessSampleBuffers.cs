@@ -256,12 +256,14 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             var qBuff = iq.QBuff;
             bool detection = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize);
             int unwrap = radarDetect.GetLastUnwrap(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_CURRENTLY_USED);
+            bool winOverThresh = radarDetect.GetWindowOverThreshold();
+            int midUnwrap = radarDetect.GetMidWindowUnwrap();
             int backgroundNoise = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_CURRENTLY_USED);
             int backgroundNoiseZero = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_ZERO);
             int backgroundNoiseMax = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
             int iqUsed = radarDetect.GetIQRejectionLevel();
             //Debug.Print(unwrap.ToString() + " " + backgroundNoiseZero.ToString() + " " + backgroundNoise.ToString() + " " + backgroundNoiseMax.ToString() + " " + iqUsed.ToString());
-
+            Debug.Print(unwrap.ToString() + " " + midUnwrap.ToString() + " " + detection.ToString() + " " + winOverThresh.ToString());
             if (detection == true)
             {
                 Debug.Print("****** detection ******\r\n");

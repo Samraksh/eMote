@@ -10,6 +10,8 @@ static int prevQMax = 0, prevIMax = 0;
 static int unwrappedPhaseCrossProductZero = 0;
 static int prevQZero = 0, prevIZero = 0;
 
+static int unwrappedPhaseCrossMid = 0;
+
 enum PI
 {
     HALF = 6434,
@@ -90,6 +92,7 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	static UINT8 uartPort = 0;
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
+	int midPoint = (int)length>>1;
 
 	unwrappedPhaseCrossProduct = 0;
 	unwrappedPhaseCrossProductMax = 0;
@@ -120,6 +123,11 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
 		unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
+
+		// saving mid-point value
+		if (i == midPoint)
+			unwrappedPhaseCrossMid = unwrappedPhaseCrossProduct;
+
 		bufferUnwrap[i] = (UINT16)unwrappedPhaseCrossProduct;
 
 		if (debugVal == 1){
@@ -219,4 +227,8 @@ int getUnwrapMax(){
 
 int getUnwrapZero(){
 	return (abs(unwrappedPhaseCrossProductZero));
+}
+
+int getUnwrapMid(){
+	return (abs(unwrappedPhaseCrossMid));
 }

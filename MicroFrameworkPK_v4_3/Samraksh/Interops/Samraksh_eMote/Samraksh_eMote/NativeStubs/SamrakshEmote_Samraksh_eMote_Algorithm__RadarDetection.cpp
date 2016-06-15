@@ -70,3 +70,15 @@ INT32 Algorithm_RadarDetection::GetLastUnwrap( CLR_RT_HeapBlock* pMngObj, INT32 
     return retVal;
 }
 
+INT8 Algorithm_RadarDetection::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 Algorithm_RadarDetection::GetMidWindowUnwrap( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT32 retVal = 0; 
+    return retVal;
+}
+

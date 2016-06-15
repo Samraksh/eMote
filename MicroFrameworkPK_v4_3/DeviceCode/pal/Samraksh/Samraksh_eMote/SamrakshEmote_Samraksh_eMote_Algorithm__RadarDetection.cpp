@@ -44,6 +44,7 @@ static double callbacksPerSecond = 0;
 #define INITIAL_ADJUSTMENT_SAMPLE_CNT 270
 static int initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 static int prevIQrejectionValue = IQRejectionToUse;
+static bool windowOverThreshold = false;
 
 enum RADAR_NOISE_CONTROL
 {
@@ -214,10 +215,12 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	mOfnCounter.count += 1;
 	if (unwrap > threshold)
     {
+		windowOverThreshold = true;
 		mOfnDetector.Update(mOfnCounter.count, 1);
     }
     else
     {
+		windowOverThreshold = false;
 		mOfnDetector.Update(mOfnCounter.count, 0);
 		// we are only adding the current unwrap value to the background noise tracking if we did not detect anything
 		HeapTrackInsert(unwrapMedian,lastUnwrap);
@@ -375,3 +378,15 @@ INT32 Algorithm_RadarDetection::GetLastUnwrap( CLR_RT_HeapBlock* pMngObj, INT32 
 		return lastUnwrap;
 	}
 }
+
+INT8 Algorithm_RadarDetection::GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    return windowOverThreshold;
+}
+
+INT32 Algorithm_RadarDetection::GetMidWindowUnwrap( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
+{
+    INT32 retVal = getUnwrapMid(); 
+    return retVal;
+}
+

@@ -9,5 +9,6 @@ int unwrapPhase(INT16 valueI, INT16 valueQ, INT16* arcTan, INT32 noiseRejection)
 void unwrapCrossProduct(INT16 valueI, INT16 valueQ, INT32 noiseRejection);
 int getUnwrapMax();
 int getUnwrapZero();
+int getUnwrapMid();
 
 #endif

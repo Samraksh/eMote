@@ -204,3 +204,35 @@ HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetLastU
     }
     TINYCLR_NOCLEANUP();
 }
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetWindowOverThreshold___BOOLEAN( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT8 retVal = Algorithm_RadarDetection::GetWindowOverThreshold( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT8( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}
+
+HRESULT Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::GetMidWindowUnwrap___I4( CLR_RT_StackFrame& stack )
+{
+    TINYCLR_HEADER(); hr = S_OK;
+    {
+        CLR_RT_HeapBlock* pMngObj = Interop_Marshal_RetrieveManagedObject( stack );
+
+        FAULT_ON_NULL(pMngObj);
+
+        INT32 retVal = Algorithm_RadarDetection::GetMidWindowUnwrap( pMngObj,  hr );
+        TINYCLR_CHECK_HRESULT( hr );
+        SetResult_INT32( stack, retVal );
+
+    }
+    TINYCLR_NOCLEANUP();
+}

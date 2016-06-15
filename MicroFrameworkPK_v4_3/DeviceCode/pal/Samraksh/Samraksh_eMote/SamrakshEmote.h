@@ -31,6 +31,8 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
     TINYCLR_NATIVE_DECLARE(ResetBackgroundNoiseTracking___BOOLEAN);
     TINYCLR_NATIVE_DECLARE(GetIQRejectionLevel___I4);
     TINYCLR_NATIVE_DECLARE(GetLastUnwrap___I4__SamraksheMoteRADARNOISEREQUEST);
+    TINYCLR_NATIVE_DECLARE(GetWindowOverThreshold___BOOLEAN);
+    TINYCLR_NATIVE_DECLARE(GetMidWindowUnwrap___I4);
 
     //--//
 

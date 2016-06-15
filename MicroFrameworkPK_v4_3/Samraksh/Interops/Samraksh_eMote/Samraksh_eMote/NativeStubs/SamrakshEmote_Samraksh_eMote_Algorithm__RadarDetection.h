@@ -31,6 +31,8 @@ namespace Samraksh
             static INT8 ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static INT32 GetIQRejectionLevel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static INT32 GetLastUnwrap( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
+            static INT8 GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+            static INT32 GetMidWindowUnwrap( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
         };
     }
 }

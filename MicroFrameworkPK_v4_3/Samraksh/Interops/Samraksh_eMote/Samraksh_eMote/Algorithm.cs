@@ -46,7 +46,7 @@ namespace Samraksh.eMote
             /// </summary>
             public RadarDetection() {
                 Initialize();
-                SetDetectionParameters(RADAR_NOISE_CONTROL.FIXED_NOISE_REJECTION, 7, 30, 2, 3, 2, 1);
+                SetDetectionParameters(RADAR_NOISE_CONTROL.SCALING_NOISE_REJECTION_TARGET, 1.5, 1, 2, 3, 0, 1);
             }
             
             //////////////////////////public properties and methods/////////////////////
@@ -123,6 +123,20 @@ namespace Samraksh.eMote
             /// <returns>Returns the last unwrap value.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
             extern public int GetLastUnwrap(RADAR_NOISE_REQUEST iqRequestType);
+
+            /// <summary>
+            /// Request whether the last window's displacement was over the threshold
+            /// </summary>
+            /// <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public bool GetWindowOverThreshold();
+
+            /// <summary>
+            /// Request the last window's displacement at the mid-point of the window
+            /// </summary>
+            /// <returns>Returns the last window's displacement at the mid-point of the window.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public int GetMidWindowUnwrap();
         }
 
         /// <summary>

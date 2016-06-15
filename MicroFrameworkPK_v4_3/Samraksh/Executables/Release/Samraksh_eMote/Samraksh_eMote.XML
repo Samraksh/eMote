@@ -107,6 +107,18 @@
             </summary>
             <returns>Returns the last unwrap value.</returns>
         </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetWindowOverThreshold">
+            <summary>
+            Request whether the last window's displacement was over the threshold
+            </summary>
+            <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetMidWindowUnwrap">
+            <summary>
+            Request the last window's displacement at the mid-point of the window
+            </summary>
+            <returns>Returns the last window's displacement at the mid-point of the window.</returns>
+        </member>
         <member name="T:Samraksh.eMote.Algorithm.AcousticDetection">
             <summary>
             Acoustic Detection class  
