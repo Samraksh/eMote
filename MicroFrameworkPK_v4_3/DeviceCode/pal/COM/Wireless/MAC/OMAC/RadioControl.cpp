@@ -190,8 +190,10 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 	if(!(header->flags & MFM_TIMESYNC_FLAG) && (header->payloadType != MFM_TIMESYNC)) {
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
-	if( g_OMAC.m_omac_scheduler.m_DiscoveryHandler.highdiscorate && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
+	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
+		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS &&  g_NeighborTable.GetNeighborPtr(header->dest)->NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){
 		rv = rv || PiggybackDiscoMessage(msg, size);
+		}
 	}
 	return rv;
 }
@@ -238,9 +240,11 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		y = y - ( y_lo - event_time_lo );
 		g_OMAC.m_omac_scheduler.m_TimeSyncHandler.CreateMessage(tmsg, y);
 		dest = header->dest;
+		if(dest != 0 && dest != RADIO_BROADCAST_ADDRESS) {
 		DeviceStatus ds = g_NeighborTable.RecordTimeSyncSent(dest,y);
-		if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
-			hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+			if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
+				hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+			}
 		}
 		msg->GetHeader()->flags = ((UINT8)(msg->GetHeader()->flags | MFM_TIMESYNC_FLAG));
 		size += sizeof(TimeSyncMsg);
