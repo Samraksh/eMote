@@ -22,6 +22,8 @@
 
 extern UINT8 MacName;
 #define MAX_NEIGHBORS 12
+#define INVALID_NEIGHBOR_INDEX 255
+#define INVALID_MACADDRESS 0
 
 //extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
@@ -90,6 +92,7 @@ public:
 	DeviceStatus GetFreeIdx(UINT8* index);
 	DeviceStatus ClearNeighbor(UINT16 MacAddress);
 	DeviceStatus ClearNeighborwIndex(UINT8 tableIndex);
+	DeviceStatus FindIndexEvenDead(UINT16 MacAddress, UINT8* index);
 	DeviceStatus FindIndex(UINT16 MacAddress, UINT8* index);
 	void ClearTable();
 	UINT8 BringOutYourDead(UINT32 delay);
@@ -119,9 +122,12 @@ public:
 };
 
 DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MacAddress, UINT64 currTime){
-	 UINT8 index;
-	 DeviceStatus retValue = FindIndex(MacAddress, &index);
-
+	UINT8 index;
+	DeviceStatus retValue = FindIndexEvenDead(MacAddress, &index);
+	if(retValue == DS_Fail)  {
+		retValue = GetFreeIdx(&index);
+		Neighbor[index].MacAddress = MacAddress;
+	}
 	if ( (retValue==DS_Success) && (MacAddress != 0 || MacAddress != 65535)){
 		Neighbor[index].LastHeardTime = currTime;
 		return DS_Success;
@@ -163,6 +169,18 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 cu
 UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 {
 	return BringOutYourDead(NeighborLivenessDelay);
+}
+
+DeviceStatus NeighborTable::FindIndexEvenDead(UINT16 MacAddress, UINT8* index){
+	int tableIndex;
+
+	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
+		if ( (Neighbor[tableIndex].MacAddress == MacAddress)) {
+			*index = tableIndex;
+			return DS_Success;
+		}
+	}
+	return DS_Fail;
 }
 
 DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){
@@ -216,7 +234,7 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 
 DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].Status = Dead;
-	Neighbor[tableIndex].MacAddress = 0;
+	Neighbor[tableIndex].MacAddress = INVALID_MACADDRESS;
 
 	Neighbor[tableIndex].ForwardLink.AvgRSSI = 0;
 	Neighbor[tableIndex].ForwardLink.LinkQuality = 0;
@@ -258,15 +276,23 @@ void NeighborTable::ClearTable(){
 
 // neighbor table util functions
 DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
+	DeviceStatus rv = DS_Fail;
 	int tableIndex;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if (Neighbor[tableIndex].Status == Dead){			
+		if( Neighbor[tableIndex].MacAddress == INVALID_MACADDRESS){
 			*index = tableIndex;
-			return DS_Success;
+			rv = DS_Success;
+			break;
+		}
+		else if (Neighbor[tableIndex].Status == Dead){
+			*index = tableIndex;
 		}
 	}
-	return DS_Fail;
+	if(Neighbor[*index].MacAddress != INVALID_MACADDRESS){
+		ClearNeighborwIndex(*index);
+	}
+	return rv;
 }
 
 Neighbor_t* NeighborTable::GetNeighborPtr(UINT16 address){
@@ -284,8 +310,12 @@ UINT8 NeighborTable::NumberOfNeighbors(){
 }
 
 DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
-    DeviceStatus retValue = GetFreeIdx(index);
 
+
+    DeviceStatus retValue = FindIndexEvenDead(address, index);
+	if(retValue == DS_Fail)  {
+		retValue = GetFreeIdx(index);
+	}
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
 		NumberValidNeighbor++;
 		UpdateNeighbor(address, status, currTime, seed, mask, nextwakeupSlot, seedUpdateIntervalinSlots, index);
@@ -333,6 +363,12 @@ DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UIN
 }
 
 DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
+	DeviceStatus retValue = FindIndexEvenDead(address, index);
+	if(retValue == DS_Fail)  {
+		retValue = GetFreeIdx(index);
+		Neighbor[*index].MacAddress = address;
+	}
+
 	Neighbor[*index].MacAddress = address;
 	Neighbor[*index].Status = status;
 	Neighbor[*index].LastHeardTime = currTime;
@@ -346,7 +382,11 @@ DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status
 
 DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi){
 	 UINT8 index;
-	 DeviceStatus retValue = FindIndex(address, &index);
+		DeviceStatus retValue = FindIndexEvenDead(address, &index);
+		if(retValue == DS_Fail)  {
+			retValue = GetFreeIdx(&index);
+			Neighbor[index].MacAddress = address;
+		}
 
 	 if ((retValue==DS_Success) && (address != 0 || address != 65535)){
 			Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
@@ -367,8 +407,11 @@ DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status
 
 DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime){
 	 UINT8 index;
-	 DeviceStatus retValue = FindIndex(address, &index);
-
+		DeviceStatus retValue = FindIndexEvenDead(address, &index);
+		if(retValue == DS_Fail)  {
+			retValue = GetFreeIdx(&index);
+			Neighbor[index].MacAddress = address;
+		}
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
 		Neighbor[index].LastTimeSyncRequestTime = _LastTimeSyncTime;
 		return DS_Success;
@@ -380,7 +423,11 @@ DeviceStatus NeighborTable::RecordTimeSyncRequestSent(UINT16 address, UINT64 _La
 
 DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeSyncTime){
 	 UINT8 index;
-	 DeviceStatus retValue = FindIndex(address, &index);
+		DeviceStatus retValue = FindIndexEvenDead(address, &index);
+		if(retValue == DS_Fail)  {
+			retValue = GetFreeIdx(&index);
+			Neighbor[index].MacAddress = address;
+		}
 
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
 		Neighbor[index].LastTimeSyncSendTime = _LastTimeSyncTime;
@@ -406,7 +453,11 @@ DeviceStatus NeighborTable::RecordTimeSyncSent(UINT16 address, UINT64 _LastTimeS
 
 DeviceStatus NeighborTable::RecordTimeSyncRecv(UINT16 address, UINT64 _LastTimeSyncTime){
 	 UINT8 index;
-	 DeviceStatus retValue = FindIndex(address, &index);
+	DeviceStatus retValue = FindIndexEvenDead(address, &index);
+	if(retValue == DS_Fail)  {
+		retValue = GetFreeIdx(&index);
+		Neighbor[index].MacAddress = address;
+	}
 
 	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
 		Neighbor[index].LastTimeSyncRecvTime = _LastTimeSyncTime;
