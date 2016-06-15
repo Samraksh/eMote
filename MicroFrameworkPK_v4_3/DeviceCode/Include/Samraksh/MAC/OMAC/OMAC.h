@@ -48,6 +48,14 @@
 #define OMAC_CPU_GPIO_SetPinState(X,Y) (void)0
 #define OMAC_CPU_GPIO_EnableOutputPin(X,Y) (void)0
 #endif
+
+#ifdef OMAC_DEBUG_PRINTF
+#define OMAC_HAL_PRINTF(fmt, ...) hal_printf(fmt, ##__VA_ARGS__)
+#endif
+#ifndef OMAC_DEBUG_PRINTF
+#define OMAC_HAL_PRINTF(fmt, ...) (void)0
+#endif
+
 //typedef Buffer_15_4<8> Buffer_15_4_t;
 
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
