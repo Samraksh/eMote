@@ -479,7 +479,7 @@ UINT16  CONTROL_BEACON_INTERVAL_SLOT = 7500;
 UINT32 ArbiterP_Timing;
 
 #define DISCO_PACKET_TX_TIME_MICRO 1000
-#define DISCO_SLOT_PERIOD_MILLI 8
+#define DISCO_SLOT_PERIOD_MICRO 8000
 #define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 /*
  * Prime numbers used in determining DISCO period of a node

@@ -108,10 +108,10 @@ UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
  */
 void OMACScheduler::ScheduleNextEvent(){
 	if(g_OMAC.UpdateNeighborTable() > 0 ){//If there are neighbor deleted from the table increase the discovery rate
-		m_DiscoveryHandler.TempIncreaseDiscoRate();
+		//m_DiscoveryHandler.TempIncreaseDiscoRate();
 	}
 	else if(g_NeighborTable.NumberOfNeighbors() == 0){//If there are no neighbors stay in high disco mode.
-		m_DiscoveryHandler.TempIncreaseDiscoRate();
+		//m_DiscoveryHandler.TempIncreaseDiscoRate();
 	}
 
 	VirtualTimerReturnMessage rm;
