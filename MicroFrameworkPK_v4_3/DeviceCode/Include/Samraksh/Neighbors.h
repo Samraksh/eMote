@@ -25,6 +25,8 @@ extern UINT8 MacName;
 #define INVALID_NEIGHBOR_INDEX 255
 #define INVALID_MACADDRESS 0
 
+#define NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS 3
+
 //extern void  ManagedCallback(UINT16 arg1, UINT16 arg2);
 //#define DEBUG_NEIGHBORTABLE
 
@@ -52,6 +54,7 @@ enum NeighborStatus {
 
 typedef struct {
 	UINT16 MacAddress;
+	UINT8 NumTimeSyncMessagesSent;
 	Link_t ForwardLink;
 	Link_t ReverseLink;
 	NeighborStatus Status;
@@ -233,7 +236,7 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
 	Neighbor[tableIndex].Status = Dead;
 	Neighbor[tableIndex].MacAddress = INVALID_MACADDRESS;
-
+	Neighbor[tableIndex].NumTimeSyncMessagesSent = 0;
 	Neighbor[tableIndex].ForwardLink.AvgRSSI = 0;
 	Neighbor[tableIndex].ForwardLink.LinkQuality = 0;
 	Neighbor[tableIndex].ForwardLink.AveDelay = 0;
@@ -313,6 +316,12 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(UINT16 address, UINT8* index){
 	if(retValue == DS_Fail)  {
 		retValue = GetFreeIdx(index);
 		Neighbor[*index].MacAddress = address;
+		Neighbor[*index].NumTimeSyncMessagesSent = 0;
+	}
+	else{
+		if(Neighbor[*index].Status != Alive){
+			Neighbor[*index].NumTimeSyncMessagesSent = 0;
+		}
 	}
 	return retValue;
 }
@@ -489,9 +498,9 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
 		if (Neighbor[tableIndex].Status != Dead){
-			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime ){ //Consider this neighbor
-				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit)
-				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit)
+			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){ //Consider this neighbor
+				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS )
+				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS )
 				){
 				rn = &Neighbor[tableIndex];
 				}
