@@ -47,6 +47,7 @@ typedef struct MessageCacheEntry {
 class DiscoveryHandler: public EventHandler {
 	DiscoState m_state;
 	UINT64 GetSlotNumber();
+	UINT64 GetTimeTillTheEndofSlot();
  public:
 	UINT32 discoInterval;
 	UINT16 m_seed;
