@@ -120,7 +120,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 		}
 		else if(header->payloadType == MFM_DATA){
 			CPU_GPIO_SetPinState( RC_TX_DATA, TRUE );
-			//hal_printf("RC send; Sending: %d\n", (msg->GetPayload())[8]);
+			//OMAC_HAL_PRINTF("RC send; Sending: %d\n", (msg->GetPayload())[8]);
 		}
 #endif
 
@@ -165,14 +165,14 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #endif
 
 	if(returnMsg == msg){
-		//hal_printf("Returning success\n");
+		//OMAC_HAL_PRINTF("Returning success\n");
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 #endif
 		return DS_Success;
 	}
 endOfSend:
-	//hal_printf("Returning DS_Fail\n");
+	//OMAC_HAL_PRINTF("Returning DS_Fail\n");
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, FALSE );
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
@@ -244,7 +244,7 @@ bool RadioControl_t::PiggybackTimeSyncMessage(Message_15_4_t* msg, UINT16 &size)
 		DeviceStatus ds = g_NeighborTable.RecordTimeSyncSent(dest,y);
 			if(ds != DS_Success && dest != RADIO_BROADCAST_ADDRESS){
 #ifdef OMAC_DEBUG_PRINTF
-				hal_printf("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
+				OMAC_HAL_PRINTF("RadioControl_t::PiggybackTimeSyncMessage RecordTimeSyncSent failure; address: %d; line: %d\n", dest, __LINE__);
 #endif
 			}
 		}
@@ -297,7 +297,7 @@ DeviceStatus RadioControl_t::Stop(){
 	#endif
 		}
 		else{
-			//hal_printf("RadioControl_t::Stop Radio did not go to sleep\n");
+			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
