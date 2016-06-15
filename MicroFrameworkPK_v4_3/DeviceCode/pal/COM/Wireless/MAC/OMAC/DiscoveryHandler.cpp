@@ -64,6 +64,13 @@ UINT64 DiscoveryHandler::GetSlotNumber(){
 	return currentSlotNum;
 }
 
+UINT64 DiscoveryHandler::GetTimeTillTheEndofSlot(){
+	UINT64 cur_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
+	UINT64 ticks_till_end = ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO) - ( (cur_ticks + ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO)) % ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO));
+	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
+	return ms_till_end;
+}
+
 UINT64 DiscoveryHandler::NextEvent(){
 	UINT64 currentSlotNum = GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
@@ -87,7 +94,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		nextEventsSlot = nextEventsSlot + 1;
 	}
 	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
-	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
+	nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
 
