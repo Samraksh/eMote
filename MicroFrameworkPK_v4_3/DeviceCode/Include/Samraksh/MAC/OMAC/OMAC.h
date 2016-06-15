@@ -10,7 +10,7 @@
 #define OMAC_H_
 
 //#define TWO_NODES_TX_RX
-#define OMAC_DEBUG_GPIO
+//#define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
 #if defined(TWO_NODES_TX_RX)
 
@@ -40,7 +40,14 @@
 #include "Scheduler.h"
 #include "Handlers.h"
 
-
+#ifdef OMAC_DEBUG_GPIO
+#define OMAC_CPU_GPIO_SetPinState(X,Y) (CPU_GPIO_SetPinState(X,Y))
+#define OMAC_CPU_GPIO_EnableOutputPin(X,Y) (CPU_GPIO_EnableOutputPin(X,Y))
+#endif
+#ifndef OMAC_DEBUG_GPIO
+#define OMAC_CPU_GPIO_SetPinState(X,Y) (void)0
+#define OMAC_CPU_GPIO_EnableOutputPin(X,Y) (void)0
+#endif
 //typedef Buffer_15_4<8> Buffer_15_4_t;
 
 //#define TIMESYNC_SENDPIN 0 // 3 // PA3 J11-6
