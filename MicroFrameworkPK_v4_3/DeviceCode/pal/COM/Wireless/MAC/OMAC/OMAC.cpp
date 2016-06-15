@@ -161,7 +161,9 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	DeviceStatus status;
 	//Initialize yourself first (you being the MAC)
 	if(this->Initialized){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACType Error: Already Initialized!! My address: %d\n", g_OMAC.GetMyAddress());
+#endif
 	}
 	else {
 		////MAC<Message_15_4_t, MACConfig>::Initialize(eventHandler, macName, routingAppID, radioID, config);
@@ -312,7 +314,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	//if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t)-sizeof(IEEE802_15_4_Footer_t)-sizeof(IEEE802_15_4_Metadata) > maxPayload) ){
 	if( Size > sizeof(IEEE802_15_4_Header_t) && (Size - sizeof(IEEE802_15_4_Header_t) > maxPayload) ){
 		//hal_printf("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t)+sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("CSMA Receive Error: Packet is too big: %d \n", Size+sizeof(IEEE802_15_4_Header_t));
+#endif
 		return msg;
 	}
 	if(Size < sizeof(IEEE802_15_4_Header_t)){
@@ -410,13 +414,16 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 //						//ASSERT_SP(0);
 //					}
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
-
+#ifdef OMAC_DEBUG_PRINTF
 					hal_printf("OMACType::ReceiveHandler MFM_ROUTING\n");
+#endif
 					break;
 				}
 				case MFM_OMAC_NEIGHBORHOOD://Not processed
 				{
+#ifdef OMAC_DEBUG_PRINTF
 					hal_printf("OMACType::ReceiveHandler MFM_NEIGHBORHOOD\n");
+#endif
 					break;
 				}
 				case MFM_OMAC_TIMESYNCREQ:
@@ -448,8 +455,10 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 				}
 				case MFM_OMAC_DATA_BEACON_TYPE://Not processed
 				{
+#ifdef OMAC_DEBUG_PRINTF
 					hal_printf("OMACType::ReceiveHandler MFM_OMAC_DATA_BEACON_TYPE\n");
 					hal_printf("Got a data beacon packet\n");
+#endif
 					break;
 				}
 				case MFM_OMAC_DATA_ACK:
@@ -529,7 +538,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 			ds = g_NeighborTable.RecordLastHeardTime(sourceID,g_OMAC.m_Clock.GetCurrentTimeinTicks());
 			if(ds != DS_Success){
+#ifdef OMAC_DEBUG_PRINTF
 				hal_printf("OMACType::ReceiveHandler RecordLastHeardTime failure; address: %d; line: %d\n", sourceID, __LINE__);
+#endif
 			}
 
 		//}
@@ -598,17 +609,23 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 
 	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
 	if(size > OMACType::GetMaxPayload()){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACType Send Error: Packet is too big: %d ", size);
+#endif
 		return msg_carrier;
 	}
 
 	Neighbor_t* neighborEntry = g_NeighborTable.GetNeighborPtr(address);
 	if(neighborEntry == NULL) {
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACType Send Error: Destination does not exist in neighbor table %d ", address);
+#endif
 		return msg_carrier;
 	}
 	else if(neighborEntry->Status == Dead) {
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d ", address);
+#endif
 		return msg_carrier;
 	}
 
@@ -621,19 +638,25 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 
 		if(neighborEntry->send_buffer.IsBufferFull()){
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+#endif
 		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
 
 		if(neighborEntry->send_buffer.IsBufferFull()){
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+#endif
 		}
 	}
 
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("ERROR: OMACType::PrepareMessageBuffer no free buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+#endif
 		return msg_carrier;
 	}
 

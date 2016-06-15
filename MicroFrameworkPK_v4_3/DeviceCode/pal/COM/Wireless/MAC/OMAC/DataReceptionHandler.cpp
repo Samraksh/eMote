@@ -172,7 +172,9 @@ void DataReceptionHandler::ExecuteEvent(){
 		}
 	}
 	else{
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
+#endif
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE);

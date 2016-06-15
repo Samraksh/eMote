@@ -344,7 +344,9 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 
 		if(DS != DS_Success){
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("transmission detected!\n");
+#endif
 			//i = GUARDTIME_MICRO/140;
 			canISend = false;
 			break;
@@ -506,7 +508,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			if(dest != myID){
 				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 				if(ds != DS_Success){
+#ifdef OMAC_DEBUG_PRINTF
 					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
+#endif
 				}
 			}
 
@@ -583,7 +587,9 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 			}
 		}*/
 		else{
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("radioAckStatus: %d\n", radioAckStatus);
+#endif
 			ASSERT_SP(0);
 		}
 	}
@@ -733,14 +739,18 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 	Neighbor_t* neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 	if (neighborEntry != NULL) {
 		if (neighborEntry->MacAddress != dest) {
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
+#endif
 			return FALSE;
 		}
 		UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		UINT64 neighborTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 		if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
 			//Keep the packet but do not schedule the data packet
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
+#endif
 			return FALSE;
 		}
 		UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
@@ -758,7 +768,9 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 		return TRUE;
 	}
 	else { //Case : destination does not exist in the neighbor table
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("Cannot find nbr %u\n", dest);
+#endif
 		return FALSE;
 	}
 }

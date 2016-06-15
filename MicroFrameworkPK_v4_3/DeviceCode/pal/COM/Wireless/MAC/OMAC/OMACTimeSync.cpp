@@ -170,7 +170,9 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 
 		rs = g_OMAC.Send(address, MFM_OMAC_TIMESYNCREQ, tsreqmsg, sizeof(TimeSyncRequestMsg));
 		if(!rs){
+#ifdef OMAC_DEBUG_PRINTF
 			hal_printf("OMACTimeSync::Send failed. Addr=%d", address);
+#endif
 			return rs;
 		}
 #ifdef OMAC_DEBUG_PRINTF
@@ -183,7 +185,9 @@ BOOL OMACTimeSync::Send(RadioAddress_t address){
 
 	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRequestSent(address, y);
 	if(ds != DS_Success){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACTimeSync::Send RecordTimeSyncRequestSent failure; address: %d; line: %d\n", address, __LINE__);
+#endif
 	}
 
 	return rs;
@@ -193,7 +197,9 @@ DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestM
 
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACTimeSync::ReceiveTSReq. Sending to %d\n", msg_src);
+#endif
 		this->Send(msg_src);
 	}
 	return DS_Success;
@@ -237,7 +243,9 @@ DeviceStatus OMACTimeSync::Receive(RadioAddress_t msg_src, TimeSyncMsg* rcv_msg,
 	m_globalTime.regressgt2.Insert(msg_src, rcv_ltime, l_offset);
 	DeviceStatus ds = g_NeighborTable.RecordTimeSyncRecv(msg_src,ReceiveTS);
 	if(ds != DS_Success){
+#ifdef OMAC_DEBUG_PRINTF
 		hal_printf("OMACTimeSync::Receive RecordTimeSyncRecv failure; address: %d; line: %d\n", msg_src, __LINE__);
+#endif
 	}
 
 #ifdef def_Neighbor2beFollowed
