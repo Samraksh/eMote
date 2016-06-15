@@ -33,10 +33,10 @@ void PublicBeaconNCallback(void * param){
  */
 void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_EnableOutputPin( DISCO_SYNCSENDPIN, TRUE);
-	CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
-	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
-	CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+	OMAC_CPU_GPIO_EnableOutputPin( DISCO_SYNCSENDPIN, TRUE);
+	OMAC_CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 
 	m_state = DISCO_INITIAL;
@@ -188,7 +188,7 @@ BOOL DiscoveryHandler::ShouldBeacon(){
  */
 DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr){
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
+	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, TRUE );
 #endif
 	DeviceStatus DS = DS_Fail;
 	UINT64 y = 0;
@@ -407,13 +407,13 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
+			OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, TRUE );
 #endif
 	}
 #endif
 
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, TRUE );
+		OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, TRUE );
 #endif
 	//DiscoveryMsg_t* disMsg = (DiscoveryMsg_t *) msg->GetPayload();
 	//RadioAddress_t source = msg->GetHeader()->src;
@@ -437,12 +437,12 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 #ifdef def_Neighbor2beFollowed
 	if (source == g_OMAC.Neighbor2beFollowed){
 #ifdef OMAC_DEBUG_GPIO
-			CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+			OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 	}
 #endif
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, FALSE );
+		OMAC_CPU_GPIO_SetPinState(DISCO_SYNCRECEIVEPIN, FALSE );
 #endif
 
 	return DS_Success;
@@ -506,7 +506,7 @@ DeviceStatus DiscoveryHandler::Send(RadioAddress_t address, Message_15_4_t* msg,
 	retValue = g_OMAC.m_omac_RadioControl.Send(address, msg, header->length);
 
 #ifdef OMAC_DEBUG_GPIO
-	CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
+	OMAC_CPU_GPIO_SetPinState(DISCO_SYNCSENDPIN, FALSE );
 #endif
 
 	return retValue;
