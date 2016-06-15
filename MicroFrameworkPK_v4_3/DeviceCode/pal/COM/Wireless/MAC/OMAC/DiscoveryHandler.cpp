@@ -47,11 +47,11 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	g_OMAC.m_omac_RadioControl.stayOn = true;
 
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
+	OMAC_HAL_PRINTF("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 #endif
 	discoInterval = m_period1 * m_period2;	// Initially set to 1 to accelerate self-declaration as root
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("discoInterval: %d\r\n", discoInterval);
+	OMAC_HAL_PRINTF("discoInterval: %d\r\n", discoInterval);
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
@@ -211,7 +211,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 		DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 		if(DS != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("DiscoveryHandler::Beacon() transmission detected!\n");
+			OMAC_HAL_PRINTF("DiscoveryHandler::Beacon() transmission detected!\n");
 #endif
 			//i = GUARDTIME_MICRO/140;
 			canISend = false;
@@ -270,20 +270,20 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 			break;
 		default:
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("DiscoveryHandler::Received Unexpected SendACK\n");
+			OMAC_HAL_PRINTF("DiscoveryHandler::Received Unexpected SendACK\n");
 #endif
 			break;
 	}
 	/* Don't use this for now
 	if(status == NO_Busy){
-		hal_printf("NO_Busy - What do we do? Just ignore?\n");
+		OMAC_HAL_PRINTF("NO_Busy - What do we do? Just ignore?\n");
 		//m_busy = TRUE;
 	}
 	else if(status == NO_Success){
 		//m_busy = FALSE;
 	}
 	else{
-		hal_printf("Need to investigate. Status: %d\n", status);
+		OMAC_HAL_PRINTF("Need to investigate. Status: %d\n", status);
 		ASSERT_SP(0);
 	}
 
@@ -324,7 +324,7 @@ void DiscoveryHandler::Beacon1(){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
-		//hal_printf("Beacon1 failed. ds = %d;\n", ds);
+		//OMAC_HAL_PRINTF("Beacon1 failed. ds = %d;\n", ds);
 	}
 	//If Beacon 1 fails, just continue operation. There is one more beacon
 }
@@ -371,7 +371,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		break;
 	case BEACON1_SEND_START:
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("DiscoveryHandler::Beacon1 transmission send ACK is missing\n");
+		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon1 transmission send ACK is missing\n");
 #endif
 	case BEACON1_SKIPPED:
 	case BEACON1_SEND_DONE:
@@ -379,7 +379,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 		break;
 	case BEACON2_SEND_START:
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("DiscoveryHandler::Beacon2 transmission send ACK is missing\n");
+		OMAC_HAL_PRINTF("DiscoveryHandler::Beacon2 transmission send ACK is missing\n");
 #endif
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
@@ -388,7 +388,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 	case DISCO_INITIAL:
 	case SLEEP_SUCCESSFUL:
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("DiscoveryHandler::Unexpected firing of VIRT_TIMER_OMAC_DISCOVERY m_state = %d \n", m_state);
+		OMAC_HAL_PRINTF("DiscoveryHandler::Unexpected firing of VIRT_TIMER_OMAC_DISCOVERY m_state = %d \n", m_state);
 #endif
 		break;
 	case DISCO_LISTEN_FAIL:

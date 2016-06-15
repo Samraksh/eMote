@@ -151,9 +151,9 @@ UINT64 DataTransmissionHandler::CalculateNextRXOpp(UINT16 dest){
 
 
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("DataTransmissionHandler::NextEvent curTicks: %llu; nextTXTicks: %llu; remMicroSecnextTX: %llu\n", curTicks, nextTXTicks, remMicroSecnextTX);
+		OMAC_HAL_PRINTF("DataTransmissionHandler::NextEvent curmicro: %llu; nextTXmicro: %llu; remMicroSecnextTX: %llu\n", curmicro, nextTXmicro, remMicroSecnextTX);
 #ifdef def_Neighbor2beFollowed
-		//hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
+		//OMAC_HAL_PRINTF("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler::NextEvent() remMicroSecnextTX= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_neighborNextEventTimeinMicSec = %llu - %lu\n"
 		//		, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks))
 		//		, remMicroSecnextTX, g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(nextTXTicks), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_NeighborTable.GetNeighborPtr(_m_outgoingEntryPtr->GetHeader()->dest)->nextwakeupSlot * SLOT_PERIOD_TICKS) );
 #endif
@@ -269,7 +269,7 @@ UINT64 DataTransmissionHandler::NextEvent(){
 void DataTransmissionHandler::DropPacket(){
 	//Packet will have to be dropped if retried max attempts
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("dropping packet\n");
+	OMAC_HAL_PRINTF("dropping packet\n");
 #endif
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
@@ -345,7 +345,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 
 		if(DS != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("transmission detected!\n");
+			OMAC_HAL_PRINTF("transmission detected!\n");
 #endif
 			//i = GUARDTIME_MICRO/140;
 			canISend = false;
@@ -371,12 +371,12 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		m_backoff_seed = randVal;
 		int i = 0;
 		int finalBackoffValue = randVal % RANDOM_BACKOFF_COUNT_MAX;
-		//hal_printf("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
+		//OMAC_HAL_PRINTF("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
 		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
 			++i;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			if(DS != DS_Success){
-				//hal_printf("transmission detected (inside backoff)!\n");
+				//OMAC_HAL_PRINTF("transmission detected (inside backoff)!\n");
 				canISend = false;
 				break;
 			}
@@ -402,7 +402,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		}
 		else{
 #ifdef OMAC_DEBUG_GPIO
-		//hal_printf("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
+		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEventHelper Toggling\n");
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
 		CPU_GPIO_SetPinState( DATATX_PIN, TRUE );
 		CPU_GPIO_SetPinState( DATATX_PIN, FALSE );
@@ -437,7 +437,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 void DataTransmissionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 #ifdef def_Neighbor2beFollowed
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
+	OMAC_HAL_PRINTF("\n[LT: %llu - %lu NT: %llu - %lu] DataTransmissionHandler:ExecuteEvent\n"
 			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks()), g_OMAC.m_omac_scheduler.GetSlotNumber(), g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_Clock.GetCurrentTimeinTicks())), g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, g_OMAC.m_Clock.GetCurrentTimeinTicks())) );
 #endif
 #endif
@@ -470,7 +470,7 @@ void DataTransmissionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, TRUE );
 		CPU_GPIO_SetPinState( DATATX_NEXT_EVENT, FALSE );
 #endif
-		//hal_printf("DataTransmissionHandler::ExecuteEvent Radio not in RX state\n");
+		//OMAC_HAL_PRINTF("DataTransmissionHandler::ExecuteEvent Radio not in RX state\n");
 		txhandler_state = DTS_RADIO_START_FAILED;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, 0, TRUE, OMACClockSpecifier );
@@ -509,7 +509,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 				DeviceStatus ds = g_NeighborTable.RecordLastHeardTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 				if(ds != DS_Success){
 #ifdef OMAC_DEBUG_PRINTF
-					hal_printf("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
+					OMAC_HAL_PRINTF("DataTransmissionHandler::SendACKHandler RecordLastHeardTime failure; address: %d; line: %d\n", dest, __LINE__);
 #endif
 				}
 			}
@@ -588,7 +588,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 		}*/
 		else{
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("radioAckStatus: %d\n", radioAckStatus);
+			OMAC_HAL_PRINTF("radioAckStatus: %d\n", radioAckStatus);
 #endif
 			ASSERT_SP(0);
 		}
@@ -740,7 +740,7 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 	if (neighborEntry != NULL) {
 		if (neighborEntry->MacAddress != dest) {
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
+			OMAC_HAL_PRINTF("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 #endif
 			return FALSE;
 		}
@@ -749,7 +749,7 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 		if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
 			//Keep the packet but do not schedule the data packet
 #ifdef OMAC_DEBUG_PRINTF
-			hal_printf("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
+			OMAC_HAL_PRINTF("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
 #endif
 			return FALSE;
 		}
@@ -769,7 +769,7 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 	}
 	else { //Case : destination does not exist in the neighbor table
 #ifdef OMAC_DEBUG_PRINTF
-		hal_printf("Cannot find nbr %u\n", dest);
+		OMAC_HAL_PRINTF("Cannot find nbr %u\n", dest);
 #endif
 		return FALSE;
 	}
