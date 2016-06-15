@@ -303,7 +303,7 @@ void DiscoveryHandler::Beacon1(){
 	}
 	else {
 		m_state = BEACON1_SKIPPED;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_PACKET_TX_TIME_MICRO , TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -332,7 +332,7 @@ void DiscoveryHandler::BeaconN(){
 	}
 	else {
 		m_state = BEACON2_SKIPPED;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_PACKET_TX_TIME_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
