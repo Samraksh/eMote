@@ -193,7 +193,7 @@ DeviceStatus OMACTimeSync::ReceiveTSReq(RadioAddress_t msg_src, TimeSyncRequestM
 
 	//Determine if timesync is requested, schedule sending a message back to the source
 	if(rcv_msg->request_TimeSync){
-		hal_printf("OMACTimeSync::Receive. Sending to %d\n", msg_src);
+		hal_printf("OMACTimeSync::ReceiveTSReq. Sending to %d\n", msg_src);
 		this->Send(msg_src);
 	}
 	return DS_Success;
