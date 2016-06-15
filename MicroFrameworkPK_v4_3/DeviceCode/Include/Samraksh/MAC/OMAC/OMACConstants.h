@@ -266,7 +266,7 @@ typedef OFProv<UINT64> OMACTicks;
 	#define DELAY_IN_RECEIVING_ACK				3.6*MICSECINMILISEC		//Delay in Rx generating an ack; SI4468 does not support H/w acks;
 																		//A 3-byte s/w ack (along with additional 10 bytes added by radio firmware) takes 2600 usec
 																		//Due to software delays (walking up and down the invocation call stack), an addition 1 ms is added
-	#define HIGH_DISCO_PERIOD_IN_SLOTS 			3000
+
 	#define MAX_PACKET_TX_DURATION_MICRO 		27.6*MICSECINMILISEC	//128 byte packet takes 25600 usec, but in reality time taken is 27600 usec (138 bytes)
 	#define ACK_RX_MAX_DURATION_MICRO 			8*MICSECINMILISEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
 	#define ACK_TX_MAX_DURATION_MICRO 			8*MICSECINMILISEC
@@ -289,7 +289,6 @@ typedef OFProv<UINT64> OMACTicks;
 
 	#define DELAY_IN_RECEIVING_ACK				DELAY_IN_RECEIVING_HW_ACK+DELAY_IN_RECEIVING_SW_ACK
 	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	RETRANS_DELAY_DUE_TO_MISSING_HW_ACK+RETRANS_DELAY_DUE_TO_MISSING_SW_ACK
-	#define HIGH_DISCO_PERIOD_IN_SLOTS 			1500
 	#define MAX_PACKET_TX_DURATION_MICRO 		5*MICSECINMILISEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
 	#define ACK_RX_MAX_DURATION_MICRO 			20*MICSECINMILISEC
 #else
@@ -481,6 +480,7 @@ UINT32 ArbiterP_Timing;
 
 #define DISCO_PACKET_TX_TIME_MICRO 1000
 #define DISCO_SLOT_PERIOD_MILLI 8
+#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 /*
  * Prime numbers used in determining DISCO period of a node
  */

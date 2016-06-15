@@ -56,10 +56,14 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	//ASSERT_SP(rm == TimerSupported);
 }
 
-UINT64 DiscoveryHandler::NextEvent(){
-	//UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+UINT64 DiscoveryHandler::GetSlotNumber(){
 	UINT64 currentTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 currentSlotNum = currentTicks / DISCO_SLOT_PERIOD_MILLI;
+	return currentSlotNum;
+}
+
+UINT64 DiscoveryHandler::NextEvent(){
+	UINT64 currentSlotNum = GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
 	if(firstHighRateDiscoTimeinSlotNum == 0) {
@@ -507,7 +511,7 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
-	firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
