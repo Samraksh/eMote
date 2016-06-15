@@ -40,10 +40,12 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 
 	m_state = DISCO_INITIAL;
-	//m_discoveryMsg = (DiscoveryMsg_t*)m_discoveryMsgBuffer.GetPayload() ;
+
+	firstHighRateDiscoTimeinSlotNum = 0;
 	PermanentlyDecreaseDiscoRate();
 	TempIncreaseDiscoRate();
 	g_OMAC.m_omac_RadioControl.stayOn = true;
+
 #ifdef OMAC_DEBUG_PRINTF
 	hal_printf("prime 1: %d\tprime 2: %d\r\n",m_period1, m_period2);
 #endif
@@ -52,23 +54,30 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	hal_printf("discoInterval: %d\r\n", discoInterval);
 #endif
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MILLI * 2 * MICSECINMILISEC, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 }
 
-UINT64 DiscoveryHandler::NextEvent(){
-	//UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+UINT64 DiscoveryHandler::GetSlotNumber(){
 	UINT64 currentTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT64 currentSlotNum = currentTicks / DISCO_SLOT_PERIOD_MILLI;
+	UINT64 currentSlotNum = currentTicks / ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO);
+	return currentSlotNum;
+}
+
+UINT64 DiscoveryHandler::NextEvent(){
+	UINT64 currentSlotNum = GetSlotNumber();
 	UINT16 nextEventsSlot = 0;
 	UINT64 nextEventsMicroSec = 0;
+
 	if(firstHighRateDiscoTimeinSlotNum == 0) {
 		firstHighRateDiscoTimeinSlotNum = currentSlotNum;
+		PermanentlyDecreaseDiscoRate();
+		TempIncreaseDiscoRate();
+		g_OMAC.m_omac_RadioControl.stayOn = true;
 	}
 
 	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) > HIGH_DISCO_PERIOD_IN_SLOTS ) ) {
 		PermanentlyDecreaseDiscoRate();
-		highdiscorate = false;
 	}
 
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
@@ -77,7 +86,7 @@ UINT64 DiscoveryHandler::NextEvent(){
 		nextEventsSlot = NextEventinSlots(currentSlotNum);
 		nextEventsSlot = nextEventsSlot + 1;
 	}
-	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
 	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
@@ -201,7 +210,7 @@ DeviceStatus DiscoveryHandler::Beacon(RadioAddress_t dst, Message_15_4_t* msgPtr
 			canISend = false;
 			break;
 		}
-		if( g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
+		if( true || g_OMAC.m_Clock.ConvertTickstoMicroSecs(g_OMAC.m_Clock.GetCurrentTimeinTicks() - y) > CCA_PERIOD_MICRO){
 			break;
 		}
 	}
@@ -507,11 +516,12 @@ void DiscoveryHandler::TempIncreaseDiscoRate(){
 	m_period1 = CONTROL_P1[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P2[g_OMAC.GetMyAddress() % 7] ;
 	highdiscorate = true;
-	firstHighRateDiscoTimeinSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
+	firstHighRateDiscoTimeinSlotNum = GetSlotNumber();
 }
 
 void DiscoveryHandler::PermanentlyDecreaseDiscoRate(){
 	m_period1 = CONTROL_P3[g_OMAC.GetMyAddress() % 7] ;
 	m_period2 = CONTROL_P4[g_OMAC.GetMyAddress() % 7] ;
 	g_OMAC.m_omac_RadioControl.stayOn = false;
+	highdiscorate = false;
 }
