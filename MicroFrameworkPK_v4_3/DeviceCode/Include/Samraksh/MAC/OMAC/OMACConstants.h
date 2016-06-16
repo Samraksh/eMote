@@ -270,6 +270,7 @@ typedef OFProv<UINT64> OMACTicks;
 	#define MAX_PACKET_TX_DURATION_MICRO 		27.6*MICSECINMILISEC	//128 byte packet takes 25600 usec, but in reality time taken is 27600 usec (138 bytes)
 	#define ACK_RX_MAX_DURATION_MICRO 			8*MICSECINMILISEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
 	#define ACK_TX_MAX_DURATION_MICRO 			8*MICSECINMILISEC
+	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	10*MICSECINMILISEC		//39 byte packet takes 7.8 ms; (16 bytes for DISCO + 13 bytes for header + 10 bytes added by radio)
 
 #elif defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_RF231
 
@@ -291,6 +292,7 @@ typedef OFProv<UINT64> OMACTicks;
 	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	RETRANS_DELAY_DUE_TO_MISSING_HW_ACK+RETRANS_DELAY_DUE_TO_MISSING_SW_ACK
 	#define MAX_PACKET_TX_DURATION_MICRO 		5*MICSECINMILISEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
 	#define ACK_RX_MAX_DURATION_MICRO 			20*MICSECINMILISEC
+	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	1.2*MICSECINMILISEC		//35 byte packet takes 1 ms; (16 bytes for DISCO + 13 bytes for header + 6 bytes added by radio)
 #else
 	#error "Radioname not defined"
 #endif

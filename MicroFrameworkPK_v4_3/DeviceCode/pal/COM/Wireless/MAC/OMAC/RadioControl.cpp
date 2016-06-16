@@ -322,11 +322,13 @@ DeviceStatus RadioControl_t::StartRx(){
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
 #endif
 	}
+	else{
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, TRUE );
 	CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_RECV, FALSE );
 #endif
+	}
 	return returnVal;
 }
 

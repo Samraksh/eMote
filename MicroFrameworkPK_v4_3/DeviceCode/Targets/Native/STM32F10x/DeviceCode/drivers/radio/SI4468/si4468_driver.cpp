@@ -28,7 +28,7 @@ const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = DEBUG02; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -254,11 +254,11 @@ static void rx_cont_do(void *arg) {
 	int currentPayloadType = header->payloadType;
 
 	//Send ack from radio itself.
-	/*if(__SI4468_SOFTWARE_ACK__){
+	if(__SI4468_SOFTWARE_ACK__){
 		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
 			sendSoftwareAck();
 		}
-	}*/
+	}
 
 	// I guess this swaps rx_msg_ptr as well???
 	//(rx_msg_ptr->GetHeader())->SetLength(size);
@@ -879,13 +879,19 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	}*/
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %d\r\n", owner);
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
 	if ( owner = si446x_radio_lock(radio_lock_sleep) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy.\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy. Owner is %d\r\n", owner);
 		si446x_spi_unlock();
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
+		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
@@ -1112,8 +1118,8 @@ static void si446x_pkt_tx_int() {
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
 	//if(softwareACKSent){
-		tx_cont_do(NULL);
-		//tx_callback_continuation.Enqueue();
+		//tx_cont_do(NULL);
+		tx_callback_continuation.Enqueue();
 	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 }
@@ -1125,8 +1131,8 @@ static void si446x_pkt_rx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	//if(softwareACKSent){
 		//softwareACKSent = false;
-		rx_cont_do(NULL);
-		//rx_callback_continuation.Enqueue();
+		//rx_cont_do(NULL);
+		rx_callback_continuation.Enqueue();
 	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 }
@@ -1166,7 +1172,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
-		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt.\r\n");
+		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt. Owner is %d\r\n", owner);
 		int_defer_continuation.Enqueue();
 		return;
 	}

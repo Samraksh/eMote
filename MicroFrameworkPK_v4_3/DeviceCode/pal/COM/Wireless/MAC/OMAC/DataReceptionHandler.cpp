@@ -55,7 +55,8 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	CPU_GPIO_SetPinState( DATARX_SEND_SW_ACK, FALSE );
 	CPU_GPIO_EnableOutputPin(DATARX_HANDLE_END_OF_RX, TRUE);
 	CPU_GPIO_SetPinState( DATARX_HANDLE_END_OF_RX, FALSE );
-
+	CPU_GPIO_EnableOutputPin(DATARX_EXEC_EVENT, TRUE);
+	CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 #endif
 	RadioID = radioID;
 	MacID = macID;
@@ -146,6 +147,7 @@ void DataReceptionHandler::ExecuteEvent(){
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, TRUE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 #endif
 
 	VirtualTimerReturnMessage rm;
@@ -156,6 +158,7 @@ void DataReceptionHandler::ExecuteEvent(){
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARECEPTION_SLOTPIN, FALSE );
@@ -176,6 +179,7 @@ void DataReceptionHandler::ExecuteEvent(){
 		OMAC_HAL_PRINTF("DataReceptionHandler::ExecuteEvent Could not turn on Rx\n");
 #endif
 #ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( DATARX_EXEC_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, TRUE);
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
@@ -258,7 +262,7 @@ void DataReceptionHandler::HandleEndofReception(UINT16 address){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, 0, TRUE, OMACClockSpecifier );
 		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);		//This runs in continuation context. Enable this line or next.
-		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);		//This runs in interrupt context
+		//rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER_ACK);		//This runs in interrupt context
 		if(rm != TimerSupported){
 			this->SendDataACK();
 		}

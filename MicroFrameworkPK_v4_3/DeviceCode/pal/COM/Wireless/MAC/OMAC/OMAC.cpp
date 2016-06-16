@@ -15,6 +15,7 @@
 #include <Samraksh/Radio_decl.h>
 
 #define DEBUG_OMAC 0
+const bool NEED_OMAC_CALLBACK_CONTINUATION = false;
 
 OMACType g_OMAC;
 
@@ -119,7 +120,9 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 
 void PushToUpperLayerHelper(void* arg)
 {
+	CPU_GPIO_SetPinState( OMAC_CONTINUATION, TRUE );
 	g_OMAC.PushPacketsToUpperLayers(arg);
+	CPU_GPIO_SetPinState( OMAC_CONTINUATION, FALSE );
 }
 
 void OMACType::PushPacketsToUpperLayers(void* arg){
@@ -156,6 +159,8 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 	CPU_GPIO_EnableOutputPin(DATA_RX_INTERRUPT_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(DATATX_POSTEXEC, TRUE);
 	CPU_GPIO_SetPinState( DATATX_POSTEXEC, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_CONTINUATION, TRUE);
+	CPU_GPIO_SetPinState( OMAC_CONTINUATION, FALSE );
 #endif
 
 	DeviceStatus status;
@@ -386,12 +391,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-						//(*m_rxAckHandler)(next_free_buffer, data_msg->size);
-						//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
-						payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
-						payloadTypeArrayIndex++;
-						OMAC_callback_continuation.Enqueue();
-
+						if(NEED_OMAC_CALLBACK_CONTINUATION){
+							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+							payloadTypeArrayIndex++;
+							OMAC_callback_continuation.Enqueue();
+						}
+						else{
+							(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						}
 
 						//Another method of doing the same thing as above
 						/*Message_15_4_t tempMsg;
@@ -501,10 +508,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
-						//(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
-						payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
-						payloadTypeArrayIndex++;
-						OMAC_callback_continuation.Enqueue();
+						if(NEED_OMAC_CALLBACK_CONTINUATION){
+							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
+							payloadTypeArrayIndex++;
+							OMAC_callback_continuation.Enqueue();
+						}
+						else{
+							(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+						}
 #ifdef OMAC_DEBUG_GPIO
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, FALSE);
