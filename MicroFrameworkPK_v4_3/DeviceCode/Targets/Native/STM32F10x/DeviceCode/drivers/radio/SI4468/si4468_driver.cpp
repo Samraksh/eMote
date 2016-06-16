@@ -30,6 +30,9 @@ const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848
 // SETS SI446X PRINTF DEBUG VERBOSITY
 const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
 
+// Should MAC layer be informed by SI4468 about a packet, in interrupt context or using continuations?
+const bool NEED_SI4468_CONTINUATION = true;
+
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
 
@@ -1118,8 +1121,12 @@ static void si446x_pkt_tx_int() {
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
 	//if(softwareACKSent){
-		//tx_cont_do(NULL);
+	if(NEED_SI4468_CONTINUATION){
 		tx_callback_continuation.Enqueue();
+	}
+	else{
+		tx_cont_do(NULL);
+	}
 	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 }
@@ -1131,8 +1138,12 @@ static void si446x_pkt_rx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	//if(softwareACKSent){
 		//softwareACKSent = false;
-		//rx_cont_do(NULL);
+	if(NEED_SI4468_CONTINUATION){
 		rx_callback_continuation.Enqueue();
+	}
+	else{
+		rx_cont_do(NULL);
+	}
 	//}
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 }
