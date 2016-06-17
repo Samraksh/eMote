@@ -34,6 +34,8 @@ NeighborTable g_NeighborTable;
 //UINT8 MacName = 0;
 
 DeviceStatus MAC_Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* config){
+	CPU_GPIO_EnableOutputPin(EMOTE_NET_MAC_GETNEXTPACKET, FALSE);
+	CPU_GPIO_SetPinState(EMOTE_NET_MAC_GETNEXTPACKET, FALSE);
 	DeviceStatus status = DS_Success;
 	if(macName == CSMAMAC){
 		currentMacName = macName;
@@ -135,7 +137,10 @@ DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer)
 {
 	GLOBAL_LOCK(irq);
 
+	CPU_GPIO_SetPinState(EMOTE_NET_MAC_GETNEXTPACKET, TRUE);
+
 	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
+
 	//Message_15_4_t* temp = (Message_15_4_t*)managedBuffer;
 
 	if((*temp) == NULL){
@@ -196,6 +201,8 @@ DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer)
 	}
 
 	//g_receive_buffer.DropOldest(1);
+
+	CPU_GPIO_SetPinState(EMOTE_NET_MAC_GETNEXTPACKET, FALSE);
 
 	return DS_Success;
 }
