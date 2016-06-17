@@ -360,6 +360,7 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 		softwareAckHeader.payloadType = MFM_OMAC_DATA_ACK;
 		i++;
 	}
+	softwareAckHeader.dest = m_lastRXNodeId;
 	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
 
 #ifdef OMAC_DEBUG_GPIO

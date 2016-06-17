@@ -304,14 +304,20 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
+	RadioAddress_t myID = g_OMAC.GetMyAddress();
+
 	if(Size == sizeof(softwareACKHeader)){
 		swAckHeader = (softwareACKHeader*)msg;
 		RadioAddress_t sourceID = swAckHeader->src;
+		RadioAddress_t destID = swAckHeader->dest;
 		UINT8 payloadType = swAckHeader->payloadType;
-		if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
-			g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(sourceID);
-			return msg;
+		if(destID == myID){
+			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK && payloadType == MFM_OMAC_DATA_ACK){
+				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.ReceiveDATAACK(destID);
+				return msg;
+			}
 		}
+		return msg;
 	}
 
 
@@ -332,7 +338,6 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 
 	RadioAddress_t sourceID = msg->GetHeader()->src;
 	RadioAddress_t destID = msg->GetHeader()->dest;
-	RadioAddress_t myID = g_OMAC.GetMyAddress();
 #ifdef	def_Neighbor2beFollowed
 	if(sourceID == Neighbor2beFollowed) {
 #endif

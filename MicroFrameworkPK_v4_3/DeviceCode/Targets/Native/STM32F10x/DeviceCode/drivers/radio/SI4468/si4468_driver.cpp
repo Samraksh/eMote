@@ -155,7 +155,7 @@ static void int_cont_do(void *arg) {
 	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
 }
 
-static void sendSoftwareAck(){
+static void sendSoftwareAck(UINT16 dest){
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 	si446x_debug_print(DEBUG02,"SI446X: sendSoftwareAck\r\n");
 	static int i = 0;
@@ -165,6 +165,7 @@ static void sendSoftwareAck(){
 		softwareAckHeader.payloadType = MFM_OMAC_DATA_ACK;
 		i++;
 	}
+	softwareAckHeader.dest = dest;
 	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP);
 	//softwareACKSent = true;
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
@@ -192,7 +193,8 @@ static bool cont_busy(void) {
 }
 
 static void rx_cont_do(void *arg) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
+	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
+	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, TRUE );
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
 	radio_lock_id_t owner;
@@ -222,7 +224,8 @@ static void rx_cont_do(void *arg) {
 		memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 		rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, size);
 
-		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
+		//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
+		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 		return;
 	}
 
@@ -259,18 +262,21 @@ static void rx_cont_do(void *arg) {
 	//Send ack from radio itself.
 	if(__SI4468_SOFTWARE_ACK__){
 		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
-			sendSoftwareAck();
+			if(currentPayloadType == MFM_DATA){
+				si446x_debug_print(DEBUG02, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
+			}
+			sendSoftwareAck(header->src);
 		}
 	}
 
 	// I guess this swaps rx_msg_ptr as well???
 	//(rx_msg_ptr->GetHeader())->SetLength(size);
 	header->length = size; // the "new" way. blarg.
-	header->payloadType = currentPayloadType;
 
 	rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, header->length);
 
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
+	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
+	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 }
 
 void si446x_hal_register_tx_callback(si446x_tx_callback_t callback) {
@@ -521,6 +527,8 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 	CPU_GPIO_EnableOutputPin(DATARX_SEND_SW_ACK, TRUE);
 	CPU_GPIO_SetPinState( DATARX_SEND_SW_ACK, FALSE );
+	CPU_GPIO_EnableOutputPin(SI4468_MEASURE_RX_TIME, TRUE);
+	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
