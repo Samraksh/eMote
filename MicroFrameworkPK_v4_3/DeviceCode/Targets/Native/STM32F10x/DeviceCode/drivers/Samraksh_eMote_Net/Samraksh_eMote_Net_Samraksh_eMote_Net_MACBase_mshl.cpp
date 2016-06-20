@@ -13,7 +13,7 @@
 using namespace Samraksh::eMote::Net;
 
 
-HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1( CLR_RT_StackFrame& stack )
+HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::RemovePacket___SamraksheMoteNetDeviceStatus( CLR_RT_StackFrame& stack )
 {
     TINYCLR_HEADER(); hr = S_OK;
     {
@@ -21,10 +21,7 @@ HRESULT Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::RemovePacket___Sa
 
         FAULT_ON_NULL(pMngObj);
 
-        CLR_RT_TypedArray_UINT8 param0;
-        TINYCLR_CHECK_HRESULT( Interop_Marshal_UINT8_ARRAY( stack, 1, param0 ) );
-
-        INT32 retVal = MACBase::RemovePacket( pMngObj,  param0, hr );
+        INT32 retVal = MACBase::RemovePacket( pMngObj,  hr );
         TINYCLR_CHECK_HRESULT( hr );
         SetResult_INT32( stack, retVal );
 

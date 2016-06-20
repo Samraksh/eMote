@@ -43,10 +43,17 @@ extern Buffer_15_4_t g_receive_buffer;
 
 UINT8 MACInteropBuffer[IEEE802_15_4_FRAME_LENGTH];
 
-INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
+//INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
+INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+    //INT32 retVal = 0;
+    //return retVal;
+
+	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
+    if((*temp) == NULL){
+		return DS_Fail;
+	}
+	return DS_Success;
 }
 
 UINT8 MACBase::PendingReceivePacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -86,9 +93,6 @@ INT32 MACBase::UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 
 INT32 MACBase::InternalInitialize( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 marshalBuffer, UINT8 macname, HRESULT &hr )
 {
-	CPU_GPIO_EnableOutputPin(EMOTE_NET_MANAGED_CALLBACK, FALSE);
-	CPU_GPIO_SetPinState(EMOTE_NET_MANAGED_CALLBACK, FALSE);
-
 	INT32 result = DS_Success;
 	UINT8* configParams = marshalBuffer.GetBuffer();
 	MACConfig config;
@@ -143,7 +147,7 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 nativeBuffer, HRESULT &hr )
 {
 	UINT8* managedBuffer = nativeBuffer.GetBuffer();
-    return MAC_GetNextPacket(&managedBuffer);
+	return MAC_GetNextPacket(&managedBuffer);
 }
 
 INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 macAddress, CLR_RT_TypedArray_UINT8 neighborlist, HRESULT &hr )
@@ -214,9 +218,7 @@ INT32 MACBase::Send( CLR_RT_HeapBlock* pMngObj, UINT16 address, UINT8 payloadTyp
 
 void ReceiveDoneCallbackFn(void* msg, UINT16 payloadType)
 {
-	CPU_GPIO_SetPinState(EMOTE_NET_MANAGED_CALLBACK, TRUE);
 	ManagedCallback(ReceivedCallback, payloadType);
-	CPU_GPIO_SetPinState(EMOTE_NET_MANAGED_CALLBACK, FALSE);
 }
 
 void NeighborChangedCallbackFn(INT16 countOfNeighbors)
@@ -229,7 +231,6 @@ void ManagedSendAckCallback(void *msg, UINT16 size, NetOpStatus status, UINT8 ra
 
 void ManagedCallback(UINT16 arg1, UINT16 arg2)
 {
-	CPU_GPIO_SetPinState(EMOTE_NET_MANAGED_CALLBACK, TRUE);
 	UINT32 data1, data2;
 	data1 = arg1;
 	data2 = arg2;
@@ -237,5 +238,4 @@ void ManagedCallback(UINT16 arg1, UINT16 arg2)
 
 	GLOBAL_LOCK(irq);
 	SaveNativeEventToHALQueue( Net_ne_Context, data1, data2 );
-	CPU_GPIO_SetPinState(EMOTE_NET_MANAGED_CALLBACK, FALSE);
 }

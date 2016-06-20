@@ -267,9 +267,8 @@ namespace Samraksh.eMote.Net
 			/// <summary>
 			/// Remove packet from pending
 			/// </summary>
-			/// <param name="packet">Packet to remove</param>
 			/// <returns>Status of result</returns>
-			DeviceStatus RemovePacket(byte[] packet);
+			DeviceStatus RemovePacket();
 		}
 	}
 }

@@ -54,15 +54,26 @@ namespace Samraksh.eMote.Net
 		{
 			MACBase = macBase;
 			PayloadType = payloadType;
+            /* This might be needed later. 
+             *      
+             * if (OnReceive == null)
+            {
+                throw new ArgumentNullException("OnReceive event cannot be null");
+            }*/
 			MACBase.RegisterOnReceiveGlobal(this);
 		}
 
 		internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime)
 		{
-			if (OnReceive != null)
-			{
-				OnReceive(this, dateTime);
-			}
+            if (OnReceive != null)
+            {
+                OnReceive(this, dateTime);
+            }
+            //If OnReceive event is not registered, just drop the packet.
+            else
+            {
+                MACBase.RemovePacket();
+            }
 		}
 
 		///// <summary>
@@ -247,11 +258,10 @@ namespace Samraksh.eMote.Net
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="packet"></param>
 		/// <returns></returns>
-		public DeviceStatus RemovePacket(byte[] packet)
+		public DeviceStatus RemovePacket()
 		{
-			return MACBase.RemovePacket(packet);
+			return MACBase.RemovePacket();
 		}
 
 	}
@@ -622,34 +632,47 @@ namespace Samraksh.eMote.Net
 			switch (data1)
 			{
 				case (uint)CallbackType.Received:
-					// OnReceiveAll is raised for every payload type
+                    // OnReceiveAll is raised for every payload type
 					if (OnReceiveAll != null)
 					{
-						//Debug.Print("OnReceiveAll");
 						OnReceiveAll(this, time);
 					}
 
 					// OnReceive is raised for MFM_Data payload type
 					if (payloadType == (uint)PayloadType.MFM_Data)
 					{
-						//Debug.Print("Payload type MFM_Data");
 						if (OnReceive != null)
 						{
-							OnReceive(this, time);
+                            OnReceive(this, time);
 						}
 					}
 
 					// Otherwise raise the OnReceive for a registered MACPipe, if any
 					else
 					{
-						//Debug.Print("Payload type " + payloadType);
 						var keyCollection = _macPipeHashtable.Keys;
+                        //Get a count of total registered payload types
+                        int eventCounter = keyCollection.Count;
 						foreach (PayloadType payloadTypeKey in keyCollection)
 						{
-							if (payloadType != (uint)payloadTypeKey) { continue; }
-							var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
-							macPipe.MACPipeCallback(payloadTypeKey, time);
+                            if (payloadType == (uint)payloadTypeKey) 
+                            {
+                                var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
+                                //If a registered payload type is received, subtract count
+                                eventCounter--;
+                                macPipe.MACPipeCallback(payloadTypeKey, time);
+                                break;
+                            }
+                            else
+                            {
+                                continue; 
+                            }
 						}
+                        //If a packet is received for which the payload type has not been registered, drop the packet.
+                        if (eventCounter == keyCollection.Count)
+                        {
+                            RemovePacket();
+                        }
 					}
 					break;
 
@@ -671,7 +694,7 @@ namespace Samraksh.eMote.Net
 		/// <param name="macPipe"></param>
 		internal static void RegisterOnReceiveGlobal(MACPipe macPipe)
 		{
-			if (!_macPipeHashtable.Contains(macPipe.PayloadType))
+            if (!_macPipeHashtable.Contains(macPipe.PayloadType))
 			{
 				_macPipeHashtable[macPipe.PayloadType] = macPipe;
 			}
@@ -876,10 +899,9 @@ namespace Samraksh.eMote.Net
 
 		#region Public Externs	---------------------------------------------------------------------------------------
 		/// <summary>Remove a _packet from the buffer</summary>
-		/// <param name="packet">_packet to be removed</param>
 		/// <returns>Status of operation</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public extern DeviceStatus RemovePacket(byte[] packet);
+		public extern DeviceStatus RemovePacket();
 
 		/// <summary>Get a count of unprocessed packets in the buffer</summary>
 		/// <returns>The number of packets in the buffer not yet delivered to the program</returns>

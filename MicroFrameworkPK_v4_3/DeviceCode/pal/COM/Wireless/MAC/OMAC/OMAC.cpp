@@ -402,7 +402,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 							OMAC_callback_continuation.Enqueue();
 						}
 						else{
-							(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+							(*m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
 						}
 
 						//Another method of doing the same thing as above
@@ -519,7 +519,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
 							OMAC_callback_continuation.Enqueue();
 						}
 						else{
-							(*m_rxAckHandler)(next_free_buffer, next_free_buffer->GetHeader()->payloadType);
+							(*m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
 						}
 #ifdef OMAC_DEBUG_GPIO
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
@@ -727,8 +727,6 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	header->macName = (macName);
 	header->payloadType = (dataType);
 	metadata->SetReceiveTimeStamp((UINT32)0);
-
-
 
 	DataMsg_t* data_msg = (DataMsg_t*)msg_carrier->GetPayload();
 	data_msg->size = size;

@@ -34,7 +34,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase
     static const int FIELD__MACType = 17;
     static const int FIELD__MACRadioObj = 18;
 
-    TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus__SZARRAY_U1);
+    TINYCLR_NATIVE_DECLARE(RemovePacket___SamraksheMoteNetDeviceStatus);
     TINYCLR_NATIVE_DECLARE(PendingReceivePacketCount___U1);
     TINYCLR_NATIVE_DECLARE(PendingSendPacketCount___U1);
     TINYCLR_NATIVE_DECLARE(Send___SamraksheMoteNetNetOpStatus__U2__SZARRAY_U1__U2__U2);
