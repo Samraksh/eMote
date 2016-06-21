@@ -1051,7 +1051,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	// If radio is already in RX, stay in RX.
 	// If a packet comes in, shouldn't lose it, but RX processing will be defered and timestamp will be wrong.
 	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX\r\n");
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX; State is: %d\r\n", state);
 		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
 		HAL_Time_Sleep_MicroSeconds(ms);
 		si446x_get_modem_status( 0xFF );
