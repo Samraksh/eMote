@@ -271,6 +271,9 @@ typedef OFProv<UINT64> OMACTicks;
 	#define ACK_RX_MAX_DURATION_MICRO 			8*MICSECINMILISEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
 	#define ACK_TX_MAX_DURATION_MICRO 			8*MICSECINMILISEC
 	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	10*MICSECINMILISEC		//39 byte packet takes 7.8 ms; (16 bytes for DISCO + 13 bytes for header + 10 bytes added by radio)
+	#define DISCO_PACKET_TX_TIME_MICRO 			10*MICSECINMILISEC
+	#define DISCO_SLOT_PERIOD_MICRO 			8*MICSECINMILISEC
+	#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 
 #elif defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_RF231
 
@@ -293,6 +296,9 @@ typedef OFProv<UINT64> OMACTicks;
 	#define MAX_PACKET_TX_DURATION_MICRO 		5*MICSECINMILISEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
 	#define ACK_RX_MAX_DURATION_MICRO 			20*MICSECINMILISEC
 	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	1.2*MICSECINMILISEC		//35 byte packet takes 1 ms; (16 bytes for DISCO + 13 bytes for header + 6 bytes added by radio)
+	#define DISCO_PACKET_TX_TIME_MICRO 			1*MICSECINMILISEC
+	#define DISCO_SLOT_PERIOD_MICRO 			8*MICSECINMILISEC
+	#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 #else
 	#error "Radioname not defined"
 #endif
@@ -480,9 +486,6 @@ UINT16  CONTROL_BEACON_INTERVAL_SLOT = 7500;
 
 UINT32 ArbiterP_Timing;
 
-#define DISCO_PACKET_TX_TIME_MICRO 1000
-#define DISCO_SLOT_PERIOD_MICRO 8000
-#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 /*
  * Prime numbers used in determining DISCO period of a node
  */

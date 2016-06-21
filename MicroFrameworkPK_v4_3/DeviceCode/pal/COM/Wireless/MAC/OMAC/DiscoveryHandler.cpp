@@ -127,16 +127,10 @@ UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
 	}
 	else  {
 		if(period1Remaining < period2Remaining){
-			if(highdiscorate)
-				return (5*period1Remaining);
-			else
-				return (2*period1Remaining);
+			return (period1Remaining);
 		}
 		else{
-			if(highdiscorate)
-				return (5*period2Remaining);
-			else
-				return (2*period2Remaining);
+			return (period2Remaining);
 		}
 //		return ((period1Remaining < period2Remaining) ? (2*period1Remaining ) : (2*period2Remaining ));
 	}
@@ -192,7 +186,7 @@ void DiscoveryHandler::PostExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	DeviceStatus  ds = DS_Success;
 	m_state = WAITING_FOR_SLEEP;
-	ds = g_OMAC.m_omac_RadioControl.Stop();
+	//ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		m_state = SLEEP_SUCCESSFUL;
 		g_OMAC.m_omac_scheduler.PostExecution();
@@ -332,10 +326,6 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
 */
-	if(m_disco_state == DISCO_STATE_BEACON_N ){
-		VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC);
-		this->PostExecuteEvent();
-	}
 	/*if(m_disco_state == DISCO_STATE_BEACON_N){
 		VirtualTimerReturnMessage rm;
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
@@ -408,8 +398,8 @@ void DiscoveryHandler::BeaconN(){
 	//VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 	//this->PostExecuteEvent();
 
-	VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
-	VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC);
+	//VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+	//VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC);
 }
 
 
@@ -451,11 +441,6 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 	case WAITING_FOR_SLEEP:
 	default:
 		PostExecuteEvent();
-	}
-
-	m_disco_state = DISCO_STATE_BEACON_N;
-	if (ShouldBeacon()) {
-		BeaconN();
 	}
 }
 
