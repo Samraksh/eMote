@@ -69,7 +69,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC, 0, DISCO_BEACON_TX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDiscoPostExec, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC, 0, DISCO_BEACON_TX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDiscoPostExec, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 }
 
