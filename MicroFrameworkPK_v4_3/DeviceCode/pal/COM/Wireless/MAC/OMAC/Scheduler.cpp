@@ -80,7 +80,10 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 }
 
 void OMACScheduler::UnInitialize(){
-
+	VirtualTimerReturnMessage rm;
+	SchedulerINUse = false;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 }
 
 

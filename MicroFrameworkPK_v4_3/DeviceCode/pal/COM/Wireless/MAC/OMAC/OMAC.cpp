@@ -202,10 +202,6 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		g_receive_buffer.Initialize();
 		g_NeighborTable.ClearTable();
 
-		senderSequenceNumber = receiverSequenceNumber = 0;
-		RadioAckPending = FALSE;
-		m_recovery = 1;
-
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
 			return status;
 		}
@@ -221,7 +217,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
-		m_omac_RadioControl.Initialize();
+		//m_omac_RadioControl.Initialize();
 		m_omac_scheduler.Initialize(radioName, macName);
 		Initialized = TRUE;
 	}
@@ -283,6 +279,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 BOOL OMACType::UnInitialize(){
 	BOOL ret = TRUE;
 	Initialized = FALSE;
+	m_omac_scheduler.UnInitialize();
 	ret &= CPU_Radio_UnInitialize(this->radioName);
 	return ret;
 }
@@ -290,8 +287,10 @@ BOOL OMACType::UnInitialize(){
 /*
  *
  */
-Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size)
-{
+Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
+	if(!Initialized){
+		return msg;
+	}
 	DeviceStatus ds;
 	DiscoveryMsg_t* disco_msg = NULL;
 	TimeSyncMsg* tsmg = NULL;
@@ -589,6 +588,9 @@ void RadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
+	if(!Initialized){
+		return false;
+	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
 		return false;
@@ -603,8 +605,10 @@ BOOL OMACType::Send(UINT16 address, UINT8 dataType, void* msg, int size){
  * Store packet in the send buffer and return; Scheduler will pick it up later and send it
  */
 ////BOOL OMACType::SendTimeStamped(RadioAddress_t address, UINT8 dataType, Message_15_4_t* msg, int size, UINT32 eventTime)
-BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime)
-{
+BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int size, UINT32 eventTime){
+	if(!Initialized){
+		return false;
+	}
 	Message_15_4_t* msg_carrier = PrepareMessageBuffer(address, dataType, msg, size);
 	if(msg_carrier == (Message_15_4_t*)(NULL)){
 		return false;

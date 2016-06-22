@@ -79,8 +79,6 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	static UINT8 payloadTypeArrayIndex;
 	UINT8 payloadTypeArray[payloadTypeArrayMaxValue];
 
-	BOOL RadioAckPending;
-	UINT8 m_recovery;
 	BOOL flushTimerRunning;
 
 	UINT8 CurrentActiveApp;
@@ -127,8 +125,6 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	Message_15_4_t* rx_msg_ptr;
 	volatile UINT16 tx_length;
 	volatile UINT16 rx_length;
-	UINT16 senderSequenceNumber;
-	UINT16 receiverSequenceNumber;
 
 	/*Already set in MAC class from which OMAC is derived
 	UINT16 GetAddress(){return MyID;}

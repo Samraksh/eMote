@@ -692,7 +692,6 @@ bool DataTransmissionHandler::Send(){
 		UINT16 dest = m_outgoingEntryPtr->GetHeader()->dest;
 		IEEE802_15_4_Header_t* header = m_outgoingEntryPtr->GetHeader();
 		IEEE802_15_4_Metadata* metadata = m_outgoingEntryPtr->GetMetaData();
-		g_OMAC.senderSequenceNumber = header->dsn; //BK: I don't know what this is. Seems like residue from incorrect HW ACK implementation. Ananth should check
 		metadata->SetRetryAttempts(metadata->GetRetryAttempts()+1);
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState( DATATX_DATA_PIN, TRUE );
