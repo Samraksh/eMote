@@ -70,6 +70,7 @@ public:
 
 	BOOL SetMyAddress(UINT16 address){
 		this->MyAddress = address;
+		return TRUE;
 	}
 	UINT16 GetMyAddress(){
 		return this->MyAddress;

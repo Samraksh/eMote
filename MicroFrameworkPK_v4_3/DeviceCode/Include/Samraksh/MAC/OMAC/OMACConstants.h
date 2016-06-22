@@ -227,7 +227,7 @@ public:
 		if (rhs == *this) return false;
 		else if(isThereOverflow(rhs)){
 			if (rhs<*this) return true;
-			else false;
+			else return false;
 		}
 		else{
 			if (rhs<*this) return true;
@@ -238,7 +238,7 @@ public:
 		if (rhs == *this) return false;
 		else if(isThereOverflow(rhs)){
 			if (rhs>*this) return true;
-			else false;
+			else return false;
 		}
 		else{
 			if (rhs>*this) return true;

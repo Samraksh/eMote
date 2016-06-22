@@ -346,6 +346,7 @@ typedef class IEEE802_15_4_Metadata{
 	}
 	UINT8 SetRetryAttempts(UINT8 r){
 		RetryAttempts = r;
+		return RetryAttempts;
 	}
 
 }IEEE802_15_4_Metadata_t;
