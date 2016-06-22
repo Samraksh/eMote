@@ -35,7 +35,18 @@ namespace Samraksh.eMote.Net.Radio
                 }
             }
             else
-                Debug.Print("Generic radio already initialized");
+                Debug.Print("Long range radio (SI4468) already initialized");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ~Radio_802_15_4_SI4468()
+        {
+            _si4468RadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            Debug.Print("LR (SI4468) radio uninitialized");
+        }
+
     }
 }

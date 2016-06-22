@@ -35,7 +35,18 @@ namespace Samraksh.eMote.Net.Radio
                 }
             }
             else
-                Debug.Print("Long range radio already initialized");
+                Debug.Print("Long range radio (RF231) already initialized");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ~Radio_802_15_4_RF231_LR()
+        {
+            _lrRadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            Debug.Print("LR (RF231) radio uninitialized");
+        }
+
     }
 }

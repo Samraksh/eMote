@@ -37,5 +37,16 @@ namespace Samraksh.eMote.Net.Radio
             else
                 Debug.Print("Generic radio already initialized");
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ~Radio_802_15_4_RF231()
+        {
+            _genericRadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            Debug.Print("Generic radio uninitialized");
+        }
+
     }
 }

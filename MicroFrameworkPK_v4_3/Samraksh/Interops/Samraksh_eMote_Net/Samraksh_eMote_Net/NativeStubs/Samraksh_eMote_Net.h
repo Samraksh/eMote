@@ -138,7 +138,7 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base
     static const int FIELD___channel = 3;
     static const int FIELD___radioName = 4;
 
-    TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus);
+    TINYCLR_NATIVE_DECLARE(UnInitialize___SamraksheMoteNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(TurnOnRx___SamraksheMoteNetDeviceStatus__U1);
     TINYCLR_NATIVE_DECLARE(Sleep___SamraksheMoteNetDeviceStatus__U1__U1);
     TINYCLR_NATIVE_DECLARE(ClearChannelAssesment___BOOLEAN__U1);

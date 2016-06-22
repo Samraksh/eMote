@@ -401,23 +401,24 @@ namespace Samraksh.eMote.Net.Radio
 		/// <summary>
 		/// Unitialize radio
 		/// </summary>
+        /// <param name="radioName">Radio name</param>
 		/// <returns>Success of operation</returns>
-		DeviceStatus UnInitialize();
+		DeviceStatus UnInitialize(byte radioName);
 
 		/// <summary>
 		/// Turn radio on
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <returns>Success of operation</returns>
-		DeviceStatus TurnOnRx(byte radioType);
+		DeviceStatus TurnOnRx(byte radioName);
 
 		/// <summary>
 		/// Put radio to sleep
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <param name="level">Sleep level</param>
 		/// <returns>Success of operation</returns>
-		DeviceStatus Sleep(byte radioType, byte level);
+		DeviceStatus Sleep(byte radioName, byte level);
 
 		/// <summary>
 		/// Preload radio
@@ -431,40 +432,40 @@ namespace Samraksh.eMote.Net.Radio
 		/// Send preloaded packet
 		/// </summary>
 		/// <returns>Success of operation</returns>
-		NetOpStatus SendStrobe(byte radioType, ushort size);
+		NetOpStatus SendStrobe(byte radioName, ushort size);
 
 		/// <summary>
 		/// Send packet on radio
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <param name="packet">Packet to send</param>
 		/// <param name="size">Size of packet</param>
 		/// <returns>Success of operation</returns>
-		NetOpStatus Send(byte radioType, byte[] packet, ushort size);
+		NetOpStatus Send(byte radioName, byte[] packet, ushort size);
 
 		/// <summary>
 		/// Sent time-stamped packet
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <param name="packet">Packet buffer to send</param>
 		/// <param name="size">Size of packet</param>
 		/// <param name="eventTime">Time stamp of packet</param>
 		/// <returns>Send status</returns>
-		NetOpStatus SendTimeStamped(byte radioType, byte[] packet, ushort size, uint eventTime);
+		NetOpStatus SendTimeStamped(byte radioName, byte[] packet, ushort size, uint eventTime);
 
 		/// <summary>
 		/// Check if channel is clear
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <returns>True iff clear</returns>
-		bool ClearChannelAssesment(byte radioType);
+		bool ClearChannelAssesment(byte radioName);
 
 		/// <summary>
 		/// Check if channel has been clear for the specified interval of time
 		/// </summary>
-		/// <param name="radioType">Radio ID</param>
+		/// <param name="radioName">Radio name</param>
 		/// <param name="numberOfMicroSecond">Interval (microseconds)</param>
 		/// <returns>True iff clear</returns>
-		bool ClearChannelAssesment(byte radioType, ushort numberOfMicroSecond);
+		bool ClearChannelAssesment(byte radioName, ushort numberOfMicroSecond);
 	}
 }

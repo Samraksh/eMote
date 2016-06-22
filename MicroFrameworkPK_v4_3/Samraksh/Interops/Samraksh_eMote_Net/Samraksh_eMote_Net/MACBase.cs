@@ -445,7 +445,7 @@ namespace Samraksh.eMote.Net
 
 			//Initialize MAC and radio config 
 			//MACRadioConfig.Channel = channel;
-			//MACRadioConfig.RadioType = radioType;
+			//MACRadioConfig.RadioType = radioName;
 			//MACRadioConfig.TxPower = txPower;
 
 			//Enable interrupt handler for receive callback function 
@@ -548,9 +548,9 @@ namespace Samraksh.eMote.Net
 		/// <param name="bufferSize"></param>
 		/// <param name="neighborLivenessDelay"></param>
 		/// <param name="mactype"></param>
-		/// <param name="radioType"></param>
+		/// <param name="radioName"></param>
 		/// <returns></returns>
-		private DeviceStatus Initialize(bool cca, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, uint neighborLivenessDelay, MACType mactype, RadioName radioType)
+		private DeviceStatus Initialize(bool cca, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, uint neighborLivenessDelay, MACType mactype, RadioName radioName)
 		{
 			if (cca)
 				_marshalBuffer[0] = 1;
@@ -568,7 +568,7 @@ namespace Samraksh.eMote.Net
 			// Breaking the object boundary, but shallow instances of the radio can not initialize
 			/*_marshalBuffer[9] = (byte)radioConfiguration.TxPower;
 			_marshalBuffer[10] = (byte)radioConfiguration.Channel;*/
-			_marshalBuffer[8] = (byte)radioType;
+			_marshalBuffer[8] = (byte)radioName;
 
 			return InternalInitialize(_marshalBuffer, (byte)mactype);
 		}
@@ -797,24 +797,24 @@ namespace Samraksh.eMote.Net
 		//}*/
 
 		/*/// <summary></summary>
-		///// <param name="radioType"></param>
+		///// <param name="radioName"></param>
 		///// <returns></returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetRadioType(byte radioType);
+		//private extern DeviceStatus SetRadioType(byte radioName);
 
 		///// <summary>Set the transmit power of the radio</summary>
-		///// <param name="radioType">Radio ID</param>
+		///// <param name="radioName">Radio name</param>
 		///// <param name="TxPower">Transmission power to use</param>
 		///// <returns>Status of operation</returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetTxPower(byte radioType, int TxPower);
+		//private extern DeviceStatus SetTxPower(byte radioName, int TxPower);
 
 		///// <summary>Set the radio channel</summary>
-		///// <param name="radioType">Radio ID</param>
+		///// <param name="radioName">Radio name</param>
 		///// <param name="Channel">Channel to use</param>
 		///// <returns>Status of operation</returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetChannel(byte radioType, int Channel);*/
+		//private extern DeviceStatus SetChannel(byte radioName, int Channel);*/
 		#endregion commented code
 
 		// Added by Bill. 
@@ -1060,7 +1060,27 @@ namespace Samraksh.eMote.Net
 		/// <summary>Uninitialize MAC instance</summary>
 		public override void Dispose()
 		{
-			UnInitialize();
+            DeviceStatus status = DeviceStatus.Fail;
+            //Radio is uninitialized when MAC is uninitialized
+            //Uninitialize radio
+            /*status = MACRadioObj.UnInitialize((byte)MACRadioObj.RadioName);
+            if (status != DeviceStatus.Success)
+            {
+                throw new Exception("Could not uninitialize radio");
+            }*/
+
+            //Uninitialize MAC
+            status = UnInitialize();
+            if (status != DeviceStatus.Success)
+            {
+                string macTypeStr = "";
+                if (MACType == MACType.CSMA)
+                    macTypeStr = "CSMA";
+                else if(MACType == MACType.OMAC)
+                    macTypeStr = "OMAC";
+
+                throw new Exception("Could not uninitialize " + macTypeStr);
+            }
 			switch (MACType)
 			{
 				case MACType.CSMA:

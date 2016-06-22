@@ -34,7 +34,7 @@ namespace Samraksh
                     static INT32& Get__radioName( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_INT32( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_Radio_Radio_802_15_4_Base::FIELD___radioName ); }
 
                     // Declaration of stubs. These functions are implemented by Interop code developers
-                    static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+                    static INT32 UnInitialize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
                     static INT32 Sleep( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT8 param1, HRESULT &hr );
                     static INT8 ClearChannelAssesment( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr );
