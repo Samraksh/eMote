@@ -152,6 +152,14 @@ enum PayloadTypeMAC{
 	MFM_OMAC_DATA_BEACON_TYPE = 0x37
 };
 
+#define NATIVE_APP_ID_OFFSET 0x80
+
+enum PayloadTypeNative{
+	MFM_UPDATE = NATIVE_APP_ID_OFFSET + 0x0,
+};
+
+#define IsValidNativeAppIdOffset(x) ((x)>= NATIVE_APP_ID_OFFSET && (x) < (NATIVE_APP_ID_OFFSET + MAX_NATIVE_APPS))
+
 //#define MFM_DATA (1 << 0)
 //#define MFM_TIMESYNC (1 << 1)
 //#define MFM_NEIGHBORHOOD (1 << 2)
