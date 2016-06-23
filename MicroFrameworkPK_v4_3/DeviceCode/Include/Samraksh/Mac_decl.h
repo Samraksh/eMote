@@ -9,8 +9,9 @@
 
 enum MACNames
 {
-	CSMAMAC,
-	OMAC,
+	NONE = 0,
+	CSMAMAC = 1,
+	OMAC = 2,
 };
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
