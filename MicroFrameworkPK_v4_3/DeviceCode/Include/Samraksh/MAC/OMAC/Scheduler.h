@@ -31,10 +31,10 @@
  */
 typedef class State{
   private:
-	UINT8 CurrentState;
+	INT32 CurrentState;
   public:
 	//Changed state if in Idle
-	bool RequestState(UINT8 reqState){
+	bool RequestState(OMacInput_t reqState){
 		//GLOBAL_LOCK(irq);
 
 		if(CurrentState == S_IDLE){
@@ -48,7 +48,7 @@ typedef class State{
 	}
 
 	//Force the state machine
-	void ForceState(UINT8 reqState){
+	void ForceState(OMacInput_t reqState){
 		//GLOBAL_LOCK(irq);
 		//hal_printf("ForceState: currentState: %d; reqState: %d\n", CurrentState, reqState);
 		CurrentState = reqState;
@@ -67,14 +67,14 @@ typedef class State{
 	}
 
 	//@return TRUE if the state machine is in the given state
-	bool IsState(UINT8 compState){
+	bool IsState(OMacInput_t compState){
 		//GLOBAL_LOCK(irq);
 		if(CurrentState == compState) return TRUE;
 		else return FALSE;
 	}
 
 	//Get the current state
-	UINT8 GetState(){return CurrentState;}
+	INT32 GetState(){return CurrentState;}
 }State_t;
 
 /*
