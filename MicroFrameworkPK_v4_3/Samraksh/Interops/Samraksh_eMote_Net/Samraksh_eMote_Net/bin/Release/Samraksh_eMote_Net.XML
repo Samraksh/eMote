@@ -34,6 +34,11 @@
             Timeout 
             </summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.DeviceStatus.Bug">
+            <summary>
+            There is a bug in the code
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.NetOpStatus">
             <summary>
             Net operation result status
@@ -156,11 +161,10 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.RemovePacket(System.Byte[])">
+        <member name="M:Samraksh.eMote.Net.MAC.IMAC.RemovePacket">
             <summary>
             Remove packet from pending
             </summary>
-            <param name="packet">Packet to remove</param>
             <returns>Status of result</returns>
         </member>
         <member name="P:Samraksh.eMote.Net.MAC.IMAC.MACType">
@@ -221,7 +225,7 @@
             <param name="bufferSize"></param>
             <param name="neighborLivenessDelay"></param>
             <param name="mactype"></param>
-            <param name="radioType"></param>
+            <param name="radioName"></param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.Configure">
@@ -273,9 +277,8 @@
             <param name="macAddress">Address of the Neighbor</param>
             <returns>Neighbor</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket(System.Byte[])">
+        <member name="M:Samraksh.eMote.Net.MACBase.RemovePacket">
             <summary>Remove a _packet from the buffer</summary>
-            <param name="packet">_packet to be removed</param>
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.PendingReceivePacketCount">
@@ -812,24 +815,25 @@
             Radio interface
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.UnInitialize">
+        <member name="M:Samraksh.eMote.Net.Radio.IRadio.UnInitialize(System.Byte)">
             <summary>
             Unitialize radio
             </summary>
+            <param name="radioName">Radio name</param>
             <returns>Success of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.TurnOnRx(System.Byte)">
             <summary>
             Turn radio on
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <returns>Success of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.Sleep(System.Byte,System.Byte)">
             <summary>
             Put radio to sleep
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="level">Sleep level</param>
             <returns>Success of operation</returns>
         </member>
@@ -851,7 +855,7 @@
             <summary>
             Send packet on radio
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="packet">Packet to send</param>
             <param name="size">Size of packet</param>
             <returns>Success of operation</returns>
@@ -860,7 +864,7 @@
             <summary>
             Sent time-stamped packet
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="packet">Packet buffer to send</param>
             <param name="size">Size of packet</param>
             <param name="eventTime">Time stamp of packet</param>
@@ -870,14 +874,14 @@
             <summary>
             Check if channel is clear
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <returns>True iff clear</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.ClearChannelAssesment(System.Byte,System.UInt16)">
             <summary>
             Check if channel has been clear for the specified interval of time
             </summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="numberOfMicroSecond">Interval (microseconds)</param>
             <returns>True iff clear</returns>
         </member>
@@ -969,11 +973,10 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACPipe.RemovePacket(System.Byte[])">
+        <member name="M:Samraksh.eMote.Net.MACPipe.RemovePacket">
             <summary>
             
             </summary>
-            <param name="packet"></param>
             <returns></returns>
         </member>
         <member name="E:Samraksh.eMote.Net.MACPipe.OnReceive">
@@ -1253,55 +1256,56 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioName(System.Byte)">
             <summary>Set radio name</summary>
-            <param name="radioType">Radio type</param>
+            <param name="radioName">Radio type</param>
             <returns></returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetTxPower(System.Byte,System.Int32)">
             <summary>Set the transmit power of the radio</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="txPower">Transmission power to use</param>
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetChannel(System.Byte,System.Int32)">
             <summary>Set the radio _channel</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="channel">channel to use</param>
             <returns>Status of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.GetRadioAddress(System.Byte)">
             <summary>Get the address of the device</summary>
             <remarks>This is the address by which the device is known to the rest of the world.</remarks>
-            <param name="radioType">Radio type</param>
+            <param name="radioName">Radio type</param>
             <returns>Address of the device</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SetRadioAddress(System.Byte,System.UInt16)">
             <summary>Set the address of the device</summary>
-            <param name="radioType">Radio type</param>
+            <param name="radioName">Radio type</param>
             <param name="address">Address of the device</param>
             <remarks>This is the address by which the device is known to the rest of the world. 
                 A return value of false can occur if another layer locks the address and prevents changes.
             </remarks>
             <returns>Success / failure</returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.UnInitialize">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.UnInitialize(System.Byte)">
             <summary>Uninitialize native MAC, radio and interop drivers</summary>
+            <param name="radioName">Radio type</param>
             <returns>Status of operation.</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOnRx(System.Byte)">
             <summary>Turn radio on</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <returns>Status of operation</returns>
             <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOffRx(System.Byte)">
             <summary>Turn radio off</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <returns>Status of operation</returns>
             <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte)">Sleep Method</seealso>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Sleep(System.Byte,System.Byte)">
             <summary>Put the radio to sleep</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="level">Sleep level</param>
             <returns>Status of operation</returns>
             <seealso cref="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.TurnOn">TurnOn Method</seealso>
@@ -1309,12 +1313,12 @@
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte)">
             <summary>Assess _channel activity</summary>
             <remarks>Default is 140 microseconds.</remarks>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <returns>True iff _channel is free</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.ClearChannelAssesment(System.Byte,System.UInt16)">
             <summary>Assess _channel activity</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="numberOfMicroSecond">Number of microseconds to check</param>
             <returns>True iff _channel is free</returns>
         </member>
@@ -1330,14 +1334,14 @@
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.Send(System.Byte,System.Byte[],System.UInt16)">
             <summary>Load and send a packet</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="packet">Packet to be sent</param>
             <param name="size">Size of packet</param>
             <returns>Result of operation</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_Base.SendTimeStamped(System.Byte,System.Byte[],System.UInt16,System.UInt32)">
             <summary>Load and send a time-stamped packet, with specified time stamp</summary>
-            <param name="radioType">Radio ID</param>
+            <param name="radioName">Radio name</param>
             <param name="packet">Packet to be sent</param>
             <param name="size">Size of packet</param>
             <param name="eventTime">The time stamp.</param>
@@ -1363,6 +1367,11 @@
             <summary>Constructor</summary>
             <param name="user">Radio user</param>
         </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231">
             <summary>Generic radio object</summary>
         </member>
@@ -1373,6 +1382,11 @@
             <summary>Constructor</summary>
             <param name="user"></param>
         </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR">
             <summary>Long range radio</summary>
         </member>
@@ -1382,6 +1396,11 @@
         <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.#ctor(Samraksh.eMote.Net.Radio.RadioUser)">
             <summary>Constructor</summary>
             <param name="user"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.Finalize">
+            <summary>
+            
+            </summary>
         </member>
     </members>
 </doc>

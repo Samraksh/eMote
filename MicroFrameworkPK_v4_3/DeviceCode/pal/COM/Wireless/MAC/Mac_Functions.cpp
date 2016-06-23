@@ -257,6 +257,11 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
+		// initializing buffer
+		buffer[i] = 0;
+	}
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
 		if(g_NeighborTable.Neighbor[i].Status == Alive)
 		{
 			buffer[neighborCount++] = g_NeighborTable.Neighbor[i].MacAddress;

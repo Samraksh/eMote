@@ -120,9 +120,7 @@ DeviceStatus OMACType::SetConfig(MACConfig *config){
 
 void PushToUpperLayerHelper(void* arg)
 {
-	CPU_GPIO_SetPinState( OMAC_CONTINUATION, TRUE );
 	g_OMAC.PushPacketsToUpperLayers(arg);
-	CPU_GPIO_SetPinState( OMAC_CONTINUATION, FALSE );
 }
 
 void OMACType::PushPacketsToUpperLayers(void* arg){
@@ -202,6 +200,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		g_receive_buffer.Initialize();
 		g_NeighborTable.ClearTable();
 
+		g_NeighborTable.SetPreviousNumberOfNeighbors(0);
 		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
 			return status;
 		}
@@ -776,6 +775,11 @@ UINT8 OMACType::UpdateNeighborTable(){
 			}
 		}
 
+		
+	}
+
+	if (g_NeighborTable.PreviousNumberOfNeighbors() != g_NeighborTable.NumberOfNeighbors())
+	{
 		NeighborChangeFuncPtrType appHandler = g_OMAC.GetAppHandler(CurrentActiveApp)->neighborHandler;
 
 		// Check if neighbor change has been registered and the user is interested in this information
@@ -784,6 +788,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 			// Make the neighbor changed callback signaling dead neighbors
 			(*appHandler)((INT16) (g_NeighborTable.NumberOfNeighbors()));
 		}
+		g_NeighborTable.SetPreviousNumberOfNeighbors(g_NeighborTable.NumberOfNeighbors());
 	}
 	return numberOfDeadNeighbors;
 	//g_NeighborTable.DegradeLinks();

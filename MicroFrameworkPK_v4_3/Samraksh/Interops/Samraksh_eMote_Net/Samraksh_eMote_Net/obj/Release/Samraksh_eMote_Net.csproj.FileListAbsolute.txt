@@ -90,3 +90,4 @@ D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_e
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\le\Samraksh_eMote_Net.pdbx
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.dll
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.pdb
+D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_Net\Samraksh_eMote_Net\obj\Release\Samraksh_eMote_Net.csprojResolveAssemblyReference.cache
