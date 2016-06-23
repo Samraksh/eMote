@@ -453,6 +453,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 //TODO: handle negative install message (and reason).
                 //TODO: if negative, try to send a start message to resend Authenticate and fix the problem.
                 updateInfo->Flags |= NEIGHBOR_FLAGS__INSTALL;
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr/*FIXME... need dest from received packet*/, INSTALL_ACK);
             }
                 break;
             case c_Debugging_MFUpdate_AuthCommand:
@@ -1230,7 +1231,7 @@ void Samraksh_Emote_Update::SendInstall(UpdateID_t updateId, UINT16 destAddr)
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        SOFT_BREAKPOINT();
+        //SOFT_BREAKPOINT();
     }
     return;
 }

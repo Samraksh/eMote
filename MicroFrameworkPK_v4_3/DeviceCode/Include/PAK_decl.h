@@ -15,6 +15,21 @@
 #include <Samraksh\Message.h>
 #include <MFUpdate_decl.h>
 
+/**
+ * UpdateMessage in UpdateState.cs
+ * must fit inside 16 bits for packing to CLR via in NativeToManagedUpdaterProgressHandler to NativeEventQueue
+ */
+enum UpdateMessage
+{
+        NOMSG = 0,
+        START = 1, START_ACK = 2,
+        AUTHCMD = 4, AUTHCMD_ACK = 8,
+        AUTHENTICATE = 16, AUTHETICATE_ACK = 32,
+        GETMISSINGPACKETS = 64, GETMISSINGPACKETS_ACK = 128,
+        ADDPACKET = 256, ADDPACKET_ACK = 512,
+        INSTALL = 1024, INSTALL_ACK = 2048,
+};
+
 /// used for g_UpdateManagerContext for Interop callback.
 // #include <TinyCLR_Runtime.h>
 //extern CLR_RT_HeapBlock_NativeEventDispatcher *g_UpdateManagerContext;

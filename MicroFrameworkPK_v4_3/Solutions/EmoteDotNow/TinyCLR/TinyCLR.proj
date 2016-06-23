@@ -64,6 +64,7 @@
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
@@ -402,6 +403,11 @@
   <ItemGroup>
     <DriverLibs Include="update_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\PAK\dotNetMF.proj" />
+  </ItemGroup>
+  <!-- Add Interop for accessing update manager -->
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_ProgramManager.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Samraksh_eMote_ProgramManager\dotNetMF.proj" />
   </ItemGroup>
   <!--                            END  MFUpdate                         -->
   <ItemGroup>
