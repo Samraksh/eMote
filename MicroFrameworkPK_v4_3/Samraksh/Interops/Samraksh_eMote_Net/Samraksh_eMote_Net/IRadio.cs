@@ -398,12 +398,12 @@ namespace Samraksh.eMote.Net.Radio
 		//DeviceStatus Initialize(RadioConfiguration config, ReceiveCallBack callback); //Initializes Return the ID of the Radio layer that was initialized
 		//DeviceStatus Configure(RadioConfiguration config, ReceiveCallBack callback);  //Change configuration after initialization
 
-		/// <summary>
+		/*/// <summary>
 		/// Unitialize radio
 		/// </summary>
         /// <param name="radioName">Radio name</param>
 		/// <returns>Success of operation</returns>
-		DeviceStatus UnInitialize(byte radioName);
+		DeviceStatus UnInitialize(byte radioName);*/
 
 		/// <summary>
 		/// Turn radio on

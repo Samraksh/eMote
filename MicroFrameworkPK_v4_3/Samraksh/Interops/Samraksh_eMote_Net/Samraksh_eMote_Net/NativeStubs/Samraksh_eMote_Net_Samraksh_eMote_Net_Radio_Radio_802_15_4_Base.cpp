@@ -16,12 +16,6 @@
 
 using namespace Samraksh::eMote::Net::Radio;
 
-INT32 Radio_802_15_4_Base::UnInitialize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
-{
-    INT32 retVal = 0; 
-    return retVal;
-}
-
 INT32 Radio_802_15_4_Base::TurnOnRx( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
 {
     INT32 retVal = 0; 
@@ -97,6 +91,12 @@ UINT16 Radio_802_15_4_Base::GetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 pa
 INT8 Radio_802_15_4_Base::SetRadioAddress( CLR_RT_HeapBlock* pMngObj, UINT8 param0, UINT16 param1, HRESULT &hr )
 {
     INT8 retVal = 0; 
+    return retVal;
+}
+
+INT32 Radio_802_15_4_Base::UnInitialize( CLR_RT_HeapBlock* pMngObj, UINT8 param0, HRESULT &hr )
+{
+    INT32 retVal = 0; 
     return retVal;
 }
 

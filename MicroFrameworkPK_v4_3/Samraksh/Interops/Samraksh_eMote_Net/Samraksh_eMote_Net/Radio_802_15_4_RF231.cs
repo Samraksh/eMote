@@ -35,7 +35,20 @@ namespace Samraksh.eMote.Net.Radio
                 }
             }
             else
-                Debug.Print("Generic radio already initialized");
+                Debug.Print("Generic radio (RF231) already initialized");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public DeviceStatus Radio_802_15_4_RF231_UnInitialize()
+        {
+            _genericRadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            return DeviceStatus.Success;
+            //Radio is uninitialized when MAC is uninitialized
+            //return UnInitialize((byte)RadioName.RF231);
         }
 
         /// <summary>
@@ -45,7 +58,6 @@ namespace Samraksh.eMote.Net.Radio
         {
             _genericRadioInstanceSet = false;
             CurrUser = RadioUser.Idle;
-            Debug.Print("Generic radio uninitialized");
         }
 
     }

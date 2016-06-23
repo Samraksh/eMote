@@ -41,11 +41,23 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        public DeviceStatus Radio_802_15_4_RF231_LR_UnInitialize()
+        {
+            _lrRadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            return DeviceStatus.Success;
+            //Radio is uninitialized when MAC is uninitialized
+            //return UnInitialize((byte)RadioName.RF231LR);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         ~Radio_802_15_4_RF231_LR()
         {
             _lrRadioInstanceSet = false;
             CurrUser = RadioUser.Idle;
-            Debug.Print("LR (RF231) radio uninitialized");
         }
 
     }

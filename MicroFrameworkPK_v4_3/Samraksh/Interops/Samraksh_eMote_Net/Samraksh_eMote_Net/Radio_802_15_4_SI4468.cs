@@ -41,11 +41,23 @@ namespace Samraksh.eMote.Net.Radio
         /// <summary>
         /// 
         /// </summary>
+        /// <returns></returns>
+        public DeviceStatus Radio_802_15_4_SI4468_UnInitialize()
+        {
+            _si4468RadioInstanceSet = false;
+            CurrUser = RadioUser.Idle;
+            return DeviceStatus.Success;
+            //Radio is uninitialized when MAC is uninitialized
+            //return UnInitialize((byte)RadioName.SI4468);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         ~Radio_802_15_4_SI4468()
         {
             _si4468RadioInstanceSet = false;
             CurrUser = RadioUser.Idle;
-            Debug.Print("LR (SI4468) radio uninitialized");
         }
 
     }

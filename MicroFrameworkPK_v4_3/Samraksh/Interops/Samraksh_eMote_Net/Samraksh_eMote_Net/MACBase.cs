@@ -461,7 +461,7 @@ namespace Samraksh.eMote.Net
 				{
 					_csmaInstanceSet = true;
 					if (radioConfiguration.RadioName == RadioName.RF231)
-						MACRadioObj = new Radio_802_15_4_RF231(RadioUser.CSMA);
+                        MACRadioObj = new Radio_802_15_4_RF231(RadioUser.CSMA);
 
 					else if (radioConfiguration.RadioName == RadioName.RF231LR)
 						MACRadioObj = new Radio_802_15_4_RF231_LR(RadioUser.CSMA);
@@ -1069,6 +1069,21 @@ namespace Samraksh.eMote.Net
                 throw new Exception("Could not uninitialize radio");
             }*/
 
+            //Uninitialize radio properties
+            switch (MACRadioObj.RadioName)
+            {
+                case RadioName.RF231:
+                    ((Radio_802_15_4_RF231)MACRadioObj).Radio_802_15_4_RF231_UnInitialize();
+                    break;
+                case RadioName.RF231LR:
+                    ((Radio_802_15_4_RF231_LR)MACRadioObj).Radio_802_15_4_RF231_LR_UnInitialize();
+                    break;
+                case RadioName.SI4468:
+                    ((Radio_802_15_4_SI4468)MACRadioObj).Radio_802_15_4_SI4468_UnInitialize();
+                    break;
+                default:
+                    throw new RadioNotConfiguredException("Radio name unknown");
+            }
             //Uninitialize MAC
             status = UnInitialize();
             if (status != DeviceStatus.Success)

@@ -150,7 +150,7 @@ namespace Samraksh.eMote.Net.Radio
         /// <param name="radioName">Radio type</param>
         /// <returns>Status of operation.</returns>
         [MethodImpl(MethodImplOptions.InternalCall)]
-        public extern DeviceStatus UnInitialize(byte radioName);
+        internal extern DeviceStatus UnInitialize(byte radioName);
 
         /// <summary>Turn radio on</summary>
 		/// <param name="radioName">Radio name</param>
