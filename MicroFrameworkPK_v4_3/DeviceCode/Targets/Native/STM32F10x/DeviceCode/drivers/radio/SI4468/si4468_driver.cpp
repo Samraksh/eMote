@@ -17,6 +17,17 @@
 #define SI446x_TX_DONE_STATE 0
 #endif
 
+#define SI446x_INT_MODE_CHECK_DO
+// comment out above to disable check
+#ifdef SI446x_INT_MODE_CHECK_DO
+#define SI446x_INT_MODE_CHECK() \
+	if (((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0)) { \
+		si446x_debug_print(ERR99, "SI446X: __FUNCTION__() WARNING, CALLED IN INTERRUPT!\r\n"); \
+	}
+#else
+#define SI446x_INT_MODE_CHECK() {}
+#endif
+
 enum { SI_DUMMY=0, };
 
 // For now, memorize all WWF serial numbers
@@ -39,11 +50,6 @@ static SI446X_pin_setup_t SI446X_pin_setup;
 // CORE LOCKING STUFF, MOVE ME LATER
 static volatile uint32_t spi_lock;
 static volatile uint32_t radio_lock;
-
-static inline BOOL isInterrupt()
-{
-    return ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0);
-}
 
 // CMSIS includes these functions in some form
 // But they didn't quite work for me and I didn't want to mod library so... --NPS
@@ -152,6 +158,7 @@ static Message_15_4_t* rx_msg_ptr;
 // In case we had to defer interrupt handling for any reason...
 static void int_cont_do(void *arg) {
 	si446x_debug_print(DEBUG01,"SI446X: int_cont_do()\r\n");
+	SI446x_INT_MODE_CHECK();
 	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
 }
 
@@ -178,6 +185,8 @@ static void tx_cont_do(void *arg) {
 	if (tx_callback != NULL)
 		tx_callback();
 
+	SI446x_INT_MODE_CHECK();
+
 	si446x_debug_print(DEBUG02,"SI446X: tx_cont_do()\r\n");
 
 	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
@@ -201,6 +210,8 @@ static void rx_cont_do(void *arg) {
 	uint8_t rssi;
 
 	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
+
+	SI446x_INT_MODE_CHECK();
 
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
 		si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Radio busy at RX service time, trying again later.\r\n");
@@ -693,6 +704,8 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
 	si446x_debug_print(DEBUG01, "\tcontents: %s\r\n", (char *)pkt);
 
+	SI446x_INT_MODE_CHECK();
+
 	if ( len > si446x_packet_size || (doTS && (len > si446x_payload_ts)) ) {
 		si446x_debug_print(ERR99, "SI446X: si446x_packet_send() Fail. Packet Too Large.\r\n");
 		return DS_Timeout; // Cheating here. Not really a timeout but up a layer will return NO_BadPacket. TODO: Make proper.
@@ -836,6 +849,8 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
+	SI446x_INT_MODE_CHECK();
+
 	/*if(!softwareACKSent){
 		return DS_Fail;
 	}*/
@@ -879,6 +894,8 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	radio_lock_id_t owner;
 	DeviceStatus ret;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
+
+	SI446x_INT_MODE_CHECK();
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. No Init.\r\n");
@@ -1010,6 +1027,8 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
 	DeviceStatus ret;
+
+	SI446x_INT_MODE_CHECK();
 
 	if (!isInit) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
