@@ -1216,6 +1216,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt. Owner is %d\r\n", owner);
+		//Release all locks before returning
+		si446x_spi_unlock();
+		si446x_radio_unlock();
 		int_defer_continuation.Enqueue();
 		return;
 	}

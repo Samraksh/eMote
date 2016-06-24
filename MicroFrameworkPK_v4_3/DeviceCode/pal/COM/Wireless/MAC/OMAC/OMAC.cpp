@@ -216,7 +216,7 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		SetMyAddress(CPU_Radio_GetAddress(radioName));
 		SetMyID(CPU_Radio_GetAddress(radioName));
 
-		//m_omac_RadioControl.Initialize();
+		m_omac_RadioControl.Initialize();
 		m_omac_scheduler.Initialize(radioName, macName);
 		Initialized = TRUE;
 	}

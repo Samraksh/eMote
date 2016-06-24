@@ -684,7 +684,9 @@ bool DataTransmissionHandler::Send(){
 		m_outgoingEntryPtr = neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval();
 	}
 	else{
-		ASSERT_SP(0);
+		//Commenting out, as sometimes there may not be anything to be sent,
+		//	in which case Send returns a false.
+		//ASSERT_SP(0);
 	}
 
 	//Send only when packet has been scheduled
