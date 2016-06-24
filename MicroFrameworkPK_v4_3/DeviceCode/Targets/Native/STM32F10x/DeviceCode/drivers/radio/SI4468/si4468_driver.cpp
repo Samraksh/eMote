@@ -250,6 +250,7 @@ static void rx_cont_do(void *arg) {
 	rssi = si446x_get_latched_rssi();
 
 	si446x_fifo_info(0x3); // Defensively reset FIFO
+	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -455,6 +456,10 @@ void radio_shutdown(int go) {
 
 static int convert_rssi(uint8_t x) {
 	return x/2 - 0x40 - 70;
+}
+
+static bool is_radio_asleep(void) {
+	return (si446x_request_device_state_shadow() == SI_STATE_SLEEP);
 }
 
 // Quick and dirty. Clean me up later. --NPS
