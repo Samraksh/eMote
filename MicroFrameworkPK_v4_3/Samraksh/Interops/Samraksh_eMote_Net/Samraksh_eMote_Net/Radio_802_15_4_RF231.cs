@@ -51,14 +51,5 @@ namespace Samraksh.eMote.Net.Radio
             //return UnInitialize((byte)RadioName.RF231);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        ~Radio_802_15_4_RF231()
-        {
-            _genericRadioInstanceSet = false;
-            CurrUser = RadioUser.Idle;
-        }
-
     }
 }

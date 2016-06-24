@@ -51,14 +51,5 @@ namespace Samraksh.eMote.Net.Radio
             //return UnInitialize((byte)RadioName.SI4468);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        ~Radio_802_15_4_SI4468()
-        {
-            _si4468RadioInstanceSet = false;
-            CurrUser = RadioUser.Idle;
-        }
-
     }
 }
