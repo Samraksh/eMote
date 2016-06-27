@@ -802,24 +802,9 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	if (ret != DS_Success) {
 		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
-			case DS_Busy:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send(); DS_Busy\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);
-				break;
-			}
-			case DS_Timeout:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send(); DS_Timeout\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY);
-				break;
-			}
-			default:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send(); default\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY);
-				break;
-			}
+			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
+			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY); 	break;
+			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY); 		break;
 		}
 		return msg;
 	}
@@ -845,24 +830,9 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	if (ret != DS_Success) {
 		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
-			case DS_Busy:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send_ts(); DS_Busy\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);
-				break;
-			}
-			case DS_Timeout:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send_ts(); DS_Timeout\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY);
-				break;
-			}
-			default:
-			{
-				si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send_ts(); default\r\n");
-				(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY);
-				break;
-			}
+			case DS_Busy: 	(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Busy, SI_DUMMY);			break;
+			case DS_Timeout:(*AckHandler)(tx_msg_ptr, size, NetworkOperations_BadPacket, SI_DUMMY);	break;
+			default:		(*AckHandler)(tx_msg_ptr, size, NetworkOperations_Fail, SI_DUMMY);			break;
 		}
 		return msg;
 	}
@@ -877,11 +847,10 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	radio_lock_id_t owner;
-	bool proceed = false;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx()\r\n");
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Not Init.\r\n");
 		return DS_Fail;
 	}
 
@@ -897,32 +866,20 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	}
 
 	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() FAIL. SPI locked by %d\r\n", owner);
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %d\r\n", owner);
 		return DS_Busy;
 	}
 
-	owner = si446x_radio_lock(radio_lock_rx);
-	//si446x_radio_lock returns 0 if lock was obtained successfully.
-	//So, if the lock was not obtained, and if the lock is being held
-	//	by a previous Rx which did not release the lock, proceed to finish rx.
-	if(owner > 0 && owner == radio_lock_rx){
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() FAIL. Radio already locked by owner: %d; Release and proceed\r\n", owner);
-		proceed = true;
-	}
-
 	// We have to hold radio lock to ensure we are free
-	//if ( owner = si446x_radio_lock(radio_lock_rx) ) {
-	//If the lock was not obtained, and if the lock is being held
-	//	by a process other than rx, do not complete rx (return busy).
-	if(owner > 0 && !proceed){
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() FAIL. Radio locked by owner: %d\r\n", owner);
+	if ( owner = si446x_radio_lock(radio_lock_rx) ) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Radio locked by %d\r\n", owner);
 		si446x_spi_unlock();
 		return DS_Busy;
 	}
 
 	si446x_get_int_status(0xFF, 0xFF, 0xFF);
 	if ( cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() radio ops pending, aborting.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() radio ops pending, aborting.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Busy;
@@ -1259,9 +1216,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI busy during interrupt. Owner is %d\r\n", owner);
-		//Release all locks before returning
-		si446x_spi_unlock();
-		si446x_radio_unlock();
 		int_defer_continuation.Enqueue();
 		return;
 	}
