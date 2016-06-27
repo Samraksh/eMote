@@ -108,12 +108,6 @@
             MAC interface
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NextPacket">
-            <summary>
-            Get the next packet from the MAC buffer
-            </summary>
-            <returns>Next packet if any, else null</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborList(System.UInt16[])">
             <summary>
             	Get the list of neighbors from the MAC
@@ -241,7 +235,13 @@
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
             <summary>
-            Registers callbacks for CSHARP payload types.
+            Registers callbacks for payload types.
+            </summary>
+            <param name="macPipe"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.UnRegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
+            <summary>
+            Unregisters callbacks for payload types.
             </summary>
             <param name="macPipe"></param>
         </member>
@@ -249,7 +249,7 @@
             <summary>
             Get the next packet from the MAC buffer
             </summary>
-            <returns>Next packet if any, else null</returns>
+            <returns>True if success, false otherwise</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.NeighborListArray">
             <summary>
@@ -389,8 +389,17 @@
         <member name="P:Samraksh.eMote.Net.MACBase.NeighborLivenessDelay">
             <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.MACBase.IMACEventHandler">
-            <summary>Event handler for classes implementing IMAC</summary>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACReceiveEventHandler">
+            <summary>Event handler for classes implementing IMAC's on receive event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+            <param name="receivedPacket">Packet object to be filled in with received packet details</param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACNeighborChangeEventHandler">
+            <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
             <param name="macInstance">
             	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
             	When used by MACPipe class, will be MACPipe class.
@@ -815,13 +824,6 @@
             Radio interface
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.IRadio.UnInitialize(System.Byte)">
-            <summary>
-            Unitialize radio
-            </summary>
-            <param name="radioName">Radio name</param>
-            <returns>Success of operation</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.Radio.IRadio.TurnOnRx(System.Byte)">
             <summary>
             Turn radio on
@@ -948,12 +950,6 @@
             	Result status
             </returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACPipe.NextPacket">
-            <summary>
-            Get the next packet from the MAC buffer
-            </summary>
-            <returns>Next packet if any, else null</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.NeighborStatus(System.UInt16)">
             <summary>
             
@@ -978,6 +974,11 @@
             
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACPipe.Dispose">
+            <summary>
+            Uninitialize MACPipe instance
+            </summary>
         </member>
         <member name="E:Samraksh.eMote.Net.MACPipe.OnReceive">
             <summary>Raised when a packet has been received</summary>
@@ -1190,6 +1191,10 @@
         <member name="M:Samraksh.eMote.Net.Packet.#ctor">
             <summary>Create a packet with the default size</summary>
         </member>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
+            <summary>Configure size of payload</summary>
+            <param name="size">Size of payload</param>
+        </member>
         <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[])">
             <summary>Create a packet with size, Payload, rssi, lqi, src and Unicast information specified in packet array</summary>
             <param name="msg">Packet. size, Payload, PayloadType, rssi, lqi, src and Unicast information specified in the first 6 bytes. Rest is payload</param>
@@ -1223,10 +1228,6 @@
             <param name="lqi">LQI value</param>
             <param name="size">size of the payload buffer</param>
             <param name="isPacketTimeStamped">Is packet timestamped?</param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
-            <summary>Configure size of payload</summary>
-            <param name="size">Size of payload</param>
         </member>
         <member name="T:Samraksh.eMote.Net.MAC.OMAC">
             <summary>OMAC class</summary>
@@ -1367,10 +1368,11 @@
             <summary>Constructor</summary>
             <param name="user">Radio user</param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.Finalize">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_SI4468.Radio_802_15_4_SI4468_UnInitialize">
             <summary>
             
             </summary>
+            <returns></returns>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231">
             <summary>Generic radio object</summary>
@@ -1382,10 +1384,11 @@
             <summary>Constructor</summary>
             <param name="user"></param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.Finalize">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231.Radio_802_15_4_RF231_UnInitialize">
             <summary>
             
             </summary>
+            <returns></returns>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR">
             <summary>Long range radio</summary>
@@ -1397,10 +1400,11 @@
             <summary>Constructor</summary>
             <param name="user"></param>
         </member>
-        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.Finalize">
+        <member name="M:Samraksh.eMote.Net.Radio.Radio_802_15_4_RF231_LR.Radio_802_15_4_RF231_LR_UnInitialize">
             <summary>
             
             </summary>
+            <returns></returns>
         </member>
     </members>
 </doc>
