@@ -22,7 +22,7 @@
 #ifdef SI446x_INT_MODE_CHECK_DO
 #define SI446x_INT_MODE_CHECK() \
 	if (((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0)) { \
-		si446x_debug_print(ERR99, "SI446X: __FUNCTION__ WARNING, CALLED IN INTERRUPT!\r\n"); \
+		si446x_debug_print(ERR99, "SI446X: %s() WARNING, CALLED IN INTERRUPT!\r\n", __func__); \
 	}
 #else
 #define SI446x_INT_MODE_CHECK() {}
