@@ -25,6 +25,10 @@ namespace Samraksh.eMote.Net
         /// Timeout 
         /// </summary>
         Timeout,
+        /// <summary>
+        /// There is a bug in the code
+        /// </summary>
+        Bug
     }
 
     /// <summary>

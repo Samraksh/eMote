@@ -60,7 +60,8 @@ class DiscoveryHandler: public EventHandler {
 	//Message_15_4_t *m_processedMsg;
 	//DiscoveryMsg_t *m_discoveryMsg;
 
-	UINT16	m_period1, m_period2;
+	static UINT16 m_period1;
+	static UINT16 m_period2;
 
     //private methods
 	BOOL ShouldBeacon();

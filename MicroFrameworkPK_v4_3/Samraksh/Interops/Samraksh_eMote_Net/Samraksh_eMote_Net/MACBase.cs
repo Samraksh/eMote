@@ -34,10 +34,10 @@ namespace Samraksh.eMote.Net
 		public readonly PayloadType PayloadType;
 
 		/// <summary>Raised when a packet has been received</summary>
-		public event MACBase.IMACEventHandler OnReceive;
+		public event MACBase.IMACReceiveEventHandler OnReceive;
 
 		/// <summary>Raised when neighborhood changes</summary>
-		public event MACBase.IMACEventHandler OnNeighborChange
+        public event MACBase.IMACNeighborChangeEventHandler OnNeighborChange
 		{
 			add { MACBase.OnNeighborChange += value; }
 			remove { MACBase.OnNeighborChange -= value; }
@@ -54,15 +54,28 @@ namespace Samraksh.eMote.Net
 		{
 			MACBase = macBase;
 			PayloadType = payloadType;
+            /* This might be needed later. 
+             *      
+             * if (OnReceive == null)
+            {
+                throw new ArgumentNullException("OnReceive event cannot be null");
+            }*/
 			MACBase.RegisterOnReceiveGlobal(this);
 		}
 
-		internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime)
+        internal void MACPipeCallback(PayloadType payloadTypeTemp, DateTime dateTime, Packet receivedPacket)
 		{
-			if (OnReceive != null)
-			{
-				OnReceive(this, dateTime);
-			}
+            if (OnReceive != null)
+            {
+                OnReceive(this, dateTime, receivedPacket);
+            }
+            /* No need to remove a packet as we download the packet first (which removes it from the receive queue)
+             *      and then decide if it needs to be passed onto the callback function.
+             * //If OnReceive event is not registered, just drop the packet.
+            else
+            {
+                MACBase.RemovePacket();
+            }*/
 		}
 
 		///// <summary>
@@ -177,16 +190,17 @@ namespace Samraksh.eMote.Net
 			return MACBase.NeighborList(neighborListArray);
 		}
 
-		/// <summary>
+        #region commented code
+        
+        /*/// <summary>
 		/// Get the next packet from the MAC buffer
 		/// </summary>
 		/// <returns>Next packet if any, else null</returns>
-		public Packet NextPacket()
+        private bool NextPacket(Packet receivedPacket)
 		{
-			return MACBase.NextPacket();
-		}
+            return MACBase.NextPacket(receivedPacket);
+		}*/
 
-		#region commented code
 		/*
 		///// 
 		///// </summary>
@@ -247,12 +261,19 @@ namespace Samraksh.eMote.Net
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="packet"></param>
 		/// <returns></returns>
-		public DeviceStatus RemovePacket(byte[] packet)
+		public DeviceStatus RemovePacket()
 		{
-			return MACBase.RemovePacket(packet);
+			return MACBase.RemovePacket();
 		}
+
+        /// <summary>
+        /// Uninitialize MACPipe instance
+        /// </summary>
+        public void Dispose()
+        {
+            MACBase.UnRegisterOnReceiveGlobal(this);
+        }
 
 	}
 
@@ -281,14 +302,13 @@ namespace Samraksh.eMote.Net
 		private readonly byte[] _marshalBuffer = new byte[MarshalBufferSize];
 		private static readonly byte[] DataBuffer = new byte[MACPacketSize];
 
-		private Packet _packet;
 		// ReSharper disable once InconsistentNaming
 		private static readonly Neighbor _neighbor = new Neighbor();
 		//private static bool _initializeCounter;
 		private static Hashtable _macPipeHashtable = new Hashtable();
 		private static bool _csmaInstanceSet;
 		private static bool _omacInstanceSet;
-
+        
 		#endregion Private variables & properties
 
 
@@ -312,22 +332,31 @@ namespace Samraksh.eMote.Net
 		public Radio_802_15_4_Base MACRadioObj { get; private set; }
 
 		// Changed first argument to IMAC instead of MACBase -- Bill
-		/// <summary>Event handler for classes implementing IMAC</summary>
+		/// <summary>Event handler for classes implementing IMAC's on receive event</summary>
 		/// <param name="macInstance">
 		///		When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
 		///		When used by MACPipe class, will be MACPipe class.
 		/// </param>
 		/// <param name="time"></param>
-		public delegate void IMACEventHandler(IMAC macInstance, DateTime time);
+        /// <param name="receivedPacket">Packet object to be filled in with received packet details</param>
+		public delegate void IMACReceiveEventHandler(IMAC macInstance, DateTime time, Packet receivedPacket);
+
+        /// <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
+        /// <param name="macInstance">
+        ///		When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+        ///		When used by MACPipe class, will be MACPipe class.
+        /// </param>
+        /// <param name="time"></param>
+        public delegate void IMACNeighborChangeEventHandler(IMAC macInstance, DateTime time);
 
 		/// <summary>Raised when any packet is received (promiscuous mode)</summary>
-		public event IMACEventHandler OnReceiveAll;
+        public event IMACReceiveEventHandler OnReceiveAll;
 
 		/// <summary>Raised when a packet has been received</summary>
-		public event IMACEventHandler OnReceive;
+        public event IMACReceiveEventHandler OnReceive;
 
 		/// <summary>Raised when neighborhood changes</summary>
-		public event IMACEventHandler OnNeighborChange;
+        public event IMACNeighborChangeEventHandler OnNeighborChange;
 
 		/// <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
 		public bool CCA
@@ -435,7 +464,7 @@ namespace Samraksh.eMote.Net
 
 			//Initialize MAC and radio config 
 			//MACRadioConfig.Channel = channel;
-			//MACRadioConfig.RadioType = radioType;
+			//MACRadioConfig.RadioType = radioName;
 			//MACRadioConfig.TxPower = txPower;
 
 			//Enable interrupt handler for receive callback function 
@@ -451,7 +480,7 @@ namespace Samraksh.eMote.Net
 				{
 					_csmaInstanceSet = true;
 					if (radioConfiguration.RadioName == RadioName.RF231)
-						MACRadioObj = new Radio_802_15_4_RF231(RadioUser.CSMA);
+                        MACRadioObj = new Radio_802_15_4_RF231(RadioUser.CSMA);
 
 					else if (radioConfiguration.RadioName == RadioName.RF231LR)
 						MACRadioObj = new Radio_802_15_4_RF231_LR(RadioUser.CSMA);
@@ -538,9 +567,9 @@ namespace Samraksh.eMote.Net
 		/// <param name="bufferSize"></param>
 		/// <param name="neighborLivenessDelay"></param>
 		/// <param name="mactype"></param>
-		/// <param name="radioType"></param>
+		/// <param name="radioName"></param>
 		/// <returns></returns>
-		private DeviceStatus Initialize(bool cca, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, uint neighborLivenessDelay, MACType mactype, RadioName radioType)
+		private DeviceStatus Initialize(bool cca, byte numberOfRetries, byte ccaSenseTime, byte bufferSize, uint neighborLivenessDelay, MACType mactype, RadioName radioName)
 		{
 			if (cca)
 				_marshalBuffer[0] = 1;
@@ -558,7 +587,7 @@ namespace Samraksh.eMote.Net
 			// Breaking the object boundary, but shallow instances of the radio can not initialize
 			/*_marshalBuffer[9] = (byte)radioConfiguration.TxPower;
 			_marshalBuffer[10] = (byte)radioConfiguration.Channel;*/
-			_marshalBuffer[8] = (byte)radioType;
+			_marshalBuffer[8] = (byte)radioName;
 
 			return InternalInitialize(_marshalBuffer, (byte)mactype);
 		}
@@ -619,59 +648,86 @@ namespace Samraksh.eMote.Net
 			/*if (MACConfig.MACRadioConfig.OnNeighborChangeCallback == null)
 				throw new CallbackNotConfiguredException();*/
 
-			switch (data1)
+            switch (data1)
 			{
-				case (uint)CallbackType.Received:
-					// OnReceiveAll is raised for every payload type
-					if (OnReceiveAll != null)
-					{
-						//Debug.Print("OnReceiveAll");
-						OnReceiveAll(this, time);
-					}
+                case (uint)CallbackType.Received:
+                {
+                    //Download the packet and then decide if it needs to be 
+                    //  passed onto the corresponding callback function.
+                    Packet receivedPacket = null;
+                    receivedPacket = NextPacket();
+                    if (receivedPacket == null)
+                        return;
 
-					// OnReceive is raised for MFM_Data payload type
-					if (payloadType == (uint)PayloadType.MFM_Data)
-					{
-						//Debug.Print("Payload type MFM_Data");
-						if (OnReceive != null)
-						{
-							OnReceive(this, time);
-						}
-					}
+                    // OnReceiveAll is raised for every payload type
+                    if (OnReceiveAll != null)
+                    {
+                        OnReceiveAll(this, time, receivedPacket);
+                    }
 
-					// Otherwise raise the OnReceive for a registered MACPipe, if any
-					else
-					{
-						//Debug.Print("Payload type " + payloadType);
-						var keyCollection = _macPipeHashtable.Keys;
-						foreach (PayloadType payloadTypeKey in keyCollection)
-						{
-							if (payloadType != (uint)payloadTypeKey) { continue; }
-							var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
-							macPipe.MACPipeCallback(payloadTypeKey, time);
-						}
-					}
-					break;
+                    // OnReceive is raised for MFM_Data payload type
+                    if (payloadType == (uint)PayloadType.MFM_Data)
+                    {
+                        if (OnReceive != null)
+                        {
+                            OnReceive(this, time, receivedPacket);
+                        }
+                    }
 
-				case (uint)CallbackType.NeighborChanged:
-					if (OnNeighborChange != null)
-					{
-						OnNeighborChange(this, time);
-					}
-					break;
-
-				default:
-					throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
+                    // Otherwise raise the OnReceive for a registered MACPipe, if any
+                    else
+                    {
+                        var keyCollection = _macPipeHashtable.Keys;
+                        //Get a count of total registered payload types
+                        //int eventCounter = keyCollection.Count;
+                        foreach (PayloadType payloadTypeKey in keyCollection)
+                        {
+                            if (payloadType == (uint)payloadTypeKey)
+                            {
+                                var macPipe = (MACPipe)_macPipeHashtable[payloadTypeKey];
+                                //If a registered payload type is received, subtract count
+                                //eventCounter--;
+                                macPipe.MACPipeCallback(payloadTypeKey, time, receivedPacket);
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        /* No need to remove a packet as we download the packet first (which removes it from the receive queue)
+                         *      and then decide if it needs to be passed onto the callback function.
+                         *      
+                         * //If a packet is received for which the payload type has not been registered, drop the packet.
+                        if (eventCounter == keyCollection.Count)
+                        {
+                            RemovePacket();
+                        }*/
+                    }
+                    break;
+                }
+                case (uint)CallbackType.NeighborChanged:
+                {
+                    if (OnNeighborChange != null)
+                    {
+                        OnNeighborChange(this, time);
+                    }
+                    break;
+                }
+                default:
+                {
+                    throw new MACNotConfiguredException("(internal error) Unrecognized CallBackType " + data1);
+                }
 			}
 		}
 
 		/// <summary>
-		/// Registers callbacks for CSHARP payload types.
+		/// Registers callbacks for payload types.
 		/// </summary>
 		/// <param name="macPipe"></param>
 		internal static void RegisterOnReceiveGlobal(MACPipe macPipe)
 		{
-			if (!_macPipeHashtable.Contains(macPipe.PayloadType))
+            if (!_macPipeHashtable.Contains(macPipe.PayloadType))
 			{
 				_macPipeHashtable[macPipe.PayloadType] = macPipe;
 			}
@@ -681,24 +737,43 @@ namespace Samraksh.eMote.Net
 			}
 		}
 
-		/// <summary>
-		/// Get the next packet from the MAC buffer
-		/// </summary>
-		/// <returns>Next packet if any, else null</returns>
-		public Packet NextPacket()
+        /// <summary>
+        /// Unregisters callbacks for payload types.
+        /// </summary>
+        /// <param name="macPipe"></param>
+        internal static void UnRegisterOnReceiveGlobal(MACPipe macPipe)
+        {
+            if (_macPipeHashtable.Contains(macPipe.PayloadType))
+            {
+                _macPipeHashtable.Remove(macPipe.PayloadType);
+            }
+            else
+            {
+                throw new Exception("Callback for payloadtype not registered");
+            }
+        }
+
+        /// <summary>
+        /// Get the next packet from the MAC buffer
+        /// </summary>
+        /// <returns>True if success, false otherwise</returns>
+        internal Packet NextPacket()
 		{
 			for (ushort i = 0; i < MACPacketSize; i++)
 				DataBuffer[i] = 0;
 
+            if (PendingReceivePacketCount() == 0)
+                return null;
+
 			if (GetNextPacket(DataBuffer) != DeviceStatus.Success)
-				return null;
+                return null;
 
 			if (DataBuffer[0] == 0)
-				return null;
+                return null;
 
-			_packet = new Packet(DataBuffer);
+            Packet receivedPacket = new Packet(DataBuffer);
 
-			return _packet;
+            return receivedPacket;
 		}
 
 		#region commented code
@@ -774,24 +849,24 @@ namespace Samraksh.eMote.Net
 		//}*/
 
 		/*/// <summary></summary>
-		///// <param name="radioType"></param>
+		///// <param name="radioName"></param>
 		///// <returns></returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetRadioType(byte radioType);
+		//private extern DeviceStatus SetRadioType(byte radioName);
 
 		///// <summary>Set the transmit power of the radio</summary>
-		///// <param name="radioType">Radio ID</param>
+		///// <param name="radioName">Radio name</param>
 		///// <param name="TxPower">Transmission power to use</param>
 		///// <returns>Status of operation</returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetTxPower(byte radioType, int TxPower);
+		//private extern DeviceStatus SetTxPower(byte radioName, int TxPower);
 
 		///// <summary>Set the radio channel</summary>
-		///// <param name="radioType">Radio ID</param>
+		///// <param name="radioName">Radio name</param>
 		///// <param name="Channel">Channel to use</param>
 		///// <returns>Status of operation</returns>
 		//[MethodImpl(MethodImplOptions.InternalCall)]
-		//private extern DeviceStatus SetChannel(byte radioType, int Channel);*/
+		//private extern DeviceStatus SetChannel(byte radioName, int Channel);*/
 		#endregion commented code
 
 		// Added by Bill. 
@@ -876,10 +951,9 @@ namespace Samraksh.eMote.Net
 
 		#region Public Externs	---------------------------------------------------------------------------------------
 		/// <summary>Remove a _packet from the buffer</summary>
-		/// <param name="packet">_packet to be removed</param>
 		/// <returns>Status of operation</returns>
 		[MethodImpl(MethodImplOptions.InternalCall)]
-		public extern DeviceStatus RemovePacket(byte[] packet);
+		public extern DeviceStatus RemovePacket();
 
 		/// <summary>Get a count of unprocessed packets in the buffer</summary>
 		/// <returns>The number of packets in the buffer not yet delivered to the program</returns>
@@ -1038,7 +1112,42 @@ namespace Samraksh.eMote.Net
 		/// <summary>Uninitialize MAC instance</summary>
 		public override void Dispose()
 		{
-			UnInitialize();
+            DeviceStatus status = DeviceStatus.Fail;
+            //Radio is uninitialized when MAC is uninitialized
+            //Uninitialize radio
+            /*status = MACRadioObj.UnInitialize((byte)MACRadioObj.RadioName);
+            if (status != DeviceStatus.Success)
+            {
+                throw new Exception("Could not uninitialize radio");
+            }*/
+
+            //Uninitialize radio properties
+            switch (MACRadioObj.RadioName)
+            {
+                case RadioName.RF231:
+                    ((Radio_802_15_4_RF231)MACRadioObj).Radio_802_15_4_RF231_UnInitialize();
+                    break;
+                case RadioName.RF231LR:
+                    ((Radio_802_15_4_RF231_LR)MACRadioObj).Radio_802_15_4_RF231_LR_UnInitialize();
+                    break;
+                case RadioName.SI4468:
+                    ((Radio_802_15_4_SI4468)MACRadioObj).Radio_802_15_4_SI4468_UnInitialize();
+                    break;
+                default:
+                    throw new RadioNotConfiguredException("Radio name unknown");
+            }
+            //Uninitialize MAC
+            status = UnInitialize();
+            if (status != DeviceStatus.Success)
+            {
+                string macTypeStr = "";
+                if (MACType == MACType.CSMA)
+                    macTypeStr = "CSMA";
+                else if(MACType == MACType.OMAC)
+                    macTypeStr = "OMAC";
+
+                throw new Exception("Could not uninitialize " + macTypeStr);
+            }
 			switch (MACType)
 			{
 				case MACType.CSMA:

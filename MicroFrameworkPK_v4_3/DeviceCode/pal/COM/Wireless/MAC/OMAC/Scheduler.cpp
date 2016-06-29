@@ -37,12 +37,15 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_EnableOutputPin(SCHED_START_STOP_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_RX_EXEC_PIN, FALSE);
+	CPU_GPIO_SetPinState(SCHED_RX_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_TX_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_DISCO_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_TSREQ_EXEC_PIN, FALSE);
 	CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
 	CPU_GPIO_EnableOutputPin(SCHED_NEXT_EVENT, FALSE);
 	CPU_GPIO_SetPinState(SCHED_NEXT_EVENT, FALSE);
+	CPU_GPIO_EnableOutputPin(OMAC_SCHED_POST_POST_EXEC, FALSE);
+	CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, FALSE);
 #endif
 
 	radioID = _radioID;
@@ -77,7 +80,10 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 }
 
 void OMACScheduler::UnInitialize(){
-
+	VirtualTimerReturnMessage rm;
+	SchedulerINUse = false;
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);
+	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 }
 
 
@@ -277,7 +283,9 @@ bool OMACScheduler::RunEventTask(){
 			m_lastHandler = CONTROL_BEACON_HANDLER;
 			break;
 		default: //Case for
+			CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, TRUE);
 			PostPostExecution();
+			CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, FALSE);
 	}
 }
 

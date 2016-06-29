@@ -29,7 +29,7 @@ enum { PART_SI446X=0x4468, PATCHID=0 };
 
 // State Vars
 static unsigned ctsWentHigh;
-static si_state_t current_state;
+static volatile si_state_t current_state;
 
 static uint8_t latched_rssi;
 static uint8_t current_rssi;
@@ -289,8 +289,20 @@ void si446x_get_int_status(uint8_t PH_CLR_PEND, uint8_t MODEM_CLR_PEND, uint8_t 
 	modem_status = 	Si446xCmd.GET_INT_STATUS.MODEM_STATUS;
 	chip_pend 	=	Si446xCmd.GET_INT_STATUS.CHIP_PEND;
 	chip_status =	Si446xCmd.GET_INT_STATUS.CHIP_STATUS;
+
+	// A strategic point to note that we are no longer sleeping.
+	if (current_state == SI_STATE_SLEEP) { current_state = SI_STATE_UNKNOWN; }
 }
 
+// Requests the cached state instead of directly asking the chip.
+// As a result this isn't by any means guaranteed accurate.
+// Mostly for a sleep check.
+si_state_t si446x_request_device_state_shadow()
+{
+	return current_state;
+}
+
+// Will actually ask the radio as opposed to above.
 si_state_t si446x_request_device_state()
 {
     Pro2Cmd[0] = SI446X_CMD_ID_REQUEST_DEVICE_STATE;
@@ -413,6 +425,8 @@ void si446x_start_tx(uint8_t CHANNEL, uint8_t CONDITION, uint16_t TX_LEN)
     Pro2Cmd[6] = 0x00;
 
     radio_comm_SendCmd( SI446X_CMD_ARG_COUNT_START_TX, Pro2Cmd );
+
+	current_state = SI_STATE_TX;
 }
 
 /*!
@@ -437,6 +451,7 @@ void si446x_start_rx(uint8_t CHANNEL, uint8_t CONDITION, uint16_t RX_LEN, uint8_
     Pro2Cmd[7] = NEXT_STATE3;
 
     radio_comm_SendCmd( SI446X_CMD_ARG_COUNT_START_RX, Pro2Cmd );
+	current_state = SI_STATE_RX;
 }
 
 /*!

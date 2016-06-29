@@ -57,7 +57,7 @@ enum {
 	si446x_payload_ts=124, // max with timestamp of 4 bytes
 	si446x_default_power=0x7f,
 	si446x_default_channel=0,
-	si446x_rssi_cca_thresh=0xF,
+	si446x_rssi_cca_thresh=0x7F,
 	si446x_tx_timeout=200,
 	serial_size=12,
 };
@@ -71,7 +71,8 @@ typedef void (*si446x_rx_callback_t)(UINT64, unsigned, const __restrict__ uint8_
 
 typedef enum { 	SI_STATE_BOOT=0, SI_STATE_SLEEP=1, SI_STATE_SPI_ACTIVE=2, \
 				SI_STATE_READY=3, SI_STATE_READY2=4, SI_STATE_TX_TUNE=5, \
-				SI_STATE_RX_TUNE=6, SI_STATE_TX=7, SI_STATE_RX=8, SI_STATE_ERROR=9
+				SI_STATE_RX_TUNE=6, SI_STATE_TX=7, SI_STATE_RX=8, SI_STATE_ERROR=9, \
+				SI_STATE_UNKNOWN=10
 } si_state_t;
 
 typedef struct {
@@ -158,6 +159,7 @@ uint8_t si446x_get_modem_status();
 uint8_t si446x_get_chip_status();
 void si446x_start_rx_fast_channel(uint8_t CHANNEL);
 void si446x_start_tx_fast_channel(uint8_t CHANNEL);
+si_state_t si446x_request_device_state_shadow(void);
 
 extern uint8_t radio_spi_go(uint8_t data);
 extern void radio_shutdown(int go);

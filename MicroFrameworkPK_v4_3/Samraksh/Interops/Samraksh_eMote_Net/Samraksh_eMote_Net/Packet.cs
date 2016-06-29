@@ -173,9 +173,16 @@ namespace Samraksh.eMote.Net
 			Payload = new byte[MACPacketSize];
 		}
 
+        /// <summary>Configure size of payload</summary>
+        /// <param name="size">Size of payload</param>
+        public Packet(int size)
+        {
+            Payload = new byte[size];
+        }
+
 		/// <summary>Create a packet with size, Payload, rssi, lqi, src and Unicast information specified in packet array</summary>
 		/// <param name="msg">Packet. size, Payload, PayloadType, rssi, lqi, src and Unicast information specified in the first 6 bytes. Rest is payload</param>
-		public Packet(byte[] msg)
+        internal Packet(byte[] msg)
 		{
 			ushort i;
 			ushort length = msg[0];
@@ -233,7 +240,7 @@ namespace Samraksh.eMote.Net
 		/// <param name="isUnicast">Was transmission unicast</param>
 		/// <param name="rssi">rssi</param>
 		/// <param name="lqi">lqi</param>
-		public Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi)
+        internal Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi)
 		{
 			//Create a payload object of default size
 			Payload = new byte[MACPacketSize];
@@ -260,7 +267,7 @@ namespace Samraksh.eMote.Net
 		/// <param name="rssi">RSSI value</param>
 		/// <param name="lqi">LQI value</param>
 		/// <param name="size">size of the payload buffer</param>
-		public Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi, ushort size)
+		internal Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi, ushort size)
 		{
 			//Create a packet object of default size
 			Payload = new byte[size];
@@ -288,7 +295,7 @@ namespace Samraksh.eMote.Net
 		/// <param name="lqi">LQI value</param>
 		/// <param name="size">size of the payload buffer</param>
 		/// <param name="isPacketTimeStamped">Is packet timestamped?</param>
-		public Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi, ushort size, bool isPacketTimeStamped)
+        internal Packet(byte[] payload, ushort src, PayloadType payloadType, bool isUnicast, byte rssi, byte lqi, ushort size, bool isPacketTimeStamped)
 		{
 			//Create a payload object of default size
 			Payload = new byte[size];
@@ -308,11 +315,5 @@ namespace Samraksh.eMote.Net
 			IsPacketTimeStamped = isPacketTimeStamped;
 		}
 
-		/// <summary>Configure size of payload</summary>
-		/// <param name="size">Size of payload</param>
-		public Packet(int size)
-		{
-			Payload = new byte[size];
-		}
 	}
 }

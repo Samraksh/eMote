@@ -136,6 +136,7 @@ DeviceStatus MAC_GetNextPacket(UINT8 **managedBuffer)
 	GLOBAL_LOCK(irq);
 
 	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
+
 	//Message_15_4_t* temp = (Message_15_4_t*)managedBuffer;
 
 	if((*temp) == NULL){
@@ -254,6 +255,11 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 
 	DEBUG_PRINTF_MAC("[NATIVE] : Calling GetNeighbor List\n");
 
+	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
+	{
+		// initializing buffer
+		buffer[i] = 0;
+	}
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
 		if(g_NeighborTable.Neighbor[i].Status == Alive)

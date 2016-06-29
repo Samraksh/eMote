@@ -16,7 +16,7 @@
 
 using namespace Samraksh::eMote::Net;
 
-INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr )
+INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     INT32 retVal = 0; 
     return retVal;

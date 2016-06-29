@@ -37,7 +37,7 @@ extern UINT8 MacName;
 #else
 #define ENABLE_PIN_NB(x,y)
 #define SET_PIN_NB(x,y)
-#define DEBUG_PRINTF_NB(x) hal_printf(x)
+#define DEBUG_PRINTF_NB(x)(void)0
 #endif
 
 typedef struct {
@@ -89,6 +89,7 @@ typedef struct {
 class NeighborTable {
 public:
 	UINT8 NumberValidNeighbor;
+	UINT8 PreviousNumberValidNeighbor;
 	Neighbor_t Neighbor[MAX_NEIGHBORS];
 
 	// neighbor table util functions
@@ -101,6 +102,8 @@ public:
 	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
 	UINT8 NumberOfNeighbors();
+	UINT8 PreviousNumberOfNeighbors();
+	void SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt);
 	DeviceStatus InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
 	DeviceStatus FindOrInsertNeighbor(UINT16 address, UINT8* index);
 	DeviceStatus UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index);
@@ -308,6 +311,14 @@ Neighbor_t* NeighborTable::GetNeighborPtr(UINT16 address){
 
 UINT8 NeighborTable::NumberOfNeighbors(){
 	return NumberValidNeighbor;
+}
+
+UINT8 NeighborTable::PreviousNumberOfNeighbors(){
+	return PreviousNumberValidNeighbor;
+}
+
+void NeighborTable::SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt){
+	PreviousNumberValidNeighbor = previousNeighborCnt;
 }
 
 DeviceStatus NeighborTable::FindOrInsertNeighbor(UINT16 address, UINT8* index){

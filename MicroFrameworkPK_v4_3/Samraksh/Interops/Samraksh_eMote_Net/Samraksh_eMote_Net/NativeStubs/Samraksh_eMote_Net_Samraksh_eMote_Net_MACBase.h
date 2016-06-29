@@ -29,8 +29,6 @@ namespace Samraksh
 
                 static UNSUPPORTED_TYPE& Get__marshalBuffer( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___marshalBuffer ); }
 
-                static UNSUPPORTED_TYPE& Get__packet( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD___packet ); }
-
                 static UNSUPPORTED_TYPE& Get_OnReceiveAll( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnReceiveAll ); }
 
                 static UNSUPPORTED_TYPE& Get_OnReceive( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__OnReceive ); }
@@ -52,7 +50,7 @@ namespace Samraksh
                 static UNSUPPORTED_TYPE& Get_<MACRadioObj>k__BackingField( CLR_RT_HeapBlock* pMngObj )    { return Interop_Marshal_GetField_UNSUPPORTED_TYPE( pMngObj, Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MACBase::FIELD__<MACRadioObj>k__BackingField ); }
 
                 // Declaration of stubs. These functions are implemented by Interop code developers
-                static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 param0, HRESULT &hr );
+                static INT32 RemovePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static UINT8 PendingReceivePacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static UINT8 PendingSendPacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
                 static INT32 Send( CLR_RT_HeapBlock* pMngObj, UINT16 param0, CLR_RT_TypedArray_UINT8 param1, UINT16 param2, UINT16 param3, HRESULT &hr );
