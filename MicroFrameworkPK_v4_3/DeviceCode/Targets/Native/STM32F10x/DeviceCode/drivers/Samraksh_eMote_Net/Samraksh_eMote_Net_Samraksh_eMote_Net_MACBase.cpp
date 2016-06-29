@@ -43,10 +43,17 @@ extern Buffer_15_4_t g_receive_buffer;
 
 UINT8 MACInteropBuffer[IEEE802_15_4_FRAME_LENGTH];
 
-INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
+//INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 msgBuffer, HRESULT &hr )
+INT32 MACBase::RemovePacket( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
-    INT32 retVal = 0; 
-    return retVal;
+    //INT32 retVal = 0;
+    //return retVal;
+
+	Message_15_4_t** temp = g_receive_buffer.GetOldestPtr();
+    if((*temp) == NULL){
+		return DS_Fail;
+	}
+	return DS_Success;
 }
 
 UINT8 MACBase::PendingReceivePacketCount( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
@@ -140,7 +147,7 @@ INT32 MACBase::InternalReConfigure( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray
 INT32 MACBase::GetNextPacket( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_UINT8 nativeBuffer, HRESULT &hr )
 {
 	UINT8* managedBuffer = nativeBuffer.GetBuffer();
-    return MAC_GetNextPacket(&managedBuffer);
+	return MAC_GetNextPacket(&managedBuffer);
 }
 
 INT32 MACBase::GetNeighborInternal( CLR_RT_HeapBlock* pMngObj, UINT16 macAddress, CLR_RT_TypedArray_UINT8 neighborlist, HRESULT &hr )

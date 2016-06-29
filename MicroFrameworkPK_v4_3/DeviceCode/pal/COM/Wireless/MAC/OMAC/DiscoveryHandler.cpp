@@ -19,12 +19,18 @@
 
 extern OMACType g_OMAC;
 
+UINT16 DiscoveryHandler::m_period1 = 0;
+UINT16 DiscoveryHandler::m_period2 = 0;
 
 /*
  *
  */
 void PublicBeaconNCallback(void * param){
 	g_OMAC.m_omac_scheduler.m_DiscoveryHandler.BeaconNTimerHandler();
+}
+
+void PublicDiscoPostExec(void * param){
+	g_OMAC.m_omac_scheduler.m_DiscoveryHandler.PostExecuteEvent();
 }
 
 
@@ -37,6 +43,14 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	OMAC_CPU_GPIO_EnableOutputPin( DISCO_SYNCRECEIVEPIN, TRUE);
 	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCSENDPIN, FALSE );
 	OMAC_CPU_GPIO_SetPinState(  DISCO_SYNCRECEIVEPIN, FALSE );
+	CPU_GPIO_EnableOutputPin(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+	CPU_GPIO_EnableOutputPin(DISCO_BEACON_N, TRUE);
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DISCO_POST_EXEC, TRUE);
+	CPU_GPIO_SetPinState( OMAC_DISCO_POST_EXEC, FALSE );
+	CPU_GPIO_EnableOutputPin(OMAC_DISCO_EXEC_EVENT, TRUE);
+	CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, FALSE );
 #endif
 
 	m_state = DISCO_INITIAL;
@@ -55,6 +69,7 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 #endif
 	VirtualTimerReturnMessage rm;
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC, 0, DISCO_BEACON_TX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDiscoPostExec, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 }
 
@@ -128,11 +143,20 @@ void DiscoveryHandler::ExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	m_state = DISCO_INITIAL;
 
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, TRUE );
+	CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+#endif
+
 	DeviceStatus e = DS_Fail;
 	e = g_OMAC.m_omac_RadioControl.StartRx();
 	if (e == DS_Success){
 		m_state = DISCO_LISTEN_SUCCESS;
 		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 1, TRUE, OMACClockSpecifier );
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, FALSE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -145,6 +169,12 @@ void DiscoveryHandler::ExecuteEvent(){
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
 		}
+#ifdef OMAC_DEBUG_GPIO
+		CPU_GPIO_SetPinState( OMAC_DISCO_EXEC_EVENT, FALSE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, TRUE );
+		CPU_GPIO_SetPinState(  DISCO_NEXT_EVENT, FALSE );
+#endif
 	}
 }
 
@@ -156,7 +186,7 @@ void DiscoveryHandler::PostExecuteEvent(){
 	VirtualTimerReturnMessage rm;
 	DeviceStatus  ds = DS_Success;
 	m_state = WAITING_FOR_SLEEP;
-	ds = g_OMAC.m_omac_RadioControl.Stop();
+	//ds = g_OMAC.m_omac_RadioControl.Stop();
 	if (ds == DS_Success) {
 		m_state = SLEEP_SUCCESSFUL;
 		g_OMAC.m_omac_scheduler.PostExecution();
@@ -298,6 +328,12 @@ void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpSta
 		//signalBeaconDone(error, call GlobalTime.getLocalTime());
 #endif
 */
+	/*if(m_disco_state == DISCO_STATE_BEACON_N){
+		VirtualTimerReturnMessage rm;
+		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+	}*/
 }
 
 void DiscoveryHandler::HandleRadioInterrupt(){
@@ -356,6 +392,16 @@ void DiscoveryHandler::BeaconN(){
 			PostExecuteEvent();
 		}
 	}
+#ifdef OMAC_DEBUG_GPIO
+	CPU_GPIO_SetPinState( DISCO_BEACON_N, FALSE );
+#endif
+	//VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+	//VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, 0, FALSE, OMACClockSpecifier); //1 sec Timer in micro seconds
+	//VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
+	//this->PostExecuteEvent();
+
+	//VirtTimer_Stop(VIRT_TIMER_OMAC_DISCOVERY);
+	//VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC);
 }
 
 
@@ -401,7 +447,6 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 	default:
 		PostExecuteEvent();
 	}
-
 }
 
 /*

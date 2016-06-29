@@ -170,10 +170,10 @@ namespace Samraksh.eMote.Net
 			Radio_802_15_4_Base MACRadioObj { get; }
 
 			/// <summary>Raised when a packet has been received</summary>
-			event MACBase.IMACEventHandler OnReceive;
+            event MACBase.IMACReceiveEventHandler OnReceive;
 
 			/// <summary>Raised when neighborhood changes</summary>
-			event MACBase.IMACEventHandler OnNeighborChange;
+            event MACBase.IMACNeighborChangeEventHandler OnNeighborChange;
 
 			/// <summary>True iff MAC CCA (clear channel assessment) is enabled</summary>
 			bool CCA { get; set; }
@@ -190,11 +190,11 @@ namespace Samraksh.eMote.Net
 			/// <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
 			uint NeighborLivenessDelay { get; set; }
 
-			/// <summary>
+			/*/// <summary>
 			/// Get the next packet from the MAC buffer
 			/// </summary>
 			/// <returns>Next packet if any, else null</returns>
-			Packet NextPacket();
+			bool NextPacket(Packet receivedPacket);*/
 
 			/// <summary>
 			///		Get the list of neighbors from the MAC
@@ -267,9 +267,8 @@ namespace Samraksh.eMote.Net
 			/// <summary>
 			/// Remove packet from pending
 			/// </summary>
-			/// <param name="packet">Packet to remove</param>
 			/// <returns>Status of result</returns>
-			DeviceStatus RemovePacket(byte[] packet);
+			DeviceStatus RemovePacket();
 		}
 	}
 }

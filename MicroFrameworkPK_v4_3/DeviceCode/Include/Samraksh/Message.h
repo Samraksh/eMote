@@ -178,6 +178,7 @@ enum PayloadTypeMAC{
 struct PACK softwareACKHeader{
 	UINT8 payloadType;
 	UINT16 src;
+	UINT16 dest;
 };
 
 //Please refer page 80 in RF231 datasheet
