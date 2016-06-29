@@ -246,6 +246,7 @@ static void rx_cont_do(void *arg) {
 		si446x_debug_print(ERR99,"SI446X: rx_cont_do(): Warning. RX without RX lock, owner was %s\r\n", print_lock(owner));
 	}
 
+	si446x_request_device_state(); // Don't need here, but want to refresh internal state.
 	size = si446x_get_packet_info(0,0,0);
 	if(size == sizeof(softwareACKHeader)){
 		si446x_read_rx_fifo(size, rx_pkt);
@@ -929,6 +930,11 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		return DS_Fail;
 	}
 
+	// We were already asleep
+	if ( si446x_request_device_state_shadow() == SI_STATE_SLEEP ) {
+		return DS_Success;
+	}
+
 	/*if(!softwareACKSent){
 		return DS_Fail;
 	}*/
@@ -1249,9 +1255,15 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
 	if (modem_pend & MODEM_MASK_SYNC_DETECT)	{ owner = si446x_radio_lock(radio_lock_rx); rx_timestamp = int_ts; }
-	si446x_spi_unlock();
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
+
+	// If we finished a packet, go to sleep
+	if ( (ph_pend & PH_STATUS_MASK_PACKET_RX) || (ph_pend & PH_STATUS_MASK_CRC_ERROR) ) {
+		si446x_change_state(SI_STATE_SLEEP);
+	}
+
+	si446x_spi_unlock();
 }

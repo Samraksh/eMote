@@ -29,7 +29,7 @@ enum { PART_SI446X=0x4468, PATCHID=0 };
 
 // State Vars
 static unsigned ctsWentHigh;
-static si_state_t current_state;
+static volatile si_state_t current_state;
 
 static uint8_t latched_rssi;
 static uint8_t current_rssi;
