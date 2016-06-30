@@ -14,8 +14,11 @@
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
 // Default value for above, radio returns to previous state.
 #ifndef SI446x_TX_DONE_STATE
-#define SI446x_TX_DONE_STATE 0
+#define SI446x_TX_DONE_STATE (SI_STATE_SPI_ACTIVE<<4)
 #endif
+
+// Do NOT to back to RX after sending an ACK.
+#define SI446x_TX_ACK_DONE_STATE (SI_STATE_SPI_ACTIVE<<4)
 
 #define SI446x_INT_MODE_CHECK_DO
 // comment out above to disable check
@@ -195,7 +198,7 @@ static void sendSoftwareAck(UINT16 dest){
 		i++;
 	}
 	softwareAckHeader.dest = dest;
-	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP);
+	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP, SI446x_TX_ACK_DONE_STATE);
 	//softwareACKSent = true;
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 }
@@ -723,7 +726,7 @@ BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 }
 
 // eventTime is ignored unless doTS (USE_TIMESTAMP) is set.
-DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS) {
+DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS, uint8_t after_state) {
 	uint8_t tx_buf[si446x_packet_size+1]; // Add one for packet size field
 	radio_lock_id_t owner;
 	unsigned timeout=si446x_tx_timeout;
@@ -799,10 +802,10 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		UINT32 eventOffset = (HAL_Time_CurrentTicks() & 0xFFFFFFFF) - eventTime;
 
 		si446x_write_tx_fifo(4, (uint8_t*)&eventOffset); // generate and write timestamp late as possible.
-		si446x_start_tx(chan, SI446x_TX_DONE_STATE, tx_buf[0]+1);
+		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 		irq.Release();
 	} else { // Normal Case
-		si446x_start_tx(chan, 0, tx_buf[0]+1);
+		si446x_start_tx(chan, after_state, tx_buf[0]+1);
 	}
 
 	si446x_spi_unlock();
@@ -821,7 +824,7 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 	}*/
 
 	// Do the send
-	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, 0, NO_TIMESTAMP);
+	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, 0, NO_TIMESTAMP, SI446x_TX_DONE_STATE);
 	if (ret != DS_Success) {
 		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
@@ -849,7 +852,7 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	}*/
 
 	// Do the send
-	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, eventTime, YES_TIMESTAMP);
+	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, eventTime, YES_TIMESTAMP, SI446x_TX_DONE_STATE);
 	if (ret != DS_Success) {
 		SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 		switch (ret) {
