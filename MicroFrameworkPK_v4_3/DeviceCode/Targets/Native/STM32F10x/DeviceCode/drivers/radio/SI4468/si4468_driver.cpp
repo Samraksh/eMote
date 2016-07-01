@@ -31,6 +31,13 @@
 #define SI446x_INT_MODE_CHECK() {}
 #endif
 
+
+#define SI446X_DEBUG_UNFINISHED_PKT // remove me.
+#ifdef SI446X_DEBUG_UNFINISHED_PKT
+static volatile bool int_defer = false;
+static volatile bool finisher_queued = false;
+#endif
+
 enum { SI_DUMMY=0, };
 
 // For now, memorize all WWF serial numbers
@@ -278,6 +285,7 @@ static void rx_cont_do(void *arg) {
 	si446x_fifo_info(0x3); // Defensively reset FIFO
 	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
 
+	finisher_queued = false;
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
@@ -874,6 +882,38 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	return msg;
 }
 
+#ifdef SI446X_DEBUG_UNFINISHED_PKT
+// To debug user reports that SYNC_DET is firing but no "finisher" runs
+// "Finisher" would be a CRC error or packet reception.
+// ASSUMES YOU HOLD SPI LOCK
+static bool rx_consistency_check(void) {
+	GLOBAL_LOCK(irq); // lock while debugging only. Change me.
+
+	// If the radio lock is held by RX
+	// We must be in either RX mode or the continuation is pending
+	// or an interrupt is pending
+	if ( radio_lock == radio_lock_rx ) {
+		si_state_t state = si446x_request_device_state();
+		bool isBusy = (cont_busy() || radio_get_assert_irq());
+
+		if (state != SI_STATE_RX && !isBusy) {
+			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Fail? Show Nathan.\r\n");
+			ASSERT(0);
+			return false;
+		}
+
+		// check for timeout of SYNC_DET
+		UINT64 now = HAL_Time_CurrentTicks();
+		if ( (now - rx_timestamp) > (si446x_rx_timeout_ms*1000) ) {
+			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Timeout? Show Nathan.\r\n");
+			ASSERT(0);
+			return false;
+		}
+	}
+	return true;
+}
+#endif // #ifdef SI446X_DEBUG_UNFINISHED_PKT
+
 // Does NOT set the radio busy unless a packet comes in.
 DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	radio_lock_id_t owner;
@@ -899,6 +939,11 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %s\r\n", print_lock(owner));
 		return DS_Busy;
 	}
+
+#ifdef SI446X_DEBUG_UNFINISHED_PKT
+	// DEBUGGING ONLY
+	rx_consistency_check();
+#endif
 
 	// We have to hold radio lock to ensure we are free
 	if ( owner = si446x_radio_lock(radio_lock_rx) ) {
@@ -1251,9 +1296,12 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));
+		int_defer = true;
 		int_defer_continuation.Enqueue();
 		return;
 	}
+
+	int_defer = false;
 
 	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
 	ph_pend			= si446x_get_ph_pend();
@@ -1263,7 +1311,7 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
 	if (modem_pend & MODEM_MASK_SYNC_DETECT)	{ owner = si446x_radio_lock(radio_lock_rx); rx_timestamp = int_ts; }
 
-	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ si446x_pkt_rx_int(); }
+	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ finisher_queued = true; si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
 
