@@ -103,13 +103,15 @@ UINT64 DiscoveryHandler::NextEvent(){
 	}
 
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
-	if(nextEventsSlot == 0) {
+	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
+	nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
+	if(nextEventsMicroSec < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO ) { //If we cannot react this fast, skip the next one and consider the upcoming event
 		currentSlotNum = currentSlotNum +1;
 		nextEventsSlot = NextEventinSlots(currentSlotNum);
 		nextEventsSlot = nextEventsSlot + 1;
+		nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
+		nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
 	}
-	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
-	nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
 	return(nextEventsMicroSec);
 }
 
@@ -119,18 +121,18 @@ UINT64 DiscoveryHandler::NextEvent(){
 UINT64 DiscoveryHandler::NextEventinSlots(const UINT64 &currentSlotNum){
 	//UINT64 currentSlotNum = g_OMAC.m_omac_scheduler.GetSlotNumber();
 	UINT64 period1Remaining, period2Remaining;
-	period1Remaining = (currentSlotNum) % m_period1;
-	period2Remaining = (currentSlotNum) % m_period2;
+	period1Remaining = m_period1 - (currentSlotNum) % m_period1;
+	period2Remaining = m_period2 - (currentSlotNum) % m_period2;
 
 	if (period1Remaining == 0 || period2Remaining == 0) {
 		return 0;
 	}
 	else  {
 		if(period1Remaining < period2Remaining){
-			return (period1Remaining);
+			return (period1Remaining - 1);
 		}
 		else{
-			return (period2Remaining);
+			return (period2Remaining - 1);
 		}
 //		return ((period1Remaining < period2Remaining) ? (2*period1Remaining ) : (2*period2Remaining ));
 	}
