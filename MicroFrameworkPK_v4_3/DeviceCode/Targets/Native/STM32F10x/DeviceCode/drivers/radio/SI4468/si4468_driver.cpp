@@ -146,6 +146,7 @@ static const char* print_lock(radio_lock_id_t x) {
 		case radio_lock_crc: 			return "radio_lock_crc";
 		case radio_lock_interrupt: 		return "radio_lock_in;terrupt";
 		case radio_lock_all: 			return "radio_lock_all";
+		case radio_lock_rx_setup:		return "radio_lock_rx_setup";
 		default: 						return "ERROR, Unknown Lock!!!";
 	}
 }
@@ -488,8 +489,10 @@ void radio_shutdown(int go) {
 		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
 }
 
+// DOES NOT WORK!??!
 bool radio_get_assert_irq(void) {
-	return CPU_GPIO_GetPinState(SI446X_pin_setup.nirq_mf_pin) == FALSE;
+	//return CPU_GPIO_GetPinState(SI446X_pin_setup.nirq_mf_pin) == FALSE;
+	return false;
 }
 
 static int convert_rssi(uint8_t x) {
@@ -894,7 +897,9 @@ static bool rx_consistency_check(void) {
 	// or an interrupt is pending
 	if ( radio_lock == radio_lock_rx ) {
 		si_state_t state = si446x_request_device_state();
-		bool isBusy = (cont_busy() || radio_get_assert_irq());
+		//bool isBusy = (cont_busy() || radio_get_assert_irq());
+		si446x_get_int_status(0xFF, 0xFF, 0xFF);
+		bool isBusy = cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend();
 
 		if (state != SI_STATE_RX && !isBusy) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Fail? Show Nathan.\r\n");
@@ -935,7 +940,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	if ( owner = si446x_spi_lock(radio_lock_rx) ) {
+	if ( owner = si446x_spi_lock(radio_lock_rx_setup) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. SPI locked by %s\r\n", print_lock(owner));
 		return DS_Busy;
 	}
@@ -946,7 +951,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 #endif
 
 	// We have to hold radio lock to ensure we are free
-	if ( owner = si446x_radio_lock(radio_lock_rx) ) {
+	if ( owner = si446x_radio_lock(radio_lock_rx_setup) ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Radio locked by %s\r\n", print_lock(owner));
 		si446x_spi_unlock();
 		return DS_Busy;
@@ -1309,7 +1314,11 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
-	if (modem_pend & MODEM_MASK_SYNC_DETECT)	{ owner = si446x_radio_lock(radio_lock_rx); rx_timestamp = int_ts; }
+	if (modem_pend & MODEM_MASK_SYNC_DETECT) {
+		if (radio_lock) { si446x_debug_print(ERR100, "SI446X: Unexpected Lock. Show Nathan.\r\n"); ASSERT(0); }
+		owner = si446x_radio_lock(radio_lock_rx);
+		rx_timestamp = int_ts;
+	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ finisher_queued = true; si446x_pkt_rx_int(); }
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
