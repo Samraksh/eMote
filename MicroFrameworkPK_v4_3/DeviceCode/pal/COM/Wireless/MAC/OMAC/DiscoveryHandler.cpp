@@ -284,6 +284,8 @@ void DiscoveryHandler::CreateMessage(DiscoveryMsg_t* discoveryMsg){
  */
 void DiscoveryHandler::BeaconAckHandler(Message_15_4_t* msg, UINT8 len, NetOpStatus status){
 	VirtualTimerReturnMessage rm;
+	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
+	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
 	switch(m_state){
 		case BEACON1_SEND_START:
 			m_state = BEACON1_SEND_DONE;
@@ -410,6 +412,9 @@ void DiscoveryHandler::BeaconN(){
  */
 void DiscoveryHandler::BeaconNTimerHandler(){
 	VirtualTimerReturnMessage rm;
+
+	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, FALSE);
+	OMAC_CPU_GPIO_SetPinState(SCHED_DISCO_EXEC_PIN, TRUE);
 
 	switch(m_state){
 	case FAILSAFE_STOPPING:
