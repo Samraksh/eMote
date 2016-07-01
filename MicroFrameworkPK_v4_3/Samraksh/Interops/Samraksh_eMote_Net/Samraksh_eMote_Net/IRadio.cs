@@ -456,8 +456,6 @@ namespace Samraksh.eMote.Net.Radio
         Power_Minus19Point0dBm = 126,
         /// <summary>-19.4 dB</summary>
         Power_Minus19Point4dBm = 127,
-        /// <summary>-19.9 dB</summary>
-		Power_Minus19Point9dBm = 128
 	}
 
 	/// <summary>
