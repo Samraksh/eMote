@@ -167,7 +167,7 @@ extern void radio_shutdown(int go);
 //extern unsigned radio_get_gpio1();
 extern void radio_spi_sel_assert(void);
 extern void radio_spi_sel_no_assert(void);
-//extern unsigned radio_get_assert_irq();
+extern bool radio_get_assert_irq(void);
 
 //extern void radio_debug_print(int level, const char * restrict fmt, ...);
 

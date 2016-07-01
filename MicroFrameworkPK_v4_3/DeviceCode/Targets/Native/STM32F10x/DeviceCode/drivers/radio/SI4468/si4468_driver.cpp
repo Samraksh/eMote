@@ -480,6 +480,10 @@ void radio_shutdown(int go) {
 		GPIO_WriteBit(SI446X_pin_setup.sdn_port, SI446X_pin_setup.sdn_pin, Bit_RESET);
 }
 
+bool radio_get_assert_irq(void) {
+	return CPU_GPIO_GetPinState(SI446X_pin_setup.nirq_mf_pin) == FALSE;
+}
+
 static int convert_rssi(uint8_t x) {
 	return x/2 - 0x40 - 70;
 }
@@ -763,7 +767,7 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		// Must ensure we cleanly left RX
 		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
 		// If there are any interrupts pending at this point, back-off
-		if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() || (timeout==0)) {
+		if (radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() || (timeout==0)) {
 			if (timeout == 0) { si446x_debug_print(ERR99, "SI446X: ERROR, timeout trying to start TX. Reset radio?\r\n"); }
 			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
 			si446x_radio_unlock();
@@ -904,7 +908,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 	}
 
 	si446x_get_int_status(0xFF, 0xFF, 0xFF);
-	if ( cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
+	if ( radio_get_assert_irq() || cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() radio ops pending, aborting.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
@@ -960,7 +964,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	}
 
 	si446x_get_int_status(0xFF, 0xFF, 0xFF);
-	if ( si446x_get_ph_pend() || si446x_get_modem_pend() ) { // Assuming cont_busy() check isn't necessary
+	if ( radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() ) { // Assuming cont_busy() check isn't necessary
 		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() radio interrupts pending, abort sleep.\r\n");
 		ret = DS_Busy;
 	}
@@ -1130,7 +1134,7 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 
 	// Check one last time to see if anything happened.
 	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
-	if (si446x_get_ph_pend() || si446x_get_modem_pend() ) {
+	if (radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
 		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
 		si446x_radio_unlock();
