@@ -59,6 +59,7 @@ enum {
 	si446x_default_channel=0,
 	si446x_rssi_cca_thresh=0x7F,
 	si446x_tx_timeout=200,
+	si446x_rx_timeout_ms=50,
 	serial_size=12,
 };
 
@@ -109,7 +110,7 @@ DeviceStatus 	si446x_hal_set_channel(UINT8 radioID, int channel);
 INT8 			si446x_hal_get_RadioType();
 void 			si446x_hal_set_RadioType(INT8 radio);
 DeviceStatus 	si446x_hal_cca_ms(UINT8 radioID, UINT32 ms);
-DeviceStatus 	si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS);
+DeviceStatus 	si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS, uint8_t after_state);
 UINT32 			si446x_hal_get_chan(UINT8 radioID);
 UINT32 			si446x_hal_get_power(UINT8 radioID);
 UINT32			si446x_hal_get_rssi(UINT8 radioID);
@@ -167,7 +168,7 @@ extern void radio_shutdown(int go);
 //extern unsigned radio_get_gpio1();
 extern void radio_spi_sel_assert(void);
 extern void radio_spi_sel_no_assert(void);
-//extern unsigned radio_get_assert_irq();
+extern bool radio_get_assert_irq(void);
 
 //extern void radio_debug_print(int level, const char * restrict fmt, ...);
 
