@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <FeatureName>Samraksh_eMote_ProgramManager</FeatureName>
-    <Guid>{2784612b-f5e9-4033-8776-c04d15daaed2}</Guid>
+    <Guid>{34124177-305a-4858-a7b6-d31f2ee7092a}</Guid>
     <Description>&lt;Add Feature Description Here&gt;</Description>
     <Groups />
     <SAMRAKSH_EMOTE_PROGRAMMANAGER_FEATUREPROJ>True</SAMRAKSH_EMOTE_PROGRAMMANAGER_FEATUREPROJ>
