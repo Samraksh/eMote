@@ -49,7 +49,7 @@ int si4468_spi2_tx_test() {
 
 	wait();
 
-	ret = si446x_packet_send(0, (uint8_t *)my_string, len, 0, 1);
+	ret = si446x_packet_send(0, (uint8_t *)my_string, len, 0, 1, 0);
 	if (ret == DS_Fail) { hal_printf("SI4468 SPI2 SEND TEST FAIL: Tx Call Fail\r\n"); return 0; }
 
 	while(tx_gate == 0 && timeout++ <= timeout_max) // wait for interrupt to update.
@@ -86,7 +86,7 @@ void si4468_spi2_chain_tx(void) {
 	//si446x_hal_register_tx_callback(tx_handler);
 
 	while (timeout < timeout_max && sends_done < sends_done_max) {
-		ret = si446x_packet_send(0, (uint8_t *)my_string, len, 0, 0);
+		ret = si446x_packet_send(0, (uint8_t *)my_string, len, 0, 0, 0);
 		if (ret == DS_Success)
 			sends_done++;
 		else

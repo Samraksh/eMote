@@ -49,10 +49,7 @@ const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
-
-// Should MAC layer be informed by SI4468 about a packet, in interrupt context or using continuations?
-const bool NEED_SI4468_CONTINUATION = true;
+const unsigned si4468x_debug_level = DEBUG01; // CHANGE ME.
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -196,7 +193,6 @@ static void int_cont_do(void *arg) {
 }
 
 static void sendSoftwareAck(UINT16 dest){
-	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 	si446x_debug_print(DEBUG02,"SI446X: sendSoftwareAck\r\n");
 	static int i = 0;
 	static softwareACKHeader softwareAckHeader;
@@ -208,13 +204,11 @@ static void sendSoftwareAck(UINT16 dest){
 	softwareAckHeader.dest = dest;
 	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP, SI446x_TX_ACK_DONE_STATE);
 	//softwareACKSent = true;
-	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 }
 
 // I agree its questionable that I'm being too complicated with continuation stuff... --NPS.
 // TX CALLBACK
 static void tx_cont_do(void *arg) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 	if (tx_callback != NULL)
 		tx_callback();
 
@@ -226,7 +220,6 @@ static void tx_cont_do(void *arg) {
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
 
 	si446x_radio_unlock();
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 }
 
 // Returns true if a continuation is linked and needs service.
@@ -235,8 +228,6 @@ static bool cont_busy(void) {
 }
 
 static void rx_cont_do(void *arg) {
-	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, TRUE );
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
 	radio_lock_id_t owner;
@@ -269,8 +260,6 @@ static void rx_cont_do(void *arg) {
 		memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 		rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, size);
 
-		//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
-		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 		return;
 	}
 
@@ -321,9 +310,6 @@ static void rx_cont_do(void *arg) {
 	header->length = size; // the "new" way. blarg.
 
 	rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, header->length);
-
-	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 }
 
 void si446x_hal_register_tx_callback(si446x_tx_callback_t callback) {
@@ -448,10 +434,15 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
 	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
 
-	// GPIO 0 / 1
+	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin | config->gpio1_pin;
-	GPIO_Init(config->gpio_port, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
+	GPIO_Init(config->gpio0_port, &GPIO_InitStructure);
+
+	// GPIO 1
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
+	GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
 
 	// NIRQ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -532,9 +523,10 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->nirq_port		= GPIOB;
 		config->nirq_pin		= GPIO_Pin_10;
 		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio_port		= GPIOA;
+		config->gpio0_port		= GPIOB;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_6;
-		config->gpio1_pin		= GPIO_Pin_0;
+		config->gpio1_pin		= GPIO_Pin_3;
 		config->cs_port			= GPIOB;
 		config->cs_pin			= GPIO_Pin_12;
 		config->sclk_pin		= GPIO_Pin_13;
@@ -551,7 +543,7 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->nirq_port		= GPIOA;
 		config->nirq_pin		= GPIO_Pin_1;
 		config->nirq_mf_pin		= (GPIO_PIN) 1;
-		config->gpio_port		= GPIOA;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_3;
 		config->gpio1_pin		= GPIO_Pin_8;
 		config->cs_port			= GPIOA;
@@ -573,19 +565,6 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	int reset_errors;
 	uint8_t temp;
 	radio_lock_id_t owner;
-
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_TX, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_INTERRUPT_RX, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_CCA, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_HANDLE_SLEEP, TRUE);
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-	CPU_GPIO_EnableOutputPin(DATARX_SEND_SW_ACK, TRUE);
-	CPU_GPIO_SetPinState( DATARX_SEND_SW_ACK, FALSE );
-	CPU_GPIO_EnableOutputPin(SI4468_MEASURE_RX_TIME, TRUE);
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 
 	// Set up debugging output
 	si446x_set_debug_print(si446x_debug_print, si4468x_debug_level);
@@ -975,7 +954,6 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 	radio_lock_id_t owner;
 	DeviceStatus ret;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
@@ -998,18 +976,12 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %s\r\n", print_lock(owner));
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
 	if ( owner = si446x_radio_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy. Owner is %s\r\n", print_lock(owner));
 		si446x_spi_unlock();
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
-		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		return DS_Fail;
 	}
 
@@ -1026,7 +998,6 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 	return ret;
 }
 
@@ -1112,7 +1083,6 @@ INT8 si446x_hal_get_RadioType()
 }
 
 DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, TRUE );
 	radio_lock_id_t owner;
 	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
@@ -1210,7 +1180,6 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, FALSE );
 	return ret;
 }
 
@@ -1235,34 +1204,15 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
-	//if(softwareACKSent){
-	if(NEED_SI4468_CONTINUATION){
-		tx_callback_continuation.Enqueue();
-	}
-	else{
-		tx_cont_do(NULL);
-	}
-	//}
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
+	tx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
 	// radio_lock owned by SYNC_DET at this point
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	//if(softwareACKSent){
-		//softwareACKSent = false;
-	if(NEED_SI4468_CONTINUATION){
-		rx_callback_continuation.Enqueue();
-	}
-	else{
-		rx_cont_do(NULL);
-	}
-	//}
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
+	rx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT, LOCKED
