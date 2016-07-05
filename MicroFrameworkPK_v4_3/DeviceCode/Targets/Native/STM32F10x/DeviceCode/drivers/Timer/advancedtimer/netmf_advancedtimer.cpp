@@ -9,14 +9,8 @@ STM32F10x_Timer_Configuration g_STM32F10x_Timer_Configuration;
 void ISR_TIM2(void* Param);
 void ISR_TIM1(void* Param);
 
-#ifdef NDEBUG
-//const uint16_t MISSED_TIMER_DELAY = (uint16_t)(0.000005 * g_HardwareTimerFrequency[0]); // 5us @ 8 MHz 
-const uint16_t MISSED_TIMER_DELAY = 40;
-#else
-const uint16_t MISSED_TIMER_DELAY = 120;
-#endif
-//const uint16_t TIME_CUSHION = (uint16_t)(0.000015 * g_HardwareTimerFrequency[0]); // 15us @ 8 MHz
-const UINT64 TIME_CUSHION = 120;
+const UINT64 TIME_CUSHION = 40;  // 15 us
+const uint16_t TOO_SHORT_TIM1 = 40;
 const UINT64 MAX_ALLOWABLE_WAIT = 0xFFFEFFFF;
 
 // Returns the current 32 bit value of the hardware counter
@@ -228,7 +222,6 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 {
 	uint16_t tar_upper;
 	uint16_t now_upper;
-	uint16_t now_lower;
 	UINT64 now;
 #if defined(DEBUG_EMOTE_ADVTIME)
 	// if two timers need to fire at (or very close to) the same time, then the second timer will be passed to this function with a compare value of the current (at the time of setting it) time
@@ -254,31 +247,18 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 	// making sure we have enough time before the timer fires to exit SetCompare, the VT callback and the timer interrupt
 	if (compareValue < (now + TIME_CUSHION)){
 		compareValue = (now + TIME_CUSHION);
-	} else if ( (compareValue - now) > MAX_ALLOWABLE_WAIT ){ // checking to see if our wait time maxes out our upper 16-bit timer		
+	}  
+	if ( (compareValue - now) > MAX_ALLOWABLE_WAIT ){ // checking to see if our wait time maxes out our upper 16-bit timer		
 		// we are to trigger at a value that maxes out our upper 16-bit timer so in order to wait as long as possible and not
 		// incorrectly trigger the miss condition below we set the timer for the longest possible value that won't trigger the miss condition
 		compareValue = (UINT64)(GetCounter() - 0x00010000); 
 	} 
+	currentTarget = compareValue;
 
 	setCompareRunning = true;
 
 	tar_upper = (compareValue >> 16) & 0xFFFF;
 	now_upper = (now >> 16) & 0xFFFF;
-
-	tar_lower = compareValue & 0xFFFF;
-	now_lower = now & 0xFFFF;
-
-	// we need at least MISSED_TIMER_DELAY number of ticks to set the lower timer and exit our calling functions and re-enable our interrupts
-	// so here we make sure there is at least that MISSED_TIMER_DELAY tick cushion
-	if ( tar_lower >= now_lower){
-		if ( (tar_lower - now_lower) < MISSED_TIMER_DELAY){
-			tar_lower = now_lower + MISSED_TIMER_DELAY;
-		}
-	} else {		
-		if ( ( (0xffff - now_lower) + tar_lower) < MISSED_TIMER_DELAY) {
-			tar_lower = now_lower + MISSED_TIMER_DELAY;
-		} 
-	}
 
 	// if the upper 16-bit counter already matches we don't bother setting it and just set the lower 16-bit below
 	if (tar_upper != now_upper){
@@ -296,6 +276,8 @@ DeviceStatus STM32F10x_AdvancedTimer::SetCompare(UINT64 compareValue)
 		}
 	}
 
+	// because we added on a TIME_CUSHION earlier, there should be enough time to exit and enable interrupts before TIM1 fires
+	tar_lower = compareValue & 0xFFFF;
 	TIM_SetCompare3(TIM1, tar_lower);
 	TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
 	return DS_Success;
@@ -316,13 +298,17 @@ void ISR_TIM2(void* Param)
 		// Unsure how there is an extra pending interrupt at this point. This is causing a bug
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-		if ( (TIM1->CNT > g_STM32F10x_AdvancedTimer.tar_lower) || ((g_STM32F10x_AdvancedTimer.tar_lower - TIM1->CNT)<750) ){
+		// here we check to see if we have enough time to set TIM1 and exit
+		volatile UINT64 currentTime = g_STM32F10x_AdvancedTimer.Get64Counter();
+		if ( g_STM32F10x_AdvancedTimer.currentTarget < (currentTime + TOO_SHORT_TIM1) ){
 			g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
 			g_STM32F10x_AdvancedTimer.callBackISR(&g_STM32F10x_AdvancedTimer.callBackISR_Param);
 		} else {
-			TIM_SetCompare3(TIM1, g_STM32F10x_AdvancedTimer.tar_lower);
+			// we shouldn't have to check to see if there is enough time to set TIM1 and exit before the timer compare happens (because of our TOO_SHORT_TIM1 check earlier)
+			// but if there are problems (i.e. TIM1 wrap arounds) then we need to add a check here
+			TIM_SetCompare3(TIM1, g_STM32F10x_AdvancedTimer.currentTarget  & 0xFFFF);
 			TIM_ITConfig(TIM1, TIM_IT_CC3, ENABLE);
-		}
+		}			
 	}
 
 	if(TIM_GetITStatus(TIM2, TIM_IT_Update))
@@ -341,7 +327,6 @@ void ISR_TIM1( void* Param )
 		TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC3);
 
-		// Do we really want to run callback in ISR context? Shouldn't this be a continuation except for RT? --NPS
 		g_STM32F10x_AdvancedTimer.setCompareRunning = false; // Reset
 		g_STM32F10x_AdvancedTimer.callBackISR(&g_STM32F10x_AdvancedTimer.callBackISR_Param);
 	}

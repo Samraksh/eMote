@@ -56,6 +56,7 @@ public:
 	static BOOL initialized;
 	UINT32 currentCounterValue;
 	UINT16 tar_lower;
+	volatile UINT64 currentTarget;
 
 	// Stores the current active compare value in the system
 	bool setCompareRunning;
