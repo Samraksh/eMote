@@ -225,7 +225,12 @@ static void tx_cont_do(void *arg) {
 	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
 
-	si446x_radio_unlock();
+	// TODO: Setup atomic test instead of lock here.
+	// only unlock if TX was the source. Could overlap with RX, which overrides.
+	GLOBAL_LOCK(irq);
+	if (radio_lock == radio_lock_tx)
+		si446x_radio_unlock();
+	irq.Release();
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 }
 
@@ -1315,8 +1320,14 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
 	if (modem_pend & MODEM_MASK_SYNC_DETECT) {
-		if (radio_lock) { si446x_debug_print(ERR100, "SI446X: Unexpected Lock. Show Nathan.\r\n"); ASSERT(0); }
-		owner = si446x_radio_lock(radio_lock_rx);
+		// Unconditional lock grab.
+		// TODO: Make atomic without locks
+		GLOBAL_LOCK(irq);
+		owner = (radio_lock_id_t) radio_lock;
+		radio_lock = radio_lock_rx;
+		irq.Release();
+		// Show Nathan if this hits.
+		ASSERT(owner == radio_lock_none || owner == radio_lock_tx);
 		rx_timestamp = int_ts;
 	}
 
