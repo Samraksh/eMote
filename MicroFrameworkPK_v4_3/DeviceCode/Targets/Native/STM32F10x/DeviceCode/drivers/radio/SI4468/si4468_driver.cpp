@@ -110,6 +110,31 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 	return;
 }
 
+// Guarantee a lock grab. Requires IRQ mask.
+// Returns previous lock owner.
+// ONLY FOR USE IN VERY SPECIFIC CASES
+static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
+	radio_lock_id_t ret;
+	GLOBAL_LOCK(irq);
+	ret = (radio_lock_id_t) radio_lock;
+	radio_lock = ret;
+	return ret;
+}
+
+// Conditional lock set. If and only if lock owner is "cond", progress to "target".
+// IRQ mask is used due to a) gives guarantee and b) cannot false-negative and c) chain-of-custody
+// Returns: true if 'cond' was met.
+// ONLY FOR USE IN VERY SPECIFIC CASES
+static bool si446x_radio_lock_if_then_nofail(radio_lock_id_t cond, radio_lock_id_t target) {
+	GLOBAL_LOCK(irq);
+	if (radio_lock == cond) {
+		radio_lock = target;
+		return true;
+	} else {
+		return false;
+	}
+}
+
 // Returns current owner if fail, 0 if success
 static radio_lock_id_t si446x_spi_lock(radio_lock_id_t id) {
 	return (radio_lock_id_t) get_lock(&spi_lock, (uint32_t)id);
@@ -225,12 +250,8 @@ static void tx_cont_do(void *arg) {
 	SendAckFuncPtrType AckHandler = radio_si446x_spi2.GetMacHandler(active_mac_index)->GetSendAckHandler();
 	(*AckHandler)(tx_msg_ptr, si446x_packet_size, NetworkOperations_Success, SI_DUMMY);
 
-	// TODO: Setup atomic test instead of lock here.
 	// only unlock if TX was the source. Could overlap with RX, which overrides.
-	GLOBAL_LOCK(irq);
-	if (radio_lock == radio_lock_tx)
-		si446x_radio_unlock();
-	irq.Release();
+	si446x_radio_lock_if_then_nofail(radio_lock_tx, radio_lock_none);
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
 }
 
@@ -1321,13 +1342,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
 	if (modem_pend & MODEM_MASK_SYNC_DETECT) {
 		// Unconditional lock grab.
-		// TODO: Make atomic without locks
-		GLOBAL_LOCK(irq);
-		owner = (radio_lock_id_t) radio_lock;
-		radio_lock = radio_lock_rx;
-		irq.Release();
-		// Show Nathan if this hits.
-		ASSERT(owner == radio_lock_none || owner == radio_lock_tx);
+		owner = si446x_radio_lock_nofail(radio_lock_rx);
+		if (owner != radio_lock_none && owner != radio_lock_tx)
+			si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() Odd radio_lock: %s\r\n", print_lock(owner));
 		rx_timestamp = int_ts;
 	}
 
