@@ -34,6 +34,19 @@ namespace Samraksh.eMote
         RADAR_Q
     };
 
+    /// <summary>
+    /// Options for how much of the sample window is used in determining a request for information.  
+    /// </summary>
+    public enum SAMPLE_WINDOW_PORTION
+    {
+        /// <summary>The entire ADC sample window is used.</summary>
+        SAMPLE_WINDOW_FULL,
+        /// <summary>The first half of the ADC sample window is used.</summary>
+        SAMPLE_WINDOW_FIRST_HALF,
+        /// <summary>The second half of the ADC sample window is used.</summary>
+        SAMPLE_WINDOW_SECOND_HALF
+    };
+
     public class Algorithm
     {
         /// <summary>
@@ -132,11 +145,25 @@ namespace Samraksh.eMote
             extern public bool GetWindowOverThreshold();
 
             /// <summary>
-            /// Request the last window's displacement at the mid-point of the window
+            /// Request the window's net displacement
             /// </summary>
-            /// <returns>Returns the last window's displacement at the mid-point of the window.</returns>
+            /// <returns>Returns the window's net displacement.</returns>
             [MethodImplAttribute(MethodImplOptions.InternalCall)]
-            extern public int GetMidWindowUnwrap();
+            extern public int GetNetDisplacement(SAMPLE_WINDOW_PORTION portion);
+
+            /// <summary>
+            /// Request the window's absolute displacement.
+            /// </summary>
+            /// <returns>Returns the window's absolute displacement.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public int GetAbsoluteDisplacement(SAMPLE_WINDOW_PORTION portion);
+
+            /// <summary>
+            /// Request the window's displacement range.
+            /// </summary>
+            /// <returns>Returns the window's displacement range.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public int GetDisplacementRange(SAMPLE_WINDOW_PORTION portion);
         }
 
         /// <summary>

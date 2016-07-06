@@ -38,6 +38,20 @@
         <member name="F:Samraksh.eMote.RADAR_NOISE_REQUEST.RADAR_Q">
             <summary>The current radar Q noise.</summary>
         </member>
+        <member name="T:Samraksh.eMote.SAMPLE_WINDOW_PORTION">
+            <summary>
+            Options for how much of the sample window is used in determining a request for information.  
+            </summary>
+        </member>
+        <member name="F:Samraksh.eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL">
+            <summary>The entire ADC sample window is used.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FIRST_HALF">
+            <summary>The first half of the ADC sample window is used.</summary>
+        </member>
+        <member name="F:Samraksh.eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_SECOND_HALF">
+            <summary>The second half of the ADC sample window is used.</summary>
+        </member>
         <member name="T:Samraksh.eMote.Algorithm.RadarDetection">
             <summary>
             Radar Detection class  
@@ -113,11 +127,23 @@
             </summary>
             <returns>Returns true if last window's displacement was over the threshold and false if not.</returns>
         </member>
-        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetMidWindowUnwrap">
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetNetDisplacement(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
             <summary>
-            Request the last window's displacement at the mid-point of the window
+            Request the window's net displacement
             </summary>
-            <returns>Returns the last window's displacement at the mid-point of the window.</returns>
+            <returns>Returns the window's net displacement.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetAbsoluteDisplacement(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
+            <summary>
+            Request the window's absolute displacement.
+            </summary>
+            <returns>Returns the window's absolute displacement.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.RadarDetection.GetDisplacementRange(Samraksh.eMote.SAMPLE_WINDOW_PORTION)">
+            <summary>
+            Request the window's displacement range.
+            </summary>
+            <returns>Returns the window's displacement range.</returns>
         </member>
         <member name="T:Samraksh.eMote.Algorithm.AcousticDetection">
             <summary>

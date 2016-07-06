@@ -32,7 +32,9 @@ namespace Samraksh
             static INT32 GetIQRejectionLevel( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
             static INT32 GetLastUnwrap( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
             static INT8 GetWindowOverThreshold( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
-            static INT32 GetMidWindowUnwrap( CLR_RT_HeapBlock* pMngObj, HRESULT &hr );
+            static INT32 GetNetDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
+            static INT32 GetAbsoluteDisplacement( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
+            static INT32 GetDisplacementRange( CLR_RT_HeapBlock* pMngObj, INT32 param0, HRESULT &hr );
         };
     }
 }
