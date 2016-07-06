@@ -1329,20 +1329,28 @@ static void si446x_pkt_rx_int() {
 	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 }
 
-// INTERRUPT CONTEXT, LOCKED
-static void si446x_pkt_bad_crc_int() {
-	radio_lock_id_t owner = si446x_spi_lock(radio_lock_crc);
+// ASSUMES SPI_LOCK IS HELD BY CALLER (INTERRUPT HANDLER)
+// Interface spec is to just to drop the packet on the floor
+static void si446x_pkt_bad_crc_int(void) {
+	radio_lock_id_t owner 		= (radio_lock_id_t) spi_lock;
+	radio_lock_id_t radio_owner = (radio_lock_id_t) radio_lock;
 
-	if ( owner == 0 || owner == radio_lock_crc ) { 	// We got the lock, safe to cleanup. Hope this is what happens most/all of the time
-		si446x_fifo_info(0x3); 		// clear the FIFOs if we can
-		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() FIFOs cleared\r\n");
-		si446x_radio_unlock();		// We lost the packet, so give up the radio
-		si446x_spi_unlock();
+	ASSERT(owner == radio_lock_interrupt);
+	if (owner != radio_lock_interrupt) {
+		si446x_debug_print(ERR99, "SI446X: si446x_pkt_bad_crc_int() Bad spi_lock!, owner: %s\r\n", print_lock(owner));
+		return;
 	}
-	else {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_bad_crc_int() SPI busy, FIFO not cleared!\r\n");
-		si446x_radio_unlock();		// We lost the packet, so give up the radio
+
+	ASSERT(radio_owner == radio_lock_rx);
+	if (radio_owner != radio_lock_rx) {
+		si446x_debug_print(ERR99, "SI446X: si446x_pkt_bad_crc_int() Bad radio_lock!, owner: %s\r\n", print_lock(radio_owner));
+		return;
 	}
+
+	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_bad_crc_int() Bad CRC. FIFOs cleared\r\n");
+	si446x_fifo_info(0x3); 		// clear the FIFO
+	// We lost the packet, so give up the radio
+	si446x_radio_unlock();
 }
 
 // INTERRUPT CONTEXT
