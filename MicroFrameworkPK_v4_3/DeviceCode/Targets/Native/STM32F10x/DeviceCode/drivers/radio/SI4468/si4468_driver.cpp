@@ -1179,17 +1179,27 @@ INT8 si446x_hal_get_RadioType()
 	return radioType;
 }
 
+// New CCA semantics after talking to Ananth + Bora
+// CCA request is only valid if radio is already in RX, otherwise discard.
+// Radio remains in RX after CCA. Packets that come in during CCA are discarded.
+// Packets that come in atter CCA while still in RX are kept.
+// NPS 2016-07-06
 DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, TRUE );
 	radio_lock_id_t owner;
-	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
+	uint8_t int_enable;
+	DeviceStatus ret;
+	UINT64 now, now2;
+	int adjusted_ms;
+	const unsigned ticks_per_ms = 8000;
 
-	DeviceStatus ret = DS_Success;
+	now = HAL_Time_CurrentTicks();
+
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
 	SI446x_INT_MODE_CHECK();
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
 		return DS_Fail;
 	}
 
@@ -1212,69 +1222,53 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	}
 
 	si_state_t state = si446x_request_device_state();
-
-	// Check for bad state while we're at it.
-	if (state == SI_STATE_TX || state == SI_STATE_TX_TUNE || state == SI_STATE_ERROR) {
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_cca_ms(): Warning, impossible state.\r\n");
+	if (state != SI_STATE_RX && state != SI_STATE_RX_TUNE) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio not in RX. Abort CCA. State: %d\r\n", state);
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
-	// If radio is already in RX, stay in RX.
-	// If a packet comes in, shouldn't lose it, but RX processing will be defered and timestamp will be wrong.
-	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX; State is: %s\r\n", PrintStateID(state));
-		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
-		HAL_Time_Sleep_MicroSeconds(ms);
-		si446x_get_modem_status( 0xFF );
+	// Allow to move from RX_TUNE to RX if needed.
+	// TODO: Timeout
+	while ( state == SI_STATE_RX_TUNE ) { state = si446x_request_device_state(); }
 
-		if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
-			ret = DS_Busy;
-		else
-			ret = DS_Success;
+	// We don't keep/want packets for the duration of the CCA. Turn off interupts and kill FIFO afterwards.
+	int_enable = si446x_get_property(0x01, 1, 0); 	// save interrupt mask
+	si446x_set_property(0x01, 1, 0, 0); 			// mask all radio interrupts
+	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// check interrupts final time
 
-		si446x_radio_unlock();
-		si446x_spi_unlock();
-		return ret;
-	}
-
-	// Otherwise we were asleep and need to stay asleep
-	uint8_t int_enable;
-	int_enable = si446x_get_property(0x01, 1, 0); 	// save interrupt states
-	si446x_set_property(0x01, 1, 0, 0); 			// Writes 0, disables all interrupts
-
-	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// Check interrupts, does NOT clear.
-
-	// Check one last time to see if anything happened.
-	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
-	if (radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
-		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
+	// last abort chance
+	if ( si446x_get_ph_pend() || si446x_get_modem_pend() ) {
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Unmask interrupts
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio Busy.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
-	si446x_start_rx_fast_channel(si446x_channel);
-	while (state != SI_STATE_RX) { state = si446x_request_device_state(); }
-	HAL_Time_Sleep_MicroSeconds(ms);
-	si446x_get_modem_status( 0xFF );
+	// We do NOT retain packets encountered during CCA.
+	// Not using GLOBAL_LOCK here so YMMV with how accurate this timing is.
+	now2 = HAL_Time_CurrentTicks();
+	adjusted_ms = ms - ((now2-now) / ticks_per_ms) - 1;
+	if(adjusted_ms > 0)
+		HAL_Time_Sleep_MicroSeconds(adjusted_ms); 	// Wait specified period
+	si446x_get_modem_status( 0xFF ); 				// Fetch results
+
 	if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
 		ret = DS_Busy;
 	else
 		ret = DS_Success;
 
-	si446x_change_state(SI_STATE_SPI_ACTIVE); 		// disables RX
+	si446x_leave_rx(radio_lock_cca_ms);
+
 	si446x_get_int_status(0x0, 0x0, 0x0);	 		// Clear interrupts
-	si446x_fifo_info(0x3); 							// Clear FIFO in case we caught something.
-	si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
-	si446x_change_state(SI_STATE_SLEEP); 			// All done, sleep.
+	si446x_fifo_info(0x3);							// Clear FIFO
+	si446x_set_property(0x01, 1, 0, int_enable);	// Unmask interrupts
+	si446x_start_rx_fast_channel(si446x_channel);	// re-arm RX
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
-
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, FALSE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA complete\r\n");
 	return ret;
 }
