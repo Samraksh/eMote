@@ -766,11 +766,61 @@ BOOL si446x_hal_set_address(UINT8 radio, UINT16 address) {
 	return radio_si446x_spi2.SetAddress(address);
 }
 
+// INTERNAL USE ONLY -- CALLER MUST HOLD SPI_LOCK AND RADIO_LOCK
+// Caller passes in their lock id, verified in function.
+// Returns 'true' if abort with possible packet recovery.
+static bool si446x_leave_rx(radio_lock_id_t id) {
+	uint8_t int_enable;
+	si_state_t state;
+	unsigned timeout=si446x_tx_timeout;
+
+	ASSERT(id == spi_lock);
+	ASSERT(id == radio_lock);
+	if (id != spi_lock || id != radio_lock) {
+		si446x_debug_print(ERR100, "SI446X: si446x_leave_rx() Calling with bad locks. Abort\r\n");
+		return true;
+	}
+
+	state = si446x_request_device_state();
+	if (state != SI_STATE_RX && state != SI_STATE_RX_TUNE) return false; // Nothing to do
+
+	int_enable = si446x_get_property(0x01, 1, 0); 		// save interrupt mask
+	si446x_set_property(0x01, 1, 0, 0); 				// Writes 0, mask all interrupts
+
+	// Check one last time
+	si446x_get_int_status(0xFF, 0xFF, 0xFF); 			// Refresh interrupts does NOT clear.
+	if (si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy()) {
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Unmask interrupts
+		si446x_debug_print(DEBUG02, "SI446X: si446x_leave_rx() Caught Event before TX attempt. Aborting.\r\n");
+		return true;
+	}
+
+	// Past this point, any RX that comes in is kill
+
+	si446x_change_state(SI_STATE_SPI_ACTIVE);
+	while( si446x_request_device_state() != SI_STATE_SPI_ACTIVE && timeout-- ) ; // spin
+
+	ASSERT(timeout);
+	if (timeout == 0)
+		si446x_debug_print(ERR100, "SI446X: si446x_leave_rx() State Change Timeout. Radio state unknown!\r\n");
+
+	// The only thing that could maybe have happened is an RX, but its dead to us now.
+	si446x_get_int_status(0x0, 0x0, 0x0);			// Clear interrupts
+	si446x_fifo_info(0x3);							// Clears FIFO
+	si446x_set_property(0x01, 1, 0, int_enable); 	// Unmasks interrupts
+
+	// For debug purposes. The packet is gone.
+	if (si446x_get_ph_pend() || si446x_get_modem_pend()) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_leave_rx() Lost packet in RX-TX transition.\r\n");
+	}
+
+	return false;
+}
+
 // eventTime is ignored unless doTS (USE_TIMESTAMP) is set.
 DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 eventTime, int doTS, uint8_t after_state) {
 	uint8_t tx_buf[si446x_packet_size+1]; // Add one for packet size field
 	radio_lock_id_t owner;
-	unsigned timeout=si446x_tx_timeout;
 	si_state_t state = SI_STATE_ERROR;
 
 	si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send() size:%d doTs:%d\r\n", len, doTS);
@@ -800,39 +850,27 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 		return DS_Busy;
 	}
 
-	do {
-		// Must ensure we cleanly left RX
-		si446x_get_int_status(0xFF, 0xFF, 0xFF);	// Check interrupts, does NOT clear.
-		// If there are any interrupts pending at this point, back-off
-		if (radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() || cont_busy() || (timeout==0)) {
-			if (timeout == 0) { si446x_debug_print(ERR99, "SI446X: ERROR, timeout trying to start TX. Reset radio?\r\n"); }
-			si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Something happened. Last second packet? Abort.\r\n");
-			si446x_radio_unlock();
-			si446x_spi_unlock();
-			return DS_Busy;
-		}
-		state = si446x_request_device_state();
-		if (timeout == si446x_tx_timeout) si446x_change_state(SI_STATE_READY); // only do once.
-		timeout--;
-	} while (state == SI_STATE_RX);
+	// Last chance for packets to come in.
+	if ( si446x_leave_rx(radio_lock_tx) ) {
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Busy;
+	}
 
+	state = si446x_request_device_state();
 	if (state == SI_STATE_ERROR) {
+		ASSERT(0);
 		si446x_debug_print(DEBUG02, "SI446X: si446x_packet_send(): Bad State. Aborting. Reset radio?\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
-	si446x_fifo_info(0x3);	// Clears FIFO in case there is garbage
-
-	// OK, we should be clean
-
 	tx_buf[0] = len;
 	if (doTS) { tx_buf[0] += 4; } // Add timestamp to packet size if used.
 	memcpy(&tx_buf[1], pkt, len);
 
 	si446x_write_tx_fifo(len+1, tx_buf); // add one for packet size
-
 
 	if (doTS) { // Timestamp Case
 		GLOBAL_LOCK(irq);
