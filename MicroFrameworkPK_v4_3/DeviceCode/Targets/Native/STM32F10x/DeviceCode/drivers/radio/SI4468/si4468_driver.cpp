@@ -1041,7 +1041,6 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 	radio_lock_id_t owner;
-	DeviceStatus ret;
 	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep()\r\n");
 
 	SI446x_INT_MODE_CHECK();
@@ -1055,10 +1054,6 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	if ( si446x_request_device_state_shadow() == SI_STATE_SLEEP ) {
 		return DS_Success;
 	}
-
-	/*if(!softwareACKSent){
-		return DS_Fail;
-	}*/
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %s\r\n", print_lock(owner));
@@ -1077,21 +1072,19 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 		return DS_Fail;
 	}
 
-	si446x_get_int_status(0xFF, 0xFF, 0xFF);
-	if ( radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() ) { // Assuming cont_busy() check isn't necessary
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_sleep() radio interrupts pending, abort sleep.\r\n");
-		ret = DS_Busy;
-	}
-	else { // Radio appears to be idle, sleep is a go
-		si446x_change_state(SI_STATE_SLEEP);
-		ret = DS_Success;
+	if ( si446x_leave_rx(radio_lock_sleep) ) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy.\r\n");
+		si446x_radio_unlock();
+		si446x_spi_unlock();
+		return DS_Fail;
 	}
 
+	si446x_change_state(SI_STATE_SLEEP);
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
 	CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
-	return ret;
+	return DS_Success;
 }
 
 
