@@ -117,7 +117,7 @@ static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
 	radio_lock_id_t ret;
 	GLOBAL_LOCK(irq);
 	ret = (radio_lock_id_t) radio_lock;
-	radio_lock = ret;
+	radio_lock = id;
 	return ret;
 }
 
