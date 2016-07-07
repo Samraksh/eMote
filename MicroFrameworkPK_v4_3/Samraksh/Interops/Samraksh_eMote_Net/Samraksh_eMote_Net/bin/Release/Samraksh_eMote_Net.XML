@@ -1055,9 +1055,6 @@
         <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point4dBm">
             <summary>-19.4 dB</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point9dBm">
-            <summary>-19.9 dB</summary>
-        </member>
         <member name="T:Samraksh.eMote.Net.Radio.RF231Channel">
             <summary>
             Channels supported by RF231 radio
@@ -1261,6 +1258,11 @@
         </member>
         <member name="T:Samraksh.eMote.Net.MACType">
             <summary>Kinds of protocol</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.MACType.NONE">
+            <summary>
+            
+            </summary>
         </member>
         <member name="F:Samraksh.eMote.Net.MACType.CSMA">
             <summary>

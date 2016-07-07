@@ -201,12 +201,12 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
 		g_NeighborTable.ClearTable();
 
 		g_NeighborTable.SetPreviousNumberOfNeighbors(0);
-		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success){
+		if((status = CPU_Radio_Initialize(&Radio_Event_Handler, this->radioName, NumberRadios, macName)) != DS_Success) {
+			SOFT_BREAKPOINT();
 			return status;
 		}
 
-		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success) {
-			SOFT_BREAKPOINT();
+		if((status = CPU_Radio_TurnOnRx(this->radioName)) != DS_Success){
 			return status;
 		}
 
@@ -277,9 +277,11 @@ DeviceStatus OMACType::Initialize(MACEventHandler* eventHandler, UINT8 macName, 
  */
 BOOL OMACType::UnInitialize(){
 	BOOL ret = TRUE;
-	Initialized = FALSE;
 	m_omac_scheduler.UnInitialize();
+	ret &= (m_omac_RadioControl.Uninitialize() == DS_Success);
+	ret &= (CPU_Radio_TurnOffRx(this->radioName) == DS_Success);
 	ret &= CPU_Radio_UnInitialize(this->radioName);
+	Initialized = FALSE;
 	return ret;
 }
 
@@ -298,7 +300,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 
 	INT64 evTime;
 	UINT64 rx_start_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT64 senderDelay;
+	UINT64 senderDelay = MAX_UINT64;
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
@@ -494,9 +496,14 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 					//if(data_msg->msg_identifier != 16843009){
 						//ASSERT_SP(0);
 					//}
+
+					ASSERT_SP(data_msg->size <= MAX_DATA_PCKT_SIZE);
+
 					//location_in_packet_payload += data_msg->size;
 					location_in_packet_payload += data_msg->size + DataMsgOverhead;
 
+					static volatile INT32 pt = msg->GetHeader()->payloadType;
+					
 					if(true || myID == destID) {
 						Message_15_4_t* next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 						if(! (next_free_buffer))
@@ -504,20 +511,32 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							g_receive_buffer.DropOldest(1);
 							next_free_buffer = g_receive_buffer.GetNextFreeBuffer();
 						}
-
 						ASSERT_SP(next_free_buffer);
+
 						memcpy(next_free_buffer->GetPayload(),data_msg->payload,data_msg->size);
 						memcpy(next_free_buffer->GetHeader(),msg->GetHeader(), sizeof(IEEE802_15_4_Header_t));
 						memcpy(next_free_buffer->GetFooter(),msg->GetFooter(), sizeof(IEEE802_15_4_Footer_t));
 						memcpy(next_free_buffer->GetMetaData(),msg->GetMetaData(), sizeof(IEEE802_15_4_Metadata_t));
 						next_free_buffer->GetHeader()->length = data_msg->size + sizeof(IEEE802_15_4_Header_t);
+
 						if(NEED_OMAC_CALLBACK_CONTINUATION){
 							payloadTypeArray[payloadTypeArrayIndex % payloadTypeArrayMaxValue] = msg->GetHeader()->payloadType;
 							payloadTypeArrayIndex++;
 							OMAC_callback_continuation.Enqueue();
 						}
 						else{
-							(*m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
+							MACReceiveFuncPtrType multi_m_rxAckHandler;
+							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
+							{
+								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
+							}
+
+							if(multi_m_rxAckHandler == NULL) {
+								multi_m_rxAckHandler = m_rxAckHandler;
+							}
+							if(multi_m_rxAckHandler != NULL) {
+								(*multi_m_rxAckHandler)(next_free_buffer, msg->GetHeader()->payloadType);
+							}
 						}
 #ifdef OMAC_DEBUG_GPIO
 						CPU_GPIO_SetPinState(OMAC_DATARXPIN, TRUE);
@@ -534,6 +553,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #endif
 				//ASSERT_SP(msg->GetHeader()->GetFlags() & TIMESTAMPED_FLAG);
 				tsmg = (TimeSyncMsg*) (msg->GetPayload() + location_in_packet_payload);
+				ASSERT_SP(senderDelay != MAX_UINT64);
 				ds = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.Receive(sourceID, tsmg, senderDelay, rx_time_stamp );
 				location_in_packet_payload += sizeof(TimeSyncMsg);
 #ifdef OMAC_DEBUG_GPIO

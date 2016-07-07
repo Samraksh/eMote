@@ -17,6 +17,8 @@ Buffer_15_4_t g_send_buffer;
 Buffer_15_4_t g_receive_buffer;
 NeighborTable g_NeighborTable;
 
+UINT8 currentMacName;
+
 //#define DEBUG_MACFUNCTIONS 1
 
 #if defined(DEBUG_MACFUNCTIONS)

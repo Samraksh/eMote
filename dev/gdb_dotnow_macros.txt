@@ -35,3 +35,64 @@ mass
 mrh
 monitor flash write_image dump.bin 0x8000000 bin
 end
+
+define dump_sector_boot
+monitor dump_image dump_boot.bin 0x8000000 131072
+end
+
+define restore_sector_boot
+monitor halt
+monitor halt
+0x8000000 131072
+monitor flash write_image dump_boot.bin 0x8000000 bin
+end
+
+define dump_sector_update
+monitor dump_image dump_update.bin 0x80e1000 65536
+end
+
+define restore_sector_update
+monitor halt
+monitor halt
+monitor flash erase_address 0x80e1000 65536
+monitor flash write_image dump_update.bin 0x80e1000 bin
+end
+
+define dump_sector_deploy
+monitor dump_image dump_deploy.bin 0x80c1000 131072
+end
+
+define restore_sector_deploy
+monitor halt
+monitor halt
+monitor flash erase_address 0x80c1000 131072
+monitor flash write_image dump_deploy.bin 0x80c1000 bin
+end
+
+define dump_sector_config
+monitor dump_image dump_config.bin 0x80ff000 4096
+end
+
+define restore_sector_config
+monitor halt
+monitor halt
+monitor flash erase_address 0x80ff000 4096
+monitor flash write_image dump_config.bin 0x80ff000 bin
+end
+
+define dump_sram
+monitor dump_image dump_sram.bin 0x20000000 98304
+end
+
+define restore_sram
+monitor flash write_image dump_sram.bin 0x20000000 bin
+end
+
+alias rsb = restore_sector_boot
+alias rsu = restore_sector_update
+alias rsd = restore_sector_deploy
+alias rsc = restore_sector_config
+alias dsb = dump_sector_boot
+alias dsu = dump_sector_update
+alias dsd = dump_sector_deploy
+alias dsc = dump_sector_config

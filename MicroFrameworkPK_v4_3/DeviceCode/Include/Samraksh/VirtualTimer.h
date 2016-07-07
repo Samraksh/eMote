@@ -178,6 +178,7 @@ public:
 	{
 		if(timer1 && timer2)
 			return (*timer1 > *timer2);
+		return FALSE;
 	}
 };
 

@@ -8,7 +8,13 @@
 #pragma arm section zidata = "s_Updates"
 #endif
 
-static MFUpdate s_Updates[4];
+
+#if defined(WIN32)
+#define SOFT_BREAKPOINT() 
+#endif
+
+const INT32 g_MaxUpdateCount = MAX_UPDATE_COUNT;
+MFUpdate g_Updates[g_MaxUpdateCount];    //!< Keep track of multiple updates, each represented by an MFUpdate instance. Replaces local s_Updates.
 static BOOL     s_updatesInitialized = FALSE;
 
 #if defined(ADS_LINKER_BUG__NOT_ALL_UNUSED_VARIABLES_ARE_REMOVED)
@@ -20,65 +26,167 @@ static void MFUpdate_RebootHandler()
     s_updatesInitialized = FALSE;    
 }
 
+static int CalculateTotalNumberOfPackets(MFUpdate* pUpdate) {
+    MFUpdateHeader* pUpdateHdr = &pUpdate->Header;
+    int numberOfPackets = (pUpdateHdr->UpdateSize / pUpdateHdr->PacketSize + (((pUpdateHdr->UpdateSize % pUpdateHdr->PacketSize) > 0)?1:0)); //get number of packets needed.
+    ASSERT(numberOfPackets > 0);
+    return numberOfPackets;
+}
 
+static int CalculateMissingPktsWordfieldSize(MFUpdate* pUpdate) {
+    int numberOfPackets = CalculateTotalNumberOfPackets(pUpdate);
+    int missingPktsWordfieldSize = (numberOfPackets >> 5) + ((numberOfPackets % 32) > 0 ? 1 : 0); //convert number of packets to number of 32-bit words needed.
+    if(pUpdate->m_missingPktsWordfieldSize > pUpdate->MAX_MISSING_WORDFIELD_SIZE) {
+        SOFT_BREAKPOINT();
+        return 0;
+    }
+    return missingPktsWordfieldSize;
+}
+
+//TODO: init from storage.
+void MFUpdate_InitializeFromStorage()
+{
+    //for each update package
+    //  get files from storage provider
+    //  for each update file
+    //    re-create the struct MFUpdate
+    //      re-create header from storage
+    //      re-create provider link
+    //      re-create extension link
+    //      set authenticated to false?
+    //      set validated to false?
+    //      set INUSE flag to false?
+
+    int itr_Updates = 0;
+
+    for(int itr_updates=0; itr_updates<g_MaxUpdateCount; itr_updates++) {
+        ASSERT((int)g_Updates[itr_updates].Header.UpdateID == MFUpdate::badHandle);
+    }
+
+    for(int itr_pkg=0; itr_pkg < g_UpdatePackageCount; itr_pkg++)
+    {
+        int storageIDs[g_MaxUpdateCount];
+        int storageCount = g_MaxUpdateCount;
+
+        g_UpdatePackages[itr_pkg].Storage->GetFiles((UINT16)MFUPDATE_UPDATETYPE_ANY, NULL, &storageCount);
+        ASSERT(storageCount <= g_MaxUpdateCount);
+        if(storageCount > g_MaxUpdateCount) storageCount = g_MaxUpdateCount;
+        g_UpdatePackages[itr_pkg].Storage->GetFiles((UINT16)MFUPDATE_UPDATETYPE_ANY, storageIDs, &storageCount);
+
+        for(int itr_storageIDs=0; itr_storageIDs<storageCount; itr_storageIDs++) {
+            MFUpdateHeader header;
+            BOOL ret = g_UpdatePackages[itr_pkg].Storage->GetHeader(storageIDs[itr_storageIDs], &header);
+            if(ret != TRUE) {
+                SOFT_BREAKPOINT(); // MASKABLE FAULT. STORAGE PROBLEM.
+                // TODO: record storage fault.
+                continue;
+            }
+            MFUpdate* pUpdate = &g_Updates[itr_Updates];
+            pUpdate->Providers = &g_UpdatePackages[itr_pkg];
+            memcpy( &pUpdate->Header, &header, sizeof(header));
+            pUpdate->m_finalPacketIdx = CalculateTotalNumberOfPackets(pUpdate) - 1;
+            pUpdate->m_missingPktsWordfieldSize = CalculateMissingPktsWordfieldSize(pUpdate);
+            pUpdate->Flags |= MFUPDATE_FLAGS__INUSE;  // INUSE flag set to indicate there is an update here in old API.
+            //TODO: RECOVER MISSING PACKET INFORMATION
+        }
+    }
+}
+
+
+void MFUpdate_EnumerateUpdates(UpdateID_t updateIDs[], int len_updateIDs )
+{
+    int itr_id = 0;
+    for(itr_id=0; itr_id < len_updateIDs; itr_id++)
+    {
+        updateIDs[itr_id] = MFUpdate::badHandle;
+    }
+    itr_id = 0;
+    for(int itr_updates=0; (itr_updates < g_MaxUpdateCount) && (itr_id < len_updateIDs); itr_updates++)
+    {
+        if(g_Updates[itr_updates].Header.UpdateID != MFUpdate::badHandle) {
+            updateIDs[itr_id++] = g_Updates[itr_updates].Header.UpdateID;
+        }
+    }
+    return;
+}
+
+
+/**
+ * for now, clears all updates out for testing.
+ * TODO: restore available updates.
+ */
 void MFUpdate_Initialize()
 {
     if(s_updatesInitialized) return;
-    
-    memset(s_Updates, 0, sizeof(s_Updates));
-    
+
+    //TODO: ask update provider for available updates, then re-add them to the update list.
+
+    memset(g_Updates, 0, sizeof(g_Updates));
+
+    MFUpdate_InitializeFromStorage();
+
     HAL_AddSoftRebootHandler(MFUpdate_RebootHandler);
 
     s_updatesInitialized = TRUE;
 }
 
-static void ReleaseUpdateHandle(int handle)
+MFUpdate* MFUpdate::GetUpdate(UpdateID_t handle)
 {
-    if(handle < 0 || handle > ARRAYSIZE(s_Updates)) return;
-    
-    memset(&s_Updates[handle], 0, sizeof(MFUpdate));
+    for(int i=0; i < g_MaxUpdateCount; ++i) {
+        if(g_Updates[i].Header.UpdateID == handle &&
+            0 != (g_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
+        {
+            return &g_Updates[i];
+        }
+    }
+    return NULL;
 }
 
-static INT32 GetNewUpdateHandle(MFUpdate** ppUpdate, MFUpdateHeader* pHdr)
+static void ReleaseUpdateHandle(UpdateID_t handle)
 {
-    INT32 retVal = -1;
+
+    if(handle == MFUpdate::badHandle) return;
+    MFUpdate* p = MFUpdate::GetUpdate(handle);
+    if(p == NULL) {
+        return;
+    }
+    memset(&p->Header, 0, sizeof(MFUpdateHeader));
+    p->Flags = 0; //clears MFUPDATE_FLAGS__INUSE
+}
+
+/**
+ * assigns ppUpdate to a storage object
+ */
+static UpdateID_t GetNewUpdateHandle(MFUpdate** ppUpdate, MFUpdateHeader* pHdr)
+{
+    UpdateID_t retVal = MFUpdate::badHandle;
     
-    for(int i=0; i<ARRAYSIZE(s_Updates); i++)
+    for(int i=0; i<ARRAYSIZE(g_Updates); i++)
     {
-        if(0 != (s_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
+        if(0 != (g_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
         {
             MFUpdateHeader hdr;
-            if((pHdr->UpdateType == s_Updates[i].Header.UpdateType && pHdr->UpdateSubType == s_Updates[i].Header.UpdateSubType) || 
-                s_Updates[i].Providers->Storage == NULL ||  
-               !s_Updates[i].Providers->Storage->GetHeader(s_Updates[i].StorageHandle, &hdr))
+            if(//Allow multiple updates of the same type by commenting this out: (pHdr->UpdateType == s_Updates[i].Header.UpdateType && pHdr->UpdateSubType == s_Updates[i].Header.UpdateSubType) || 
+                g_Updates[i].Providers->Storage == NULL ||
+               !g_Updates[i].Providers->Storage->GetHeader(g_Updates[i].StorageHandle, &hdr))
             {
-                ReleaseUpdateHandle(i);
+                // Clear out update that failed to get storage or header.
+                ReleaseUpdateHandle(g_Updates[i].Header.UpdateID);
             }
         }
 
-        if(0 == (s_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
+        if(0 == (g_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
         {
-            *ppUpdate = &s_Updates[i];
+            MFUpdate_Clear(&g_Updates[i]);
+            *ppUpdate = &g_Updates[i];
             (*ppUpdate)->Flags |= MFUPDATE_FLAGS__INUSE;
-            retVal = i;
+            retVal = pHdr->UpdateID;
             break;
         }
     }
 
     return retVal;
 }
-
-static MFUpdate* GetUpdate(int handle)
-{
-    if(handle < 0 || handle > ARRAYSIZE(s_Updates)) return NULL;
-    
-    MFUpdate& update = s_Updates[handle];
-
-    if(0 == (update.Flags & MFUPDATE_FLAGS__INUSE)) return NULL;
-
-    return &update;    
-}
-
 
 static const IUpdatePackage* GetProviderByName(LPCSTR szProvider)
 {
@@ -93,43 +201,68 @@ static const IUpdatePackage* GetProviderByName(LPCSTR szProvider)
     return NULL;
 }
 
-INT32 MFUpdate_InitUpdate( LPCSTR szProvider, MFUpdateHeader& update )
+UpdateID_t MFUpdate_InitUpdate( LPCSTR szProvider, MFUpdateHeader& update )
 {
-    MFUpdate*             pUpdate;
+    MFUpdate* pUpdate;
 
     if(!s_updatesInitialized) MFUpdate_Initialize();
     
-    const IUpdatePackage* providers    = GetProviderByName(szProvider        ); if(providers    == NULL) return -1;
-    INT32                 updateHandle = GetNewUpdateHandle(&pUpdate, &update); if(updateHandle ==   -1) return -1;
+    const IUpdatePackage* providers = GetProviderByName(szProvider);         if(providers == NULL) return MFUpdate::badHandle;
+    pUpdate = MFUpdate::GetUpdate(update.UpdateID); //check for existing UpdateID.  assuming UpdateID is a unique hash of update header.
+    if(pUpdate) {
+        //TODO: reconfigure if request for different packet size. research allowing different packet sizes for same update, how it works with different link qualities.
+        pUpdate->Flags |= MFUPDATE_FLAGS__INUSE;
+        return pUpdate->Header.UpdateID;
+    }
+    UpdateID_t updateHandle = GetNewUpdateHandle(&pUpdate, &update);
+    ASSERT(updateHandle != MFUpdate::badHandle);
+    if(updateHandle == MFUpdate::badHandle) return MFUpdate::badHandle;
 
     memcpy( &pUpdate->Header, &update, sizeof(update) );
 
     pUpdate->Providers = providers;
+    if(&update.PacketSize == 0) {
+        SOFT_BREAKPOINT();
+        return MFUpdate::badHandle;
+    }
+    int totalNumberOfPackets = CalculateTotalNumberOfPackets(pUpdate);
+    pUpdate->m_finalPacketIdx = totalNumberOfPackets - 1;
+    pUpdate->m_missingPktsWordfieldSize = CalculateMissingPktsWordfieldSize(pUpdate);
+    if(pUpdate->m_missingPktsWordfieldSize > pUpdate->MAX_MISSING_WORDFIELD_SIZE)
+    {
+        SOFT_BREAKPOINT();
+        return MFUpdate::badHandle; //this could happen for large updates.
+    }
 
     if(providers->Update->InitializeUpdate != NULL && !providers->Update->InitializeUpdate( pUpdate ))
     {
         ReleaseUpdateHandle(updateHandle);
-
-        return -1;
+        SOFT_BREAKPOINT();
+        return MFUpdate::badHandle;
     }
 
+    //TODO: PAINT STORAGE TO ENABLE MISSING PACKET INFO RECOVERY.
+
+    pUpdate->Flags |= STATE_FLAGS__START;
     return updateHandle;
 }
 
-BOOL MFUpdate_AuthCommand( INT32 updateHandle, UINT32 cmd, UINT8* pArgs, INT32 argsLen, UINT8* pResponse, INT32& responseLen )
+BOOL MFUpdate_AuthCommand( UpdateID_t updateHandle, UINT32 cmd, UINT8* pArgs, INT32 argsLen, UINT8* pResponse, INT32& responseLen )
 {
-    MFUpdate*                        update = GetUpdate(updateHandle)      ; if(update == NULL) return FALSE;
+    MFUpdate*                        update = MFUpdate::GetUpdate(updateHandle)      ; if(update == NULL) return FALSE;
     const IUpdateValidationProvider* valid  = update->Providers->Validation; if(valid  == NULL) return FALSE;
 
     if(valid->AuthCommand == NULL) return FALSE;
 
+    update->Flags &= ~STATE_FLAGS__START;
+	update->Flags |= STATE_FLAGS__AUTHCMD;
     return valid->AuthCommand( update, cmd, pArgs, argsLen, pResponse, responseLen );
 }
 
-BOOL MFUpdate_Authenticate( INT32 updateHandle, UINT8* pAuthData, INT32 authLen )
+BOOL MFUpdate_Authenticate( UpdateID_t updateHandle, UINT8* pAuthData, INT32 authLen )
 {
     BOOL fRet;
-    MFUpdate*                        update = GetUpdate(updateHandle)      ; if(update == NULL) return FALSE;
+    MFUpdate*                        update = MFUpdate::GetUpdate(updateHandle)      ; if(update == NULL) return FALSE;
     const IUpdateValidationProvider* valid  = update->Providers->Validation; if(valid  == NULL) return FALSE;
 
     if(valid->Authenticate == NULL) return TRUE;
@@ -138,6 +271,7 @@ BOOL MFUpdate_Authenticate( INT32 updateHandle, UINT8* pAuthData, INT32 authLen 
 
     if(fRet)
     {
+        update->Flags |= STATE_FLAGS__AUTHENTICATED;
         update->Flags |= MFUPDATE_FLAGS__AUTHENTICATED;
     }
     else
@@ -149,9 +283,9 @@ BOOL MFUpdate_Authenticate( INT32 updateHandle, UINT8* pAuthData, INT32 authLen 
 }
 
 
-BOOL MFUpdate_GetProperty( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32* pPropValueSize )
+BOOL MFUpdate_GetProperty( UpdateID_t updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32* pPropValueSize )
 {
-    MFUpdate*              update   = GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
+    MFUpdate*              update   = MFUpdate::GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
     const IUpdateProvider* provider = update->Providers->Update; if(provider == NULL) return FALSE;
 
     if(provider->GetProperty == NULL) return FALSE;
@@ -159,9 +293,9 @@ BOOL MFUpdate_GetProperty( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropV
     return provider->GetProperty( update, szPropName, pPropValue, pPropValueSize );
 }
 
-BOOL MFUpdate_SetProperty( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32 pPropValueSize )
+BOOL MFUpdate_SetProperty( UpdateID_t updateHandle, LPCSTR szPropName, UINT8* pPropValue, INT32 pPropValueSize )
 {
-    MFUpdate*              update   = GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
+    MFUpdate*              update   = MFUpdate::GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
     const IUpdateProvider* provider = update->Providers->Update; if(provider == NULL) return FALSE;
 
     if(provider->GetProperty == NULL) return FALSE;
@@ -170,9 +304,9 @@ BOOL MFUpdate_SetProperty( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropV
 }
 
 
-BOOL MFUpdate_Open( INT32 updateHandle )
+BOOL MFUpdate_Open( UpdateID_t updateHandle )
 {
-    MFUpdate*              update   = GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
+    MFUpdate*              update   = MFUpdate::GetUpdate(updateHandle)  ; if(update   == NULL) return FALSE;
     const IUpdateProvider* provider = update->Providers->Update; if(provider == NULL) return FALSE;
     MFUpdateHeader         header;
 
@@ -180,18 +314,21 @@ BOOL MFUpdate_Open( INT32 updateHandle )
 
     if(update->Providers->Storage == NULL) return FALSE;
 
-    update->StorageHandle = update->Providers->Storage->Open(MFUPDATE_UPDATEID_ANY, update->Header.UpdateType, update->Header.UpdateSubType);
+    update->StorageHandle = update->Providers->Storage->Open(update->Header.UpdateID, update->Header.UpdateType, update->Header.UpdateSubType);
 
     if(update->StorageHandle == -1) return FALSE;
 
     update->Providers->Storage->GetHeader( update->StorageHandle, &header );
 
-    // We only support ONE update per update type (delete any other versions)
-    if(header.UpdateID           != update->Header.UpdateID        ||
-       header.Version.usMajor    != update->Header.Version.usMajor ||
-       header.Version.usMinor    != update->Header.Version.usMinor ||
-       header.Version.usBuild    != update->Header.Version.usBuild ||
-       header.Version.usRevision != update->Header.Version.usRevision)
+    // Samraksh wants to support multiple ASSEMBLY updates at a time.
+    // Otherwise, see original code for matching versions.
+    // Check if version in storage is older than MFUpdate version. //TODO: for removable media, or restart with state saved in config? Should the old update be replaced?
+    if(
+        (header.Version.usMajor >  update->Header.Version.usMajor) ||
+       ((header.Version.usMajor >= update->Header.Version.usMajor) && (header.Version.usMinor >  update->Header.Version.usMinor)) ||
+       ((header.Version.usMajor >= update->Header.Version.usMajor) && (header.Version.usMinor >= update->Header.Version.usMinor)  && (header.Version.usBuild >  update->Header.Version.usBuild)) ||
+       ((header.Version.usMajor >= update->Header.Version.usMajor) && (header.Version.usMinor >= update->Header.Version.usMinor)  && (header.Version.usBuild >= update->Header.Version.usBuild)  && (header.Version.usRevision > update->Header.Version.usRevision))
+      )
     {
         update->Providers->Storage->Delete(header.UpdateID, header.UpdateType, header.UpdateSubType);
         return FALSE;
@@ -202,9 +339,9 @@ BOOL MFUpdate_Open( INT32 updateHandle )
     return TRUE;
 }
 
-BOOL MFUpdate_Create( INT32 updateHandle )
+BOOL MFUpdate_Create( UpdateID_t updateHandle )
 {
-    MFUpdate*              pUpdate  = GetUpdate(updateHandle)   ; if(pUpdate  == NULL) return FALSE;
+    MFUpdate*              pUpdate  = MFUpdate::GetUpdate(updateHandle)   ; if(pUpdate  == NULL) return FALSE;
     const IUpdateProvider* provider = pUpdate->Providers->Update; if(provider == NULL) return FALSE;
     UINT32 flags = pUpdate->Flags;
 
@@ -228,11 +365,11 @@ BOOL MFUpdate_Create( INT32 updateHandle )
     return TRUE;
 }
 
-BOOL MFUpdate_GetMissingPackets( INT32 updateHandle, UINT32* pPacketBits, INT32* pCount )
+BOOL MFUpdate_GetMissingPackets( UpdateID_t updateHandle, UINT32* pPacketBits, INT32* pCount )
 {
     if(pCount == NULL) return FALSE;
 
-    MFUpdate* update = GetUpdate(updateHandle); if(update == NULL) return FALSE;
+    MFUpdate* update = MFUpdate::GetUpdate(updateHandle); if(update == NULL) return FALSE;
     INT32 partIdx = 0;
     INT32 pktSize    = update->Header.PacketSize;
     INT32 updateSize = update->Header.UpdateSize;
@@ -257,7 +394,7 @@ BOOL MFUpdate_GetMissingPackets( INT32 updateHandle, UINT32* pPacketBits, INT32*
             
             if(update->Providers->Storage->IsErased != NULL && update->Providers->Storage->IsErased(update->StorageHandle, offset, pktSize))
             {
-                *pCount++;
+                (*pCount)++;
                 
                 if(pPacketBits != NULL)
                 {
@@ -266,7 +403,10 @@ BOOL MFUpdate_GetMissingPackets( INT32 updateHandle, UINT32* pPacketBits, INT32*
             }
             else
             {
-                pPacketBits[partIdx] &= ~(1u <<i);
+                if(pPacketBits != NULL)
+                {
+                    pPacketBits[partIdx] &= ~(1u <<i);
+                }
             }
 
             offset += pktSize;
@@ -278,9 +418,9 @@ BOOL MFUpdate_GetMissingPackets( INT32 updateHandle, UINT32* pPacketBits, INT32*
     return TRUE;
 }
 
-BOOL MFUpdate_AddPacket( INT32 updateHandle, INT32 packetIndex, UINT8* packetData, INT32 packetLen, UINT8* pValidationData, INT32 validationLen )
+BOOL MFUpdate_AddPacket( UpdateID_t updateHandle, INT32 packetIndex, UINT8* packetData, INT32 packetLen, UINT8* pValidationData, INT32 validationLen )
 {
-    MFUpdate* update = GetUpdate(updateHandle); if(update  == NULL) return FALSE;
+    MFUpdate* update = MFUpdate::GetUpdate(updateHandle); if(update  == NULL) return FALSE;
     BOOL ret = FALSE;
 
     if(update->Providers->Storage == NULL) return FALSE;    
@@ -298,15 +438,24 @@ BOOL MFUpdate_AddPacket( INT32 updateHandle, INT32 packetIndex, UINT8* packetDat
 
     ret = packetLen == update->Providers->Storage->Write( update->StorageHandle, packetIndex * update->Header.PacketSize, packetData, packetLen );
 
-    return ret;
+    return (ret > 0);
 }
 
-BOOL MFUpdate_Validate( INT32 updateHandle, UINT8* pValidationData, INT32 validationLen )
+BOOL MFUpdate_Validate( UpdateID_t updateHandle, UINT8* pValidationData, INT32 validationLen )
 {
     BOOL fValid = TRUE;
-    MFUpdate* update = GetUpdate(updateHandle);  if(update == NULL) return FALSE;
+    MFUpdate* update = MFUpdate::GetUpdate(updateHandle);
+    if(update == NULL)
+    {
+        SOFT_BREAKPOINT();
+        return FALSE;
+    }
 
-    if(!update->IsAuthenticated()) return FALSE;
+    if(!update->IsAuthenticated())
+    {
+        SOFT_BREAKPOINT();
+        return FALSE;
+    }
 
     if(update->IsValidated()) return TRUE;
 
@@ -328,9 +477,9 @@ BOOL MFUpdate_Validate( INT32 updateHandle, UINT8* pValidationData, INT32 valida
     return fValid;
 }
 
-BOOL MFUpdate_Install( INT32 updateHandle, UINT8* pValidationData, INT32 validationLen )
+BOOL MFUpdate_Install( UpdateID_t updateHandle, UINT8* pValidationData, INT32 validationLen )
 {
-    MFUpdate* update = GetUpdate(updateHandle);  if(update == NULL) return FALSE;
+    MFUpdate* update = MFUpdate::GetUpdate(updateHandle);  if(update == NULL) return FALSE;
 
     if(!update->IsAuthenticated()) return FALSE;
 
@@ -345,9 +494,9 @@ BOOL MFUpdate_Install( INT32 updateHandle, UINT8* pValidationData, INT32 validat
     return update->Providers->Update->InstallUpdate( update, pValidationData, validationLen );
 }
 
-BOOL MFUpdate_Delete( INT32 updateHandle )
+BOOL MFUpdate_Delete( UpdateID_t updateHandle )
 {
-    MFUpdate* update = GetUpdate(updateHandle); if(update == NULL) return FALSE;
+    MFUpdate* update = MFUpdate::GetUpdate(updateHandle); if(update == NULL) return FALSE;
     BOOL fRet;
 
     if(update->Providers->Storage == NULL) return FALSE;
@@ -361,5 +510,18 @@ BOOL MFUpdate_Delete( INT32 updateHandle )
     ReleaseUpdateHandle( updateHandle );
 
     return fRet;
+}
+
+void MFUpdate_Clear( MFUpdate* update )
+{
+    if(update == NULL) return;
+    memset(&update->Header, 0, sizeof(MFUpdateHeader));
+    update->StorageHandle = 0;
+    update->Flags = 0;
+    update->Providers = 0;
+    update->m_finalPacketIdx = 0;
+    update->m_missingPktsWordfieldSize = 0;
+    memset(update->m_missingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
+    memset(update->m_neighborMissingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
 }
 

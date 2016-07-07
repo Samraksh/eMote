@@ -9,8 +9,9 @@
 
 enum MACNames
 {
-	CSMAMAC,
-	OMAC,
+	NONE = 0,
+	CSMAMAC = 1,
+	OMAC = 2,
 };
 
 #define MAC_BROADCAST_ADDRESS RADIO_BROADCAST_ADDRESS
@@ -28,7 +29,7 @@ struct MACConfig {
     //UINT8 RadioType;
     UINT32 NeighborLivenessDelay;
 };
-//struct MACConfig;
+
 
 // Typedef defining the signature of the receive function
 //typedef  void (*MacReceiveFuncPtrType) (void *msg, UINT16 Size, UINT16 Src, BOOL Unicast, UINT8 RSSI, UINT8 LinkQuality);
@@ -78,8 +79,6 @@ public:
 
 }MACEventHandler_t;
 
-
-UINT8 currentMacName;
 
 //Basic functions
 DeviceStatus MAC_Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, void* macConfig);

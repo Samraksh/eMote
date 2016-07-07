@@ -47,6 +47,10 @@ DeviceStatus RadioControl_t::Initialize(){
 	return DS_Success;
 }
 
+DeviceStatus RadioControl_t::Uninitialize(){
+	return Stop();
+}
+
 /*
  *
  */
@@ -283,20 +287,23 @@ bool RadioControl_t::PiggybackDiscoMessage(Message_15_4_t* msg, UINT16 &size){
  *
  */
 DeviceStatus RadioControl_t::Stop(){
-	if(stayOn) return DS_Success;
-	else{
+	if(stayOn) {
+		return DS_Success;
+	}
+	else {
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, TRUE );
 #endif
 		DeviceStatus returnVal = CPU_Radio_Sleep(g_OMAC.radioName,0);
 
-		if(returnVal == DS_Success){
+		if(returnVal == DS_Success) {
 	#ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 			CPU_GPIO_SetPinState( RADIOCONTROL_STATEPIN, FALSE );
 	#endif
 		}
-		else{
+		else {
+			ASSERT_SP(0);
 			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
@@ -304,6 +311,7 @@ DeviceStatus RadioControl_t::Stop(){
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );
 #endif
 		}
+
 		return returnVal;
 	}
 }

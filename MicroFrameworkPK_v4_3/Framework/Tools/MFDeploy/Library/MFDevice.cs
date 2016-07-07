@@ -1163,7 +1163,7 @@ namespace Microsoft.NetMicroFramework.Tools.MFDeployTool.Engine
                 byte []packet = new byte[c_PacketSize];
                 try
                 {
-                    int handle = -1;
+                    uint handle = 0;
                     int idx = 0;
                     FileInfo fi = new FileInfo(zipFile);
                     int numPkts = ((int)fi.Length + c_PacketSize - 1) / c_PacketSize;

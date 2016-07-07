@@ -22,18 +22,20 @@ MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_Hardware/Samraksh_SPOT_Har
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_Net/Samraksh_SPOT_Net/bin/
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT_RealTime/RealTimeTimer/bin/
 MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_SPOT/Samraksh_SPOT/bin/
+MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_eMote_ProgramManager/bin
+MicroFrameworkPK_v4_3/Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_eMote_ProgramManager/obj
 
 .metadata
 
 #ignore Eclipse files
 MicroFrameworkPK_v4_0/.cproject
 MicroFrameworkPK_v4_0/.project
+.cproject
+/.settings/
+
 #ignore header files generated at compile-time
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/githash.h
 MicroFrameworkPK_v4_3/DeviceCode/Include/Samraksh/teamid.h
-
-.cproject
-/.settings/
 
 # Ignore VS Project junk
 bin/
@@ -42,6 +44,7 @@ obj/
 # Ignore *specific* VS Project junk.  .user and .suo are not wildcards because somebody might be depending on content in some existing tracked .csproj.user files.
 MicroFrameworkPK_v4_3/Framework/Tools/MFDeploy/Library/MFDeployEngine.csproj.user
 MicroFrameworkPK_v4_3/Framework/Tools/MFDeploy/MFDeploy.v11.suo
+Samraksh/Interops/Samraksh_eMote_ProgramManager/Samraksh_eMote_ProgramManager.v11.suo
 
 # keep Interop stuff... FOR NOW muhahaha!
 !MicroFrameworkPK_v4_3/Samraksh/Interops/*/*/bin

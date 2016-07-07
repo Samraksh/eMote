@@ -80,6 +80,12 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 }
 
 void OMACScheduler::UnInitialize(){
+	m_TimeSyncHandler.FailsafeStop();
+	m_DataTransmissionHandler.FailsafeStop();
+	m_DataReceptionHandler.FailsafeStop();
+	m_DiscoveryHandler.FailsafeStop();
+
+	// FIXME: alert other nodes?
 	VirtualTimerReturnMessage rm;
 	SchedulerINUse = false;
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER);

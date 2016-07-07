@@ -2,7 +2,7 @@
 #define HAL_UTIL_H_
 
 enum DeviceStatus{
-DS_Success,
+DS_Success,  //TODO: change mapping to DS_Fail=0, DS_Success, ... so BOOL would map correctly
 DS_Fail,
 DS_Ready,
 DS_Busy,

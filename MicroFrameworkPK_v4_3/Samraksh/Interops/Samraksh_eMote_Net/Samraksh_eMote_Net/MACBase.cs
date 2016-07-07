@@ -10,14 +10,18 @@ namespace Samraksh.eMote.Net
 	/// <summary>Kinds of protocol</summary>
 	public enum MACType
 	{
+        /// <summary>
+        /// 
+        /// </summary>
+        NONE = 0,
 		/// <summary>
 		/// 
 		/// </summary>
-		CSMA,
+		CSMA = 1,
 		/// <summary>
 		/// 
 		/// </summary>
-		OMAC,
+		OMAC = 2,
 	}
 
 	/// <summary>

@@ -23,6 +23,7 @@
 typedef Buffer_15_4<Buffer_15_4_t_SIZE> Buffer_15_4_t;
 
 #define MAX_APPS 4
+#define MAX_NATIVE_APPS 2
 
 class MAC_ID {
 private:
@@ -40,6 +41,7 @@ class MAC : public MAC_ID
 {
 private:
 	static MACEventHandler_t* AppHandlers[MAX_APPS];
+	static MACEventHandler_t* NativeAppHandlers[MAX_NATIVE_APPS];
 	static UINT8 AppIDIndex;
 	UINT16 MyAddress;
 
@@ -68,6 +70,7 @@ public:
 
 	BOOL SetMyAddress(UINT16 address){
 		this->MyAddress = address;
+		return TRUE;
 	}
 	UINT16 GetMyAddress(){
 		return this->MyAddress;
@@ -88,7 +91,12 @@ public:
 
 	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioName, ConfigT* config)
 	{
-		/*if(routingAppID > MAX_APPS){
+
+		/*
+		//TODO: one-time initialization
+		TINYCLR_CLEAR(NativeAppHandlers);
+		TINYCLR_CLEAR(AppHandlers);
+		if(routingAppID > MAX_APPS){
 			return DS_Fail;
 		}
 		AppIDIndex = routingAppID;
@@ -96,8 +104,29 @@ public:
 		this->macName = macName;
 		this->radioName = radioName;
 		//this->SetConfig(config);
+		*/
+		return DS_Success;
+	}
 
-		return DS_Success;*/
+	static BOOL SetNativeAppHandlers(UINT8 routingNativeAppID, MACEventHandler* handler)
+	{
+		if(handler == NULL){
+			return FALSE;
+		}
+		if( routingNativeAppID > (NATIVE_APP_ID_OFFSET + MAX_NATIVE_APPS) ) {
+			return FALSE;
+		}
+
+		NativeAppHandlers[routingNativeAppID - NATIVE_APP_ID_OFFSET] = handler;
+		return TRUE;
+	}
+
+	static MACEventHandler* GetNativeAppHandler(UINT8 routingNativeAppID)
+	{
+		if( routingNativeAppID > (NATIVE_APP_ID_OFFSET + MAX_NATIVE_APPS) ) {
+			return (MACEventHandler*)NULL;
+		}
+		return NativeAppHandlers[routingNativeAppID - NATIVE_APP_ID_OFFSET];
 	}
 
 	BOOL SetAppHandlers(MACEventHandler* handler)
@@ -141,5 +170,8 @@ UINT8 MAC<MessageT, ConfigT>::AppIDIndex = 0;
 
 template<class MessageT, class ConfigT>
 MACEventHandler_t* MAC<MessageT, ConfigT>::AppHandlers[MAX_APPS] = {NULL,NULL,NULL};
+
+template<class MessageT, class ConfigT>
+MACEventHandler_t* MAC<MessageT, ConfigT>::NativeAppHandlers[MAX_NATIVE_APPS] = {NULL,NULL};
 
 #endif

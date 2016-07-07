@@ -167,13 +167,19 @@ BOOL csmaMAC::UnInitialize(){
 	BOOL retVal = TRUE;
 	if(this->Initialized) {
 		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_BEACON) == TimerSupported );
+		ASSERT(retVal);
 		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_SENDPKT) == TimerSupported );
+		ASSERT(retVal);
 		retVal = retVal && (VirtTimer_Stop(VIRT_TIMER_MAC_FLUSHBUFFER) == TimerSupported );
+		ASSERT(retVal);
 		retVal = retVal && CPU_Radio_UnInitialize(this->radioName);
+		ASSERT(retVal);
 	}
 	ASSERT(retVal);
 	this->Initialized = FALSE;
 	return retVal;
+	//TODO: CPU_Radio_Sleep(this->radioName,/*RadioStateEnum::STATE_SLEEP defined in RF231RegDef.h but not mapped AFAIK.*/1);//TODO: re-visit using SLEEP_STATE or something else.
+	//TODO: clear out other values, clear out queues.
 }
 
 BOOL csmaMAC::SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime){
@@ -371,17 +377,18 @@ void csmaMAC::SendToRadio(){
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
 		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
-		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName);
-		DeviceStatus ds = DS_Success;
+		DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName);
+		//DeviceStatus ds = DS_Success;
 		if(ds == DS_Busy) {
 			//TODO: AnanthAtSamraksh - check if this is right
+			//CPU_Timer_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200));
 			HAL_Time_Sleep_MicroSeconds((CPU_Radio_GetAddress(this->radioName) % 200)); // 500?
 			if(CPU_Radio_ClearChannelAssesment(this->radioName, 200)!=DS_Success){
 				VirtTimer_Start(VIRT_TIMER_MAC_SENDPKT);
 				return;
 			}
 		} else if (ds == DS_Fail) {
-			SOFT_BREAKPOINT();
+			//SOFT_BREAKPOINT();
 #ifdef DEBUG_CSMAMAC
 			ASSERT(0);
 			DEBUG_PRINTF_CSMA("Radio might have locked up\r\n");
@@ -519,7 +526,7 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 		goto ReceiveHandler_out;
 	}
 
-	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off
+	//TODO: GLOBAL_LOCK(irq); // CLR_RT_HeapBlock_NativeEventDispatcher::SaveToHALQueue requires IRQs off.  Updater needs IRQs on; TODO: make Update use a queue and disable IRQs again?
 	//(*appHandler)(msg, g_receive_buffer.GetNumberMessagesInBuffer());
 	(*appHandler)(msg, rcv_msg_hdr->payloadType);
 
@@ -565,7 +572,9 @@ void csmaMAC::SendAckHandler(void* msg, int Size, NetOpStatus status, UINT8 radi
 					(*appHandler)(msg, Size, status, radioAckStatus);
 				// Attempt to send the next packet out since we have no scheduler
 				if(!g_send_buffer.IsBufferEmpty())
+				{
 					SendFirstPacketToRadio(NULL);
+				}
 			}
 			break;
 		

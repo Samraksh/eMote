@@ -41,7 +41,7 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioN
 	currentRadioName = -1;
 
 	if(eventHandlers == NULL)
-		return DS_Fail;
+		goto CPU_Radio_Initialize_out;
 
 	switch(radioName)
 	{
@@ -87,8 +87,8 @@ DeviceStatus CPU_Radio_Initialize(RadioEventHandler* eventHandlers, UINT8 radioN
 			break;
 	}
 
-	//ASSERT_NOFAIL(status);
-	{if(status==DS_Fail) SOFT_BREAKPOINT();}
+CPU_Radio_Initialize_out:
+	ASSERT_NOFAIL(status);
 	return status;
 }
 
@@ -539,7 +539,7 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioName)
 			break;
 	}
 
-	//ASSERT_NOFAIL(status);
+	ASSERT_NOFAIL(status);
 	return status;
 }
 

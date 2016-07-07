@@ -64,7 +64,10 @@ BOOL VirtTimer_Initialize()
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
 		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer))
+		{
+			ASSERT(0);
 			return FALSE;
+		}
 	}
 
 	gVirtualTimerObject.isInitialized = TRUE;

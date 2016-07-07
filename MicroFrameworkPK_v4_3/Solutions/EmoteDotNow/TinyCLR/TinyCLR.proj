@@ -50,6 +50,7 @@
   <Import Project="$(SPOCLIENT)\Framework\Features\Diagnostics.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\I2C.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\InterruptHandler.featureproj" />
+  <Import Project="$(SPOCLIENT)\Framework\Features\MFUpdate.featureproj" />
   <!--Import Project="$(SPOCLIENT)\Framework\Features\PWM.featureproj" /-->
   <Import Project="$(SPOCLIENT)\Framework\Features\SD.featureproj" />
   <Import Project="$(SPOCLIENT)\Framework\Features\SPI.featureproj" />
@@ -63,6 +64,7 @@
   <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_RealTime\Samraksh_eMote_RealTime.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_Net\Samraksh_eMote_Net.featureproj" />
   <Import Project="$(SPOCLIENT)\DeviceCode\Targets\Native\STM32F10x\DeviceCode\drivers\Samraksh_eMote_DSP\Samraksh_eMote_DSP.featureproj" />
+  <Import Project="$(SPOCLIENT)\DeviceCode\pal\Samraksh\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager.featureproj" />
   <Import Project="$(SPOCLIENT)\tools\targets\Microsoft.SPOT.System.Interop.Settings" />
   <ItemGroup>
     <DriverLibs Include="STM32F10x.$(LIB_EXT)" />
@@ -356,10 +358,58 @@
     <DriverLibs Include="LargeBuffer_hal_stubs.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\LargeBuffer\stubs\dotNetMF.proj" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <DriverLibs Include="MFUpdate_PAL_stub.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\stubs\dotnetmf.proj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <DriverLibs Include="MFUpdate_PAL.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\dotnetmf.proj" />
   </ItemGroup>
+  <!--                        BEGIN MFUpdate                              -->
+  <!--  Add native update pe  -->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\CLR\Libraries\SPOT_Update\dotNetMF.proj" />
+	<PlatformIndependentLibs Include="SPOT_Update.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <!--<ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\MFUpdate\dotnetMF.proj" />
+	<DriverLibs Include="MFUpdate_PAL.$(LIB_EXT)" />
+  </ItemGroup>-->
+  <!--  Add the MFUpdate Provider libraries required for MFDeploy  -->
+  <ItemGroup>
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\dotnetMF.proj" />
+    <DriverLibs Include="MicroBooterUpdate.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\dotnetMF.proj" />
+    <DriverLibs Include="BlockStorageUpdate.$(LIB_EXT)" />
+	<!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\FS\dotnetMF.proj" />
+    <DriverLibs Include="FSUpdateStorage.$(LIB_EXT)" />-->
+    <!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Validation\SSL\dotnetMF.proj" />
+    <DriverLibs Include="UpdateValidationSSL.$(LIB_EXT)" />-->
+	<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Validation\CRC\dotnetMF.proj" />
+    <DriverLibs Include="UpdateValidationCRC.$(LIB_EXT)" />
+  </ItemGroup>
+  <!--  Add custom implementation of the IDebuggerPortSslConfig configuration  -->
+  <!--<ItemGroup>
+    <DriverLibs Include="DebuggerPort_EmoteDotNow.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\DebuggerPort\dotnetmf.proj" />
+  </ItemGroup>-->
+  <!--  Add custom IUpdatePackage configuration  -->
+  <ItemGroup>
+    <DriverLibs Include="MFUpdate_EmoteDotNow.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\Solutions\EmoteDotNow\DeviceCode\MFUpdate\dotnetmf.proj" />
+  </ItemGroup>
+ <!--  Add custom update controller that translates COM commands to MFUpdate actions, normally implemented in debugger. -->
+  <ItemGroup>
+    <DriverLibs Include="update_pal.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\PAK\dotNetMF.proj" />
+  </ItemGroup>
+  <!-- Add Interop for accessing update manager -->
+  <ItemGroup>
+    <DriverLibs Include="Samraksh_eMote_ProgramManager.$(LIB_EXT)" />
+    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\PAL\Samraksh\Samraksh_eMote_ProgramManager\dotNetMF.proj" />
+  </ItemGroup>
+  <!--                            END  MFUpdate                         -->
   <ItemGroup>
     <DriverLibs Include="palevent_pal.$(LIB_EXT)" />
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Pal\palevent\dotNetMF.proj" />
