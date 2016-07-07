@@ -60,7 +60,7 @@ enum {
 	si446x_default_channel=0,
 	si446x_rssi_cca_thresh=0x7F,
 	si446x_tx_timeout=200,
-	si446x_rx_timeout_ms=50,
+	si446x_rx_timeout_ms=100,
 	serial_size=12,
 };
 
