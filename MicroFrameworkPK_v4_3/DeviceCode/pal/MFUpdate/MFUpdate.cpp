@@ -163,6 +163,8 @@ static UpdateID_t GetNewUpdateHandle(MFUpdate** ppUpdate, MFUpdateHeader* pHdr)
     
     for(int i=0; i<ARRAYSIZE(g_Updates); i++)
     {
+        // clean up in-use updates that do not have storage.
+        // could be previous update was too large, but the new update is small enough to fit, so clear old failed update?
         if(0 != (g_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
         {
             MFUpdateHeader hdr;
@@ -177,7 +179,8 @@ static UpdateID_t GetNewUpdateHandle(MFUpdate** ppUpdate, MFUpdateHeader* pHdr)
 
         if(0 == (g_Updates[i].Flags & MFUPDATE_FLAGS__INUSE))
         {
-            MFUpdate_Clear(&g_Updates[i]);
+            // got update handle, not in use
+            MFUpdate_Clear(&g_Updates[i]);  // clean up the update handle.
             *ppUpdate = &g_Updates[i];
             (*ppUpdate)->Flags |= MFUPDATE_FLAGS__INUSE;
             retVal = pHdr->UpdateID;
@@ -211,7 +214,7 @@ UpdateID_t MFUpdate_InitUpdate( LPCSTR szProvider, MFUpdateHeader& update )
     pUpdate = MFUpdate::GetUpdate(update.UpdateID); //check for existing UpdateID.  assuming UpdateID is a unique hash of update header.
     if(pUpdate) {
         //TODO: reconfigure if request for different packet size. research allowing different packet sizes for same update, how it works with different link qualities.
-        pUpdate->Flags |= MFUPDATE_FLAGS__INUSE;
+        pUpdate->Flags |= MFUPDATE_FLAGS__INUSE; //TODO: is this redundant? or is this the case when opening an update after reboot?
         return pUpdate->Header.UpdateID;
     }
     UpdateID_t updateHandle = GetNewUpdateHandle(&pUpdate, &update);
@@ -353,17 +356,47 @@ BOOL MFUpdate_Create( UpdateID_t updateHandle )
         ReleaseUpdateHandle(updateHandle);
         return FALSE;
     }
-
+    // TODO: check storage availability?
     pUpdate->StorageHandle = pUpdate->Providers->Storage->Create(pUpdate->Header, flags);
 
     if(pUpdate->StorageHandle == -1)
     {
+        // should be unreachable; Authenticate should have opened instead of called create on already existing update
+        ASSERT_SP(0);
+        ReleaseUpdateHandle(updateHandle);
+        return FALSE;
+    }
+    if(pUpdate->StorageHandle == -2) {
+        // too many updates are being stored.
+        // ... but this should never happen because update storage count == update ID count.
+        ASSERT_SP(0);
+        ReleaseUpdateHandle(updateHandle);
+        return FALSE;
+    }
+    if(pUpdate->StorageHandle == -3) {
+        // not enough free space
+        //TODO: only delete minimum number of updates.
+        for(int i=0; i < ARRAYSIZE(g_Updates); i++) {
+            UpdateID_t uID = g_Updates[i].Header.UpdateID;
+            if( ((uID != MFUpdate::badHandle) &&
+                 (uID != pUpdate->Header.UpdateID)) )
+            {
+                MFUpdate_Delete(uID);
+            }
+        }
+        pUpdate->StorageHandle = pUpdate->Providers->Storage->Create(pUpdate->Header, flags);
+    }
+
+    if(pUpdate->StorageHandle < 0) {
+        // default case
+        ASSERT_SP(0);
         ReleaseUpdateHandle(updateHandle);
         return FALSE;
     }
 
     return TRUE;
 }
+
 
 BOOL MFUpdate_GetMissingPackets( UpdateID_t updateHandle, UINT32* pPacketBits, INT32* pCount )
 {
