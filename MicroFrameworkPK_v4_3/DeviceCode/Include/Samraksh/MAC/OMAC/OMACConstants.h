@@ -148,9 +148,13 @@ typedef struct PACK DiscoveryMsg
 
 	//UINT32 lastwakeupSlotUpdateTimeinTicks0;
 	//UINT32 lastwakeupSlotUpdateTimeinTicks1;
-
-
 } DiscoveryMsg_t;
+
+typedef struct{
+	UINT8 RSSI;
+	UINT8 LinkQuality;
+	UINT8 Delay;
+}MsgLinkQualityMetrics_t;
 
 #define DataMsgOverhead sizeof(UINT8)
 typedef struct DataMsg_t

@@ -304,6 +304,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 	UINT64 rx_time_stamp;
 	UINT16 location_in_packet_payload = 0;
 
+	MsgLinkQualityMetrics_t msgLinkQualityMetrics;
 	RadioAddress_t myID = g_OMAC.GetMyAddress();
 
 	if(Size == sizeof(softwareACKHeader)){
@@ -361,7 +362,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_OMAC_DISCOVERY:
 				{
 					disco_msg = (DiscoveryMsg_t*) (msg->GetPayload());
-					g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg);
+					msgLinkQualityMetrics.RSSI = msg->GetMetaData()->GetRssi();
+					msgLinkQualityMetrics.LinkQuality = msg->GetMetaData()->GetLqi();
+					g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg, &msgLinkQualityMetrics);
 					location_in_packet_payload += sizeof(DiscoveryMsg_t);
 					break;
 				}
@@ -562,7 +565,9 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 			}
 			if(msg->GetHeader()->flags &  MFM_DISCOVERY_FLAG) {
 				disco_msg = (DiscoveryMsg_t*) (msg->GetPayload() + location_in_packet_payload);
-				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg );
+				msgLinkQualityMetrics.RSSI = msg->GetMetaData()->GetRssi();
+				msgLinkQualityMetrics.LinkQuality = msg->GetMetaData()->GetLqi();
+				g_OMAC.m_omac_scheduler.m_DiscoveryHandler.Receive(sourceID, disco_msg, &msgLinkQualityMetrics);
 				location_in_packet_payload += sizeof(DiscoveryMsg_t);
 			}
 

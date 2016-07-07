@@ -434,10 +434,11 @@ void csmaMAC::SendToRadio(){
 }
 
 Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
+	NeighborTableCommonParameters_One_t neighborTableCommonParameters_One_t;
+	NeighborTableCommonParameters_Two_t neighborTableCommonParameters_two_t;
 	UINT8 index;
-	if(Size- sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
+	if(Size - sizeof(IEEE802_15_4_Header_t) >  csmaMAC::GetMaxPayload()){
 		hal_printf("CSMA Receive Error: Packet is too big. Size: %d, MaxPayload: %d, ExpectedHeaderSize: %d \r\n", Size, csmaMAC::GetMaxPayload(), sizeof(IEEE802_15_4_Header_t));
-
 		return msg;
 	}
 
@@ -462,7 +463,16 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 			if(g_NeighborTable.FindIndex(rcv_msg_hdr->src, &index) != DS_Success)
 			{
 				// Insert into the table if a new node was discovered
-				if(g_NeighborTable.InsertNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0, 0, 0, &index) == DS_Success)
+				neighborTableCommonParameters_One_t.MacAddress = rcv_msg_hdr->src;
+				neighborTableCommonParameters_One_t.status = Alive;
+				neighborTableCommonParameters_One_t.lastHeardTime = HAL_Time_CurrentTicks();
+				neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = rcv_meta->GetRssi();
+				neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = rcv_meta->GetLqi();
+				neighborTableCommonParameters_two_t.nextSeed = 0;
+				neighborTableCommonParameters_two_t.mask = 0;
+				neighborTableCommonParameters_two_t.nextwakeupSlot = 0;
+				neighborTableCommonParameters_two_t.seedUpdateIntervalinSlots = 0;
+				if(g_NeighborTable.InsertNeighbor(&neighborTableCommonParameters_One_t, &neighborTableCommonParameters_two_t) == DS_Success)
 				{
 					////NeighborChangeFuncPtrType appHandler = g_csmaMacObject.AppHandlers[CurrentActiveApp]->neighborHandler;
 					NeighborChangeFuncPtrType appHandler = g_csmaMacObject.GetAppHandler(CurrentActiveApp)->neighborHandler;
@@ -479,14 +489,12 @@ Message_15_4_t* csmaMAC::ReceiveHandler(Message_15_4_t* msg, int Size){
 			else
 			{
 				//g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), rcv_meta->GetRssi(), rcv_meta->GetLqi());
-				g_NeighborTable.UpdateNeighbor(rcv_msg_hdr->src, Alive, HAL_Time_CurrentTicks(), 0, 0);
-#if 0
-				g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rcv_meta->GetRssi()*0.2);
-				g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)g_NeighborTable.Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)rcv_meta->GetLqi()*0.2);
-				g_NeighborTable.Neighbor[index].PacketsReceived++;
-				g_NeighborTable.Neighbor[index].LastHeardTime = HAL_Time_CurrentTicks();
-				g_NeighborTable.Neighbor[index].Status = Alive;
-#endif
+				neighborTableCommonParameters_One_t.MacAddress = rcv_msg_hdr->src;
+				neighborTableCommonParameters_One_t.status = Alive;
+				neighborTableCommonParameters_One_t.lastHeardTime = HAL_Time_CurrentTicks();
+				neighborTableCommonParameters_One_t.linkQualityMetrics.LinkQuality = rcv_meta->GetLqi();
+				neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = rcv_meta->GetRssi();
+				g_NeighborTable.UpdateNeighbor(&neighborTableCommonParameters_One_t);
 			}
 			return msg;
 	}

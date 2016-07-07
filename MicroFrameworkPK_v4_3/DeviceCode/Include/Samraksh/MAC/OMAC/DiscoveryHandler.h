@@ -88,7 +88,7 @@ class DiscoveryHandler: public EventHandler {
 
 
   	void SetParentSchedulerPtr(void * scheduler);
-  	DeviceStatus Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg);
+  	DeviceStatus Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg, MsgLinkQualityMetrics_t* msgLinkQualityMetrics);
   	DeviceStatus Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time);
   	void SetSeed(UINT16 seed, UINT32 nextFrame){
   		m_seed = seed;

@@ -2613,7 +2613,7 @@ DeviceStatus RF231Radio::DownloadMessage()
 	UINT8 phy_rssi = ReadRegister(RF230_PHY_RSSI) & 0x80;
 	UINT8 phy_status;
 	UINT8 len;
-	UINT8 lqi;
+	UINT8 lqi, rssi;
 	UINT32 cnt = 0;
 	UINT8* temp_rx_msg_ptr;
 
@@ -2656,12 +2656,14 @@ DeviceStatus RF231Radio::DownloadMessage()
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 
-	// last, the LQI
+	// last, the LQI and RSSI
 	lqi = CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
+	rssi = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
 
 	SelnSet();
 
 	IEEE802_15_4_Metadata_t* metadata = rx_msg_ptr->GetMetaData();
+	metadata->SetRssi(rssi);
 	metadata->SetLqi(lqi);
 	metadata->SetReceiveTimeStamp(receive_timestamp);
 

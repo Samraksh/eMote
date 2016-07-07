@@ -312,7 +312,6 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	m_isreceiving = false;
 
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 #endif
@@ -364,7 +363,6 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
 
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 #endif
