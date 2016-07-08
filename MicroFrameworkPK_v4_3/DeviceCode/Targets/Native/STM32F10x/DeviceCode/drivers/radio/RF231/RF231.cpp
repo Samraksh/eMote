@@ -1051,17 +1051,6 @@ DeviceStatus RF231Radio::Sleep(int level)
 }
 
 
-// See RF231 datasheet section 8.3.4
-// Return 0 to 28, 3dB steps, from -91 dBm to 10 dBm
-INT32 RF231Radio::GetRSSI() {
-
-	if (state != STATE_RX_ON) {
-		return 0x7FFFFFFF;
-	}
-
-	return ReadRegister(RF230_PHY_RSSI) & 0x1F;
-}
-
 void* RF231Radio::Send(void* msg, UINT16 size)
 {
 	CPU_GPIO_SetPinState( RF231_TX, TRUE );
@@ -1893,13 +1882,40 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 			return DS_Fail;
 
 		sleep_pending = TRUE;
-		state = STATE_RX_ON;
+		if(RF231_extended_mode){
+			state = STATE_RX_AACK_ON;
+		}
+		else{
+			state = STATE_RX_ON;
+		}
 	}
 
-	if(state != STATE_RX_ON)
-	{
-		UINT8 reg = VERIFY_STATE_CHANGE;
-		return DS_Fail;
+	// Must be in RX mode to do measurment.
+	radio_hal_trx_status_t trx_status_tmp = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+	if(RF231_extended_mode){
+		if (trx_status_tmp != RX_AACK_ON && trx_status_tmp != BUSY_RX_AACK){
+			return DS_Fail;
+		}
+	}
+	else{
+		if (trx_status_tmp != RX_ON && trx_status_tmp != BUSY_RX){
+			return DS_Fail;
+		}
+	}
+
+	if(RF231_extended_mode){
+		if(state != STATE_RX_AACK_ON)
+		{
+			UINT8 reg = VERIFY_STATE_CHANGE;
+			return DS_Fail;
+		}
+	}
+	else{
+		if(state != STATE_RX_ON)
+		{
+			UINT8 reg = VERIFY_STATE_CHANGE;
+			return DS_Fail;
+		}
 	}
 
 	//UINT8 reg = VERIFY_STATE_CHANGE;
@@ -1933,40 +1949,49 @@ DeviceStatus RF231Radio::ClearChannelAssesment(UINT32 numberMicroSecond)
 	return ((trx_status & RF230_CCA_DONE) ? ((trx_status & RF230_CCA_STATUS) ? DS_Success : DS_Busy) : DS_Fail );
 }	//RF231Radio::ClearChannelAssesment
 
+// See RF231 datasheet section 8.3.4
+// Return 0 to 28, 3dB steps, from -91 dBm to 10 dBm
+INT32 RF231Radio::GetRSSI() {
+	if(RF231_extended_mode){
+		if (state != STATE_RX_AACK_ON && state != STATE_BUSY_RX_AACK) {
+			return 0x7FFFFFFF;
+		}
+	}
+	else{
+		if (state != STATE_RX_ON && state != STATE_BUSY_RX) {
+			return 0x7FFFFFFF;
+		}
+	}
 
+	return ReadRegister(RF230_PHY_RSSI) & 0x1F;
+}
 
-//From the RF231 datasheet (pg 89, 90)
-//Min RSSI (absolute value) is 0 and max is 28 in steps of 3dB.
-//P_RF = RSSI_BASE_VAL + 3*(RSSI -1) [dBm] (RSSI_BASE_VAL is -91 dbm)
-//0 db is -91 dbm and 28 is -10 dbm
-//Choosing a value of 4 db as the threshold for detection of transmission, which
-//	corresponds to -82 dbm.
-//RF230_CCA_THRES_VALUE is set to the default value of C7 which corresponds to -77dbm (-91 + 2*7).
-//	7 is the lower 4 bits of the register
-//NOTE: this is in the basic operating mode of the radio
-//Check RSSI over a period of 16 usec (2 usec per measurement) and if RSSI value of 10 and above
-//	is more than 4 towards the end, then return success, else fail
-//#define RSSI_CHECK_ALL_VALUES
-BOOL RF231Radio::CheckForRSSI()
-{
+// See RF231 datasheet section 8.3.4
+// Return 0 to 28, 3dB steps, from -91 dBm to 10 dBm
+UINT16 RF231Radio::GetAverageOrMaxRSSI_countN(const UINT8 rssiCount){
 #ifdef RSSI_CHECK_ALL_VALUES
 	int measureAgainCounter = 0;
 measureAgain:
 	static int startIndexForGoodRssi = 0;
 #endif
-	const UINT8 rssiThresholdForTransmission = 4;
-	const UINT8 rssiCount = 8;
-	bool result = false;
-	UINT16 averageRssi = 0;
+	if(RF231_extended_mode){
+		if (state != STATE_RX_AACK_ON && state != STATE_BUSY_RX_AACK) {
+			hal_printf("GetAverageOrMaxRSSI_countN; state is: %d\n", state);
+			return 0x7FFFFFFF;
+		}
+	}
+	else{
+		if (state != STATE_RX_ON && state != STATE_BUSY_RX) {
+			hal_printf("GetAverageOrMaxRSSI_countN; state is: %d\n", state);
+			return 0x7FFFFFFF;
+		}
+	}
+	UINT16 rssi = 0;
 	UINT8 rssiBuffer[rssiCount] = {0};
-	//Store rssi values in a static buffer
-	////CPU_GPIO_SetPinState( (GPIO_PIN)30, TRUE );
 	//Takes 109 usec to read 8 RSSI values
 	for(int i = 0; i < rssiCount; i++){
 		rssiBuffer[i] = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
 	}
-	////CPU_GPIO_SetPinState( (GPIO_PIN)30, FALSE );
-
 #ifndef RSSI_CHECK_ALL_VALUES
 	//Find average RSSI
 	/*for(int i = 0; i < rssiCount; i++){
@@ -1976,18 +2001,9 @@ measureAgain:
 
 	//Find max RSSI
 	for(int i = 0; i < rssiCount; i++){
-		if(rssiBuffer[i] > averageRssi){
-			averageRssi = rssiBuffer[i];
+		if(rssiBuffer[i] > rssi){
+			rssi = rssiBuffer[i];
 		}
-	}
-
-	if(averageRssi >= rssiThresholdForTransmission){
-		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, TRUE );
-		//CPU_GPIO_SetPinState( (GPIO_PIN)CCA_PIN, FALSE );
-		result = true;
-	}
-	else{
-		result = false;
 	}
 #endif
 
@@ -2018,13 +2034,35 @@ measureAgain:
 	}
 #endif
 
-	return result;
+	return rssi;
+}
 
-	//Check if there is a TRX_END interrupt raised at end of RSSI measurement. If yes, then transmission is over (experimental)
-	/*UINT8 irq_cause = ReadRegister(RF230_IRQ_STATUS);
-	if(irq_cause & TRX_IRQ_TRX_END){
-		return true;
-	}*/
+//From the RF231 datasheet (pg 89, 90)
+//Min RSSI (absolute value) is 0 and max is 28 in steps of 3dB.
+//P_RF = RSSI_BASE_VAL + 3*(RSSI -1) [dBm] (RSSI_BASE_VAL is -91 dbm)
+//0 db is -91 dbm and 28 is -10 dbm
+//Choosing a value of 4 db as the threshold for detection of transmission, which
+//	corresponds to -82 dbm.
+//RF230_CCA_THRES_VALUE is set to the default value of C7 which corresponds to -77dbm (-91 + 2*7).
+//	7 is the lower 4 bits of the register
+//NOTE: this is in the basic operating mode of the radio
+//Check RSSI over a period of 16 usec (2 usec per measurement) and if RSSI value of 10 and above
+//	is more than 4 towards the end, then return success, else fail
+//#define RSSI_CHECK_ALL_VALUES
+BOOL RF231Radio::CheckForRSSI()
+{
+	const UINT8 rssiThresholdForTransmission = 4;
+	bool result = false;
+	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
+
+	if(rssi >= rssiThresholdForTransmission){
+		result = true;
+	}
+	else{
+		result = false;
+	}
+
+	return result;
 }
 
 //	Responsible for clear channel assessment
@@ -2610,15 +2648,20 @@ void RF231Radio::HandleInterrupt()
 DeviceStatus RF231Radio::DownloadMessage()
 {
 	DeviceStatus retStatus = DS_Success;
-	UINT8 phy_rssi = ReadRegister(RF230_PHY_RSSI) & 0x80;
+	UINT8 phy_rssi_reg_value = ReadRegister(RF230_PHY_RSSI);
+	UINT8 rx_crc_valid = phy_rssi_reg_value & 0x80;
+	//UINT8 rssi = phy_rssi_reg_value & RF230_RSSI_MASK;
+
+	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
+
 	UINT8 phy_status;
 	UINT8 len;
-	UINT8 lqi, rssi;
+	UINT8 lqi;
 	UINT32 cnt = 0;
 	UINT8* temp_rx_msg_ptr;
 
 	// Auto-CRC is enabled. This checks the status bit.
-	if ( !phy_rssi ) {
+	if ( !rx_crc_valid ) {
 		retStatus = DS_Fail;
 	}
 
@@ -2656,9 +2699,8 @@ DeviceStatus RF231Radio::DownloadMessage()
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 	CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
 
-	// last, the LQI and RSSI
+	// last, the LQI
 	lqi = CPU_SPI_WriteReadByte(config, 0); //RF231_240NS_DELAY();
-	rssi = ReadRegister(RF230_PHY_RSSI) & RF230_RSSI_MASK;
 
 	SelnSet();
 
@@ -2673,7 +2715,12 @@ DeviceStatus RF231Radio::DownloadMessage()
 DeviceStatus RF231Radio::DownloadMessage(UINT16 tmp_length)
 {
 	DeviceStatus retStatus = DS_Success;
-	UINT8 phy_rssi = ReadRegister(RF230_PHY_RSSI) & 0x80;
+	UINT8 phy_rssi_reg_value = ReadRegister(RF230_PHY_RSSI);
+	UINT8 rx_crc_valid = phy_rssi_reg_value & 0x80;
+	//UINT8 rssi = phy_rssi_reg_value & RF230_RSSI_MASK;
+
+	UINT16 rssi = GetAverageOrMaxRSSI_countN(8);
+
 	UINT8 phy_status;
 	UINT8 len;
 	UINT8 lqi;
@@ -2681,7 +2728,7 @@ DeviceStatus RF231Radio::DownloadMessage(UINT16 tmp_length)
 	UINT8* temp_rx_msg_ptr;
 
 	// Auto-CRC is enabled. This checks the status bit.
-	if ( !phy_rssi ) {
+	if ( !rx_crc_valid ) {
 		retStatus = DS_Fail;
 	}
 
