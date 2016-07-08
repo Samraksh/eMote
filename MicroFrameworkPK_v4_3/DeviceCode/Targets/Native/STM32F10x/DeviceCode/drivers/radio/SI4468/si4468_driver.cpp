@@ -648,38 +648,39 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	si446x_reset();
 	reset_errors  = si446x_part_info();
 	reset_errors += si446x_func_info();
-	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
-	si446x_request_device_state();
-	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
-
-	temp = si446x_get_property(0x00, 0x01, 0x03);
-	if (temp != RF_GLOBAL_CONFIG_1_1) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
-		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
-	}
-
-	temp = si446x_get_property(0x12, 0x01, 0x08);
-	if (temp != PKT_LEN) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init PKT_LEN Setting Looks Wrong...Overriding...\r\n");
-		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
-	}
-
-	temp = si446x_get_property(0x12, 0x01, 0x12);
-	if (temp != PKT_FIELD_2_LENGTH) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init PKT_FIELD_2_LENGTH Setting Looks Wrong...Overriding...\r\n");
-		si446x_set_property( 0x12, 0x01, 0x12, PKT_FIELD_2_LENGTH );
-	}
-
-	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
-	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
-
-	isInit = 1;
 
 	if ( reset_errors ) {
 		ret = DS_Fail;
 		si446x_debug_print(ERR100, "SI446X: si446x_hal_init(): reset failed.\r\n");
 		goto si446x_hal_init_CLEANUP;
 	}
+
+	isInit = 1;
+
+	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
+	si446x_request_device_state();
+	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
+
+	temp = si446x_get_property(0x00, 0x01, 0x03);
+	if (temp != RF_GLOBAL_CONFIG_1_1) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
+		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x08);
+	if (temp != PKT_LEN) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init PKT_LEN Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x12);
+	if (temp != PKT_FIELD_2_LENGTH) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init PKT_FIELD_2_LENGTH Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x12, PKT_FIELD_2_LENGTH );
+	}
+
+	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
+	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
 
 	// Set MAC datastructures
 	active_mac_index = radio_si446x_spi2.GetMacIdIndex();
