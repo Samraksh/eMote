@@ -376,10 +376,7 @@ void csmaMAC::SendToRadio(){
 		m_recovery = 1;
 
 		//Try twice with random wait between, if carrier sensing fails return; MAC will try again later
-		if(CPU_Radio_TurnOnRx(this->radioName) != DS_Success) {
-			SOFT_BREAKPOINT();
-			return;
-		}
+		CPU_Radio_TurnOnRx(this->radioName);
 		//DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName, 200);
 		DeviceStatus ds = CPU_Radio_ClearChannelAssesment(this->radioName);
 		//DeviceStatus ds = DS_Success;

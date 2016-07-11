@@ -528,7 +528,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 							OMAC_callback_continuation.Enqueue();
 						}
 						else{
-							MACReceiveFuncPtrType multi_m_rxAckHandler;
+							MACReceiveFuncPtrType multi_m_rxAckHandler = NULL;
 							if( IsValidNativeAppIdOffset(msg->GetHeader()->payloadType) )
 							{
 								multi_m_rxAckHandler = g_OMAC.GetNativeAppHandler(msg->GetHeader()->payloadType)->ReceiveHandler;
