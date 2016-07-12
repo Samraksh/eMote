@@ -106,7 +106,7 @@ void DataTransmissionHandler::Initialize(){
 	//m_TXMsg = (DataMsg_t*)m_TXMsgBuffer.GetPayload() ;
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, FALSE, PublicDataTxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	ASSERT_SP(rm == TimerSupported);
 	//rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDataTxPostExecCallback, OMACClockSpecifier);
 	ASSERT_SP(rm == TimerSupported);
@@ -370,9 +370,9 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 		UINT16 randVal = g_OMAC.m_omac_scheduler.m_seedGenerator.RandWithMask(&m_backoff_seed, m_backoff_mask);
 		m_backoff_seed = randVal;
 		int i = 0;
-		int finalBackoffValue = randVal % RANDOM_BACKOFF_COUNT_MAX;
+		int finalBackoffValue = randVal % g_OMAC.RANDOM_BACKOFF_COUNT_MAX;
 		//OMAC_HAL_PRINTF("rand value is %d\n", (randVal % RANDOM_BACKOFF_COUNT));
-		while(i <= (randVal % RANDOM_BACKOFF_COUNT_MAX)){
+		while(i <= (randVal % g_OMAC.RANDOM_BACKOFF_COUNT_MAX)){
 			++i;
 			DS = CPU_Radio_ClearChannelAssesment(g_OMAC.radioName);
 			if(DS != DS_Success){
@@ -410,7 +410,7 @@ void DataTransmissionHandler::ExecuteEventHelper() { // BK: This function starts
 #endif
 		}
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 		//rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, FAST_RECOVERY_WAIT_PERIOD_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
@@ -595,7 +595,7 @@ void DataTransmissionHandler::SendACKHandler(Message_15_4_t* rcv_msg, UINT8 radi
 	}
 	else if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_TRANSMITTER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_TRANSMITTER, 0, g_OMAC.ACK_RX_MAX_DURATION_MICRO, TRUE, OMACClockSpecifier ); //Set up a timer with 1 microsecond delay (that is ideally 0 but would not make a difference)
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_TRANSMITTER);
 		if(rm == TimerSupported) txhandler_state = DTS_WAITING_FOR_ACKS;
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately

@@ -68,20 +68,20 @@ void DiscoveryHandler::Initialize(UINT8 radioID, UINT8 macID){
 	OMAC_HAL_PRINTF("discoInterval: %d\r\n", discoInterval);
 #endif
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY, 0, g_OMAC.DISCO_SLOT_PERIOD_MICRO, TRUE, FALSE, PublicBeaconNCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC, 0, DISCO_BEACON_TX_MAX_DURATION_MICRO, TRUE, FALSE, PublicDiscoPostExec, OMACClockSpecifier); //1 sec Timer in micro seconds
 	//ASSERT_SP(rm == TimerSupported);
 }
 
 UINT64 DiscoveryHandler::GetSlotNumber(){
 	UINT64 currentTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT64 currentSlotNum = currentTicks / ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO);
+	UINT64 currentSlotNum = currentTicks / ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO);
 	return currentSlotNum;
 }
 
 UINT64 DiscoveryHandler::GetTimeTillTheEndofSlot(){
 	UINT64 cur_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	UINT64 ticks_till_end = ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO) - ( (cur_ticks + ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO)) % ((UINT64)DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO));
+	UINT64 ticks_till_end = ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO) - ( (cur_ticks + ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO)) % ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO));
 	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
 	return ms_till_end;
 }
@@ -98,18 +98,18 @@ UINT64 DiscoveryHandler::NextEvent(){
 		g_OMAC.m_omac_RadioControl.stayOn = true;
 	}
 
-	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) > HIGH_DISCO_PERIOD_IN_SLOTS ) ) {
+	if(highdiscorate && ( (currentSlotNum - firstHighRateDiscoTimeinSlotNum) > g_OMAC.HIGH_DISCO_PERIOD_IN_SLOTS ) ) {
 		PermanentlyDecreaseDiscoRate();
 	}
 
 	nextEventsSlot = NextEventinSlots(currentSlotNum);
-	nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
+	nextEventsMicroSec = nextEventsSlot * g_OMAC.DISCO_SLOT_PERIOD_MICRO;
 	nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
 	if(nextEventsMicroSec < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO ) { //If we cannot react this fast, skip the next one and consider the upcoming event
 		currentSlotNum = currentSlotNum +1;
 		nextEventsSlot = NextEventinSlots(currentSlotNum);
 		nextEventsSlot = nextEventsSlot + 1;
-		nextEventsMicroSec = nextEventsSlot * DISCO_SLOT_PERIOD_MICRO;
+		nextEventsMicroSec = nextEventsSlot * g_OMAC.DISCO_SLOT_PERIOD_MICRO;
 		nextEventsMicroSec = nextEventsMicroSec + GetTimeTillTheEndofSlot();
 	}
 	return(nextEventsMicroSec);
@@ -349,7 +349,7 @@ void DiscoveryHandler::Beacon1(){
 		ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
 	if(ds == DS_Success) {
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -357,7 +357,7 @@ void DiscoveryHandler::Beacon1(){
 	}
 	else {
 		m_state = BEACON1_SKIPPED;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_PACKET_TX_TIME_MICRO , TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, g_OMAC.DISCO_PACKET_TX_TIME_MICRO , TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -378,7 +378,7 @@ void DiscoveryHandler::BeaconN(){
 		ds = Beacon(RADIO_BROADCAST_ADDRESS, &m_discoveryMsgBuffer);
 	}
 	if(ds == DS_Success) {
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0,  g_OMAC.MAX_PACKET_TX_DURATION_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -386,7 +386,7 @@ void DiscoveryHandler::BeaconN(){
 	}
 	else {
 		m_state = BEACON2_SKIPPED;
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, DISCO_PACKET_TX_TIME_MICRO, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_DISCOVERY, 0, g_OMAC.DISCO_PACKET_TX_TIME_MICRO, TRUE, OMACClockSpecifier );
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_DISCOVERY);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();

@@ -52,7 +52,7 @@ const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 // Should MAC layer be informed by SI4468 about a packet, in interrupt context or using continuations?
 const bool NEED_SI4468_CONTINUATION = true;

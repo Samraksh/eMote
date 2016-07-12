@@ -263,6 +263,7 @@ typedef OFProv<UINT64> OMACMicroSeconds;
 typedef OFProv<UINT64> OMACTicks;
 
 
+/*
 #if defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_SI4468
 
 	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	12.8*MICSECINMILISEC	//A 64-byte packet takes 64*8*25 usec to be transmitted (12800 usec);
@@ -306,6 +307,7 @@ typedef OFProv<UINT64> OMACTicks;
 #else
 	#error "Radioname not defined"
 #endif
+*/
 
 
 #define MAXUPDATESEEDITERS 20
@@ -322,28 +324,29 @@ typedef OFProv<UINT64> OMACTicks;
 #define SLOTRETRYMAXATTEMPT 2
 #define CCA_PERIOD_FRAME_RETRY_MICRO 0 //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 
-#define RANDOM_BACKOFF_COUNT_MAX	4
-#define RANDOM_BACKOFF_COUNT_MIN	1
-#define DELAY_DUE_TO_CCA_MICRO	260
-#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO)		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
+//#define RANDOM_BACKOFF_COUNT_MAX	4
+//#define RANDOM_BACKOFF_COUNT_MIN	1
+//#define DELAY_DUE_TO_CCA_MICRO	260
+//#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO)		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
-#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO)
+//#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO)
+//#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
+// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
+//#define DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
+//#define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
+//#define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
+															//   Sum of (max-min) of (A),(B) will go into (D)
+
 #define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	(1.2*MICSECINMILISEC)
 #define HW_ACK_TO_START_OF_TX_MICRO	(2*MICSECINMILISEC)
-
 #define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MICSECINMILISEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
-#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
-// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
-#define DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
-#define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
 #define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
-#define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
-															//   Sum of (max-min) of (A),(B) will go into (D)
+
 //Random_backoff is done before re-transmission
 //GUARDTIME_MICRO+OMAC_TIME_ERROR - Pessimistic time error
 //GUARDTIME_MICRO - optimistic time error (if there is a re-transmission, tx takes GUARDTIME_MICRO to do CCA
 
-#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
+//#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
 													+DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX+DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX+DELAY_IN_RECEIVING_ACK\
 														+RETRY_RANDOM_BACKOFF_DELAY_MICRO+RETRY_FUDGE_FACTOR\
 															+RETRANS_DELAY_DUE_TO_MISSING_ACK

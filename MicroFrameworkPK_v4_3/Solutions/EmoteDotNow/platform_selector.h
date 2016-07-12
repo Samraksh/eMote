@@ -259,8 +259,12 @@ const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
 //const uint HARDWARE_ACKS = 0;
 //const uint SOFTWARE_ACKS = 1;
+const uint __SI4468_SOFTWARE_ACK__ = 1;
+const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI4468
+const uint __RF231_SOFTWARE_ACK__ = 0;
+const uint __RF231_HARDWARE_ACK__ = 1;
 
-#define RADIONAME_RF231		1
+/*#define RADIONAME_RF231		1
 #define RADIONAME_RF231LR	2
 #define RADIONAME_SI4468	3
 #define CURRENT_RADIONAME	RADIONAME_SI4468
@@ -299,7 +303,7 @@ const uint __SI4468_SOFTWARE_ACK__ = 1;
 const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI4468
 #endif	//#ifndef RF231_HARDWARE_ACK
 
-#endif
+#endif*/
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
 

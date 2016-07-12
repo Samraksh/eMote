@@ -86,6 +86,22 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	softwareACKHeader* swAckHeader;
 
 	//Protocol variables
+	//-------------------------------
+	//const UINT16 GUARDTIME_MICRO = 500;
+	static const UINT16 OMAC_TIME_ERROR = 3*MICSECINMILISEC;;
+	static const UINT16 DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX = 300;
+	static const UINT16 DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX = 284;
+	static const UINT16 DELAY_DUE_TO_CCA_MICRO = 260;
+	static const UINT16 RETRY_FUDGE_FACTOR = 0.3*MICSECINMILISEC;
+
+	UINT16 RETRY_RANDOM_BACKOFF_DELAY_MICRO;
+	UINT16 RETRANS_DELAY_DUE_TO_MISSING_ACK;
+	UINT16 DELAY_IN_RECEIVING_ACK;
+	UINT16 DELAY_IN_RECEIVING_HW_ACK;
+	UINT16 DELAY_IN_RECEIVING_SW_ACK;
+	UINT16 RETRANS_DELAY_DUE_TO_MISSING_HW_ACK;
+	UINT16 RETRANS_DELAY_DUE_TO_MISSING_SW_ACK;
+	//-------------------------------
 //	static const UINT8 SlotLength = 8; //slot Length in milliseconds
 	Message_15_4_t* PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size);
 
@@ -104,6 +120,20 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	//Buffer variables
 	//Buffer_15_4_t m_send_buffer;
 	//Buffer_15_4_t m_receive_buffer;
+
+	//Protocol variables
+	//-------------------------------
+	static const UINT8 RANDOM_BACKOFF_COUNT_MAX = 4;
+	static const UINT8 RANDOM_BACKOFF_COUNT_MIN = 1;
+	UINT16 ACK_RX_MAX_DURATION_MICRO;
+	UINT16 ACK_TX_MAX_DURATION_MICRO;
+	UINT16 MAX_PACKET_TX_DURATION_MICRO;
+	UINT16 DISCO_PACKET_TX_TIME_MICRO;
+	UINT16 DISCO_SLOT_PERIOD_MICRO;
+	UINT16 DISCO_BEACON_TX_MAX_DURATION_MICRO;
+	UINT16 HIGH_DISCO_PERIOD_IN_SLOTS;
+	int LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
+	//-------------------------------
 
 	volatile bool isSendDone;
 
@@ -181,6 +211,7 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 	//Override base class methods here, implement them later in cpp file
 	DeviceStatus Initialize(MACEventHandler* eventHandler, UINT8 macName, UINT8 routingAppID, UINT8 radioID, MACConfig *config);
 	DeviceStatus SetConfig(MACConfig *config);
+	DeviceStatus SetOMACParametersBasedOnRadioName(UINT8 radioID);
 	BOOL Send(UINT16 dest, UINT8 dataType, void* msg, int size);
 	//BOOL SendTimeStamped(RadioAddress_t dest, UINT8 dataType, Message_15_4_t* msg, int Size, UINT32 eventTime);
 	BOOL SendTimeStamped(UINT16 dest, UINT8 dataType, void* msg, int Size, UINT32 eventTime);
