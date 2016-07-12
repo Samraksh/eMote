@@ -325,7 +325,10 @@ static void rx_cont_do(void *arg) {
 	si446x_fifo_info(0x3); // Defensively reset FIFO
 	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
 
+#	ifdef SI446X_DEBUG_UNFINISHED_PKT
 	finisher_queued = false;
+#	endif
+
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
@@ -954,12 +957,6 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 	return msg;
 }
 
-static bool my_const_check(void) {
-	bool retVal = false;
-	retVal = (radio_lock!=0 && rx_callback_continuation.Next()==0);
-	return retVal;
-}
-
 #ifdef SI446X_DEBUG_UNFINISHED_PKT
 // To debug user reports that SYNC_DET is firing but no "finisher" runs
 // "Finisher" would be a CRC error or packet reception.
@@ -975,8 +972,6 @@ static bool rx_consistency_check(void) {
 		//bool isBusy = (cont_busy() || radio_get_assert_irq());
 		si446x_get_int_status(0xFF, 0xFF, 0xFF);
 		bool isBusy = cont_busy() || si446x_get_ph_pend() || si446x_get_modem_pend();
-
-		//my_const_check();
 
 		if (state != SI_STATE_RX && !isBusy) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Fail? Show Nathan.\r\n");
@@ -1361,7 +1356,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));
+#		ifdef SI446X_DEBUG_UNFINISHED_PKT
 		int_defer = true;
+#		endif
 		int_defer_continuation.Enqueue();
 		return;
 	}
@@ -1370,7 +1367,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	ph_pend			= si446x_get_ph_pend();
 	modem_pend 		= si446x_get_modem_pend();
 
+#	ifdef SI446X_DEBUG_UNFINISHED_PKT
 	int_defer = false;
+#	endif
 
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
@@ -1383,7 +1382,9 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
+#		ifdef SI446X_DEBUG_UNFINISHED_PKT
 		finisher_queued = true;
+#		endif
 		si446x_pkt_rx_int();
 		ASSERT_RADIO(rx_callback_continuation.IsLinked());
 	}
