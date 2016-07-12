@@ -299,7 +299,7 @@ BOOL RF231Radio::Careful_State_Change_Extended(radio_hal_trx_status_t target) {
 							state = STATE_PLL_ON;
 							ASSERT_RADIO(0); // Unknown. Put here just because.
 					}
-					SOFT_BREAKPOINT();
+					//SOFT_BREAKPOINT();
 					return FALSE;
 				}
 			poll_counter++;
@@ -541,7 +541,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 
 	Message_15_4_t* temp = NULL;
 
-	static int busyRxCounter = 0;
+	//static int busyRxCounter = 0;
 
 	const int timestamp_size = 4; // we decrement in a loop later.
 	const int crc_size = 2;
@@ -576,7 +576,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 		else {
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
-			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
+			/*radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 #ifdef DEBUG_RF231
 			hal_printf("(Send_TimeStamped)trx_status is %d; state is %d\n", trx_status, state);
 #endif
@@ -586,7 +586,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 			}
 			else{
 				busyRxCounter = 0;
-			}
+			}*/
 
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, TRUE );
 			//CPU_GPIO_SetPinState( FAST_RECOVERY_SEND, FALSE );
@@ -1763,13 +1763,13 @@ DeviceStatus RF231Radio::TurnOnRx()
 			radio_hal_trx_status_t trx_status = (radio_hal_trx_status_t) (VERIFY_STATE_CHANGE);
 			hal_printf("RF231Radio::TurnOnRx - returning failure; status is %d\n", trx_status);
 #endif
-			ASSERT_RADIO(0);
+			//ASSERT_RADIO(0);
 			return DS_Fail;
 		}
 	}
 	else{
 		if ( !Careful_State_Change(RX_ON) ) {
-			ASSERT_RADIO(0);
+			//ASSERT_RADIO(0);
 			return DS_Fail;
 		}
 	}
