@@ -46,8 +46,9 @@ enum { SI_DUMMY=0, };
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
 enum { serial_max = 2, serial_per = 25 };
-//const char wwf_serial_numbers[serial_max][serial_per] = { "3300d9054642353044501643", "3300e0054642353045241643" };
+//const char wwf_serial_numbers[serial_max][serial_per]  = { "3300d9054642353044501643", "3300e0054642353045241643" };
 const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
+const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643163542", "05d900333035424643162544" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
@@ -490,10 +491,15 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
 	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
 
-	// GPIO 0 / 1
+	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin | config->gpio1_pin;
-	GPIO_Init(config->gpio_port, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
+	GPIO_Init(config->gpio0_port, &GPIO_InitStructure);
+
+	// GPIO 1
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
+	GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
 
 	// NIRQ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -564,17 +570,24 @@ static int am_i_wwf(void) {
 		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
 			return 0;
 	}
+
+	for(int i=0; i<serial_max; i++) {
+		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 )
+			return 2;
+	}
+
 	return 1;
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
-	if (isWWF) {
+	if (isWWF == 1) {	// First test half-integrated board
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
 		config->nirq_port		= GPIOB;
 		config->nirq_pin		= GPIO_Pin_10;
 		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio_port		= GPIOA;
+		config->gpio0_port		= GPIOA;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_6;
 		config->gpio1_pin		= GPIO_Pin_0;
 		config->cs_port			= GPIOB;
@@ -587,13 +600,34 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
 		si446x_debug_print(DEBUG02, "SI446X: Using WWF Hardware Config\r\n");
 	}
+	else if (isWWF == 2) { // 2nd iteration fully integrated board
+		config->spi_base 		= SPI2;
+		config->spi_port 		= GPIOB;
+		config->nirq_port		= GPIOB;
+		config->nirq_pin		= GPIO_Pin_10;
+		config->nirq_mf_pin		= (GPIO_PIN) 26;
+		config->gpio0_port		= GPIOB;
+		config->gpio1_port		= GPIOA;
+		config->gpio0_pin		= GPIO_Pin_6;
+		config->gpio1_pin		= GPIO_Pin_3;
+		config->cs_port			= GPIOB;
+		config->cs_pin			= GPIO_Pin_12;
+		config->sclk_pin		= GPIO_Pin_13;
+		config->miso_pin		= GPIO_Pin_14;
+		config->mosi_pin		= GPIO_Pin_15;
+		config->sdn_port		= GPIOB;
+		config->sdn_pin			= GPIO_Pin_11;
+		config->spi_rcc			= RCC_APB1Periph_SPI2;
+		si446x_debug_print(DEBUG02, "SI446X: Using WWF2 Hardware Config\r\n");
+	}
 	else { // I am a .NOW
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
 		config->nirq_port		= GPIOA;
 		config->nirq_pin		= GPIO_Pin_1;
 		config->nirq_mf_pin		= (GPIO_PIN) 1;
-		config->gpio_port		= GPIOA;
+		config->gpio0_port		= GPIOA;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_3;
 		config->gpio1_pin		= GPIO_Pin_8;
 		config->cs_port			= GPIOA;

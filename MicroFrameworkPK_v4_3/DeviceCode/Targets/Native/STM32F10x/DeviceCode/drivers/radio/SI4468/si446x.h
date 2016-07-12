@@ -84,7 +84,8 @@ typedef struct {
 	GPIO_TypeDef 	*nirq_port;
 	uint16_t		nirq_pin;
 	GPIO_PIN		nirq_mf_pin;
-	GPIO_TypeDef 	*gpio_port;
+	GPIO_TypeDef 	*gpio0_port;
+	GPIO_TypeDef 	*gpio1_port;
 	uint16_t		gpio0_pin;
 	uint16_t		gpio1_pin;
 	GPIO_TypeDef 	*cs_port;
