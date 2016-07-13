@@ -9,6 +9,8 @@
 // Hardware stuff
 #include <stm32f10x.h>
 
+#define ASSERT_RADIO(x)  if(!(x)){ SOFT_BREAKPOINT(); }
+
 // Automatically moves the radio to RX after a transmit instead of sleeping.
 // Comment out below line to disable and use default ('0')
 #define SI446x_TX_DONE_STATE (SI_STATE_RX<<4)
@@ -20,7 +22,7 @@
 // Do NOT to back to RX after sending an ACK.
 #define SI446x_TX_ACK_DONE_STATE (SI_STATE_SPI_ACTIVE<<4)
 
-#define SI446x_INT_MODE_CHECK_DO
+//#define SI446x_INT_MODE_CHECK_DO
 // comment out above to disable check
 #ifdef SI446x_INT_MODE_CHECK_DO
 #define SI446x_INT_MODE_CHECK() \
@@ -44,12 +46,13 @@ enum { SI_DUMMY=0, };
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
 enum { serial_max = 2, serial_per = 25 };
-//const char wwf_serial_numbers[serial_max][serial_per] = { "3300d9054642353044501643", "3300e0054642353045241643" };
+//const char wwf_serial_numbers[serial_max][serial_per]  = { "3300d9054642353044501643", "3300e0054642353045241643" };
 const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
+const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643163542", "05d900333035424643162544" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
-const unsigned si4468x_debug_level = ERR99; // CHANGE ME.
+const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
 
 // Should MAC layer be informed by SI4468 about a packet, in interrupt context or using continuations?
 const bool NEED_SI4468_CONTINUATION = true;
@@ -81,7 +84,7 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
 // Returns true if lock aquired
 static bool get_lock_inner(volatile uint32_t *Lock_Variable, uint32_t id) {
 	int status;
-	if (___LOAD(Lock_Variable) != 0) {
+	if (___LOAD(Lock_Variable) != radio_lock_none) {
 		__ASM("clrex"); // TODO: AM I NEEDED?
 		return false;
 	}
@@ -106,7 +109,7 @@ static uint32_t get_lock(volatile uint32_t *Lock_Variable, uint32_t id) {
 // TODO: Add ownership check --NPS
 static void free_lock(volatile uint32_t *Lock_Variable) {
 	__DMB();
-	*Lock_Variable = 0;
+	*Lock_Variable = radio_lock_none;
 	return;
 }
 
@@ -118,6 +121,7 @@ static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
 	GLOBAL_LOCK(irq);
 	ret = (radio_lock_id_t) radio_lock;
 	radio_lock = id;
+	__DMB();
 	return ret;
 }
 
@@ -129,6 +133,7 @@ static bool si446x_radio_lock_if_then_nofail(radio_lock_id_t cond, radio_lock_id
 	GLOBAL_LOCK(irq);
 	if (radio_lock == cond) {
 		radio_lock = target;
+		__DMB();
 		return true;
 	} else {
 		return false;
@@ -152,6 +157,7 @@ static radio_lock_id_t si446x_radio_lock(radio_lock_id_t id) {
 static int si446x_radio_unlock(void) {
 	free_lock(&radio_lock);
 }
+// END LOCKING STUFF
 
 // Debugging function to print lock names
 // Manually sync'd with si446x.h for now
@@ -169,13 +175,29 @@ static const char* print_lock(radio_lock_id_t x) {
 		case radio_lock_reset: 			return "radio_lock_reset";
 		case radio_lock_sleep: 			return "radio_lock_sleep";
 		case radio_lock_crc: 			return "radio_lock_crc";
-		case radio_lock_interrupt: 		return "radio_lock_in;terrupt";
+		case radio_lock_interrupt: 		return "radio_lock_interrupt";
 		case radio_lock_all: 			return "radio_lock_all";
 		case radio_lock_rx_setup:		return "radio_lock_rx_setup";
 		default: 						return "ERROR, Unknown Lock!!!";
 	}
 }
-// END LOCKING STUFF
+
+static const char* PrintStateID(si_state_t id){
+	switch(id){
+		case SI_STATE_BOOT:			return "SI_STATE_BOOT";
+		case SI_STATE_SLEEP:		return "SI_STATE_SLEEP";
+		case SI_STATE_SPI_ACTIVE:	return "SI_STATE_SPI_ACTIVE";
+		case SI_STATE_READY:		return "SI_STATE_READY";
+		case SI_STATE_READY2:		return "SI_STATE_READY2";
+		case SI_STATE_TX_TUNE:		return "SI_STATE_TX_TUNE";
+		case SI_STATE_RX_TUNE:		return "SI_STATE_RX_TUNE";
+		case SI_STATE_TX:			return "SI_STATE_TX";
+		case SI_STATE_RX:			return "SI_STATE_RX";
+		case SI_STATE_ERROR:		return "SI_STATE_ERROR";
+		case SI_STATE_UNKNOWN:		return "SI_STATE_UNKNOWN";
+		default:					return "error";
+	}
+}
 
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
@@ -202,8 +224,6 @@ static int si446x_channel = 0;
 static unsigned tx_power = 0;
 static volatile UINT64 rx_timestamp;
 
-//volatile bool softwareACKSent;
-
 // Radio PAL stuff
 static Radio<Message_15_4_t> radio_si446x_spi2;
 static UINT16 active_mac_index; // For some reason this is tied to HAL ... suspect should be in PAL object
@@ -215,14 +235,14 @@ static Message_15_4_t* rx_msg_ptr;
 
 // In case we had to defer interrupt handling for any reason...
 static void int_cont_do(void *arg) {
-	si446x_debug_print(DEBUG01,"SI446X: int_cont_do()\r\n");
+	si446x_debug_print(DEBUG02,"SI446X: int_cont_do()\r\n");
 	SI446x_INT_MODE_CHECK();
 	si446x_spi2_handle_interrupt( SI446X_pin_setup.nirq_mf_pin, false, NULL );
 }
 
 static void sendSoftwareAck(UINT16 dest){
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
-	si446x_debug_print(DEBUG02,"SI446X: sendSoftwareAck\r\n");
+	si446x_debug_print(DEBUG01,"SI446X: sendSoftwareAck\r\n");
 	static int i = 0;
 	static softwareACKHeader softwareAckHeader;
 	if(i == 0){
@@ -232,14 +252,12 @@ static void sendSoftwareAck(UINT16 dest){
 	}
 	softwareAckHeader.dest = dest;
 	si446x_packet_send(si446x_channel, (uint8_t *) &softwareAckHeader, sizeof(softwareACKHeader), 0, NO_TIMESTAMP, SI446x_TX_ACK_DONE_STATE);
-	//softwareACKSent = true;
 	CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 }
 
 // I agree its questionable that I'm being too complicated with continuation stuff... --NPS.
 // TX CALLBACK
 static void tx_cont_do(void *arg) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 	if (tx_callback != NULL)
 		tx_callback();
 
@@ -261,14 +279,12 @@ static bool cont_busy(void) {
 }
 
 static void rx_cont_do(void *arg) {
-	//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
-	CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, TRUE );
 	uint8_t rx_pkt[si446x_packet_size];
 	int size;
 	radio_lock_id_t owner;
 	uint8_t rssi;
 
-	si446x_debug_print(DEBUG01,"SI446X: rx_cont_do()\r\n");
+	si446x_debug_print(DEBUG02,"SI446X: rx_cont_do()\r\n");
 
 	SI446x_INT_MODE_CHECK();
 
@@ -285,7 +301,7 @@ static void rx_cont_do(void *arg) {
 
 	si446x_request_device_state(); // Don't need here, but want to refresh internal state.
 	size = si446x_get_packet_info(0,0,0);
-	if(size == sizeof(softwareACKHeader)){
+	/*if(size == sizeof(softwareACKHeader)){
 		si446x_read_rx_fifo(size, rx_pkt);
 
 		si446x_fifo_info(0x3); // Defensively reset FIFO
@@ -295,10 +311,8 @@ static void rx_cont_do(void *arg) {
 		memcpy( (uint8_t *)rx_msg_ptr, rx_pkt, size );
 		rx_msg_ptr = (Message_15_4_t *) (radio_si446x_spi2.GetMacHandler(active_mac_index)->GetReceiveHandler())(rx_msg_ptr, size);
 
-		//CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
-		CPU_GPIO_SetPinState( SI4468_MEASURE_RX_TIME, FALSE );
 		return;
-	}
+	}*/
 
 	si446x_read_rx_fifo(size, rx_pkt);
 
@@ -312,7 +326,10 @@ static void rx_cont_do(void *arg) {
 	si446x_fifo_info(0x3); // Defensively reset FIFO
 	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
 
+#	ifdef SI446X_DEBUG_UNFINISHED_PKT
 	finisher_queued = false;
+#	endif
+
 	si446x_radio_unlock();
 	si446x_spi_unlock();
 
@@ -336,7 +353,7 @@ static void rx_cont_do(void *arg) {
 	if(__SI4468_SOFTWARE_ACK__){
 		if(currentPayloadType == MFM_OMAC_TIMESYNCREQ || currentPayloadType == MFM_DATA || currentPayloadType <= TYPE31){
 			if(currentPayloadType == MFM_DATA){
-				si446x_debug_print(DEBUG02, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
+				si446x_debug_print(DEBUG01, "rx_cont_do; sendSoftwareAck to %d; currentPayloadType: %d\n", header->src, currentPayloadType);
 			}
 			sendSoftwareAck(header->src);
 		}
@@ -474,10 +491,15 @@ static void init_si446x_pins() {
 	GPIO_InitStructure.GPIO_Pin =  config->sdn_pin;
 	GPIO_Init(config->sdn_port, &GPIO_InitStructure);
 
-	// GPIO 0 / 1
+	// GPIO 0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin | config->gpio1_pin;
-	GPIO_Init(config->gpio_port, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = config->gpio0_pin;
+	GPIO_Init(config->gpio0_port, &GPIO_InitStructure);
+
+	// GPIO 1
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Pin = config->gpio1_pin;
+	GPIO_Init(config->gpio1_port, &GPIO_InitStructure);
 
 	// NIRQ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -548,17 +570,24 @@ static int am_i_wwf(void) {
 		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
 			return 0;
 	}
+
+	for(int i=0; i<serial_max; i++) {
+		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 )
+			return 2;
+	}
+
 	return 1;
 }
 
 static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
-	if (isWWF) {
+	if (isWWF == 1) {	// First test half-integrated board
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
 		config->nirq_port		= GPIOB;
 		config->nirq_pin		= GPIO_Pin_10;
 		config->nirq_mf_pin		= (GPIO_PIN) 26;
-		config->gpio_port		= GPIOA;
+		config->gpio0_port		= GPIOA;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_6;
 		config->gpio1_pin		= GPIO_Pin_0;
 		config->cs_port			= GPIOB;
@@ -571,13 +600,34 @@ static void choose_hardware_config(int isWWF, SI446X_pin_setup_t *config) {
 		config->spi_rcc			= RCC_APB1Periph_SPI2;
 		si446x_debug_print(DEBUG02, "SI446X: Using WWF Hardware Config\r\n");
 	}
+	else if (isWWF == 2) { // 2nd iteration fully integrated board
+		config->spi_base 		= SPI2;
+		config->spi_port 		= GPIOB;
+		config->nirq_port		= GPIOB;
+		config->nirq_pin		= GPIO_Pin_10;
+		config->nirq_mf_pin		= (GPIO_PIN) 26;
+		config->gpio0_port		= GPIOB;
+		config->gpio1_port		= GPIOA;
+		config->gpio0_pin		= GPIO_Pin_6;
+		config->gpio1_pin		= GPIO_Pin_3;
+		config->cs_port			= GPIOB;
+		config->cs_pin			= GPIO_Pin_12;
+		config->sclk_pin		= GPIO_Pin_13;
+		config->miso_pin		= GPIO_Pin_14;
+		config->mosi_pin		= GPIO_Pin_15;
+		config->sdn_port		= GPIOB;
+		config->sdn_pin			= GPIO_Pin_11;
+		config->spi_rcc			= RCC_APB1Periph_SPI2;
+		si446x_debug_print(DEBUG02, "SI446X: Using WWF2 Hardware Config\r\n");
+	}
 	else { // I am a .NOW
 		config->spi_base 		= SPI2;
 		config->spi_port 		= GPIOB;
 		config->nirq_port		= GPIOA;
 		config->nirq_pin		= GPIO_Pin_1;
 		config->nirq_mf_pin		= (GPIO_PIN) 1;
-		config->gpio_port		= GPIOA;
+		config->gpio0_port		= GPIOA;
+		config->gpio1_port		= GPIOA;
 		config->gpio0_pin		= GPIO_Pin_3;
 		config->gpio1_pin		= GPIO_Pin_8;
 		config->cs_port			= GPIOA;
@@ -625,7 +675,6 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	choose_hardware_config(am_i_wwf(), &SI446X_pin_setup);
 
 	// Default settings
-	//softwareACKSent = true;
 	si446x_channel = si446x_default_channel;
 	tx_power = si446x_default_power;
 	tx_msg_ptr = &tx_msg;
@@ -636,38 +685,39 @@ DeviceStatus si446x_hal_init(RadioEventHandler *event_handler, UINT8 radio, UINT
 	si446x_reset();
 	reset_errors  = si446x_part_info();
 	reset_errors += si446x_func_info();
-	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
-	si446x_request_device_state();
-	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
-
-	temp = si446x_get_property(0x00, 0x01, 0x03);
-	if (temp != RF_GLOBAL_CONFIG_1_1) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
-		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
-	}
-
-	temp = si446x_get_property(0x12, 0x01, 0x08);
-	if (temp != PKT_LEN) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init PKT_LEN Setting Looks Wrong...Overriding...\r\n");
-		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
-	}
-
-	temp = si446x_get_property(0x12, 0x01, 0x12);
-	if (temp != PKT_FIELD_2_LENGTH) {
-		si446x_debug_print(ERR99, "SI446X: si446x_hal_init PKT_FIELD_2_LENGTH Setting Looks Wrong...Overriding...\r\n");
-		si446x_set_property( 0x12, 0x01, 0x12, PKT_FIELD_2_LENGTH );
-	}
-
-	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
-	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
-
-	isInit = 1;
 
 	if ( reset_errors ) {
 		ret = DS_Fail;
 		si446x_debug_print(ERR100, "SI446X: si446x_hal_init(): reset failed.\r\n");
 		goto si446x_hal_init_CLEANUP;
 	}
+
+	isInit = 1;
+
+	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
+	si446x_request_device_state();
+	si446x_debug_print(DEBUG01, "SI446X: Radio Interrupts Cleared\r\n");
+
+	temp = si446x_get_property(0x00, 0x01, 0x03);
+	if (temp != RF_GLOBAL_CONFIG_1_1) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init GLOBAL_CONFIG Setting Looks Wrong... Overriding...\r\n");
+		si446x_set_property( 0x00, 0x01, 0x03, RF_GLOBAL_CONFIG_1_1 );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x08);
+	if (temp != PKT_LEN) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init PKT_LEN Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x08, PKT_LEN );
+	}
+
+	temp = si446x_get_property(0x12, 0x01, 0x12);
+	if (temp != PKT_FIELD_2_LENGTH) {
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_init PKT_FIELD_2_LENGTH Setting Looks Wrong...Overriding...\r\n");
+		si446x_set_property( 0x12, 0x01, 0x12, PKT_FIELD_2_LENGTH );
+	}
+
+	si446x_fifo_info(0x3); // Reset both FIFOs. bit1 RX, bit0 TX
+	si446x_debug_print(DEBUG01, "SI446X: Radio RX/TX FIFOs Cleared\r\n");
 
 	// Set MAC datastructures
 	active_mac_index = radio_si446x_spi2.GetMacIdIndex();
@@ -894,13 +944,9 @@ DeviceStatus si446x_packet_send(uint8_t chan, uint8_t *pkt, uint8_t len, UINT32 
 }
 
 void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send()\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send()\r\n");
 
 	DeviceStatus ret;
-
-	/*if(!softwareACKSent){
-		return NULL;
-	}*/
 
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, 0, NO_TIMESTAMP, SI446x_TX_DONE_STATE);
@@ -922,13 +968,9 @@ void *si446x_hal_send(UINT8 radioID, void *msg, UINT16 size) {
 }
 
 void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_send_ts()\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_send_ts()\r\n");
 
 	DeviceStatus ret;
-
-	/*if(!softwareACKSent){
-		return NULL;
-	}*/
 
 	// Do the send
 	ret = si446x_packet_send(si446x_channel, (uint8_t *) msg, size, eventTime, YES_TIMESTAMP, SI446x_TX_DONE_STATE);
@@ -967,15 +1009,15 @@ static bool rx_consistency_check(void) {
 
 		if (state != SI_STATE_RX && !isBusy) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Fail? Show Nathan.\r\n");
-			ASSERT(0);
+			ASSERT_RADIO(0);
 			return false;
 		}
 
 		// check for timeout of SYNC_DET
 		UINT64 now = HAL_Time_CurrentTicks();
-		if ( (now - rx_timestamp) > (si446x_rx_timeout_ms*1000) ) {
+		if ( (now - rx_timestamp) > (si446x_rx_timeout_ms*8000) ) {
 			si446x_debug_print(ERR100, "SI446X: rx_consistency_check() Timeout? Show Nathan.\r\n");
-			ASSERT(0);
+			ASSERT_RADIO(0);
 			return false;
 		}
 	}
@@ -995,10 +1037,6 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	SI446x_INT_MODE_CHECK();
 
-	/*if(!softwareACKSent){
-		return DS_Fail;
-	}*/
-
 	if ( cont_busy() ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() Tasks outstanding, aborting.\r\n");
 		return DS_Fail;
@@ -1016,7 +1054,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	// We have to hold radio lock to ensure we are free
 	if ( owner = si446x_radio_lock(radio_lock_rx_setup) ) {
-		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() FAIL. Radio locked by %s\r\n", print_lock(owner));
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_rx() FAIL. Radio locked by owner: %s\r\n", print_lock(owner));
 		si446x_spi_unlock();
 		return DS_Busy;
 	}
@@ -1034,6 +1072,7 @@ DeviceStatus si446x_hal_rx(UINT8 radioID) {
 
 	si446x_start_rx_fast_channel(si446x_channel);
 	si446x_spi_unlock();
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_rx() END\r\n");
 	return DS_Success;
 }
 
@@ -1056,7 +1095,7 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	}
 
 	if ( owner = si446x_spi_lock(radio_lock_sleep) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %s\r\n", print_lock(owner));
+		si446x_debug_print(ERR99, "SI446X: si446x_hal_sleep() FAIL. SPI locked. Owner is %s\r\n", print_lock(owner));
 		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
 		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
@@ -1064,7 +1103,9 @@ DeviceStatus si446x_hal_sleep(UINT8 radioID) {
 	}
 
 	if ( owner = si446x_radio_lock(radio_lock_sleep) ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_sleep() FAIL. Radio Busy. Owner is %s\r\n", print_lock(owner));
+		si446x_debug_print(ERR99, "SI446X: si446x_hal_sleep() FAIL. Radio Busy. Owner is %s\r\n", print_lock(owner));
+		//Radio complains that tx is not yet done
+		//si446x_radio_unlock();
 		si446x_spi_unlock();
 		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, FALSE );
 		CPU_GPIO_SetPinState( SI4468_HANDLE_SLEEP, TRUE );
@@ -1168,23 +1209,29 @@ INT8 si446x_hal_get_RadioType()
 	return radioType;
 }
 
+// New CCA semantics after talking to Ananth + Bora
+// CCA request is only valid if radio is already in RX, otherwise discard.
+// Radio remains in RX after CCA. Packets that come in during CCA are discarded.
+// Packets that come in atter CCA while still in RX are kept.
+// NPS 2016-07-06
 DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, TRUE );
 	radio_lock_id_t owner;
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
-
+	uint8_t int_enable;
 	DeviceStatus ret;
+	UINT64 now, now2;
+	int adjusted_ms;
+	const unsigned ticks_per_ms = 8000;
+
+	now = HAL_Time_CurrentTicks();
+
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() ms:%d\r\n",ms);
 
 	SI446x_INT_MODE_CHECK();
 
 	if (!isInit) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
+		si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms() FAIL. No Init.\r\n");
 		return DS_Fail;
 	}
-
-	/*if(!softwareACKSent){
-		return DS_Fail;
-	}*/
 
 	if ( owner = si446x_spi_lock(radio_lock_cca_ms) ) {
 		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() FAIL. SPI locked: %s\r\n", print_lock(owner));
@@ -1205,80 +1252,65 @@ DeviceStatus si446x_hal_cca_ms(UINT8 radioID, UINT32 ms) {
 	}
 
 	si_state_t state = si446x_request_device_state();
-
-	// Check for bad state while we're at it.
-	if (state == SI_STATE_TX || state == SI_STATE_TX_TUNE || state == SI_STATE_ERROR) {
-		si446x_debug_print(ERR100, "SI446X: si446x_hal_cca_ms(): Warning, impossible state.\r\n");
+	if (state != SI_STATE_RX && state != SI_STATE_RX_TUNE) {
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio not in RX. Abort CCA. State: %d\r\n", state);
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
-	// If radio is already in RX, stay in RX.
-	// If a packet comes in, shouldn't lose it, but RX processing will be defered and timestamp will be wrong.
-	if ( state == SI_STATE_RX_TUNE || state == SI_STATE_RX ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): CCA request during normal RX; State is: %d\r\n", state);
-		while (state == SI_STATE_RX_TUNE) { state = si446x_request_device_state(); }
-		HAL_Time_Sleep_MicroSeconds(ms);
-		si446x_get_modem_status( 0xFF );
+	// Allow to move from RX_TUNE to RX if needed.
+	// TODO: Timeout
+	while ( state == SI_STATE_RX_TUNE ) { state = si446x_request_device_state(); }
 
-		if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
-			ret = DS_Busy;
-		else
-			ret = DS_Success;
+	// We don't keep/want packets for the duration of the CCA. Turn off interupts and kill FIFO afterwards.
+	int_enable = si446x_get_property(0x01, 1, 0); 	// save interrupt mask
+	si446x_set_property(0x01, 1, 0, 0); 			// mask all radio interrupts
+	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// check interrupts final time
 
-		si446x_radio_unlock();
-		si446x_spi_unlock();
-		return ret;
-	}
-
-	// Otherwise we were asleep and need to stay asleep
-	uint8_t int_enable;
-	int_enable = si446x_get_property(0x01, 1, 0); 	// save interrupt states
-	si446x_set_property(0x01, 1, 0, 0); 			// Writes 0, disables all interrupts
-
-	si446x_get_int_status(0xFF, 0xFF, 0xFF); 		// Check interrupts, does NOT clear.
-
-	// Check one last time to see if anything happened.
-	// A packet cannot have come in since RX case is covered above, so this should be rare, maybe never.
-	if (radio_get_assert_irq() || si446x_get_ph_pend() || si446x_get_modem_pend() ) {
-		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms(): Radio not idle, aborting CCA\r\n");
-		si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
+	// last abort chance
+	if ( si446x_get_ph_pend() || si446x_get_modem_pend() ) {
+		si446x_set_property(0x01, 1, 0, int_enable); 	// Unmask interrupts
+		si446x_debug_print(DEBUG02, "SI446X: si446x_hal_cca_ms() Radio Busy.\r\n");
 		si446x_radio_unlock();
 		si446x_spi_unlock();
 		return DS_Fail;
 	}
 
-	si446x_start_rx_fast_channel(si446x_channel);
-	while (state != SI_STATE_RX) { state = si446x_request_device_state(); }
-	HAL_Time_Sleep_MicroSeconds(ms);
-	si446x_get_modem_status( 0xFF );
+	// We do NOT retain packets encountered during CCA.
+	// Not using GLOBAL_LOCK here so YMMV with how accurate this timing is.
+	now2 = HAL_Time_CurrentTicks();
+	adjusted_ms = ms - ((now2-now) / ticks_per_ms) - 1;
+	if(adjusted_ms > 0)
+		HAL_Time_Sleep_MicroSeconds(adjusted_ms); 	// Wait specified period
+	si446x_get_modem_status( 0xFF ); 				// Fetch results
+
 	if (si446x_get_current_rssi() >= si446x_rssi_cca_thresh)
 		ret = DS_Busy;
 	else
 		ret = DS_Success;
 
-	si446x_change_state(SI_STATE_SPI_ACTIVE); 		// disables RX
+	si446x_leave_rx(radio_lock_cca_ms);
+
 	si446x_get_int_status(0x0, 0x0, 0x0);	 		// Clear interrupts
-	si446x_fifo_info(0x3); 							// Clear FIFO in case we caught something.
-	si446x_set_property(0x01, 1, 0, int_enable); 	// Re-enables interrupts
-	si446x_change_state(SI_STATE_SLEEP); 			// All done, sleep.
+	si446x_fifo_info(0x3);							// Clear FIFO
+	si446x_set_property(0x01, 1, 0, int_enable);	// Unmask interrupts
+	si446x_start_rx_fast_channel(si446x_channel);	// re-arm RX
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
-
-	CPU_GPIO_SetPinState( SI4468_HANDLE_CCA, FALSE );
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_cca_ms(): CCA complete\r\n");
 	return ret;
 }
 
 UINT32 si446x_hal_get_chan(UINT8 radioID) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_get_chan()\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_get_chan()\r\n");
 	return si446x_channel;
 }
 
 
 UINT32 si446x_hal_get_power(UINT8 radioID) {
-	si446x_debug_print(DEBUG02, "SI446X: si446x_hal_get_power()\r\n");
+	si446x_debug_print(DEBUG01, "SI446X: si446x_hal_get_power()\r\n");
 	return tx_power;
 }
 
@@ -1292,34 +1324,26 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, TRUE );
-	si446x_debug_print(DEBUG02, "SI446X: si446x_pkt_tx_int()\r\n");
-	//if(softwareACKSent){
+	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_tx_int()\r\n");
 	if(NEED_SI4468_CONTINUATION){
 		tx_callback_continuation.Enqueue();
 	}
 	else{
 		tx_cont_do(NULL);
 	}
-	//}
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_TX, FALSE );
 }
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
 	// radio_lock owned by SYNC_DET at this point
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	//if(softwareACKSent){
-		//softwareACKSent = false;
 	if(NEED_SI4468_CONTINUATION){
 		rx_callback_continuation.Enqueue();
+		si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
 	}
 	else{
 		rx_cont_do(NULL);
 	}
-	//}
-	CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 }
 
 // ASSUMES SPI_LOCK IS HELD BY CALLER (INTERRUPT HANDLER)
@@ -1349,7 +1373,7 @@ static void si446x_pkt_bad_crc_int(void) {
 // INTERRUPT CONTEXT
 static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Param)
 {
-	unsigned modem_pend, ph_pend;
+	uint8_t modem_pend, ph_pend;
 	radio_lock_id_t owner;
 	UINT64 int_ts;
 
@@ -1359,23 +1383,27 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 
 	if (Pin != SI446X_pin_setup.nirq_mf_pin) { return; }
 
-	si446x_debug_print(DEBUG01, "SI446X: INT\r\n");
+	si446x_debug_print(DEBUG02, "SI446X: INT\r\n");
 
 	if ( owner = si446x_spi_lock(radio_lock_interrupt) ) {
 		// Damn, we got an interrupt in the middle of another transaction. Have to defer it.
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));
+#		ifdef SI446X_DEBUG_UNFINISHED_PKT
 		int_defer = true;
+#		endif
 		int_defer_continuation.Enqueue();
 		return;
 	}
 
-	int_defer = false;
-
 	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
 	ph_pend			= si446x_get_ph_pend();
 	modem_pend 		= si446x_get_modem_pend();
+
+#	ifdef SI446X_DEBUG_UNFINISHED_PKT
+	int_defer = false;
+#	endif
 
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
@@ -1387,14 +1415,21 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		rx_timestamp = int_ts;
 	}
 
-	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{ finisher_queued = true; si446x_pkt_rx_int(); }
+	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
+#		ifdef SI446X_DEBUG_UNFINISHED_PKT
+		finisher_queued = true;
+#		endif
+		si446x_pkt_rx_int();
+		ASSERT_RADIO(rx_callback_continuation.IsLinked());
+	}
+
 	if (ph_pend & PH_STATUS_MASK_PACKET_SENT) 	{ si446x_pkt_tx_int(); }
 	if (ph_pend & PH_STATUS_MASK_CRC_ERROR) 	{ si446x_pkt_bad_crc_int(); }
 
 	// If we finished a packet, go to sleep
-	if ( (ph_pend & PH_STATUS_MASK_PACKET_RX) || (ph_pend & PH_STATUS_MASK_CRC_ERROR) ) {
+	/*if ( (ph_pend & PH_STATUS_MASK_PACKET_RX) || (ph_pend & PH_STATUS_MASK_CRC_ERROR) ) {
 		si446x_change_state(SI_STATE_SLEEP);
-	}
+	}*/
 
 	si446x_spi_unlock();
 }

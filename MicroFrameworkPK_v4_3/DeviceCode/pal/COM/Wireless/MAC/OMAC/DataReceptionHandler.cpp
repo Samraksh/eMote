@@ -69,7 +69,7 @@ void DataReceptionHandler::Initialize(UINT8 radioID, UINT8 macID){
 	UpdateSeedandCalculateWakeupSlot(m_nextwakeupSlot, m_nextSeed, m_mask, m_seedUpdateIntervalinSlots, g_OMAC.m_omac_scheduler.GetSlotNumber() );
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER , TRUE, FALSE, PublicDataRxCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
 		rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_RECEIVER_ACK, 0, 0 , TRUE, FALSE, PublicDataRxSendAckCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	}
@@ -166,9 +166,9 @@ void DataReceptionHandler::ExecuteEvent(){
 		CPU_GPIO_SetPinState( DATARX_NEXT_EVENT, FALSE );
 #endif
 		rm = VirtTimer_Stop(VIRT_TIMER_OMAC_RECEIVER);
-		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
+		rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER, TRUE, OMACClockSpecifier );
 		m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
+		m_lastScheduledTargetTime = m_lastScheduledOriginTime + 8 * g_OMAC.LISTEN_PERIOD_FOR_RECEPTION_HANDLER;
 		rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 		if(rm != TimerSupported){ //Could not start the timer to turn the radio off. Turn-off immediately
 			PostExecuteEvent();
@@ -312,14 +312,13 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	m_isreceiving = false;
 
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, TRUE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, TRUE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, TRUE);
 #endif
 
-	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, ACK_TX_MAX_DURATION_MICRO, TRUE,OMACClockSpecifier );
+	rm = VirtTimer_Change(VIRT_TIMER_OMAC_RECEIVER, 0, g_OMAC.ACK_TX_MAX_DURATION_MICRO, TRUE,OMACClockSpecifier );
 	m_lastScheduledOriginTime = g_OMAC.m_Clock.GetCurrentTimeinTicks();
-	m_lastScheduledTargetTime = m_lastScheduledOriginTime + ACK_TX_MAX_DURATION_MICRO * 8;
+	m_lastScheduledTargetTime = m_lastScheduledOriginTime + g_OMAC.ACK_TX_MAX_DURATION_MICRO * 8;
 	rm = VirtTimer_Start(VIRT_TIMER_OMAC_RECEIVER);
 
 	//IEEE802_15_4_Header_t* header = m_ACKmsg.GetHeader();
@@ -364,7 +363,6 @@ void DataReceptionHandler::SendDataACK(){ // This prepares a software ACK packet
 	g_OMAC.m_omac_RadioControl.Send(m_lastRXNodeId, (Message_15_4_t*)&softwareAckHeader, sizeof(softwareACKHeader));
 
 #ifdef OMAC_DEBUG_GPIO
-		CPU_GPIO_SetPinState( SI4468_HANDLE_INTERRUPT_RX, FALSE );
 		CPU_GPIO_SetPinState(OMAC_TX_DATAACK_PIN, FALSE);
 		CPU_GPIO_SetPinState(DATARX_SEND_SW_ACK, FALSE);
 #endif

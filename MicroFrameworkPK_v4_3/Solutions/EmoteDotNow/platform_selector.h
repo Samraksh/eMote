@@ -5,6 +5,13 @@
 #ifndef _PLATFORM_EmoteDotNow_SELECTOR_H_
 #define _PLATFORM_EmoteDotNow_SELECTOR_H_ 1
 
+// Properly declare them since they are not ANSI
+// Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
+// In future, prefer not to use.
+// But better to allow here than touch everything.
+typedef unsigned uint;
+typedef uint16_t ushort;
+
 #include "testDefines.h"
 
 /////////////////////////////////////////////////////////
@@ -23,7 +30,7 @@
 
 #if defined(PLATFORM_ARM_EmoteDotNow)
 #define HAL_SYSTEM_NAME                     "EmoteDotNow"
-#define SAM_VERSION_REVISION 18
+#define SAM_VERSION_REVISION 20
 #define TINYBOOTER_REVISION 2
 //#define COMPILE_CUSTOMER_RELEASE 1
 
@@ -207,7 +214,7 @@ const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 
 const UINT8 g_CountOfHardwareTimers = 2;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
-const UINT8 g_VirtualTimerPerHardwareTimer = 32;
+const UINT8 g_VirtualTimerPerHardwareTimer = 16;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 
@@ -254,13 +261,16 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
 
-
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
 //const uint HARDWARE_ACKS = 0;
 //const uint SOFTWARE_ACKS = 1;
+const uint __SI4468_SOFTWARE_ACK__ = 1;
+const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI4468
+const uint __RF231_SOFTWARE_ACK__ = 0;
+const uint __RF231_HARDWARE_ACK__ = 1;
 
-#define RADIONAME_RF231		1
+/*#define RADIONAME_RF231		1
 #define RADIONAME_RF231LR	2
 #define RADIONAME_SI4468	3
 #define CURRENT_RADIONAME	RADIONAME_SI4468
@@ -299,7 +309,7 @@ const uint __SI4468_SOFTWARE_ACK__ = 1;
 const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI4468
 #endif	//#ifndef RF231_HARDWARE_ACK
 
-#endif
+#endif*/
 /********OMAC SPECIFIC VIRTUAL TIMERS AND VARIABLES********/
 
 

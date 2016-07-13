@@ -539,7 +539,7 @@ DeviceStatus CPU_Radio_TurnOnRx(UINT8 radioName)
 			break;
 	}
 
-	ASSERT_NOFAIL(status);
+	//ASSERT_NOFAIL(status);
 	return status;
 }
 

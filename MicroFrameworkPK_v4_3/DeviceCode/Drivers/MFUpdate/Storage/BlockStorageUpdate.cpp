@@ -158,7 +158,7 @@ INT32 BlockStorageUpdate::Create( MFUpdateHeader& storageHeader, UINT32 flags )
             g_BlockStorageUpdate.m_files[i].ID      == storageHeader.UpdateID      && 
             g_BlockStorageUpdate.m_files[i].Size    != 0 )
         {
-            return -1;
+            return -1; //already exists.
         }
     }
     
@@ -166,7 +166,7 @@ INT32 BlockStorageUpdate::Create( MFUpdateHeader& storageHeader, UINT32 flags )
 
     newHandle = g_BlockStorageUpdate.GetFreeHandle();
 
-    if(newHandle == -1) return -1;
+    if(newHandle == -1) return -2;  // too many updates being stored.
 
     pCur = g_BlockStorageUpdate.m_pFreeList;
     pLast = pCur;
@@ -202,7 +202,7 @@ INT32 BlockStorageUpdate::Create( MFUpdateHeader& storageHeader, UINT32 flags )
         pCur  = pCur->Next;
     }
 
-    if(pCur == NULL) return -1;
+    if(pCur == NULL) return -3;
 
     g_BlockStorageUpdate.m_stream.Device->Write(g_BlockStorageUpdate.m_files[newHandle].StartAddress + g_BlockStorageUpdate.m_stream.BaseAddress, sizeof(header), (UINT8*)&header, FALSE);
 

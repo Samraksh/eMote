@@ -1345,6 +1345,7 @@ void Samraksh_Emote_Update::HandleTimeout() {
 
 bool Samraksh_Emote_Update::UpdateInit( WP_Message* msg, void* owner )
 {
+	//TODO: accept argument specifying different modes... like burst mode transfer, USB-tethered repeater
     CreateInstance();
     InitializeMac(); // turn on wireless, ie, if message received over USB.
     //TODO: re-initialize the MAC into burst mode.
@@ -1386,6 +1387,8 @@ bool Samraksh_Emote_Update::Start( WP_Message* msg, void* owner )
     header.UpdateSize      = cmd->m_updateSize;
     header.PacketSize      = cmd->m_updatePacketSize;
 
+    // TODO: check for available contiguous storage region
+    // TODO: if no storage, and version is greater, and erasing would give enough storage, then erase existing updates
     reply.m_updateHandle = MFUpdate_InitUpdate(cmd->m_provider, header);
 
     if( reply.m_updateHandle == MFUpdate::badHandle || reply.m_updateHandle != cmd->m_updateId)
@@ -1676,7 +1679,7 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 
 	Samraksh_Emote_Update::s_UpdateCompletion.Initialize();
 	Samraksh_Emote_Update::s_UpdateCompletion.InitializeForUserMode(Samraksh_Emote_Update::UpdateCompletion, (void*)update_completion_arg);
-	Samraksh_Emote_Update::s_UpdateCompletion.EnqueueDelta64( 1000000 ); // schedule install in 1 second
+	Samraksh_Emote_Update::s_UpdateCompletion.EnqueueDelta64( 5 * 1000000 ); // schedule install in 5 seconds
 	//TODO: record "update queued" in reply message!
 
 Install_out:

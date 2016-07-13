@@ -303,7 +303,7 @@ DeviceStatus RadioControl_t::Stop(){
 	#endif
 		}
 		else {
-			ASSERT_SP(0);
+			//ASSERT_SP(0);
 			//OMAC_HAL_PRINTF("RadioControl_t::Stop Radio did not go to sleep\n");
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SLEEP, FALSE );

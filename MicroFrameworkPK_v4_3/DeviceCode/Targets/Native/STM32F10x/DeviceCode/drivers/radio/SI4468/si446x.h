@@ -60,7 +60,7 @@ enum {
 	si446x_default_channel=0,
 	si446x_rssi_cca_thresh=0x7F,
 	si446x_tx_timeout=200,
-	si446x_rx_timeout_ms=50,
+	si446x_rx_timeout_ms=100,
 	serial_size=12,
 };
 
@@ -84,7 +84,8 @@ typedef struct {
 	GPIO_TypeDef 	*nirq_port;
 	uint16_t		nirq_pin;
 	GPIO_PIN		nirq_mf_pin;
-	GPIO_TypeDef 	*gpio_port;
+	GPIO_TypeDef 	*gpio0_port;
+	GPIO_TypeDef 	*gpio1_port;
 	uint16_t		gpio0_pin;
 	uint16_t		gpio1_pin;
 	GPIO_TypeDef 	*cs_port;

@@ -47,9 +47,10 @@ typedef struct {
 }Link_t;
 
 enum NeighborStatus {
-	Alive,
-	Dead,
-	Suspect
+	Alive = 0,
+	Dead = 1,
+	Suspect = 2,
+	NbrStatusError = 0xF
 };
 
 typedef struct {
@@ -62,7 +63,6 @@ typedef struct {
 	UINT64 LastHeardTime;
 	UINT8 ReceiveDutyCycle; //percentage
 	UINT16 FrameLength;
-
 
 	UINT16  nextSeed; //the seed we have from in the control message last received
 	UINT16 mask;
@@ -86,6 +86,36 @@ typedef struct {
 	Buffer_15_4<TimeSync_Send_Buffer_15_4_t_SIZE> tsr_send_buffer;
 }Neighbor_t;
 
+class NeighborTableCommonParameters_One_t{
+public:
+	UINT16 MacAddress;
+	NeighborStatus status;
+	UINT64 lastHeardTime;
+	Link_t linkQualityMetrics;
+	NeighborTableCommonParameters_One_t(){
+		MacAddress = 0;
+		status = NbrStatusError;
+		lastHeardTime = 0;
+		linkQualityMetrics.LinkQuality = 0;
+		linkQualityMetrics.AvgRSSI = 0;
+		linkQualityMetrics.AveDelay = 0;
+	}
+};
+
+class NeighborTableCommonParameters_Two_t{
+public:
+	UINT16  nextSeed; //the seed we have from in the control message last received
+	UINT16 	mask;
+	UINT64  nextwakeupSlot;
+	UINT32  seedUpdateIntervalinSlots;
+	NeighborTableCommonParameters_Two_t(){
+		nextSeed = 0;
+		mask = 0;
+		nextwakeupSlot = 0;
+		seedUpdateIntervalinSlots = 0;
+	}
+};
+
 class NeighborTable {
 public:
 	UINT8 NumberValidNeighbor;
@@ -96,22 +126,22 @@ public:
 	DeviceStatus GetFreeIdx(UINT8* index);
 	DeviceStatus ClearNeighbor(UINT16 MacAddress);
 	DeviceStatus ClearNeighborwIndex(UINT8 tableIndex);
-	DeviceStatus FindIndexEvenDead(UINT16 MacAddress, UINT8* index);
-	DeviceStatus FindIndex(UINT16 MacAddress, UINT8* index);
+	DeviceStatus FindIndexEvenDead(const UINT16 MacAddress, UINT8* index);
+	DeviceStatus FindIndex(const UINT16 MacAddress, UINT8* index);
 	void ClearTable();
 	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
 	UINT8 NumberOfNeighbors();
 	UINT8 PreviousNumberOfNeighbors();
 	void SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt);
-	DeviceStatus InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
-	DeviceStatus FindOrInsertNeighbor(UINT16 address, UINT8* index);
+	DeviceStatus InsertNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t);
+	DeviceStatus FindOrInsertNeighbor(const UINT16 address, UINT8* index);
 	DeviceStatus UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index);
 	DeviceStatus UpdateFrameLength(UINT16 address, NeighborStatus status, UINT16 frameLength, UINT8* index);
 	DeviceStatus UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UINT8* index);
-	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index);
+	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t);
 	//DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16  lastSeed, UINT16  dataInterval, UINT16  radioStartDelay, UINT16  counterOffset, UINT8* index);
-	DeviceStatus UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi);
+	DeviceStatus UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 currentTime);
 	UINT8  UpdateNeighborTable(UINT32 NeighborLivenessDelay);
 	DeviceStatus RecordTimeSyncRequestSent(UINT16 address, UINT64 _LastTimeSyncTime);
@@ -175,7 +205,7 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 	return BringOutYourDead(NeighborLivenessDelay);
 }
 
-DeviceStatus NeighborTable::FindIndexEvenDead(UINT16 MacAddress, UINT8* index){
+DeviceStatus NeighborTable::FindIndexEvenDead(const UINT16 MacAddress, UINT8* index){
 	int tableIndex;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
@@ -187,7 +217,7 @@ DeviceStatus NeighborTable::FindIndexEvenDead(UINT16 MacAddress, UINT8* index){
 	return DS_Fail;
 }
 
-DeviceStatus NeighborTable::FindIndex(UINT16 MacAddress, UINT8* index){
+DeviceStatus NeighborTable::FindIndex(const UINT16 MacAddress, UINT8* index){
 	int tableIndex;
 	
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
@@ -321,19 +351,14 @@ void NeighborTable::SetPreviousNumberOfNeighbors(UINT8 previousNeighborCnt){
 	PreviousNumberValidNeighbor = previousNeighborCnt;
 }
 
-DeviceStatus NeighborTable::FindOrInsertNeighbor(UINT16 address, UINT8* index){
+DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* index){
 	DeviceStatus retValue = DS_Fail;
 	if(address != 0 || address != 65535){
 		retValue = FindIndexEvenDead(address, index);
-		if(retValue == DS_Fail)  {
-			if(address != 0 || address != 65535){
-				retValue = GetFreeIdx(index);
-				Neighbor[*index].MacAddress = address;
-				Neighbor[*index].NumTimeSyncMessagesSent = 0;
-			}
-			else{
-				 retValue = DS_Fail;
-			}
+		if(retValue == DS_Fail) {
+			retValue = GetFreeIdx(index);
+			Neighbor[*index].MacAddress = address;
+			Neighbor[*index].NumTimeSyncMessagesSent = 0;
 		}
 		else{
 			if(Neighbor[*index].Status != Alive){
@@ -344,19 +369,22 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(UINT16 address, UINT8* index){
 	return retValue;
 }
 
-DeviceStatus NeighborTable::InsertNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
+DeviceStatus NeighborTable::InsertNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t){
+	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	UINT8 index;
+    DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
-
-    DeviceStatus retValue = FindOrInsertNeighbor(address, index);
-
-	if ( (retValue==DS_Success) && (address != 0 || address != 65535)){
+	if (retValue == DS_Success && (address != 0 || address != 65535)){
 		NumberValidNeighbor++;
-		UpdateNeighbor(address, status, currTime, seed, mask, nextwakeupSlot, seedUpdateIntervalinSlots, index);
-		return DS_Success;
+		Neighbor[index].ReverseLink.AvgRSSI =  0;
+		Neighbor[index].ReverseLink.LinkQuality =  0;
+		Neighbor[index].ReverseLink.AveDelay =  0;
+		Neighbor[index].ForwardLink.AvgRSSI =  0;
+		Neighbor[index].ForwardLink.LinkQuality =  0;
+		Neighbor[index].ForwardLink.AveDelay =  0;
+		retValue = UpdateNeighbor(neighborTableCommonParameters_One_t, neighborTableCommonParameters_Two_t);
 	}
-	else {
-		return DS_Fail;
-	}
+	return retValue;
 }
 
 DeviceStatus NeighborTable::UpdateLink(UINT16 address, Link_t *forwardLink, Link_t *reverseLink, UINT8* index){
@@ -395,37 +423,72 @@ DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UIN
 	return retValue;
 }
 
-DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, UINT16 seed, UINT16 mask, UINT32 nextwakeupSlot, UINT32  seedUpdateIntervalinSlots, UINT8* index){
-	DeviceStatus retValue = FindOrInsertNeighbor(address, index);
+DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t){
+	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	NeighborStatus status = neighborTableCommonParameters_One_t->status;
+	UINT64 LastHeardTime = neighborTableCommonParameters_One_t->lastHeardTime;
+	UINT8 lqi = neighborTableCommonParameters_One_t->linkQualityMetrics.LinkQuality;
+	UINT8 rssi = neighborTableCommonParameters_One_t->linkQualityMetrics.AvgRSSI;
+	UINT8 delay = neighborTableCommonParameters_One_t->linkQualityMetrics.AveDelay;
 
+	if(status == NbrStatusError){
+		return DS_Fail;
+	}
+	if(LastHeardTime == 0){
+		return DS_Fail;
+	}
 
-	Neighbor[*index].MacAddress = address;
-	Neighbor[*index].Status = status;
-	Neighbor[*index].LastHeardTime = currTime;
+	UINT16 nextSeed = neighborTableCommonParameters_Two_t->nextSeed;
+	UINT16 mask = neighborTableCommonParameters_Two_t->mask;
+	UINT64 nextwakeupSlot = neighborTableCommonParameters_Two_t->nextwakeupSlot;
+	UINT32 seedUpdateIntervalinSlots = neighborTableCommonParameters_Two_t->seedUpdateIntervalinSlots;
 
-	Neighbor[*index].nextSeed = seed;
-	Neighbor[*index].mask = mask;
-	Neighbor[*index].nextwakeupSlot = nextwakeupSlot;
-	Neighbor[*index].seedUpdateIntervalinSlots = seedUpdateIntervalinSlots;
-	return DS_Success;
+	UINT8 index;
+	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
+	if (retValue == DS_Success && (address != 0 || address != 65535)){
+		Neighbor[index].MacAddress = address;
+		Neighbor[index].Status = status;
+		Neighbor[index].LastHeardTime = LastHeardTime;
+		Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
+		Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
+
+		Neighbor[index].nextSeed = nextSeed;
+		Neighbor[index].mask = mask;
+		Neighbor[index].nextwakeupSlot = nextwakeupSlot;
+		Neighbor[index].seedUpdateIntervalinSlots = seedUpdateIntervalinSlots;
+	}
+	return retValue;
 }
 
-DeviceStatus NeighborTable::UpdateNeighbor(UINT16 address, NeighborStatus status, UINT64 currTime, float rssi, float lqi){
-	 UINT8 index;
-		DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
+DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t){
+	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	NeighborStatus status = neighborTableCommonParameters_One_t->status;
+	UINT64 LastHeardTime = neighborTableCommonParameters_One_t->lastHeardTime;
+	UINT8 lqi = neighborTableCommonParameters_One_t->linkQualityMetrics.LinkQuality;
+	UINT8 rssi = neighborTableCommonParameters_One_t->linkQualityMetrics.AvgRSSI;
+	UINT8 delay = neighborTableCommonParameters_One_t->linkQualityMetrics.AveDelay;
 
-	 if ((retValue==DS_Success) && (address != 0 || address != 65535)){
-			Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
-			Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
-			Neighbor[index].PacketsReceived++;
-			Neighbor[index].LastHeardTime = currTime;
-			Neighbor[index].Status = status;
-			/*
-			Neighbor[index].dataInterval = dataInterval;
-			Neighbor[index].radioStartDelay = radioStartDelay;
-			Neighbor[index].counterOffset = counterOffset;
-			Neighbor[index].lastSeed = seed;
-			*/
+	if(status == NbrStatusError){
+		return DS_Fail;
+	}
+	if(LastHeardTime == 0){
+		return DS_Fail;
+	}
+
+	UINT8 index;
+	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
+	if (retValue == DS_Success && (address != 0 || address != 65535)){
+		Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
+		Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
+		Neighbor[index].PacketsReceived++;
+		Neighbor[index].LastHeardTime = LastHeardTime;
+		Neighbor[index].Status = status;
+		/*
+		Neighbor[index].dataInterval = dataInterval;
+		Neighbor[index].radioStartDelay = radioStartDelay;
+		Neighbor[index].counterOffset = counterOffset;
+		Neighbor[index].lastSeed = seed;
+		*/
 	}
 
 	return retValue;

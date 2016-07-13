@@ -193,18 +193,14 @@ struct VirtualTimerConfig
 
 class VirtualTimerMapper
 {
-private:
-	UINT64 m_lastQueueAdjustmentTime;
-
 public:
 	UINT16 m_current_timer_cnt_;     //<! TODO: description goes here. please.
 	UINT16 m_current_timer_running_; //<! TODO: description goes here. please.
 
 	UINT16 VTM_hardwareTimerId;      //<! TODO: description goes here. please.
-	UINT16 VTM_countOfVirtualTimers; //<! TODO: description goes here. please.
 	VirtualTimerInfo g_VirtualTimerInfo[g_VirtualTimerPerHardwareTimer];
 
-	BOOL Initialize(UINT16, UINT16);
+	BOOL Initialize(UINT16);
 
 	BOOL SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 period, BOOL is_one_shot, BOOL _isreserved, TIMER_CALLBACK_FPN callback);
 

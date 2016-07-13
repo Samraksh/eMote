@@ -108,12 +108,6 @@
             MAC interface
             </summary>
         </member>
-        <member name="M:Samraksh.eMote.Net.MAC.IMAC.NextPacket">
-            <summary>
-            Get the next packet from the MAC buffer
-            </summary>
-            <returns>Next packet if any, else null</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MAC.IMAC.NeighborList(System.UInt16[])">
             <summary>
             	Get the list of neighbors from the MAC
@@ -241,7 +235,13 @@
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.RegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
             <summary>
-            Registers callbacks for CSHARP payload types.
+            Registers callbacks for payload types.
+            </summary>
+            <param name="macPipe"></param>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACBase.UnRegisterOnReceiveGlobal(Samraksh.eMote.Net.MACPipe)">
+            <summary>
+            Unregisters callbacks for payload types.
             </summary>
             <param name="macPipe"></param>
         </member>
@@ -249,7 +249,7 @@
             <summary>
             Get the next packet from the MAC buffer
             </summary>
-            <returns>Next packet if any, else null</returns>
+            <returns>True if success, false otherwise</returns>
         </member>
         <member name="M:Samraksh.eMote.Net.MACBase.NeighborListArray">
             <summary>
@@ -389,8 +389,17 @@
         <member name="P:Samraksh.eMote.Net.MACBase.NeighborLivenessDelay">
             <summary>Delay (in milliseconds) before a Neighbor is deemed dead</summary>
         </member>
-        <member name="T:Samraksh.eMote.Net.MACBase.IMACEventHandler">
-            <summary>Event handler for classes implementing IMAC</summary>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACReceiveEventHandler">
+            <summary>Event handler for classes implementing IMAC's on receive event</summary>
+            <param name="macInstance">
+            	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
+            	When used by MACPipe class, will be MACPipe class.
+            </param>
+            <param name="time"></param>
+            <param name="receivedPacket">Packet object to be filled in with received packet details</param>
+        </member>
+        <member name="T:Samraksh.eMote.Net.MACBase.IMACNeighborChangeEventHandler">
+            <summary>Event handler for classes implementing IMAC's neighbor change event</summary>
             <param name="macInstance">
             	When used by MACBase classes (CSMA, OMAC), will be MACBase instance.
             	When used by MACPipe class, will be MACPipe class.
@@ -674,8 +683,377 @@
         <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_19Point4dBm">
             <summary>19.4 dB</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus20dBm">
-            <summary>-20 dB</summary>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_19Point1dBm">
+            <summary>19.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_18Point8dBm">
+            <summary>18.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_18Point5dBm">
+            <summary>18.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_18Point2dBm">
+            <summary>18.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_17Point9dBm">
+            <summary>17.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_17Point6dBm">
+            <summary>17.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_17Point3dBm">
+            <summary>17.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_17Point0dBm">
+            <summary>17.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_16Point7dBm">
+            <summary>16.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_16Point4dBm">
+            <summary>16.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_16Point1dBm">
+            <summary>16.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_15Point8dBm">
+            <summary>15.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_15Point5dBm">
+            <summary>15.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_15Point2dBm">
+            <summary>15.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_14Point9dBm">
+            <summary>14.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_14Point6dBm">
+            <summary>14.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_14Point3dBm">
+            <summary>14.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_14Point0dBm">
+            <summary>14.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_13Point7dBm">
+            <summary>13.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_13Point4dBm">
+            <summary>13.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_13Point1dBm">
+            <summary>13.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_12Point8dBm">
+            <summary>12.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_12Point5dBm">
+            <summary>12.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_12Point2dBm">
+            <summary>12.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_11Point9dBm">
+            <summary>11.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_11Point6dBm">
+            <summary>11.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_11Point3dBm">
+            <summary>11.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_11Point0dBm">
+            <summary>11.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_10Point7dBm">
+            <summary>10.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_10Point4dBm">
+            <summary>10.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_10Point1dBm">
+            <summary>10.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_9Point8dBm">
+            <summary>9.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_9Point5dBm">
+            <summary>9.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_9Point2dBm">
+            <summary>9.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_8Point9dBm">
+            <summary>8.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_8Point6dBm">
+            <summary>8.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_8Point3dBm">
+            <summary>8.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_8Point0dBm">
+            <summary>8.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_7Point7dBm">
+            <summary>7.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_7Point4dBm">
+            <summary>7.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_7Point1dBm">
+            <summary>7.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_6Point8dBm">
+            <summary>6.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_6Point5dBm">
+            <summary>6.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_6Point2dBm">
+            <summary>6.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_5Point9dBm">
+            <summary>5.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_5Point6dBm">
+            <summary>5.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_5Point3dBm">
+            <summary>5.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_5Point0dBm">
+            <summary>5.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_4Point7dBm">
+            <summary>4.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_4Point4dBm">
+            <summary>4.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_4Point1dBm">
+            <summary>4.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_3Point8dBm">
+            <summary>3.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_3Point5dBm">
+            <summary>3.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_3Point2dBm">
+            <summary>3.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_2Point9dBm">
+            <summary>2.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_2Point6dBm">
+            <summary>2.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_2Point3dBm">
+            <summary>2.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_2Point0dBm">
+            <summary>2.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_1Point7dBm">
+            <summary>1.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_1Point4dBm">
+            <summary>1.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_1Point1dBm">
+            <summary>1.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_0Point8dBm">
+            <summary>0.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_0Point5dBm">
+            <summary>0.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_0Point2dBm">
+            <summary>0.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus0Point1dBm">
+            <summary>-0.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus0Point4dBm">
+            <summary>-0.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus0Point7dBm">
+            <summary>-0.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus1Point0dBm">
+            <summary>-1.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus1Point3dBm">
+            <summary>-1.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus1Point6dBm">
+            <summary>-1.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus1Point9dBm">
+            <summary>-1.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus2Point2dBm">
+            <summary>-2.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus2Point5dBm">
+            <summary>-2.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus2Point8dBm">
+            <summary>-2.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus3Point1dBm">
+            <summary>-3.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus3Point4dBm">
+            <summary>-3.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus3Point7dBm">
+            <summary>-3.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus4Point0dBm">
+            <summary>-4.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus4Point3dBm">
+            <summary>-4.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus4Point6dBm">
+            <summary>-4.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus4Point9dBm">
+            <summary>-4.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus5Point2dBm">
+            <summary>-5.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus5Point5dBm">
+            <summary>-5.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus5Point8dBm">
+            <summary>-5.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus6Point1dBm">
+            <summary>-6.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus6Point4dBm">
+            <summary>-6.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus6Point7dBm">
+            <summary>-6.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus7Point0dBm">
+            <summary>-7.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus7Point3dBm">
+            <summary>-7.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus7Point6dBm">
+            <summary>-7.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus7Point9dBm">
+            <summary>-7.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus8Point2dBm">
+            <summary>-8.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus8Point5dBm">
+            <summary>-8.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus8Point8dBm">
+            <summary>-8.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus9Point1dBm">
+            <summary>-9.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus9Point4dBm">
+            <summary>-9.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus9Point7dBm">
+            <summary>-9.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus10Point0dBm">
+            <summary>-10.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus10Point3dBm">
+            <summary>-10.3 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus10Point6dBm">
+            <summary>-10.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus10Point9dBm">
+            <summary>-10.9 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus11Point2dBm">
+            <summary>-11.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus11Point5dBm">
+            <summary>-11.5 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus11Point8dBm">
+            <summary>-11.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus12Point1dBm">
+            <summary>-12.1 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus12Point4dBm">
+            <summary>-12.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus12Point7dBm">
+            <summary>-12.7 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus13Point0dBm">
+            <summary>-13.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus13Point4dBm">
+            <summary>-13.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus13Point8dBm">
+            <summary>-13.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus14Point2dBm">
+            <summary>-14.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus14Point6dBm">
+            <summary>-14.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus15Point0dBm">
+            <summary>-15.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus15Point4dBm">
+            <summary>-15.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus15Point8dBm">
+            <summary>-15.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus16Point2dBm">
+            <summary>-16.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus16Point6dBm">
+            <summary>-16.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus17Point0dBm">
+            <summary>-17.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus17Point4dBm">
+            <summary>-17.4 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus17Point8dBm">
+            <summary>-17.8 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus18Point2dBm">
+            <summary>-18.2 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus18Point6dBm">
+            <summary>-18.6 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point0dBm">
+            <summary>-19.0 dB</summary>
+        </member>
+        <member name="F:Samraksh.eMote.Net.Radio.SI4468TxPower.Power_Minus19Point4dBm">
+            <summary>-19.4 dB</summary>
         </member>
         <member name="T:Samraksh.eMote.Net.Radio.RF231Channel">
             <summary>
@@ -881,6 +1259,11 @@
         <member name="T:Samraksh.eMote.Net.MACType">
             <summary>Kinds of protocol</summary>
         </member>
+        <member name="F:Samraksh.eMote.Net.MACType.NONE">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="F:Samraksh.eMote.Net.MACType.CSMA">
             <summary>
             
@@ -941,12 +1324,6 @@
             	Result status
             </returns>
         </member>
-        <member name="M:Samraksh.eMote.Net.MACPipe.NextPacket">
-            <summary>
-            Get the next packet from the MAC buffer
-            </summary>
-            <returns>Next packet if any, else null</returns>
-        </member>
         <member name="M:Samraksh.eMote.Net.MACPipe.NeighborStatus(System.UInt16)">
             <summary>
             
@@ -971,6 +1348,11 @@
             
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:Samraksh.eMote.Net.MACPipe.Dispose">
+            <summary>
+            Uninitialize MACPipe instance
+            </summary>
         </member>
         <member name="E:Samraksh.eMote.Net.MACPipe.OnReceive">
             <summary>Raised when a packet has been received</summary>
@@ -1183,6 +1565,10 @@
         <member name="M:Samraksh.eMote.Net.Packet.#ctor">
             <summary>Create a packet with the default size</summary>
         </member>
+        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
+            <summary>Configure size of payload</summary>
+            <param name="size">Size of payload</param>
+        </member>
         <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Byte[])">
             <summary>Create a packet with size, Payload, rssi, lqi, src and Unicast information specified in packet array</summary>
             <param name="msg">Packet. size, Payload, PayloadType, rssi, lqi, src and Unicast information specified in the first 6 bytes. Rest is payload</param>
@@ -1216,10 +1602,6 @@
             <param name="lqi">LQI value</param>
             <param name="size">size of the payload buffer</param>
             <param name="isPacketTimeStamped">Is packet timestamped?</param>
-        </member>
-        <member name="M:Samraksh.eMote.Net.Packet.#ctor(System.Int32)">
-            <summary>Configure size of payload</summary>
-            <param name="size">Size of payload</param>
         </member>
         <member name="T:Samraksh.eMote.Net.MAC.OMAC">
             <summary>OMAC class</summary>

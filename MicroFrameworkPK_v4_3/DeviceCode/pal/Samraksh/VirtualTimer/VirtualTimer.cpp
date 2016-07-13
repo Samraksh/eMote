@@ -46,7 +46,7 @@ inline BOOL VirtualTimerMapper::VirtTimerIndexMapper(UINT8 timer_id, UINT8 &VTim
 // Every time the list is changed the m_ticksTillExpire must be adjusted to reflect the current number of ticks before the topmost timer needs to have its callback called.
 // After this adjustment the new timer can be inserted where it will be automatically placed in the correct spot in the queue.
 // The SetCompare timer then needs to be set appropriately
-BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
+BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID)
 {
 	//CPU_GPIO_EnableOutputPin(VIRTUAL_TIMER_EXCEPTION_CHECK_PIN, FALSE);
 	//CPU_GPIO_EnableOutputPin(VTIMER_CALLBACK_LATENCY_PIN, FALSE);
@@ -60,10 +60,6 @@ BOOL VirtualTimerMapper::Initialize(UINT16 temp_HWID, UINT16 temp_countVTimers)
 	CPU_GPIO_EnableOutputPin((GPIO_PIN) 30, TRUE);
 #endif
 	VTM_hardwareTimerId = temp_HWID;
-
-	VTM_countOfVirtualTimers = temp_countVTimers;
-
-	m_lastQueueAdjustmentTime = 0;
 
 	for (UINT16 j = 0; j < m_current_timer_cnt_; j++)
 	{
@@ -104,7 +100,7 @@ BOOL VirtualTimerMapper::SetTimer(UINT8 timer_id, UINT32 start_delay, UINT32 per
 
 	if(!timerFound) {
 		// Can not accept anymore timers
-		if(m_current_timer_cnt_ >= VTM_countOfVirtualTimers) {
+		if(m_current_timer_cnt_ >= g_VirtualTimerPerHardwareTimer) {
 			ASSERT(0);
 			return FALSE;
 		}
