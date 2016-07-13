@@ -83,7 +83,7 @@
 	<CC_CPP_TARGETTYPE_FLAGS Condition="'$(FLAVOR)'=='Release' and '$(DEVICE_TYPE)'=='Cortex-A8'">$(CC_CPP_TARGETTYPE_FLAGS) -O1 </CC_CPP_TARGETTYPE_FLAGS>
 
     <CC_FLAGS>$(CC_FLAGS)-xc </CC_FLAGS>
-    <CPP_FLAGS>$(CPP_FLAGS)-xc++ -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
+    <CPP_FLAGS>$(CPP_FLAGS)-xc++ -std=c++11 -Wno-invalid-offsetof -fcheck-new </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-A8'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <CPP_FLAGS Condition="'$(DEVICE_TYPE)'=='Cortex-M3'">$(CPP_FLAGS) -fno-threadsafe-statics </CPP_FLAGS>
     <FLOATING_POINT_FLAG Condition="'$(PLATFORM_EMULATED_FLOATINGPOINT)'!='true' AND '$(DEVICE_TYPE)'=='Cortex-M3'"> -mfloat-abi=soft </FLOATING_POINT_FLAG>
