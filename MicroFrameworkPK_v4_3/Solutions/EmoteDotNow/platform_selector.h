@@ -5,6 +5,13 @@
 #ifndef _PLATFORM_EmoteDotNow_SELECTOR_H_
 #define _PLATFORM_EmoteDotNow_SELECTOR_H_ 1
 
+// Properly declare them since they are not ANSI
+// Previously declared by accident in compiler setup because we used _GNU_SOURCE (default)
+// In future, prefer not to use.
+// But better to allow here than touch everything.
+typedef unsigned uint;
+typedef uint16_t ushort;
+
 #include "testDefines.h"
 
 /////////////////////////////////////////////////////////
@@ -253,7 +260,6 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_OMAC_FAST_RECOVERY	21
 #define VIRT_TIMER_OMAC_POST_EXEC	22
 //#define VIRT_TIMER_OMAC_TRANSMITTER_POST_EXEC	23
-
 
 const uint OMAC_DISCO_SEQ_NUMBER = 27;
 //const uint OMAC_HW_ACK_DELAY_MICRO = 100;
