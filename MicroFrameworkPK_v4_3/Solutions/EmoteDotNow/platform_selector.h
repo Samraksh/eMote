@@ -207,7 +207,7 @@ const UINT8 LOW_DRIFT_TIMER = RTC_32BIT;
 
 const UINT8 g_CountOfHardwareTimers = 2;
 const UINT8 g_HardwareTimerIDs[g_CountOfHardwareTimers] = {DEFAULT_TIMER, LOW_DRIFT_TIMER};
-const UINT8 g_VirtualTimerPerHardwareTimer = 32;
+const UINT8 g_VirtualTimerPerHardwareTimer = 16;
 const UINT32 g_HardwareTimerFrequency[g_CountOfHardwareTimers] = {8000000, 32768};
 
 

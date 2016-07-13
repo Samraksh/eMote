@@ -40,7 +40,7 @@ namespace VirtTimerHelperFunctions
 
 		for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 		{
-			for (UINT16 j = 0; j < gVirtualTimerObject.virtualTimerMapper[i].VTM_countOfVirtualTimers; j++)
+			for (UINT16 j = 0; j < g_VirtualTimerPerHardwareTimer; j++)
 			{
 				if(gVirtualTimerObject.virtualTimerMapper[i].g_VirtualTimerInfo[j].get_m_timer_id() == timer_id)
 				{
@@ -63,7 +63,7 @@ BOOL VirtTimer_Initialize()
 
 	for(UINT16 i = 0; i < g_CountOfHardwareTimers; i++)
 	{
-		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i], g_VirtualTimerPerHardwareTimer))
+		if(!gVirtualTimerObject.virtualTimerMapper[i].Initialize(g_HardwareTimerIDs[i]))
 		{
 			ASSERT(0);
 			return FALSE;
