@@ -104,6 +104,8 @@ void HAL_COMPLETION::EnqueueTicks( UINT64 EventTimeTicks )
     HAL_COMPLETION* ptr     = (HAL_COMPLETION*)g_HAL_Completion_List.FirstNode();
     HAL_COMPLETION* ptrNext;
 
+    ASSERT(ptr != NULL);
+
     for(;(ptrNext = (HAL_COMPLETION*)ptr->Next()); ptr = ptrNext)
     {
         if(EventTimeTicks < ptr->EventTimeTicks) break;
