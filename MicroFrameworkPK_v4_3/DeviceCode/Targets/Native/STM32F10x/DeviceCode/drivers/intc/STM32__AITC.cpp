@@ -465,10 +465,12 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		STM32_AITC& AITC = STM32::AITC();
 
+		GLOBAL_LOCK(irq);
 		// set before jumping elsewhere or allowing other interrupts
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
-			
+		irq.Release();
+
 #ifdef DEBUG_DOTNOW_ISR
 		interrupt_count[c_IRQ_INDEX_RTC]++;
 #endif
@@ -479,7 +481,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		IsrVector->Handler.Execute();
 
-
+		irq.Acquire();
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
