@@ -1677,6 +1677,12 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 	}
 
     update_completion_arg = (struct SUpdateInstall*) private_malloc(sizeof(struct SUpdateInstall) + cmd->m_updateValidationSize);
+    if(update_completion_arg == NULL) {
+		//TODO: record OOM error
+		passed_validation = false;
+		goto Install_out;
+    }
+
     update_completion_arg->m_updateHandle = cmd->m_updateHandle;
     update_completion_arg->m_updateValidationSize = cmd->m_updateValidationSize;
     memcpy(&update_completion_arg->m_updateValidation[0], &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
