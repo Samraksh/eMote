@@ -78,7 +78,11 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
 
 #define MIN(a, b) (((a) < (b))?(a):(b))
 
-
+#if defined(DEBUG_EMOTE_UPDATE_SEND)
+#define DEBUG_BREAK_SEND_FAIL() SOFT_BREAKPOINT();
+#else
+#define DEBUG_BREAK_SEND_FAIL() {__ASM volatile ("nop");}
+#endif
 
 /**
  * MULTIPLEX_PACKETS() break out of command handler if operating as base-station pass through.
@@ -1060,7 +1064,7 @@ void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        // SOFT_BREAKPOINT(); // transmit could be false if there are no neighbors.
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1088,7 +1092,7 @@ void Samraksh_Emote_Update::SendAuthCommand(UpdateID_t updateId, UINT16 destAddr
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1115,7 +1119,7 @@ void Samraksh_Emote_Update::SendAuthenticate(UpdateID_t updateId, UINT16 destAdd
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1140,7 +1144,7 @@ void Samraksh_Emote_Update::SendGetMissingPkts(UpdateID_t updateId, UINT16 destA
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
         //TODO: FIXME: schedule continuation. or let timeout handle it?
     }
     return;
@@ -1178,7 +1182,7 @@ void Samraksh_Emote_Update::SendAddPacket(UpdateID_t updateId, UINT16 destAddr, 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
         //TODO: tell C-sharp that send failed
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1232,7 +1236,7 @@ void Samraksh_Emote_Update::SendInstall(UpdateID_t updateId, UINT16 destAddr)
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
