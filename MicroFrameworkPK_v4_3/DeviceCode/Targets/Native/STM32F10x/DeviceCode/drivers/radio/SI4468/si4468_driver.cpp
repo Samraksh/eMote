@@ -45,10 +45,12 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max = 2, serial_per = 25 };
+enum { serial_max = 4, serial_per = 25 };
 //const char wwf_serial_numbers[serial_max][serial_per]  = { "3300d9054642353044501643", "3300e0054642353045241643" };
 const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
-const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643163542", "05d900333035424643162544" };
+//5094-05 -- 3300d9054642353041381643
+//5094-04 -- 3300df054642353040531643
+const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
