@@ -1012,6 +1012,7 @@ UINT32 GetFirstMissingPacket(MFUpdate* updateInfo) {
 UINT32 GetFirstMissingPacket(MFUpdate* updateInfo, UINT32* missingPkts ) {
     UINT32 i=0; ///!< word iterator
     UINT32 j=0; ///!< bit iterator
+    ASSERT(updateInfo->m_missingPktsWordfieldSize <= updateInfo->MAX_MISSING_WORDFIELD_SIZE);
     for(; i < updateInfo->m_missingPktsWordfieldSize; i++) {
         if(missingPkts[i] != 0) {
             for(;j < 32; j++) {
@@ -1616,7 +1617,11 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
     //TODO: figure out why the code originally returned false here. could be related to bug where packet index 0 always fails.
     reply.m_updateHandle = cmd->m_updateHandle;
     reply.m_packetIndex = cmd->m_packetIndex;
-    reply.m_nextMissingPacketIndex = GetFirstMissingPacket(updateInfo);
+    reply.m_nextMissingPacketIndex = 0;
+    if(updateInfo != NULL)
+    {
+        reply.m_nextMissingPacketIndex = GetFirstMissingPacket(updateInfo);
+    }
 
     /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 

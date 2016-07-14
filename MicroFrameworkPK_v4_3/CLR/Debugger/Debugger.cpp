@@ -1241,7 +1241,9 @@ bool CLR_DBG_Debugger::Debugging_UpgradeToSsl(WP_Message* msg, void* owner )
     return TRUE == DebuggerPort_UpgradeToSsl(HalSystemConfig.DebuggerPorts[0], cmd->m_flags);
 }
 
+#if !defined(SAMRAKSH_UPDATE_EXT)
 static CLR_UINT32 s_missingPkts[64];
+#endif
 
 #if defined (SAMRAKSH_UPDATE_EXT)
 bool CLR_DBG_Debugger::Monitor_UpdateInit( WP_Message* msg, void* owner) {
