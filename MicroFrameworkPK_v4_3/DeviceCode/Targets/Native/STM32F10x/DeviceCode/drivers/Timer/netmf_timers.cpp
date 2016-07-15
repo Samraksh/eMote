@@ -433,11 +433,8 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		if (CLOCK_COMMON_FACTOR != 1000000){
 			Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);				 
 		}
-		if (timerFrequency == 32768){
-			Ticks32 >> 3;
-		} else {
-			Ticks32 /= (timerFrequency/CLOCK_COMMON_FACTOR);
-		}
+		Ticks32 /= (timerFrequency/CLOCK_COMMON_FACTOR);
+		
 		return Ticks32;
 	}
 }
@@ -522,16 +519,12 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 		if (timerFrequency == 8000000){
 			return ticks >> 3;
 		} else {
-			return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+			return ((ticks * CLOCK_COMMON_FACTOR) / timerFrequency);
 		}		 
 	}
 	else if(Timer == RTC_32BIT)
 	{
-		if (timerFrequency == 32768){
-			return ticks >> 3;
-		} else {
-			return ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
-		}		 
+		return ((ticks * CLOCK_COMMON_FACTOR) / timerFrequency);
 	}
 }
 
@@ -554,16 +547,11 @@ UINT32 CPU_TicksToMicroseconds( UINT32 ticks, UINT16 Timer )
 		{
 			ret = ticks >> 3;
 		} else {
-			ret = ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
+			ret = ((ticks * CLOCK_COMMON_FACTOR) / timerFrequency);
 		}
 		break;
 	case RTC_32BIT:
-		if (timerFrequency == 32768)
-		{
-			ret = ticks >> 3;
-		} else {
-			ret = ((ticks * CLOCK_COMMON_FACTOR) / g_HardwareTimerFrequency[0]);
-		}
+		ret = ((ticks * CLOCK_COMMON_FACTOR) / timerFrequency);
 		break;
 	case TIMER1_16BIT:
 		// fall through to TIMER2_16BIT
@@ -680,3 +668,4 @@ int CPU_SystemClocksToMicroseconds( int Ticks ) {
 	Ticks /= (SYSTEM_CLOCK_HZ/CLOCK_COMMON_FACTOR);
 	return Ticks;
 }
+
