@@ -17,9 +17,7 @@
 
 extern OMACType g_OMAC;
 
-const uint EXECUTE_WITH_CCA = 0;
-const uint FAST_RECOVERY = 1;
-const uint FAST_RECOVERY2 = 0;
+
 
 void PublicDataTxCallback(void * param){
 	if(	FAST_RECOVERY) {
