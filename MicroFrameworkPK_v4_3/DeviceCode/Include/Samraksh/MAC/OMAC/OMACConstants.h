@@ -311,7 +311,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define MICSECINMILISEC 1000
 #define TICKSINMICSEC 8
 
-#define GUARDTIME_MICRO 2000			//compensate for time-sync errors; accounts for the clock drift
+#define GUARDTIME_MICRO 200			//compensate for time-sync errors; accounts for the clock drift
 
 
 #define FRAMERETRYMAXATTEMPT 100
