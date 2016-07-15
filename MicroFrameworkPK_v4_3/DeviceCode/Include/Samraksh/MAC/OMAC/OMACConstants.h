@@ -396,7 +396,7 @@ typedef OFProv<UINT64> OMACTicks;
 #define OMACClockSpecifier HFCLOCKID
 #define OMACClockFreq 32
 //#define OMACClocktoSystemClockFreqRatio 250
-#define OMACClocktoSystemClockFreqRatio 1
+#define OMACClocktoSystemClockFreqRatio 244.140625
 
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_TICKS 4000
 #define OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO 500
