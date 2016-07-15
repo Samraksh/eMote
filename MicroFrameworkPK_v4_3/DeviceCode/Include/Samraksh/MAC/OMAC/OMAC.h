@@ -23,8 +23,8 @@
 //#define RXNODEID 20181
 */
 //Bora's Nodes
-//#define TXNODEID 30906
-#define TXNODEID 4028
+#define TXNODEID 30906
+//#define TXNODEID 4028
 #define RXNODEID 32696
 // Ananth's Nodes
 //#define TXNODEID 3505
