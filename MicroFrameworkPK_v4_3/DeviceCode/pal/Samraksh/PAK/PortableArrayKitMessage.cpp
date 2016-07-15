@@ -846,7 +846,10 @@ void Samraksh_Emote_Update::DeleteInstance() {
 void Samraksh_Emote_Update::Cleanup() {
     if(!g_Samraksh_Emote_Update.m_fInitialized) return;
     //CPU_Radio_Sleep(g_Samraksh_Emote_Update.PAK_MacConfig.RadioID,/*RadioStateEnum::*/STATE_SLEEP); //This is now handled by the new MAC API?? not really.
-
+    if(g_Samraksh_Emote_Update.s_UpdateCompletion.IsLinked()) {
+        // TODO: save tasks for after reboot, ie if we have multiple initializations.
+        g_Samraksh_Emote_Update.s_UpdateCompletion.Abort();  //TODO: completion Abort might not be needed
+    }
     g_Samraksh_Emote_Update.m_fInitialized = false;
 }
 
@@ -1687,12 +1690,15 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 		goto Install_out;
     }
 
+    //FIXME: should add install time/date, use continuation, so multiple assemblies may be scheduled for installation.
+    // but the schedule would need to be saved in non-volatile memory (maybe inside Update metadata in FLASH)
+    // and we need persistent datetime keeping, and global datetime synchronization first...
     update_completion_arg->m_updateHandle = cmd->m_updateHandle;
     update_completion_arg->m_updateValidationSize = cmd->m_updateValidationSize;
     memcpy(&update_completion_arg->m_updateValidation[0], &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
     Samraksh_Emote_Update::s_UpdateCompletionArg = update_completion_arg;
 
-	Samraksh_Emote_Update::s_UpdateCompletion.Initialize();
+
 	Samraksh_Emote_Update::s_UpdateCompletion.InitializeForUserMode(Samraksh_Emote_Update::UpdateCompletion, (void*)update_completion_arg);
 	Samraksh_Emote_Update::s_UpdateCompletion.EnqueueDelta64( 5 * 1000000 ); // schedule install in 5 seconds
 	//TODO: record "update queued" in reply message!
