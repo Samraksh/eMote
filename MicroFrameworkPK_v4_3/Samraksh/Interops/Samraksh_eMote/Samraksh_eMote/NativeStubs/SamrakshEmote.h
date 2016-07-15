@@ -20,6 +20,15 @@ struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection
 
 };
 
+struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction
+{
+    TINYCLR_NATIVE_DECLARE(NormalizeFeatureVector___VOID__SZARRAY_R4__SZARRAY_I4);
+    TINYCLR_NATIVE_DECLARE(Decide___R4__SZARRAY_I4);
+
+    //--//
+
+};
+
 struct Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection
 {
     TINYCLR_NATIVE_DECLARE(Initialize___BOOLEAN);

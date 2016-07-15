@@ -19,6 +19,10 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection::SetDetectionParameters___BOOLEAN__I4__I4,
     NULL,
     NULL,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction::NormalizeFeatureVector___VOID__SZARRAY_R4__SZARRAY_I4,
+    Library_SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction::Decide___R4__SZARRAY_I4,
+    NULL,
+    NULL,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Initialize___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::Uninitialize___BOOLEAN,
     Library_SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection::DetectionCalculation___BOOLEAN__SZARRAY_U2__SZARRAY_U2__SZARRAY_U2__I4,
@@ -135,7 +139,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_Samraksh_eMote =
 {
     "Samraksh_eMote", 
-    0x83091D49,
+    0xCE88AA2B,
     method_lookup
 };
 

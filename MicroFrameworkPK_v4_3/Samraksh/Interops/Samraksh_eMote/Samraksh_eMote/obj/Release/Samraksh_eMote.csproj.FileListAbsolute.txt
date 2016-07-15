@@ -34,6 +34,8 @@ D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraks
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
 D:\Work\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
 D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\Samraksh_eMote.XML
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
+D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\le\Samraksh_eMote.dll
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\be\Samraksh_eMote.dll
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\bin\Release\le\Samraksh_eMote.pdb
@@ -51,7 +53,5 @@ D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\le\Samraksh_eMote.pdbx
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.dll
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.pdb
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
-D:\AnanthAtSamraksh\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\Samraksh_eMote.csprojResolveAssemblyReference.cache
 D:\Work\MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote\Samraksh_eMote\obj\Release\TinyCLR_DebugReferences.cache
