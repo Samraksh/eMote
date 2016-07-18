@@ -39,10 +39,6 @@
 
 
 //#define SI446X_DEBUG_UNFINISHED_PKT // remove me.
-#ifdef SI446X_DEBUG_UNFINISHED_PKT
-static volatile bool int_defer = false;
-static volatile bool finisher_queued = false;
-#endif
 
 enum { SI_DUMMY=0, };
 
@@ -56,9 +52,6 @@ const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de0033303
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
 const unsigned si4468x_debug_level = ERR100; // CHANGE ME.
-
-// Should MAC layer be informed by SI4468 about a packet, in interrupt context or using continuations?
-const bool NEED_SI4468_CONTINUATION = true;
 
 // Pin list used in setup.
 static SI446X_pin_setup_t SI446X_pin_setup;
@@ -333,10 +326,6 @@ static void rx_cont_do(void *arg) {
 
 	si446x_fifo_info(0x3); // Defensively reset FIFO
 	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
-
-#	ifdef SI446X_DEBUG_UNFINISHED_PKT
-	finisher_queued = false;
-#	endif
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
@@ -1000,8 +989,6 @@ void *si446x_hal_send_ts(UINT8 radioID, void *msg, UINT16 size, UINT32 eventTime
 }
 
 #ifdef SI446X_DEBUG_UNFINISHED_PKT
-// To debug user reports that SYNC_DET is firing but no "finisher" runs
-// "Finisher" would be a CRC error or packet reception.
 // ASSUMES YOU HOLD SPI LOCK
 static bool rx_consistency_check(void) {
 	GLOBAL_LOCK(irq); // lock while debugging only. Change me.
@@ -1333,25 +1320,14 @@ UINT32 si446x_hal_get_rssi(UINT8 radioID) {
 // INTERRUPT CONTEXT, LOCKED
 static void si446x_pkt_tx_int() {
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_tx_int()\r\n");
-	if(NEED_SI4468_CONTINUATION){
-		tx_callback_continuation.Enqueue();
-	}
-	else{
-		tx_cont_do(NULL);
-	}
+	tx_callback_continuation.Enqueue();
 }
 
 // INTERRUPT CONTEXT. LOCKED, radio_busy until we pull from continuation
 static void si446x_pkt_rx_int() {
 	// radio_lock owned by SYNC_DET at this point
 	si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	if(NEED_SI4468_CONTINUATION){
-		rx_callback_continuation.Enqueue();
-		si446x_debug_print(DEBUG01, "SI446X: si446x_pkt_rx_int()\r\n");
-	}
-	else{
-		rx_cont_do(NULL);
-	}
+	rx_callback_continuation.Enqueue();
 }
 
 // ASSUMES SPI_LOCK IS HELD BY CALLER (INTERRUPT HANDLER)
@@ -1398,9 +1374,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 		// Hope this doesn't happen much because will screw up timestamp.
 		// TODO: Spend some effort to mitigate this if/when it happens.
 		si446x_debug_print(ERR99, "SI446X: si446x_spi2_handle_interrupt() SPI locked: %s\r\n", print_lock(owner));
-#		ifdef SI446X_DEBUG_UNFINISHED_PKT
-		int_defer = true;
-#		endif
 		int_defer_continuation.Enqueue();
 		return;
 	}
@@ -1408,10 +1381,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	si446x_get_int_status(0x0, 0x0, 0x0); // Saves status and clears all interrupts
 	ph_pend			= si446x_get_ph_pend();
 	modem_pend 		= si446x_get_modem_pend();
-
-#	ifdef SI446X_DEBUG_UNFINISHED_PKT
-	int_defer = false;
-#	endif
 
 	// Only save timestamp if it was an RX event.
 	// Unlock SPI after the potential radio_lock, so both don't glitch free.
@@ -1424,9 +1393,6 @@ static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Para
 	}
 
 	if (ph_pend & PH_STATUS_MASK_PACKET_RX) 	{
-#		ifdef SI446X_DEBUG_UNFINISHED_PKT
-		finisher_queued = true;
-#		endif
 		si446x_pkt_rx_int();
 		ASSERT_RADIO(rx_callback_continuation.IsLinked());
 	}
