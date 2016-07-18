@@ -111,7 +111,6 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
 //////////////////////////////////////////////////////////////////////////////
 
 HAL_COMPLETION Samraksh_Emote_Update::s_UpdateCompletion;
-BOOL           Samraksh_Emote_Update::s_UpdateCompletionInitialized = false;
 void*          Samraksh_Emote_Update::s_UpdateCompletionArg;
 WP_Message Samraksh_Emote_Update::s_lastUsbMessage;
 void* Samraksh_Emote_Update::s_lastUsbOwner = 0;
@@ -1365,7 +1364,7 @@ bool Samraksh_Emote_Update::UpdateDeInit( WP_Message* msg, void* owner )
 {
     DeleteInstance();
     // TODO: UnInitializeMac();
-    if(Samraksh_Emote_Update::s_UpdateCompletionInitialized == TRUE) {
+    if(Samraksh_Emote_Update::s_UpdateCompletion.IsLinked() == TRUE) {
     	Samraksh_Emote_Update::s_UpdateCompletion.Abort();
     	private_free( Samraksh_Emote_Update::s_UpdateCompletionArg );
     }
@@ -1662,11 +1661,11 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 
     bool passed_validation = false;
 
-    if (Samraksh_Emote_Update::s_UpdateCompletionInitialized == TRUE) {
+    if (Samraksh_Emote_Update::s_UpdateCompletion.IsLinked() == TRUE) {
     	// UPDATE_INSTALL_MULTIPLE_QUEUED -- already have an update installation pending!
+        // ASSERT_UPDATE_PROTOCOL(0); //detect duplicate calls. do not use if callback is pre-initialized.
     	Samraksh_Emote_Update::s_UpdateCompletion.Abort();
     	private_free(Samraksh_Emote_Update::s_UpdateCompletionArg);
-    	Samraksh_Emote_Update::s_UpdateCompletionInitialized = FALSE;
     }
 
     if (cmd->m_updateValidationSize > MAX_UPDATE_VALIDATION_SIZE_IN_BYTES) {
