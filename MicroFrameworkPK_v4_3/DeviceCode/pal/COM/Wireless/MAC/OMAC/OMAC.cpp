@@ -36,10 +36,10 @@ BOOL OMACRadioInterruptHandler(RadioInterrupt Interrupt, void* Param){
 #ifdef OMAC_DEBUG_GPIO
 	CPU_GPIO_SetPinState(DATA_RX_INTERRUPT_PIN, TRUE);
 #endif
-	if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING) && Interrupt==StartOfReception){
+	if(g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING && Interrupt==StartOfReception){
 		g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleRadioInterrupt();
 	}
-	else if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DISCO_PENDING) && Interrupt==StartOfReception){
+	else if(g_OMAC.m_omac_scheduler.m_state == I_DISCO_PENDING && Interrupt==StartOfReception){
 		g_OMAC.m_omac_scheduler.m_DiscoveryHandler.HandleRadioInterrupt();
 	}
 #ifdef OMAC_DEBUG_GPIO
@@ -75,7 +75,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			break;
 		case MFM_OMAC_DATA_ACK:
 			if(CPU_Radio_GetRadioAckType() == SOFTWARE_ACK){
-				if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+				if(g_OMAC.m_omac_scheduler.m_state == I_DATA_RCV_PENDING ){
 					g_OMAC.m_omac_scheduler.m_DataReceptionHandler.SendACKHandler();
 				}
 			}
@@ -86,7 +86,7 @@ void OMACSendAckHandler(void* msg, UINT16 Size, NetOpStatus status, UINT8 radioA
 			//break;
 		default:
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, TRUE);
-			if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_SEND_PENDING)){
+			if(g_OMAC.m_omac_scheduler.m_state == I_DATA_SEND_PENDING){
 				g_OMAC.m_omac_scheduler.m_DataTransmissionHandler.SendACKHandler(rcv_msg, radioAckStatus);
 			}
 			CPU_GPIO_SetPinState(SEND_ACK_PIN, FALSE);
@@ -457,7 +457,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_DATA:
 				{
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
 #ifdef OMAC_DEBUG_GPIO
@@ -530,7 +530,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 				case MFM_OMAC_TIMESYNCREQ:
 				{
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
 #ifdef OMAC_DEBUG_GPIO
@@ -578,7 +578,7 @@ Message_15_4_t* OMACType::ReceiveHandler(Message_15_4_t* msg, int Size){
 #endif
 
 					//TODO: Commenting out below code for SI4468 radio. Needs to be re-visited.
-					if(g_OMAC.m_omac_scheduler.InputState.IsState(I_DATA_RCV_PENDING)){
+					if(g_OMAC.m_omac_scheduler.m_state == (I_DATA_RCV_PENDING)){
 						g_OMAC.m_omac_scheduler.m_DataReceptionHandler.HandleEndofReception(sourceID);
 					}
 					data_msg = (DataMsg_t*) msg->GetPayload();

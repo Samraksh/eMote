@@ -49,61 +49,19 @@
 #define MAX_DATA_PCKT_SIZE 100
 
 
-/*
- *
- */
-typedef enum {
-  //after RadioControl.stopDone();
-  E_TO_IDLE,
-  //after RadioControl.start() is called
-  E_TO_START,
-  //after RadioControl.stop() is called
-  E_TO_STOP,
-  //after data beacon is sent
-  E_TO_WAITING_DATA,
-  //for the first queued packet
-  E_TO_PRELOADING_DATA,
-  E_TO_DATA_PRELOADED,
-  E_TO_SENDING_DATA,
-  //for time synchronization
-  E_TO_BEACON_1,
-  E_TO_BEACON_N,
-} OMacEvent_t;
+
 
 /*
  *
  */
-typedef enum {
-  //after RadioControl.stopDone();
-  S_IDLE,
-  //after RadioControl.start() is called
-  S_STARTING,
-  //after RadioControl.stop() is called
-  S_STOPPING,
-  //after data beacon is sent
-  S_WAITING_DATA,
-  //for the first queued packet
-  S_PRELOADING_DATA,
-  S_DATA_PRELOADED,
-  S_SENDING_DATA,
-  //for Discovery
-  S_BEACON_1,
-  S_BEACON_N,
-  //Time Sync
-  S_TIMESYNC
-} OMacState_t;
-
-/*
- *
- */
-typedef enum {
+enum OMACSchedulerState_t{
   I_IDLE,
   I_DATA_RCV_PENDING, //waiting to receive
   I_DATA_SEND_PENDING, //pending to send
   I_TIMESYNC_PENDING,
   I_DISCO_PENDING,
   I_DWELL_SEND
-} OMacInput_t;
+} ;
 
 /*
  *

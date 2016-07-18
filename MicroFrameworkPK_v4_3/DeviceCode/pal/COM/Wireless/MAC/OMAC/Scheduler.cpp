@@ -56,7 +56,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	minStopDelay = 300; maxStopDelay = 10;
 #endif
 
-	InputState.ToIdle();
+	m_state = I_IDLE;
 
 	//Initialize the HAL vitual timer layer
 
@@ -174,7 +174,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	}
 
 	if(rxEventOffset == nextWakeupTimeInMicSec) {
-		InputState.RequestState(I_DATA_RCV_PENDING);
+		m_state = I_DATA_RCV_PENDING;
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO - OMAC_HW_ACK_DELAY; //MMA
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - RADIO_TURN_ON_DELAY_MICRO; //BK: THis calculation is done inside the nextevent in order to prevent a negative value
 	}
@@ -183,20 +183,20 @@ void OMACScheduler::ScheduleNextEvent(){
 		//TODO: BK: The PROCESSING_DELAY_BEFORE_TX_MICRO should depend on the packet size. We need to experiment and make it better. This will help balance out the guardband and take the bias out of it.
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO - OMAC_HW_ACK_DELAY;	//MMA
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec + GUARDTIME_MICRO + SWITCHING_DELAY_MICRO - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;//BK: THis calculation is done inside the nextevent in order to prevent a negative value
-		InputState.RequestState(I_DATA_SEND_PENDING);
+		m_state = I_DATA_SEND_PENDING;
 	}
 	else if(beaconEventOffset == nextWakeupTimeInMicSec) {
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY_MICRO;
-		InputState.RequestState(I_DISCO_PENDING);
+		m_state  = I_DISCO_PENDING;
 	}
 	else if(timeSyncEventOffset == nextWakeupTimeInMicSec) {
 		//nextWakeupTimeInMicSec = nextWakeupTimeInMicSec - OMAC_HW_ACK_DELAY_MICRO;
 		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, TRUE);
 		CPU_GPIO_SetPinState(SCHED_TSREQ_EXEC_PIN, FALSE);
-		InputState.RequestState(I_TIMESYNC_PENDING);
+		m_state = I_TIMESYNC_PENDING;
 	}
 	else{
-		InputState.RequestState(I_IDLE);
+		m_state = I_IDLE;
 	}
 
 
@@ -204,8 +204,8 @@ void OMACScheduler::ScheduleNextEvent(){
 #ifdef OMAC_DEBUG_PRINTF
 	UINT64 curTicks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 #ifdef OMAC_DEBUG_PRINTF
-	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu InputState.GetState() = %d \n"
-			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec), InputState.GetState() );
+	hal_printf("\n[LT: %llu - %lu NT: %llu - %lu] OMACScheduler::ScheduleNextEvent() nextWakeupTimeInMicSec= %llu AbsnextWakeupTimeInMicSec= %llu - %lu m_state.GetState() = %d \n"
+			, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks), GetSlotNumberfromTicks(curTicks), m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks), GetSlotNumberfromTicks(m_TimeSyncHandler.m_globalTime.Local2NeighborTime(g_OMAC.Neighbor2beFollowed, curTicks)), nextWakeupTimeInMicSec, g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec, GetSlotNumberfromMicroSec(g_OMAC.m_Clock.ConvertTickstoMicroSecs(curTicks)+nextWakeupTimeInMicSec), m_state );
 #endif
 #endif
 #endif
@@ -213,7 +213,7 @@ void OMACScheduler::ScheduleNextEvent(){
 
 	if(nextWakeupTimeInMicSec > MAXSCHEDULERUPDATE || nextWakeupTimeInMicSec < OMAC_SCHEDULER_MIN_REACTION_TIME_IN_MICRO ) {
 		nextWakeupTimeInMicSec = MAXSCHEDULERUPDATE;
-		InputState.RequestState(I_IDLE);
+		m_state = I_IDLE ;
 	}
 
 	SchedulerINUse = true;
@@ -250,7 +250,7 @@ bool OMACScheduler::RunEventTask(){
 #endif
 #endif
 
-	switch(InputState.GetState()) {
+	switch(m_state) {
 		case I_DATA_SEND_PENDING:
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState(SCHED_TX_EXEC_PIN, TRUE);
@@ -304,7 +304,7 @@ void OMACScheduler::PostExecution(){
 void OMACScheduler::FailsafeStop(){
 	VirtualTimerReturnMessage rm;
 	bool rv = false;
-	switch(InputState.GetState()) {
+	switch(m_state) {
 		case I_DATA_SEND_PENDING:
 			m_DataTransmissionHandler.FailsafeStop();
 			PostExecution();
@@ -343,7 +343,7 @@ void OMACScheduler::PostPostExecution(){
 	rm = VirtTimer_Stop(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE);
 
 	EnsureStopRadio();
-	InputState.ForceState(I_IDLE);
+	m_state = I_IDLE;
 #ifdef OMAC_DEBUG_GPIO
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, FALSE );
 		CPU_GPIO_SetPinState( SCHED_START_STOP_PIN, TRUE );

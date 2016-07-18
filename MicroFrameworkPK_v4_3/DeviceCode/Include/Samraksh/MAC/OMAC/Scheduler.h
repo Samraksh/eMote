@@ -26,56 +26,6 @@
 #define MAXSCHEDULERUPDATE 5000000
 #define DISCO_SLOT_GUARD 10
 
-/*
- *
- */
-typedef class State{
-  private:
-	INT32 CurrentState;
-  public:
-	//Changed state if in Idle
-	bool RequestState(OMacInput_t reqState){
-		//GLOBAL_LOCK(irq);
-
-		if(CurrentState == S_IDLE){
-			CurrentState=reqState;
-			return TRUE;
-		}
-		else if(CurrentState == S_STARTING && reqState == S_STARTING) {
-			return TRUE;
-		}
-		else return FALSE;
-	}
-
-	//Force the state machine
-	void ForceState(OMacInput_t reqState){
-		//GLOBAL_LOCK(irq);
-		//hal_printf("ForceState: currentState: %d; reqState: %d\n", CurrentState, reqState);
-		CurrentState = reqState;
-	}
-
-	//Set the current state back to S_IDLE
-	void ToIdle(){
-		//GLOBAL_LOCK(irq);
-		CurrentState = S_IDLE;
-	}
-
-	//@return TRUE if the state machine is in S_IDLE
-	bool IsIdle(){
-		if(CurrentState == S_IDLE) return TRUE;
-		else return FALSE;
-	}
-
-	//@return TRUE if the state machine is in the given state
-	bool IsState(OMacInput_t compState){
-		//GLOBAL_LOCK(irq);
-		if(CurrentState == compState) return TRUE;
-		else return FALSE;
-	}
-
-	//Get the current state
-	INT32 GetState(){return CurrentState;}
-}State_t;
 
 /*
  *
@@ -91,7 +41,9 @@ private:
 
 public:
 	bool SchedulerINUse;
-	State_t InputState;		//stores data needed by protocol for processing
+
+	OMACSchedulerState_t m_state;		//The state of the scheduler
+
 	DiscoveryHandler m_DiscoveryHandler;
 	DataReceptionHandler m_DataReceptionHandler;
 	DataTransmissionHandler m_DataTransmissionHandler;
