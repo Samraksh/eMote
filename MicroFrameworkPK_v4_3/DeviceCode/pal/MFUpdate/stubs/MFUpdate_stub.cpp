@@ -18,9 +18,9 @@ BOOL MFUpdate_SetProperty( UINT32 updateHandle, LPCSTR szPropName, UINT8* pPropV
     return FALSE;
 }
 
-INT32 MFUpdate_InitUpdate( LPCSTR szProvider, MFUpdateHeader& update )
+UpdateID_t MFUpdate_InitUpdate( LPCSTR szProvider, MFUpdateHeader& update )
 {
-    return -1;
+    //return -1;
 }
 
 BOOL MFUpdate_AuthCommand( INT32 updateHandle, UINT32 cmd, UINT8* pArgs, INT32 argsLen, UINT8* pResponse, INT32& responseLen )
