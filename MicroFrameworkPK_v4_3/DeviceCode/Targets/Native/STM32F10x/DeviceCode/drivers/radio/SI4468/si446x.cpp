@@ -1,6 +1,3 @@
-
-//#include <tinyhal.h>
-#include <Samraksh\Radio.h> // For 'DeviceStatus' at least
 #include <stdint.h>
 #include <stdarg.h>
 #include "si446x.h"

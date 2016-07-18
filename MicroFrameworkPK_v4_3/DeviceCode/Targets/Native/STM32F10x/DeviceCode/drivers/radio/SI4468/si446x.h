@@ -1,9 +1,9 @@
-#ifndef H_SI446X
-#define H_SI446X
-
+#pragma once
 #include <stdint.h>
 #include <tinyhal.h>
 #include <stm32f10x.h>
+
+#include <Samraksh\Radio.h>
 
 enum { PH_STATUS_MASK_FILTER_MATCH = 0x80, PH_STATUS_MASK_FILTER_MISS = 0x40, PH_STATUS_MASK_PACKET_SENT=0x20, PH_STATUS_MASK_PACKET_RX=0x10, \
 PH_STATUS_MASK_CRC_ERROR=0x08, PH_STATUS_MASK_ALT_CRC_ERROR=0x04, PH_STATUS_MASK_TX_FIFO_ALMOST_EMPTY=0x02, PH_STATUS_MASK_RX_FIFO_ALMOST_EMPTY=0x01 };
@@ -181,5 +181,3 @@ void radio_comm_ReadData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8
 void radio_comm_WriteData(uint8_t cmd, unsigned pollCts, uint8_t byteCount, uint8_t* pData);
 uint8_t radio_comm_GetResp(uint8_t byteCount, uint8_t* pData);
 uint8_t radio_comm_SendCmdGetResp(uint8_t cmdByteCount, uint8_t* pCmdData, uint8_t respByteCount, uint8_t* pRespData);
-
-#endif // H_SI446X

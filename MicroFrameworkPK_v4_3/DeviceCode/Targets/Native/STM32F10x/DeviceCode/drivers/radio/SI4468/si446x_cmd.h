@@ -13,10 +13,7 @@
  *
  */
 
-
-#ifndef SI446X_CMD_H
-#define SI446X_CMD_H
-
+#pragma once
 
 /* This section contains command map declarations */
 struct si446x_reply_GENERIC_map {
@@ -3787,6 +3784,3 @@ union si446x_cmd_reply_union {
         #define SI446X_CMD_GET_CHIP_STATUS_REP_CMD_ERR_CMD_ID_CMD_ERR_CMD_ID_MSB 7
         #define SI446X_CMD_GET_CHIP_STATUS_REP_CMD_ERR_CMD_ID_CMD_ERR_CMD_ID_LSB 0
         #define SI446X_CMD_GET_CHIP_STATUS_REP_CMD_ERR_CMD_ID_CMD_ERR_CMD_ID_INDEX 4
-
-
-#endif  /* _SI446X_CMD_H_ */

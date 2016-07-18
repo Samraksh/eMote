@@ -11,8 +11,7 @@
  * @n http://www.silabs.com
  */
 
-#ifndef RADIO_CONFIG_H_
-#define RADIO_CONFIG_H_
+#pragma once
 
 // USER DEFINED PARAMETERS
 // Define your own parameters here
@@ -1077,5 +1076,3 @@
                             RADIO_CONFIGURATION_DATA_RADIO_STATE_AFTER_POWER_UP,       \
                             RADIO_CONFIGURATION_DATA_RADIO_DELAY_CNT_AFTER_RESET       \
                             }
-
-#endif /* RADIO_CONFIG_H_ */
