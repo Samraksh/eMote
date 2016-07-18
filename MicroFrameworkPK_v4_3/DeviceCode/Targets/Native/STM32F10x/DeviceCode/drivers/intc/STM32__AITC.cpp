@@ -285,11 +285,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	bool STKERR    = (_BFAR & (1<<4)) > 0; // Error occurred during stacking (starting of exception).
 	bool UNSTKERR  = (_BFAR & (1<<3)) > 0; // Error occurred during unstacking (ending of exception. If there was no error
 	                                       // stacking but error occurred during unstacking, it might be that the stack pointer was corrupted during exception.
-	bool IMPRECISERR=(_BFAR & (1<<2)) > 0;
-	bool PRECISERR = (_BFAR & (1<<1)) > 0;
-	bool IBUSERR   = (_BFAR & (1<<0)) > 0;
+	bool IMPRECISERR=(_BFAR & (1<<2)) > 0; // Bus error during data access. The fault address may be indicated by BFAR.
+	bool PRECISERR = (_BFAR & (1<<1)) > 0; // Bus error during data access. The fault address may be inidcated by BFAR.
+	bool IBUSERR   = (_BFAR & (1<<0)) > 0; // Branch to invalid memory regions, or invalid exception return code, or invalid entry in exception vector table, or stacked PC corrupted during function calls, or access to NVIC or SCB in user mode (nonprivileged).
 
-	bool DIVBYZERO = (_UFSR & (1<<9)) > 0;
+	bool DIVBYZERO = (_UFSR & (1<<9)) > 0; // is DIV_0_TRP set? find code at fault with stacked PC
 	bool UNALIGNED = (_UFSR & (1<<8)) > 0;
 	bool NOCP      = (_UFSR & (1<<3)) > 0;
 	bool INVPC     = (_UFSR & (1<<2)) > 0;
@@ -305,9 +305,9 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 	bool EXTERNAL  = (_DFSR & (1<<4)) > 0;
 	bool VCATCH    = (_DFSR & (1<<3)) > 0;
-	bool DWTTRAP   = (_DFSR & (1<<2)) > 0;
-	bool BKPT      = (_DFSR & (1<<1)) > 0;
-	bool HALTED    = (_DFSR & (1<<0)) > 0;
+	bool DWTTRAP   = (_DFSR & (1<<2)) > 0; // DWT watchpoint event has occurred.
+	bool BKPT      = (_DFSR & (1<<1)) > 0; // Breakpoint instruction is executed, or FPB unit generated breakpoint event.
+	bool HALTED    = (_DFSR & (1<<0)) > 0; // Halt request in NVIC
 
     pNVIC      = NVIC;
     pSCB       = SCB;
@@ -337,7 +337,7 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 	{
 			// This assembly code will find the location of the stack and pass it to a C function hard fault handler (HardFault_HandlerC)
 			asm(
-				"TST LR, #4 \n"
+				"TST LR, #4 \n"          // Test EXC_RETURN number in LR bit 2 to determine if main stack or program stack is in use.
 				"ITE EQ \n"
 				"MRSEQ R0, MSP \n"
 				"MRSNE R0, PSP \n"
