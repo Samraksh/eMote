@@ -1977,13 +1977,13 @@ measureAgain:
 	if(RF231_extended_mode){
 		if (state != STATE_RX_AACK_ON && state != STATE_BUSY_RX_AACK) {
 			hal_printf("GetAverageOrMaxRSSI_countN; state is: %d\n", state);
-			return 0x7FFFFFFF;
+			return 0xFFFF;
 		}
 	}
 	else{
 		if (state != STATE_RX_ON && state != STATE_BUSY_RX) {
 			hal_printf("GetAverageOrMaxRSSI_countN; state is: %d\n", state);
-			return 0x7FFFFFFF;
+			return 0xFFFF;
 		}
 	}
 	UINT16 rssi = 0;
