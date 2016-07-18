@@ -13,6 +13,9 @@
 <Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__AcousticDetection.cpp" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction_mshl.cpp" />
+<HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.h" />
+<Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__DecisionFunction.cpp" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection_mshl.cpp" />
 <HFile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.h" />
 <Compile Include="SamrakshEmote_Samraksh_eMote_Algorithm__RadarDetection.cpp" />

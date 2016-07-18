@@ -33,8 +33,12 @@
 #define SI446x_INT_MODE_CHECK() {}
 #endif
 
+// Uncomment to disable debug prints
+// Cuts Flash usage by about 5.7 kB
+//#define SI446x_NO_DEBUG_PRINT
 
-#define SI446X_DEBUG_UNFINISHED_PKT // remove me.
+
+//#define SI446X_DEBUG_UNFINISHED_PKT // remove me.
 #ifdef SI446X_DEBUG_UNFINISHED_PKT
 static volatile bool int_defer = false;
 static volatile bool finisher_queued = false;
@@ -45,10 +49,9 @@ enum { SI_DUMMY=0, };
 // For now, memorize all WWF serial numbers
 // Yes these are strings and yes I'm a terrible person.
 // These are hex CPU serial numbers
-enum { serial_max = 2, serial_per = 25 };
-//const char wwf_serial_numbers[serial_max][serial_per]  = { "3300d9054642353044501643", "3300e0054642353045241643" };
-const char dotnow_serial_numbers[serial_max][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
-const char wwf2_serial_numbers[serial_max][serial_per]   = { "05de00333035424643163542", "05d900333035424643162544" };
+enum { serial_max_dotnow = 2, serial_max_wwf2=4, serial_per = 25 };
+const char dotnow_serial_numbers[serial_max_dotnow][serial_per] = { "392dd9054355353848400843", "3400d805414d303635341043" };
+const char wwf2_serial_numbers[serial_max_wwf2][serial_per]     = { "05de00333035424643163542", "05d900333035424643162544", "3300d9054642353041381643", "3300df054642353040531643" };
 // end serial number list.
 
 // SETS SI446X PRINTF DEBUG VERBOSITY
@@ -199,6 +202,7 @@ static const char* PrintStateID(si_state_t id){
 	}
 }
 
+#ifndef SI446x_NO_DEBUG_PRINT
 static void si446x_debug_print(int priority, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -209,6 +213,10 @@ static void si446x_debug_print(int priority, const char *fmt, ...) {
 
     va_end(args);
 }
+#else
+// Compiler is smart enough to toss out debug strings even in debug mode
+static void si446x_debug_print(int priority, const char *fmt, ...) { return; }
+#endif
 
 static void si446x_spi2_handle_interrupt(GPIO_PIN Pin, BOOL PinState, void* Param);
 
@@ -566,12 +574,12 @@ static int am_i_wwf(void) {
 
 	// check against all other serials.
 	// This is a brutal ugly O(n) search.
-	for(int i=0; i<serial_max; i++) {
+	for(int i=0; i<serial_max_dotnow; i++) {
 		if ( strcmp( dotnow_serial_numbers[i], my_serial ) == 0 )
 			return 0;
 	}
 
-	for(int i=0; i<serial_max; i++) {
+	for(int i=0; i<serial_max_wwf2; i++) {
 		if ( strcmp( wwf2_serial_numbers[i], my_serial ) == 0 )
 			return 2;
 	}

@@ -119,6 +119,33 @@
             </summary>
             <returns>Returns the last window's displacement at the mid-point of the window.</returns>
         </member>
+        <member name="T:Samraksh.eMote.Algorithm.DecisionFunction">
+            <summary>
+            Classifier class  
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.#ctor">
+            <summary>
+            Classifier class
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.Finalize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.NormalizeFeatureVector(System.Single[],System.Int32[])">
+            <summary>
+            The feature vector is normailized
+            </summary>
+            <returns>A pointer to the nomralized vectors is returned.</returns>
+        </member>
+        <member name="M:Samraksh.eMote.Algorithm.DecisionFunction.Decide(System.Int32[])">
+            <summary>
+            A decision is made based on the support vecorts
+            </summary>
+            <returns>A decision is returned.</returns>
+        </member>
         <member name="T:Samraksh.eMote.Algorithm.AcousticDetection">
             <summary>
             Acoustic Detection class  
@@ -131,7 +158,7 @@
         </member>
         <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.Finalize">
             <summary>
-            Destroys the data in the data store
+            
             </summary>
         </member>
         <member name="M:Samraksh.eMote.Algorithm.AcousticDetection.DetectionCalculation(System.UInt16[],System.Int32,System.Double[],System.Boolean)">

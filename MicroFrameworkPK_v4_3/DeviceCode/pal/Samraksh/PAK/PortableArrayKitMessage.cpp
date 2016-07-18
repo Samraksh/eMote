@@ -78,7 +78,11 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size);
 
 #define MIN(a, b) (((a) < (b))?(a):(b))
 
-
+#if defined(DEBUG_EMOTE_UPDATE_SEND)
+#define DEBUG_BREAK_SEND_FAIL() SOFT_BREAKPOINT();
+#else
+#define DEBUG_BREAK_SEND_FAIL() {__ASM volatile ("nop");}
+#endif
 
 /**
  * MULTIPLEX_PACKETS() break out of command handler if operating as base-station pass through.
@@ -842,7 +846,10 @@ void Samraksh_Emote_Update::DeleteInstance() {
 void Samraksh_Emote_Update::Cleanup() {
     if(!g_Samraksh_Emote_Update.m_fInitialized) return;
     //CPU_Radio_Sleep(g_Samraksh_Emote_Update.PAK_MacConfig.RadioID,/*RadioStateEnum::*/STATE_SLEEP); //This is now handled by the new MAC API?? not really.
-
+    if(g_Samraksh_Emote_Update.s_UpdateCompletion.IsLinked()) {
+        // TODO: save tasks for after reboot, ie if we have multiple initializations.
+        g_Samraksh_Emote_Update.s_UpdateCompletion.Abort();  //TODO: completion Abort might not be needed
+    }
     g_Samraksh_Emote_Update.m_fInitialized = false;
 }
 
@@ -1012,6 +1019,7 @@ UINT32 GetFirstMissingPacket(MFUpdate* updateInfo) {
 UINT32 GetFirstMissingPacket(MFUpdate* updateInfo, UINT32* missingPkts ) {
     UINT32 i=0; ///!< word iterator
     UINT32 j=0; ///!< bit iterator
+    ASSERT(updateInfo->m_missingPktsWordfieldSize <= updateInfo->MAX_MISSING_WORDFIELD_SIZE);
     for(; i < updateInfo->m_missingPktsWordfieldSize; i++) {
         if(missingPkts[i] != 0) {
             for(;j < 32; j++) {
@@ -1059,7 +1067,7 @@ void Samraksh_Emote_Update::SendStart(UpdateID_t updateId, UINT16 destAddr)
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        // SOFT_BREAKPOINT(); // transmit could be false if there are no neighbors.
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1087,7 +1095,7 @@ void Samraksh_Emote_Update::SendAuthCommand(UpdateID_t updateId, UINT16 destAddr
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1114,7 +1122,7 @@ void Samraksh_Emote_Update::SendAuthenticate(UpdateID_t updateId, UINT16 destAdd
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1139,7 +1147,7 @@ void Samraksh_Emote_Update::SendGetMissingPkts(UpdateID_t updateId, UINT16 destA
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
         //TODO: FIXME: schedule continuation. or let timeout handle it?
     }
     return;
@@ -1177,7 +1185,7 @@ void Samraksh_Emote_Update::SendAddPacket(UpdateID_t updateId, UINT16 destAddr, 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
         //TODO: tell C-sharp that send failed
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1231,7 +1239,7 @@ void Samraksh_Emote_Update::SendInstall(UpdateID_t updateId, UINT16 destAddr)
 
     bool tx_ret = g_Samraksh_Emote_Update.Wireless_Phy_TransmitMessage(&g_Samraksh_Emote_Update, msg);
     if(tx_ret != true) {
-        //SOFT_BREAKPOINT();
+		DEBUG_BREAK_SEND_FAIL();
     }
     return;
 }
@@ -1616,7 +1624,11 @@ bool Samraksh_Emote_Update::AddPacket(WP_Message* msg, void* owner )
     //TODO: figure out why the code originally returned false here. could be related to bug where packet index 0 always fails.
     reply.m_updateHandle = cmd->m_updateHandle;
     reply.m_packetIndex = cmd->m_packetIndex;
-    reply.m_nextMissingPacketIndex = GetFirstMissingPacket(updateInfo);
+    reply.m_nextMissingPacketIndex = 0;
+    if(updateInfo != NULL)
+    {
+        reply.m_nextMissingPacketIndex = GetFirstMissingPacket(updateInfo);
+    }
 
     /*dbg->m_messaging->*/ReplyToCommand( msg, true, false, &reply, sizeof(reply) );
 
@@ -1672,12 +1684,21 @@ bool Samraksh_Emote_Update::Install(WP_Message* msg, void* owner )
 	}
 
     update_completion_arg = (struct SUpdateInstall*) private_malloc(sizeof(struct SUpdateInstall) + cmd->m_updateValidationSize);
+    if(update_completion_arg == NULL) {
+		//TODO: record OOM error
+		passed_validation = false;
+		goto Install_out;
+    }
+
+    //FIXME: should add install time/date, use continuation, so multiple assemblies may be scheduled for installation.
+    // but the schedule would need to be saved in non-volatile memory (maybe inside Update metadata in FLASH)
+    // and we need persistent datetime keeping, and global datetime synchronization first...
     update_completion_arg->m_updateHandle = cmd->m_updateHandle;
     update_completion_arg->m_updateValidationSize = cmd->m_updateValidationSize;
     memcpy(&update_completion_arg->m_updateValidation[0], &cmd->m_updateValidation[0], cmd->m_updateValidationSize);
     Samraksh_Emote_Update::s_UpdateCompletionArg = update_completion_arg;
 
-	Samraksh_Emote_Update::s_UpdateCompletion.Initialize();
+
 	Samraksh_Emote_Update::s_UpdateCompletion.InitializeForUserMode(Samraksh_Emote_Update::UpdateCompletion, (void*)update_completion_arg);
 	Samraksh_Emote_Update::s_UpdateCompletion.EnqueueDelta64( 5 * 1000000 ); // schedule install in 5 seconds
 	//TODO: record "update queued" in reply message!

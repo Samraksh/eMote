@@ -140,6 +140,45 @@ namespace Samraksh.eMote
         }
 
         /// <summary>
+        /// Classifier class  
+        /// </summary>
+        public class DecisionFunction
+        {
+            /// <summary>
+            /// Classifier class
+            /// </summary>
+            public DecisionFunction()
+            {
+                
+            }
+
+            //////////////////////////public properties and methods/////////////////////
+
+            /// <summary>
+            /// 
+            /// </summary>
+            ~DecisionFunction()
+            {
+            }
+
+            ///////////////////////////////////Internal methods/////////////////////////
+
+            /// <summary>
+            /// The feature vector is normailized
+            /// </summary>
+            /// <returns>A pointer to the nomralized vectors is returned.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public void NormalizeFeatureVector(float[] featureVector, int[] normalizedVector);
+
+            /// <summary>
+            /// A decision is made based on the support vecorts
+            /// </summary>
+            /// <returns>A decision is returned.</returns>
+            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            extern public float Decide(int[] normalizedVector);
+        }
+
+        /// <summary>
         /// Acoustic Detection class  
         /// </summary>
         public class AcousticDetection
@@ -155,7 +194,7 @@ namespace Samraksh.eMote
             //////////////////////////public properties and methods/////////////////////
 
             /// <summary>
-            /// Destroys the data in the data store
+            /// 
             /// </summary>
             ~AcousticDetection()
             {
