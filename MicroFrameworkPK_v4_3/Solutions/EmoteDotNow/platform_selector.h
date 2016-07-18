@@ -231,7 +231,7 @@ HAL_RECEPTION_TIMER 6
 #define VIRT_TIMER_EVENTS 			0
 #define VIRT_TIMER_REALTIME 		1
 #define VIRT_TIMER_OMAC_SCHEDULER	2
-//#define LocalClockMonitor_TIMER1 3
+#define LocalClockMonitor_TIMER1 3
 //#define VIRT_TIMER_OMAC_DISCOVERY_POST_EXEC		3
 #define NeighborClockMonitor_TIMER1 4
 #define VIRT_TIMER_OMAC_RECEIVER_ACK 	5
