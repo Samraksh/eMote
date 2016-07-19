@@ -8,14 +8,14 @@
 //#include "Datastore.h"
 //#include "DatastoreInt.h"
 
-#define MAX_NUM_TABLE_ENTRIES       (256)
+#define MAX_NUM_TABLE_ENTRIES       (128)
 
 typedef void* LPVOID;
 
 using namespace std;
 
 
-typedef struct
+typedef struct PACK
 {
     RECORD_ID  recordID;           /* Unique allocation identifier */
     //LPVOID     givenPtr;           /* Smart pointer that is given to the user of datastore */
