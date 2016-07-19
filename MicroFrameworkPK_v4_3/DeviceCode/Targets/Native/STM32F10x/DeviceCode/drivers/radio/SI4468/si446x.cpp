@@ -73,7 +73,7 @@ void si446x_set_debug_print(my_debug_print_t f, unsigned level) {
 }
 
 static void radio_error() {
-	__ASM volatile ("bkpt"); // TURN ME OFF FOR RELEASE !!!!!!
+	//__ASM volatile ("bkpt"); // TURN ME OFF FOR RELEASE !!!!!!
 	__enable_irq(); // So any remaining messages can spit out
 	while(1);
 }
