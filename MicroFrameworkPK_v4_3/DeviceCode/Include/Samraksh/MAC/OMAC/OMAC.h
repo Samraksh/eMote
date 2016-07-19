@@ -50,10 +50,10 @@
 #endif
 
 #ifdef OMAC_DEBUG_PRINTF
-#define OMAC_HAL_PRINTF(fmt, ...) hal_printf(fmt, ##__VA_ARGS__)
+#define OMAC_HAL_PRINTF(...) hal_printf(__VA_ARGS__)
 #endif
 #ifndef OMAC_DEBUG_PRINTF
-#define OMAC_HAL_PRINTF(fmt, ...) (void)0
+#define OMAC_HAL_PRINTF(...) (void)0
 #endif
 
 //typedef Buffer_15_4<8> Buffer_15_4_t;

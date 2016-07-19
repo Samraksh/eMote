@@ -37,7 +37,7 @@ extern UINT8 MacName;
 #else
 #define ENABLE_PIN_NB(x,y)
 #define SET_PIN_NB(x,y)
-#define DEBUG_PRINTF_NB(...)(void)0
+#define DEBUG_PRINTF_NB(...) hal_printf(__VA_ARGS__)
 #endif
 
 typedef struct {
@@ -190,7 +190,7 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 cu
 		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
 
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %d \n", Neighbor[i].MacAddress);
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %hu \n", Neighbor[i].MacAddress);
 			Neighbor[i].Status = Dead;
 			++deadNeighbors;
 			--NumberValidNeighbor;
@@ -247,7 +247,7 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 	{
 		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor due to inactivity\n");
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor %hu due to inactivity\n", Neighbor[i].MacAddress);
 			Neighbor[i].Status = Dead;
 			deadNeighbors++;
 			NumberValidNeighbor--;
@@ -359,6 +359,7 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 			retValue = GetFreeIdx(index);
 			Neighbor[*index].MacAddress = address;
 			Neighbor[*index].NumTimeSyncMessagesSent = 0;
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
 		}
 		else{
 			if(Neighbor[*index].Status != Alive){

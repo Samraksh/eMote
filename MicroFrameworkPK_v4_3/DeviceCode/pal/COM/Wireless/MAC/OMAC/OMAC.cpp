@@ -17,6 +17,13 @@
 #define DEBUG_OMAC 0
 const bool NEED_OMAC_CALLBACK_CONTINUATION = false;
 
+
+#if defined(OMAC_DEBUG_PRINTF) || defined(DEBUG_OMAC_PREPAREMESSAGEBUFFER)
+#define DEBUG_OMAC_PMB_PRINTF(...) hal_printf( __VA_ARGS__ )
+#else
+#define DEBUG_OMAC_PMB_PRINTF(...) (void)0
+#endif
+
 OMACType g_OMAC;
 
 UINT8 OMACType::payloadTypeArrayIndex = 0;
@@ -741,27 +748,21 @@ BOOL OMACType::SendTimeStamped(UINT16 address, UINT8 dataType, void* msg, int si
 Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, void* msg, int size){
 	static UINT8 seqNumber = 0;
 	UINT8 finalSeqNumber = 0;
-
 	Message_15_4_t* msg_carrier = (Message_15_4_t*)(NULL);
+
 	if(size > OMACType::GetMaxPayload()){
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Send Error: Packet is too big: %d ", size);
-#endif
-		return msg_carrier;
+		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Packet is too big: %d ", size);
+		return (Message_15_4_t*)(NULL);
 	}
 
 	Neighbor_t* neighborEntry = g_NeighborTable.GetNeighborPtr(address);
 	if(neighborEntry == NULL) {
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Send Error: Destination does not exist in neighbor table %d ", address);
-#endif
-		return msg_carrier;
+		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination does not exist in neighbor table %d \n", address);
+		return (Message_15_4_t*)(NULL);
 	}
 	else if(neighborEntry->Status == Dead) {
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d ", address);
-#endif
-		return msg_carrier;
+		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d \n", address);
+		return (Message_15_4_t*)(NULL);
 	}
 
 	if(dataType == MFM_OMAC_TIMESYNCREQ){
@@ -772,27 +773,24 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		}
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 
-		if(neighborEntry->send_buffer.IsBufferFull()){
-#ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
-#endif
+		if(msg_carrier == (Message_15_4_t*)(NULL)){
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free tsr_send_buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+			return (Message_15_4_t*)(NULL);
+		}
+		else if(neighborEntry->tsr_send_buffer.IsBufferFull()){
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
 		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
 
-		if(neighborEntry->send_buffer.IsBufferFull()){
-#ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
-#endif
+		if(msg_carrier == (Message_15_4_t*)(NULL)){
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free send_buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+			return (Message_15_4_t*)(NULL);
 		}
-	}
-
-	if(msg_carrier == (Message_15_4_t*)(NULL)){
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free buffer available. Addr: %d.\n", neighborEntry->MacAddress);
-#endif
-		return msg_carrier;
+		else if(neighborEntry->send_buffer.IsBufferFull()){
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+		}
 	}
 
 	IEEE802_15_4_Header_t* header = msg_carrier->GetHeader();
@@ -860,6 +858,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 	//header->SetLength(size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t) + sizeof(IEEE802_15_4_Footer_t)+sizeof(IEEE802_15_4_Metadata));
 	//header->length = (size + sizeof(UINT32) + sizeof(UINT8) + sizeof(IEEE802_15_4_Header_t));
 	header->length = (size + DataMsgOverhead + sizeof(IEEE802_15_4_Header_t));
+
 
 	return msg_carrier;
 }

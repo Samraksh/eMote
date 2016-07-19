@@ -322,6 +322,11 @@ const uint __SI4468_HARDWARE_ACK__ = 0;		//Hardware ack is always zero for SI446
 
 // For debugging OMAC - START
 
+// OMAC debug console switches
+//#define DEBUG_OMAC_PREPAREMESSAGEBUFFER         // find out when too much is being sent.
+//#define DEBUG_OMAC_UPDATENEIGHBORSWAKEUPSLOT    // find out when neighbors are dropped and inserted
+//#define OMAC_DEBUG_PRINTF                     // all OMAC firehose
+
 /*
 J11_PIN1 = Vin
 public const Cpu.Pin GPIO_J11_PIN3 = 0; (PA0)

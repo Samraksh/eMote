@@ -17,6 +17,13 @@
 
 extern OMACType g_OMAC;
 
+#if defined(OMAC_DEBUG_PRINTF) || defined(DEBUG_OMAC_UPDATENEIGHBORSWAKEUPSLOT)
+#define DEBUG_OMAC_UNWUS_PRINTF(...) hal_printf( __VA_ARGS__ )
+#else
+#define DEBUG_OMAC_UNWUS_PRINTF(...) (void)0
+#endif
+
+
 
 void PublicDataTxCallback(void * param){
 	if(	FAST_RECOVERY) {
@@ -737,18 +744,14 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 	Neighbor_t* neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 	if (neighborEntry != NULL) {
 		if (neighborEntry->MacAddress != dest) {
-#ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
-#endif
+			DEBUG_OMAC_UNWUS_PRINTF("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 			return FALSE;
 		}
 		UINT64 y = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 		UINT64 neighborTimeinTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Local2NeighborTime(dest, g_OMAC.m_Clock.GetCurrentTimeinTicks());
 		if (neighborTimeinTicks == 0){ //Case: No timing info is available for the destination
 			//Keep the packet but do not schedule the data packet
-#ifdef OMAC_DEBUG_PRINTF
-			OMAC_HAL_PRINTF("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
-#endif
+			DEBUG_OMAC_UNWUS_PRINTF("DataTransmissionHandler::ScheduleDataPacket() neighbor time is not known!!!\n");
 			return FALSE;
 		}
 		UINT64 neighborSlot = g_OMAC.m_omac_scheduler.GetSlotNumberfromTicks(neighborTimeinTicks);
@@ -766,9 +769,7 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 		return TRUE;
 	}
 	else { //Case : destination does not exist in the neighbor table
-#ifdef OMAC_DEBUG_PRINTF
-		OMAC_HAL_PRINTF("Cannot find nbr %u\n", dest);
-#endif
+		DEBUG_OMAC_UNWUS_PRINTF("Cannot find nbr %u\n", dest);
 		return FALSE;
 	}
 }
