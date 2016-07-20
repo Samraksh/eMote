@@ -555,17 +555,20 @@
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.MACAddress">
             <summary>MAC address of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ForwardLink">
-            <summary>Forward link of neighbor</summary>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.SendLink">
+            <summary>Send (formerly forward) link details between current and neighbor node. Provides link details 
+            of transmissions to a certain neighbor. Since a sender will not have the link details when sending a packet, the receiver 
+            has to send back the details (such as RSSI, LQI) to the sender (by piggybacking on a data packet for instance). </summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ReverseLink">
-            <summary>Reverse link of neighbor</summary>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.ReceiveLink">
+            <summary>Receive (formerly reverse) link details between current and neighbor node. Provides link details 
+            of receptions from a certain neighbor. A received packet's metadata carries details such as RSSI and LQI.</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.Status">
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.NeighborStatus">
             <summary>Status of neighbor</summary>
         </member>
-        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.PacketsReceived">
-            <summary>Packets received from neighbor</summary>
+        <member name="F:Samraksh.eMote.Net.MAC.Neighbor.CountOfPacketsReceived">
+            <summary>Packet receive count</summary>
         </member>
         <member name="F:Samraksh.eMote.Net.MAC.Neighbor.LastHeardTime">
             <summary>Last time heard from neighbor</summary>
