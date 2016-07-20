@@ -54,12 +54,14 @@ enum NeighborStatus {
 };
 
 typedef struct {
-	UINT16 MacAddress;
+	UINT16 MACAddress;
 	UINT8 NumTimeSyncMessagesSent;
-	Link_t ForwardLink;
-	Link_t ReverseLink;
-	NeighborStatus Status;
-	UINT16 PacketsReceived;
+	//Send (formerly forward) link details between current and neighbor node
+	Link_t SendLink;
+	//Receive (formerly reverse) link details between current and neighbor node
+	Link_t ReceiveLink;
+	NeighborStatus neighborStatus;
+	UINT16 CountOfPacketsReceived;
 	UINT64 LastHeardTime;
 	UINT8 ReceiveDutyCycle; //percentage
 	UINT16 FrameLength;
@@ -88,12 +90,12 @@ typedef struct {
 
 class NeighborTableCommonParameters_One_t{
 public:
-	UINT16 MacAddress;
+	UINT16 MACAddress;
 	NeighborStatus status;
 	UINT64 lastHeardTime;
 	Link_t linkQualityMetrics;
 	NeighborTableCommonParameters_One_t(){
-		MacAddress = 0;
+		MACAddress = 0;
 		status = NbrStatusError;
 		lastHeardTime = 0;
 		linkQualityMetrics.LinkQuality = 0;
@@ -124,10 +126,10 @@ public:
 
 	// neighbor table util functions
 	DeviceStatus GetFreeIdx(UINT8* index);
-	DeviceStatus ClearNeighbor(UINT16 MacAddress);
+	DeviceStatus ClearNeighbor(UINT16 MACAddress);
 	DeviceStatus ClearNeighborwIndex(UINT8 tableIndex);
-	DeviceStatus FindIndexEvenDead(const UINT16 MacAddress, UINT8* index);
-	DeviceStatus FindIndex(const UINT16 MacAddress, UINT8* index);
+	DeviceStatus FindIndexEvenDead(const UINT16 MACAddress, UINT8* index);
+	DeviceStatus FindIndex(const UINT16 MACAddress, UINT8* index);
 	void ClearTable();
 	UINT8 BringOutYourDead(UINT32 delay);
 	Neighbor_t* GetNeighborPtr(UINT16 address);
@@ -154,15 +156,15 @@ public:
 	void DegradeLinks();
 	UINT16 GetMaxNeighbors();
 
-	DeviceStatus RecordLastHeardTime(UINT16 MacAddress, UINT64 currTime);
+	DeviceStatus RecordLastHeardTime(UINT16 MACAddress, UINT64 currTime);
 
 };
 
-DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MacAddress, UINT64 currTime){
+DeviceStatus NeighborTable::RecordLastHeardTime(UINT16 MACAddress, UINT64 currTime){
 	UINT8 index;
-	DeviceStatus retValue = FindOrInsertNeighbor(MacAddress, &index);
+	DeviceStatus retValue = FindOrInsertNeighbor(MACAddress, &index);
 
-	if ( (retValue==DS_Success) && (MacAddress != 0 || MacAddress != 65535)){
+	if ( (retValue==DS_Success) && (MACAddress != 0 || MACAddress != 65535)){
 		Neighbor[index].LastHeardTime = currTime;
 		return DS_Success;
 	}
@@ -187,11 +189,11 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay, UINT64 cu
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
+		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
 
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %hu \n", Neighbor[i].MacAddress);
-			Neighbor[i].Status = Dead;
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing inactive neighbor %hu \n", Neighbor[i].MACAddress);
+			Neighbor[i].neighborStatus = Dead;
 			++deadNeighbors;
 			--NumberValidNeighbor;
 		}
@@ -205,11 +207,11 @@ UINT8 NeighborTable::UpdateNeighborTable(UINT32 NeighborLivenessDelay)
 	return BringOutYourDead(NeighborLivenessDelay);
 }
 
-DeviceStatus NeighborTable::FindIndexEvenDead(const UINT16 MacAddress, UINT8* index){
+DeviceStatus NeighborTable::FindIndexEvenDead(const UINT16 MACAddress, UINT8* index){
 	int tableIndex;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if ( (Neighbor[tableIndex].MacAddress == MacAddress)) {
+		if ( (Neighbor[tableIndex].MACAddress == MACAddress)) {
 			*index = tableIndex;
 			return DS_Success;
 		}
@@ -217,11 +219,11 @@ DeviceStatus NeighborTable::FindIndexEvenDead(const UINT16 MacAddress, UINT8* in
 	return DS_Fail;
 }
 
-DeviceStatus NeighborTable::FindIndex(const UINT16 MacAddress, UINT8* index){
+DeviceStatus NeighborTable::FindIndex(const UINT16 MACAddress, UINT8* index){
 	int tableIndex;
 	
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if ( (Neighbor[tableIndex].MacAddress == MacAddress) && (Neighbor[tableIndex].Status == Alive)) {
+		if ( (Neighbor[tableIndex].MACAddress == MACAddress) && (Neighbor[tableIndex].neighborStatus == Alive)) {
 			*index = tableIndex;
 			return DS_Success;
 		}
@@ -245,10 +247,10 @@ UINT8 NeighborTable::BringOutYourDead(UINT32 delay){
 
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if((Neighbor[i].Status == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
+		if((Neighbor[i].neighborStatus == Alive) && ((currentTime - Neighbor[i].LastHeardTime) > livelinessDelayInTicks) && (Neighbor[i].LastHeardTime != 0))
 		{
-			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor %hu due to inactivity\n", Neighbor[i].MacAddress);
-			Neighbor[i].Status = Dead;
+			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Removing Neighbor %hu due to inactivity\n", Neighbor[i].MACAddress);
+			Neighbor[i].neighborStatus = Dead;
 			deadNeighbors++;
 			NumberValidNeighbor--;
 		}
@@ -267,17 +269,17 @@ DeviceStatus NeighborTable::ClearNeighbor(UINT16 nodeId){
 }
 
 DeviceStatus NeighborTable::ClearNeighborwIndex(UINT8 tableIndex){
-	Neighbor[tableIndex].Status = Dead;
-	Neighbor[tableIndex].MacAddress = INVALID_MACADDRESS;
+	Neighbor[tableIndex].neighborStatus = Dead;
+	Neighbor[tableIndex].MACAddress = INVALID_MACADDRESS;
 	Neighbor[tableIndex].NumTimeSyncMessagesSent = 0;
-	Neighbor[tableIndex].ForwardLink.AvgRSSI = 0;
-	Neighbor[tableIndex].ForwardLink.LinkQuality = 0;
-	Neighbor[tableIndex].ForwardLink.AveDelay = 0;
-	Neighbor[tableIndex].ReverseLink.AvgRSSI = 0;
-	Neighbor[tableIndex].ReverseLink.LinkQuality = 0;
-	Neighbor[tableIndex].ReverseLink.AveDelay = 0;
+	Neighbor[tableIndex].SendLink.AvgRSSI = 0;
+	Neighbor[tableIndex].SendLink.LinkQuality = 0;
+	Neighbor[tableIndex].SendLink.AveDelay = 0;
+	Neighbor[tableIndex].ReceiveLink.AvgRSSI = 0;
+	Neighbor[tableIndex].ReceiveLink.LinkQuality = 0;
+	Neighbor[tableIndex].ReceiveLink.AveDelay = 0;
 
-	Neighbor[tableIndex].PacketsReceived = 0;
+	Neighbor[tableIndex].CountOfPacketsReceived = 0;
 	Neighbor[tableIndex].LastHeardTime = 0;
 	Neighbor[tableIndex].ReceiveDutyCycle = 0; //percentage
 	Neighbor[tableIndex].FrameLength = 0;
@@ -314,16 +316,16 @@ DeviceStatus NeighborTable::GetFreeIdx(UINT8* index){
 	int tableIndex;
 
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if( Neighbor[tableIndex].MacAddress == INVALID_MACADDRESS){
+		if( Neighbor[tableIndex].MACAddress == INVALID_MACADDRESS){
 			*index = tableIndex;
 			rv = DS_Success;
 			break;
 		}
-		else if (Neighbor[tableIndex].Status == Dead){
+		else if (Neighbor[tableIndex].neighborStatus == Dead){
 			*index = tableIndex;
 		}
 	}
-	if(Neighbor[*index].MacAddress != INVALID_MACADDRESS){
+	if(Neighbor[*index].MACAddress != INVALID_MACADDRESS){
 		ClearNeighborwIndex(*index);
 	}
 	return rv;
@@ -357,12 +359,12 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 		retValue = FindIndexEvenDead(address, index);
 		if(retValue == DS_Fail) {
 			retValue = GetFreeIdx(index);
-			Neighbor[*index].MacAddress = address;
+			Neighbor[*index].MACAddress = address;
 			Neighbor[*index].NumTimeSyncMessagesSent = 0;
 			DEBUG_PRINTF_NB("[NATIVE] Neighbors.h : Inserting Neighbor %hu.\n", address);
 		}
 		else{
-			if(Neighbor[*index].Status != Alive){
+			if(Neighbor[*index].neighborStatus != Alive){
 				Neighbor[*index].NumTimeSyncMessagesSent = 0;
 			}
 		}
@@ -371,18 +373,18 @@ DeviceStatus NeighborTable::FindOrInsertNeighbor(const UINT16 address, UINT8* in
 }
 
 DeviceStatus NeighborTable::InsertNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t){
-	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	UINT16 address = neighborTableCommonParameters_One_t->MACAddress;
 	UINT8 index;
     DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 
 	if (retValue == DS_Success && (address != 0 || address != 65535)){
 		NumberValidNeighbor++;
-		Neighbor[index].ReverseLink.AvgRSSI =  0;
-		Neighbor[index].ReverseLink.LinkQuality =  0;
-		Neighbor[index].ReverseLink.AveDelay =  0;
-		Neighbor[index].ForwardLink.AvgRSSI =  0;
-		Neighbor[index].ForwardLink.LinkQuality =  0;
-		Neighbor[index].ForwardLink.AveDelay =  0;
+		Neighbor[index].ReceiveLink.AvgRSSI =  0;
+		Neighbor[index].ReceiveLink.LinkQuality =  0;
+		Neighbor[index].ReceiveLink.AveDelay =  0;
+		Neighbor[index].SendLink.AvgRSSI =  0;
+		Neighbor[index].SendLink.LinkQuality =  0;
+		Neighbor[index].SendLink.AveDelay =  0;
 		retValue = UpdateNeighbor(neighborTableCommonParameters_One_t, neighborTableCommonParameters_Two_t);
 	}
 	return retValue;
@@ -393,14 +395,14 @@ DeviceStatus NeighborTable::UpdateLink(UINT16 address, Link_t *forwardLink, Link
 
 	if ((retValue!=DS_Success) && (address != 0 || address != 65535)){
 			if(forwardLink != NULL){
-				Neighbor[*index].ForwardLink.AveDelay = forwardLink->AveDelay;
-				Neighbor[*index].ForwardLink.AvgRSSI = forwardLink->AvgRSSI;
-				Neighbor[*index].ForwardLink.LinkQuality = forwardLink->LinkQuality;
+				Neighbor[*index].SendLink.AveDelay = forwardLink->AveDelay;
+				Neighbor[*index].SendLink.AvgRSSI = forwardLink->AvgRSSI;
+				Neighbor[*index].SendLink.LinkQuality = forwardLink->LinkQuality;
 			}
 			if(reverseLink != NULL){
-				Neighbor[*index].ReverseLink.AveDelay = reverseLink->AveDelay;
-				Neighbor[*index].ReverseLink.AvgRSSI = reverseLink->AvgRSSI;
-				Neighbor[*index].ReverseLink.LinkQuality = reverseLink->LinkQuality;
+				Neighbor[*index].ReceiveLink.AveDelay = reverseLink->AveDelay;
+				Neighbor[*index].ReceiveLink.AvgRSSI = reverseLink->AvgRSSI;
+				Neighbor[*index].ReceiveLink.LinkQuality = reverseLink->LinkQuality;
 			}
 	}
 	return retValue;
@@ -425,7 +427,7 @@ DeviceStatus NeighborTable::UpdateDutyCycle(UINT16 address, UINT8 dutyCycle, UIN
 }
 
 DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t, const NeighborTableCommonParameters_Two_t *neighborTableCommonParameters_Two_t){
-	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	UINT16 address = neighborTableCommonParameters_One_t->MACAddress;
 	NeighborStatus status = neighborTableCommonParameters_One_t->status;
 	UINT64 LastHeardTime = neighborTableCommonParameters_One_t->lastHeardTime;
 	UINT8 lqi = neighborTableCommonParameters_One_t->linkQualityMetrics.LinkQuality;
@@ -447,11 +449,11 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 	UINT8 index;
 	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 	if (retValue == DS_Success && (address != 0 || address != 65535)){
-		Neighbor[index].MacAddress = address;
-		Neighbor[index].Status = status;
+		Neighbor[index].MACAddress = address;
+		Neighbor[index].neighborStatus = status;
 		Neighbor[index].LastHeardTime = LastHeardTime;
-		Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
-		Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
+		Neighbor[index].ReceiveLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReceiveLink.AvgRSSI*0.8 + (float)rssi*0.2);
+		Neighbor[index].ReceiveLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReceiveLink.LinkQuality*0.8 + (float)lqi*0.2);
 
 		Neighbor[index].nextSeed = nextSeed;
 		Neighbor[index].mask = mask;
@@ -462,7 +464,7 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 }
 
 DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_One_t *neighborTableCommonParameters_One_t){
-	UINT16 address = neighborTableCommonParameters_One_t->MacAddress;
+	UINT16 address = neighborTableCommonParameters_One_t->MACAddress;
 	NeighborStatus status = neighborTableCommonParameters_One_t->status;
 	UINT64 LastHeardTime = neighborTableCommonParameters_One_t->lastHeardTime;
 	UINT8 lqi = neighborTableCommonParameters_One_t->linkQualityMetrics.LinkQuality;
@@ -479,11 +481,11 @@ DeviceStatus NeighborTable::UpdateNeighbor(const NeighborTableCommonParameters_O
 	UINT8 index;
 	DeviceStatus retValue = FindOrInsertNeighbor(address, &index);
 	if (retValue == DS_Success && (address != 0 || address != 65535)){
-		Neighbor[index].ReverseLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReverseLink.AvgRSSI*0.8 + (float)rssi*0.2);
-		Neighbor[index].ReverseLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReverseLink.LinkQuality*0.8 + (float)lqi*0.2);
-		Neighbor[index].PacketsReceived++;
+		Neighbor[index].ReceiveLink.AvgRSSI =  (UINT8)((float)Neighbor[index].ReceiveLink.AvgRSSI*0.8 + (float)rssi*0.2);
+		Neighbor[index].ReceiveLink.LinkQuality =  (UINT8)((float)Neighbor[index].ReceiveLink.LinkQuality*0.8 + (float)lqi*0.2);
+		Neighbor[index].CountOfPacketsReceived++;
 		Neighbor[index].LastHeardTime = LastHeardTime;
-		Neighbor[index].Status = status;
+		Neighbor[index].neighborStatus = status;
 		/*
 		Neighbor[index].dataInterval = dataInterval;
 		Neighbor[index].radioStartDelay = radioStartDelay;
@@ -567,7 +569,7 @@ Neighbor_t* NeighborTable::GetMostObsoleteTimeSyncNeighborPtr(){
 	Neighbor_t* rn = NULL;
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if (Neighbor[tableIndex].Status != Dead){
+		if (Neighbor[tableIndex].neighborStatus != Dead){
 			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncRecvTime < rn->LastTimeSyncRecvTime  )
 				rn = &Neighbor[tableIndex];
 		}
@@ -579,7 +581,7 @@ Neighbor_t* NeighborTable::GetCritalSyncNeighborWOldestSyncPtr(const UINT64& cur
 	Neighbor_t* rn = NULL;
 	int tableIndex;
 	for (tableIndex=0; tableIndex<MAX_NEIGHBORS; tableIndex++){
-		if (Neighbor[tableIndex].Status != Dead){
+		if (Neighbor[tableIndex].neighborStatus != Dead){
 			if(rn == NULL || Neighbor[tableIndex].LastTimeSyncSendTime < rn->LastTimeSyncSendTime || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){ //Consider this neighbor
 				if((curticks - Neighbor[tableIndex].LastTimeSyncSendTime > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRecvTime > forcererequest_limit || Neighbor[tableIndex].NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS )
 				&& (Neighbor[tableIndex].LastTimeSyncRequestTime == 0 || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > request_limit || curticks - Neighbor[tableIndex].LastTimeSyncRequestTime  > forcererequest_limit )
@@ -597,8 +599,8 @@ void NeighborTable::DegradeLinks(){
 	UINT8 i=0;
 	for (i=0; i < NumberValidNeighbor; i++){
 		//Neighbor[index].Status = status;
-		/*if(Neighbor[i].ReverseLink.Quality >2){
-				Neighbor[i].ReverseLink.Quality--;
+		/*if(Neighbor[i].ReceiveLink.Quality >2){
+				Neighbor[i].ReceiveLink.Quality--;
 		}*/
 	}
 }

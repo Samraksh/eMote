@@ -264,9 +264,9 @@ DeviceStatus MAC_GetNeighborList(UINT16 *buffer)
 	}
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if(g_NeighborTable.Neighbor[i].Status == Alive)
+		if(g_NeighborTable.Neighbor[i].neighborStatus == Alive)
 		{
-			buffer[neighborCount++] = g_NeighborTable.Neighbor[i].MacAddress;
+			buffer[neighborCount++] = g_NeighborTable.Neighbor[i].MACAddress;
 		}
 	}
 
@@ -283,19 +283,19 @@ DeviceStatus MAC_GetNeighborStatus(UINT16 macAddress, UINT8 *buffer)
 {
 	for(UINT16 i = 0; i < MAX_NEIGHBORS; i++)
 	{
-		if(g_NeighborTable.Neighbor[i].MacAddress == macAddress)
+		if(g_NeighborTable.Neighbor[i].MACAddress == macAddress)
 		{
-			buffer[0] = g_NeighborTable.Neighbor[i].MacAddress & 0xff;
-			buffer[1] = (g_NeighborTable.Neighbor[i].MacAddress & 0xff00) >> 8;
-			buffer[2] = (g_NeighborTable.Neighbor[i].ForwardLink.AvgRSSI);
-			buffer[3] = (g_NeighborTable.Neighbor[i].ForwardLink.LinkQuality);
-			buffer[4] = (g_NeighborTable.Neighbor[i].ForwardLink.AveDelay);
-			buffer[5] = (g_NeighborTable.Neighbor[i].ReverseLink.AvgRSSI);
-			buffer[6] = (g_NeighborTable.Neighbor[i].ReverseLink.LinkQuality);
-			buffer[7] = (g_NeighborTable.Neighbor[i].ReverseLink.AveDelay);
-			buffer[8] = (g_NeighborTable.Neighbor[i].Status);
-			buffer[9] = (g_NeighborTable.Neighbor[i].PacketsReceived & 0xff);
-			buffer[10] = (g_NeighborTable.Neighbor[i].PacketsReceived & 0xff00) >> 8;
+			buffer[0] = g_NeighborTable.Neighbor[i].MACAddress & 0xff;
+			buffer[1] = (g_NeighborTable.Neighbor[i].MACAddress & 0xff00) >> 8;
+			buffer[2] = (g_NeighborTable.Neighbor[i].SendLink.AvgRSSI);
+			buffer[3] = (g_NeighborTable.Neighbor[i].SendLink.LinkQuality);
+			buffer[4] = (g_NeighborTable.Neighbor[i].SendLink.AveDelay);
+			buffer[5] = (g_NeighborTable.Neighbor[i].ReceiveLink.AvgRSSI);
+			buffer[6] = (g_NeighborTable.Neighbor[i].ReceiveLink.LinkQuality);
+			buffer[7] = (g_NeighborTable.Neighbor[i].ReceiveLink.AveDelay);
+			buffer[8] = (g_NeighborTable.Neighbor[i].neighborStatus);
+			buffer[9] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff);
+			buffer[10] = (g_NeighborTable.Neighbor[i].CountOfPacketsReceived & 0xff00) >> 8;
 			buffer[11] = (g_NeighborTable.Neighbor[i].LastHeardTime) & 0xff;
 			buffer[12] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff00) >> 8;
 			buffer[13] = (g_NeighborTable.Neighbor[i].LastHeardTime & 0xff0000) >> 16;

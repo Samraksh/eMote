@@ -65,10 +65,10 @@ struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_Link
 struct Library_Samraksh_eMote_Net_Samraksh_eMote_Net_MAC_Neighbor
 {
     static const int FIELD__MACAddress = 1;
-    static const int FIELD__ForwardLink = 2;
-    static const int FIELD__ReverseLink = 3;
-    static const int FIELD__Status = 4;
-    static const int FIELD__PacketsReceived = 5;
+    static const int FIELD__SendLink = 2;
+    static const int FIELD__ReceiveLink = 3;
+    static const int FIELD__NeighborStatus = 4;
+    static const int FIELD__CountOfPacketsReceived = 5;
     static const int FIELD__LastHeardTime = 6;
     static const int FIELD__ReceiveDutyCycle = 7;
     static const int FIELD__FrameLength = 8;

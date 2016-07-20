@@ -935,14 +935,14 @@ namespace Samraksh.eMote.Net
 			if (GetNeighborInternal(macAddress, _byteNeighbor) == DeviceStatus.Success)
 			{
 				_neighbor.MACAddress = (ushort)(((ushort)(_byteNeighbor[1] << 8) & 0xFF00) + _byteNeighbor[0]);//MacAddress
-				_neighbor.ForwardLink.AverageRSSI = _byteNeighbor[2]; //ForwardLink
-				_neighbor.ForwardLink.LinkQuality = _byteNeighbor[3];
-				_neighbor.ForwardLink.AverageDelay = _byteNeighbor[4];
-				_neighbor.ReverseLink.AverageRSSI = _byteNeighbor[5];  //ReverseLink
-				_neighbor.ReverseLink.LinkQuality = _byteNeighbor[6];
-				_neighbor.ReverseLink.AverageDelay = _byteNeighbor[7];
-				_neighbor.Status = (NeighborStatus)_byteNeighbor[8];//Status
-				_neighbor.PacketsReceived = (ushort)(((_byteNeighbor[10] << 8) & 0xFF00) + _byteNeighbor[9]);//MacAddress
+				_neighbor.SendLink.AverageRSSI = _byteNeighbor[2]; //ForwardLink
+                _neighbor.SendLink.LinkQuality = _byteNeighbor[3];
+                _neighbor.SendLink.AverageDelay = _byteNeighbor[4];
+                _neighbor.ReceiveLink.AverageRSSI = _byteNeighbor[5];  //ReverseLink
+                _neighbor.ReceiveLink.LinkQuality = _byteNeighbor[6];
+                _neighbor.ReceiveLink.AverageDelay = _byteNeighbor[7];
+				_neighbor.NeighborStatus = (NeighborStatus)_byteNeighbor[8];//Status of neighbor
+                _neighbor.CountOfPacketsReceived = (ushort)(((_byteNeighbor[10] << 8) & 0xFF00) + _byteNeighbor[9]);
 				_neighbor.LastHeardTime = (ulong)((_byteNeighbor[18] << 56) + _byteNeighbor[17] << 48 + _byteNeighbor[16] << 40 + _byteNeighbor[15] << 32 + _byteNeighbor[14] << 24 +
 				_byteNeighbor[13] << 16 + _byteNeighbor[12] << 8 + +_byteNeighbor[11]);//LastTimeHeard
 				_neighbor.ReceiveDutyCycle = _byteNeighbor[19];//ReceiveDutyCycle

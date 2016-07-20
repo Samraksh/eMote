@@ -61,14 +61,17 @@ namespace Samraksh.eMote.Net
 		{
 			/// <summary>MAC address of neighbor</summary>
 			public ushort MACAddress;
-			/// <summary>Forward link of neighbor</summary>
-			public Link ForwardLink;
-			/// <summary>Reverse link of neighbor</summary>
-			public Link ReverseLink;
+            /// <summary>Send (formerly forward) link details between current and neighbor node. Provides link details 
+            /// of transmissions to a certain neighbor. Since a sender will not have the link details when sending a packet, the receiver 
+            /// has to send back the details (such as RSSI, LQI) to the sender (by piggybacking on a data packet for instance). </summary>
+			public Link SendLink;
+            /// <summary>Receive (formerly reverse) link details between current and neighbor node. Provides link details 
+            /// of receptions from a certain neighbor. A received packet's metadata carries details such as RSSI and LQI.</summary>
+			public Link ReceiveLink;
 			/// <summary>Status of neighbor</summary>
-			public NeighborStatus Status;
-			/// <summary>Packets received from neighbor</summary>
-			public ushort PacketsReceived;
+			public NeighborStatus NeighborStatus;
+			/// <summary>Packet receive count</summary>
+			public ushort CountOfPacketsReceived;
 			/// <summary>Last time heard from neighbor</summary>
 			public ulong LastHeardTime;
 			/// <summary>Receive duty cycle of neighbor</summary>
@@ -80,10 +83,10 @@ namespace Samraksh.eMote.Net
             public Neighbor()
             {
                 MACAddress = 0;
-                ForwardLink = new Link();
-                ReverseLink = new Link();
-                Status = NeighborStatus.Dead;
-                PacketsReceived = 0;
+                SendLink = new Link();
+                ReceiveLink = new Link();
+                NeighborStatus = NeighborStatus.Dead;
+                CountOfPacketsReceived = 0;
                 LastHeardTime = 0;
                 ReceiveDutyCycle = 0;
                 FrameLength = 0;

@@ -760,7 +760,7 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination does not exist in neighbor table %d \n", address);
 		return (Message_15_4_t*)(NULL);
 	}
-	else if(neighborEntry->Status == Dead) {
+	else if(neighborEntry->neighborStatus == Dead) {
 		DEBUG_OMAC_PMB_PRINTF("OMACType Send Error: Destination exists in neighbor table but its status is dead: %d \n", address);
 		return (Message_15_4_t*)(NULL);
 	}
@@ -884,7 +884,7 @@ UINT8 OMACType::UpdateNeighborTable(){
 				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){
 				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 				}
-				else if(g_NeighborTable.Neighbor[index].Status != Alive){
+				else if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){
 					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 				}
 			}
@@ -926,7 +926,7 @@ UINT8 OMACType::GetReceiveBufferSize(){
 UINT16 OMACType::GetSendPending(){
 	UINT16 n_msg = 0;
 	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
-		if(g_NeighborTable.Neighbor[i].Status != Dead){
+		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
 			n_msg = n_msg + g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer();
 			n_msg = n_msg + g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer();
 		}

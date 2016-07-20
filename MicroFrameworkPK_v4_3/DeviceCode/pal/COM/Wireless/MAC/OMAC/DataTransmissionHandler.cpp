@@ -221,8 +221,8 @@ UINT64 DataTransmissionHandler::NextEvent(){
 	m_outgoingEntryPtr_dest = 0;
 	UINT64 cur_remMicroSecnextTX, remMicroSecnextTX = MAX_UINT64;
 	for(UINT8 i = 0; i < MAX_NEIGHBORS ; ++i){
-		if(g_NeighborTable.Neighbor[i].Status != Dead){
-			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MacAddress)){
+		if(g_NeighborTable.Neighbor[i].neighborStatus != Dead){
+			if( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.IsNeighborTimeAvailable(g_NeighborTable.Neighbor[i].MACAddress)){
 			// Readjust the neighbors queues
 			while(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0
 					&& g_NeighborTable.Neighbor[i].tsr_send_buffer.GetOldestwithoutRemoval()->GetMetaData()->GetRetryAttempts() > FRAMERETRYMAXATTEMPT // This can be handled more gracefully
@@ -239,18 +239,18 @@ UINT64 DataTransmissionHandler::NextEvent(){
 
 
 			if(g_NeighborTable.Neighbor[i].send_buffer.GetNumberMessagesInBuffer() > 0 ) {
-				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MacAddress);
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
 				if(cur_remMicroSecnextTX < remMicroSecnextTX){
 					remMicroSecnextTX = cur_remMicroSecnextTX;
-					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MacAddress;
+					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
 					isDataPacketScheduled = true;
 				}
 			}
 			else if(g_NeighborTable.Neighbor[i].tsr_send_buffer.GetNumberMessagesInBuffer() > 0 ){
-				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MacAddress);
+				cur_remMicroSecnextTX = CalculateNextRXOpp(g_NeighborTable.Neighbor[i].MACAddress);
 				if(cur_remMicroSecnextTX < remMicroSecnextTX){
 					remMicroSecnextTX = cur_remMicroSecnextTX;
-					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MacAddress;
+					m_outgoingEntryPtr_dest = g_NeighborTable.Neighbor[i].MACAddress;
 					isDataPacketScheduled = true;
 				}
 			}
@@ -743,7 +743,7 @@ BOOL DataTransmissionHandler::UpdateNeighborsWakeUpSlot(UINT16 dest, UINT8 _skip
 	bool rv;
 	Neighbor_t* neighborEntry =  g_NeighborTable.GetNeighborPtr(dest);
 	if (neighborEntry != NULL) {
-		if (neighborEntry->MacAddress != dest) {
+		if (neighborEntry->MACAddress != dest) {
 			DEBUG_OMAC_UNWUS_PRINTF("DataTransmissionHandler::ScheduleDataPacket() incorrect neighbor returned\n");
 			return FALSE;
 		}

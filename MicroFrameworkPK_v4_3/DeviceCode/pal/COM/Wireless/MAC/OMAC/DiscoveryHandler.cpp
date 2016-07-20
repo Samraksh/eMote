@@ -482,10 +482,10 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 	UINT64 nextwakeupSlot = (((UINT64)discoMsg->nextwakeupSlot1) <<32) + discoMsg->nextwakeupSlot0;
 
 	if (g_NeighborTable.FindIndex(source, &nbrIdx) == DS_Success) {
-		if(g_NeighborTable.Neighbor[nbrIdx].Status != Alive) {
+		if(g_NeighborTable.Neighbor[nbrIdx].neighborStatus != Alive) {
 			TempIncreaseDiscoRate();
 		}
-		neighborTableCommonParameters_One_t.MacAddress = source;
+		neighborTableCommonParameters_One_t.MACAddress = source;
 		neighborTableCommonParameters_One_t.status = Alive;
 		neighborTableCommonParameters_One_t.lastHeardTime = localTime;
 		neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = msgLinkQualityMetrics->RSSI;
@@ -501,7 +501,7 @@ DeviceStatus DiscoveryHandler::Receive(RadioAddress_t source, DiscoveryMsg_t* di
 		}*/
 	} else {
 		TempIncreaseDiscoRate();
-		neighborTableCommonParameters_One_t.MacAddress = source;
+		neighborTableCommonParameters_One_t.MACAddress = source;
 		neighborTableCommonParameters_One_t.status = Alive;
 		neighborTableCommonParameters_One_t.lastHeardTime = localTime;
 		neighborTableCommonParameters_One_t.linkQualityMetrics.AvgRSSI = msgLinkQualityMetrics->RSSI;

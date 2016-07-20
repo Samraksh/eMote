@@ -68,7 +68,7 @@ UINT64 OMACTimeSync::NextEvent(){
 	while(nextEventsSlot == 0){
 		sn = g_NeighborTable.GetCritalSyncNeighborWOldestSyncPtr(g_OMAC.m_Clock.GetCurrentTimeinTicks(),m_messagePeriod,FORCE_REQUESTTIMESYNC_INTICKS);
 		if(sn != NULL) {
-			Send(sn->MacAddress);
+			Send(sn->MACAddress);
 			nextEventsSlot = NextEventinSlots();
 		}
 	}
