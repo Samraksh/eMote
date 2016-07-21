@@ -82,7 +82,7 @@ UINT64 DiscoveryHandler::GetSlotNumber(){
 UINT64 DiscoveryHandler::GetTimeTillTheEndofSlot(){
 	UINT64 cur_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 ticks_till_end = ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO) - ( (cur_ticks + ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO)) % ((UINT64)g_OMAC.DISCO_SLOT_PERIOD_MICRO * TICKS_PER_MICRO));
-	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
+	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MILLISECINMICSEC ) ;
 	return ms_till_end;
 }
 
@@ -436,7 +436,7 @@ void DiscoveryHandler::BeaconNTimerHandler(){
 #endif
 	case BEACON2_SKIPPED:
 	case BEACON2_SEND_DONE:
-			PostExecuteEvent();
+		PostExecuteEvent();
 		break;
 	case DISCO_INITIAL:
 	case SLEEP_SUCCESSFUL:

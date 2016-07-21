@@ -224,43 +224,43 @@ typedef OFProv<UINT64> OMACTicks;
 /*
 #if defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_SI4468
 
-	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	12.8*MICSECINMILISEC	//A 64-byte packet takes 64*8*25 usec to be transmitted (12800 usec);
+	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	12.8*MILLISECINMICSEC	//A 64-byte packet takes 64*8*25 usec to be transmitted (12800 usec);
 																		//At 40kbps, a bit takes 25 usec
-	#define DELAY_IN_RECEIVING_ACK				3.6*MICSECINMILISEC		//Delay in Rx generating an ack; SI4468 does not support H/w acks;
+	#define DELAY_IN_RECEIVING_ACK				3.6*MILLISECINMICSEC		//Delay in Rx generating an ack; SI4468 does not support H/w acks;
 																		//A 3-byte s/w ack (along with additional 10 bytes added by radio firmware) takes 2600 usec
 																		//Due to software delays (walking up and down the invocation call stack), an addition 1 ms is added
 
-	#define MAX_PACKET_TX_DURATION_MICRO 		27.6*MICSECINMILISEC	//128 byte packet takes 25600 usec, but in reality time taken is 27600 usec (138 bytes)
-	#define ACK_RX_MAX_DURATION_MICRO 			8*MICSECINMILISEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
-	#define ACK_TX_MAX_DURATION_MICRO 			8*MICSECINMILISEC
-	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	10*MICSECINMILISEC		//39 byte packet takes 7.8 ms; (16 bytes for DISCO + 13 bytes for header + 10 bytes added by radio)
-	#define DISCO_PACKET_TX_TIME_MICRO 			10*MICSECINMILISEC
-	#define DISCO_SLOT_PERIOD_MICRO 			8*MICSECINMILISEC
+	#define MAX_PACKET_TX_DURATION_MICRO 		27.6*MILLISECINMICSEC	//128 byte packet takes 25600 usec, but in reality time taken is 27600 usec (138 bytes)
+	#define ACK_RX_MAX_DURATION_MICRO 			8*MILLISECINMICSEC		//2x of ACK_DELAY. Indicates how long should tx wait to get back an ack from rx.
+	#define ACK_TX_MAX_DURATION_MICRO 			8*MILLISECINMICSEC
+	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	10*MILLISECINMICSEC		//39 byte packet takes 7.8 ms; (16 bytes for DISCO + 13 bytes for header + 10 bytes added by radio)
+	#define DISCO_PACKET_TX_TIME_MICRO 			10*MILLISECINMICSEC
+	#define DISCO_SLOT_PERIOD_MICRO 			8*MILLISECINMICSEC
 	#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 
 #elif defined(CURRENT_RADIONAME) && CURRENT_RADIONAME==RADIONAME_RF231
 
 #if defined(RF231_HARDWARE_ACK)
-	#define DELAY_IN_RECEIVING_HW_ACK				0.4*MICSECINMILISEC		//(C)Delay in Rx generating a h/w ack
-	#define DELAY_IN_RECEIVING_SW_ACK				0*MICSECINMILISEC
-	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MICSECINMILISEC
-	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0*MICSECINMILISEC
-	#define ACK_TX_MAX_DURATION_MICRO 				0*MICSECINMILISEC
+	#define DELAY_IN_RECEIVING_HW_ACK				0.4*MILLISECINMICSEC		//(C)Delay in Rx generating a h/w ack
+	#define DELAY_IN_RECEIVING_SW_ACK				0*MILLISECINMICSEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MILLISECINMICSEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0*MILLISECINMICSEC
+	#define ACK_TX_MAX_DURATION_MICRO 				0*MILLISECINMICSEC
 #else
-	#define DELAY_IN_RECEIVING_HW_ACK				0*MICSECINMILISEC
-	#define DELAY_IN_RECEIVING_SW_ACK				0.6*MICSECINMILISEC		//(C)Delay in Rx generating a s/w ack
-	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MICSECINMILISEC
-	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0.2*MICSECINMILISEC
-	#define ACK_TX_MAX_DURATION_MICRO 				4*MICSECINMILISEC
+	#define DELAY_IN_RECEIVING_HW_ACK				0*MILLISECINMICSEC
+	#define DELAY_IN_RECEIVING_SW_ACK				0.6*MILLISECINMICSEC		//(C)Delay in Rx generating a s/w ack
+	#define RETRANS_DELAY_DUE_TO_MISSING_HW_ACK		0*MILLISECINMICSEC
+	#define RETRANS_DELAY_DUE_TO_MISSING_SW_ACK		0.2*MILLISECINMICSEC
+	#define ACK_TX_MAX_DURATION_MICRO 				4*MILLISECINMICSEC
 #endif
 
 	#define DELAY_IN_RECEIVING_ACK				DELAY_IN_RECEIVING_HW_ACK+DELAY_IN_RECEIVING_SW_ACK
 	#define RETRANS_DELAY_DUE_TO_MISSING_ACK	RETRANS_DELAY_DUE_TO_MISSING_HW_ACK+RETRANS_DELAY_DUE_TO_MISSING_SW_ACK
-	#define MAX_PACKET_TX_DURATION_MICRO 		5*MICSECINMILISEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
-	#define ACK_RX_MAX_DURATION_MICRO 			20*MICSECINMILISEC
-	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	1.2*MICSECINMILISEC		//35 byte packet takes 1 ms; (16 bytes for DISCO + 13 bytes for header + 6 bytes added by radio)
-	#define DISCO_PACKET_TX_TIME_MICRO 			1*MICSECINMILISEC
-	#define DISCO_SLOT_PERIOD_MICRO 			8*MICSECINMILISEC
+	#define MAX_PACKET_TX_DURATION_MICRO 		5*MILLISECINMICSEC		//At 256kbps, a bit takes 3.9 usec to be transmitted; A 128 byte packet takes 4000 usec;
+	#define ACK_RX_MAX_DURATION_MICRO 			20*MILLISECINMICSEC
+	#define DISCO_BEACON_TX_MAX_DURATION_MICRO	1.2*MILLISECINMICSEC		//35 byte packet takes 1 ms; (16 bytes for DISCO + 13 bytes for header + 6 bytes added by radio)
+	#define DISCO_PACKET_TX_TIME_MICRO 			1*MILLISECINMICSEC
+	#define DISCO_SLOT_PERIOD_MICRO 			8*MILLISECINMICSEC
 	#define HIGH_DISCO_PERIOD_IN_SLOTS 			9000
 #else
 	#error "Radioname not defined"
@@ -272,7 +272,7 @@ typedef OFProv<UINT64> OMACTicks;
 //GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
-#define MICSECINMILISEC 1000
+#define MILLISECINMICSEC 1000
 #define TICKSINMICSEC 8
 
 #define GUARDTIME_MICRO 3000			//compensate for time-sync errors; accounts for the clock drift
@@ -288,16 +288,16 @@ typedef OFProv<UINT64> OMACTicks;
 //#define RANDOM_BACKOFF_TOTAL_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MIN*DELAY_DUE_TO_CCA_MICRO)		//Random_backoff can happen atleast once. So, tx should wake up atleast this amount early.
 																								// If it wakes up early by RANDOM_BACKOFF_COUNT_MAX amount, scheduler will not have a packet ready for tx.
 //#define RETRY_RANDOM_BACKOFF_DELAY_MICRO	(RANDOM_BACKOFF_COUNT_MAX*DELAY_DUE_TO_CCA_MICRO)
-//#define OMAC_TIME_ERROR	3*MICSECINMILISEC	//pessimistic time error
-// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MICSECINMILISEC	//delay from start of tx to start of rx
+//#define OMAC_TIME_ERROR	3*MILLISECINMICSEC	//pessimistic time error
+// BK: Not used anymore #define EXTENDED_MODE_TX_DELAY_MICRO	0.8*MILLISECINMICSEC	//delay from start of tx to start of rx
 //#define DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX	300	//(A)Delay from start of tx in OMAC to start of writing to SPI bus
 //#define DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX	284	//(B)Delay between Node N1 starting TX to node N2 receiving
-//#define RETRY_FUDGE_FACTOR	0.3*MICSECINMILISEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
+//#define RETRY_FUDGE_FACTOR	0.3*MILLISECINMICSEC			//(D)From observation, get avg,min,max for (A),(B). Min will go into (A),(B).
 															//   Sum of (max-min) of (A),(B) will go into (D)
 
-#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	(1.2*MICSECINMILISEC)
-#define HW_ACK_TO_START_OF_TX_MICRO	(2*MICSECINMILISEC)
-#define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MICSECINMILISEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
+#define END_OF_TX_TO_RECEPTION_OF_HW_ACK_MICRO	(1.2*MILLISECINMICSEC)
+#define HW_ACK_TO_START_OF_TX_MICRO	(2*MILLISECINMICSEC)
+#define EXTRA_DELAY_IN_WAITING_FOR_ACK (1.6*MILLISECINMICSEC)	//Difference between FAST_RECOVERY_WAIT_PERIOD_MICRO (or) MAX_PACKET_TX_DURATION_MICRO and 3.4ms. 3.4ms is the ideal round trip time.
 #define TIME_BETWEEN_TX_RX_TS_TICKS (266*TICKS_PER_MICRO)
 
 //Random_backoff is done before re-transmission
@@ -332,9 +332,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
 
 //Below 2 values are based on empirical observations made on a debug build
-#define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MICSECINMILISEC
-#define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MICSECINMILISEC
-#define DATATX_POST_EXEC_DELAY	  10*MICSECINMILISEC
+#define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MILLISECINMICSEC
+#define RECV_HW_ACK_WAIT_PERIOD_MICRO	1.7*MILLISECINMICSEC
+#define DATATX_POST_EXEC_DELAY	  10*MILLISECINMICSEC
 
 
 //40000000 - 5 secs
@@ -386,6 +386,7 @@ typedef OFProv<UINT64> OMACTicks;
 enum {
   TICKS_PER_MILLI     = 8000,
   TICKS_PER_MICRO     = 8,
+  BITS_PER_BYTE = 8,
 
 #ifdef SHORT_SLOT
 #warning *** USING 8ms SLOT ***

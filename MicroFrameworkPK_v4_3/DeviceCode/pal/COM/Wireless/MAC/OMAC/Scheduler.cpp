@@ -63,7 +63,7 @@ void OMACScheduler::Initialize(UINT8 _radioID, UINT8 _macID){
 	bool rv = VirtTimer_Initialize();
 	//ASSERT_SP(rv);
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MICSECINMILISEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER, 0, SLOT_PERIOD_MILLI * MILLISECINMICSEC, FALSE, FALSE, PublicSchedulerTaskHandler1, OMACClockSpecifier);
 	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_SCHEDULER_FAILSAFE, 0, FAILSAFETIME_MICRO, TRUE, FALSE, PublicSchedulerTaskHandlerFailsafe, OMACClockSpecifier);
 
 	//ASSERT_SP(rm == TimerSupported);
@@ -105,13 +105,13 @@ UINT64 OMACScheduler::GetSlotNumberfromTicks(const UINT64 &y){
 }
 
 UINT32 OMACScheduler::GetSlotNumberfromMicroSec(const UINT64 &y){
-	return ( y / MICSECINMILISEC / SLOT_PERIOD_MILLI  );
+	return ( y / MILLISECINMICSEC / SLOT_PERIOD_MILLI  );
 }
 
 UINT32 OMACScheduler::GetTimeTillTheEndofSlot(){
 	UINT64 cur_ticks = g_OMAC.m_Clock.GetCurrentTimeinTicks();
 	UINT64 ticks_till_end = SLOT_PERIOD_TICKS - ( (cur_ticks + SLOT_PERIOD_TICKS) % SLOT_PERIOD_TICKS);
-	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MICSECINMILISEC ) ;
+	UINT32 ms_till_end = ((UINT32) ticks_till_end) / (TICKS_PER_MILLI / MILLISECINMICSEC ) ;
 	return ms_till_end;
 }
 
@@ -165,7 +165,7 @@ void OMACScheduler::ScheduleNextEvent(){
 	if(txEventOffset < MAXSCHEDULERUPDATE && txEventOffset < nextWakeupTimeInMicSec) {
 		nextWakeupTimeInMicSec  = txEventOffset;
 	}
-	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MICSECINMILISEC < nextWakeupTimeInMicSec) {
+	if(beaconEventOffset < MAXSCHEDULERUPDATE && beaconEventOffset + DISCO_SLOT_GUARD * SLOT_PERIOD_MILLI * MILLISECINMICSEC < nextWakeupTimeInMicSec) {
 		beaconEventOffset = beaconEventOffset - g_OMAC.m_Clock.ConvertTickstoMicroSecs(curticks - curticks_beacon);
 		nextWakeupTimeInMicSec  = beaconEventOffset;
 	}

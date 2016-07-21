@@ -50,7 +50,7 @@ void OMACTimeSync::Initialize(UINT8 radioID, UINT8 macID){
 	m_globalTime.Init();
 
 	VirtualTimerReturnMessage rm;
-	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MICSECINMILISEC , TRUE, FALSE, PublicTimeSyncCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
+	rm = VirtTimer_SetTimer(VIRT_TIMER_OMAC_TIMESYNC, 0, 1 * MILLISECINMICSEC , TRUE, FALSE, PublicTimeSyncCallback, OMACClockSpecifier); //1 sec Timer in micro seconds
 	////ASSERT_SP(rm == TimerSupported);
 
 	m_inter_clock_offset = 0;
@@ -73,7 +73,7 @@ UINT64 OMACTimeSync::NextEvent(){
 		}
 	}
 
-	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MICSECINMILISEC;
+	nextEventsMicroSec = nextEventsSlot * SLOT_PERIOD_MILLI * MILLISECINMICSEC;
 	nextEventsMicroSec = nextEventsMicroSec + g_OMAC.m_omac_scheduler.GetTimeTillTheEndofSlot();
 	/*if(HARDWARE_ACKS){
 		nextEventsMicroSec += (1*EXTENDED_MODE_TX_DELAY_MICRO);
