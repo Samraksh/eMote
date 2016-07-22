@@ -79,6 +79,7 @@ static uint32_t ___STORE(uint32_t value, volatile uint32_t *addr)
 // Returns true if lock aquired
 static bool get_lock_inner(volatile uint32_t *Lock_Variable, uint32_t id) {
 	int status;
+	__DMB();
 	if (___LOAD(Lock_Variable) != radio_lock_none) {
 		__ASM("clrex"); // TODO: AM I NEEDED?
 		return false;
@@ -105,6 +106,7 @@ static uint32_t get_lock(volatile uint32_t *Lock_Variable, uint32_t id) {
 static void free_lock(volatile uint32_t *Lock_Variable) {
 	__DMB();
 	*Lock_Variable = radio_lock_none;
+	__DMB();
 	return;
 }
 
@@ -114,6 +116,7 @@ static void free_lock(volatile uint32_t *Lock_Variable) {
 static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
 	radio_lock_id_t ret;
 	GLOBAL_LOCK(irq);
+	__DMB();
 	ret = (radio_lock_id_t) radio_lock;
 	radio_lock = id;
 	__DMB();
@@ -126,6 +129,7 @@ static radio_lock_id_t si446x_radio_lock_nofail(radio_lock_id_t id) {
 // ONLY FOR USE IN VERY SPECIFIC CASES
 static bool si446x_radio_lock_if_then_nofail(radio_lock_id_t cond, radio_lock_id_t target) {
 	GLOBAL_LOCK(irq);
+	__DMB();
 	if (radio_lock == cond) {
 		radio_lock = target;
 		__DMB();
