@@ -51,10 +51,14 @@ define dump_sector_update
 monitor dump_image dump_update.bin 0x80e1000 65536
 end
 
-define restore_sector_update
+define erase_sector_update
 monitor halt
 monitor halt
 monitor flash erase_address 0x80e1000 65536
+end
+
+define restore_sector_update
+erase_sector_update
 monitor flash write_image dump_update.bin 0x80e1000 bin
 end
 
@@ -62,10 +66,14 @@ define dump_sector_deploy
 monitor dump_image dump_deploy.bin 0x80c1000 131072
 end
 
-define restore_sector_deploy
+define erase_sector_deploy
 monitor halt
 monitor halt
 monitor flash erase_address 0x80c1000 131072
+end
+
+define restore_sector_deploy
+erase_sector_deploy
 monitor flash write_image dump_deploy.bin 0x80c1000 bin
 end
 
