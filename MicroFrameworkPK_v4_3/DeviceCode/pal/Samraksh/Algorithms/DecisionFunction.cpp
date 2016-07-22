@@ -20,9 +20,10 @@ float DecisionFunction::Kernel(UINT32 *sv, INT32* features_normalized)
 		sum += tmp * tmp;
 	}
 
-	sum /= ((double)10000000); // Scaling down, typecasting to double for exponentiation
+	// sum /= ((double)10000000); // Scaling down, typecasting to double for exponentiation
+	double d_sum = sum / ((double)1e14);
 
-	return (float)exp(-gamma*sum);
+	return (float)exp(-gamma*d_sum);
 }
 
 float DecisionFunction::Decide(INT32* features_normalized)
