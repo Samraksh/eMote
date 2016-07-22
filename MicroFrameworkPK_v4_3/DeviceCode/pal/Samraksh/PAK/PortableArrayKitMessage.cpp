@@ -119,6 +119,7 @@ BOOL Samraksh_Emote_Update::s_fRadioOn = false;
 BOOL Samraksh_Emote_Update::s_fBaseStationMode = false;
 BOOL Samraksh_Emote_Update::s_fPublishUpdateMode = false;
 UINT16 Samraksh_Emote_Update::s_destAddr = MAC_BROADCAST_ADDRESS;
+UINT32 Samraksh_Emote_Update::s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE];
 UINT8 Samraksh_Emote_Update::s_RadioID = RF231RADIO;
 UPDATER_PROGRESS_HANDLER Samraksh_Emote_Update::s_UpdaterProgressHandler = 0;
 
@@ -405,6 +406,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 updateInfo = g_Updates->GetUpdate(incomingReply->m_updateHandle);
                 CHECK_PTR(updateInfo);
                 updateInfo->Flags |= NEIGHBOR_FLAGS__START;
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, START_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     if( incomingReply->m_success == 1)
                     {
@@ -426,6 +428,13 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__ADDPACKET;
+
+                int idx_word = incomingReply->m_packetIndex / 32;
+                int idx_bit = incomingReply->m_packetIndex % 32;
+                s_destMissingPkts[idx_word] = s_destMissingPkts[idx_word] | (1u << idx_bit);
+
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, ADDPACKET_ACK, incomingReply->m_nextMissingPacketIndex);
+                // TODO: record next missing packet inside update struct, allow querying from c-sharp.
                 if(s_fPublishUpdateMode == true) {
                     if( incomingReply->m_success == 1 )
                     {
@@ -456,7 +465,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 //TODO: handle negative install message (and reason).
                 //TODO: if negative, try to send a start message to resend Authenticate and fix the problem.
                 updateInfo->Flags |= NEIGHBOR_FLAGS__INSTALL;
-                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr/*FIXME... need dest from received packet*/, INSTALL_ACK);
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr/*dest from received packet*/, INSTALL_ACK, 0);
             }
                 break;
             case c_Debugging_MFUpdate_AuthCommand:
@@ -467,6 +476,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHCMD;
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHCMD_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     //TODO: implement authentication
                     SendAuthenticate(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr);
@@ -481,6 +491,7 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__AUTHENTICATED;
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, AUTHENTICATE_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     SendGetMissingPkts(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr);
                 }
@@ -494,6 +505,15 @@ bool Samraksh_Emote_Update::App_ProcessPayload(void* state, WP_Message* msg )
                 CHECK_PTR(updateInfo);
 
                 updateInfo->Flags |= NEIGHBOR_FLAGS__GETMISSINGPKTS;
+
+                //TODO: API for tracking neighbor, externalize for multiple neighbors.
+                //TODO: lookup neighbor info.
+                //TODO: warn if we thought neighbor had more packets than it reports.
+                for(UINT32 i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
+                    s_destMissingPkts[i] = incomingReply->m_missingPkts[i];
+                }
+
+                Samraksh_Emote_Update::s_UpdaterProgressHandler(updateInfo->Header.UpdateID, Samraksh_Emote_Update::s_destAddr, GETMISSINGPKTS_ACK, 0);
                 if(s_fPublishUpdateMode == true) {
                     UINT32 missingNo = GetFirstMissingPacket(updateInfo, incomingReply->m_missingPkts);
                     if( ( incomingReply->m_missingPktCount == 0 ) || ( missingNo > updateInfo->m_finalPacketIdx ) ) {
@@ -682,6 +702,11 @@ void OldReceiveHandler(UINT16 numberOfPackets) {
 void Samraksh_Emote_Update::Receive_IEEE_802_15_4(void* buffer, UINT16 payloadType) {
 	Message_15_4_t* msg = (Message_15_4_t*)buffer;
 	//TODO: basic s_destAddr checking...
+	ASSERT_SP(g_Samraksh_Emote_Update.s_destAddr = msg->GetHeader()->src);
+	if(g_Samraksh_Emote_Update.s_destAddr != msg->GetHeader()->src) {
+		// switching destination; clean neighbor update record.
+		memset(g_Samraksh_Emote_Update.s_destMissingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
+	}
 	g_Samraksh_Emote_Update.s_destAddr = msg->GetHeader()->src;
 	Receive(msg->GetPayload(), msg->GetPayloadSize());
 }
@@ -1031,6 +1056,8 @@ UINT32 GetFirstMissingPacket(MFUpdate* updateInfo, UINT32* missingPkts ) {
     return (i << 5); //doesn't matter that this is not m_finalPacketIdx+1, satisfies larger than m_finalPacketIdx.
 }
 
+
+
 void InitializeManager() {
     ASSERT(Samraksh_Emote_Update::s_fBaseStationMode == FALSE); // Manager mode is not necessarily incompatible with Basestation mode, but they were not designed to be used together at-the-moment.
     ASSERT(Samraksh_Emote_Update::s_fRadioOn == TRUE);
@@ -1243,103 +1270,103 @@ void Samraksh_Emote_Update::SendInstall(UpdateID_t updateId, UINT16 destAddr)
     return;
 }
 
-
-/**
- * skeleton code... move to a different library.
- * 2013 idea to manage neighbors
- * receiver requests updates.
- */
-void Samraksh_Emote_Update::HandleTimeout() {
-    for(int i=0; i < g_UpdateCount; i++) {
-        MFUpdate* g_UpdatesItr = &g_Updates[i];
-        if(0 != (g_UpdatesItr->Flags & MFUPDATE_FLAGS__INUSE)) {
-            UINT32 maskedState = 0;
-            maskedState = g_UpdatesItr->Flags & STATE_MASK;
-            if(maskedState & STATE_FLAGS__INSTALL) {
-            }
-            else if(maskedState & STATE_FLAGS__VALIDATED) {
-                //TODO: broadcast available update.
-            }
-            else if(maskedState & (STATE_FLAGS__ADDPACKET || STATE_FLAGS__AUTHENTICATED)) {
-                UINT32 firstMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_missingPkts);
-                if(firstMissingPacket > g_UpdatesItr->m_finalPacketIdx) {
-                    //received last packet, wait silently for install command to validate packet.
-                }
-                else {
-                    g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_AddPacket;
-                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
-                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetIndex = firstMissingPacket; //or do check for firstMissingPacket > 0; m_packetIdx = firstMissingPacket -1; m_success = true;
-                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_success = 0;
-                ReplyToCommand( &g_Samraksh_Emote_Update.m_outboundMessage, true, false, &g_Samraksh_Emote_Update.m_outboundMessagePayload, sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start::Reply) );
-                }
-            }
-            else if(maskedState & STATE_FLAGS__START) {
-                //received start message and nothing else.  send reply to get next state.
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Start;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
-                ReplyToCommand( &g_Samraksh_Emote_Update.m_outboundMessage, true, false, &g_Samraksh_Emote_Update.m_outboundMessagePayload, sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start::Reply) );
-            }
-            else {
-                //nothing else happened;
-                //TODO check disk for partial updates to query for
-                break;
-            }
-
-            maskedState =g_UpdatesItr->Flags & NEIGHBOR_MASK;
-            /*if(maskedState & NEIGHBOR_FLAGS__INSTALL) {  }
-            else if(maskedState & NEIGHBOR_FLAGS__VALIDATED) {  }
-            else*/
-            if( (NEIGHBOR_FLAGS__ADDPACKET == (maskedState & NEIGHBOR_FLAGS__ADDPACKET))
-                    || (NEIGHBOR_FLAGS__AUTHENTICATED == (maskedState & NEIGHBOR_FLAGS__AUTHENTICATED))) {
-                //TODO: take XOR of both bitfields, then AND result with local bitfield, feed to GetFirstMissingPacket.
-                UINT32 firstNeighborMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_neighborMissingPkts);
-                if(firstNeighborMissingPacket > g_UpdatesItr->m_finalPacketIdx) {
-                    //TODO send install command if we've installed or scheduled?
-                }
-                else {
-                    UINT32 firstMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_missingPkts);
-                    if(firstNeighborMissingPacket < firstMissingPacket) {
-                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_AddPacket;
-                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
-                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_AddPacket) + g_UpdatesItr->Header.PacketSize;
-                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
-                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetIndex = firstNeighborMissingPacket;
-                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetLength = (firstNeighborMissingPacket == g_UpdatesItr->m_finalPacketIdx) ? g_UpdatesItr->Header.UpdateSize % g_UpdatesItr->Header.PacketSize : g_UpdatesItr->Header.PacketSize ;
-                        if( FALSE == g_UpdatesItr->Providers->Storage->Read( g_UpdatesItr->StorageHandle, firstNeighborMissingPacket * g_UpdatesItr->Header.PacketSize, ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetData, g_UpdatesItr->Header.PacketSize)) {
-                            continue;
-                        }
-                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetValidation = SUPPORT_ComputeCRC( ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetData, ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetLength, 0 );
-                        g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
-                    }
-                }
-            }
-            else if(NEIGHBOR_FLAGS__START == (maskedState & NEIGHBOR_FLAGS__START)) {
-                //TODO: generate auth command.
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Authenticate;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_Authenticate);
-                ((MFUpdate_Commands::Debugging_MFUpdate_Authenticate*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = 0;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Authenticate*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_authenticationLen = 0;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
-            }
-            else {
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Start;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start);
-                hal_strncpy_s ( ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_provider, 63, g_UpdatesItr->Providers->ProviderName, hal_strlen_s(g_UpdatesItr->Providers->ProviderName) ) ;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateId = g_UpdatesItr->Header.UpdateID;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateType = g_UpdatesItr->Header.UpdateType;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateSubType = g_UpdatesItr->Header.UpdateSubType;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateSize = g_UpdatesItr->Header.UpdateSize;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updatePacketSize = g_UpdatesItr->Header.PacketSize;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_versionMajor = g_UpdatesItr->Header.Version.usMajor;
-                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_versionMinor = g_UpdatesItr->Header.Version.usMinor;
-                g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
-            }
-        }
-
-    }
-}
+//
+///**
+// * skeleton code... move to a different library.
+// * 2013 idea to manage neighbors
+// * receiver requests updates.
+// */
+//void Samraksh_Emote_Update::HandleTimeout() {
+//    for(int i=0; i < g_UpdateCount; i++) {
+//        MFUpdate* g_UpdatesItr = &g_Updates[i];
+//        if(0 != (g_UpdatesItr->Flags & MFUPDATE_FLAGS__INUSE)) {
+//            UINT32 maskedState = 0;
+//            maskedState = g_UpdatesItr->Flags & STATE_MASK;
+//            if(maskedState & STATE_FLAGS__INSTALL) {
+//            }
+//            else if(maskedState & STATE_FLAGS__VALIDATED) {
+//                //TODO: broadcast available update.
+//            }
+//            else if(maskedState & (STATE_FLAGS__ADDPACKET || STATE_FLAGS__AUTHENTICATED)) {
+//                UINT32 firstMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_missingPkts);
+//                if(firstMissingPacket > g_UpdatesItr->m_finalPacketIdx) {
+//                    //received last packet, wait silently for install command to validate packet.
+//                }
+//                else {
+//                    g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_AddPacket;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetIndex = firstMissingPacket; //or do check for firstMissingPacket > 0; m_packetIdx = firstMissingPacket -1; m_success = true;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_success = 0;
+//                ReplyToCommand( &g_Samraksh_Emote_Update.m_outboundMessage, true, false, &g_Samraksh_Emote_Update.m_outboundMessagePayload, sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start::Reply) );
+//                }
+//            }
+//            else if(maskedState & STATE_FLAGS__START) {
+//                //received start message and nothing else.  send reply to get next state.
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Start;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start::Reply*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
+//                ReplyToCommand( &g_Samraksh_Emote_Update.m_outboundMessage, true, false, &g_Samraksh_Emote_Update.m_outboundMessagePayload, sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start::Reply) );
+//            }
+//            else {
+//                //nothing else happened;
+//                //TODO check disk for partial updates to query for
+//                break;
+//            }
+//
+//            maskedState =g_UpdatesItr->Flags & NEIGHBOR_MASK;
+//            /*if(maskedState & NEIGHBOR_FLAGS__INSTALL) {  }
+//            else if(maskedState & NEIGHBOR_FLAGS__VALIDATED) {  }
+//            else*/
+//            if( (NEIGHBOR_FLAGS__ADDPACKET == (maskedState & NEIGHBOR_FLAGS__ADDPACKET))
+//                    || (NEIGHBOR_FLAGS__AUTHENTICATED == (maskedState & NEIGHBOR_FLAGS__AUTHENTICATED))) {
+//                //TODO: take XOR of both bitfields, then AND result with local bitfield, feed to GetFirstMissingPacket.
+//                UINT32 firstNeighborMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_neighborMissingPkts);
+//                if(firstNeighborMissingPacket > g_UpdatesItr->m_finalPacketIdx) {
+//                    //TODO send install command if we've installed or scheduled?
+//                }
+//                else {
+//                    UINT32 firstMissingPacket = GetFirstMissingPacket(&g_Updates[i], g_UpdatesItr->m_missingPkts);
+//                    if(firstNeighborMissingPacket < firstMissingPacket) {
+//                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_AddPacket;
+//                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
+//                        g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_AddPacket) + g_UpdatesItr->Header.PacketSize;
+//                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = g_UpdatesItr->Header.UpdateID;
+//                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetIndex = firstNeighborMissingPacket;
+//                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetLength = (firstNeighborMissingPacket == g_UpdatesItr->m_finalPacketIdx) ? g_UpdatesItr->Header.UpdateSize % g_UpdatesItr->Header.PacketSize : g_UpdatesItr->Header.PacketSize ;
+//                        if( FALSE == g_UpdatesItr->Providers->Storage->Read( g_UpdatesItr->StorageHandle, firstNeighborMissingPacket * g_UpdatesItr->Header.PacketSize, ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetData, g_UpdatesItr->Header.PacketSize)) {
+//                            continue;
+//                        }
+//                        ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetValidation = SUPPORT_ComputeCRC( ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetData, ((MFUpdate_Commands::Debugging_MFUpdate_AddPacket*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_packetLength, 0 );
+//                        g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
+//                    }
+//                }
+//            }
+//            else if(NEIGHBOR_FLAGS__START == (maskedState & NEIGHBOR_FLAGS__START)) {
+//                //TODO: generate auth command.
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Authenticate;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_Authenticate);
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Authenticate*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateHandle = 0;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Authenticate*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_authenticationLen = 0;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
+//            }
+//            else {
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_cmd = c_Debugging_MFUpdate_Start;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_flags = 0;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_header.m_size = sizeof(MFUpdate_Commands::Debugging_MFUpdate_Start);
+//                hal_strncpy_s ( ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_provider, 63, g_UpdatesItr->Providers->ProviderName, hal_strlen_s(g_UpdatesItr->Providers->ProviderName) ) ;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateId = g_UpdatesItr->Header.UpdateID;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateType = g_UpdatesItr->Header.UpdateType;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateSubType = g_UpdatesItr->Header.UpdateSubType;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updateSize = g_UpdatesItr->Header.UpdateSize;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_updatePacketSize = g_UpdatesItr->Header.PacketSize;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_versionMajor = g_UpdatesItr->Header.Version.usMajor;
+//                ((MFUpdate_Commands::Debugging_MFUpdate_Start*) g_Samraksh_Emote_Update.m_outboundMessage.m_payload)->m_versionMinor = g_UpdatesItr->Header.Version.usMinor;
+//                g_Samraksh_Emote_Update.m_outboundMessage.m_parent->SendProtocolMessage( g_Samraksh_Emote_Update.m_outboundMessage );
+//            }
+//        }
+//
+//    }
+//}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1515,23 +1542,6 @@ bool Samraksh_Emote_Update::GetMissingPkts( WP_Message* msg, void* owner )
 {
     NATIVE_PROFILE_CLR_DEBUGGER();
     MULTIPLEX_PACKETS();
-
-    if(msg->m_header.m_flags & WP_Flags::c_ACK) {
-        // got a neighbor's missing packet table, add to list of packets that we need to re-transmit if somebody else doesn't first.
-        MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply* neighbor = (MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply*) msg->m_payload;
-        if(neighbor->m_success != 1) {
-            return false;
-        }
-        if(neighbor->m_missingPktCount == 0) {
-            //TODO: add neighbor to completed neighbor table/record (in update file?).
-        }
-        MFUpdate* updateInfo = g_Updates->GetUpdate(neighbor->m_updateHandle);
-        if(updateInfo == NULL) return false;
-        for(UINT32 i = 0; i < updateInfo->m_missingPktsWordfieldSize; i++) {
-               updateInfo->m_neighborMissingPkts[i] |= neighbor->m_missingPkts[i];
-           }
-        return true;
-    }
 
     MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts*       cmd = (MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts*)msg->m_payload;
     MFUpdate_Commands::Debugging_MFUpdate_GetMissingPkts::Reply reply, *pReply;

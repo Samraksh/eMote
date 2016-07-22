@@ -5,4 +5,8 @@
     <MF_GenerateStubsRootName>Samraksh_eMote_ProgramManager</MF_GenerateStubsRootName>
     <MF_GenerateStubsDirectory>NativeStubs\</MF_GenerateStubsDirectory>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <MF_GenerateStubs>True</MF_GenerateStubs>
+    <MF_GenerateStubsDirectory>C:\repo\DotNet-MF\MicroFrameworkPK_v4_3\Samraksh\Interops\Samraksh_eMote_ProgramManager\Samraksh_eMote_ProgramManager\NativeStubs\</MF_GenerateStubsDirectory>
+  </PropertyGroup>
 </Project>

@@ -31,9 +31,9 @@ struct Library_Samraksh_eMote_ProgramManager_Samraksh_eMote_ProgramManager_Updat
 {
     static const int FIELD__updateID = 1;
     static const int FIELD__destAddr = 2;
-    static const int FIELD__lastSent = 3;
-    static const int FIELD__lastReceived = 4;
-    static const int FIELD__packetSize = 5;
+    static const int FIELD__lastSentMsg = 3;
+    static const int FIELD__lastReceivedMsg = 4;
+    static const int FIELD__packetDataSize = 5;
     static const int FIELD__missingPacketCount = 6;
     static const int FIELD__latestActionDate = 7;
 

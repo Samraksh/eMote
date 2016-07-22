@@ -56,10 +56,25 @@ namespace Samraksh.eMote.ProgramManager
         static private void InternalUpdaterProgressCallback(uint data1, uint data2, DateTime time)
         {
             //TODO: fetch UpdateState info for UpdateID
-            //TODO: unwrap data2 into destAddr <16 | msg, translate message into state.
-            UpdateState obj = new UpdateState();
+            //TODO: fill more state variables. keep track of some state across callbacks or query MFUpdate directly.
+            UpdateState state = new UpdateState();
+            UInt32 id = data1;
+            state.updateID = id;
+            state.destAddr = (ushort)(data2 >> 16);
+            state.lastReceivedMsg = (UpdateMessage)((data2 & 0xF000) >> 12);
+            UInt16 data = (ushort)(data2 & 0xFFF);
+
+            if(state.lastReceivedMsg == UpdateMessage.ADDPACKET_ACK) {
+                // TODO: get update header. or always send this as a progress metric.
+                state.missingPacketCount = data;
+            }
+
+            state.latestActionDate = time;
+
+            //TODO: show user how to grab more info about the update in C-Sharp.
+
             if (_updaterProgressCallback != null) {
-                _updaterProgressCallback( data1, obj);  //TODO: process a list of callbacks for individual updateID, destAddr
+                _updaterProgressCallback( id, state);  //TODO: process a list of callbacks for individual updateID, destAddr
             }
         }
 

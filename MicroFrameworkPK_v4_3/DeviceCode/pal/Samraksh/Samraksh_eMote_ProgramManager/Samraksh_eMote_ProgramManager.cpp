@@ -50,11 +50,11 @@ BOOL g_UpdateManagerInterruptEnabled = FALSE;  //TODO: check this.
 BOOL g_UpdateManager_Driver_Initialized = FALSE;
 
 
-void NativeToManagedUpdaterProgressHandler(UINT32 updateID, UINT16 destAddr, UINT16 msg)
+void NativeToManagedUpdaterProgressHandler(UINT32 updateID, UINT16 destAddr, UINT8 u4_cmd, UINT16 u12_data)
 {
 	//TODO: filter messages based on user data?
 	GLOBAL_LOCK(irq);
-	SaveNativeEventToHALQueue( g_UpdateManagerContext, updateID, ((UINT32)destAddr) << 16 | (UINT32)msg );
+	SaveNativeEventToHALQueue( g_UpdateManagerContext, updateID, (((UINT32)destAddr) << 16) | (((UINT32)(u4_cmd & 0xF)) << 12) | ((UINT32)(u12_data & 0xFFF)) );
 }
 
 static HRESULT Initialize_UpdateManager_Driver( CLR_RT_HeapBlock_NativeEventDispatcher *pContext, UINT64 userData )

@@ -15,19 +15,20 @@
 #include <Samraksh\Message.h>
 #include <MFUpdate_decl.h>
 
+
 /**
  * UpdateMessage in UpdateState.cs
- * must fit inside 16 bits for packing to CLR via in NativeToManagedUpdaterProgressHandler to NativeEventQueue
+ * must fit inside 4 bits for packing to CLR via in NativeToManagedUpdaterProgressHandler to NativeEventQueue
  */
 enum UpdateMessage
 {
         NOMSG = 0,
         START = 1, START_ACK = 2,
-        AUTHCMD = 4, AUTHCMD_ACK = 8,
-        AUTHENTICATE = 16, AUTHETICATE_ACK = 32,
-        GETMISSINGPACKETS = 64, GETMISSINGPACKETS_ACK = 128,
-        ADDPACKET = 256, ADDPACKET_ACK = 512,
-        INSTALL = 1024, INSTALL_ACK = 2048,
+        AUTHCMD = 3, AUTHCMD_ACK = 4,
+        AUTHENTICATE = 5, AUTHENTICATE_ACK = 6,
+        GETMISSINGPKTS = 7, GETMISSINGPKTS_ACK = 8,
+        ADDPACKET = 9, ADDPACKET_ACK = 10,
+        INSTALL = 11, INSTALL_ACK = 12,
 };
 
 /// used for g_UpdateManagerContext for Interop callback.
@@ -36,7 +37,7 @@ enum UpdateMessage
 //extern UINT64 g_UpdateManagerUserData;
 //extern BOOL g_UpdateManagerInterruptEnabled;
 
-typedef void (*UPDATER_PROGRESS_HANDLER)(UINT32 updateID, UINT16 destAddr, UINT16 msg);
+typedef void (*UPDATER_PROGRESS_HANDLER)(UINT32 updateID, UINT16 destAddr, UINT8 u4_cmd, UINT16 u12_data);
 
 //TODO: specify packed attribute. do this better.
 /**
@@ -115,6 +116,7 @@ public:
     static BOOL   s_fUseWpPacket;       //!< determines whether wireless interface will send entire WireProtocol packet.  idea is that short format fits inside single wireless packet payload.
     static BOOL   s_fBaseStationMode;   //!< turn on/off basestation mode.
     static UINT16 s_destAddr;           //!< wireless destination in basestation mode;
+    static UINT32 s_destMissingPkts[MFUpdate::MAX_MISSING_WORDFIELD_SIZE];
     static BOOL   s_fPublishUpdateMode; //!< turn on/off update publisher mode
     static UPDATER_PROGRESS_HANDLER s_UpdaterProgressHandler; //!< notify (managed library) something happened.
 
@@ -167,8 +169,16 @@ protected:
 
 
 
-
 extern Samraksh_Emote_Update    g_Samraksh_Emote_Update;
+
+struct NeighborUpdateRecord
+{
+	static const unsigned int MAX_MISSING_WORDFIELD_SIZE = 25;
+	UINT16 destAddr;
+    UINT32 m_neighborMissingPkts[MAX_MISSING_WORDFIELD_SIZE];
+    UINT32 UpdateID;
+};
+
 
 
 //TODO: API for new WirelessUpdate is below.  Implement and augment this after the baseline update works.

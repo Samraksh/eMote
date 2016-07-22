@@ -155,7 +155,6 @@ struct MFUpdate
     UINT32 m_missingPktsWordfieldSize;
     static const unsigned int MAX_MISSING_WORDFIELD_SIZE = 25;
     UINT32 m_missingPkts[MAX_MISSING_WORDFIELD_SIZE];
-    UINT32 m_neighborMissingPkts[MAX_MISSING_WORDFIELD_SIZE];
 
     static const UpdateID_t badHandle = 0;  //!< Original version used INT32 and -1 for bad handles, but we need to use UINT32 for updateID for new protocol.
     static MFUpdate* GetUpdate(UpdateID_t handle);

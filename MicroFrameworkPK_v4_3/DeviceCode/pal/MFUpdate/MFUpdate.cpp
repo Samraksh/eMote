@@ -555,6 +555,5 @@ void MFUpdate_Clear( MFUpdate* update )
     update->m_finalPacketIdx = 0;
     update->m_missingPktsWordfieldSize = 0;
     memset(update->m_missingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
-    memset(update->m_neighborMissingPkts, 0xFF, sizeof(UINT32)*MFUpdate::MAX_MISSING_WORDFIELD_SIZE );
 }
 

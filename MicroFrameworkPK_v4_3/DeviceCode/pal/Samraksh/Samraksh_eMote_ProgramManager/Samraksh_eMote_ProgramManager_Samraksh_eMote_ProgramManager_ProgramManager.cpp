@@ -19,29 +19,39 @@
 
 using namespace Samraksh::eMote::ProgramManager;
 
+UpdateID_t updateIDInUse;
+
 INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, HRESULT &hr )
 {
     INT8 retVal = 0;
 	
 	Samraksh_Emote_Update::CreateInstance();
-	int len = 10;
-	UpdateID_t updateIDs[len];
-	MFUpdate_EnumerateUpdates(updateIDs, len);
-	if(updateIDs[0] == MFUpdate::badHandle) {
-		while(true) {}
+	if(updateIDInUse == MFUpdate::badHandle) {
+		int len = 10;  // should be >= to number of updates.
+		UpdateID_t updateIDs[len];
+		MFUpdate_EnumerateUpdates(updateIDs, len);
+		for(int itr=len - 1; itr >= 0; --itr) {
+			if(updateIDs[itr] != MFUpdate::badHandle) {
+				updateIDInUse = updateIDs[itr];
+				break;
+			}
+		}
 	}
-	ushort destAddr = Samraksh_Emote_Update::s_destAddr;
-	Samraksh_Emote_Update::SendStart(updateIDs[0],destAddr);
-	
+	if(updateIDInUse != MFUpdate::badHandle) {
+		ushort destAddr = Samraksh_Emote_Update::s_destAddr;
+		Samraksh_Emote_Update::SendStart(updateIDInUse,destAddr);
+	}
     return retVal;
 }
 
 INT8 ProgramManager::UpdaterStart( CLR_RT_HeapBlock* pMngObj, UINT32 param0, HRESULT &hr )
 {
-    INT8 retVal = 0; 
-    hal_printf("FIXME UpdaterStart pick updateid!\n");
-	//Samraksh_Emote_Update::s_destAddr = param0;
-	UpdaterStart(pMngObj, hr);
+    INT8 retVal = 0;
+    MFUpdate* updateInfo = MFUpdate::GetUpdate(param0);
+    if(updateInfo != NULL) {
+        updateIDInUse = updateInfo->Header.UpdateID;
+        UpdaterStart(pMngObj, hr);
+    }
     return retVal;
 }
 
