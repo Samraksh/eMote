@@ -9,13 +9,13 @@
 // From that point on it uses the facilities designated by the update package.
 static const IUpdatePackage s_UpdatePackages[] =
 {
-    {
-        "NetMF",
-        &g_MicroBooterUpdateProvider,
-        &g_CrcUpdateValidationProvider,
-        &g_BlockStorageUpdateProvider,
-        NULL,/*backup provider*/
-    },
+//    {
+//        "NetMF",
+//        &g_MicroBooterUpdateProvider,
+//        &g_CrcUpdateValidationProvider,
+//        &g_BlockStorageUpdateProvider,
+//        NULL,/*backup provider*/
+//    },
     {
         "PAK",
         &g_PortableArrayKitUpdateProvider,

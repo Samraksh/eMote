@@ -186,7 +186,7 @@ extern const IUpdatePackage* g_UpdatePackages;
 extern const INT32           g_UpdatePackageCount;
 
 
-#define MAX_UPDATE_COUNT 10       //!< FIXME: breaks one definition rule. update storage provider needs to agree with this.
+#define MAX_UPDATE_COUNT 2       //!< FIXME: breaks one definition rule. update storage provider needs to agree with this.
 extern UINT32       g_UpdateCount;
 extern MFUpdate     g_Updates[MAX_UPDATE_COUNT];
 

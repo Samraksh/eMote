@@ -378,8 +378,8 @@
   </ItemGroup>-->
   <!--  Add the MFUpdate Provider libraries required for MFDeploy  -->
   <ItemGroup>
-    <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\dotnetMF.proj" />
-    <DriverLibs Include="MicroBooterUpdate.$(LIB_EXT)" />
+    <!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\dotnetMF.proj" />
+    <DriverLibs Include="MicroBooterUpdate.$(LIB_EXT)" />-->
     <RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\dotnetMF.proj" />
     <DriverLibs Include="BlockStorageUpdate.$(LIB_EXT)" />
 	<!--<RequiredProjects Include="$(SPOCLIENT)\DeviceCode\Drivers\MFUpdate\Storage\FS\dotnetMF.proj" />
