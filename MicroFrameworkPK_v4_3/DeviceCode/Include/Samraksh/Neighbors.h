@@ -37,7 +37,7 @@ extern UINT8 MacName;
 #else
 #define ENABLE_PIN_NB(x,y)
 #define SET_PIN_NB(x,y)
-#define DEBUG_PRINTF_NB(...) hal_printf(__VA_ARGS__)
+#define DEBUG_PRINTF_NB(...) (void)0
 #endif
 
 typedef struct {
