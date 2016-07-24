@@ -155,7 +155,7 @@ BOOL HAL_CONFIG_BLOCK::GetConfigSectorAddress(HAL_CONFIG_BLOCK_STORAGE_DATA& blD
             const BlockRegionInfo* pRegion = &DeviceInfo->Regions[regionIndex];
 
             blData.ConfigAddress = pRegion->BlockAddress( pRegion->BlockRanges[rangeIndex].StartBlock );
-            blData.BlockLength = pRegion->BytesPerBlock;
+            blData.BlockLength = stream.Length; //pRegion->BytesPerBlock;
 
             if (0 == DeviceInfo->Attribute.SupportsXIP)
             {
@@ -202,7 +202,7 @@ BOOL HAL_CONFIG_BLOCK::CompactBlock(HAL_CONFIG_BLOCK_STORAGE_DATA& blData, const
         memcpy(pNextCfg, cfgStatic, cfgStatic->ConfigurationLength);
         pNextCfg += cfgStatic->ConfigurationLength;
 
-        while(cfgStart < cfgEnd)
+        while(cfgStart != NULL && cfgStart < cfgEnd)
         {
             if(cfgStart->Size > 0)
             {
@@ -274,14 +274,16 @@ BOOL HAL_CONFIG_BLOCK::UpdateBlockWithName( const char* Name, void* Data, size_t
     return FALSE;
 #else
 
-    if(Name == NULL) return FALSE;
+    if(Name == NULL)
+        return FALSE;
 
     BOOL fRet = FALSE;
     BYTE* pXipConfigBuf = NULL;
     const HAL_CONFIG_BLOCK *pLastConfig = NULL;
     HAL_CONFIG_BLOCK_STORAGE_DATA blData;
 
-    if(!GetConfigSectorAddress(blData)) return FALSE;
+    if(!GetConfigSectorAddress(blData))
+        return FALSE;
 
     if(g_ConfigurationSector.ConfigurationLength == 0xFFFFFFFF)
     {
