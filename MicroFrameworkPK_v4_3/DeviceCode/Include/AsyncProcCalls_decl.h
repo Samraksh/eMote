@@ -84,6 +84,8 @@ struct HAL_COMPLETION : public HAL_CONTINUATION
 
 #if defined(_DEBUG)
     UINT64 Start_RTC_Ticks;
+    UINT64 late_calls;
+    static volatile UINT64 late_calls_total;
 #endif
 
     void InitializeForISR( HAL_CALLBACK_FPN EntryPoint, void* Argument = NULL )
@@ -91,6 +93,10 @@ struct HAL_COMPLETION : public HAL_CONTINUATION
         ExecuteInISR = TRUE;
 
         InitializeCallback( EntryPoint, Argument );
+
+#if defined(_DEBUG)
+        late_calls = 0;
+#endif
     }
 
     void InitializeForUserMode( HAL_CALLBACK_FPN EntryPoint, void* Argument = NULL )
@@ -98,6 +104,9 @@ struct HAL_COMPLETION : public HAL_CONTINUATION
         ExecuteInISR = FALSE;
 
         InitializeCallback( EntryPoint, Argument );
+#if defined(_DEBUG)
+        late_calls = 0;
+#endif
     }
 
     void EnqueueTicks               ( UINT64 EventTimeTicks        );

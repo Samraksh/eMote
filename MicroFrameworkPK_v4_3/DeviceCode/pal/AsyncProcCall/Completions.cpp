@@ -18,6 +18,10 @@ HAL_DblLinkedList<HAL_CONTINUATION> g_HAL_Completion_List;
 
 /***************************************************************************/
 
+#if defined(_DEBUG)
+volatile UINT64 HAL_COMPLETION::late_calls_total;
+#endif
+
 void HAL_COMPLETION::Execute()
 {
     NATIVE_PROFILE_PAL_ASYNC_PROC_CALL();
@@ -63,10 +67,16 @@ void HAL_COMPLETION::DequeueAndExec()
     // than their is a next completion and that the current one has expired.
     if(ptrNext)
     {
-#if !defined(BUILD_RTM) && !defined(NDEBUG)
+#if !defined(BUILD_RTM) && !defined(NDEBUG) && defined(_DEBUG)
         volatile UINT64 Now = HAL_Time_CurrentTicks();
         volatile INT64 diff =  (INT64)Now - ptr->EventTimeTicks;
-        ASSERT( diff > 0 );// ptr->EventTimeTicks <= HAL_Time_CurrentTicks());
+        // this assert is removed in upstream because it does not work when running on guest OS with preemption.
+        // 2014-12-01 mortezag commit 42965: "removed bogus assert check in Completions.cpp; The check seemed like a reasonable idea if you only consider a purely single threaded system. However, as soon as you introduce an actual pre-emptive multi threaded system the check is invalid since the check is against a { starttimer(); expectedTriggerTime = now() + n; } sequence. if that sequence is pre-empted then the expected timer value ends up wrong and the assert fails, even though the timer fired precisely when it should"
+        //ASSERT( diff > 0 );// ptr->EventTimeTicks <= HAL_Time_CurrentTicks());
+        if( diff > 0 ) {
+            ++ptr->late_calls;
+            ++HAL_COMPLETION::late_calls_total;
+        }
 #endif
         
         Events_Set(SYSTEM_EVENT_FLAG_SYSTEM_TIMER);
