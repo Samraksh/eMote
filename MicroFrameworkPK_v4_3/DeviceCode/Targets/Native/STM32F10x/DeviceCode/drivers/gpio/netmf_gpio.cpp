@@ -617,6 +617,7 @@ void EXTI0_IRQ_HANDLER(void *args)
 
 void EXTI1_IRQ_HANDLER(void *args)
 {
+	GLOBAL_LOCK(EXTI1);
 	handle_exti(EXTI_Line1);
 }
 
