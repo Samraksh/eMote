@@ -708,23 +708,6 @@ J12_PIN10 = GND
 // For debugging OMAC - END
 
 
-////////////////////////// TinyCLR Memory Profiling Defines /////////////////////////////
-
-// For general use, will printf to debug console
-// #define TINYCLR_FILL_MEMORY_WITH_DIRTY_PATTERN
-// #define TINYCLR_GC_VERBOSE
-// #define TINYCLR_FORCE_GC_BEFORE_EVERY_ALLOCATION
-// #define TINYCLR_TRACE_MEMORY_STATS
-// #define TINYCLR_TRACE_MALLOC
-
-// for use with TinyCLR profiler tool
-// #define TINYCLR_PROFILE_NEW
-// #define TINYCLR_PROFILE_NEW_ALLOCATIONS
-// #define TINYCLR_PROFILE_NEW_CALLS
-
-
-
-
 #endif // PLATFORM_ARM_EmoteDotNow
 
 #endif // _PLATFORM_EmoteDotNow_SELECTOR_H_
