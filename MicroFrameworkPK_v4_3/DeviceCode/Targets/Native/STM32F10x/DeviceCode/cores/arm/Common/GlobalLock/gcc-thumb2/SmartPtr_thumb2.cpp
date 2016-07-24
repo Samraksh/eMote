@@ -7,7 +7,7 @@
 
 //--//
 
-#define DISABLED_MASK 0x1
+const uint32_t DISABLED_MASK = 0x1;
 
 SmartPtr_IRQ::SmartPtr_IRQ(void* context)
 {
@@ -42,7 +42,6 @@ void SmartPtr_IRQ::Release()
     if ((Cp & DISABLED_MASK) == 0)
     {
         m_state = __get_PRIMASK();
-
         __enable_irq();
     }
 }
@@ -53,7 +52,7 @@ void SmartPtr_IRQ::Probe()
 
     if ((Cp & DISABLED_MASK) == 0)
     {
-        UINT32 s = __get_PRIMASK();
+        register UINT32 state = __get_PRIMASK();
 
         __enable_irq();
 
@@ -61,13 +60,14 @@ void SmartPtr_IRQ::Probe()
         __NOP();
 
         // restore irq state
-        __set_PRIMASK(s);
+        __set_PRIMASK( state );
     }
 }
 
 BOOL SmartPtr_IRQ::GetState(void* context)
 {
-    return (0 == (__get_PRIMASK() & DISABLED_MASK));
+	register UINT32 Cp = __get_PRIMASK();
+    return (0 == (Cp & DISABLED_MASK));
 }
 
 BOOL SmartPtr_IRQ::ForceDisabled(void* context)
