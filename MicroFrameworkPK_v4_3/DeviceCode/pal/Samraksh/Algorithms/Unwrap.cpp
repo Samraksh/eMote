@@ -10,7 +10,21 @@ static int prevQMax = 0, prevIMax = 0;
 static int unwrappedPhaseCrossProductZero = 0;
 static int prevQZero = 0, prevIZero = 0;
 
-static int unwrappedPhaseCrossMid = 0;
+// displacementEntireWindow is unwrappedPhaseCrossProduct
+static int displacementFirstHalf = 0;
+static int displacementSecondHalf = 0;
+
+static int absoluteDisplFirstHalf = 0;
+static int absoluteDisplSecondHalf = 0;
+static int absoluteDisplEntire = 0;
+
+static int minDisplacementFirstHalf = 0;
+static int minDisplacementSecondHalf = 0;
+static int minDisplacementEntire = 0;
+
+static int maxDisplacementFirstHalf = 0;
+static int maxDisplacementSecondHalf = 0;
+static int maxDisplacementEntire = 0;
 
 enum PI
 {
@@ -20,6 +34,14 @@ enum PI
     TWO = 25736,
     NEG_HALF = -6434
 };
+
+
+    enum SAMPLE_WINDOW_PORTION
+    {
+        SAMPLE_WINDOW_FULL,
+        SAMPLE_WINDOW_FIRST_HALF,
+        SAMPLE_WINDOW_SECOND_HALF
+    };
 
 
 int partitions(int low, int high, INT16* buffer){
@@ -93,10 +115,26 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	INT16 iBufferI[length];
 	INT16 iBufferQ[length];
 	int midPoint = (int)length>>1;
+	int sampleDisplacement = 0;
 
 	unwrappedPhaseCrossProduct = 0;
 	unwrappedPhaseCrossProductMax = 0;
 	unwrappedPhaseCrossProductZero = 0;
+
+	displacementFirstHalf = 0;
+ 	displacementSecondHalf = 0;
+
+	absoluteDisplFirstHalf = 0;
+	absoluteDisplSecondHalf = 0;
+	absoluteDisplEntire = 0;
+
+	minDisplacementFirstHalf = 0;
+	minDisplacementSecondHalf = 0;
+	minDisplacementEntire = 0;
+
+	maxDisplacementFirstHalf = 0;
+	maxDisplacementSecondHalf = 0;
+	maxDisplacementEntire = 0;
 
 	if (debugVal == 6){
 		USART_Write( uartPort, (char *)&markerPrimary, 2 );
@@ -122,11 +160,39 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 		}
 		iBufferI[i] = (INT16)bufferI[i] - medianI;
 		iBufferQ[i] = (INT16)bufferQ[i] - medianQ; 
-		unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
+		
+		// sampleDisplacement contains the current samples displacement
+		sampleDisplacement = unwrapCrossProduct(iBufferI[i], iBufferQ[i], noiseRejection);
+		
+		// unwrappedPhaseCrossProduct contains the cumlative sum of sampleDisplacement
+		// this is done within unwrapCrossProduct()
 
-		// saving mid-point value
-		if (i == midPoint)
-			unwrappedPhaseCrossMid = unwrappedPhaseCrossProduct;
+		// saving data points to be used in classifiers
+		// calculating 1st half window data points
+		if (i < midPoint){
+			displacementFirstHalf += sampleDisplacement;
+			absoluteDisplFirstHalf += abs(sampleDisplacement);
+			if (unwrappedPhaseCrossProduct < minDisplacementFirstHalf)
+				minDisplacementFirstHalf = unwrappedPhaseCrossProduct;
+			if (unwrappedPhaseCrossProduct > maxDisplacementFirstHalf)
+				maxDisplacementFirstHalf = unwrappedPhaseCrossProduct;
+		}
+		// calculating 2nd half window data points
+		if (i >= midPoint){
+			displacementSecondHalf += sampleDisplacement;
+			absoluteDisplSecondHalf += abs(sampleDisplacement);
+			if (unwrappedPhaseCrossProduct < minDisplacementSecondHalf)
+				minDisplacementSecondHalf = unwrappedPhaseCrossProduct;
+			if (unwrappedPhaseCrossProduct > maxDisplacementSecondHalf)
+				maxDisplacementSecondHalf = unwrappedPhaseCrossProduct;
+		}
+		// calculating data for entire window
+		absoluteDisplEntire += abs(sampleDisplacement);
+		if (unwrappedPhaseCrossProduct < minDisplacementEntire)
+				minDisplacementEntire = unwrappedPhaseCrossProduct;
+		if (unwrappedPhaseCrossProduct > maxDisplacementEntire)
+				maxDisplacementEntire = unwrappedPhaseCrossProduct;
+
 
 		bufferUnwrap[i] = (UINT16)unwrappedPhaseCrossProduct;
 
@@ -134,6 +200,10 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 			USART_Write( uartPort, (char *)&bufferUnwrap[i], 2 );
 		}
 	}
+
+	// saving data points to be used in classifier
+	// calculating final data
+	
 
 	if (debugVal == 2){
 		USART_Write( uartPort, (char *)&checksumPrimary, 2 );
@@ -163,9 +233,10 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	return (abs(unwrappedPhaseCrossProduct));
 }
 
-void unwrapCrossProduct(INT16 valueI, INT16 valueQ, INT32 noiseRejection)
+int unwrapCrossProduct(INT16 valueI, INT16 valueQ, INT32 noiseRejection)
 {
 	int crossProductResultValue = 0;
+	int normalSampleResult = 0;
 	int cprod = 0;
 
 	// Ignore small changes
@@ -180,6 +251,8 @@ void unwrapCrossProduct(INT16 valueI, INT16 valueQ, INT32 noiseRejection)
 		
 		// this is the unwrap result if we apply the user's noise rejection value
 		unwrappedPhaseCrossProduct += crossProductResultValue;	
+
+		normalSampleResult = crossProductResultValue;
 
 		// here we keep track of the current point if it is not considered noise 
 		prevQ = valueQ;
@@ -219,6 +292,8 @@ void unwrapCrossProduct(INT16 valueI, INT16 valueQ, INT32 noiseRejection)
 		prevQMax = valueQ;
 		prevIMax = valueI;
 	}
+
+	return normalSampleResult;
 }
 
 int getUnwrapMax(){
@@ -229,6 +304,35 @@ int getUnwrapZero(){
 	return (abs(unwrappedPhaseCrossProductZero));
 }
 
-int getUnwrapMid(){
-	return (abs(unwrappedPhaseCrossMid));
+int getDisplacement(INT32 portion){
+	if (portion == SAMPLE_WINDOW_FULL){
+		return (unwrappedPhaseCrossProduct);
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return (displacementFirstHalf);
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return (displacementSecondHalf);
+	}
+}
+
+int getAbsoluteDisplacement(INT32 portion){
+	if (portion == SAMPLE_WINDOW_FULL){
+		return absoluteDisplEntire;
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return absoluteDisplFirstHalf;
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return absoluteDisplSecondHalf;
+	}
+}
+
+int getRange(INT32 portion){
+	if (portion == SAMPLE_WINDOW_FULL){
+		return (maxDisplacementEntire - minDisplacementEntire);
+	} else if (portion == SAMPLE_WINDOW_FIRST_HALF){
+		return (maxDisplacementFirstHalf - minDisplacementFirstHalf);
+	} else {
+		// SAMPLE_WINDOW_SECOND_HALF
+		return (maxDisplacementSecondHalf - minDisplacementSecondHalf);
+	}
 }

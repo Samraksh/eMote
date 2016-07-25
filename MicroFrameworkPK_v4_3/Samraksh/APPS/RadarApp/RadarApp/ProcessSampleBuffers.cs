@@ -240,8 +240,6 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         /// <returns>True iff we're done sampling</returns>
         private static void ProcessBuffers(IQ iq)
         {
-            bool radarDetection = false;
-
             if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
             {
                 lcd.Write(LCD.CHAR_A, detectionDisplay, LCD.CHAR_NULL, codeVersion);
@@ -257,13 +255,25 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             bool detection = radarDetect.DetectionCalculation(iBuff, qBuff, ADCBufferSize);
             int unwrap = radarDetect.GetLastUnwrap(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_CURRENTLY_USED);
             bool winOverThresh = radarDetect.GetWindowOverThreshold();
-            int midUnwrap = radarDetect.GetMidWindowUnwrap();
+
+            int EntireUnwrap = radarDetect.GetNetDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+            int FirstHalfUnwrap = radarDetect.GetNetDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FIRST_HALF);
+            int SecondHalfUnwrap = radarDetect.GetNetDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_SECOND_HALF);
+
+            int AbsEntireUnwrap = radarDetect.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+            int AbsFirstHalfUnwrap = radarDetect.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FIRST_HALF);
+            int AbsSecondHalfUnwrap = radarDetect.GetAbsoluteDisplacement(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_SECOND_HALF);
+
+            int RangeEntireUnwrap = radarDetect.GetDisplacementRange(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FULL);
+            int RangeFirstHalfUnwrap = radarDetect.GetDisplacementRange(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_FIRST_HALF);
+            int RangeSecondHalfUnwrap = radarDetect.GetDisplacementRange(eMote.SAMPLE_WINDOW_PORTION.SAMPLE_WINDOW_SECOND_HALF);
+
             int backgroundNoise = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_CURRENTLY_USED);
             int backgroundNoiseZero = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_ZERO);
             int backgroundNoiseMax = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
             int iqUsed = radarDetect.GetIQRejectionLevel();
             //Debug.Print(unwrap.ToString() + " " + backgroundNoiseZero.ToString() + " " + backgroundNoise.ToString() + " " + backgroundNoiseMax.ToString() + " " + iqUsed.ToString());
-            Debug.Print(unwrap.ToString() + " " + midUnwrap.ToString() + " " + detection.ToString() + " " + winOverThresh.ToString());
+            Debug.Print(unwrap.ToString() + " " + EntireUnwrap.ToString() + " " + FirstHalfUnwrap.ToString() + " " + SecondHalfUnwrap.ToString() + " " + AbsEntireUnwrap.ToString() + " " + AbsFirstHalfUnwrap.ToString() + " " + AbsSecondHalfUnwrap.ToString() + " " + RangeEntireUnwrap.ToString() + " " + RangeFirstHalfUnwrap.ToString() + " " + RangeSecondHalfUnwrap.ToString());
             if (detection == true)
             {
                 Debug.Print("****** detection ******\r\n");
