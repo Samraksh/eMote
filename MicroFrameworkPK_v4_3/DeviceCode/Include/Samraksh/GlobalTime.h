@@ -207,6 +207,15 @@ private:
 		samples[nbrIndex].y_intercept = sum_y/((double)numSamples) - sum_x/((double)numSamples) * samples[nbrIndex].relativeFreq;
 
 		samples[nbrIndex].additional_y_intercept_offset = 0;
+
+		if(samples[nbrIndex].relativeFreq < 0.9 || samples[nbrIndex].relativeFreq > 1.1){ //Reject last received samples
+			UINT8 previoustolastindex;
+			if(samples[nbrIndex].lastTimeIndex == 0) 	previoustolastindex = MAX_SAMPLES - 1;
+			else 										previoustolastindex = samples[nbrIndex].lastTimeIndex -1;
+			samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] = samples[nbrIndex].recordedTime[previoustolastindex];
+			samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].lastTimeIndex] = samples[nbrIndex].offsetBtwNodes[previoustolastindex];
+		}
+
 	}
 
 public:
