@@ -53,11 +53,19 @@ int s_CLR_RT_fTrace_Memory                     = TINYCLR_TRACE_DEFAULT(c_CLR_RT_
 #endif
 
 #if defined(TINYCLR_TRACE_MEMORY_STATS)
+#if defined(SAM_DEBUG_MEMORY)
+int s_CLR_RT_fTrace_MemoryStats                = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_None,c_CLR_RT_Trace_Info);
+#else
 int s_CLR_RT_fTrace_MemoryStats                = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_None,c_CLR_RT_Trace_None);
+#endif
 #endif
 
 #if defined(TINYCLR_GC_VERBOSE)
+#if defined(SAM_DEBUG_MEMORY)
+int s_CLR_RT_fTrace_GC                         = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_None,c_CLR_RT_Trace_Verbose);
+#else
 int s_CLR_RT_fTrace_GC                         = TINYCLR_TRACE_DEFAULT(c_CLR_RT_Trace_None,c_CLR_RT_Trace_None);
+#endif
 #endif
 
 #if defined(PLATFORM_WINDOWS)
