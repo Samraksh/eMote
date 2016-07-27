@@ -33,7 +33,7 @@ public:
 		return slots*16000*8;
 	};
 
-	UINT64 CreateSyncPointBetweenClocks(){
+	void CreateSyncPointBetweenClocks(){
 		if(0 && OMACClockSpecifier == LFCLOCKID){
 			m_inter_clock_offset = HAL_Time_CurrentTicks() - VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio ;
 		}
@@ -42,10 +42,12 @@ public:
 		return (ticks1 + ticks2);
 	};
 	inline UINT64 SubstractTicks(const UINT64& ticks1, const UINT64& ticks2){
-		return (ticks1 - ticks2);
+		ASSERT(ticks1 >= ticks2);
+		return ( (ticks1 > ticks2) ? (ticks1 - ticks2) : 0 );
 	};
 	inline UINT64 SubstractMicroSeconds(const UINT64& ticks1, const UINT64& ticks2){
-		return (ticks1 - ticks2);
+		ASSERT(ticks1 >= ticks2);
+		return ( (ticks1 > ticks2) ? (ticks1 - ticks2) : 0);
 	};
 	inline UINT64 AddMicroSeconds(const UINT64& ticks1, const UINT64& ticks2){
 		return (ticks1 + ticks2);

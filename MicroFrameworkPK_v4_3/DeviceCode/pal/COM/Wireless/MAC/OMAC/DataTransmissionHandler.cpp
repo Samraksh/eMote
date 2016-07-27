@@ -117,14 +117,23 @@ void DataTransmissionHandler::Initialize(){
 }
 
 UINT64 DataTransmissionHandler::CalculateNextTxMicro(UINT16 dest){
-	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, g_NeighborTable.GetNeighborPtr(dest)->nextwakeupSlot * SLOT_PERIOD_TICKS);
+	UINT64 nextTXmicro = MAX_UINT64;
+	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(dest);
+	if(neigh_ptr == NULL) {
+		return nextTXmicro;
+	}
+	UINT64 nextTXTicks = g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.Neighbor2LocalTime(dest, neigh_ptr->nextwakeupSlot * SLOT_PERIOD_TICKS);
 	//UINT64 nextTXmicro = g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) - PROCESSING_DELAY_BEFORE_TX_MICRO - RADIO_TURN_ON_DELAY_MICRO;
-	UINT64 nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (RADIO_TURN_ON_DELAY_MICRO+PROCESSING_DELAY_BEFORE_TX_MICRO));
+	nextTXmicro = g_OMAC.m_Clock.SubstractMicroSeconds( g_OMAC.m_Clock.ConvertTickstoMicroSecs(nextTXTicks) , (RADIO_TURN_ON_DELAY_MICRO+PROCESSING_DELAY_BEFORE_TX_MICRO));
 	if(EXECUTE_WITH_CCA){
-		nextTXmicro -= CCA_PERIOD_MICRO;
+		if(nextTXmicro > CCA_PERIOD_MICRO) {
+			nextTXmicro -= CCA_PERIOD_MICRO;
+		}
 	}
 	if(FAST_RECOVERY){
-		nextTXmicro -= GUARDTIME_MICRO;
+		if(nextTXmicro > GUARDTIME_MICRO) {
+			nextTXmicro -= GUARDTIME_MICRO;
+		}
 	}
 	if(FAST_RECOVERY2){
 	}
@@ -276,6 +285,10 @@ void DataTransmissionHandler::DropPacket(){
 	OMAC_HAL_PRINTF("dropping packet\n");
 #endif
 	Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(m_outgoingEntryPtr_dest);
+	if(neigh_ptr == NULL) {
+		ASSERT_SP(0);
+	}
+	else {
 	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
 		ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
 		neigh_ptr->send_buffer.DropOldest(1);
@@ -297,6 +310,7 @@ void DataTransmissionHandler::DropPacket(){
 	}
 	else{ // The packet is gone
 		//ASSERT_SP(0);
+	}
 	}
 
 	isDataPacketScheduled = false;

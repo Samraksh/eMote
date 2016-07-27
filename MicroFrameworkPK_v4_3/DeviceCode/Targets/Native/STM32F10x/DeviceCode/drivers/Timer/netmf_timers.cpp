@@ -437,6 +437,11 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		
 		return Ticks32;
 	}
+	else
+	{
+		ASSERT(0);
+		return 0;
+	}
 }
 
 UINT64 CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer )
@@ -464,6 +469,11 @@ UINT64 CPU_MillisecondsToTicks( UINT64 mSec, UINT16 Timer )
 	{
 		return ( mSec * (timerFrequency / 1000) );
 	}
+	else
+	{
+		ASSERT(0);
+		return 0;
+	}
 }
 
 
@@ -488,10 +498,16 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 	{
 		return ( mSec * (timerFrequency / 1000) );
 	}
-		else if(Timer == RTC_32BIT)
+	else if(Timer == RTC_32BIT)
 	{
 		return ( mSec * (timerFrequency / 1000) );
 	}
+	else
+	{
+		ASSERT(0);
+		return 0;
+	}
+
 }
 
 //TODO: profile minimum value
@@ -525,6 +541,11 @@ UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 	else if(Timer == RTC_32BIT)
 	{
 		return ((ticks * CLOCK_COMMON_FACTOR) / timerFrequency);
+	}
+	else
+	{
+		ASSERT(0);
+		return 0;
 	}
 }
 

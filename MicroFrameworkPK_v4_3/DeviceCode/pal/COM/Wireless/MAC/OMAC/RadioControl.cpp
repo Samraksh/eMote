@@ -195,7 +195,8 @@ bool RadioControl_t::PiggybackMessages(Message_15_4_t* msg, UINT16 &size){
 		rv = rv || PiggybackTimeSyncMessage(msg, size);
 	}
 	if( header->payloadType == MFM_OMAC_TIMESYNCREQ && !(header->flags & MFM_DISCOVERY_FLAG) && (header->payloadType != MFM_OMAC_DISCOVERY)) {
-		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS &&  g_NeighborTable.GetNeighborPtr(header->dest)->NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){
+		Neighbor_t* neigh_ptr = g_NeighborTable.GetNeighborPtr(header->dest);
+		if(header->dest != 0 && header->dest != RADIO_BROADCAST_ADDRESS && neigh_ptr!= NULL && neigh_ptr->NumTimeSyncMessagesSent < NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS ){
 		rv = rv || PiggybackDiscoMessage(msg, size);
 		}
 	}

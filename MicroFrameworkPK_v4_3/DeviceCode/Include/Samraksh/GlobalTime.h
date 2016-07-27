@@ -20,7 +20,9 @@
 
 #define MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION 2
 #define TIME_WALK_STEP (double)(2*GUARDTIME_MICRO*TICKS_PER_MICRO) //BK: This is the search step in Ticks used in FAST_RECOVERY2
-#define UNDEFINED_NEIGHBOR_INDEX 255
+
+typedef UINT8 NeighborIndex_t;
+static const NeighborIndex_t c_bad_nbrIndex = 255;
 
 struct TSSamples {
 	UINT16 nbrID;
@@ -50,7 +52,7 @@ private:
 		INT64 simpleOffsetChangeSum, simpleCurrentOffsetDiff , simpleCurrentLocalTimeDiff;
 
 		UINT16 nbrIndex = FindNeighbor(nbr);
-		if(nbrIndex==255){
+		if(nbrIndex==c_bad_nbrIndex){
 			return;
 		}
 		UINT64 *nbrLocalTimes = samples[nbrIndex].recordedTime;
@@ -152,8 +154,8 @@ private:
 	}*/
 
 	void Compute(UINT16 nbr){
-		UINT16 nbrIndex = FindNeighbor(nbr);
-		if(nbrIndex==255){
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
+		if(nbrIndex==c_bad_nbrIndex){
 			return;
 		}
 		double *nbrLocalTimes = samples[nbrIndex].recordedTime;
@@ -164,7 +166,7 @@ private:
 			return;
 		}
 
-	    UINT8 firstIdx, lastIdx, i;
+	    NeighborIndex_t firstIdx, lastIdx, i;
 	    firstIdx = lastIdx = i = 1;
 	    double latestLocalTime, earliestLocalTime;
 		//Find latestLocalTime and earliestLocalTime in the buffer
@@ -216,25 +218,25 @@ public:
 		Init();
 	};
 
-	UINT8 FindNeighbor(UINT16 nbr){
+	NeighborIndex_t FindNeighbor(UINT16 nbr){
 		for(int i=0; i < MAX_NBR; i++){
 			if (samples[i].nbrID == nbr){
 				return i;
 			}
 		}
-		return 255;
+		return c_bad_nbrIndex;
 	}
 	UINT8 NumberOfRecordedElements(UINT16 nbr){
-		UINT16 nbrIndex = FindNeighbor(nbr);
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 		if (nbrIndex >= MAX_NBR) return 0;
 		return(samples[nbrIndex].numSamples);
 	};
 	void Insert(UINT16 nbr,UINT64 nbr_ltime, INT64 nbr_loffset){
-		UINT16 nbrIndex = FindNeighbor(nbr);
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 		UINT64 timeDifference;
 		UINT8 previndex;
 		//Add new neighbor if not found
-		if (nbrIndex ==255){
+		if (nbrIndex == c_bad_nbrIndex){
 			nbrIndex = nbrCount;
 			nbrCount++;
 			//No space in regression table
@@ -261,16 +263,18 @@ public:
 		Compute(nbr);
 	}
 	void Clean(UINT16 nbr){
-		UINT16 nbrIndex = FindNeighbor(nbr);
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
 		CleanNbrwithIndex(nbrIndex);
 
 	}
-	void CleanNbrwithIndex(UINT16 nbrIndex){
+	void CleanNbrwithIndex(NeighborIndex_t nbrIndex){
 		if(nbrIndex >= 0 && nbrIndex < MAX_NBR){
-			//samples[nbrIndex].nbrID=0xFFFF;
+			samples[nbrIndex].nbrID=0xFFFF;
 			samples[nbrIndex].lastTimeIndex = MAX_SAMPLES;
 			samples[nbrIndex].numSamples = 0;
 			samples[nbrIndex].relativeFreq = 0;
+			samples[nbrIndex].y_intercept = 0;
+			samples[nbrIndex].additional_y_intercept_offset = 0;
 			for(int i=0; i< MAX_SAMPLES; i++){
 				samples[nbrIndex].recordedTime[i] =INVALID_TIMESTAMP;
 				samples[nbrIndex].offsetBtwNodes[i] = 0;
@@ -280,7 +284,7 @@ public:
 	}
 	void Init(){
 		nbrCount=0;
-		for (int ii=0; ii< MAX_NBR; ii++){
+		for (NeighborIndex_t ii=0; ii< MAX_NBR; ii++){
 			samples[ii].nbrID = INVALID_NBR_ID;
 			CleanNbrwithIndex(ii);
 		}
@@ -288,16 +292,16 @@ public:
 
 	float FindRelativeFreq(UINT16 nbr) {
 		float rv = UnknownRelativeFreq;
-		UINT16 nbrIndex = FindNeighbor(nbr);
-		if(nbrIndex==255){
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
+		if(nbrIndex==c_bad_nbrIndex){
 			return rv;
 		}
 		return(samples[nbrIndex].relativeFreq);
 	};
 
 	UINT64 LastRecordedTime(UINT16 nbr){
-		UINT16 nbrIndex = FindNeighbor(nbr);
-		if (nbrIndex == 255) return (0);
+		NeighborIndex_t nbrIndex = FindNeighbor(nbr);
+		if (nbrIndex == c_bad_nbrIndex) return (0);
 		return (samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex]);
 	};
 };
@@ -319,7 +323,11 @@ public:
 	UINT64 Neighbor2LocalTime(UINT16 nbr, UINT64 nbrtime);
 
 	void UnsuccessfulTransmission(UINT16 nbr){
-		UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
+		NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
+		if(nbrIndex == c_bad_nbrIndex) {
+			ASSERT_SP(0);
+			return;
+		}
 		if(regressgt2.samples[nbrIndex].additional_y_intercept_offset == 0){
 			regressgt2.samples[nbrIndex].additional_y_intercept_offset = (double)(-1)*TIME_WALK_STEP;
 		}
@@ -335,6 +343,7 @@ public:
 		else{
 			regressgt2.samples[nbrIndex].additional_y_intercept_offset = 0;
 		}
+		return;
 	}
 
 	bool IsNeighborTimeAvailable(UINT16 nbr){
@@ -362,7 +371,11 @@ void GlobalTime::Init(){
 
 UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(HAL_Time_CurrentTicks());
-	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
+	NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
+	if(nbrIndex == c_bad_nbrIndex) {
+		ASSERT_SP(0);
+		return 0;
+	}
 	/*UINT64 lastrecordedTime = regressgt2.samples[nbrIndex].recordedTime[regressgt2.samples[nbrIndex].lastTimeIndex];
 	UINT64 periodlength;
 	bool negativeperiod = FALSE;
@@ -390,7 +403,11 @@ UINT64 GlobalTime::Neighbor2LocalTime(UINT16 nbr, UINT64 nbrTime){
 
 UINT64 GlobalTime::Local2NeighborTime(UINT16 nbr, UINT64 curtime){
 	if (regressgt2.NumberOfRecordedElements(nbr) < 2) return(0);
-	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
+	NeighborIndex_t nbrIndex = regressgt2.FindNeighbor(nbr);
+	if(nbrIndex == c_bad_nbrIndex) {
+		ASSERT_SP(0);
+		return 0;
+	}
 	/*//UINT64 curtime = HAL_Time_CurrentTime();
 	UINT8 nbrIndex = regressgt2.FindNeighbor(nbr);
 	UINT64 periodlength;
