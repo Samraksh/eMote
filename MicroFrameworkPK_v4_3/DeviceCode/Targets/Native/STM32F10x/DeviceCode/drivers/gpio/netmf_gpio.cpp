@@ -8,6 +8,10 @@
 
 //--//
 
+const char* const c_strGpioBadCallback = "No GPIO callback defined";
+const char* const c_strGpioBadPin = "Pin Number greater than max allowable pins";
+const char* const c_strGpioBadSize = "size greater than max allowable pins";
+
 //#define DEBUG_GPIO_VERBOSE 1
 
 #if defined(DEBUG_GPIO_VERBOSE)
@@ -299,7 +303,7 @@ BOOL CPU_GPIO_TogglePinState(GPIO_PIN Pin)
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -316,7 +320,7 @@ UINT32 CPU_GPIO_Attributes( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return 0;
 	}
 	return (GPIO_ATTRIBUTE_INPUT | GPIO_ATTRIBUTE_OUTPUT);
@@ -342,7 +346,7 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -362,7 +366,7 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 	// Check if the input pin is less than max pins
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -376,7 +380,7 @@ BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERR
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -396,7 +400,7 @@ BOOL CPU_GPIO_EnableInputPin3( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INT_E
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -424,7 +428,7 @@ BOOL CPU_GPIO_EnableInputPin2( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTER
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -487,7 +491,7 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -504,7 +508,7 @@ void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return;
 	}
 
@@ -527,7 +531,7 @@ BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -546,7 +550,7 @@ BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
 	if(Pin > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("Pin Number greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
 		return FALSE;
 	}
 
@@ -584,7 +588,7 @@ void CPU_GPIO_GetPinsMap( UINT8* pins, size_t size )
 {
 	if(size > GPIO_PINS)
 	{
-		GPIO_DEBUG_PRINT("size greater than max allowable pins");
+		GPIO_DEBUG_PRINT("%s", c_strGpioBadSize);
 		return;
 	}
     UINT8 i;
