@@ -81,26 +81,29 @@ class DiscoveryHandler: public EventHandler {
   	UINT64 NextEventinSlots(const UINT64 &currentSlotNum);
 	//UINT64 NextEvent(UINT64 currentTicks);
   	void ExecuteEvent();
-  	UINT8 ExecuteEventDone();
+	//UINT8 ExecuteEventDone();
   	void PostExecuteEvent();
 
   	void CreateMessage(DiscoveryMsg_t* discoveryMsg);
 
 
-  	void SetParentSchedulerPtr(void * scheduler);
+	//void SetParentSchedulerPtr(void * scheduler);
   	DeviceStatus Receive(RadioAddress_t source, DiscoveryMsg_t* disMsg, MsgLinkQualityMetrics_t* msgLinkQualityMetrics);
   	DeviceStatus Send(RadioAddress_t address, Message_15_4_t  * msg, UINT16 size, UINT64 event_time);
+
+	//TODO: not used?
   	void SetSeed(UINT16 seed, UINT32 nextFrame){
   		m_seed = seed;
   		m_nextFrame = nextFrame;
   	}
 
+	//TODO: not used?
   	UINT16 GetSeed()
   	{
   		return m_seed;
   	}
 
-  	~DiscoveryHandler();
+	//~DiscoveryHandler();
 
   	void TempIncreaseDiscoRate();
   	void PermanentlyDecreaseDiscoRate();

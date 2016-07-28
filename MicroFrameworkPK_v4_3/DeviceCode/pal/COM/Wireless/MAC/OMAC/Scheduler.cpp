@@ -293,6 +293,7 @@ bool OMACScheduler::RunEventTask(){
 			PostPostExecution();
 			CPU_GPIO_SetPinState(OMAC_SCHED_POST_POST_EXEC, FALSE);
 	}
+	return true;
 }
 
 void OMACScheduler::PostExecution(){
