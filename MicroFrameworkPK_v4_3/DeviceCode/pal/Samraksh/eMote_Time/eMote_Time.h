@@ -24,7 +24,7 @@ struct Time_Driver
     //AnanthAtSamraksh - changing all functions to non-static
     BOOL Initialize  ();
     BOOL Uninitialize();
-    UINT64 CounterValue();
+    UINT32 CounterValue();  //TODO: not used?
 	void StopTimer();
     void SetCompareValue( UINT64 CompareValue );
     INT64 TicksToTime( UINT64 Ticks );

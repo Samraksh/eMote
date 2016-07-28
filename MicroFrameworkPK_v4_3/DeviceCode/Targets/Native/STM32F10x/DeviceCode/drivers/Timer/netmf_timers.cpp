@@ -152,10 +152,11 @@ BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue)
 	return TRUE;
 }
 
-// Returns a 16 bit current counter value
+// Returns current counter value
 // Accepts only legal timer values between 0 and c_MaxTimers
 // Internally call the Timer_Driver getcounter function
-UINT16 CPU_Timer_GetCounter(UINT16 Timer)
+//TODO: not used?
+UINT32 CPU_Timer_GetCounter(UINT16 Timer)
 {
 	// Check to make sure timer is a legal timer
 	// Typically should assert here, but returning 0
@@ -167,10 +168,10 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer)
 		return 0;*/
 
 	////TODO: AnanthAtSamraksh - change comparison based on hardware timerIDs supported
-	UINT16 counterValue = 0;
+	UINT32 counterValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
-		counterValue = g_Timer16Bit_Driver.GetCounter(Timer);
+		counterValue = (UINT32)g_Timer16Bit_Driver.GetCounter(Timer);
 	}
 	else if(Timer == ADVTIMER_32BIT)
 	{
@@ -184,8 +185,8 @@ UINT16 CPU_Timer_GetCounter(UINT16 Timer)
 	return counterValue;
 }
 
-
-UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
+//TODO: not used?
+UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count)
 {
 	UINT16 counterValue = 0;
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
@@ -284,7 +285,10 @@ void CPU_Timer_Sleep_MicroSeconds( UINT32 uSec, UINT16 Timer)
 		UINT32 currentCounterVal = g_STM32F10x_AdvancedTimer.GetCounter();
 		UINT32 ticks = CPU_MicrosecondsToTicks(uSec, Timer);
 		while(g_STM32F10x_AdvancedTimer.GetCounter() - currentCounterVal <= ticks);
-	} else {
+	}
+	else
+	{
+		ASSERT(0);
 	}
 }
 
@@ -385,7 +389,8 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 	else if(Timer == RTC_32BIT)
 	{
 		Ticks *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);
-		Ticks /= (timerFrequency/CLOCK_COMMON_FACTOR);
+		//TODO: not accurate. but code is never called.
+		Ticks = Ticks *(CLOCK_COMMON_FACTOR/timerFrequency); // Ticks * 30; (should be 30.5...)
 	}
 	else {
 		ASSERT(0);
@@ -396,6 +401,7 @@ UINT64 CPU_TicksToTime( UINT64 Ticks, UINT16 Timer )
 
 // OK, so the DriftParameters *should* correct this in the PAL layer
 // But that begs the question of what this function is really for...
+//TODO: not used?
 UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 {
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
@@ -433,7 +439,7 @@ UINT64 CPU_TicksToTime( UINT32 Ticks32, UINT16 Timer )
 		if (CLOCK_COMMON_FACTOR != 1000000){
 			Ticks32 *= (ONE_MHZ        /CLOCK_COMMON_FACTOR);				 
 		}
-		Ticks32 /= (timerFrequency/CLOCK_COMMON_FACTOR);
+		Ticks32 = Ticks32 * (CLOCK_COMMON_FACTOR / timerFrequency);
 		
 		return Ticks32;
 	}
@@ -511,6 +517,7 @@ UINT64 CPU_MillisecondsToTicks( UINT32 mSec, UINT16 Timer )
 }
 
 //TODO: profile minimum value
+//TODO: not used?
 UINT64 CPU_TicksToMicroseconds( UINT64 ticks, UINT16 Timer )
 {
 	UINT32 timerFrequency = SYSTEM_CLOCK_HZ;
@@ -599,7 +606,6 @@ UINT64 CPU_MicrosecondsToTicks( UINT64 uSec, UINT16 Timer )
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
-	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #ifdef DEBUG_PRINT
 	UINT64 value;
 	debug_printf("CPU_MicrosecondsToTicks, Ticks %lld\n", uSec);
@@ -638,7 +644,6 @@ UINT32 CPU_MicrosecondsToTicks( UINT32 uSec, UINT16 Timer )
 	if(Timer == TIMER1_16BIT || Timer == TIMER2_16BIT)
 	{
 #if ONE_MHZ < SLOW_CLOCKS_PER_SECOND
-	return uSec * (SLOW_CLOCKS_PER_SECOND / ONE_MHZ);
 #ifdef DEBUG_PRINT
 	UINT32 value32;
 	debug_printf("In CPU_MicrosecondsToTicks(UINT32), Ticks %u\n", uSec);

@@ -172,6 +172,7 @@ UINT64 VirtTimer_GetTicks(UINT8 timer_id)
 	return CPU_Timer_CurrentTicks((UINT16)g_HardwareTimerIDs[mapperId]);
 }
 
+//TODO: not used?
 UINT32 VirtTimer_GetCounter(UINT8 timer_id)
 {
 	UINT8 mapperId = 0;

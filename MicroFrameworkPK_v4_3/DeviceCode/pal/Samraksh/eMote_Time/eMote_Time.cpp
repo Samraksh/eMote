@@ -69,7 +69,8 @@ UINT64 Time_Driver::CurrentTicks()
 	return currentTicks;
 }
 
-UINT64 Time_Driver::CounterValue()
+//TODO: not used?
+UINT32 Time_Driver::CounterValue()
 {
 	return VirtTimer_GetCounter(VIRT_TIMER_TIME);
 }
@@ -95,6 +96,7 @@ void Time_Driver::SetCompareValue( UINT64 compareTicks )
 	{
 		compareTicks = 0xFFFFFFFF;
 	}
+	ASSERT(compareTicks < 0xFFFFFFFF); // assert we are not losing time. this is called by Completions.
 	compareTimeInMicroSecs = CPU_TicksToMicroseconds((UINT32)compareTicks, 1);
 
 	if(VirtTimer_Change(VIRT_TIMER_EVENTS, compareTimeInMicroSecs, 0, TRUE, ADVTIMER_32BIT) != TimerSupported)
@@ -151,6 +153,8 @@ void Time_Driver::Sleep_uSec( UINT32 uSec )
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_TIME, uSec);
 }
 
+//TODO: not used?
+// ... also, isn't this supposed to be a while loop based on CPUFreq?
 void Time_Driver::Sleep_uSec_Loop( UINT32 uSec )
 {
 	VirtTimer_SleepMicroseconds(VIRT_TIMER_TIME, uSec);

@@ -201,6 +201,8 @@ UINT64  CPU_TicksToTime               ( UINT32 Ticks32, UINT16 Timer = 1 );
 
 //--//
 
+//TODO: move the items below to a new header file. these are samraksh specific.
+
 BOOL CPU_Timer_Initialize(UINT16 Timer = 0, BOOL IsOneShot = FALSE, UINT32 Prescaler = 0, HAL_CALLBACK_FPN ISR = NULL);
 BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 
@@ -208,8 +210,8 @@ BOOL CPU_Timer_UnInitialize(UINT16 Timer);
 ////BOOL CPU_TIMER_SetCompare(UINT64 CompareValue);
 BOOL CPU_Timer_SetCompare(UINT16 Timer, UINT64 CompareValue);
 
-UINT16 CPU_Timer_GetCounter(UINT16 Timer);
-UINT16 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);
+UINT32 CPU_Timer_GetCounter(UINT16 Timer);
+UINT32 CPU_Timer_SetCounter(UINT16 Timer, UINT32 Count);
 
 ////UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
 UINT64 CPU_Timer_CurrentTicks(UINT16 Timer);
