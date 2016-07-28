@@ -17,6 +17,10 @@ UINT32 STM32F10x_RTC::SetCounter(UINT32 counterValue)
 	return currentCounterValue;
 }
 
+UINT32 STM32F10x_RTC::GetCounter()
+{
+	return RTC_GetCounter();
+}
 
 UINT64 STM32F10x_RTC::Get64Counter()
 {
