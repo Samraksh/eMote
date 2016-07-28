@@ -156,7 +156,7 @@ void USART_SetEvent( int ComPortNum, unsigned int event )
 #endif
 
 //--//
-
+#define MANAGED_RX_BUFF_SIZE	RX_USART_BUFFER_SIZE/2
 #if TOTAL_USART_PORT == 0
 UINT8 TxBuffer_Com[1];     // Allows compile to complete although in this case it won't be linked
 UINT8 RxBuffer_Com[1];
@@ -171,7 +171,7 @@ UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE];
 UINT8 RxBuffer_Com[RX_USART_BUFFER_SIZE * TOTAL_USART_PORT];
 #endif
 
-UINT8 ManagedCodeRxBuffer_Com[RX_USART_BUFFER_SIZE/2 * TOTAL_USART_PORT];
+UINT8 ManagedCodeRxBuffer_Com[MANAGED_RX_BUFF_SIZE * TOTAL_USART_PORT];
 #endif
 
 //--//
@@ -294,7 +294,7 @@ BOOL USART_Driver::Initialize( int ComPortNum, int BaudRate, int Parity, int Dat
 #else
 			State.RxQueue.Initialize( &RxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );
 #endif
-			State.ManagedRxQueue.Initialize( &ManagedCodeRxBuffer_Com[ComPortNum * RX_USART_BUFFER_SIZE], RX_USART_BUFFER_SIZE );			
+			State.ManagedRxQueue.Initialize( &ManagedCodeRxBuffer_Com[ComPortNum * MANAGED_RX_BUFF_SIZE], MANAGED_RX_BUFF_SIZE );			
             return CPU_USART_Initialize( ComPortNum, BaudRate, Parity, DataBits, StopBits, FlowValue );
         }
 
