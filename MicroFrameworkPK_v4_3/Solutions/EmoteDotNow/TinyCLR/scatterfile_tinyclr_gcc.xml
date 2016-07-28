@@ -9,10 +9,8 @@
     <Set Name="Heap_End"            Value="%SAM_HEAP_END%"/>
     <Set Name="Stack_Bottom"        Value="%SAM_STACK_BOTTOM%"/>
     <Set Name="Stack_Top"           Value="%SAM_STACK_TOP%"/>
-    <IfDefined Name="SAM_CUSTOM_HEAP_BEGIN">
-        <Set Name="Custom_Heap_Begin"   Value="%SAM_CUSTOM_HEAP_BEGIN%"/><!-- Graphics, WearLeveling, and LargeBuffer use SimpleHeap Library that uses CustomHeap location-->
-        <Set Name="Custom_Heap_End"     Value="%SAM_CUSTOM_HEAP_END%"/>
-    </IfDefined>
+    <Set Name="Custom_Heap_Begin"   Value="%SAM_CUSTOM_HEAP_BEGIN%"/><!-- Graphics, WearLeveling, and LargeBuffer use SimpleHeap Library that uses CustomHeap location-->
+    <Set Name="Custom_Heap_End"     Value="%SAM_CUSTOM_HEAP_END%"/>
     <IfDefined Name="PROFILE_BUILD">
         <Set Name="ProfilerBufferBegin" Value="%SAM_PROFILER_BUFFER_BEGIN%"/>
         <Set Name="ProfilerBufferEnd"   Value="%SAM_PROFILER_BUFFER_END%"/>
@@ -54,9 +52,7 @@
       <LoadRegion Name="LR_%TARGETLOCATION%" Base="%Code_BaseAddress%" Size="%Code_Size%"/>
       <LoadRegion Name="STACK" Base="%Stack_Bottom%" Size="%Stack_Top - Stack_Bottom% + 1"/>
       <LoadRegion Name="HEAP" Base="%Heap_Begin%" Size="%Heap_End - Heap_Begin% + 1"/>
-      <IfDefined Name="Custom_Heap_Begin">
-        <LoadRegion Name="CUSTOMHEAP" Base="%Custom_Heap_Begin%" Size="%Custom_Heap_End - Custom_Heap_Begin% + 1"/>
-      </IfDefined>
+      <LoadRegion Name="CUSTOMHEAP" Base="%Custom_Heap_Begin%" Size="%Custom_Heap_End - Custom_Heap_Begin% + 1"/>
       <IfDefined Name="Config_BaseAddress">
         <LoadRegion Name="LR_CONFIG" Base="%Config_BaseAddress%" Size="%Config_Size%"/>
       </IfDefined>
