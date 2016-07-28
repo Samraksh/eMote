@@ -80,7 +80,7 @@ private:
 
     static WP_Message s_lastUsbMessage;  //!< when basestation, use for constructing correct sequence number in reply to PC.
     static void*      s_lastUsbOwner;    //!< when basestation, use for constructing correct transport comm  in reply to PC.
-    UINT8 m_outboundMessagePayload[128]; //FIXME: move storage out of header file.
+    UINT8 m_outboundMessagePayload[128];
 
     static const UINT32 c_Monitor_UpdateInit                       = 0x0000000F; //!< WireProtocol packet type.  Must match duplicate definition in TinyCLR_Debugging.h' CLR_DBG_Commands::
     static const UINT32 c_Monitor_UpdateDeInit                     = 0x00000010; //
@@ -107,7 +107,9 @@ public:
 
     UINT8 SendBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE];          //!< local buffer for storing outgoing packets.      Regardless of use_wp_packet, internally packets are processed and stored as WP_Messages.
     UINT8 ReceiveBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE];       //!< local buffer for manipulating incoming packets. Regardless of use_wp_packet, internally packets are processed and stored as WP_Messages.
+#if defined(LEGACY_RECEIVE_HANDLER)
     UINT8 MacReceiveBuffer[Samraksh_Emote_Update::COMM_BUFFER_SIZE +16]; //!< extra buffer because MAC inserts size into first two bytes instead of passing as a parameter, so passing the ReceiveBuffer to MAC would make ReceiveBuffer incompatible with its use as a regular payload buffer elsewhere.  Also I don't know why the design decision was made that MAC_GetNextPacket writes metadata to the end of the buffer instead of passing them as parameters like the old API.
+#endif
     INT32 m_ReceiveState;
 
 

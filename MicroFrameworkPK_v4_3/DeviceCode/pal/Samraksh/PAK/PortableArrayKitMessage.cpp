@@ -672,7 +672,7 @@ void ForwardReplyToCommand( WP_Message* msg, UINT32 flags, void* ptr, int size)
 // CALLBACKS
 /////////////////////////////////////////////////////////////////////////////
 
-
+#if defined(LEGACY_RECEIVE_HANDLER)
 /**
  * Implement wireless MacReceiveFuncPtrType.  MAC API changed mid-development.
  * This is a callback.  For CSMAMAC, arg1 corresponds to the number of messages in the CSMAMAC's internal buffer.
@@ -695,6 +695,7 @@ void OldReceiveHandler(UINT16 numberOfPackets) {
         }
     }
 }
+#endif
 
 /**
  * New MAC API changed again.
