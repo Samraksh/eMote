@@ -30,15 +30,18 @@
     <!-- Linker will collect and place ER_RAM_RO, ER_RAM_RW, .bss sections between stack and heap -->
     <!-- After you know the size of sections below the heap, come back here and re-define ...-->
     <!-- ... SAM_HEAP_BEGIN to hug the variable-sized sections below the HEAP. -->
-    <!-- ... Finding the lowest possible SAM_HEAP_BEGIN address is done manually by calculating: -->
+    <!-- ... The linker script should automatically move symbol HeapBegin for you. -->
+    <!-- ... How to manually calculate the lowest possible SAM_HEAP_BEGIN address: -->
     <!-- ... SAM_STACK_TOP + 8 + (Image$$ER_RAM_RW$$ZI$$Base -  Image$$ER_RAM_RO$$Base) + Image$$ER_RAM_RW$$ZI$$Length -->
     <!-- ... for TinyBooter Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x3200 = 0x20005200 -->
     <!-- ... for TinyCLR Debug build, SAM_HEAP_BEGIN could start as low as SAM_STACK_TOP + 0x98c4 = 0x2000B8D0 -->
     <SAM_HEAP_BEGIN       >0x2000F5AC</SAM_HEAP_BEGIN>
-    <SAM_HEAP_END         >0x20017DF8</SAM_HEAP_END>
-    <SAM_CUSTOM_HEAP_BEGIN>0x20017E00</SAM_CUSTOM_HEAP_BEGIN>
-    <SAM_CUSTOM_HEAP_END  >0x20017FF8</SAM_CUSTOM_HEAP_END>
-    <SAM_PROFILER_BUFFER_BEGIN>0x20017F00</SAM_PROFILER_BUFFER_BEGIN>
-    <SAM_PROFILER_BUFFER_END  >0x20017FF8</SAM_PROFILER_BUFFER_END>
+    <SAM_HEAP_END         >0x20017FF8</SAM_HEAP_END>
+    <!-- CUSTOM_HEAP is used by LargeBuffer and SimpleHeap but may be depreciated in future builds. -->
+    <!--<SAM_CUSTOM_HEAP_BEGIN>0x20017FF0</SAM_CUSTOM_HEAP_BEGIN>-->
+    <!--<SAM_CUSTOM_HEAP_END  >0x20017FF8</SAM_CUSTOM_HEAP_END>-->
+    <!-- SAM_PROFILER_BUFFER is not in use. -->
+    <!--<SAM_PROFILER_BUFFER_BEGIN>0x20017FF0</SAM_PROFILER_BUFFER_BEGIN>-->
+    <!--<SAM_PROFILER_BUFFER_END  >0x20017FF8</SAM_PROFILER_BUFFER_END>-->
   </PropertyGroup>
 </Project>
