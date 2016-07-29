@@ -154,7 +154,7 @@ int hal_snprintf_float( char* buffer, size_t len, const char* format, float f )
     NATIVE_PROFILE_PAL_CRT();
 
     // GCC vsnprintf corrupts memory with floating point values 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(SAMRAKSH_CUSTOM_NEWLIB)
     INT64   i = (INT64)f;
     int pow=0;
 
@@ -223,7 +223,7 @@ int hal_snprintf_double( char* buffer, size_t len, const char* format, double d 
     NATIVE_PROFILE_PAL_CRT();
 
     // GCC vsnprintf corrupts memory with floating point values 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(SAMRAKSH_CUSTOM_NEWLIB)
     int pow=0;
 
     if((double)0x7FFFFFFFFFFFFFFFll < d || (double)(-0x7FFFFFFFFFFFFFFFll) > d)
