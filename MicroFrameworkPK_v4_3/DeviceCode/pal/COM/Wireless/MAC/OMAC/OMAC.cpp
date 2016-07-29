@@ -780,25 +780,26 @@ Message_15_4_t* OMACType::PrepareMessageBuffer(UINT16 address, UINT8 dataType, v
 		while(!neighborEntry->tsr_send_buffer.IsBufferEmpty()){
 			neighborEntry->tsr_send_buffer.DropOldest(1);
 		}
+
 		msg_carrier = neighborEntry->tsr_send_buffer.GetNextFreeBuffer();
 
 		if(msg_carrier == (Message_15_4_t*)(NULL)){
-			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free tsr_send_buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free tsr_send_buffer available. Addr: %d.\n", neighborEntry->MACAddress);
 			return (Message_15_4_t*)(NULL);
 		}
 		else if(neighborEntry->tsr_send_buffer.IsBufferFull()){
-			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->tsr_send_buffer is now full. Addr: %d.\n", neighborEntry->MACAddress);
 		}
 	}
 	else{
 		msg_carrier = neighborEntry->send_buffer.GetNextFreeBuffer();
 
 		if(msg_carrier == (Message_15_4_t*)(NULL)){
-			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free send_buffer available. Addr: %d.\n", neighborEntry->MacAddress);
+			DEBUG_OMAC_PMB_PRINTF("ERROR: OMACType::PrepareMessageBuffer no free send_buffer available. Addr: %d.\n", neighborEntry->MACAddress);
 			return (Message_15_4_t*)(NULL);
 		}
 		else if(neighborEntry->send_buffer.IsBufferFull()){
-			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MacAddress);
+			DEBUG_OMAC_PMB_PRINTF("WARN: OMACType::PrepareMessageBuffer neighborEntry->send_buffer is now full. Addr: %d.\n", neighborEntry->MACAddress);
 		}
 	}
 

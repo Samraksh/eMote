@@ -289,28 +289,28 @@ void DataTransmissionHandler::DropPacket(){
 		ASSERT_SP(0);
 	}
 	else {
-	if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
-		ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
-		neigh_ptr->send_buffer.DropOldest(1);
+		if(neigh_ptr->send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->send_buffer.GetOldestwithoutRemoval() ) {
+			ClearMsgContents(neigh_ptr->send_buffer.GetOldestwithoutRemoval());
+			neigh_ptr->send_buffer.DropOldest(1);
 
-		if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
-		){ //This is flushing the time sync message queue if the previous message was successful
+			if((neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0)	&& (m_outgoingEntryPtr->GetHeader()->flags & MFM_TIMESYNC_FLAG)
+			){ //This is flushing the time sync message queue if the previous message was successful
+				ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
+				neigh_ptr->tsr_send_buffer.DropOldest(1);
+			}
+		}
+		else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
 			ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
 			neigh_ptr->tsr_send_buffer.DropOldest(1);
-		}
-	}
-	else if(neigh_ptr->tsr_send_buffer.GetNumberMessagesInBuffer() > 0 && m_outgoingEntryPtr == neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval() ){
-		ClearMsgContents(neigh_ptr->tsr_send_buffer.GetOldestwithoutRemoval());
-		neigh_ptr->tsr_send_buffer.DropOldest(1);
-		if((neigh_ptr->NumTimeSyncMessagesSent) <= NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) {
-			++(neigh_ptr->NumTimeSyncMessagesSent);
-		}
+			if((neigh_ptr->NumTimeSyncMessagesSent) <= NUM_ENFORCED_TSR_PCKTS_BEFORE_DATA_PCKTS) {
+				++(neigh_ptr->NumTimeSyncMessagesSent);
+			}
 
-		//neigh_ptr->tsr_send_buffer.ClearBuffer();
-	}
-	else{ // The packet is gone
-		//ASSERT_SP(0);
-	}
+			//neigh_ptr->tsr_send_buffer.ClearBuffer();
+		}
+		else{ // The packet is gone
+			//ASSERT_SP(0);
+		}
 	}
 
 	isDataPacketScheduled = false;
