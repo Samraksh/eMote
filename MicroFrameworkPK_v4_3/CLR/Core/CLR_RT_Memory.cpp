@@ -20,6 +20,32 @@ HAL_DECLARE_CUSTOM_HEAP( CLR_RT_Memory::Allocate, CLR_RT_Memory::Release, CLR_RT
 
 //--//
 
+// We have a custom libc with external malloc to save memory
+// This can certainly work on other platforms but must be setup.
+#ifdef SAMRAKSH_CUSTOM_NEWLIB
+void * _malloc_r(struct _reent *s, size_t size) {
+	GLOBAL_LOCK(irq);
+	return CLR_RT_Memory::Allocate(size);
+}
+
+void * _calloc_r(struct _reent *s, size_t nitems, size_t size) {
+	GLOBAL_LOCK(irq);
+	return CLR_RT_Memory::Allocate_And_Erase(size*nitems);
+}
+
+void _free_r(struct _reent *s, void *ptr) {
+	GLOBAL_LOCK(irq);
+	CLR_RT_Memory::Release(ptr);
+}
+
+// Not supported
+void * _realloc_r(struct _reent *s, void *ptr, size_t size) {
+	GLOBAL_LOCK(irq);
+	if (ptr == NULL) return _malloc_r(s, size);
+	else return NULL;
+}
+#endif
+
 void CLR_RT_Memory::Reset()
 {
     NATIVE_PROFILE_CLR_CORE();
