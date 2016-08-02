@@ -1,34 +1,55 @@
 #include "Samraksh\DecisionFunction.h"
 #include <cmath>
 
+#define _precision 20 // Q11.20
+#define _fx_one (1 << _precision) // 0x100000
+
 extern Data_Store g_dataStoreObject;
+
+INT32 DecisionFunction::Double_to_Fixed(double d) {
+
+    double temp = d * _fx_one;
+    temp += (temp >= 0) ? 0.5f : -0.5f;
+    return (INT32)temp;
+}
+
+UINT64 DecisionFunction::Fixed_Point_Mult(INT32 tmp, INT32 tmp2) {
+    UINT64 product = ((INT64)tmp * (INT64)tmp2) >> _precision;
+    return product;
+}
+
+double DecisionFunction::Fixed_to_Double(UINT64 l) {
+    return (double)l/_fx_one;
+}
 
 void DecisionFunction::Normalize(float* featureVector, INT32* features_normalized)
 {
 	for (UINT8 i = 0; i < nFeature; i++)
 	{
-		features_normalized[i] = (INT32)((featureVector[i] - feature_min[i]) * scalingFactors[i] * 10000000); // Multiplying by 10^7 to maintain parity with INT32 support vectors
+		features_normalized[i] = Double_to_Fixed((featureVector[i] - feature_min[i]) * scalingFactors[i]);
 	}
 }
 
 float DecisionFunction::Kernel(UINT32 *sv, INT32* features_normalized)
 {
-	UINT32 sum = 0;
-	for (UINT8 i = 0; i < nFeature; i++)
+    float res = 0;
+	UINT64 sum = 0;
+
+    for (UINT8 i = 0; i < nFeature; i++)
 	{
-		UINT32 tmp = features_normalized[i] - sv[i];
-		sum += tmp * tmp;
+		INT32 tmp = features_normalized[i] - sv[i];
+		sum += Fixed_Point_Mult(tmp, tmp);
 	}
 
-	// sum /= ((double)10000000); // Scaling down, typecasting to double for exponentiation
-	double d_sum = sum / ((double)1e14);
+	double d_sum = Fixed_to_Double(sum);
 
-	return (float)exp(-gamma*d_sum);
+	res = (float)exp(-gamma*d_sum);
+    return res;
 }
 
-float DecisionFunction::Decide(INT32* features_normalized)
+double DecisionFunction::Decide(INT32* features_normalized)
 {
-	float decision = -rho;
+	double decision = -rho;
 	RECORD_ID rId = 1;
 	
 	InitDataStore();
