@@ -32,10 +32,12 @@ HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReA
 #ifdef SAMRAKSH_CUSTOM_NEWLIB
 void * _malloc_r(struct _reent *s, size_t size) {
 	SOFT_BREAKPOINT();
+	return NULL;
 }
 
 void * _calloc_r(struct _reent *s, size_t nitems, size_t size) {
 	SOFT_BREAKPOINT();
+	return NULL;
 }
 
 void _free_r(struct _reent *s, void *ptr) {
@@ -45,6 +47,7 @@ void _free_r(struct _reent *s, void *ptr) {
 // Not supported
 void * _realloc_r(struct _reent *s, void *ptr, size_t size) {
 	SOFT_BREAKPOINT();
+	return NULL;
 }
 #endif
 
