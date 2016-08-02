@@ -200,6 +200,7 @@ void Halt() {
 void Reset() {
 	__disable_irq();
 	NVIC_SystemReset();
+	while(1);
 }
 
 void Shutdown() {

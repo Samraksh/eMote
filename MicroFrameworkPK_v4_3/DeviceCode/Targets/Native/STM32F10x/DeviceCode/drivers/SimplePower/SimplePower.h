@@ -16,8 +16,8 @@ void PowerInit();
 void High_Power();
 void Mid_Power();
 void Low_Power();
-void Halt();
-void Reset();
-void Shutdown();
+void Halt() __attribute__ ((noreturn));
+void Reset() __attribute__ ((noreturn));
+void Shutdown() __attribute__ ((noreturn));
 
 #endif // #ifndef _NETMF_POWER_H_
