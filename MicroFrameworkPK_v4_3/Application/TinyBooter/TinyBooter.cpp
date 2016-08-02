@@ -25,6 +25,29 @@ HAL_DECLARE_CUSTOM_HEAP( SimpleHeap_Allocate, SimpleHeap_Release, SimpleHeap_ReA
 
 //--//
 
+// We have a custom libc with external malloc to save memory
+// This can certainly work on other platforms but must be setup.
+// NO DYNAMIC MEMORY OPS SUPPORTED UNDER TINYBOOTER
+// PLEASE TALK TO NATHAN IF ANY OF THESE ARE HIT.
+#ifdef SAMRAKSH_CUSTOM_NEWLIB
+void * _malloc_r(struct _reent *s, size_t size) {
+	SOFT_BREAKPOINT();
+}
+
+void * _calloc_r(struct _reent *s, size_t nitems, size_t size) {
+	SOFT_BREAKPOINT();
+}
+
+void _free_r(struct _reent *s, void *ptr) {
+	SOFT_BREAKPOINT();
+}
+
+// Not supported
+void * _realloc_r(struct _reent *s, void *ptr, size_t size) {
+	SOFT_BREAKPOINT();
+}
+#endif
+
 void ApplicationEntryPoint()
 {
     INT32 timeout       = 10000; // 5 second timeout
