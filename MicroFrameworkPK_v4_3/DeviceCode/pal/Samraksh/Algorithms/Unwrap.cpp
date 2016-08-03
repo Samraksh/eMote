@@ -152,7 +152,7 @@ int calculatePhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32
 	}
 
 	for (i=0; i<length; i++){
-		if ((debugVal == 1) || (debugVal == 2) || (debugVal == 6)){
+		if ((debugVal == 1) || (debugVal == 2) || (debugVal == 3) || (debugVal == 6)){
 			USART_Write( uartPort, (char *)&bufferI[i], 2 );
 			checksumPrimary += bufferI[i];
 			USART_Write( uartPort, (char *)&bufferQ[i], 2 );

@@ -14,7 +14,7 @@ using System.Reflection;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
-using Samraksh.eMote.DotNow;
+//using Samraksh.eMote.DotNow;
 using System.IO.Ports;
 using Samraksh.eMote.NonVolatileMemory;
 using AnalogInput = Samraksh.eMote.DotNow.AnalogInput;
@@ -28,8 +28,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         
         public static SerialPort serialPort2;
 
-        public static LCD codeVersion = LCD.CHAR_7;
-        public static EmoteLCD lcd = new EmoteLCD();
+        //public static LCD codeVersion = LCD.CHAR_7;
+        //public static EmoteLCD lcd = new EmoteLCD();
         // Set up parameters for collection and for DataStore
         //  DataStore can only track 256 data references. 
         //      If each ADC buffer's work were a separate data reference, the limit would be quickly reached.
@@ -76,8 +76,8 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         public static void Main() {
             var finalMsg = string.Empty;
 
-            lcd.Initialize();
-            lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
+            //lcd.Initialize();
+            //lcd.Write(LCD.CHAR_NULL, LCD.CHAR_NULL, LCD.CHAR_NULL, codeVersion);
             Thread.Sleep(1000);
             try {
                 Debug.EnableGCMessages(false);

@@ -240,14 +240,14 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         /// <returns>True iff we're done sampling</returns>
         private static void ProcessBuffers(IQ iq)
         {
-            if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
+            /*if (iq.IBuff[0] > 1500 && iq.IBuff[0] < 2500 && iq.QBuff[0] > 1500 && iq.QBuff[0] < 2500)
             {
                 lcd.Write(LCD.CHAR_A, detectionDisplay, LCD.CHAR_NULL, codeVersion);
             }
             else
             {
                 lcd.Write(LCD.CHAR_UNDERSCORE, detectionDisplay, LCD.CHAR_NULL, codeVersion);
-            }
+            }*/
 
             // Pull the members out. Referencing this way seems to be more efficient.
             var iBuff = iq.IBuff;
@@ -273,11 +273,11 @@ namespace Samraksh.AppNote.Scarecrow.Radar
             int backgroundNoiseMax = radarDetect.GetBackgroundNoiseLevel(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
             int iqUsed = radarDetect.GetIQRejectionLevel();
             //Debug.Print(unwrap.ToString() + " " + backgroundNoiseZero.ToString() + " " + backgroundNoise.ToString() + " " + backgroundNoiseMax.ToString() + " " + iqUsed.ToString());
-            Debug.Print(unwrap.ToString() + " " + EntireUnwrap.ToString() + " " + FirstHalfUnwrap.ToString() + " " + SecondHalfUnwrap.ToString() + " " + AbsEntireUnwrap.ToString() + " " + AbsFirstHalfUnwrap.ToString() + " " + AbsSecondHalfUnwrap.ToString() + " " + RangeEntireUnwrap.ToString() + " " + RangeFirstHalfUnwrap.ToString() + " " + RangeSecondHalfUnwrap.ToString());
+            /*Debug.Print(unwrap.ToString() + " " + EntireUnwrap.ToString() + " " + FirstHalfUnwrap.ToString() + " " + SecondHalfUnwrap.ToString() + " " + AbsEntireUnwrap.ToString() + " " + AbsFirstHalfUnwrap.ToString() + " " + AbsSecondHalfUnwrap.ToString() + " " + RangeEntireUnwrap.ToString() + " " + RangeFirstHalfUnwrap.ToString() + " " + RangeSecondHalfUnwrap.ToString());
             if (detection == true)
             {
                 Debug.Print("****** detection ******\r\n");
-            }
+            }*/
 
             /*byte[] sendMsg = new byte[7];
             sendMsg[0] = (byte)radarDetect.GetLastUnwrap(eMote.RADAR_NOISE_REQUEST.IQ_REJECTION_MAX);
