@@ -430,17 +430,17 @@ void* CPU_Radio_Send(UINT8 radioName, void* msg, UINT16 size)
 
 // This function is used to send a time stamped packet, time stamping is done just before
 // physical send in hardware
-void* CPU_Radio_Send_TimeStamped(UINT8 radioName, void* msg, UINT16 size, UINT32 eventTime, UINT16 clock_id)
+void* CPU_Radio_Send_TimeStamped(UINT8 radioName, void* msg, UINT16 size, UINT32 eventTime)
 {
 	void* ptr_temp = NULL;
 
 	switch(radioName)
 	{
 		case RF231RADIO:
-			ptr_temp = (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime, clock_id);
+			ptr_temp = (void *) grf231Radio.Send_TimeStamped(msg, size, eventTime);
 			break;
 		case RF231RADIOLR:
-			ptr_temp = (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime, clock_id);
+			ptr_temp = (void *) grf231RadioLR.Send_TimeStamped(msg, size, eventTime);
 			break;
 		case SI4468_SPI2:
 			ptr_temp = si446x_hal_send_ts(radioName, msg, size, eventTime);

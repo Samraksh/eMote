@@ -126,8 +126,8 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 
 	if( (header->flags & TIMESTAMPED_FLAG) ){
 		//Convert TimeStamp to high freq clock
-//		UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
-//		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
+		UINT64 time_elapsed_since_TS = g_OMAC.m_Clock.GetCurrentTimeinTicks() - msg->GetMetaData()->GetReceiveTimeStamp();
+		UINT64 event_time = HAL_Time_CurrentTicks() - time_elapsed_since_TS;
 		//msg->GetMetaData()->SetReceiveTimeStamp((INT64)event_time);
 		if((g_OMAC.isSendDone)){//||(g_OMAC.radioName != SI4468_SPI2)){
 			//Reset flag just before sending
@@ -135,7 +135,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
 #endif
-			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp(), g_OMAC.m_Clock.GetClockSpecifier());
+			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
 		}
 		else{
 			goto endOfSend;

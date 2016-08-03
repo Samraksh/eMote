@@ -14,9 +14,6 @@ public:
 //		m_inter_clock_offset = 0;
 		m_first_clock_reading = GetCurrentTimeinTicks();
 	}
-	UINT16 GetClockSpecifier(){
-		return OMACClockSpecifier;
-	}
 	UINT64 GetCurrentTimeinTicks(){ //This function gets the time ticks required for OMAC
 		if(OMACClockSpecifier == LFCLOCKID){
 			return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio - m_first_clock_reading; //+ m_inter_clock_offset;
