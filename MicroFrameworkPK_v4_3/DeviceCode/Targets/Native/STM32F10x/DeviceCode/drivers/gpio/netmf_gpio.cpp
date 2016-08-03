@@ -363,6 +363,9 @@ void CPU_GPIO_DisablePin( GPIO_PIN Pin, GPIO_RESISTOR ResistorState, UINT32 Dire
 // Configure the pin as an output pin, strange that this does not have a return type
 void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 {
+	if (Pin == 23){
+		hal_printf("eop 23\r\n");
+	}
 	// Check if the input pin is less than max pins
 	if(Pin > GPIO_PINS)
 	{
@@ -378,6 +381,9 @@ void CPU_GPIO_EnableOutputPin( GPIO_PIN Pin, BOOL InitialState )
 
 BOOL CPU_GPIO_EnableInputPin( GPIO_PIN Pin, BOOL GlitchFilterEnable, GPIO_INTERRUPT_SERVICE_ROUTINE PIN_ISR, GPIO_INT_EDGE IntEdge, GPIO_RESISTOR ResistorState )
 {
+	if (Pin == 23){
+		hal_printf("eip 23\r\n");
+	}
 	if(Pin > GPIO_PINS)
 	{
 		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
@@ -506,6 +512,9 @@ BOOL CPU_GPIO_GetPinState( GPIO_PIN Pin )
 
 void CPU_GPIO_SetPinState( GPIO_PIN Pin, BOOL PinState )
 {
+	if (Pin == 23){
+		hal_printf("sps 23\r\n");
+	}
 	if(Pin > GPIO_PINS)
 	{
 		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);
@@ -548,6 +557,9 @@ BOOL CPU_GPIO_PinIsBusy( GPIO_PIN Pin )
 // This function is used to reserve and unreserve pins to avoid gpio resource conflict issues
 BOOL CPU_GPIO_ReservePin( GPIO_PIN Pin, BOOL fReserve )
 {
+	if (Pin == 23){
+		hal_printf("res 23\r\n");
+	}
 	if(Pin > GPIO_PINS)
 	{
 		GPIO_DEBUG_PRINT("%s", c_strGpioBadPin);

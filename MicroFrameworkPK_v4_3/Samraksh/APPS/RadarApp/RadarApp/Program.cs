@@ -26,7 +26,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
     /// </summary>
     public partial class Program {
         
-        public static SerialPort serialPort2;
+        //public static SerialPort serialPort2;
 
         //public static LCD codeVersion = LCD.CHAR_7;
         //public static EmoteLCD lcd = new EmoteLCD();
@@ -53,7 +53,7 @@ namespace Samraksh.AppNote.Scarecrow.Radar
         private static bool _debuggerIsAttached;
 
 
-        public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, false);
+        //public static OutputPort buzzerGPIO = new OutputPort((Cpu.Pin)24, false);
 
         // Flag that's set when the user enables the EndCollect GPIO pin
         //  This stops the data collection after the current buffer is processed
@@ -102,13 +102,13 @@ namespace Samraksh.AppNote.Scarecrow.Radar
                 AnalogInput.InitializeADC();
 
                 // initializing the COM2 port. radar data will be streamed out COM2 for debugging purposes
-                serialPort2 = new SerialPort("COM2");
+                /*serialPort2 = new SerialPort("COM2");
                 serialPort2.BaudRate = 115200;
                 serialPort2.Parity = Parity.None;
                 serialPort2.StopBits = StopBits.One;
                 serialPort2.DataBits = 8;
                 serialPort2.Handshake = Handshake.None;
-                serialPort2.Open();
+                serialPort2.Open();*/
 
                 // Start the continuous mode dual channel sampling
                 //  SampleIntervalMicroSec gives the interval between samples, in micro seconds

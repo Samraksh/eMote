@@ -164,7 +164,7 @@ namespace testchart2
             static int M = 2;
             static int N = 3;
 
-            static int RAW_UNWRAP_RESULT_DATA = 1;
+            static int RAW_UNWRAP_RESULT_DATA = 0;
 
             enum PI
             {
@@ -832,11 +832,11 @@ namespace testchart2
 
 
                 //xHeapTrackInsert(unwrap);
-                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
                 xHeapTrackInsert(crossUnwrappedPhase);
-                System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
+                //System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
             }
@@ -924,12 +924,12 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 56ce(4693-05).bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
-                //fileName = @"..\..\recorded.bbs";
+                fileName = @"..\..\recorded.bbs";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"..\..\dataCollect\grass near tree.bbs";
                 //string fileName = @"..\..\dataCollect\room1.bbs";
                 //fileName = @"..\..\dataCollect\room2.bbs";
-                fileName = @"..\..\mofn tests\room 4m walk noise 2.bbs";
+                //fileName = @"..\..\mofn tests\room 4m walk noise 2.bbs";
                 //fileName = @"..\..\mofn tests\room 4m walk back lobe.bbs";
                 //fileName = @"..\..\mofn tests\room 4m walk noise.bbs";
                //fileName = @"..\..\mofn tests\tree 1m walk back lobe.bbs";
@@ -1033,6 +1033,10 @@ namespace testchart2
                                 System.Diagnostics.Debug.WriteLine("exception thrown looking for unwrap data: " + ex.ToString());
                             }
                         }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("");
+                        }
                     }
                     //System.Diagnostics.Debug.WriteLine(unwrapRet.ToString());
                     outPut.WriteLine(unwrapRet.ToString());
@@ -1050,7 +1054,7 @@ namespace testchart2
                 this.chart1.Series.Add(crossSeries);
                 this.chart1.Series.Add(detectionSeries);
                 //this.chart1.Series.Add(rawSeries);
-                this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
+                //this.chart1.ChartAreas[0].AxisX.Minimum = 4000;
                 //this.chart1.ChartAreas[0].AxisX.Maximum = 5000;
                 //this.chart1.ChartAreas[0].AxisY.Minimum = 0;
                 //this.chart1.ChartAreas[0].AxisY.Maximum = 12;
