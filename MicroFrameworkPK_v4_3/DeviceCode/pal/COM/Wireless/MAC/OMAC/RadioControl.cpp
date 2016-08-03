@@ -135,7 +135,7 @@ DeviceStatus RadioControl_t::Send(RadioAddress_t address, Message_15_4_t* msg, U
 #ifdef OMAC_DEBUG_GPIO
 			CPU_GPIO_SetPinState( OMAC_DRIVING_RADIO_SEND, TRUE );
 #endif
-			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)msg->GetMetaData()->GetReceiveTimeStamp());
+			returnMsg = (Message_15_4_t *) CPU_Radio_Send_TimeStamped(g_OMAC.radioName, msg, size, (UINT32)event_time);
 		}
 		else{
 			goto endOfSend;
