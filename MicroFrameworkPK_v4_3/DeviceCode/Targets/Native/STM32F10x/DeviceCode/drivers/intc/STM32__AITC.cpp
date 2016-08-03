@@ -647,7 +647,6 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		IsrVector->Handler.Execute();
 
-
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
 	}
@@ -659,8 +658,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 		STM32_AITC& AITC = STM32::AITC();
 
 		// set before jumping elsewhere or allowing other interrupts
+		GLOBAL_LOCK(irq);
 		SystemState_SetNoLock( SYSTEM_STATE_ISR              );
 		SystemState_SetNoLock( SYSTEM_STATE_NO_CONTINUATIONS );
+		irq.Release();
 		
 #ifdef DEBUG_DOTNOW_ISR
 		interrupt_count[c_IRQ_INDEX_DMA_CHANNEL1]++;
@@ -670,9 +671,10 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
 		IsrVector->Handler.Execute();
 
-
+		irq.Acquire();
 		SystemState_ClearNoLock( SYSTEM_STATE_NO_CONTINUATIONS ); // nestable
 		SystemState_ClearNoLock( SYSTEM_STATE_ISR              ); // nestable
+		irq.Release();
 	}
 	
 	void __irq DMA1_Channel2_IRQHandler()
