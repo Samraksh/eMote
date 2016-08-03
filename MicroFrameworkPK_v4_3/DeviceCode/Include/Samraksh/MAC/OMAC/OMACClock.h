@@ -7,17 +7,19 @@
 #define DEBUG_TSYNC_PIN
 
 class OMACClock{
-	UINT64 m_inter_clock_offset;
+	//UINT64 m_inter_clock_offset;
+	UINT64 m_first_clock_reading;
 public:
 	OMACClock(){
-		m_inter_clock_offset = 0;
+//		m_inter_clock_offset = 0;
+		m_first_clock_reading = GetCurrentTimeinTicks();
 	}
 	UINT64 GetCurrentTimeinTicks(){ //This function gets the time ticks required for OMAC
 		if(OMACClockSpecifier == LFCLOCKID){
-			return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio + m_inter_clock_offset;
+			return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio - m_first_clock_reading; //+ m_inter_clock_offset;
 		}
 		else{
-			return HAL_Time_CurrentTicks();
+			return HAL_Time_CurrentTicks() - m_first_clock_reading;
 		}
 	};
 	UINT64 ConvertTickstoMicroSecs(const UINT64& ticks){ //This function gets the time ticks required for OMAC
@@ -34,9 +36,9 @@ public:
 	};
 
 	UINT64 CreateSyncPointBetweenClocks(){
-		if(0 && OMACClockSpecifier == LFCLOCKID){
-			m_inter_clock_offset = HAL_Time_CurrentTicks() - VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio ;
-		}
+//		if(0 && OMACClockSpecifier == LFCLOCKID){
+//			m_inter_clock_offset = HAL_Time_CurrentTicks() - VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio ;
+//		}
 	};
 	inline UINT64 AddTicks(const UINT64& ticks1, const UINT64& ticks2){
 		return (ticks1 + ticks2);
