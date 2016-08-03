@@ -527,7 +527,7 @@ void* RF231Radio::SendStrobe(UINT16 size)
 	return tx_msg_ptr;
 }
 
-void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
+void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime, UINT16 clock_id)
 {
 	UINT32 eventOffset;
 	UINT32 timestamp;
@@ -627,7 +627,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	}
 
 	//Transmit the event timestamp
-	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+	timestamp = CPU_Timer_CurrentTicks(clock_id) & 0xFFFFFFFF; // Lower bits only
 	eventOffset = timestamp - eventTime;
 
 	for(int ii=0; ii<timestamp_size; ii++) {
@@ -681,7 +681,7 @@ void* RF231Radio::Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime)
 	SelnClear();
 
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, TRUE );
-	timestamp = HAL_Time_CurrentTicks() & 0xFFFFFFFF; // Lower bits only
+	timestamp = CPU_Timer_CurrentTicks(clock_id) & 0xFFFFFFFF; // Lower bits only
 	CPU_GPIO_SetPinState( RF231_TX_TIMESTAMP, FALSE );
 	CPU_SPI_WriteByte(config, RF230_CMD_FRAME_WRITE);
 

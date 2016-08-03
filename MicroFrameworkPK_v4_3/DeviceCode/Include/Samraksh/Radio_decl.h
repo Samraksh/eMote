@@ -157,7 +157,7 @@ void* CPU_Radio_Preload(UINT8 radioID,void * msg, UINT16 size);
 void* CPU_Radio_SendRetry(UINT8 radioID);
 void* CPU_Radio_SendStrobe(UINT8 radioID, UINT16 size);
 void* CPU_Radio_Send(UINT8 radioID,void * msg, UINT16 size);
-void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 eventTime);
+void* CPU_Radio_Send_TimeStamped(UINT8 radioID,void * msg, UINT16 size, UINT32 eventTime, UINT16 clock_id=1);
 NetOpStatus CPU_Radio_PreloadMessage(UINT8* msg, UINT16 size);
 DeviceStatus CPU_Radio_Send_Strobe(UINT8 radioID);	//Send preloaded message
 DeviceStatus CPU_Radio_ClearChannelAssesment (UINT8 radioID);

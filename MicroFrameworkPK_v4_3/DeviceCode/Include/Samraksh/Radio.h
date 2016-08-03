@@ -173,7 +173,7 @@ public:
 
 	// Defines the send interface recieves an empty pointer from the radio layer
 	//virtual T* Send(T* msg, UINT16 size)
-	void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime);
+	void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime, UINT16 clock_id=1);
 
 
 	// Preload the message on to the radio frame buffer/ RAM and dont send

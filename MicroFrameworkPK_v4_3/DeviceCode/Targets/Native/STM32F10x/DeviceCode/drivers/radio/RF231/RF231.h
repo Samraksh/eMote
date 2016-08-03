@@ -595,7 +595,7 @@ public:
     void* SendStrobe(UINT16 size);
     void* Send(void* msg, UINT16 size);
 
-    void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime);
+    void* Send_TimeStamped(void* msg, UINT16 size, UINT32 eventTime, UINT16 clock_id=1);
 
     Message_15_4_t* Preload(Message_15_4_t* msg, UINT16 size);
 
