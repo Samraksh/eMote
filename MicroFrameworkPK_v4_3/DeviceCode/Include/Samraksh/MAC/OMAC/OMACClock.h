@@ -24,7 +24,7 @@ public:
 	};
 	UINT64 ConvertTickstoMicroSecs(const UINT64& ticks){ //This function gets the time ticks required for OMAC
 		//return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio;
-		return HAL_Time_TicksToTime(ticks);
+		return ticks/8;
 	};
 	UINT64 ConvertMicroSecstoTicks(const UINT64& microsecs){ //This function gets the time ticks required for OMAC
 		//return VirtTimer_GetTicks(VIRT_TIMER_OMAC_SCHEDULER) * OMACClocktoSystemClockFreqRatio;
