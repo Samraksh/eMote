@@ -382,15 +382,15 @@ J12_PIN10 = GND
 
 #define VT_CALLBACK 						(GPIO_PIN)120					//J11_PIN7
 
-#define NEIGHBORCLOCKMONITORPIN 			(GPIO_PIN)120 // 120 //31 //2
-#define LOCALCLOCKMONITORPIN 				(GPIO_PIN)120 //120 //22 //25
+#define NEIGHBORCLOCKMONITORPIN 			(GPIO_PIN)25 // 120 //31 //2
+#define LOCALCLOCKMONITORPIN 				(GPIO_PIN)24 //120 //22 //25
 
 //RF231 related
 #define RF231_TX_INTERRUPT 					(GPIO_PIN)120					//J11_PIN7
 #define RF231_RADIO_STATEPIN2 				(GPIO_PIN)120					//J11_PIN7
 #define RF231_RX 							(GPIO_PIN)120								//J11_PIN8
-#define RF231_TX_TIMESTAMP 					(GPIO_PIN)120								//J11_PIN9
-#define RF231_TX 							(GPIO_PIN)120								//J11_PIN10
+#define RF231_TX_TIMESTAMP 					(GPIO_PIN)22								//J11_PIN9
+#define RF231_TX 							(GPIO_PIN)22								//J11_PIN10
 #define RF231_FRAME_BUFF_ACTIVE 			(GPIO_PIN)120
 #define RF231_SEND_FAIL						(GPIO_PIN)120
 #define RF231_START_OF_RX_MODE 				(GPIO_PIN)120 //24 (<--31)
@@ -416,7 +416,7 @@ J12_PIN10 = GND
 #define OMAC_RX_DATAACK_PIN 				(GPIO_PIN)120 //120 // 120 //23  //120							//J11_pin3 0
 
 //Radio Control
-#define RADIOCONTROL_STATEPIN 				(GPIO_PIN)120 //120 //23 //120 // 120 //120 				//J11_pin6 //This 	(GPIO_PIN)3  did not work
+#define RADIOCONTROL_STATEPIN 				(GPIO_PIN)30 //120 //23 //120 // 120 //120 				//J11_pin6 //This 	(GPIO_PIN)3  did not work
 
 //TX Related
 #define RADIOCONTROL_SEND_PIN 				(GPIO_PIN)120 				//J11_pin4
@@ -433,7 +433,7 @@ J12_PIN10 = GND
 #define DATATX_SEND_ACK_HANDLER				(GPIO_PIN)120
 
 //RX related
-#define OMAC_RXPIN 							(GPIO_PIN)120 //120 //23  //120							//J11_pin3 0
+#define OMAC_RXPIN 							(GPIO_PIN)0 //120 //23  //120							//J11_pin3 0
 //#define OMAC_DATARXPIN 	(GPIO_PIN)120 //0 //26	//120 //2					//J12_pin5
 #define OMAC_TIMESYNCREQRXPIN 				(GPIO_PIN)120 //23 //30
 #define DISCO_SYNCRECEIVEPIN 				(GPIO_PIN)120 //25 //120					//J12_PIN2
@@ -445,9 +445,9 @@ J12_PIN10 = GND
 
 //Scheduler Related
 #define SCHED_START_STOP_PIN 				(GPIO_PIN)120 //4
-#define SCHED_RX_EXEC_PIN 					(GPIO_PIN)120 //25 //4
-#define SCHED_TX_EXEC_PIN 					(GPIO_PIN)120 //24 //4
-#define SCHED_DISCO_EXEC_PIN 				(GPIO_PIN)120 //0 //4
+#define SCHED_RX_EXEC_PIN 					(GPIO_PIN)29 //25 //4
+#define SCHED_TX_EXEC_PIN 					(GPIO_PIN)30 //24 //4
+#define SCHED_DISCO_EXEC_PIN 				(GPIO_PIN)31 //0 //4
 #define SCHED_TSREQ_EXEC_PIN 				(GPIO_PIN)120 //23 //4
 #define DATARX_NEXTEVENT 					(GPIO_PIN)120
 #define DATATX_NEXTEVENT 					(GPIO_PIN)120
