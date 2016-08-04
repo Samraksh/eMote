@@ -272,10 +272,8 @@ typedef OFProv<UINT64> OMACTicks;
 //GUARDTIME_MICRO should be calculated in conjuction with SLOT_PERIOD_MILLI
 // GUARDTIME_MICRO = (SLOT_PERIOD_MILLI - PacketTime)/2 - SWITCHING_DELAY_MICRO
 //PacketTime = 125byte * 8 bits/byte / (250*10^3 bits/sec) = 4sec
+#define GUARDTIME_MICRO 500
 #define MILLISECINMICSEC 1000
-#define TICKSINMICSEC 8
-
-#define GUARDTIME_MICRO 200			//compensate for time-sync errors; accounts for the clock drift
 
 
 #define FRAMERETRYMAXATTEMPT 100
@@ -308,18 +306,6 @@ typedef OFProv<UINT64> OMACTicks;
 #define  FAST_RECOVERY 1
 #define  FAST_RECOVERY2 0
 
-#if FAST_RECOVERY
-	#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER 	GUARDTIME_MICRO+GUARDTIME_MICRO+OMAC_TIME_ERROR\
-													+DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX+DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX+DELAY_IN_RECEIVING_ACK\
-														+RETRY_RANDOM_BACKOFF_DELAY_MICRO+RETRY_FUDGE_FACTOR\
-															+RETRANS_DELAY_DUE_TO_MISSING_ACK
-#elif FAST_RECOVERY2
-	#define DELAY_FOR_DETECTION_OF_PCKT 			DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX
-	#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FOR_DETECTION_OF_PCKT //This is the duration used in FastRecovery 2.0
-#else
-	#define DELAY_FOR_DETECTION_OF_PCKT 			DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX
-	#define LISTEN_PERIOD_FOR_RECEPTION_HANDLER     GUARDTIME_MICRO+GUARDTIME_MICRO+DELAY_FOR_DETECTION_OF_PCKT //This is the duration used in FastRecovery 2.0
-#endif
 
 #define ADDITIONAL_TIMEADVANCE_FOR_RECEPTION 500
 
@@ -334,8 +320,9 @@ typedef OFProv<UINT64> OMACTicks;
 #define SEED_UPDATE_INTERVAL_IN_SLOTS 100 //The FRAME SIZE in slots
 
 //#define CCA_REACTION_TIME_MICRO 165 //BK: We need to double check this. This is the reaction time of the CCA module from the beginning of channel activity.
-#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
+//#define CCA_PERIOD_MICRO GUARDTIME_MICRO //BK: We need to double check this. Since 2 nodes will be off by this much. A node should CCA at least this much to make sure there was no other transmitter trying to reach the same destination.
 #define CCA_PERIOD_ERROR 410 //BK: It is observed that CCA is being done more than set by the protocol. This is the observed error on it. It is used in scheduling the tx side this much early
+#define CCA_PERIOD_MICRO 260
 
 //Below 2 values are based on empirical observations made on a debug build
 #define FAST_RECOVERY_WAIT_PERIOD_MICRO 5*MILLISECINMICSEC

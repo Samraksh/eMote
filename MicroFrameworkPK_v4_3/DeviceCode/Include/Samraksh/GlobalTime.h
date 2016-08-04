@@ -19,7 +19,7 @@
 #define UnknownRelativeFreq 255
 
 #define MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION 2
-#define TIME_WALK_STEP (double)(2*GUARDTIME_MICRO*TICKS_PER_MICRO) //BK: This is the search step in Ticks used in FAST_RECOVERY2
+#define TIME_WALK_STEP (double)(200) //BK: This is the search step in Ticks used in FAST_RECOVERY2
 
 typedef UINT8 NeighborIndex_t;
 static const NeighborIndex_t c_bad_nbrIndex = 255;
