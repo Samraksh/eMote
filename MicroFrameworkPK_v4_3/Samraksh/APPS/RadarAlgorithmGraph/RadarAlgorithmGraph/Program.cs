@@ -158,13 +158,16 @@ namespace testchart2
             static int noiseRejectionPassedParameter = 1;
             static int prevIQrejectionValue = IQRejectionToUse;
 
+            static bool fixIQRjections = false;
+            static int IQRejectionToFixTo = 30;
+            static BinaryWriter outPut;
             // NEW
             static int threshold = 3;
             static int detection = 0;
             static int M = 2;
             static int N = 3;
 
-            static int RAW_UNWRAP_RESULT_DATA = 0;
+            static int RAW_UNWRAP_RESULT_DATA = 1;
 
             enum PI
             {
@@ -204,7 +207,15 @@ namespace testchart2
                     for (int i = 0; i < size; i++)
                     {
                         I[i] = r.ReadUInt16();
+                        if (RAW_UNWRAP_RESULT_DATA == 1)
+                        {
+                            outPut.Write(I[i]);
+                        }
                         Q[i] = r.ReadUInt16();
+                        if (RAW_UNWRAP_RESULT_DATA == 1)
+                        {
+                            outPut.Write(Q[i]);
+                        }
 
                         // ADJUSTME
                         //change 10kHz to 250 - read in 39 neglected points
@@ -215,7 +226,7 @@ namespace testchart2
                         }*/
                         if (I[i] > 4096 || Q[i] > 4096)
                         {
-                            System.Diagnostics.Debug.WriteLine(i.ToString() + ": bad value: " + I[i].ToString() + " " + Q[i].ToString());
+                            System.Diagnostics.Debug.WriteLine(i.ToString() + ": bad value: " + I[i].ToString("X") + " " + Q[i].ToString("X"));
                             i--;
                             r.ReadChar();
                         }
@@ -781,8 +792,10 @@ namespace testchart2
                     IQRejectionToUse = 0;
                 else if (IQRejectionToUse > MAX_IQ_REJECTION)
                     IQRejectionToUse = MAX_IQ_REJECTION;
-
-                //IQRejectionToUse = 100;
+                
+                if (fixIQRjections == true){
+                    IQRejectionToUse = IQRejectionToFixTo;
+                }
                 // copying to temp buffer so I don't modify original I/Q buffers in case I want to save them to NOR
                 // ADJUSTME
                 unwrap = calculatePhase(bufferI, bufferQ, bufferUnwrap, length, medianI, medianQ, IQRejectionToUse, 0, 0, 0);
@@ -832,11 +845,11 @@ namespace testchart2
 
 
                 //xHeapTrackInsert(unwrap);
-                System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
+                //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
                 xHeapTrackInsert(crossUnwrappedPhase);
-                //System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
+                System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
             }
@@ -929,17 +942,37 @@ namespace testchart2
                 //fileName = @"..\..\dataCollect\grass near tree.bbs";
                 //string fileName = @"..\..\dataCollect\room1.bbs";
                 //fileName = @"..\..\dataCollect\room2.bbs";
-                //fileName = @"..\..\mofn tests\room 4m walk noise 2.bbs";
-                //fileName = @"..\..\mofn tests\room 4m walk back lobe.bbs";
-                //fileName = @"..\..\mofn tests\room 4m walk noise.bbs";
-               //fileName = @"..\..\mofn tests\tree 1m walk back lobe.bbs";
-                //fileName = @"..\..\mofn tests\tree 1m.bbs";
-                //fileName = @"..\..\mofn tests\under tree 1m walk.bbs";
-                //fileName = @"..\..\mofn tests\family.bbs";
-
-                string outFileName = @"..\..\results.txt";
-
-                StreamWriter outPut = new StreamWriter(outFileName);
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise 2.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m walk back lobe.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\under tree 1m walk.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\family.int";
+                //fileName = @"C:\Work\data\integratedBoard\open grass.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\open room.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\room.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\tree back lobe.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\tree1.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\tree2.bbs";  
+                fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\tree_1.int";
+                //fileName = @"..\..\dataCollect\ib2\bush_1.bbs";
+                //fileName = @"..\..\dataCollect\ib2\bush_2.bbs";
+                //fileName = @"..\..\dataCollect\ib2\open_grass.bbs";
+                if (fileName.Contains(".int"))
+                {
+                    RAW_UNWRAP_RESULT_DATA = 1;
+                }
+                else
+                {
+                    RAW_UNWRAP_RESULT_DATA = 0;
+                }
+                string outFileName = fileName.Substring(0,fileName.Length-4) + ".bbs";
+                if (RAW_UNWRAP_RESULT_DATA == 1)
+                {
+                    FileStream stream = new FileStream(outFileName, FileMode.Create);
+                    outPut = new BinaryWriter(stream);
+                }
 
                 // Create the reader for data.
                 FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
@@ -1039,14 +1072,17 @@ namespace testchart2
                         }
                     }
                     //System.Diagnostics.Debug.WriteLine(unwrapRet.ToString());
-                    outPut.WriteLine(unwrapRet.ToString());
+                    //outPut.WriteLine(unwrapRet.ToString());
                     readPoint += 1;
                     if (detectionRet == true)
                         System.Diagnostics.Debug.WriteLine("*** detection @ " + readPoint.ToString() + " ***");
                 }
                 fs.Close();
                 r.Close();
-                outPut.Close();
+                if (RAW_UNWRAP_RESULT_DATA == 1)
+                {
+                    outPut.Close();
+                }
 
                 // ADJUSTME
                 //this.chart1.Series.Add(normalUnwrapSeries);
