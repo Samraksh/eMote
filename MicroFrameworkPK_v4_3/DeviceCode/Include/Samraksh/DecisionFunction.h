@@ -15,8 +15,10 @@ class DecisionFunction
 	static float feature_min[nFeature];
 	static float scalingFactors[nFeature];
 
-	static float Kernel(UINT32*, INT32*);
+	static float Kernel(UINT32*, UINT32*);
 	static BOOL InitDataStore();
+
+	static UINT32 Bytes_to_UINT32(UINT8*, UINT16);
 
     // Fixed point functions
     static INT32 Double_to_Fixed(double);
@@ -24,8 +26,8 @@ class DecisionFunction
     static double Fixed_to_Double(UINT64);
 
 public:
-	static void Normalize(float*, INT32*);
-	static double Decide(INT32*);
+	static void Normalize(float*, UINT32*);
+	static double Decide(UINT32*);
 };
 
 float DecisionFunction::rho = (float)1.8982;

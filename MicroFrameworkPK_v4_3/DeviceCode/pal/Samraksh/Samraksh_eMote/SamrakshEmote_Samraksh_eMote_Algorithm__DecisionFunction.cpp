@@ -22,13 +22,13 @@ DecisionFunction decisionFunc;
 
 void Algorithm_DecisionFunction::NormalizeFeatureVector( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_float param0, CLR_RT_TypedArray_INT32 param1, HRESULT &hr )
 {
-    decisionFunc.Normalize(param0.GetBuffer(), param1.GetBuffer()); 
+    decisionFunc.Normalize(param0.GetBuffer(), (UINT32*)param1.GetBuffer());
     return;
 }
 
 float Algorithm_DecisionFunction::Decide( CLR_RT_HeapBlock* pMngObj, CLR_RT_TypedArray_INT32 param0, HRESULT &hr )
 {
-    float retVal = decisionFunc.Decide(param0.GetBuffer()); 
+    float retVal = decisionFunc.Decide((UINT32*)param0.GetBuffer());
     return retVal;
 }
 

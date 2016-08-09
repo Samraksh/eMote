@@ -22,7 +22,16 @@ double DecisionFunction::Fixed_to_Double(UINT64 l) {
     return (double)l/_fx_one;
 }
 
-void DecisionFunction::Normalize(float* featureVector, INT32* features_normalized)
+UINT32 DecisionFunction::Bytes_to_UINT32(UINT8* value, UINT16 offset)
+{
+	return (UINT32)(
+		value[0 + offset] << 0 |
+		value[1 + offset] << 8 |
+		value[2 + offset] << 16 |
+		value[3 + offset] << 24);
+}
+
+void DecisionFunction::Normalize(float* featureVector, UINT32* features_normalized)
 {
 	for (UINT8 i = 0; i < nFeature; i++)
 	{
@@ -30,7 +39,7 @@ void DecisionFunction::Normalize(float* featureVector, INT32* features_normalize
 	}
 }
 
-float DecisionFunction::Kernel(UINT32 *sv, INT32* features_normalized)
+float DecisionFunction::Kernel(UINT32 *sv, UINT32* features_normalized)
 {
     float res = 0;
 	UINT64 sum = 0;
@@ -47,21 +56,34 @@ float DecisionFunction::Kernel(UINT32 *sv, INT32* features_normalized)
     return res;
 }
 
-double DecisionFunction::Decide(INT32* features_normalized)
+double DecisionFunction::Decide(UINT32* features_normalized)
 {
 	double decision = -rho;
-	RECORD_ID rId = 1;
 	
 	InitDataStore();
-	LPVOID givenPtr = g_dataStoreObject.getAddress(rId); // Hopefully the indexing is corrent, since I wrote at dataRefArray[0] in C#
-	UINT32 sv1row[nFeature];
+	//Assuming that the support vector is always written to the first block in datastore
+	UINT32 sv1row[nFeature] = {0};
+	UINT8 sv1row_bytes[nFeature * sizeof(UINT32)] = {0};
+	ushort dataIdOffset = 0;
+	ushort arrayLength = 1;
+	UINT32 dataIDArray[arrayLength] = {0};
+	g_dataStoreObject.getRecordIDAfterPersistence(dataIDArray, arrayLength, dataIdOffset);
+	LPVOID givenPtr = g_dataStoreObject.getAddress(dataIDArray[0]);
 
 	if (givenPtr)
 	{
 		for (UINT16 i = 0; i < nSV; i++)
 		{
-			g_dataStoreObject.readRawData(givenPtr, (void*)sv1row, i*nFeature, nFeature);
+			g_dataStoreObject.readRawData(givenPtr, (void*)sv1row_bytes, i*nFeature*sizeof(UINT32), nFeature*sizeof(UINT32));
+			UINT16 offset = 0;
+			for (UINT8 i = 0; i < nFeature; i++)
+			{
+				sv1row[i] = Bytes_to_UINT32(sv1row_bytes, offset);
+				offset += sizeof(UINT32);
+			}
 			decision += weight[i] * Kernel(sv1row, features_normalized);
+			sv1row[nFeature] = {0};
+			sv1row_bytes[nFeature * sizeof(UINT32)] = {0};
 		}
 	}
 	else
@@ -81,3 +103,5 @@ BOOL DecisionFunction::InitDataStore()
 		return false;
 	}
 }
+
+
