@@ -14,7 +14,7 @@ namespace Samraksh.eMote.Net.MAC
         /// <param name="ccaSenseTime">Time (in milliseconds) to check for clear channel</param>
         /// <param name="bufferSize">Send buffer size</param>
         /// <param name="neighborLivenessDelay">Timeout (in milliseconds) to declare neighbor dead</param>
-        public CSMA(IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 180, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true, byte ccaSenseTime = 120)
+        public CSMA(IRadioConfiguration radioConfiguration, uint neighborLivenessDelay = 180 * 1000, byte numberOfRetries = 0, byte bufferSize = 8, bool cca = true, byte ccaSenseTime = 120)
             : base(MACType.CSMA, radioConfiguration, neighborLivenessDelay, numberOfRetries, bufferSize, cca, ccaSenseTime)
         {
         }
