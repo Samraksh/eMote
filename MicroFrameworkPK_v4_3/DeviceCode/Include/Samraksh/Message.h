@@ -278,7 +278,7 @@ typedef class IEEE802_15_4_Metadata{
 
   public:
 	void ClearData(){
-		RetryAttempts = 0;
+		RetryAttempts = 0;	//Retry attempt per packet
 		ReceiveTimeStamp1 = 0;
 		ReceiveTimeStamp0 = 0;
 		Lqi = 0;
