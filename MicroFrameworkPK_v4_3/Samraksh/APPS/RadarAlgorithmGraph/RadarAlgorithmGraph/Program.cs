@@ -22,6 +22,17 @@ namespace testchart2
         [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern void xResetHeapTrack(int nItems);
 
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int yTest(int a);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int yHeapTrackNew(int nItems);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void yHeapTrackInsert(int v);
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int yHeapTrackMedian();
+        [DllImport(@"..\..\meanTrackerDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void yResetHeapTrack(int nItems);
+
         public class FakeChartForm1 : Form
         {
 
@@ -159,7 +170,7 @@ namespace testchart2
             static int prevIQrejectionValue = IQRejectionToUse;
 
             static bool fixIQRjections = false;
-            static int IQRejectionToFixTo = 30;
+            static int IQRejectionToFixTo = 60;
             static BinaryWriter outPut;
             // NEW
             static int threshold = 3;
@@ -167,7 +178,7 @@ namespace testchart2
             static int M = 2;
             static int N = 3;
 
-            static int RAW_UNWRAP_RESULT_DATA = 1;
+            static int RAW_UNWRAP_RESULT_DATA = 0;
 
             enum PI
             {
@@ -186,6 +197,15 @@ namespace testchart2
             static int prevQ = 0, prevI = 0;
             static int prevQMax = 0, prevIMax = 0;
             static int prevQZero = 0, prevIZero = 0;
+
+            static int dataCntMax = 3750;
+            static int dataCnt = 0;
+            static ushort[] radarMedian = new ushort[dataCntMax];
+            static ushort[] radarQMedian = new ushort[dataCntMax];
+            static ushort[] radarIMedian = new ushort[dataCntMax];
+
+            static int ADJUST_RADAR_MEDIAN = 1;
+            static double adjustmentParameter = 0.85;
 
             static int size = 128;
             static UInt16 medianI = 2040;
@@ -230,7 +250,7 @@ namespace testchart2
                             i--;
                             r.ReadChar();
                         }
-                        //System.Diagnostics.Debug.WriteLine(i.ToString() + ": " + I[i].ToString() + " " + Q[i].ToString());
+                        //System.Diagnostics.Debug.WriteLine(i.ToString() + ": " + I[i].ToString() + " " + Q[i].ToString() + " " + Math.Sqrt(I[i]*2 + Q[i]*2).ToString());
                     }
                     return true;
                 }
@@ -722,19 +742,42 @@ namespace testchart2
             #region main
             static int processPhase(UInt16[] bufferI, UInt16[] bufferQ, Int32 length, System.Windows.Forms.DataVisualization.Charting.Series normalUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series approxUnwrapSeries, System.Windows.Forms.DataVisualization.Charting.Series crossSeries, System.Windows.Forms.DataVisualization.Charting.Series detectionSeries)
             {
+                
                 //bool detection = false;
+                ushort medianQData=0;
                 int unwrap;
                 //Int32 backgroundDisplacementNoise = 0;
                 Int32 currentDisplacementNoise = 0;
                 //Int32 currentRadarNoise = 0;
                 UInt16[] bufferUnwrap = new UInt16[size];
 
-
+                dataCnt++;
                 // Find median I
                 medianI = findMedian(bufferI, length);
                 // Find median Q
                 medianQ = findMedian(bufferQ, length);
+                // tracking the raw I/Q radar median. To save time I just use one data point each pass
+                medianQData = (ushort)Math.Abs((bufferQ[0] - medianQ));
+                yHeapTrackInsert(medianQData * 2);           
+                /*if (dataCnt < dataCntMax)
+                {
+                    double v1 = (bufferI[100] - medianI) * (bufferI[100] - medianI);
+                    double v2 = (bufferQ[100] - medianQ) * (bufferQ[100] - medianQ);
+                    double answer = Math.Sqrt(v1 + v2);
+                    //System.Diagnostics.Debug.WriteLine(dataCnt.ToString() + " " + answer.ToString() + " " + v1.ToString() + " " + v2.ToString() + " " + Math.Abs((bufferI[100] - medianI)).ToString() + " " + Math.Abs((bufferQ[100] - medianQ)).ToString());
+                    radarMedian[dataCnt] = (ushort)answer;
+                    radarQMedian[dataCnt] = (ushort)Math.Abs((bufferQ[100] - medianQ));
+                    radarIMedian[dataCnt] = (ushort)Math.Abs((bufferI[100] - medianI));
+                }
+                else
+                {
+                    ushort medianData = findMedian(radarMedian, dataCntMax);
+                    medianQData = findMedian(radarQMedian, dataCntMax);
+                    ushort medianIData = findMedian(radarIMedian, dataCntMax);
+                    //System.Diagnostics.Debug.WriteLine(dataCnt.ToString() + " " + medianData.ToString() + " " + medianQData.ToString() + " " + medianIData.ToString());
+                }*/
                 //System.Diagnostics.Debug.WriteLine("old median: " + medianI.ToString() + " " + medianQ.ToString());
+
                 /*// Find median I
                 qsmedianI = quick_select(bufferI, length);
                 // Find median Q
@@ -747,46 +790,54 @@ namespace testchart2
                 //backgroundDisplacementNoise = HeapTrackMedian(unwrapMedianZero);
                 currentDisplacementNoise = xHeapTrackMedian();
                 //currentRadarNoise = HeapTrackMedian(radarQ);
-                if (initialAdjustmentCnt > 0)
+                if (ADJUST_RADAR_MEDIAN == 1)
                 {
-                    // this section will make large initial adjustments to the IQ rejection parameter
-                    initialAdjustmentCnt--;
-                    // we'll only make adjustments every INITIAL_ADJUST_SAMPLE_CNT samples
-                    if ((initialAdjustmentCnt % INITIAL_ADJUST_SAMPLE_CNT) == 0)
-                    {
-                        if (currentDisplacementNoise < (noiseRejectionPassedParameter))
-                            IQRejectionToUse = IQRejectionToUse - 10;
-                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
-                            IQRejectionToUse = IQRejectionToUse + 10;
-                        else
-                            // we are close enough to where we want to be so the initial large adjustment period is over
-                            initialAdjustmentCnt = 0;
-                        xResetHeapTrack(300);
-                        System.Diagnostics.Debug.WriteLine("--------------------------------------" + initialAdjustmentCnt.ToString());
-                    }
-                }
-                else
+                    System.Diagnostics.Debug.WriteLine(yHeapTrackMedian().ToString());
+                    IQRejectionToUse = (int)((double)yHeapTrackMedian() * adjustmentParameter);                    
+                    
+                } else
                 {
-                    // this section will make small adjustments every IQ_ADJUSTMENT_PERIOD
-                    adjustmentIQPeriod--;
-                    // only adjusted every IQ_ADJUSTMENT_PERIOD calls
-                    if (adjustmentIQPeriod <= 0)
+                    if (initialAdjustmentCnt > 0)
                     {
-                        if (currentDisplacementNoise < (noiseRejectionPassedParameter))
-                            IQRejectionToUse--;
-                        else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
-                            IQRejectionToUse++;
-                        adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
-
-                        // NEW
-                        if (IQRejectionToUse == prevIQrejectionValue)
+                        // this section will make large initial adjustments to the IQ rejection parameter
+                        initialAdjustmentCnt--;
+                        // we'll only make adjustments every INITIAL_ADJUST_SAMPLE_CNT samples
+                        if ((initialAdjustmentCnt % INITIAL_ADJUST_SAMPLE_CNT) == 0)
                         {
-                            //IQRejectionToUse++;
-                            IQRejectionToUse += 2;
+                            if (currentDisplacementNoise < (noiseRejectionPassedParameter))
+                                IQRejectionToUse = IQRejectionToUse - 10;
+                            else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
+                                IQRejectionToUse = IQRejectionToUse + 10;
+                            else
+                                // we are close enough to where we want to be so the initial large adjustment period is over
+                                initialAdjustmentCnt = 0;
+                            xResetHeapTrack(300);
+                            System.Diagnostics.Debug.WriteLine("--------------------------------------" + initialAdjustmentCnt.ToString());
                         }
-                        prevIQrejectionValue = IQRejectionToUse;
                     }
-                }
+                    else
+                    {
+                        // this section will make small adjustments every IQ_ADJUSTMENT_PERIOD
+                        adjustmentIQPeriod--;
+                        // only adjusted every IQ_ADJUSTMENT_PERIOD calls
+                        if (adjustmentIQPeriod <= 0)
+                        {
+                            if (currentDisplacementNoise < (noiseRejectionPassedParameter))
+                                IQRejectionToUse--;
+                            else if (currentDisplacementNoise > (noiseRejectionPassedParameter))
+                                IQRejectionToUse++;
+                            adjustmentIQPeriod = IQ_ADJUSTMENT_PERIOD;
+
+                            // NEW
+                            if (IQRejectionToUse == prevIQrejectionValue)
+                            {
+                                //IQRejectionToUse++;
+                                IQRejectionToUse += 2;
+                            }
+                            prevIQrejectionValue = IQRejectionToUse;
+                        }
+                    }
+                } 
                 // capping the noise rejection to a max or min
                 if (IQRejectionToUse < 0)
                     IQRejectionToUse = 0;
@@ -839,6 +890,9 @@ namespace testchart2
                 {
                     detection = 0;
                 }
+                if (crossUnwrappedPhase >= 2 * threshold)
+                    detection = 10;
+
                 detectionSeries.Points.AddXY(plotPt, detection);
                 //if (debugVal == 6)
                 //    hal_printf("%d %d %d %d %d %d %d\r\n", getUnwrapMax(), unwrap, getUnwrapZero(), HeapTrackMedian(unwrapMedianMax), HeapTrackMedian(unwrapMedian), HeapTrackMedian(unwrapMedianZero), IQRejectionToUse);
@@ -848,7 +902,7 @@ namespace testchart2
                 //System.Diagnostics.Debug.WriteLine(unwrap.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString());
 
                 plotPt++;
-                xHeapTrackInsert(crossUnwrappedPhase);
+                xHeapTrackInsert(crossUnwrappedPhase);                     
                 System.Diagnostics.Debug.Write(crossUnwrappedPhaseZero.ToString() + " " + crossUnwrappedPhase.ToString() + " " + crossUnwrappedPhaseMax.ToString() + " " + xHeapTrackMedian().ToString() + " " + IQRejectionToUse.ToString() + "   ");
 
                 return unwrap;
@@ -911,7 +965,7 @@ namespace testchart2
                 };
 
                 UInt16[] IBuffer, QBuffer;
-                System.Diagnostics.Debug.WriteLine("size of table: " + arcTan.Length);
+                //System.Diagnostics.Debug.WriteLine("size of table: " + arcTan.Length);
                 bool detectionRet = false;
                 int unwrapRet = 0;
 
@@ -920,7 +974,9 @@ namespace testchart2
                 int readPoint = 0;
 
                 xHeapTrackNew(300);
+                yHeapTrackNew(300);
                 xHeapTrackInsert(0);
+                yHeapTrackInsert(0);
 
                 mOfnCounter = new Counter();
                 mOfnDetector = new MoutOfNDetector();
@@ -937,13 +993,14 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\noise 56ce(4693-05).bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
-                fileName = @"..\..\recorded.bbs";
+                //fileName = @"..\..\recorded.bbs";
                 //fileName = @"..\..\office_noise.bbs";
-                //fileName = @"..\..\dataCollect\grass near tree.bbs";
+                //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
+                //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
                 //string fileName = @"..\..\dataCollect\room1.bbs";
                 //fileName = @"..\..\dataCollect\room2.bbs";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise 2.int";
-                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
+                fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m.int";
@@ -953,12 +1010,11 @@ namespace testchart2
                 //fileName = @"C:\Work\data\integratedBoard\open room.bbs";
                 //fileName = @"C:\Work\data\integratedBoard\room.bbs";
                 //fileName = @"C:\Work\data\integratedBoard\tree back lobe.bbs";
-                //fileName = @"C:\Work\data\integratedBoard\tree1.bbs";
+                //fileName = @"C:\Work\data\integratedBoard\tree1.int";
                 //fileName = @"C:\Work\data\integratedBoard\tree2.bbs";  
-                fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\tree_1.int";
-                //fileName = @"..\..\dataCollect\ib2\bush_1.bbs";
-                //fileName = @"..\..\dataCollect\ib2\bush_2.bbs";
-                //fileName = @"..\..\dataCollect\ib2\open_grass.bbs";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\tree_1.int";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\bush_1.int";
+                //fileName = @"D:\Work\radar\data collects\wild life node 6-13\8-4 noise tests\open_grass.int";
                 if (fileName.Contains(".int"))
                 {
                     RAW_UNWRAP_RESULT_DATA = 1;
