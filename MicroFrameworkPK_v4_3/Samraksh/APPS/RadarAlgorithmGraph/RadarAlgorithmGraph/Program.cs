@@ -994,13 +994,14 @@ namespace testchart2
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\test05.bbs";
                 //fileName = @"D:\Users\Chris\Documents\Visual Studio 2013\Projects\RadarAlgorithmGraph\RadarAlgorithmGraph\i40-60 walk.bbs";
                 //fileName = @"..\..\recorded.bbs";
+                fileName = @"..\..\recorded.int";
                 //fileName = @"..\..\office_noise.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\grass near tree.bbs";
                 //fileName = @"E:\RadarAlgorithmGraph\RadarAlgorithmGraph\dataCollect\room1.bbs";
                 //string fileName = @"..\..\dataCollect\room1.bbs";
                 //fileName = @"..\..\dataCollect\room2.bbs";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise 2.int";
-                fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
+                //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\room 4m walk noise.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m walk back lobe.int";
                 //fileName = @"D:\Work\radar\data collects\wwf-test-03 board\mofn tests\tree 1m.int";

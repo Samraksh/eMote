@@ -26,7 +26,8 @@ namespace RadarDataLogging
                 System.Diagnostics.Debug.WriteLine("failed to open serial port: " + ex.ToString());
                 return;
             }
-            string outFileName = @"..\..\..\..\RadarAlgorithmGraph\RadarAlgorithmGraph\recorded.bbs";
+            string outFileName = @"..\..\..\..\RadarAlgorithmGraph\RadarAlgorithmGraph\recorded.int";
+            //string outFileName = @"..\..\..\..\RadarAlgorithmGraph\RadarAlgorithmGraph\recorded.bbs";
 
             FileStream fs = new FileStream(outFileName, FileMode.Create, FileAccess.Write);
             BinaryWriter binWriter = new BinaryWriter(fs);
