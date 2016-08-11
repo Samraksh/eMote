@@ -21,6 +21,7 @@ static HeapTrack* unwrapMedian;
 static HeapTrack* unwrapMedianZero;
 static HeapTrack* unwrapMedianMax;
 static HeapTrack* radarQ;
+static HeapTrack* medianRawQ;
 using namespace Samraksh::eMote;
 static double threshold;
 static double noiseRejectionPassedParameter;
@@ -51,7 +52,8 @@ enum RADAR_NOISE_CONTROL
 	FIXED_NOISE_REJECTION,
 	SCALING_NOISE_REJECTION_ADD,
 	SCALING_NOISE_REJECTION_MULTIPLY,
-	SCALING_NOISE_REJECTION_TARGET
+	SCALING_NOISE_REJECTION_TARGET,
+	SCALING_NOISE_REJECTION_RAW_RADAR
 };
 
 enum RADAR_NOISE_REQUEST
@@ -136,6 +138,8 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 	// Find median Q
 	medianQ = findMedian(bufferQ, length);
 	HeapTrackInsert(radarQ,medianQ);
+	// instead of tracking the median of IQ, we just use Q
+	HeapTrackInsert(medianRawQ,(abs(bufferQ[0]-medianQ)*2));
 
 	backgroundDisplacementNoise = HeapTrackMedian(unwrapMedianZero);
 	currentDisplacementNoise = HeapTrackMedian(unwrapMedian);
@@ -192,6 +196,8 @@ INT8 processPhase(UINT16* bufferI, UINT16* bufferQ, UINT16* bufferUnwrap, INT32 
 			IQRejectionToUse = 0;
 		else if (IQRejectionToUse > MAX_IQ_REJECTION)
 			IQRejectionToUse = MAX_IQ_REJECTION;
+	} else if (radarNoiseCtrl == SCALING_NOISE_REJECTION_RAW_RADAR){
+		IQRejectionToUse = (int)((double)HeapTrackMedian(medianRawQ)*noiseRejectionPassedParameter);
 	} else {
 		// radarNoiseCtrl == FIXED_NOISE_REJECTION
 		IQRejectionToUse = noiseRejectionPassedParameter;
@@ -250,11 +256,13 @@ INT8 Algorithm_RadarDetection::Initialize( CLR_RT_HeapBlock* pMngObj, HRESULT &h
 		unwrapMedianZero = HeapTrackNew(300);
 		unwrapMedianMax = HeapTrackNew(300);
 		radarQ = HeapTrackNew(300);
+		medianRawQ = HeapTrackNew(300);
 		initialized = true;
 		HeapTrackInsert(unwrapMedian,0);
 		HeapTrackInsert(unwrapMedianZero,0);
 		HeapTrackInsert(unwrapMedianMax,0);
 		HeapTrackInsert(radarQ,0);
+		HeapTrackInsert(medianRawQ,0);
 		initialAdjustmentCnt = INITIAL_ADJUSTMENT_SAMPLE_CNT;
 	}
 
