@@ -885,7 +885,7 @@ Message_15_4_t* OMACType::FindFirstSyncedNbrMessage(){
  */
 UINT8 OMACType::UpdateNeighborTable(){
 	UINT8 index;
-	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(MyConfig.NeighborLivenessDelay, m_Clock.GetCurrentTimeinTicks());
+	UINT8 numberOfDeadNeighbors = g_NeighborTable.UpdateNeighborTable(m_Clock.ConvertMicroSecstoTicks(MyConfig.NeighborLivenessDelay * 1000000), m_Clock.GetCurrentTimeinTicks());
 	if(numberOfDeadNeighbors > 0)
 	{
 		for(UINT8 i =0; i < MAX_NBR; ++i){
