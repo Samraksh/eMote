@@ -432,12 +432,17 @@ enum TRAC_STATUS
 
 class RF231Radio : public Radio<Message_15_4_t>
 {
+	// Constant node id defined by macro NODE_ID
+	static const UINT32 kNodeId 	=	 NODE_ID;
+
 	// Pin Definitions for the state control pins declared by macros
 	GPIO_PIN kslpTr;
 	GPIO_PIN krstn;
 	GPIO_PIN kseln;
 
 	GPIO_PIN kinterrupt;
+
+	INT32 radioType;
 
 	// Stores the configuration of the spi
 	SPI_CONFIGURATION config;
@@ -450,14 +455,22 @@ class RF231Radio : public Radio<Message_15_4_t>
 	UINT8 tx_power;
 	UINT8 channel;
 
+	// Time when the last interrupt was captured
+	// TODO : Explain why this is needed
+	UINT16 captured_time;
+
 	// Record rssi values
+	volatile UINT8 rssi_clear;
 	volatile UINT8 rssi_busy;
 
 	// Contains the length of the message that will be transmitted
 	UINT8 length;
+	// Pointer to the data
+	//UINT8 data[30];
 
 	// Receive length and data, could have used the same as above, but trying to avoid unnecessary confusion
 	volatile UINT8 rx_length;
+	UINT8* rx_data;
 	volatile INT64 receive_timestamp;
 
 	UINT16 active_mac_index;
@@ -471,6 +484,12 @@ class RF231Radio : public Radio<Message_15_4_t>
 	volatile BOOL sleep_pending;
 
 	volatile UINT8 tx_length;
+
+	// Recieve Message Buffer
+	UINT8 rx_msg[sizeof(Message_15_4_t)];
+
+	// Send message buffer
+	UINT8 tx_msg[sizeof(Message_15_4_t)];
 
 	// Initialize the rstn, seln and slptr pins
 	BOOL GpioPinInitialize();
@@ -529,6 +548,11 @@ private:
 	UINT8 RF231_extended_mode;
 
 public:
+    UINT8* GetRxMsgBuffer()
+    {
+    	return rx_msg;
+    }
+
     DeviceStatus ChangeState();
     // Indicates whether the message has been loaded into the frame buffer or not
     volatile BOOL message_status;
