@@ -356,9 +356,11 @@ INT32 Algorithm_RadarDetection::GetBackgroundNoiseLevel( CLR_RT_HeapBlock* pMngO
 		return HeapTrackMedian(unwrapMedianZero);
 	} else if (param0 == IQ_REJECTION_MAX){
 		return HeapTrackMedian(unwrapMedianMax);
-	} else {
-		// param0 == IQ_REJECTION_CURRENTLY_USED
+	} else if (param0 == IQ_REJECTION_CURRENTLY_USED){
 		return HeapTrackMedian(unwrapMedian);
+	} else {
+		// param0 == RADAR_Q
+		return HeapTrackMedian(radarQ);
 	}		
 }
 
@@ -367,6 +369,7 @@ INT8 Algorithm_RadarDetection::ResetBackgroundNoiseTracking( CLR_RT_HeapBlock* p
     ResetHeapTrack(unwrapMedian, 300);
 	ResetHeapTrack(unwrapMedianZero, 300);
 	ResetHeapTrack(unwrapMedianMax, 300);		 
+	ResetHeapTrack(radarQ, 300);
     return true;
 }
 
