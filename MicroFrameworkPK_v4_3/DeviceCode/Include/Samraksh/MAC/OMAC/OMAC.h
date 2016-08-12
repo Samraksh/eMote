@@ -10,8 +10,10 @@
 #define OMAC_H_
 
 //#define TWO_NODES_TX_RX
-//#define OMAC_DEBUG_GPIO
+#define OMAC_DEBUG_GPIO
 //#define OMAC_DEBUG_PRINTF
+
+
 #if defined(TWO_NODES_TX_RX)
 
 #define def_Neighbor2beFollowed
@@ -21,12 +23,12 @@
 //#define RXNODEID 20181
 */
 //Bora's Nodes
-//#define TXNODEID 30906
+#define TXNODEID 30906
 //#define TXNODEID 4028
-//#define RXNODEID 32696
+#define RXNODEID 32696
 // Ananth's Nodes
-#define TXNODEID 3505
-#define RXNODEID 6846
+//#define TXNODEID 3505
+//#define RXNODEID 6846
 #endif
 
 #include <Samraksh/MAC.h>
@@ -87,13 +89,15 @@ class OMACType: public MAC<Message_15_4_t, MACConfig>{
 
 	//Protocol variables
 	//-------------------------------
-	//const UINT16 GUARDTIME_MICRO = 500;
+	static const UINT16 GUARDTIME_MICRO_OMAC = GUARDTIME_MICRO;
 	static const UINT16 OMAC_TIME_ERROR = 3*MILLISECINMICSEC;
 	static const UINT16 DELAY_FROM_OMAC_TX_TO_RADIO_DRIVER_TX = 300;
 	static const UINT16 DELAY_FROM_RADIO_DRIVER_TX_TO_RADIO_DRIVER_RX = 284;
-	static const UINT16 DELAY_DUE_TO_CCA_MICRO = 260;
+	static const UINT16 DELAY_DUE_TO_CCA_MICRO = CCA_PERIOD_MICRO;
+private:
 	static const UINT16 RETRY_FUDGE_FACTOR = 0.3*MILLISECINMICSEC;
 
+  private:
 	UINT16 RETRY_RANDOM_BACKOFF_DELAY_MICRO;
 	UINT16 RETRANS_DELAY_DUE_TO_MISSING_ACK;
 	UINT16 DELAY_IN_RECEIVING_ACK;

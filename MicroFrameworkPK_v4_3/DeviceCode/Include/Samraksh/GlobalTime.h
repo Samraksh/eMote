@@ -19,7 +19,7 @@
 #define UnknownRelativeFreq 255
 
 #define MIN_NUM_ELEMENTS_FOR_TIME_CALCULATION 2
-#define TIME_WALK_STEP (double)(2*GUARDTIME_MICRO*TICKS_PER_MICRO) //BK: This is the search step in Ticks used in FAST_RECOVERY2
+#define TIME_WALK_STEP (double)(200) //BK: This is the search step in Ticks used in FAST_RECOVERY2
 
 typedef UINT8 NeighborIndex_t;
 static const NeighborIndex_t c_bad_nbrIndex = 255;
@@ -209,6 +209,15 @@ private:
 		samples[nbrIndex].y_intercept = sum_y/((double)numSamples) - sum_x/((double)numSamples) * samples[nbrIndex].relativeFreq;
 
 		samples[nbrIndex].additional_y_intercept_offset = 0;
+
+		if(samples[nbrIndex].relativeFreq < 0.9 || samples[nbrIndex].relativeFreq > 1.1){ //Reject last received samples
+			UINT8 previoustolastindex;
+			if(samples[nbrIndex].lastTimeIndex == 0) 	previoustolastindex = MAX_SAMPLES - 1;
+			else 										previoustolastindex = samples[nbrIndex].lastTimeIndex -1;
+			samples[nbrIndex].recordedTime[samples[nbrIndex].lastTimeIndex] = samples[nbrIndex].recordedTime[previoustolastindex];
+			samples[nbrIndex].offsetBtwNodes[samples[nbrIndex].lastTimeIndex] = samples[nbrIndex].offsetBtwNodes[previoustolastindex];
+		}
+
 	}
 
 public:
