@@ -59,6 +59,9 @@ static SI446X_pin_setup_t SI446X_pin_setup;
 static volatile uint32_t spi_lock;
 static volatile uint32_t radio_lock;
 
+// static prototypes
+static int convert_rssi(uint8_t x);
+
 // CMSIS includes these functions in some form
 // But they didn't quite work for me and I didn't want to mod library so... --NPS
 static uint32_t ___LOAD(volatile uint32_t *addr) __attribute__ ((naked));
@@ -287,6 +290,7 @@ static void rx_cont_do(void *arg) {
 	int size;
 	radio_lock_id_t owner;
 	uint8_t rssi;
+	int16_t freq_error;
 
 	si446x_debug_print(DEBUG02,"SI446X: rx_cont_do()\r\n");
 
@@ -326,12 +330,15 @@ static void rx_cont_do(void *arg) {
 	si446x_get_modem_status( 0xFF ); // Refresh RSSI
 
 	rssi = si446x_get_latched_rssi();
+	freq_error = si446x_get_afc_info();
 
 	si446x_fifo_info(0x3); // Defensively reset FIFO
 	si446x_change_state(SI_STATE_SLEEP); // All done, sleep.
 
 	si446x_radio_unlock();
 	si446x_spi_unlock();
+
+	si446x_debug_print(DEBUG02,"SI446X: rx_cont_do(): Pkt RSSI: %d dBm Freq_Error: %d Hz\r\n", convert_rssi(rssi), freq_error);
 
 	if (rx_msg_ptr == NULL) return; // Nothing left to do.
 

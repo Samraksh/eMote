@@ -160,6 +160,7 @@ uint8_t si446x_get_modem_pend();
 uint8_t si446x_get_chip_pend();
 uint8_t si446x_get_modem_status();
 uint8_t si446x_get_chip_status();
+int 	si446x_get_afc_info(void);
 void si446x_start_rx_fast_channel(uint8_t CHANNEL);
 void si446x_start_tx_fast_channel(uint8_t CHANNEL);
 si_state_t si446x_request_device_state_shadow(void);
