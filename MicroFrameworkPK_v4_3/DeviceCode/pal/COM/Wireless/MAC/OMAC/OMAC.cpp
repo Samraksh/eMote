@@ -891,10 +891,10 @@ UINT8 OMACType::UpdateNeighborTable(){
 	{
 		for(UINT8 i =0; i < MAX_NBR; ++i){
 			if(INVALID_NBR_ID != g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID){
-				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){
+				if( g_NeighborTable.FindIndex( g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID, &index) != DS_Success){ //If it does not exist in the neighbortable, delete from the time entires from globalTime Table
 				 	 g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 				}
-				else if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){
+				else if(g_NeighborTable.Neighbor[index].neighborStatus != Alive){ //If it exists in the neighbortable but marked as not alive, delete from the time entires from globalTime Table
 					g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.Clean(g_OMAC.m_omac_scheduler.m_TimeSyncHandler.m_globalTime.regressgt2.samples[i].nbrID);
 				}
 			}
