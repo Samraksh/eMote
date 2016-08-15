@@ -15,8 +15,10 @@ namespace Samraksh.eMote
         SCALING_NOISE_REJECTION_ADD,
         /// <summary>The noise rejection parameter will be the product of the background noise times the parameter noiseRejection.</summary>
         SCALING_NOISE_REJECTION_MULTIPLY,
-        /// <summary>The noise rejection parameter will adjusted untl we reach the specified background noise of the noiseRejection parameter.</summary>
-        SCALING_NOISE_REJECTION_TARGET
+        /// <summary>The noise rejection parameter will adjusted until we reach the specified background noise of the noiseRejection parameter.</summary>
+        SCALING_NOISE_REJECTION_TARGET,
+        /// <summary>The noise rejection parameter will adjusted based on the median of the raw radar values.</summary>
+        SCALING_NOISE_REJECTION_RAW_RADAR
     };
 
     /// <summary>

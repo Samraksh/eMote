@@ -136,7 +136,7 @@ public:
 		}
 
 		UINT8 TempAppIdIndex = GetAppIdIndex();
-		hal_printf("SetAppHandlers %u\n", TempAppIdIndex);
+		//hal_printf("SetAppHandlers %u\n", TempAppIdIndex);
 		if(TempAppIdIndex >= MAX_APPS){
 			return FALSE;
 		}
