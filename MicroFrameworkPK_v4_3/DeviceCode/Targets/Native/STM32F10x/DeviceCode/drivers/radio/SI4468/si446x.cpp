@@ -39,6 +39,8 @@ static uint8_t ph_pend;
 static uint8_t modem_pend;
 static uint8_t chip_pend;
 
+static int16_t freq_offset; // frequency offset info from AFC, if on.
+
 // Buffers
 static union si446x_cmd_reply_union Si446xCmd; // Reply Buffer
 static uint8_t Pro2Cmd[16]; // Tx Command Buffer
@@ -88,6 +90,13 @@ static int SI_ASSERT(int x, const char *err) {
 }
 
 // SI446x
+
+// Returns measured offset error reported by AFC.
+// Refer to AN734 section 4.7
+int si446x_get_afc_info(void) {
+	const int unit = 16000000 / 262144 / 8;
+	return freq_offset * unit;
+}
 
 uint8_t si446x_get_latched_rssi() {
 	return latched_rssi;
@@ -375,7 +384,8 @@ void si446x_get_modem_status( uint8_t MODEM_CLR_PEND )
     Si446xCmd.GET_MODEM_STATUS.ANT2_RSSI    = Pro2Cmd[5];
     Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET =  ((U16)Pro2Cmd[6] << 8) & 0xFF00;
     Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET |= (U16)Pro2Cmd[7] & 0x00FF;
-	
+
+	freq_offset = (int16_t) Si446xCmd.GET_MODEM_STATUS.AFC_FREQ_OFFSET;
 	latched_rssi = Si446xCmd.GET_MODEM_STATUS.LATCH_RSSI;
 	current_rssi = Si446xCmd.GET_MODEM_STATUS.CURR_RSSI;
 }
